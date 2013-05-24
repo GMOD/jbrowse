@@ -13,6 +13,12 @@ return declare( Destroyable, {
         var nodeArgs = this.node || {};
         delete this.node;
         this.domNode = dojo.create( 'div', nodeArgs );
+
+        if( /[^\d-]/.test( this.startBase ) )
+            throw 'invalid startBase';
+        if( /[^\d-]/.test( this.endBase ) )
+            throw 'invalid endBase';
+
     },
 
     bpToX: function( coord ) {

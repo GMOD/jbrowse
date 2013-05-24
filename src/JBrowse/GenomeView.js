@@ -1,11 +1,15 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/dom-construct',
            'JBrowse/Util',
            'JBrowse/has',
            'dojo/dnd/move',
            'dojo/dnd/Source',
            'dijit/focus',
+           'dijit/form/ComboBox',
+           'dijit/form/Button',
+           'dijit/form/Select',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
@@ -15,11 +19,15 @@ define([
        ], function(
            declare,
            array,
+           domConstruct,
            Util,
            has,
            dndMove,
            dndSource,
            dijitFocus,
+           dijitComboBox,
+           dijitButton,
+           dijitSelectBox,
            LocationScaleTrack,
            GridLinesTrack,
            BehaviorManager,
@@ -29,19 +37,6 @@ define([
        ) {
 
 var dojof = Util.dojof;
-
-// weird subclass of dojo dnd constrained mover to make the location
-// thumb behave better
-var locationThumbMover = declare( dndMove.constrainedMoveable, {
-        constructor: function(node, params){
-                this.constraints = function(){
-                        var n = this.node.parentNode,
-                        mb = dojo.marginBox(n);
-                        mb.t = 0;
-                        return mb;
-                 };
-        }
-});
 
 /**
  * Main view class, shows a scrollable, horizontal view of annotation
@@ -54,9 +49,16 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     // keep a reference to the main browser object
     this.browser = browser;
     //the page element that the GenomeView lives in
-    this.elem = elem;
+    this.navbox = this.createNavBox( elem );
 
-    this.posHeight = this.calculatePositionLabelHeight( elem );
+    // this.elem = elem;
+    // elem.className = 'dragWindow';
+
+    this.elem = domConstruct.create('div', {
+        className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
+    }, elem );
+
+    this.posHeight = this.calculatePositionLabelHeight( this.elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = 1.5 * this.posHeight;
@@ -78,11 +80,11 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.scrollContainer = dojo.create(
         'div', {
             id: 'container',
-            style: { position: 'absolute',
-                     left: '0px',
-                     top: '0px'
+            style: { position: 'relative',
+                     // left: '0px',
+                     // top: '0px'
                    }
-        }, elem
+        }, this.elem
     );
 
     this._renderVerticalScrollBar();
@@ -111,9 +113,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     //width, in pixels, of stripes at full zoom, is 10bp
     this.fullZoomStripe = stripeWidth/10 * this.maxPxPerBp;
-
-    this.overview = this.browser.overviewDiv;
-    this.overviewBox = dojo.marginBox(this.overview);
 
     this.tracks = [];
     this.uiTracks = [];
@@ -145,14 +144,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.waitElems = dojo.filter( [ dojo.byId("moveLeft"), dojo.byId("moveRight"),
                                     dojo.byId("zoomIn"), dojo.byId("zoomOut"),
                                     dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
-                                    document.body, elem ],
+                                    document.body, this.elem ],
                                   function(e) { return e; }
                                 );
     this.prevCursors = [];
-    this.locationThumb = document.createElement("div");
-    this.locationThumb.className = "locationThumb";
-    this.overview.appendChild(this.locationThumb);
-    this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
 
     if ( dojo.isIE ) {
         // if using IE, we have to do scrolling with CSS
@@ -267,13 +262,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-    this.addOverviewTrack(new LocationScaleTrack({
-        label: "overview_loc_track",
-        labelClass: "overview-pos",
-        posHeight: this.overviewPosHeight,
-        browser: this.browser,
-        refSeq: this.ref
-    }));
     this.showFine();
     this.showCoarse();
 
@@ -386,14 +374,6 @@ GenomeView.prototype._behaviors = function() { return {
         apply_on_init: true,
         apply: function() {
             var handles = [];
-            handles.push( dojo.connect(
-                              this.overview, 'mousedown',
-                              dojo.hitch( this, 'startRubberZoom',
-                                          dojo.hitch(this,'overview_absXtoBp'),
-                                          this.overview,
-                                          this.overview
-                                        )
-                          ));
             handles.push(
                 dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
                 dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
@@ -408,9 +388,7 @@ GenomeView.prototype._behaviors = function() { return {
 
                 dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
 
-                dojo.connect( this.locationThumbMover,  "onMoveStop",     this, 'thumbMoved'         ),
 
-                dojo.connect( this.overview,            "onclick",        this, 'overviewClicked'    ),
 
                 dojo.connect( this.scaleTrackDiv,       "onclick",        this,  'scaleClicked'      ),
                 dojo.connect( this.scaleTrackDiv,       "mouseover",      this,  'scaleMouseOver'    ),
@@ -975,15 +953,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
         this.trackTops = [];
 
         dojo.forEach(this.uiTracks, function(track) { track.clear(); });
-    this.overviewTrackIterate(removeTrack);
 
-    this.addOverviewTrack(new LocationScaleTrack({
-            label: "overview_loc_track",
-            labelClass: "overview-pos",
-            posHeight: this.overviewPosHeight,
-            browser: this.browser,
-            refSeq: this.ref
-        }));
         this.sizeInit();
         this.setY(0);
         //this.containerHeight = this.topSpace;
@@ -1111,14 +1081,17 @@ GenomeView.prototype.showCoarse = function() {
  * Hook for other components to dojo.connect to.
  */
 GenomeView.prototype.onFineMove = function( startbp, endbp ) {
-    this.updateLocationThumb();
 };
 
 /**
  * Hook for other components to dojo.connect to.
  */
 GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {
-    this.updateLocationThumb();
+    // update the location box with our current location
+    this._updateLocationBox({ start: startbp, end: endbp, ref: this.ref.name });
+
+    // also update the refseq selection dropdown if present
+    this._updateRefSeqSelectBox();
 };
 
 /**
@@ -1131,12 +1104,6 @@ GenomeView.prototype.onResize = function() {
     this.showCoarse();
 };
 
-/**
- * Event handler fired when the overview bar is single-clicked.
- */
-GenomeView.prototype.overviewClicked = function( evt ) {
-    this.centerAtBase( this.overview_absXtoBp( evt.clientX ) );
-};
 
 /**
  * Event handler fired when mouse is over the scale bar.
@@ -1247,16 +1214,6 @@ GenomeView.prototype.clearBasePairLabels = function(){
     this.basePairLabels = {};
 };
 
-/**
- * Convert absolute X pixel position to base pair position on the
- * <b>overview</b> track.  This needs refactoring; a scale bar should
- * itself know how to convert an absolute X position to base pairs.
- * @param {Number} x absolute pixel X position (for example, from a click event's clientX property)
- */
-GenomeView.prototype.overview_absXtoBp = function(x) {
-    var overviewBox = dojo.position( this.overview );
-    return ( x - overviewBox.x ) / overviewBox.w * (this.ref.end - this.ref.start) + this.ref.start;
-};
 
 /**
  * Event handler fired when the track scale bar is single-clicked.
@@ -1269,37 +1226,6 @@ GenomeView.prototype.scaleClicked = function( evt ) {
     },100));
 };
 
-/**
- * Event handler fired when the region thumbnail in the overview bar
- * is dragged.
- */
-GenomeView.prototype.thumbMoved = function(mover) {
-    var pxLeft = parseInt(this.locationThumb.style.left);
-    var pxWidth = parseInt(this.locationThumb.style.width);
-    var pxCenter = pxLeft + (pxWidth / 2);
-    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
-};
-
-/**
- * Updates the position of the red box in the overview that indicates
- * the region being shown by the detail pane.
- */
-GenomeView.prototype.updateLocationThumb = function() {
-    var startbp = this.minVisible();
-    var endbp = this.maxVisible();
-
-    var length = this.ref.end - this.ref.start;
-    var trapLeft = Math.round((((startbp - this.ref.start) / length)
-                               * this.overviewBox.w) + this.overviewBox.l);
-    var trapRight = Math.round((((endbp - this.ref.start) / length)
-                                * this.overviewBox.w) + this.overviewBox.l);
-
-    this.locationThumb.style.cssText =
-    "height: " + (this.overviewBox.h - 4) + "px; "
-    + "left: " + trapLeft + "px; "
-    + "width: " + (trapRight - trapLeft) + "px;"
-    + "z-index: 20";
-};
 
 GenomeView.prototype.checkY = function(y) {
     return Math.min((y < 0 ? 0 : y), this.containerHeight - this.getHeight());
@@ -1375,7 +1301,6 @@ GenomeView.prototype.bpToPx = function(bp) {
  * @returns nothing
  */
 GenomeView.prototype.sizeInit = function() {
-    this.overviewBox = dojo.marginBox(this.overview);
 
     //scale values, in pixels per bp, for all zoom levels
     var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
@@ -1476,44 +1401,6 @@ GenomeView.prototype.sizeInit = function() {
     this.scrollContainer.style.height = newHeight + "px";
     this.containerHeight = newHeight;
 
-    var refLength = this.ref.end - this.ref.start;
-    var posSize = document.createElement("div");
-    posSize.className = "overview-pos";
-    posSize.appendChild(document.createTextNode(Util.addCommas(this.ref.end)));
-    posSize.style.visibility = "hidden";
-    this.overview.appendChild(posSize);
-    // we want the stripes to be at least as wide as the position labels,
-    // plus an arbitrary 20% padding so it's clear which grid line
-    // a position label corresponds to.
-    var minStripe = posSize.clientWidth * 1.2;
-    this.overviewPosHeight = posSize.clientHeight * 1.2;
-    this.overview.removeChild(posSize);
-    for (var n = 1; n < 30; n++) {
-    //http://research.att.com/~njas/sequences/A051109
-        // JBrowse uses this sequence (1, 2, 5, 10, 20, 50, 100, 200, 500...)
-        // as its set of zoom levels.  That gives nice round numbers for
-        // bases per block, and it gives zoom transitions that feel about the
-        // right size to me. -MS
-    this.overviewStripeBases = (Math.pow(n % 3, 2) + 1) * Math.pow(10, Math.floor(n/3));
-    this.overviewStripes = Math.ceil(refLength / this.overviewStripeBases);
-    if ((this.overviewBox.w / this.overviewStripes) > minStripe) break;
-    if (this.overviewStripes < 2) break;
-    }
-
-    // update our overview tracks
-    var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
-    var overviewHeight = 0;
-    this.overviewTrackIterate(function (track, view) {
-        track.clear();
-        track.sizeInit(view.overviewStripes,
-               overviewStripePct);
-            track.showRange(0, view.overviewStripes - 1,
-                            -1, view.overviewStripeBases,
-                            view.overviewBox.w /
-                            (view.ref.end - view.ref.start));
-    });
-    this.updateOverviewHeight();
-
     this.updateScroll();
 };
 
@@ -1535,54 +1422,6 @@ GenomeView.prototype.updateScroll = function() {
     // float in one position over the scrolling track div (can't use
     // CSS position:fixed for these)
     this.updateStaticElements( update );
-};
-
-GenomeView.prototype.overviewTrackIterate = function(callback) {
-    var overviewTrack = this.overview.firstChild;
-    do {
-        if (overviewTrack && overviewTrack.track)
-        callback.call( this, overviewTrack.track, this);
-    } while (overviewTrack && (overviewTrack = overviewTrack.nextSibling));
-};
-
-GenomeView.prototype.updateOverviewHeight = function(trackName, height) {
-    var overviewHeight = 0;
-    this.overviewTrackIterate(function (track, view) {
-        overviewHeight += track.height;
-        track.div.style.height = track.height+'px';
-    });
-    this.overview.style.height = overviewHeight + "px";
-    this.overviewBox = dojo.marginBox(this.overview);
-};
-
-GenomeView.prototype.addOverviewTrack = function(track) {
-    var refLength = this.ref.end - this.ref.start;
-
-    var overviewStripePct = 100 / (refLength / this.overviewStripeBases);
-    var trackDiv = document.createElement("div");
-    trackDiv.className = "track";
-    trackDiv.style.height = this.overviewBox.h + "px";
-    trackDiv.style.left = (((-this.ref.start) / refLength) * this.overviewBox.w) + "px";
-    trackDiv.id = "overviewtrack_" + track.name;
-    trackDiv.track = track;
-    var view = this;
-    var heightUpdate = function(height) {
-        view.updateOverviewHeight();
-    };
-    track.setViewInfo(
-        this,
-        heightUpdate,
-        this.overviewStripes,
-        trackDiv,
-        overviewStripePct,
-        this.overviewStripeBases,
-        this.pxPerBp,
-        this.trackPadding
-    );
-    this.overview.appendChild(trackDiv);
-    this.updateOverviewHeight();
-
-    return trackDiv;
 };
 
 GenomeView.prototype.trimVertical = function(y) {
@@ -1607,7 +1446,6 @@ GenomeView.prototype.redrawTracks = function() {
 };
 
 GenomeView.prototype.hideRegion = function( location ) {
-    this.overviewTrackIterate( function(t) { t.hideRegion( location ); } );
     this.trackIterate( function(t) { t.hideRegion( location ); } );
 };
 
@@ -1890,12 +1728,6 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
-    this.overviewTrackIterate(function(track, view) {
-                                  track.showRange(0, view.overviewStripes - 1,
-                                                  -1, view.overviewStripeBases,
-                                                  view.overviewBox.w /
-                                                  (view.ref.end - view.ref.start));
-                      });
     this.trackIterate(function(track, view) {
                           track.showRange(leftVisible, rightVisible,
                                           startBase, bpPerBlock,
@@ -2014,6 +1846,270 @@ GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
         return ! tn.count;
     }, this);
     return tracks;
+};
+
+
+GenomeView.prototype._updateLocationBox = function( region ) {
+    if( this.locationBox ) {
+        this.locationBox.set(
+            'value',
+            Util.assembleLocStringWithLength( region  ),
+            false //< don't fire any onchange handlers
+        );
+        this.goButton.set( 'disabled', true ) ;
+    }
+};
+
+GenomeView.prototype._updateRefSeqSelectBox = function() {
+    if( this.refSeqSelectBox ) {
+
+        // if none of the options in the select box match this
+        // reference sequence, add another one to the end for it
+        if( ! array.some( this.refSeqSelectBox.getOptions(), function( option ) {
+                              return option.value == this.ref.name;
+                        }, this)
+          ) {
+              this.refSeqSelectBox.set( 'options',
+                                     this.refSeqSelectBox.getOptions()
+                                     .concat({ label: this.ref.name, value: this.ref.name })
+                                   );
+        }
+
+        // set its value to the current ref seq
+        this.refSeqSelectBox.set( 'value', this.ref.name, false );
+    }
+};
+
+/**
+ * @private
+ */
+
+GenomeView.prototype.createNavBox = function( parent ) {
+
+    var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
+
+    var four_nbsp = String.fromCharCode(160,160,160,160);
+    navbox.appendChild(document.createTextNode( four_nbsp ));
+
+    var moveLeft = document.createElement("input");
+    moveLeft.type = "image";
+    moveLeft.src = this.browser.resolveUrl( "img/slide-left.png" );
+    moveLeft.id = "moveLeft";
+    moveLeft.className = "icon nav";
+    moveLeft.style.height = "40px";
+    navbox.appendChild(moveLeft);
+    dojo.connect( moveLeft, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                      this.slide(0.9);
+                  });
+
+    var moveRight = document.createElement("input");
+    moveRight.type = "image";
+    moveRight.src = this.browser.resolveUrl( "img/slide-right.png" );
+    moveRight.id="moveRight";
+    moveRight.className = "icon nav";
+    moveRight.style.height = "40px";
+    navbox.appendChild(moveRight);
+    dojo.connect( moveRight, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                      this.slide(-0.9);
+                  });
+
+    navbox.appendChild(document.createTextNode( four_nbsp ));
+
+    var bigZoomOut = document.createElement("input");
+    bigZoomOut.type = "image";
+    bigZoomOut.src = this.browser.resolveUrl( "img/zoom-out-2.png" );
+    bigZoomOut.id = "bigZoomOut";
+    bigZoomOut.className = "icon nav";
+    bigZoomOut.style.height = "40px";
+    navbox.appendChild(bigZoomOut);
+    dojo.connect( bigZoomOut, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                      this.zoomOut(undefined, undefined, 2);
+                  });
+
+
+    var zoomOut = document.createElement("input");
+    zoomOut.type = "image";
+    zoomOut.src = this.browser.resolveUrl("img/zoom-out-1.png");
+    zoomOut.id = "zoomOut";
+    zoomOut.className = "icon nav";
+    zoomOut.style.height = "40px";
+    navbox.appendChild(zoomOut);
+    dojo.connect( zoomOut, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                     this.zoomOut();
+                  });
+
+    var zoomIn = document.createElement("input");
+    zoomIn.type = "image";
+    zoomIn.src = this.browser.resolveUrl( "img/zoom-in-1.png" );
+    zoomIn.id = "zoomIn";
+    zoomIn.className = "icon nav";
+    zoomIn.style.height = "40px";
+    navbox.appendChild(zoomIn);
+    dojo.connect( zoomIn, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                      this.zoomIn();
+                  });
+
+    var bigZoomIn = document.createElement("input");
+    bigZoomIn.type = "image";
+    bigZoomIn.src = this.browser.resolveUrl( "img/zoom-in-2.png" );
+    bigZoomIn.id = "bigZoomIn";
+    bigZoomIn.className = "icon nav";
+    bigZoomIn.style.height = "40px";
+    navbox.appendChild(bigZoomIn);
+    dojo.connect( bigZoomIn, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                      this.zoomIn(undefined, undefined, 2);
+                  });
+
+    navbox.appendChild(document.createTextNode( four_nbsp ));
+
+    // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
+    // set in the config, then put in a dropdown box for selecting
+    // reference sequences
+    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, navbox );
+
+    // make the location box
+    this.locationBox = new dijitComboBox(
+        {
+            id: "location",
+            name: "location",
+            style: { width: '25ex' },
+            maxLength: 400,
+            searchAttr: "name"
+        },
+        dojo.create('input', {}, navbox) );
+    this.browser.afterMilestone( 'loadNames', dojo.hitch(this, function() {
+        if( this.browser.nameStore )
+            this.locationBox.set( 'store', this.browser.nameStore );
+    }));
+
+    this.locationBox.focusNode.spellcheck = false;
+    dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
+    dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
+                      if (event.keyCode == dojo.keys.ENTER) {
+                          this.locationBox.closeDropDown(false);
+                          this.browser.navigateTo( this.locationBox.get('value') );
+                          this.goButton.set('disabled',true);
+                          dojo.stopEvent(event);
+                      } else {
+                          this.goButton.set('disabled', false);
+                      }
+                  });
+    dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+    // monkey-patch the combobox code to make a few modifications
+    (function(){
+
+         // add a moreMatches class to our hacked-in "more options" option
+         var dropDownProto = eval(this.locationBox.dropDownClass).prototype;
+         var oldCreateOption = dropDownProto._createOption;
+         dropDownProto._createOption = function( item ) {
+             var option = oldCreateOption.apply( this, arguments );
+             if( item.hitLimit )
+                 dojo.addClass( option, 'moreMatches');
+             return option;
+         };
+
+         // prevent the "more matches" option from being clicked
+         var oldOnClick = dropDownProto.onClick;
+         dropDownProto.onClick = function( node ) {
+             if( dojo.hasClass(node, 'moreMatches' ) )
+                 return null;
+             return oldOnClick.apply( this, arguments );
+         };
+    }).call(this);
+
+    // make the 'Go' button'
+    this.goButton = new dijitButton(
+        {
+            label: 'Go',
+            onClick: dojo.hitch( this, function(event) {
+                this.navigateTo(this.locationBox.get('value'));
+                this.goButton.set('disabled',true);
+                dojo.stopEvent(event);
+            })
+        }, dojo.create('button',{},navbox));
+
+
+    this.browser.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
+        var refSeqOrder = this.browser.refSeqOrder;
+
+        // make the refseq selection dropdown
+        if( refSeqOrder && refSeqOrder.length ) {
+            var max = this.browser.config.refSeqSelectorMaxSize || 30;
+            var numrefs = Math.min( max, refSeqOrder.length);
+            var options = [];
+            for ( var i = 0; i < numrefs; i++ ) {
+                options.push( { label: refSeqOrder[i], value: refSeqOrder[i] } );
+            }
+            var tooManyMessage = '(first '+numrefs+' ref seqs)';
+            if( refSeqOrder.length > max ) {
+                options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+            }
+            this.refSeqSelectBox = new dijitSelectBox({
+                name: 'refseq',
+                value: this.ref ? this.ref.name : null,
+                options: options,
+                onChange: dojo.hitch(this, function( newRefName ) {
+                    // don't trigger nav if it's the too-many message
+                    if( newRefName == tooManyMessage ) {
+                        this.refSeqSelectBox.set('value', this.refSeq.name );
+                        return;
+                    }
+
+                    // only trigger navigation if actually switching sequences
+                    if( newRefName != this.ref.name ) {
+                        this.browser.navigateTo(newRefName);
+                    }
+                })
+            }).placeAt( refSeqSelectBoxPlaceHolder );
+        }
+
+        // calculate how big to make the location box:  make it big enough to hold the
+        var locLength = this.browser.config.locationBoxLength || function() {
+            var refSeqOrder = this.browser.refSeqOrder;
+            var allRefs = this.browser.allRefs;
+
+            // if we have no refseqs, just use 20 chars
+            if( ! refSeqOrder.length )
+                return 20;
+
+            // if there are not tons of refseqs, pick the longest-named
+            // one.  otherwise just pick the last one
+            var ref = refSeqOrder.length < 1000
+                && function() {
+                       var longestNamedRef;
+                       array.forEach( refSeqOrder, function(name) {
+                                          var ref = allRefs[name];
+                                          if( ! ref.length )
+                                              ref.length = ref.end - ref.start + 1;
+                                          if( ! longestNamedRef || longestNamedRef.length < ref.length )
+                                              longestNamedRef = ref;
+                                      }, this );
+                       return longestNamedRef;
+                   }.call(this)
+                || refSeqOrder.length && allRefs[ refSeqOrder[ refSeqOrder.length - 1 ] ]
+                || 20;
+
+            var locstring = Util.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
+            //console.log( locstring, locstring.length );
+            return locstring.length;
+        }.call(this) || 20;
+
+        this.locationBox.domNode.style.width = locLength+'ex';
+    }));
+
+    return navbox;
 };
 
 /**
