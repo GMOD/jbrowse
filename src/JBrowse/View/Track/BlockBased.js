@@ -260,7 +260,9 @@ return declare( [Component,DetailsMixin,Destroyable],
 
         //fill left, including existing blocks (to get their heights)
 
+
         leftBase = startBase + (bpPerBlock * (lastAttached - first));
+
         if(this.refSeq.circular) {
             var rightOfLastBlock = this.refSeq.end + bpPerBlock - (this.refSeq.end % bpPerBlock);
             leftBase -= Math.floor((leftBase+1)/(rightOfLastBlock))*rightOfLastBlock;         
@@ -488,6 +490,14 @@ return declare( [Component,DetailsMixin,Destroyable],
                                      height: '16px'
                                  }
                              }, block.domNode );
+    },
+
+    getBlock: function(index) {
+        return this.blocks[index];
+    },
+
+    numberOfBlocks: function() {
+        return this.numBlocks;
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale, leftToRight,
