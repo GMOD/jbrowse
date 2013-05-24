@@ -8,6 +8,7 @@ define([
            'dijit/focus',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
+           'JBrowse/View/Track/Combination',
            'JBrowse/BehaviorManager',
            'JBrowse/View/Animation/Zoomer',
            'JBrowse/View/Animation/Slider',
@@ -22,6 +23,7 @@ define([
            dijitFocus,
            LocationScaleTrack,
            GridLinesTrack,
+           CombinationTrack,
            BehaviorManager,
            Zoomer,
            Slider,
@@ -212,7 +214,31 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
     this.trackContainer.appendChild(gridTrackDiv);
-    this.uiTracks = [this.staticTrack, gridTrack];
+
+    //This stuff is new.  Experimenting with creating a combinationTrack.
+    /*
+    var combinationTrackDiv = document.createElement("div");
+    combinationTrackDiv.className = "track";
+    combinationTrackDiv.style.cssText = "top: 75%; height:15%";
+    combinationTrackDiv.id = "combinationTrack";
+    this.combinationTrackDiv = combinationTrackDiv;
+
+    this.combinationTrack = new CombinationTrack({
+        label: "combination_track",
+        labelClass: "combination",
+        height: this.posHeight,
+        browser: this.browser,
+        refSeq: this.ref
+    });
+    this.combinationTrack.setViewInfo( this, function(height) {}, this.stripeCount,
+                                 this.combinationTrackDiv, this.stripePercent,
+                                 this.stripeWidth, this.pxPerBp,
+                                 this.trackPadding);
+    this.trackContainer.appendChild(combinationTrackDiv);
+    */
+
+
+    this.uiTracks = [this.staticTrack, gridTrack/*, this.combinationTrack*/];
 
     // accept tracks being dragged into this
     this.trackDndWidget =
