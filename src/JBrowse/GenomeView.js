@@ -216,7 +216,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.trackContainer.appendChild(gridTrackDiv);
 
     //This stuff is new.  Experimenting with creating a combinationTrack.
-    /*
+    
     var combinationTrackDiv = document.createElement("div");
     combinationTrackDiv.className = "track";
     combinationTrackDiv.style.cssText = "top: 75%; height:15%";
@@ -235,10 +235,10 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                                  this.stripeWidth, this.pxPerBp,
                                  this.trackPadding);
     this.trackContainer.appendChild(combinationTrackDiv);
-    */
+    /**/
 
 
-    this.uiTracks = [this.staticTrack, gridTrack/*, this.combinationTrack*/];
+    this.uiTracks = [this.staticTrack, gridTrack, this.combinationTrack];
 
     // accept tracks being dragged into this
     this.trackDndWidget =
