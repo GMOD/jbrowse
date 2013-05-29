@@ -154,30 +154,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.overview.appendChild(this.locationThumb);
     this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
 
-    if ( dojo.isIE ) {
-        // if using IE, we have to do scrolling with CSS
-        this.x = -parseInt( this.scrollContainer.style.left );
-        this.y = -parseInt( this.scrollContainer.style.top );
-        this.rawSetX = function(x) {
-            this.scrollContainer.style.left = -x + "px";
-            this.x = x;
-        };
-        this.rawSetY = function(y) {
-            this.scrollContainer.style.top = -y + "px";
-            this.y = y;
-        };
-    } else {
     this.x = this.elem.scrollLeft;
     this.y = this.elem.scrollTop;
-        this.rawSetX = function(x) {
-            this.elem.scrollLeft = x;
-            this.x = x;
-        };
-        this.rawSetY = function(y) {
-            this.elem.scrollTop = y;
-            this.y = y;
-        };
-    }
 
     var scaleTrackDiv = document.createElement("div");
     scaleTrackDiv.className = "track static_track rubberBandAvailable";
@@ -282,6 +260,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
 };
+
 
 /**
  * @returns {Object} containing ref, start, and end members for the currently displayed location
@@ -635,6 +614,12 @@ GenomeView.prototype.clampY = function(y) {
                      );
 };
 
+
+GenomeView.prototype.rawSetX = function(x) {
+    this.elem.scrollLeft = x;
+    this.x = x;
+};
+
 /**
  * @returns the new x value that was set
  */
@@ -644,6 +629,11 @@ GenomeView.prototype.setX = function(x) {
     this.updateStaticElements( { x: x } );
     this.showFine();
     return x;
+};
+
+GenomeView.prototype.rawSetY = function(y) {
+    this.elem.scrollTop = y;
+    this.y = y;
 };
 
 /**
