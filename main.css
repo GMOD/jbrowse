@@ -1010,7 +1010,16 @@ table.baseQuality td {
 
 .combination {
     position:absolute;
-    /*background-color:#888888;*/
+    background-color:#FF0000;
+    opacity:0.3;
     width:100%;
     height:100%;
+}
+
+.combination_text {
+    background-color:transparent;
+    text-align: center;
+    opacity:1;
+    height:100%;
+    vertical-align:bottom;
 }

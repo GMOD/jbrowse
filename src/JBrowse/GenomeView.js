@@ -225,7 +225,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
 
     this.combinationTrack = new CombinationTrack({
         label: "combination_track",
-        labelClass: "combination",
         height: this.posHeight,
         browser: this.browser,
         refSeq: this.ref
