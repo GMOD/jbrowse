@@ -155,7 +155,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.locationThumbMover = new locationThumbMover(this.locationThumb, {area: "content", within: true});
 
     this.x = this.elem.scrollLeft;
-    this.y = this.elem.scrollTop;
+    this.y = 0;
 
     var scaleTrackDiv = document.createElement("div");
     scaleTrackDiv.className = "track static_track rubberBandAvailable";
@@ -632,8 +632,8 @@ GenomeView.prototype.setX = function(x) {
 };
 
 GenomeView.prototype.rawSetY = function(y) {
-    this.elem.scrollTop = y;
     this.y = y;
+    this.layoutTracks();
 };
 
 /**
@@ -1319,10 +1319,6 @@ GenomeView.prototype.updateStaticElements = function( args ) {
     },this);
 
     this._updateVerticalScrollBar( args );
-
-    if( typeof args.y == 'number' ) {
-        this.staticTrack.div.style.top = args.y + "px";
-    }
 };
 
 GenomeView.prototype.showWait = function() {
@@ -1845,18 +1841,9 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     }
     this.trackHeights[track] = height;
     this.tracks[track].div.style.height = (height + this.trackPadding) + "px";
-    var nextTop = this.trackTops[track];
-    var lastTop = 0;
-    if (this.tracks[track].shown) nextTop += height + this.trackPadding;
-    for (var i = track + 1; i < this.tracks.length; i++) {
-        this.trackTops[i] = nextTop;
-        this.tracks[i].div.style.top = nextTop + "px";
-        lastTop = nextTop;
-        if (this.tracks[i].shown)
-            nextTop += this.trackHeights[i] + this.trackPadding;
-    }
-    this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
-    this.scrollContainer.style.height = this.containerHeight + "px";
+
+    this.layoutTracks();
+
     this.setY( this.getY() );
 
     this.updateStaticElements({ height: this.getHeight() });
@@ -2171,16 +2158,8 @@ GenomeView.prototype.updateTrackList = function() {
 
     this.trackIndices = newIndices;
     this.trackHeights = newHeights;
-    var nextTop = this.topSpace;
-    for (var i = 0; i < this.tracks.length; i++) {
-        this.trackTops[i] = nextTop;
-        this.tracks[i].div.style.top = nextTop + "px";
-        if (this.tracks[i].shown)
-            nextTop += this.trackHeights[i] + this.trackPadding;
-    }
 
-    this.containerHeight = Math.max( nextTop || 0, this.getHeight() );
-    this.scrollContainer.style.height = this.containerHeight + "px";
+    this.layoutTracks();
 
     this.updateScroll();
 
@@ -2189,6 +2168,24 @@ GenomeView.prototype.updateTrackList = function() {
         this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
+};
+
+
+/**
+ * Lay out all shown tracks.
+ */
+GenomeView.prototype.layoutTracks = function() {
+    var nextTop = this.topSpace;
+    var lastTop = 0;
+    for (var i = 0; i < this.tracks.length; i++) {
+        this.trackTops[i] = nextTop;
+        this.tracks[i].div.style.top = (nextTop-this.y) + "px";
+        lastTop = nextTop;
+        if (this.tracks[i].shown)
+            nextTop += this.trackHeights[i] + this.trackPadding;
+    }
+    this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
+    this.scrollContainer.style.height = this.containerHeight + "px";
 };
 
 return GenomeView;
