@@ -40,6 +40,9 @@ return declare(BlockBased,
         this.opTree = new TreeNode({ Value: this.defaultOp });
         this.key = "Combination track";
 
+        this.keyToStore = {};
+        this.storeToKey = {};
+
         this.innerTrack = undefined;
         this.innerDiv = undefined;
         this.counter = 0;
@@ -67,22 +70,28 @@ return declare(BlockBased,
     },
 
     addTrack: function(trackConfig) {
+
+      // There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
+      this.storeToKey[trackConfig.store] = trackConfig.key;
+      this.keyToStore[trackConfig.key] = trackConfig.store;
+
       this._addTrackStore(trackConfig.store);
 
       /* Returns nothing.  the dojo creator method requires a DOM node to be returned, but the use of all the promises
-      /* Makes returning the actual div containing the combination track impractical.
+      /* Makes returning the actual div containing the combination track impractical.  Thus we fool dojo into thinking
+      /* the creator is creating something.
       /* */
       var nothing = document.createTextNode("");
       return nothing;
     },
 
     treeIterate: function(tree) {
-      //if(tree) alert(tree.get() + " " + tree.isLeaf() + " " + tree.leftChild + " " + tree.rightChild);
-      if(!tree || tree === undefined){/*alert("HERE");*/ return "NULL";}
-      if(tree.isLeaf()){/*alert("THERE" + tree.get());*/ return tree.get().name || tree.get();}
-      //alert("EVERYWHERE");
+      if(!tree || tree === undefined){ return "NULL";}
+      if(tree.isLeaf()){
+        return tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
+         : tree.get();
+      }
       return "( " + this.treeIterate(tree.left()) +" "+ tree.get() +" " + this.treeIterate(tree.right()) +" )";
-
     },
 
     _addTrackStore: function(storeName) {
@@ -142,12 +151,6 @@ return declare(BlockBased,
           this.innerDiv.id = "combination_innertrack";
           this.div.appendChild(this.innerDiv);
 
-          // When the inner div is created, the outer menu should lose its label (so there won't be more than one label)
-          if(this.label) {
-            this.div.removeChild(this.label);
-            this.label = undefined;
-          }
-
         } else { // Otherwise we'll have to remove whatever track is currently in the div
           thisB.innerTrack.clear();
           thisB.innerTrack.destroy();
@@ -166,11 +169,23 @@ return declare(BlockBased,
         thisB.innerTrack.setViewInfo (thisB.genomeView, thisB.heightUpdateCallback,
             thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
 
-        thisB.innerTrack.showRange (thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,
-          thisB.range.sc, thisB.range.cs, thisB.range.ce);
+        thisB.refresh(thisB.innerTrack);
+
+        // The inner track should lose its label (so there won't be more than one label)
+          if(thisB.innerTrack.label) {
+            thisB.innerTrack.div.removeChild(thisB.innerTrack.label);
+            thisB.innerTrack.label = undefined;
+          }
 
       }
 
+    },
+
+    refresh: function(track) {
+      var thisB = this;
+      if(!track) track = thisB;
+      if(this.range) track.showRange(thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,
+          thisB.range.sc, thisB.range.cs, thisB.range.ce);
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
@@ -224,6 +239,46 @@ return declare(BlockBased,
       var msg = "";
       for(var item in list) msg = msg + " " + item +": " + list[item];
       alert(msg);
+    },
+
+    _trackMenuOptions: function() {
+      var o = this.inherited(arguments);
+      var combTrack = this;
+
+      var allowedOps = ["AND", "OR", "XOR", "MINUS"];
+      var menuItems = allowedOps.map(
+                        function(op) {
+                          return {
+                            label: op,
+                            title: "change operation of last track to " + op,
+                            action: function() {
+                              if(combTrack.opTree) {
+                                combTrack.opTree.set(op);
+                                combTrack.refresh();
+                              }
+                            }
+                          }
+                        });
+
+
+      o.push.apply(
+        o,
+        [
+          { type: 'dijit/MenuSeparator' },
+          { label: 'Edit formula',
+            title: 'change the formula specifying this combination track',
+            action: function() {
+                        if(combTrack.opTree) alert(combTrack.treeIterate(combTrack.opTree));
+                        else alert("No operation formula defined");
+                    }
+          },
+          { children: menuItems,
+            label: "Change last operation",
+            title: "change the operation applied to the last track added"
+          }
+        ]);
+
+      return o;
     }
     
 });
