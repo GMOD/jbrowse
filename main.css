@@ -302,6 +302,20 @@ div.track {
     padding: 0;
     margin: 0;
 }
+div.pin_underlay {
+    width: 100%;
+    position: absolute;
+    background: white;
+    z-index: 6;
+
+    -moz-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.3 );
+    -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.3 );
+    box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.3 );
+}
+div.track.pinned {
+    background: white;
+    z-index: 20;
+}
 
 .track.dojoDndItemOver {
     cursor: inherit;
@@ -356,7 +370,6 @@ div.pos-label {
     left: -0.35em;
     top: 0px;
     z-index: 100;
-    margin: 1px;
     font-family: sans-serif;
 }
 

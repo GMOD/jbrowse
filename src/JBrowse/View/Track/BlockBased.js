@@ -813,6 +813,20 @@ return declare( [Component,DetailsMixin,Destroyable],
                                                                  {};
     },
 
+    setPinned: function( p ) {
+        this.pinned = !!p;
+
+        if( this.pinned )
+            domClass.add( this.div, 'pinned' );
+        else
+            domClass.remove( this.div, 'pinned' );
+
+        return this.pinned;
+    },
+    isPinned: function() {
+        return !! this.pinned;
+    },
+
     /**
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
      */
@@ -826,10 +840,12 @@ return declare( [Component,DetailsMixin,Destroyable],
               content: dojo.hitch(this,'_trackDetailsContent')
             },
             { label: 'Pin to top',
+              type: 'dijit/CheckedMenuItem',
               title: "make this track always visible at the top of the view",
+              checked: that.isPinned(),
               //iconClass: 'dijitIconDelete',
-              action: function() {
-                  that.pinned = true;
+              onClick: function() {
+                  that.setPinned( this.checked );
                   that.browser.view.updateTrackList();
               }
             },

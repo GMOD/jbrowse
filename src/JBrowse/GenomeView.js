@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/dom-construct',
            'JBrowse/Util',
            'JBrowse/has',
            'dojo/dnd/move',
@@ -15,6 +16,7 @@ define([
        ], function(
            declare,
            array,
+           domConstruct,
            Util,
            has,
            dndMove,
@@ -59,7 +61,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = 1.5 * this.posHeight;
+    this.topSpace = this.posHeight;
 
     // WebApollo needs max zoom level to be sequence residues char width
     this.maxPxPerBp = 20;
@@ -2138,10 +2140,22 @@ GenomeView.prototype.updateTrackList = function() {
                             return [t,i];
                         });
     tracks = tracks.sort( function( a, b ) {
-        var ap = a[0].pinned ? 1 : 0, bp = b[0].pinned ? 1 : 0;
+        var ap = a[0].isPinned() ? 1 : 0, bp = b[0].isPinned() ? 1 : 0;
         return (bp - ap) || (a[1] - b[1]);
     });
     tracks = array.map( tracks, function( tr ) { return tr[0]; } );
+
+    if( tracks[0] && tracks[0].isPinned() ) {
+        if( ! this.pinUnderlay )
+            this.pinUnderlay = domConstruct.create('div', {
+                                                       className: 'pin_underlay',
+                                                       style: 'top: '+this.topSpace
+                                                   }, this.scrollContainer );
+    }
+    else if( this.pinUnderlay ) {
+        domConstruct.destroy( this.pinUnderlay );
+        delete this.pinUnderlay;
+    }
 
 
     var oldTracks = this.tracks;
@@ -2191,13 +2205,20 @@ GenomeView.prototype.layoutTracks = function() {
     // lay out the track tops
     var nextTop = this.topSpace;
     var lastTop = 0;
+    var pinnedHeight = 0;
     array.forEach( this.tracks, function( track, i ) {
         this.trackTops[i] = nextTop;
-        track.div.style.top = ( track.pinned ? nextTop : nextTop - this.y ) + "px";
+        track.div.style.top = ( track.isPinned() ? nextTop : nextTop - this.y ) + "px";
         lastTop = nextTop;
-        if ( track.shown )
+        if ( track.shown ) {
             nextTop += this.trackHeights[i] + this.trackPadding;
+            if( track.isPinned() )
+                pinnedHeight = nextTop;
+        }
     }, this );
+    if( pinnedHeight && this.pinUnderlay ) {
+        this.pinUnderlay.style.height = pinnedHeight + 'px';
+    }
 
     this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
