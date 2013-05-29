@@ -324,6 +324,12 @@ div.track {
     margin-bottom: -3px;
 }
 
+.track.dojoDndContainerOver {
+    margin-top:-3px;
+    border-top:3px solid #000000;
+    border-bottom: 3px solid #000000;
+}
+
 div#static_track {
     top: 0px;
     position: absolute;
