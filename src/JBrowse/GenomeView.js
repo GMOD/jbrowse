@@ -2131,6 +2131,19 @@ GenomeView.prototype.updateTrackList = function() {
             tracks.push(containerChild.track);
     } while ((containerChild = containerChild.nextSibling));
 
+    // sort so that the pinned tracks come first.  also, sorting is
+    // not stable in all implementations, need to stabilize it
+    // ourselves by doing a schwartzian transform with the indices
+    tracks = array.map( tracks, function(t,i) {
+                            return [t,i];
+                        });
+    tracks = tracks.sort( function( a, b ) {
+        var ap = a[0].pinned ? 1 : 0, bp = b[0].pinned ? 1 : 0;
+        return (bp - ap) || (a[1] - b[1]);
+    });
+    tracks = array.map( tracks, function( tr ) { return tr[0]; } );
+
+
     var oldTracks = this.tracks;
     this.tracks = tracks;
 
@@ -2175,15 +2188,17 @@ GenomeView.prototype.updateTrackList = function() {
  * Lay out all shown tracks.
  */
 GenomeView.prototype.layoutTracks = function() {
+    // lay out the track tops
     var nextTop = this.topSpace;
     var lastTop = 0;
-    for (var i = 0; i < this.tracks.length; i++) {
+    array.forEach( this.tracks, function( track, i ) {
         this.trackTops[i] = nextTop;
-        this.tracks[i].div.style.top = (nextTop-this.y) + "px";
+        track.div.style.top = ( track.pinned ? nextTop : nextTop - this.y ) + "px";
         lastTop = nextTop;
-        if (this.tracks[i].shown)
+        if ( track.shown )
             nextTop += this.trackHeights[i] + this.trackPadding;
-    }
+    }, this );
+
     this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
 };

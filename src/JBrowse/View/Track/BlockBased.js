@@ -825,6 +825,14 @@ return declare( [Component,DetailsMixin,Destroyable],
               action: 'contentDialog',
               content: dojo.hitch(this,'_trackDetailsContent')
             },
+            { label: 'Pin to top',
+              title: "make this track always visible at the top of the view",
+              //iconClass: 'dijitIconDelete',
+              action: function() {
+                  that.pinned = true;
+                  that.browser.view.updateTrackList();
+              }
+            },
             { label: 'Edit config',
               title: "edit this track's configuration",
               iconClass: 'dijitIconConfigure',
