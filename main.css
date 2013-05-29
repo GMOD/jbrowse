@@ -308,9 +308,9 @@ div.pin_underlay {
     background: white;
     z-index: 6;
 
-    -moz-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.3 );
-    -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.3 );
-    box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.3 );
+    -moz-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+    -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+    box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
 }
 div.track.pinned {
     background: white;
