@@ -34,11 +34,25 @@ return declare(BlockBased,
     constructor: function( args ) {
         this.loaded = true;
         this.divClass = args.divClass || "combination";
-        this.height = args.height;
+
         this.tracks = [];
         this.defaultOp = "AND";
         this.opTree = new TreeNode({ Value: this.defaultOp });
         this.key = "Combination track";
+        this.currentDndSource = undefined;
+        this.sourceWasCopyOnly = undefined;
+
+        // This is used to avoid creating a feedback loop in the height-updating process.
+        this.onlyRefreshOuter = false;
+        // Height of the top and bottom divs (when there is an inner track)
+        this.topHeight = 20;
+        this.bottomHeight = 20;
+        this.heightInner = 0;
+
+        // Height of the track (when there is no inner track)
+        this.heightNoInner = 50;
+
+        this.height = args.height || this.heightNoInner;
 
         this.keyToStore = {};
         this.storeToKey = {};
@@ -67,22 +81,44 @@ return declare(BlockBased,
           })
         });
 
+        this._attachForceCopy();
+
+    },
+
+    _attachForceCopy: function() {
+        var thisB = this;
+        dojo.connect(thisB.dnd, "onDndStart", function(source, nodes, copy) {
+                                                thisB.currentDndSource = source;
+//                                                console.log(thisB.currentDndSource.node.innerHTML);
+                                                thisB.sourceWasCopyOnly = source.copyOnly;
+                                            });
+        dojo.connect(thisB.dnd, "onOverEvent", function() {
+                                                if(thisB.currentDndSource) thisB.currentDndSource.copyOnly = true;
+                                            });
+        var allCopyEndingEvents = ["onOutEvent", "onDndDrop", "onDndCancel"];
+                
+        for(var eventName in allCopyEndingEvents)
+          dojo.connect(thisB.dnd, allCopyEndingEvents[eventName], function() {
+                                                if(thisB.currentDndSource) {
+                                                  thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
+                                                  thisB.currentDndSource = undefined;
+                                                }
+                                            });
+        
     },
 
     addTrack: function(trackConfig) {
 
+      var thisB = this;
       // There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
-      this.storeToKey[trackConfig.store] = trackConfig.key;
-      this.keyToStore[trackConfig.key] = trackConfig.store;
+      thisB.storeToKey[trackConfig.store] = trackConfig.key;
+      thisB.keyToStore[trackConfig.key] = trackConfig.store;
 
-      this._addTrackStore(trackConfig.store);
+      thisB._addTrackStore(trackConfig.store);
 
-      /* Returns nothing.  the dojo creator method requires a DOM node to be returned, but the use of all the promises
-      /* Makes returning the actual div containing the combination track impractical.  Thus we fool dojo into thinking
-      /* the creator is creating something.
-      /* */
       var nothing = document.createTextNode("");
       return nothing;
+      
     },
 
     treeIterate: function(tree) {
@@ -138,10 +174,10 @@ return declare(BlockBased,
         thisB.currentStore = store;
         d.resolve(true);
       });
-      d.promise.then(function(){ thisB._renderCombinationTrack(); });
+      d.promise.then(function(){ thisB._renderInnerTrack(); });
     },
 
-    _renderCombinationTrack: function() {
+    _renderInnerTrack: function() {
       var thisB = this;
       if(thisB.currentStore) {
         // If the div for the inner track doesn't exist, create it.
@@ -149,33 +185,53 @@ return declare(BlockBased,
           this.innerDiv = document.createElement("div");
           this.innerDiv.className = "track";
           this.innerDiv.id = "combination_innertrack";
+          this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
           this.div.appendChild(this.innerDiv);
+
+          var innerDndSource = new dndSource(this.innerDiv, {
+
+            });
 
         } else { // Otherwise we'll have to remove whatever track is currently in the div
           thisB.innerTrack.clear();
           thisB.innerTrack.destroy();
+
           while(thisB.innerDiv.firstChild) { // Use dojo.empty instead?
             thisB.innerDiv.removeChild(thisB.innerDiv.firstChild);
           }
         }
         thisB.innerTrack = new HTMLFeaturesTrack({
-            label: "combination_track",
-            key: this.key,
+            label: "inner_track",
+            key: "Inner Track",
             browser: this.browser,
             refSeq: this.refSeq,
             store: thisB.currentStore,
             trackPadding: 0
         });
-        thisB.innerTrack.setViewInfo (thisB.genomeView, thisB.heightUpdateCallback,
+
+        
+        var innerHeightUpdate = function(height) {
+          thisB.heightInner = height;
+          
+          thisB.onlyRefreshOuter = true;
+          thisB.refresh();
+          thisB.onlyRefreshOuter = false;
+
+          thisB.heightUpdate(thisB.topHeight + height + thisB.bottomHeight);
+        }
+
+        thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
             thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
 
-        thisB.refresh(thisB.innerTrack);
+        thisB.refresh();
 
+        /*
         // The inner track should lose its label (so there won't be more than one label)
           if(thisB.innerTrack.label) {
             thisB.innerTrack.div.removeChild(thisB.innerTrack.label);
             thisB.innerTrack.label = undefined;
           }
+        */
 
       }
 
@@ -184,8 +240,11 @@ return declare(BlockBased,
     refresh: function(track) {
       var thisB = this;
       if(!track) track = thisB;
-      if(this.range) track.showRange(thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,
+      if(this.range) {
+        track.clear();
+        track.showRange(thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,
           thisB.range.sc, thisB.range.cs, thisB.range.ce);
+      }
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
@@ -193,8 +252,12 @@ return declare(BlockBased,
       this.range = {f: first, l: last, st: startBase, 
                     b: bpPerBlock, sc: scale, 
                     cs: containerStart, ce: containerEnd};
+      if(this.innerTrack && !this.onlyRefreshOuter) this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
       this.inherited(arguments);
-      if(this.innerTrack) this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+
+      //alert(this.topHeight + " " + this.heightInner + " " + this.bottomHeight);
+      this.div.style.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner) + "px";
+      //alert(this.div.style.height);
     },
 
     moveBlocks: function(delta) {
@@ -203,24 +266,32 @@ return declare(BlockBased,
     },
 
     fillBlock: function( args ) {
-        var nodes = this.dnd.getAllNodes();
-        var i =0;
-        var msg = "";
 
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
 
-        var blockDiv = document.createElement("div");
-        blockDiv.className = this.divClass;
-
-        var textDiv = document.createElement("div");
-        textDiv.className = "combination_text";
         var text = "Add tracks here";
-        textDiv.appendChild( document.createTextNode( text ) );
+        if(this.innerTrack) {
+          var topDiv = document.createElement("div");
+          topDiv.className = "combination";
+          topDiv.style.height = this.topHeight + "px";
+          topDiv.appendChild( document.createTextNode( text ) );
+          block.domNode.appendChild( topDiv );
 
-        block.domNode.appendChild( blockDiv );
-        block.domNode.appendChild( textDiv );
+          var bottomDiv = document.createElement("div");
+          bottomDiv.className = "combination";
+          bottomDiv.style.height = this.bottomHeight + "px";
+          bottomDiv.style.top = (this.topHeight + this.heightInner) + "px";
+          bottomDiv.appendChild( document.createTextNode( text ) );
+          block.domNode.appendChild( bottomDiv );
+        } else {
+          var textDiv = document.createElement("div");
+          textDiv.className = "combination";
+          var text = "Add tracks here";
+          textDiv.appendChild( document.createTextNode( text ) );  
+          block.domNode.appendChild( textDiv );
+        }
 
         var highlight = this.browser.getHighlight();
         if( highlight && highlight.ref == this.refSeq.name )
