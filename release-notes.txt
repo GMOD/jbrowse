@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in which highlighted regions were not always drawn
+   correctly at initial load time.  Thanks to Steffi Geisen for
+   pointing this out.
+
  * Fixed a bug in which Wiggle track value displays behaved a bit
    oddly with some kinds of mouse movements.  Thanks to Gwendoline
    Andres for pointing this out.
