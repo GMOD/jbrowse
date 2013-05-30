@@ -2208,15 +2208,26 @@ GenomeView.prototype.layoutTracks = function() {
     var nextTop = this.topSpace;
     var lastTop = 0;
     var pinnedHeight = 0;
+    var lastWasPinned = false;
     array.forEach( this.tracks, function( track, i ) {
         this.trackTops[i] = nextTop;
-        track.div.style.top = ( track.isPinned() ? nextTop : nextTop - this.y ) + "px";
         lastTop = nextTop;
+
+        if( track.isPinned() ) {
+            track.div.style.top = nextTop + "px";
+            lastWasPinned = true;
+        }
+        else {
+            track.div.style.top = nextTop - this.y + ( lastWasPinned ? 15 : 0 ) + "px";
+            lastWasPinned = false;
+        }
+
         if ( track.shown ) {
             nextTop += this.trackHeights[i] + this.trackPadding;
             if( track.isPinned() )
                 pinnedHeight = nextTop;
         }
+
     }, this );
     if( pinnedHeight && this.pinUnderlay ) {
         this.pinUnderlay.style.height = pinnedHeight + 'px';
