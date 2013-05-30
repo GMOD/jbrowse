@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added a `logMessages` global configuration variable that, if set to
+   true, records messages on the JBrowse message bus in the browser
+   log.
+
  * Added a workaround for problems with some types of nonstandard Perl
    installations.  Thanks to Rebecca Boes for pointing this out.
 

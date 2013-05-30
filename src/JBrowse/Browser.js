@@ -1073,6 +1073,9 @@ Browser.prototype._calculateClientStats = function() {
 };
 
 Browser.prototype.publish = function() {
+    if( this.config.logMessages )
+        console.log( arguments );
+
     return topic.publish.apply( topic, arguments );
 };
 Browser.prototype.subscribe = function() {
