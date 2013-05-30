@@ -61,7 +61,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = this.posHeight;
+    this.topSpace = this.posHeight*1.5;
 
     // WebApollo needs max zoom level to be sequence residues char width
     this.maxPxPerBp = 20;
@@ -244,8 +244,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                         Math.round(this.stripeWidth / this.pxPerBp),
                         this.pxPerBp);
     }, this);
-
-    this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
     this.addOverviewTrack(new LocationScaleTrack({
         label: "overview_loc_track",
