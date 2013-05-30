@@ -2145,6 +2145,7 @@ GenomeView.prototype.updateTrackList = function() {
     });
     tracks = array.map( tracks, function( tr ) { return tr[0]; } );
 
+    // create or destroy the pinned-track underlay as needed
     if( tracks[0] && tracks[0].isPinned() ) {
         if( ! this.pinUnderlay )
             this.pinUnderlay = domConstruct.create('div', {
@@ -2157,10 +2158,11 @@ GenomeView.prototype.updateTrackList = function() {
         delete this.pinUnderlay;
     }
 
-
+    // set the new tracklist
     var oldTracks = this.tracks;
     this.tracks = tracks;
 
+    // recalculate this.trackHeights and this.trackIndices
     var newIndices = {};
     var newHeights = new Array(this.tracks.length);
     var totalHeight = 0;
@@ -2174,6 +2176,8 @@ GenomeView.prototype.updateTrackList = function() {
         totalHeight += newHeights[i];
         this.trackIndices[tracks[i].name] = i;
     }
+    this.trackIndices = newIndices;
+    this.trackHeights = newHeights;
 
     // call destroy on any tracks that are being thrown out
     array.forEach( oldTracks || [], function( track ) {
@@ -2183,9 +2187,7 @@ GenomeView.prototype.updateTrackList = function() {
         }
     }, this );
 
-    this.trackIndices = newIndices;
-    this.trackHeights = newHeights;
-
+    // lay the tracks out bottom to top
     this.layoutTracks();
 
     this.updateScroll();
