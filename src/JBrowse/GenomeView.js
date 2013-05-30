@@ -236,6 +236,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
@@ -1972,6 +1974,32 @@ GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
     },this);
 
     this.updateTrackList();
+};
+
+/**
+ * Pin the tracks with the given names.  Returns an array with the
+ * names of tracks that were actually pinned.
+ */
+GenomeView.prototype.pinTracks = function( /**Array[String]*/ trackNames ) {
+    var tracks = this._getTracks( trackNames );
+    array.forEach( tracks, function( track ) {
+                       track.setPinned(true);
+                   });
+    this.updateTrackList();
+    return array.map( tracks, function(t) { return t.name; } );
+};
+
+/**
+ * Unpin the tracks with the given names.  Returns an array with the
+ * names of tracks that were actually unpinned.
+ */
+GenomeView.prototype.unpinTracks = function( /**Array[String]*/ trackNames ) {
+    var tracks = this._getTracks( trackNames );
+    array.forEach( tracks, function( track ) {
+                       track.setPinned(false);
+                   });
+    this.updateTrackList();
+    return array.map( tracks, function(t) { return t.name; } );
 };
 
 /**

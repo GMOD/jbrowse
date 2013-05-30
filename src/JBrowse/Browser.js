@@ -861,14 +861,27 @@ Browser.prototype._initEventRouting = function() {
     that.subscribe('/jbrowse/v1/v/tracks/new', function( trackConfigs ) {
         that.addTracks( trackConfigs );
         that.publish( '/jbrowse/v1/c/tracks/new', trackConfigs );
+        that.publish( '/jbrowse/v1/n/tracks/new', trackConfigs );
     });
     that.subscribe('/jbrowse/v1/v/tracks/replace', function( trackConfigs ) {
         that.replaceTracks( trackConfigs );
         that.publish( '/jbrowse/v1/c/tracks/replace', trackConfigs );
+        that.publish( '/jbrowse/v1/n/tracks/replace', trackConfigs );
     });
     that.subscribe('/jbrowse/v1/v/tracks/delete', function( trackConfigs ) {
         that.deleteTracks( trackConfigs );
         that.publish( '/jbrowse/v1/c/tracks/delete', trackConfigs );
+        that.publish( '/jbrowse/v1/n/tracks/delete', trackConfigs );
+    });
+
+    that.subscribe('/jbrowse/v1/v/tracks/pin', function( trackNames ) {
+        that.publish( '/jbrowse/v1/c/tracks/pin', trackNames );
+        that.publish( '/jbrowse/v1/n/tracks/pin', trackNames );
+    });
+
+    that.subscribe('/jbrowse/v1/v/tracks/unpin', function( trackNames ) {
+        that.publish( '/jbrowse/v1/c/tracks/unpin', trackNames );
+        that.publish( '/jbrowse/v1/n/tracks/unpin', trackNames );
     });
 };
 

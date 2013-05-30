@@ -845,8 +845,7 @@ return declare( [Component,DetailsMixin,Destroyable],
               checked: that.isPinned(),
               //iconClass: 'dijitIconDelete',
               onClick: function() {
-                  that.setPinned( this.checked );
-                  that.browser.view.updateTrackList();
+                  that.browser.publish( '/jbrowse/v1/v/tracks/'+( this.checked ? 'pin' : 'unpin' ), [ that.name ] );
               }
             },
             { label: 'Edit config',
