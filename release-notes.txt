@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in which Wiggle track value displays behaved a bit
+   oddly with some kinds of mouse movements.  Thanks to Gwendoline
+   Andres for pointing this out.
+
  * Added a `logMessages` global configuration variable that, if set to
    true, records messages on the JBrowse message bus in the browser
    log.
