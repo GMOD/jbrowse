@@ -6,6 +6,8 @@ JBlibs - when included, sets JBrowse Perl module paths
 
 package JBlibs;
 
+use Carp::Heavy; #< work around some types of broken perl installations
+
 #find the jbrowse root dir
 use File::Basename 'dirname';
 use File::Spec::Functions qw( catfile catdir updir );

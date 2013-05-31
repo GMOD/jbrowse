@@ -3,12 +3,13 @@ define( [
             'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/on',
+            'dojo/mouse',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function( declare, array, dom, on, BlockBasedTrack, ExportMixin, Util, Scale ) {
+        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, Util, Scale ) {
 
 return declare( [BlockBasedTrack,ExportMixin], {
 
@@ -323,7 +324,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     zIndex: 15
                 }
         }, block.domNode );
-        var hideTimeout;
         dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
             this.own( on( element, 'mousemove', dojo.hitch(this,function(evt) {
                     var cPos = dojo.position(canvas);
@@ -342,13 +342,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     }
             })));
         },this);
-        this.own( on( block.domNode, 'mouseout', function(evt) {
-                          if( hideTimeout )
-                              window.clearTimeout( hideTimeout );
-                          hideTimeout = window.setTimeout( function() {
-                                                 scoreDisplay.style.display = 'none';
-                                                 verticalLine.style.display = 'none';
-                                             }, 50 );
+        this.own( on( block.domNode, mouse.leave, function(evt) {
+                          scoreDisplay.style.display = 'none';
+                          verticalLine.style.display = 'none';
         }));
     },
 

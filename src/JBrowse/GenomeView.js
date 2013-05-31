@@ -63,7 +63,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.posHeight = this.calculatePositionLabelHeight( this.elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = 1.5 * this.posHeight;
+    this.topSpace = this.posHeight*1.5;
 
     // WebApollo needs max zoom level to be sequence residues char width
     this.maxPxPerBp = 20;
@@ -151,30 +151,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                                 );
     this.prevCursors = [];
 
-    if ( dojo.isIE ) {
-        // if using IE, we have to do scrolling with CSS
-        this.x = -parseInt( this.scrollContainer.style.left );
-        this.y = -parseInt( this.scrollContainer.style.top );
-        this.rawSetX = function(x) {
-            this.scrollContainer.style.left = -x + "px";
-            this.x = x;
-        };
-        this.rawSetY = function(y) {
-            this.scrollContainer.style.top = -y + "px";
-            this.y = y;
-        };
-    } else {
     this.x = this.elem.scrollLeft;
-    this.y = this.elem.scrollTop;
-        this.rawSetX = function(x) {
-            this.elem.scrollLeft = x;
-            this.x = x;
-        };
-        this.rawSetY = function(y) {
-            this.elem.scrollTop = y;
-            this.y = y;
-        };
-    }
+    this.y = 0;
 
     var scaleTrackDiv = document.createElement("div");
     scaleTrackDiv.className = "track static_track rubberBandAvailable";
@@ -253,6 +231,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
     dojo.forEach(this.uiTracks, function(track) {
@@ -272,6 +252,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
 };
+
 
 /**
  * @returns {Object} containing ref, start, and end members for the currently displayed location
@@ -335,7 +316,7 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
     if( typeof newDims.height == 'number' ) {
         var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
         var trackPaneHeight = newDims.height + heightAdjust;
-        this.verticalScrollBar.container.style.height = trackPaneHeight+'px';
+        this.verticalScrollBar.container.style.height = trackPaneHeight-(this.pinUnderlay ? this.pinUnderlay.offsetHeight+heightAdjust : 0 ) +'px';
         var markerHeight = newDims.height / (this.containerHeight||1) * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
         this.verticalScrollBar.container.style.display = newDims.height / (this.containerHeight||1) > 0.98 ? 'none' : 'block';
@@ -615,6 +596,12 @@ GenomeView.prototype.clampY = function(y) {
                      );
 };
 
+
+GenomeView.prototype.rawSetX = function(x) {
+    this.elem.scrollLeft = x;
+    this.x = x;
+};
+
 /**
  * @returns the new x value that was set
  */
@@ -624,6 +611,11 @@ GenomeView.prototype.setX = function(x) {
     this.updateStaticElements( { x: x } );
     this.showFine();
     return x;
+};
+
+GenomeView.prototype.rawSetY = function(y) {
+    this.y = y;
+    this.layoutTracks();
 };
 
 /**
@@ -1257,10 +1249,6 @@ GenomeView.prototype.updateStaticElements = function( args ) {
     },this);
 
     this._updateVerticalScrollBar( args );
-
-    if( typeof args.y == 'number' ) {
-        this.staticTrack.div.style.top = args.y + "px";
-    }
 };
 
 GenomeView.prototype.showWait = function() {
@@ -1695,18 +1683,9 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     }
     this.trackHeights[track] = height;
     this.tracks[track].div.style.height = (height + this.trackPadding) + "px";
-    var nextTop = this.trackTops[track];
-    var lastTop = 0;
-    if (this.tracks[track].shown) nextTop += height + this.trackPadding;
-    for (var i = track + 1; i < this.tracks.length; i++) {
-        this.trackTops[i] = nextTop;
-        this.tracks[i].div.style.top = nextTop + "px";
-        lastTop = nextTop;
-        if (this.tracks[i].shown)
-            nextTop += this.trackHeights[i] + this.trackPadding;
-    }
-    this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
-    this.scrollContainer.style.height = this.containerHeight + "px";
+
+    this.layoutTracks();
+
     this.setY( this.getY() );
 
     this.updateStaticElements({ height: this.getHeight() });
@@ -1829,6 +1808,32 @@ GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
     },this);
 
     this.updateTrackList();
+};
+
+/**
+ * Pin the tracks with the given names.  Returns an array with the
+ * names of tracks that were actually pinned.
+ */
+GenomeView.prototype.pinTracks = function( /**Array[String]*/ trackNames ) {
+    var tracks = this._getTracks( trackNames );
+    array.forEach( tracks, function( track ) {
+                       track.setPinned(true);
+                   });
+    this.updateTrackList();
+    return array.map( tracks, function(t) { return t.name; } );
+};
+
+/**
+ * Unpin the tracks with the given names.  Returns an array with the
+ * names of tracks that were actually unpinned.
+ */
+GenomeView.prototype.unpinTracks = function( /**Array[String]*/ trackNames ) {
+    var tracks = this._getTracks( trackNames );
+    array.forEach( tracks, function( track ) {
+                       track.setPinned(false);
+                   });
+    this.updateTrackList();
+    return array.map( tracks, function(t) { return t.name; } );
 };
 
 /**
@@ -2236,9 +2241,36 @@ GenomeView.prototype.updateTrackList = function() {
             tracks.push(containerChild.track);
     } while ((containerChild = containerChild.nextSibling));
 
+    // sort so that the pinned tracks come first.  also, sorting is
+    // not stable in all implementations, need to stabilize it
+    // ourselves by doing a schwartzian transform with the indices
+    tracks = array.map( tracks, function(t,i) {
+                            return [t,i];
+                        });
+    tracks = tracks.sort( function( a, b ) {
+        var ap = a[0].isPinned() ? 1 : 0, bp = b[0].isPinned() ? 1 : 0;
+        return (bp - ap) || (a[1] - b[1]);
+    });
+    tracks = array.map( tracks, function( tr ) { return tr[0]; } );
+
+    // create or destroy the pinned-track underlay as needed
+    if( tracks[0] && tracks[0].isPinned() ) {
+        if( ! this.pinUnderlay )
+            this.pinUnderlay = domConstruct.create('div', {
+                                                       className: 'pin_underlay',
+                                                       style: 'top: '+this.topSpace
+                                                   }, this.scrollContainer );
+    }
+    else if( this.pinUnderlay ) {
+        domConstruct.destroy( this.pinUnderlay );
+        delete this.pinUnderlay;
+    }
+
+    // set the new tracklist
     var oldTracks = this.tracks;
     this.tracks = tracks;
 
+    // recalculate this.trackHeights and this.trackIndices
     var newIndices = {};
     var newHeights = new Array(this.tracks.length);
     var totalHeight = 0;
@@ -2252,6 +2284,8 @@ GenomeView.prototype.updateTrackList = function() {
         totalHeight += newHeights[i];
         this.trackIndices[tracks[i].name] = i;
     }
+    this.trackIndices = newIndices;
+    this.trackHeights = newHeights;
 
     // call destroy on any tracks that are being thrown out
     array.forEach( oldTracks || [], function( track ) {
@@ -2261,18 +2295,8 @@ GenomeView.prototype.updateTrackList = function() {
         }
     }, this );
 
-    this.trackIndices = newIndices;
-    this.trackHeights = newHeights;
-    var nextTop = this.topSpace;
-    for (var i = 0; i < this.tracks.length; i++) {
-        this.trackTops[i] = nextTop;
-        this.tracks[i].div.style.top = nextTop + "px";
-        if (this.tracks[i].shown)
-            nextTop += this.trackHeights[i] + this.trackPadding;
-    }
-
-    this.containerHeight = Math.max( nextTop || 0, this.getHeight() );
-    this.scrollContainer.style.height = this.containerHeight + "px";
+    // lay the tracks out bottom to top
+    this.layoutTracks();
 
     this.updateScroll();
 
@@ -2281,6 +2305,44 @@ GenomeView.prototype.updateTrackList = function() {
         this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
+};
+
+
+/**
+ * Lay out all shown tracks.
+ */
+GenomeView.prototype.layoutTracks = function() {
+    // lay out the track tops
+    var nextTop = this.topSpace;
+    var lastTop = 0;
+    var pinnedHeight = 0;
+    var lastWasPinned = false;
+    array.forEach( this.tracks, function( track, i ) {
+        this.trackTops[i] = nextTop;
+        lastTop = nextTop;
+
+        if( track.isPinned() ) {
+            track.div.style.top = nextTop + "px";
+            lastWasPinned = true;
+        }
+        else {
+            track.div.style.top = nextTop - this.y + ( lastWasPinned ? 15 : 0 ) + "px";
+            lastWasPinned = false;
+        }
+
+        if ( track.shown ) {
+            nextTop += this.trackHeights[i] + this.trackPadding;
+            if( track.isPinned() )
+                pinnedHeight = nextTop;
+        }
+
+    }, this );
+    if( pinnedHeight && this.pinUnderlay ) {
+        this.pinUnderlay.style.height = pinnedHeight + 'px';
+    }
+
+    this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
+    this.scrollContainer.style.height = this.containerHeight + "px";
 };
 
 return GenomeView;
