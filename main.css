@@ -159,12 +159,36 @@ div.vertical_scrollbar .vertical_position_marker {
     cursor: crosshair;
 }
 
-#navbox {
-    padding-top: 3px;
-    position: relative;
-    text-align: center;
+.nav-controls {
+    position: absolute;
+    height: 32px;
+    z-index: 1000;
+    padding-right: 3px;
+    white-space: nowrap;
+    background: #4284D3;
+
+    padding: 4px 4px 4px 4px;
+
+    -moz-box-shadow: 0 4px 15px 0px rgba(47, 47, 162, 0.71);
+    -webkit-box-shadow: 0 4px 15px 0px rgba(47, 47, 162, 0.71);
+    box-shadow: 0 4px 15px 0px rgba(47, 47, 162, 0.71);
 }
-#navbox .dijitButton, #navbox .dijitTextBox, #navbox .dijitSelect {
+.nav-controls * {
+    font-size: 12px;
+    font-family: sans-serif;
+}
+.nav-controls .miniTrap {
+    position: absolute;
+    bottom: 0;
+    display: none;
+    border-top: 32px solid transparent;
+    border-left: 0px solid transparent;
+    border-right: 24px solid transparent;
+    height: 0;
+    z-index: -10;
+    width: 100%;
+}
+.nav-controls .dijitButton, .nav-controls .dijitTextBox, .nav-controls .dijitSelect {
     height: 20px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -172,18 +196,14 @@ div.vertical_scrollbar .vertical_position_marker {
     -ms-box-sizing: border-box;
 }
 
-#navbox .dijitSelectLabel {
+.nav-controls .dijitSelectLabel {
     padding: 0 2px;
 }
 
-#navbox .dijitTextBox .dijitInputField {
+.nav-controls .dijitTextBox .dijitInputField {
     padding-left: 2px;
 }
 
-#navbox * {
-    font-size: 12px;
-    font-family: sans-serif;
-}
 
 .moreMatches {
     font-style: italic;

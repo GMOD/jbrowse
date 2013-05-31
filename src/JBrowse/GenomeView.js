@@ -1901,22 +1901,14 @@ GenomeView.prototype.zoomTo = function(value) {
 GenomeView.prototype.createNavBox = function( parent ) {
     var thisB = this;
     var navbox = document.createElement("div");
-    navbox.id = "navbox";
+    navbox.className = "nav-controls";
+    navbox.style.top = this.topSpace + 'px';
     parent.appendChild(navbox);
-    navbox.style.cssText = "text-align: left; z-index: 10;";
 
     var miniTrap = domConstruct.create(
         'div', {
-            className: "miniTrap",
-            style: "background: blue"
+            className: "miniTrap"
         }, navbox );
-
-    var regionText = document.createElement('span');
-    regionText.style.color = 'white';
-    regionText.style.fontWeight = 'bold';
-    regionText.style.width = 'auto';
-    regionText.innerHTML = 'Region';
-    miniTrap.appendChild(regionText);
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";
@@ -1924,7 +1916,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     zoomOut.style.height = "40px";
-    miniTrap.appendChild(zoomOut);
+    navbox.appendChild(zoomOut);
     dojo.connect( zoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
@@ -1933,7 +1925,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
 
 
 
-    var zoomSliderSpan = dojo.create('span', {}, miniTrap );
+    var zoomSliderSpan = dojo.create('span', {}, navbox );
     zoomSliderSpan.className = "icon nav";
 
     var zoomSlider = new dijitSlider({
@@ -1956,7 +1948,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     zoomIn.style.height = "40px";
-    miniTrap.appendChild(zoomIn);
+    navbox.appendChild(zoomIn);
     dojo.connect( zoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
@@ -1966,7 +1958,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
-    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, miniTrap );
+    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, navbox );
 
     // make the location box
     this.locationBox = new dijitComboBox(
@@ -1976,7 +1968,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
             maxLength: 400,
             searchAttr: "name"
         },
-        dojo.create('input', {}, miniTrap) );
+        dojo.create('input', {}, navbox) );
     dojo.style('location', 'height', '18px');
     this.browser.afterMilestone( 'loadNames', dojo.hitch(this, function() {
         if( this.browser.nameStore )
@@ -1988,14 +1980,14 @@ GenomeView.prototype.createNavBox = function( parent ) {
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
                       if (event.keyCode == dojo.keys.ENTER) {
                           this.locationBox.closeDropDown(false);
-                          this.navigateTo( this.locationBox.get('value') );
+                          this.browser.navigateTo( this.locationBox.get('value') );
                           this.goButton.set('disabled',true);
                           dojo.stopEvent(event);
                       } else {
                           this.goButton.set('disabled', false);
                       }
                   });
-    dojo.connect( miniTrap, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+    dojo.connect( this.locationBox.domNode, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
     // monkey-patch the combobox code to make a few modifications
     (function(){
 
@@ -2028,7 +2020,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
                 this.goButton.set('disabled',true);
                 dojo.stopEvent(event);
             })
-        }, dojo.create('button',{},miniTrap));
+        }, dojo.create('button',{},navbox));
 
     dojo.style('GoButton', 'height', '18px');
 
