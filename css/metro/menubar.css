@@ -1,0 +1,55 @@
+.jbrowse.metro .menuBar {
+    background: #396494;
+    text-align: right;
+}
+.jbrowse.metro .menuBar a {
+    color: white;
+}
+.jbrowse.metro .menuBar .dijitButtonNode {
+    background: transparent;
+}
+
+.jbrowse.metro .menuBar .dijitButtonNode {
+    border: 2px outset rgba( 120, 120, 120, 0.2 );
+}
+.jbrowse.metro .menuBar .dijitButtonHover .dijitButtonNode,
+.jbrowse.metro .menuBar .dijitDropDownButtonHover .dijitButtonNode {
+    background: rgba( 255, 255, 255, 0.07 );
+}
+.jbrowse.metro .menuBar .dijitButtonActive .dijitButtonNode,
+.jbrowse.metro .menuBar .dijitDropDownButtonActive .dijitButtonNode {
+    border: 2px inset rgba( 120, 120, 120, 0.2 );
+}
+.jbrowse.metro .menuBar .config .icon {
+    height: 16px;
+    width: 16px;
+    margin-right: 2px;
+    margin-top: -2px;
+    display: inline;
+    display: inline-block;
+    background: url("../../img/glyphs_white.png") no-repeat -168px -27px;
+}
+
+.jbrowse.metro .globalMenu .dijitMenuItem td {
+    padding: 0.5em 2px 0.5em 5px;
+}
+
+.jbrowse.metro .menuBar > .menu .dijitButtonNode {
+    border: none;
+}
+.jbrowse.metro .menuBar > .menu.dijitDropDownButton,
+.jbrowse.metro .menuBar > .menu.dijitDropDownButton * {
+    margin: 0;
+    padding: 0;
+    line-height: 25px;
+}
+.jbrowse.metro .menuBar > .menu.dijitDropDownButton .dijitButtonNode {
+    padding: 0 1em 0 0.7em;
+    text-align: left;
+}
+.jbrowse.metro .menuBar > .menu .dijitDropDownButtonHover .dijitButtonNode {
+    background: rgba( 255, 255, 255, 0.07 );
+}
+.jbrowse.metro .menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
+    border: none;
+}

@@ -170,11 +170,6 @@ div.vertical_scrollbar .vertical_position_marker {
     width: auto;
     z-index: 10;
 
-    border-right: 1px solid white;
-    background: #4284D3;
-
-    color: white;
-
     padding: 0 0.7em 0 0.4em;
 
     box-sizing: border-box;

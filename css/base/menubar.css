@@ -3,13 +3,6 @@ div.menuBar {
     padding: 1px 0;
     height: 25px;
 }
-.tundra .menuBar {
-    background: #396494;
-    text-align: right;
-}
-.tundra .menuBar a {
-    color: white;
-}
 div.topLink {
     position: absolute;
     right: 0;
@@ -52,22 +45,6 @@ a.topLink, a.topLink * {
 .menuBar * {
     outline: none;
 }
-.tundra .menuBar .dijitButtonNode {
-    background: transparent;
-}
-
-.tundra .menuBar .dijitButtonNode {
-    border: 2px outset rgba( 120, 120, 120, 0.2 );
-}
-.tundra .menuBar .dijitButtonHover .dijitButtonNode,
-.tundra .menuBar .dijitDropDownButtonHover .dijitButtonNode {
-    background: rgba( 255, 255, 255, 0.07 );
-}
-.tundra .menuBar .dijitButtonActive .dijitButtonNode,
-.tundra .menuBar .dijitDropDownButtonActive .dijitButtonNode {
-    border: 2px inset rgba( 120, 120, 120, 0.2 );
-}
-
 .menuBar .dijitButtonNode {
     padding: 0 1em;
 }
@@ -83,9 +60,7 @@ a.topLink, a.topLink * {
     display: inline;
     display: inline-block;
     background: url("../../img/glyphs_white.png") no-repeat -168px -27px;
-
 }
-
 
 /* dataset selector */
 .menuBar > .menu, .menuBar > .dataset_select {
@@ -114,27 +89,3 @@ a.topLink, a.topLink * {
     background: url("../../img/spriteArrows.png") no-repeat scroll -56px center;
 }
 
-.tundra .globalMenu .dijitMenuItem td {
-    padding: 0.5em 2px 0.5em 5px;
-}
-
-.tundra .menuBar > .menu .dijitButtonNode {
-    border: none;
-}
-.tundra .menuBar > .menu.dijitDropDownButton,
-.tundra .menuBar > .menu.dijitDropDownButton * {
-    margin: 0;
-    padding: 0;
-    line-height: 25px;
-}
-.tundra .menuBar > .menu.dijitDropDownButton .dijitButtonNode {
-    padding: 0 1em 0 0.7em;
-    text-align: left;
-}
-
-.tundra .menuBar > .menu .dijitDropDownButtonHover .dijitButtonNode {
-    background: rgba( 255, 255, 255, 0.07 );
-}
-.tundra .menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
-    border: none;
-}

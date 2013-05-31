@@ -1,1 +1,8 @@
-@import url('../base/main.css')
+@import url('../base/main.css');
+@import url('menubar.css');
+
+.jbrowse.metro .pane-position {
+    border-right: 1px solid white;
+    background: #4284D3;
+    color: white;
+}
