@@ -1,12 +1,23 @@
 define(['dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/keys',
         'dojo/dom-construct',
         'dijit/layout/ContentPane',
         'dojo/dnd/Source',
         'dojo/fx/easing',
         'dijit/form/TextBox'
        ],
-       function( declare, array, dom, ContentPane, dndSource, animationEasing, dijitTextBox ) {
+       function(
+           declare,
+           array,
+           keys,
+           dom,
+           ContentPane,
+           dndSource,
+           animationEasing,
+           dijitTextBox
+       ) {
+
 return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
@@ -144,6 +155,10 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
               },
               placeholder: 'filter by text',
               onkeypress: dojo.hitch( this, function( evt ) {
+                  if( evt.keyCode == keys.ESCAPE ) {
+                      this.textFilterInput.value = '';
+                  }
+
                   if( this.textFilterTimeout )
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
