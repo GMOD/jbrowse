@@ -3,7 +3,7 @@
 .jbrowseIconLink,
 .jbrowseIconCancel
 {
-    background-image: url('img/commonIconsEnabled.png');
+    background-image: url('../../img/commonIconsEnabled.png');
     width: 16px;
     height: 16px;
 }
@@ -13,7 +13,7 @@
 .dijitDisabled .jbrowseIconLink,
 .dijitDisabled .jbrowseIconCancel
 {
-    background-image: url('img/commonIconsDisabled.png');
+    background-image: url('../../img/commonIconsDisabled.png');
     width: 16px;
     height: 16px;
 }
@@ -29,5 +29,5 @@
 }
 
 .jbrowseIconBusy {
-    background-image: url('img/spinner.gif');
+    background-image: url('../img/spinner.gif');
 }

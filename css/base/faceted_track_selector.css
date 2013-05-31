@@ -1,7 +1,7 @@
 /* Dojo and Dijit stuff */
 
-@import url("src/dojox/grid/resources/tundraGrid.css");
-@import url("src/dijit/themes/tundra/layout/AccordionContainer.css");
+@import url("../../src/dojox/grid/resources/tundraGrid.css");
+@import url("../../src/dijit/themes/tundra/layout/AccordionContainer.css");
 
 
 .dojoxGrid table {
