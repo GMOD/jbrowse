@@ -2,6 +2,8 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/dom-construct',
+           'dojo/on',
+           'dojo/mouse',
            'JBrowse/Util',
            'JBrowse/has',
            'dojo/dnd/move',
@@ -21,6 +23,8 @@ define([
            declare,
            array,
            domConstruct,
+           on,
+           mouse,
            Util,
            has,
            dndMove,
@@ -155,9 +159,8 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.y = 0;
 
     var scaleTrackDiv = document.createElement("div");
-    scaleTrackDiv.className = "track static_track rubberBandAvailable";
+    scaleTrackDiv.className = "track viewscale rubberBandAvailable";
     scaleTrackDiv.style.height = this.posHeight + "px";
-    scaleTrackDiv.id = "static_track";
 
     this.scaleTrackDiv = scaleTrackDiv;
     this.staticTrack = new LocationScaleTrack({
@@ -1082,7 +1085,7 @@ GenomeView.prototype.onFineMove = function( startbp, endbp ) {
  */
 GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {
     // update the location box with our current location
-    this._updateLocationBox({ start: startbp, end: endbp, ref: this.ref.name });
+    this._updateLocationDisplays({ start: startbp, end: endbp, ref: this.ref.name });
 
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
@@ -1856,11 +1859,16 @@ GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
 };
 
 
-GenomeView.prototype._updateLocationBox = function( region ) {
+GenomeView.prototype._updateLocationDisplays = function( region ) {
+    var positionString = Util.assembleLocStringWithLength( region  );
+
+    if( this.positionDisplay ) {
+        this.positionDisplay.innerHTML = positionString;
+    }
     if( this.locationBox ) {
         this.locationBox.set(
             'value',
-            Util.assembleLocStringWithLength( region  ),
+            positionString,
             false //< don't fire any onchange handlers
         );
         this.goButton.set( 'disabled', true ) ;
@@ -1900,60 +1908,39 @@ GenomeView.prototype.zoomTo = function(value) {
 
 GenomeView.prototype.createNavBox = function( parent ) {
     var thisB = this;
+
+    this.positionDisplay = domConstruct.create(
+        'div',
+        { className: 'pane-position',
+          style: 'height:'+this.posHeight+'px'
+        },
+        parent );
+
     var navbox = document.createElement("div");
     navbox.className = "nav-controls";
     navbox.style.top = this.topSpace + 'px';
     parent.appendChild(navbox);
+    var navboxHideTimeout;
+
+    on( this.positionDisplay, 'mouseover', function() {
+            if( navboxHideTimeout )
+                window.clearTimeout( navboxHideTimeout );
+            navbox.style.display = 'block';
+    });
+    on( navbox, 'mouseover', function() {
+            if( navboxHideTimeout )
+                window.clearTimeout( navboxHideTimeout );
+    });
+    on( navbox, mouse.leave, function() {
+            if( navboxHideTimeout )
+                window.clearTimeout( navboxHideTimeout );
+            navboxHideTimeout = window.setTimeout( function() { navbox.style.display = 'none'; }, 300 );
+    });
 
     var miniTrap = domConstruct.create(
         'div', {
             className: "miniTrap"
         }, navbox );
-
-    var zoomOut = document.createElement("input");
-    zoomOut.type = "image";
-    zoomOut.src = this.browser.resolveUrl( "img/zoom-out-1.png" );
-    zoomOut.id = "zoomOut";
-    zoomOut.className = "icon nav";
-    zoomOut.style.height = "40px";
-    navbox.appendChild(zoomOut);
-    dojo.connect( zoomOut, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                     this.zoomOut();
-                  });
-
-
-
-    var zoomSliderSpan = dojo.create('span', {}, navbox );
-    zoomSliderSpan.className = "icon nav";
-
-    var zoomSlider = new dijitSlider({
-        id: "zoomSlider",
-        name: "slider",
-        value: 50,
-        minimum: 0,
-        maximum: 100,
-        intermediateChanges: true,
-        showButtons: false,
-        style: "width:100px; margin: 7px 0 0 0; display: inline-block",
-        onChange: function(value){
-            thisB.zoomTo(value);
-        }
-    }, dojo.create('input',{},zoomSliderSpan) );
-
-    var zoomIn = document.createElement("input");
-    zoomIn.type = "image";
-    zoomIn.src = this.browser.resolveUrl( "img/zoom-in-1.png" );
-    zoomIn.id = "zoomIn";
-    zoomIn.className = "icon nav";
-    zoomIn.style.height = "40px";
-    navbox.appendChild(zoomIn);
-    dojo.connect( zoomIn, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.zoomIn();
-                  });
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
@@ -2091,6 +2078,53 @@ GenomeView.prototype.createNavBox = function( parent ) {
 
         this.locationBox.domNode.style.width = locLength+'ex';
     }));
+
+
+    var zoomOut = document.createElement("input");
+    zoomOut.type = "image";
+    zoomOut.src = this.browser.resolveUrl( "img/zoom-out-1.png" );
+    zoomOut.id = "zoomOut";
+    zoomOut.className = "icon nav";
+    zoomOut.style.height = "40px";
+    navbox.appendChild(zoomOut);
+    dojo.connect( zoomOut, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                     this.zoomOut();
+                  });
+
+
+
+    var zoomSliderSpan = dojo.create('span', {}, navbox );
+    zoomSliderSpan.className = "icon nav";
+
+    var zoomSlider = new dijitSlider({
+        id: "zoomSlider",
+        name: "slider",
+        value: 50,
+        minimum: 0,
+        maximum: 100,
+        intermediateChanges: true,
+        showButtons: false,
+        style: "width:100px; margin: 7px 0 0 0; display: inline-block",
+        onChange: function(value){
+            thisB.zoomTo(value);
+        }
+    }, dojo.create('input',{},zoomSliderSpan) );
+
+    var zoomIn = document.createElement("input");
+    zoomIn.type = "image";
+    zoomIn.src = this.browser.resolveUrl( "img/zoom-in-1.png" );
+    zoomIn.id = "zoomIn";
+    zoomIn.className = "icon nav";
+    zoomIn.style.height = "40px";
+    navbox.appendChild(zoomIn);
+    dojo.connect( zoomIn, "click", this,
+                  function(event) {
+                      dojo.stopEvent(event);
+                      this.zoomIn();
+                  });
+
 
     return navbox;
 };

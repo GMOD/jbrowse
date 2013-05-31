@@ -159,6 +159,28 @@ div.vertical_scrollbar .vertical_position_marker {
     cursor: crosshair;
 }
 
+.pane-position {
+    position: absolute;
+
+    height: 14px;
+    line-height: 14px;
+
+    width: auto;
+    z-index: 10;
+
+    border-right: 1px solid white;
+    background: #4284D3;
+
+    color: white;
+
+    padding: 0 0.7em 0 0.4em;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
 .nav-controls {
     position: absolute;
     height: 32px;
@@ -172,6 +194,8 @@ div.vertical_scrollbar .vertical_position_marker {
     -moz-box-shadow: 0 4px 15px 0px rgba(47, 47, 162, 0.71);
     -webkit-box-shadow: 0 4px 15px 0px rgba(47, 47, 162, 0.71);
     box-shadow: 0 4px 15px 0px rgba(47, 47, 162, 0.71);
+
+    display: none;
 }
 .nav-controls * {
     font-size: 12px;
@@ -321,6 +345,11 @@ div.track {
     z-index: 5;
     padding: 0;
     margin: 0;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 div.pin_underlay {
     width: 100%;
@@ -358,8 +387,9 @@ div.track.pinned {
     margin-bottom: -3px;
 }
 
-div#static_track {
+div.viewscale {
     top: 0px;
+    height: 14px;
     position: absolute;
     background: #FAFAFA url(src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
     border-top: 1px solid #999;
