@@ -319,12 +319,12 @@ Util = {
                 s += ':';
         }
         if( 'start' in location ) {
-            s += (Math.round(location.start)+1).toFixed(0).toLocaleString();
+            s += Util.addCommas( (Math.round(location.start)+1).toFixed(0).toLocaleString() );
             if( 'end' in location )
                 s+= '..';
         }
         if( 'end' in location )
-            s += Math.round(location.end).toFixed(0).toLocaleString();
+            s += Util.addCommas( Math.round(location.end).toFixed(0).toLocaleString() );
 
         if( 'strand' in location )
             s += ({'1':' (+ strand)', '-1': ' (- strand)', '0': ' (no strand)' }[ location.strand || '' ]) || '';
