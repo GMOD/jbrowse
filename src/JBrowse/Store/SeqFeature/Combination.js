@@ -79,6 +79,7 @@ reload: function( optree, refSeq) {
     if( !optree) optree = this.opTree;
     if( !refSeq) refSeq = this.ref;
     
+    this.opTree = optree;
     this.stores = optree.getLeaves() || [];
 
     var thisB = this;

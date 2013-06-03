@@ -76,7 +76,9 @@ return declare(BlockBased,
               return {
                   data: trackConfig,
                   type: ["track"],
-                  node: this.addTrack(trackConfig)
+                  node: hint == 'avatar'
+                                 ? dojo.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
+                                 : this.addTrack(trackConfig)
               };
           })
         });
@@ -160,7 +162,6 @@ return declare(BlockBased,
       var d = new Deferred();
       var thisB = this;
       if(thisB.currentStore) {
-        thisB.currentStore.reload();
         d.resolve(true);
       } else {
         var storeConf = {
@@ -225,14 +226,6 @@ return declare(BlockBased,
 
         thisB.refresh();
 
-        /*
-        // The inner track should lose its label (so there won't be more than one label)
-          if(thisB.innerTrack.label) {
-            thisB.innerTrack.div.removeChild(thisB.innerTrack.label);
-            thisB.innerTrack.label = undefined;
-          }
-        */
-
       }
 
     },
@@ -240,7 +233,7 @@ return declare(BlockBased,
     refresh: function(track) {
       var thisB = this;
       if(!track) track = thisB;
-      if(this.currentStore && !this.onlyRefreshOuter) this.currentStore.reload();
+      if(this.currentStore && !this.onlyRefreshOuter) this.currentStore.reload(thisB.opTree);
       if(this.range) {
         track.clear();
         track.showRange(thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,
