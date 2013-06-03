@@ -109,12 +109,14 @@ echo -n "Building and installing legacy BAM support (bam-to-json.pl, samtools, a
         if( [ "x$SAMTOOLS" == "x" ] ); then
             set -x;
 
-            if [ ! -e samtools ]; then
-                svn export https://samtools.svn.sourceforge.net/svnroot/samtools/trunk/samtools;
-                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools/Makefile;
+            if [ ! -e samtools-master ]; then
+                wget -O samtools-master.zip https://github.com/samtools/samtools/archive/master.zip;
+                unzip -o -f samtools-master.zip;
+                rm samtools-master.zip;
+                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools-master/Makefile;
             fi;
-            make -C samtools -j3 lib;
-            export SAMTOOLS="$PWD/samtools";
+            make -C samtools-master -j3 lib;
+            export SAMTOOLS="$PWD/samtools-master";
         fi
         echo "samtools in env at '$SAMTOOLS'";
         set +e;

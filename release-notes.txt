@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed failures of setup.sh legacy BAM support installation caused
+   by samtools taking down their old SourceForge subversion
+   repository.
+
  * Fixed a bug in which highlighted regions were not always drawn
    correctly at initial load time.  Thanks to Steffi Geisen for
    pointing this out.
