@@ -8,6 +8,10 @@
    correctly at initial load time.  Thanks to Steffi Geisen for
    pointing this out.
 
+ * Added support for a `plugins->[]->location` configuration
+   attribute, making it possible for plugins to be loaded from outside
+   the JBrowse plugins directory.
+
  * Fixed a bug in which Wiggle track value displays behaved a bit
    oddly with some kinds of mouse movements.  Thanks to Gwendoline
    Andres for pointing this out.
