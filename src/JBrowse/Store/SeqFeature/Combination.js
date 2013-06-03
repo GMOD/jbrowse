@@ -200,20 +200,30 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
             }
         );
 
-        // May need to reconsider this since removing invMask, Mask and display might have screwed it all up
         if ( fetchAllFeatures.length != 0 ) {
             wrapperPromise.push( all(fetchAllFeatures) );
         }
         
         when( all( wrapperPromise ), function() {
             // Create a set of spans based on the evaluation of the operation tree
-
             var spans = thisB.evalTree(featureArrays, thisB.opTree, query);
-            
-            thisB.finish(featureArrays, spans, featCallback, doneCallback);
+
+            var derivedFeatures = thisB.createFeatures(spans);
+
+            thisB.finish(derivedFeatures, spans, featCallback, doneCallback);
 
         });
     });
+},
+
+createFeatures: function(spans) {
+    var features = [];
+    //Validate this next time...
+    for(var span in spans) {
+        var id = "comfeat_" + spans[span].start + "." + spans[span].end + "." + spans[span].strand;
+        features.push(new SimpleFeature({data: {start: spans[span].start, end: spans[span].end, strand: spans[span].strand}, id: id}));
+    }
+    return features;
 },
 
 evalTree: function(featureArrays, tree, query) {
@@ -258,36 +268,6 @@ opSpan: function(op, span1, span2, query) {
          pseudo-features (span objects with endpoints that match real features)
 */
 
-makeSpan: function( args ) {
-    // given a list of pseudo-features, outputs a list of non-overlapping spans
-    var features = args.features || [];
-    var spans = args.spans || [];
-    if ( features.length == 0 ) { 
-        return spans.sort( function( a, b ) { return a.start-b.start } );
-    }
-    // if the span is empty, the function does nothing
-    if( spans.length == 0 ) {
-        spans.push({ start: features[0].start, end: features[0].end });
-        features.splice(0,1);
-        if ( features.length == 0 ) {
-            return spans.sort ( function ( a, b ) { return a.start-b.start } );
-        }
-    }
-    for (var span in spans) {
-        if (spans.hasOwnProperty(span)) {
-            span = spans[span];
-            if ( this.inSpan( features[0], span ) ) {
-                features[0].start = Math.min( features[0].start, span.start );
-                features[0].end = Math.max( features[0].end, span.end );
-                spans.splice( spans.indexOf(span), 1 );
-                return this.makeSpan({features: features, spans: spans});
-            }
-        }
-    }
-    spans.push( { start: features[0].start, end: features[0].end } );
-    features.splice(0,1);
-    return this.makeSpan({features: features, spans: spans});
-},
 
 inSpan: function( feature, span ) {
     // given a feature or pseudo-feature, returns true if the feature
@@ -300,66 +280,133 @@ inSpan: function( feature, span ) {
     
 },
 
-toSpan: function( features, query ) {
+
+toSpan: function(features, query) {
+    // given a set of features, takes the "union" of them and outputs a single set of nonoverlapping spans
+    var rawSpans = this._rawToSpan(features,query);
+    
+    return this._removeOverlap(this._strandFilter(rawSpans, +1)).concat(this._removeOverlap(this._strandFilter(rawSpans, -1)));
+    
+},
+
+_rawToSpan: function( features, query ) {
     // given a set of features, makes a set of span objects with the
     // same start and end points (a.k.a. pseudo-features)
     var spans = [];
     for (var feature in features) {
         if (features.hasOwnProperty(feature)) {
-            spans.push( { start: Math.max( features[feature].get('start'), query.start ), 
-                          end:   Math.min( features[feature].get('end'),   query.end   ) } );
-        }
-    }
+            spans.push( { start: features[feature].get('start'), //Math.max( features[feature].get('start'), query.start ), 
+                          end:   features[feature].get('end'), //Math.min( features[feature].get('end'),   query.end   ),
+                          strand: features[feature].get('strand') } );
+        }    }
     return spans;
 },
 
-addOverlap: function( args ) {
-    // takes a simple feature and a span, adds the overlap of the two
-    // as a property of the feature.
-    var feature = args.feature;
-    var span = args.span;
-    if (!feature) {
-        console.error("addOverlap must be passed a feature. Passed :" + feature);
-        return;
+_strandFilter: function( spans, strand ) {
+    return array.filter( spans, function(item) {
+                                                return item.strand == strand;
+                                            });
+},
+
+_removeOverlap: function( spans ) {
+    // converts overlapping spans into their union.  Assumes the spans are all on the same strand.
+    if(!spans.length) return [];
+    spans.sort(function(a,b) { return a.start - b.start; });
+    return this._removeOverlapSorted(spans);
+    
+},
+
+_removeOverlapSorted: function( spans ) {
+    var retSpans = [];
+    var i = 0;
+    var strand = spans[0].strand;
+    while(i < spans.length) {
+        var start = spans[i].start;
+        var end = spans[i].end;
+        while(i < spans.length && spans[i].start <= end) {
+            end = Math.max(end, spans[i].end);
+            i++;
+        }
+        retSpans.push( { start: start, end: end, strand: strand});
     }
-    if (!feature.overlaps) {
-        feature.overlaps = [];
-    }
-    feature.overlaps.push( { start: Math.max( feature.get('start'), span.start ),
-                             end:   Math.min( feature.get('end'), span.end ) } );
-    return feature;
+    return retSpans;
 },
 
 orSpan: function( span1, span2 ){
-    // given two sets of spans, outputs a set corresponding to their union.
-    return this.makeSpan({ features: span1.concat( span2 ) });
+    // given two sets of spans without internal overlap, outputs a set corresponding to their union.
+    return this._computeUnion(this._strandFilter(span1, 1), this._strandFilter(span2, 1))
+        .concat(this._computeUnion(this._strandFilter(span1,-1), this._strandFilter(span2,-1)));
 },
 
-andSpan: function( span1, span2 ) {
-    // given two sets of spans, outputs a set corresponding to their intersection.
-    var spans = span1.concat(span2);
-    var arr = [];
-    for ( key in spans ) {
-        if ( spans.hasOwnProperty(key) ) {
-            arr.push(['s', spans[key].start]);
-            arr.push(['e', spans[key].end]);
+andSpan: function( span1, span2){
+    // given two sets of spans, outputs their intersection.
+    this.spanLoop(span1);
+    this.spanLoop(span2);
+    this.spanLoop(this._strandFilter(span1,1));
+    this.spanLoop(this._strandFilter(span2,1));
+    this.spanLoop(this._strandFilter(span1,-1));
+    this.spanLoop(this._strandFilter(span2,-1));
+
+
+    return this._computeIntersection(this._strandFilter(span1, 1), this._strandFilter(span2,1))
+        .concat(this._computeIntersection(this._strandFilter(span1,-1), this._strandFilter(span2,-1)));
+
+},
+
+spanLoop: function( spans ) {
+    var msg = "";
+    for(var span in spans) {
+        msg = msg + spans[span].start + " " + spans[span].end + " " + spans[span].strand + "\n";
+    }
+    if(msg.length > 0) { alert(msg);}
+},
+
+_sortedArrayMerge: function( span1, span2) {
+    // This algorithm should merge two sorted span arrays in O(n) time, which is better
+    // then using span1.concat(span2) and then array.sort(), which takes O(n*log(n)) time.
+    var newArray = [];
+    var i = 0;
+    var j = 0;
+    while(i < span1.length && j < span2.length) {
+        if( span1[i].start <= span2[j].start ) {
+            newArray.push(span1[i]);
+            i++;
+        } else {
+            newArray.push(span2[j]);
+            j++;
         }
     }
-    arr.sort( function( a, b ) { return a[1]-b[1]; } );
-    var newSpans = [];
-    var startNumber = 0;
-    for ( var i=0; i<arr.length-1; i++) {
-        if (arr[i][0] == 's') {
-            startNumber++;
-        }
-        if (arr[i][0] == 'e') {
-            startNumber--;
-        }
-        if ( startNumber == 2 ) {
-            newSpans.push({ start: arr[i][1], end: arr[i+1][1] });
-        }
+    if(i < span1.length) {
+        newArray = newArray.concat(span1.slice(i, span1.length));
+    } else if(j < span2.length) {
+        newArray = newArray.concat(span2.slice(j, span2.length));
     }
-    return newSpans;
+    return newArray;
+},
+
+_computeUnion: function( span1, span2) {
+    if(!span1.length && !span2.length) return [];
+    return this._removeOverlapSorted(this._sortedArrayMerge(span1,span2));
+},
+
+_computeIntersection: function( span1, span2) {
+    if(!span1.length || !span2.length) return [];
+
+    var allSpans = this._sortedArrayMerge(span1, span2);
+    var retSpans = [];
+    
+    var maxEnd = allSpans[0].end;
+    var strand = span1[0].strand; // Assumes both span sets contain only features for one specific strand
+    var i = 1;
+    while(i < allSpans.length) {
+        var start = allSpans[i].start;
+        var end = Math.min(allSpans[i].end, maxEnd);
+        if(start < end) retSpans.push({start: start, end: end, strand: strand});
+        maxEnd = Math.max(allSpans[i].end, maxEnd);
+        i++;
+    }
+
+    return retSpans;
 },
 
 notSpan: function( spans, query ) {
@@ -388,10 +435,9 @@ notSpan: function( spans, query ) {
 finish: function( features, spans, featCallback, doneCallback ) {
     /* Pass features to the track's original featCallback, and pass spans to the doneCallback.
      */
-    for ( var storeName in features ) {
-        for (var key in features[storeName])
-            if ( features[storeName].hasOwnProperty(key) ) {
-                featCallback( features[storeName][key] );
+    for ( var key in features ) {
+            if ( features.hasOwnProperty(key) ) {
+                featCallback( features[key] );
             }
     }
     doneCallback( { spans: spans} );

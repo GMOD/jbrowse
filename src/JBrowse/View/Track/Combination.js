@@ -188,10 +188,6 @@ return declare(BlockBased,
           this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
           this.div.appendChild(this.innerDiv);
 
-          var innerDndSource = new dndSource(this.innerDiv, {
-
-            });
-
         } else { // Otherwise we'll have to remove whatever track is currently in the div
           thisB.innerTrack.clear();
           thisB.innerTrack.destroy();
@@ -252,7 +248,10 @@ return declare(BlockBased,
       this.range = {f: first, l: last, st: startBase, 
                     b: bpPerBlock, sc: scale, 
                     cs: containerStart, ce: containerEnd};
-      if(this.innerTrack && !this.onlyRefreshOuter) this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+      if(this.innerTrack && !this.onlyRefreshOuter) {
+          this.innerTrack.clear();
+          this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        }
       this.inherited(arguments);
 
       //alert(this.topHeight + " " + this.heightInner + " " + this.bottomHeight);
