@@ -159,21 +159,25 @@ return declare(BlockBased,
     _createCombinationStore: function() {
       var d = new Deferred();
       var thisB = this;
-      if(thisB.currentStore) thisB.browser.releaseStore(this.currentStore.name);
-      var storeConf = {
-          browser: thisB.browser,
-          refSeq: thisB.browser.refSeq,
-          type: 'JBrowse/Store/SeqFeature/Combination',
-          opTree: thisB.opTree,
-          op: thisB.defaultOp,
-          storeNames: [] 
-        };
-      var storeName = thisB.browser._addStoreConfig(undefined, storeConf);
-      storeConf.name = storeName;
-      thisB.browser.getStore(storeName, function(store) {
-        thisB.currentStore = store;
+      if(thisB.currentStore) {
+        thisB.currentStore.reload();
         d.resolve(true);
-      });
+      } else {
+        var storeConf = {
+            browser: thisB.browser,
+            refSeq: thisB.browser.refSeq,
+            type: 'JBrowse/Store/SeqFeature/Combination',
+            opTree: thisB.opTree,
+            op: thisB.defaultOp,
+            storeNames: [] 
+          };
+        var storeName = thisB.browser._addStoreConfig(undefined, storeConf);
+        storeConf.name = storeName;
+        thisB.browser.getStore(storeName, function(store) {
+          thisB.currentStore = store;
+          d.resolve(true);
+        });
+    }
       d.promise.then(function(){ thisB._renderInnerTrack(); });
     },
 

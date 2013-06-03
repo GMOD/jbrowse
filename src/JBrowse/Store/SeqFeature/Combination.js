@@ -182,50 +182,17 @@ getRegionalStats: function( region, successCallback, errorCallback ) {
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
     thisB.allFeaturesLoaded.then(function() {
-        thisB.finish(thisB.featureArray, thisB.spans, featCallback, doneCallback);
+
+        var filteredFeats = array.filter(thisB.featureArray, function(item) {
+                return item.get('start') < query.end && item.get('end') >= query.start;
+            });
+        var filteredSpans = array.filter(thisB.spans, function(item) {
+                return item.start < query.end && item.end >= query.start;
+            });
+
+        thisB.finish(filteredFeats, filteredSpans, featCallback, doneCallback);
     });
 
-    /*
-        // check if there are stores
-        if (!Keys(thisB.stores).length) {
-            errorCallback;
-        }
-
-        var featureArrays = {};
-
-        var wrapperPromise = [];
-        var fetchAllFeatures = thisB.stores.map(
-            function (store) {
-                var d = new Deferred();
-                if ( !featureArrays[store.name] ) {
-                    featureArrays[store.name] = [];
-                }
-                store.getFeatures(
-                    query,
-                    dojo.hitch( this, function( feature ) {
-                        var feat = new featureWrapper( feature, store.name );
-                        featureArrays[store.name].push( feat );
-                    }),
-                    function(){d.resolve( featureArrays[store.name] );},
-                    errorCallback
-                );
-                return d.promise;
-            }
-        );
-
-        if ( fetchAllFeatures.length != 0 ) {
-            wrapperPromise.push( all(fetchAllFeatures) );
-        }
-        
-        when( all( wrapperPromise ), function() {
-            // Create a set of spans based on the evaluation of the operation tree
-            var spans = thisB.evalTree(featureArrays, thisB.opTree, query);
-
-            var derivedFeatures = thisB.createFeatures(spans);
-
-            thisB.finish(derivedFeatures, spans, featCallback, doneCallback);
-
-        }); */
 },
 
 createFeatures: function(spans) {
