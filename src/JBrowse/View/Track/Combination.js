@@ -116,11 +116,29 @@ return declare(BlockBased,
       thisB.storeToKey[trackConfig.store] = trackConfig.key;
       thisB.keyToStore[trackConfig.key] = trackConfig.store;
 
-      thisB._addTrackStore(trackConfig.store);
+      if(!this.innerDiv) {
+        this.innerDiv = document.createElement("div");
+        this.innerDiv.className = "track";
+        this.innerDiv.id = "combination_innertrack";
+        this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
+        //this.div.appendChild(this.innerDiv);
+      } else { // Otherwise we'll have to remove whatever track is currently in the div
+        thisB.innerTrack.clear();
+        thisB.innerTrack.destroy();
 
+        while(thisB.innerDiv.firstChild) { // Use dojo.empty instead?
+          thisB.innerDiv.removeChild(thisB.innerDiv.firstChild);
+        }
+        
+        thisB.innerDiv.parentNode.removeChild(thisB.innerDiv);
+      }
+
+      thisB._addTrackStore(trackConfig.store);
+      /*      
       var nothing = document.createTextNode("");
       return nothing;
-      
+      */
+      return thisB.innerDiv;
     },
 
     treeIterate: function(tree) {
@@ -186,6 +204,8 @@ return declare(BlockBased,
       var thisB = this;
       if(thisB.currentStore) {
         // If the div for the inner track doesn't exist, create it.
+
+        /*
         if(!this.innerDiv) {
           this.innerDiv = document.createElement("div");
           this.innerDiv.className = "track";
@@ -200,7 +220,7 @@ return declare(BlockBased,
           while(thisB.innerDiv.firstChild) { // Use dojo.empty instead?
             thisB.innerDiv.removeChild(thisB.innerDiv.firstChild);
           }
-        }
+        }*/
         thisB.innerTrack = new HTMLFeaturesTrack({
             label: "inner_track",
             key: "Inner Track",
