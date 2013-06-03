@@ -200,9 +200,15 @@ Browser.prototype.initPlugins = function() {
         }
 
         // coerce plugins to array of objects
-        plugins = array.map( dojo.isArray(plugins) ? plugins : [plugins], function( p ) {
+        plugins = array.map( lang.isArray( plugins ) ? plugins : [plugins], function( p ) {
             return typeof p == 'object' ? p : { 'name': p };
         });
+
+        // set default locations for each plugin
+        array.forEach( plugins, function(p) {
+            if( !( 'location' in p ))
+                p.location = 'plugins/'+p.name;
+        },this);
 
         var pluginNames = array.map( plugins, function( p ) {
             return p.name;
@@ -217,8 +223,16 @@ Browser.prototype.initPlugins = function() {
             .then( function() { deferred.resolve({success: true}); });
 
         require( {
-                     packages: array.map( pluginNames, function(c) {
-                                              return { name: c, location: "../plugins/"+c+"/js" };
+                     packages: array.map( plugins, function(p) {
+                                              return {
+                                                  name: p.name,
+                                                  location: function() {
+                                                      var u = this.resolveUrl( p.location+"/js" );
+                                                      if( u.charAt(0) != '/' && ! /^https?:/i.test(u) )
+                                                          u = '../'+u;
+                                                      return u;
+                                                  }.call(this)
+                                              };
                                           }, this )
                  },
                  pluginNames,
@@ -341,7 +355,7 @@ Browser.prototype.onRefSeqsLoaded = function() {};
 
 Browser.prototype.loadUserCSS = function() {
     return this._milestoneFunction( 'loadUserCSS', function( deferred ) {
-        if( this.config.css && ! dojo.isArray( this.config.css ) )
+        if( this.config.css && ! lang.isArray( this.config.css ) )
             this.config.css = [ this.config.css ];
 
         var css = this.config.css || [];

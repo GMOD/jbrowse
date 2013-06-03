@@ -1,8 +1,16 @@
 {{$NEXT}}
 
+ * Fixed failures of setup.sh legacy BAM support installation caused
+   by samtools taking down their old SourceForge subversion
+   repository.
+
  * Fixed a bug in which highlighted regions were not always drawn
    correctly at initial load time.  Thanks to Steffi Geisen for
    pointing this out.
+
+ * Added support for a `plugins->[]->location` configuration
+   attribute, making it possible for plugins to be loaded from outside
+   the JBrowse plugins directory.
 
  * Fixed a bug in which Wiggle track value displays behaved a bit
    oddly with some kinds of mouse movements.  Thanks to Gwendoline
