@@ -124,8 +124,9 @@ var Browser = function(params) {
                 thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
 
             thisB.loadNames();
-            thisB.loadUserCSS().then( function() {
-                thisB.initPlugins().then( function() {
+            thisB.initPlugins().then( function() {
+                thisB.loadUserCSS().then( function() {
+
                     thisB.initTrackMetadata();
                     thisB.loadRefSeqs().then( function() {
 
