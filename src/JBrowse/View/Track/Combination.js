@@ -236,6 +236,7 @@ return declare(BlockBased,
     refresh: function(track) {
       var thisB = this;
       if(!track) track = thisB;
+      if(this.currentStore && !this.onlyRefreshOuter) this.currentStore.reload();
       if(this.range) {
         track.clear();
         track.showRange(thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,

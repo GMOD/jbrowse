@@ -66,63 +66,74 @@ constructor: function( args ) {
     // can pass store objects in as args
     this.defaultOp = args.op || "AND";
     this.opTree = args.opTree || new TreeNode({ Value: this.defaultOp});
-    this.stores = this.opTree.getLeaves() || [];
+    this.ref = this.config.refSeq;
+    
+    this.reload();
+    
+    // This code has been stripped of the store promises, since I'm pretty sure we don't need them anymore.
+    // If we do, we'll have to go back to a previous commit to find it.
+
+},
+
+reload: function( optree, refSeq) {
+    if( !optree) optree = this.opTree;
+    if( !refSeq) refSeq = this.ref;
+    
+    this.stores = optree.getLeaves() || [];
 
     var thisB = this;
     
-    // Push resolved promises for all stores passed into this object
-    var allStorePromises = [];
-    for(var store in this.stores) {
-        var d = new Deferred();
-        if(this.stores[store]) d.resolve(this.stores[store], true);
-        else d.reject("Store not found", true);
-        allStorePromises.push(d.promise);
+    thisB.allFeaturesLoaded = new Deferred();
+
+    // check if there are stores
+    if (!Keys(thisB.stores).length) {
+        thisB.allFeaturesLoaded.reject(" No stores were loaded.");
     }
 
-    // Push promises for all stores whose names have been passed into this object's config file - don't know if necessary
-    var storeFetchPromises = (function(){
-        var storeFetchPromises = array.map(
-            thisB.config.storeNames || [],
-            function( storeName ) {
-                var d = new Deferred();
-                var index = thisB.stores.indexOf(storeName);
-                if(index != -1) {
-                    d.resolve( thisB.stores[index], true );
-                } else {
-                    thisB.browser.getStore( storeName, function( store ) {
-                        if ( store ) {
-                            store.name = storeName;
-                            thisB.stores.push( store );
+    var featureArrays = {};
 
-                            // Constructs operation tree from store names using default set operation.
-                            // Creates a left-heavy tree... possible tree-balancing to improve efficiency?
-                            var tn = new TreeNode({Value: store});
-                            if(!(this.opTree.add( tn ))) {
-                                var opNode = new TreeNode({Value: this.defaultOp});
-                                opNode.add(this.opTree);
-                                opNode.add(tn);
-                                this.opTree = opNode;
-                            }
+    var globalQuery =   {
+                            ref: refSeq,
+                            start: refSeq.start,
+                            end: refSeq.end
+                        };
 
-                            d.resolve( store, true );
-                        }
-                        else { // store not found
-                            d.reject( 'store '+storeName+' not found', true );
-                        }
-                    });
-                }
-                return d.promise;
-        });
-        return storeFetchPromises;
-    })();
-    allStorePromises = allStorePromises.concat(storeFetchPromises);
-    this.gotAllStores = all(allStorePromises);
+    var fetchAllFeatures = thisB.stores.map(
+        function (store) {
+            var d = new Deferred();
+            if ( !featureArrays[store.name] ) {
+                featureArrays[store.name] = [];
+            }
+            store.getFeatures(
+                globalQuery,
+                dojo.hitch( this, function( feature ) {
+                    var feat = new featureWrapper( feature, store.name );
+                    featureArrays[store.name].push( feat );
+                }),
+                function(){d.resolve( featureArrays[store.name] );},
+                function(){d.reject("Error fetching features for store " + store.name);}
+            );
+            return d.promise;
+        }
+    );
+        
+    when( all( fetchAllFeatures ), function() {
+        // Create a set of spans based on the evaluation of the operation tree
+        thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, globalQuery);
+
+        thisB.featureArray = thisB.createFeatures(thisB.spans);
+        thisB.allFeaturesLoaded.resolve(true);
+
+    });
+
 },
+
+
 
 // Will need to figure this one out later.
 getGlobalStats: function( successCallback, errorCallback ) {
+    
     thisB = this;
-    thisB.gotAllStores.then( function() {
         var statObjects = [];
         for (var key in thisB.stores.display) {
             if (thisB.stores.display.hasOwnProperty(key) ) {
@@ -161,7 +172,6 @@ getGlobalStats: function( successCallback, errorCallback ) {
             }
             successCallback(stats);
         });
-    });
 },
 
 // Will need to figure this one out later as well.
@@ -171,17 +181,20 @@ getRegionalStats: function( region, successCallback, errorCallback ) {
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
-    
-    thisB.gotAllStores.then( function( args ) {
+    thisB.allFeaturesLoaded.then(function() {
+        thisB.finish(thisB.featureArray, thisB.spans, featCallback, doneCallback);
+    });
+
+    /*
         // check if there are stores
-        if (!Keys(args).length) {
+        if (!Keys(thisB.stores).length) {
             errorCallback;
         }
 
         var featureArrays = {};
 
         var wrapperPromise = [];
-        var fetchAllFeatures = args.map(
+        var fetchAllFeatures = thisB.stores.map(
             function (store) {
                 var d = new Deferred();
                 if ( !featureArrays[store.name] ) {
@@ -212,8 +225,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
 
             thisB.finish(derivedFeatures, spans, featCallback, doneCallback);
 
-        });
-    });
+        }); */
 },
 
 createFeatures: function(spans) {
@@ -339,14 +351,6 @@ orSpan: function( span1, span2 ){
 },
 
 andSpan: function( span1, span2){
-    // given two sets of spans, outputs their intersection.
-    this.spanLoop(span1);
-    this.spanLoop(span2);
-    this.spanLoop(this._strandFilter(span1,1));
-    this.spanLoop(this._strandFilter(span2,1));
-    this.spanLoop(this._strandFilter(span1,-1));
-    this.spanLoop(this._strandFilter(span2,-1));
-
 
     return this._computeIntersection(this._strandFilter(span1, 1), this._strandFilter(span2,1))
         .concat(this._computeIntersection(this._strandFilter(span1,-1), this._strandFilter(span2,-1)));
@@ -409,7 +413,11 @@ _computeIntersection: function( span1, span2) {
     return retSpans;
 },
 
-notSpan: function( spans, query ) {
+notSpan: function( spans, query) {
+    return this._rawNotSpan(this._strandFilter(spans, +1), query, +1).concat(this._rawNotSpan(this._strandFilter(spans, -1), query, -1)); 
+},
+
+_rawNotSpan: function( spans, query, strand ) {
     // creates the compliment spans of the input spans
     var invSpan = [];
     invSpan[0] = { start: query.start };
@@ -417,11 +425,13 @@ notSpan: function( spans, query ) {
     for (span in spans) {
         if (spans.hasOwnProperty(span)) {
             span = spans[span];
+            invSpan[i].strand = strand;
             invSpan[i].end = span.start;
             i++;
             invSpan[i] = { start: span.end };
         }
     }
+    invSpan[i].strand = strand;
     invSpan[i].end = query.end;
     if (invSpan[i].end <= invSpan[i].start) {
         invSpan.splice(i,1);
