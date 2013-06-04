@@ -563,7 +563,7 @@ Browser.prototype.initView = function() {
                                   );
 
             function showHelp() {
-                new HelpDialog({ browser: thisObj }).show();
+                new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
             }
             this.setGlobalKeyboardShortcut( '?', showHelp );
             this.addGlobalMenuItem( 'help',
