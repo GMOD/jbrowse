@@ -109,7 +109,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     context.fillRect( fRect.l, fRect.t, fRect.w, originY-fRect.t+1);
                     if( !disableClipMarkers && fRect.t < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( fRect.l, 0, fRect.w, 2 );
+                        context.fillRect( fRect.l, 0, fRect.w, 3 );
                     }
                 }
                 else {
@@ -118,7 +118,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     context.fillRect( fRect.l, originY, fRect.w, fRect.t-originY+1 );
                     if( !disableClipMarkers && fRect.t >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
+                        context.fillRect( fRect.l, canvasHeight-3, fRect.w, 3 );
                     }
                 }
             }

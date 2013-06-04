@@ -955,6 +955,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     if (this.ref != refseq) {
     this.ref = refseq;
+        this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
     var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
