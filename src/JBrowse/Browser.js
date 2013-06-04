@@ -210,15 +210,17 @@ Browser.prototype.initPlugins = function() {
             if( !( 'location' in p ))
                 p.location = 'plugins/'+p.name;
 
+            var resolved = this.resolveUrl( p.location );
+
             // figure out js path
             if( !( 'js' in p ))
-                p.js = this.resolveUrl( p.location )+"/js";
+                p.js = resolved+"/js";
             if( p.js.charAt(0) != '/' && ! /^https?:/i.test( p.js ) )
                 p.js = '../'+p.js;
 
             // figure out css path
             if( !( 'css' in p ))
-                p.css = p.location+"/css";
+                p.css = resolved+"/css";
         },this);
 
         var pluginDeferreds = array.map( plugins, function(p) {
