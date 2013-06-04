@@ -27,7 +27,8 @@ return declare( WiggleBase,
                     height: 31,
                     pos_color: '#00f',
                     neg_color: '#f00',
-                    bg_color: 'rgba(230,230,230,0.6)'
+                    bg_color: 'rgba(230,230,230,0.6)',
+                    clip_marker_color: 'black'
                 }
             }
         );
@@ -41,27 +42,37 @@ return declare( WiggleBase,
 
         var featureColor = typeof this.config.style.color == 'function' ? this.config.style.color :
             (function() { // default color function uses conf variables
-                var white = new Color('white');
-                var black = new Color('black');
                 var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
-                return function( feature ) {
-                    var score = feature.get('score');
-                    var n = normalize( score );
+                return function( feature, score, n ) {
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
+                               // not clipped
                                ? Color.blendColors(
                                    new Color( thisB.getConfForFeature('style.bg_color', feature ) ),
                                    new Color( thisB.getConfForFeature( n >= normOrigin ? 'style.pos_color' : 'style.neg_color', feature ) ),
                                    Math.abs(n-normOrigin)
-                                 )
-                               : new Color( thisB.getConfForFeature('style.clip_marker_color', feature ) ) || ( n > 1 ? white : black );
+                                 ).toString()
+                               // clipped
+                               : ( n > 1 ? thisB.getConfForFeature( 'style.pos_color', feature )
+                                         : thisB.getConfForFeature( 'style.neg_color', feature ) );
+
                 };
             })();
 
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
-            context.fillStyle = ''+featureColor( f );
+            var score = f.get('score');
+            var n = normalize( score );
+            context.fillStyle = featureColor( f, score, n );
             context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+            if( n > 1 ) { // pos clipped
+                context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
+                context.fillRect( fRect.l, 0, fRect.w, 3 );
+            }
+            else if( n < 0 ) { // neg clipped
+                context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
+                context.fillRect( fRect.l, canvasHeight-3, fRect.w, 3 );
+           }
         });
     },
 
