@@ -90,8 +90,17 @@ return declare(BlockBased,
     _attachForceCopy: function() {
         var thisB = this;
         dojo.connect(thisB.dnd, "onDndStart", function(source, nodes, copy) {
+                                                if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
+                                                  source.getItem(nodes[0].id).data = thisB.innerTrack.config;
+                                                  source.getItem(nodes[0].id).data.label = thisB.label + "_i" + thisB.counter++;
+                                                  /*
+                                                  console.log("WHAT IS DRAGGED");
+                                                  console.dir(thisB.innerTrack.config);
+                                                  console.log("WHAT IS DROPPED");
+                                                  console.dir(source.getItem(nodes[0].id).data);
+                                                  */
+                                                }
                                                 thisB.currentDndSource = source;
-//                                                console.log(thisB.currentDndSource.node.innerHTML);
                                                 thisB.sourceWasCopyOnly = source.copyOnly;
                                             });
         dojo.connect(thisB.dnd, "onOverEvent", function() {
@@ -106,7 +115,22 @@ return declare(BlockBased,
                                                   thisB.currentDndSource = undefined;
                                                 }
                                             });
+        dojo.connect(thisB.dnd, "onDndDrop", function(source, nodes, copy) {
+          if(source == thisB.dnd && nodes[0] && !copy) {
+            thisB.reinitialize();
+            thisB.refresh();
+          }
+        });
         
+    },
+
+    reinitialize: function() {
+      this.innerDiv = undefined;
+      this.innerTrack = undefined;
+      this.currentStore = undefined;
+      this.opTree = undefined;
+      this.storeToKey = {};
+      this.keyToStore = {};
     },
 
     addTrack: function(trackConfig) {
@@ -203,29 +227,12 @@ return declare(BlockBased,
     _renderInnerTrack: function() {
       var thisB = this;
       if(thisB.currentStore) {
-        // If the div for the inner track doesn't exist, create it.
-
-        /*
-        if(!this.innerDiv) {
-          this.innerDiv = document.createElement("div");
-          this.innerDiv.className = "track";
-          this.innerDiv.id = "combination_innertrack";
-          this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
-          this.div.appendChild(this.innerDiv);
-
-        } else { // Otherwise we'll have to remove whatever track is currently in the div
-          thisB.innerTrack.clear();
-          thisB.innerTrack.destroy();
-
-          while(thisB.innerDiv.firstChild) { // Use dojo.empty instead?
-            thisB.innerDiv.removeChild(thisB.innerDiv.firstChild);
-          }
-        }*/
         thisB.innerTrack = new HTMLFeaturesTrack({
-            label: "inner_track",
-            key: "Inner Track",
-            browser: this.browser,
-            refSeq: this.refSeq,
+            config: thisB._innerTrackConfig(),
+            //label: "inner_track",
+            //key: "Inner Track",
+            browser: thisB.browser,
+            refSeq: thisB.refSeq,
             store: thisB.currentStore,
             trackPadding: 0
         });
@@ -250,6 +257,17 @@ return declare(BlockBased,
 
     },
 
+    _innerTrackConfig: function() {
+      return {
+                  store: this.currentStore.name,
+                  feature: ["match"],
+                  key: "Inner Track",
+                  label: "inner_track",
+                  metadata: {Description: "This track was created from a combination track."},
+                  type: "JBrowse/View/Track/HTMLFeatures"
+              };
+    },
+
     refresh: function(track) {
       var thisB = this;
       if(!track) track = thisB;
@@ -272,9 +290,7 @@ return declare(BlockBased,
         }
       this.inherited(arguments);
 
-      //alert(this.topHeight + " " + this.heightInner + " " + this.bottomHeight);
       this.div.style.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner) + "px";
-      //alert(this.div.style.height);
     },
 
     moveBlocks: function(delta) {
