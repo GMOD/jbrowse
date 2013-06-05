@@ -526,6 +526,16 @@ Browser.prototype.initView = function() {
 
             // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
+
+
+            // render the Tracks menu, containing (currently) the combination track feature.
+            this._combinationTrackButton = new dijitMenuItem(
+                {
+                    label: 'Add combination track',
+                    onClick: dojo.hitch(this, 'createCombinationTrack')
+                });
+            this.addGlobalMenuItem( 'tracks', this._combinationTrackButton );
+            this.renderGlobalMenu( 'tracks', {text: 'Tracks'}, menuBar );
         }
 
         if( this.config.show_nav ) {
@@ -619,6 +629,34 @@ Browser.prototype.initView = function() {
     });
 };
 
+
+Browser.prototype.createCombinationTrack = function() {
+    if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
+    var d = new Deferred();
+    var storeConf = {
+        browser: this,
+        refSeq: this.refSeq,
+        type: 'JBrowse/Store/SeqFeature/Combination'
+    };
+    var storeName = this._addStoreConfig(undefined, storeConf);
+    storeConf.name = storeName;
+    this.getStore(storeName, function(store) {
+        d.resolve(true);
+    });
+    var thisB = this;
+    d.promise.then(function(){
+        var combTrackConfig = {
+            type: 'JBrowse/View/Track/Combination',
+            label: "combination_track" + (thisB._combinationTrackCount++),
+            key: "Combination Track " + (thisB._combinationTrackCount),
+            metadata: "Drag-and-drop interface that creates a track out of combinations of other tracks.",
+            store: storeName
+        };
+        if(thisB.view) {
+            thisB.view.showTracks([combTrackConfig]);
+        }
+    });
+}
 
 Browser.prototype.renderDatasetSelect = function( parent ) {
     var dsconfig = this.config.datasets || {};

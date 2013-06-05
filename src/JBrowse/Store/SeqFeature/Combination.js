@@ -6,7 +6,8 @@ define([
            'dojo/promise/all',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Model/SimpleFeature',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Store/SeqFeature/Combination/TreeNode'
        ],
        function(
            declare,
@@ -16,7 +17,8 @@ define([
            all,
            SeqFeatureStore,
            SimpleFeature,
-           Util
+           Util,
+           TreeNode
        ) {
 
 var featureWrapper = Util.fastDeclare(
@@ -65,30 +67,31 @@ constructor: function( args ) {
 
     // can pass store objects in as args
     this.defaultOp = args.op || "AND";
-    this.opTree = args.opTree || new TreeNode({ Value: this.defaultOp});
     this.ref = this.config.refSeq;
     
-    this.reload();
+    this.reload(args.opTree);
     
     // This code has been stripped of the store promises, since I'm pretty sure we don't need them anymore.
     // If we do, we'll have to go back to a previous commit to find it.
 
 },
 
-reload: function( optree, refSeq) {
-    if( !optree) optree = this.opTree;
+reload: function( optree, refSeq, defaultOp) {
+    if( !defaultOp) defaultOp = this.defaultOp;
+    if( !optree) optree = new TreeNode({ Value: this.defaultOp});;
     if( !refSeq) refSeq = this.ref;
     
     this.opTree = optree;
     this.stores = optree.getLeaves() || [];
 
+    for(var store in this.stores) if(!this.stores[store].name) this.stores = [];
     var thisB = this;
     
     thisB.allFeaturesLoaded = new Deferred();
 
     // check if there are stores
     if (!Keys(thisB.stores).length) {
-        thisB.allFeaturesLoaded.reject(" No stores were loaded.");
+        //thisB.allFeaturesLoaded.reject(" No stores were loaded.");
     }
 
     var featureArrays = {};

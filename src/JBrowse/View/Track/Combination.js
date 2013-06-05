@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/on',
            'dojo/dom-construct',
            'dojo/Deferred',
            'JBrowse/View/Track/BlockBased',
@@ -10,6 +11,7 @@ define([
            'JBrowse/Util'],
        function(
            declare,
+           on,
            dom,
            Deferred,
            BlockBased,
@@ -38,7 +40,6 @@ return declare(BlockBased,
         this.tracks = [];
         this.defaultOp = "AND";
         this.opTree = new TreeNode({ Value: this.defaultOp });
-        this.key = "Combination track";
         this.currentDndSource = undefined;
         this.sourceWasCopyOnly = undefined;
 
@@ -83,22 +84,16 @@ return declare(BlockBased,
           })
         });
 
-        this._attachForceCopy();
-
+        this._attachDndEvents();
     },
 
-    _attachForceCopy: function() {
+    _attachDndEvents: function() {
         var thisB = this;
         dojo.connect(thisB.dnd, "onDndStart", function(source, nodes, copy) {
                                                 if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
                                                   source.getItem(nodes[0].id).data = thisB.innerTrack.config;
-                                                  source.getItem(nodes[0].id).data.label = thisB.label + "_i" + thisB.counter++;
-                                                  /*
-                                                  console.log("WHAT IS DRAGGED");
-                                                  console.dir(thisB.innerTrack.config);
-                                                  console.log("WHAT IS DROPPED");
-                                                  console.dir(source.getItem(nodes[0].id).data);
-                                                  */
+                                                  source.getItem(nodes[0].id).data.label = thisB.name + "_i" + thisB.counter++;
+                                                  thisB.onlyRefreshOuter = true;
                                                 }
                                                 thisB.currentDndSource = source;
                                                 thisB.sourceWasCopyOnly = source.copyOnly;
@@ -116,10 +111,14 @@ return declare(BlockBased,
                                                 }
                                             });
         dojo.connect(thisB.dnd, "onDndDrop", function(source, nodes, copy) {
+          thisB.onlyRefreshOuter = false;
           if(source == thisB.dnd && nodes[0] && !copy) {
             thisB.reinitialize();
             thisB.refresh();
           }
+        });
+        dojo.connect(thisB.dnd, "onDndCancel", function() {
+            thisB.onlyRefreshOuter = false;
         });
         
     },
@@ -127,14 +126,13 @@ return declare(BlockBased,
     reinitialize: function() {
       this.innerDiv = undefined;
       this.innerTrack = undefined;
-      this.currentStore = undefined;
+      this.store = undefined;
       this.opTree = undefined;
       this.storeToKey = {};
       this.keyToStore = {};
     },
 
     addTrack: function(trackConfig) {
-
       var thisB = this;
       // There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
       thisB.storeToKey[trackConfig.store] = trackConfig.key;
@@ -200,56 +198,55 @@ return declare(BlockBased,
       });
     },
 
+
     _createCombinationStore: function() {
       var d = new Deferred();
       var thisB = this;
-      if(thisB.currentStore) {
+      if(thisB.store) {
         d.resolve(true);
       } else {
         var storeConf = {
             browser: thisB.browser,
             refSeq: thisB.browser.refSeq,
             type: 'JBrowse/Store/SeqFeature/Combination',
-            opTree: thisB.opTree,
             op: thisB.defaultOp,
-            storeNames: [] 
           };
         var storeName = thisB.browser._addStoreConfig(undefined, storeConf);
         storeConf.name = storeName;
         thisB.browser.getStore(storeName, function(store) {
-          thisB.currentStore = store;
+          thisB.store = store;
           d.resolve(true);
         });
-    }
+      }
       d.promise.then(function(){ thisB._renderInnerTrack(); });
     },
 
     _renderInnerTrack: function() {
       var thisB = this;
-      if(thisB.currentStore) {
+      if(thisB.store) {
         thisB.innerTrack = new HTMLFeaturesTrack({
             config: thisB._innerTrackConfig(),
-            //label: "inner_track",
-            //key: "Inner Track",
             browser: thisB.browser,
             refSeq: thisB.refSeq,
-            store: thisB.currentStore,
+            store: thisB.store,
             trackPadding: 0
         });
 
         
         var innerHeightUpdate = function(height) {
           thisB.heightInner = height;
-          
+          thisB.height = thisB.topHeight + height + thisB.bottomHeight;
           thisB.onlyRefreshOuter = true;
           thisB.refresh();
           thisB.onlyRefreshOuter = false;
 
-          thisB.heightUpdate(thisB.topHeight + height + thisB.bottomHeight);
+          thisB.heightUpdate(thisB.height);
         }
 
         thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
             thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
+
+        thisB._redefineCloseButton();
 
         thisB.refresh();
 
@@ -257,9 +254,28 @@ return declare(BlockBased,
 
     },
 
+    _redefineCloseButton: function() {
+        var closeButton = this.innerTrack.label.childNodes[0];
+        if(closeButton.className == "track-close-button") {
+          this.innerTrack.label.removeChild(closeButton);
+          var closeButton = dojo.create('div',{
+                                                className: 'track-close-button'
+                                              },this.innerTrack.label, "first");
+
+          this.innerTrack.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
+                this.browser.view.suppressDoubleClick( 100 );
+                this.div.removeChild(this.innerDiv);
+                this.reinitialize();
+                this.refresh();
+                evt.stopPropagation();
+          })));
+
+        }
+    },
+
     _innerTrackConfig: function() {
       return {
-                  store: this.currentStore.name,
+                  store: this.store.name,
                   feature: ["match"],
                   key: "Inner Track",
                   label: "inner_track",
@@ -271,7 +287,7 @@ return declare(BlockBased,
     refresh: function(track) {
       var thisB = this;
       if(!track) track = thisB;
-      if(this.currentStore && !this.onlyRefreshOuter) this.currentStore.reload(thisB.opTree);
+      if(this.store && !this.onlyRefreshOuter) this.store.reload(thisB.opTree);
       if(this.range) {
         track.clear();
         track.showRange(thisB.range.f, thisB.range.l, thisB.range.st, thisB.range.b,
@@ -289,8 +305,8 @@ return declare(BlockBased,
           this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         }
       this.inherited(arguments);
-
-      this.div.style.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner) + "px";
+      this.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner);
+      this.heightUpdate(this.height);
     },
 
     moveBlocks: function(delta) {
@@ -299,7 +315,6 @@ return declare(BlockBased,
     },
 
     fillBlock: function( args ) {
-
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -322,6 +337,7 @@ return declare(BlockBased,
           var textDiv = document.createElement("div");
           textDiv.className = "combination";
           var text = "Add tracks here";
+          textDiv.style.height = this.heightNoInner + "px";
           textDiv.appendChild( document.createTextNode( text ) );  
           block.domNode.appendChild( textDiv );
         }

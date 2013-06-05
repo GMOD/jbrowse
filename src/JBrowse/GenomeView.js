@@ -215,8 +215,9 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                           this.trackPadding);
     this.trackContainer.appendChild(gridTrackDiv);
 
-    //This stuff is new.  Experimenting with creating a combinationTrack.
-    
+    //This stuff is new.  Experimenting with creating a combinationTrack.    
+
+    /*
     var combinationTrackDiv = document.createElement("div");
     combinationTrackDiv.className = "track";
     combinationTrackDiv.style.cssText = "top: 75%; height:15%";
@@ -237,7 +238,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     /**/
 
 
-    this.uiTracks = [this.staticTrack, gridTrack, this.combinationTrack];
+    this.uiTracks = [this.staticTrack, gridTrack];
 
     // accept tracks being dragged into this
     this.trackDndWidget =
@@ -2136,7 +2137,6 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     if( ! trackConfig.store )
         console.warn("configuration for track "+trackConfig.label+" has no store set", trackConfig );
 
-
     // get the store
     this.browser.getStore( trackConfig.store, function( s ) {
             store = s;
@@ -2150,7 +2150,6 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
         if( trackClass && store )
             makeTrack();
     });
-
     return trackDiv;
 };
 
