@@ -1,9 +1,18 @@
 require([
             'dojo/_base/array',
+            'dojo/_base/lang',
+            'dojo/request/xhr',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Util/GFF3',
             'JBrowse/Store/SeqFeature/GFF3/Parser'
-        ], function( array, XHRBlob, GFF3, Parser ) {
+        ], function(
+            array,
+            lang,
+            xhr,
+            XHRBlob,
+            GFF3,
+            Parser
+        ) {
 describe( 'GFF3 utils', function() {
     array.forEach([
                       ['foo=bar', { foo: ['bar'] }],
@@ -26,7 +35,7 @@ describe( 'GFF3 utils', function() {
                                   ]
                               },
                               'end' : 234,
-                              'phase' : undefined,
+                              'phase' : null,
                               'score' : 0,
                               'seq_id' : 'FooSeq',
                               'source' : 'barsource',
@@ -40,7 +49,7 @@ describe( 'GFF3 utils', function() {
                           {
                               'attributes' : {},
                               'end' : 234,
-                              'phase' : undefined,
+                              'phase' : null,
                               'score' : 0,
                               'seq_id' : "Noggin,+-\%Foo\tbar",
                               'source' : 'barsource',
@@ -66,22 +75,31 @@ describe( 'GFF3 parser', function() {
            // get the gff3 file
            var f = new XHRBlob( '../data/gff3_with_syncs.gff3' );
            var lines = [];
-           var done;
+           var gotGFF3;
+           var referenceResult;
            f.fetchLines( function(l) { lines.push(l); },
-                         function() { done=true; },
+                         function() { gotGFF3=true; },
                          function(e) { console.error(e); } );
-           waitsFor( function() { return done; } );
+           xhr( '../data/gff3_with_syncs.result.json', { handleAs: 'json' } )
+               .then( function(data) { referenceResult = data; } );
+
+           waitsFor( function() { return gotGFF3 && referenceResult; } );
            runs( function() {
                      var p = new Parser({ iterators: [ function() {
                                                            return lines.shift();
                                                        }]
                                         });
-                     var features = [];
+                     var stuff = { features: [], directives: [], fasta: [] };
                      var f;
                      while(( f=p.next_item() )) {
-                         features.push( f );
+                         if( lang.isArray(f) )
+                             stuff.features.push(f);
+                         else if( f.directive )
+                             stuff.directives.push( f );
+                         else if( f.filehandle )
+                             stuff.fasta.push(f);
                      }
-                     expect( features ).toEqual( [] );
+                     expect( stuff ).toEqual( referenceResult );
            });
    });
 });

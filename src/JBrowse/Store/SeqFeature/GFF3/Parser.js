@@ -154,7 +154,7 @@ return declare( null, {
      */
     _next_line: function() {
         // fast code path for reading a line from the first filehandle,
-        var first_fh = this.filehandles[0];
+        var first_fh = this.filehandles[0] || function() {};
         return first_fh() || function() {
             // slower case where we are at the end, or need to change
             // filehandles
@@ -238,7 +238,7 @@ return declare( null, {
                 if(( other_feature = this.under_construction_by_id[ to_id ] )) {
                     if( ! pname )
                         pname = this.container_attributes[attrname] || attrname.toLowerCase();
-                    if( ! array.some( ids, function(i) { return this.completed_references[i][attrname][to_id]++; },this) ) {
+                    if( ! array.some( ids, function(i) { return this.completed_references[i+','+attrname+','+to_id]++; },this) ) {
                         array.forEach( other_feature, function( loc ) {
                             loc[pname].push( feature );
                         });

@@ -16,7 +16,7 @@ return {
     parse_feature: function( line ) {
         var f = array.map( line.split("\t"), function(a) {
             if( a == '.' ) {
-                return undefined;
+                return null;
             }
             return a;
         });
@@ -28,11 +28,14 @@ return {
         f[8] = this.parse_attributes( f[8] );
         var parsed = {};
         for( var i = 0; i < gff3_field_names.length; i++ ) {
-            parsed[ gff3_field_names[i] ] = f[i];
+            parsed[ gff3_field_names[i] ] = f[i] == '.' ? null : f[i];
         }
-        parsed.start = parseInt( parsed.start, 10 );
-        parsed.end = parseInt( parsed.end, 10 );
-        parsed.score = parseFloat( parsed.score, 10 );
+        if( parsed.start )
+            parsed.start = parseInt( parsed.start, 10 );
+        if( parsed.end )
+            parsed.end = parseInt( parsed.end, 10 );
+        if( parsed.score )
+            parsed.score = parseFloat( parsed.score, 10 );
 
         return parsed;
     },
@@ -40,7 +43,7 @@ return {
     parse_directive: function( line ) {
         var match = /^\s*\#\#\s*(\S+)\s*(.*)/.exec( line );
         if( ! match )
-            return undefined;
+            return null;
         var name = match[1], contents = match[2];
 
         var parsed = { directive : name };
@@ -109,13 +112,13 @@ return {
 
     format_feature: function( f ) {
         var attrString =
-            typeof f.attributes == 'undefined'
+            f.attributes === null || typeof f.attributes == 'undefined'
                 ? '.' : this.format_attributes( f.attributes );
 
         var fields = [];
         for( var i = 0; i<8; i++ ) {
             var val = f[ gff3_field_names[i] ];
-            fields[i] = typeof val == 'undefined' ? '.' : this.escape( ''+val );
+            fields[i] = val === null || val === undefined ? '.' : this.escape( ''+val );
         }
         fields[8] = attrString;
 
