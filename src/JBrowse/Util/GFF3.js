@@ -37,6 +37,34 @@ return {
         return parsed;
     },
 
+    parse_directive: function( line ) {
+        var match = /^\s*\#\#\s*(\S+)\s*(.*)/.exec( line );
+        if( ! match )
+            return undefined;
+        var name = match[1], contents = match[2];
+
+        var parsed = { directive : name };
+        if( contents.length ) {
+            contents = contents.replace( /\r?\n$/, '' );
+            parsed.value = contents;
+        }
+
+        // do a little additional parsing for sequence-region and genome-build directives
+        if( name == 'sequence-region' ) {
+            var c = contents.split( /\s+/, 3 );
+            parsed.seq_id = c[0];
+            parsed.start  = c[1].replace(/\D/g,'');
+            parsed.end    = c[2].replace(/\D/g,'');
+        }
+        else if( name == 'genome-build' ) {
+            var c = contents.split( /\s+/, 2 );
+            parsed.source    = c[0];
+            parsed.buildname = c[1];
+        }
+
+        return parsed;
+    },
+
     unescape: function( s ) {
         return s.replace( /%([0-9A-Fa-f]{2})/g, function( match, seq ) {
                               return String.fromCharCode( parseInt( seq, 16 ) );
