@@ -3,6 +3,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/lang',
             'dojo/on',
+            'dojo/keys',
             'dojo/Deferred',
             'dojo/DeferredList',
             'dojo/topic',
@@ -40,6 +41,7 @@ define( [
         function(
             lang,
             on,
+            keys,
             Deferred,
             DeferredList,
             topic,
@@ -2166,7 +2168,10 @@ Browser.prototype.createNavBox = function( parent ) {
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
-                      if (event.keyCode == dojo.keys.ENTER) {
+                      if( event.keyCode == keys.ESCAPE ) {
+                          this.locationBox.set('value','');
+                      }
+                      else if (event.keyCode == keys.ENTER) {
                           this.locationBox.closeDropDown(false);
                           this.navigateTo( this.locationBox.get('value') );
                           this.goButton.set('disabled',true);
