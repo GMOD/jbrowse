@@ -128,6 +128,9 @@ return declare( [Component,DetailsMixin,Destroyable],
         this.labelHTML = "";
         this.labelHeight = 0;
 
+        if( this.config.initiallyPinned )
+            this.setPinned( true );
+
         if( ! this.label ) {
             this.makeTrackLabel();
         }
