@@ -88,6 +88,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _getBlockFeatures: function( args ) {
+            var thisB = this;
             var blockIndex = args.blockIndex;
             var block = args.block;
 
@@ -107,7 +108,10 @@ return declare( [BlockBasedTrack,ExportMixin], {
                   start: leftBase,
                   end: rightBase+1
                 },
-                function(f) { features.push(f); },
+                function(f) {
+                    if( thisB.filterFeature(f) )
+                        features.push(f);
+                },
                 dojo.hitch( this, function() {
 
                     // if the block has been freed in the meantime,

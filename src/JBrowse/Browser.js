@@ -24,6 +24,7 @@ define( [
             'JBrowse/Store/Names/LazyTrieDojoData',
             'dojo/store/DataStore',
             'JBrowse/Store/Names/Hash',
+            'JBrowse/FeatureFiltererMixin',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
             'JBrowse/ConfigManager',
@@ -61,6 +62,7 @@ define( [
             NamesLazyTrieDojoDataStore,
             DojoDataStore,
             NamesHashStore,
+            FeatureFiltererMixin,
             GenomeView,
             Touch,
             ConfigManager,
@@ -97,7 +99,7 @@ var dojof = Util.dojof;
  * </ul>
  */
 
-return declare( null, {
+return declare( FeatureFiltererMixin, {
 
 constructor: function(params) {
     this.globalKeyboardShortcuts = {};

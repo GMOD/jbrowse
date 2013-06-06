@@ -8,6 +8,7 @@ define([
            'dojo/dnd/Source',
            'dijit/focus',
            'JBrowse/Component',
+           'JBrowse/FeatureFiltererMixin',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
@@ -24,6 +25,7 @@ define([
            dndSource,
            dijitFocus,
            Component,
+           FeatureFiltererMixin,
            LocationScaleTrack,
            GridLinesTrack,
            BehaviorManager,
@@ -54,7 +56,7 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
  * @constructor
  */
 
-return declare( Component, {
+return declare( [Component,FeatureFiltererMixin], {
 
 constructor: function( args ) {
     var browser = args.browser;
@@ -65,6 +67,8 @@ constructor: function( args ) {
 
     // keep a reference to the main browser object
     this.browser = browser;
+    this.setFeatureFilterParentComponent( this.browser );
+
     //the page element that the GenomeView lives in
     this.elem = elem;
 

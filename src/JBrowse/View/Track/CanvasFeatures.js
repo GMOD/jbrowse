@@ -240,7 +240,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                      };
         this.store.getFeatures( region,
                                 function( feature ) {
-                                    if( thisB.destroyed )
+                                    if( thisB.destroyed || ! thisB.filterFeature( feature ) )
                                         return;
 
                                     fRects.push( null ); // put a placeholder in the fRects array
