@@ -7,6 +7,7 @@ define([
            'dojo/dnd/move',
            'dojo/dnd/Source',
            'dijit/focus',
+           'JBrowse/Component',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
@@ -22,6 +23,7 @@ define([
            dndMove,
            dndSource,
            dijitFocus,
+           Component,
            LocationScaleTrack,
            GridLinesTrack,
            BehaviorManager,
@@ -52,22 +54,14 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
  * @constructor
  */
 
-return declare( null, {
+return declare( Component, {
 
-constructor: function( browser, elem, stripeWidth, refseq, zoomLevel ) {
-    this.plusStrandFilter = function(feature)  {
-        var strand = feature.get('strand');
-        if (strand == 1 || strand == '+')  { return true; }
-        else  { return false; }
-    };
-    this.minusStrandFilter = function(feature)  {
-        var strand = feature.get('strand');
-        if (strand == -1 || strand == '-')  { return true; }
-        else  { return false; }
-    };
-    this.passAllFilter = function(feature)  {  return true; }
-    this.passNoneFilter = function(feature)  { return false; }
-    this.featureFilter = this.passAllFilter;
+constructor: function( args ) {
+    var browser = args.browser;
+    var elem = args.elem;
+    var stripeWidth = args.stripeWidth;
+    var refseq = args.refSeq;
+    var zoomLevel = args.zoomLevel;
 
     // keep a reference to the main browser object
     this.browser = browser;

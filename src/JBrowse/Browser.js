@@ -601,7 +601,13 @@ initView: function() {
 
         // hook up GenomeView
         this.view = this.viewElem.view =
-            new GenomeView(this, this.viewElem, 250, this.refSeq, 1/200 );
+            new GenomeView(
+                { browser: this,
+                  elem: this.viewElem,
+                  stripeWidth: 250,
+                  refSeq: this.refSeq,
+                  zoomLevel: 1/200
+                });
 
         dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
         dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
