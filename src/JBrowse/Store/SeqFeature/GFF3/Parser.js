@@ -17,10 +17,11 @@ return declare( null, {
 
     constructor: function( args ) {
         lang.mixin( this, {
-                        filehandles: args.iterators,
-
-                        // features that are ready to go out and be flushed
-                        item_buffer : [],
+                        featureCallback:   args.featureCallback || function() {},
+                        endCallback:       args.endCallback || function() {},
+                        commentCallback:   args.commentCallback || function() {},
+                        errorCallback:     args.errorCallback || function(e) { console.error(e); },
+                        directiveCallback: args.directiveCallback || function() {},
 
                         // features that we have to keep on hand for now because they
                         // might be referenced by something else
@@ -40,100 +41,74 @@ return declare( null, {
                     });
     },
 
-    next_item: function() {
-
-        // try to get more items if the buffer is empty
-        if( ! this._buffered_items_count() )
-            this._buffer_items();
-
-
-        // return the next item if we have some
-        if( this._buffered_items_count() )
-            return this.item_buffer.shift();
-
-        // if we were not able to get any more items, return nothing
-        return undefined;
-    },
-
-    _buffer_item: function(i) {
-        this.item_buffer.push(i);
-    },
-
-    _buffered_items_count: function() {
-        return this.item_buffer.length;
-    },
-
-    /**
-     * get and parse lines from the files(s) to add at least one item to
-     * the buffer
-     */
-    _buffer_items: function() {
-
-        var line;
+    addLine: function( line ) {
         var match;
-        while(( line = this._next_line() )) {
-            if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
-                var f = GFF3.parse_feature( line );
-                this._buffer_feature( f );
-            }
-            // directive or comment
-            else if(( match = /^\s*(\#+)(.*)/.exec( line ) )) {
-                var hashsigns = match[1], contents = match[2];
-                if( hashsigns.length == 3 ) { //< sync directive, all forward-references are resolved.
-                    this._buffer_all_under_construction_features();
-                }
-                else if( hashsigns.length == 2 ) {
-                    var directive = GFF3.parse_directive( line );
-                    if( directive.directive == 'FASTA' ) {
-                        this._buffer_all_under_construction_features();
-                        this._buffer_item({ directive: 'FASTA', filehandle: this.filehandles.shift() });
-                        //shift @{this.{filethings}};
-                    } else {
-                        this._buffer_item( directive );
-                    }
-                }
-                else {
-                    contents = contents.replace(/\s*/,'');
-                    this._buffer_item({ comment: contents });
-                }
-            }
-            else if( /^\s*$/.test( line ) ) {
-                // blank line, do nothing
-            }
-            else if( /^\s*>/.test(line) ) {
-                // implicit beginning of a FASTA section.  a very stupid
-                // idea to include this in the format spec.  increases
-                // implementation complexity by a lot.
-                this._buffer_all_under_construction_features();
-                this._buffer_item( this._handle_implicit_fasta_start( line ) );
-            }
-            else { // it's a parse error
-                line = line.replace( /\r?\n?$/g, '' );
-                throw "GFF3 parse error.  Cannot parse '"+line+"'.";
-            }
-
-            // return now if we were able to find some things to put in the
-            // output buffer
-            if( this._buffered_items_count() )
-                return;
+        if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
+            var f = GFF3.parse_feature( line );
+            this._buffer_feature( f );
         }
+        // directive or comment
+        else if(( match = /^\s*(\#+)(.*)/.exec( line ) )) {
+            var hashsigns = match[1], contents = match[2];
+            if( hashsigns.length == 3 ) { //< sync directive, all forward-references are resolved.
+                this._return_all_under_construction_features();
+            }
+            else if( hashsigns.length == 2 ) {
+                var directive = GFF3.parse_directive( line );
+                if( directive.directive == 'FASTA' ) {
+                    this._return_all_under_construction_features();
+                    this._return_item({ directive: 'FASTA', filehandle: this.filehandles.shift() });
+                    //shift @{this.{filethings}};
+                } else {
+                    this._return_item( directive );
+                }
+            }
+            else {
+                contents = contents.replace(/\s*/,'');
+                this._return_item({ comment: contents });
+            }
+        }
+        else if( /^\s*$/.test( line ) ) {
+            // blank line, do nothing
+        }
+        else if( /^\s*>/.test(line) ) {
+            // implicit beginning of a FASTA section.  a very stupid
+            // idea to include this in the format spec.  increases
+            // implementation complexity by a lot.
+            this._return_all_under_construction_features();
+            this._return_item( this._handle_implicit_fasta_start( line ) );
+        }
+        else { // it's a parse error
+            line = line.replace( /\r?\n?$/g, '' );
+            throw "GFF3 parse error.  Cannot parse '"+line+"'.";
+        }
+    },
 
-        // if we are out of lines, buffer all under-construction features
-        this._buffer_all_under_construction_features();
+    _return_item: function(i) {
+        if( i[0] )
+            this.featureCallback( i );
+        else if( i.directive )
+            this.directiveCallback( i );
+        else if( i.comment )
+            this.commentCallback( i );
+    },
+
+    finish: function() {
+        this._return_all_under_construction_features();
+        this.endCallback();
     },
 
     /**
-     * take all under-construction features and put them in the
-     * item_buffer to be output
+     * return all under-construction features, called when we know
+     * there will be no additional data to attach to them
      */
-    _buffer_all_under_construction_features: function() {
+    _return_all_under_construction_features: function() {
         // since the under_construction_top_level buffer is likely to be
         // much larger than the item_buffer, we swap them and unshift the
         // existing buffer onto it to avoid a big copy.
-        var old_buffer = this.item_buffer;
-        this.item_buffer = this.under_construction_top_level;
-        this.item_buffer.unshift.apply( this.item_buffer, old_buffer );
-        old_buffer = undefined;
+        array.forEach( this.under_construction_top_level, function( f ) {
+            this._return_item(f);
+        },this);
 
         this.under_construction_top_level = [];
         this.under_construction_by_id = {};
@@ -146,27 +121,6 @@ return declare( null, {
                 throw "parse error: orphans "+JSON.stringify( this.under_construction_orphans );
             }
         }
-    },
-
-    /**
-     * get the next line from our file(s), returning nothing if we are out
-     * of lines and files
-     */
-    _next_line: function() {
-        // fast code path for reading a line from the first filehandle,
-        var first_fh = this.filehandles[0] || function() {};
-        return first_fh() || function() {
-            // slower case where we are at the end, or need to change
-            // filehandles
-            var filehandles = this.filehandles;
-            while ( filehandles.length ) {
-                var line = filehandles[0]();
-                if( line )
-                    return line;
-                filehandles.shift();
-            }
-            return undefined;
-        }.call(this);
     },
 
     container_attributes: { Parent : 'child_features', Derives_from : 'derived_features' },
@@ -184,7 +138,7 @@ return declare( null, {
         if( !ids.length && !parents.length && !derives.length ) {
             // if it has no IDs and does not refer to anything, we can just
             // output it
-            this._buffer_item( feature_line );
+            this._return_item( feature_line );
             return;
         }
 

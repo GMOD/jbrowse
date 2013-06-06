@@ -72,34 +72,30 @@ describe( 'GFF3 utils', function() {
 
 describe( 'GFF3 parser', function() {
    it( 'can parse gff3_with_syncs.gff3', function() {
-           // get the gff3 file
+           var stuff = { features: [], directives: [], fasta: [] };
+           var parseFinished, fetched;
+           var p = new Parser({
+                                  featureCallback: function(f) {
+                                      stuff.features.push(f);
+                                  },
+                                  directiveCallback: function(d) {
+                                      stuff.directives.push(d);
+                                  },
+                                  endCallback: function() {
+                                      parseFinished = true;
+                                  }
+                              });
            var f = new XHRBlob( '../data/gff3_with_syncs.gff3' );
-           var lines = [];
-           var gotGFF3;
-           var referenceResult;
-           f.fetchLines( function(l) { lines.push(l); },
-                         function() { gotGFF3=true; },
+           f.fetchLines( function(l) { p.addLine( l ); },
+                         function()  { p.finish();     },
                          function(e) { console.error(e); } );
+           var referenceResult;
            xhr( '../data/gff3_with_syncs.result.json', { handleAs: 'json' } )
                .then( function(data) { referenceResult = data; } );
 
-           waitsFor( function() { return gotGFF3 && referenceResult; } );
+           waitsFor( function() { return parseFinished && referenceResult; } );
            runs( function() {
-                     var p = new Parser({ iterators: [ function() {
-                                                           return lines.shift();
-                                                       }]
-                                        });
-                     var stuff = { features: [], directives: [], fasta: [] };
-                     var f;
-                     while(( f=p.next_item() )) {
-                         if( lang.isArray(f) )
-                             stuff.features.push(f);
-                         else if( f.directive )
-                             stuff.directives.push( f );
-                         else if( f.filehandle )
-                             stuff.fasta.push(f);
-                     }
-                     expect( stuff ).toEqual( referenceResult );
+               expect( stuff ).toEqual( referenceResult );
            });
    });
 });
