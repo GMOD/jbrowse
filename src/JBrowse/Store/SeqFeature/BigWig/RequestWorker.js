@@ -2,9 +2,10 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'JBrowse/Model/Range',
-            'jszlib/inflate'
+            'jszlib/inflate',
+            'jszlib/arrayCopy'
         ],
-        function( declare, dlang, Range, inflate ) {
+        function( declare, dlang, Range, inflate, arrayCopy ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
