@@ -497,7 +497,8 @@ Browser.prototype.initView = function() {
             if( this.config.datasets && this.config.dataset_id ) {
                 this.renderDatasetSelect( menuBar );
             } else {
-                dojo.create('a', {
+
+                this.poweredByLink = dojo.create('a', {
                                 className: 'powered_by',
                                 innerHTML: 'JBrowse',
                                 onclick: dojo.hitch( aboutDialog, 'show' ),
