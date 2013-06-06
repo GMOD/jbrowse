@@ -5,6 +5,7 @@ define([
            'dojo/when',
            'dojo/promise/all',
            'JBrowse/Store/SeqFeature',
+           'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Model/SimpleFeature',
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/Combination/TreeNode'
@@ -16,6 +17,7 @@ define([
            when,
            all,
            SeqFeatureStore,
+           DeferredStatsMixin,
            SimpleFeature,
            Util,
            TreeNode
@@ -61,7 +63,7 @@ var Keys = function(array) {
     return keys;
 };
 
-return declare([SeqFeatureStore], {
+return declare([SeqFeatureStore, DeferredStatsMixin], {
 
 constructor: function( args ) {
 
@@ -129,59 +131,24 @@ reload: function( optree, refSeq, defaultOp) {
         thisB.allFeaturesLoaded.resolve(true);
 
     });
-
+    this.allFeaturesLoaded.then(dojo.hitch(this, '_setGlobalStats'));
 },
 
+_setGlobalStats: function() {
+    this.globalStats.featureCount = this.featureArray.length;
+    this.globalStats.featureDensity = this.featureArray.length/this.refSeq.length;
 
 
-// Will need to figure this one out later.
-getGlobalStats: function( successCallback, errorCallback ) {
-    
-    thisB = this;
-        var statObjects = [];
-        for (var key in thisB.stores.display) {
-            if (thisB.stores.display.hasOwnProperty(key) ) {
-                // loop through the stores to be displayed and gather their regional stats
-                (function(){
-                var stats = thisB.stores.display[key];
-                var d = new Deferred();
-                statObjects.push(d.promise);
-                stats.getGlobalStats(function(s){d.resolve(s, true);}, errorCallback);
-                }());
-            }
-        }
-        all(statObjects).then( function( args ) {
-            // do stat combining here.
-            var stats = {};
-            // some stats may be related. tempStats provides a buffer between calculations.
-            var tempStat = {};
-            for (var key in args) {
-                if (args.hasOwnProperty(key)) {
-                    for (var stat in args[key]) {
-                        if (args[key].hasOwnProperty(stat)) {
-                            if (!tempStat[stat]) { 
-                                tempStat[stat] = args[key][stat];
-                            }
-                            else {
-                                tempStat[stat] = thisB.combineStats( stat, stats, args[key] );
-                            }
-                        }
-                    }
-                    for (var stat in tempStat) {
-                        if (tempStat.hasOwnProperty(stat)) {
-                            stats[stat] = tempStat[stat];
-                        }
-                    }
-                }
-            }
-            successCallback(stats);
-        });
+
+    this._deferred.stats.resolve(true);
 },
 
-// Will need to figure this one out later as well.
-getRegionalStats: function( region, successCallback, errorCallback ) {
-    this.getGlobalStats( successCallbback, errorCallback );
-},
+// Inherits getGlobalStats and getRegionStats from the superclasses.  
+// If we want any region stats or any global stats other than featureCount and featureDensity,
+// We'll have to add them into this file later.
+// Regional stats would be added by combining the "score" features of the underlying stores and
+// using the combined data to create a "score" feature for each of the features in this.featureArray.
+
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
@@ -250,18 +217,6 @@ opSpan: function(op, span1, span2, query) {
         -The variables "features" and "feature" are often
          pseudo-features (span objects with endpoints that match real features)
 */
-
-
-inSpan: function( feature, span ) {
-    // given a feature or pseudo-feature, returns true if the feature
-    // overlaps the span. False otherwise.
-    if ( !feature || !span ) {
-        console.error("invalid arguments");
-    }
-    return feature.get ? !( feature.get('start') >= span.end || feature.get('end') <= span.start ) :
-                         !( feature.start >= span.end || feature.end <= span.start );
-    
-},
 
 
 toSpan: function(features, query) {
@@ -424,68 +379,7 @@ finish: function( features, spans, featCallback, doneCallback ) {
     doneCallback( { spans: spans} );
 },
 
-// ALTER THIS LATER
-combineStats: function( key, currStats, newStats) {
-    /* This block, called by getRegionStats, decides how to combine region
-       statistics from different stores. CurrStats is an object containing 
-       the combined stats of stores processed thusfar.
-       newStats is an object containing the new stats from a store in the 
-       process of being merged. The two variables defined below - currStat
-       and newStat - are the individual fields under consideration, as 
-       specified by "key". Depending on the field, other statistics may be
-       required to compute the combination
 
-       If you've encountered the default case, this means that the track 
-       you constructed does not know how to handle the track statistics. 
-       Please add cases as required.
-    */
-    var currStat = currStats[key];
-    var newStat = newStats[key];
-    switch (key) {
-        case 'featureDensity':
-            return currStat + newStat;
-        case 'featureCount':
-            return currStat + newStat;
-        /*
-            BAM type tracks
-        */
-        case '_statsSampleFeatures':
-            return currStat + newStat;
-        case '_statsSampleInterval':
-            // no combination should be necessary
-            return newStat;
-        /*
-            wiggle type tracks 
-        */
-        case 'basesCovered':
-            return currStat + newStat;
-        case 'scoreMin':
-            return currStat + newStat;
-        case 'scoreMax':
-            /* note: this might overestimate the maxmimu score.
-             * If the two maximums are in different regions, they will not add */
-            return currStat + newStat;
-        case 'scoreSum':
-            return currStat + newStat;
-        case 'scoreSumSquares':
-            return currStat + newStat;
-        case 'scoreMean':
-            // note: assumes other properties will be available
-            return ((currStats['basesCovered'])*currStat + (newStats['basesCovered']*newStat))/currStats['basesCovered'];
-        case 'scoreStdDev':
-            // note: assumes other properties will be available
-            var n = currStats['basesCovered']+newStats['basesCovered'];
-            var sumSquares = currStats['scoreSumSquares']+newStats['scoreSumSquares'];
-            var squareSums = (currStats['scoreSum']+newStats['scoreSum'])*(currStats['scoreSum']+newStats['scoreSum']);
-            var variance = sumSquares - squareSums/n;
-            if (n > 1) {
-                variance /= n-1;
-            }
-            return variance < 0 ? 0 : Math.sqrt(variance);
-        default:
-            console.error("No stat combination behaviour defined for "+key);
-    }
-}
 
 });
 });

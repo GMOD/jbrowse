@@ -632,6 +632,7 @@ Browser.prototype.initView = function() {
 
 Browser.prototype.createCombinationTrack = function() {
     if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
+    if(this.innerTrackCount === undefined) this.innerTrackCount = 0;
     var d = new Deferred();
     var storeConf = {
         browser: this,

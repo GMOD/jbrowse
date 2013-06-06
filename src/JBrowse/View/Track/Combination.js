@@ -8,6 +8,7 @@ define([
            'JBrowse/Store/SeqFeature/Combination/TreeNode',
             'dojo/dnd/move',
            'dojo/dnd/Source',
+           'dojo/dnd/Manager',
            'JBrowse/Util'],
        function(
            declare,
@@ -19,6 +20,7 @@ define([
            TreeNode,
            dndMove,
            dndSource,
+           dndManager,
            Util
        ) {
 return declare(BlockBased,
@@ -78,7 +80,7 @@ return declare(BlockBased,
                   data: trackConfig,
                   type: ["track"],
                   node: hint == 'avatar'
-                                 ? dojo.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
+                                 ? dojo.create('div', { innerHTML: "Inner Track", className: 'track-label dragging' })
                                  : this.addTrack(trackConfig)
               };
           })
@@ -92,27 +94,32 @@ return declare(BlockBased,
         dojo.connect(thisB.dnd, "onDndStart", function(source, nodes, copy) {
                                                 if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
                                                   source.getItem(nodes[0].id).data = thisB.innerTrack.config;
-                                                  source.getItem(nodes[0].id).data.label = thisB.name + "_i" + thisB.counter++;
+                                                  source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
                                                   thisB.onlyRefreshOuter = true;
                                                 }
                                                 thisB.currentDndSource = source;
                                                 thisB.sourceWasCopyOnly = source.copyOnly;
                                             });
-        dojo.connect(thisB.dnd, "onOverEvent", function() {
-                                                if(thisB.currentDndSource) thisB.currentDndSource.copyOnly = true;
+        dojo.connect(thisB.dnd, "onDraggingOver", function() {
+                                                
+                                                if(thisB.currentDndSource) {
+                                                  thisB.currentDndSource.copyOnly = true;
+                                                } 
                                             });
-        var allCopyEndingEvents = ["onOutEvent", "onDndDrop", "onDndCancel"];
+        var allCopyEndingEvents = ["onDraggingOut", "onDndDrop", "onDndCancel"];
                 
         for(var eventName in allCopyEndingEvents)
           dojo.connect(thisB.dnd, allCopyEndingEvents[eventName], function() {
                                                 if(thisB.currentDndSource) {
                                                   thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
-                                                  thisB.currentDndSource = undefined;
                                                 }
                                             });
-        dojo.connect(thisB.dnd, "onDndDrop", function(source, nodes, copy) {
-          thisB.onlyRefreshOuter = false;
-          if(source == thisB.dnd && nodes[0] && !copy) {
+        dojo.connect(thisB.dnd, "onDndDrop", function(source, nodes, copy, target) {
+          if(source == thisB.dnd && nodes[0]) {
+            thisB.browser.innerTrackCount++;
+            thisB.onlyRefreshOuter = false;
+          }
+          if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
             thisB.reinitialize();
             thisB.refresh();
           }
@@ -120,7 +127,9 @@ return declare(BlockBased,
         dojo.connect(thisB.dnd, "onDndCancel", function() {
             thisB.onlyRefreshOuter = false;
         });
-        
+        dojo.connect(thisB.dnd, "onOutEvent", function() {
+            dndManager.manager().overSource(thisB.genomeView.trackDndWidget);
+        });
     },
 
     reinitialize: function() {
@@ -141,7 +150,7 @@ return declare(BlockBased,
       if(!this.innerDiv) {
         this.innerDiv = document.createElement("div");
         this.innerDiv.className = "track";
-        this.innerDiv.id = "combination_innertrack";
+        this.innerDiv.id = this.name + "_innerDiv";
         this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
         //this.div.appendChild(this.innerDiv);
       } else { // Otherwise we'll have to remove whatever track is currently in the div
@@ -241,6 +250,7 @@ return declare(BlockBased,
           thisB.onlyRefreshOuter = false;
 
           thisB.heightUpdate(thisB.height);
+          thisB.div.style.height = thisB.height + "px";
         }
 
         thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
@@ -278,13 +288,14 @@ return declare(BlockBased,
                   store: this.store.name,
                   feature: ["match"],
                   key: "Inner Track",
-                  label: "inner_track",
+                  label: this.name + "_inner",
                   metadata: {Description: "This track was created from a combination track."},
                   type: "JBrowse/View/Track/HTMLFeatures"
               };
     },
 
     refresh: function(track) {
+      //console.log(this.name + " refresh")
       var thisB = this;
       if(!track) track = thisB;
       if(this.store && !this.onlyRefreshOuter) this.store.reload(thisB.opTree);
@@ -297,6 +308,7 @@ return declare(BlockBased,
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
                         containerStart, containerEnd) {
+      //console.log(this.name + " sr " + this.dnd.getAllNodes().length);
       this.range = {f: first, l: last, st: startBase, 
                     b: bpPerBlock, sc: scale, 
                     cs: containerStart, ce: containerEnd};
@@ -304,9 +316,12 @@ return declare(BlockBased,
           this.innerTrack.clear();
           this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         }
+      //console.log("sr 2");
       this.inherited(arguments);
       this.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner);
       this.heightUpdate(this.height);
+      this.div.style.height = this.height + "px";
+      //console.log("sr 3");
     },
 
     moveBlocks: function(delta) {
@@ -347,6 +362,7 @@ return declare(BlockBased,
             this.renderRegionHighlight( args, highlight );
 
         this.heightUpdate( this.height, blockIndex);
+        this.div.style.height = this.height + "px";
         args.finishCallback();
     },
 
