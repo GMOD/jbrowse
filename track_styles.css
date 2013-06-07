@@ -343,6 +343,7 @@ div.transcript-hist {
     height: 5px;
     background-image: url('img/plus-arrowhead.png');
     background-repeat: no-repeat;
+    z-index: 100;
 }
 
 .minus-transcript-arrowhead,
@@ -352,6 +353,7 @@ div.transcript-hist {
     height: 5px;
     background-image: url('img/minus-arrowhead.png');
     background-repeat: no-repeat;
+    z-index: 100;
 }
 
 /* introns are hidden by default */

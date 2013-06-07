@@ -215,9 +215,9 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                         var container = dojo.create( 'div', { className: 'tracklist-container' });
                         container.appendChild(node);
                         node = container;
+                        node.id = dojo.dnd.getUniqueId();
+                        this.inactiveTrackNodes[trackConfig.label] = node;
                     }
-                    node.id = dojo.dnd.getUniqueId();
-                    this.inactiveTrackNodes[trackConfig.label] = node;
                     return {node: node, data: trackConfig, type: ["track"]};
                 })
             }

@@ -4,6 +4,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/on',
+            'dojo/keys',
             'dojo/Deferred',
             'dojo/DeferredList',
             'dojo/topic',
@@ -42,6 +43,7 @@ define( [
             declare,
             lang,
             on,
+            keys,
             Deferred,
             DeferredList,
             topic,
@@ -2190,7 +2192,10 @@ createNavBox: function( parent ) {
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
-                      if (event.keyCode == dojo.keys.ENTER) {
+                      if( event.keyCode == keys.ESCAPE ) {
+                          this.locationBox.set('value','');
+                      }
+                      else if (event.keyCode == keys.ENTER) {
                           this.locationBox.closeDropDown(false);
                           this.navigateTo( this.locationBox.get('value') );
                           this.goButton.set('disabled',true);
