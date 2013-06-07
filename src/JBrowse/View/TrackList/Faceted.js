@@ -345,7 +345,15 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
            }
         );
 
+        // set the grid's initial sort index
+        var sortIndex = this.config.initialSortColumn || 0;
+        if( typeof sortIndex == 'string' )
+            sortIndex = array.indexOf( displayColumns, sortIndex );
+        grid.setSortIndex( sortIndex+1 );
+
+        // monkey-patch the grid to customize some of its behaviors
         this._monkeyPatchGrid( grid );
+
         return grid;
     },
 

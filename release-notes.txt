@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Added an `trackSelector.initialSortColumn` configuration variable
+   to the faceted track selector that can be used to set the initial
+   sort order for the grid in the faceted track selector. Thanks to
+   Alexie Papanicolaou for suggesting this.
+
  * Made Wiggle density tracks indicate out-of-range values using
    separate clip markers at the top and bottom of the color field,
    rather than showing the out-of-range region as a third color (or
