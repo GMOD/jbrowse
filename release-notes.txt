@@ -9,6 +9,12 @@
    administrators customize the contents of the Help->General dialog.
    Thanks to Gregg Helt for suggesting this.
 
+ * Fixed a subtle bug in which not completing a track-dragging gesture
+   from the Simple track selector into the genome view caused the
+   track handle to not disappear from the track selector when the
+   track is turned on later.  Thanks to Gregg Helt for pointing this
+   out.
+
  * Fixed a bug in which `prepare-refseqs.pl` can crash when used with
    Bio::DB::Das::BioSQL.  Thanks to Brian Osborne for contributing the
    fix.
