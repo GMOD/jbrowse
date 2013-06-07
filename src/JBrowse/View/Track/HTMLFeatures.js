@@ -711,6 +711,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         }
     },
 
+    hideAll: function() {
+        this._clearLayout();
+        return this.inherited(arguments);
+    },
+
     getFeatDiv: function( feature )  {
         var id = this.getId( feature );
         if( ! id )

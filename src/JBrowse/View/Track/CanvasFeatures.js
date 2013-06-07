@@ -168,6 +168,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         return this.layout;
     },
 
+    hideAll: function() {
+        delete this.layout;
+        return this.inherited( arguments );
+    },
+
     /**
      * Returns a promise for the appropriate glyph for the given
      * feature and args.
