@@ -1,7 +1,9 @@
 define(['dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/_base/event',
         'dojo/keys',
         'dojo/dom-construct',
+        'dojo/dom-class',
         'dijit/layout/ContentPane',
         'dojo/dnd/Source',
         'dojo/fx/easing',
@@ -10,8 +12,10 @@ define(['dojo/_base/declare',
        function(
            declare,
            array,
+           event,
            keys,
            dom,
+           domClass,
            ContentPane,
            dndSource,
            animationEasing,
@@ -42,6 +46,8 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             false,
             args.trackConfigs
         );
+
+        this.selectedNodes = {};
 
         // subscribe to drop events for tracks being DND'ed
         this.browser.subscribe(
@@ -131,8 +137,8 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             { id: 'tracksAvail',
               className: 'container handles',
               style: { width: '100%', height: '100%', overflowX: 'hidden', overflowY: 'auto' },
-              innerHTML: '<h2>Available Tracks</h2>',
-              onclick: dojo.hitch( this, function() { this.trackListWidget.selectNone(); } )
+              innerHTML: '<h2>Available Tracks</h2>'/*,
+              onclick: dojo.hitch( this, function() { this.trackListWidget.selectNone(); } )*/
             },
             leftPane
         );
@@ -197,6 +203,11 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             {
                 accept: ["track"], // accepts only tracks into left div
                 withHandles: false,
+                /*
+                // the dojo shift-key functionality won't do what we want, so we're going to turn it off
+                // and subsitute our own.
+                singular: true, 
+                */
                 creator: dojo.hitch( this, function( trackConfig, hint ) {
                     var key = trackConfig.key || trackConfig.name || trackConfig.label;
                     var node = dojo.create(
@@ -206,12 +217,19 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                           innerHTML: key
                         }
                     );
+                    node.id = dojo.dnd.getUniqueId(); // is this right? idk
+
                     //in the list, wrap the list item in a container for
                     //border drag-insertion-point monkeying
                     if ("avatar" != hint) {
                         dojo.connect( node, "dblclick", dojo.hitch(this, function() {
                             this.browser.publish( '/jbrowse/v1/v/tracks/show', [trackConfig] );
                         }));
+                        /*
+                        dojo.connect( node, "onmousedown", dojo.hitch(this, function(e) {
+                            this._onMouseDown(node, e);
+                        }));
+*/
                         var container = dojo.create( 'div', { className: 'tracklist-container' });
                         container.appendChild(node);
                         node = container;
@@ -223,7 +241,108 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             }
         );
 
+        this.trackListWidget.onMouseDown = dojo.hitch(this, "onMouseDown");
+        this.trackListWidget.onMouseUp = dojo.hitch(this, "onMouseUp");
+
+        dojo.connect(document, "onkeydown", dojo.hitch(this, "onKeyDown"));
+
         return trackListDiv;
+    },
+
+    onKeyDown: function(e) {
+        switch(e.keyCode) {
+          case keys.ESCAPE:
+            this.trackListWidget.selectNone();
+            break;
+        }
+    },
+
+    onMouseDown: function(e) {
+      var thisW = this.trackListWidget;
+      if(!thisW.mouseDown && thisW._legalMouseDown(e)){
+          thisW.mouseDown = true;
+          thisW._lastX = e.pageX;
+          thisW._lastY = e.pageY;
+          this._onMouseDown(thisW.current, e);
+      }
+    },
+
+    _onMouseDown: function(current, e) {
+      if(!current) return;
+      var thisW = this.trackListWidget;
+      if(!e.ctrlKey && !e.shiftKey) {
+          thisW.simpleSelection = true;
+          if(!this._isSelected(current)) {
+              thisW.selectNone();
+              thisW.simpleSelection = false;
+          }
+      }
+      if(e.shiftKey && this.anchor) {
+          var i = 0;
+          var len = this._numNodes();
+          var nodes = this._nodes();
+          this._select(current);
+          if(current != this.anchor) {
+            for(; i < len; i++) {
+                if(nodes[i] == this.anchor || nodes[i] == current) break;
+            }
+            i++;
+            for(; i < len; i++) {
+                if(nodes[i] == this.anchor || nodes[i] == current) break;
+                this._select(nodes[i]);
+            }
+          }
+      } else {
+          e.ctrlKey ? this._toggle(current) : this._select(current);
+          this.anchor = current;
+      }
+      event.stop(e);
+    },
+
+    onMouseUp: function(e) {
+      var thisW = this.trackListWidget;
+        if(thisW.mouseDown){
+            thisW.mouseDown = false;
+            this._onMouseUp(e);
+        }
+    },
+
+    _onMouseUp: function(e) {
+      var thisW = this.trackListWidget;
+      if(thisW.simpleSelection && thisW.current) {
+          thisW.selectNone();
+          this._select(thisW.current);
+      }
+    },
+
+    _isSelected: function(node) {
+        return this.trackListWidget.selection[node.id];
+    },
+
+    _select: function(node) {
+        this.trackListWidget.selection[node.id] = 1;
+        this.trackListWidget._addItemClass(node, "Selected");
+    },
+
+    _deselect: function(node) {
+        delete this.trackListWidget.selection[node.id];
+        this.trackListWidget._removeItemClass(node, "Selected");
+    },
+
+    _toggle: function(node) {
+        if(this.trackListWidget.selection[node.id]) {
+          this._deselect(node);
+        } else {
+          this._select(node);
+        }
+    },
+
+    _numNodes: function() {
+        return this.trackListWidget.getAllNodes().length;
+    },
+
+    _nodes: function() {
+        return this.trackListWidget.getAllNodes();
     },
 
     _textFilter: function( text ) {
