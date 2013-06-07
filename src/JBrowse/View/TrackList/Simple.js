@@ -49,8 +49,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             args.trackConfigs
         );
 
-        this.selectedNodes = {};
-
         // subscribe to drop events for tracks being DND'ed
         this.browser.subscribe(
             "/dnd/drop",
