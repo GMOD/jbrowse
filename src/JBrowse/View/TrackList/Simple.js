@@ -2,6 +2,7 @@ define(['dojo/_base/declare',
         'dojo/_base/array',
         'dojo/_base/event',
         'dojo/keys',
+        'dojo/on',
         'dojo/dom-construct',
         'dojo/dom-class',
         'dijit/layout/ContentPane',
@@ -14,6 +15,7 @@ define(['dojo/_base/declare',
            array,
            event,
            keys,
+           on,
            dom,
            domClass,
            ContentPane,
@@ -137,8 +139,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             { id: 'tracksAvail',
               className: 'container handles',
               style: { width: '100%', height: '100%', overflowX: 'hidden', overflowY: 'auto' },
-              innerHTML: '<h2>Available Tracks</h2>'/*,
-              onclick: dojo.hitch( this, function() { this.trackListWidget.selectNone(); } )*/
+              innerHTML: '<h2>Available Tracks</h2>'
             },
             leftPane
         );
@@ -203,11 +204,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             {
                 accept: ["track"], // accepts only tracks into left div
                 withHandles: false,
-                /*
-                // the dojo shift-key functionality won't do what we want, so we're going to turn it off
-                // and subsitute our own.
-                singular: true, 
-                */
                 creator: dojo.hitch( this, function( trackConfig, hint ) {
                     var key = trackConfig.key || trackConfig.name || trackConfig.label;
                     var node = dojo.create(
@@ -217,19 +213,14 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                           innerHTML: key
                         }
                     );
-                    node.id = dojo.dnd.getUniqueId(); // is this right? idk
 
                     //in the list, wrap the list item in a container for
                     //border drag-insertion-point monkeying
                     if ("avatar" != hint) {
-                        dojo.connect( node, "dblclick", dojo.hitch(this, function() {
+                        on(node, "dblclick", dojo.hitch(this, function() {
                             this.browser.publish( '/jbrowse/v1/v/tracks/show', [trackConfig] );
                         }));
-                        /*
-                        dojo.connect( node, "onmousedown", dojo.hitch(this, function(e) {
-                            this._onMouseDown(node, e);
-                        }));
-*/
+
                         var container = dojo.create( 'div', { className: 'tracklist-container' });
                         container.appendChild(node);
                         node = container;
@@ -241,10 +232,13 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             }
         );
 
+        // The dojo onMouseDown and onMouseUp methods don't support the functionality we're looking for,
+        // so we'll substitute our own
         this.trackListWidget.onMouseDown = dojo.hitch(this, "onMouseDown");
         this.trackListWidget.onMouseUp = dojo.hitch(this, "onMouseUp");
 
-        dojo.connect(document, "onkeydown", dojo.hitch(this, "onKeyDown"));
+        // We want the escape key to deselect all tracks
+        on(document, "keydown", dojo.hitch(this, "onKeyDown"));
 
         return trackListDiv;
     },
@@ -279,15 +273,14 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
       }
       if(e.shiftKey && this.anchor) {
           var i = 0;
-          var len = this._numNodes();
-          var nodes = this._nodes();
+          var nodes = thisW.getAllNodes();
           this._select(current);
           if(current != this.anchor) {
-            for(; i < len; i++) {
+            for(; i < nodes.length; i++) {
                 if(nodes[i] == this.anchor || nodes[i] == current) break;
             }
             i++;
-            for(; i < len; i++) {
+            for(; i < nodes.length; i++) {
                 if(nodes[i] == this.anchor || nodes[i] == current) break;
                 this._select(nodes[i]);
             }
@@ -335,14 +328,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         } else {
           this._select(node);
         }
-    },
-
-    _numNodes: function() {
-        return this.trackListWidget.getAllNodes().length;
-    },
-
-    _nodes: function() {
-        return this.trackListWidget.getAllNodes();
     },
 
     _textFilter: function( text ) {
