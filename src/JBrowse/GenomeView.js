@@ -78,7 +78,7 @@ constructor: function( args ) {
     this.topSpace = this.posHeight*1.5;
 
     // WebApollo needs max zoom level to be sequence residues char width
-    this.maxPxPerBp = 20;
+    this.maxPxPerBp = this.config.maxPxPerBp;
 
     //the reference sequence
     this.ref = refseq;
@@ -275,6 +275,13 @@ constructor: function( args ) {
     // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
+},
+
+
+_defaultConfig: function() {
+    return {
+        maxPxPerBp: 20
+    };
 },
 
 /**

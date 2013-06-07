@@ -606,6 +606,7 @@ initView: function() {
             new GenomeView(
                 { browser: this,
                   elem: this.viewElem,
+                  config: this.config.view,
                   stripeWidth: 250,
                   refSeq: this.refSeq,
                   zoomLevel: 1/200
