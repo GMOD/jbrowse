@@ -91,7 +91,7 @@ return declare(BlockBased,
 
     _attachDndEvents: function() {
         var thisB = this;
-        dojo.connect(thisB.dnd, "onDndStart", function(source, nodes, copy) {
+        on(thisB.dnd, "DndStart", function(source, nodes, copy) {
                                                 if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
                                                   source.getItem(nodes[0].id).data = thisB.innerTrack.config;
                                                   source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
@@ -100,21 +100,21 @@ return declare(BlockBased,
                                                 thisB.currentDndSource = source;
                                                 thisB.sourceWasCopyOnly = source.copyOnly;
                                             });
-        dojo.connect(thisB.dnd, "onDraggingOver", function() {
+        on(thisB.dnd, "DraggingOver", function() {
                                                 
                                                 if(thisB.currentDndSource) {
                                                   thisB.currentDndSource.copyOnly = true;
                                                 } 
                                             });
-        var allCopyEndingEvents = ["onDraggingOut", "onDndDrop", "onDndCancel"];
+        var allCopyEndingEvents = ["DraggingOut", "DndDrop", "DndCancel"];
                 
         for(var eventName in allCopyEndingEvents)
-          dojo.connect(thisB.dnd, allCopyEndingEvents[eventName], function() {
+          on(thisB.dnd, allCopyEndingEvents[eventName], function() {
                                                 if(thisB.currentDndSource) {
                                                   thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
                                                 }
                                             });
-        dojo.connect(thisB.dnd, "onDndDrop", function(source, nodes, copy, target) {
+        on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
           if(source == thisB.dnd && nodes[0]) {
             thisB.browser.innerTrackCount++;
             thisB.onlyRefreshOuter = false;
@@ -124,10 +124,10 @@ return declare(BlockBased,
             thisB.refresh();
           }
         });
-        dojo.connect(thisB.dnd, "onDndCancel", function() {
+        on(thisB.dnd, "DndCancel", function() {
             thisB.onlyRefreshOuter = false;
         });
-        dojo.connect(thisB.dnd, "onOutEvent", function() {
+        on(thisB.dnd, "OutEvent", function() {
             dndManager.manager().overSource(thisB.genomeView.trackDndWidget);
         });
     },
