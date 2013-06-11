@@ -5,6 +5,8 @@ define([
            'dojo/Deferred',
            'JBrowse/View/Track/BlockBased',
            'JBrowse/View/Track/HTMLFeatures',
+           'JBrowse/View/Track/Wiggle/XYPlot',
+           'JBrowse/View/Track/Wiggle/Density',
            'JBrowse/Store/SeqFeature/Combination/TreeNode',
             'dojo/dnd/move',
            'dojo/dnd/Source',
@@ -17,6 +19,8 @@ define([
            Deferred,
            BlockBased,
            HTMLFeaturesTrack,
+           WiggleXYTrack,
+           WiggleDensityTrack,
            TreeNode,
            dndMove,
            dndSource,
@@ -35,13 +39,28 @@ return declare(BlockBased,
      * @constructs
      */
 
+
     constructor: function( args ) {
+        this.trackTypes =
+        {
+            "JBrowse/View/Track/HTMLFeatures": "set",
+            "JBrowse/View/Track/Wiggle/XYPlot": "quant",
+            "JBrowse/View/Track/Wiggle/Density": "quant"
+        };
+
+        this.defaultQuantTrack = "XY";
+
         this.loaded = true;
         this.divClass = args.divClass || "combination";
 
+
+        this.reinitialize();
         this.tracks = [];
-        this.defaultOp = "AND";
-        this.opTree = new TreeNode({ Value: this.defaultOp });
+        this.defaultSOp = "AND";
+        this.defaultQOp = "+";
+
+        // this.opTree = new TreeNode({ Value: this.defaultOp });
+
         this.currentDndSource = undefined;
         this.sourceWasCopyOnly = undefined;
 
@@ -57,11 +76,6 @@ return declare(BlockBased,
 
         this.height = args.height || this.heightNoInner;
 
-        this.keyToStore = {};
-        this.storeToKey = {};
-
-        this.innerTrack = undefined;
-        this.innerDiv = undefined;
         this.counter = 0;
     },
 
@@ -89,46 +103,68 @@ return declare(BlockBased,
         this._attachDndEvents();
     },
 
+
+    // This function ensure that the combination track's drag-and-drop interface works correctly.
     _attachDndEvents: function() {
         var thisB = this;
+
         on(thisB.dnd, "DndStart", function(source, nodes, copy) {
-                                                if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
-                                                  source.getItem(nodes[0].id).data = thisB.innerTrack.config;
-                                                  source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
-                                                  thisB.onlyRefreshOuter = true;
-                                                }
-                                                thisB.currentDndSource = source;
-                                                thisB.sourceWasCopyOnly = source.copyOnly;
-                                            });
-        on(thisB.dnd, "DraggingOver", function() {
-                                                
-                                                if(thisB.currentDndSource) {
-                                                  thisB.currentDndSource.copyOnly = true;
-                                                } 
-                                            });
-        var allCopyEndingEvents = ["DraggingOut", "DndDrop", "DndCancel"];
+            if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
+              // Dragging the inner track out of the outer track.
+              source.getItem(nodes[0].id).data = thisB.innerTrack.config;
+              source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
+              thisB.onlyRefreshOuter = true;
+            }
+            // Stores the information about whether the source was copy-only, for future reference
+            thisB.currentDndSource = source;
+            thisB.sourceWasCopyOnly = source.copyOnly;
+        });
+        on(thisB.dnd, "DraggingOver", function() {        
+            if(thisB.currentDndSource) {
+              // Tracks being dragged onto this track are copied, not moved.
+              thisB.currentDndSource.copyOnly = true;
+            }
+            this.currentlyOver = true;
+        });
+        var dragEndingEvents = ["DraggingOut", "DndDrop", "DndCancel"];
                 
-        for(var eventName in allCopyEndingEvents)
-          on(thisB.dnd, allCopyEndingEvents[eventName], function() {
-                                                if(thisB.currentDndSource) {
-                                                  thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
-                                                }
-                                            });
+        for(var eventName in dragEndingEvents)
+          on(thisB.dnd, dragEndingEvents[eventName], function() {
+              if(thisB.currentDndSource) {
+                // Makes sure that the dndSource isn't permanently set to CopyOnly
+                thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
+              }
+              this.currentlyOver = false;
+          });
         on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
           if(source == thisB.dnd && nodes[0]) {
             thisB.browser.innerTrackCount++;
             thisB.onlyRefreshOuter = false;
           }
           if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
+            // Refresh the view when the inner track is dragged out
             thisB.reinitialize();
             thisB.refresh();
           }
+        });
+        dojo.subscribe("/dnd/drop/before", function(source, nodes, copy, target) {
+            if(target == thisB.dnd && nodes[0]) {
+              thisB.dnd.current = null;
+            }
         });
         on(thisB.dnd, "DndCancel", function() {
             thisB.onlyRefreshOuter = false;
         });
         on(thisB.dnd, "OutEvent", function() {
+            // Fixes a glitch wherein the trackContainer is disabled when the track we're dragging leaves the combination track
             dndManager.manager().overSource(thisB.genomeView.trackDndWidget);
+        });
+
+        on(thisB.dnd, "DndSourceOver", function(source) {
+            // Fixes a glitch wherein tracks dragged into the combination track sometimes go to the trackContainer instead.
+            if(source != this && this.currentlyOver) {
+                dndManager.manager().overSource(this);
+            }
         });
     },
 
@@ -146,6 +182,10 @@ return declare(BlockBased,
       // There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
       thisB.storeToKey[trackConfig.store] = trackConfig.key;
       thisB.keyToStore[trackConfig.key] = trackConfig.store;
+      // This should be eventually made more complicated to disallow 
+      this.isQuantTrack = (this.trackTypes[trackConfig.type] == "quant");
+      this.defaultOp = this.isQuantTrack ? "+" : "AND";
+      this.storeClass = this.isQuantTrack ? 'JBrowse/Store/SeqFeature/QCombination' : 'JBrowse/Store/SeqFeature/Combination';
 
       if(!this.innerDiv) {
         this.innerDiv = document.createElement("div");
@@ -154,22 +194,19 @@ return declare(BlockBased,
         this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
         //this.div.appendChild(this.innerDiv);
       } else { // Otherwise we'll have to remove whatever track is currently in the div
-        thisB.innerTrack.clear();
-        thisB.innerTrack.destroy();
+        this.innerTrack.clear();
+        this.innerTrack.destroy();
 
-        while(thisB.innerDiv.firstChild) { // Use dojo.empty instead?
-          thisB.innerDiv.removeChild(thisB.innerDiv.firstChild);
+        while(this.innerDiv.firstChild) { // Use dojo.empty instead?
+          this.innerDiv.removeChild(this.innerDiv.firstChild);
         }
         
-        thisB.innerDiv.parentNode.removeChild(thisB.innerDiv);
+        this.innerDiv.parentNode.removeChild(this.innerDiv);
+
       }
 
-      thisB._addTrackStore(trackConfig.store);
-      /*      
-      var nothing = document.createTextNode("");
-      return nothing;
-      */
-      return thisB.innerDiv;
+      this._addTrackStore(trackConfig.store);
+      return this.innerDiv;
     },
 
     treeIterate: function(tree) {
@@ -193,7 +230,7 @@ return declare(BlockBased,
               var opNode = new TreeNode({Value: thisB.defaultOp});
               opNode.add(thisB.opTree);
               opNode.add(storeNode);
-              thisB.opTree = opNode;  
+              thisB.opTree = opNode; 
             }
             d.resolve(store,true);
           } else {
@@ -216,9 +253,9 @@ return declare(BlockBased,
       } else {
         var storeConf = {
             browser: thisB.browser,
-            refSeq: thisB.browser.refSeq,
-            type: 'JBrowse/Store/SeqFeature/Combination',
-            op: thisB.defaultOp,
+            refSeq: thisB.browser.refSeq.name,
+            type: thisB.storeClass,
+            op: thisB.defaultOp
           };
         var storeName = thisB.browser._addStoreConfig(undefined, storeConf);
         storeConf.name = storeName;
@@ -231,17 +268,25 @@ return declare(BlockBased,
     },
 
     _renderInnerTrack: function() {
-      var thisB = this;
-      if(thisB.store) {
-        thisB.innerTrack = new HTMLFeaturesTrack({
-            config: thisB._innerTrackConfig(),
-            browser: thisB.browser,
-            refSeq: thisB.refSeq,
-            store: thisB.store,
-            trackPadding: 0
-        });
+      if(this.store) {
+        if(this.isQuantTrack) {
+          this.innerTrack = new WiggleXYTrack({
+                      config: this._innerTrackConfig(),
+                      browser: this.browser,
+                      refSeq: this.refSeq,
+                      store: this.store
+                  });
+        } else {
+          this.innerTrack = new HTMLFeaturesTrack({
+                      config: this._innerTrackConfig(),
+                      browser: this.browser,
+                      refSeq: this.refSeq,
+                      store: this.store,
+                      trackPadding: 0
+                  });
+        }
 
-        
+        var thisB = this;
         var innerHeightUpdate = function(height) {
           thisB.heightInner = height;
           thisB.height = thisB.topHeight + height + thisB.bottomHeight;
@@ -253,13 +298,11 @@ return declare(BlockBased,
           thisB.div.style.height = thisB.height + "px";
         }
 
-        thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
-            thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
+        this.innerTrack.setViewInfo (this.genomeView, innerHeightUpdate,
+            this.numBlocks, this.innerDiv, this.widthPct, this.widthPx, this.scale);
 
-        thisB._redefineCloseButton();
-
-        thisB.refresh();
-
+        this._redefineCloseButton();
+        this.refresh();
       }
 
     },
@@ -290,12 +333,11 @@ return declare(BlockBased,
                   key: "Inner Track",
                   label: this.name + "_inner",
                   metadata: {Description: "This track was created from a combination track."},
-                  type: "JBrowse/View/Track/HTMLFeatures"
+                  type: this.isQuantTrack ? "JBrowse/View/Track/Wiggle/XYPlot" : "JBrowse/View/Track/HTMLFeatures"
               };
     },
 
     refresh: function(track) {
-      //console.log(this.name + " refresh")
       var thisB = this;
       if(!track) track = thisB;
       if(this.store && !this.onlyRefreshOuter) this.store.reload(thisB.opTree);
@@ -308,20 +350,30 @@ return declare(BlockBased,
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
                         containerStart, containerEnd) {
-      //console.log(this.name + " sr " + this.dnd.getAllNodes().length);
       this.range = {f: first, l: last, st: startBase, 
                     b: bpPerBlock, sc: scale, 
                     cs: containerStart, ce: containerEnd};
       if(this.innerTrack && !this.onlyRefreshOuter) {
           this.innerTrack.clear();
+          
+          // This is a workaround to a glitch that causes an opaque white rectangle to appear sometimes when a quantitative
+          // track is loaded.
+          var needsDiv = this.isQuantTrack && !this.innerDiv.parentNode;
+          if(needsDiv) {
+            this.div.appendChild(this.innerDiv);
+          }
+
           this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+          
+          if(needsDiv) {
+            this.div.removeChild(this.innerDiv);
+          }
         }
-      //console.log("sr 2");
+
       this.inherited(arguments);
       this.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner);
       this.heightUpdate(this.height);
       this.div.style.height = this.height + "px";
-      //console.log("sr 3");
     },
 
     moveBlocks: function(delta) {
@@ -381,12 +433,23 @@ return declare(BlockBased,
       var o = this.inherited(arguments);
       var combTrack = this;
 
-      var allowedOps = ["AND", "OR", "XOR", "MINUS"];
+      var allowedOps = this.isQuantTrack ? ["+", "-", "*", "/"] : ["AND", "OR", "XOR", "MINUS"];
+      var inWords =
+      {
+        "+": "addition",
+        "-": "subtraction",
+        "*": "multiplication",
+        "/": "division",
+        "AND": "intersection",
+        "OR": "union",
+        "XOR": "XOR",
+        "MINUS": "set subtraction"
+      };
       var menuItems = allowedOps.map(
                         function(op) {
                           return {
-                            label: op,
-                            title: "change operation of last track to " + op,
+                            label: inWords[op],
+                            title: "change operation of last track to " + inWords[op],
                             action: function() {
                               if(combTrack.opTree) {
                                 combTrack.opTree.set(op);
