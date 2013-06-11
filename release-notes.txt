@@ -18,6 +18,11 @@
    viewing region is being panned back and forth.  Thanks to Gregg
    Helt for pointing this out.
 
+ * Fixed a bug in which editing a track's configuration JSON through
+   the track menu when the faceted track selector was enabled
+   sometimes caused another track to be deactivated.  Thanks to Steffi
+   Geisen for pointing this out.
+
  * Fixed a subtle bug in which not completing a track-dragging gesture
    from the Simple track selector into the genome view caused the
    track handle to not disappear from the track selector when the
