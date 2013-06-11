@@ -2,16 +2,20 @@ require([
             'dojo/_base/array',
             'dojo/_base/lang',
             'dojo/request/xhr',
+            'JBrowse/Browser',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Util/GFF3',
-            'JBrowse/Store/SeqFeature/GFF3/Parser'
+            'JBrowse/Store/SeqFeature/GFF3/Parser',
+            'JBrowse/Store/SeqFeature/GFF3'
         ], function(
             array,
             lang,
             xhr,
+            Browser,
             XHRBlob,
             GFF3,
-            Parser
+            Parser,
+            GFF3Store
         ) {
 describe( 'GFF3 utils', function() {
     array.forEach([
@@ -85,7 +89,7 @@ describe( 'GFF3 parser', function() {
                                       parseFinished = true;
                                   }
                               });
-           var f = new XHRBlob( '../data/gff3_with_syncs.gff3' );
+           var f =  new XHRBlob( '../data/gff3_with_syncs.gff3' );
            f.fetchLines( function(l) { p.addLine( l ); },
                          function()  { p.finish();     },
                          function(e) { console.error(e); } );
@@ -96,6 +100,29 @@ describe( 'GFF3 parser', function() {
            waitsFor( function() { return parseFinished && referenceResult; } );
            runs( function() {
                expect( stuff ).toEqual( referenceResult );
+           });
+   });
+});
+
+describe( 'GFF3 store', function() {
+   it( 'can parse volvox.gff3', function() {
+           var features = [];
+           var done;
+           var p = new GFF3Store({
+                                     browser: new Browser({ unitTestMode: true }),
+                                     blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.gff3' )
+                                 });
+           p.getFeatures(
+               { ref: 'ctgA', start: 1, end: 50000 },
+               function(f) { features.push(f); },
+               function() { done = true; },
+               function(e) { console.error(e); }
+           );
+
+           waitsFor( function() { return done; } );
+           runs( function() {
+                     console.log( features );
+                     expect( features.length ).toEqual( 197 );
            });
    });
 });

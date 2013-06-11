@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/Deferred',
+            'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/DeferredStatsMixin',
@@ -13,6 +14,7 @@ define( [
             lang,
             array,
             Deferred,
+            SimpleFeature,
             SeqFeatureStore,
             DeferredFeatures,
             DeferredStats,
@@ -27,67 +29,125 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
 {
     constructor: function( args ) {
         this.data = args.blob;
+        this.features = [];
         this._loadFeatures();
     },
 
     _loadFeatures: function() {
-        return this.featuresLoaded || function() {
-            var d = this.featuresLoaded = new Deferred();
-            var thisB = this;
-            this.features = [];
+        var thisB = this;
+        var features = this.bareFeatures = [];
 
-            var featuresSorted = true;
-            var seenRefs = {};
-            var parser = new Parser(
-                {
-                    featureCallback: function(fs) {
-                        array.forEach( fs, function( feature ) {
-                            var prevFeature = thisB.features[ thisB.features.length-1 ];
-                            if( seenRefs[ feature.seq_id ] && prevFeature.seq_id != feature.seq_id )
-                                featuresSorted = false;
-                            if( prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
-                                featuresSorted = false;
+        var featuresSorted = true;
+        var seenRefs = this.refSeqs = {};
+        var parser = new Parser(
+            {
+                featureCallback: function(fs) {
+                    array.forEach( fs, function( feature ) {
+                                       var prevFeature = features[ features.length-1 ];
+                                       var regRefName = thisB.browser.regularizeReferenceName( feature.seq_id );
+                                       if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
+                                           featuresSorted = false;
+                                       if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
+                                           featuresSorted = false;
 
-                            seenRefs[ feature.seq_id ] = true;
-                            thisB.features.push( feature );
-                        });
-                    },
-                    endCallback:     function()  {
-                        d.resolve( thisB.features );
-                        if( ! featuresSorted ) {
-                            thisB.features.sort( thisB._compareFeatures );
-                        }
-                    }
-                });
-
-            // parse the whole file and store it
-            this.data.fetchLines(
-                function( line ) {
-                    parser.addLine(line);
+                                       if( !( regRefName in seenRefs ))
+                                           seenRefs[ regRefName ] = features.length;
+                                       features.push( feature );
+                                   });
                 },
-                lang.hitch( parser, 'finish' ),
-                lang.hitch( this, '_failAllDeferred' )
-            );
+                endCallback:     function()  {
+                    if( ! featuresSorted ) {
+                        features.sort( thisB._compareFeatures );
+                    }
+                    thisB._deferred.features.resolve( features );
+                }
+            });
 
-            return d;
-        }.call(this);
+        // parse the whole file and store it
+        this.data.fetchLines(
+            function( line ) {
+                parser.addLine(line);
+            },
+            lang.hitch( parser, 'finish' ),
+            lang.hitch( this, '_failAllDeferred' )
+        );
     },
 
     _compareFeatures: function( a, b ) {
-        return a.localeCompare( b ) || ( b.start - a.start );
+        return a.seq_id.localeCompare( b.seq_id ) || ( b.start - a.start );
     },
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
-        thisB._load().then( function() {
-            this._search( query, featureCallback, finishedCallback, errorCallback );
+        thisB._deferred.features.then( function() {
+            thisB._search( query, featureCallback, finishedCallback, errorCallback );
         });
     },
 
-    _search: function( query, featureCallback, finishedCallback, errorCallback ) {
-        // TODO: do a binary search in this.features, which are sorted
+    _search: function( query, featureCallback, finishCallback, errorCallback ) {
+        // search in this.features, which are sorted
         // by ref and start coordinate, to find the beginning of the
         // relevant range
+        var refName = this.browser.regularizeReferenceName( query.ref );
+        var i = this.refSeqs[ refName ];
+        if( !( i >= 0 )) {
+            finishCallback();
+            return;
+        }
+
+        var bare = this.bareFeatures;
+        var converted = this.features;
+
+        for( ; i<bare.length; i++ ) {
+            // lazily convert the bare feature data to JBrowse features
+            var f = converted[i] ||
+                ( converted[i] = function(b,i) {
+                      delete bare[i];
+                      return this._formatFeature( b );
+                  }.call( this, bare[i], i )
+                );
+            // features are sorted by ref seq and start coord, so we
+            // can stop if we are past the ref seq or the end of the
+            // query region
+            if( f.get('_reg_seq_id') != refName || f.get('start') > query.end )
+                break;
+
+            if( f.get('end') >= query.start )
+                featureCallback( f );
+        }
+
+        finishCallback();
+    },
+
+
+    _formatFeature: function( data ) {
+        var thisB = this;
+        return new SimpleFeature({
+            data: this._featureData( data )
+        });
+    },
+    _flattenOneLevel: function( ar ) {
+        var r = [];
+        for( var i = 0; i<ar.length; ar++ ) {
+            r.push.apply( r, ar[0] );
+        }
+        return r;
+    },
+
+    _featureData: function( data ) {
+        var f = {};
+        dojo.mixin( f, data );
+        delete f.child_features;
+        delete f.derived_features;
+        delete f.attributes;
+        f._reg_seq_id = this.browser.regularizeReferenceName( f.seq_id );
+        f.start -= 1; // convert to interbase
+        f.uniqueID = (data.attributes.ID||[])[0];
+        var sub = array.map( this._flattenOneLevel( data.child_features), this._featureData, this );
+        if( sub.length )
+            f.subfeatures = sub;
+
+        return f;
     },
 
     /**
@@ -99,7 +159,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
      * others are not.
      */
     hasRefSeq: function( seqName, callback, errorCallback ) {
-        return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
+        callback( this.browser.regularizeReferenceName(seqName) in this.refSeqs );
     }
 
 });
