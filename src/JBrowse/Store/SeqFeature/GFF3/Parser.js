@@ -106,9 +106,9 @@ return declare( null, {
         // since the under_construction_top_level buffer is likely to be
         // much larger than the item_buffer, we swap them and unshift the
         // existing buffer onto it to avoid a big copy.
-        array.forEach( this.under_construction_top_level, function( f ) {
-            this._return_item(f);
-        },this);
+        array.forEach( this.under_construction_top_level,
+                       this._return_item,
+                       this );
 
         this.under_construction_top_level = [];
         this.under_construction_by_id = {};
@@ -138,7 +138,7 @@ return declare( null, {
         if( !ids.length && !parents.length && !derives.length ) {
             // if it has no IDs and does not refer to anything, we can just
             // output it
-            this._return_item( feature_line );
+            this._return_item([ feature_line ]);
             return;
         }
 
@@ -199,7 +199,8 @@ return declare( null, {
                     }
                 }
                 else {
-                    (this.under_construction_orphans[to_id][attrname] = this.under_construction_orphans[to_id][attrname] || [] ).push( feature );
+                    ( this.under_construction_orphans[to_id][attrname] = this.under_construction_orphans[to_id][attrname] || [] )
+                        .push( feature );
                 }
             },this);
         }
