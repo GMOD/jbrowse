@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.5     2013-06-12 12:35:53 EST5EDT
+
  * Added an `trackSelector.initialSortColumn` configuration variable
    to the faceted track selector that can be used to set the initial
    sort order for the grid in the faceted track selector. Thanks to
