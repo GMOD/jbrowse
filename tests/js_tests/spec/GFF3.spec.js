@@ -106,26 +106,69 @@ describe( 'GFF3 parser', function() {
 
 describe( 'GFF3 store', function() {
    it( 'can parse volvox.gff3', function() {
-           var features = [];
-           var done;
            var p = new GFF3Store({
                                      browser: new Browser({ unitTestMode: true }),
                                      blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.gff3' )
                                  });
-           p.getFeatures(
-               { ref: 'ctgA', start: 1, end: 50000 },
-               function(f) { features.push(f); },
-               function() { done = true; },
-               function(e) { console.error(e); }
-           );
+           (function() {
+               var features = [];
+               var done;
 
-           waitsFor( function() { return done; } );
-           runs( function() {
-                     //console.log( features );
-                     expect( features.length ).toEqual( 197 );
-                     expect( features[191].get('subfeatures').length ).toEqual( 3 );
-                     expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
-           });
+               p.getFeatures(
+                   { ref: 'ctgA', start: 1, end: 50000 },
+                   function(f) { features.push(f); },
+                   function() { done = true; },
+                   function(e) { console.error(e); }
+               );
+
+               waitsFor( function() { return done; } );
+               runs( function() {
+                         //console.log( features );
+                         expect( features.length ).toEqual( 197 );
+                         expect( features[6].get('subfeatures').length ).toEqual( 3 );
+                         expect( features[6].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
+                     });
+           }).call();
+
+           (function() {
+               var features = [];
+               var done;
+
+               p.getFeatures(
+                   { ref: 'ctgA', start: -1, end: 2499 },
+                   function(f) { features.push(f); },
+                   function() { done = true; },
+                   function(e) { console.error(e); }
+               );
+
+               waitsFor( function() { return done; } );
+               runs( function() {
+                         //console.log( features );
+                         expect( features.length ).toEqual( 13 );
+                         // expect( features[191].get('subfeatures').length ).toEqual( 3 );
+                         // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
+                     });
+           }).call();
+
+           (function() {
+               var features = [];
+               var done;
+
+               p.getFeatures(
+                   { ref: 'ctgB', start: -1, end: 5000 },
+                   function(f) { features.push(f); },
+                   function() { done = true; },
+                   function(e) { console.error(e); }
+               );
+
+               waitsFor( function() { return done; } );
+               runs( function() {
+                         //console.log( features );
+                         expect( features.length ).toEqual( 4 );
+                         // expect( features[191].get('subfeatures').length ).toEqual( 3 );
+                         // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
+                     });
+           }).call();
    });
 });
 
