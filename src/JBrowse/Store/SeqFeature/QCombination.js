@@ -102,6 +102,7 @@ reload: function( optree, refSeq, defaultOp) {
     var thisB = this;
     
     thisB.allFeaturesLoaded = new Deferred();
+    this._deferred.stats = new Deferred();
 
     // check if there are stores
     if (!Keys(thisB.stores).length) {
