@@ -9,6 +9,11 @@
    administrators customize the contents of the Help->General dialog.
    Thanks to Gregg Helt for suggesting this.
 
+ * Rewrote GFF3 direct-access backend to make it more
+   standards-compliant and capable of parsing all attributes of a
+   feature.  Thanks to Jillian Rowe and Colin Davenport for pointing
+   out the need for this.
+
  * Fixed failures of setup.sh legacy BAM support installation caused
    by samtools taking down their old SourceForge subversion
    repository.
