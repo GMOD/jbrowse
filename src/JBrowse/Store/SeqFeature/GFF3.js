@@ -128,22 +128,23 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     },
     _flattenOneLevel: function( ar ) {
         var r = [];
-        for( var i = 0; i<ar.length; ar++ ) {
-            r.push.apply( r, ar[0] );
+        for( var i = 0; i<ar.length; i++ ) {
+            r.push.apply( r, ar[i] );
         }
         return r;
     },
 
     _featureData: function( data ) {
-        var f = {};
-        dojo.mixin( f, data );
+        var f = lang.mixin( {}, data );
         delete f.child_features;
         delete f.derived_features;
         delete f.attributes;
         f._reg_seq_id = this.browser.regularizeReferenceName( f.seq_id );
         f.start -= 1; // convert to interbase
-        f.uniqueID = (data.attributes.ID||[])[0];
-        var sub = array.map( this._flattenOneLevel( data.child_features), this._featureData, this );
+        for( var a in data.attributes ) {
+            f[a] = data.attributes[a].join(',');
+        }
+        var sub = array.map( this._flattenOneLevel( data.child_features ), this._featureData, this );
         if( sub.length )
             f.subfeatures = sub;
 

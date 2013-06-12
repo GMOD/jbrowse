@@ -121,8 +121,10 @@ describe( 'GFF3 store', function() {
 
            waitsFor( function() { return done; } );
            runs( function() {
-                     console.log( features );
+                     //console.log( features );
                      expect( features.length ).toEqual( 197 );
+                     expect( features[191].get('subfeatures').length ).toEqual( 3 );
+                     expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
            });
    });
 });
