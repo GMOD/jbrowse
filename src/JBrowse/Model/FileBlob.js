@@ -55,18 +55,38 @@ var FileBlob = declare( null,
              }, failCallback );
     },
 
+    // get a line of text, properly decoding UTF-8
     _getline: function( parseState ) {
+        var newline = this._newlineCode;
+
         var data = parseState.data;
-        var newlineIndex = array.indexOf( data, this._newlineCode, parseState.offset );
+        var i = parseState.offset;
 
-        if( newlineIndex == -1 ) // no more lines
-            return null;
+        var line = [];
+        while( i < data.length ) {
+            var c1 = data[i], c2, c3;
+            if (c1 < 128) {
+                line.push( String.fromCharCode(c1) );
+                i++;
+                if( c1 == newline ) {
+                    parseState.offset = i;
+                    return line.join('');
+                }
+            } else if (c1 > 191 && c1 < 224) {
+                c2 = data[i + 1];
+                line.push( String.fromCharCode(((c1 & 31) << 6) | (c2 & 63)) );
+                i += 2;
+            } else {
+                c2 = data[i + 1];
+                c3 = data[i + 2];
+                line.push( String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63)) );
+                i += 3;
+            }
+        }
 
-        var line = '';
-        for( var i = parseState.offset; i <= newlineIndex; i++ )
-            line += String.fromCharCode( data[i] );
-        parseState.offset = newlineIndex+1;
-        return line;
+        // did not get a full line
+        parseState.offset = i;
+        return null;
     },
 
     readLines: function( offset, length, lineCallback, endCallback, failCallback ) {
