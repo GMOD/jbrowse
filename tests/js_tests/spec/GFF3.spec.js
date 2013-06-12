@@ -167,6 +167,7 @@ describe( 'GFF3 store', function() {
                          expect( features.length ).toEqual( 4 );
                          // expect( features[191].get('subfeatures').length ).toEqual( 3 );
                          // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
+                         expect( features[3].get('note') ).toEqual( 'ああ、この機能は、世界中を旅しています！' );
                      });
            }).call();
    });
