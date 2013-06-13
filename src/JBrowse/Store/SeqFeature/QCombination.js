@@ -172,7 +172,7 @@ applyOp: function(scoreA, scoreB, op) {
             retValue = scoreA * scoreB;
             break;
         case "/":
-            retValue = (scoreB == 0) ? scoreA : scoreA/scoreB;
+            retValue = (scoreB == 0) ? undefined : scoreA/scoreB;
             break;
         default:
             console.error("invalid operation");
@@ -266,7 +266,9 @@ opSpan: function(op, pseudosA, pseudosB, query) {
                 newPseudo.type = inA ? pseudosA[i].type : pseudosB[j].type;
             }
         }
-        
+        // Dividing by zero or other invalid operation being performed, don't add the feature
+        if(newPseudo.score === undefined) addPseudo = false;
+
         // Fetches the next critical point (the next base pair greater than the current nextCritical value
         //    that is either the beginning or the end of a pseudo)
         var _possibleCriticals = [pseudosA[i].min, pseudosA[i].max, pseudosB[j].min, pseudosB[j].max];

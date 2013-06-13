@@ -2,6 +2,7 @@ define([
 					 'dojo/_base/declare',
 					 'dojo/on',
 					 'dojo/dom-construct',
+					 'dojo/dom-class',
 					 'dojo/Deferred',
 					 'JBrowse/View/Track/BlockBased',
 					 'JBrowse/Store/SeqFeature/Combination/TreeNode',
@@ -13,6 +14,7 @@ define([
 					 declare,
 					 on,
 					 dom,
+					 domClass,
 					 Deferred,
 					 BlockBased,
 					 TreeNode,
@@ -142,6 +144,8 @@ return declare(BlockBased,
 						if(thisB.currentDndSource) {
 							// Tracks being dragged onto this track are copied, not moved.
 							thisB.currentDndSource.copyOnly = true;
+
+							// Do some css voodoo if the track being dragged is "unacceptable"
 						}
 						this.currentlyOver = true;
 				});
@@ -185,13 +189,27 @@ return declare(BlockBased,
 								dndManager.manager().overSource(this);
 						}
 				});
+
+				var oldCheckAcceptance = this.dnd.checkAcceptance;
+				this.dnd.checkAcceptance = function(source, nodes) {
+					// If the original acceptance checker fails, this one will too.
+					var accept = oldCheckAcceptance.call(thisB.dnd, source, nodes);
+
+					// Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
+					for(var i = 0; accept && nodes[i]; i++) {
+						var trackConfig = source.getItem(nodes[i].id).data;
+						accept = accept && thisB.supportedBy[trackConfig.type];
+					}
+					
+					return accept;
+				};
 		},
 
 		reinitialize: function() {
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
-      this.currType = undefined;
-      this.classIndex = 0;
+      		this.currType = undefined;
+      		this.classIndex = 0;
 			this.store = undefined;
 			this.opTree = undefined;
 			this.storeToKey = {};
