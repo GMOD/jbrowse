@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed bug in which File->Open failed to open GFF3 files with
+   embedded sequences in a FASTA section.
+
 1.9.5     2013-06-12 12:35:53 EST5EDT
 
  * Added an `trackSelector.initialSortColumn` configuration variable

@@ -263,3 +263,5 @@ ctgB	example	contig	1	6079	.	.	.	Name=ctgB
 ctgB	example	remark	1659	1984	.	+	.	Name=f07;Note=This is an example
 ctgB	example	remark	3014	6130	.	+	.	Name=f06;Note=This is another example
 ctgB	example	remark	4715	5968	.	-	.	Name=f05;Note=ああ、この機能は、世界中を旅しています！
+>foobar
+ACTGATGATCGCTAGATGCTCGACTAGC

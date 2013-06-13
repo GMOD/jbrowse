@@ -37,13 +37,20 @@ return declare( null, {
                         //     'Parent' : [ orphans that have a Parent attr referencing it ],
                         //     'Derives_from' : [ orphans that have a Derives_from attr referencing it ],
                         // }
-                        under_construction_orphans : {}
+                        under_construction_orphans : {},
+
+                        // if this is true, the parser ignores the
+                        // rest of the lines in the file.  currently
+                        // set when the file switches over to FASTA
+                        eof: false
                     });
     },
 
     addLine: function( line ) {
         var match;
-        if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
+        if( this.eof ) {
+            // do nothing
+        } else if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
             var f = GFF3.parse_feature( line );
             this._buffer_feature( f );
         }
@@ -57,8 +64,7 @@ return declare( null, {
                 var directive = GFF3.parse_directive( line );
                 if( directive.directive == 'FASTA' ) {
                     this._return_all_under_construction_features();
-                    this._return_item({ directive: 'FASTA', filehandle: this.filehandles.shift() });
-                    //shift @{this.{filethings}};
+                    this.eof = true;
                 } else {
                     this._return_item( directive );
                 }
@@ -72,11 +78,10 @@ return declare( null, {
             // blank line, do nothing
         }
         else if( /^\s*>/.test(line) ) {
-            // implicit beginning of a FASTA section.  a very stupid
-            // idea to include this in the format spec.  increases
-            // implementation complexity by a lot.
+            // implicit beginning of a FASTA section.  just stop
+            // parsing, since we don't currently handle sequences
             this._return_all_under_construction_features();
-            this._return_item( this._handle_implicit_fasta_start( line ) );
+            this.eof = true;
         }
         else { // it's a parse error
             line = line.replace( /\r?\n?$/g, '' );
@@ -204,23 +209,6 @@ return declare( null, {
                 }
             },this);
         }
-    },
-
-    _handle_implicit_fasta_start: function( line ) {
-        // need to emulate pushing back the first line of the implicit
-        // FASTA section
-        var fh = this.filehandles.shift();
-        return {
-            directive : 'FASTA',
-            filehandle : function() {
-                if( line ) {
-                    var l = line;
-                    line = undefined;
-                    return line;
-                }
-                return fh();
-            }};
     }
-
 });
 });
