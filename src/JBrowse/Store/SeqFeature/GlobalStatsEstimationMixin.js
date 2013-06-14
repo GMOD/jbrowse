@@ -6,9 +6,10 @@
 
 define([
            'dojo/_base/declare',
-           'dojo/_base/array'
+           'dojo/_base/array',
+           'dojo/Deferred'
        ],
-       function( declare, array ) {
+       function( declare, array, Deferred ) {
 
 return declare( null, {
 
@@ -17,7 +18,8 @@ return declare( null, {
      * estimate the feature density of the store.
      * @private
      */
-    _estimateGlobalStats: function( finishCallback, errorCallback ) {
+    _estimateGlobalStats: function() {
+        var deferred = new Deferred();
 
         var statsFromInterval = function( refSeq, length, callback ) {
             var thisB = this;
@@ -44,12 +46,12 @@ return declare( null, {
 
         var maybeRecordStats = function( interval, stats, error ) {
             if( error ) {
-                finishCallback( null, error );
+                deferred.reject( error );
             } else {
                 var refLen = this.refSeq.end - this.refSeq.start;
                  if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
                      console.log( 'Store statistics: '+(this.source||this.name), stats );
-                     finishCallback( stats );
+                     deferred.resolve( stats );
                  } else {
                      statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
                  }
@@ -57,6 +59,7 @@ return declare( null, {
         };
 
         statsFromInterval.call( this, this.refSeq, 100, maybeRecordStats );
+        return deferred;
     }
 
 });
