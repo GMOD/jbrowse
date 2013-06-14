@@ -321,7 +321,7 @@ var BamFile = declare( null,
         } else {
             chunks = this.blocksForRange(chrId, min, max);
             if (!chunks) {
-                callback(null, new Errors.Fatal('Error in index fetch') );
+                errorCallback( new Errors.Fatal('Error in index fetch') );
             }
         }
 
