@@ -49,7 +49,7 @@ return declare(BlockBased,
                       allowedOps:   ["AND", "OR", "XOR", "MINUS"],
                       defaultOp:    "AND"
                     },
-          "quant":  {
+          	"quant":  {
                       innerTypes:   [{
                                         name: "XYPlot",
                                         path: "JBrowse/View/Track/Wiggle/XYPlot"
@@ -61,7 +61,12 @@ return declare(BlockBased,
                       store:        "JBrowse/Store/SeqFeature/QCombination",
                       allowedOps:   ["+", "-", "*", "/"], 
                       defaultOp:    "+"
-                    }
+                    },
+            "mask": {
+            					store: 				"JBrowse/Store/SeqFeature/MCombination",
+            					allowedOps: 	["MASK", "INV_MASK"],
+            					defaultOp: 		"MASK"
+            				}
         };
 
         this.classIndex = 0;
