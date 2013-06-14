@@ -263,7 +263,7 @@ var BamFile = declare( null,
                 if( !lb )
                     continue;
 
-                if ( ! lowest || lb.cmp( lowest ) < 0  )
+                if ( ! lowest || lb.cmp( lowest ) > 0 )
                     lowest = lb;
             }
             return lowest;
@@ -271,18 +271,18 @@ var BamFile = declare( null,
 
         // discard any chunks that come before the lowest
         // virtualOffset that we got from the linear index
-        otherChunks = function( otherChunks ) {
-            var relevantOtherChunks = [];
-            if (lowest != null) {
+        if( lowest ) {
+            otherChunks = function( otherChunks ) {
+                var relevantOtherChunks = [];
                 for (var i = 0; i < otherChunks.length; ++i) {
                     var chnk = otherChunks[i];
-                    if (chnk.maxv.block >= lowest.block && chnk.maxv.offset >= lowest.offset) {
+                    if( chnk.maxv.block >= lowest.block ) {
                         relevantOtherChunks.push(chnk);
                     }
                 }
-            }
-            return relevantOtherChunks;
-        }(otherChunks);
+                return relevantOtherChunks;
+            }(otherChunks);
+        }
 
         // add the leaf chunks in, and sort the chunks ascending by virtual offset
         var allChunks = otherChunks

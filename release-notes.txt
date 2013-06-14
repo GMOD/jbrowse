@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug with some types of BAM files in which not all BAM
+   features would be displayed.  Thanks to Ignazio Carbone for
+   pointing this out. (issue #276).
+
  * Fixed bug in which File->Open failed to open GFF3 files with
    embedded sequences in a FASTA section.
 
