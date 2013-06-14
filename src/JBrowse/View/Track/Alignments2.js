@@ -17,6 +17,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             dojo.clone( this.inherited(arguments) ),
             {
                 glyph: 'JBrowse/View/FeatureGlyph/Alignment',
+                maxFeatureGlyphExpansion: 0,
                 style: {
                     showLabels: false
                 }
