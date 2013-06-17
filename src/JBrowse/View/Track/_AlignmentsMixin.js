@@ -21,19 +21,19 @@ return declare( MismatchesMixin ,{
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        var fmt = dojo.hitch( this, function( name, value ) {
+            name = Util.ucFirst( name.replace(/_/g,' ') );
+            return this._fmtDetailField(name, value);
+        });
         var container = dojo.create('div', {
             className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''
         });
-        var fmt = dojo.hitch( this, function( name, value ) {
-            name = Util.ucFirst( name.replace(/_/g,' ') );
-            return this.renderDetailField(container, name, value);
-        });
-        fmt( 'Name', f.get('name') );
-        fmt( 'Type', f.get('type') );
-        fmt( 'Score', f.get('score') );
-        fmt( 'Description', f.get('note') );
-        fmt(
+        container.innerHTML += fmt( 'Name', f.get('name') );
+        container.innerHTML += fmt( 'Type', f.get('type') );
+        container.innerHTML += fmt( 'Score', f.get('score') );
+        container.innerHTML += fmt( 'Description', f.get('note') );
+        container.innerHTML += fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
@@ -42,9 +42,11 @@ return declare( MismatchesMixin ,{
         );
 
 
+        var alignment = '<div class="alignment sequence">'+f.get('seq')+'</div>';
         if( f.get('seq') ) {
-            fmt('Sequence and Quality', this._renderSeqQual( f ) );
+            container.innerHTML += fmt('Sequence and Quality', this._renderSeqQual( f ) );
         }
+
 
         var additionalTags = array.filter(
             f.tags(), function(t) {
@@ -53,7 +55,7 @@ return declare( MismatchesMixin ,{
         ).sort();
 
         dojo.forEach( additionalTags, function(t) {
-                          fmt( t, f.get(t) );
+            container.innerHTML += fmt( t, f.get(t) );
         });
 
         return container;

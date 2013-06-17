@@ -2,7 +2,6 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
-            'dojo/json',
             'dojo/aspect',
             'dojo/dom-construct',
             'dojo/dom-geometry',
@@ -22,13 +21,11 @@ define( [
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog',
-            'JBrowse/View/Track/BlockBased/Block',
-            'JBrowse/View/DetailsMixin'
+            'JBrowse/View/Track/BlockBased/Block'
         ],
         function( declare,
                   lang,
                   array,
-                  JSON,
                   aspect,
                   domConstruct,
                   domGeom,
@@ -48,13 +45,13 @@ define( [
                   Errors,
                   TrackConfigEditor,
                   ConfirmDialog,
-                  Block,
-                  DetailsMixin
+                  Block
                 ) {
+
 
 // we get `own` and `destroy` from Destroyable, see dijit/Destroyable docs
 
-return declare( [Component,DetailsMixin,Destroyable],
+return declare( [Component,Destroyable],
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -209,7 +206,7 @@ return declare( [Component,DetailsMixin,Destroyable],
             return;
 
         this.labelHTML = newHTML;
-        query('.track-label-text',this.label)
+        dojo.query('.track-label-text',this.label)
             .forEach(function(n){ n.innerHTML = newHTML; });
         this.labelHeight = this.label.offsetHeight;
     },
@@ -308,7 +305,6 @@ return declare( [Component,DetailsMixin,Destroyable],
             this.cleanupBlock( block );
         }, this);
         delete this.blocks;
-        delete this.div;
 
         this.inherited( arguments );
     },
@@ -383,9 +379,9 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     showFatalError: function( error ) {
-        query( '.block', this.div )
-            .concat( query( '.blank-block', this.div ) )
-            .concat( query( '.error', this.div ) )
+        dojo.query( '.block', this.div )
+            .concat( dojo.query( '.blank-block', this.div ) )
+            .concat( dojo.query( '.error', this.div ) )
             .orphan();
         this.blocks = [];
         this.blockHeights = [];
@@ -396,25 +392,14 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     // generic handler for all types of errors
-    _handleError: function( error, viewArgs ) {
+    _handleError: function( error ) {
         console.error( ''+error, error.stack, error );
-
-        var errorContext = dojo.mixin( {}, error );
-        dojo.mixin( errorContext, viewArgs );
-
         var isObject = typeof error == 'object';
 
-        if( isObject && error instanceof Errors.TimeOut && errorContext.block )
-            this.fillBlockTimeout( errorContext.blockIndex, errorContext.block, error );
-        else if( isObject && error instanceof Errors.DataOverflow ) {
-            if( errorContext.block )
-                this.fillTooManyFeaturesMessage( errorContext.blockIndex, errorContext.block, error );
-            else
-                array.forEach( this.blocks, function( block, blockIndex ) {
-                    if( block )
-                        this.fillTooManyFeaturesMessage( blockIndex, block, error );
-                },this);
-        }
+        if( isObject && error instanceof Errors.TrackBlockTimeout )
+            this.fillBlockTimeout( error.blockIndex, error.block, error );
+        else if( isObject && error instanceof Errors.TrackBlockError )
+            this.fillBlockError( error.blockIndex, error.block, error );
         else {
             this.fatalError = error;
             this.showFatalError( error );
@@ -636,7 +621,6 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     fillMessage: function( blockIndex, block, message, class_ ) {
-        domConstruct.empty( block.domNode );
         var msgDiv = dojo.create(
             'div', {
                 className: class_ || 'message',
@@ -652,13 +636,12 @@ return declare( [Component,DetailsMixin,Destroyable],
      */
     updateStaticElements: function( /**Object*/ coords ) {
         this.window_info = dojo.mixin( this.window_info || {}, coords );
-        if( this.fatalErrorMessageElement ) {
-            this.fatalErrorMessageElement.style.width = this.window_info.width * 0.6 + 'px';
-            if( 'x' in coords )
-                this.fatalErrorMessageElement.style.left = coords.x+this.window_info.width * 0.2 +'px';
-        }
-
-        if( this.label && 'x' in coords )
+        if( this.fatalErrorMessageElement )
+            dojo.style( this.fatalErrorMessageElement, {
+                            left: coords.x+this.window_info.width * 0.2 +'px',
+                            width: this.window_info.width * 0.6 + 'px'
+                        });
+        if( this.label )
             this.label.style.left = coords.x+'px';
     },
 
@@ -784,13 +767,12 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     /**
-     * @returns {Object} DOM element containing a rendering of the
-     *                   detailed metadata about this track
+     * @returns {String} string of HTML that prints the detailed metadata about this track
      */
     _trackDetailsContent: function() {
-        var details = domConstruct.create('div', { className: 'detail' });
-        var fmt = dojo.hitch(this, 'renderDetailField', details );
-        fmt( 'Name', this.key || this.name );
+        var details = '<div class="detail">';
+        var fmt = dojo.hitch(this, '_fmtDetailField');
+        details += fmt( 'Name', this.key || this.name );
         var metadata = dojo.clone( this.getMetadata() );
         delete metadata.key;
         delete metadata.label;
@@ -802,8 +784,9 @@ return declare( [Component,DetailsMixin,Destroyable],
             md_keys.push(k);
         // TODO: maybe do some intelligent sorting of the keys here?
         dojo.forEach( md_keys, function(key) {
-                          fmt( Util.ucFirst(key), metadata[key] );
+                          details += fmt( Util.ucFirst(key), metadata[key] );
                       });
+        details += "</div>";
         return details;
     },
 
@@ -812,6 +795,63 @@ return declare( [Component,DetailsMixin,Destroyable],
                                           this.config.metadata ? this.config.metadata :
                                                                  {};
     },
+
+    _fmtDetailField: function( title, val, class_ ) {
+        if( val === null || val === undefined )
+            return '';
+
+        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+
+        // special case for values that include metadata about their
+        // meaning, which are formed like { values: [], meta:
+        // {description: }.  break it out, putting the meta description in a `title`
+        // attr on the field name so that it shows on mouseover, and
+        // using the values as the new field value.
+        var fieldMeta;
+        if( typeof val == 'object' && ('values' in val) ) {
+            fieldMeta = (val.meta||{}).description;
+            // join the description if it is an array
+            if( dojo.isArray( fieldMeta ) )
+                fieldMeta = fieldMeta.join(', ');
+
+            val = val.values;
+        }
+
+        var valueHTML = this._fmtDetailValue(val, class_);
+        var titleAttr = fieldMeta ? ' title="'+fieldMeta+'"' : '';
+        return  '<div class="field_container">'
+               + '<h2 class="field '+class_+'"'+titleAttr+'>'+title+'</h2>'
+               +' <div class="value_container '
+                              +class_
+                              +( valueHTML.length > 300 ? ' big' : '')
+                              +'">'
+               +     valueHTML
+               +' </div>'
+               +'</div>';
+    },
+    _fmtDetailValue: function( val, class_ ) {
+        var valType = typeof val;
+        if( typeof val.toHTML == 'function' )
+            val = val.toHTML();
+        if( valType == 'boolean' )
+            val = val ? 'yes' : 'no';
+        else if( valType == 'undefined' || val === null )
+            return '';
+        else if( lang.isArray( val ) )
+            return array.map( val, function(v) {
+                       return this._fmtDetailValue( v, class_ );
+                   }, this ).join(' ');
+        else if( valType == 'object' ) {
+            var keys = Util.dojof.keys( val ).sort();
+            return array.map( keys, function( k ) {
+                       return this._fmtDetailField( k, val[k], class_ );
+                   }, this ).join(' ');
+        }
+
+
+        return '<div class="value '+class_+'">' + val + '</div>';
+    },
+
 
     /**
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
@@ -853,12 +893,10 @@ return declare( [Component,DetailsMixin,Destroyable],
 
     _processMenuSpec: function( spec, context ) {
         for( var x in spec ) {
-            if( spec.hasOwnProperty(x) ) {
-                if( typeof spec[x] == 'object' )
-                    spec[x] = this._processMenuSpec( spec[x], context );
-                else
-                    spec[x] = this.template( context.feature, this._evalConf( context, spec[x], x ) );
-            }
+            if( typeof spec[x] == 'object' )
+                spec[x] = this._processMenuSpec( spec[x], context );
+            else
+                spec[x] = this.template( context.feature, this._evalConf( context, spec[x], x ) );
         }
         return spec;
     },
@@ -928,33 +966,29 @@ return declare( [Component,DetailsMixin,Destroyable],
             if( type == 'content' )
                 dialog.set( 'content', this._evalConf( context, spec.content, null ) );
 
-            Util.removeAttribute( context, 'dialog' );
+            delete context.dialog;
         }
         else if( type == 'bare' ) {
             dialog = new Dialog( dialogOpts );
             context.dialog = dialog;
             dialog.set( 'content', this._evalConf( context, spec.content, null ) );
-            Util.removeAttribute( context, 'dialog' );
+            delete context.dialog;
         }
         // open the link in a dialog with an iframe
         else if( type == 'iframe' ) {
-            var iframeDims = function() {
-                var d = domGeom.position( this.browser.container );
-                return { h: Math.round(d.h * 0.8), w: Math.round( d.w * 0.8 ) };
-            }.call(this);
+            dojo.safeMixin( dialogOpts.style, {width: '90%', height: '90%'});
+            dialogOpts.draggable = false;
 
-            dialog = new Dialog( dialogOpts );
-
+            var container = dojo.create('div', {}, document.body);
             var iframe = dojo.create(
                 'iframe', {
+                    width: '100%', height: '100%',
                     tabindex: "0",
-                    width: iframeDims.w,
-                    height: iframeDims.h,
                     style: { border: 'none' },
                     src: spec.url
-                });
-
-            dialog.set( 'content', iframe );
+                }, container
+            );
+            dialog = new Dialog( dialogOpts, container );
             dojo.create( 'a', {
                              href: spec.url,
                              target: '_blank',
@@ -969,11 +1003,9 @@ return declare( [Component,DetailsMixin,Destroyable],
                 // initial display, and when the window
                 // is resized, to keep the iframe
                 // sized to fit exactly in it.
-                var cDims = domGeom.position( dialog.containerNode );
-                var width  = cDims.w;
-                var height = cDims.h - domGeom.position(dialog.titleBar).h;
-                iframe.width = width;
-                iframe.height = height;
+                var cDims = domGeom.getMarginBox( dialog.domNode );
+                iframe.width  = cDims.w;
+                iframe.height = cDims.h - domGeom.getMarginBox(dialog.titleBar).h - 2;
             };
             aspect.after( dialog, 'layout', updateIframeSize );
             aspect.after( dialog, 'show', updateIframeSize );
@@ -1043,7 +1075,7 @@ return declare( [Component,DetailsMixin,Destroyable],
     // display a rendering-timeout message
     fillBlockTimeout: function( blockIndex, block ) {
         domConstruct.empty( block.domNode );
-        domClass.add( block.domNode, 'timed_out' );
+        dojo.addClass( block.domNode, 'timed_out' );
         this.fillMessage( blockIndex, block,
                            'This region took too long'
                            + ' to display, possibly because'

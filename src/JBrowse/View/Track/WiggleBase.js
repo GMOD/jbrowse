@@ -18,7 +18,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
         if( ! ('style' in this.config ) ) {
             this.config.style = {};
         }
-        
+
         this.store = args.store;
     },
 
@@ -107,8 +107,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
                   end: rightBase+1
                 },
                 function(f) { features.push(f); },
-                dojo.hitch( this, function() {
-
+                dojo.hitch( this, function( args ) {
                     // if the block has been freed in the meantime,
                     // don't try to render
                     if( ! (block.domNode && block.domNode.parentNode ))
@@ -118,16 +117,15 @@ return declare( [BlockBasedTrack,ExportMixin], {
                         return this._featureRect( scale, leftBase, canvasWidth, f );
                     }, this );
 
-                    block.features = features;  //< TODO: remove this
+                    block.features = features; //< TODO: remove this
                     block.featureRects = featureRects;
                     block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
 
+                    if (args && args.maskingSpans)
+                        block.maskingSpans = args.maskingSpans; // used for masking
+
                     finishCallback();
-                }),
-                dojo.hitch( this, function(e) {
-                    this._handleError( e, args );
-                })
-            );
+                }));
     },
 
     // render the actual graph display for the block.  should be called only after a scaling
@@ -147,10 +145,10 @@ return declare( [BlockBasedTrack,ExportMixin], {
         dom.empty( block.domNode );
 
         try {
-            document.createElement('canvas').getContext('2d').fillStyle = 'red';
+            dojo.create('canvas').getContext('2d').fillStyle = 'red';
         } catch( e ) {
             this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.showFatalError( this.fatalError );
+            this.fillBlockError( blockIndex, block, this.fatalError );
             return;
         }
 
@@ -175,12 +173,16 @@ return declare( [BlockBasedTrack,ExportMixin], {
         );
         c.startBase = block.startBase;
 
-        // schedule it to be rendered once we have all agreed on a scaling
-        this._preDraw(      null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
-        this._drawFeatures( null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
-        this._postDraw(     null, block.startBase, block.endBase, block, c, features, featureRects, dataScale );
+        //Calculate the score for each pixel in the block
+        var pixels = this._calculatePixelScores( c.width, features, featureRects );
 
-        this._makeScoreDisplay( null, block.startBase, block.endBase, block, c, features, featureRects );
+        this._draw( block.scale,    block.startBase,
+                    block.endBase,  block,
+                    c,              features,
+                    featureRects,   dataScale,
+                    pixels,         block.maskingSpans ); // note: spans may be undefined.
+
+        this._makeScoreDisplay( args.scale, args.leftBase, args.rightBase, block, c, features, featureRects, pixels );
 
         this.heightUpdate( c.height, args.blockIndex );
         if( !( c.parentNode && c.parentNode.parentNode )) {
@@ -217,6 +219,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
 
     updateGraphs: function( callback ) {
         var thisB = this;
+
         // update the global scaling
         this._getScaling( function( scaling ) {
                               thisB.scaling = scaling;
@@ -232,9 +235,22 @@ return declare( [BlockBasedTrack,ExportMixin], {
                           },
                           function(e) {
                               thisB.error = e;
-                              thisB._handleError( e );
+                              array.forEach( thisB.blocks, function( block, blockIndex ) {
+                                  if( block && block.domNode.parentNode )
+                                      thisB.fillBlockError( blockIndex, block );
+                              });
                           });
 
+    },
+
+    // Draw features
+    _draw: function(scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans) {
+        this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
+        if ( spans ) {
+            this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
+        }
+        this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
     },
 
     startZoom: function(destScale, destStart, destEnd) {
@@ -282,6 +298,10 @@ return declare( [BlockBasedTrack,ExportMixin], {
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
     },
 
+    // If we are making a boolean track, this will be called. Overwrite.
+    _maskBySpans: function( scale, leftBase, canvas, spans, pixels ) {
+    },
+
     _postDraw: function() {
     },
 
@@ -289,19 +309,37 @@ return declare( [BlockBasedTrack,ExportMixin], {
         // make an array of the max score at each pixel on the canvas
         var pixelValues = new Array( canvasWidth );
         dojo.forEach( features, function( f, i ) {
+            var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
             var score = f.get('score');
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
-                pixelValues[j] = j in pixelValues ? Math.max( pixelValues[j], score ) : score;
+                if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                    /* Note: if the feature is from a different store, the condition should fail,
+                     *       and we will add to the value, rather than adjusting for overlap */
+                    pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+                }
+                else if ( pixelValues[j] ) {
+                    pixelValues[j]['score'] = pixelValues[j]['score'] + score;
+                    pixelValues[j]['lastUsedStore'] = store;
+                }
+                else {
+                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f }
+                }
             }
         },this);
+        // when done looping through features, forget the store information.
+        for (var i=0; i<pixelValues.length; i++) {
+            if ( pixelValues[i] ) {
+                pixelValues[i] = pixelValues[i]['score'];
+            }
+        }
         return pixelValues;
     },
 
-    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects ) {
+    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects, pixels ) {
 
-        var pixelValues = block.pixelScores;
+        var pixelValues = pixels;
 
         // make elements and events to display it
         var scoreDisplay = dojo.create(
@@ -322,7 +360,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     zIndex: 15
                 }
         }, block.domNode );
-        var hideTimeout;
         dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
             this.own( on( element, 'mousemove', dojo.hitch(this,function(evt) {
                     var cPos = dojo.position(canvas);
@@ -342,18 +379,27 @@ return declare( [BlockBasedTrack,ExportMixin], {
             })));
         },this);
         this.own( on( block.domNode, 'mouseout', function(evt) {
-                          if( hideTimeout )
-                              window.clearTimeout( hideTimeout );
-                          hideTimeout = window.setTimeout( function() {
-                                                 scoreDisplay.style.display = 'none';
-                                                 verticalLine.style.display = 'none';
-                                             }, 50 );
+                var target = evt.srcElement || evt.target;
+                var evtParent = evt.relatedTarget || evt.toElement;
+                if( !target || !evtParent || target.parentNode != evtParent.parentNode) {
+                    scoreDisplay.style.display = 'none';
+                    verticalLine.style.display = 'none';
+                }
+        }));
+        this.own( on(this.browser.view.trackContainer, 'mousemove', function(evt) {
+                var cPos = dojo.position(canvas);
+                var y = evt.pageY - cPos.y;
+                if ( y < 0 || y > cPos.Height) {
+                    scoreDisplay.style.display = 'none';
+                    verticalLine.style.display = 'none';
+                }
         }));
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
-        var scoreType = typeof score;
-        if( scoreType == 'number' ) {
+        if (!score)
+            return false // score may not be defined
+        if( typeof score == 'number' ) {
             // display the score with only 6
             // significant digits, avoiding
             // most confusion about the
@@ -363,8 +409,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
         }
-        else if( scoreType == 'string' ) {
-            scoreDisplay.innerHTML = score;
+        if( score['score'] && typeof score['score'] == 'number' ) {
+            // "score" may be an object.
+            scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
             return true;
         }
         else {

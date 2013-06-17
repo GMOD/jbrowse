@@ -8,10 +8,8 @@ define( [
         function( declare, array, Util, CanvasFeatureTrack, AlignmentsMixin ) {
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
-
     constructor: function() {
     },
-
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -22,7 +20,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 }
             }
         );
-    }
+    },
 
 });
 });
