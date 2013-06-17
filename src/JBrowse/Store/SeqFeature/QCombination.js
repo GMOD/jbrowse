@@ -79,6 +79,8 @@ return declare([SeqFeatureStore, DeferredStatsMixin], {
 
 constructor: function( args ) {
 
+    this.isCombinationStore = true;
+
     // can pass store objects in as args
     this.defaultOp = args.op || "+";
     this.ref = this.config.refSeq;
@@ -139,7 +141,6 @@ reload: function( optree, refSeq, defaultOp) {
     when( all( fetchAllFeatures ), function() {
         // Create a set of spans based on the evaluation of the operation tree
         thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, globalQuery);
-
         thisB.featureArray = thisB.createFeatures(thisB.spans);
         thisB.allFeaturesLoaded.resolve(true);
 

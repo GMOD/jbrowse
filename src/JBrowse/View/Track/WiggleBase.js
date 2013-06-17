@@ -18,7 +18,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
         if( ! ('style' in this.config ) ) {
             this.config.style = {};
         }
-
+        
         this.store = args.store;
     },
 
@@ -217,7 +217,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
 
     updateGraphs: function( callback ) {
         var thisB = this;
-
         // update the global scaling
         this._getScaling( function( scaling ) {
                               thisB.scaling = scaling;

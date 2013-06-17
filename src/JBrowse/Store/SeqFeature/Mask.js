@@ -63,10 +63,14 @@ return declare([SeqFeatureStore], {
 
 constructor: function( args ) {
     this.inverse = args.inverse || false;
+    this.stores = {};
 
-    // can pass store objects in as args
-    this.stores.mask = args.mask;
-    this.stores.display = args.display;
+    if(args.mask && args.display) this.reload(args.mask, args.display);
+},
+
+reload: function(mask, display) {
+    this.stores.mask = mask;
+    this.stores.display = display;
     var thisB = this;
 
     var grabStore = function(store) {
@@ -85,9 +89,17 @@ constructor: function( args ) {
         return haveStore.promise;
     }
 
-    var haveMaskStore = this.grabStore(this.stores.mask).then(function(store) { this.stores.mask = store; });
-    var haveDisplayStore = this.grabStore(this.stores.display).then(function(store) { this.stores.display = store; });
+    var haveMaskStore = grabStore(this.stores.mask).then(function(store) { thisB.stores.mask = store; });
+    var haveDisplayStore = grabStore(this.stores.display).then(function(store) { thisB.stores.display = store; });
     this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
+},
+
+getGlobalStats: function (callback, errorCallback) {
+    return this.stores.display.getGlobalStats(callback, errorCallback);
+},
+
+getRegionStats: function (query, successCallback, errorCallback) {
+    return this.stores.display.getRegionStats(query, callback, errorCallback);
 },
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
@@ -96,19 +108,24 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         function() {
             thisB.featureArray = {};
             var gotStoreFeatures = {};
-            for(var key in thisB.stores) {
-                this.featureArray[key] = [];
+            for(var key in thisB.stores)  {
+                gotStoreFeatures[key] = new Deferred();
+                thisB.featureArray[key] = [];
                 thisB.stores[key].getFeatures(query,
-                    function(feature) { featureArray[key].push(feature); }
+                    function(feature) {
+                        thisB.featureArray[key].push(feature);
+                    },
                     function() { gotStoreFeatures[key].resolve(true); },
                     function() { gotStoreFeatures[key].reject("failed to load features for " + key + " store"); }
                 );
             }
             all(gotStoreFeatures).then(
-                var spans = thisB.toSpans(thisB.featureArray.mask, query);
-                spans = thisB.inverse ? thisB.notSpan(spans) : spans;
-                var features = thisB.featureArray.display;
-                thisB.maskFeatures(features, spans, featCallback, doneCallback);
+                function() {
+                    var spans = thisB.toSpans(thisB.featureArray.mask, query);
+                    spans = thisB.inverse ? thisB.notSpan(spans) : spans;
+                    var features = thisB.featureArray.display;
+                    thisB.maskFeatures(features, spans, featCallback, doneCallback);
+                }
             );
         });
 },
