@@ -34,6 +34,18 @@ Default 256000000 (256 MiB).  If you machine has enough RAM,
 increasing this amount can speed up this script's running time
 significantly.
 
+=item --workdir <dir>
+
+Use the given location for building the names index, copying the index
+over to the destination location when fully built.  By default, builds
+the index in the output location.
+
+Name indexing is a very I/O intensive operation, because the
+filesystem is used to store intermediate results in order to keep the
+RAM usage reasonable.  If a fast filesystem (e.g. tmpfs) is available
+and large enough, indexing can be speeded up by using it to store the
+intermediate results of name indexing.
+
 =item --completionLimit <number>
 
 Maximum number of completions to store for a given prefix.  Default 20.
@@ -81,6 +93,7 @@ use GenomeDB;
 my @includedTrackNames;
 
 my $outDir = "data";
+my $workDir;
 my $verbose = 0;
 my $help;
 my $max_completions = 20;
@@ -95,6 +108,7 @@ GetOptions("dir|out=s" => \$outDir,
            "verbose+" => \$verbose,
            "thresh=i" => \$thresh,
            "sortMem=i" => \$sort_mem,
+           "workdir=s" => \$workDir,
            "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
            'hashBits=i' => \$hash_bits,
@@ -150,6 +164,7 @@ if( $verbose ) {
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
+    work_dir => $workDir,
     empty => 1,
     sort_mem => $sort_mem,
 

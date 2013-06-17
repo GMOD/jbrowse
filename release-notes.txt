@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Added a `--workdir` option to `generate-names.pl` to allow name
+   index building on a faster filesystem than the one that will
+   ultimately store the name index.  Thanks to Alexie Papanicolaou for
+   suggesting this. (issue #273).
+
  * Fixed a bug with some types of BAM files in which not all BAM
    features would be displayed.  Thanks to Ignazio Carbone for
    pointing this out. (issue #276).

@@ -29,6 +29,8 @@ package Bio::JBrowse::HashStore;
 use strict;
 use warnings;
 
+use Carp;
+
 use JSON 2;
 
 use File::Spec ();
@@ -49,12 +51,12 @@ sub open {
     # source of data: defaults, overridden by open args, overridden by meta.json contents
     my $self = bless { @_ }, $class;
 
+    $self->{final_dir} = $self->{dir} or croak "dir option required";
+    $self->{dir} = $self->{work_dir} || $self->{final_dir};
+
     $self->empty if $self->{empty};
 
-    %$self = (
-        %$self,
-        meta => $self->_read_meta
-    );
+    $self->{meta} = $self->_read_meta;
 
     $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
     $self->{meta}{hash_bits} = $self->{hash_bits};
@@ -64,7 +66,7 @@ sub open {
     $self->{bucket_cache} = $self->_make_cache( size => 30 );
     $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
 
-    return bless $self, $class;
+    return $self;
 }
 
 sub _make_cache {
@@ -76,11 +78,26 @@ sub _make_cache {
 # write out meta.json file when the store itself is destroyed
 sub DESTROY {
     my ( $self ) = @_;
+
     File::Path::mkpath( $self->{dir} );
-    my $meta_path = $self->_meta_path;
-    CORE::open my $out, '>', $meta_path or die "$! writing $meta_path";
-    $out->print( JSON::to_json( $self->{meta} ) )
-        or die "$! writing $meta_path";
+    {
+        my $meta_path = $self->_meta_path;
+        CORE::open my $out, '>', $meta_path or die "$! writing $meta_path";
+        $out->print( JSON::to_json( $self->{meta} ) )
+            or die "$! writing $meta_path";
+    }
+
+    my $final_dir = $self->{final_dir};
+    my $work_dir = $self->{dir};
+
+    # free everything to flush buckets
+    %$self = ();
+
+    unless( $final_dir eq $work_dir ) {
+        require File::Copy::Recursive;
+        File::Copy::Recursive::dircopy( $work_dir, $final_dir );
+    }
+
 }
 sub _meta_path {
     File::Spec->catfile( shift->{dir}, 'meta.json' );
