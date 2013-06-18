@@ -6,6 +6,7 @@ define([
            'dojo/promise/all',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Model/SimpleFeature',
+           'JBrowse/Store/SeqFeature/Combination/TreeNode',
            'JBrowse/Util'
        ],
        function(
@@ -16,6 +17,7 @@ define([
            all,
            SeqFeatureStore,
            SimpleFeature,
+           TreeNode,
            Util
        ) {
 
@@ -62,36 +64,53 @@ var Keys = function(array) {
 return declare([SeqFeatureStore], {
 
 constructor: function( args ) {
+    this.isCombinationStore = true;
     this.inverse = args.inverse || false;
     this.stores = {};
 
     if(args.mask && args.display) this.reload(args.mask, args.display);
 },
 
-reload: function(mask, display) {
-    this.stores.mask = mask;
-    this.stores.display = display;
-    var thisB = this;
-
-    var grabStore = function(store) {
-        var haveStore = new Deferred();
-        if(typeof store == "string") {
-            thisB.browser.getStore(store, function(result) {
-                if(result) {
-                    haveStore.resolve(result, true);
-                } else {
-                    haveStore.reject("store " + store + " not found");
-                }
-            });
-        } else {
-            haveStore.resolve(store, true);
-        }
-        return haveStore.promise;
+reload: function(opTree, mask, display, inverse) {
+    this.gotAllStores = new Deferred();
+    if(opTree) {
+        this.opTree = opTree;
+        this.inverse = opTree.get() == "INV_MASK";
+        this.stores.mask = opTree.leftChild && !mask ? opTree.leftChild.get() : mask;
+        this.stores.display = opTree.rightChild && !display ? opTree.rightChild.get() : display;
+        this.gotAllStores.resolve(true);
     }
+    else {
+        if(inverse !== undefined) this.inverse = inverse;
+        this.opTree =  new TreeNode({Value: this.inverse ? "INV_MASK" : "MASK"});
+        this.stores.mask = mask;
+        this.stores.display = display;
+        var thisB = this;
 
-    var haveMaskStore = grabStore(this.stores.mask).then(function(store) { thisB.stores.mask = store; });
-    var haveDisplayStore = grabStore(this.stores.display).then(function(store) { thisB.stores.display = store; });
-    this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
+        var grabStore = function(store) {
+            var haveStore = new Deferred();
+            if(typeof store == "string") {
+                thisB.browser.getStore(store, function(result) {
+                    if(result) {
+                        haveStore.resolve(result, true);
+                    } else {
+                        haveStore.reject("store " + store + " not found");
+                    }
+                });
+            } else {
+                haveStore.resolve(store, true);
+            }
+            return haveStore.promise;
+        }
+
+        var haveMaskStore = grabStore(this.stores.mask).then(function(store) { thisB.stores.mask = store; });
+        var haveDisplayStore = grabStore(this.stores.display).then(function(store) { thisB.stores.display = store; });
+        this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
+        this.gotAllStores.then(function() {
+            thisB.opTree.leftChild = thisB.stores.mask.isCombinationStore ? thisB.stores.mask.opTree : new TreeNode({Value: thisB.stores.mask});
+            thisB.opTree.rightChild = thisB.stores.display.isCombinationStore ? thisB.stores.display.opTree : new TreeNode({Value: thisB.stores.display});
+        });
+    }
 },
 
 getGlobalStats: function (callback, errorCallback) {
@@ -104,26 +123,35 @@ getRegionStats: function (query, successCallback, errorCallback) {
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
+
     this.gotAllStores.then(
         function() {
-            thisB.featureArray = {};
-            var gotStoreFeatures = {};
-            for(var key in thisB.stores)  {
-                gotStoreFeatures[key] = new Deferred();
-                thisB.featureArray[key] = [];
+            //console.log("we have stores");
+            var featureArray = {};
+            
+            var grabFeats = function(key)  {
+                //console.log(key);
+                var d = new Deferred();
+                featureArray[key] = [];
+                
                 thisB.stores[key].getFeatures(query,
                     function(feature) {
-                        thisB.featureArray[key].push(feature);
+                        featureArray[key].push(feature);
                     },
-                    function() { gotStoreFeatures[key].resolve(true); },
-                    function() { gotStoreFeatures[key].reject("failed to load features for " + key + " store"); }
+                    function() { d.resolve(true);
+                        //console.log("got features for " + key);
+                    },
+                    function() { d.reject("failed to load features for " + key+ " store"); }
                 );
+                return d.promise;
             }
-            all(gotStoreFeatures).then(
+            when(all([grabFeats("mask"), grabFeats("display")]),
                 function() {
-                    var spans = thisB.toSpans(thisB.featureArray.mask, query);
-                    spans = thisB.inverse ? thisB.notSpan(spans) : spans;
-                    var features = thisB.featureArray.display;
+
+                    var spans = thisB.toSpans(featureArray.mask, query);
+                    spans = thisB.inverse ? thisB.notSpan(spans, query) : spans;
+                    var features = featureArray.display;
+
                     thisB.maskFeatures(features, spans, featCallback, doneCallback);
                 }
             );

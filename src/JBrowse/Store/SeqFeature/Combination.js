@@ -73,7 +73,7 @@ constructor: function( args ) {
     this.defaultOp = args.op || "AND";
     this.ref = this.config.refSeq;
     
-    this.reload(args.opTree);
+    if(args.opTree) this.reload(args.opTree);
     
     // This code has been stripped of the store promises, since I'm pretty sure we don't need them anymore.
     // If we do, we'll have to go back to a previous commit to find it.
@@ -81,6 +81,9 @@ constructor: function( args ) {
 },
 
 reload: function( optree, refSeq, defaultOp) {
+    this._deferred.features = new Deferred();
+    this._deferred.stats = new Deferred();
+
     if( !defaultOp) defaultOp = this.defaultOp;
     if( !optree) optree = new TreeNode({ Value: this.defaultOp});;
     if( !refSeq) refSeq = this.ref;
@@ -91,11 +94,9 @@ reload: function( optree, refSeq, defaultOp) {
     for(var store in this.stores) if(!this.stores[store].name) this.stores = [];
     var thisB = this;
     
-    thisB.allFeaturesLoaded = new Deferred();
-
     // check if there are stores
     if (!Keys(thisB.stores).length) {
-        //thisB.allFeaturesLoaded.reject(" No stores were loaded.");
+        //thisB._deferred.features.reject(" No stores were loaded.");
     }
 
     var featureArrays = {};
@@ -119,7 +120,8 @@ reload: function( optree, refSeq, defaultOp) {
                     featureArrays[store.name].push( feat );
                 }),
                 function(){d.resolve( featureArrays[store.name] );},
-                function(){d.reject("Error fetching features for store " + store.name);}
+                function(){d.reject("Error fetching features for store " + store.name);
+                console.log("Error");}
             );
             return d.promise;
         }
@@ -129,18 +131,16 @@ reload: function( optree, refSeq, defaultOp) {
         // Create a set of spans based on the evaluation of the operation tree
         thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, globalQuery);
         thisB.featureArray = thisB.createFeatures(thisB.spans);
-        thisB.allFeaturesLoaded.resolve(true);
-
+        thisB._deferred.features.resolve(true);
     });
-    this.allFeaturesLoaded.then(dojo.hitch(this, '_setGlobalStats'));
+    this._deferred.features.promise.then(dojo.hitch(this, '_setGlobalStats'));
+
+    return all([this._deferred.stats, this._deferred.features]);
 },
 
 _setGlobalStats: function() {
     this.globalStats.featureCount = this.featureArray.length;
     this.globalStats.featureDensity = this.featureArray.length/this.refSeq.length;
-
-
-
     this._deferred.stats.resolve(true);
 },
 
@@ -153,7 +153,7 @@ _setGlobalStats: function() {
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
-    thisB.allFeaturesLoaded.then(function() {
+    thisB._deferred.features.promise.then(function() {
 
         var filteredFeats = array.filter(thisB.featureArray, function(item) {
                 return item.get('start') < query.end && item.get('end') >= query.start;

@@ -85,7 +85,7 @@ constructor: function( args ) {
     this.defaultOp = args.op || "+";
     this.ref = this.config.refSeq;
     
-    this.reload(args.opTree);
+    if(args.opTree) this.reload(args.opTree);
     
     // This code has been stripped of the store promises, since I'm pretty sure we don't need them anymore.
     // If we do, we'll have to go back to a previous commit to find it.
@@ -93,6 +93,9 @@ constructor: function( args ) {
 },
 
 reload: function( optree, refSeq, defaultOp) {
+    this._deferred.features = new Deferred();
+    this._deferred.stats = new Deferred();
+
     if( !defaultOp) defaultOp = this.defaultOp;
     if( !optree) optree = new TreeNode({ Value: this.defaultOp});;
     if( !refSeq) refSeq = this.ref;
@@ -103,12 +106,12 @@ reload: function( optree, refSeq, defaultOp) {
     for(var store in this.stores) if(!this.stores[store].name) this.stores = [];
     var thisB = this;
     
-    thisB.allFeaturesLoaded = new Deferred();
+    thisB._deferred.features = new Deferred();
     this._deferred.stats = new Deferred();
 
     // check if there are stores
     if (!Keys(thisB.stores).length) {
-        //thisB.allFeaturesLoaded.reject(" No stores were loaded.");
+        //thisB._deferred.features.reject(" No stores were loaded.");
     }
 
     var featureArrays = {};
@@ -142,10 +145,10 @@ reload: function( optree, refSeq, defaultOp) {
         // Create a set of spans based on the evaluation of the operation tree
         thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, globalQuery);
         thisB.featureArray = thisB.createFeatures(thisB.spans);
-        thisB.allFeaturesLoaded.resolve(true);
+        thisB._deferred.features.resolve(true);
 
     });
-    this.allFeaturesLoaded.then(dojo.hitch(this, function() {
+    this._deferred.features.then(dojo.hitch(this, function() {
         thisB._regionStatsCache = undefined;
         thisB._getRegionStats(globalQuery, 
             function(stats) {
@@ -157,6 +160,7 @@ reload: function( optree, refSeq, defaultOp) {
             });
 
     }));
+    return all([this._deferred.stats, this._deferred.features]);
 },
 
 
@@ -190,7 +194,7 @@ applyOp: function(scoreA, scoreB, op) {
 
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
-    thisB.allFeaturesLoaded.then(function() {
+    thisB._deferred.features.then(function() {
         // use 'max' and 'min' instead.
         var filteredFeats = array.filter(thisB.featureArray, function(item) {
                 return item.get('min') < query.end && item.get('max') >= query.start;

@@ -8,10 +8,11 @@ define([
 					this.Value = args.Value;
 					if(args.leftChild) this.leftChild = args.leftChild;
 					if(args.rightChild) this.rightChild = args.rightChild;
+					this.leaf = args.leaf || false;
 				},
 
 				addLeft: function(child) {
-					if(this.leftChild === undefined) {
+					if(!this.leaf && this.leftChild === undefined) {
 						this.leftChild = child;
 						return true;
 					}
@@ -19,7 +20,7 @@ define([
 				},
 
 				addRight: function(child) {
-					if(this.rightChild === undefined) {
+					if(!this.leaf && this.rightChild === undefined) {
 						this.rightChild = child;
 						return true;
 					}
@@ -32,7 +33,7 @@ define([
 				},
 
 				isLeaf: function() {
-					return this.leftChild === undefined && this.rightChild === undefined;
+					return this.leaf || (this.leftChild === undefined && this.rightChild === undefined);
 				},
 
 				get: function() {
