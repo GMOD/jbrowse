@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.6     2013-06-18 14:57:26 EST5EDT
+
  * Fixed a bug in which the reference sequence selection dropdown menu
    did not work for purely numeric reference sequence names.  Thanks
    to Matt Bomhoff for pointing this out.
