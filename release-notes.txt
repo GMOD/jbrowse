@@ -1,9 +1,8 @@
 {{$NEXT}}
 
- * Added a `--workdir` option to `generate-names.pl` to allow name
-   index building on a faster filesystem than the one that will
-   ultimately store the name index.  Thanks to Alexie Papanicolaou for
-   suggesting this. (issue #273).
+ * Fixed a bug in which the reference sequence selection dropdown menu
+   did not work for purely numeric reference sequence names.  Thanks
+   to Matt Bomhoff for pointing this out.
 
  * Fixed a bug with some types of BAM files in which not all BAM
    features would be displayed.  Thanks to Ignazio Carbone for
@@ -11,6 +10,12 @@
 
  * Fixed bug in which File->Open failed to open GFF3 files with
    embedded sequences in a FASTA section.
+
+ * Added a `--workdir` option to `generate-names.pl` to allow name
+   index building on a faster filesystem than the one that will
+   ultimately store the name index.  Thanks to Alexie Papanicolaou for
+   suggesting this. (issue #273).
+
 
 1.9.5     2013-06-12 12:35:53 EST5EDT
 

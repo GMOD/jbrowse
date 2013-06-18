@@ -2242,7 +2242,7 @@ Browser.prototype.createNavBox = function( parent ) {
 
                     // only trigger navigation if actually switching sequences
                     if( newRefName != this.refSeq.name ) {
-                        this.navigateTo(newRefName);
+                        this.navigateToLocation({ ref: newRefName });
                     }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
