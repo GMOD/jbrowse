@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in which JavaScript paths for plugins were incorrectly
+   calculated when a `baseUrl` global configuration variable was set.
+   Thanks to Matt Bomhoff for pointing this out.
+
 1.9.6     2013-06-18 14:57:26 EST5EDT
 
  * Fixed a bug in which the reference sequence selection dropdown menu

@@ -214,7 +214,7 @@ Browser.prototype.initPlugins = function() {
 
             // figure out js path
             if( !( 'js' in p ))
-                p.js = this.resolveUrl( p.location )+"/js";
+                p.js = p.location+"/js"; //URL resolution for this is taken care of by the JS loader
             if( p.js.charAt(0) != '/' && ! /^https?:/i.test( p.js ) )
                 p.js = '../'+p.js;
 
