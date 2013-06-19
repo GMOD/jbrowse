@@ -125,6 +125,9 @@ return declare( [BlockBasedTrack,ExportMixin], {
                         block.maskingSpans = args.maskingSpans; // used for masking
 
                     finishCallback();
+                }),
+                dojo.hitch( this, function(e) {
+                    this._handleError( e, args );
                 }));
     },
 

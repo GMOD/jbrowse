@@ -92,11 +92,14 @@ constructor: function( args ) {
 
 },
 
-reload: function( optree, refSeq, defaultOp) {
+reload: function( optree ) {
+
+    var refSeq;
+
     this._deferred.features = new Deferred();
     this._deferred.stats = new Deferred();
 
-    if( !defaultOp) defaultOp = this.defaultOp;
+    //if( !defaultOp) defaultOp = this.defaultOp;
     if( !optree) optree = new TreeNode({ Value: this.defaultOp});;
     if( !refSeq) refSeq = this.ref;
     

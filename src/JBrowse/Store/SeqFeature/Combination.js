@@ -80,14 +80,14 @@ constructor: function( args ) {
 
 },
 
-reload: function( optree, refSeq, defaultOp) {
+reload: function( optree ) {
     this._deferred.features = new Deferred();
     this._deferred.stats = new Deferred();
+    var refSeq;
 
-    if( !defaultOp) defaultOp = this.defaultOp;
+    //if( !defaultOp) defaultOp = this.defaultOp;
     if( !optree) optree = new TreeNode({ Value: this.defaultOp});;
     if( !refSeq) refSeq = this.ref;
-    
     this.opTree = optree;
     this.stores = optree.getLeaves() || [];
 
@@ -119,7 +119,7 @@ reload: function( optree, refSeq, defaultOp) {
                     var feat = new featureWrapper( feature, store.name );
                     featureArrays[store.name].push( feat );
                 }),
-                function(){d.resolve( featureArrays[store.name] );},
+                function(){d.resolve( featureArrays[store.name] ); },
                 function(){d.reject("Error fetching features for store " + store.name);
                 console.log("Error");}
             );

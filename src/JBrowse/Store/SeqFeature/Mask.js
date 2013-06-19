@@ -71,11 +71,12 @@ constructor: function( args ) {
     if(args.mask && args.display) this.reload(args.mask, args.display);
 },
 
-reload: function(opTree, mask, display, inverse) {
+reload: function(opTree, mask, display) {
+
     this.gotAllStores = new Deferred();
     if(opTree) {
         this.opTree = opTree;
-        this.inverse = opTree.get() == "INV_MASK";
+        this.inverse = (inverse == undefined) ? (opTree.get() == "INV_MASK") : inverse;
         this.stores.mask = opTree.leftChild && !mask ? opTree.leftChild.get() : mask;
         this.stores.display = opTree.rightChild && !display ? opTree.rightChild.get() : display;
         this.gotAllStores.resolve(true);

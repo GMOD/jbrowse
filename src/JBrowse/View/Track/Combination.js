@@ -5,6 +5,7 @@ define([
 		 'dojo/dom-class',
 		 'dojo/Deferred',
  		 'dojo/promise/all',
+ 		 'dojo/when',
 		 'JBrowse/View/Track/BlockBased',
 		 'JBrowse/Store/SeqFeature/Combination/TreeNode',
 			'dojo/dnd/move',
@@ -18,6 +19,7 @@ define([
 				 domClass,
 				 Deferred,
 				 all,
+				 when,
 				 BlockBased,
 				 TreeNode,
 				 dndMove,
@@ -79,7 +81,6 @@ return declare(BlockBased,
 						}
 			};
 
-			this.classIndex = 0;
 			this.keyToStore = {};
 			this.storeToKey = {};
 
@@ -227,7 +228,8 @@ return declare(BlockBased,
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
 			this.storeType = undefined;
-			this.classIndex = 0;
+			this.classIndex = {"set" : 0, "quant": 0, "mask": 0};
+			this.storeToShow = 0;
 			this.displayStore = undefined;
 			this.maskStore = undefined;
 			this.store = undefined;
@@ -431,6 +433,23 @@ return declare(BlockBased,
 					};
 		},
 
+		_visible: function() {
+			var which = [this.storeType, "set", "quant"];
+			
+			var allTypes = [{ 	store: this.store,
+								tree: this.opTree },
+							{ 	store: this.maskStore,
+								tree: this.opTree ? this.opTree.leftChild : undefined },
+							{ 	store: this.displayStore,
+								tree: this.opTree ? this.opTree.rightChild : undefined }];
+			for(var i in which) {
+				allTypes[i].which = which[i];
+				if(which[i]) allTypes[i].trackType = this.trackClasses[which[i]].innerTypes[this.classIndex[which[i]]].path;
+			}
+			if(this.storeType != "mask") return allTypes[0];
+			return allTypes[this.storeToShow];
+		},
+
 		renderInnerTrack: function() {
 			if(this.innerTrack) {
 				this.innerTrack.clear();
@@ -440,8 +459,8 @@ return declare(BlockBased,
 					this.innerDiv.removeChild(this.innerDiv.firstChild);
 				}
 			}
-			if(this.store) {
-				var trackClassName = this.trackClasses[this.storeType].innerTypes[this.classIndex].path;
+			if(this._visible().store) {
+				var trackClassName = this._visible().trackType;
 				var trackClass;
 				var thisB = this;
 				var makeTrack = function(){
@@ -449,7 +468,7 @@ return declare(BlockBased,
 							config: thisB._innerTrackConfig(trackClassName),
 							browser: thisB.browser,
 							refSeq: thisB.refSeq,
-							store: thisB.store,
+							store: thisB._visible().store,
 							trackPadding: 0});
 	  
 					var innerHeightUpdate = function(height) {
@@ -508,15 +527,20 @@ return declare(BlockBased,
 
 		refresh: function(track) {
 			if(!track) track = this;
-			if(this.store && !this.onlyRefreshOuter) {
-				this.store.reload(this.opTree, this.maskStore, this.displayStore);
-			}
-			if(this.range) {
-				track.clear();
-				track.showRange(this.range.f, this.range.l, this.range.st, this.range.b,
-					this.range.sc, this.range.cs, this.range.ce);
-			}
-	  		this.makeTrackMenu();
+			var storeIsReloaded;
+			if(this._visible().store && !this.onlyRefreshOuter) 
+				storeIsReloaded = this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
+			else storeIsReloaded = true;
+
+
+			when(storeIsReloaded, dojo.hitch(this, function(reloadedStore) {
+				if(this.range) {
+					track.clear();
+					track.showRange(this.range.f, this.range.l, this.range.st, this.range.b,
+						this.range.sc, this.range.cs, this.range.ce);
+				}
+		  		this.makeTrackMenu();
+			}));
 		},
 
 		showRange: function(first, last, startBase, bpPerBlock, scale,
@@ -537,7 +561,6 @@ return declare(BlockBased,
 						this.div.removeChild(this.innerDiv);
 					}
 				}
-
 			this.inherited(arguments);
 			this.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner);
 			this.heightUpdate(this.height);
@@ -608,17 +631,43 @@ return declare(BlockBased,
 
 			if(!this.storeType) return o;
 
-			var classes = this.trackClasses[this.storeType].innerTypes;
+			if(this.storeType == "mask") {
+				var maskOrDisplay = ["masked data", "mask", "data only"];
+				var maskOrDisplayItems = Object.keys(maskOrDisplay).map(function(i) {
+					return {
+								type: 'dijit/CheckedMenuItem',
+								checked: (combTrack.storeToShow == i),
+								label: maskOrDisplay[i],
+								title: "View " + maskOrDisplay[i],
+								action: function() {
+									combTrack.storeToShow = i;
+									combTrack.renderInnerTrack();
+								}
+							}
+				});
+				o.push.apply(
+					o,
+					[{
+						type: 'dijit/MenuSeparator'
+					},
+					{
+						children: maskOrDisplayItems,
+						label: "View",
+						title: "switch between the mask, display data and masked data for this masking track" 
+					}]);
+			}
+
+			var classes = this.trackClasses[this._visible().which].innerTypes;
 
 			var classItems = Object.keys(classes).map(function(i){
 				return  {
 					type: 'dijit/CheckedMenuItem',
 					label: classes[i].name,
-					checked: (combTrack.classIndex == i),
+					checked: (combTrack.classIndex[combTrack._visible().which] == i),
 					title: "Display as " + classes[i].name + " track",
 					action: function() 
 							{
-							  combTrack.classIndex = i;
+							  combTrack.classIndex[combTrack._visible().which] = i;
 							  combTrack.renderInnerTrack();
 							}
 						};
@@ -634,51 +683,57 @@ return declare(BlockBased,
 					title: "Change what type of track is being displayed"
 				  }
 				]);
-	 		if(!this.opTree || this.opTree.getLeaves().length <= 1) return o;
 
+			if(this.opTree) {
+				o.push.apply(
+					o, 
+					  [{ label: 'View formula',
+						title: 'View the formula specifying this combination track',
+						action: function() {
+									if(combTrack.opTree) alert(combTrack.treeIterate(combTrack.opTree));
+									else alert("No operation formula defined");
+								}
+					  	}]);
+			}
 
-			var inWords =
-			{
-				"+": "addition",
-				"-": "subtraction",
-				"*": "multiplication",
-				"/": "division",
-				"AND": "intersection",
-				"OR": "union",
-				"XOR": "XOR",
-				"MINUS": "set subtraction",
-				"MASK": "regular mask",
-				"INV_MASK": "inverse mask"
-			};
-			var operationItems = this.trackClasses[this.storeType].allowedOps.map(
-												function(op) {
-													return {
-							type: 'dijit/CheckedMenuItem',
-							checked: (combTrack.opTree.get() == op),
-														label: inWords[op],
-														title: "change operation of last track to " + inWords[op],
-														action: function() {
-															if(combTrack.opTree) {
-																combTrack.opTree.set(op);
-																combTrack.refresh();
+	 		if(this._visible().tree && this._visible().tree.getLeaves().length > 1) {
+				var inWords =
+				{
+					"+": "addition",
+					"-": "subtraction",
+					"*": "multiplication",
+					"/": "division",
+					"AND": "intersection",
+					"OR": "union",
+					"XOR": "XOR",
+					"MINUS": "set subtraction",
+					"MASK": "regular mask",
+					"INV_MASK": "inverse mask"
+				};
+				var operationItems = this.trackClasses[combTrack._visible().which].allowedOps.map(
+													function(op) {
+														return {
+															type: 'dijit/CheckedMenuItem',
+															checked: (combTrack._visible().tree.get() == op),
+															label: inWords[op],
+															title: "change operation of last track to " + inWords[op],
+															action: function() {
+																if(combTrack.opTree) {
+																	combTrack._visible().tree.set(op);
+																	console.log(combTrack.treeIterate(combTrack.opTree));
+																	combTrack.refresh();
+																}
 															}
 														}
-													}
-												});
-			o.push.apply(
-				o,
-				  [{ label: 'Edit formula',
-					title: 'change the formula specifying this combination track',
-					action: function() {
-								if(combTrack.opTree) alert(combTrack.treeIterate(combTrack.opTree));
-								else alert("No operation formula defined");
-							}
-				  },
-				  { children: operationItems,
-					label: "Change last operation",
-					title: "change the operation applied to the last track added"
-				  }]
-				);
+													});
+				o.push.apply(
+					o,
+					  [{ children: operationItems,
+						label: "Change last operation",
+						title: "change the operation applied to the last track added"
+					  }]
+					);
+			}
 		  
 			return o;
 		}
