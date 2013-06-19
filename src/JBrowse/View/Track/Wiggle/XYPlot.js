@@ -93,6 +93,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             fRect.t = toY( score );
             //console.log( score, fRect.t );
 
+            console.log(fRect.t);
+
             // draw the background color if we are configured to do so
             if( fRect.t >= 0 ) {
                 var bgColor = this.getConfForFeature('style.bg_color', f );
@@ -102,7 +104,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 }
             }
 
-            if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
+            if( fRect.t <= canvasHeight || fRect.t > originY ) { // if the rectangle is visible at all
                 if( fRect.t <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
