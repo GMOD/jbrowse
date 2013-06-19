@@ -72,11 +72,12 @@ constructor: function( args ) {
 },
 
 reload: function(opTree, mask, display) {
+    var inverse;
 
     this.gotAllStores = new Deferred();
     if(opTree) {
         this.opTree = opTree;
-        this.inverse = (inverse == undefined) ? (opTree.get() == "INV_MASK") : inverse;
+        this.inverse = (inverse === undefined) ? (opTree.get() == "INV_MASK") : inverse;
         this.stores.mask = opTree.leftChild && !mask ? opTree.leftChild.get() : mask;
         this.stores.display = opTree.rightChild && !display ? opTree.rightChild.get() : display;
         this.gotAllStores.resolve(true);
@@ -127,11 +128,9 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
 
     this.gotAllStores.then(
         function() {
-            //console.log("we have stores");
             var featureArray = {};
             
             var grabFeats = function(key)  {
-                //console.log(key);
                 var d = new Deferred();
                 featureArray[key] = [];
                 
@@ -139,9 +138,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                     function(feature) {
                         featureArray[key].push(feature);
                     },
-                    function() { d.resolve(true);
-                        //console.log("got features for " + key);
-                    },
+                    function() { d.resolve(true); },
                     function() { d.reject("failed to load features for " + key+ " store"); }
                 );
                 return d.promise;

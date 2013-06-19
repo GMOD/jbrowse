@@ -228,7 +228,7 @@ return declare(BlockBased,
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
 			this.storeType = undefined;
-			this.classIndex = {"set" : 0, "quant": 0, "mask": 0};
+			this.classIndex = {"set" : 0, "quant": 0};
 			this.storeToShow = 0;
 			this.displayStore = undefined;
 			this.maskStore = undefined;
@@ -299,7 +299,6 @@ return declare(BlockBased,
 
 			if(!this.opTree) {
 				this.opTree = storeNode;
-				console.log(this.treeIterate(this.opTree));
 				if(this.currType == "mask") {
 					this.displayStore = store.stores.display;
 					this.maskStore = store.stores.mask;
@@ -310,7 +309,6 @@ return declare(BlockBased,
 			var opNode = new TreeNode({Value: this.defaultOp});
 
 			if(this.currType == "set" && this.oldType == "quant") {
-				console.log("1")
 				opNode.add(storeNode);
 				opNode.add(this.opTree);
 				this.opTree = opNode;
@@ -321,7 +319,6 @@ return declare(BlockBased,
 					thisB.maskStore.reload(thisB.opTree.leftChild).then(function() { d.resolve(true); });
 				});
 			} else if(this.currType == "quant" && this.oldType == "set") {
-				console.log("2")
 				opNode.add(this.opTree);
 				opNode.add(storeNode);
 				this.opTree = opNode;
@@ -344,7 +341,6 @@ return declare(BlockBased,
 				this.opTree.rightChild = opNode;
 				this.displayStore.reload(this.opTree.rightChild).then(function() { d.resolve(true); });
 			} else if(this.currType == "mask" && this.oldType == "set") {
-								console.log("5")
 				opNode.set(this.trackClasses[this.oldType].defaultOp);
 				opNode.add(this.opTree);
 				this.opTree = store.opTree;
@@ -355,7 +351,6 @@ return declare(BlockBased,
 				this.displayStore = this.store.stores.display;
 				this.maskStore.reload(this.opTree.leftChild).then(function() { d.resolve(true); });
 			} else if(this.currType == "mask" && this.oldType == "quant") {
-								console.log("6")
 				opNode.set(this.trackClasses[this.oldType].defaultOp);
 				opNode.add(this.opTree);
 				this.opTree = store.opTree;
@@ -366,7 +361,6 @@ return declare(BlockBased,
 				this.displayStore = this.store.stores.display;
 				this.displayStore.reload(this.opTree.rightChild).then(function() { d.resolve(true); });
 			} else if(this.currType == "mask" && this.oldType == "mask") {
-								console.log("7")
 				var opNodeL = opNode;
 				opNodeL.set(this.trackClasses["set"].defaultOp);
 				var opNodeR = new TreeNode({Value: this.trackClasses["quant"].defaultOp});
@@ -380,7 +374,6 @@ return declare(BlockBased,
 				var d2 = this.displayStore.reload(this.opTree.rightChild);
 				all([d1,d2]).then(function() { d.resolve(true); });
 			} else {
-								console.log("8")
 				if(!(this.opTree.add( storeNode ) ) ) {
 					opNode.add(this.opTree);
 					opNode.add(storeNode);
@@ -388,7 +381,6 @@ return declare(BlockBased,
 				}
 				d.resolve(true);
 			}
-			console.log(this.treeIterate(this.opTree));
 			return d;
 		},
 
@@ -444,7 +436,7 @@ return declare(BlockBased,
 								tree: this.opTree ? this.opTree.rightChild : undefined }];
 			for(var i in which) {
 				allTypes[i].which = which[i];
-				if(which[i]) allTypes[i].trackType = this.trackClasses[which[i]].innerTypes[this.classIndex[which[i]]].path;
+				if(which[i]) allTypes[i].trackType = this.trackClasses[which[i]].innerTypes[this.getClassIndex(which[i])].path;
 			}
 			if(this.storeType != "mask") return allTypes[0];
 			return allTypes[this.storeToShow];
@@ -625,6 +617,17 @@ return declare(BlockBased,
 		  if(this.innerTrack) this.innerTrack.updateStaticElements(args);
 		},
 
+		setClassIndex: function(index, type) {
+			if(!type) type = this._visible().which;
+			if(type == "mask" && this.displayStore) type = this.supportedBy[this.displayStore.config.type];
+			this.classIndex[type] = index;
+		},
+
+		getClassIndex: function(type) {
+			if(type == "mask" && this.displayStore) type = this.supportedBy[this.displayStore.config.type];
+			return this.classIndex[type];
+		},
+
 		_trackMenuOptions: function() {
 			var o = this.inherited(arguments);
 			var combTrack = this;
@@ -667,7 +670,7 @@ return declare(BlockBased,
 					title: "Display as " + classes[i].name + " track",
 					action: function() 
 							{
-							  combTrack.classIndex[combTrack._visible().which] = i;
+							  combTrack.setClassIndex(i);
 							  combTrack.renderInnerTrack();
 							}
 						};
@@ -720,7 +723,6 @@ return declare(BlockBased,
 															action: function() {
 																if(combTrack.opTree) {
 																	combTrack._visible().tree.set(op);
-																	console.log(combTrack.treeIterate(combTrack.opTree));
 																	combTrack.refresh();
 																}
 															}
