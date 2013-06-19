@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+1.9.6     2013-06-18 14:57:26 EST5EDT
+
+ * Fixed a bug in which the reference sequence selection dropdown menu
+   did not work for purely numeric reference sequence names.  Thanks
+   to Matt Bomhoff for pointing this out.
+
+ * Fixed a bug with some types of BAM files in which not all BAM
+   features would be displayed.  Thanks to Ignazio Carbone for
+   pointing this out. (issue #276).
+
+ * Fixed bug in which File->Open failed to open GFF3 files with
+   embedded sequences in a FASTA section.
+
+ * Added a `--workdir` option to `generate-names.pl` to allow name
+   index building on a faster filesystem than the one that will
+   ultimately store the name index.  Thanks to Alexie Papanicolaou for
+   suggesting this. (issue #273).
+
+
+1.9.5     2013-06-12 12:35:53 EST5EDT
+
  * Added an `trackSelector.initialSortColumn` configuration variable
    to the faceted track selector that can be used to set the initial
    sort order for the grid in the faceted track selector. Thanks to
@@ -14,9 +35,19 @@
    administrators customize the contents of the Help->General dialog.
    Thanks to Gregg Helt for suggesting this.
 
+ * Rewrote GFF3 direct-access backend to make it more
+   standards-compliant and capable of parsing all attributes of a
+   feature.  Thanks to Jillian Rowe and Colin Davenport for pointing
+   out the need for this.
+
  * Fixed arrowheads on HTMLFeatures not always being visible when the
    viewing region is being panned back and forth.  Thanks to Gregg
    Helt for pointing this out.
+
+ * Fixed a bug in which editing a track's configuration JSON through
+   the track menu when the faceted track selector was enabled
+   sometimes caused another track to be deactivated.  Thanks to Steffi
+   Geisen for pointing this out.
 
  * Fixed a subtle bug in which not completing a track-dragging gesture
    from the Simple track selector into the genome view caused the

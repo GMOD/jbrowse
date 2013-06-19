@@ -112,8 +112,8 @@ var Meta = declare( null,
         args.browser.subscribe( '/jbrowse/v1/c/tracks/new',
                                 dojo.hitch( this, 'addTracks' ));
         args.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, function( trackConfigs ) {
-            this.deleteTracks( trackConfigs );
-            this.addTracks( trackConfigs );
+            this.deleteTracks( trackConfigs, 'no events' );
+            this.addTracks( trackConfigs, 'no events' );
         }));
         args.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
                                 dojo.hitch( this, 'deleteTracks' ));
@@ -133,7 +133,7 @@ var Meta = declare( null,
         return metarecord;
     },
 
-    addTracks: function( trackConfigs ) {
+    addTracks: function( trackConfigs, suppressEvents ) {
         if( trackConfigs.length ) {
             // clear the query cache
             delete this.previousQueryFingerprint;
@@ -149,14 +149,14 @@ var Meta = declare( null,
 
             var name = conf.label;
             var item = this.fetchItemByIdentity( name );
-            if( item )
-                this.onNew( item );
-            else
+            if( ! item )
                 console.error( 'failed to add '+name+' track to track metadata store', conf );
+            else if( ! suppressEvents )
+                    this.onNew( item );
         },this );
     },
 
-    deleteTracks: function( trackConfigs ) {
+    deleteTracks: function( trackConfigs, suppressEvents ) {
         if( trackConfigs.length ) {
             // clear the query cache
             delete this.previousQueryFingerprint;
@@ -170,7 +170,8 @@ var Meta = declare( null,
             var item = this.fetchItemByIdentity( name );
             if( item ) {
                 item.DELETED = true;
-                this.onDelete( item );
+                if( ! suppressEvents )
+                    this.onDelete( item );
             }
         },this);
     },

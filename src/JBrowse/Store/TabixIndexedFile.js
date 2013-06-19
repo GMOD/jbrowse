@@ -134,7 +134,7 @@ return declare( null, {
             data = new Uint8Array(data);
 
             // throw away the first (probably incomplete) line
-            var parseStart = array.indexOf( data, thisB._newlineCode, 0 ) + 1;
+            var parseStart = chunk.minv.block ? array.indexOf( data, thisB._newlineCode, 0 ) + 1 : 0;
 
             try {
                 thisB.parseItems(
