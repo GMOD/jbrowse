@@ -93,8 +93,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             fRect.t = toY( score );
             //console.log( score, fRect.t );
 
-            console.log(fRect.t);
-
             // draw the background color if we are configured to do so
             if( fRect.t >= 0 ) {
                 var bgColor = this.getConfForFeature('style.bg_color', f );
