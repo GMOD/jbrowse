@@ -45,8 +45,9 @@ return declare( WiggleBase,
                 var black = new Color('black');
                 var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
-                return function( feature ) {
-                    var n = normalize( feature );
+                return function( p ) {
+                    var n = normalize( p['score'] );
+                    var feature = p['feat'];
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
                                ? Color.blendColors(
                                    new Color( thisB.getConfForFeature('style.bg_color', feature ) ),

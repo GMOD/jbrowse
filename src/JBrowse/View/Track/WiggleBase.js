@@ -334,7 +334,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
         // when done looping through features, forget the store information.
         for (var i=0; i<pixelValues.length; i++) {
             if ( pixelValues[i] ) {
-                pixelValues[i] = pixelValues[i]['score'];
+                delete pixelValues[i]['lastUsedStore'];
             }
         }
         return pixelValues;
