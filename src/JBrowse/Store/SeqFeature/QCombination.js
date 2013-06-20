@@ -215,7 +215,7 @@ createFeatures: function(spans) {
     var features = [];
     //Validate this next time...
     for(var span in spans) {
-        var id = "comfeat_" + spans[span].start + "." + spans[span].end + "." + spans[span].strand;
+        //var id = "comfeat_" + spans[span].start + "." + spans[span].end + "." + spans[span].strand;
         var f = new Feature();
         f.min = spans[span].min;
         f.max = spans[span].max;

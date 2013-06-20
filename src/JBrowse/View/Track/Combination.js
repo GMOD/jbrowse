@@ -506,7 +506,7 @@ return declare(BlockBased,
 		},
 
 		_innerTrackConfig: function(trackClass) {
-			return {
+			var config = {
 									store: this.store.name,
 									storeClass: this.store.config.type,
 									feature: ["match"],
@@ -514,7 +514,11 @@ return declare(BlockBased,
 									label: this.name + "_inner",
 									metadata: {Description: "This track was created from a combination track."},
 									type: trackClass
-							};
+						};
+			if(this.supportedBy[trackClass] == "quant") {
+				config.autoscale = "local";
+			}
+			return config;
 		},
 
 		refresh: function(track) {
