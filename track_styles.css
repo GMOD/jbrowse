@@ -17,6 +17,13 @@
     min-width: 1px;
 }
 
+.basicSubfeature {
+    position: absolute;
+    cursor: pointer;
+    z-index: 12;
+    min-width: 1px;
+}
+
 div.hist {
     position: absolute;
     z-index: 10;
@@ -116,6 +123,10 @@ div.feature-hist {
     min-width: 1px;
     z-index: 10;
     background-color: #62d335;
+}
+
+.Boolean-transparent {
+    opacity: 0.2;
 }
 
 div.feature2-hist {
