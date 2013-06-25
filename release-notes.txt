@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.7     2013-06-25 15:41:22 Asia/Tokyo
+
  * Fixed a bug in which the initial viewing location (passed from a
    URL parameter or similar) is not always set correctly in all parts
    of the browser.  Thanks to Steffi Geisen for pointing this out.
