@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in which the initial viewing location (passed from a
+   URL parameter or similar) is not always set correctly in all parts
+   of the browser.  Thanks to Steffi Geisen for pointing this out.
+
  * Fixed a bug in which JavaScript paths for plugins were incorrectly
    calculated when a `baseUrl` global configuration variable was set.
    Thanks to Matt Bomhoff for pointing this out.
