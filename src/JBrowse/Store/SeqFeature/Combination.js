@@ -70,7 +70,7 @@ constructor: function( args ) {
     this.isCombinationStore = true;
 
     // can pass store objects in as args
-    this.defaultOp = args.op || "AND";
+    this.defaultOp = args.op || "&";
     this.ref = this.config.refSeq;
     
     if(args.opTree) this.reload(args.opTree);
@@ -194,16 +194,16 @@ evalTree: function(featureArrays, tree, query) {
 // Defines the various set-theoretic operations that may occur and assigns each to a span-making function.
 opSpan: function(op, span1, span2, query) {
     switch (op) {
-        case "AND" :
+        case "&" :
             return this.andSpan(span1, span2);
             break;
-        case "OR" :
+        case "U" :
             return this.orSpan(span1, span2);
             break;
-        case "XOR" :
+        case "X" :
             return this.andSpan(this.orSpan(span1, span2), this.notSpan(this.andSpan(span1, span2), query));
             break;
-        case "MINUS" :
+        case "S" :
             return this.andSpan( span1, this.notSpan(span2, query) );
             break;
         default :

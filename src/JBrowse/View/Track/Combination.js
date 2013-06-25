@@ -6,6 +6,7 @@ define([
 		 'dojo/Deferred',
  		 'dojo/promise/all',
  		 'dojo/when',
+ 		 './Combination/CombinationDialog',
 		 'JBrowse/View/Track/BlockBased',
 		 'JBrowse/Store/SeqFeature/Combination/TreeNode',
 			'dojo/dnd/move',
@@ -20,6 +21,7 @@ define([
 				 Deferred,
 				 all,
 				 when,
+				 Dialog,
 				 BlockBased,
 				 TreeNode,
 				 dndMove,
@@ -50,8 +52,8 @@ return declare(BlockBased,
 												path: "JBrowse/View/Track/HTMLFeatures"
 											  }],
 							store:        "JBrowse/Store/SeqFeature/Combination",
-							allowedOps:   ["AND", "OR", "XOR", "MINUS"],
-							defaultOp :   "AND"
+							allowedOps:   ["&", "U", "X", "S"],
+							defaultOp :   "&"
 						},
 				"quant": 	{
 							innerTypes:   [{
@@ -76,11 +78,31 @@ return declare(BlockBased,
 											path: "JBrowse/View/Track/Wiggle/Density"
 										}],
 							store: 		"JBrowse/Store/SeqFeature/Mask",
-							allowedOps: ["MASK", "INV_MASK"],
-							defaultOp: 	"MASK"
+							allowedOps: ["M", "N"],
+							defaultOp: 	"M"
 						}
 			};
-
+			this.inWords =
+			{
+				"+": "addition",
+				"-": "subtraction",
+				"*": "multiplication",
+				"/": "division",
+				"&": "intersection",
+				"U": "union",
+				"X": "XOR",
+				"S": "set subtraction",
+				"M": "regular mask",
+				"N": "inverse mask",
+				"0000": "normal operation",
+				"0020": "use new track as mask",
+				"0002": "use old track as mask",
+				"1111": "merge tracks",
+				"1001": "add new track to old track's mask",
+				"1010": "add new track to old track's displayed data",
+				"0101": "add old track to new track's displayed data",
+				"0110": "add old track to new track's mask"
+			};
 			this.keyToStore = {};
 			this.storeToKey = {};
 
@@ -238,6 +260,7 @@ return declare(BlockBased,
 
 		addTrack: function(trackConfig) {
 			// There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
+
 			if(trackConfig && trackConfig.key) this.storeToKey[trackConfig.store] = trackConfig.key;
 			if(trackConfig && trackConfig.store) this.keyToStore[trackConfig.key] = trackConfig.store;
 			// This should be eventually made more complicated to disallow 
@@ -245,15 +268,12 @@ return declare(BlockBased,
 
 			this.oldType = this.storeType;
 			// This needs to be moved to the right place.
-			
-			if(!this.storeType) this.storeType = this.currType;
-			if(this.storeType == "mask" || this.storeType != this.currType) this.storeType = "mask";
 
-			this.defaultOp = this.trackClasses[this.storeType].defaultOp;
+			//this.defaultOp = this.trackClasses[this.storeType].defaultOp;
 			this.storeClass = this.trackClasses[this.currType].store; //
 
 			if(!this.innerDiv) {
-				this.innerDiv = document.createElement("div");
+				this.innerDiv = dom.create("div");
 				this.innerDiv.className = "track";
 				this.innerDiv.id = this.name + "_innerDiv";
 				this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
@@ -261,20 +281,12 @@ return declare(BlockBased,
 				this.innerDiv.parentNode.removeChild(this.innerDiv);
 			}
 
-			this._addTrackStore(trackConfig.store);
+			this._addTrackStore(trackConfig);
 			return this.innerDiv;
 		},
 
-		treeIterate: function(tree) {
-			if(!tree || tree === undefined){ return "NULL";}
-			if(tree.isLeaf()){
-				return "\"" + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
-				 : tree.get()) + "\"";
-			}
-			return "( " + this.treeIterate(tree.left()) +" "+ tree.get() +" " + this.treeIterate(tree.right()) +" )";
-		},
-
-		_addTrackStore: function(storeName) {
+		_addTrackStore: function(trackConfig) {
+			var storeName = trackConfig.store;
 			var thisB = this;
 			var haveStore = (function() {
 				var d = new Deferred();
@@ -288,24 +300,74 @@ return declare(BlockBased,
 				return d.promise;
 			})();
 			haveStore.then(function(store){
-				thisB._adjustStores(store).then(function() { thisB.createStore(); });
+				thisB.runDialog(trackConfig, store);
 			});
 		},
 
-		_adjustStores: function (store) {
-			var d = new Deferred();
-			var thisB = this;
-			var storeNode = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
-
-			if(!this.opTree) {
-				this.opTree = storeNode;
-				if(this.currType == "mask") {
-					this.displayStore = store.stores.display;
-					this.maskStore = store.stores.mask;
-				}
-				d.resolve(true);
-				return d.promise;
+		runDialog: function(trackConfig, store) {
+			if(this.oldType === undefined) {
+				var opTree = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
+				this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
+				this._adjustStores(opTree, store);
+				return;
 			}
+			if(this.preferencesDialog) this.preferencesDialog.destroyRecursive();
+			this.preferencesDialog = new Dialog({
+				key: trackConfig.key,
+				store: store,
+				combinationTrack: this
+			});
+			this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
+				this.displayType = displayType;
+				console.log(this._generateTreeFormula(opTree));
+				this._adjustStores(opTree, newstore);
+			}));
+		},
+
+		_adjustStores: function (opTree, store) {
+			var d = new Deferred();
+
+			this.opTree = opTree;
+
+			this.storeType = "mask";
+			if(this.oldType == "mask") {
+				var haveMaskStore = this.maskStore.reload(this.opTree.leftChild);
+				var haveDisplayStore = this.displayStore.reload(this.opTree.rightChild);
+				all([haveMaskStore, haveDisplayStore]).then(dojo.hitch(this, function() {
+					this.store.reload(this.opTree, this.maskStore, this.displayStore);
+					d.resolve(true);
+				}));
+			} else if(this.currType == "mask") {
+				this.maskStore = store.stores.mask;
+				this.displayStore = store.stores.display;
+				this.store = store;
+				var haveMaskStore = this.maskStore.reload(this.opTree.leftChild);
+				var haveDisplayStore = this.displayStore.reload(this.opTree.rightChild);
+				all([haveMaskStore, haveDisplayStore]).then(dojo.hitch(this, function() {
+					this.store.reload(this.opTree, this.maskStore, this.displayStore);
+					d.resolve(true);
+				}));
+			} else if(opTree.get() == "M" || opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
+				var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
+					this.maskStore = newstore;
+					return this.maskStore.reload(this.opTree.leftChild);
+				}));
+				var haveDisplayStore = this._createStore(this.displayType).then(dojo.hitch(this, function(newStore){
+					this.displayStore = newStore;
+					return this.displayStore.reload(this.opTree.rightChild);
+				}));
+				this.storeType = "mask";
+				this.store = undefined;
+				d = all([haveMaskStore, haveDisplayStore]);
+			} else {
+				this.storeType = this.currType;
+				d.resolve(true);
+			}
+			d.then(dojo.hitch(this, function() {
+				this.createStore();
+			}));
+
+			/*
 			var opNode = new TreeNode({Value: this.defaultOp});
 
 			if(this.currType == "set" && this.oldType == "quant") {
@@ -380,8 +442,8 @@ return declare(BlockBased,
 					this.opTree = opNode; 
 				}
 				d.resolve(true);
-			}
-			return d;
+			}*/
+			//return d;
 		},
 
 		createStore: function() {
@@ -416,6 +478,7 @@ return declare(BlockBased,
 		_storeConfig: function(storeType) {
 			if(!storeType) storeType = this.storeType;
 			var storeClass = this.trackClasses[storeType].store;
+
 			var op = this.trackClasses[storeType].defaultOp;
 			return 	{
 						browser: this.browser,
@@ -426,7 +489,7 @@ return declare(BlockBased,
 		},
 
 		_visible: function() {
-			var which = [this.storeType, "set", "quant"];
+			var which = [this.displayType || this.storeType, "set", this.displayType];
 			
 			var allTypes = [{ 	store: this.store,
 								tree: this.opTree },
@@ -436,7 +499,11 @@ return declare(BlockBased,
 								tree: this.opTree ? this.opTree.rightChild : undefined }];
 			for(var i in which) {
 				allTypes[i].which = which[i];
-				if(which[i]) allTypes[i].trackType = this.trackClasses[which[i]].innerTypes[this.getClassIndex(which[i])].path;
+				if(which[i]) {
+					var storeType = (i == 0 && this.storeType == "mask") ? "mask" : which[i];
+					allTypes[i].allowedOps = this.trackClasses[storeType].allowedOps;
+					allTypes[i].trackType = this.trackClasses[which[i]].innerTypes[this.getClassIndex(which[i])].path;
+				}
 			}
 			if(this.storeType != "mask") return allTypes[0];
 			return allTypes[this.storeToShow];
@@ -575,20 +642,20 @@ return declare(BlockBased,
 
 				var text = "Add tracks here";
 				if(this.innerTrack) {
-					var topDiv = document.createElement("div");
+					var topDiv = dom.create("div");
 					topDiv.className = "combination";
 					topDiv.style.height = this.topHeight + "px";
 					topDiv.appendChild( document.createTextNode( text ) );
 					block.domNode.appendChild( topDiv );
 
-					var bottomDiv = document.createElement("div");
+					var bottomDiv = dom.create("div");
 					bottomDiv.className = "combination";
 					bottomDiv.style.height = this.bottomHeight + "px";
 					bottomDiv.style.top = (this.topHeight + this.heightInner) + "px";
 					bottomDiv.appendChild( document.createTextNode( text ) );
 					block.domNode.appendChild( bottomDiv );
 				} else {
-					var textDiv = document.createElement("div");
+					var textDiv = dom.create("div");
 					textDiv.className = "combination";
 					var text = "Add tracks here";
 					textDiv.style.height = this.heightNoInner + "px";
@@ -697,33 +764,20 @@ return declare(BlockBased,
 					  [{ label: 'View formula',
 						title: 'View the formula specifying this combination track',
 						action: function() {
-									if(combTrack.opTree) alert(combTrack.treeIterate(combTrack.opTree));
+									if(combTrack.opTree) alert(combTrack._generateTreeFormula(combTrack.opTree));
 									else alert("No operation formula defined");
 								}
 					  	}]);
 			}
 
 	 		if(this._visible().tree && this._visible().tree.getLeaves().length > 1) {
-				var inWords =
-				{
-					"+": "addition",
-					"-": "subtraction",
-					"*": "multiplication",
-					"/": "division",
-					"AND": "intersection",
-					"OR": "union",
-					"XOR": "XOR",
-					"MINUS": "set subtraction",
-					"MASK": "regular mask",
-					"INV_MASK": "inverse mask"
-				};
-				var operationItems = this.trackClasses[combTrack._visible().which].allowedOps.map(
+				var operationItems = this._visible().allowedOps.map(
 													function(op) {
 														return {
 															type: 'dijit/CheckedMenuItem',
 															checked: (combTrack._visible().tree.get() == op),
-															label: inWords[op],
-															title: "change operation of last track to " + inWords[op],
+															label: combTrack.inWords[op],
+															title: "change operation of last track to " + combTrack.inWords[op],
 															action: function() {
 																if(combTrack.opTree) {
 																	combTrack._visible().tree.set(op);
@@ -742,7 +796,16 @@ return declare(BlockBased,
 			}
 		  
 			return o;
-		}
+		},
+
+		_generateTreeFormula: function(tree) {
+			if(!tree || tree === undefined){ return "NULL";}
+			if(tree.isLeaf()){
+				return "\"" + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
+				 : tree.get()) + "\"";
+			}
+			return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
+		},
 		
 });
 });

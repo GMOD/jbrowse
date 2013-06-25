@@ -77,14 +77,14 @@ reload: function(opTree, mask, display) {
     this.gotAllStores = new Deferred();
     if(opTree) {
         this.opTree = opTree;
-        this.inverse = (inverse === undefined) ? (opTree.get() == "INV_MASK") : inverse;
+        this.inverse = (inverse === undefined) ? (opTree.get() == "N") : inverse;
         this.stores.mask = opTree.leftChild && !mask ? opTree.leftChild.get() : mask;
         this.stores.display = opTree.rightChild && !display ? opTree.rightChild.get() : display;
         this.gotAllStores.resolve(true);
     }
     else {
         if(inverse !== undefined) this.inverse = inverse;
-        this.opTree =  new TreeNode({Value: this.inverse ? "INV_MASK" : "MASK"});
+        this.opTree =  new TreeNode({Value: this.inverse ? "N" : "M"});
         this.stores.mask = mask;
         this.stores.display = display;
         var thisB = this;
@@ -175,6 +175,7 @@ maskFeatures: function( features, spans, featCallback, doneCallback ) {
     for ( var key in features ) {
         if ( features.hasOwnProperty(key) ) {
             var feat = features[key];
+            delete feat.masks;
             for (var span in spans ) {
                 if ( spans.hasOwnProperty(span) && this.inSpan( feat, spans[span] ) ) {
                     // add masks to the feature. Used by Glyphs to do masking.

@@ -1026,3 +1026,9 @@ table.baseQuality td {
     border-top:3px solid #000000;
     border-bottom: 3px solid #000000;
 }
+
+.formulaPreview {
+    text-align: center;
+    background-color: white;
+    border: 1px solid black;
+}
