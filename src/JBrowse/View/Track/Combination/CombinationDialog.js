@@ -12,7 +12,7 @@ define([
 			constructor: function( args ) {
 
 				this.newTrackKey = args.trackConfig ? args.trackConfig.key : args.key;
-				this.track = args.combinationTrack;
+				this.track = args.track;
 				this.newStore = args.store;
 				this.opTree = this.track.opTree;
 
@@ -38,14 +38,23 @@ define([
 
 			_dialogContent: function(store) {
 				var nodesToAdd = [];
+
+				var opList = this._allAllowedOperations(store);
+				if(!opList.length) {
+					nodesToAdd.push(
+						dom.create("div", {innerHTML: "No operations are possible for this track."})
+					);
+					var actionBar = this._createActionBar(false);
+					nodesToAdd.push(actionBar);
+					return nodesToAdd;
+				}
+
 				nodesToAdd.push(
 					dom.create("div", {innerHTML: "You are currently adding the track \"" + this.newTrackKey + "\", which is a " + this.currType + " track.  "
 						+ "  Please select how you would like this track to be combined."})
 				);
 
-				var maskOpListDiv = dom.create("div", {id: this.combinationTrack + "_maskOpList"});
-				
-				var opList = this._allAllowedOperations(store);
+				var maskOpListDiv = dom.create("div", {id: this.track.name + "_maskOpList"});
 				
 				var thisB = this;
 
@@ -62,14 +71,27 @@ define([
 				});
 
 				nodesToAdd.push(maskOpListDiv);
-
-				nodesToAdd.push(dom.create("span", {innerHTML: "Which operation?"}));
-				this.opListDiv = dom.create("div", {id: this.combinationTrack + "_OpList"});
+				this.whichOpSpan = dom.create("span", {innerHTML: "<br />Which operation?", style: {display: "none"}});
+				nodesToAdd.push(this.whichOpSpan);
+				this.opListDiv = dom.create("div", {id: this.track.name + "_OpList"});
 				nodesToAdd.push(this.opListDiv);
+
+				this.leftRightSpan = dom.create("span", {innerHTML: "<br />Left or right?", style: {display: "none"}});  // Not the prettiest way to render line breaks.
+				nodesToAdd.push(this.leftRightSpan);
+				this.whichArgDiv = dom.create("div", {id: this.track.name + "_whichArg"});
+				nodesToAdd.push(this.whichArgDiv);
+
+				nodesToAdd.push(dom.create("span", {innerHTML: "<br />Combination Formula Preview"}));
+
+				this.formulaPreview = dom.create("div", {innerHTML: "(nothing currently selected)", className: "formulaPreview"});
+				nodesToAdd.push(this.formulaPreview);
+
+				this.maskOpButtons = [];
 
 				if(maskOps.length > 0) {
 					for(var i in maskOps) {
 						var opButton = this._renderRadioButton(maskOpListDiv, maskOps[i], this.inWords[maskOps[i]]);
+						this.maskOpButtons.push(opButton);
 
 						opButton.on("change", function(isSelected) {
 							if(isSelected) {
@@ -83,44 +105,48 @@ define([
 								if(thisB.opButtons.length) {
 									thisB.opButtons[0].set('checked', 'checked');
 								}
+								thisB.whichOpSpan.style.display = thisB.opButtons.length ? "" : "none";
+								thisB.leftRightSpan.style.display = thisB.leftRightButtons.length ? "" : "none";
 							}
 						});
 					}
+					if(maskOps[0]) this.maskOpButtons[0].set('checked', 'checked');
 				} else if(maskOps.length == 1) {
 					this.maskOpValue = maskOps[0];
 					this._generateSuffixRadioButtons(maskOps[0], opList, store);
 				}
 
-				nodesToAdd.push(dom.create("span", {innerHTML: "Left or right?"}));
-				this.whichArgDiv = dom.create("div", {id: this.combinationTrack + "_whichArg"});
-				nodesToAdd.push(this.whichArgDiv);
+				var actionBar = this._createActionBar();
 
-				nodesToAdd.push(dom.create("span", {innerHTML: "Combination Formula Preview"}));
+				nodesToAdd.push(actionBar);
 
-				this.formulaPreview = dom.create("div", {innerHTML: "(nothing currently selected)", className: "formulaPreview"});
-				nodesToAdd.push(this.formulaPreview);
+				return nodesToAdd;
+			},
 
+			_createActionBar: function (addingEnabled) {
+				if(addingEnabled === undefined) addingEnabled = true;
 				var actionBar = dom.create("div", { className: "dijitDialogPaneActionBar"});
 				new Button({
 					iconClass: 'dijitIconDelete',
 					label: "Cancel",
 					onClick: dojo.hitch(this, function() {
-						console.log("Cancelled");
+						this.shouldCombine = false;
 						this.dialog.hide();
 					})
 				}).placeAt(actionBar);
 
-				new Button({
+				var btnCombine = new Button({
 					label: "Combine tracks",
 					onClick: dojo.hitch(this, function() {
-						console.log("Combining");
+						this.shouldCombine = true;
 						this.dialog.hide();					
 					})
-				}).placeAt(actionBar);
+				});
 
-				nodesToAdd.push(actionBar);
+				btnCombine.placeAt(actionBar);
 
-				return nodesToAdd;
+				if(!addingEnabled) btnCombine.set("disabled", "disabled");
+				return actionBar;
 			},
 
 			_maybeRenderWhichArgDiv: function(prefix, store) {
@@ -301,15 +327,16 @@ define([
 						}
 					}
 				} else if (candidate == "01") {
-					if(this.oldType = "set") {
+					if(this.oldType == "set") {
 						allowedOps = this.trackClasses[this.oldType].allowedOps;
-						var candidate2 = candidate + "01";
+						var candidate2 = candidate + "10";
 						for(var i in allowedOps) {
 							allowedList.push(candidate2 + allowedOps[i]);
 						}
 					}
 					var displayType = this.supportedBy[store.stores.display.config.type];
 					if(this.oldType == displayType) {
+						candidate = candidate + "01";
 						var allowedOps = this.trackClasses[displayType].allowedOps;
 						for(var i in allowedOps) {
 							allowedList.push(candidate + allowedOps[i]);
@@ -324,7 +351,7 @@ define([
 						if(displayType == oldType) {
 							var allowedOps2 = this.trackClasses[displayType].allowedOps; 
 							for(var j in allowedOps2) {
-								allowedList.push(candidate + allowedOps[i] + allowedOps2[j]);
+								//allowedList.push(candidate + allowedOps[i] + allowedOps2[j]);
 							}
 						}
 					}
@@ -346,7 +373,8 @@ define([
 				this.dialog.show();
 				var thisB = this;
 				this.dialog.on("Hide", function() {
-					callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType);
+					if(thisB.shouldCombine) callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType);
+					else cancelCallback();
 				});
 			},
 

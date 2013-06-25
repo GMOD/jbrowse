@@ -98,8 +98,8 @@ return declare(BlockBased,
 				"0020": "use new track as mask",
 				"0002": "use old track as mask",
 				"1111": "merge tracks",
-				"1001": "add new track to old track's mask",
-				"1010": "add new track to old track's displayed data",
+				"1001": "add new track to old track's displayed data",
+				"1010": "add new track to old track's mask",
 				"0101": "add old track to new track's displayed data",
 				"0110": "add old track to new track's mask"
 			};
@@ -315,13 +315,13 @@ return declare(BlockBased,
 			this.preferencesDialog = new Dialog({
 				key: trackConfig.key,
 				store: store,
-				combinationTrack: this
+				track: this
 			});
 			this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
 				this.displayType = displayType;
 				console.log(this._generateTreeFormula(opTree));
 				this._adjustStores(opTree, newstore);
-			}));
+			}), function() {});
 		},
 
 		_adjustStores: function (opTree, store) {
@@ -366,84 +366,6 @@ return declare(BlockBased,
 			d.then(dojo.hitch(this, function() {
 				this.createStore();
 			}));
-
-			/*
-			var opNode = new TreeNode({Value: this.defaultOp});
-
-			if(this.currType == "set" && this.oldType == "quant") {
-				opNode.add(storeNode);
-				opNode.add(this.opTree);
-				this.opTree = opNode;
-				this.displayStore = this.store;
-				this.store = undefined;
-				this._createStore(this.currType).then(function(newstore) {
-					thisB.maskStore = newstore;
-					thisB.maskStore.reload(thisB.opTree.leftChild).then(function() { d.resolve(true); });
-				});
-			} else if(this.currType == "quant" && this.oldType == "set") {
-				opNode.add(this.opTree);
-				opNode.add(storeNode);
-				this.opTree = opNode;
-				this.maskStore = this.store;
-				this.store = undefined;
-				this._createStore(this.currType).then(function(newstore) {
-					thisB.displayStore = newstore;
-					thisB.displayStore.reload(thisB.opTree.rightChild).then(function() { d.resolve(true); });
-				});
-			} else if(this.currType == "set" && this.oldType == "mask") {
-				opNode.set(this.trackClasses[this.currType].defaultOp);
-				opNode.add(this.opTree.leftChild);
-				opNode.add(storeNode);
-				this.opTree.leftChild = opNode;
-				this.maskStore.reload(this.opTree.leftChild).then(function() { d.resolve(true); });
-			} else if(this.currType == "quant" && this.oldType == "mask") {
-				opNode.set(this.trackClasses[this.currType].defaultOp);
-				opNode.add(this.opTree.rightChild);
-				opNode.add(storeNode);
-				this.opTree.rightChild = opNode;
-				this.displayStore.reload(this.opTree.rightChild).then(function() { d.resolve(true); });
-			} else if(this.currType == "mask" && this.oldType == "set") {
-				opNode.set(this.trackClasses[this.oldType].defaultOp);
-				opNode.add(this.opTree);
-				this.opTree = store.opTree;
-				opNode.add(this.opTree.leftChild);
-				this.opTree.leftChild = opNode;
-				this.store = store;
-				this.maskStore = this.store.stores.mask;
-				this.displayStore = this.store.stores.display;
-				this.maskStore.reload(this.opTree.leftChild).then(function() { d.resolve(true); });
-			} else if(this.currType == "mask" && this.oldType == "quant") {
-				opNode.set(this.trackClasses[this.oldType].defaultOp);
-				opNode.add(this.opTree);
-				this.opTree = store.opTree;
-				opNode.add(this.opTree.rightChild);
-				this.opTree.rightChild = opNode;
-				this.store = store;
-				this.maskStore = this.store.stores.mask;
-				this.displayStore = this.store.stores.display;
-				this.displayStore.reload(this.opTree.rightChild).then(function() { d.resolve(true); });
-			} else if(this.currType == "mask" && this.oldType == "mask") {
-				var opNodeL = opNode;
-				opNodeL.set(this.trackClasses["set"].defaultOp);
-				var opNodeR = new TreeNode({Value: this.trackClasses["quant"].defaultOp});
-				opNodeL.add(this.opTree.leftChild);
-				opNodeR.add(this.opTree.rightChild);
-				opNodeL.add(store.opTree.leftChild);
-				opNodeR.add(store.opTree.rightChild);
-				this.opTree.leftChild = opNodeL;
-				this.opTree.rightChild = opNodeR;
-				var d1 = this.maskStore.reload(this.opTree.leftChild);
-				var d2 = this.displayStore.reload(this.opTree.rightChild);
-				all([d1,d2]).then(function() { d.resolve(true); });
-			} else {
-				if(!(this.opTree.add( storeNode ) ) ) {
-					opNode.add(this.opTree);
-					opNode.add(storeNode);
-					this.opTree = opNode; 
-				}
-				d.resolve(true);
-			}*/
-			//return d;
 		},
 
 		createStore: function() {
