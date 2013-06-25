@@ -140,6 +140,18 @@ var Browser = function(params) {
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
                            thisB.navigateTo( initialLocString );
+
+                           // figure out what initial track list we will use:
+                           //    from a param passed to our instance, or from a cookie, or
+                           //    the passed defaults, or the last-resort default of "DNA"?
+                           var origTracklist =
+                                  thisB.config.forceTracks
+                               || thisB.cookie( "tracks" )
+                               || thisB.config.defaultTracks
+                               || "DNA";
+
+                           thisB.showTracks( origTracklist );
+
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
                        thisB.reportUsageStats();
@@ -1492,17 +1504,6 @@ Browser.prototype.createTrackList = function() {
                                       {expires: 60});
                      }));
 
-                     // figure out what initial track list we will use:
-                     //    from a param passed to our instance, or from a cookie, or
-                     //    the passed defaults, or the last-resort default of "DNA"?
-                     var origTracklist =
-                            this.config.forceTracks
-                         || this.cookie( "tracks" )
-                         || this.config.defaultTracks
-                         || "DNA";
-
-                     this.showTracks( origTracklist );
-
                      deferred.resolve({ success: true });
         }));
     });
@@ -1549,7 +1550,7 @@ Browser.prototype.showRegion = function( location ) {
  */
 
 Browser.prototype.navigateTo = function(loc) {
-    this.afterMilestone( 'completely initialized', dojo.hitch( this, function() {
+        this.afterMilestone( 'initView', dojo.hitch( this, function() {
         // if it's a foo:123..456 location, go there
         var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
         if( location ) {
@@ -1599,47 +1600,44 @@ Browser.prototype.navigateTo = function(loc) {
 // missing, in which case the function will try set the view to
 // something that seems intelligent
 Browser.prototype.navigateToLocation = function( location ) {
+    this.afterMilestone( 'initView', dojo.hitch( this, function() {
+        // validate the ref seq we were passed
+        var ref = location.ref ? Util.matchRefSeqName( location.ref, this.allRefs )
+                               : this.refSeq;
+        if( !ref )
+            return;
+        location.ref = ref.name;
 
-    // validate the ref seq we were passed
-    var ref = location.ref ? Util.matchRefSeqName( location.ref, this.allRefs )
-                           : this.refSeq;
-    if( !ref )
-        return;
-    location.ref = ref.name;
+        // clamp the start and end to the size of the ref seq
+        location.start = Math.max( 0, location.start || 0 );
+        location.end   = Math.max( location.start,
+                                   Math.min( ref.end, location.end || ref.end )
+                                 );
 
-    // clamp the start and end to the size of the ref seq
-    location.start = Math.max( 0, location.start || 0 );
-    location.end   = Math.max( location.start,
-                               Math.min( ref.end, location.end || ref.end )
-                             );
+        // if it's the same sequence, just go there
+        if( location.ref == this.refSeq.name) {
+            this.view.setLocation( this.refSeq,
+                                   location.start,
+                                   location.end
+                                 );
+            this._updateLocationCookies( location );
+        }
+        // if different, we need to poke some other things before going there
+        else {
+            // record names of open tracks and re-open on new refseq
+            var curTracks = this.view.visibleTrackNames();
 
-    // if it's the same sequence, just go there
-    if( location.ref == this.refSeq.name) {
+            this.refSeq = this.allRefs[location.ref];
+            this.clearStores();
 
-        this.view.setLocation( this.refSeq,
-                               location.start,
-                               location.end
-                             );
-        this._updateLocationCookies( location );
+            this.view.setLocation( this.refSeq,
+                                   location.start,
+                                   location.end );
+            this._updateLocationCookies( location );
 
-    }
-    // if different, we need to poke some other things before going there
-    else {
-        // record names of open tracks and re-open on new refseq
-        var curTracks = this.view.visibleTrackNames();
-
-        this.refSeq = this.allRefs[location.ref];
-        this.clearStores();
-
-        this.view.setLocation( this.refSeq,
-                               location.start,
-                               location.end );
-        this._updateLocationCookies( location );
-
-        this.showTracks( curTracks );
-    }
-
-    return;
+            this.showTracks( curTracks );
+        }
+    }));
 };
 
 /**
@@ -1722,7 +1720,7 @@ Browser.prototype.searchNames = function( /**String*/ loc ) {
  */
 
 Browser.prototype.showTracks = function( trackNames ) {
-    this.afterMilestone('completely initialized', dojo.hitch( this, function() {
+    this.afterMilestone('initView', dojo.hitch( this, function() {
         if( typeof trackNames == 'string' )
             trackNames = trackNames.split(',');
 
