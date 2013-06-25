@@ -1,0 +1,4 @@
+- block aggregation
+- factor block aggregation into BlockBased.js
+- support for subfeatures
+- remove todo and example-query files from root dir

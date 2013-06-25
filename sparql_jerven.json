@@ -1,0 +1,9 @@
+{
+         "storeClass" : "JBrowse/Store/SeqFeature/SPARQL",
+         "urlTemplate" : "http://192.168.100.5:8098/sparql",
+         "type" : "JBrowse/View/Track/HTMLFeatures",
+         "label" : "sparql",
+         "key" : "SPARQL Test",
+         "style": { "className": "feature5" },
+         "queryTemplate": "PREFIX pos:<https://github.com/dbcls/bh12/wiki/Feature-Annotation-Location-Description-Ontology#> PREFIX up:<http://purl.uniprot.org/core/>  PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> SELECT ?start ?end ?strand ?id ?Protein WHERE { ?Protein up:encodedBy ?id . ?id pos:locationOn ?location . ?location pos:begin ?sp . ?location pos:end ?ep . ?sp a pos:Position . ?sp pos:reference ?ref . ?ref rdfs:label ?strand . ?sp pos:position ?start . ?ep a pos:Position . ?ep pos:position ?end .  FILTER( !(?start > {end} || ?end < {start}) )  }"
+}
