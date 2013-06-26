@@ -1,5 +1,18 @@
 {{$NEXT}}
 
+ * Fixed a bug in which the browser can fail to start for a reference
+   sequence that has never been seen before.
+
+1.9.7     2013-06-25 15:41:22 Asia/Tokyo
+
+ * Fixed a bug in which the initial viewing location (passed from a
+   URL parameter or similar) is not always set correctly in all parts
+   of the browser.  Thanks to Steffi Geisen for pointing this out.
+
+ * Fixed a bug in which JavaScript paths for plugins were incorrectly
+   calculated when a `baseUrl` global configuration variable was set.
+   Thanks to Matt Bomhoff for pointing this out.
+
 1.9.6     2013-06-18 14:57:26 EST5EDT
 
  * Fixed a bug in which the reference sequence selection dropdown menu
