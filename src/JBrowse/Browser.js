@@ -135,11 +135,12 @@ var Browser = function(params) {
                        // figure out our initial location
                        var initialLocString = thisB._initialLocation();
                        var initialLoc = Util.parseLocString( initialLocString );
-                       this.refSeq = initialLoc.ref || this.refSeq;
+                       this.refSeq = initialLoc && initialLoc.ref || this.refSeq;
 
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
-                           thisB.navigateTo( initialLocString );
+                           if( initialLocString )
+                               thisB.navigateTo( initialLocString );
 
                            // figure out what initial track list we will use:
                            //    from a param passed to our instance, or from a cookie, or
