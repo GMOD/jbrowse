@@ -155,6 +155,7 @@ return declare(BlockBased,
 			this.height = args.height || this.heightNoInner;
 
 			this.counter = 0;
+			this.lastDialogDone = true;
 		},
 
 		setViewInfo: function(genomeView, heightUpdate, numBlocks,
@@ -276,16 +277,12 @@ return declare(BlockBased,
 
 		addTrack: function(trackConfig) {
 			// There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
-
 			if(trackConfig && trackConfig.key) this.storeToKey[trackConfig.store] = trackConfig.key;
 			if(trackConfig && trackConfig.store) this.keyToStore[trackConfig.key] = trackConfig.store;
+
 			// This should be eventually made more complicated to disallow 
 			this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
 
-			this.oldType = this.storeType;
-			// This needs to be moved to the right place.
-
-			//this.defaultOp = this.trackClasses[this.storeType].defaultOp;
 			this.storeClass = this.trackClasses[this.currType].store; //
 
 			if(!this.innerDiv) {
@@ -324,26 +321,31 @@ return declare(BlockBased,
 			if(this.oldType === undefined) {
 				var opTree = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
 				this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
-				this._adjustStores(opTree, store);
+				this.opTree = opTree;
+				this._adjustStores(store);
 				return;
 			}
-			if(this.preferencesDialog) this.preferencesDialog.destroyRecursive();
-			this.preferencesDialog = new Dialog({
-				key: trackConfig.key,
-				store: store,
-				track: this
-			});
-			this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
-				this.displayType = displayType;
-				console.log(this._generateTreeFormula(opTree));
-				this._adjustStores(opTree, newstore);
-			}), function() {});
+			when(this.lastDialogDone, dojo.hitch(this, function() {
+				if(this.preferencesDialog) this.preferencesDialog.destroyRecursive();
+				this.lastDialogDone = new Deferred();
+				this.preferencesDialog = new Dialog({
+					key: trackConfig.key,
+					store: store,
+					track: this
+				});
+				this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
+					this.opTree = opTree;
+					this.displayType = displayType;
+					this.lastDialogDone.resolve(true);
+					console.log(this._generateTreeFormula(opTree));
+					this._adjustStores(newstore);
+				}), function() {});
+			}))
+
 		},
 
-		_adjustStores: function (opTree, store) {
+		_adjustStores: function (store) {
 			var d = new Deferred();
-
-			this.opTree = opTree;
 
 			this.storeType = "mask";
 			if(this.oldType == "mask") {
@@ -363,7 +365,7 @@ return declare(BlockBased,
 					this.store.reload(this.opTree, this.maskStore, this.displayStore);
 					d.resolve(true);
 				}));
-			} else if(opTree.get() == "M" || opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
+			} else if(this.opTree.get() == "M" || this.opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
 				var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
 					this.maskStore = newstore;
 					return this.maskStore.reload(this.opTree.leftChild);
@@ -379,6 +381,7 @@ return declare(BlockBased,
 				this.storeType = this.currType;
 				d.resolve(true);
 			}
+			this.oldType = this.storeType;
 			d.then(dojo.hitch(this, function() {
 				this.createStore();
 			}));
@@ -451,7 +454,6 @@ return declare(BlockBased,
 			if(this.innerTrack) {
 				this.innerTrack.clear();
 				this.innerTrack.destroy();
-
 				while(this.innerDiv.firstChild) { // Use dojo.empty instead?
 					this.innerDiv.removeChild(this.innerDiv.firstChild);
 				}
