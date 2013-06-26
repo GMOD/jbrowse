@@ -80,6 +80,19 @@ return declare(BlockBased,
 							store: 		"JBrowse/Store/SeqFeature/Mask",
 							allowedOps: ["M", "N"],
 							defaultOp: 	"M"
+						},
+				"BAM": {
+							innerTypes: [{
+											name: "Alignments2",
+											path: "JBrowse/View/Track/Alignments2"
+										},
+										{
+											name: "SNP/Coverage",
+											path: "JBrowse/View/Track/SNPCoverage" //For now
+										}],
+							store: 		"JBrowse/Store/SeqFeature/BAMCombination",
+							allowedOps: ["U"],
+							defaultOp: 	"U"
 						}
 			};
 			this.inWords =
@@ -109,7 +122,9 @@ return declare(BlockBased,
 			this.supportedBy = 
 			{
 			  "JBrowse/View/Track/HTMLFeatures": "set",
+			  "JBrowse/View/Track/HTMLVariants": "set",
 			  "JBrowse/Store/BigWig": "quant",
+  			  "JBrowse/Store/SeqFeature/BAM": "BAM",
 			  "JBrowse/Store/SeqFeature/Combination": "set",
 			  "JBrowse/Store/SeqFeature/QCombination": "quant",
 			  "JBrowse/Store/SeqFeature/Mask": "mask" 
@@ -250,7 +265,7 @@ return declare(BlockBased,
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
 			this.storeType = undefined;
-			this.classIndex = {"set" : 0, "quant": 0};
+			this.classIndex = {"set" : 0, "quant": 0, "BAM": 0};
 			this.storeToShow = 0;
 			this.displayStore = undefined;
 			this.maskStore = undefined;
@@ -293,6 +308,7 @@ return declare(BlockBased,
 				thisB.browser.getStore(storeName, function(store) {
 					if(store) {
 						d.resolve(store,true);
+						console.log(store.config.type);
 					} else {
 						d.reject("store " + storeName + " not found", true);
 					}
