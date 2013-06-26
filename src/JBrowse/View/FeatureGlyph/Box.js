@@ -1,11 +1,13 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'JBrowse/Util/FastPromise',
            'JBrowse/View/FeatureGlyph',
            './_FeatureLabelMixin'
        ],
        function(
            declare,
+           array,
            FastPromise,
            FeatureGlyph,
            FeatureLabelMixin
@@ -98,6 +100,16 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             fRect.w += 9;
             if( strand == -1 )
                 fRect.l -= 9;
+        }
+
+        // if the feature has masks, add them to the fRect.
+        if (feature.masks) {
+            fRect.m = [];
+            array.forEach( feature.masks, function(m) {
+                var tempM = { l: block.bpToX( m.start ) };
+                tempM.w = block.bpToX( m.end ) - tempM.l;
+                fRect.m.push(tempM);
+            });
         }
 
         return fRect;

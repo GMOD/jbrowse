@@ -110,7 +110,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
                 dojo.hitch( this, function( args ) {
                     // if the block has been freed in the meantime,
                     // don't try to render
-                    console.log(args);
                     if( ! (block.domNode && block.domNode.parentNode ))
                         return;
 

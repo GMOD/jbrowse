@@ -125,6 +125,7 @@ return declare(BlockBased,
 			  "JBrowse/View/Track/HTMLVariants": "set",
 			  "JBrowse/Store/BigWig": "quant",
   			  "JBrowse/Store/SeqFeature/BAM": "BAM",
+  			  "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
 			  "JBrowse/Store/SeqFeature/Combination": "set",
 			  "JBrowse/Store/SeqFeature/QCombination": "quant",
 			  "JBrowse/Store/SeqFeature/Mask": "mask" 
@@ -308,7 +309,6 @@ return declare(BlockBased,
 				thisB.browser.getStore(storeName, function(store) {
 					if(store) {
 						d.resolve(store,true);
-						console.log(store.config.type);
 					} else {
 						d.reject("store " + storeName + " not found", true);
 					}
@@ -469,6 +469,7 @@ return declare(BlockBased,
 							trackPadding: 0});
 	  
 					var innerHeightUpdate = function(height) {
+						thisB.innerDiv.style.height = height + "px";
 						thisB.heightInner = height;
 						thisB.height = thisB.topHeight + height + thisB.bottomHeight;
 						thisB.onlyRefreshOuter = true;
