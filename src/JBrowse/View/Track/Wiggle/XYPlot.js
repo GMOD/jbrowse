@@ -102,7 +102,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 }
             }
 
-            if( fRect.t <= canvasHeight ) { // if the rectangle is visible at all
+            if( fRect.t <= canvasHeight || fRect.t > originY ) { // if the rectangle is visible at all
                 if( fRect.t <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
