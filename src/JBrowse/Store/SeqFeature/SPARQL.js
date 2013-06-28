@@ -112,22 +112,43 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
                 return;
             }
         };
-        dojo.forEach( rows, function( row ) {
-            var f = {};
+        var seenFeatures = {};
+        array.forEach( rows, function( row ) {
+
+            var f = { data: { subfeatures: [] } };
+
+            var data = f.data;
             array.forEach( fields, function(field) {
                 if( field in row )
-                    f[field] = row[field].value;
+                    data[field] = row[field].value;
             });
-            f.start = parseInt( f.start );
-            f.end = parseInt( f.end );
-            f.strand = parseInt( f.strand );
+            data.start = parseInt( data.start );
+            data.end = parseInt( data.end );
+            data.strand = parseInt( data.strand );
 
-            featCallback(
-                new SimpleFeature(
-                    {
-                        data: f
-                    }));
+            var id = data.uniqueID;
+            delete data.uniqueID;
+            f.id = id;
+            seenFeatures[ id ] = f;
         },this);
+
+        // resolve subfeatures, keeping only top-level features in seenFeatures
+        for( var id in seenFeatures ) {
+            var f = seenFeatures[id];
+            var pid = f.data.parentUniqueID;
+            delete f.data.parentUniqueID;
+            if( pid ) {
+                var p = seenFeatures[ pid ];
+                if( p ) {
+                    p.data.subfeatures.push( f.data );
+                    delete seenFeatures[id];
+                }
+            }
+        }
+
+        for( var id in seenFeatures ) {
+            featCallback( new SimpleFeature( seenFeatures[id] ) );
+        }
     }
 });
 
