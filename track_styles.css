@@ -98,7 +98,7 @@ div.hist {
     height: 100%;
 }
 .alignment > .skip, .plus-alignment > .skip, .minus-alignment > .skip {
-    background: url('img/dark_20x2.png') repeat-x 0 50% white;
+    background: url('img/dark_20x3.png') repeat-x 0 50% white;
     height: 100%;
     opacity: 0.7;
 }
@@ -330,7 +330,7 @@ div.transcript-hist {
 .minus-transcript {
     position: absolute;
     height: 11px;
-    background: url('img/dark_20x2.png') repeat-x 0 4px white;
+    background: url('img/dark_20x3.png') repeat-x 0 4px white;
     z-index: 6;
     min-width: 1px;
     cursor: pointer;
