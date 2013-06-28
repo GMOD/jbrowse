@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Improved GFF3 handling in the File->Open tool, fixed a bug in the
+   GFF3 parser in which an empty (.) source column caused the GFF3
+   parser to crash.
+
  * Fixed a bug in which the browser can fail to start for a reference
    sequence that has never been seen before.
 
