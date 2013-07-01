@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+ * Added a SPARQL data backend to allow displaying features directly
+   from a SPARQL endpoint.  Many thanks to the NDBC/DBCLS BioHackathon
+   2012 and 2013 participants for suggesting this and helping with
+   this work! See http://www.biohackathon.org for more on this
+   fantastic series of hackathons.
+
+ * Added the ability to "pin" some tracks to the top of the display,
+   so that they stay at the top of the pane while the rest of the
+   tracks are scrolled vertically.  Thanks to the WebApollo project
+   for suggesting this.
+
  * Fixed a bug in which the browser can fail to start for a reference
    sequence that has never been seen before.
 
