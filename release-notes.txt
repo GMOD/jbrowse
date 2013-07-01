@@ -17,6 +17,10 @@
    calculated when a `baseUrl` global configuration variable was set.
    Thanks to Matt Bomhoff for pointing this out.
 
+ * Fixed a bug in which XYPlot tracks sometimes failed to draw bars
+   for data that was both below the graph origin and below the track's
+   configured minimum value.
+
 1.9.6     2013-06-18 14:57:26 EST5EDT
 
  * Fixed a bug in which the reference sequence selection dropdown menu
