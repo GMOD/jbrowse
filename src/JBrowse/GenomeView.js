@@ -1937,7 +1937,7 @@ createNavBox: function( parent ) {
     parent.appendChild(navbox);
     var navboxHideTimeout;
 
-    on( this.positionDisplay, 'mouseover', function() {
+    on( this.positionDisplay, 'click', function() {
             if( navboxHideTimeout )
                 window.clearTimeout( navboxHideTimeout );
             navbox.style.display = 'block';
