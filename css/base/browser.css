@@ -164,8 +164,9 @@ div.vertical_scrollbar .vertical_position_marker {
 .pane-position {
     position: absolute;
 
-    height: 14px;
-    line-height: 14px;
+    height: 13px;
+    line-height: 12px;
+    top: 1px;
 
     width: auto;
     z-index: 10;
@@ -176,6 +177,10 @@ div.vertical_scrollbar .vertical_position_marker {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
+
+    cursor: pointer;
+}
+.pane-position:hover {
 }
 
 .nav-controls {
@@ -209,8 +214,8 @@ div.vertical_scrollbar .vertical_position_marker {
     z-index: -10;
     width: 100%;
 }
-.nav-controls .dijitButton, .nav-controls .dijitTextBox, .nav-controls .dijitSelect {
-    height: 20px;
+.nav-controls .dijitTextBox, .nav-controls .dijitSelect {
+    height: 24px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;

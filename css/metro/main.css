@@ -2,7 +2,11 @@
 @import url('menubar.css');
 
 .jbrowse.metro .pane-position {
-    border-right: 1px solid white;
-    background: #4284D3;
-    color: white;
+    background: #d5d5d5;
+    color: #353535;
+    font-weight: bold;
+    font-size: 10px;
+}
+.jbrowse.metro .pane-position:hover {
+
 }
