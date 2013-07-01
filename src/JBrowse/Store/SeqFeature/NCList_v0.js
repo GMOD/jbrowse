@@ -2,8 +2,9 @@ define([
            'dojo/_base/declare',
            'dojo/_base/Deferred',
            'JBrowse/Store/SeqFeature/NCList',
-           'JBrowse/Store/NCList_v0'
-       ], function( declare, Deferred, SFNCList, GenericNCList ) {
+           'JBrowse/Store/NCList_v0',
+           'JBrowse/Store/LazyArray'
+       ], function( declare, Deferred, SFNCList, GenericNCList, LazyArray ) {
 return declare( SFNCList,
 
 /**
@@ -37,7 +38,7 @@ return declare( SFNCList,
         return x;
     },
 
-    loadSuccess: function( trackInfo, url ) {
+    _handleTrackInfo: function( refData, trackInfo, url ) {
 
         if( trackInfo ) {
 
@@ -78,47 +79,62 @@ return declare( SFNCList,
             });
 
             // remember the field offsets from the old-style trackinfo headers
-            this.fields = {};
-            this.fieldOrder = [];
+            refData.fields = {};
+            refData.fieldOrder = [];
             var i;
             for (i = 0; i < trackInfo.headers.length; i++) {
-                this.fieldOrder.push( trackInfo.headers[i] );
-                this.fields[trackInfo.headers[i]] = i;
+                refData.fieldOrder.push( trackInfo.headers[i] );
+                refData.fields[trackInfo.headers[i]] = i;
             }
-            this.subFields = {};
-            this.subFieldOrder = [];
+            refData.subFields = {};
+            refData.subFieldOrder = [];
             if (trackInfo.subfeatureHeaders) {
                 for (i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
-                    this.subFieldOrder.push( trackInfo.subfeatureHeaders[i] );
-                    this.subFields[trackInfo.subfeatureHeaders[i]] = i;
+                    refData.subFieldOrder.push( trackInfo.subfeatureHeaders[i] );
+                    refData.subFields[trackInfo.subfeatureHeaders[i]] = i;
                 }
             }
 
-        }
+            refData.stats = {
+                featureCount: trackInfo.featureCount,
+                featureDensity: trackInfo.featureCount / this.refSeq.length
+            };
 
-        return SFNCList.prototype.loadSuccess.call( this, trackInfo, url );
+            this.loadNCList( refData, trackInfo, url );
+
+            var histograms = trackInfo.histograms;
+            if( histograms && histograms.meta ) {
+                for (var i = 0; i < histograms.meta.length; i++) {
+                    histograms.meta[i].lazyArray =
+                        new LazyArray( histograms.meta[i].arrayParams, url );
+                }
+                refData._histograms = histograms;
+            }
+
+            this._deferred.root.resolve( refData );
+        }
     },
 
     makeNCList: function() {
         return new GenericNCList();
     },
 
-    loadNCList: function( trackInfo, url ) {
-        this.nclist.importExisting(trackInfo.featureNCList,
-                                   trackInfo.sublistIndex,
-                                   trackInfo.lazyIndex,
-                                   url,
-                                   trackInfo.lazyfeatureUrlTemplate);
+    loadNCList: function( refData, trackInfo, url ) {
+        refData.nclist.importExisting(trackInfo.featureNCList,
+                                      trackInfo.sublistIndex,
+                                      trackInfo.lazyIndex,
+                                      url,
+                                      trackInfo.lazyfeatureUrlTemplate);
     },
 
-    _getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
+    _getFeatures: function( data, query, origFeatCallback, finishCallback, errorCallback ) {
         var that = this,
         startBase = query.start,
         endBase = query.end,
-        fields = this.fields,
-        fieldOrder = this.fieldOrder,
-        subFields = this.subFields,
-        subfieldOrder = this.subfieldOrder,
+        fields = data.fields,
+        fieldOrder = data.fieldOrder,
+        subFields = data.subFields,
+        subfieldOrder = data.subfieldOrder,
         get = function(fieldname) {
             var f = fields[fieldname];
             if( f >= 0 )
@@ -144,7 +160,7 @@ return declare( SFNCList,
             return origFeatCallback( feature, path );
         };
 
-        return this.nclist.iterate.call( this.nclist, startBase, endBase, featCallBack, finishCallback );
+        return data.nclist.iterate.call( data.nclist, startBase, endBase, featCallBack, finishCallback );
     }
 });
 });

@@ -6,9 +6,10 @@
 
 define([
            'dojo/_base/declare',
-           'dojo/_base/array'
+           'dojo/_base/array',
+           'dojo/Deferred'
        ],
-       function( declare, array ) {
+       function( declare, array, Deferred ) {
 
 return declare( null, {
 
@@ -17,15 +18,18 @@ return declare( null, {
      * estimate the feature density of the store.
      * @private
      */
-    _estimateGlobalStats: function( finishCallback, errorCallback ) {
+    _estimateGlobalStats: function( refseq ) {
+        var deferred = new Deferred();
 
-        var statsFromInterval = function( refSeq, length, callback ) {
+        refseq = refseq || this.refSeq;
+
+        var statsFromInterval = function( length, callback ) {
             var thisB = this;
-            var sampleCenter = refSeq.start*0.75 + refSeq.end*0.25;
+            var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
             var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
-            var end = Math.min( Math.round( sampleCenter + length/2 ), refSeq.end );
+            var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
             var features = [];
-            this._getFeatures({ ref: refSeq.name, start: start, end: end},
+            this._getFeatures({ ref: refseq.name, start: start, end: end},
                               function( f ) { features.push(f); },
                               function( error ) {
                                   features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
@@ -33,7 +37,7 @@ return declare( null, {
                                                  {
                                                      featureDensity: features.length / length,
                                                      _statsSampleFeatures: features.length,
-                                                     _statsSampleInterval: { ref: refSeq.name, start: start, end: end, length: length }
+                                                     _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
                                                  });
                               },
                               function( error ) {
@@ -44,19 +48,20 @@ return declare( null, {
 
         var maybeRecordStats = function( interval, stats, error ) {
             if( error ) {
-                finishCallback( null, error );
+                deferred.reject( error );
             } else {
-                var refLen = this.refSeq.end - this.refSeq.start;
+                var refLen = refseq.end - refseq.start;
                  if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
                      console.log( 'Store statistics: '+(this.source||this.name), stats );
-                     finishCallback( stats );
+                     deferred.resolve( stats );
                  } else {
-                     statsFromInterval.call( this, this.refSeq, interval * 2, maybeRecordStats );
+                     statsFromInterval.call( this, interval * 2, maybeRecordStats );
                  }
             }
         };
 
-        statsFromInterval.call( this, this.refSeq, 100, maybeRecordStats );
+        statsFromInterval.call( this, 100, maybeRecordStats );
+        return deferred;
     }
 
 });

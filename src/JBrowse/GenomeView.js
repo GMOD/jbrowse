@@ -13,6 +13,8 @@ define([
            'dijit/form/Button',
            'dijit/form/Select',
            'dijit/form/HorizontalSlider',
+           'JBrowse/Component',
+           'JBrowse/FeatureFiltererMixin',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
            'JBrowse/BehaviorManager',
@@ -34,6 +36,8 @@ define([
            dijitButton,
            dijitSelectBox,
            dijitSlider,
+           Component,
+           FeatureFiltererMixin,
            LocationScaleTrack,
            GridLinesTrack,
            BehaviorManager,
@@ -50,10 +54,20 @@ var dojof = Util.dojof;
  * @class
  * @constructor
  */
-var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
+
+return declare( [Component,FeatureFiltererMixin], {
+
+constructor: function( args ) {
+    var browser = args.browser;
+    var elem = args.elem;
+    var stripeWidth = args.stripeWidth;
+    var refseq = args.refSeq;
+    var zoomLevel = args.zoomLevel;
 
     // keep a reference to the main browser object
     this.browser = browser;
+    this.setFeatureFilterParentComponent( this.browser );
+
     //the page element that the GenomeView lives in
     this.navbox = this.createNavBox( elem );
 
@@ -70,7 +84,7 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     this.topSpace = this.posHeight*1.5;
 
     // WebApollo needs max zoom level to be sequence residues char width
-    this.maxPxPerBp = 20;
+    this.maxPxPerBp = this.config.maxPxPerBp;
 
     //the reference sequence
     this.ref = refseq;
@@ -254,33 +268,39 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
     // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
-};
+},
 
+
+_defaultConfig: function() {
+    return {
+        maxPxPerBp: 20
+    };
+},
 
 /**
  * @returns {Object} containing ref, start, and end members for the currently displayed location
  */
-GenomeView.prototype.visibleRegion = function() {
+visibleRegion: function() {
     return {
                ref:   this.ref.name,
                start: this.minVisible(),
                end:   this.maxVisible()
            };
-};
+},
 
 /**
  * @returns {String} locstring representation of the current location<br>
  * (suitable for passing to the browser's navigateTo)
  */
-GenomeView.prototype.visibleRegionLocString = function() {
+visibleRegionLocString: function() {
     return Util.assembleLocString( this.visibleRegion() );
-};
+},
 
 /**
  * Create and place the elements for the vertical scrollbar.
  * @private
  */
-GenomeView.prototype._renderVerticalScrollBar = function() {
+_renderVerticalScrollBar: function() {
     var container = dojo.create(
         'div',
         {
@@ -308,14 +328,14 @@ GenomeView.prototype._renderVerticalScrollBar = function() {
         container
     );
     this.verticalScrollBar = { container: container, positionMarker: positionMarker };
-};
+},
 
 /**
  * Update the position and look of the vertical scroll bar as our
  * y-scroll offset changes.
  * @private
  */
-GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
+_updateVerticalScrollBar: function( newDims ) {
     if( typeof newDims.height == 'number' ) {
         var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
         var trackPaneHeight = newDims.height + heightAdjust;
@@ -329,22 +349,22 @@ GenomeView.prototype._updateVerticalScrollBar = function( newDims ) {
         this.verticalScrollBar.positionMarker.style.top    = (((newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0)+'%';
     }
 
-};
+},
 
 /**
  * @returns {Array[Track]} of the tracks that are currently visible in
  * this genomeview
  */
-GenomeView.prototype.visibleTracks = function() {
+visibleTracks: function() {
     return this.tracks;
-};
+},
 
 /**
  *  @returns {Array[String]} of the names of tracks that are currently visible in this genomeview
  */
-GenomeView.prototype.visibleTrackNames = function() {
+visibleTrackNames: function() {
     return dojo.map( this.visibleTracks(), function(t){ return t.name; } );
-};
+},
 
 
 /**
@@ -353,7 +373,7 @@ GenomeView.prototype.visibleTrackNames = function() {
  * @private
  * @returns {Object} description of behaviors
  */
-GenomeView.prototype._behaviors = function() { return {
+_behaviors: function() { return {
 
     // behaviors that don't change
     always: {
@@ -530,13 +550,13 @@ GenomeView.prototype._behaviors = function() { return {
             ];
         }
     }
-};};
+};},
 
 /**
  * Conduct a DOM test to calculate the height of div.pos-label
  * elements with a line of text in them.
  */
-GenomeView.prototype.calculatePositionLabelHeight = function( containerElement ) {
+calculatePositionLabelHeight: function( containerElement ) {
     // measure the height of some arbitrary text in whatever font this
     // shows up in (set by an external CSS file)
     var heightTest = document.createElement("div");
@@ -547,9 +567,9 @@ GenomeView.prototype.calculatePositionLabelHeight = function( containerElement )
     var h = heightTest.clientHeight;
     containerElement.removeChild(heightTest);
     return h;
-};
+},
 
-GenomeView.prototype.wheelScroll = function(e) {
+wheelScroll: function(e) {
 
     // 60 pixels per mouse wheel event
     this.setY( this.getY() - 60 * Util.wheel(e) );
@@ -569,111 +589,110 @@ GenomeView.prototype.wheelScroll = function(e) {
     }, 100));
 
     dojo.stopEvent(e);
-};
+},
 
-GenomeView.prototype.getX = function() {
+getX: function() {
     return this.x || 0;
-};
+},
 
-GenomeView.prototype.getY = function() {
+getY: function() {
     return this.y || 0;
-};
-GenomeView.prototype.getHeight = function() {
+},
+getHeight: function() {
     return this.elem.offsetHeight;
-};
-GenomeView.prototype.getWidth = function() {
+},
+getWidth: function() {
     return this.elem.offsetWidth;
-};
+},
 
-GenomeView.prototype.clampX = function(x) {
+clampX: function(x) {
     return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x || 0),
                                  this.minLeft - this.offset
                                )
                      );
-};
+},
 
-GenomeView.prototype.clampY = function(y) {
+clampY: function(y) {
     return Math.round( Math.min( Math.max( 0, y || 0 ),
                                  this.containerHeight- this.getHeight()
                                )
                      );
-};
+},
 
-
-GenomeView.prototype.rawSetX = function(x) {
+rawSetX: function(x) {
     this.elem.scrollLeft = x;
     this.x = x;
-};
+},
 
 /**
  * @returns the new x value that was set
  */
-GenomeView.prototype.setX = function(x) {
+setX: function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
     this.updateStaticElements( { x: x } );
     this.showFine();
     return x;
-};
+},
 
-GenomeView.prototype.rawSetY = function(y) {
+rawSetY: function(y) {
     this.y = y;
     this.layoutTracks();
-};
+},
 
 /**
  * @returns the new y value that was set
  */
-GenomeView.prototype.setY = function(y) {
+setY: function(y) {
     y = this.clampY(y);
     this.rawSetY(y);
     this.updateStaticElements( { y: y } );
     return y;
-};
+},
 
 /**
  * @private
  */
-GenomeView.prototype.rawSetPosition = function(pos) {
+rawSetPosition: function(pos) {
     this.rawSetX( pos.x );
     this.rawSetY( pos.y );
     return pos;
-};
+},
 
 /**
  * @param pos.x new x position
  * @param pos.y new y position
  */
-GenomeView.prototype.setPosition = function(pos) {
+setPosition: function(pos) {
     var x = this.clampX( pos.x );
     var y = this.clampY( pos.y );
     this.updateStaticElements( {x: x, y: y} );
     this.rawSetX( x );
     this.rawSetY( y );
     this.showFine();
-};
+},
 
 /**
  * @returns {Object} as <code>{ x: 123, y: 456 }</code>
  */
-GenomeView.prototype.getPosition = function() {
+getPosition: function() {
     return { x: this.x, y: this.y };
-};
+},
 
-GenomeView.prototype.zoomCallback = function() {
+zoomCallback: function() {
     this.zoomUpdate();
-};
+},
 
-GenomeView.prototype.afterSlide = function() {
+afterSlide: function() {
     this.showCoarse();
     this.scrollUpdate();
     this.showVisibleBlocks(true);
-};
+},
 
 /**
  * Suppress double-click events in the genome view for a certain amount of time, default 100 ms.
  */
-GenomeView.prototype.suppressDoubleClick = function( /** Number */ time ) {
+suppressDoubleClick: function( /** Number */ time ) {
 
     if( this._noDoubleClick ) {
         window.clearTimeout( this._noDoubleClick );
@@ -684,9 +703,9 @@ GenomeView.prototype.suppressDoubleClick = function( /** Number */ time ) {
         function(){ delete thisB._noDoubleClick; },
         time || 100
     );
-};
+},
 
-GenomeView.prototype.doubleClickZoom = function(event) {
+doubleClickZoom: function(event) {
     if( this._noDoubleClick ) return;
     if( this.dragging ) return;
     if( "animation" in this ) return;
@@ -703,10 +722,10 @@ GenomeView.prototype.doubleClickZoom = function(event) {
     this.zoomIn(event, zoomLoc, 2);
     }
     dojo.stopEvent(event);
-};
+},
 
 /** @private */
-GenomeView.prototype._beforeMouseDrag = function( event ) {
+_beforeMouseDrag: function( event ) {
     if ( this.animation ) {
         if (this.animation instanceof Zoomer) {
             dojo.stopEvent(event);
@@ -719,13 +738,13 @@ GenomeView.prototype._beforeMouseDrag = function( event ) {
     if (Util.isRightButton(event)) return 0;
     dojo.stopEvent(event);
     return 1;
-};
+},
 
 /**
  * Event fired when a user's mouse button goes down inside the main
  * element of the genomeview.
  */
-GenomeView.prototype.startMouseDragScroll = function(event) {
+startMouseDragScroll: function(event) {
     if( ! this._beforeMouseDrag(event) ) return;
 
     this.behaviorManager.applyBehaviors('mouseDragScrolling');
@@ -733,13 +752,13 @@ GenomeView.prototype.startMouseDragScroll = function(event) {
     this.dragStartPos = {x: event.clientX,
                          y: event.clientY};
     this.winStartPos = this.getPosition();
-};
+},
 
 /**
  * Event fired when a user's mouse button goes down inside the vertical
  * scroll bar element of the genomeview.
  */
-GenomeView.prototype.startVerticalMouseDragScroll = function(event) {
+startVerticalMouseDragScroll: function(event) {
     if( ! this._beforeMouseDrag(event) ) return; // not sure what this is for.
 
     this.behaviorManager.applyBehaviors('verticalMouseDragScrolling');
@@ -747,7 +766,7 @@ GenomeView.prototype.startVerticalMouseDragScroll = function(event) {
     this.dragStartPos = {x: event.clientX,
                          y: event.clientY};
     this.winStartPos = this.getPosition();
-};
+},
 
 /**
  * Start a rubber-band dynamic zoom.
@@ -759,7 +778,7 @@ GenomeView.prototype.startVerticalMouseDragScroll = function(event) {
  *   rubberbanding highlight
  * @param {Event} event the mouse event that's starting the zoom
  */
-GenomeView.prototype.startRubberZoom = function( absToBp, container, scaleDiv, event ) {
+startRubberZoom: function( absToBp, container, scaleDiv, event ) {
     if( ! this._beforeMouseDrag(event) ) return;
 
     this.behaviorManager.applyBehaviors('mouseRubberBandZooming');
@@ -770,17 +789,17 @@ GenomeView.prototype.startRubberZoom = function( absToBp, container, scaleDiv, e
     this.winStartPos = this.getPosition();
     this.clearVerticalPositionLine();
     this.clearBasePairLabels();
-};
+},
 
-GenomeView.prototype._rubberStop = function(event) {
+_rubberStop: function(event) {
     this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
     this.hideRubberHighlight();
     this.clearBasePairLabels();
     dojo.stopEvent(event);
     delete this.rubberbanding;
-};
+},
 
-GenomeView.prototype.rubberCancel = function(event) {
+rubberCancel: function(event) {
     var htmlNode = document.body.parentNode;
     var bodyNode = document.body;
 
@@ -789,13 +808,13 @@ GenomeView.prototype.rubberCancel = function(event) {
         || (bodyNode === (event.relatedTarget || event.toElement))) {
         this._rubberStop(event);
     }
-};
+},
 
-GenomeView.prototype.rubberMove = function(event) {
+rubberMove: function(event) {
     this.setRubberHighlight( this.rubberbandStartPos, { x: event.clientX, y: event.clientY } );
-};
+},
 
-GenomeView.prototype.rubberExecute = function(event) {
+rubberExecute: function(event) {
     var start = this.rubberbandStartPos;
     var end   = { x: event.clientX, y: event.clientY };
 
@@ -810,10 +829,10 @@ GenomeView.prototype.rubberExecute = function(event) {
     }
 
     this.setLocation( this.ref, h_start_bp, h_end_bp );
-};
+},
 
 // draws the rubber-banding highlight region from start.x to end.x
-GenomeView.prototype.setRubberHighlight = function( start, end ) {
+setRubberHighlight: function( start, end ) {
     var container = this.rubberbanding.container,
         container_coords = dojo.position(container,true);
 
@@ -856,9 +875,9 @@ GenomeView.prototype.setRubberHighlight = function( start, end ) {
 
     // turn off the red position line if it's on
     this.clearVerticalPositionLine();
-};
+},
 
-GenomeView.prototype.dragEnd = function(event) {
+dragEnd: function(event) {
     this.behaviorManager.removeBehaviors('mouseDragScrolling', 'verticalMouseDragScrolling');
 
     dojo.stopEvent(event);
@@ -872,10 +891,10 @@ GenomeView.prototype.dragEnd = function(event) {
     window.setTimeout(
         dojo.hitch(this,function() {this.dragging = false;}),
         100 );
-};
+},
 
 /** stop the drag if we mouse out of the view */
-GenomeView.prototype.checkDragOut = function( event ) {
+checkDragOut: function( event ) {
     var htmlNode = document.body.parentNode;
     var bodyNode = document.body;
 
@@ -885,19 +904,19 @@ GenomeView.prototype.checkDragOut = function( event ) {
        ) {
            this.dragEnd(event);
     }
-};
+},
 
-GenomeView.prototype.dragMove = function(event) {
+dragMove: function(event) {
     this.dragging = true;
     this.setPosition({
         x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
         y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
         });
     dojo.stopEvent(event);
-};
+},
 
 // Similar to "dragMove". Consider merging.
-GenomeView.prototype.verticalDragMove = function(event) {
+verticalDragMove: function(event) {
     this.dragging = true;
     var containerHeight = parseInt(this.verticalScrollBar.container.style.height,10);
     var trackContainerHeight = this.trackContainer.clientHeight;
@@ -906,17 +925,17 @@ GenomeView.prototype.verticalDragMove = function(event) {
          y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)*(trackContainerHeight/containerHeight)
          });
     dojo.stopEvent(event);
-};
+},
 
-GenomeView.prototype.hideRubberHighlight = function( start, end ) {
+hideRubberHighlight: function( start, end ) {
     if( this.rubberHighlight ) {
        this.rubberHighlight.parentNode.removeChild( this.rubberHighlight );
        delete this.rubberHighlight;
     }
-};
+},
 
 /* moves the view by (distance times the width of the view) pixels */
-GenomeView.prototype.slide = function(distance) {
+slide: function(distance) {
     if (this.animation) this.animation.stop();
     this.trimVertical();
     // slide for an amount of time that's a function of the distance being
@@ -926,9 +945,9 @@ GenomeView.prototype.slide = function(distance) {
                this.afterSlide,
                Math.abs(distance) * this.getWidth() * this.slideTimeMultiple + 200,
                distance * this.getWidth());
-};
+},
 
-GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
+setLocation: function(refseq, startbp, endbp) {
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
     if ((startbp < refseq.start) || (startbp > refseq.end))
@@ -938,6 +957,7 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
 
     if (this.ref != refseq) {
     this.ref = refseq;
+        this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
     var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
@@ -979,9 +999,9 @@ GenomeView.prototype.setLocation = function(refseq, startbp, endbp) {
     this.instantZoomUpdate();
 
     this.centerAtBase((startbp + endbp) / 2, true);
-};
+},
 
-GenomeView.prototype.stripeWidthForZoom = function(zoomLevel) {
+stripeWidthForZoom: function(zoomLevel) {
     if ((this.zoomLevels.length - 1) == zoomLevel) {
         return this.fullZoomStripe;
     } else if (0 == zoomLevel) {
@@ -989,9 +1009,9 @@ GenomeView.prototype.stripeWidthForZoom = function(zoomLevel) {
     } else {
         return this.regularStripe;
     }
-};
+},
 
-GenomeView.prototype.instantZoomUpdate = function() {
+instantZoomUpdate: function() {
     this.scrollContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
     this.zoomContainer.style.width =
@@ -1000,9 +1020,9 @@ GenomeView.prototype.instantZoomUpdate = function() {
         this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
     this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
     this.minLeft = this.bpToPx(this.ref.start);
-};
+},
 
-GenomeView.prototype.centerAtBase = function(base, instantly) {
+centerAtBase: function(base, instantly) {
     base = Math.min(Math.max(base, this.ref.start), this.ref.end);
     if (instantly) {
     var pxDist = this.bpToPx(base);
@@ -1036,13 +1056,13 @@ GenomeView.prototype.centerAtBase = function(base, instantly) {
         this.centerAtBase(base, true);
     }
     }
-};
+},
 
 /**
  * @returns {Number} minimum basepair coordinate of the current
  * reference sequence visible in the genome view
  */
-GenomeView.prototype.minVisible = function() {
+minVisible: function() {
     var mv = this.pxToBp(this.x + this.offset);
 
     // if we are less than one pixel from the beginning of the ref
@@ -1051,13 +1071,13 @@ GenomeView.prototype.minVisible = function() {
         return 0;
     else
         return Math.round(mv);
-};
+},
 
 /**
  * @returns {Number} maximum basepair coordinate of the current
  * reference sequence visible in the genome view
  */
-GenomeView.prototype.maxVisible = function() {
+maxVisible: function() {
     var mv = this.pxToBp(this.x + this.offset + this.getWidth());
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
@@ -1065,71 +1085,70 @@ GenomeView.prototype.maxVisible = function() {
         return this.ref.end;
     else
         return Math.round(mv);
-};
+},
 
-GenomeView.prototype.showFine = function() {
+showFine: function() {
     this.onFineMove(this.minVisible(), this.maxVisible());
-};
-GenomeView.prototype.showCoarse = function() {
+},
+showCoarse: function() {
     this.onCoarseMove(this.minVisible(), this.maxVisible());
-};
+},
 
 /**
  * Hook for other components to dojo.connect to.
  */
-GenomeView.prototype.onFineMove = function( startbp, endbp ) {
-};
+onFineMove: function( startbp, endbp ) {
+},
 
 /**
  * Hook for other components to dojo.connect to.
  */
-GenomeView.prototype.onCoarseMove = function( startbp, endbp ) {
+onCoarseMove: function( startbp, endbp ) {
     // update the location box with our current location
     this._updateLocationDisplays({ start: startbp, end: endbp, ref: this.ref.name });
 
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
-};
+},
 
 /**
  * Hook to be called on a window resize.
  */
-GenomeView.prototype.onResize = function() {
+onResize: function() {
     this.sizeInit();
     this.showVisibleBlocks();
     this.showFine();
     this.showCoarse();
-};
-
+},
 
 /**
  * Event handler fired when mouse is over the scale bar.
  */
-GenomeView.prototype.scaleMouseOver = function( evt ) {
+scaleMouseOver: function( evt ) {
     if( ! this.rubberbanding )
         this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
-};
+},
 
 /**
  * Event handler fired when mouse moves over the scale bar.
  */
-GenomeView.prototype.scaleMouseMove = function( evt ) {
+scaleMouseMove: function( evt ) {
     if( ! this.rubberbanding )
         this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
-};
+},
 
 /**
  * Event handler fired when mouse leaves the scale bar.
  */
-GenomeView.prototype.scaleMouseOut = function( evt ) {
+scaleMouseOut: function( evt ) {
     this.clearVerticalPositionLine();
     this.clearBasePairLabels();
-};
+},
 
 /**
  * Draws the red line across the work area, or updates it if it already exists.
  */
-GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
+drawVerticalPositionLine: function( parent, evt){
     var numX = evt.pageX + 2;
 
     if( ! this.verticalPositionLine ){
@@ -1147,7 +1166,7 @@ GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
 
 
     this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
-};
+},
 
 /**
  * Draws the label for the line.
@@ -1157,7 +1176,7 @@ GenomeView.prototype.drawVerticalPositionLine = function( parent, evt){
  * @param {HTMLElement} args.scaleDiv
  * @param {Function} args.xToBp
  */
-GenomeView.prototype.drawBasePairLabel = function ( args ){
+drawBasePairLabel: function ( args ){
     var name = args.name || 0;
     var offset = args.offset || 0;
     var numX = args.x;
@@ -1189,44 +1208,43 @@ GenomeView.prototype.drawBasePairLabel = function ( args ){
     } else {
         label.style.left = numX + 1 - offset - label.offsetWidth + 'px'; //set location on screen to the left
     }
-};
+},
 
 /**
  * Turn off the basepair-position line if it is being displayed.
  */
-GenomeView.prototype.clearVerticalPositionLine = function(){
+clearVerticalPositionLine: function(){
     if( this.verticalPositionLine )
         this.verticalPositionLine.style.display = 'none';
-};
+},
 
 /**
  * Delete any base pair labels that are being displayed.
  */
-GenomeView.prototype.clearBasePairLabels = function(){
+clearBasePairLabels: function(){
     for( var name in this.basePairLabels ) {
         var label = this.basePairLabels[name];
         if( label.parentNode )
             label.parentNode.removeChild( label );
     }
     this.basePairLabels = {};
-};
+},
 
 
 /**
  * Event handler fired when the track scale bar is single-clicked.
  */
-GenomeView.prototype.scaleClicked = function( evt ) {
+scaleClicked: function( evt ) {
     var bp = this.absXtoBp(evt.clientX);
 
     this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
         this.centerAtBase( bp );
     },100));
-};
+},
 
-
-GenomeView.prototype.checkY = function(y) {
+checkY: function(y) {
     return Math.min((y < 0 ? 0 : y), this.containerHeight - this.getHeight());
-};
+},
 
 /**
  * Given a new X and Y pixels position for the main track container,
@@ -1246,46 +1264,46 @@ GenomeView.prototype.checkY = function(y) {
  *   elements that only need updates on the height are not
  *   updated.
  */
-GenomeView.prototype.updateStaticElements = function( args ) {
+updateStaticElements: function( args ) {
     this.trackIterate( function(t) {
         t.updateStaticElements( args );
     },this);
 
     this._updateVerticalScrollBar( args );
-};
+},
 
-GenomeView.prototype.showWait = function() {
+showWait: function() {
     var oldCursors = [];
     for (var i = 0; i < this.waitElems.length; i++) {
         oldCursors[i] = this.waitElems[i].style.cursor;
         this.waitElems[i].style.cursor = "wait";
     }
     this.prevCursors.push(oldCursors);
-};
+},
 
-GenomeView.prototype.showDone = function() {
+showDone: function() {
     var oldCursors = this.prevCursors.pop();
     for (var i = 0; i < this.waitElems.length; i++) {
         this.waitElems[i].style.cursor = oldCursors[i];
     }
-};
+},
 
-GenomeView.prototype.pxToBp = function(pixels) {
+pxToBp: function(pixels) {
     return pixels / this.pxPerBp;
-};
+},
 
 /**
  * Convert absolute pixels X position to base pair position on the
  * current reference sequence.
  * @returns {Number}
  */
-GenomeView.prototype.absXtoBp = function( /**Number*/ pixels) {
+absXtoBp: function( /**Number*/ pixels) {
     return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels );
-};
+},
 
-GenomeView.prototype.bpToPx = function(bp) {
+bpToPx: function(bp) {
     return bp * this.pxPerBp;
-};
+},
 
 
 /**
@@ -1293,8 +1311,7 @@ GenomeView.prototype.bpToPx = function(bp) {
  * width and height of its container.
  * @returns nothing
  */
-GenomeView.prototype.sizeInit = function() {
-
+sizeInit: function() {
     //scale values, in pixels per bp, for all zoom levels
     var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
 
@@ -1395,12 +1412,12 @@ GenomeView.prototype.sizeInit = function() {
     this.containerHeight = newHeight;
 
     this.updateScroll();
-};
+},
 
 /**
  * @private
  */
-GenomeView.prototype.updateScroll = function() {
+updateScroll: function() {
 
     // may need to update our Y position if our height has changed
     var update = { height: this.getHeight() };
@@ -1415,9 +1432,9 @@ GenomeView.prototype.updateScroll = function() {
     // float in one position over the scrolling track div (can't use
     // CSS position:fixed for these)
     this.updateStaticElements( update );
-};
+},
 
-GenomeView.prototype.trimVertical = function(y) {
+trimVertical: function(y) {
     if (y === undefined) y = this.getY();
     var trackBottom;
     var trackTop = this.topSpace;
@@ -1431,23 +1448,23 @@ GenomeView.prototype.trimVertical = function(y) {
             trackTop = trackBottom + this.trackPadding;
         }
     }
-};
+},
 
-GenomeView.prototype.redrawTracks = function() {
+redrawTracks: function() {
     this.trackIterate( function(t) { t.hideAll(); } );
     this.showVisibleBlocks( false );
-};
+},
 
-GenomeView.prototype.hideRegion = function( location ) {
+hideRegion: function( location ) {
     this.trackIterate( function(t) { t.hideRegion( location ); } );
-};
+},
 
-GenomeView.prototype.redrawRegion = function( location ) {
+redrawRegion: function( location ) {
     this.hideRegion( location );
     this.showVisibleBlocks( false );
-};
+},
 
-GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
+zoomIn: function(e, zoomLoc, steps) {
     if (this.animation) return;
     this._unsetPosBeforeZoom();
     if (zoomLoc === undefined) zoomLoc = 0.5;
@@ -1480,10 +1497,10 @@ GenomeView.prototype.zoomIn = function(e, zoomLoc, steps) {
     new Zoomer(scale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
                700, zoomLoc);
-};
+},
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-GenomeView.prototype.zoomToBaseLevel = function(e, pos) {
+zoomToBaseLevel: function(e, pos) {
     if (this.animation) return;
     //   if (this.zoomLevels[this.curZoom] === this.charWidth)  {  console.log("already zoomed to base level"); return; }
     // if at max zoomLevel then already zoomed to bases, so then no-op
@@ -1513,10 +1530,10 @@ GenomeView.prototype.zoomToBaseLevel = function(e, pos) {
     new Zoomer(relativeScale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
                700, zoomLoc);
-};
+},
 
 
-GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
+zoomOut: function(e, zoomLoc, steps) {
     if (this.animation) return;
     this._unsetPosBeforeZoom();
     if (steps === undefined) steps = 1;
@@ -1554,11 +1571,11 @@ GenomeView.prototype.zoomOut = function(e, zoomLoc, steps) {
     new Zoomer(scale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
                700, zoomLoc);
-};
+},
 
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-GenomeView.prototype.zoomBackOut = function(e) {
+zoomBackOut: function(e) {
     if (this.animation) { return; }
     if (!this.isZoomedToBase()) { return; }
 
@@ -1591,24 +1608,24 @@ GenomeView.prototype.zoomBackOut = function(e) {
     new Zoomer(scale, this,
 	       function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
 	       700, zoomLoc);
-};
+},
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-GenomeView.prototype.isZoomedToBase = function() {
+isZoomedToBase: function() {
 	return this.posBeforeZoom !== undefined;
-};
+},
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-GenomeView.prototype._setPosBeforeZoom = function(min, max, zoomIndex) {
+_setPosBeforeZoom: function(min, max, zoomIndex) {
     this.posBeforeZoom = { "min": min, "max": max, "zoomIndex": zoomIndex };
-};
+},
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-GenomeView.prototype._unsetPosBeforeZoom = function() {
+_unsetPosBeforeZoom: function() {
 	this.posBeforeZoom = undefined;
-};
+},
 
-GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
+zoomUpdate: function(zoomLoc, fixedBp) {
     var eWidth = this.elem.clientWidth;
     var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
     // stripeWidth: pixels per block
@@ -1635,9 +1652,9 @@ GenomeView.prototype.zoomUpdate = function(zoomLoc, fixedBp) {
     this.showVisibleBlocks(true);
     this.showDone();
     this.showCoarse();
-};
+},
 
-GenomeView.prototype.scrollUpdate = function() {
+scrollUpdate: function() {
     var x = this.getX();
     var numStripes = this.stripeCount;
     var cWidth = numStripes * this.stripeWidth;
@@ -1666,9 +1683,9 @@ GenomeView.prototype.scrollUpdate = function() {
     this.updateStaticElements( { x: newX } );
     this.rawSetX(newX);
     var firstVisible = (newX / this.stripeWidth) | 0;
-};
+},
 
-GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
+trackHeightUpdate: function(trackName, height) {
     var y = this.getY();
     if ( ! (trackName in this.trackIndices)) return;
     var track = this.trackIndices[trackName];
@@ -1692,9 +1709,9 @@ GenomeView.prototype.trackHeightUpdate = function(trackName, height) {
     this.setY( this.getY() );
 
     this.updateStaticElements({ height: this.getHeight() });
-};
+},
 
-GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, endX) {
+showVisibleBlocks: function(updateHeight, pos, startX, endX) {
     if (pos === undefined) pos = this.getPosition();
     if (startX === undefined) startX = pos.x - (this.drawMargin * this.getWidth());
     if (endX === undefined) endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
@@ -1727,14 +1744,14 @@ GenomeView.prototype.showVisibleBlocks = function(updateHeight, pos, startX, end
                               });
 
     this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
-};
+},
 
 /**
  * Add the given track configurations to the genome view.
  * @param trackConfigs {Array[Object]} array of track configuration
  * objects to add
  */
-GenomeView.prototype.showTracks = function( trackConfigs ) {
+showTracks: function( trackConfigs ) {
     // filter out any track configs that are already displayed
     var needed = dojo.filter( trackConfigs, function(conf) {
         return this._getTracks( [conf.label] ).length == 0;
@@ -1746,14 +1763,14 @@ GenomeView.prototype.showTracks = function( trackConfigs ) {
     this.trackDndWidget.insertNodes( false, needed );
 
     this.updateTrackList();
-};
+},
 
 /**
  * Replace the track configurations that are currently visible in the genome view.
  * @param trackConfigs {Array[Object]} array of track configuration
  * objects to add
  */
-GenomeView.prototype.replaceTracks = function( trackConfigs ) {
+replaceTracks: function( trackConfigs ) {
     // for each one
     array.forEach( trackConfigs, function( conf ) {
         // figure out its position in the genome view and delete it
@@ -1783,13 +1800,13 @@ GenomeView.prototype.replaceTracks = function( trackConfigs ) {
 
     if( trackConfigs.length )
         this.updateTrackList();
-};
+},
 
 /**
  * Remove the given track (configs) from the genome view.
  * @param trackConfigs {Array[Object]} array of track configurations
  */
-GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
+hideTracks: function( /**Array[String]*/ trackConfigs ) {
 
     // filter out any track configs that are not displayed
     var displayed = dojo.filter( trackConfigs, function(conf) {
@@ -1811,40 +1828,40 @@ GenomeView.prototype.hideTracks = function( /**Array[String]*/ trackConfigs ) {
     },this);
 
     this.updateTrackList();
-};
+},
 
 /**
  * Pin the tracks with the given names.  Returns an array with the
  * names of tracks that were actually pinned.
  */
-GenomeView.prototype.pinTracks = function( /**Array[String]*/ trackNames ) {
+pinTracks: function( /**Array[String]*/ trackNames ) {
     var tracks = this._getTracks( trackNames );
     array.forEach( tracks, function( track ) {
                        track.setPinned(true);
                    });
     this.updateTrackList();
     return array.map( tracks, function(t) { return t.name; } );
-};
+},
 
 /**
  * Unpin the tracks with the given names.  Returns an array with the
  * names of tracks that were actually unpinned.
  */
-GenomeView.prototype.unpinTracks = function( /**Array[String]*/ trackNames ) {
+unpinTracks: function( /**Array[String]*/ trackNames ) {
     var tracks = this._getTracks( trackNames );
     array.forEach( tracks, function( track ) {
                        track.setPinned(false);
                    });
     this.updateTrackList();
     return array.map( tracks, function(t) { return t.name; } );
-};
+},
 
 /**
  * For an array of track names, get the track object if it exists.
  * @private
  * @returns {Array[Track]} the track objects that were found
  */
-GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
+_getTracks: function( /**Array[String]*/ trackNames ) {
     var tracks = [],
         tn = { count: trackNames.length };
     dojo.forEach( trackNames, function(n) { tn[n] = 1;} );
@@ -1856,10 +1873,9 @@ GenomeView.prototype._getTracks = function( /**Array[String]*/ trackNames ) {
         return ! tn.count;
     }, this);
     return tracks;
-};
+},
 
-
-GenomeView.prototype._updateLocationDisplays = function( region ) {
+_updateLocationDisplays: function( region ) {
     var positionString = Util.assembleLocStringWithLength( region  );
 
     if( this.positionDisplay ) {
@@ -1873,9 +1889,9 @@ GenomeView.prototype._updateLocationDisplays = function( region ) {
         );
         this.goButton.set( 'disabled', true ) ;
     }
-};
+},
 
-GenomeView.prototype._updateRefSeqSelectBox = function() {
+_updateRefSeqSelectBox: function() {
     if( this.refSeqSelectBox ) {
 
         // if none of the options in the select box match this
@@ -1893,20 +1909,19 @@ GenomeView.prototype._updateRefSeqSelectBox = function() {
         // set its value to the current ref seq
         this.refSeqSelectBox.set( 'value', this.ref.name, false );
     }
-};
+},
 
 
-GenomeView.prototype.zoomTo = function(value) {
+zoomTo: function(value) {
     var desiredZoomLevel = Math.round(value/100 * this.zoomLevels.length);
     var steps = desiredZoomLevel - this.curZoom;
     this.zoomIn(undefined,undefined,steps);
-};
+},
 
 /**
  * @private
  */
-
-GenomeView.prototype.createNavBox = function( parent ) {
+createNavBox: function( parent ) {
     var thisB = this;
 
     this.positionDisplay = domConstruct.create(
@@ -2127,7 +2142,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
 
 
     return navbox;
-};
+},
 
 /**
  * Create the DOM elements that will contain the rendering of the
@@ -2136,7 +2151,7 @@ GenomeView.prototype.createNavBox = function( parent ) {
  * @returns {HTMLElement} the HTML element that will contain the
  *                        rendering of this track
  */
-GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
+renderTrack: function( /**Object*/ trackConfig ) {
     var thisB = this;
 
     if( !trackConfig )
@@ -2175,6 +2190,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
                 trackPadding: this.trackPadding,
                 store: store,
+                genomeView: this,
                 browser: this.browser
             });
         if( typeof store.setTrack == 'function' )
@@ -2240,21 +2256,21 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     });
 
     return trackDiv;
-};
+},
 
-GenomeView.prototype.trackIterate = function(callback) {
+trackIterate: function(callback) {
     var i;
     for (i = 0; i < this.uiTracks.length; i++)
         callback.call(this, this.uiTracks[i], this);
     for (i = 0; i < this.tracks.length; i++)
         callback.call(this, this.tracks[i], this);
-};
+},
 
 
 /* this function must be called whenever tracks in the GenomeView
  * are added, removed, or reordered
  */
-GenomeView.prototype.updateTrackList = function() {
+updateTrackList: function() {
     var tracks = [],
         oldtracks = dojo.toJson( this.trackIndices || {} );
 
@@ -2331,13 +2347,13 @@ GenomeView.prototype.updateTrackList = function() {
         this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
-};
+},
 
 
 /**
  * Lay out all shown tracks.
  */
-GenomeView.prototype.layoutTracks = function() {
+layoutTracks: function() {
     // lay out the track tops
     var nextTop = this.topSpace;
     var lastTop = 0;
@@ -2369,9 +2385,8 @@ GenomeView.prototype.layoutTracks = function() {
 
     this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
     this.scrollContainer.style.height = this.containerHeight + "px";
-};
-
-return GenomeView;
+}
+});
 });
 
 /*

@@ -1,12 +1,29 @@
 define(['dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/_base/event',
+        'dojo/keys',
+        'dojo/on',
         'dojo/dom-construct',
+        'dojo/dom-class',
         'dijit/layout/ContentPane',
         'dojo/dnd/Source',
         'dojo/fx/easing',
         'dijit/form/TextBox'
        ],
-       function( declare, array, dom, ContentPane, dndSource, animationEasing, dijitTextBox ) {
+       function(
+           declare,
+           array,
+           event,
+           keys,
+           on,
+           dom,
+           domClass,
+           ContentPane,
+           dndSource,
+           animationEasing,
+           dijitTextBox
+       ) {
+
 return declare( 'JBrowse.View.TrackList.Simple', null,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
@@ -120,8 +137,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             { id: 'tracksAvail',
               className: 'container handles',
               style: { width: '100%', height: '100%', overflowX: 'hidden', overflowY: 'auto' },
-              innerHTML: '<h2>Available Tracks</h2>',
-              onclick: dojo.hitch( this, function() { this.trackListWidget.selectNone(); } )
+              innerHTML: '<h2>Available Tracks</h2>'
             },
             leftPane
         );
@@ -144,6 +160,10 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
               },
               placeholder: 'filter by text',
               onkeypress: dojo.hitch( this, function( evt ) {
+                  if( evt.keyCode == keys.ESCAPE ) {
+                      this.textFilterInput.value = '';
+                  }
+
                   if( this.textFilterTimeout )
                       window.clearTimeout( this.textFilterTimeout );
                   this.textFilterTimeout = window.setTimeout(
@@ -191,24 +211,121 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
                           innerHTML: key
                         }
                     );
+
                     //in the list, wrap the list item in a container for
                     //border drag-insertion-point monkeying
                     if ("avatar" != hint) {
-                        dojo.connect( node, "dblclick", dojo.hitch(this, function() {
+                        on(node, "dblclick", dojo.hitch(this, function() {
                             this.browser.publish( '/jbrowse/v1/v/tracks/show', [trackConfig] );
                         }));
+
                         var container = dojo.create( 'div', { className: 'tracklist-container' });
                         container.appendChild(node);
                         node = container;
+                        node.id = dojo.dnd.getUniqueId();
+                        this.inactiveTrackNodes[trackConfig.label] = node;
                     }
-                    node.id = dojo.dnd.getUniqueId();
-                    this.inactiveTrackNodes[trackConfig.label] = node;
                     return {node: node, data: trackConfig, type: ["track"]};
                 })
             }
         );
 
+        // The dojo onMouseDown and onMouseUp methods don't support the functionality we're looking for,
+        // so we'll substitute our own
+        this.trackListWidget.onMouseDown = dojo.hitch(this, "onMouseDown");
+        this.trackListWidget.onMouseUp = dojo.hitch(this, "onMouseUp");
+
+        // We want the escape key to deselect all tracks
+        on(document, "keydown", dojo.hitch(this, "onKeyDown"));
+
         return trackListDiv;
+    },
+
+    onKeyDown: function(e) {
+        switch(e.keyCode) {
+          case keys.ESCAPE:
+            this.trackListWidget.selectNone();
+            break;
+        }
+    },
+
+    onMouseDown: function(e) {
+      var thisW = this.trackListWidget;
+      if(!thisW.mouseDown && thisW._legalMouseDown(e)){
+          thisW.mouseDown = true;
+          thisW._lastX = e.pageX;
+          thisW._lastY = e.pageY;
+          this._onMouseDown(thisW.current, e);
+      }
+    },
+
+    _onMouseDown: function(current, e) {
+      if(!current) return;
+      var thisW = this.trackListWidget;
+      if(!e.ctrlKey && !e.shiftKey) {
+          thisW.simpleSelection = true;
+          if(!this._isSelected(current)) {
+              thisW.selectNone();
+              thisW.simpleSelection = false;
+          }
+      }
+      if(e.shiftKey && this.anchor) {
+          var i = 0;
+          var nodes = thisW.getAllNodes();
+          this._select(current);
+          if(current != this.anchor) {
+            for(; i < nodes.length; i++) {
+                if(nodes[i] == this.anchor || nodes[i] == current) break;
+            }
+            i++;
+            for(; i < nodes.length; i++) {
+                if(nodes[i] == this.anchor || nodes[i] == current) break;
+                this._select(nodes[i]);
+            }
+          }
+      } else {
+          e.ctrlKey ? this._toggle(current) : this._select(current);
+          this.anchor = current;
+      }
+      event.stop(e);
+    },
+
+    onMouseUp: function(e) {
+      var thisW = this.trackListWidget;
+        if(thisW.mouseDown){
+            thisW.mouseDown = false;
+            this._onMouseUp(e);
+        }
+    },
+
+    _onMouseUp: function(e) {
+      var thisW = this.trackListWidget;
+      if(thisW.simpleSelection && thisW.current) {
+          thisW.selectNone();
+          this._select(thisW.current);
+      }
+    },
+
+    _isSelected: function(node) {
+        return this.trackListWidget.selection[node.id];
+    },
+
+    _select: function(node) {
+        this.trackListWidget.selection[node.id] = 1;
+        this.trackListWidget._addItemClass(node, "Selected");
+    },
+
+    _deselect: function(node) {
+        delete this.trackListWidget.selection[node.id];
+        this.trackListWidget._removeItemClass(node, "Selected");
+    },
+
+    _toggle: function(node) {
+        if(this.trackListWidget.selection[node.id]) {
+          this._deselect(node);
+        } else {
+          this._select(node);
+        }
     },
 
     _textFilter: function( text ) {

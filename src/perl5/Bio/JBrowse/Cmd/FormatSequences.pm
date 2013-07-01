@@ -360,6 +360,7 @@ sub exportSeqChunksFromDB {
     my $chunkStart = $start;
     while( $chunkStart <= $end ) {
         my $chunkEnd = $chunkStart + $chunkSize - 1;
+        $chunkEnd = $end if $chunkEnd > $end;
         my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
         my ($seg) = $db->segment( @$segDef,
                                   -start    => $chunkStart,

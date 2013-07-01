@@ -32,7 +32,7 @@ return declare( null, {
         if( this.config.noExport )
             return false;
 
-        var visibleRegion = this.browser.view.visibleRegion();
+        var visibleRegion = this.genomeView.visibleRegion();
         var wholeRefSeqRegion = { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end };
         var canExportVisibleRegion = this._canExportRegion( visibleRegion );
         var canExportWholeRef = this._canExportRegion( wholeRefSeqRegion );
@@ -43,7 +43,7 @@ return declare( null, {
         return [
             // the visible region
             (function() {
-                 var r = dojo.clone( this.browser.view.visibleRegion() );
+                 var r = dojo.clone( this.genomeView.visibleRegion() );
                  r.description = 'Visible region';
                  r.name = 'visible';
                  return r;

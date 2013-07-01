@@ -3,13 +3,21 @@ define(
         'dojo/_base/declare',
         'dojo/_base/array',
         'dojo/_base/lang',
-        'dijit/layout/AccordionContainer',
+        'dijit/TitlePane',
         'dijit/layout/ContentPane',
         'JBrowse/Util',
         'dojox/grid/EnhancedGrid',
         'dojox/grid/enhanced/plugins/IndirectSelection'
     ],
-    function ( declare, array, lang, AccordionContainer, ContentPane, Util, EnhancedGrid ){
+    function (
+        declare,
+        array,
+        lang,
+        TitlePane,
+        ContentPane,
+        Util,
+        EnhancedGrid
+    ) {
 
 var dojof = Util.dojof;
 return declare( 'JBrowse.View.TrackList.Faceted', null,
@@ -345,7 +353,15 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
            }
         );
 
+        // set the grid's initial sort index
+        var sortIndex = this.config.initialSortColumn || 0;
+        if( typeof sortIndex == 'string' )
+            sortIndex = array.indexOf( displayColumns, sortIndex );
+        grid.setSortIndex( sortIndex+1 );
+
+        // monkey-patch the grid to customize some of its behaviors
         this._monkeyPatchGrid( grid );
+
         return grid;
     },
 
@@ -485,7 +501,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      * Create selection boxes for each searchable facet.
      */
     renderFacetSelectors: function() {
-        var container = new AccordionContainer({style: 'width: 200px'});
+        var container = new ContentPane({style: 'width: 200px'});
 
         var store = this.trackDataStore;
         this.facetSelectors = {};
@@ -526,11 +542,11 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
     /**
      * Make HTML elements for a single facet selector.
      * @private
-     * @returns {dijit.layout.ContentPane}
+     * @returns {dijit.layout.TitlePane}
      */
     _renderFacetSelector: function( /**String*/ facetName, /**Array[String]*/ values ) {
 
-        var facetPane = new ContentPane(
+        var facetPane = new TitlePane(
             {
                 title: '<span id="facet_title_' + facetName +'" '
                     + 'class="facetTitle">'

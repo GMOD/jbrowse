@@ -686,6 +686,11 @@ div.tracklist-label:hover {
     border: 1px solid black;
 }
 
+div.tracklist-container.dojoDndItemSelected {
+    background-color:  #396494;
+    background-color: rgb(110, 132, 156)
+}
+
 #trackPane {
     background: #f2f2f2;
     background-image: url('../../img/tracklist_bg.png');
