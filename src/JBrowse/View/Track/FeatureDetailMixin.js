@@ -6,6 +6,7 @@ define([
             'dojo/_base/array',
             'dojo/_base/lang',
             'dojo/aspect',
+            'dojo/dom-construct',
             'JBrowse/Util',
             'JBrowse/View/FASTA'
         ],
@@ -14,6 +15,7 @@ define([
             array,
             lang,
             aspect,
+            domConstruct,
             Util,
             FASTAView
         ) {
@@ -79,14 +81,15 @@ return declare(null,{
     },
 
     _renderCoreDetails: function( track, f, featDiv, container ) {
-        var fmt = dojo.hitch( this, '_fmtDetailField' );
         var coreDetails = dojo.create('div', { className: 'core' }, container );
+        var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
-        coreDetails.innerHTML += fmt( 'Name', this.getConfForFeature( 'style.label', f ) );
-        coreDetails.innerHTML += fmt( 'Type', f.get('type') );
-        coreDetails.innerHTML += fmt( 'Score', f.get('score') );
-        coreDetails.innerHTML += fmt( 'Description', this._getDescription ? this._getDescription( f ) : (f.get('note') || f.get('description') ));
-        coreDetails.innerHTML += fmt(
+
+        fmt( 'Name', this.getConfForFeature( 'style.label', f ) );
+        fmt( 'Type', f.get('type') );
+        fmt( 'Score', f.get('score') );
+        fmt( 'Description', this._getDescription ? this._getDescription( f ) : (f.get('note') || f.get('description') ));
+        fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
@@ -94,7 +97,7 @@ return declare(null,{
                                      strand: f.get('strand')
                                    })
         );
-        coreDetails.innerHTML += fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp' );
+        fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp' );
     },
 
     // render any subfeatures this feature has
@@ -116,14 +119,16 @@ return declare(null,{
         },this);
 
         if( additionalTags.length ) {
-            var at_html = '<div class="additional"><h2 class="sectiontitle">Attributes</h2>';
+            var atElement = domConstruct.create(
+                'div',
+                { className: 'additional',
+                  innerHTML: '<h2 class="sectiontitle">Attributes</h2>'
+                },
+                container );
             array.forEach( additionalTags.sort(), function(t) {
-                at_html += this._fmtDetailField( t, f.get(t) );
+                this.renderDetailField( container, t, f.get(t) );
             }, this );
-            at_html += '</div>';
-            container.innerHTML += at_html;
         }
-
     },
 
     // get the description string for a feature, based on the setting
@@ -175,7 +180,7 @@ return declare(null,{
 
         // render the sequence underlying this feature if possible
         var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
-        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence' }, field_container );
+        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this '+(f.get('type') || 'feature') }, field_container );
         var valueContainerID = 'feature_sequence'+this._uniqID();
         var valueContainer = dojo.create(
             'div', {

@@ -1,6 +1,6 @@
 /**
-* Feature track that draws features using HTML5 canvas elements.
-*/
+ * Feature track that draws features using HTML5 canvas elements.
+ */
 
 define( [
             'dojo/_base/declare',
@@ -9,6 +9,7 @@ define( [
             'dojo/dom-geometry',
             'dojo/Deferred',
             'dojo/on',
+            'JBrowse/has',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/Errors',
@@ -21,6 +22,7 @@ define( [
             domGeom,
             Deferred,
             on,
+            has,
             Layout,
             BlockBasedTrack,
             Errors,
@@ -28,15 +30,15 @@ define( [
         ) {
 
 /**
-* inner class that indexes feature layout rectangles (fRects) (which
-* include features) by unique ID.
-*
-* We have one of these indexes in each block.
-*/
-var FRectIndex = declare( null, {
+ *  inner class that indexes feature layout rectangles (fRects) (which
+ *  include features) by unique ID.
+ *
+ *  We have one of these indexes in each block.
+ */
+var FRectIndex = declare( null,  {
     constructor: function( args ) {
         var height = args.h;
-        var width = args.w;
+        var width  = args.w;
 
         this.dims = { h: height, w: width };
 
@@ -71,15 +73,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.showLabels = this.config.style.showLabels;
     },
 
-    browserHasCanvas: function( blockIndex, block ) {
-        try {
-            document.createElement('canvas').getContext('2d').fillStyle = 'red';
-            return true;
-        } catch( e ) {
-            return false;
-        }
-    },
-
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 400,
@@ -93,7 +86,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             maxFeatureGlyphExpansion: 500,
 
             // maximum height of the track, in pixels
-            maxHeight: 1000,
+            maxHeight: 600,
 
             style: {
 
@@ -114,7 +107,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         var rightBase = args.rightBase;
         var scale = args.scale;
 
-        if( ! this.browserHasCanvas( blockIndex, block ) ) {
+        if( ! has('canvas') ) {
             this.fatalError = 'This browser does not support HTML canvas elements.';
             this.fillBlockError( blockIndex, block, this.fatalError );
             return;
@@ -156,7 +149,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.store.getGlobalStats(
             fill,
             dojo.hitch( this, function(e) {
-                            this._handleError(e);
+                            this._handleError( e, args );
                             args.finishCallback(e);
                         })
         );
@@ -179,7 +172,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
      * Returns a promise for the appropriate glyph for the given
      * feature and args.
      */
-    getGlyph: function( viewArgs, feature, callback ) {
+    getGlyph: function( viewArgs, feature, callback, errorCallback ) {
         var glyphClassName = this.getConfForFeature( 'glyph', feature );
         var glyph, interestedParties;
         if(( glyph = this.glyphsLoaded[glyphClassName] )) {
@@ -193,16 +186,16 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             this.glyphsBeingLoaded[glyphClassName] = [callback];
             require( [glyphClassName], function( GlyphClass ) {
 
-                glyph = thisB.glyphsLoaded[glyphClassName] =
-                    new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
+                         glyph = thisB.glyphsLoaded[glyphClassName] =
+                             new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
 
-                array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
-                    cb( glyph );
-                });
+                         array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
+                                            cb( glyph );
+                                        });
 
-                delete thisB.glyphsBeingLoaded[glyphClassName];
+                         delete thisB.glyphsBeingLoaded[glyphClassName];
 
-            });
+                     });
         }
     },
 
@@ -217,10 +210,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         var rightBase = args.rightBase;
         var finishCallback = args.finishCallback;
 
-        var timedOut = false;
-        if( this.config.blockDisplayTimeout )
-            window.setTimeout( function() { timedOut = true; }, this.config.blockDisplayTimeout );
-
         var fRects = [];
 
         // count of how many features are queued up to be laid out
@@ -231,10 +220,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         // store (not necessarily laid out yet)
         var allFeaturesRead = false;
 
-        var errorCallback = dojo.hitch( thisB, function(e) {
-                                            this._handleError(e);
-                                            finishCallback(e);
-                                        });
+        var errorCallback = dojo.hitch( thisB, function( e ) {
+            this._handleError( e, args );
+            finishCallback(e);
+        });
 
         var layout = this._getLayout( scale );
 
@@ -250,14 +239,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                        end: rightBase + bpExpansion
                      };
         this.store.getFeatures( region,
-
                                 function( feature ) {
-                                    if( timedOut )
-                                        throw new Errors.TrackBlockTimeout({
-                                            track: thisB,
-                                            blockIndex: blockIndex,
-                                            block: block
-                                        });
+                                    if( thisB.destroyed )
+                                        return;
 
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
@@ -300,6 +284,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
                                 // callback when all features sent
                                 function () {
+                                    if( thisB.destroyed )
+                                        return;
+
                                     allFeaturesRead = true;
                                     if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
                                         featuresLaidOut.resolve();
@@ -312,7 +299,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                             domConstruct.create(
                                                 'canvas',
                                                 { height: totalHeight,
-                                                  width: block.domNode.offsetWidth+1,
+                                                  width:  block.domNode.offsetWidth+1,
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px'
@@ -378,17 +365,15 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         }
 
         // make features get highlighted on mouse move
-        block.own(
-            on( block.featureCanvas, 'mousemove', function( evt ) {
+        block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
                 domGeom.normalizeEvent( evt );
                 var bpX = evt.layerX / block.scale + block.startBase;
                 var feature = thisB.layout.getByCoord( bpX, evt.layerY );
                 thisB.mouseoverFeature( feature );
-            }),
-            on( block.featureCanvas, 'mouseout', function( evt ) {
+            }));
+        block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
                     thisB.mouseoverFeature( undefined );
-            })
-        );
+            }));
 
         // connect up the event handlers
         for( var event in this.eventHandlers ) {
@@ -415,6 +400,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             return null;
         try {
             var ctx = viewArgs.block.featureCanvas.getContext('2d');
+            // ctx.translate( viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft, 0 );
+            // console.log( viewArgs.blockIndex, 'block offset', viewArgs.block.offsetLeft - this.featureCanvas.offsetLeft );
             return ctx;
         } catch(e) {
             console.error(e, e.stack);
@@ -435,7 +422,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     // given viewargs and a feature object, highlight that feature in
-    // all blocks. if feature is undefined or null, unhighlight any currently
+    // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
     mouseoverFeature: function( feature ) {
 
@@ -479,10 +466,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     },
 
     destroy: function() {
+        this.destroyed = true;
         delete this.layout;
         delete this.glyphsLoaded;
         this.inherited( arguments );
     }
 });
 });
-

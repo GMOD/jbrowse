@@ -212,8 +212,6 @@ var GenomeView = function( browser, elem, stripeWidth, refseq, zoomLevel ) {
                           this.stripeWidth, this.pxPerBp,
                           this.trackPadding);
     this.trackContainer.appendChild(gridTrackDiv);
-
-
     this.uiTracks = [this.staticTrack, gridTrack];
 
     // accept tracks being dragged into this
@@ -2113,6 +2111,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
     if( ! trackConfig.store )
         console.warn("configuration for track "+trackConfig.label+" has no store set", trackConfig );
 
+
     // get the store
     this.browser.getStore( trackConfig.store, function( s ) {
             store = s;
@@ -2126,6 +2125,7 @@ GenomeView.prototype.renderTrack = function( /**Object*/ trackConfig ) {
         if( trackClass && store )
             makeTrack();
     });
+
     return trackDiv;
 };
 
