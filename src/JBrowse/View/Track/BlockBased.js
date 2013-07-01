@@ -808,9 +808,9 @@ return declare( [Component,DetailsMixin,Destroyable],
     },
 
     getMetadata: function() {
-        return this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
+        return ( this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
                                           this.config.metadata ? this.config.metadata :
-                                                                 {};
+                                                                 {} ) || {};
     },
 
     /**
