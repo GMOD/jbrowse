@@ -1919,10 +1919,13 @@ _getTracks: function( /**Array[String]*/ trackNames ) {
 },
 
 _updateLocationDisplays: function( region ) {
-    var positionString = Util.assembleLocStringWithLength( region  );
+    var positionString = Util.assembleLocString( region  );
 
     if( this.positionDisplay ) {
         this.positionDisplay.innerHTML = positionString;
+    }
+    if( this.sizeDisplay ) {
+        this.sizeDisplay.innerHTML = Util.humanReadableNumber(region.end - region.start+1)+'bp';
     }
     if( this.locationBox ) {
         this.locationBox.set(
@@ -1973,6 +1976,12 @@ createNavBox: function( parent ) {
           style: 'height:'+this.posHeight+'px'
         },
         parent );
+
+    this.sizeDisplay = domConstruct.create(
+        'div',
+        { className: 'pane-size',
+          style: 'height:'+this.posHeight+'px'
+        }, parent );
 
     var navbox = document.createElement("div");
     navbox.className = "nav-controls";

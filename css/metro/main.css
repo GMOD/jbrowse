@@ -1,7 +1,7 @@
 @import url('../base/main.css');
 @import url('menubar.css');
 
-.jbrowse.metro .pane-position {
+.jbrowse.metro .pane-position, .jbrowse.metro .pane-size {
     background: #d5d5d5;
     color: #353535;
     font-weight: bold;

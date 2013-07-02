@@ -161,7 +161,7 @@ div.vertical_scrollbar .vertical_position_marker {
     cursor: crosshair;
 }
 
-.pane-position {
+.pane-position, .pane-size {
     position: absolute;
 
     height: 13px;
@@ -175,7 +175,10 @@ div.vertical_scrollbar .vertical_position_marker {
 
     cursor: pointer;
 }
-.pane-position:hover {
+
+.pane-size {
+    right: 0;
+    cursor: default;
 }
 
 .nav-controls {
