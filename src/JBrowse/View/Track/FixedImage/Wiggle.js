@@ -41,7 +41,7 @@ var Wiggle = declare( [ FixedImage, YScaleMixin ],
 
     makeWiggleYScale: function() {
         var thisB = this;
-        this.store.getRegionStats( this.refSeq, function( stats ) {
+        this.store.getRegionStats( {ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, function( stats ) {
             if( ! thisB.yscale )
                 thisB.makeYScale({ min: stats.scoreMin, max: stats.scoreMax });
         });

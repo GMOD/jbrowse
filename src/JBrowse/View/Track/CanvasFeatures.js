@@ -147,7 +147,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             });
 
         this.store.getRegionStats(
-            this.refSeq,
+            { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end },
             fill,
             dojo.hitch( this, function(e) {
                             this._handleError( e, args );
