@@ -135,6 +135,46 @@ return declare( [WiggleXY, AlignmentsMixin],
         }, this );
     },
 
+    // Overwrites the method from WiggleBase
+    _draw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale, pixels, spans ) {
+        // Note: pixels currently has no meaning, as the function that generates it is not yet defined for this track
+        this._preDraw(      scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        this._drawFeatures( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+        if ( spans ) {
+            this._maskBySpans( scale, leftBase, canvas, spans );
+        }
+        this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
+    },
+
+    /* If it's a boolean track, mask accordingly */
+    _maskBySpans: function( scale, leftBase, canvas, spans ) {
+        var context = canvas.getContext('2d');
+        var canvasHeight = canvas.height;
+        var booleanAlpha = this.config.style.masked_transparancy || 0.17;
+        this.config.style.masked_transparancy = booleanAlpha;
+
+        // make a temporary canvas to store image data
+        var tempCan = dojo.create( 'canvas', {height: canvasHeight, width: canvas.width} );
+        var ctx2 = tempCan.getContext('2d');
+
+        for ( var index in spans ) {
+            if (spans.hasOwnProperty(index)) {
+                var w = Math.round(( spans[index].end   - spans[index].start ) * scale );
+                var l = Math.round(( spans[index].start - leftBase ) * scale );
+                if (l+w >= canvas.width)
+                    w = canvas.width-l // correct possible rounding errors
+                if (w==0)
+                    continue; // skip if there's no width.
+                ctx2.drawImage(canvas, l, 0, w, canvasHeight, l, 0, w, canvasHeight);
+                context.globalAlpha = booleanAlpha;
+                // clear masked region and redraw at lower opacity.
+                context.clearRect(l, 0, w, canvasHeight);
+                context.drawImage(tempCan, l, 0, w, canvasHeight, l, 0, w, canvasHeight);
+                context.globalAlpha = 1;
+            }
+        }
+    },
+
     /*
      * The following method is required to override the equivalent method in "WiggleBase.js"
      * It displays more complete data.
