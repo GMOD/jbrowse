@@ -146,6 +146,11 @@ return declare( SeqFeatureStore,
                 if( ! query.bpPerBin )
                     throw 'bpPerBin arg required for getRegionFeatureDensities';
 
+                if( ! data._histograms ) {
+                    successCallback({ bins: [], stats: {} });
+                    return;
+                }
+
                 // The histogramMeta array describes multiple levels of histogram detail,
                 // going from the finest (smallest number of bases per bin) to the
                 // coarsest (largest number of bases per bin).
@@ -156,11 +161,14 @@ return declare( SeqFeatureStore,
                 // is at 50,000 bases/bin, and we have server histograms at 20,000
                 // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
                 // rather than the 20,000)
-                var histogramMeta = data._histograms.meta[0];
-                for (var i = 0; i < data._histograms.meta.length; i++) {
-                    if( query.bpPerBin >= data._histograms.meta[i].basesPerBin )
-                        histogramMeta = data._histograms.meta[i];
-                }
+                var histogramMeta;
+                try {
+                    histogramMeta = data._histograms.meta[0];
+                    for (var i = 0; i < data._histograms.meta.length; i++) {
+                        if( query.bpPerBin >= data._histograms.meta[i].basesPerBin )
+                            histogramMeta = data._histograms.meta[i];
+                    }
+                } catch(e) { histogramMeta = {}; };
 
                 // number of bins in the server-supplied histogram for each current bin
                 var binCount = query.bpPerBin / histogramMeta.basesPerBin;
@@ -170,7 +178,6 @@ return declare( SeqFeatureStore,
                      &&
                      Math.abs(binCount - Math.round(binCount)) < .0001
                    ) {
-                       console.log('server-supplied',query);
                        // we can use the server-supplied counts
                        var firstServerBin = Math.floor( query.start / histogramMeta.basesPerBin);
                        binCount = Math.round(binCount);

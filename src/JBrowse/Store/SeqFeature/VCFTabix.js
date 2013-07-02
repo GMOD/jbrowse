@@ -3,8 +3,6 @@ define([
            'dojo/_base/lang',
            'dojo/Deferred',
            'JBrowse/Store/SeqFeature',
-           'JBrowse/Store/DeferredStatsMixin',
-           'JBrowse/Store/DeferredFeaturesMixin',
            'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
@@ -15,8 +13,6 @@ define([
            lang,
            Deferred,
            SeqFeatureStore,
-           DeferredStatsMixin,
-           DeferredFeaturesMixin,
            TabixIndexedFile,
            GlobalStatsEstimationMixin,
            XHRBlob,
@@ -39,7 +35,7 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
     }
 });
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, VCFParser ],
+return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
 {
 
     constructor: function( args ) {
@@ -65,20 +61,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 chunkSizeLimit: args.chunkSizeLimit
             });
 
-        this._loadHeader()
-            .then( function() {
-                       thisB._deferred.features.resolve({success:true});
-                       thisB._estimateGlobalStats()
-                            .then(
-                                function( stats ) {
-                                    thisB.globalStats = stats;
-                                    thisB._deferred.stats.resolve( stats );
-                                },
-                                lang.hitch( thisB, '_failAllDeferred' )
-                            );
-                   },
-                   lang.hitch( thisB, '_failAllDeferred' )
-                 );
+        this._loadHeader();
     },
 
     /** fetch and parse the VCF header lines */
@@ -111,7 +94,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }.call();
     },
 
-    _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
+    getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         thisB._loadHeader().then( function() {
             thisB.indexedData.getLines(
@@ -128,6 +111,15 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 errorCallback
             );
         }, errorCallback );
+    },
+
+    getRegionStats: function( query, statsCallback, errorCallback ) {
+        var thisB = this;
+        this.browser.findRefSeq( query.ref )
+            .then( function( refseq ) {
+                 return thisB._estimateGlobalStats(refseq)
+                            .then( statsCallback, errorCallback );
+             });
     },
 
     /**

@@ -32,7 +32,7 @@ return declare( null, {
                 var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
                 var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
                 var features = [];
-                this._getFeatures({ ref: refseq.name, start: start, end: end},
+                this.getFeatures( { ref: refseq.name, start: start, end: end},
                                   function( f ) { features.push(f); },
                                   function( error ) {
                                       features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );

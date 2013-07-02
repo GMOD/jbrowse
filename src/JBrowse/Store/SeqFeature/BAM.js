@@ -85,14 +85,11 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
         this._deferred.stats.then( function() {
             var i = thisB.bam.chrToIndex[ thisB.browser.regularizeReferenceName(query.ref) ];
             if( i === undefined ) {
-                statsCallback( {} );
+                statsCallback( { featureDensity: 0, featureCount: 0 } );
                 return;
             }
             thisB._estimateGlobalStats( { name: query.ref, start: 0, end: thisB.bam.indexToChr[ i ].length } )
-                .then( function(s) {
-                           console.log(s);
-                           statsCallback(s);
-                       }, errorCallback );
+                .then( statsCallback, errorCallback );
         });
     },
 

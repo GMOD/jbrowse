@@ -64,7 +64,7 @@ return declare( BlockBased,
         var blockWidth = rightBase - leftBase;
 
         this.store.getImages(
-            { scale: scale, start: leftBase, end: rightBase },
+            { ref: this.refSeq.name, scale: scale, start: leftBase, end: rightBase },
             dojo.hitch(this, function(images) {
                 dojo.forEach( images, function(im) {
                                   im.className = 'image-track';

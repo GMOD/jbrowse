@@ -2,11 +2,18 @@ define(
     [
         'dojo/_base/declare',
         'dojo/_base/Deferred',
+        'dojo/request/xhr',
         'JBrowse/Store',
         'JBrowse/Store/DeferredStatsMixin',
         'JBrowse/Util'
     ],
-    function( declare, Deferred, Store, DeferredStatsMixin, Util ) {
+    function(
+        declare,
+        Deferred,
+        xhr,
+        Store,
+        DeferredStatsMixin,
+        Util ) {
 
 return declare( [ Store, DeferredStatsMixin ],
 
@@ -21,70 +28,55 @@ return declare( [ Store, DeferredStatsMixin ],
 {
     constructor: function(args) {
         this.tileToImage = {};
-        this.zoomCache = {};
 
         this.baseUrl = args.baseUrl;
 
-        this.url = this.resolveUrl( args.urlTemplate );
+        this.urlTemplate = args.urlTemplate;
 
-        this._deferred.images = new Deferred();
-
-        dojo.xhrGet({ url: this.url,
-                      handleAs: "json",
-                      failOk: true,
-                      load:  dojo.hitch( this, function(o) {
-                          this.loadSuccess(o);
-                      }),
-                      error: dojo.hitch( this, '_failAllDeferred' )
-                   });
+        this._loaded = {};
     },
 
-    loadSuccess: function(o) {
-        this.globalStats = o.stats || {};
-        //backcompat
-        if( ! ('scoreMin' in this.globalStats ) )
-            this.globalStats.scoreMin = this.globalStats.global_min;
-        if( ! ('scoreMax' in this.globalStats ) )
-            this.globalStats.scoreMax = this.globalStats.global_max;
-
-        //tileWidth: width, in pixels, of the tiles
-        this.tileWidth = o.tileWidth;
-        this.align = o.align;
-        //zoomLevels: array of {basesPerTile, urlPrefix} hashes
-        this.zoomLevels = o.zoomLevels;
-
-        this._deferred.stats.resolve({success: true});
-        this._deferred.images.resolve({success: true});
+    _getRefData: function( refname ) {
+        return this._loaded[refname] || function() {
+            var thisB = this;
+            return this._loaded[refname] =
+                xhr.get( this.resolveUrl( this.urlTemplate, { refseq: refname } ),
+                         {
+                             handleAs: "json"
+                         }
+                       )
+                .then(
+                    function( o ) {
+                        var stats = o.stats = o.stats || {};
+                        o.zoomCache = o.zoomCache || {};
+                        //backcompat
+                        if( ! ('scoreMin' in stats ) )
+                            stats.scoreMin = stats.global_min;
+                        if( ! ('scoreMax' in stats ) )
+                            stats.scoreMax = stats.global_max;
+                        return o;
+                    });
+        }.call(this);
     },
 
     /**
      * @private
      */
-    _getZoom: function(scale) {
-        var result = this.zoomCache[scale];
+    _getZoom: function( refdata, scale) {
+        var result = refdata.zoomCache[scale];
         if (result) return result;
 
-        result = this.zoomLevels[0];
-        var desiredBases = this.tileWidth / scale;
-        for (var i = 1; i < this.zoomLevels.length; i++) {
-            if (Math.abs(this.zoomLevels[i].basesPerTile - desiredBases)
+
+        result = refdata.zoomLevels[0];
+        var desiredBases = refdata.tileWidth / scale;
+        for (var i = 1; i < refdata.zoomLevels.length; i++) {
+            if (Math.abs(refdata.zoomLevels[i].basesPerTile - desiredBases)
                 < Math.abs(result.basesPerTile - desiredBases))
-                result = this.zoomLevels[i];
+                result = refdata.zoomLevels[i];
         }
 
-        this.zoomCache[scale] = result;
+        refdata.zoomCache[scale] = result;
         return result;
-    },
-
-    getImages: function( query, callback, errorCallback ) {
-        this._deferred.images.then( dojo.hitch(this, function( result ) {
-            if( result.success )
-                this._getImages( query, callback, errorCallback );
-            else {
-                this.error = result.error;
-                errorCallback( result.error || result );
-            }
-        }));
     },
 
     /**
@@ -92,30 +84,43 @@ return declare( [ Store, DeferredStatsMixin ],
      * tiles that should be displayed for a certain magnification scale
      * and section of the reference.
      */
-    _getImages: function( query, callback, errorCallback ) {
-        var scale     = query.scale || 1;
-        var startBase = query.start;
-        var endBase   = query.end;
+    getImages: function( query, callback, errorCallback ) {
+        var thisB = this;
+        this._getRefData( query.ref )
+            .then( function( refdata ) {
+                       var scale     = query.scale || 1;
+                       var startBase = query.start;
+                       var endBase   = query.end;
 
-        var zoom = this._getZoom( scale );
+                       var zoom = thisB._getZoom( refdata, scale );
 
-        var startTile = Math.max( startBase / zoom.basesPerTile, 0 ) | 0;
-        var endTile   =           endBase   / zoom.basesPerTile      | 0;
+                       var startTile = Math.max( startBase / zoom.basesPerTile, 0 ) | 0;
+                       var endTile   =           endBase   / zoom.basesPerTile      | 0;
 
-        var result = [];
-        var im;
-        for (var i = startTile; i <= endTile; i++) {
-            im = document.createElement("img");
-            dojo.connect(im, "onerror", this.handleImageError );
-            im.src = this._imageSource( zoom, i );
-            //TODO: need image coord systems that don't start at 0?
-            im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
-            im.baseWidth = zoom.basesPerTile;
-            im.tileNum = i;
+                       var result = [];
+                       var im;
+                       for (var i = startTile; i <= endTile; i++) {
+                           im = document.createElement("img");
+                           dojo.connect(im, "onerror", thisB.handleImageError );
+                           im.src = thisB._imageSource( query.ref, zoom, i );
+                           //TODO: need image coord systems that don't start at 0?
+                           im.startBase = (i * zoom.basesPerTile); // + this.refSeq.start;
+                           im.baseWidth = zoom.basesPerTile;
+                           im.tileNum = i;
 
-            result.push(im);
-        }
-        callback( result );
+                           result.push(im);
+                       }
+                       callback( result );
+                   },
+                   function( error ) {
+                       if( error.response.status == 404 ) {
+                           callback([]);
+                       }
+                       else {
+                           errorCallback( error );
+                       }
+                   }
+                 );
     },
 
     /**
@@ -123,8 +128,8 @@ return declare( [ Store, DeferredStatsMixin ],
      * and tileIndex.
      * @private
      */
-    _imageSource: function( zoom, tileIndex ) {
-        return Util.resolveUrl(this.url, zoom.urlPrefix + tileIndex + ".png");
+    _imageSource: function( refname, zoom, tileIndex ) {
+        return Util.resolveUrl( this.resolveUrl(this.urlTemplate, {refseq: refname}), zoom.urlPrefix + tileIndex + ".png");
     }
 
 });
