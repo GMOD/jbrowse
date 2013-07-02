@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed a bug in which NCList-based tracks display with an error for
+   reference sequences on which they have no data.  Thanks to Michael
+   Axtell for pointing this out.
+
  * Improved GFF3 handling in the File->Open tool, fixed a bug in the
    GFF3 parser in which an empty (.) source column caused the GFF3
    parser to crash.
