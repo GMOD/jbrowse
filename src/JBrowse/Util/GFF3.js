@@ -69,6 +69,9 @@ return {
     },
 
     unescape: function( s ) {
+        if( s === null )
+            return null;
+
         return s.replace( /%([0-9A-Fa-f]{2})/g, function( match, seq ) {
                               return String.fromCharCode( parseInt( seq, 16 ) );
                           });

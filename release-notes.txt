@@ -11,6 +11,16 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Fixed a bug in which NCList-based tracks display with an error for
+   reference sequences on which they have no data.  Thanks to Michael
+   Axtell for pointing this out.
+
+ * Improved GFF3 handling in the File->Open tool, fixed a bug in the
+   GFF3 parser in which an empty (.) source column caused the GFF3
+   parser to crash.
+
+ * Improved scrolling speed when many HTML feature tracks are active.
+
  * Fixed a bug in which the browser can fail to start for a reference
    sequence that has never been seen before.
 
@@ -23,6 +33,11 @@
  * Fixed a bug in which JavaScript paths for plugins were incorrectly
    calculated when a `baseUrl` global configuration variable was set.
    Thanks to Matt Bomhoff for pointing this out.
+
+ * Fixed a bug in which XYPlot tracks sometimes failed to draw bars
+   for data that was both below the graph origin and below the track's
+   configured minimum value.  Thanks to GitHub user drusch for
+   pointing this out.
 
 1.9.6     2013-06-18 14:57:26 EST5EDT
 

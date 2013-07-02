@@ -7,6 +7,7 @@ define( [
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/DeferredStatsMixin',
+            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             './GFF3/Parser'
         ],
         function(
@@ -18,10 +19,11 @@ define( [
             SeqFeatureStore,
             DeferredFeatures,
             DeferredStats,
+            GlobalStatsEstimationMixin,
             Parser
         ) {
 
-return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
+return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
 
  /**
   * @lends JBrowse.Store.SeqFeature.GFF3
@@ -61,7 +63,13 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
                         // need to rebuild the refseq index if changing the sort order
                         thisB._rebuildRefSeqs( features );
                     }
-                    thisB._deferred.stats.resolve();
+
+                    thisB._estimateGlobalStats()
+                         .then( function( stats ) {
+                                    thisB.globalStats = stats;
+                                    thisB._deferred.stats.resolve();
+                                });
+
                     thisB._deferred.features.resolve( features );
                 }
             });
