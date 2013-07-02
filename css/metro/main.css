@@ -9,4 +9,6 @@
 .jbrowse.metro .pane-position:hover {
     background: #4284D3;
     color: white;
+    border: 1px solid #EEE;
+    height: 16px;
 }

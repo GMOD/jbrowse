@@ -173,11 +173,6 @@ div.vertical_scrollbar .vertical_position_marker {
 
     padding: 0 0.7em 0 0.4em;
 
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
     cursor: pointer;
 }
 .pane-position:hover {
