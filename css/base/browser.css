@@ -165,7 +165,7 @@ div.vertical_scrollbar .vertical_position_marker {
     position: absolute;
 
     height: 13px;
-    line-height: 12px;
+    line-height: 16px;
     top: 1px;
 
     width: auto;

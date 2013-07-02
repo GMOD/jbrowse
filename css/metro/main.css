@@ -5,8 +5,8 @@
     background: #d5d5d5;
     color: #353535;
     font-weight: bold;
-    font-size: 10px;
 }
 .jbrowse.metro .pane-position:hover {
-
+    background: #4284D3;
+    color: white;
 }

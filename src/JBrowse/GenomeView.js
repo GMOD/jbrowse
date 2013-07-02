@@ -4,6 +4,7 @@ define([
            'dojo/dom-construct',
            'dojo/on',
            'dojo/mouse',
+           'dojo/Deferred',
            'JBrowse/Util',
            'JBrowse/has',
            'dojo/dnd/move',
@@ -27,6 +28,7 @@ define([
            domConstruct,
            on,
            mouse,
+           Deferred,
            Util,
            has,
            dndMove,
@@ -58,40 +60,33 @@ var dojof = Util.dojof;
 return declare( [Component,FeatureFiltererMixin], {
 
 constructor: function( args ) {
-    var browser = args.browser;
-    var elem = args.elem;
-    var stripeWidth = args.stripeWidth;
-    var refseq = args.refSeq;
-    var zoomLevel = args.zoomLevel;
 
     // keep a reference to the main browser object
-    this.browser = browser;
+    this.browser = args.browser;
     this.setFeatureFilterParentComponent( this.browser );
 
     //the page element that the GenomeView lives in
-    this.navbox = this.createNavBox( elem );
+    this.navbox = this.createNavBox( args.elem );
 
     // this.elem = elem;
     // elem.className = 'dragWindow';
 
     this.elem = domConstruct.create('div', {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
-    }, elem );
+    }, args.elem );
 
     this.posHeight = this.calculatePositionLabelHeight( this.elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = this.posHeight*1.5;
 
-    // WebApollo needs max zoom level to be sequence residues char width
     this.maxPxPerBp = this.config.maxPxPerBp;
 
-    //the reference sequence
-    this.ref = refseq;
     //current scale, in pixels per bp
-    this.pxPerBp = zoomLevel;
+    this.pxPerBp = args.zoomLevel;
 
     //width, in pixels, of the vertical stripes
+    var stripeWidth = args.stripeWidth;
     this.stripeWidth = stripeWidth;
 
 
@@ -100,14 +95,44 @@ constructor: function( args ) {
     this.scrollContainer = dojo.create(
         'div', {
             id: 'container',
-            style: { position: 'relative',
-                     // left: '0px',
-                     // top: '0px'
-                   }
+            style: { position: 'relative' }
         }, this.elem
     );
 
     this._renderVerticalScrollBar();
+
+
+
+
+    var initialLocString = args.initialLocation;
+    var initialLoc = Util.parseLocString( initialLocString );
+
+    this.initialized = new Deferred();
+
+    // fetch the refseq store and the ref seq before we can continue
+    // initializing our view, because we need its length.
+    var thisB = this;
+    this.browser.getStore( 'refseqs', function( refStore ) {
+        var q = { limit: 1 };
+        if( initialLoc )
+            q.name = initialLoc.ref;
+        refStore.getRefSeqMeta(
+            q,
+            function(ref) {
+                thisB._finishInitialization( args, ref );
+                thisB.setLocation( ref, ref.start, ref.end );
+                thisB.initialized.resolve();
+            },
+            function() {},
+            function(e) { console.error(e); }
+        );
+    });
+},
+
+_finishInitialization: function( args, refseq ) {
+
+    //the reference sequence
+    this.ref = refseq;
 
     // we have a separate zoomContainer as a child of the scrollContainer.
     // they used to be the same element, but making zoomContainer separate
@@ -129,10 +154,10 @@ constructor: function( args ) {
     this.outerTrackContainer.appendChild( this.trackContainer );
 
     //width, in pixels of the "regular" (not min or max zoom) stripe
-    this.regularStripe = stripeWidth;
+    this.regularStripe = this.stripeWidth;
 
     //width, in pixels, of stripes at full zoom, is 10bp
-    this.fullZoomStripe = stripeWidth/10 * this.maxPxPerBp;
+    this.fullZoomStripe = this.stripeWidth/10 * this.maxPxPerBp;
 
     this.tracks = [];
     this.uiTracks = [];
@@ -151,6 +176,8 @@ constructor: function( args ) {
     //smallest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the left end of the ref seq
     this.minLeft = this.bpToPx(this.ref.start);
+
+
     //distance, in pixels, between each track
     this.trackPadding = 20;
     //extra margin to draw around the visible area, in multiples of the visible area
@@ -252,12 +279,12 @@ constructor: function( args ) {
     this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
 
     // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
-    dojo.forEach(this.uiTracks, function(track) {
-        track.showRange(0, this.stripeCount - 1,
-                        Math.round(this.pxToBp(this.offset)),
-                        Math.round(this.stripeWidth / this.pxPerBp),
-                        this.pxPerBp);
-    }, this);
+    // dojo.forEach(this.uiTracks, function(track) {
+    //     track.showRange(0, this.stripeCount - 1,
+    //                     Math.round(this.pxToBp(this.offset)),
+    //                     Math.round(this.stripeWidth / this.pxPerBp),
+    //                     this.pxPerBp);
+    // }, this);
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
@@ -281,6 +308,9 @@ _defaultConfig: function() {
  * @returns {Object} containing ref, start, and end members for the currently displayed location
  */
 visibleRegion: function() {
+    if( ! this.ref )
+        return null;
+
     return {
                ref:   this.ref.name,
                start: this.minVisible(),
@@ -956,13 +986,13 @@ setLocation: function(refseq, startbp, endbp) {
         endbp = refseq.end;
 
     if (this.ref != refseq) {
-    this.ref = refseq;
+        this.ref = refseq;
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
-    var removeTrack = function(track) {
+        var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
-    };
-    dojo.forEach(this.tracks, removeTrack);
+        };
+        dojo.forEach(this.tracks, removeTrack);
 
         this.tracks = [];
         this.trackIndices = {};
@@ -1109,16 +1139,25 @@ onCoarseMove: function( startbp, endbp ) {
 
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
+
+    var currRegion = { start: startbp, end: endbp, ref: this.ref.name };
+
+    // send out a message notifying of the move
+    this.browser.publish( '/jbrowse/v1/n/navigate', currRegion );
 },
 
 /**
  * Hook to be called on a window resize.
  */
 onResize: function() {
-    this.sizeInit();
-    this.showVisibleBlocks();
-    this.showFine();
-    this.showCoarse();
+    var thisB = this;
+    this.initialized.then(
+        function() {
+            thisB.sizeInit();
+            thisB.showVisibleBlocks();
+            thisB.showFine();
+            thisB.showCoarse();
+        });
 },
 
 /**
@@ -1752,17 +1791,19 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
  * objects to add
  */
 showTracks: function( trackConfigs ) {
-    // filter out any track configs that are already displayed
-    var needed = dojo.filter( trackConfigs, function(conf) {
-        return this._getTracks( [conf.label] ).length == 0;
-    },this);
-    if( ! needed.length ) return;
+    this.initialized.then( dojo.hitch( this, function() {
+        // filter out any track configs that are already displayed
+        var needed = dojo.filter( trackConfigs, function(conf) {
+            return this._getTracks( [conf.label] ).length == 0;
+        },this);
+        if( ! needed.length ) return;
 
-    // insert the track configs into the trackDndWidget ( the widget
-    // will call create() on the confs to render them)
-    this.trackDndWidget.insertNodes( false, needed );
+        // insert the track configs into the trackDndWidget ( the widget
+        // will call create() on the confs to render them)
+        this.trackDndWidget.insertNodes( false, needed );
 
-    this.updateTrackList();
+        this.updateTrackList();
+    }));
 },
 
 /**

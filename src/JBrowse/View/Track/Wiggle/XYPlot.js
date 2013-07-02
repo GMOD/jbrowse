@@ -141,7 +141,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 typeof this.config.variance_band == 'object'
                     ? array.map( this.config.variance_band, function(v) { return parseFloat(v); } ).sort().reverse()
                     : [ 2, 1 ];
-            this.getGlobalStats( dojo.hitch( this, function( stats ) {
+            this.getRegionStats( this.refSeq, dojo.hitch( this, function( stats ) {
                 if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                     var drawVarianceBand = function( plusminus, fill, label ) {
                         context.fillStyle = fill;

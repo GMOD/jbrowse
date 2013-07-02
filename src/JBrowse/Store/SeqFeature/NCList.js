@@ -63,6 +63,9 @@ return declare( SeqFeatureStore,
     },
 
     getDataRoot: function( refName ) {
+        if( ! refName )
+            throw new Error('no refname given');
+
         if( ! this._deferred.root || this.curRefName != refName ) {
             var d = this._deferred.root = new Deferred();
             this.curRefName = refName;
@@ -90,9 +93,10 @@ return declare( SeqFeatureStore,
 
     _handleTrackInfo: function( refData, trackInfo, url ) {
         refData.stats = {
-            featureCount: trackInfo.featureCount,
-            featureDensity: trackInfo.featureCount / this.refSeq.length
+            featureCount: trackInfo.featureCount
         };
+        if( 'featureDensity' in trackInfo )
+            refData.stats.featureDensity = trackInfo.featureDensity;
 
         refData.attrs = new ArrayRepr( trackInfo.intervals.classes );
         this.loadNCList( refData, trackInfo, url );
@@ -110,7 +114,7 @@ return declare( SeqFeatureStore,
     },
 
     getGlobalStats: function( successCallback, errorCallback ) {
-        return ( this._deferred.root || this.getDataRoot( this.browser.refSeq.name ) )
+        return ( this._deferred.root || this.getDataRoot( this.genomeView.ref.name ) )
                    .then( function( data ) { successCallback( data.stats ); },
                           errorCallback
                         );
@@ -118,7 +122,9 @@ return declare( SeqFeatureStore,
 
     getRegionStats: function( query, successCallback, errorCallback ) {
         this.getDataRoot( query.ref )
-            .then( function( data ) { successCallback( data.stats ); },
+            .then( function( data ) {
+                       successCallback( data.stats );
+                   },
                    errorCallback
                  );
     },

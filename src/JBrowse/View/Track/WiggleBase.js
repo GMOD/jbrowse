@@ -61,7 +61,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
             return this.getRegionStats.call( this, this.browser.view.visibleRegion(), callback, errorCallback );
         }
         else {
-            return this.getGlobalStats.apply( this, arguments );
+            return this.getRegionStats.apply( this, [ this.refSeq ].concat(arguments) );
         }
     },
 
@@ -70,7 +70,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     getGlobalStats: function( successCallback, errorCallback ) {
-        this.store.getGlobalStats( successCallback, errorCallback );
+        this.store.getRegionStats( this.refSeq, successCallback, errorCallback );
     },
 
     getRegionStats: function( region, successCallback, errorCallback ) {

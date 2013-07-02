@@ -253,13 +253,13 @@ return declare( null, {
         return opts;
     },
 
-    _canExportRegion: function( l ) {
+    _canExportRegion: function( region ) {
         //console.log('can generic export?');
-        if( ! l ) return false;
+        if( ! region ) return false;
 
         // if we have a maxExportSpan configured for this track, use it.
         if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
-            return l.end - l.start + 1 <= this.config.maxExportSpan;
+            return region.end - region.start + 1 <= this.config.maxExportSpan;
         }
         else {
             // if we know the store's feature density, then use that with
@@ -267,11 +267,11 @@ return declare( null, {
             var thisB = this;
             var storeStats = {};
             // will return immediately if the stats are available
-            this.store.getGlobalStats( function( s ) {
+            this.store.getRegionStats( region, function( s ) {
                 storeStats = s;
             });
             if( storeStats.featureDensity ) {
-                return storeStats.featureDensity*(l.end - l.start) <= ( thisB.config.maxExportFeatures || 5000 );
+                return storeStats.featureDensity*(region.end - region.start) <= ( thisB.config.maxExportFeatures || 5000 );
             }
         }
 

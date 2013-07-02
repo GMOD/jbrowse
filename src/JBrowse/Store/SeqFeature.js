@@ -23,20 +23,6 @@ return declare( Store,
     },
 
     /**
-     * Fetch global statistics the features in this store.
-     *
-     * @param {Function} successCallback(stats) callback to receive the
-     *   statistics.  called with one argument, an object containing
-     *   attributes with various statistics.
-     * @param {Function} errorCallback(error) in the event of an error, this
-     *   callback will be called with one argument, which is anything
-     *   that can stringify to an error message.
-     */
-    getGlobalStats: function( callback, errorCallback ) {
-        callback( this.globalStats || {} );
-    },
-
-    /**
      * Fetch statistics about the features in a specific region.
      *
      * @param {String} query.ref    the name of the reference sequence

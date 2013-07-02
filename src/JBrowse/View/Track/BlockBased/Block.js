@@ -15,9 +15,9 @@ return declare( Destroyable, {
         this.domNode = dojo.create( 'div', nodeArgs );
 
         if( /[^\d-]/.test( this.startBase ) )
-            throw 'invalid startBase';
+            throw 'invalid startBase '+this.startBase;
         if( /[^\d-]/.test( this.endBase ) )
-            throw 'invalid endBase';
+            throw 'invalid endBase '+this.endBase;
 
     },
 

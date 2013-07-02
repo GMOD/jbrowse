@@ -349,10 +349,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var region = { ref: this.refSeq.name, start: leftBase, end: rightBase };
 
-        this.store.getGlobalStats(
+        this.store.getRegionStats(
+            { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end },
             dojo.hitch( this, function( stats ) {
 
-                var density        = stats.featureDensity;
+                var density        = stats.featureDensity || ( stats.featureDensity = stats.featureCount / (this.refSeq.end - this.refSeq.start) );
                 var histScale      = this.config.style.histScale    || density * this.config.style._defaultHistScale;
                 var featureScale   = this.config.style.featureScale || density / this.config.maxFeatureScreenDensity; // (feat/bp) / ( feat/px ) = px/bp )
 

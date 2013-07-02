@@ -1,9 +1,18 @@
 define( [ 'dojo/_base/declare',
+          'dojo/request/xhr',
+          'dojo/Deferred',
           'JBrowse/Store/SeqFeature',
           'JBrowse/Util',
           'JBrowse/Digest/Crc32'
         ],
-        function( declare, SeqFeatureStore, Util, Crc32 ) {
+        function(
+            declare,
+            xhr,
+            Deferred,
+            SeqFeatureStore,
+            Util,
+            Crc32
+        ) {
 
 var Feature = Util.fastDeclare({
     constructor: function(args) {
@@ -45,6 +54,38 @@ return declare( SeqFeatureStore,
         this.seqChunkSize = args.seqChunkSize;
     },
 
+    _getRefSeqsInfo: function() {
+        return this._refSeqsInfo || function() {
+            return this._refSeqsInfo =
+                xhr.get( this.config.refSeqs || this.browser.config.refSeqs, { handleAs: 'json' } )
+                   .then( function( r ) {
+                              var refsByName = {};
+                              for( var i = 0; i<r.length; i++ ) {
+                                  refsByName[r[i].name] = r[i];
+                              }
+                              return refsByName;
+                          });
+        }.call(this);
+    },
+
+    getRefSeqMeta: function( query, refSeqCallback, finishCallback, errorCallback ) {
+        this._getRefSeqsInfo().then( function( refSeqs ) {
+            if( 'name' in query ) {
+                refSeqCallback( refSeqs[ query.name ] );
+                finishCallback();
+            }
+            else {
+                var limit = query.limit || Infinity;
+                for( var n in refSeqs ) {
+                    refSeqCallback( refSeqs[n] );
+                    if( ! --limit )
+                        break;
+                }
+                finishCallback();
+            }
+        });
+    },
+
     getFeatures: function( query, callback, endCallback, errorCallback ) {
 
         errorCallback = errorCallback || function(e) { console.error(e); };
@@ -52,7 +93,7 @@ return declare( SeqFeatureStore,
         var start = query.start;
         var end   = query.end;
         var seqname    = query.ref;
-        var chunkSize  = query.seqChunkSize || this.refSeq.name == query.ref && this.refSeq.seqChunkSize || this.seqChunkSize;
+        var chunkSize  = query.seqChunkSize || this.refSeq && this.refSeq.name == query.ref && this.refSeq.seqChunkSize || this.seqChunkSize;
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );
 
@@ -131,32 +172,30 @@ return declare( SeqFeatureStore,
                     }
                 );
 
-                dojo.xhrGet({
-                                url: sequrl + i + ".txt" + ( this.compress ? 'z' : '' ),
-                                load: dojo.hitch( this, function( chunkRecord, response ) {
-                                                      //console.log('response for chunk '+chunkRecord.num);
-                                                      chunkRecord.sequence = response;
-                                                      chunkRecord.loaded = true;
-                                                      dojo.forEach( chunkRecord.callbacks, function(ci) {
-                                                                        ci.success( ci.start,
-                                                                                    ci.end,
-                                                                                    response.substring( ci.start - chunkRecord.num*chunkSize,
-                                                                                                        ci.end   - chunkRecord.num*chunkSize
-                                                                                                      ),
-                                                                                    i
-                                                                                   );
-                                                                    });
-                                                      delete chunkRecord.callbacks;
-
-                                                  }, chunkCacheForSeq[i] ),
-                                error: dojo.hitch( this, function( chunkRecord, error ) {
-                                    chunkRecord.error = error;
-                                    dojo.forEach( chunkRecord.callbacks, function(ci) {
-                                        ci.error( error );
-                                    });
-                                    delete chunkRecord.callbacks;
-                                }, chunkCacheForSeq[i])
-                            });
+                xhr.get( sequrl + i + ".txt" + ( this.compress ? 'z' : '' ) )
+                        .then( dojo.hitch( this, function( chunkRecord, response ) {
+                                               //console.log('response for chunk '+chunkRecord.num);
+                                               chunkRecord.sequence = response;
+                                               chunkRecord.loaded = true;
+                                               dojo.forEach( chunkRecord.callbacks, function(ci) {
+                                                                 ci.success( ci.start,
+                                                                             ci.end,
+                                                                             response.substring( ci.start - chunkRecord.num*chunkSize,
+                                                                                                 ci.end   - chunkRecord.num*chunkSize
+                                                                                               ),
+                                                                             i
+                                                                           );
+                                                             });
+                                               delete chunkRecord.callbacks;
+                                           }, chunkCacheForSeq[i] ),
+                               dojo.hitch( this, function( chunkRecord, error ) {
+                                               chunkRecord.error = error;
+                                               dojo.forEach( chunkRecord.callbacks, function(ci) {
+                                                                 ci.error( error );
+                                                             });
+                                               delete chunkRecord.callbacks;
+                                           }, chunkCacheForSeq[i])
+                             );
             }
         }
     }

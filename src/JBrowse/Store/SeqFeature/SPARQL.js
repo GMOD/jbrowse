@@ -44,10 +44,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
                                { 'refseq': this.refSeq.name }
                              )
         );
-        this.queryTemplate = args.queryTemplate;
-        if( ! this.queryTemplate ) {
-            console.error("No queryTemplate set for SPARQL backend, no data will be displayed");
+        this.featureQueryTemplate = args.featureQueryTemplate || args.queryTemplate;
+        if( ! this.featureQueryTemplate ) {
+            console.error("No featureQueryTemplate set for SPARQL backend, no data will be displayed");
         }
+
+        this.refSeqQueryTemplate = args.refSeqQueryTemplate;
 
         var thisB = this;
         this._estimateGlobalStats()
@@ -70,27 +72,32 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
     //     });
     // },
 
-    _makeQuery: function( query ) {
-        return Util.fillTemplate( this.queryTemplate, query );
+    _makeFeatureQuery: function( templateVars ) {
+        return Util.fillTemplate( this.featureQueryTemplate, templateVars );
     },
 
     _getFeatures: function() {
         this.getFeatures.apply( this, arguments );
     },
 
-    getFeatures: function( query, featCallback, finishCallback, errorCallback ) {
-        if( this.queryTemplate ) {
+    _executeQuery: function( sparqlQuery ) {
+        var qvars = lang.clone( this.config.queryVariables || {} );
+        qvars.query = sparqlQuery;
+        return xhr.get(
+            this.url+'?'+ioQuery.objectToQuery( qvars ),
+            {
+                headers: { "Accept": "application/json" },
+                handleAs: "json",
+                failOk: true
+            });
+    },
+
+    getFeatures: function( fquery, featCallback, finishCallback, errorCallback ) {
+        if( this.featureQueryTemplate ) {
             var thisB = this;
-            xhr.get( this.url+'?'+ioQuery.objectToQuery({
-                                                            query: this._makeQuery( query )
-                                                        }),
-                     {
-                          headers: { "Accept": "application/json" },
-                          handleAs: "json",
-                          failOk: true
-                     })
-                .then( function(o) {
-                           thisB._resultsToFeatures( o, featCallback );
+            this._executeQuery( this._makeFeatureQuery( fquery ) )
+                .then( function( data ) {
+                           thisB._resultsToFeatures( data, featCallback );
                            finishCallback();
                        },
                        lang.hitch( this, '_failAllDeferred' )
@@ -100,10 +107,26 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
         }
     },
 
-    _resultsToFeatures: function( results, featCallback ) {
+    _forRows: function( results, rowCallback ) {
         var rows = ((results||{}).results||{}).bindings || [];
-        if( ! rows.length )
+        if( ! rows.length ) {
             return;
+        }
+
+        var fields = results.head.vars;
+
+        for( var i = 0; i<rows.length; i++ ) {
+            var row = rows[i];
+            for( var j = 0; j<fields.length; j++ ) {
+                var item = {};
+                if( field in row )
+                    item[field] = row[field].value;
+                rowCallback( item );
+            }
+        }
+    },
+
+    _resultsToFeatures: function( results, featCallback ) {
         var fields = results.head.vars;
         var requiredFields = ['start','end','strand','uniqueID'];
         for( var i = 0; i<requiredFields.length; i++ ) {
@@ -112,24 +135,17 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
                 return;
             }
         };
+
         var seenFeatures = {};
-        array.forEach( rows, function( row ) {
-
-            var f = { data: { subfeatures: [] } };
-
-            var data = f.data;
-            array.forEach( fields, function(field) {
-                if( field in row )
-                    data[field] = row[field].value;
-            });
+        this._forRows( results, function( data ) {
             data.start = parseInt( data.start );
             data.end = parseInt( data.end );
             data.strand = parseInt( data.strand );
+            data.subfeatures = [];
 
             var id = data.uniqueID;
             delete data.uniqueID;
-            f.id = id;
-            seenFeatures[ id ] = f;
+            seenFeatures[ id ] = { data: data, id: id };
         },this);
 
         // resolve subfeatures, keeping only top-level features in seenFeatures
@@ -149,8 +165,28 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
         for( var id in seenFeatures ) {
             featCallback( new SimpleFeature( seenFeatures[id] ) );
         }
-    }
-});
+    },
 
+    getRefSeqMetadata: function( query, refSeqCallback, finishCallback, errorCallback ) {
+        var sparql = this._makeRefSeqQuery( query );
+        if( ! sparql ) {
+            finishCallback();
+            return;
+        }
+
+        var thisB = this;
+        this._executeQuery( sparql )
+            .then( function( data ) {
+                       thisB._forRows( data, refSeqCallback );
+                       finishCallback();
+                   }
+                 );
+    },
+
+    _makeRefSeqQuery: function( templateVars ) {
+        return this.refSeqQueryTemplate && Util.fillTemplate( this.refSeqQueryTemplate, templateVars );
+    }
+
+});
 });
 

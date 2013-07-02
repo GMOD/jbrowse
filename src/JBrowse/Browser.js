@@ -83,21 +83,8 @@ var dojof = Util.dojof;
  * Construct a new Browser object.
  * @class This class is the main interface between JBrowse and embedders
  * @constructor
- * @param params an object with the following properties:<br>
- * <ul>
- * <li><code>config</code> - list of objects with "url" property that points to a config JSON file</li>
- * <li><code>containerID</code> - ID of the HTML element that contains the browser</li>
- * <li><code>refSeqs</code> - object with "url" property that is the URL to list of reference sequence information items</li>
- * <li><code>browserRoot</code> - (optional) URL prefix for the browser code</li>
- * <li><code>tracks</code> - (optional) comma-delimited string containing initial list of tracks to view</li>
- * <li><code>location</code> - (optional) string describing the initial location</li>
- * <li><code>defaultTracks</code> - (optional) comma-delimited string containing initial list of tracks to view if there are no cookies and no "tracks" parameter</li>
- * <li><code>defaultLocation</code> - (optional) string describing the initial location if there are no cookies and no "location" parameter</li>
- * <li><code>show_nav</code> - (optional) string describing the on/off state of navigation box</li>
- * <li><code>show_tracklist</code> - (optional) string describing the on/off state of track bar</li>
- * </ul>
+ * @param params an object with initial configuration
  */
-
 return declare( FeatureFiltererMixin, {
 
 constructor: function(params) {
@@ -131,17 +118,8 @@ constructor: function(params) {
                 thisB.loadUserCSS().then( function() {
 
                     thisB.initTrackMetadata();
-                    thisB.loadRefSeqs().then( function() {
-
-                       // figure out our initial location
-                       var initialLocString = thisB._initialLocation();
-                       var initialLoc = Util.parseLocString( initialLocString );
-                       this.refSeq = initialLoc && initialLoc.ref || this.refSeq;
-
-                       thisB.initView().then( function() {
+                    thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
-                           if( initialLocString )
-                               thisB.navigateTo( initialLocString );
 
                            // figure out what initial track list we will use:
                            //    from a param passed to our instance, or from a cookie, or
@@ -157,28 +135,10 @@ constructor: function(params) {
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
                        thisB.reportUsageStats();
-                    });
                 });
             });
         });
     });
-},
-
-_initialLocation: function() {
-    var oldLocMap = dojo.fromJson( this.cookie('location') ) || {};
-    if( this.config.location ) {
-        return this.config.location;
-    } else if( oldLocMap[this.refSeq.name] ) {
-        return oldLocMap[this.refSeq.name].l || oldLocMap[this.refSeq.name];
-    } else if( this.config.defaultLocation ){
-        return this.config.defaultLocation;
-    } else {
-        return Util.assembleLocString({
-                                          ref:   this.refSeq.name,
-                                          start: 0.4 * ( this.refSeq.start + this.refSeq.end ),
-                                          end:   0.6 * ( this.refSeq.start + this.refSeq.end )
-                                      });
-    }
 },
 
 version: function() {
@@ -343,27 +303,6 @@ fatalError: function( error ) {
         var errors_div = dojo.byId('fatal_error_list') || document.body;
         dojo.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
     }
-},
-
-loadRefSeqs: function() {
-    return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
-        // load our ref seqs
-        if( typeof this.config.refSeqs == 'string' )
-            this.config.refSeqs = { url: this.config.refSeqs };
-        dojo.xhrGet(
-            {
-                url: this.config.refSeqs.url,
-                handleAs: 'json',
-                load: dojo.hitch( this, function(o) {
-                    this.addRefseqs( o );
-                    deferred.resolve({success:true});
-                }),
-                error: dojo.hitch( this, function(e) {
-                    this.fatalError('Failed to load reference sequence info: '+e);
-                    deferred.resolve({ success: false, error: e });
-                })
-            });
-    });
 },
 
 /**
@@ -609,6 +548,9 @@ initView: function() {
         var contentWidget =
             new dijitContentPane({region: "top"}, topPane);
 
+        var initialLocString = this._initialLocation();
+        var initialLoc = Util.parseLocString( initialLocString );
+
         // hook up GenomeView
         this.view =
             new GenomeView(
@@ -616,8 +558,8 @@ initView: function() {
                   elem: this.viewElem,
                   config: this.config.view,
                   stripeWidth: 250,
-                  refSeq: this.refSeq,
-                  zoomLevel: 1/200
+                  zoomLevel: 1/200,
+                  initialLocation: initialLocString
                 });
 
         dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
@@ -638,26 +580,32 @@ initView: function() {
         this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateLocationBar );
 
         //set initial location
-        this.afterMilestone( 'loadRefSeqs', dojo.hitch( this, function() {
-            this.afterMilestone( 'initTrackMetadata', dojo.hitch( this, function() {
-                this.createTrackList().then( dojo.hitch( this, function() {
+        this.createTrackList().then( dojo.hitch( this, function() {
+            this.containerWidget.startup();
 
-                    this.containerWidget.startup();
-                    this.onResize();
-                    this.view.onResize();
+            // make our global keyboard shortcut handler
+            on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
 
-                    // make our global keyboard shortcut handler
-                    on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
+            // configure our event routing
+            this._initEventRouting();
 
-                    // configure our event routing
-                    this._initEventRouting();
-
-                    // done with initView
-                    deferred.resolve({ success: true });
-               }));
-            }));
-        }));
+            // done with initView
+            deferred.resolve({ success: true });
+      }));
     });
+},
+
+_initialLocation: function() {
+    var oldLoc = dojo.fromJson( this.cookie('location') ) || '';
+    if( this.config.location ) {
+        return this.config.location;
+    } else if( oldLoc ) {
+        return oldLoc;
+    } else if( this.config.defaultLocation ){
+        return this.config.defaultLocation;
+    } else {
+        return null;
+    }
 },
 
 renderDatasetSelect: function( parent ) {
@@ -1016,8 +964,7 @@ getStore: function( storeName, callback ) {
                  dojo.mixin( storeArgs,
                              {
                                  config: conf,
-                                 browser: this,
-                                 refSeq: this.refSeq
+                                 browser: this
                              });
 
                  var store = new storeClass( storeArgs );
@@ -1077,22 +1024,6 @@ _calculateClientStats: function() {
     var date = new Date();
     var stats = {
         ver: this.version || 'dev',
-        'refSeqs-count': this.refSeqOrder.length,
-        'refSeqs-avgLen':
-          ! this.refSeqOrder.length
-            ? null
-            : dojof.reduce(
-                dojo.map( this.refSeqOrder,
-                          function(name) {
-                              var ref = this.allRefs[name];
-                              if( !ref )
-                                  return 0;
-                              return ref.end - ref.start;
-                          },
-                          this
-                        ),
-                '+'
-            ),
         'tracks-count': this.config.tracks.length,
         'plugins': dojof.keys( this.plugins ).sort().join(','),
 
@@ -1254,7 +1185,7 @@ loadConfig: function () {
 
                 // coerce some config keys to boolean
                 dojo.forEach( ['show_tracklist','show_nav'], function(v) {
-                                  this.config[v] = this._coerceBoolean( this.config[v] );
+                                  this.config[v] = Util.coerceBoolean( this.config[v] );
                               },this);
 
                // set empty tracks array if we have none
@@ -1337,79 +1268,6 @@ _configDefaults: function() {
         show_tracklist: true,
         show_nav: true
     };
-},
-
-/**
- * Coerce a value of unknown type to a boolean, treating string 'true'
- * and 'false' as the values they indicate, and string numbers as
- * numbers.
- * @private
- */
-_coerceBoolean: function(val) {
-    if( typeof val == 'string' ) {
-        val = val.toLowerCase();
-        if( val == 'true' ) {
-            return true;
-        }
-        else if( val == 'false' )
-            return false;
-        else
-            return parseInt(val);
-    }
-    else if( typeof val == 'boolean' ) {
-        return val;
-    }
-    else if( typeof val == 'number' ) {
-        return !!val;
-    }
-    else {
-        return true;
-    }
-},
-
-/**
- * @param refSeqs {Array} array of refseq records to add to the browser
- */
-addRefseqs: function( refSeqs ) {
-    var allrefs = this.allRefs = this.allRefs || {};
-    dojo.forEach( refSeqs, function(r) {
-        this.allRefs[r.name] = r;
-    },this);
-
-    // generate refSeqOrder
-    this.refSeqOrder =
-        function() {
-            var order;
-            if( ! this.config.refSeqOrder ) {
-                order = refSeqs;
-            }
-            else {
-                order = refSeqs.slice(0);
-                order.sort(
-                    this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
-                    this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
-                    this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
-                                                                     function( a, b ) { return a.name.localeCompare( b.name ); }
-                );
-            }
-            return array.map( order, function( r ) {
-                                  return r.name;
-                              });
-        }.call(this);
-
-    this.refSeq = this.refSeq || this.allRefs[ this.refSeqOrder[0] ];
-},
-
-
-getCurrentRefSeq: function( name, callback ) {
-    return this.refSeq || {};
-},
-
-getRefSeq: function( name, callback ) {
-    if( typeof name != 'string' )
-        name = this.refSeqOrder[0];
-
-    callback( this.allRefs[ name ] );
 },
 
 /**
@@ -1921,15 +1779,6 @@ makeFullViewLink: function () {
  */
 
 onCoarseMove: function(startbp, endbp) {
-
-    var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
-
-    if( this.reachedMilestone('completely initialized') ) {
-        this._updateLocationCookies( currRegion );
-    }
-
-    // send out a message notifying of the move
-    this.publish( '/jbrowse/v1/n/navigate', currRegion );
 },
 
 /**
@@ -1997,7 +1846,7 @@ _limitLocMap: function( locMap, maxEntries ) {
  * @returns the new value of the cookie, same as dojo.cookie
  */
 cookie: function() {
-    arguments[0] = this.config.containerID + '-' + arguments[0];
+    arguments[0] = 'JBrowse-'+this.config.containerID + '-' + arguments[0];
     if( typeof arguments[1] == 'object' )
         arguments[1] = dojo.toJson( arguments[1] );
 
@@ -2040,6 +1889,9 @@ _updateHighlightClearButton: function() {
     }
 },
 
+getRefSeqSelectorMaxSize: function() {
+    return this.config.refSeqSelectorMaxSize || 30;
+},
 
 clearHighlight: function() {
     if( this._highlight ) {

@@ -24,6 +24,8 @@
     // uncomment to change the default sort order of the reference sequence dropdown
     // refSeqOrder: 'length descending',
 
+    logMessages: true,
+
     datasets: {
         volvox:    { url: '?data=sample_data/json/volvox', name: 'Volvox Example' },
         modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },

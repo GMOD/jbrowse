@@ -26,6 +26,34 @@ Util = {
 
 
     /**
+     * Coerce a value of unknown type to a boolean, treating string 'true'
+     * and 'false' as the values they indicate, and string numbers as
+     * numbers.
+     * @private
+     */
+    coerceBoolean: function(val) {
+        if( typeof val == 'string' ) {
+            val = val.toLowerCase();
+            if( val == 'true' ) {
+                return true;
+            }
+            else if( val == 'false' )
+            return false;
+            else
+                return parseInt(val);
+        }
+        else if( typeof val == 'boolean' ) {
+            return val;
+        }
+        else if( typeof val == 'number' ) {
+            return !!val;
+        }
+        else {
+            return true;
+        }
+    },
+
+    /**
      * Fast, simple class-maker, used for classes that need speed more
      * than they need dojo.declare's nice features.
      */
@@ -297,6 +325,9 @@ Util = {
     },
 
     assembleLocString: function( loc_in ) {
+        if( ! loc_in )
+            return null;
+
         var s = '',
         types = { start: 'number', end: 'number', ref: 'string', strand: 'number' },
         location = {}
