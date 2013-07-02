@@ -9,8 +9,10 @@ define([
 	function(declare, Dialog, RadioButton, Button, dom, TreeNode) { 
 		return declare(null, {
 
+			// Produces a dialog box in which a user may enter settings for how they would like to combine tracks in a Combination Track.
+			
 			constructor: function( args ) {
-
+				
 				this.newTrackKey = args.trackConfig ? args.trackConfig.key : args.key;
 				this.track = args.track;
 				this.newStore = args.store;
@@ -110,7 +112,8 @@ define([
 							}
 						});
 					}
-					if(maskOps[0]) this.maskOpButtons[0].set('checked', 'checked');
+					if(maskOps[0])
+						this.maskOpButtons[0].set('checked', 'checked');
 				} else if(maskOps.length == 1) {
 					this.maskOpValue = maskOps[0];
 					this._generateSuffixRadioButtons(maskOps[0], opList, store);
@@ -124,7 +127,8 @@ define([
 			},
 
 			_createActionBar: function (addingEnabled) {
-				if(addingEnabled === undefined) addingEnabled = true;
+				if(addingEnabled === undefined)
+					addingEnabled = true;
 				var actionBar = dom.create("div", { className: "dijitDialogPaneActionBar"});
 				new Button({
 					iconClass: 'dijitIconDelete',
@@ -145,7 +149,8 @@ define([
 
 				btnCombine.placeAt(actionBar);
 
-				if(!addingEnabled) btnCombine.set("disabled", "disabled");
+				if(!addingEnabled)
+					btnCombine.set("disabled", "disabled");
 				return actionBar;
 			},
 
@@ -218,7 +223,9 @@ define([
 			_generateSuffixList: function(prefix, stringlist) {
 				return stringlist.filter(function(value) {
 					return value.indexOf(prefix) != -1;
-				}).map(function(item) { return item.substring(prefix.length, prefix.length + 1); });
+				}).map(function(item) {
+					return item.substring(prefix.length, prefix.length + 1);
+				});
 			},
 
 			_createPreviewTree: function (opString, store ) {
@@ -266,7 +273,8 @@ define([
 				}
 
 				var opNode= this._transformTree(opString.substring(2), opTree1, opTree2);
-				if(childToUse == undefined) return opNode;
+				if(childToUse == undefined)
+					return opNode;
 
 				retTree[childToUse] = opNode;
 				return retTree;
@@ -373,13 +381,16 @@ define([
 				this.dialog.show();
 				var thisB = this;
 				this.dialog.on("Hide", function() {
-					if(thisB.shouldCombine) callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType);
+					if(thisB.shouldCombine)
+						callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType);
 					else cancelCallback();
 				});
 			},
 
 			_generateTreeFormula: function(tree) {
-				if(!tree || tree === undefined){ return "NULL";}
+				if(!tree || tree === undefined){
+					return "NULL";
+				}
 				if(tree.isLeaf()){
 					return "\"" + (tree.get().name ? (this.track.storeToKey[tree.get().name] ? this.track.storeToKey[tree.get().name] : tree.get().name)
 					 : tree.get()) + "\"";

@@ -13,19 +13,17 @@ define([
 
 return declare([CombinationBaseStore], {
 
+// An implementation of CombinationBase that deals with set-type features (without score, as in HTMLFeatures tracks).
+// Usual operations are things like intersection, union, set subtraction and XOR.
+
+// Calculates featureCount and featureDensity from the featureArray
 _setGlobalStats: function() {
     this.globalStats.featureCount = this.featureArray.length;
     this.globalStats.featureDensity = this.featureArray.length/this.refSeq.length;
     this._deferred.stats.resolve(true);
 },
 
-// Inherits getGlobalStats and getRegionStats from the superclasses.  
-// If we want any region stats or any global stats other than featureCount and featureDensity,
-// We'll have to add them into this file later.
-// Regional stats would be added by combining the "score" features of the underlying stores and
-// using the combined data to create a "score" feature for each of the features in this.featureArray.
-
-
+// Creates features from spans.  Essentially copies the basic span information and adds a feature id.
 createFeatures: function(spans) {
     var features = [];
     //Validate this next time...
@@ -38,6 +36,7 @@ createFeatures: function(spans) {
 
 
 // Defines the various set-theoretic operations that may occur and assigns each to a span-making function.
+// Passes the two sets of spans to the appropriate operator function.
 opSpan: function(op, span1, span2, query) {
     switch (op) {
         case "&" :
@@ -59,22 +58,19 @@ opSpan: function(op, span1, span2, query) {
     return undefined;
 },
 
-/* notes for this section: 
-        -A span object contains a "start" and "end". 
-        -The variables "features" and "feature" are often
-         pseudo-features (span objects with endpoints that match real features)
-*/
 
-
+// given a set of features, takes the "union" of them and outputs a single set of nonoverlapping spans
 toSpan: function(features, query) {
-    // given a set of features, takes the "union" of them and outputs a single set of nonoverlapping spans
+    // strip away extra stuff and keep only the relevant feature data
     var rawSpans = this._rawToSpan(features,query);
+
+    // Splits the spans based on which strand they're on, and remove overlap from each strand's spans, recombining at the end.
     return this._removeOverlap(this._strandFilter(rawSpans, +1)).concat(this._removeOverlap(this._strandFilter(rawSpans, -1)));
     
 },
 
 _rawToSpan: function( features, query ) {
-    // given a set of features, makes a set of span objects with the
+    // given a set of features, makes a set of spans with the
     // same start and end points (a.k.a. pseudo-features)
     var spans = [];
     for (var feature in features) {
@@ -86,20 +82,25 @@ _rawToSpan: function( features, query ) {
     return spans;
 },
 
+
+// Filters an array of spans based on which strand of the reference sequence they are attached to
 _strandFilter: function( spans, strand ) {
     return array.filter( spans, function(item) {
                                                 return item.strand == strand || !item.strand;
                                             });
 },
 
+// converts overlapping spans into their union.  Assumes the spans are all on the same strand.
 _removeOverlap: function( spans ) {
-    // converts overlapping spans into their union.  Assumes the spans are all on the same strand.
-    if(!spans.length) return [];
+    if(!spans.length) {
+        return [];
+    }
     spans.sort(function(a,b) { return a.start - b.start; });
     return this._removeOverlapSorted(spans);
     
 },
 
+// Given an array of spans sorted by their start bp, converts them into a single non-overlapping set (ie takes their union).
 _removeOverlapSorted: function( spans ) {
     var retSpans = [];
     var i = 0;
@@ -116,12 +117,13 @@ _removeOverlapSorted: function( spans ) {
     return retSpans;
 },
 
-orSpan: function( span1, span2 ){
     // given two sets of spans without internal overlap, outputs a set corresponding to their union.
+orSpan: function( span1, span2 ){
     return this._computeUnion(this._strandFilter(span1, 1), this._strandFilter(span2, 1))
         .concat(this._computeUnion(this._strandFilter(span1,-1), this._strandFilter(span2,-1)));
 },
 
+    // given two sets of spans without internal overlap, outputs a set corresponding to their intersection
 andSpan: function( span1, span2){
 
     return this._computeIntersection(this._strandFilter(span1, 1), this._strandFilter(span2,1))
@@ -129,17 +131,9 @@ andSpan: function( span1, span2){
 
 },
 
-spanLoop: function( spans ) {
-    var msg = "";
-    for(var span in spans) {
-        msg = msg + spans[span].start + " " + spans[span].end + " " + spans[span].strand + "\n";
-    }
-    if(msg.length > 0) { alert(msg);}
-},
-
-_sortedArrayMerge: function( span1, span2) {
-    // This algorithm should merge two sorted span arrays in O(n) time, which is better
+    // This method should merge two sorted span arrays in O(n) time, which is better
     // then using span1.concat(span2) and then array.sort(), which takes O(n*log(n)) time.
+_sortedArrayMerge: function( span1, span2) {
     var newArray = [];
     var i = 0;
     var j = 0;
@@ -160,13 +154,19 @@ _sortedArrayMerge: function( span1, span2) {
     return newArray;
 },
 
+    // A helper method for computing the union of two arrays of spans.
 _computeUnion: function( span1, span2) {
-    if(!span1.length && !span2.length) return [];
+    if(!span1.length && !span2.length) {
+        return [];
+    }
     return this._removeOverlapSorted(this._sortedArrayMerge(span1,span2));
 },
 
+    // A helper method for computing the intersection of two arrays of spans.
 _computeIntersection: function( span1, span2) {
-    if(!span1.length || !span2.length) return [];
+    if(!span1.length || !span2.length) {
+        return [];
+    }
 
     var allSpans = this._sortedArrayMerge(span1, span2);
     var retSpans = [];
@@ -177,7 +177,9 @@ _computeIntersection: function( span1, span2) {
     while(i < allSpans.length) {
         var start = allSpans[i].start;
         var end = Math.min(allSpans[i].end, maxEnd);
-        if(start < end) retSpans.push({start: start, end: end, strand: strand});
+        if(start < end) {
+            retSpans.push({start: start, end: end, strand: strand});
+        }
         maxEnd = Math.max(allSpans[i].end, maxEnd);
         i++;
     }
@@ -185,12 +187,13 @@ _computeIntersection: function( span1, span2) {
     return retSpans;
 },
 
+// Filters span set by strand, inverts the sets represented on each strand, and recombines.
 notSpan: function( spans, query) {
     return this._rawNotSpan(this._strandFilter(spans, +1), query, +1).concat(this._rawNotSpan(this._strandFilter(spans, -1), query, -1)); 
 },
 
+// Converts a set of spans into its complement in the reference sequence.
 _rawNotSpan: function( spans, query, strand ) {
-    // creates the compliment spans of the input spans
     var invSpan = [];
     invSpan[0] = { start: query.start };
     var i = 0;

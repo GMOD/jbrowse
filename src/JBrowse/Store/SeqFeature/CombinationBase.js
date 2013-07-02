@@ -20,7 +20,7 @@ define([
            Util,
            TreeNode
        ) {
-
+// Helper object that wraps a feature and which store it comes from
 var featureWrapper = Util.fastDeclare(
     {
         get: function( arg ) { 
@@ -51,52 +51,54 @@ var featureWrapper = Util.fastDeclare(
     }
 );
 
-var Keys = function(array) {
-    var keys = []
-    for (var key in array) {
-        if (array.hasOwnProperty(key)) {
-            keys.push(key);
-        }
-    }
-    return keys;
-};
-
 return declare([SeqFeatureStore, DeferredStatsMixin], {
+
+// The base class for combination stores.  A combination store is one that pulls feature data from other stores
+// and combines it according to a binary tree of operations in order to produce new features.
 
 constructor: function( args ) {
 
+    // Objects can access this to know if a given store is a combination store of some kind
     this.isCombinationStore = true;
 
-    // can pass store objects in as args
     this.defaultOp = args.op;
     this.ref = this.config.refSeq;
     
-    if(args.opTree) this.reload(args.opTree);
-    
-    // This code has been stripped of the store promises, since I'm pretty sure we don't need them anymore.
-    // If we do, we'll have to go back to a previous commit to find it.
+    // If constructed with an opTree already included, might as well try to get all the store info from that opTree.
+    if(args.opTree) {
+        this.reload(args.opTree);
+    }
 
 },
 
+// Loads an operation tree (opTree) and gets all features from all stores.  This constructs an array of features that can be
+// easily filtered and returned when getFeatures are called.
+
+// The downside of this approach (e.g. global feature-loading) is it may slow things down substantially for large reference sequences.
 reload: function( optree ) {
     this._deferred.features = new Deferred();
     this._deferred.stats = new Deferred();
     var refSeq;
 
-    //if( !defaultOp) defaultOp = this.defaultOp;
-    if( !optree) optree = new TreeNode({ Value: this.defaultOp});;
-    if( !refSeq) refSeq = this.ref;
+    // Load in opTree
+    if( !optree) {
+        optree = new TreeNode({ Value: this.defaultOp});
+    }
+    if( !refSeq) {
+        refSeq = this.ref;
+    }
     this.opTree = optree;
     this.stores = optree.getLeaves() || [];
 
-    for(var store in this.stores) if(!this.stores[store].name) this.stores = [];
-    var thisB = this;
-    
-    // check if there are stores
-    if (!Keys(thisB.stores).length) {
-        //thisB._deferred.features.reject(" No stores were loaded.");
+    // If any of the stores doesn't have a name, then something weird is happening...
+    for(var store in this.stores) {
+        if(!this.stores[store].name) {
+            this.stores = [];
+        }
     }
+    var thisB = this;
 
+    // featureArrays will be a map from the names of the stores to an array of each store's features
     var featureArrays = {};
 
     this.globalQuery =   {
@@ -104,7 +106,7 @@ reload: function( optree ) {
                             start: refSeq.start,
                             end: refSeq.end
                         };
-
+    // Generate map
     var fetchAllFeatures = thisB.stores.map(
         function (store) {
             var d = new Deferred();
@@ -124,31 +126,24 @@ reload: function( optree ) {
             return d.promise;
         }
     );
-        
+    
+    // Once we have all features, combine them according to the operation tree and create new features based on them.
     when( all( fetchAllFeatures ), function() {
         // Create a set of spans based on the evaluation of the operation tree
-        thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, this.globalQuery);
+        thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, thisB.globalQuery);
         thisB.featureArray = thisB.createFeatures(thisB.spans);
         thisB._deferred.features.resolve(true);
     });
+    // Set global stats once we have all features.
     this._deferred.features.promise.then(dojo.hitch(this, '_setGlobalStats'));
 
     return all([this._deferred.stats, this._deferred.features]);
 },
 
-
-// Inherits getGlobalStats and getRegionStats from the superclasses.  
-// If we want any region stats or any global stats other than featureCount and featureDensity,
-// We'll have to add them into this file later.
-// Regional stats would be added by combining the "score" features of the underlying stores and
-// using the combined data to create a "score" feature for each of the features in this.featureArray.
-
-
-
+// Filters the featureArrays to return the list of features for the query, and then calls finish() to pass to the callback
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
     thisB._deferred.features.promise.then(function() {
-
         var filteredFeats = array.filter(thisB.featureArray, function(item) {
                 return item.get('start') < query.end && item.get('end') >= query.start;
             });
@@ -161,11 +156,17 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
 
 },
 
+// Evaluate (recursively) an operation tree to create a list of spans (essentially pseudo-features)
 evalTree: function(featureArrays, tree, query) {
-    if(!tree) return false;
-    if(tree.isLeaf()) return this.toSpan(featureArrays[tree.get().name], query);  
-    if(!tree.hasLeft()) return this.toSpan(featureArrays[tree.right().get().name], query);  
-    if(!tree.hasRight()) return this.toSpan(featureArrays[tree.left().get().name], query);
+    if(!tree) {
+        return false;
+    } else if(tree.isLeaf()) {
+        return this.toSpan(featureArrays[tree.get().name], query);
+    } else if(!tree.hasLeft()) {
+        return this.toSpan(featureArrays[tree.right().get().name], query);  
+    } else if(!tree.hasRight()) {
+        return this.toSpan(featureArrays[tree.left().get().name], query);
+    }
     return this.opSpan(
                         tree.get(), 
                         this.evalTree(featureArrays, tree.left(), query), 
@@ -174,7 +175,7 @@ evalTree: function(featureArrays, tree, query) {
                     );
 },
 
-
+// Passes the list of combined features to the getFeatures() callbacks
 finish: function( features, spans, featCallback, doneCallback ) {
     /* Pass features to the track's original featCallback, and pass spans to the doneCallback.
      */
@@ -188,20 +189,17 @@ finish: function( features, spans, featCallback, doneCallback ) {
 
 // These last four functions are stubbed out because each derived class should have its own implementation of them.
 
+// Converts a list of spans into a list of features.
 createFeatures: function(spans) {},
 
+// Sets the global stats once all features are loaded.
 _setGlobalStats: function() {},
 
-    // given a set of features, takes the "union" of them and outputs a single set of nonoverlapping spans
-    // This function is a stub since it should be implemented separately in each derived class
+// Transforms a set of features into a set of spans
 toSpan: function(features, query) {},
 
 // Defines the various operations that may occur and assigns each to a span-making function.
 opSpan: function(op, span1, span2, query) {}
-
-/* notes for this section: 
-        -A span object is essentially a simplified feature, containing much of the same data.
-*/
 
 });
 });

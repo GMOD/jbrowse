@@ -9,7 +9,10 @@ define([
 		function (declare, array, Deferred, JSON, urlObj, SeqFeatureStore){ 
 			return declare([SeqFeatureStore], {
 
+				// A store that imports and reads a JSON file to produce features.
+
 				constructor: function(args) {
+
 
 					this.featuresAreLoaded = new Deferred();
 			        this.data = args.blob;
@@ -46,10 +49,12 @@ define([
 			        }
 				},
 
+				// Load whatever is in the JSON file
 				loadContent: function(response) {
 					this._loadFeatures( response );
 				},
 
+				// Load a set of features from a JSON string.
 				_loadFeatures: function( JSONstring ) {
 					this.featureArray = JSON.parse(JSONstring);
 
@@ -62,7 +67,9 @@ define([
 
 					for(var key in this.featureArray) {
 						eval("this.featureArray[key].get = " + this.featureArray[key].get);
-						if(this.featureArray[key].id && this.featureArray[key].id.function) eval("this.featureArray[key].id = " + this.featureArray[key].id.function);
+						if(this.featureArray[key].id && this.featureArray[key].id.function) {
+							eval("this.featureArray[key].id = " + this.featureArray[key].id.function);
+						}
 						this.maskingSpans = this.maskingSpans.concat(this.featureArray[key].masks || []);
 					}
 

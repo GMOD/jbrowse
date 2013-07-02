@@ -22,6 +22,10 @@ var Feature = declare( gettable, {} );
 
 return declare([CombinationBaseStore], {
 
+// An implementation of CombinationBase that deals with quantitative features (with score, as with BigWig features).
+// Usual operations are things like addition, subtraction, multiplication, and division.
+
+// Computes global stats by calling the regionStats method using the global query (the one ranging from beginning to end of the refseq).
 _setGlobalStats: function() {
     var thisB = this;
     this._regionStatsCache = undefined;
@@ -36,6 +40,7 @@ _setGlobalStats: function() {
 
 },
 
+// Applies a given operation on two scores.
 applyOp: function(scoreA, scoreB, op) {
     var retValue;
     switch(op) {
@@ -57,14 +62,8 @@ applyOp: function(scoreA, scoreB, op) {
     }
     return retValue;
 },
-// Inherits getGlobalStats and getRegionStats from the superclasses.  
-// If we want any region stats or any global stats other than featureCount and featureDensity,
-// We'll have to add them into this file later.
-// Regional stats would be added by combining the "score" features of the underlying stores and
-// using the combined data to create a "score" feature for each of the features in this.featureArray.
 
-
-
+// Converts a list of spans to a list of features.
 createFeatures: function(spans) {
     var features = [];
     for(var span in spans) {
@@ -82,22 +81,28 @@ createFeatures: function(spans) {
 },
 
 
-// Defines the various set-theoretic operations that may occur and assigns each to a span-making function.
+// Loops through two sets of pseudo-features (spans).  At any region for which both sets have features defined,
+// applies the given operation on those features.  Otherwise, uses whichever one is defined.
 opSpan: function(op, pseudosA, pseudosB, query) {
     var retPseudos = [];
     var i = 0;
     var j = 0;
     
+    // Critical values are the starts and ends of features for either set of spans.
+    // nextCritical will iterate through all critical values.
     var nextCritical = Math.min(pseudosA[i].start, pseudosB[j].start);
     
     var inA;
     var inB;
 
-    var noInfinite = 0;
-    while(i < pseudosA.length && j < pseudosB.length && noInfinite < 3000) {
-        if(nextCritical == pseudosA[i].start) inA = true;
-        if(nextCritical == pseudosB[j].start) inB = true;
-        //noInfinite++;
+    while(i < pseudosA.length && j < pseudosB.length) {
+
+        // Decide whether to add a span to the list at all - we don't add spans if the gap from this critical point to the
+        // next critical point is not inside any feature.
+        if(nextCritical == pseudosA[i].start) 
+            inA = true;
+        if(nextCritical == pseudosB[j].start) 
+            inB = true;
         var addPseudo = inA || inB;
         // If we're inside at least one pseudo-feature, adds data for the current feature.
         if(addPseudo) {
@@ -114,18 +119,24 @@ opSpan: function(op, pseudosA, pseudosB, query) {
             }
         }
         // Dividing by zero or other invalid operation being performed, don't add the feature
-        if(newPseudo.score === undefined) addPseudo = false;
+        if(newPseudo.score === undefined)
+            addPseudo = false;
 
         // Fetches the next critical point (the next base pair greater than the current nextCritical value
         //    that is either the beginning or the end of a pseudo)
         var _possibleCriticals = [pseudosA[i].start, pseudosA[i].end, pseudosB[j].start, pseudosB[j].end];
+        
         _possibleCriticals = array.filter(_possibleCriticals, function(item) {
             return (item > nextCritical);
-        }).sort(function(a,b){ return a-b;});
-        nextCritical = _possibleCriticals[0];
-        if(!nextCritical) break;
+        }).sort(function(a,b){ 
+            return a-b;
+        });
         
-        // Deterstartes whether the next pseudo to be created will use data from pseudosA or pseudosB or both
+        nextCritical = _possibleCriticals[0];
+        if(!nextCritical) 
+            break;
+        
+        // Determines whether the next pseudo to be created will use data from pseudosA or pseudosB or both
         if(nextCritical == pseudosA[i].end) {
             inA = false;
             i++;
@@ -165,12 +176,6 @@ opSpan: function(op, pseudosA, pseudosB, query) {
     }
     return retPseudos;
 },
-
-/* notes for this section: 
-        -A span object contains a "start" and "end". 
-        -The variables "features" and "feature" are often
-         pseudo-features (span objects with endpoints that match real features)
-*/
 
 
 toSpan: function(features, query) {

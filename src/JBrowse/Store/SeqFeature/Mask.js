@@ -21,56 +21,24 @@ define([
            Util
        ) {
 
-var featureWrapper = Util.fastDeclare(
-    {
-        get: function( arg ) { 
-            return this.feature.get(arg);
-        },
-
-        id: function() { 
-            return this.feature.id()+this.storeName;
-        },
-
-        parent: function() { 
-            return this.feature.parent();
-        },
-
-        children: function() { 
-            return this.feature.children();
-        },
-
-        tags: function() { 
-            return this.feature.tags();
-        },
-
-        constructor: function( feat, storeName ) {
-            this.feature = feat;
-            this.storeName = storeName;
-            this.source = feat.source || undefined;
-        }
-    }
-);
-
-var Keys = function(array) {
-    var keys = []
-    for (var key in array) {
-        if (array.hasOwnProperty(key)) {
-            keys.push(key);
-        }
-    }
-    return keys;
-};
-
 return declare([SeqFeatureStore], {
+
+// A store that takes in two feature stores (one of them set-based e.g. NCList) and uses the data from one store as a mask
+// for the other.  Although the design resembles those of combinationStores, differences are substantial enough that
+// this class does not derive from CombinationBase.
 
 constructor: function( args ) {
     this.isCombinationStore = true;
     this.inverse = args.inverse || false;
     this.stores = {};
 
-    if(args.mask && args.display) this.reload(args.mask, args.display);
+    if(args.mask && args.display) {
+        this.reload(args.mask, args.display);
+    }
 },
 
+// Loads an opTree (optionally), and a mask and display store.  Ensure all stores exist,
+// and build an operation tree for the benefit of combination tracks.
 reload: function(opTree, mask, display) {
     var inverse;
 
@@ -83,7 +51,9 @@ reload: function(opTree, mask, display) {
         this.gotAllStores.resolve(true);
     }
     else {
-        if(inverse !== undefined) this.inverse = inverse;
+        if(inverse !== undefined) {
+            this.inverse = inverse;
+        }
         this.opTree =  new TreeNode({Value: this.inverse ? "N" : "M"});
         this.stores.mask = mask;
         this.stores.display = display;
@@ -105,8 +75,12 @@ reload: function(opTree, mask, display) {
             return haveStore.promise;
         }
 
-        var haveMaskStore = grabStore(this.stores.mask).then(function(store) { thisB.stores.mask = store; });
-        var haveDisplayStore = grabStore(this.stores.display).then(function(store) { thisB.stores.display = store; });
+        var haveMaskStore = grabStore(this.stores.mask).then(function(store) { 
+            thisB.stores.mask = store; 
+        });
+        var haveDisplayStore = grabStore(this.stores.display).then(function(store) { 
+            thisB.stores.display = store; 
+        });
         this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
         this.gotAllStores.then(function() {
             thisB.opTree.leftChild = thisB.stores.mask.isCombinationStore ? thisB.stores.mask.opTree : new TreeNode({Value: thisB.stores.mask});
@@ -115,14 +89,18 @@ reload: function(opTree, mask, display) {
     }
 },
 
+// The global stats of this store should be the same as those for the display data.
 getGlobalStats: function (callback, errorCallback) {
     return this.stores.display.getGlobalStats(callback, errorCallback);
 },
 
+// The regional stats of this store should be the same as those for the display data.
 getRegionStats: function (query, successCallback, errorCallback) {
     return this.stores.display.getRegionStats(query, callback, errorCallback);
 },
 
+// Gets the features from the mask and display stores, and then returns the display store features with the mask store features
+// added as masks
 getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
 
@@ -130,6 +108,7 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         function() {
             var featureArray = {};
             
+            // Get features from one particular store
             var grabFeats = function(key)  {
                 var d = new Deferred();
                 featureArray[key] = [];
@@ -143,10 +122,12 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                 );
                 return d.promise;
             }
+
             when(all([grabFeats("mask"), grabFeats("display")]),
                 function() {
-
+                    // Convert mask features into simplified spans
                     var spans = thisB.toSpans(featureArray.mask, query);
+                    // invert masking spans if necessary
                     spans = thisB.inverse ? thisB.notSpan(spans, query) : spans;
                     var features = featureArray.display;
 
@@ -156,9 +137,10 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         });
 },
 
-inSpan: function( feature, span ) {
+
     // given a feature or pseudo-feature, returns true if the feature
     // overlaps the span. False otherwise.
+inSpan: function( feature, span ) {
     if ( !feature || !span ) {
         console.error("invalid arguments to inSpan function");
     }
@@ -168,7 +150,7 @@ inSpan: function( feature, span ) {
 },
 
 maskFeatures: function( features, spans, featCallback, doneCallback ) {
-    /* Pass features to the tracks original featCallback, and pass spans to the doneCallback.
+    /* Pass features to the track's original featCallback, and pass spans to the doneCallback.
      * If the track has boolean support, the DoneCallback will use the spans to mask the features.
      * For glyph based tracks, the masks passed to each feature will be used to do masking.
      */
@@ -239,8 +221,6 @@ toSpans: function(features, query) {
     return retSpans;
     
 }
-
-
 
 });
 });

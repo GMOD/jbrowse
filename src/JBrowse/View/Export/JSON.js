@@ -11,7 +11,9 @@ define([
 					var store = this.store;
 					store.getGlobalStats(function(stats) {
 						featureArray.push(stats);
-					}, function() { console.error("error fetching global stats for store " + store.name); });
+					}, function() { 
+						console.error("error fetching global stats for store " + store.name); 
+					});
 					this.store.getFeatures( region,
 						function(featureOrig) {
 							var feature;
@@ -22,14 +24,19 @@ define([
 								feature = lang.mixin({}, featureOrig);
 							}
 							feature.get = feature.get.toString();
-							if(typeof feature.id == "function") feature.id = { function: feature.id.toString()};
+							if(typeof feature.id == "function") 
+								feature.id = { 
+									function: feature.id.toString()
+								};
 							featureArray.push(feature);
 						},
 						dojo.hitch(this, function() {
 							this.output = JSON.stringify(featureArray);
 							callback(this.output);
 						}),
-			            dojo.hitch( this, function( error ) { console.error(error); } )
+			            dojo.hitch( this, function( error ) { 
+			            	console.error(error); 
+			            })
 			        ); 
 				}
 

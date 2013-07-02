@@ -325,8 +325,10 @@ return declare(BlockBased,
 		// Modifies the inner track when a new track is added
 		addTrack: function(trackConfig) {
 			// Connect the track's name to its store for easy reading by user
-			if(trackConfig && trackConfig.key) this.storeToKey[trackConfig.store] = trackConfig.key;
-			if(trackConfig && trackConfig.store) this.keyToStore[trackConfig.key] = trackConfig.store;
+			if(trackConfig && trackConfig.key && trackConfig.store) {
+				this.storeToKey[trackConfig.store] = trackConfig.key;
+				this.keyToStore[trackConfig.key] = trackConfig.store;
+			}
 
 			// Figure out which type of track (set, quant, etc) the user is adding
 			this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
@@ -383,7 +385,8 @@ return declare(BlockBased,
 			}
 			// Once the last dialog has closed, opens a new one
 			when(this.lastDialogDone, dojo.hitch(this, function() {
-				if(this.preferencesDialog) this.preferencesDialog.destroyRecursive();
+				if(this.preferencesDialog)
+					this.preferencesDialog.destroyRecursive();
 				this.lastDialogDone = new Deferred();
 				this.preferencesDialog = new Dialog({
 					key: trackConfig.key,
@@ -483,7 +486,8 @@ return declare(BlockBased,
 
 		// Uses the current settings of the combination track to create a store
 		_storeConfig: function(storeType) {
-			if(!storeType) storeType = this.storeType;
+			if(!storeType)
+				storeType = this.storeType;
 			var storeClass = this.trackClasses[storeType].store;
 
 			var op = this.trackClasses[storeType].defaultOp;
@@ -670,7 +674,8 @@ return declare(BlockBased,
 		// If moveBlocks is called on this track, should be called on the inner track as well
 		moveBlocks: function(delta) {
 				this.inherited(arguments);
-				if(this.innerTrack) this.innerTrack.moveBlocks(delta);
+				if(this.innerTrack)
+					this.innerTrack.moveBlocks(delta);
 		},
 
 		// fillBlock in this renders all the relevant borders etc that surround the inner track and let the user know
@@ -719,25 +724,30 @@ return declare(BlockBased,
 		// endZoom is passed down to innerTrack
 		endZoom: function(destScale, destBlockBases) {
 				this.clear(); // Necessary?
-				if(this.innerTrack) this.innerTrack.endZoom();
+				if(this.innerTrack)
+					this.innerTrack.endZoom();
 		},
 
 		//  updateStaticElements passed down to innerTrack
 		updateStaticElements: function(args) {
 		  this.inherited(arguments);
-		  if(this.innerTrack) this.innerTrack.updateStaticElements(args);
+		  if(this.innerTrack)
+		  	this.innerTrack.updateStaticElements(args);
 		},
 
 		// When the inner track can be shown in multiple different classes (e.g. XYPlot or Density), this allows users to choose between them
 		setClassIndex: function(index, type) {
-			if(!type) type = this._visible().which;
-			if(type == "mask" && this.displayStore) type = this.supportedBy[this.displayStore.config.type];
+			if(!type)
+				type = this._visible().which;
+			if(type == "mask" && this.displayStore)
+				type = this.supportedBy[this.displayStore.config.type];
 			this.classIndex[type] = index;
 		},
 
 		// When the inner track can be shown in multiple different classes (e.g. XYPlot or Density), this tells us which one is currently chosen
 		getClassIndex: function(type) {
-			if(type == "mask" && this.displayStore) type = this.supportedBy[this.displayStore.config.type];
+			if(type == "mask" && this.displayStore)
+				type = this.supportedBy[this.displayStore.config.type];
 			return this.classIndex[type];
 		},
 
@@ -747,7 +757,8 @@ return declare(BlockBased,
 			var combTrack = this;
 
 			// If no tracks are added, we don't need to add any more options
-			if(!this.storeType) return o;
+			if(!this.storeType)
+				return o;
 
 			if(this.storeType == "mask") {
 				// If a masking track, enables users to toggle between viewing data, mask, and masked data
@@ -847,7 +858,9 @@ return declare(BlockBased,
 
 		// Turns an opTree into a formula to be better understood by the user.
 		_generateTreeFormula: function(tree) {
-			if(!tree || tree === undefined){ return "NULL";}
+			if(!tree || tree === undefined){
+				return "NULL";
+			}
 			if(tree.isLeaf()){
 				return "\"" + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
 				 : tree.get()) + "\"";
