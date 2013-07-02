@@ -36,14 +36,20 @@ return declare(BlockBased,
 {
 
 		/**
-		 * 
-		 * 
+		 * Creates a track with a drag-and-drop interface allowing users to drag other tracks into it.
+		 * Users select (using a dialog) a way to combine these tracks, and they are combined.
+		 * Certain tracks (e.g. HTMLFeatures tracks) may be combined set-theoretically (union, intersection,etc ),
+		 * while others (e.g. BigWig tracks) may be combined quantitatively (add scores, subtract scores, etc...).
+		 * If one of the tracks is a set-based track and the other is not, track masking operations may be applied.
 		 * @constructs
 		 */
 
 
 		constructor: function( args ) {
 		// The "default" track of each type is the one at index 0 of the innerTypes array.
+
+			// Many different kinds of tracks can be added.  Each is supported by a different store, and some can be rendered in several ways.
+			// The trackClasses object stores information about what can be done with each of these types.
 			this.trackClasses =
 			{
 				"set":  { 
@@ -95,6 +101,9 @@ return declare(BlockBased,
 							defaultOp: 	"U"
 						}
 			};
+
+			// inWords just stores, in words, what each possible operation does.  This is helpful for dialogs and menus that
+			// allow selection of different operations.
 			this.inWords =
 			{
 				"+": "addition",
@@ -107,6 +116,7 @@ return declare(BlockBased,
 				"S": "set subtraction",
 				"M": "regular mask",
 				"N": "inverse mask",
+				// These four-digit codes are used by the CombinationDialog object to differentiate different types of masking operations.
 				"0000": "normal operation",
 				"0020": "use new track as mask",
 				"0002": "use old track as mask",
@@ -116,9 +126,12 @@ return declare(BlockBased,
 				"0101": "add old track to new track's displayed data",
 				"0110": "add old track to new track's mask"
 			};
+
+			// Each store becomes associated with the name of a track that uses that store, so that users can read more easily.
 			this.keyToStore = {};
 			this.storeToKey = {};
 
+			// Shows which track or store types qualify as set-based, quantitative, etc.
 			this.supportedBy = 
 			{
 			  "JBrowse/View/Track/HTMLFeatures": "set",
@@ -132,18 +145,23 @@ return declare(BlockBased,
 			};
 
 			this.loaded = true;
+
+			// For CSS customization of the outer
 			this.divClass = args.divClass || "combination";
 
+			// Sets a bunch of variables to their initial values
 			this.reinitialize();
-			this.tracks = [];
 
-			// this.opTree = new TreeNode({ Value: this.defaultOp });
 
+			// When other tracks are dragged onto the combination, they don't disappear from their respective sources
+			// (in case the user wants to add the track separately, by itself).  These variables will be used in the DnD
+			// methods to support this functionality
 			this.currentDndSource = undefined;
 			this.sourceWasCopyOnly = undefined;
 
 			// This is used to avoid creating a feedback loop in the height-updating process.
 			this.onlyRefreshOuter = false;
+
 			// Height of the top and bottom divs (when there is an inner track)
 			this.topHeight = 20;
 			this.bottomHeight = 20;
@@ -154,9 +172,11 @@ return declare(BlockBased,
 
 			this.height = args.height || this.heightNoInner;
 
-			this.counter = 0;
+			// This variable (which will later be a deferred) ensures that when multiple tracks are added simultaneously,
+			// The dialogs for each one don't render all at once.
 			this.lastDialogDone = true;
 		},
+
 
 		setViewInfo: function(genomeView, heightUpdate, numBlocks,
 												 trackDiv,
@@ -164,11 +184,14 @@ return declare(BlockBased,
 				this.inherited( arguments );
 				this.scale = scale;
 
+				// This track has a dnd source (to support dragging tracks into and out of it).
 				this.dnd = new dndSource( this.div,
 				{
 					accept: ["track"], //Accepts only tracks
 					withHandles: true,
 					creator: dojo.hitch( this, function( trackConfig, hint ) {
+							// Renders the inner track div (or avatar, depending).  Code for ensuring that we don't have several inner tracks
+							// is handled later in the file.  
 							return {
 									data: trackConfig,
 									type: ["track"],
@@ -179,6 +202,7 @@ return declare(BlockBased,
 					})
 				});
 
+				// Attach dnd events
 				this._attachDndEvents();
 		},
 
@@ -187,25 +211,33 @@ return declare(BlockBased,
 		_attachDndEvents: function() {
 				var thisB = this;
 
+				// What to do at the beginning of dnd process
 				on(thisB.dnd, "DndStart", function(source, nodes, copy) {
 						if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
-							// Dragging the inner track out of the outer track.
+							// Dragging the inner track out of the outer track - need to use the config of the combined track rather than
+							// the initial config.
 							source.getItem(nodes[0].id).data = thisB.innerTrack.config;
 							source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
 							
-							var store = thisB._visible().store
+							// Ensures that when innerTrack is a masked track and either the mask or the unmasked data are being viewed
+							// (not together) that the correct store will be loaded by wherever receives the track.
+							var store = thisB._visible().store;
 							source.getItem(nodes[0].id).data.store = store.name;
 							source.getItem(nodes[0].id).data.storeClass = store.config.type;
+							// Doesn't remove the data from the inner track when either the mask alone or the data alone is removed - only copies.
+							// Lincoln wanted it this way
 							if(store != thisB.store) {
 								thisB.dnd.copyOnly = true;
 							}
-
+							// Prevents the store and inner track from being reloaded too often
 							thisB.onlyRefreshOuter = true;
 						}
 						// Stores the information about whether the source was copy-only, for future reference
 						thisB.currentDndSource = source;
 						thisB.sourceWasCopyOnly = source.copyOnly;
 				});
+
+				// When other tracks are dragged onto the combination, they don't disappear from their respective sources
 				on(thisB.dnd, "DraggingOver", function() {        
 						if(thisB.currentDndSource) {
 							// Tracks being dragged onto this track are copied, not moved.
@@ -223,7 +255,9 @@ return declare(BlockBased,
 							}
 							this.currentlyOver = false;
 					});
+
 				on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
+					// Ensures that all inner tracks are given unique IDs to prevent crashing
 					if(source == thisB.dnd && nodes[0]) {
 						thisB.browser.innerTrackCount++;
 						thisB.onlyRefreshOuter = false;
@@ -235,6 +269,7 @@ return declare(BlockBased,
 					}
 					thisB.dnd.copyOnly = false;
 				});
+				// Bug fixer
 				dojo.subscribe("/dnd/drop/before", function(source, nodes, copy, target) {
 						if(target == thisB.dnd && nodes[0]) {
 							thisB.dnd.current = null;
@@ -256,6 +291,8 @@ return declare(BlockBased,
 						}
 				});
 
+				// Further restricts what categories of tracks may be added to this track
+				// Should re-examine this
 				var oldCheckAcceptance = this.dnd.checkAcceptance;
 				this.dnd.checkAcceptance = function(source, nodes) {
 					// If the original acceptance checker fails, this one will too.
@@ -271,6 +308,7 @@ return declare(BlockBased,
 				};
 		},
 
+		// Reset a bunch of variables
 		reinitialize: function() {
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
@@ -284,16 +322,19 @@ return declare(BlockBased,
 			this.opTree = undefined;
 		},
 
+		// Modifies the inner track when a new track is added
 		addTrack: function(trackConfig) {
-			// There's probably a better way to store this data.  We'll do it this way since it's easily bidirectional (for read/write).
+			// Connect the track's name to its store for easy reading by user
 			if(trackConfig && trackConfig.key) this.storeToKey[trackConfig.store] = trackConfig.key;
 			if(trackConfig && trackConfig.store) this.keyToStore[trackConfig.key] = trackConfig.store;
 
-			// This should be eventually made more complicated to disallow 
+			// Figure out which type of track (set, quant, etc) the user is adding
 			this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
 
-			this.storeClass = this.trackClasses[this.currType].store; //
+			// What type of Combination store corresponds to the track just added
+			this.storeClass = this.trackClasses[this.currType].store;
 
+			// Creates the inner div, if it hasn't already been created
 			if(!this.innerDiv) {
 				this.innerDiv = dom.create("div");
 				this.innerDiv.className = "track";
@@ -302,11 +343,14 @@ return declare(BlockBased,
 			} else { // Otherwise we'll have to remove whatever track is currently in the div
 				this.innerDiv.parentNode.removeChild(this.innerDiv);
 			}
-
+			// Carry on the process of adding the track
 			this._addTrackStore(trackConfig);
+
+			// Because _addTrackStore has deferreds, the dnd node must be returned before it is filled
 			return this.innerDiv;
 		},
 
+		// Obtains the store of the track that was just added.
 		_addTrackStore: function(trackConfig) {
 			var storeName = trackConfig.store;
 			var thisB = this;
@@ -321,12 +365,15 @@ return declare(BlockBased,
 				});
 				return d.promise;
 			})();
+			// Once we have the store, it's time to open the dialog.
 			haveStore.then(function(store){
 				thisB.runDialog(trackConfig, store);
 			});
 		},
 
+		// Runs the dialog that asks the user how to combine the track.
 		runDialog: function(trackConfig, store) {
+			// If this is the first track being added, it's not being combined with anything, so we don't need to ask - just adds the track alone
 			if(this.oldType === undefined) {
 				var opTree = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
 				this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
@@ -334,6 +381,7 @@ return declare(BlockBased,
 				this._adjustStores(store);
 				return;
 			}
+			// Once the last dialog has closed, opens a new one
 			when(this.lastDialogDone, dojo.hitch(this, function() {
 				if(this.preferencesDialog) this.preferencesDialog.destroyRecursive();
 				this.lastDialogDone = new Deferred();
@@ -342,6 +390,7 @@ return declare(BlockBased,
 					store: store,
 					track: this
 				});
+				// Once the results of the dialog are back, uses them to continue the process of rendering the inner track
 				this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
 					this.opTree = opTree;
 					this.displayType = displayType;
@@ -353,6 +402,10 @@ return declare(BlockBased,
 
 		},
 
+		// If this track contains masked data, it uses three stores.  Otherwise, it uses one.
+		// This function ensures that all secondary stores (one for the mask, one for the display) have been loaded.
+		// If not, it loads them itself.  This function tries not to waste stores - if a store of a certain type already exists,
+		// it uses it rather than creating a new one.
 		_adjustStores: function (store) {
 			var d = new Deferred();
 
@@ -396,6 +449,7 @@ return declare(BlockBased,
 			}));
 		},
 
+		// Checks if the primary store has been created yet.  If it hasn't, calls "_createStore" and makes it.
 		createStore: function() {
 			var d = new Deferred();
 			var thisB = this;
@@ -406,25 +460,28 @@ return declare(BlockBased,
 				d.resolve(this.store, true);
 			}
 			d.then(function(store) { 
+				// All stores are now in place.  Make sure the operation tree of the store matches that of this track,
+				// and then we can render the inner track.
 				thisB.store = store;
 				thisB.store.reload(thisB.opTree, thisB.maskStore, thisB.displayStore);
 				thisB.renderInnerTrack();
 			})
 		},
 
+		// Creates a store config and passes it to the browser, which creates the store and returns its name.
 		_createStore: function(storeType) {
 			var d = new Deferred();
-			var thisB = this;
 
 			var storeConf = this._storeConfig(storeType);
 			var storeName = this.browser._addStoreConfig(undefined, storeConf);
 			storeConf.name = storeName;
-			thisB.browser.getStore(storeName, function(store) {
+			this.browser.getStore(storeName, function(store) {
 				d.resolve(store, true);
 			});
 			return d.promise;
 		},
 
+		// Uses the current settings of the combination track to create a store
 		_storeConfig: function(storeType) {
 			if(!storeType) storeType = this.storeType;
 			var storeClass = this.trackClasses[storeType].store;
@@ -438,6 +495,8 @@ return declare(BlockBased,
 					};
 		},
 
+		// This method is particularly useful when masked data is being displayed, and returns data which depends on
+		// which of (data, mask, masked data) is being currently displayed.
 		_visible: function() {
 			var which = [this.displayType || this.storeType, "set", this.displayType];
 			
@@ -459,26 +518,35 @@ return declare(BlockBased,
 			return allTypes[this.storeToShow];
 		},
 
+		// Time to actually render the inner track.
 		renderInnerTrack: function() {
 			if(this.innerTrack) {
+				// Destroys the inner track currently in place if it exists. We're going to create a new one.
 				this.innerTrack.clear();
 				this.innerTrack.destroy();
 				while(this.innerDiv.firstChild) { // Use dojo.empty instead?
 					this.innerDiv.removeChild(this.innerDiv.firstChild);
 				}
 			}
+			// Checks one last time to ensure we have a store before proceeding
 			if(this._visible().store) {
+				// Gets the path of the track to create
 				var trackClassName = this._visible().trackType;
 				var trackClass;
 				var thisB = this;
+
+				// Once we have the object for the type of track we're creating, call this.
 				var makeTrack = function(){
+					// Construct a track with the relevant parameters
 			  		thisB.innerTrack = new trackClass({
 							config: thisB._innerTrackConfig(trackClassName),
 							browser: thisB.browser,
 							refSeq: thisB.refSeq,
 							store: thisB._visible().store,
 							trackPadding: 0});
-	  
+	  				
+	  				// This will be what happens when the inner track updates its height - makes necessary changes to 
+	  				// outer track's height and then passes up to the heightUpdate callback specified as a parameter to this object
 					var innerHeightUpdate = function(height) {
 						thisB.innerDiv.style.height = height + "px";
 						thisB.heightInner = height;
@@ -490,12 +558,15 @@ return declare(BlockBased,
 						thisB.div.style.height = thisB.height + "px";
 					}
 	  
+	  				// setViewInfo on inner track
 					thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
 						thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
+
 					thisB._redefineCloseButton();
 					thisB.refresh();
 		  		}
 
+		  		// Loads the track class from the specified path
 				require([trackClassName], function(tc) {
 					trackClass = tc;
 					if(trackClass) makeTrack();
@@ -503,6 +574,7 @@ return declare(BlockBased,
 	  		}
 		},
 
+		// The close button of the inner track doesn't only hide the inner track on the tracksel menu - it destroys it
 		_redefineCloseButton: function() {
 				var closeButton = this.innerTrack.label.childNodes[0];
 				if(closeButton.className == "track-close-button") {
@@ -522,6 +594,7 @@ return declare(BlockBased,
 				}
 		},
 
+		// Generate the config of the inner track
 		_innerTrackConfig: function(trackClass) {
 			var config = {
 									store: this.store.name,
@@ -538,14 +611,21 @@ return declare(BlockBased,
 			return config;
 		},
 
+		// Refresh what the user sees on the screen for this track
 		refresh: function(track) {
-			if(!track) track = this;
+			if(!track) {
+				track = this;
+			}
 			var storeIsReloaded;
-			if(this._visible().store && !this.onlyRefreshOuter) 
+			if(this._visible().store && !this.onlyRefreshOuter) {
+				// Reload the store if it's not too much trouble
 				storeIsReloaded = this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
-			else storeIsReloaded = true;
+			}
+			else {
+				storeIsReloaded = true;
+			}
 
-
+			// once the store is properly reloaded, make sure the track is showing data correctly
 			when(storeIsReloaded, dojo.hitch(this, function(reloadedStore) {
 				if(this.range) {
 					track.clear();
@@ -556,6 +636,7 @@ return declare(BlockBased,
 			}));
 		},
 
+		// Extends the BlockBased track's showRange function.
 		showRange: function(first, last, startBase, bpPerBlock, scale,
 												containerStart, containerEnd) {
 			this.range = {f: first, l: last, st: startBase, 
@@ -563,7 +644,9 @@ return declare(BlockBased,
 										cs: containerStart, ce: containerEnd};
 			if(this.innerTrack && !this.onlyRefreshOuter) {
 					
+					// The inner track should be reloaded to show the same range as the outer track
 					this.innerTrack.clear();
+					
 					// This is a workaround to a glitch that causes an opaque white rectangle to appear sometimes when a quantitative
 					// track is loaded.
 					var needsDiv = !this.innerDiv.parentNode;
@@ -575,17 +658,23 @@ return declare(BlockBased,
 						this.div.removeChild(this.innerDiv);
 					}
 				}
+			// Run the method from BlockBased.js
 			this.inherited(arguments);
+			
+			// Make sure the height of this track is right
 			this.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner);
 			this.heightUpdate(this.height);
 			this.div.style.height = this.height + "px";
 		},
 
+		// If moveBlocks is called on this track, should be called on the inner track as well
 		moveBlocks: function(delta) {
 				this.inherited(arguments);
 				if(this.innerTrack) this.innerTrack.moveBlocks(delta);
 		},
 
+		// fillBlock in this renders all the relevant borders etc that surround the inner track and let the user know
+		// that this is a combination track
 		fillBlock: function( args ) {
 				var blockIndex = args.blockIndex;
 				var block = args.block;
@@ -593,12 +682,14 @@ return declare(BlockBased,
 
 				var text = "Add tracks here";
 				if(this.innerTrack) {
+					// Border on the top
 					var topDiv = dom.create("div");
 					topDiv.className = "combination";
 					topDiv.style.height = this.topHeight + "px";
 					topDiv.appendChild( document.createTextNode( text ) );
 					block.domNode.appendChild( topDiv );
 
+					// Border on the bottom
 					var bottomDiv = dom.create("div");
 					bottomDiv.className = "combination";
 					bottomDiv.style.height = this.bottomHeight + "px";
@@ -606,6 +697,7 @@ return declare(BlockBased,
 					bottomDiv.appendChild( document.createTextNode( text ) );
 					block.domNode.appendChild( bottomDiv );
 				} else {
+					// If no inner track, just one solid mass of grey.
 					var textDiv = dom.create("div");
 					textDiv.className = "combination";
 					var text = "Add tracks here";
@@ -614,6 +706,7 @@ return declare(BlockBased,
 					block.domNode.appendChild( textDiv );
 				}
 
+				// Ensures highlighting handled correctly.
 				var highlight = this.browser.getHighlight();
 				if( highlight && highlight.ref == this.refSeq.name )
 						this.renderRegionHighlight( args, highlight );
@@ -623,40 +716,41 @@ return declare(BlockBased,
 				args.finishCallback();
 		},
 
+		// endZoom is passed down to innerTrack
 		endZoom: function(destScale, destBlockBases) {
 				this.clear(); // Necessary?
 				if(this.innerTrack) this.innerTrack.endZoom();
 		},
 
-		msgLoop: function(list) {
-			var msg = "";
-			for(var item in list) msg = msg + " " + item +": " + list[item];
-			alert(msg);
-		},
-
+		//  updateStaticElements passed down to innerTrack
 		updateStaticElements: function(args) {
 		  this.inherited(arguments);
 		  if(this.innerTrack) this.innerTrack.updateStaticElements(args);
 		},
 
+		// When the inner track can be shown in multiple different classes (e.g. XYPlot or Density), this allows users to choose between them
 		setClassIndex: function(index, type) {
 			if(!type) type = this._visible().which;
 			if(type == "mask" && this.displayStore) type = this.supportedBy[this.displayStore.config.type];
 			this.classIndex[type] = index;
 		},
 
+		// When the inner track can be shown in multiple different classes (e.g. XYPlot or Density), this tells us which one is currently chosen
 		getClassIndex: function(type) {
 			if(type == "mask" && this.displayStore) type = this.supportedBy[this.displayStore.config.type];
 			return this.classIndex[type];
 		},
 
+		// Adds options to the track context menu
 		_trackMenuOptions: function() {
 			var o = this.inherited(arguments);
 			var combTrack = this;
 
+			// If no tracks are added, we don't need to add any more options
 			if(!this.storeType) return o;
 
 			if(this.storeType == "mask") {
+				// If a masking track, enables users to toggle between viewing data, mask, and masked data
 				var maskOrDisplay = ["masked data", "mask", "data only"];
 				var maskOrDisplayItems = Object.keys(maskOrDisplay).map(function(i) {
 					return {
@@ -682,6 +776,7 @@ return declare(BlockBased,
 					}]);
 			}
 
+			// User may choose which class to render inner track (e.g. XYPlot or Density) if multiple options exist
 			var classes = this.trackClasses[this._visible().which].innerTypes;
 
 			var classItems = Object.keys(classes).map(function(i){
@@ -697,7 +792,6 @@ return declare(BlockBased,
 							}
 						};
 			});
-
 			o.push.apply(
 				o,
 				[
@@ -709,6 +803,7 @@ return declare(BlockBased,
 				  }
 				]);
 
+			// Allow user to view the current track formula.
 			if(this.opTree) {
 				o.push.apply(
 					o, 
@@ -721,6 +816,7 @@ return declare(BlockBased,
 					  	}]);
 			}
 
+			// If the current view contains more than one track combined, user may change the last operation applied
 	 		if(this._visible().tree && this._visible().tree.getLeaves().length > 1) {
 				var operationItems = this._visible().allowedOps.map(
 													function(op) {
@@ -749,6 +845,7 @@ return declare(BlockBased,
 			return o;
 		},
 
+		// Turns an opTree into a formula to be better understood by the user.
 		_generateTreeFormula: function(tree) {
 			if(!tree || tree === undefined){ return "NULL";}
 			if(tree.isLeaf()){
