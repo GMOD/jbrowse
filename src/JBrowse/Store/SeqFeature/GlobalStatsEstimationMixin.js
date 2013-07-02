@@ -14,55 +14,58 @@ define([
 return declare( null, {
 
     /**
-     * Fetch a region of the current reference sequence and use it to
-     * estimate the feature density of the store.
+     * Fetch a region of the given reference sequence name and use it
+     * to estimate the feature density of the store.  Returns a
+     * Deferred for the stats.
      * @private
      */
     _estimateGlobalStats: function( refseq ) {
-        var deferred = new Deferred();
+        return this._globalStatsEstimate || function() {
+            var deferred = new Deferred();
 
-        refseq = refseq || this.refSeq;
+            if( ! refseq )
+                throw new Error('sample refseq parameter required');
 
-        var statsFromInterval = function( length, callback ) {
-            var thisB = this;
-            var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
-            var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
-            var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
-            var features = [];
-            this._getFeatures({ ref: refseq.name, start: start, end: end},
-                              function( f ) { features.push(f); },
-                              function( error ) {
-                                  features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
-                                  callback.call( thisB, length,
-                                                 {
-                                                     featureDensity: features.length / length,
-                                                     _statsSampleFeatures: features.length,
-                                                     _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
-                                                 });
-                              },
-                              function( error ) {
-                                      console.error( error );
-                                      callback.call( thisB, length,  null, error );
-                              });
-        };
+            var statsFromInterval = function( length, callback ) {
+                var thisB = this;
+                var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
+                var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
+                var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
+                var features = [];
+                this._getFeatures({ ref: refseq.name, start: start, end: end},
+                                  function( f ) { features.push(f); },
+                                  function( error ) {
+                                      features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
+                                      callback.call( thisB, length,
+                                                     {
+                                                         featureDensity: features.length / length,
+                                                         _statsSampleFeatures: features.length,
+                                                         _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
+                                                     });
+                                  },
+                                  function( error ) {
+                                          console.error( error );
+                                          callback.call( thisB, length,  null, error );
+                                  });
+            };
 
-        var maybeRecordStats = function( interval, stats, error ) {
-            if( error ) {
-                deferred.reject( error );
-            } else {
-                var refLen = refseq.end - refseq.start;
-                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
-                     console.log( 'Store statistics: '+(this.source||this.name), stats );
-                     deferred.resolve( stats );
-                 } else {
-                     statsFromInterval.call( this, interval * 2, maybeRecordStats );
-                 }
-            }
-        };
+            var maybeRecordStats = function( interval, stats, error ) {
+                if( error ) {
+                    deferred.reject( error );
+                } else {
+                    var refLen = refseq.end - refseq.start;
+                     if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
+                         console.log( 'Store statistics: '+(this.source||this.name), stats );
+                         deferred.resolve( stats );
+                     } else {
+                         statsFromInterval.call( this, interval * 2, maybeRecordStats );
+                     }
+                }
+            };
 
-        statsFromInterval.call( this, 100, maybeRecordStats );
-        return deferred;
+            statsFromInterval.call( this, 100, maybeRecordStats );
+            return this._globalStatsEstimate = deferred;
+        }.call(this);
     }
-
 });
 });

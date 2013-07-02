@@ -74,19 +74,25 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
             success: lang.hitch( this,
                                  function() {
                                      this._deferred.features.resolve({success:true});
-
-                                     this._estimateGlobalStats()
-                                         .then( lang.hitch(
-                                                    this,
-                                                    function( stats ) {
-                                                        this.globalStats = stats;
-                                                        this._deferred.stats.resolve({success:true});
-                                                    }
-                                                ),
-                                                lang.hitch( this, '_failAllDeferred' )
-                                              );
+                                     this._deferred.stats.resolve();
                                  }),
             failure: lang.hitch( this, '_failAllDeferred' )
+        });
+    },
+
+    getRegionStats: function( query, statsCallback, errorCallback ) {
+        var thisB = this;
+        this._deferred.stats.then( function() {
+            var i = thisB.bam.chrToIndex[ thisB.browser.regularizeReferenceName(query.ref) ];
+            if( i === undefined ) {
+                statsCallback( {} );
+                return;
+            }
+            thisB._estimateGlobalStats( { name: query.ref, start: 0, end: thisB.bam.indexToChr[ i ].length } )
+                .then( function(s) {
+                           console.log(s);
+                           statsCallback(s);
+                       }, errorCallback );
         });
     },
 
@@ -108,7 +114,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        this.bam.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
+        this.bam.fetch( query.ref, query.start, query.end, featCallback, endCallback, errorCallback );
     }
 
 });
