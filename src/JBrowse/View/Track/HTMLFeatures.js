@@ -5,7 +5,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/on',
-            'dojo/has',
+            'JBrowse/has',
             'dijit/Dialog',
             'dijit/form/Select',
             'dijit/form/RadioButton',
@@ -83,7 +83,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     _defaultConfig: function() {
         return {
             maxFeatureScreenDensity: 0.5,
-            blockDisplayTimeout: 20000,
 
             // maximum height of the track, in pixels
             maxHeight: 1000,
@@ -121,7 +120,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
                 },
                 { label: function() {
-                      return 'Highlight '
+                      return 'Highlight this '
                           +( this.feature && this.feature.get('type') ? this.feature.get('type')
                                                                       : 'feature'
                            );
@@ -287,6 +286,54 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         this.inherited( arguments );
         this.updateYScaleFromViewDimensions( coords );
         this.updateFeatureLabelPositions( coords );
+        this.updateFeatureArrowPositions( coords );
+    },
+
+    updateFeatureArrowPositions: function( coords ) {
+        if( ! 'x' in coords )
+            return;
+
+	var viewmin = this.browser.view.minVisible();
+	var viewmax = this.browser.view.maxVisible();
+
+        array.forEach( this.blocks, function( block ) {
+            if( ! block )
+                return;
+
+            dojo.query('> .feature', block.domNode )
+                .forEach(
+                    function(featDiv) {
+                        var feature = featDiv.feature;
+                        var strand  = feature.get('strand');
+                        if( ! strand )
+                            return;
+
+                        var fmin    = feature.get('start');
+                        var fmax    = feature.get('end');
+                        var arrowhead;
+
+                        // minus strand
+                        if( strand < 0 && fmax > viewmin ) {
+                            dojo.query( '> .minus-'+this.config.style.arrowheadClass, featDiv )
+                                .forEach( function( arrowhead ) {
+                                              arrowhead.style.left =
+                                                  ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
+                                                                   : -this.minusArrowWidth
+                                                  ) + 'px';
+                                          }, this );
+                        }
+                        // plus strand
+                        else if( strand > 0 && fmin < viewmax ) {
+                            dojo.query( '> .plus-'+this.config.style.arrowheadClass, featDiv )
+                                .forEach( function( arrowhead ) {
+                                              arrowhead.style.right =
+                                                  ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
+                                                                   : -this.plusArrowWidth
+                                                  ) + 'px';
+                                          }, this );
+                        }
+                    },this);
+        },this);
     },
 
     updateFeatureLabelPositions: function( coords ) {
@@ -453,15 +500,16 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             if( block.featureNodes )
                 for( var name in block.featureNodes ) {
                     var featDiv = block.featureNodes[name];
-                    delete featDiv.track;
-                    delete featDiv.feature;
-                    delete featDiv.callbackArgs;
-                    delete featDiv._labelScale;
-                    delete featDiv._descriptionScale;
-                    if( featDiv.label ) {
-                        delete featDiv.label.track;
-                        delete featDiv.label.feature;
-                        delete featDiv.label.callbackArgs;
+                    array.forEach(
+                        'track,feature,callbackArgs,_labelScale,_descriptionScale'.split(','),
+                        function(a) { Util.removeAttribute( featDiv, a ); }
+                    );
+                    if( 'label' in featDiv ) {
+                        array.forEach(
+                            'track,feature,callbackArgs'.split(','),
+                            function(a) { Util.removeAttribute( featDiv.label, a ); }
+                        );
+                        Util.removeAttribute( featDiv, 'label' );
                     }
                 }
         }
@@ -606,19 +654,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         var curTrack = this;
 
-        var timedOut = false;
-        var timeOutError = { toString: function() { return 'Timed out trying to display '+curTrack.name+' block '+blockIndex; } };
-        var timeout;
-        if( this.config.blockDisplayTimeout )
-            timeout = window.setTimeout( function() {
-                timedOut = true;
-                curTrack.fillBlockTimeout( blockIndex, block );
-            }, this.config.blockDisplayTimeout );
-
         var featCallback = dojo.hitch(this,function( feature ) {
-            if( timedOut )
-                return;
-
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
@@ -633,9 +669,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 },
                                 featCallback,
                                 function ( args ) {
-                                    if( timeout )
-                                        window.clearTimeout( timeout );
-
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
                                     if ( args && args.maskingSpans ) { 
@@ -661,12 +694,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                     finishCallback();
                                 },
                                 function( error ) {
-                                    if( error === timeOutError ) {
-                                        curTrack.fillBlockTimeout( blockIndex, block, error );
-                                    } else {
-                                        console.error( error, error.stack );
-                                        curTrack.fillBlockError( blockIndex, block, error );
-                                    }
+                                    console.error( error, error.stack );
+                                    curTrack.fillBlockError( blockIndex, block, error );
                                     finishCallback();
                                 }
                               );
@@ -1065,13 +1094,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             case 1:
             case '+':
                 ah.className = "plus-" + this.config.style.arrowheadClass;
-                ah.style.cssText =  "left: 100%;";
+                ah.style.cssText =  "right: "+(-this.plusArrowWidth) + "px";
                 featDiv.appendChild(ah);
                 break;
             case -1:
             case '-':
                 ah.className = "minus-" + this.config.style.arrowheadClass;
-                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px;";
+                ah.style.cssText = "left: " + (-this.minusArrowWidth) + "px";
                 featDiv.appendChild(ah);
                 break;
             }
@@ -1209,9 +1238,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         featDiv.contextMenuTimeout = window.setTimeout( function() {
             if( featDiv.contextMenu ) {
                 featDiv.contextMenu.destroyRecursive();
-                delete featDiv.contextMenu;
+                Util.removeAttribute( featDiv, 'contextMenu' );
             }
-            delete featDiv.contextMenuTimeout;
+            Util.removeAttribute( featDiv, 'contextMenuTimeout' );
         }, timeToLive );
     },
 
@@ -1275,7 +1304,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             case -1:
             case '-':
                 dojo.addClass(subDiv, "minus-" + className); break;
-            default: 
+            default:
                 dojo.addClass(subDiv, className);
             }
         }
@@ -1317,6 +1346,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
     _clearLayout: function() {
         delete this.layout;
+    },
+
+    clear: function() {
+        delete this.layout;
+        this.inherited( arguments );
     },
 
     /**

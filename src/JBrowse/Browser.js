@@ -497,6 +497,7 @@ Browser.prototype.initView = function() {
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 label: 'Set highlight',
+                iconClass: 'dijitIconFilter',
                 onClick: function() {
                     new SetHighlightDialog({
                             browser: thisObj,
@@ -508,6 +509,7 @@ Browser.prototype.initView = function() {
             this._highlightClearButton = new dijitMenuItem(
                 {
                     label: 'Clear highlight',
+                    iconClass: 'dijitIconFilter',
                     onClick: dojo.hitch( this, function() {
                                              var h = this.getHighlight();
                                              if( h ) {
@@ -521,21 +523,17 @@ Browser.prototype.initView = function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
+            this.addGlobalMenuItem( 'view', new dijitMenuItem(
+                {
+                    label: 'Add combination track',
+                    iconClass: 'dijitIconSample',
+                    onClick: dojo.hitch(this, 'createCombinationTrack')
+                }));
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
 
             // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
-
-
-            // render the Tracks menu, containing (currently) the combination track feature.
-            this._combinationTrackButton = new dijitMenuItem(
-                {
-                    label: 'Add combination track',
-                    onClick: dojo.hitch(this, 'createCombinationTrack')
-                });
-            this.addGlobalMenuItem( 'tracks', this._combinationTrackButton );
-            this.renderGlobalMenu( 'tracks', {text: 'Tracks'}, menuBar );
         }
 
         if( this.config.show_nav ) {
