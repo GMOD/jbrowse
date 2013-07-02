@@ -192,6 +192,14 @@ return declare(BlockBased,
 							// Dragging the inner track out of the outer track.
 							source.getItem(nodes[0].id).data = thisB.innerTrack.config;
 							source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
+							
+							var store = thisB._visible().store
+							source.getItem(nodes[0].id).data.store = store.name;
+							source.getItem(nodes[0].id).data.storeClass = store.config.type;
+							if(store != thisB.store) {
+								thisB.dnd.copyOnly = true;
+							}
+
 							thisB.onlyRefreshOuter = true;
 						}
 						// Stores the information about whether the source was copy-only, for future reference
@@ -202,8 +210,6 @@ return declare(BlockBased,
 						if(thisB.currentDndSource) {
 							// Tracks being dragged onto this track are copied, not moved.
 							thisB.currentDndSource.copyOnly = true;
-
-							// Do some css voodoo if the track being dragged is "unacceptable"
 						}
 						this.currentlyOver = true;
 				});
@@ -227,6 +233,7 @@ return declare(BlockBased,
 						thisB.reinitialize();
 						thisB.refresh();
 					}
+					thisB.dnd.copyOnly = false;
 				});
 				dojo.subscribe("/dnd/drop/before", function(source, nodes, copy, target) {
 						if(target == thisB.dnd && nodes[0]) {
@@ -235,6 +242,7 @@ return declare(BlockBased,
 				});
 				on(thisB.dnd, "DndCancel", function() {
 						thisB.onlyRefreshOuter = false;
+						thisB.dnd.copyOnly = false;
 				});
 				on(thisB.dnd, "OutEvent", function() {
 						// Fixes a glitch wherein the trackContainer is disabled when the track we're dragging leaves the combination track
@@ -267,6 +275,7 @@ return declare(BlockBased,
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
 			this.storeType = undefined;
+			this.oldType = undefined;
 			this.classIndex = {"set" : 0, "quant": 0, "BAM": 0};
 			this.storeToShow = 0;
 			this.displayStore = undefined;
@@ -553,6 +562,7 @@ return declare(BlockBased,
 										b: bpPerBlock, sc: scale, 
 										cs: containerStart, ce: containerEnd};
 			if(this.innerTrack && !this.onlyRefreshOuter) {
+					
 					this.innerTrack.clear();
 					// This is a workaround to a glitch that causes an opaque white rectangle to appear sometimes when a quantitative
 					// track is loaded.

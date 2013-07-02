@@ -423,7 +423,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _exportFormats: function() {
-        return ['bedGraph','Wiggle', 'GFF3' ];
+        return ['bedGraph','Wiggle', 'GFF3', 'JSON' ];
     }
 });
 });

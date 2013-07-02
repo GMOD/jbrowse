@@ -3,6 +3,7 @@ define( [
             'dojo/_base/array',
             'dojo/aspect',
             'dojo/has',
+            'dojo/on',
             'dojo/window',
             'dojo/dom-construct',
             'JBrowse/Util',
@@ -15,6 +16,7 @@ define( [
             array,
             aspect,
             has,
+            on,
             dojoWindow,
             dom,
             Util,
@@ -197,10 +199,11 @@ return declare( null, {
         // because missing with the href of the window messes up
         // WebApollo long polling
         var iframe = dom.create( 'iframe', {
-            style: { display: 'none' }
+            style: { display: 'none' },
+            src: "data:"+( args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain' )
+            +","+escape( args.data || '' )
         },this.div );
-        iframe.src = "data:"+( args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain' )
-            +","+escape( args.data || '' );
+        iframe.parentNode.removeChild(iframe); // Delete iframe immediately so that it never tries to download the file twice
     },
 
     // cross-platform function for (portably) reading the value of a radio control. sigh. *rolls eyes*

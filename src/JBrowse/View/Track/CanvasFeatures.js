@@ -11,6 +11,7 @@ define( [
             'dojo/on',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
+            'JBrowse/View/Track/ExportMixin',
             'JBrowse/Errors',
             'JBrowse/View/Track/FeatureDetailMixin'
         ],
@@ -23,6 +24,7 @@ define( [
             on,
             Layout,
             BlockBasedTrack,
+            ExportMixin,
             Errors,
             FeatureDetailMixin
         ) {
@@ -61,7 +63,7 @@ var FRectIndex = declare( null, {
     }
 });
 
-return declare( [BlockBasedTrack,FeatureDetailMixin], {
+return declare( [BlockBasedTrack,FeatureDetailMixin, ExportMixin], {
 
     constructor: function( args ) {
         this._setupEventHandlers();
@@ -482,6 +484,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         delete this.layout;
         delete this.glyphsLoaded;
         this.inherited( arguments );
+    },
+
+    _exportFormats: function() {
+        return ['JSON'];
     }
 });
 });
