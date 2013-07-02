@@ -81,11 +81,17 @@ return declare( SeqFeatureStore,
 
             // fetch the trackdata
             var thisB = this;
-            xhr.get( url, { handleAs: "json", failOk: true })
-               .then( function( trackInfo ) {
+            xhr.get( url, { handleAs: 'json', failOk: true })
+               .then( function( trackInfo, request ) {
+                          //trackInfo = JSON.parse( trackInfo );
                           thisB._handleTrackInfo( refData, trackInfo, url );
                       },
-                      dojo.hitch( this, '_failAllDeferred' )
+                      function(error) {
+                          if( error.response.status == 404 ) {
+                              thisB._handleTrackInfo( refData, {}, url );
+                          } else
+                              thisB._failAllDeferred( error );
+                      }
                     );
         }
         return this._deferred.root;
@@ -93,13 +99,16 @@ return declare( SeqFeatureStore,
 
     _handleTrackInfo: function( refData, trackInfo, url ) {
         refData.stats = {
-            featureCount: trackInfo.featureCount
+            featureCount: trackInfo.featureCount || 0,
+            featureDensity: ( trackInfo.featureCount || 0 ) / this.refSeq.length
         };
-        if( 'featureDensity' in trackInfo )
-            refData.stats.featureDensity = trackInfo.featureDensity;
 
-        refData.attrs = new ArrayRepr( trackInfo.intervals.classes );
-        this.loadNCList( refData, trackInfo, url );
+        this.empty = !trackInfo.featureCount;
+
+        if( trackInfo.intervals ) {
+            refData.attrs = new ArrayRepr( trackInfo.intervals.classes );
+            this.loadNCList( refData, trackInfo, url );
+        }
 
         var histograms = trackInfo.histograms;
         if( histograms && histograms.meta ) {
