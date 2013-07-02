@@ -976,6 +976,14 @@ getStore: function( storeName, callback ) {
              }));
 },
 
+getStoreDeferred: function( storeName ) {
+    var d = new Deferred();
+    this.getStore( storeName, function(s) {
+                       d.resolve(s);
+                   });
+    return d;
+},
+
 /**
  * Add a store configuration to the browser.  If name is falsy, will
  * autogenerate one.
@@ -1393,117 +1401,40 @@ showRegion: function( location ) {
     }
 },
 
-/**
- * navigate to a given location
- * @example
- * gb=dojo.byId("GenomeBrowser").genomeBrowser
- * gb.navigateTo("ctgA:100..200")
- * gb.navigateTo("f14")
- * @param loc can be either:<br>
- * &lt;chromosome&gt;:&lt;start&gt; .. &lt;end&gt;<br>
- * &lt;start&gt; .. &lt;end&gt;<br>
- * &lt;center base&gt;<br>
- * &lt;feature name/ID&gt;
- */
-
-navigateTo: function(loc) {
-    this.afterMilestone( 'initView', dojo.hitch( this, function() {
-        // if it's a foo:123..456 location, go there
-        var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-        if( location ) {
-            this.navigateToLocation( location );
-        }
-        // otherwise, if it's just a word, try to figure out what it is
-        else {
-
-            // is it just the name of one of our ref seqs?
-            var ref = Util.matchRefSeqName( loc, this.allRefs );
-            if( ref ) {
-                // see if we have a stored location for this ref seq in a
-                // cookie, and go there if we do
-                var oldLoc;
-                try {
-                    oldLoc = Util.parseLocString(
-                        dojo.fromJson(
-                            this.cookie("location")
-                        )[ref.name].l
-                    );
-                    oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
-                } catch (x) {}
-                if( oldLoc ) {
-                    this.navigateToLocation( oldLoc );
-                    return;
-                } else {
-                    // if we don't just go to the middle 80% of that refseq,
-                    // based on range that can be viewed (start to end)
-                    // rather than total length, in case start != 0 || end != length
-                    // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
-                    var visibleLength = ref.end - ref.start;
-                    this.navigateToLocation({ref:   ref.name,
-                                             start: ref.start + (visibleLength * 0.1),
-                                             end:   ref.start + (visibleLength * 0.9) } );
-                    return;
-                }
-            }
-
-            // lastly, try to search our feature names for it
-            this.searchNames( loc );
-        }
-    }));
-},
-
-// given an object like { ref: 'foo', start: 2, end: 100 }, set the
-// browser's view to that location.  any of ref, start, or end may be
-// missing, in which case the function will try set the view to
-// something that seems intelligent
-navigateToLocation: function( location ) {
-    this.afterMilestone( 'initView', dojo.hitch( this, function() {
-        // validate the ref seq we were passed
-        var ref = location.ref ? Util.matchRefSeqName( location.ref, this.allRefs )
-                               : this.refSeq;
-        if( !ref )
-            return;
-        location.ref = ref.name;
-
-        // clamp the start and end to the size of the ref seq
-        location.start = Math.max( 0, location.start || 0 );
-        location.end   = Math.max( location.start,
-                                   Math.min( ref.end, location.end || ref.end )
-                                 );
-
-        // if it's the same sequence, just go there
-        if( location.ref == this.refSeq.name) {
-            this.view.setLocation( this.refSeq,
-                                   location.start,
-                                   location.end
-                                 );
-            this._updateLocationCookies( location );
-        }
-        // if different, we need to poke some other things before going there
-        else {
-            // record names of open tracks and re-open on new refseq
-            var curTracks = this.view.visibleTrackNames();
-
-            this.refSeq = this.allRefs[location.ref];
-            this.clearStores();
-
-            this.view.setLocation( this.refSeq,
-                                   location.start,
-                                   location.end );
-            this._updateLocationCookies( location );
-
-            this.showTracks( curTracks );
-        }
-    }));
+findRefSeq: function( refname ) {
+    var d = new Deferred();
+    this.getStore( 'refseqs', function( store ) {
+        var ref;
+        store.getRefSeqMeta(
+            { name: refname, limit: 1 },
+            function(r) { ref = r; },
+            function(){ d.resolve(ref); },
+            lang.hitch( d, 'reject' )
+        );
+    });
+    return d;
 },
 
 /**
- * Given a string name, search for matching feature names and set the
- * view location to any that match.
+ * deferred.  Given a string name, search for matching feature
+ * names and set the view location to any that match.
  */
 searchNames: function( /**String*/ loc ) {
     var thisB = this;
-    this.nameStore.query({ name: loc })
+
+    // first see if it's a reference sequence
+    return this.findRefSeq( loc )
+               .then( function( refseq ) {
+                   if( refseq )
+                       return { ref: refseq.name, start: refseq.start, end: refseq.end };
+
+                   // if not, look it up in the names index
+                   return thisB._searchNameIndex( loc );
+                 });
+},
+
+_searchNameIndex: function( loc ) {
+    return this.nameStore.query({ name: loc })
         .then(
             function( nameMatches ) {
                 // if we have no matches, pop up a dialog saying so, and
@@ -1515,7 +1446,7 @@ searchNames: function( /**String*/ loc ) {
                             content: 'Not found: <span class="locString">'+loc+'</span>',
                             className: 'notfound-dialog'
                         }).show();
-                    return;
+                    return null;
                 }
 
                 var goingTo;
@@ -1537,21 +1468,28 @@ searchNames: function( /**String*/ loc ) {
 
                 // if it has one location, go to it
                 if( goingTo.location ) {
-
-                    //go to location, with some flanking region
-                    thisB.showRegionWithHighlight( goingTo.location );
+                    // go to the location
+                    return goingTo.location;
                 }
                 // otherwise, pop up a dialog with a list of the locations to choose from
                 else if( goingTo.multipleLocations ) {
-                    new LocationChoiceDialog(
+                    var d = new Deferred();
+                    var dialog = new LocationChoiceDialog(
                         {
                             browser: thisB,
                             locationChoices: goingTo.multipleLocations,
+                            goCallback: function(loc) {
+                                dialog.hide();
+                                d.resolve( loc );
+                            },
+                            showCallback: function() {},
                             title: 'Choose '+goingTo.name+' location',
                             prompt: '"'+goingTo.name+'" is found in multiple locations.  Please choose a location to view.'
                         })
                         .show();
+                    return d;
                 }
+                return null;
             },
             function(e) {
                 console.error( e );
@@ -1562,7 +1500,7 @@ searchNames: function( /**String*/ loc ) {
                     }).show();
                 return;
             }
-   );
+        );
 },
 
 

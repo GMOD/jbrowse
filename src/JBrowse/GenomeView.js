@@ -979,16 +979,21 @@ slide: function(distance) {
                distance * this.getWidth());
 },
 
+// synchronous.
 setLocation: function(refseq, startbp, endbp) {
-    if (startbp === undefined) startbp = this.minVisible();
-    if (endbp === undefined) endbp = this.maxVisible();
-    if ((startbp < refseq.start) || (startbp > refseq.end))
+    if ( startbp === undefined )
+        startbp = this.minVisible();
+    if ( endbp === undefined )
+        endbp = this.maxVisible();
+    if ( startbp < refseq.start || startbp > refseq.end )
         startbp = refseq.start;
-    if ((endbp < refseq.start) || (endbp > refseq.end))
+    if ( endbp < refseq.start || endbp > refseq.end )
         endbp = refseq.end;
 
+    var showTracks;
     if (this.ref != refseq) {
         this.ref = refseq;
+        showTracks = this.visibleTrackNames();
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
         var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
@@ -1005,7 +1010,6 @@ setLocation: function(refseq, startbp, endbp) {
 
         this.sizeInit();
         this.setY(0);
-        //this.containerHeight = this.topSpace;
 
         this.behaviorManager.initialize();
     }
@@ -1031,6 +1035,10 @@ setLocation: function(refseq, startbp, endbp) {
     this.instantZoomUpdate();
 
     this.centerAtBase((startbp + endbp) / 2, true);
+
+    // re-show any tracks we need to
+    if( showTracks )
+        this.showTracks( showTracks );
 },
 
 stripeWidthForZoom: function(zoomLevel) {
@@ -1789,11 +1797,17 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
 
 /**
  * Add the given track configurations to the genome view.
- * @param trackConfigs {Array[Object]} array of track configuration
- * objects to add
+ * @param trackConfigs {Array[Object|String]} array of track
+ *        configurations or string track names, or a mixture objects
+ *        to add
  */
 showTracks: function( trackConfigs ) {
     this.initialized.then( dojo.hitch( this, function() {
+        // look up configurations for any string track names
+        trackConfigs = array.map( trackConfigs, function( conf ) {
+            return conf.label ? conf : this.browser.trackConfigsByName[conf];
+        },this);
+
         // filter out any track configs that are already displayed
         var needed = dojo.filter( trackConfigs, function(conf) {
             return this._getTracks( [conf.label] ).length == 0;
@@ -1964,6 +1978,41 @@ zoomTo: function(value) {
     this.zoomIn(undefined,undefined,steps);
 },
 
+
+// asynchronous
+navigateTo: function( something ) {
+    var thisB = this;
+    return this.initialized.then(  function() {
+        // if it's a foo:123..456 location, try to go there
+        var location = typeof something == 'string' && Util.parseLocString( something );
+        if( location ) {
+            return thisB.browser.findRefSeq( location.ref )
+                .then(
+                    function( refseq ) {
+                        if( refseq )
+                            thisB.setLocation( refseq, location.start, location.end );
+                        else
+                            console.warn( 'reference sequence '+location.ref+' not found' );
+                        d.resolve();
+                    }
+                );
+        }
+        // otherwise, if it's just a string, try to figure out what it is
+        else {
+            return thisB.browser.searchNames( something )
+                .then( function( location ) {
+                           return thisB.browser.findRefSeq( location.ref )
+                                       .then( function( refseq ) {
+                                                  return { ref: refseq, start: location.start, end: location.end };
+                                              });
+                       })
+                .then( function( location ) {
+                           thisB.setLocation( location.ref, location.start, location.end );
+                       });
+        }
+    });
+},
+
 /**
  * @private
  */
@@ -2034,7 +2083,7 @@ createNavBox: function( parent ) {
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
                       if (event.keyCode == dojo.keys.ENTER) {
                           this.locationBox.closeDropDown(false);
-                          this.browser.navigateTo( this.locationBox.get('value') );
+                          this.navigateTo( this.locationBox.get('value') );
                           this.goButton.set('disabled',true);
                           dojo.stopEvent(event);
                       } else {
@@ -2078,74 +2127,80 @@ createNavBox: function( parent ) {
 
     dojo.style('GoButton', 'height', '18px');
 
-    this.browser.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
-        var refSeqOrder = this.browser.refSeqOrder;
+    // make the refseq selection dropdown
+    this.browser.getStore('refseqs', function( store ) {
+        var max = thisB.browser.config.refSeqSelectorMaxSize || 30;
+        var refSeqOrder = [];
+        store.getRefSeqMeta(
+            { limit: max+1 },
+            function( refseq ) {
+                refSeqOrder.push( refseq );
+            },
+            function() {
+                var numrefs = Math.min( max, refSeqOrder.length);
+                var options = [];
+                for ( var i = 0; i < numrefs; i++ ) {
+                    options.push( { label: refSeqOrder[i].name, value: refSeqOrder[i].name } );
+                }
+                var tooManyMessage = '(first '+numrefs+' ref seqs)';
+                if( refSeqOrder.length > max ) {
+                    options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+                }
+                thisB.refSeqSelectBox = new dijitSelectBox({
+                    name: 'refseq',
+                    value: thisB.ref ? thisB.ref.name : null,
+                    options: options,
+                    onChange: dojo.hitch(thisB, function( newRefName ) {
+                        // don't trigger nav if it's the too-many message
+                        if( newRefName == tooManyMessage ) {
+                            this.refSeqSelectBox.set('value', this.refSeq.name );
+                            return;
+                        }
 
-        // make the refseq selection dropdown
-        if( refSeqOrder && refSeqOrder.length ) {
-            var max = this.browser.config.refSeqSelectorMaxSize || 30;
-            var numrefs = Math.min( max, refSeqOrder.length);
-            var options = [];
-            for ( var i = 0; i < numrefs; i++ ) {
-                options.push( { label: refSeqOrder[i], value: refSeqOrder[i] } );
-            }
-            var tooManyMessage = '(first '+numrefs+' ref seqs)';
-            if( refSeqOrder.length > max ) {
-                options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
-            }
-            this.refSeqSelectBox = new dijitSelectBox({
-                name: 'refseq',
-                value: this.ref ? this.ref.name : null,
-                options: options,
-                onChange: dojo.hitch(this, function( newRefName ) {
-                    // don't trigger nav if it's the too-many message
-                    if( newRefName == tooManyMessage ) {
-                        this.refSeqSelectBox.set('value', this.refSeq.name );
-                        return;
-                    }
+                        // only trigger navigation if actually switching sequences
+                        if( newRefName != this.ref.name ) {
+                            this.navigateTo(newRefName);
+                        }
+                    })
+                }).placeAt( refSeqSelectBoxPlaceHolder );
+            });
 
-                    // only trigger navigation if actually switching sequences
-                    if( newRefName != this.ref.name ) {
-                        this.browser.navigateTo(newRefName);
-                    }
-                })
-            }).placeAt( refSeqSelectBoxPlaceHolder );
-        }
+            // calculate how big to make the location box:  make it big enough to hold the
+            var locLength = thisB.browser.config.locationBoxLength || function() {
+                // if we have no refseqs, just use 20 chars
+                if( ! refSeqOrder.length )
+                    return 20;
 
-        // calculate how big to make the location box:  make it big enough to hold the
-        var locLength = this.browser.config.locationBoxLength || function() {
-            var refSeqOrder = this.browser.refSeqOrder;
-            var allRefs = this.browser.allRefs;
+                // if there are not tons of refseqs, pick the longest-named
+                // one.  otherwise just pick the last one
+                var ref = refSeqOrder.length < 1000
+                    && function() {
+                           var longestNamedRef;
+                           array.forEach( refSeqOrder, function(ref) {
+                               if( ! ref.length )
+                                   ref.length = ref.end - ref.start + 1;
+                               if( ! longestNamedRef || longestNamedRef.length < ref.length )
+                                   longestNamedRef = ref;
+                           });
+                           return longestNamedRef;
+                       }.call()
+                    || refSeqOrder.length && refSeqOrder[ refSeqOrder.length - 1 ].name.length
+                    || 20;
 
-            // if we have no refseqs, just use 20 chars
-            if( ! refSeqOrder.length )
-                return 20;
+                var locstring = Util.assembleLocStringWithLength(
+                    { ref: ref.name,
+                      start: ref.end-1,
+                      end: ref.end,
+                      length: ref.length
+                    });
 
-            // if there are not tons of refseqs, pick the longest-named
-            // one.  otherwise just pick the last one
-            var ref = refSeqOrder.length < 1000
-                && function() {
-                       var longestNamedRef;
-                       array.forEach( refSeqOrder, function(name) {
-                                          var ref = allRefs[name];
-                                          if( ! ref.length )
-                                              ref.length = ref.end - ref.start + 1;
-                                          if( ! longestNamedRef || longestNamedRef.length < ref.length )
-                                              longestNamedRef = ref;
-                                      }, this );
-                       return longestNamedRef;
-                   }.call(this)
-                || refSeqOrder.length && allRefs[ refSeqOrder[ refSeqOrder.length - 1 ] ]
-                || 20;
+                //console.log( locstring, locstring.length );
+                return locstring.length;
+            }.call(thisB) || 20;
 
-            var locstring = Util.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
-            //console.log( locstring, locstring.length );
-            return locstring.length;
-        }.call(this) || 20;
+            thisB.locationBox.domNode.style.width = locLength+'ex';
 
-        this.locationBox.domNode.style.width = locLength+'ex';
-    }));
-
+        });
 
     var zoomOut = document.createElement("input");
     zoomOut.type = "image";

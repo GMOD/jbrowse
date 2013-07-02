@@ -99,9 +99,10 @@ return declare( SeqFeatureStore,
 
     _handleTrackInfo: function( refData, trackInfo, url ) {
         refData.stats = {
-            featureCount: trackInfo.featureCount || 0,
-            featureDensity: ( trackInfo.featureCount || 0 ) / this.refSeq.length
+            featureCount: trackInfo.featureCount || 0
         };
+        if( 'featureDensity' in trackInfo )
+             refData.stats.featureDensity = trackInfo.featureDensity;
 
         this.empty = !trackInfo.featureCount;
 

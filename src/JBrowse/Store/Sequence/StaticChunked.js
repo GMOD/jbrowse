@@ -56,12 +56,13 @@ return declare( SeqFeatureStore,
 
     _getRefSeqsInfo: function() {
         return this._refSeqsInfo || function() {
+            var thisB = this;
             return this._refSeqsInfo =
                 xhr.get( this.config.refSeqs || this.browser.config.refSeqs, { handleAs: 'json' } )
                    .then( function( r ) {
                               var refsByName = {};
                               for( var i = 0; i<r.length; i++ ) {
-                                  refsByName[r[i].name] = r[i];
+                                  refsByName[ thisB.browser.regularizeReferenceName( r[i].name ) ] = r[i];
                               }
                               return refsByName;
                           });
@@ -69,9 +70,10 @@ return declare( SeqFeatureStore,
     },
 
     getRefSeqMeta: function( query, refSeqCallback, finishCallback, errorCallback ) {
+        var thisB = this;
         this._getRefSeqsInfo().then( function( refSeqs ) {
-            if( 'name' in query ) {
-                refSeqCallback( refSeqs[ query.name ] );
+            if( query.name ) {
+                refSeqCallback( refSeqs[ thisB.browser.regularizeReferenceName( query.name ) ] );
                 finishCallback();
             }
             else {
