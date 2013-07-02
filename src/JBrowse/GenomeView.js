@@ -103,6 +103,73 @@ constructor: function( args ) {
 
 
 
+    // we have a separate zoomContainer as a child of the scrollContainer.
+    // they used to be the same element, but making zoomContainer separate
+    // enables it to be narrower than this.elem.
+    this.zoomContainer = document.createElement("div");
+    this.zoomContainer.id = "zoomContainer";
+    this.zoomContainer.style.cssText =
+        "position: absolute; left: 0px; top: 0px; height: 100%;";
+    this.scrollContainer.appendChild(this.zoomContainer);
+
+    this.outerTrackContainer = document.createElement("div");
+    this.outerTrackContainer.className = "trackContainer outerTrackContainer";
+    this.outerTrackContainer.style.cssText = "height: 100%;";
+    this.zoomContainer.appendChild( this.outerTrackContainer );
+
+    this.trackContainer = document.createElement("div");
+    this.trackContainer.className = "trackContainer innerTrackContainer draggable";
+    this.trackContainer.style.cssText = "height: 100%;";
+    this.outerTrackContainer.appendChild( this.trackContainer );
+
+    //width, in pixels of the "regular" (not min or max zoom) stripe
+    this.regularStripe = this.stripeWidth;
+
+    //width, in pixels, of stripes at full zoom, is 10bp
+    this.fullZoomStripe = this.stripeWidth/10 * this.maxPxPerBp;
+
+    this.tracks = [];
+    this.uiTracks = [];
+    this.trackIndices = {};
+
+    //distance, in pixels, between each track
+    this.trackPadding = 20;
+    //extra margin to draw around the visible area, in multiples of the visible area
+    //0: draw only the visible area; 0.1: draw an extra 10% around the visible area, etc.
+    this.drawMargin = 0.2;
+    //slide distance (pixels) * slideTimeMultiple + 200 = milliseconds for slide
+    //1=1 pixel per millisecond average slide speed, larger numbers are slower
+    this.slideTimeMultiple = 0.8;
+    this.trackHeights = [];
+    this.trackTops = [];
+    this.waitElems = dojo.filter( [ dojo.byId("moveLeft"), dojo.byId("moveRight"),
+                                    dojo.byId("zoomIn"), dojo.byId("zoomOut"),
+                                    dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
+                                    document.body, this.elem ],
+                                  function(e) { return e; }
+                                );
+    this.prevCursors = [];
+
+    this.x = this.elem.scrollLeft;
+    this.y = 0;
+
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
+
+    // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
+    // dojo.forEach(this.uiTracks, function(track) {
+    //     track.showRange(0, this.stripeCount - 1,
+    //                     Math.round(this.pxToBp(this.offset)),
+    //                     Math.round(this.stripeWidth / this.pxPerBp),
+    //                     this.pxPerBp);
+    // }, this);
+
+    this.zoomContainer.style.paddingTop = this.topSpace + "px";
+
 
     var initialLocString = args.initialLocation;
     var initialLoc = Util.parseLocString( initialLocString );
@@ -134,35 +201,6 @@ _finishInitialization: function( args, refseq ) {
     //the reference sequence
     this.ref = refseq;
 
-    // we have a separate zoomContainer as a child of the scrollContainer.
-    // they used to be the same element, but making zoomContainer separate
-    // enables it to be narrower than this.elem.
-    this.zoomContainer = document.createElement("div");
-    this.zoomContainer.id = "zoomContainer";
-    this.zoomContainer.style.cssText =
-        "position: absolute; left: 0px; top: 0px; height: 100%;";
-    this.scrollContainer.appendChild(this.zoomContainer);
-
-    this.outerTrackContainer = document.createElement("div");
-    this.outerTrackContainer.className = "trackContainer outerTrackContainer";
-    this.outerTrackContainer.style.cssText = "height: 100%;";
-    this.zoomContainer.appendChild( this.outerTrackContainer );
-
-    this.trackContainer = document.createElement("div");
-    this.trackContainer.className = "trackContainer innerTrackContainer draggable";
-    this.trackContainer.style.cssText = "height: 100%;";
-    this.outerTrackContainer.appendChild( this.trackContainer );
-
-    //width, in pixels of the "regular" (not min or max zoom) stripe
-    this.regularStripe = this.stripeWidth;
-
-    //width, in pixels, of stripes at full zoom, is 10bp
-    this.fullZoomStripe = this.stripeWidth/10 * this.maxPxPerBp;
-
-    this.tracks = [];
-    this.uiTracks = [];
-    this.trackIndices = {};
-
     //set up size state (zoom levels, stripe percentage, etc.)
     this.sizeInit();
 
@@ -177,27 +215,6 @@ _finishInitialization: function( args, refseq ) {
     //this prevents us from scrolling off the left end of the ref seq
     this.minLeft = this.bpToPx(this.ref.start);
 
-
-    //distance, in pixels, between each track
-    this.trackPadding = 20;
-    //extra margin to draw around the visible area, in multiples of the visible area
-    //0: draw only the visible area; 0.1: draw an extra 10% around the visible area, etc.
-    this.drawMargin = 0.2;
-    //slide distance (pixels) * slideTimeMultiple + 200 = milliseconds for slide
-    //1=1 pixel per millisecond average slide speed, larger numbers are slower
-    this.slideTimeMultiple = 0.8;
-    this.trackHeights = [];
-    this.trackTops = [];
-    this.waitElems = dojo.filter( [ dojo.byId("moveLeft"), dojo.byId("moveRight"),
-                                    dojo.byId("zoomIn"), dojo.byId("zoomOut"),
-                                    dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
-                                    document.body, this.elem ],
-                                  function(e) { return e; }
-                                );
-    this.prevCursors = [];
-
-    this.x = this.elem.scrollLeft;
-    this.y = 0;
 
     var scaleTrackDiv = document.createElement("div");
     scaleTrackDiv.className = "track viewscale rubberBandAvailable";
@@ -271,22 +288,7 @@ _finishInitialization: function( args, refseq ) {
             }
         )
     );
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
 
-    // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
-    // dojo.forEach(this.uiTracks, function(track) {
-    //     track.showRange(0, this.stripeCount - 1,
-    //                     Math.round(this.pxToBp(this.offset)),
-    //                     Math.round(this.stripeWidth / this.pxPerBp),
-    //                     this.pxPerBp);
-    // }, this);
-
-    this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
     this.showFine();
     this.showCoarse();
