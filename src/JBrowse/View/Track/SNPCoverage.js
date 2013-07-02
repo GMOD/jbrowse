@@ -225,7 +225,6 @@ return declare( [WiggleXY, AlignmentsMixin],
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            console.log(score);
             scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score['score'])+'</td></tr></table>';
             return true;
         }
