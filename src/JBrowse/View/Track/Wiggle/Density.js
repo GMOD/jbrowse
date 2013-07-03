@@ -63,7 +63,7 @@ return declare( WiggleBase,
 
         dojo.forEach( pixels, function(p,i) {
             if (p) {
-                var score = f.get('score');
+                var score = p['score'];
                 var n = normalize( score );
                 context.fillStyle = ''+featureColor( p, n );
                 context.fillRect( i, 0, 1, canvasHeight );
