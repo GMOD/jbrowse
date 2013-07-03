@@ -52,16 +52,16 @@ return dojo.declare( BlockBased,
             !( base_span % 5  ) ? 5  :
             !( base_span % 2  ) ? 2  :
                                   0;
-        minor_count = Math.min(
-            minor_count,
-            Math.round( 100*(this.refSeq.end-leftBase)/base_span )
-        );
 
+        var maxminor = 100*(this.refSeq.end - leftBase)/base_span;
         for( var i=0; i<minor_count; i++ ) {
             var pos = 100/minor_count*i;
             var cls = pos == 0 || (minor_count == 20 && i == 10)
                 ? "gridline_major"
                 : "gridline_minor";
+
+            if( pos > maxminor )
+                break;
 
             block.domNode.appendChild( new_gridline( cls, pos) );
         }
