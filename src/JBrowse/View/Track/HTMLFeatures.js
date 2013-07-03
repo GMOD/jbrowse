@@ -157,13 +157,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      * draw for a given block size in base pairs.
      * @private
      */
-    _histDimensions: function( blockSizeBp ) {
+    _histDimensions: function( blockSizeBp, stats ) {
 
         // bases in each histogram bin that we're currently rendering
         var bpPerBin = blockSizeBp / this.numBins;
         var pxPerCount = 2;
         var logScale = false;
-        var stats = this.store.histograms.stats;
         var statEntry;
         for (var i = 0; i < stats.length; i++) {
             if (stats[i].basesPerBin >= bpPerBin) {
@@ -192,88 +191,48 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var rightBase = args.rightBase;
         var stripeWidth = args.stripeWidth;
 
-        var dims = this._histDimensions( Math.abs( rightBase - leftBase ) );
-
         var track = this;
-        var makeHistBlock = function(hist) {
-            var maxBin = 0;
-            for (var bin = 0; bin < track.numBins; bin++) {
-                if (typeof hist[bin] == 'number' && isFinite(hist[bin])) {
-                    maxBin = Math.max(maxBin, hist[bin]);
+        this.store.getRegionFeatureDensities(
+            { ref:   this.refSeq.name,
+              start: args.leftBase,
+              end:   args.rightBase,
+              bpPerBin: Math.abs( rightBase - leftBase )/this.numBins
+            },
+            function( histData ) {
+                var hist = histData.bins;
+                var maxBin = 0;
+                for (var bin = 0; bin < track.numBins; bin++) {
+                    if (typeof hist[bin] == 'number' && isFinite(hist[bin])) {
+                        maxBin = Math.max(maxBin, hist[bin]);
+                    }
                 }
-            }
-            var binDiv;
-            for (bin = 0; bin < track.numBins; bin++) {
-                if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
-                    continue;
-                binDiv = document.createElement("div");
-                binDiv.className = "hist feature-hist "+track.config.style.className + "-hist";
-                binDiv.style.cssText =
-                    "left: " + ((bin / track.numBins) * 100) + "%; "
-                    + "height: "
-                    + ( dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]) )
-                    + "px;"
-                    + "bottom: " + track.trackPadding + "px;"
-                    + "width: " + ((100 / track.numBins) - (100 / stripeWidth)) + "%;"
-                    + (track.config.style.histCss ?
-                       track.config.style.histCss : "");
-                binDiv.setAttribute('value',hist[bin]);
-                if (Util.is_ie6) binDiv.appendChild(document.createComment());
-                block.domNode.appendChild(binDiv);
-            }
 
-            track.heightUpdate( dims.pxPerCount * ( dims.logScale ? Math.log(maxBin) : maxBin ),
-                                blockIndex );
-            track.makeHistogramYScale( Math.abs(rightBase-leftBase) );
-        };
+                var dims = track._histDimensions( Math.abs( rightBase - leftBase ), histData.stats );
 
-        // The histogramMeta array describes multiple levels of histogram detail,
-        // going from the finest (smallest number of bases per bin) to the
-        // coarsest (largest number of bases per bin).
-        // We want to use coarsest histogramMeta that's at least as fine as the
-        // one we're currently rendering.
-        // TODO: take into account that the histogramMeta chosen here might not
-        // fit neatly into the current histogram (e.g., if the current histogram
-        // is at 50,000 bases/bin, and we have server histograms at 20,000
-        // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
-        // rather than the 20,000)
-        var histogramMeta = this.store.histograms.meta[0];
-        for (var i = 0; i < this.store.histograms.meta.length; i++) {
-            if (dims.bpPerBin >= this.store.histograms.meta[i].basesPerBin)
-                histogramMeta = this.store.histograms.meta[i];
-        }
-
-        // number of bins in the server-supplied histogram for each current bin
-        var binCount = dims.bpPerBin / histogramMeta.basesPerBin;
-        // if the server-supplied histogram fits neatly into our current histogram,
-        if ((binCount > .9)
-            &&
-            (Math.abs(binCount - Math.round(binCount)) < .0001)) {
-            // we can use the server-supplied counts
-            var firstServerBin = Math.floor(leftBase / histogramMeta.basesPerBin);
-            binCount = Math.round(binCount);
-            var histogram = [];
-            for (var bin = 0; bin < this.numBins; bin++)
-                histogram[bin] = 0;
-
-            histogramMeta.lazyArray.range(
-                firstServerBin,
-                firstServerBin + (binCount * this.numBins),
-                function(i, val) {
-                    // this will count features that span the boundaries of
-                    // the original histogram multiple times, so it's not
-                    // perfectly quantitative.  Hopefully it's still useful, though.
-                    histogram[Math.floor((i - firstServerBin) / binCount)] += val;
-                },
-                function() {
-                    makeHistBlock(histogram);
+                var binDiv;
+                for (bin = 0; bin < track.numBins; bin++) {
+                    if (!(typeof hist[bin] == 'number' && isFinite(hist[bin])))
+                        continue;
+                    binDiv = document.createElement("div");
+                    binDiv.className = "hist feature-hist "+track.config.style.className + "-hist";
+                    binDiv.style.cssText =
+                        "left: " + ((bin / track.numBins) * 100) + "%; "
+                        + "height: "
+                        + ( dims.pxPerCount * ( dims.logScale ? Math.log(hist[bin]) : hist[bin]) )
+                        + "px;"
+                        + "bottom: " + track.trackPadding + "px;"
+                        + "width: " + ((100 / track.numBins) - (100 / stripeWidth)) + "%;"
+                        + (track.config.style.histCss ?
+                           track.config.style.histCss : "");
+                    binDiv.setAttribute('value',hist[bin]);
+                    if (Util.is_ie6) binDiv.appendChild(document.createComment());
+                    block.domNode.appendChild(binDiv);
                 }
-            );
-        } else {
-            // make our own counts
-            this.store.histogram( leftBase, rightBase,
-                                         this.numBins, makeHistBlock);
-        }
+
+                track.heightUpdate( dims.pxPerCount * ( dims.logScale ? Math.log(maxBin) : maxBin ),
+                                    blockIndex );
+                track.makeHistogramYScale( Math.abs(rightBase-leftBase), histData );
+            });
 
         args.finishCallback();
     },
@@ -400,7 +359,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 // only update the label once for each block size
                 var blockBases = Math.abs( leftBase-rightBase );
                 if( this._updatedLabelForBlockSize != blockBases ){
-                    if ( this.store.histogram && scale < histScale ) {
+                    if ( this.store.getRegionFeatureDensities && scale < histScale ) {
                         this.setLabel(this.key + ' <span class="feature-density">per ' + Util.addCommas( Math.round( blockBases / this.numBins)) + ' bp</span>');
                     } else {
                         this.setLabel(this.key);
@@ -411,8 +370,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 // console.log(this.name+" scale: %d, density: %d, histScale: %d, screenDensity: %d", scale, stats.featureDensity, this.config.style.histScale, stats.featureDensity / scale );
 
                 // if we our store offers density histograms, and we are zoomed out far enough, draw them
-                if( this.store.histograms && scale < histScale ) {
-                        this.fillHist( args );
+                if( this.store.getRegionFeatureDensities && scale < histScale ) {
+                    this.fillHist( args );
                 }
                 // if we have no histograms, check the predicted density of
                 // features on the screen, and display a message if it's
@@ -444,8 +403,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      * @param {Number} blockSizeBp the size of the blocks in base pairs.
      * Necessary for calculating histogram stats.
      */
-    makeHistogramYScale: function( blockSizeBp ) {
-        var dims = this._histDimensions( blockSizeBp);
+    makeHistogramYScale: function( blockSizeBp, histData ) {
+        var dims = this._histDimensions( blockSizeBp, histData.stats );
         if( dims.logScale ) {
             console.error("Log histogram scale axis labels not yet implemented.");
             return;
@@ -658,8 +617,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                        containerStart, containerEnd );
+                // var filter = this.browser.view.featureFilter;
+                if( this.filterFeature( feature ) )  {
+                    this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                                            containerStart, containerEnd );
+               }
             }
         });
 
@@ -917,6 +879,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             this.minusArrowHeight = glyphBox.h;
             document.body.removeChild(ah);
         }
+    },
+
+    hideAll: function() {
+        this._clearLayout();
+        return this.inherited(arguments);
     },
 
     getFeatDiv: function( feature )  {

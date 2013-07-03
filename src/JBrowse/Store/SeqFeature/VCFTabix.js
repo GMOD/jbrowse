@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/Deferred',
+           'dojo/_base/lang',
+           'dojo/Deferred',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Store/DeferredFeaturesMixin',
@@ -11,6 +12,7 @@ define([
        ],
        function(
            declare,
+           lang,
            Deferred,
            SeqFeatureStore,
            DeferredStatsMixin,
@@ -63,20 +65,20 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 chunkSizeLimit: args.chunkSizeLimit
             });
 
-        this._loadHeader().then( function() {
-            thisB._estimateGlobalStats( function( stats, error ) {
-                if( error )
-                    thisB._failAllDeferred( error );
-                else {
-                    thisB.globalStats = stats;
-                    thisB._deferred.stats.resolve({success:true});
-                    thisB._deferred.features.resolve({success:true});
-                }
-            });
-        },
-        function(error) {
-            thisB._failAllDeferred( error );
-        });
+        this._loadHeader()
+            .then( function() {
+                       thisB._deferred.features.resolve({success:true});
+                       thisB._estimateGlobalStats()
+                            .then(
+                                function( stats ) {
+                                    thisB.globalStats = stats;
+                                    thisB._deferred.stats.resolve( stats );
+                                },
+                                lang.hitch( thisB, '_failAllDeferred' )
+                            );
+                   },
+                   lang.hitch( thisB, '_failAllDeferred' )
+                 );
     },
 
     /** fetch and parse the VCF header lines */
@@ -99,10 +101,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
                         d.resolve({ success:true});
                     },
-                    dojo.hitch( d, 'reject' )
+                    lang.hitch( d, 'reject' )
                 );
              },
-             dojo.hitch( d, 'reject' )
+             lang.hitch( d, 'reject' )
             );
 
             return d;

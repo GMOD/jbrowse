@@ -3,12 +3,13 @@ define( [
             'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/on',
+            'dojo/mouse',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function( declare, array, dom, on, BlockBasedTrack, ExportMixin, Util, Scale ) {
+        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, Util, Scale ) {
 
 return declare( [BlockBasedTrack,ExportMixin], {
 
@@ -87,6 +88,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _getBlockFeatures: function( args ) {
+            var thisB = this;
             var blockIndex = args.blockIndex;
             var block = args.block;
 
@@ -106,8 +108,13 @@ return declare( [BlockBasedTrack,ExportMixin], {
                   start: leftBase,
                   end: rightBase+1
                 },
-                function(f) { features.push(f); },
-                dojo.hitch( this, function( args ) {
+
+                function(f) {
+                    if( thisB.filterFeature(f) )
+                        features.push(f);
+                },
+                dojo.hitch( this, function(args) {
+
                     // if the block has been freed in the meantime,
                     // don't try to render
                     if( ! (block.domNode && block.domNode.parentNode ))
@@ -381,6 +388,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     }
             })));
         },this);
+        /*
         this.own( on( block.domNode, 'mouseout', function(evt) {
                 var target = evt.srcElement || evt.target;
                 var evtParent = evt.relatedTarget || evt.toElement;
@@ -396,6 +404,10 @@ return declare( [BlockBasedTrack,ExportMixin], {
                     scoreDisplay.style.display = 'none';
                     verticalLine.style.display = 'none';
                 }
+        */
+        this.own( on( block.domNode, mouse.leave, function(evt) {
+                          scoreDisplay.style.display = 'none';
+                          verticalLine.style.display = 'none';
         }));
     },
 

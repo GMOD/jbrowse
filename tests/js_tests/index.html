@@ -13,37 +13,17 @@
   <!-- include source files here... -->
   <script type="text/javascript" src="../../src/dojo/dojo.js" data-dojo-config="async: 1" ></script>
 
-  <!-- include spec files here... -->
-  <script type="text/javascript" src="spec/ExportGFF3.spec.js"></script>
-  <script type="text/javascript" src="spec/LazyArray.spec.js"></script>
-  <script type="text/javascript" src="spec/FeatureLayout.spec.js"></script>
-  <script type="text/javascript" src="spec/BigWig.spec.js"></script>
-  <script type="text/javascript" src="spec/ConfigManager.spec.js"></script>
-  <script type="text/javascript" src="spec/BAM.spec.js"></script>
-  <script type="text/javascript" src="spec/RemoteBinaryFile.spec.js"></script>
-  <script type="text/javascript" src="spec/GFF3ParserSpec.js"></script>
-  <script type="text/javascript" src="spec/GFF3ParserCheckDeeperFeatures.js"></script>
-  <script type="text/javascript" src="spec/GFF3toJbrowseJsonSpec.js"></script>
-  <script type="text/javascript" src="spec/Util.spec.js"></script>
-  <script type="text/javascript" src="spec/AddFiles.spec.js"></script>
-  <script type="text/javascript" src="spec/GBrowseParser.spec.js"></script>
-  <script type="text/javascript" src="spec/NestedFrequencyTable.spec.js"></script>
-  <script type="text/javascript" src="spec/TabixIndex.spec.js"></script>
-  <script type="text/javascript" src="spec/TabixIndexedFile.spec.js"></script>
-  <script type="text/javascript" src="spec/RESTStore.spec.js"></script>
-  <script type="text/javascript" src="spec/RegularizeRefSeqs.spec.js"></script>
-
   <script type="text/javascript">
     require( { baseUrl: '../../src',
                packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
-                            { name: 'lazyload', main: 'lazyload' },
+                            { name: 'lazyload',  main: 'lazyload' },
                             'dgrid', 'xstyle', 'put-selector',
                             { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
                             'JBrowse'
                          ]
               },
-              [],
-              function() {
+              ['JBrowse/Browser'],
+              function( Browser ) {
       var jasmineEnv = jasmine.getEnv();
       jasmineEnv.updateInterval = 1000;
 
@@ -69,6 +49,26 @@
       }
     });
   </script>
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="spec/ExportGFF3.spec.js"></script>
+  <script type="text/javascript" src="spec/LazyArray.spec.js"></script>
+  <script type="text/javascript" src="spec/FeatureLayout.spec.js"></script>
+  <script type="text/javascript" src="spec/BigWig.spec.js"></script>
+  <script type="text/javascript" src="spec/ConfigManager.spec.js"></script>
+  <script type="text/javascript" src="spec/BAM.spec.js"></script>
+  <script type="text/javascript" src="spec/RemoteBinaryFile.spec.js"></script>
+  <script type="text/javascript" src="spec/Util.spec.js"></script>
+  <script type="text/javascript" src="spec/AddFiles.spec.js"></script>
+  <script type="text/javascript" src="spec/GBrowseParser.spec.js"></script>
+  <script type="text/javascript" src="spec/NestedFrequencyTable.spec.js"></script>
+  <script type="text/javascript" src="spec/TabixIndex.spec.js"></script>
+  <script type="text/javascript" src="spec/TabixIndexedFile.spec.js"></script>
+  <script type="text/javascript" src="spec/RESTStore.spec.js"></script>
+  <script type="text/javascript" src="spec/RegularizeRefSeqs.spec.js"></script>
+  <script type="text/javascript" src="spec/GFF3.spec.js"></script>
+  <script type="text/javascript" src="spec/SPARQLStore.spec.js"></script>
+
 
 </head>
 

@@ -66,25 +66,27 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                         bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
 
         if( ! has( 'typed-arrays' ) ) {
-            this._failAllDeferred( 'Web browser does not support typed arrays');
+            this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );
             return;
         }
 
         this.bam.init({
-            success: dojo.hitch( this, '_estimateGlobalStats',
-                                 dojo.hitch( this, function( stats, error ) {
-                                     if( error )
-                                         this._failAllDeferred( error );
-                                     else {
-                                         this.globalStats = stats;
-                                         this._deferred.stats.resolve({success:true});
-                                         this._deferred.features.resolve({success:true});
-                                     }
+            success: lang.hitch( this,
+                                 function() {
+                                     this._deferred.features.resolve({success:true});
 
+                                     this._estimateGlobalStats()
+                                         .then( lang.hitch(
+                                                    this,
+                                                    function( stats ) {
+                                                        this.globalStats = stats;
+                                                        this._deferred.stats.resolve({success:true});
+                                                    }
+                                                ),
+                                                lang.hitch( this, '_failAllDeferred' )
+                                              );
                                  }),
-                                 dojo.hitch( this, '_failAllDeferred' )
-                               ),
-            failure: dojo.hitch( this, '_failAllDeferred' )
+            failure: lang.hitch( this, '_failAllDeferred' )
         });
     },
 

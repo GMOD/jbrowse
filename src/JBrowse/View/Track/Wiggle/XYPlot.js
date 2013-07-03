@@ -99,14 +99,16 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 }
             }
 
-            if( score <= canvasHeight ) { // if the rectangle is visible at all
+
+            if( score <= canvasHeight || score > originY) { // if the rectangle is visible at all
                 if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
                     context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( i, 0, 1, 2 );
+                        context.fillRect( i, 0, 1, 3 );
+
                     }
                 }
                 else {
@@ -115,7 +117,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( i, canvasHeight-3, 1, 2 );
+                        context.fillRect( i, canvasHeight-3, 1, 3 );
+
                     }
                 }
             }

@@ -301,7 +301,7 @@ return declare( null,
      */
     get: function( args ) {
         if( ! has('typed-arrays') ) {
-            (args.failure || function(m) { console.error(m); })('Web browser does not support typed arrays.');
+            (args.failure || function(m) { console.error(m); })('This web browser lacks support for JavaScript typed arrays.');
             return;
         }
 

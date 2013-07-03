@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use base 'Bio::JBrowse::Cmd';
-use Pod::Usage;
+use Pod::Usage ();
 
 use File::Spec::Functions qw/ catfile catdir /;
 use File::Path 'mkpath';
@@ -52,7 +52,7 @@ sub run {
 
     $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
 
-    pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
+    Pod::Usage::pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
         unless defined $self->opt('gff') || $self->opt('conf') || $self->opt('fasta');
 
     {
@@ -360,6 +360,7 @@ sub exportSeqChunksFromDB {
     my $chunkStart = $start;
     while( $chunkStart <= $end ) {
         my $chunkEnd = $chunkStart + $chunkSize - 1;
+        $chunkEnd = $end if $chunkEnd > $end;
         my $chunkNum = floor( ($chunkStart - 1) / $chunkSize );
         my ($seg) = $db->segment( @$segDef,
                                   -start    => $chunkStart,

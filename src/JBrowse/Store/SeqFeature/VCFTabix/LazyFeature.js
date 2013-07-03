@@ -3,9 +3,10 @@
  */
 
 define( ['dojo/_base/array',
+         'dojo/json',
          'JBrowse/Util'
         ],
-        function( array, Util ) {
+        function( array, dojoJSON, Util ) {
 
 var Feature = Util.fastDeclare(
 {
@@ -107,7 +108,7 @@ var Feature = Util.fastDeclare(
                     srec[field] = this[sample][field].values;
             }
         }
-        return JSON.stringify( ex );
+        return (JSON||dojoJSON).stringify( ex );
     }
 
 });

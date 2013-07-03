@@ -170,6 +170,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin, ExportMixin], {
         return this.layout;
     },
 
+    hideAll: function() {
+        delete this.layout;
+        return this.inherited( arguments );
+    },
+
     /**
      * Returns a promise for the appropriate glyph for the given
      * feature and args.
@@ -242,7 +247,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin, ExportMixin], {
                      };
         this.store.getFeatures( region,
                                 function( feature ) {
-                                    if( thisB.destroyed )
+                                    if( thisB.destroyed || ! thisB.filterFeature( feature ) )
                                         return;
 
                                     fRects.push( null ); // put a placeholder in the fRects array

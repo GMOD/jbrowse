@@ -387,6 +387,9 @@ return declare( null, {
      * the feature description, if available.
      */
     _makeDescriptionString: function( SO_term, ref, alt ) {
+        if( ! alt )
+            return 'no alternative alleles';
+
         alt = alt.replace(/^<|>$/g,'');
 
         var def = this._getAltMeta( alt );

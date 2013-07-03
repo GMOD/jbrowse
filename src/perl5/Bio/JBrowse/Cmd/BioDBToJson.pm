@@ -7,6 +7,7 @@ use GenomeDB;
 use base 'Bio::JBrowse::Cmd::NCFormatter';
 
 use Data::Dumper ();
+use Pod::Usage ();
 use Bio::JBrowse::JSON;
 
 use Bio::JBrowse::FeatureStream::BioPerl;
@@ -45,7 +46,7 @@ sub run {
         $self->opt('nclChunk', $self->opt('nclChunk') * 4 );
     }
 
-    pod2usage( 'must provide a --conf argument' ) unless defined $self->opt('conf');
+    Pod::Usage::pod2usage( 'must provide a --conf argument' ) unless defined $self->opt('conf');
 
     my $gdb = GenomeDB->new( $self->opt('out') );
 

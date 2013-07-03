@@ -19,6 +19,7 @@ define( [
             'dijit/MenuSeparator',
             'JBrowse/Util',
             'JBrowse/Component',
+            'JBrowse/FeatureFiltererMixin',
             'JBrowse/Errors',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog',
@@ -45,6 +46,7 @@ define( [
                   dijitMenuSeparator,
                   Util,
                   Component,
+                  FeatureFiltererMixin,
                   Errors,
                   TrackConfigEditor,
                   ConfirmDialog,
@@ -54,7 +56,7 @@ define( [
 
 // we get `own` and `destroy` from Destroyable, see dijit/Destroyable docs
 
-return declare( [Component,DetailsMixin,Destroyable],
+return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -75,6 +77,9 @@ return declare( [Component,DetailsMixin,Destroyable],
         this.shown = true;
         this.empty = false;
         this.browser = args.browser;
+
+        this.setFeatureFilterParentComponent( this.browser.view );
+
         this.store = args.store;
     },
 
@@ -127,6 +132,9 @@ return declare( [Component,DetailsMixin,Destroyable],
         this.sizeInit(numBlocks, widthPct);
         this.labelHTML = "";
         this.labelHeight = 0;
+
+        if( this.config.initiallyPinned )
+            this.setPinned( true );
 
         if( ! this.label ) {
             this.makeTrackLabel();
@@ -813,6 +821,20 @@ return declare( [Component,DetailsMixin,Destroyable],
                                                                  {} ) || {};
     },
 
+    setPinned: function( p ) {
+        this.pinned = !!p;
+
+        if( this.pinned )
+            domClass.add( this.div, 'pinned' );
+        else
+            domClass.remove( this.div, 'pinned' );
+
+        return this.pinned;
+    },
+    isPinned: function() {
+        return !! this.pinned;
+    },
+
     /**
      * @returns {Array} menu options for this track's menu (usually contains save as, etc)
      */
@@ -824,6 +846,15 @@ return declare( [Component,DetailsMixin,Destroyable],
               iconClass: 'jbrowseIconHelp',
               action: 'contentDialog',
               content: dojo.hitch(this,'_trackDetailsContent')
+            },
+            { label: 'Pin to top',
+              type: 'dijit/CheckedMenuItem',
+              title: "make this track always visible at the top of the view",
+              checked: that.isPinned(),
+              //iconClass: 'dijitIconDelete',
+              onClick: function() {
+                  that.browser.publish( '/jbrowse/v1/v/tracks/'+( this.checked ? 'pin' : 'unpin' ), [ that.name ] );
+              }
             },
             { label: 'Edit config',
               title: "edit this track's configuration",
