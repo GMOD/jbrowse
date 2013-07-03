@@ -38,6 +38,13 @@ return dojo.declare( BlockBased,
 
     renderGridlines: function(block,leftBase,rightBase) {
 
+        var new_gridline = function( glclass, position ) {
+            var gridline = document.createElement("div");
+            gridline.style.cssText = "left: " + position + "%; width: 0px";
+            gridline.className = "gridline "+glclass;
+            return gridline;
+        };
+
         var base_span = rightBase-leftBase;
         var minor_count =
             !( base_span % 20 ) ? 20 :
@@ -45,14 +52,10 @@ return dojo.declare( BlockBased,
             !( base_span % 5  ) ? 5  :
             !( base_span % 2  ) ? 2  :
                                   0;
-        var major_count = base_span == 20 ? 2 : base_span > 0 ? 1 : 0;
-
-        var new_gridline = function( glclass, position ) {
-            var gridline = document.createElement("div");
-            gridline.style.cssText = "left: " + position + "%; width: 0px";
-            gridline.className = "gridline "+glclass;
-            return gridline;
-        };
+        minor_count = Math.min(
+            minor_count,
+            Math.round( 100*(this.refSeq.end-leftBase)/base_span )
+        );
 
         for( var i=0; i<minor_count; i++ ) {
             var pos = 100/minor_count*i;
@@ -63,6 +66,9 @@ return dojo.declare( BlockBased,
             block.domNode.appendChild( new_gridline( cls, pos) );
         }
 
+        if( rightBase > this.refSeq.end && leftBase < this.refSeq.end ) {
+            block.domNode.appendChild( new_gridline( 'gridline_refseq_end', 100*(this.refSeq.end-leftBase)/base_span ) );
+        }
     }
 });
 });

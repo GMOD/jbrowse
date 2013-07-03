@@ -10,5 +10,14 @@
     background: #4284D3;
     color: white;
     border: 1px solid #EEE;
+    border-top: 1px solid #4284D3;
     height: 16px;
+}
+
+.jbrowse.metro .gridline_refseq_end {
+    border-width: 2px;
+    border-color: #222;
+    -moz-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
 }
