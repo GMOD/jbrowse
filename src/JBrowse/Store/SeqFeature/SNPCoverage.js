@@ -29,7 +29,7 @@ return declare( SeqFeatureStore, {
         var thisB = this;
         var leftBase  = query.start;
         var rightBase = query.end;
-        var scale = query.scale || ('basesPerSpan' in query ) ? 1/query.basesPerSpan : 10; // px/bp
+        var scale = query.scale || ('basesPerSpan' in query ) ? 1/query.basesPerSpan : 40; // px/bp
         var widthBp = rightBase-leftBase;
         var widthPx = widthBp * scale;
 
@@ -146,21 +146,22 @@ return declare( SeqFeatureStore, {
                     var sequence;
                     thisB.browser.getStore( 'refseqs', function( refSeqStore ) {
                         if( refSeqStore ) {
-                            refSeqStore.getFeatures( query,
-                                                     function(f) {
-                                                         sequence = f.get('seq');
-                                                     },
-                                                     function() {
-                                                         if( sequence ) {
-                                                             for( var base = leftBase; base <= rightBase; base++ ) {
-                                                                 var bin = binNumber( base );
-                                                                 coverageBins[bin].refBase = sequence[bin];
-                                                             }
-                                                         }
-                                                         makeFeatures();
-                                                     },
-                                                     makeFeatures
-                                                   );
+                            refSeqStore.getFeatures(
+                                query,
+                                function(f) {
+                                    sequence = f.get('seq');
+                                },
+                                function() {
+                                    if( sequence ) {
+                                        for( var base = leftBase; base <= rightBase; base++ ) {
+                                            var bin = binNumber( base );
+                                            coverageBins[bin].refBase = sequence[bin];
+                                        }
+                                    }
+                                    makeFeatures();
+                                },
+                                function(e) { console.error(e); makeFeatures();}
+                            );
                         } else {
                             makeFeatures();
                         }
