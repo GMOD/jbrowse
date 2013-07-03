@@ -2256,7 +2256,7 @@ createNavBox: function( parent ) {
 
     this.zoomSliderContainer =
         dojo.create('span', {
-                        className: 'icon nav',
+                        className: 'nav zoomSliderContainer',
                     }, navbox );
     this.zoomSliderText =
         dojo.create('div', {

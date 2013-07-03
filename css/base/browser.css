@@ -230,6 +230,9 @@ div.vertical_scrollbar .vertical_position_marker {
 .nav-controls .nav {
     position: relative;
 }
+.nav-controls .zoomSliderContainer {
+    top: -2px;
+}
 
 .nav-controls .zoomSliderText {
     position: absolute;
