@@ -13,6 +13,9 @@
     border-top: 1px solid #4284D3;
     height: 16px;
 }
+.jbrowse.metro .nav-controls .zoomSliderText {
+    color: white;
+}
 
 .jbrowse.metro .gridline_refseq_end {
     border-width: 2px;

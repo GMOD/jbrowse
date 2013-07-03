@@ -1018,6 +1018,7 @@ setLocation: function(refseq, startbp, endbp) {
 
     this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
+    this.zoomSlider.set('value',this.curZoom);
 
     if( has('inaccurate-html-layout') )
         this.pxPerBp = this.zoomLevels[ this.curZoom ];
@@ -1446,27 +1447,38 @@ sizeInit: function() {
     }
 
     // update our zoom slider
-    if( this.zoomSlider )
+    if( this.zoomSlider ) {
         this.zoomSlider.destroyRecursive();
-    domConstruct.empty( this.zoomSliderContainer );
+        domConstruct.destroy( this.zoomSlider.domNode );
+    }
+    var sliderTimeout;
+    var thisB = this;
+    this.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.pxPerBp )+'bp';
     this.zoomSlider = new dijitSlider({
         id: "zoomSlider",
         name: "slider",
         value: this.curZoom,
         minimum: 0,
         maximum: this.zoomLevels.length - 1,
-        intermediateChanges: false,
+        intermediateChanges: true,
         showButtons: false,
         style: "width:100px; margin: 7px 0 0 0; display: inline-block",
         discreteValues: this.zoomLevels.length,
-        onChange: lang.hitch( this, function( newLevel ){
-            var steps = newLevel - this.curZoom;
-            if( steps > 0 ) {
-                this.zoomIn(undefined,undefined,steps);
-            } else {
-                this.zoomOut(undefined,undefined,-steps);
-            }
-        })
+        onChange: function( newLevel ){
+            thisB.zoomSliderText.innerHTML = ''; //< sidesteps a bug in some Chromes
+            thisB.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.zoomLevels[newLevel] )+'bp';
+
+            if( sliderTimeout )
+                window.clearTimeout( sliderTimeout );
+            sliderTimeout = window.setTimeout( function() {
+                var steps = newLevel - thisB.curZoom;
+                if( steps > 0 ) {
+                    thisB.zoomIn(undefined,undefined,steps);
+                } else if( steps < 0 ) {
+                    thisB.zoomOut(undefined,undefined,-steps);
+                }
+            }, 400 );
+        }
     }, dojo.create('input',{},this.zoomSliderContainer) );
 
 
@@ -1966,7 +1978,7 @@ _updateLocationDisplays: function( region ) {
         this.positionDisplay.innerHTML = positionString;
     }
     if( this.sizeDisplay ) {
-        this.sizeDisplay.innerHTML = Util.humanReadableNumber(region.end - region.start+1)+'bp';
+        this.sizeDisplay.innerHTML = Util.humanReadableNumber( this.getWidth()/this.pxPerBp )+'bp';
     }
     if( this.locationBox ) {
         this.locationBox.set(
@@ -2233,13 +2245,19 @@ createNavBox: function( parent ) {
     dojo.connect( zoomOut, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                     this.zoomOut();
+                      this.zoomSlider.set( 'value', Math.max( 0, this.zoomSlider.get('value')-1 ) );
+                      this.zoomOut(undefined,undefined, 1);
                   });
 
 
-    var zoomSliderSpan = this.zoomSliderContainer =
-        dojo.create('span', { className: 'icon nav' }, navbox );
-
+    this.zoomSliderContainer =
+        dojo.create('span', {
+                        className: 'icon nav',
+                    }, navbox );
+    this.zoomSliderText =
+        dojo.create('div', {
+                        className: 'zoomSliderText'
+                    }, this.zoomSliderContainer );
 
     var zoomIn = document.createElement("input");
     zoomIn.type = "image";
@@ -2251,7 +2269,8 @@ createNavBox: function( parent ) {
     dojo.connect( zoomIn, "click", this,
                   function(event) {
                       dojo.stopEvent(event);
-                      this.zoomIn();
+                      this.zoomSlider.set( 'value', Math.min( this.zoomLevels.length-1, this.zoomSlider.get('value')+1 ) );
+                      this.zoomIn(undefined,undefined,1);
                   });
 
 

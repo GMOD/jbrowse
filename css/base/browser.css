@@ -227,6 +227,17 @@ div.vertical_scrollbar .vertical_position_marker {
 .nav-controls .dijitTextBox .dijitInputField {
     padding-left: 2px;
 }
+.nav-controls .nav {
+    position: relative;
+}
+
+.nav-controls .zoomSliderText {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 100%;
+    text-align: center;
+}
 
 
 .moreMatches {
