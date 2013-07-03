@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/on',
            'dojo/mouse',
@@ -25,6 +26,7 @@ define([
        ], function(
            declare,
            array,
+           lang,
            domConstruct,
            on,
            mouse,
@@ -1443,6 +1445,31 @@ sizeInit: function() {
         this.rawSetX(newX);
     }
 
+    // update our zoom slider
+    if( this.zoomSlider )
+        this.zoomSlider.destroyRecursive();
+    domConstruct.empty( this.zoomSliderContainer );
+    this.zoomSlider = new dijitSlider({
+        id: "zoomSlider",
+        name: "slider",
+        value: this.curZoom,
+        minimum: 0,
+        maximum: this.zoomLevels.length - 1,
+        intermediateChanges: false,
+        showButtons: false,
+        style: "width:100px; margin: 7px 0 0 0; display: inline-block",
+        discreteValues: this.zoomLevels.length,
+        onChange: lang.hitch( this, function( newLevel ){
+            var steps = newLevel - this.curZoom;
+            if( steps > 0 ) {
+                this.zoomIn(undefined,undefined,steps);
+            } else {
+                this.zoomOut(undefined,undefined,-steps);
+            }
+        })
+    }, dojo.create('input',{},this.zoomSliderContainer) );
+
+
     // update the sizes for each of the tracks
     this.trackIterate(function(track, view) {
                           track.sizeInit(view.stripeCount,
@@ -1972,12 +1999,6 @@ _updateRefSeqSelectBox: function() {
 },
 
 
-zoomTo: function(value) {
-    var desiredZoomLevel = Math.round(value/100 * this.zoomLevels.length);
-    var steps = desiredZoomLevel - this.curZoom;
-    this.zoomIn(undefined,undefined,steps);
-},
-
 
 // asynchronous
 navigateTo: function( something ) {
@@ -2216,23 +2237,9 @@ createNavBox: function( parent ) {
                   });
 
 
+    var zoomSliderSpan = this.zoomSliderContainer =
+        dojo.create('span', { className: 'icon nav' }, navbox );
 
-    var zoomSliderSpan = dojo.create('span', {}, navbox );
-    zoomSliderSpan.className = "icon nav";
-
-    var zoomSlider = new dijitSlider({
-        id: "zoomSlider",
-        name: "slider",
-        value: 50,
-        minimum: 0,
-        maximum: 100,
-        intermediateChanges: true,
-        showButtons: false,
-        style: "width:100px; margin: 7px 0 0 0; display: inline-block",
-        onChange: function(value){
-            thisB.zoomTo(value);
-        }
-    }, dojo.create('input',{},zoomSliderSpan) );
 
     var zoomIn = document.createElement("input");
     zoomIn.type = "image";
