@@ -51,7 +51,7 @@ return declare( SeqFeatureStore,
         }
 
         this.baseUrl      = args.baseUrl;
-        this.seqChunkSize = args.seqChunkSize;
+        this.seqChunkSize = args.seqChunkSize || 20000;
     },
 
     _getRefSeqsInfo: function() {
@@ -95,7 +95,8 @@ return declare( SeqFeatureStore,
         var start = query.start;
         var end   = query.end;
         var seqname    = query.ref;
-        var chunkSize  = query.seqChunkSize || this.refSeq && this.refSeq.name == query.ref && this.refSeq.seqChunkSize || this.seqChunkSize;
+        var chunkSize  = query.seqChunkSize || this.seqChunkSize;
+
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );
 
