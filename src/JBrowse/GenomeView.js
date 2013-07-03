@@ -100,8 +100,6 @@ constructor: function( args, srcNodeRef ) {
 
     this._renderVerticalScrollBar();
 
-
-
     // we have a separate zoomContainer as a child of the scrollContainer.
     // they used to be the same element, but making zoomContainer separate
     // enables it to be narrower than this.elem.
@@ -141,12 +139,6 @@ constructor: function( args, srcNodeRef ) {
     this.slideTimeMultiple = 0.8;
     this.trackHeights = [];
     this.trackTops = [];
-    this.waitElems = dojo.filter( [ dojo.byId("moveLeft"), dojo.byId("moveRight"),
-                                    dojo.byId("zoomIn"), dojo.byId("zoomOut"),
-                                    dojo.byId("bigZoomIn"), dojo.byId("bigZoomOut"),
-                                    document.body, this.elem ],
-                                  function(e) { return e; }
-                                );
     this.prevCursors = [];
 
     this.x = this.elem.scrollLeft;
@@ -232,7 +224,6 @@ _finishInitialization: function( args, refseq ) {
                                  this.stripeWidth, this.pxPerBp,
                                  this.trackPadding);
     this.zoomContainer.appendChild(this.scaleTrackDiv);
-    this.waitElems.push(this.scaleTrackDiv);
 
     var gridTrackDiv = document.createElement("div");
     gridTrackDiv.className = "track";
@@ -1325,22 +1316,6 @@ updateStaticElements: function( args ) {
     this._updateVerticalScrollBar( args );
 },
 
-showWait: function() {
-    var oldCursors = [];
-    for (var i = 0; i < this.waitElems.length; i++) {
-        oldCursors[i] = this.waitElems[i].style.cursor;
-        this.waitElems[i].style.cursor = "wait";
-    }
-    this.prevCursors.push(oldCursors);
-},
-
-showDone: function() {
-    var oldCursors = this.prevCursors.pop();
-    for (var i = 0; i < this.waitElems.length; i++) {
-        this.waitElems[i].style.cursor = oldCursors[i];
-    }
-},
-
 pxToBp: function(pixels) {
     return pixels / this.pxPerBp;
 },
@@ -1562,7 +1537,6 @@ zoomIn: function(e, zoomLoc, steps) {
     if ((0 == steps) && (this.pxPerBp == this.zoomLevels[this.curZoom]))
         return;
 
-    this.showWait();
     var pos = this.getPosition();
     this.trimVertical(pos.y);
 
@@ -1599,7 +1573,6 @@ zoomToBaseLevel: function(e, pos) {
     this._setPosBeforeZoom(this.minVisible(), this.maxVisible(), this.curZoom);
     var zoomLoc = 0.5;
 
-    this.showWait();
     this.trimVertical();
 
     var relativeScale = this.zoomLevels[baseZoomIndex] / this.pxPerBp;
@@ -1629,7 +1602,6 @@ zoomOut: function(e, zoomLoc, steps) {
     steps = Math.min(steps, this.curZoom);
     if (0 == steps) return;
 
-    this.showWait();
     var pos = this.getPosition();
     this.trimVertical(pos.y);
     if (zoomLoc === undefined) zoomLoc = 0.5;
@@ -1674,7 +1646,6 @@ zoomBackOut: function(e) {
     this.posBeforeZoom = undefined;
 
     var zoomLoc = 0.5;
-    this.showWait();
 
     var scale = this.zoomLevels[zoomIndex] / this.pxPerBp;
     var fixedBp = (min + max) / 2;
@@ -1739,7 +1710,6 @@ zoomUpdate: function(zoomLoc, fixedBp) {
     });
 
     this.showVisibleBlocks(true);
-    this.showDone();
     this.showCoarse();
 },
 
