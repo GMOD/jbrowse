@@ -48,6 +48,10 @@ return declare( SeqFeatureStore, {
 
         // init coverage bins
         var maxBin = binNumber( rightBase );
+        if( ! maxBin ) {
+            finishCallback();
+            return;
+        }
         var coverageBins = new Array( maxBin+1 );
         for( var i = 0; i <= maxBin; i++ ) {
             coverageBins[i] = new NestedFrequencyTable();
