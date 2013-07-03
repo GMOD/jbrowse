@@ -1008,7 +1008,11 @@ setLocation: function(refseq, startbp, endbp) {
         this.trackHeights = [];
         this.trackTops = [];
 
-        dojo.forEach(this.uiTracks, function(track) { track.clear(); });
+        var thisB = this;
+        dojo.forEach(this.uiTracks, function(track) {
+                         track.refSeq = thisB.ref;
+                         track.clear();
+                     });
 
         this.sizeInit();
         this.setY(0);
