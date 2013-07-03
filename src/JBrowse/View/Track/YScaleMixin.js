@@ -42,14 +42,14 @@ return declare( null, {
         this.yscale = rulerdiv;
 
         if( this.window_info && 'x' in this.window_info ) {
-            if ('yscale_position' in this.config) {
-                if(this.config.yscale_position == 'right') {
+            if ('yscalePosition' in this.config) {
+                if(this.config.yscalePosition == 'right') {
                     this.yscale.style.left = (this.window_info.x + (this.window_info.width-1||0)) + "px";
                 }
-                else if(this.config.yscale_position == 'left') {
+                else if(this.config.yscalePosition == 'left') {
                     this.yscale.style.left = this.window_info.x + 10 + 1 + "px";
                 }
-                else if(this.config.yscale_position == 'center') {
+                else if(this.config.yscalePosition == 'center') {
                     this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
                 }
             }

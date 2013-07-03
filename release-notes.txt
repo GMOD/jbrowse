@@ -1,4 +1,8 @@
 {{$NEXT}}
+ * Added an optional "yscalePosition" element to track configs that
+   allows configs with Y axes to have those axes positioned on the 
+   left or right side of the view, as well as in the center.  Thanks
+   to Alexis Grimaldi for making this change.
 
  * Fixed a bug in which NCList-based tracks display with an error for
    reference sequences on which they have no data.  Thanks to Michael
