@@ -80,7 +80,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.genomeView = args.genomeView;
 
         // set up feature filtering
-        this.setFeatureFilterParentComponent( this.browser.view );
+        this.setFeatureFilterParentComponent( this.genomeView );
 
         this.store = args.store;
     },
@@ -165,7 +165,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             className: 'track-close-button'
         },labelDiv);
         this.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
-                this.browser.view.suppressDoubleClick( 100 );
+                this.genomeView.suppressDoubleClick( 100 );
                 this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
                 evt.stopPropagation();
         })));
@@ -455,7 +455,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             blockIndex,
             block,
             'Too much data to show'
-                + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
+                + (scale >= this.genomeView.maxPxPerBp ? '': '; zoom in to see detail')
                 + '.'
         );
     },

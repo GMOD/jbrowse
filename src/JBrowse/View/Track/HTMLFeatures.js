@@ -254,8 +254,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-	var viewmin = this.browser.view.minVisible();
-	var viewmax = this.browser.view.maxVisible();
+	var viewmin = this.genomeView.minVisible();
+	var viewmax = this.genomeView.maxVisible();
 
         array.forEach( this.blocks, function( block ) {
             if( ! block )
@@ -566,8 +566,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature.id();
             if( ! this._featureIsRendered( uniqueId ) ) {
-                /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                // var filter = this.browser.view.featureFilter;
                 if( this.filterFeature( feature ) )  {
                     this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                             containerStart, containerEnd );

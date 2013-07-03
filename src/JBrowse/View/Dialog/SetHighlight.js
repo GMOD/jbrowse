@@ -54,8 +54,8 @@ return declare( ActionBarDialog,
 
         this.highlightInput = new dijitTextBox({
             id: 'newhighlight_locstring',
-            value: (this.browser.getHighlight()||'').toString() || this.browser.view.visibleRegionLocString() || '',
-            placeHolder: this.browser.view.visibleRegionLocString() || 'ctgA:1234..5678'
+            value: (this.browser.getHighlight()||'').toString() || this.genomeView && this.genomeView.visibleRegionLocString() || '',
+            placeHolder: this.genomeView && this.genomeView.visibleRegionLocString() || 'ctgA:1234..5678'
         });
 
         this.set('content', [

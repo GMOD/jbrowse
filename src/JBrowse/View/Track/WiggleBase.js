@@ -58,7 +58,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
             return null;
         }
         else if( this.config.autoscale == 'local' ) {
-            return this.getRegionStats.call( this, this.browser.view.visibleRegion(), callback, errorCallback );
+            return this.getRegionStats.call( this, this.genomeView.visibleRegion(), callback, errorCallback );
         }
         else {
             return this.getRegionStats.call( this, { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, callback, errorCallback );
