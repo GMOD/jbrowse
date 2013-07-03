@@ -123,13 +123,6 @@ return declare( SeqFeatureStore,
         this._deferred.root.resolve( refData );
     },
 
-    getGlobalStats: function( successCallback, errorCallback ) {
-        return ( this._deferred.root || this.getDataRoot( this.genomeView.ref.name ) )
-                   .then( function( data ) { successCallback( data.stats ); },
-                          errorCallback
-                        );
-    },
-
     getRegionStats: function( query, successCallback, errorCallback ) {
         this.getDataRoot( query.ref )
             .then( function( data ) {

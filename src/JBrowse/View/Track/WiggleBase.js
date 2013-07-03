@@ -69,10 +69,6 @@ return declare( [BlockBasedTrack,ExportMixin], {
         this.store.getFeatures.apply( this.store, arguments );
     },
 
-    getGlobalStats: function( successCallback, errorCallback ) {
-        this.store.getRegionStats( this.refSeq, successCallback, errorCallback );
-    },
-
     getRegionStats: function( region, successCallback, errorCallback ) {
         this.store.getRegionStats( region, successCallback, errorCallback );
     },

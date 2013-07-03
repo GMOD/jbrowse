@@ -24,16 +24,6 @@ define([
 return declare( SeqFeatureStore,
 {
 
-    getGlobalStats: function( callback, errorCallback ) {
-        var url = this._makeURL( 'stats/global' );
-        xhr.get( url, {
-             handleAs: 'json'
-        }).then(
-            callback,
-            this._errorHandler( errorCallback )
-        );
-    },
-
     getRegionStats: function( query, successCallback, errorCallback ) {
 
         if( ! this.config.region_stats ) {

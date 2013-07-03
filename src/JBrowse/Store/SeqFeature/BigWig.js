@@ -46,18 +46,6 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         this._load();
     },
 
-    _getGlobalStats: function( successCallback, errorCallback ) {
-        var s = this._globalStats || {};
-
-        // calc mean and standard deviation if necessary
-        if( !( 'scoreMean' in s ))
-            s.scoreMean = s.basesCovered ? s.scoreSum / s.basesCovered : 0;
-        if( !( 'scoreStdDev' in s ))
-            s.scoreStdDev = this._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.basesCovered );
-
-        successCallback( s );
-    },
-
     _load: function() {
         var bwg = this;
         var headerSlice = bwg.data.slice(0, 512);
@@ -111,27 +99,27 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             }
 
             // parse the totalSummary if present (summary of all data in the file)
-            if( bwg.totalSummaryOffset ) {
-                if( Float64Array ) {
-                    (function() {
-                        var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
-                        var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
-                        var s = {
-                            basesCovered: ua[0]<<32 | ua[1],
-                            scoreMin: da[0],
-                            scoreMax: da[1],
-                            scoreSum: da[2],
-                            scoreSumSquares: da[3]
-                        };
-                        bwg._globalStats = s;
-                        // rest of these will be calculated on demand in getGlobalStats
-                    }).call();
-                } else {
-                    console.warn("BigWig "+bwg.data.url+ " total summary not available, this web browser is not capable of handling this data type.");
-                }
-            } else {
-                    console.warn("BigWig "+bwg.data.url+ " has no total summary data.");
-            }
+            // if( bwg.totalSummaryOffset ) {
+            //     if( Float64Array ) {
+            //         (function() {
+            //             var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
+            //             var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
+            //             var s = {
+            //                 basesCovered: ua[0]<<32 | ua[1],
+            //                 scoreMin: da[0],
+            //                 scoreMax: da[1],
+            //                 scoreSum: da[2],
+            //                 scoreSumSquares: da[3]
+            //             };
+            //             bwg._globalStats = s;
+            //             // rest of these will be calculated on demand in stats
+            //         }).call();
+            //     } else {
+            //         console.warn("BigWig "+bwg.data.url+ " total summary not available, this web browser is not capable of handling this data type.");
+            //     }
+            // } else {
+            //         console.warn("BigWig "+bwg.data.url+ " has no total summary data.");
+            // }
 
             bwg._readChromTree(
                 function() {
