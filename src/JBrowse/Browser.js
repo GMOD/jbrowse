@@ -931,57 +931,71 @@ _reportCustomUsageStats: function(stats) {
  * Get a store object from the store registry, loading its code and
  * instantiating it if necessary.
  */
+getStoreDeferred: function( storeName ) {
+    this._storeCache   = this._storeCache || {};
+    this._storeClasses = this._storeClasses || {};
+
+    return this._storeCache[ storeName ] || function() {
+        var getStore = new Deferred();
+
+        var conf = this.config.stores[storeName];
+        if( ! conf ) {
+            d.reject( "store '"+storeName+"' not found" );
+            return d;
+        }
+
+        var storeClassName = conf.type;
+        if( ! storeClassName ) {
+            d.reject( "store "+storeName+" has no type defined" );
+            return d;
+        }
+
+        // use a Deferred for loading the store class, because
+        // require() doesn't really aggregate load requests correctly
+        var getStoreClass = this._storeClasses[storeClassName] || function() {
+            var loadClass = new Deferred();
+            require( [ storeClassName ], function( storeClass ) {
+                 if( typeof storeClass == 'string' )
+                     loadClass.reject( storeClass+' could not be loaded' );
+                 else
+                     loadClass.resolve( storeClass );
+                 loadClass = undefined;
+            });
+            return this._storeClasses[storeClassName] = loadClass;
+        }.call(this);
+
+        var thisB = this;
+        getStoreClass.then(
+            function( storeClass ) {
+                var storeArgs = {};
+                dojo.mixin( storeArgs, conf );
+                dojo.mixin( storeArgs,
+                            {
+                                config: conf,
+                                browser: thisB
+                            });
+
+                var store = new storeClass( storeArgs );
+                getStore.resolve( store );
+            },
+            lang.hitch( getStore, 'reject' )
+        );
+        return getStore;
+
+    }.call(this);
+},
+
 getStore: function( storeName, callback ) {
     if( !callback ) throw 'invalid arguments';
 
-    var storeCache = this._storeCache || {};
-    this._storeCache = storeCache;
 
-    var storeRecord = storeCache[ storeName ];
-    if( storeRecord ) {
-        storeRecord.refCount++;
-        callback( storeRecord.store );
-        return;
-    }
-
-    var conf = this.config.stores[storeName];
-    if( ! conf ) {
-        console.warn( "store '"+storeName+"' not found" );
-        callback( null );
-        return;
-    }
-
-    var storeClassName = conf.type;
-    if( ! storeClassName ) {
-        console.warn( "store "+storeName+" has no type defined" );
-        callback( null );
-        return;
-    }
-
-    require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
-                 var storeArgs = {};
-                 dojo.mixin( storeArgs, conf );
-                 dojo.mixin( storeArgs,
-                             {
-                                 config: conf,
-                                 browser: this
-                             });
-
-                 var store = new storeClass( storeArgs );
-                 this._storeCache[ storeName ] = { refCount: 1, store: store };
-                 callback( store );
-                 // release the callback because apparently require
-                 // doesn't release this function
-                 callback = undefined;
-             }));
-},
-
-getStoreDeferred: function( storeName ) {
-    var d = new Deferred();
-    this.getStore( storeName, function(s) {
-                       d.resolve(s);
-                   });
-    return d;
+    this.getStoreDeferred( storeName )
+        .then( callback,
+               function(e) {
+                   console.error(e);
+                   callback( null );
+               }
+             );
 },
 
 /**
@@ -1004,23 +1018,6 @@ _addStoreConfig: function( /**String*/ name, /**Object*/ storeConfig ) {
 
     this.config.stores[name] = storeConfig;
     return name;
-},
-
-clearStores: function() {
-    this._storeCache = {};
-},
-
-/**
- * Notifies the browser that the given named store is no longer being
- * used by the calling component.  Decrements the store's reference
- * count, and if the store's reference count reaches zero, the store
- * object will be discarded, to be recreated again later if needed.
- */
-// not actually being used yet
-releaseStore: function( storeName ) {
-    var storeRecord = this._storeCache[storeName];
-    if( storeRecord && ! --storeRecord.refCount )
-        delete this._storeCache[storeName];
 },
 
 _calculateClientStats: function() {
