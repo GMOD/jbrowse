@@ -61,21 +61,18 @@ var dojof = Util.dojof;
 
 return declare( [Component,FeatureFiltererMixin], {
 
-constructor: function( args ) {
+constructor: function( args, srcNodeRef ) {
 
     // keep a reference to the main browser object
     this.browser = args.browser;
     this.setFeatureFilterParentComponent( this.browser );
 
     //the page element that the GenomeView lives in
-    this.navbox = this.createNavBox( args.elem );
-
-    // this.elem = elem;
-    // elem.className = 'dragWindow';
+    this.navbox = this.createNavBox( srcNodeRef );
 
     this.elem = domConstruct.create('div', {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
-    }, args.elem );
+    }, srcNodeRef );
 
     this.posHeight = this.calculatePositionLabelHeight( this.elem );
     // Add an arbitrary 50% padding between the position labels and the

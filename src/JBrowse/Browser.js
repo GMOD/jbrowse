@@ -555,17 +555,12 @@ initView: function() {
         this.view =
             new GenomeView(
                 { browser: this,
-                  elem: this.viewElem,
                   config: this.config.view,
                   stripeWidth: 250,
                   zoomLevel: 1/200,
                   initialLocation: initialLocString
-                });
+                }, this.viewElem );
 
-        dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
-        dojo.connect( this.view, "onCoarseMove", this, "onCoarseMove" );
-
-        dojo.connect( this.browserWidget, "resize", this,      'onResize' );
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
         //connect events to update the URL in the location bar
@@ -575,7 +570,8 @@ initView: function() {
                 window.history.replaceState( {},"", shareURL );
             document.title = thisObj.view.visibleRegionLocString()+' JBrowse';
         };
-        dojo.connect( this, "onCoarseMove",                     updateLocationBar );
+
+        this.subscribe( '/jbrowse/v1/n/navigate',  updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateLocationBar );
 
@@ -1071,9 +1067,6 @@ subscribe: function() {
     return topic.subscribe.apply( topic, arguments );
 },
 
-onResize: function() {
-},
-
 /**
  * Get the list of the most recently used tracks, stored for this user
  * in a cookie.
@@ -1275,11 +1268,6 @@ _configDefaults: function() {
     };
 },
 
-/**
- * @private
- */
-onFineMove: function(startbp, endbp) {
-},
 
 /**
  * Asynchronously initialize our track metadata.
@@ -1639,7 +1627,7 @@ makeShareLink: function () {
     var updateShareURL = function() {
         shareURL = browser.makeCurrentViewURL();
     };
-    dojo.connect( this, "onCoarseMove",                     updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/navigate',               updateShareURL );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateShareURL );
     this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateShareURL );
 
@@ -1702,19 +1690,13 @@ makeFullViewLink: function () {
     var update_link = function() {
         link.href = makeURL.call( thisB, thisB );
     };
-    dojo.connect( this, "onCoarseMove",                     update_link );
+    this.subscribe( '/jbrowse/v1/n/navigate',               update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
     this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', update_link );
 
     return link;
 },
 
-/**
- * @private
- */
-
-onCoarseMove: function(startbp, endbp) {
-},
 
 /**
  * update the location and refseq cookies
