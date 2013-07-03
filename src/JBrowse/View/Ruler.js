@@ -18,6 +18,8 @@ define( [
  * @param {Number} args.max
  * @param {String} [args.direction="up"] The direction of increasing numbers.
  *   Either "up" or "down".
+ * @param {Boolean} args.leftBottom=true Should the ticks and labels be on the right
+ * or the left.
  *
  */
 
@@ -57,7 +59,8 @@ Ruler.prototype.render_to = function( target_div ) {
                             min: this.min,
                             max: this.max,
                             fixLower: this.fixBounds ? 'major' : 'none',
-                            fixUpper: this.fixBounds ? 'major' : 'none'
+                            fixUpper: this.fixBounds ? 'major' : 'none',
+                            leftBottom: this.leftBottom,
                             // minorTickStep: 0.5,
                             // majorTickStep: 1
                             //labels: [{value: 1, text: "One"}, {value: 3, text: "Ten"}]
