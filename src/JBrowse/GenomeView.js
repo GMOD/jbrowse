@@ -10,6 +10,7 @@ define([
            'JBrowse/has',
            'dojo/dnd/move',
            'dojo/dnd/Source',
+           'dijit/_WidgetBase',
            'dijit/focus',
            'dijit/form/ComboBox',
            'dijit/form/Button',
@@ -35,6 +36,7 @@ define([
            has,
            dndMove,
            dndSource,
+           dijitBase,
            dijitFocus,
            dijitComboBox,
            dijitButton,
@@ -59,41 +61,43 @@ var dojof = Util.dojof;
  * @constructor
  */
 
-return declare( [Component,FeatureFiltererMixin], {
+return declare( [dijitBase,Component,FeatureFiltererMixin], {
 
-constructor: function( args, srcNodeRef ) {
+region: 'center',
+
+constructor: function() {
+    // need to set this here and then copy it back into this.config in
+    // buildRendering to sidestep a dojo.mixin( this, params ) in the
+    // dijit widget base code
+    this.finalConfig = this.config;
+},
+
+buildRendering: function() {
+    this.inherited( arguments );
+
+    this.config = this.finalConfig;
+    delete this.finalConfig;
 
     // keep a reference to the main browser object
-    this.browser = args.browser;
     this.setFeatureFilterParentComponent( this.browser );
+    this.maxPxPerBp = this.config.maxPxPerBp;
 
     //the page element that the GenomeView lives in
-    this.navbox = this.createNavBox( srcNodeRef );
+    this.navbox = this.createNavBox( this.domNode );
 
     this.elem = domConstruct.create('div', {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
-    }, srcNodeRef );
+    }, this.domNode );
 
     this.posHeight = this.calculatePositionLabelHeight( this.elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = this.posHeight*1.5;
 
-    this.maxPxPerBp = this.config.maxPxPerBp;
-
-    //current scale, in pixels per bp
-    this.pxPerBp = args.zoomLevel;
-
-    //width, in pixels, of the vertical stripes
-    var stripeWidth = args.stripeWidth;
-    this.stripeWidth = stripeWidth;
-
-
     // the scrollContainer is the element that changes position
     // when the user scrolls
     this.scrollContainer = dojo.create(
         'div', {
-            id: 'container',
             style: { position: 'relative' }
         }, this.elem
     );
@@ -114,7 +118,7 @@ constructor: function( args, srcNodeRef ) {
     this.outerTrackContainer.style.cssText = "height: 100%;";
     this.zoomContainer.appendChild( this.outerTrackContainer );
 
-    this.trackContainer = document.createElement("div");
+    this.containerNode = this.trackContainer = document.createElement("div");
     this.trackContainer.className = "trackContainer innerTrackContainer draggable";
     this.trackContainer.style.cssText = "height: 100%;";
     this.outerTrackContainer.appendChild( this.trackContainer );
@@ -162,7 +166,7 @@ constructor: function( args, srcNodeRef ) {
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
 
-    var initialLocString = args.initialLocation;
+    var initialLocString = this.initialLocation;
     var initialLoc = Util.parseLocString( initialLocString );
 
     this.initialized = new Deferred();
@@ -177,7 +181,7 @@ constructor: function( args, srcNodeRef ) {
         refStore.getRefSeqMeta(
             q,
             function(ref) {
-                thisB._finishInitialization( args, ref );
+                thisB._finishInitialization( ref );
                 thisB.setLocation( ref, ref.start, ref.end );
                 thisB.initialized.resolve();
             },
@@ -187,7 +191,7 @@ constructor: function( args, srcNodeRef ) {
     });
 },
 
-_finishInitialization: function( args, refseq ) {
+_finishInitialization: function( refseq ) {
 
     //the reference sequence
     this.ref = refseq;
@@ -1729,7 +1733,6 @@ scrollUpdate: function() {
 
     var dStripes = (dx / this.stripeWidth) | 0;
     if (0 == dStripes) return;
-    var changedStripes = Math.abs(dStripes);
 
     var newOffset = this.offset - (dStripes * this.stripeWidth);
 
@@ -1741,7 +1744,6 @@ scrollUpdate: function() {
     var newX = x + (dStripes * this.stripeWidth);
     this.updateStaticElements( { x: newX } );
     this.rawSetX(newX);
-    var firstVisible = (newX / this.stripeWidth) | 0;
 },
 
 trackHeightUpdate: function(trackName, height) {

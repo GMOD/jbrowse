@@ -536,9 +536,7 @@ initView: function() {
 
 
         this.viewElem = document.createElement("div");
-        this.container.appendChild( this.viewElem);
-        this.browserWidget =
-            new dijitContentPane({region: "center"}, this.viewElem);
+        this.container.appendChild( this.viewElem );
 
         this.containerWidget = new dijitBorderContainer({
             liveSplitters: false,
@@ -557,11 +555,9 @@ initView: function() {
                 { browser: this,
                   config: this.config.view,
                   stripeWidth: 250,
-                  zoomLevel: 1/200,
+                  pxPerBp: 1/200,
                   initialLocation: initialLocString
                 }, this.viewElem );
-
-        dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {
