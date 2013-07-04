@@ -419,15 +419,6 @@ initView: function() {
 
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
-        var about = this.browserMeta();
-        var aboutDialog = new InfoDialog(
-            {
-                title: 'About '+about.title,
-                content: about.description,
-                className: 'about-dialog'
-            });
-
-
         // make our top menu bar
         var menuBar = dojo.create(
             'div',
@@ -438,95 +429,8 @@ initView: function() {
         thisObj.menuBar = menuBar;
         ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
 
-
         if( this.config.show_nav ) {
-
-            if( this.config.datasets && ! this.config.dataset_id ) {
-                console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
-            }
-            if( this.config.datasets && this.config.dataset_id ) {
-                this.renderDatasetSelect( menuBar );
-            } else {
-
-                this.poweredByLink = dojo.create('a', {
-                                className: 'powered_by',
-                                innerHTML: 'JBrowse',
-                                onclick: dojo.hitch( aboutDialog, 'show' ),
-                                title: 'powered by JBrowse'
-                            }, menuBar );
-            }
-
-            // make the file menu
-            this.addGlobalMenuItem( 'file',
-                                    new dijitMenuItem(
-                                        {
-                                            label: 'Open',
-                                            iconClass: 'dijitIconFolderOpen',
-                                            onClick: dojo.hitch( this, 'openFileDialog' )
-                                        })
-                                  );
-            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
-
-
-            // make the view menu
-            this.addGlobalMenuItem( 'view', new dijitMenuItem({
-                label: 'Set highlight',
-                onClick: function() {
-                    new SetHighlightDialog({
-                            browser: thisObj,
-                            setCallback: dojo.hitch( thisObj, 'setHighlightAndRedraw' )
-                        }).show();
-                }
-            }));
-            // make the menu item for clearing the current highlight
-            this._highlightClearButton = new dijitMenuItem(
-                {
-                    label: 'Clear highlight',
-                    onClick: dojo.hitch( this, function() {
-                                             var h = this.getHighlight();
-                                             if( h ) {
-                                                 this.clearHighlight();
-                                                 this.view.redrawRegion( h );
-                                             }
-                                         })
-                });
-            this._updateHighlightClearButton();  //< sets the label and disabled status
-            // update it every time the highlight changes
-            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
-
-            this.addGlobalMenuItem( 'view', this._highlightClearButton );
-            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
-
-
-            // make the options menu
-            this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
-        }
-
-        if( this.config.show_nav ) {
-            // make the help menu
-            this.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            label: 'About',
-                                            //iconClass: 'dijitIconFolderOpen',
-                                            onClick: dojo.hitch( aboutDialog, 'show' )
-                                        })
-                                  );
-
-            function showHelp() {
-                new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
-            }
-            this.setGlobalKeyboardShortcut( '?', showHelp );
-            this.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            label: 'General',
-                                            iconClass: 'jbrowseIconHelp',
-                                            onClick: showHelp
-                                        })
-                                  );
-
-            this.renderGlobalMenu( 'help', {}, menuBar );
+            this.renderMenuBar( menuBar );
         }
 
         if( this.config.show_nav && this.config.show_tracklist )
@@ -585,6 +489,104 @@ initView: function() {
             deferred.resolve({ success: true });
       }));
     });
+},
+
+renderMenuBar: function( menuBar ) {
+    var about = this.browserMeta();
+    var aboutDialog = new InfoDialog(
+        {
+            title: 'About '+about.title,
+            content: about.description,
+            className: 'about-dialog'
+        });
+
+    if( this.config.datasets && ! this.config.dataset_id ) {
+        console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
+    }
+    if( this.config.datasets && this.config.dataset_id ) {
+        this.renderDatasetSelect( menuBar );
+    } else {
+
+        this.poweredByLink = dojo.create('a', {
+                                             className: 'powered_by',
+                                             innerHTML: 'JBrowse',
+                                             onclick: dojo.hitch( aboutDialog, 'show' ),
+                                             title: 'powered by JBrowse'
+                                         }, menuBar );
+    }
+
+    // make the file menu
+    this.addGlobalMenuItem( 'file',
+                            new dijitMenuItem(
+                                {
+                                    label: 'Open',
+                                    iconClass: 'dijitIconFolderOpen',
+                                    onClick: dojo.hitch( this, 'openFileDialog' )
+                                })
+                          );
+    this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
+
+
+    // make the view menu
+    this.addGlobalMenuItem(
+        'view',
+        new dijitMenuItem(
+            {
+                label: 'Set highlight',
+                onClick: function() {
+                    new SetHighlightDialog({
+                                               browser: thisObj,
+                                               setCallback: dojo.hitch( thisObj, 'setHighlightAndRedraw' )
+                                           }).show();
+                }
+            }));
+    // make the menu item for clearing the current highlight
+    this._highlightClearButton = new dijitMenuItem(
+        {
+            label: 'Clear highlight',
+            onClick: dojo.hitch( this, function() {
+                                     var h = this.getHighlight();
+                                     if( h ) {
+                                         this.clearHighlight();
+                                         this.view.redrawRegion( h );
+                                     }
+                                 })
+        });
+    this._updateHighlightClearButton();  //< sets the label and disabled status
+    // update it every time the highlight changes
+    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
+
+    this.addGlobalMenuItem( 'view', this._highlightClearButton );
+    this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
+
+
+    // make the options menu
+    this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
+
+    // make the help menu
+    this.addGlobalMenuItem( 'help',
+                            new dijitMenuItem(
+                                {
+                                    label: 'About',
+                                    //iconClass: 'dijitIconFolderOpen',
+                                    onClick: dojo.hitch( aboutDialog, 'show' )
+                                })
+                          );
+
+    function showHelp() {
+        new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
+    }
+    this.setGlobalKeyboardShortcut( '?', showHelp );
+    this.addGlobalMenuItem( 'help',
+                            new dijitMenuItem(
+                                {
+                                    label: 'General',
+                                    iconClass: 'jbrowseIconHelp',
+                                    onClick: showHelp
+                                })
+                          );
+
+    this.renderGlobalMenu( 'help', {}, menuBar );
 },
 
 _initialLocation: function() {
