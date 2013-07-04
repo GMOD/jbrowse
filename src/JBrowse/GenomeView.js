@@ -662,8 +662,10 @@ setX: function(x) {
 },
 
 rawSetY: function(y) {
-    this.y = y;
-    this.layoutTracks();
+    if( this.y != y ) {
+        this.y = y;
+        this.layoutTracks();
+    }
 },
 
 /**
