@@ -3,6 +3,7 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/dom-construct',
             'dojo/on',
             'dojo/keys',
             'dojo/Deferred',
@@ -41,6 +42,7 @@ define( [
         function(
             declare,
             lang,
+            domConstruct,
             on,
             keys,
             Deferred,
@@ -438,15 +440,12 @@ initView: function() {
         else
             menuBar.appendChild( this.makeFullViewLink() );
 
-
-        this.viewElem = document.createElement("div");
-        this.container.appendChild( this.viewElem );
-
         this.containerWidget = new dijitBorderContainer({
             liveSplitters: false,
             design: "sidebar",
             gutters: false
         }, this.container);
+
         var contentWidget =
             new dijitContentPane({region: "top"}, topPane);
 
@@ -457,11 +456,13 @@ initView: function() {
         this.view =
             new GenomeView(
                 { browser: this,
+                  region: 'center',
                   config: this.config.view,
                   stripeWidth: 250,
                   pxPerBp: 1/200,
                   initialLocation: initialLocString
-                }, this.viewElem );
+                });
+        this.view.placeAt( this.container );
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {

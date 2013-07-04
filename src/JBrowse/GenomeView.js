@@ -10,7 +10,7 @@ define([
            'JBrowse/has',
            'dojo/dnd/move',
            'dojo/dnd/Source',
-           'dijit/_WidgetBase',
+           'dijit/layout/_LayoutWidget',
            'dijit/focus',
            'dijit/form/ComboBox',
            'dijit/form/Button',
@@ -63,7 +63,9 @@ var dojof = Util.dojof;
 
 return declare( [dijitBase,Component,FeatureFiltererMixin], {
 
+splitter: true,
 region: 'center',
+baseClass: 'jbrowseGenomeView',
 
 constructor: function() {
     // need to set this here and then copy it back into this.config in
@@ -1160,7 +1162,7 @@ onCoarseMove: function( startbp, endbp ) {
 /**
  * Hook to be called on a window resize.
  */
-onResize: function() {
+layout: function() {
     var thisB = this;
     this.initialized.then(
         function() {
@@ -1437,7 +1439,6 @@ sizeInit: function() {
     var thisB = this;
     this.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.pxPerBp )+'bp';
     this.zoomSlider = new dijitSlider({
-        id: "zoomSlider",
         name: "slider",
         value: this.curZoom,
         minimum: 0,
@@ -2074,13 +2075,12 @@ createNavBox: function( parent ) {
     // make the location box
     this.locationBox = new dijitComboBox(
         {
-            id: "location",
             name: "location",
             maxLength: 400,
-            searchAttr: "name"
+            searchAttr: "name",
+            style: "height: 18px"
         },
         dojo.create('input', {}, navbox) );
-    dojo.style('location', 'height', '18px');
     this.browser.afterMilestone( 'loadNames', dojo.hitch(this, function() {
         if( this.browser.nameStore )
             this.locationBox.set( 'store', this.browser.nameStore );
@@ -2124,16 +2124,14 @@ createNavBox: function( parent ) {
     // make the 'Go' button'
     this.goButton = new dijitButton(
         {
-            id: 'GoButton',
             label: 'Go',
             onClick: dojo.hitch( this, function(event) {
                 this.navigateTo(this.locationBox.get('value'));
                 this.goButton.set('disabled',true);
                 dojo.stopEvent(event);
-            })
+            }),
+            style: "height: 18px"
         }, dojo.create('button',{},navbox));
-
-    dojo.style('GoButton', 'height', '18px');
 
     // make the refseq selection dropdown
     this.browser.getStore('refseqs', function( store ) {
@@ -2284,8 +2282,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
     var trackName = trackConfig.label;
     var trackDiv = dojo.create('div', {
-        className: ['track', cssName('track_'+trackConfig.type), cssName('track_'+trackName)].join(' '),
-        id: "track_" + trackName
+        className: ['track', cssName('track_'+trackConfig.type), cssName('track_'+trackName)].join(' ')
     });
     trackDiv.trackName = trackName;
 
