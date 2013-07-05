@@ -24,6 +24,13 @@ define([
 return declare( SeqFeatureStore,
 {
 
+    constructor: function( args ) {
+        // make sure the baseUrl has a trailing slash
+        this.baseUrl = args.baseUrl || this.config.baseUrl;
+        if( this.baseUrl.charAt( this.baseUrl.length-1 ) != '/' )
+            this.baseUrl = this.baseUrl + '/';
+    },
+
     getGlobalStats: function( callback, errorCallback ) {
         var url = this._makeURL( 'stats/global' );
         xhr.get( url, {
@@ -84,7 +91,7 @@ return declare( SeqFeatureStore,
     },
 
     _makeURL: function( subpath, query ) {
-        var url = this.config.baseUrl + subpath;
+        var url = this.baseUrl + subpath;
         if( query ) {
             query = dojo.mixin( {}, query );
             if( this.config.query )

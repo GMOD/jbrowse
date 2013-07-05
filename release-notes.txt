@@ -1,6 +1,6 @@
 {{$NEXT}}
  * Added an optional "yscalePosition" element to track configs that
-   allows configs with Y axes to have those axes positioned on the 
+   allows configs with Y axes to have those axes positioned on the
    left or right side of the view, as well as in the center.  Thanks
    to Alexis Grimaldi for making this change.
 
@@ -16,6 +16,11 @@
 
  * Fixed a bug in which the browser can fail to start for a reference
    sequence that has never been seen before.
+
+ * Fixed a confusing behavior in JBrowse/Store/SeqFeature/REST in
+   which the URLs it constructs to fetch from did not always have a
+   '/' where one would expect.  Thanks to Alex Kalderimis for pointing
+   this out.
 
 1.9.7     2013-06-25 15:41:22 Asia/Tokyo
 
