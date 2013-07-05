@@ -60,7 +60,7 @@ Ruler.prototype.render_to = function( target_div ) {
                             max: this.max,
                             fixLower: this.fixBounds ? 'major' : 'none',
                             fixUpper: this.fixBounds ? 'major' : 'none',
-                            leftBottom: this.leftBottom,
+                            leftBottom: this.leftBottom
                             // minorTickStep: 0.5,
                             // majorTickStep: 1
                             //labels: [{value: 1, text: "One"}, {value: 3, text: "Ten"}]
