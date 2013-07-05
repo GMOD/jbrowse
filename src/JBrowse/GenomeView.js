@@ -91,10 +91,9 @@ buildRendering: function() {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
     }, this.domNode );
 
-    this.posHeight = this.calculatePositionLabelHeight( this.elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = this.posHeight*1.5;
+    this.topSpace = 15;
 
     // the scrollContainer is the element that changes position
     // when the user scrolls
@@ -216,13 +215,11 @@ _finishInitialization: function( refseq ) {
 
     var scaleTrackDiv = document.createElement("div");
     scaleTrackDiv.className = "track viewscale rubberBandAvailable";
-    scaleTrackDiv.style.height = this.posHeight + "px";
 
     this.scaleTrackDiv = scaleTrackDiv;
     this.staticTrack = new LocationScaleTrack({
         label: "static_track",
         labelClass: "pos-label",
-        posHeight: this.posHeight,
         browser: this.browser,
         refSeq: this.ref
     });
@@ -580,23 +577,6 @@ _behaviors: function() { return {
         }
     }
 };},
-
-/**
- * Conduct a DOM test to calculate the height of div.pos-label
- * elements with a line of text in them.
- */
-calculatePositionLabelHeight: function( containerElement ) {
-    // measure the height of some arbitrary text in whatever font this
-    // shows up in (set by an external CSS file)
-    var heightTest = document.createElement("div");
-    heightTest.className = "pos-label";
-    heightTest.style.visibility = "hidden";
-    heightTest.appendChild(document.createTextNode("42"));
-    containerElement.appendChild(heightTest);
-    var h = heightTest.clientHeight;
-    containerElement.removeChild(heightTest);
-    return h;
-},
 
 wheelScroll: function(e) {
 
@@ -2033,14 +2013,14 @@ createNavBox: function( parent ) {
     this.positionDisplay = domConstruct.create(
         'div',
         { className: 'pane-position',
-          style: 'height:'+this.posHeight+'px'
+          style: 'height: 1em'
         },
         parent );
 
     this.sizeDisplay = domConstruct.create(
         'div',
         { className: 'pane-size',
-          style: 'height:'+this.posHeight+'px'
+          style: 'height: 1em'
         }, parent );
 
     var navbox = document.createElement("div");

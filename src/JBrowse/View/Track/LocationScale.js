@@ -21,11 +21,9 @@ return declare(BlockBased,
      * @constructs
      */
 
-    constructor: function( args ) {//name, labelClass, posHeight) {
+    constructor: function( args ) {
         this.loaded = true;
         this.labelClass = args.labelClass;
-        this.posHeight = args.posHeight;
-        this.height = Math.round( args.posHeight * 1.2 );
     },
 
     // this track has no track label or track menu, stub them out
@@ -53,7 +51,7 @@ return declare(BlockBased,
             if( highlight && highlight.ref == this.refSeq.name )
                 this.renderRegionHighlight( args, highlight );
 
-            this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
+            this.heightUpdate( this.div.offsetHeight, blockIndex);
         }
 
         args.finishCallback();

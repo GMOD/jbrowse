@@ -166,7 +166,6 @@ div.vertical_scrollbar .vertical_position_marker {
 
     height: 13px;
     line-height: 16px;
-    top: 1px;
 
     width: auto;
     z-index: 10;
@@ -430,9 +429,9 @@ div.gridline_minor {
 }
 
 div.pos-label {
-    position: absolute;
+    position: relative;
     left: -0.35em;
-    top: 0px;
+    top: -1px;
     z-index: 100;
     font-family: sans-serif;
 }
