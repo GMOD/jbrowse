@@ -175,11 +175,19 @@ return declare( null, {
 
                                 // data URL download doesn't work on IE < 10
                                 if( ! (has('ie') < 10) ) {
+                                    var filenameDiv = dom.create("div", {class: "filename", style: {display: "inline-block", "margin-left": "50px"}});
+                                    var filenameSpan = dom.create("span", {innerHTML: "Filename:  "});
+                                    filenameDiv.appendChild(filenameSpan);
+                                    actionBar.appendChild(filenameDiv)
+                                    var filenameText = dom.create("input", {type: "text", name: "filename", style: {width: "250px"},value: filename}, filenameDiv);
+
+
                                     new dijitButton(
                                         {
                                             iconClass: 'dijitIconSave',
                                             label: 'Save',
                                             onClick: function() {
+                                                var filename = filenameText.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
                                                 exportView.hide();
                                                 track._fileDownload({ format: format, data: output, filename: filename });
                                             }
