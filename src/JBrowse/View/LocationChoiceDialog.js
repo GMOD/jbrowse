@@ -70,15 +70,13 @@ return declare( null, {
                       className: 'show',
                       innerHTML: 'Show',
                       onClick: this.showCallback || function( location ) {
-                          browser.showRegionWithHighlight( location );
                       }
                   },
                   {
                       className: 'go',
                       innerHTML: 'Go',
-                      onClick: this.goCallback   || function( location ) {
+                      onClick: this.goCallback || function( location ) {
                           dialog.hide();
-                          browser.showRegionWithHighlight( location );
                       }
                   }
               ]

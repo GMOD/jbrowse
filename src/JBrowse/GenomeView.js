@@ -150,6 +150,7 @@ buildRendering: function() {
     this.x = this.elem.scrollLeft;
     this.y = 0;
 
+    this.browser.subscribe( '/jbrowse/v1/c/redrawGenomeRegions', dojo.hitch( this, 'redrawRegions' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
@@ -1530,8 +1531,9 @@ hideRegion: function( location ) {
     this.trackIterate( function(t) { t.hideRegion( location ); } );
 },
 
-redrawRegion: function( location ) {
-    this.hideRegion( location );
+redrawRegions: function( regions ) {
+    array.forEach( regions,
+                   lang.hitch( this, 'hideRegion' ));
     this.showVisibleBlocks( false );
 },
 

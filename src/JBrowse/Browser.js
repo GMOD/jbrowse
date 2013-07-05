@@ -452,8 +452,8 @@ initView: function() {
         var initialLocString = this._initialLocation();
         var initialLoc = Util.parseLocString( initialLocString );
 
-        // hook up GenomeView
-        this.view =
+        // instantiate our views
+        this.views = [
             new GenomeView(
                 { browser: this,
                   region: 'center',
@@ -461,20 +461,32 @@ initView: function() {
                   stripeWidth: 250,
                   pxPerBp: 1/200,
                   initialLocation: initialLocString
-                });
-        this.view.placeAt( this.container );
+                }),
+            new GenomeView(
+                { browser: this,
+                  region: 'top',
+                  config: {},
+                  stripeWidth: 250,
+                  style: 'height: 40%',
+                  pxPerBp: 1/200,
+                  initialLocation: 'ctgA:1..50000'
+                } )
+        ];
+        array.forEach( this.views, function(v) {
+            v.placeAt( this.container );
+        }, this );
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            document.title = thisObj.view.visibleRegionLocString()+' JBrowse';
+            document.title = 'JBrowse';
         };
 
         this.subscribe( '/jbrowse/v1/n/navigate',  updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
-        this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateLocationBar );
+        this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', updateLocationBar );
 
         //set initial location
         this.createTrackList().then( dojo.hitch( this, function() {
@@ -549,13 +561,13 @@ renderMenuBar: function( menuBar ) {
                                      var h = this.getHighlight();
                                      if( h ) {
                                          this.clearHighlight();
-                                         this.view.redrawRegion( h );
+                                         this.publish( '/jbrowse/v1/c/redrawGenomeRegions', [h] );
                                      }
                                  })
         });
     this._updateHighlightClearButton();  //< sets the label and disabled status
     // update it every time the highlight changes
-    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
+    this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
     this.addGlobalMenuItem( 'view', this._highlightClearButton );
     this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
@@ -1345,14 +1357,6 @@ createTrackList: function() {
                      // bind the 't' key as a global keyboard shortcut
                      this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
 
-                     // listen for track-visibility-changing messages from
-                     // views and update our tracks cookie
-                     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch( this, function() {
-                         this.cookie( "tracks",
-                                      this.view.visibleTrackNames().join(','),
-                                      {expires: 60});
-                     }));
-
                      deferred.resolve({ success: true });
         }));
     });
@@ -1628,7 +1632,7 @@ makeShareLink: function () {
     };
     this.subscribe( '/jbrowse/v1/n/navigate',               updateShareURL );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateShareURL );
-    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', updateShareURL );
+    this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', updateShareURL );
 
     return button.domNode;
 },
@@ -1650,6 +1654,10 @@ makeCurrentViewURL: function( overrides ) {
         return this.config.shareURL;
     }
 
+    var viewState = {
+        highlight: (this.getHighlight()||'').toString()
+    };
+
     return "".concat(
         window.location.protocol,
         "//",
@@ -1660,11 +1668,7 @@ makeCurrentViewURL: function( overrides ) {
             dojo.mixin(
                 dojo.mixin( {}, (this.config.queryParams||{}) ),
                 dojo.mixin(
-                    !this.view ? {} : {
-                        loc:    this.view.visibleRegionLocString(),
-                        tracks: this.view.visibleTrackNames().join(','),
-                        highlight: (this.getHighlight()||'').toString()
-                    },
+                    viewState,
                     overrides || {}
                 )
             )
@@ -1691,24 +1695,11 @@ makeFullViewLink: function () {
     };
     this.subscribe( '/jbrowse/v1/n/navigate',               update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
-    this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', update_link );
+    this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', update_link );
 
     return link;
 },
 
-
-/**
- * update the location and refseq cookies
- */
-_updateLocationCookies: function( location ) {
-    var locString = typeof location == 'string' ? location : Util.assembleLocString( location );
-    var oldLocMap = dojo.fromJson( this.cookie('location') ) || { "_version": 1 };
-    if( ! oldLocMap["_version"] )
-        oldLocMap = this._migrateLocMap( oldLocMap );
-    oldLocMap[this.refSeq.name] = { l: locString, t: Math.round( (new Date()).getTime() / 1000 ) - 1340211510 };
-    oldLocMap = this._limitLocMap( oldLocMap, this.config.maxSavedLocations || 10 );
-    this.cookie( 'location', dojo.toJson(oldLocMap), {expires: 60});
-},
 
 /**
  * Migrate an old location map cookie to the new format that includes timestamps.
@@ -1792,7 +1783,7 @@ setHighlight: function( newHighlight ) {
     else if( newHighlight )
         this._highlight = new Location( newHighlight );
 
-    this.publish( '/jbrowse/v1/n/globalHighlightChanged', [this._highlight] );
+    this.publish( '/jbrowse/v1/n/globalhighlight/changed', [this._highlight] );
 
     return this.getHighlight();
 },
@@ -1812,30 +1803,20 @@ getRefSeqSelectorMaxSize: function() {
 clearHighlight: function() {
     if( this._highlight ) {
         delete this._highlight;
-        this.publish( '/jbrowse/v1/n/globalHighlightChanged', [] );
+        this.publish( '/jbrowse/v1/n/globalhighlight/changed', [] );
     }
 },
 
 setHighlightAndRedraw: function( location ) {
-    var oldHighlight = this.getHighlight();
-    if( oldHighlight )
-        this.view.hideRegion( oldHighlight );
-    this.view.hideRegion( location );
-    this.setHighlight( location );
-    this.view.showVisibleBlocks( false );
-},
+    var regions = [ location ];
 
-/**
- * Clears the old highlight if necessary, sets the given new
- * highlight, and updates the display to show the highlighted location.
- */
-showRegionWithHighlight: function( location ) {
     var oldHighlight = this.getHighlight();
     if( oldHighlight )
-        this.view.hideRegion( oldHighlight );
-    this.view.hideRegion( location );
+        regions.push( oldHighlight );
+
     this.setHighlight( location );
-    this.showRegion( location );
+    this.publish('/jbrowse/v1/c/redrawGenomeRegions',regions);
 }
+
 });
 });
