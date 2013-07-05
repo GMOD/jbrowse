@@ -27,11 +27,6 @@ return dojo.declare( BlockBased,
 
     fillBlock: function( args ) {
         this.renderGridlines( args.block, args.leftBase, args.rightBase );
-
-        var highlight = this.browser.getHighlight();
-        if( highlight && highlight.ref == this.refSeq.name )
-            this.renderRegionHighlight( args, highlight );
-
         args.finishCallback();
         this.heightUpdate(100, args.blockIndex);
     },

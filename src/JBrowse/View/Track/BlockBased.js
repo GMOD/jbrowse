@@ -1118,7 +1118,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                                 style: {
                                     left: left+'%',
                                     width: width+'%',
-                                    height: '100%'
+                                    height: '100%',
+                                    top: '0px'
                                 }
                             }, args.block.domNode );
     }

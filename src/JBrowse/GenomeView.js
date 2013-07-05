@@ -20,6 +20,7 @@ define([
            'JBrowse/FeatureFiltererMixin',
            'JBrowse/View/Track/LocationScale',
            'JBrowse/View/Track/GridLines',
+           'JBrowse/View/Track/RegionHighlights',
            'JBrowse/BehaviorManager',
            'JBrowse/View/Animation/Zoomer',
            'JBrowse/View/Animation/Slider',
@@ -46,6 +47,7 @@ define([
            FeatureFiltererMixin,
            LocationScaleTrack,
            GridLinesTrack,
+           RegionHighlightsTrack,
            BehaviorManager,
            Zoomer,
            Slider,
@@ -233,9 +235,9 @@ _finishInitialization: function( refseq ) {
         var gridTrackDiv = document.createElement("div");
         gridTrackDiv.className = "track";
         gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
-        gridTrackDiv.id = "gridtrack";
         var gridTrack = new GridLinesTrack({
                                                browser: this.browser,
+                                               genomeView: this,
                                                refSeq: this.ref
                                            });
         gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
@@ -245,6 +247,21 @@ _finishInitialization: function( refseq ) {
         this.trackContainer.appendChild(gridTrackDiv);
         this.uiTracks.push( gridTrack );
     }
+
+    var highlightsTrack = new RegionHighlightsTrack(
+        {
+            browser: this.browser,
+            genomeView: this,
+            refSeq: this.ref
+        });
+    highlightsTrack.setViewInfo(
+        this, function(height) {}, this.stripeCount,
+        domConstruct.create( 'div', { className: 'track', style: "top: 0px; height: 100%" },
+                             this.trackContainer ),
+        this.stripePercent,
+        this.stripeWidth, this.pxPerBp,
+        this.trackPadding);
+    this.uiTracks.push( highlightsTrack );
 
     this._renderVerticalScrollBar();
 
