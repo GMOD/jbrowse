@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.9.8     2013-07-05 09:22:36 EST5EDT
+
  * Removed "XX has no data for this chromosome" popup warning message.
    It was just annoying and not very useful.
 
