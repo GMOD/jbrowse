@@ -57,7 +57,7 @@ applyOp: function(scoreA, scoreB, op) {
             retValue = (scoreB == 0) ? undefined : scoreA/scoreB;
             break;
         default:
-            console.error("invalid operation");
+            console.error("invalid operation " + op);
             return undefined;
     }
     return retValue;

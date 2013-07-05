@@ -87,6 +87,11 @@ _rawToSpan: function( features, query ) {
 _strandFilter: function( spans, strand ) {
     return array.filter( spans, function(item) {
                                                 return item.strand == strand || !item.strand;
+                                            }).map( function(item) {
+                                                if(!item.strand)
+                                                    return { start: item.start, end: item.end, strand: strand } // Adds strand to strandless spans
+                                                else
+                                                    return item;
                                             });
 },
 

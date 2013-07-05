@@ -12,7 +12,9 @@ define([
 			'dojo/dnd/move',
 		 'dojo/dnd/Source',
 		 'dojo/dnd/Manager',
-		 'JBrowse/Util'],
+		 'JBrowse/Util',
+		 'dojo/json'
+		 ],
 		 function(
 				 declare,
 				 on,
@@ -27,7 +29,8 @@ define([
 				 dndMove,
 				 dndSource,
 				 dndManager,
-				 Util
+				 Util,
+				 JSON
 		 ) {
 return declare(BlockBased,
  /**
@@ -310,6 +313,9 @@ return declare(BlockBased,
 
 		// Reset a bunch of variables
 		reinitialize: function() {
+			if(this.dnd) {
+				this.dnd.selectAll().deleteSelectedNodes();
+			}
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
 			this.storeType = undefined;
@@ -347,7 +353,6 @@ return declare(BlockBased,
 			}
 			// Carry on the process of adding the track
 			this._addTrackStore(trackConfig);
-
 			// Because _addTrackStore has deferreds, the dnd node must be returned before it is filled
 			return this.innerDiv;
 		},
@@ -400,7 +405,9 @@ return declare(BlockBased,
 					this.lastDialogDone.resolve(true);
 					console.log(this._generateTreeFormula(opTree));
 					this._adjustStores(newstore);
-				}), function() {});
+				}), dojo.hitch(this, function() {
+					this.lastDialogDone.resolve(true);
+				}));
 			}))
 
 		},
@@ -589,7 +596,6 @@ return declare(BlockBased,
 
 					this.innerTrack.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
 								this.browser.view.suppressDoubleClick( 100 );
-								this.div.removeChild(this.innerDiv);
 								this.reinitialize();
 								this.refresh();
 								evt.stopPropagation();
@@ -641,8 +647,7 @@ return declare(BlockBased,
 		},
 
 		// Extends the BlockBased track's showRange function.
-		showRange: function(first, last, startBase, bpPerBlock, scale,
-												containerStart, containerEnd) {
+		showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
 			this.range = {f: first, l: last, st: startBase, 
 										b: bpPerBlock, sc: scale, 
 										cs: containerStart, ce: containerEnd};
@@ -868,5 +873,84 @@ return declare(BlockBased,
 			return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
 		},
 		
+
+		// These features are supposed to be for importing data to/exporting from JSON.  Sadly this still wouldn't be persistent across a browser
+		// if its stores don't have exactly the same names.
+		/*
+		_combTrackToJSON: function(tree) {
+			if(!tree)
+				tree = this.opTree;
+			var trackConfigSettings = {
+				type: this._visible().trackType,
+				storeClass: this._visible().store.config.type,
+				storeType: this._visible().which
+			};
+
+			return JSON.stringify([trackConfigSettings].concat([this._opTreeToJSON(tree)]));
+		},
+
+		_opTreeToJSON: function(tree) {
+			var newTree = {
+				leaf: tree.leaf
+			};
+			if(tree.leftChild)
+				newTree.leftChild = this._opTreeToJSON(tree.leftChild);
+			if(tree.rightChild)
+				newTree.rightChild = this._opTreeToJSON(tree.rightChild);
+			if(tree.get().name)
+				newTree.store = tree.get().name;
+			else
+				newTree.op = tree.get();
+			return newTree;
+		},
+
+		_loadFromJSON: function(JSONString) {
+			var objArray = JSON.parse(JSONString);
+			var trackConfigSettings = objArray[0];
+			var thisB = this;
+			var opTree = objArray[1];
+			var loadedStore = this._createStore(trackConfigSettings.storeType);
+			var loadedOpTree = this._loadJSONOpTree(opTree);
+			when(all([loadedStore, loadedOpTree]), function(results) {
+				var store = results[0];
+				var tree = results[1];
+				store.reload(tree);
+				trackConfigSettings.store = store.name;
+
+				// Remove whatever is currently in the track
+				thisB.reinitialize();
+				thisB.refresh();
+
+				thisB.dnd.insertNodes(false, [trackConfigSettings]);
+			})
+		},
+
+		_loadJSONOpTree: function(tree) {
+			var d = new Deferred();
+			var haveLeft = undefined;
+			var haveRight = undefined;
+			var thisB = this;
+
+			if(tree.leftChild) {
+				haveLeft = this._loadJSONOpTree(tree.leftChild);
+			}
+			if(tree.rightChild) {
+				haveRight = this._loadJSONOpTree(tree.rightChild);
+			}
+			when(all([haveLeft, haveRight]), function(results) {
+				var newTree = new TreeNode({ leftChild: results[0], rightChild: results[1], leaf: tree.leaf});
+				if(tree.store) {
+					thisB.browser.getStore(tree.store, function(store) {
+						newTree.set(store);
+					});
+					d.resolve(newTree, true);
+				} else {
+					newTree.set(tree.op);
+					d.resolve(newTree, true);
+				}
+			});
+			return d.promise;
+		}
+		*/
 });
 });

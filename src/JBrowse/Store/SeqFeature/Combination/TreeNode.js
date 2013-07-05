@@ -122,7 +122,6 @@ define([
 					return this.leftChild.getLeaves().concat(this.rightChild.getLeaves());
 				}
 
-
 			});
 
 
