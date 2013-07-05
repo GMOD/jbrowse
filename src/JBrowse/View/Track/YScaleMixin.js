@@ -42,14 +42,14 @@ return declare( null, {
         this.yscale = rulerdiv;
 
         if( this.window_info && 'x' in this.window_info ) {
-            if ('yscalePosition' in this.config) {
-                if(this.config.yscalePosition == 'right') {
+            if ('yScalePosition' in this.config) {
+                if(this.config.yScalePosition == 'right') {
                     this.yscale.style.left = (this.window_info.x + (this.window_info.width-1||0)) + "px";
                 }
-                else if(this.config.yscalePosition == 'left') {
+                else if(this.config.yScalePosition == 'left') {
                     this.yscale.style.left = this.window_info.x + 10 + 1 + "px";
                 }
-                else if(this.config.yscalePosition == 'center') {
+                else if(this.config.yScalePosition == 'center') {
                     this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
                 }
             }
@@ -69,7 +69,7 @@ return declare( null, {
             min: min,
             max: max,
             direction: 'up',
-            leftBottom: !('yscale_position' in this.config && this.config.yscale_position == 'left'),
+            leftBottom: !('yScalePosition' in this.config && this.config.yScalePosition == 'left'),
             fixBounds: args.fixBounds || false
         });
         ruler.render_to( rulerdiv );
@@ -80,14 +80,14 @@ return declare( null, {
     updateYScaleFromViewDimensions: function( coords ) {
         if( typeof coords.x == 'number' || typeof coords.width == 'number' ) {
             if( this.yscale ) {
-                if ('yscale_position' in this.config) {
-                    if(this.config.yscale_position == 'right') {
+                if ('yScalePosition' in this.config) {
+                    if(this.config.yScalePosition == 'right') {
                         this.yscale.style.left = (this.window_info.x + (this.window_info.width-1||0)) + "px";
                     }
-                    else if(this.config.yscale_position == 'left') {
+                    else if(this.config.yScalePosition == 'left') {
                         this.yscale.style.left = this.window_info.x + 10 + "px";
                     }
-                    else if(this.config.yscale_position == 'center') {
+                    else if(this.config.yScalePosition == 'center') {
                         this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
                     }
                 }
