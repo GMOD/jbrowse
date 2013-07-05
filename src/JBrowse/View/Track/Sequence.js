@@ -27,7 +27,7 @@ return declare( [BlockBased, ExportMixin],
         };
     },
     _exportFormats: function() {
-        return ['FASTA'];
+        return [{name: 'FASTA', label: 'FASTA', fileExt: 'fasta'}];
     },
 
     endZoom: function(destScale, destBlockBases) {

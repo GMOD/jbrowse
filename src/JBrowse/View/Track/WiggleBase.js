@@ -370,7 +370,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
     },
 
     _exportFormats: function() {
-        return ['bedGraph','Wiggle', 'GFF3' ];
+        return [{name: 'bedGraph', label: 'bedGraph', fileExt: 'bedgraph'}, {name: 'Wiggle', label: 'Wiggle', fileExt: 'wig'}, {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'} ];
     }
 });
 });
