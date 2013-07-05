@@ -3,7 +3,7 @@
  * Removed "XX has no data for this chromosome" popup warning message.
    It was just annoying and not very useful.
 
- * Added an optional "yscalePosition" element to track configs that
+ * Added an optional "yScalePosition" element to track configs that
    allows configs with Y axes to have those axes positioned on the
    left or right side of the view, as well as in the center.  Thanks
    to Alexis Grimaldi for making this change.
