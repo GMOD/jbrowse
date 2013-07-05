@@ -29,6 +29,9 @@ html, body {
     padding-right: 0.5em;
 }
 
+.jbrowseGenomeView {
+    overflow: hidden;
+}
 .track .global_highlight {
     position: absolute;
     background: rgba( 255, 255, 0, 0.7 );
@@ -1048,14 +1051,14 @@ a.dialog-new-window {
 }
 
 .trackVerticalPositionIndicatorMain {
-    position: fixed;
+    position: absolute;
     display: none;
     cursor: crosshair;
     left: -2px;
     height: 100%;
     width: 1px;
     background-color: #FF0000;
-    z-index: 15;
+    z-index: 1000;
     top: 0;
 }
 

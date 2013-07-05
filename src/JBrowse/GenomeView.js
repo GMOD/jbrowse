@@ -518,7 +518,7 @@ _behaviors: function() { return {
             var maybeDrawVerticalPositionLine = dojo.hitch( this, function( evt ) {
                 if( this.rubberbanding )
                     return;
-                this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+                this.drawVerticalPositionLine( evt );
             });
 
             dojo.removeClass(this.trackContainer,'draggable');
@@ -1164,7 +1164,7 @@ layout: function() {
  */
 scaleMouseOver: function( evt ) {
     if( ! this.rubberbanding )
-        this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+        this.drawVerticalPositionLine( evt);
 },
 
 /**
@@ -1172,7 +1172,7 @@ scaleMouseOver: function( evt ) {
  */
 scaleMouseMove: function( evt ) {
     if( ! this.rubberbanding )
-        this.drawVerticalPositionLine( this.scaleTrackDiv, evt);
+        this.drawVerticalPositionLine( evt);
 },
 
 /**
@@ -1186,24 +1186,23 @@ scaleMouseOut: function( evt ) {
 /**
  * Draws the red line across the work area, or updates it if it already exists.
  */
-drawVerticalPositionLine: function( parent, evt){
+drawVerticalPositionLine: function( evt){
+    var parent = this.domNode;
     var numX = evt.pageX + 2;
+    var ppos = dojo.position(parent);
 
     if( ! this.verticalPositionLine ){
         // if line does not exist, create it
         this.verticalPositionLine = dojo.create( 'div', {
             className: 'trackVerticalPositionIndicatorMain'
-        }, this.staticTrack.div );
+        }, parent );
     }
 
     var line = this.verticalPositionLine;
     line.style.display = 'block';      //make line visible
-    line.style.left = numX+'px'; //set location on screen
-    var scaleTrackPos = dojo.position( this.scaleTrackDiv );
-    line.style.top =  scaleTrackPos.y + 'px';
+    line.style.left = numX-ppos.x+'px'; //set location on screen
 
-
-    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
+    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent, parentPos: ppos });
 },
 
 /**
