@@ -227,24 +227,26 @@ _finishInitialization: function( refseq ) {
                                  this.trackPadding);
     this.zoomContainer.appendChild(this.scaleTrackDiv);
 
-    var gridTrackDiv = document.createElement("div");
-    gridTrackDiv.className = "track";
-    gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
-    gridTrackDiv.id = "gridtrack";
-    var gridTrack = new GridLinesTrack({
-                                           browser: this.browser,
-                                           refSeq: this.ref
-                                       });
-    gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
-                          gridTrackDiv, this.stripePercent,
-                          this.stripeWidth, this.pxPerBp,
-                          this.trackPadding);
-    this.trackContainer.appendChild(gridTrackDiv);
-    this.uiTracks = [this.staticTrack, gridTrack];
+    this.uiTracks = [ this.staticTrack ];
 
+    if( this.config.gridlines ) {
+        var gridTrackDiv = document.createElement("div");
+        gridTrackDiv.className = "track";
+        gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
+        gridTrackDiv.id = "gridtrack";
+        var gridTrack = new GridLinesTrack({
+                                               browser: this.browser,
+                                               refSeq: this.ref
+                                           });
+        gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
+                               gridTrackDiv, this.stripePercent,
+                               this.stripeWidth, this.pxPerBp,
+                               this.trackPadding);
+        this.trackContainer.appendChild(gridTrackDiv);
+        this.uiTracks.push( gridTrack );
+    }
 
     this._renderVerticalScrollBar();
-
 
     // accept tracks being dragged into this
     this.trackDndWidget =
@@ -298,7 +300,8 @@ _finishInitialization: function( refseq ) {
 
 _defaultConfig: function() {
     return {
-        maxPxPerBp: 20
+        maxPxPerBp: 20,
+        gridlines: true
     };
 },
 

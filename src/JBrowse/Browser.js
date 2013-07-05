@@ -465,7 +465,7 @@ initView: function() {
             new GenomeView(
                 { browser: this,
                   region: 'top',
-                  config: {},
+                  config: { gridlines: false },
                   stripeWidth: 250,
                   style: 'height: 40%',
                   pxPerBp: 1/200,
