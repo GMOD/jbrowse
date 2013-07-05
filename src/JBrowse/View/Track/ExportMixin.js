@@ -8,7 +8,8 @@ define( [
             'JBrowse/Util',
             'dijit/form/Button',
             'dijit/form/RadioButton',
-            'dijit/Dialog'
+            'dijit/Dialog',
+            'FileSaver/FileSaver'
         ],
         function(
             declare,
@@ -20,7 +21,8 @@ define( [
             Util,
             dijitButton,
             dijitRadioButton,
-            dijitDialog
+            dijitDialog,
+            saveAs
         ) {
 /**
  * Mixin for a track that can export its data.
@@ -100,6 +102,11 @@ return declare( null, {
                    },this);
                    return fmts;
               }.call(this)
+            + ' </fieldset>'
+            + ' '
+            + ' <fieldset class="filename">'
+            + '   <legend>Filename</legend>'
+            + ' <input type="text" name="filename"></input>'
             + ' </fieldset>';
 
         var actionBar = dom.create( 'div', {
@@ -179,11 +186,12 @@ return declare( null, {
                               onClick: dojo.hitch( this.track, function() {
                                 var format = this._readRadio( form.elements.format );
                                 var region = this._readRadio( form.elements.region );
+                                var filename = form.elements.filename.value;
                                 dlButton.set('disabled',true);
                                 dlButton.set('iconClass','jbrowseIconBusy');
                                 this.exportRegion( region, format, dojo.hitch( this, function( output ) {
                                     dialog.hide();
-                                    this._fileDownload({ format: format, data: output });
+                                    this._fileDownload({ format: format, data: output, filename: filename });
                                 }));
                               })})
                 .placeAt( actionBar );
@@ -196,11 +204,16 @@ return declare( null, {
         // do the file download by setting the src of a hidden iframe,
         // because missing with the href of the window messes up
         // WebApollo long polling
-        var iframe = dom.create( 'iframe', {
+        saveAs(new Blob([args.data], {type: args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain'}), args.filename);
+        // will need to check whether this breaks the WebApollo plugin
+
+        /*
+                var iframe = dom.create( 'iframe', {
             style: { display: 'none' }
         },this.div );
         iframe.src = "data:"+( args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain' )
             +","+escape( args.data || '' );
+        */
     },
 
     // cross-platform function for (portably) reading the value of a radio control. sigh. *rolls eyes*
