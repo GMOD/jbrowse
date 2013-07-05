@@ -411,7 +411,7 @@ regularizeReferenceName: function( refname ) {
 },
 
 initView: function() {
-    var thisObj = this;
+    var thisB = this;
     return this._milestoneFunction('initView', function( deferred ) {
 
         //set up nav pane and main GenomeView pane
@@ -428,7 +428,7 @@ initView: function() {
                 className: this.config.show_nav ? 'menuBar' : 'topLink'
             }
             );
-        thisObj.menuBar = menuBar;
+        thisB.menuBar = menuBar;
         ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
 
         if( this.config.show_nav ) {
@@ -478,8 +478,8 @@ initView: function() {
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {
-            var shareURL = thisObj.makeCurrentViewURL();
-            if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
+            var shareURL = thisB.makeCurrentViewURL();
+            if( thisB.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
             document.title = 'JBrowse';
         };
@@ -505,6 +505,7 @@ initView: function() {
 },
 
 renderMenuBar: function( menuBar ) {
+    var thisB = this;
     var about = this.browserMeta();
     var aboutDialog = new InfoDialog(
         {
@@ -548,8 +549,8 @@ renderMenuBar: function( menuBar ) {
                 label: 'Set highlight',
                 onClick: function() {
                     new SetHighlightDialog({
-                                               browser: thisObj,
-                                               setCallback: dojo.hitch( thisObj, 'setHighlightAndRedraw' )
+                                               browser: thisB,
+                                               setCallback: dojo.hitch( thisB, 'setHighlightAndRedraw' )
                                            }).show();
                 }
             }));
@@ -587,7 +588,7 @@ renderMenuBar: function( menuBar ) {
                           );
 
     function showHelp() {
-        new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
+        new HelpDialog( lang.mixin(thisB.config.quickHelp || {}, { browser: thisB } )).show();
     }
     this.setGlobalKeyboardShortcut( '?', showHelp );
     this.addGlobalMenuItem( 'help',
