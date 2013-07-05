@@ -103,8 +103,6 @@ buildRendering: function() {
         }, this.elem
     );
 
-    this._renderVerticalScrollBar();
-
     // we have a separate zoomContainer as a child of the scrollContainer.
     // they used to be the same element, but making zoomContainer separate
     // enables it to be narrower than this.elem.
@@ -244,6 +242,10 @@ _finishInitialization: function( refseq ) {
     this.trackContainer.appendChild(gridTrackDiv);
     this.uiTracks = [this.staticTrack, gridTrack];
 
+
+    this._renderVerticalScrollBar();
+
+
     // accept tracks being dragged into this
     this.trackDndWidget =
         new dndSource(
@@ -327,22 +329,22 @@ visibleRegionLocString: function() {
  * @private
  */
 _renderVerticalScrollBar: function() {
-    var container = dojo.create(
+    var container = domConstruct.create(
         'div',
         {
             className: 'vertical_scrollbar',
-            style: { position: 'fixed',
+            style: { position: 'absolute',
                      right: '0px',
-                     bottom: '0px',
+                     top: this.scaleTrackDiv.offsetHeight+'px',
                      height: '100%',
                      width: '10px',
                      zIndex: 1000
                    }
         },
-        this.elem
+        this.domNode
     );
 
-    var positionMarker = dojo.create(
+    var positionMarker = domConstruct.create(
         'div',
         {
             className: 'vertical_position_marker',
@@ -362,6 +364,9 @@ _renderVerticalScrollBar: function() {
  * @private
  */
 _updateVerticalScrollBar: function( newDims ) {
+    if( ! this.verticalScrollBar )
+        return;
+
     if( typeof newDims.height == 'number' ) {
         var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
         var trackPaneHeight = newDims.height + heightAdjust;
