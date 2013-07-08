@@ -74,34 +74,30 @@ return declare( null, {
         });
 
         var form = dom.create('form', { onSubmit: function() { return false; } });
-        var regionFieldset = dom.create('fieldset', {class: "region"});
-        var regionLegend = dom.create('legend', {innerHTML: "Region to save"});
-        regionFieldset.appendChild(regionLegend);
-        form.appendChild(regionFieldset);
-        
+        var regionFieldset = dom.create('fieldset', {className: "region"}, form );
+        dom.create('legend', {innerHTML: "Region to save"}, regionFieldset);
+
         var checked = 0;
         array.forEach( possibleRegions, function(r) {
-                var locstring = Util.assembleLocString(r);            
-                var regionButton = new dijitRadioButton({ name: "region", id: "region_"+r.name, value: locstring, 
+                var locstring = Util.assembleLocString(r);
+                var regionButton = new dijitRadioButton({ name: "region", id: "region_"+r.name, value: locstring,
                     checked: r.canExport && checked++ ? "checked" : ""});
                 regionFieldset.appendChild(regionButton.domNode);
                 var regionButtonLabel = dom.create("label", {for: regionButton.id, innerHTML: r.description+' - <span class="locString">'
                                    +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')'}, regionFieldset);
                 if(!r.canExport) {
                     regionButton.domNode.disabled = "disabled";
-                    regionButtonLabel.class = "ghosted";
+                    regionButtonLabel.className = "ghosted";
                 }
 
                 on(regionButton, "click", setFilenameValue);
 
-               regionFieldset.appendChild(dom.create("br"));
+                dom.create('br',{},regionFieldset);
         });
 
 
-        var formatFieldset = dom.create("fieldset", {class: "format"});
-        var formatLegend = dom.create("legend", {innerHTML: "Format"});
-        formatFieldset.appendChild(formatLegend);
-        form.appendChild(formatFieldset);
+        var formatFieldset = dom.create("fieldset", {className: "format"}, form);
+        dom.create("legend", {innerHTML: "Format"}, formatFieldset);
 
         checked = 0;
         var nameToExtension = {};
@@ -118,14 +114,12 @@ return declare( null, {
             var formatButtonLabel = dom.create("label", {for: formatButton.id, innerHTML: fmt.label}, formatFieldset);
 
             on(formatButton, "click", setFilenameValue);
-            formatFieldset.appendChild(dom.create("br"));
-        });
+            dom.create( "br", {}, formatFieldset );
+        },this);
 
 
-        var filenameFieldset = dom.create("fieldset", {class: "filename"});
-        var filenameLegend = dom.create("legend", {innerHTML: "Filename"});
-        filenameFieldset.appendChild(filenameLegend);
-        form.appendChild(filenameFieldset);
+        var filenameFieldset = dom.create("fieldset", {className: "filename"}, form);
+        dom.create("legend", {innerHTML: "Filename"}, filenameFieldset);
         dom.create("input", {type: "text", name: "filename", style: {width: "100%"}}, filenameFieldset);
 
         setFilenameValue();
@@ -175,10 +169,8 @@ return declare( null, {
 
                                 // data URL download doesn't work on IE < 10
                                 if( ! (has('ie') < 10) ) {
-                                    var filenameDiv = dom.create("div", {class: "filename", style: {display: "inline-block", "margin-left": "50px"}});
-                                    var filenameSpan = dom.create("span", {innerHTML: "Filename:  "});
-                                    filenameDiv.appendChild(filenameSpan);
-                                    actionBar.appendChild(filenameDiv)
+                                    var filenameDiv = dom.create("div", {className: "filename", style: {display: "inline-block", "margin-left": "50px"}}, actionBar);
+                                    var filenameSpan = dom.create("span", {innerHTML: "Filename:  "}, filenameDiv);
                                     var filenameText = dom.create("input", {type: "text", name: "filename", style: {width: "250px"},value: filename}, filenameDiv);
 
 
