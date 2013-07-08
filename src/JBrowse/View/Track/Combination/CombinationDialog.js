@@ -60,28 +60,11 @@ define([
 				
 				var thisB = this;
 
-				this.whichOpArg = "";
-
-				var unique = {};
-
-				var maskOps = opList.map(function(item) { return item.substring(0, 4)}).filter(function(value) {
-					if(!unique[value]) {
-						unique[value] = true;
-						return true;
-					}
-					return false;
-				});
-
+				var maskOps = this._makeUnique(opList.map(function(item) { return item.substring(0, 4)}));
 				nodesToAdd.push(maskOpListDiv);
-				this.whichOpSpan = dom.create("span", {innerHTML: "<br />Which operation?", style: {display: "none"}});
-				nodesToAdd.push(this.whichOpSpan);
-				this.opListDiv = dom.create("div", {id: this.track.name + "_OpList"});
-				nodesToAdd.push(this.opListDiv);
 
-				this.leftRightSpan = dom.create("span", {innerHTML: "<br />Left or right?", style: {display: "none"}});  // Not the prettiest way to render line breaks.
-				nodesToAdd.push(this.leftRightSpan);
-				this.whichArgDiv = dom.create("div", {id: this.track.name + "_whichArg"});
-				nodesToAdd.push(this.whichArgDiv);
+				this.changingOpPanel = dom.create("div", {id: this.track.name + "_suffixLists"});
+				nodesToAdd.push(this.changingOpPanel);
 
 				nodesToAdd.push(dom.create("span", {innerHTML: "<br />Combination Formula Preview"}));
 
@@ -97,26 +80,47 @@ define([
 
 						opButton.on("change", function(isSelected) {
 							if(isSelected) {
-								delete thisB.whichOpArg;
+								delete this.whichArg;
+								delete this.opValue;
+
 								thisB.maskOpValue = this.value;
-								thisB._generateSuffixRadioButtons(this.value, opList, store);
-								thisB._maybeRenderWhichArgDiv(this.value, store);
-								if(thisB.leftRightButtons.length && !thisB.whichOpArg) {
-									thisB.leftRightButtons[0].set('checked', 'checked');
+								
+								var numOpLists = thisB.maskOpValue == "1111" ? 3 : 1;
+								thisB.opListDivs = [];
+								thisB.whichArgDivs = [];
+
+								thisB.opValue = [];
+								thisB.whichArg = [];
+
+								thisB.changingOpPanel.innerHTML = "";
+
+								for(var i = 0; i < numOpLists; i++) {
+
+									var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, style: {display: "inline-block"}}, thisB.changingOpPanel);
+									var whichOpSpan = dom.create("span", {innerHTML: "<br />Which operation?", style: {display: "none"}}, opDiv);
+									thisB.opListDivs[i] = dom.create("div", {id: thisB.track.name + "_OpList" + i}, opDiv);
+
+									var leftRightSpan = dom.create("span", {innerHTML: "<br />Left or right?", style: {display: "none"}}, opDiv);  // Not the prettiest way to render line breaks.
+									thisB.whichArgDivs[i] = dom.create("div", {id: thisB.track.name + "_whichArg" + i}, opDiv);
+
+									var opButtons = thisB._generateSuffixRadioButtons(this.value, opList, store, thisB.opListDivs[i], i);
+									var leftRightButtons = thisB._maybeRenderWhichArgDiv(this.value, store, thisB.whichArgDivs[i], i);
+
+									if(leftRightButtons.length && !thisB.whichOpArg) {
+										leftRightButtons[0].set('checked', 'checked');
+									}
+									if(opButtons.length) {
+										opButtons[0].set('checked', 'checked');
+									}
+
+									whichOpSpan.style.display = opButtons.length ? "" : "none";
+									leftRightSpan.style.display = leftRightButtons.length ? "" : "none";
 								}
-								if(thisB.opButtons.length) {
-									thisB.opButtons[0].set('checked', 'checked');
-								}
-								thisB.whichOpSpan.style.display = thisB.opButtons.length ? "" : "none";
-								thisB.leftRightSpan.style.display = thisB.leftRightButtons.length ? "" : "none";
 							}
 						});
 					}
 					if(maskOps[0])
 						this.maskOpButtons[0].set('checked', 'checked');
-				} else if(maskOps.length == 1) {
-					this.maskOpValue = maskOps[0];
-					this._generateSuffixRadioButtons(maskOps[0], opList, store);
 				}
 
 				var actionBar = this._createActionBar();
@@ -154,77 +158,95 @@ define([
 				return actionBar;
 			},
 
-			_maybeRenderWhichArgDiv: function(prefix, store) {
-				for(var i in this.leftRightButtons) {
-					if(dijit.byId(this.leftRightButtons[i].id)) {
-						dijit.byId(this.leftRightButtons[i].id).destroy();
-					}
+			_generateSuffixRadioButtons: function(prefix, stringlist, store, parent, offset) {
+				offset = offset || 0;
+				while(parent.firstChild) {
+					if(dijit.byId(parent.firstChild.id)) dijit.byId(parent.firstChild.id).destroy();
+					dom.destroy(parent.firstChild);
 				}
-				while(this.whichArgDiv.firstChild) {
-					dom.destroy(this.whichArgDiv.firstChild);
-				}
-				this.leftRightButtons = [];
-				var thisB = this;
-
-				var whichArgChange = function(isSelected, value) {
-					if(isSelected) {
-						thisB.whichOpArg = value === undefined ? this.value : value;
-						var operation = thisB.maskOpValue + thisB.opValue + thisB.whichOpArg;
-						thisB.previewTree = thisB._createPreviewTree(operation, store);
-						thisB.formulaPreview.innerHTML = thisB._generateTreeFormula(thisB.previewTree);
-					}
-				}
-
-				switch(prefix) {
-					case "0020":
-						whichArgChange(true, "L");
-						break;
-					case "0002":
-						whichArgChange(true, "R");
-						break;
-					default:
-						var rbLeft = this._renderRadioButton(this.whichArgDiv, "L", "left");
-						var rbRight = this._renderRadioButton(this.whichArgDiv, "R", "right");
-						this.leftRightButtons.push(rbLeft);
-						this.leftRightButtons.push(rbRight);
-						rbLeft.on("change", whichArgChange);
-						rbRight.on("change", whichArgChange);
-				}
-			},
-
-			_generateSuffixRadioButtons: function(prefix, stringlist, store) {
-				for(var i in this.opButtons) {
-					if(dijit.byId(this.opButtons[i].id)) {
-						dijit.byId(this.opButtons[i].id).destroy();
-					}
-				}
-				while(this.opListDiv.firstChild) {
-					dom.destroy(this.opListDiv.firstChild);
-				}
-				this.opButtons = [];
+				var buttons = [];
 
 				var thisB = this;
-				var allowedOps = this._generateSuffixList(prefix, stringlist);
+				var allowedOps = this._generateSuffixList(prefix, stringlist, offset);
 				for(var i in allowedOps) {
-					var opButton = this._renderRadioButton(this.opListDiv, allowedOps[i], this.inWords[allowedOps[i]]);
-					this.opButtons.push(opButton);
+					var opButton = this._renderRadioButton(parent, allowedOps[i], this.inWords[allowedOps[i]]);
+					buttons.push(opButton);
 					opButton.on("change", function(isSelected) {
 						if(isSelected) {
-							thisB.opValue = this.value;
-							var operation = thisB.maskOpValue + thisB.opValue + thisB.whichOpArg;
+							thisB.opValue[offset] = this.value;
+							var operation = thisB._getOperation();
 							thisB.previewTree = thisB._createPreviewTree(operation, store)
 							thisB.formulaPreview.innerHTML = thisB._generateTreeFormula(thisB.previewTree);
 						}
 					});
 				}
+				return buttons;
+			},
+
+			_getOperation: function() {
+				var retString = this.maskOpValue;
+				for(var i = 0; i < this.opListDivs.length; i++) {
+					retString = retString + this.opValue[i] + this.whichArg[i];
+				}
+				return retString;
 			},
 
 			//Type checking necessary?
-			_generateSuffixList: function(prefix, stringlist) {
-				return stringlist.filter(function(value) {
+			_generateSuffixList: function(prefix, stringlist, offset) {
+				if(offset === undefined) offset = 0;
+				return this._makeUnique(stringlist.filter(function(value) {
 					return value.indexOf(prefix) != -1;
 				}).map(function(item) {
-					return item.substring(prefix.length, prefix.length + 1);
+					return item.substring(prefix.length + offset, prefix.length + offset + 1);
+				}));
+			},
+
+			_maybeRenderWhichArgDiv: function(prefix, store, parent, offset) {
+				offset = offset || 0;
+				while(parent.firstChild) {
+					if(dijit.byId(parent.firstChild.id)) {
+						dijit.byId(parent.firstChild.id).destroy();
+					}
+					dom.destroy(parent.firstChild);
+				}
+				var leftRightButtons = [];
+				var thisB = this;
+
+				var whichArgChange = function(isSelected, value) {
+					if(isSelected) {
+						thisB.whichArg[offset] = value === undefined ? this.value : value;
+						var operation = thisB._getOperation();
+						thisB.previewTree = thisB._createPreviewTree(operation, store);
+						thisB.formulaPreview.innerHTML = thisB._generateTreeFormula(thisB.previewTree);
+					}
+				}
+
+				if(prefix == "0020")
+					whichArgChange(true, "L");
+				else if (prefix == "0002")
+					whichArgChange(true, "R");
+				else if (prefix == "1111" && offset == 0)
+					whichArgChange(true, "?");
+				else {
+					var rbLeft = this._renderRadioButton(parent, "L", "left");
+					var rbRight = this._renderRadioButton(parent, "R", "right");
+					leftRightButtons.push(rbLeft);
+					leftRightButtons.push(rbRight);
+					rbLeft.on("change", whichArgChange);
+					rbRight.on("change", whichArgChange);
+				}
+
+				return leftRightButtons;
+			},
+
+			_makeUnique: function(stringArray) {
+				var unique = {};
+				return stringArray.filter(function(value) {
+					if(!unique[value]) {
+						unique[value] = true;
+						return true;
+					}
+					return false;
 				});
 			},
 
@@ -259,7 +281,9 @@ define([
 						opTree2 = inferior;
 						break;
 					case "11":
-						retTree["leftChild"] = this._transformTree(opString.substring(2), superior.leftChild, inferior.leftChild);
+						retTree = new TreeNode({Value: opString.substring(2,3)});
+						retTree["leftChild"] = this._transformTree(opString.substring(4), superior.leftChild, inferior.leftChild);
+						opString = opString.substring(4);
 						childToUse = "rightChild";
 						opTree1 = superior.rightChild;
 						opTree2 = inferior.rightChild;
@@ -271,7 +295,6 @@ define([
 						this.newDisplayType = this.currType;
 						break;
 				}
-
 				var opNode= this._transformTree(opString.substring(2), opTree1, opTree2);
 				if(childToUse == undefined)
 					return opNode;
@@ -359,7 +382,10 @@ define([
 						if(displayType == oldType) {
 							var allowedOps2 = this.trackClasses[displayType].allowedOps; 
 							for(var j in allowedOps2) {
-								//allowedList.push(candidate + allowedOps[i] + allowedOps2[j]);
+								var allowedMaskOps = this.trackClasses["mask"].allowedOps;
+								for(var k in allowedMaskOps) {
+									allowedList.push(candidate + allowedMaskOps[k] + allowedOps[i] + allowedOps2[j]);
+								}
 							}
 						}
 					}
@@ -369,8 +395,15 @@ define([
 			},
 
 			_renderRadioButton: function(parent, value, label) {
+				var id = parent.id + "_rb_" + value;
+				if(dijit.byId(id)) {
+					dom.destroy(dijit.byId(id).domNode);
+					dijit.byId(id).destroy();					
+				}
+
+
 				label = label || value;	
-				var radioButton = new RadioButton({name: parent.id + "_rb", id: parent.id + "_rb_" + value,  value: value});
+				var radioButton = new RadioButton({name: parent.id + "_rb", id: id,  value: value});
 				parent.appendChild(radioButton.domNode);
 				var radioButtonLabel = dom.create("label", {"for": radioButton.id, innerHTML: label}, parent);
 				parent.appendChild(dom.create("br"));

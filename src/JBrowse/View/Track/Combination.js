@@ -348,9 +348,8 @@ return declare(BlockBased,
 				this.innerDiv.className = "track";
 				this.innerDiv.id = this.name + "_innerDiv";
 				this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
-			} else { // Otherwise we'll have to remove whatever track is currently in the div
-				this.innerDiv.parentNode.removeChild(this.innerDiv);
 			}
+			
 			// Carry on the process of adding the track
 			this._addTrackStore(trackConfig);
 			// Because _addTrackStore has deferreds, the dnd node must be returned before it is filled
@@ -871,7 +870,7 @@ return declare(BlockBased,
 				 : tree.get()) + "\"";
 			}
 			return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
-		},
+		}
 		
 
 		// These features are supposed to be for importing data to/exporting from JSON.  Sadly this still wouldn't be persistent across a browser
