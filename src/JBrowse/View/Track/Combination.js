@@ -7,6 +7,7 @@ define([
  		 'dojo/promise/all',
  		 'dojo/when',
  		 './Combination/CombinationDialog',
+ 		 'dijit/Dialog',
 		 'JBrowse/View/Track/BlockBased',
 		 'JBrowse/Store/SeqFeature/Combination/TreeNode',
 			'dojo/dnd/move',
@@ -22,6 +23,7 @@ define([
 				 Deferred,
 				 all,
 				 when,
+				 CombinationDialog,
 				 Dialog,
 				 BlockBased,
 				 TreeNode,
@@ -390,7 +392,7 @@ return declare(BlockBased,
 				if(this.preferencesDialog)
 					this.preferencesDialog.destroyRecursive();
 				this.lastDialogDone = new Deferred();
-				this.preferencesDialog = new Dialog({
+				this.preferencesDialog = new CombinationDialog({
 					key: trackConfig.key,
 					store: store,
 					track: this
@@ -609,7 +611,7 @@ return declare(BlockBased,
 									feature: ["match"],
 									key: "Inner Track",
 									label: this.name + "_inner",
-									metadata: {Description: "This track was created from a combination track."},
+									metadata: { description: "This track was created from a combination track."},
 									type: trackClass
 						};
 			if(this.supportedBy[trackClass] == "quant") {
@@ -823,8 +825,14 @@ return declare(BlockBased,
 					  [{ label: 'View formula',
 						title: 'View the formula specifying this combination track',
 						action: function() {
-									if(combTrack.opTree) alert(combTrack._generateTreeFormula(combTrack.opTree));
-									else alert("No operation formula defined");
+									var formulaDialog = new Dialog({title: "View Formula"});
+									var content = "";
+									if(combTrack.opTree)
+										content = combTrack._generateTreeFormula(combTrack.opTree);
+									else
+										content = "No operation formula defined";
+									formulaDialog.set("content", content);
+									formulaDialog.show();
 								}
 					  	}]);
 			}
