@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Added the ability to specify the file name when exporting track
+   data to a file.  Thanks to Daniel Kasenberg for implementing this.
+
+ * Added a `track.noExportFiles` configuration variable that, if set
+   to true, disables exporting files from the "Save" menu of tracks.
+
 1.9.8     2013-07-05 09:22:36 EST5EDT
 
  * Removed "XX has no data for this chromosome" popup warning message.

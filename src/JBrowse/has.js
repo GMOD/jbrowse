@@ -29,6 +29,11 @@ define([ 'dojo/has' ],
                return has('safari') || has('ie') < 9;
            }, true );
 
+
+           has.add( 'save-generated-files', function() {
+               return Blob && !( has('ie') < 10 );
+           },true);
+
            return has;
        }
 );
