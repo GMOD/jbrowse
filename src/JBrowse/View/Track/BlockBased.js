@@ -84,7 +84,9 @@ return declare( [Component,DetailsMixin,Destroyable],
      * @private
      */
     _defaultConfig: function() {
-        return {};
+        return {
+            maxFeatureSizeForUnderlyingRefSeq: 250000
+        };
     },
 
     heightUpdate: function(height, blockIndex) {

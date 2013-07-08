@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Added a `track.maxFeatureSizeForUnderlyingRefSeq` configuration
+   variable, defaulting to 250 Kbp, that sets the maximum length of a
+   feature for which the default feature detail popup will attempt to
+   display the underlying reference sequence.  Thanks to Colin
+   Davenport for pointing out the need for this (issue #291).
+
  * Added the ability to specify the file name when exporting track
    data to a file.  Thanks to Daniel Kasenberg for implementing this.
 
