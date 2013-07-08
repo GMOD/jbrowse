@@ -5,6 +5,9 @@
    left or right side of the view, as well as in the center.  Thanks
    to Alexis Grimaldi for making this change.
 
+ * Added the ability to specify the file name when exporting track
+   data to a file.  Thanks to Daniel Kasenberg for implementing this.
+
  * Added a `track.noExportFiles` configuration variable that, if set
    to true, disables exporting files from the "Save" menu of tracks.
 
