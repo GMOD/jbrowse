@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/aspect',
             'dojo/on',
             'JBrowse/has',
@@ -16,6 +17,7 @@ define( [
         function(
             declare,
             array,
+            lang,
             aspect,
             on,
             has,
@@ -143,15 +145,43 @@ return declare( null, {
         var viewButton = new dijitButton({ iconClass: 'dijitIconTask',
                           label: 'View',
                           disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
-                          onClick: dojo.hitch( this.track, function() {
-                            var track = this;
+                          onClick: lang.partial( this.track._exportViewButtonClicked, this.track, form, dialog )
+            })
+            .placeAt( actionBar );
+
+        // don't show a download button if we for some reason can't save files
+        if( this.track._canSaveFiles() ) {
+
+            var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
+                              label: 'Save',
+                              disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
+                              onClick: dojo.hitch( this.track, function() {
+                                var format = this._readRadio( form.elements.format );
+                                var region = this._readRadio( form.elements.region );
+                                var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
+                                dlButton.set('disabled',true);
+                                dlButton.set('iconClass','jbrowseIconBusy');
+                                this.exportRegion( region, format, dojo.hitch( this, function( output ) {
+                                    dialog.hide();
+                                    this._fileDownload({ format: format, data: output, filename: filename });
+                                }));
+                              })})
+                .placeAt( actionBar );
+        }
+
+        return [ form, actionBar ];
+    },
+
+    // run when the 'View' button is clicked in the export dialog
+    _exportViewButtonClicked: function( track, form, dialog ) {
+                            var viewButton = this;
                             viewButton.set('disabled',true);
                             viewButton.set('iconClass','jbrowseIconBusy');
 
-                            var region = this._readRadio( form.elements.region );
-                            var format = this._readRadio( form.elements.format );
+                            var region = track._readRadio( form.elements.region );
+                            var format = track._readRadio( form.elements.format );
                             var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
-                            this.exportRegion( region, format, function(output) {
+                            track.exportRegion( region, format, function(output) {
                                 dialog.hide();
                                 var text = dom.create('textarea', {
                                                            rows: Math.round( dojoWindow.getBox().h / 12 * 0.5 ),
@@ -189,7 +219,8 @@ return declare( null, {
                                             }
                                         }).placeAt(saveDiv);
                                     var fileNameText = new dijitTextBox({
-                                            value: filename
+                                            value: filename,
+                                            style: "width: 24em"
                                         }).placeAt( saveDiv );
                                 }
 
@@ -203,31 +234,7 @@ return declare( null, {
                                 });
                                 exportView.show();
                             });
-                          })})
-            .placeAt( actionBar );
-
-        // don't show a download button if we for some reason can't save files
-        if( this.track._canSaveFiles() ) {
-
-            var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
-                              label: 'Save',
-                              disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
-                              onClick: dojo.hitch( this.track, function() {
-                                var format = this._readRadio( form.elements.format );
-                                var region = this._readRadio( form.elements.region );
-                                var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
-                                dlButton.set('disabled',true);
-                                dlButton.set('iconClass','jbrowseIconBusy');
-                                this.exportRegion( region, format, dojo.hitch( this, function( output ) {
-                                    dialog.hide();
-                                    this._fileDownload({ format: format, data: output, filename: filename });
-                                }));
-                              })})
-                .placeAt( actionBar );
-        }
-
-        return [ form, actionBar ];
-    },
+                          },
 
     _fileDownload: function( args ) {
         saveAs(new Blob([args.data], {type: args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain'}), args.filename);
