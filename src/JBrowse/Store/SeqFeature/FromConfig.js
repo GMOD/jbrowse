@@ -1,3 +1,11 @@
+/**
+ * Store that shows features defined in its `features` configuration
+ * key, like:
+ *   "features": [ { "seq_id": "ctgA", "start":1, "end":20 },
+ *                 ...
+ *               ]
+ */
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
