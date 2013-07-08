@@ -7,6 +7,7 @@ define( [
             'dojo/window',
             'dojo/dom-construct',
             'JBrowse/Util',
+            'dijit/form/TextBox',
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dijit/Dialog',
@@ -21,6 +22,7 @@ define( [
             dojoWindow,
             dom,
             Util,
+            dijitTextBox,
             dijitButton,
             dijitRadioButton,
             dijitDialog,
@@ -173,22 +175,22 @@ return declare( null, {
                                      .placeAt(actionBar);
 
                                 // only show a button if the browser can save files
-                                if( this.track._canSaveFiles() ) {
-                                    var filenameDiv = dom.create("div", {className: "filename", style: {display: "inline-block", "margin-left": "50px"}}, actionBar);
-                                    var filenameSpan = dom.create("span", {innerHTML: "Filename:  "}, filenameDiv);
-                                    var filenameText = dom.create("input", {type: "text", name: "filename", style: {width: "250px"},value: filename}, filenameDiv);
+                                if( track._canSaveFiles() ) {
+                                    var saveDiv = dom.create( "div", { className: "save" }, actionBar );
 
-
-                                    new dijitButton(
+                                    var saveButton = new dijitButton(
                                         {
                                             iconClass: 'dijitIconSave',
                                             label: 'Save',
                                             onClick: function() {
-                                                var filename = filenameText.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
+                                                var filename = filenameText.get('value').replace(/[^ .a-zA-Z0-9_-]/g,'-');
                                                 exportView.hide();
                                                 track._fileDownload({ format: format, data: output, filename: filename });
                                             }
-                                        }).placeAt(actionBar);
+                                        }).placeAt(saveDiv);
+                                    var fileNameText = new dijitTextBox({
+                                            value: filename
+                                        }).placeAt( saveDiv );
                                 }
 
                                 aspect.after( exportView, 'hide', function() {
@@ -206,6 +208,7 @@ return declare( null, {
 
         // don't show a download button if we for some reason can't save files
         if( this.track._canSaveFiles() ) {
+
             var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
                               label: 'Save',
                               disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
