@@ -12,7 +12,6 @@ define( [
             'JBrowse/has',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/ExportMixin',
             'JBrowse/Errors',
             'JBrowse/View/Track/FeatureDetailMixin'
         ],
@@ -26,7 +25,6 @@ define( [
             has,
             Layout,
             BlockBasedTrack,
-            ExportMixin,
             Errors,
             FeatureDetailMixin
         ) {
@@ -65,7 +63,7 @@ var FRectIndex = declare( null,  {
     }
 });
 
-return declare( [BlockBasedTrack,FeatureDetailMixin, ExportMixin], {
+return declare( [BlockBasedTrack,FeatureDetailMixin], {
 
     constructor: function( args ) {
         this._setupEventHandlers();
@@ -477,10 +475,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin, ExportMixin], {
         delete this.layout;
         delete this.glyphsLoaded;
         this.inherited( arguments );
-    },
-
-    _exportFormats: function() {
-        return ['JSON'];
     }
 });
 });

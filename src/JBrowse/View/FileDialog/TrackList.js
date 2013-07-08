@@ -9,7 +9,6 @@ define(['dojo/_base/declare',
         './TrackList/BigWigDriver',
         './TrackList/GFF3Driver',
         './TrackList/VCFTabixDriver',
-        './TrackList/JSONDriver',
         'JBrowse/View/TrackConfigEditor'
        ],
        function(
@@ -24,7 +23,6 @@ define(['dojo/_base/declare',
            BigWigDriver,
            GFF3Driver,
            VCFTabixDriver,
-           JSONDriver,
            TrackConfigEditor
        ) {
 
@@ -36,7 +34,7 @@ constructor: function( args ) {
     this.browser = args.browser;
     this.fileDialog = args.dialog;
     this.domNode = dom.create('div', { className: 'trackList', innerHTML: 'track list!' });
-    this.types = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new VCFTabixDriver(), new JSONDriver() ];
+    this.types = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new VCFTabixDriver() ];
 
     this._updateDisplay();
 },
