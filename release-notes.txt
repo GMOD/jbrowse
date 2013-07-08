@@ -12,6 +12,10 @@
  * Added a `track.noExportFiles` configuration variable that, if set
    to true, disables exporting files from the "Save" menu of tracks.
 
+ * Fixed a minor bug in which the REST store backend did not coerce
+   start, end, strand, and score to be numeric if the input JSON had
+   them as strings.
+
 1.9.8     2013-07-05 09:22:36 EST5EDT
 
  * Removed "XX has no data for this chromosome" popup warning message.
