@@ -21,38 +21,57 @@
                                'JBrowse', 'FileSaver'
                              ]
                  },
-            [ 'JBrowse/Browser', 'dojo/io-query' ],
-            function (Browser,ioQuery) {
+            [ 'JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
+            function (Browser,ioQuery,JSON) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
                    var dataRoot = queryParams.data || 'data';
-                   JBrowse = new Browser({
-                                           containerID: "GenomeBrowser",
-                                           refSeqs: dataRoot + "/seq/refSeqs.json",
-                                           baseUrl: dataRoot+'/',
-                                           include: [
-                                             'jbrowse_conf.json',
-                                             dataRoot + "/trackList.json"
-                                           ],
-                                           nameUrl: dataRoot + "/names/root.json",
-                                           defaultTracks: "DNA,Annotations,RefSeq",
-                                           queryParams: queryParams,
-                                           location: queryParams.loc,
-                                           forceTracks: queryParams.tracks,
-                                           initialHighlight: queryParams.highlight,
-                                           show_nav: queryParams.nav,
-                                           show_tracklist: queryParams.tracklist,
-                                           show_overview: queryParams.overview,
-                                           makeFullViewURL: function( browser ) {
 
-                                               // the URL for the 'Full view' link
-                                               // in embedded mode should be the current
-                                               // view URL, except with 'nav', 'tracklist',
-                                               // and 'overview' parameters forced to 1.
+                   // the initial configuration of this JBrowse instance
+                   var config = {
+                       containerID: "GenomeBrowser",
+                       refSeqs: dataRoot + "/seq/refSeqs.json",
+                       baseUrl: dataRoot+'/',
+                       include: [
+                           'jbrowse_conf.json',
+                           dataRoot + "/trackList.json"
+                       ],
+                       nameUrl: dataRoot + "/names/root.json",
+                       defaultTracks: "DNA,Annotations,RefSeq",
+                       queryParams: queryParams,
+                       location: queryParams.loc,
+                       forceTracks: queryParams.tracks,
+                       initialHighlight: queryParams.highlight,
+                       show_nav: queryParams.nav,
+                       show_tracklist: queryParams.tracklist,
+                       show_overview: queryParams.overview,
+                       stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
+                       makeFullViewURL: function( browser ) {
 
-                                               return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
-                                           },
-                                           updateBrowserURL: true
-                                       });
+                           // the URL for the 'Full view' link
+                           // in embedded mode should be the current
+                           // view URL, except with 'nav', 'tracklist',
+                           // and 'overview' parameters forced to 1.
+
+                           return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
+                       },
+                       updateBrowserURL: true
+                   };
+
+                   //if there is ?addFeatures in the query params,
+                   //define a store for data from the URL
+                   if( queryParams.addFeatures ) {
+                       config.stores.url.features = JSON.parse( queryParams.addFeatures );
+                   }
+
+                   // if there is ?addTracks in the query params, add
+                   // those track configurations to our initial
+                   // configuration
+                   if( queryParams.addTracks ) {
+                       config.tracks = JSON.parse( queryParams.addTracks );
+                   }
+
+                   // create a JBrowse global variable holding the JBrowse instance
+                   JBrowse = new Browser( config );
         });
     </script>
 

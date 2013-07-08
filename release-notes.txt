@@ -1,5 +1,41 @@
 {{$NEXT}}
 
+ * Added support for an `addFeatures` variable in the query string of
+   the URL used to start JBrowse.  This variable accepts feature data
+   in JSON format in the form:
+
+      `[{ "seq_id":"ctgA", "start": 123, "end": 456, "name": "MyBLASTHit"},...}]`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+      `addFeatures=%5B%7B%20%22seq_id%22%3A%22ctgA%22%2C%20%22start%22%3A%20123%2C%20%22end%22%3A%20456%2C%20%22name%22%3A%20%22MyBLASTHit%22%7D%5D`
+
+   Developers integrating JBrowse into larger project may find this
+   feature useful for displaying results from other
+   non-JavaScript-based applications (such as legacy web BLAST tools)
+   in JBrowse.
+
+   Features added to JBrowse in this way are available in a special
+   data store named `url`, which can be specified in a track
+   configuration by adding `"store":"url"`.
+
+ * Added support for an `addTracks` variable in the query string of
+   the URL used to start JBrowse.  This variable accepts track
+   configurations in JSON format in the form:
+
+       `[{"label":"mytrack","store":"url","type":"JBrowse/View/Track/HTMLFeatures"},...]`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+       `addTracks=%5B%7B%22label%22%3A%22mytrack%22%2C%22store%22%3A%22url%22%2C%22type%22%3A%22JBrowse%2FView%2FTrack%2FHTMLFeatures%22%7D%5D`
+
+ * Added a `JBrowse/Store/SeqFeature/FromConfig` feature store adapter
+   that can display feature data that is specified directly in
+   configuration.  This is mostly used to implement the support for
+   `addFeatures` in the JBrowse URL, but some administrators and
+   developers may find it conventient as well to define feature data
+   directly in the JBrowse configuration.
+
  * Added a `track.maxFeatureSizeForUnderlyingRefSeq` configuration
    variable, defaulting to 250 Kbp, that sets the maximum length of a
    feature for which the default feature detail popup will attempt to
