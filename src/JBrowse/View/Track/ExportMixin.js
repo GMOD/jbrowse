@@ -26,11 +26,16 @@ define( [
             dijitDialog,
             saveAs
         ) {
+
 /**
  * Mixin for a track that can export its data.
  * @lends JBrowse.View.Track.ExportMixin
  */
 return declare( null, {
+
+    _canSaveFiles: function() {
+        return has('save-generated-files') && ! this.config.noExportFiles;
+    },
 
     _canExport: function() {
         if( this.config.noExport )
@@ -167,8 +172,8 @@ return declare( null, {
                                                 })
                                      .placeAt(actionBar);
 
-                                // data URL download doesn't work on IE < 10
-                                if( ! (has('ie') < 10) ) {
+                                // only show a button if the browser can save files
+                                if( this.track._canSaveFiles() ) {
                                     var filenameDiv = dom.create("div", {className: "filename", style: {display: "inline-block", "margin-left": "50px"}}, actionBar);
                                     var filenameSpan = dom.create("span", {innerHTML: "Filename:  "}, filenameDiv);
                                     var filenameText = dom.create("input", {type: "text", name: "filename", style: {width: "250px"},value: filename}, filenameDiv);
@@ -199,9 +204,8 @@ return declare( null, {
                           })})
             .placeAt( actionBar );
 
-        // don't show a download button if the user is using IE older
-        // than 10, cause it won't work.
-        if( ! (has('ie') < 10) ) {
+        // don't show a download button if we for some reason can't save files
+        if( this.track._canSaveFiles() ) {
             var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
                               label: 'Save',
                               disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
