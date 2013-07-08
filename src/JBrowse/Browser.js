@@ -697,12 +697,14 @@ createCombinationTrack: function() {
             type: 'JBrowse/View/Track/Combination',
             label: "combination_track" + (thisB._combinationTrackCount++),
             key: "Combination Track " + (thisB._combinationTrackCount),
-            metadata: "Drag-and-drop interface that creates a track out of combinations of other tracks.",
+            metadata: {Description: "Drag-and-drop interface that creates a track out of combinations of other tracks."},
             store: storeName
         };
-        if(thisB.view) {
-            thisB.view.showTracks([combTrackConfig]);
-        }
+        // send out a message about how the user wants to create the new tracks
+        thisB.publish( '/jbrowse/v1/v/tracks/new', [combTrackConfig] );
+
+        // Open the track immediately
+        thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
     });
 },
 
