@@ -1,19 +1,20 @@
 define([
-		 'dojo/_base/declare',
-		 'dojo/on',
-		 'dojo/dom-construct',
-		 'dojo/dom-class',
-		 'dojo/Deferred',
- 		 'dojo/promise/all',
- 		 'dojo/when',
- 		 './Combination/CombinationDialog',
- 		 'dijit/Dialog',
-		 'JBrowse/View/Track/BlockBased',
-		 'JBrowse/Store/SeqFeature/Combination/TreeNode',
+			'dojo/_base/declare',
+			'dojo/on',
+			'dojo/dom-construct',
+			'dojo/dom-class',
+			'dojo/Deferred',
+				'dojo/promise/all',
+				'dojo/when',
+				'./Combination/CombinationDialog',
+				'dijit/Dialog',
+			'JBrowse/View/Track/BlockBased',
+			'JBrowse/Store/SeqFeature/Combination/TreeNode',
 			'dojo/dnd/move',
-		 'dojo/dnd/Source',
-		 'dojo/dnd/Manager',
-		 'JBrowse/Util'
+			'dojo/dnd/Source',
+			'dojo/dnd/Manager',
+			'JBrowse/Util',
+			'JBrowse/View/TrackConfigEditor'
 		 ],
 		 function(
 				 declare,
@@ -30,7 +31,8 @@ define([
 				 dndMove,
 				 dndSource,
 				 dndManager,
-				 Util
+				 Util,
+				 TrackConfigEditor
 		 ) {
 return declare(BlockBased,
  /**
@@ -59,7 +61,11 @@ return declare(BlockBased,
 							innerTypes:   [{
 												name: "HTMLFeatures",
 												path: "JBrowse/View/Track/HTMLFeatures"
-											  }],
+											  },
+											{
+												name: "CanvasFeatures",
+												path: "JBrowse/View/Track/CanvasFeatures"
+											}],
 							store:        "JBrowse/Store/SeqFeature/Combination",
 							allowedOps:   ["&", "U", "X", "S"],
 							defaultOp :   "&"
@@ -139,6 +145,7 @@ return declare(BlockBased,
 			{
 			  "JBrowse/View/Track/HTMLFeatures": "set",
 			  "JBrowse/View/Track/HTMLVariants": "set",
+			  "JBrowse/View/Track/CanvasFeatures": "set",
 			  "JBrowse/Store/BigWig": "quant",
   			  "JBrowse/Store/SeqFeature/BAM": "BAM",
   			  "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
@@ -536,6 +543,7 @@ return declare(BlockBased,
 
 		// Time to actually render the inner track.
 		renderInnerTrack: function() {
+
 			if(this.innerTrack) {
 				// Destroys the inner track currently in place if it exists. We're going to create a new one.
 				this.innerTrack.clear();
