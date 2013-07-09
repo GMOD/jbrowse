@@ -178,137 +178,143 @@ return declare(BlockBased,
 			// This variable (which will later be a deferred) ensures that when multiple tracks are added simultaneously,
 			// The dialogs for each one don't render all at once.
 			this.lastDialogDone = true;
+
 		},
 
 
 		setViewInfo: function(genomeView, heightUpdate, numBlocks,
 												 trackDiv,
 												 widthPct, widthPx, scale) {
-				this.inherited( arguments );
-				this.scale = scale;
+			this.inherited( arguments );
+			this.scale = scale;
 
-				// This track has a dnd source (to support dragging tracks into and out of it).
-				this.dnd = new dndSource( this.div,
-				{
-					accept: ["track"], //Accepts only tracks
-					withHandles: true,
-					creator: dojo.hitch( this, function( trackConfig, hint ) {
-							// Renders the inner track div (or avatar, depending).  Code for ensuring that we don't have several inner tracks
-							// is handled later in the file.  
-							return {
-									data: trackConfig,
-									type: ["track"],
-									node: hint == 'avatar'
-										? dojo.create('div', { innerHTML: "Inner Track", className: 'track-label dragging' })
-										: this.addTrack(trackConfig)
-							};
-					})
-				});
+			// This track has a dnd source (to support dragging tracks into and out of it).
+			this.dnd = new dndSource( this.div,
+			{
+				accept: ["track"], //Accepts only tracks
+				withHandles: true,
+				creator: dojo.hitch( this, function( trackConfig, hint ) {
+						// Renders the inner track div (or avatar, depending).  Code for ensuring that we don't have several inner tracks
+						// is handled later in the file.
+						return {
+								data: trackConfig,
+								type: ["track"],
+								node: hint == 'avatar'
+									? dojo.create('div', { innerHTML: "Inner Track", className: 'track-label dragging' })
+									: this.addTrack(trackConfig)
+						};
+				})
+			});
 
-				// Attach dnd events
-				this._attachDndEvents();
+			// Attach dnd events
+			this._attachDndEvents();
+
+			// If config contains a config for the inner track, use it. (This allows reloading when the track config is edited. )
+			if(this.config.innerTrack) {
+				this.dnd.insertNodes(false, [this.config.innerTrack]);
+			}
 		},
 
 
 		// This function ensure that the combination track's drag-and-drop interface works correctly.
 		_attachDndEvents: function() {
-				var thisB = this;
+			var thisB = this;
 
-				// What to do at the beginning of dnd process
-				on(thisB.dnd, "DndStart", function(source, nodes, copy) {
-						if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
-							// Dragging the inner track out of the outer track - need to use the config of the combined track rather than
-							// the initial config.
-							source.getItem(nodes[0].id).data = thisB.innerTrack.config;
-							source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
+			// What to do at the beginning of dnd process
+			on(thisB.dnd, "DndStart", function(source, nodes, copy) {
+					if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
+						// Dragging the inner track out of the outer track - need to use the config of the combined track rather than
+						// the initial config.
+						source.getItem(nodes[0].id).data = thisB.innerTrack.config;
+						source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
+						
+						// Ensures that when innerTrack is a masked track and either the mask or the unmasked data are being viewed
+						// (not together) that the correct store will be loaded by wherever receives the track.
+						var store = thisB._visible().store;
+						source.getItem(nodes[0].id).data.store = store.name;
+						source.getItem(nodes[0].id).data.storeClass = store.config.type;
+						// Doesn't remove the data from the inner track when either the mask alone or the data alone is removed - only copies.
+						// Lincoln wanted it this way
+						if(store != thisB.store) {
+							thisB.dnd.copyOnly = true;
+						}
+						// Prevents the store and inner track from being reloaded too often
+						thisB.onlyRefreshOuter = true;
+					}
+					// Stores the information about whether the source was copy-only, for future reference
+					thisB.currentDndSource = source;
+					thisB.sourceWasCopyOnly = source.copyOnly;
+			});
+
+			// When other tracks are dragged onto the combination, they don't disappear from their respective sources
+			on(thisB.dnd, "DraggingOver", function() {        
+					if(thisB.currentDndSource) {
+						// Tracks being dragged onto this track are copied, not moved.
+						thisB.currentDndSource.copyOnly = true;
+					}
+					this.currentlyOver = true;
+			});
+			var dragEndingEvents = ["DraggingOut", "DndDrop", "DndCancel"];
 							
-							// Ensures that when innerTrack is a masked track and either the mask or the unmasked data are being viewed
-							// (not together) that the correct store will be loaded by wherever receives the track.
-							var store = thisB._visible().store;
-							source.getItem(nodes[0].id).data.store = store.name;
-							source.getItem(nodes[0].id).data.storeClass = store.config.type;
-							// Doesn't remove the data from the inner track when either the mask alone or the data alone is removed - only copies.
-							// Lincoln wanted it this way
-							if(store != thisB.store) {
-								thisB.dnd.copyOnly = true;
-							}
-							// Prevents the store and inner track from being reloaded too often
-							thisB.onlyRefreshOuter = true;
-						}
-						// Stores the information about whether the source was copy-only, for future reference
-						thisB.currentDndSource = source;
-						thisB.sourceWasCopyOnly = source.copyOnly;
-				});
-
-				// When other tracks are dragged onto the combination, they don't disappear from their respective sources
-				on(thisB.dnd, "DraggingOver", function() {        
+			for(var eventName in dragEndingEvents)
+				on(thisB.dnd, dragEndingEvents[eventName], function() {
 						if(thisB.currentDndSource) {
-							// Tracks being dragged onto this track are copied, not moved.
-							thisB.currentDndSource.copyOnly = true;
+							// Makes sure that the dndSource isn't permanently set to CopyOnly
+							thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
 						}
-						this.currentlyOver = true;
+						this.currentlyOver = false;
 				});
-				var dragEndingEvents = ["DraggingOut", "DndDrop", "DndCancel"];
-								
-				for(var eventName in dragEndingEvents)
-					on(thisB.dnd, dragEndingEvents[eventName], function() {
-							if(thisB.currentDndSource) {
-								// Makes sure that the dndSource isn't permanently set to CopyOnly
-								thisB.currentDndSource.copyOnly = thisB.sourceWasCopyOnly;
-							}
-							this.currentlyOver = false;
-					});
 
-				on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
-					// Ensures that all inner tracks are given unique IDs to prevent crashing
-					if(source == thisB.dnd && nodes[0]) {
-						thisB.browser.innerTrackCount++;
-						thisB.onlyRefreshOuter = false;
+			on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
+				// Ensures that all inner tracks are given unique IDs to prevent crashing
+				if(source == thisB.dnd && nodes[0]) {
+					thisB.browser.innerTrackCount++;
+					thisB.onlyRefreshOuter = false;
+				}
+				if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
+					// Refresh the view when the inner track is dragged out
+					thisB.reinitialize();
+					thisB.refresh();
+				}
+				thisB.dnd.copyOnly = false;
+			});
+			// Bug fixer
+			dojo.subscribe("/dnd/drop/before", function(source, nodes, copy, target) {
+					if(target == thisB.dnd && nodes[0]) {
+						thisB.dnd.current = null;
 					}
-					if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
-						// Refresh the view when the inner track is dragged out
-						thisB.reinitialize();
-						thisB.refresh();
-					}
+			});
+			on(thisB.dnd, "DndCancel", function() {
+					thisB.onlyRefreshOuter = false;
 					thisB.dnd.copyOnly = false;
-				});
-				// Bug fixer
-				dojo.subscribe("/dnd/drop/before", function(source, nodes, copy, target) {
-						if(target == thisB.dnd && nodes[0]) {
-							thisB.dnd.current = null;
-						}
-				});
-				on(thisB.dnd, "DndCancel", function() {
-						thisB.onlyRefreshOuter = false;
-						thisB.dnd.copyOnly = false;
-				});
-				on(thisB.dnd, "OutEvent", function() {
-						// Fixes a glitch wherein the trackContainer is disabled when the track we're dragging leaves the combination track
-						dndManager.manager().overSource(thisB.genomeView.trackDndWidget);
-				});
+			});
+			on(thisB.dnd, "OutEvent", function() {
+					// Fixes a glitch wherein the trackContainer is disabled when the track we're dragging leaves the combination track
+					dndManager.manager().overSource(thisB.genomeView.trackDndWidget);
+			});
 
-				on(thisB.dnd, "DndSourceOver", function(source) {
-						// Fixes a glitch wherein tracks dragged into the combination track sometimes go to the trackContainer instead.
-						if(source != this && this.currentlyOver) {
-								dndManager.manager().overSource(this);
-						}
-				});
-
-				// Further restricts what categories of tracks may be added to this track
-				// Should re-examine this
-				var oldCheckAcceptance = this.dnd.checkAcceptance;
-				this.dnd.checkAcceptance = function(source, nodes) {
-					// If the original acceptance checker fails, this one will too.
-					var accept = oldCheckAcceptance.call(thisB.dnd, source, nodes);
-
-					// Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
-					for(var i = 0; accept && nodes[i]; i++) {
-						var trackConfig = source.getItem(nodes[i].id).data;
-						accept = accept && (thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
+			on(thisB.dnd, "DndSourceOver", function(source) {
+					// Fixes a glitch wherein tracks dragged into the combination track sometimes go to the trackContainer instead.
+					if(source != this && this.currentlyOver) {
+							dndManager.manager().overSource(this);
 					}
-					
-					return accept;
-				};
+			});
+
+			// Further restricts what categories of tracks may be added to this track
+			// Should re-examine this
+			var oldCheckAcceptance = this.dnd.checkAcceptance;
+			this.dnd.checkAcceptance = function(source, nodes) {
+				// If the original acceptance checker fails, this one will too.
+				var accept = oldCheckAcceptance.call(thisB.dnd, source, nodes);
+
+				// Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
+				for(var i = 0; accept && nodes[i]; i++) {
+					var trackConfig = source.getItem(nodes[i].id).data;
+					accept = accept && (thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
+				}
+				
+				return accept;
+			};
 		},
 
 		// Reset a bunch of variables
@@ -629,8 +635,15 @@ return declare(BlockBased,
 			if(this._visible().store && !this.onlyRefreshOuter) {
 				// Reload the store if it's not too much trouble
 				storeIsReloaded = this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
+
+				// Refresh inner track config, so that the track can be recreated when the config is edited
+				this.config.innerTrack = this._innerTrackConfig();
 			}
 			else {
+				if(!this.onlyRefreshOuter) {
+					// Causes the innerTrack to be removed from the config when it has been removed
+					delete this.config.innerTrack;
+				}
 				storeIsReloaded = true;
 			}
 
@@ -876,7 +889,58 @@ return declare(BlockBased,
 				 : tree.get()) + "\"";
 			}
 			return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
-		}
+		},
+
+
+		// These methods are not currently in use, but they allow direct loading of the opTree into the config.
+		/*
+		flatten: function(tree) {
+			var newTree = {
+				leaf: tree.leaf
+			};
+			if(tree.leftChild)
+				newTree.leftChild = this.flatten(tree.leftChild);
+			if(tree.rightChild)
+				newTree.rightChild = this.flatten(tree.rightChild);
+			if(tree.get().name)
+				newTree.store = tree.get().name;
+			else
+				newTree.op = tree.get();
+			return newTree;
+		},
+
+		
+		loadTree: function(tree) {
+			var d = new Deferred();
+			var haveLeft = undefined;
+			var haveRight = undefined;
+			var thisB = this;
+
+			if(!tree) {
+				d.resolve(undefined, true);
+				return d.promise;
+			}
+
+			if(tree.leftChild) {
+				haveLeft = this.loadTree(tree.leftChild);
+			}
+			if(tree.rightChild) {
+				haveRight = this.loadTree(tree.rightChild);
+			}
+			when(all([haveLeft, haveRight]), function(results) {
+				var newTree = new TreeNode({ leftChild: results[0], rightChild: results[1], leaf: tree.leaf});
+				if(tree.store) {
+					thisB.browser.getStore(tree.store, function(store) {
+						newTree.set(store);
+					});
+					d.resolve(newTree, true);
+				} else {
+					newTree.set(tree.op);
+					d.resolve(newTree, true);
+				}
+			});
+			return d.promise;
+		}*/
 		
 });
 });
