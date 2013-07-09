@@ -11,6 +11,68 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Added support for an `addFeatures` variable in the query string of
+   the URL used to start JBrowse.  This variable accepts feature data
+   in JSON format in the form:
+
+      `[{ "seq_id":"ctgA", "start": 123, "end": 456, "name": "MyBLASTHit"},...}]`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+      `addFeatures=%5B%7B%20%22seq_id%22%3A%22ctgA%22%2C%20%22start%22%3A%20123%2C%20%22end%22%3A%20456%2C%20%22name%22%3A%20%22MyBLASTHit%22%7D%5D`
+
+   Developers integrating JBrowse into larger project may find this
+   feature useful for displaying results from other
+   non-JavaScript-based applications (such as legacy web BLAST tools)
+   in JBrowse.
+
+   Features added to JBrowse in this way are available in a special
+   data store named `url`, which can be specified in a track
+   configuration by adding `"store":"url"`.
+
+ * Added support for an `addTracks` variable in the query string of
+   the URL used to start JBrowse.  This variable accepts track
+   configurations in JSON format in the form:
+
+       `[{"label":"mytrack","store":"url","type":"JBrowse/View/Track/HTMLFeatures"},...]`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+       `addTracks=%5B%7B%22label%22%3A%22mytrack%22%2C%22store%22%3A%22url%22%2C%22type%22%3A%22JBrowse%2FView%2FTrack%2FHTMLFeatures%22%7D%5D`
+
+ * Added a `JBrowse/Store/SeqFeature/FromConfig` feature store adapter
+   that can display feature data that is specified directly in
+   configuration.  This is mostly used to implement the support for
+   `addFeatures` in the JBrowse URL, but some administrators and
+   developers may find it conventient as well to define feature data
+   directly in the JBrowse configuration.
+
+ * Added a `track.maxFeatureSizeForUnderlyingRefSeq` configuration
+   variable, defaulting to 250 Kbp, that sets the maximum length of a
+   feature for which the default feature detail popup will attempt to
+   display the underlying reference sequence.  Thanks to Colin
+   Davenport for pointing out the need for this (issue #291).
+
+ * Added the ability to specify the file name when exporting track
+   data to a file.  Thanks to Daniel Kasenberg for implementing this.
+
+ * Added a `track.noExportFiles` configuration variable that, if set
+   to true, disables exporting files from the "Save" menu of tracks.
+
+ * Fixed a minor bug in which the REST store backend did not coerce
+   start, end, strand, and score to be numeric if the input JSON had
+   them as strings.
+
+1.9.8     2013-07-05 09:22:36 EST5EDT
+
+ * Removed "XX has no data for this chromosome" popup warning message.
+   It was just annoying and not very useful.
+
+ * Added an optional "yScalePosition" element to track configs that
+   allows configs with Y axes to have those axes positioned on the
+   left or right side of the view, as well as in the center.  Thanks
+   to Alexis Grimaldi for making this change.
+
  * Fixed a bug in which NCList-based tracks display with an error for
    reference sequences on which they have no data.  Thanks to Michael
    Axtell for pointing this out.
@@ -23,6 +85,11 @@
 
  * Fixed a bug in which the browser can fail to start for a reference
    sequence that has never been seen before.
+
+ * Fixed a confusing behavior in JBrowse/Store/SeqFeature/REST in
+   which the URLs it constructs to fetch from did not always have a
+   '/' where one would expect.  Thanks to Alex Kalderimis for pointing
+   this out.
 
 1.9.7     2013-06-25 15:41:22 Asia/Tokyo
 

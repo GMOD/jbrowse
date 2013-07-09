@@ -52,10 +52,14 @@ return declare( ActionBarDialog,
 
         dojo.addClass( this.domNode, 'setHighlightDialog' );
 
+        var visibleLocation = this.browser.view.visibleRegionLocString();
+        if( visibleLocation )
+            visibleLocation += ' (current view)';
+
         this.highlightInput = new dijitTextBox({
             id: 'newhighlight_locstring',
-            value: (this.browser.getHighlight()||'').toString() || this.browser.view.visibleRegionLocString() || '',
-            placeHolder: this.browser.view.visibleRegionLocString() || 'ctgA:1234..5678'
+            value: (this.browser.getHighlight()||'').toString() || visibleLocation || '',
+            placeHolder: visibleLocation || 'ctgA:1234..5678'
         });
 
         this.set('content', [

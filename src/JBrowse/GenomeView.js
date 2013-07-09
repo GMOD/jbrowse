@@ -2092,26 +2092,6 @@ renderTrack: function( /**Object*/ trackConfig ) {
         if( typeof store.setTrack == 'function' )
             store.setTrack( track );
 
-        // if we can, check that the current reference sequence is
-        // contained in the store
-        if( store.hasRefSeq ) {
-            store.hasRefSeq(
-                this.ref.name,
-                function( foundRef ) {
-                    if( ! foundRef )
-                        new InfoDialog({
-                            title: 'No data',
-                            content: '<b>'
-                              +(trackConfig.key||trackConfig.label)
-                              +'</b> contains no data on this'
-                              +' reference sequence ('
-                              +thisB.ref.name
-                              +').'
-                        }).show();
-                }
-            );
-        }
-
         trackDiv.track = track;
 
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );

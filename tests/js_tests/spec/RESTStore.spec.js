@@ -7,7 +7,7 @@ describe( 'REST store', function() {
               beforeEach( function() {
                   store = new RESTStore({
                       browser: {},
-                      baseUrl: '../data/rest_store_test/',
+                      baseUrl: '../data/rest_store_test',
                       refSeq: { name: 'ctgA', start: 1, end: 500001 }
                   });
               });

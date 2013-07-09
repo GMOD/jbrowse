@@ -1119,7 +1119,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
 
     _exportFormats: function() {
-        return [ 'GFF3', 'BED', { name: 'SequinTable', label: 'Sequin Table' } ];
+        return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
     },
 
     _trackMenuOptions: function() {
