@@ -557,8 +557,8 @@ return declare(BlockBased,
 				// Gets the path of the track to create
 				var trackClassName = this._visible().trackType;
 				var trackClass;
-				var thisB = this;
 
+				var thisB = this;
 				// Once we have the object for the type of track we're creating, call this.
 				var makeTrack = function(){
 					// Construct a track with the relevant parameters
@@ -587,6 +587,14 @@ return declare(BlockBased,
 						thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
 
 					thisB._redefineCloseButton();
+
+					// Only do this when the masked data is selected
+					// (we don't want editing the config to suddenly remove the data or the mask)
+					if(thisB._visible().store == thisB.store) {
+						// Refresh inner track config, so that the track can be recreated when the config is edited
+						thisB.config.innerTrack = thisB.innerTrack.config;
+					}
+
 					thisB.refresh();
 		  		}
 
@@ -628,6 +636,17 @@ return declare(BlockBased,
 									metadata: { description: "This track was created from a combination track."},
 									type: trackClass
 						};
+
+			if(this.config.innerTrack) {
+				if(this.config.innerTrack.storeClass == config.storeClass || this.supportedBy[this.config.innerTrack.storeClass] == this.displayType) {
+					config = this.config.innerTrack;
+					config.store = this.store.name;
+					return config;
+				}
+				config.key = this.config.innerTrack.key;
+				config.label = this.config.innerTrack.label;
+				config.metadata = this.config.innerTrack.metadata;
+			}
 			if(this.supportedBy[trackClass] == "quant") {
 				config.autoscale = "local";
 			}
@@ -643,9 +662,7 @@ return declare(BlockBased,
 			if(this._visible().store && !this.onlyRefreshOuter) {
 				// Reload the store if it's not too much trouble
 				storeIsReloaded = this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
-
-				// Refresh inner track config, so that the track can be recreated when the config is edited
-				this.config.innerTrack = this._innerTrackConfig();
+				
 			}
 			else {
 				if(!this.onlyRefreshOuter) {
