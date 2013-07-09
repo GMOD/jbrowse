@@ -14,7 +14,8 @@ define([
 			'dojo/dnd/Source',
 			'dojo/dnd/Manager',
 			'JBrowse/Util',
-			'JBrowse/View/TrackConfigEditor'
+			'JBrowse/View/TrackConfigEditor',
+			'JBrowse/View/Track/ExportMixin'
 		 ],
 		 function(
 				 declare,
@@ -32,9 +33,10 @@ define([
 				 dndSource,
 				 dndManager,
 				 Util,
-				 TrackConfigEditor
+				 TrackConfigEditor,
+				 ExportMixin
 		 ) {
-return declare(BlockBased,
+return declare([BlockBased, ExportMixin],
  /**
 	* @lends JBrowse.View.Track.Combination.prototype
 	*/
@@ -329,6 +331,10 @@ return declare(BlockBased,
 			if(this.dnd) {
 				this.dnd.selectAll().deleteSelectedNodes();
 			}
+
+			// While there is no inner track, we cannot export.
+			this.config.noExport = true;
+
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
 			this.storeType = undefined;
@@ -362,9 +368,12 @@ return declare(BlockBased,
 				this.innerDiv.id = this.name + "_innerDiv";
 				this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
 			}
+
+			this.config.noExport = false;
 			
 			// Carry on the process of adding the track
 			this._addTrackStore(trackConfig);
+
 			// Because _addTrackStore has deferreds, the dnd node must be returned before it is filled
 			return this.innerDiv;
 		},
@@ -559,15 +568,22 @@ return declare(BlockBased,
 				var trackClass;
 
 				var thisB = this;
+				var config = this._innerTrackConfig(trackClassName);
+
+				trackClassName = config.type;
+
 				// Once we have the object for the type of track we're creating, call this.
 				var makeTrack = function(){
 					// Construct a track with the relevant parameters
 			  		thisB.innerTrack = new trackClass({
-							config: thisB._innerTrackConfig(trackClassName),
+							config: config,
 							browser: thisB.browser,
 							refSeq: thisB.refSeq,
 							store: thisB._visible().store,
 							trackPadding: 0});
+	  				
+	  				// Removes all options from the inner track's context menu.
+	  				thisB.innerTrack._trackMenuOptions = function(){ return []; }
 	  				
 	  				// This will be what happens when the inner track updates its height - makes necessary changes to 
 	  				// outer track's height and then passes up to the heightUpdate callback specified as a parameter to this object
@@ -586,13 +602,18 @@ return declare(BlockBased,
 					thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
 						thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
 
+					// Changes the functionality of the inner track's close button so that it doesn't show up on the track list.
 					thisB._redefineCloseButton();
+
+					// Removes the button for the inner track's drop down menu - everything will be controlled from the outer track.
+	  				thisB.innerTrack.labelMenuButton.parentNode.removeChild(thisB.innerTrack.labelMenuButton);
 
 					// Only do this when the masked data is selected
 					// (we don't want editing the config to suddenly remove the data or the mask)
 					if(thisB._visible().store == thisB.store) {
 						// Refresh inner track config, so that the track can be recreated when the config is edited
 						thisB.config.innerTrack = thisB.innerTrack.config;
+						thisB.exportFormats = thisB.innerTrack._exportFormats();
 					}
 
 					thisB.refresh();
@@ -638,9 +659,11 @@ return declare(BlockBased,
 						};
 
 			if(this.config.innerTrack) {
-				if(this.config.innerTrack.storeClass == config.storeClass || this.supportedBy[this.config.innerTrack.storeClass] == this.displayType) {
+				if((this.config.innerTrack.storeClass == config.storeClass || this.supportedBy[this.config.innerTrack.storeClass] == this.displayType) 
+					&& (this._visible().store != this.maskStore)) {
 					config = this.config.innerTrack;
 					config.store = this.store.name;
+					config.storeClass = this.store.config.type;
 					return config;
 				}
 				config.key = this.config.innerTrack.key;
@@ -841,6 +864,7 @@ return declare(BlockBased,
 					action: function() 
 							{
 							  combTrack.setClassIndex(i);
+							  delete combTrack.config.innerTrack;
 							  combTrack.renderInnerTrack();
 							}
 						};
@@ -914,6 +938,10 @@ return declare(BlockBased,
 				 : tree.get()) + "\"";
 			}
 			return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
+		},
+
+		_exportFormats: function() {
+			return this.exportFormats;
 		},
 
 
