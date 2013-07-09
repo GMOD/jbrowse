@@ -133,7 +133,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.labelHTML = "";
         this.labelHeight = 0;
 
-        if( this.config.initiallyPinned )
+        if( this.config.pinned )
             this.setPinned( true );
 
         if( ! this.label ) {
@@ -822,17 +822,17 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     setPinned: function( p ) {
-        this.pinned = !!p;
+        this.config.pinned = !!p;
 
-        if( this.pinned )
+        if( this.config.pinned )
             domClass.add( this.div, 'pinned' );
         else
             domClass.remove( this.div, 'pinned' );
 
-        return this.pinned;
+        return this.config.pinned;
     },
     isPinned: function() {
-        return !! this.pinned;
+        return !! this.config.pinned;
     },
 
     /**
