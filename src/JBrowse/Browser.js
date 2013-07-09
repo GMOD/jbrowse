@@ -886,6 +886,17 @@ Browser.prototype.addGlobalMenuItem = function( menuName, item ) {
 Browser.prototype._initEventRouting = function() {
     var that = this;
 
+    that.subscribe('/jbrowse/v1/v/store/new', function( storeConfigs ) {
+        array.forEach( storeConfigs, function( storeConfig ) {
+                           storeConfig = lang.mixin( {}, storeConfig );
+                           var name = storeConfig.name;
+                           delete storeConfig.name;
+                           that._addStoreConfig( name, storeConfig );
+                       });
+    });
+
+
+
     that.subscribe('/jbrowse/v1/v/tracks/hide', function( trackConfigs ) {
         that.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
     });
