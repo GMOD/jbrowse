@@ -186,7 +186,7 @@ div.vertical_scrollbar .vertical_position_marker {
 }
 
 #navbox .highlightButton.dijitChecked .dijitButtonNode {
-    background: yellow;
+    background: #E9F10C;
 }
 #navbox .highlightButton .dijitIcon {
     position: relative;
