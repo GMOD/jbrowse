@@ -17,7 +17,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 =head1 USAGE
 
   flatfile-to-json.pl                                                         \
-      ( --gff <GFF3 file> | --bed <BED file> )                                \
+      ( --gff <GFF3 file> | --bed <BED file> | --gbk <GBK file> )             \
       --trackLabel <track identifier>                                         \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
