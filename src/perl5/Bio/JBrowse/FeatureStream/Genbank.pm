@@ -1,7 +1,7 @@
 =head1 NAME
 
-Script::FlatFileToJson::FeatureStream::Genbank_LowLevel - feature stream
-class for working with L<Bio::GFF3::LowLevel::Parser> features
+Script::FlatFileToJson::FeatureStream::Genbank - feature stream
+class for working with Genbank features
 
 =cut
 
