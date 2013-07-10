@@ -117,6 +117,7 @@ return declare([BlockBased, ExportMixin],
 			// allow selection of different operations.
 			this.inWords =
 			{
+				// These one-character codes symbolize operations between stores.
 				"+": "addition",
 				"-": "subtraction",
 				"*": "multiplication",
@@ -234,14 +235,14 @@ return declare([BlockBased, ExportMixin],
 					if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
 						// Dragging the inner track out of the outer track - need to use the config of the combined track rather than
 						// the initial config.
-						source.getItem(nodes[0].id).data = thisB.innerTrack.config;
-						source.getItem(nodes[0].id).data.label = "combination_inner_track" + thisB.browser.innerTrackCount;
+						thisB._innerConfig = source.getItem(nodes[0].id).data = thisB.innerTrack.config;
+						thisB._innerConfig.label = "combination_inner_track" + thisB.browser.innerTrackCount;
 						
 						// Ensures that when innerTrack is a masked track and either the mask or the unmasked data are being viewed
 						// (not together) that the correct store will be loaded by wherever receives the track.
 						var store = thisB._visible().store;
-						source.getItem(nodes[0].id).data.store = store.name;
-						source.getItem(nodes[0].id).data.storeClass = store.config.type;
+						thisB._innerConfig.store = store.name;
+						thisB._innerConfig.storeClass = store.config.type;
 						// Doesn't remove the data from the inner track when either the mask alone or the data alone is removed - only copies.
 						// Lincoln wanted it this way
 						if(store != thisB.store) {
@@ -279,6 +280,8 @@ return declare([BlockBased, ExportMixin],
 				if(source == thisB.dnd && nodes[0]) {
 					thisB.browser.innerTrackCount++;
 					thisB.onlyRefreshOuter = false;
+					thisB.browser.addTracks([ thisB._innerConfig ]);
+					delete thisB._innerConfig;
 				}
 				if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
 					// Refresh the view when the inner track is dragged out
@@ -334,6 +337,7 @@ return declare([BlockBased, ExportMixin],
 
 			// While there is no inner track, we cannot export.
 			this.config.noExport = true;
+			this.exportFormats = [];
 
 			this.innerDiv = undefined;
 			this.innerTrack = undefined;
@@ -368,8 +372,6 @@ return declare([BlockBased, ExportMixin],
 				this.innerDiv.id = this.name + "_innerDiv";
 				this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
 			}
-
-			this.config.noExport = false;
 			
 			// Carry on the process of adding the track
 			this._addTrackStore(trackConfig);
@@ -613,7 +615,13 @@ return declare([BlockBased, ExportMixin],
 					if(thisB._visible().store == thisB.store) {
 						// Refresh inner track config, so that the track can be recreated when the config is edited
 						thisB.config.innerTrack = thisB.innerTrack.config;
-						thisB.exportFormats = thisB.innerTrack._exportFormats();
+
+						if(typeof thisB.innerTrack._exportFormats == 'function') {
+							thisB.config.noExport = false;
+							thisB.exportFormats = thisB.innerTrack._exportFormats();
+						} else {
+							thisB.config.noExport = true;
+						}
 					}
 
 					thisB.refresh();
@@ -941,7 +949,7 @@ return declare([BlockBased, ExportMixin],
 		},
 
 		_exportFormats: function() {
-			return this.exportFormats;
+			return this.exportFormats || [];
 		},
 
 
