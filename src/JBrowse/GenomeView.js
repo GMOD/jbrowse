@@ -872,8 +872,8 @@ rubberExecute: function( event) {
     var start = this.rubberbanding.start;
     var end   = { x: event.clientX, y: event.clientY };
 
-    var h_start_bp = this.rubberbanding.absFunc( Math.min(start.x,end.x) );
-    var h_end_bp   = this.rubberbanding.absFunc( Math.max(start.x,end.x) );
+    var h_start_bp = Math.floor( this.rubberbanding.absFunc( Math.min(start.x,end.x) ) );
+    var h_end_bp   = Math.ceil(  this.rubberbanding.absFunc( Math.max(start.x,end.x) ) );
 
     var exec = this.rubberbanding.execute;
 
@@ -1276,7 +1276,8 @@ drawBasePairLabel: function ( args ){
 
     label.style.display = 'block';      //make label visible
     var absfunc = args.xToBp || dojo.hitch(this,'absXtoBp');
-    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )); //set text to BP location
+    //set text to BP location (adding 1 to convert from interbase)
+    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )+1);
 
     //label.style.top = args.top + 'px';
 
@@ -1418,7 +1419,7 @@ pxToBp: function(pixels) {
  * @returns {Number}
  */
 absXtoBp: function( /**Number*/ pixels) {
-    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels );
+    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels )-1;
 },
 
 bpToPx: function(bp) {

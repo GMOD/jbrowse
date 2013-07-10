@@ -1105,12 +1105,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             right -= trimRight;
         }
 
-        function toPct ( coord ) {
-            return (coord - args.leftBase) / block_span * 100;
-        }
-
-        left = toPct( left );
-        var width = toPct(right)-left;
+        var width = (right-left)*100/block_span;
+        left = (left - args.leftBase)*100/block_span;
         var el = domConstruct.create('div', {
                                 className: 'global_highlight'
                                     + (trimLeft <= 0 ? ' left' : '')
