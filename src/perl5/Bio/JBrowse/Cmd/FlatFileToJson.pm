@@ -159,15 +159,16 @@ sub make_bed_stream {
 sub make_gbk_stream {
     my $self = shift;
 
-     require Bio::GFF3::LowLevel::Parser;
-     require Bio::JBrowse::FeatureStream::GFF3_LowLevel;
+    require Bio::GenBankParser;
+    require Bio::JBrowse::FeatureStream::Genbank;
 
-     my $p = Bio::GFF3::LowLevel::Parser->new( $self->opt('gbk') );
+    my $parser = Bio::GenBankParser->new;
+    $parser->file( $self->opt('gbk') );
 
-     return Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
-         parser => $p,
+    return Bio::JBrowse::FeatureStream::Genbank->new(
+         parser => $parser,
          track_label => $self->opt('trackLabel')
-      );
+    );
 
 }
 
