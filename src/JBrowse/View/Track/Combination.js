@@ -53,14 +53,14 @@ return declare([BlockBased, ExportMixin],
 
 
 		constructor: function( args ) {
-		// The "default" track of each type is the one at index 0 of the innerTypes array.
+		// The "default" track of each type is the one at index 0 of the resultsTypes array.
 
 			// Many different kinds of tracks can be added.  Each is supported by a different store, and some can be rendered in several ways.
 			// The trackClasses object stores information about what can be done with each of these types.
 			this.trackClasses =
 			{
 				"set":  { 
-							innerTypes:   [{
+							resultsTypes:   [{
 												name: "HTMLFeatures",
 												path: "JBrowse/View/Track/HTMLFeatures"
 											  },
@@ -73,7 +73,7 @@ return declare([BlockBased, ExportMixin],
 							defaultOp :   "&"
 						},
 				"quant": 	{
-							innerTypes:   [{
+							resultsTypes:   [{
 											name: "XYPlot",
 											path: "JBrowse/View/Track/Wiggle/XYPlot"
 										  },
@@ -86,7 +86,7 @@ return declare([BlockBased, ExportMixin],
 							defaultOp:    "+"
 						},
 				"mask": {
-							innerTypes: [{
+							resultsTypes: [{
 											name: "XYPlot",
 											path: "JBrowse/View/Track/Wiggle/XYPlot"
 										},
@@ -99,7 +99,7 @@ return declare([BlockBased, ExportMixin],
 							defaultOp: 	"M"
 						},
 				"BAM": {
-							innerTypes: [{
+							resultsTypes: [{
 											name: "Alignments2",
 											path: "JBrowse/View/Track/Alignments2"
 										},
@@ -175,15 +175,15 @@ return declare([BlockBased, ExportMixin],
 			// This is used to avoid creating a feedback loop in the height-updating process.
 			this.onlyRefreshOuter = false;
 
-			// Height of the top and bottom divs (when there is an inner track)
+			// Height of the top and bottom divs (when there is an results track)
 			this.topHeight = 20;
 			this.bottomHeight = 20;
-			this.heightInner = 0;
+			this.heightResults = 0;
 
-			// Height of the track (when there is no inner track)
-			this.heightNoInner = 50;
+			// Height of the track (when there is no results track)
+			this.heightNoResults = 50;
 
-			this.height = args.height || this.heightNoInner;
+			this.height = args.height || this.heightNoResults;
 
 			// This variable (which will later be a deferred) ensures that when multiple tracks are added simultaneously,
 			// The dialogs for each one don't render all at once.
@@ -204,13 +204,13 @@ return declare([BlockBased, ExportMixin],
 				accept: ["track"], //Accepts only tracks
 				withHandles: true,
 				creator: dojo.hitch( this, function( trackConfig, hint ) {
-						// Renders the inner track div (or avatar, depending).  Code for ensuring that we don't have several inner tracks
+						// Renders the results track div (or avatar, depending).  Code for ensuring that we don't have several results tracks
 						// is handled later in the file.
 						return {
 								data: trackConfig,
 								type: ["track"],
 								node: hint == 'avatar'
-									? dojo.create('div', { innerHTML: "Inner Track", className: 'track-label dragging' })
+									? dojo.create('div', { innerHTML: "Results", className: 'track-label dragging' })
 									: this.addTrack(trackConfig)
 						};
 				})
@@ -219,9 +219,9 @@ return declare([BlockBased, ExportMixin],
 			// Attach dnd events
 			this._attachDndEvents();
 
-			// If config contains a config for the inner track, use it. (This allows reloading when the track config is edited. )
-			if(this.config.innerTrack) {
-				this.dnd.insertNodes(false, [this.config.innerTrack]);
+			// If config contains a config for the results track, use it. (This allows reloading when the track config is edited. )
+			if(this.config.resultsTrack) {
+				this.dnd.insertNodes(false, [this.config.resultsTrack]);
 			}
 		},
 
@@ -232,23 +232,24 @@ return declare([BlockBased, ExportMixin],
 
 			// What to do at the beginning of dnd process
 			on(thisB.dnd, "DndStart", function(source, nodes, copy) {
-					if(source == thisB.dnd && nodes[0] && thisB.innerTrack) {
-						// Dragging the inner track out of the outer track - need to use the config of the combined track rather than
+					if(source == thisB.dnd && nodes[0] && thisB.resultsTrack) {
+						// Dragging the results track out of the outer track - need to use the config of the combined track rather than
 						// the initial config.
-						thisB._innerConfig = source.getItem(nodes[0].id).data = thisB.innerTrack.config;
-						thisB._innerConfig.label = "combination_inner_track" + thisB.browser.innerTrackCount;
+						thisB._resultsConfig = source.getItem(nodes[0].id).data = thisB.resultsTrack.config;
+						thisB._resultsConfig.label = "combination_results_track" + thisB.browser.resultsTrackCount;
 						
-						// Ensures that when innerTrack is a masked track and either the mask or the unmasked data are being viewed
+						// Ensures that when resultsTrack is a masked track and either the mask or the unmasked data are being viewed
 						// (not together) that the correct store will be loaded by wherever receives the track.
 						var store = thisB._visible().store;
-						thisB._innerConfig.store = store.name;
-						thisB._innerConfig.storeClass = store.config.type;
-						// Doesn't remove the data from the inner track when either the mask alone or the data alone is removed - only copies.
+						thisB._resultsConfig.store = store.name;
+						thisB._resultsConfig.storeClass = store.config.type;
+						
+						// Doesn't remove the data from the results track when either the mask alone or the data alone is removed - only copies.
 						// Lincoln wanted it this way
 						if(store != thisB.store) {
 							thisB.dnd.copyOnly = true;
 						}
-						// Prevents the store and inner track from being reloaded too often
+						// Prevents the store and results track from being reloaded too often
 						thisB.onlyRefreshOuter = true;
 					}
 					// Stores the information about whether the source was copy-only, for future reference
@@ -276,15 +277,15 @@ return declare([BlockBased, ExportMixin],
 				});
 
 			on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
-				// Ensures that all inner tracks are given unique IDs to prevent crashing
+				// Ensures that all results tracks are given unique IDs to prevent crashing
 				if(source == thisB.dnd && nodes[0]) {
-					thisB.browser.innerTrackCount++;
+					thisB.browser.resultsTrackCount++;
 					thisB.onlyRefreshOuter = false;
-					thisB.browser.addTracks([ thisB._innerConfig ]);
-					delete thisB._innerConfig;
+					thisB.browser.addTracks([ thisB._resultsConfig ]);
+					delete thisB._resultsConfig;
 				}
 				if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
-					// Refresh the view when the inner track is dragged out
+					// Refresh the view when the results track is dragged out
 					thisB.reinitialize();
 					thisB.refresh();
 				}
@@ -335,12 +336,12 @@ return declare([BlockBased, ExportMixin],
 				this.dnd.selectAll().deleteSelectedNodes();
 			}
 
-			// While there is no inner track, we cannot export.
+			// While there is no results track, we cannot export.
 			this.config.noExport = true;
 			this.exportFormats = [];
 
-			this.innerDiv = undefined;
-			this.innerTrack = undefined;
+			this.resultsDiv = undefined;
+			this.resultsTrack = undefined;
 			this.storeType = undefined;
 			this.oldType = undefined;
 			this.classIndex = {"set" : 0, "quant": 0, "BAM": 0};
@@ -351,7 +352,7 @@ return declare([BlockBased, ExportMixin],
 			this.opTree = undefined;
 		},
 
-		// Modifies the inner track when a new track is added
+		// Modifies the results track when a new track is added
 		addTrack: function(trackConfig) {
 			// Connect the track's name to its store for easy reading by user
 			if(trackConfig && trackConfig.key && trackConfig.store) {
@@ -365,19 +366,19 @@ return declare([BlockBased, ExportMixin],
 			// What type of Combination store corresponds to the track just added
 			this.storeClass = this.trackClasses[this.currType].store;
 
-			// Creates the inner div, if it hasn't already been created
-			if(!this.innerDiv) {
-				this.innerDiv = dom.create("div");
-				this.innerDiv.className = "track";
-				this.innerDiv.id = this.name + "_innerDiv";
-				this.innerDiv.style.top = this.topHeight + "px"; //Alter this.
+			// Creates the results div, if it hasn't already been created
+			if(!this.resultsDiv) {
+				this.resultsDiv = dom.create("div");
+				this.resultsDiv.className = "track";
+				this.resultsDiv.id = this.name + "_resultsDiv";
+				this.resultsDiv.style.top = this.topHeight + "px"; //Alter this.
 			}
 			
 			// Carry on the process of adding the track
 			this._addTrackStore(trackConfig);
 
 			// Because _addTrackStore has deferreds, the dnd node must be returned before it is filled
-			return this.innerDiv;
+			return this.resultsDiv;
 		},
 
 		// Obtains the store of the track that was just added.
@@ -421,12 +422,11 @@ return declare([BlockBased, ExportMixin],
 					store: store,
 					track: this
 				});
-				// Once the results of the dialog are back, uses them to continue the process of rendering the inner track
+				// Once the results of the dialog are back, uses them to continue the process of rendering the results track
 				this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
 					this.opTree = opTree;
 					this.displayType = displayType;
 					this.lastDialogDone.resolve(true);
-					console.log(this._generateTreeFormula(opTree));
 					this._adjustStores(newstore);
 				}), dojo.hitch(this, function() {
 					this.lastDialogDone.resolve(true);
@@ -494,10 +494,10 @@ return declare([BlockBased, ExportMixin],
 			}
 			d.then(function(store) { 
 				// All stores are now in place.  Make sure the operation tree of the store matches that of this track,
-				// and then we can render the inner track.
+				// and then we can render the results track.
 				thisB.store = store;
 				thisB.store.reload(thisB.opTree, thisB.maskStore, thisB.displayStore);
-				thisB.renderInnerTrack();
+				thisB.renderResultsTrack();
 			})
 		},
 
@@ -545,22 +545,22 @@ return declare([BlockBased, ExportMixin],
 				if(which[i]) {
 					var storeType = (i == 0 && this.storeType == "mask") ? "mask" : which[i];
 					allTypes[i].allowedOps = this.trackClasses[storeType].allowedOps;
-					allTypes[i].trackType = this.trackClasses[which[i]].innerTypes[this.getClassIndex(which[i])].path;
+					allTypes[i].trackType = this.trackClasses[which[i]].resultsTypes[this.getClassIndex(which[i])].path;
 				}
 			}
 			if(this.storeType != "mask") return allTypes[0];
 			return allTypes[this.storeToShow];
 		},
 
-		// Time to actually render the inner track.
-		renderInnerTrack: function() {
+		// Time to actually render the results track.
+		renderResultsTrack: function() {
 
-			if(this.innerTrack) {
-				// Destroys the inner track currently in place if it exists. We're going to create a new one.
-				this.innerTrack.clear();
-				this.innerTrack.destroy();
-				while(this.innerDiv.firstChild) { // Use dojo.empty instead?
-					this.innerDiv.removeChild(this.innerDiv.firstChild);
+			if(this.resultsTrack) {
+				// Destroys the results track currently in place if it exists. We're going to create a new one.
+				this.resultsTrack.clear();
+				this.resultsTrack.destroy();
+				while(this.resultsDiv.firstChild) { // Use dojo.empty instead?
+					this.resultsDiv.removeChild(this.resultsDiv.firstChild);
 				}
 			}
 			// Checks one last time to ensure we have a store before proceeding
@@ -570,28 +570,28 @@ return declare([BlockBased, ExportMixin],
 				var trackClass;
 
 				var thisB = this;
-				var config = this._innerTrackConfig(trackClassName);
+				var config = this._resultsTrackConfig(trackClassName);
 
 				trackClassName = config.type;
 
 				// Once we have the object for the type of track we're creating, call this.
 				var makeTrack = function(){
 					// Construct a track with the relevant parameters
-			  		thisB.innerTrack = new trackClass({
+			  		thisB.resultsTrack = new trackClass({
 							config: config,
 							browser: thisB.browser,
 							refSeq: thisB.refSeq,
 							store: thisB._visible().store,
 							trackPadding: 0});
 	  				
-	  				// Removes all options from the inner track's context menu.
-	  				thisB.innerTrack._trackMenuOptions = function(){ return []; }
+	  				// Removes all options from the results track's context menu.
+	  				thisB.resultsTrack._trackMenuOptions = function(){ return []; }
 	  				
-	  				// This will be what happens when the inner track updates its height - makes necessary changes to 
+	  				// This will be what happens when the results track updates its height - makes necessary changes to 
 	  				// outer track's height and then passes up to the heightUpdate callback specified as a parameter to this object
-					var innerHeightUpdate = function(height) {
-						thisB.innerDiv.style.height = height + "px";
-						thisB.heightInner = height;
+					var resultsHeightUpdate = function(height) {
+						thisB.resultsDiv.style.height = height + "px";
+						thisB.heightResults = height;
 						thisB.height = thisB.topHeight + height + thisB.bottomHeight;
 						thisB.onlyRefreshOuter = true;
 						thisB.refresh();
@@ -600,25 +600,25 @@ return declare([BlockBased, ExportMixin],
 						thisB.div.style.height = thisB.height + "px";
 					}
 	  
-	  				// setViewInfo on inner track
-					thisB.innerTrack.setViewInfo (thisB.genomeView, innerHeightUpdate,
-						thisB.numBlocks, thisB.innerDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
+	  				// setViewInfo on results track
+					thisB.resultsTrack.setViewInfo (thisB.genomeView, resultsHeightUpdate,
+						thisB.numBlocks, thisB.resultsDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
 
-					// Changes the functionality of the inner track's close button so that it doesn't show up on the track list.
+					// Changes the functionality of the results track's close button so that it doesn't show up on the track list.
 					thisB._redefineCloseButton();
 
-					// Removes the button for the inner track's drop down menu - everything will be controlled from the outer track.
-	  				thisB.innerTrack.labelMenuButton.parentNode.removeChild(thisB.innerTrack.labelMenuButton);
+					// Removes the button for the results track's drop down menu - everything will be controlled from the outer track.
+	  				thisB.resultsTrack.labelMenuButton.parentNode.removeChild(thisB.resultsTrack.labelMenuButton);
 
 					// Only do this when the masked data is selected
 					// (we don't want editing the config to suddenly remove the data or the mask)
 					if(thisB._visible().store == thisB.store) {
-						// Refresh inner track config, so that the track can be recreated when the config is edited
-						thisB.config.innerTrack = thisB.innerTrack.config;
+						// Refresh results track config, so that the track can be recreated when the config is edited
+						thisB.config.resultsTrack = thisB.resultsTrack.config;
 
-						if(typeof thisB.innerTrack._exportFormats == 'function') {
+						if(typeof thisB.resultsTrack._exportFormats == 'function') {
 							thisB.config.noExport = false;
-							thisB.exportFormats = thisB.innerTrack._exportFormats();
+							thisB.exportFormats = thisB.resultsTrack._exportFormats();
 						} else {
 							thisB.config.noExport = true;
 						}
@@ -635,16 +635,16 @@ return declare([BlockBased, ExportMixin],
 	  		}
 		},
 
-		// The close button of the inner track doesn't only hide the inner track on the tracksel menu - it destroys it
+		// The close button of the results track doesn't only hide the results track on the tracksel menu - it destroys it
 		_redefineCloseButton: function() {
-				var closeButton = this.innerTrack.label.childNodes[0];
+				var closeButton = this.resultsTrack.label.childNodes[0];
 				if(closeButton.className == "track-close-button") {
-					this.innerTrack.label.removeChild(closeButton);
+					this.resultsTrack.label.removeChild(closeButton);
 					var closeButton = dojo.create('div',{
 															className: 'track-close-button'
-														}, this.innerTrack.label, "first");
+														}, this.resultsTrack.label, "first");
 
-					this.innerTrack.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
+					this.resultsTrack.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
 								this.browser.view.suppressDoubleClick( 100 );
 								this.reinitialize();
 								this.refresh();
@@ -654,29 +654,29 @@ return declare([BlockBased, ExportMixin],
 				}
 		},
 
-		// Generate the config of the inner track
-		_innerTrackConfig: function(trackClass) {
+		// Generate the config of the results track
+		_resultsTrackConfig: function(trackClass) {
 			var config = {
 									store: this.store.name,
 									storeClass: this.store.config.type,
 									feature: ["match"],
-									key: "Inner Track",
-									label: this.name + "_inner",
+									key: "Results",
+									label: this.name + "_results",
 									metadata: { description: "This track was created from a combination track."},
 									type: trackClass
 						};
 
-			if(this.config.innerTrack) {
-				if((this.config.innerTrack.storeClass == config.storeClass || this.supportedBy[this.config.innerTrack.storeClass] == this.displayType) 
+			if(this.config.resultsTrack) {
+				if((this.config.resultsTrack.storeClass == config.storeClass || this.supportedBy[this.config.resultsTrack.storeClass] == this.displayType) 
 					&& (this._visible().store != this.maskStore)) {
-					config = this.config.innerTrack;
+					config = this.config.resultsTrack;
 					config.store = this.store.name;
 					config.storeClass = this.store.config.type;
 					return config;
 				}
-				config.key = this.config.innerTrack.key;
-				config.label = this.config.innerTrack.label;
-				config.metadata = this.config.innerTrack.metadata;
+				config.key = this.config.resultsTrack.key;
+				config.label = this.config.resultsTrack.label;
+				config.metadata = this.config.resultsTrack.metadata;
 			}
 			if(this.supportedBy[trackClass] == "quant") {
 				config.autoscale = "local";
@@ -697,8 +697,8 @@ return declare([BlockBased, ExportMixin],
 			}
 			else {
 				if(!this.onlyRefreshOuter) {
-					// Causes the innerTrack to be removed from the config when it has been removed
-					delete this.config.innerTrack;
+					// Causes the resultsTrack to be removed from the config when it has been removed
+					delete this.config.resultsTrack;
 				}
 				storeIsReloaded = true;
 			}
@@ -719,39 +719,37 @@ return declare([BlockBased, ExportMixin],
 			this.range = {f: first, l: last, st: startBase, 
 										b: bpPerBlock, sc: scale, 
 										cs: containerStart, ce: containerEnd};
-			if(this.innerTrack && !this.onlyRefreshOuter) {
+			if(this.resultsTrack && !this.onlyRefreshOuter) {
 					
-					// The inner track should be reloaded to show the same range as the outer track
-					this.innerTrack.clear();
+					// The results track should be reloaded to show the same range as the outer track
+					this.resultsTrack.clear();
 					
 					// This is a workaround to a glitch that causes an opaque white rectangle to appear sometimes when a quantitative
 					// track is loaded.
-					var needsDiv = !this.innerDiv.parentNode;
+					var needsDiv = !this.resultsDiv.parentNode;
 					if(needsDiv) {
-						this.div.appendChild(this.innerDiv);
+						this.div.appendChild(this.resultsDiv);
 					}
-					this.innerTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+					this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
 					if(needsDiv) {
-						this.div.removeChild(this.innerDiv);
+						this.div.removeChild(this.resultsDiv);
 					}
 				}
 			// Run the method from BlockBased.js
 			this.inherited(arguments);
-			
 			// Make sure the height of this track is right
-			this.height = (this.innerTrack ? (this.topHeight + this.heightInner + this.bottomHeight) : this.heightNoInner);
 			this.heightUpdate(this.height);
 			this.div.style.height = this.height + "px";
 		},
 
-		// If moveBlocks is called on this track, should be called on the inner track as well
+		// If moveBlocks is called on this track, should be called on the results track as well
 		moveBlocks: function(delta) {
 				this.inherited(arguments);
-				if(this.innerTrack)
-					this.innerTrack.moveBlocks(delta);
+				if(this.resultsTrack)
+					this.resultsTrack.moveBlocks(delta);
 		},
 
-		// fillBlock in this renders all the relevant borders etc that surround the inner track and let the user know
+		// fillBlock in this renders all the relevant borders etc that surround the results track and let the user know
 		// that this is a combination track
 		fillBlock: function( args ) {
 				var blockIndex = args.blockIndex;
@@ -759,7 +757,7 @@ return declare([BlockBased, ExportMixin],
 				var leftBase = args.leftBase;
 
 				var text = "Add tracks here";
-				if(this.innerTrack) {
+				if(this.resultsTrack) {
 					// Border on the top
 					var topDiv = dom.create("div");
 					topDiv.className = "combination";
@@ -771,15 +769,15 @@ return declare([BlockBased, ExportMixin],
 					var bottomDiv = dom.create("div");
 					bottomDiv.className = "combination";
 					bottomDiv.style.height = this.bottomHeight + "px";
-					bottomDiv.style.top = (this.topHeight + this.heightInner) + "px";
+					bottomDiv.style.top = (this.topHeight + this.heightResults) + "px";
 					bottomDiv.appendChild( document.createTextNode( text ) );
 					block.domNode.appendChild( bottomDiv );
 				} else {
-					// If no inner track, just one solid mass of grey.
+					// If no results track, just one solid mass of grey.
 					var textDiv = dom.create("div");
 					textDiv.className = "combination";
 					var text = "Add tracks here";
-					textDiv.style.height = this.heightNoInner + "px";
+					textDiv.style.height = this.heightNoResults + "px";
 					textDiv.appendChild( document.createTextNode( text ) );  
 					block.domNode.appendChild( textDiv );
 				}
@@ -789,26 +787,28 @@ return declare([BlockBased, ExportMixin],
 				if( highlight && highlight.ref == this.refSeq.name )
 						this.renderRegionHighlight( args, highlight );
 
+				this.height = (this.resultsTrack ? (this.topHeight + this.heightResults + this.bottomHeight) : this.heightNoResults);
+
 				this.heightUpdate( this.height, blockIndex);
 				this.div.style.height = this.height + "px";
 				args.finishCallback();
 		},
 
-		// endZoom is passed down to innerTrack
+		// endZoom is passed down to resultsTrack
 		endZoom: function(destScale, destBlockBases) {
 				this.clear(); // Necessary?
-				if(this.innerTrack)
-					this.innerTrack.endZoom();
+				if(this.resultsTrack)
+					this.resultsTrack.endZoom();
 		},
 
-		//  updateStaticElements passed down to innerTrack
+		//  updateStaticElements passed down to resultsTrack
 		updateStaticElements: function(args) {
 		  this.inherited(arguments);
-		  if(this.innerTrack)
-		  	this.innerTrack.updateStaticElements(args);
+		  if(this.resultsTrack)
+		  	this.resultsTrack.updateStaticElements(args);
 		},
 
-		// When the inner track can be shown in multiple different classes (e.g. XYPlot or Density), this allows users to choose between them
+		// When the results track can be shown in multiple different classes (e.g. XYPlot or Density), this allows users to choose between them
 		setClassIndex: function(index, type) {
 			if(!type)
 				type = this._visible().which;
@@ -817,7 +817,7 @@ return declare([BlockBased, ExportMixin],
 			this.classIndex[type] = index;
 		},
 
-		// When the inner track can be shown in multiple different classes (e.g. XYPlot or Density), this tells us which one is currently chosen
+		// When the results track can be shown in multiple different classes (e.g. XYPlot or Density), this tells us which one is currently chosen
 		getClassIndex: function(type) {
 			if(type == "mask" && this.displayStore)
 				type = this.supportedBy[this.displayStore.config.type];
@@ -844,7 +844,7 @@ return declare([BlockBased, ExportMixin],
 								title: "View " + maskOrDisplay[i],
 								action: function() {
 									combTrack.storeToShow = i;
-									combTrack.renderInnerTrack();
+									combTrack.renderResultsTrack();
 								}
 							}
 				});
@@ -860,8 +860,8 @@ return declare([BlockBased, ExportMixin],
 					}]);
 			}
 
-			// User may choose which class to render inner track (e.g. XYPlot or Density) if multiple options exist
-			var classes = this.trackClasses[this._visible().which].innerTypes;
+			// User may choose which class to render results track (e.g. XYPlot or Density) if multiple options exist
+			var classes = this.trackClasses[this._visible().which].resultsTypes;
 
 			var classItems = Object.keys(classes).map(function(i){
 				return  {
@@ -872,8 +872,8 @@ return declare([BlockBased, ExportMixin],
 					action: function() 
 							{
 							  combTrack.setClassIndex(i);
-							  delete combTrack.config.innerTrack;
-							  combTrack.renderInnerTrack();
+							  delete combTrack.config.resultsTrack;
+							  combTrack.renderResultsTrack();
 							}
 						};
 			});
