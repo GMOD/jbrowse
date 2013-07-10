@@ -17,6 +17,7 @@ define( [
             'dijit/form/ComboBox',
             'dijit/form/Button',
             'dijit/form/Select',
+            'dijit/form/ToggleButton',
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
@@ -56,6 +57,7 @@ define( [
             dijitComboBox,
             dijitButton,
             dijitSelectBox,
+            dijitToggleButton,
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
@@ -2085,7 +2087,7 @@ cookie: function() {
  */
 
 createNavBox: function( parent ) {
-
+    var thisB = this;
     var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
 
     // container adds a white backdrop to the locationTrap.
@@ -2248,6 +2250,24 @@ createNavBox: function( parent ) {
             })
         }, dojo.create('button',{},navbox));
 
+    this.highlightButton = new dijitToggleButton({
+        //label: 'Highlight',
+        title: 'highlight a region',
+        iconClass: 'jbrowseIconHighlight',
+        onChange: function() {
+            if( this.get('checked') ) {
+                thisB.view._rubberStop();
+                thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
+            } else {
+                thisB.view._rubberStop();
+                thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
+            }
+        }
+    }, dojo.create('button',{},navbox));
+    this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
+                   function() { thisB.highlightButton.set('checked',false); });
+
+    dojo.addClass( this.highlightButton.domNode, 'highlightButton' );
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
 
