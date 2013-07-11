@@ -1030,6 +1030,11 @@ table.baseQuality td {
     background: #DCEAFA;
     background: rgba(173, 205, 246, 0.41);
 }
+.combination_track.empty {
+    background: #aaa;
+    background: rgba(0,0,0,0.1);
+}
+
 
 .formulaPreview {
     text-align: center;
