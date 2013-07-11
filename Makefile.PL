@@ -71,6 +71,7 @@ my %WriteMakefileArgs = (
     "POSIX" => 0,
     "PerlIO::gzip" => 0,
     "Pod::Usage" => 0,
+    "Readonly" => 0,
     "Scalar::Util" => 0,
     "Storable" => 0,
     "base" => 0,
