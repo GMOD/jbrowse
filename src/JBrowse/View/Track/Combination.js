@@ -190,6 +190,8 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
                        widthPct, widthPx, scale) {
 
     this.inherited( arguments );
+    domClass.add( this.div, 'combination_track' );
+
     this.scale = scale;
 
     // This track has a dnd source (to support dragging tracks into and out of it).
