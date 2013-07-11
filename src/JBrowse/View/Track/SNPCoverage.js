@@ -44,7 +44,7 @@ return declare( [WiggleXY, AlignmentsMixin],
         var originY = toY( dataScale.origin );
 
         // a canvas element below the histogram that will contain indicators of likely SNPs
-        var snpCanvasHeight = parseInt( block.domNode.parentNode.style.height ) - canvas.height;
+        var snpCanvasHeight = 20;
         var snpCanvas = dojo.create('canvas',
                                     {height: snpCanvasHeight,
                                      width: canvas.width,
