@@ -68,6 +68,9 @@ return declare( [dijitBase,Component,FeatureFiltererMixin], {
 splitter: true,
 region: 'center',
 baseClass: 'jbrowseGenomeView',
+stripeWidth: 250,
+pxPerBp: 1/200,
+
 
 constructor: function() {
     // need to set this here and then copy it back into this.config in
@@ -167,9 +170,8 @@ buildRendering: function() {
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-
-    var initialLocString = this.initialLocation;
-    var initialLoc = Util.parseLocString( initialLocString );
+    var initialLoc = this.initialLocation;
+    var initialTracks = this.initialTracks;
 
     this.initialized = new Deferred();
 
@@ -184,13 +186,28 @@ buildRendering: function() {
             q,
             function(ref) {
                 thisB._finishInitialization( ref );
-                thisB.setLocation( ref, ref.start, ref.end );
+                thisB.setLocation( ref, ref.start, ref.end, thisB.initialTracks );
                 thisB.initialized.resolve();
             },
             function() {},
             function(e) { console.error(e); }
         );
     });
+},
+
+/**
+ * Returns object with all that's necessary to reconstruct this view's
+ * current state.
+ */
+getState: function() {
+    var s = this.inherited(arguments);
+    s.initialLocation = this.visibleRegion();
+    s.region = this.region;
+    s.initialTracks = this.visibleTrackNames();
+    var height = this.domNode.style.height || '';
+    if( /%/.test( height ) )
+        s.style = { height: this.domNode.style.height };
+    return s;
 },
 
 _finishInitialization: function( refseq ) {
@@ -984,7 +1001,7 @@ slide: function(distance) {
 },
 
 // synchronous.
-setLocation: function(refseq, startbp, endbp) {
+setLocation: function(refseq, startbp, endbp, showTracks ) {
     if ( startbp === undefined )
         startbp = this.minVisible();
     if ( endbp === undefined )
@@ -994,10 +1011,9 @@ setLocation: function(refseq, startbp, endbp) {
     if ( endbp < refseq.start || endbp > refseq.end )
         endbp = refseq.end;
 
-    var showTracks;
     if (this.ref != refseq) {
         this.ref = refseq;
-        showTracks = this.visibleTrackNames();
+        showTracks = showTracks || this.visibleTrackNames();
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
         var removeTrack = function(track) {
             if (track.div && track.div.parentNode)
@@ -2178,7 +2194,7 @@ createNavBox: function( parent ) {
             });
 
             // calculate how big to make the location box:  make it big enough to hold the
-            var locLength = thisB.browser.config.locationBoxLength || function() {
+            var locLength = thisB.config.locationBoxLength || function() {
                 // if we have no refseqs, just use 20 chars
                 if( ! refSeqOrder.length )
                     return 20;

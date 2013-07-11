@@ -122,18 +122,6 @@ constructor: function(params) {
                     thisB.initTrackMetadata();
                     thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
-
-                           // figure out what initial track list we will use:
-                           //    from a param passed to our instance, or from a cookie, or
-                           //    the passed defaults, or the last-resort default of "DNA"?
-                           var origTracklist =
-                                  thisB.config.forceTracks
-                               || thisB.cookie( "tracks" )
-                               || thisB.config.defaultTracks
-                               || "DNA";
-
-                           thisB.showTracks( origTracklist );
-
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
                        thisB.reportUsageStats();
@@ -410,6 +398,12 @@ regularizeReferenceName: function( refname ) {
     return refname;
 },
 
+getState: function() {
+    var s = lang.clone( this.config );
+    s.views = array.map( this.views, function(v) { return v.getState(); } );
+    return s;
+},
+
 initView: function() {
     var thisB = this;
     return this._milestoneFunction('initView', function( deferred ) {
@@ -452,24 +446,30 @@ initView: function() {
         var initialLocString = this._initialLocation();
         var initialLoc = Util.parseLocString( initialLocString );
 
+
+        // figure out what initial track list we will use:
+        //    from a param passed to our instance, or from a cookie, or
+        //    the passed defaults, or the last-resort default of "DNA"?
+        var initialTracks =
+               thisB.config.forceTracks
+            || thisB.config.defaultTracks
+            || "DNA";
+
         // instantiate our views
         this.views = [
             new GenomeView(
                 { browser: this,
                   region: 'center',
-                  config: this.config.view,
-                  stripeWidth: 250,
-                  pxPerBp: 1/200,
-                  initialLocation: initialLocString
+                  initialLocation: initialLoc,
+                  initialTracks: initialTracks.split(',')
                 }),
             new GenomeView(
                 { browser: this,
                   region: 'top',
-                  config: { gridlines: false },
-                  stripeWidth: 250,
+                  gridlines: false,
                   style: 'height: 40%',
-                  pxPerBp: 1/200,
-                  initialLocation: 'ctgA:1..50000'
+                  initialLocation: initialLoc,
+                  initialTracks: initialTracks.split(',')
                 } )
         ];
         array.forEach( this.views, function(v) {

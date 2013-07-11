@@ -38,6 +38,15 @@ return declare( null, {
         };
     },
 
+    /**
+     * Return an object containing all information that should be
+     * saved across browser reloads in order to reconstruct the
+     * current state of this object.
+     */
+    getState: function() {
+        return lang.clone( this.config );
+    },
+
     resolveUrl: function( url, args ) {
         args = args || {};
         return Util.resolveUrl(
