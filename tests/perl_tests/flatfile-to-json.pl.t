@@ -289,8 +289,10 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
 
     is_deeply( sort($trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}), 
-	       sort(['Start', 'End', 'Strand', 'DEFINITION', 'CLASSIFICATION', 'LOCUS', 'FEATURES', 'KEYWORDS',
-		'ACCESSION', 'Seq_id', 'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM', 'VERSION', 'SOURCE']),
+	       sort(
+  ['Start', 'End', 'Strand', 'COMMENT', 'DEFINITION', 'CLASSIFICATION', 'LOCUS', 'FEATURES',
+  'KEYWORDS', 'SEQUENCE', 'ACCESSION', 'Seq_id', 'NCBI_TAXON_ID', 'MOL_TYPE', 'ORIGIN', 'ORGANISM',
+  'VERSION', 'SOURCE']),
 	       'got the right attributes in trackData.json')
       or diag explain $trackdata->{'trackData.json'};
 }

@@ -27,9 +27,9 @@ sub _aggregate_features_from_gbk_record {
     $f->{'strand'} = 0;
 
     # get rid of unnecessary stuff, this could get really big for some GBK files
-    delete ${$f}{'COMMENT'};
-    delete ${$f}{'SEQUENCE'};
-    delete ${$f}{'ORIGIN'};
+#    delete ${$f}{'COMMENT'};
+#    delete ${$f}{'SEQUENCE'};
+#    delete ${$f}{'ORIGIN'};
 
     return $f;
 }
