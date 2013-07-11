@@ -159,10 +159,10 @@ sub make_bed_stream {
 sub make_gbk_stream {
     my $self = shift;
 
-    require Bio::GenBankParser;
+    require Bio::JBrowse::FeatureStream::Genbank::Parser;
     require Bio::JBrowse::FeatureStream::Genbank;
 
-    my $parser = Bio::GenBankParser->new;
+    my $parser = Bio::JBrowse::FeatureStream::Genbank::Parser->new;
     $parser->file( $self->opt('gbk') );
 
     return Bio::JBrowse::FeatureStream::Genbank->new(
