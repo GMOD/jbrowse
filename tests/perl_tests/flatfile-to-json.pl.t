@@ -276,5 +276,28 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 
 }
 
+{
+    diag "testing GenBank file parsing...";
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gbk' => catfile('tests','data','gstmu_full_record.gb'),
+        '--key' => 'Fooish Bar Data',
+        '--trackLabel' => 'foo',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
+
+    is_deeply( sort($trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}), 
+	       sort(['Start', 'End', 'Strand', 'DEFINITION', 'CLASSIFICATION', 'LOCUS', 'FEATURES', 'KEYWORDS',
+		'ACCESSION', 'Seq_id', 'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM', 'VERSION', 'SOURCE']),
+	       'got the right attributes in trackData.json')
+      or diag explain $trackdata->{'trackData.json'};
+}
+
+{
+    diag "end GenBank file parsing ";
+}
+
 
 done_testing;
