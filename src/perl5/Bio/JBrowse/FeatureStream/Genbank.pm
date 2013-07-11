@@ -13,7 +13,7 @@ use base 'Bio::JBrowse::FeatureStream';
 
 sub next_items {
     my ( $self ) = @_;
-    while ( my $i = $self->{parser}->next_data_hash ) {
+    while ( my $i = $self->{parser}->next_seq ) {
         return $self->_to_webapollo_feature( $i );
     }
     return;

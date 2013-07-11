@@ -274,6 +274,10 @@ section: commented_line
     | origin
     | comment
     | record_delimiter
+    | accession
+    | primary
+    | source
+    | version
     | <error>
 
 header: /.+(?=\nLOCUS)/xms
@@ -311,6 +315,11 @@ definition: /DEFINITION/ section_continuing_indented
         ( $record{'DEFINITION'} = $item[2] ) =~ s/\n\s+/ /g;
     }
 
+source: /SOURCE/ section_continuing_indented
+    {
+        ( $record{'SOURCE'} = $item[2] ) =~ s/\n\s+/ /g;
+    }
+
 section_continuing_indented: /.*?(?=\n[A-Z]+\s+)/xms
 
 section_continuing_indented: /.*?(?=\n\/\/)/xms
@@ -322,7 +331,19 @@ accession_line: /ACCESSION/ section_continuing_indented
         push @{ $record{'VERSION'} }, @accs;
     }
 
+accession: /ACCESSION/ section_continuing_indented
+    {
+        my @accs = split /\s+/, $item[2];
+        $record{'ACCESSION'} = shift @accs;
+        push @{ $record{'VERSION'} }, @accs;
+    }
+
 version_line: /VERSION/ /(.+)(?=\n)/
+    {
+        push @{ $record{'VERSION'} }, split /\s+/, $item[2];
+    }
+
+version: /VERSION/ /(.+)(?=\n)/
     {
         push @{ $record{'VERSION'} }, split /\s+/, $item[2];
     }
@@ -538,6 +559,8 @@ NUMBER: /\d+/
 PERIOD: /\./
 
 record_delimiter: /\/\/\s*/xms
+
+primary: /.*/
 
 eofile: /^\Z/
 
