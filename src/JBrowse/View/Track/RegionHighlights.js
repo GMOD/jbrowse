@@ -15,7 +15,7 @@ return dojo.declare( BlockBased,
     makeTrackMenu: function() {},
 
     fillBlock: function( args ) {
-        console.log('fill highlights', args );
+        //console.log('fill highlights', args );
         var highlight = this.browser.getHighlight();
         if( highlight && highlight.ref == this.refSeq.name )
             this.renderRegionHighlight( args, highlight );
