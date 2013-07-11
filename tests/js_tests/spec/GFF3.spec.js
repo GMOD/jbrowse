@@ -108,7 +108,8 @@ describe( 'GFF3 store', function() {
    it( 'can parse volvox.gff3', function() {
            var p = new GFF3Store({
                                      browser: new Browser({ unitTestMode: true }),
-                                     blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.gff3' )
+                                     blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.gff3' ),
+                                     refSeq: { name: 'ctgA', start: 0, end: 50001 }
                                  });
            (function() {
                var features = [];

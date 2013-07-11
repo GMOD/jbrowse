@@ -17,6 +17,7 @@ define( [
             'dijit/form/ComboBox',
             'dijit/form/Button',
             'dijit/form/Select',
+            'dijit/form/ToggleButton',
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
@@ -56,6 +57,7 @@ define( [
             dijitComboBox,
             dijitButton,
             dijitSelectBox,
+            dijitToggleButton,
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
@@ -898,6 +900,17 @@ addGlobalMenuItem: function( menuName, item ) {
  */
 _initEventRouting: function() {
     var that = this;
+
+    that.subscribe('/jbrowse/v1/v/store/new', function( storeConfigs ) {
+        array.forEach( storeConfigs, function( storeConfig ) {
+                           storeConfig = lang.mixin( {}, storeConfig );
+                           var name = storeConfig.name;
+                           delete storeConfig.name;
+                           that._addStoreConfig( name, storeConfig );
+                       });
+    });
+
+
 
     that.subscribe('/jbrowse/v1/v/tracks/hide', function( trackConfigs ) {
         that.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
@@ -2074,7 +2087,7 @@ cookie: function() {
  */
 
 createNavBox: function( parent ) {
-
+    var thisB = this;
     var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
 
     // container adds a white backdrop to the locationTrap.
@@ -2237,6 +2250,24 @@ createNavBox: function( parent ) {
             })
         }, dojo.create('button',{},navbox));
 
+    this.highlightButton = new dijitToggleButton({
+        //label: 'Highlight',
+        title: 'highlight a region',
+        iconClass: 'jbrowseIconHighlight',
+        onChange: function() {
+            if( this.get('checked') ) {
+                thisB.view._rubberStop();
+                thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
+            } else {
+                thisB.view._rubberStop();
+                thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
+            }
+        }
+    }, dojo.create('button',{},navbox));
+    this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
+                   function() { thisB.highlightButton.set('checked',false); });
+
+    dojo.addClass( this.highlightButton.domNode, 'highlightButton' );
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
 

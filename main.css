@@ -164,7 +164,7 @@ div.vertical_scrollbar .vertical_position_marker {
     position: relative;
     text-align: center;
 }
-#navbox .dijitButton, #navbox .dijitTextBox, #navbox .dijitSelect {
+#navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect {
     height: 20px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -183,6 +183,17 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox * {
     font-size: 12px;
     font-family: sans-serif;
+}
+
+#navbox .highlightButton.dijitChecked .dijitButtonNode {
+    background: #E9F10C;
+}
+#navbox .highlightButton .dijitIcon {
+    position: relative;
+    left: 3px;
+}
+#navbox .highlightButton .dijitButtonContents {
+    outline: none;
 }
 
 .moreMatches {
@@ -819,10 +830,6 @@ div.block:hover > div.message {
 /* styles dealing with popups launched by clicking on features */
 .popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
-}
-
-.export-view-dialog .dijitDialogPaneContent {
-    background: #fafafa;
 }
 
 /* styles for popup dialogs */
