@@ -534,6 +534,14 @@ initView: function() {
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
                                   );
+
+            this.addGlobalMenuItem( 'file', new dijitMenuItem(
+                {
+                    label: 'Add combination track',
+                    iconClass: 'dijitIconSample',
+                    onClick: dojo.hitch(this, 'createCombinationTrack')
+                }));
+            
             this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
 
@@ -566,12 +574,7 @@ initView: function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
-            this.addGlobalMenuItem( 'view', new dijitMenuItem(
-                {
-                    label: 'Add combination track',
-                    iconClass: 'dijitIconSample',
-                    onClick: dojo.hitch(this, 'createCombinationTrack')
-                }));
+
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
 

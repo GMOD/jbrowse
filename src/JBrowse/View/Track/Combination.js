@@ -314,7 +314,6 @@ return declare([BlockBased, ExportMixin],
 
 		// Modifies the results track when a new track is added
 		addTrack: function(trackConfig) {
-			console.log(trackConfig);
 			// Connect the track's name to its store for easy reading by user
 			if(trackConfig && trackConfig.key && trackConfig.store) {
 				this.storeToKey[trackConfig.store] = trackConfig.key;
