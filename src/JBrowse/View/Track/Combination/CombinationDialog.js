@@ -35,89 +35,90 @@ constructor: function( args ) {
 },
 
 _dialogContent: function(store) {
-        var nodesToAdd = [];
+    var nodesToAdd = [];
 
-        var opList = this._allAllowedOperations(store);
-        if(!opList.length) {
-                nodesToAdd.push(
-                        dom.create("div", {innerHTML: "No operations are possible for this track."})
-                );
-                var actionBar = this._createActionBar(false);
-                nodesToAdd.push(actionBar);
-                return nodesToAdd;
-        }
-
+    var opList = this._allAllowedOperations(store);
+    if(!opList.length) {
         nodesToAdd.push(
-                dom.create("div", {innerHTML: "You are currently adding the track \"" + this.newTrackKey + "\", which is a " + this.currType + " track.  "
-                        + "  Please select how you would like this track to be combined."})
+            dom.create("div", {innerHTML: "No operations are possible for this track."})
         );
-
-        var maskOpListDiv = dom.create("div", {id: this.track.name + "_maskOpList"});
-
-        var thisB = this;
-
-        var maskOps = this._makeUnique(opList.map(function(item) { return item.substring(0, 4); }));
-        nodesToAdd.push(maskOpListDiv);
-
-        this.changingOpPanel = dom.create("div", {id: this.track.name + "_suffixLists"});
-        nodesToAdd.push(this.changingOpPanel);
-
-        nodesToAdd.push(dom.create("span", {innerHTML: "<br />Combination Formula Preview"}));
-
-        this.formulaPreview = dom.create("div", {innerHTML: "(nothing currently selected)", className: "formulaPreview"});
-        nodesToAdd.push(this.formulaPreview);
-
-        this.maskOpButtons = [];
-
-    if(maskOps.length > 0) {
-        for(var i in maskOps) {
-            var opButton = this._renderRadioButton(maskOpListDiv, maskOps[i], this.inWords[maskOps[i]]);
-            this.maskOpButtons.push(opButton);
-
-            opButton.on("change", function(isSelected) {
-                            if(isSelected) {
-                                delete this.whichArg;
-                                delete this.opValue;
-
-                                thisB.maskOpValue = this.value;
-
-                                var numOpLists = thisB.maskOpValue == "1111" ? 3 : 1;
-                                thisB.opListDivs = [];
-                                thisB.whichArgDivs = [];
-
-                                thisB.opValue = [];
-                                thisB.whichArg = [];
-
-                                thisB.changingOpPanel.innerHTML = "";
-
-                                for(var i = 0; i < numOpLists; i++) {
-
-                                    var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, style: {display: "inline-block"}}, thisB.changingOpPanel);
-                                    var whichOpSpan = dom.create("span", {innerHTML: "<br />Which operation?", style: {display: "none"}}, opDiv);
-                                    thisB.opListDivs[i] = dom.create("div", {id: thisB.track.name + "_OpList" + i}, opDiv);
-
-                                    var leftRightSpan = dom.create("span", {innerHTML: "<br />Left or right?", style: {display: "none"}}, opDiv);  // Not the prettiest way to render line breaks.
-                                    thisB.whichArgDivs[i] = dom.create("div", {id: thisB.track.name + "_whichArg" + i}, opDiv);
-
-                                    var opButtons = thisB._generateSuffixRadioButtons(this.value, opList, store, thisB.opListDivs[i], i);
-                                    var leftRightButtons = thisB._maybeRenderWhichArgDiv(this.value, store, thisB.whichArgDivs[i], i);
-
-                                    if(leftRightButtons.length && !thisB.whichOpArg) {
-                                        leftRightButtons[0].set('checked', 'checked');
-                                    }
-                                    if(opButtons.length) {
-                                        opButtons[0].set('checked', 'checked');
-                                    }
-
-                                    whichOpSpan.style.display = opButtons.length ? "" : "none";
-                                    leftRightSpan.style.display = leftRightButtons.length ? "" : "none";
-                                }
-                            }
-                        });
-        }
-        if(maskOps[0])
-            this.maskOpButtons[0].set('checked', 'checked');
+        var actionBar = this._createActionBar(false);
+        nodesToAdd.push(actionBar);
+        return nodesToAdd;
     }
+
+    nodesToAdd.push(
+        dom.create( "div", { innerHTML: "Adding \"" + this.newTrackKey + "\", which is a " + this.currType + " track.  " })
+    );
+
+    var maskOpListDiv = dom.create("div", {id: this.track.name + "_maskOpList"});
+
+    var thisB = this;
+
+    var maskOps = this._makeUnique(opList.map(function(item) { return item.substring(0, 4); }));
+    nodesToAdd.push(maskOpListDiv);
+
+    this.changingOpPanel = dom.create("div", {id: this.track.name + "_suffixLists"});
+    nodesToAdd.push(this.changingOpPanel);
+
+    nodesToAdd.push(dom.create("h2", {innerHTML: "Combination formula preview"}));
+
+    this.formulaPreview = dom.create("div", {innerHTML: "(nothing currently selected)", className: "formulaPreview"});
+    nodesToAdd.push(this.formulaPreview);
+
+    this.maskOpButtons = [];
+
+    for(var i in maskOps) {
+        var opButton = this._renderRadioButton(maskOpListDiv, maskOps[i], this.inWords[maskOps[i]]);
+        this.maskOpButtons.push(opButton);
+
+        opButton.on("change", function(isSelected) {
+                        if(isSelected) {
+                            delete this.whichArg;
+                            delete this.opValue;
+
+                            thisB.maskOpValue = this.value;
+
+                            var numOpLists = thisB.maskOpValue == "1111" ? 3 : 1;
+                            thisB.opListDivs = [];
+                            thisB.whichArgDivs = [];
+
+                            thisB.opValue = [];
+                            thisB.whichArg = [];
+
+                            thisB.changingOpPanel.innerHTML = "";
+
+                            for(var i = 0; i < numOpLists; i++) {
+
+                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, style: {display: "inline-block"}}, thisB.changingOpPanel);
+                                var whichOpSpan = dom.create("h3", {innerHTML: "Combining operation", style: {display: "none"}}, opDiv);
+                                thisB.opListDivs[i] = dom.create("div", {id: thisB.track.name + "_OpList" + i}, opDiv);
+
+                                var leftRightSpan = dom.create("h3", {innerHTML: "Left or right?", style: {display: "none"}}, opDiv);
+                                thisB.whichArgDivs[i] = dom.create("div", {id: thisB.track.name + "_whichArg" + i}, opDiv);
+
+                                var opButtons = thisB._generateSuffixRadioButtons(this.value, opList, store, thisB.opListDivs[i], i);
+                                var leftRightButtons = thisB._maybeRenderWhichArgDiv(this.value, store, thisB.whichArgDivs[i], i);
+
+                                if(leftRightButtons.length && !thisB.whichOpArg) {
+                                    leftRightButtons[0].set('checked', 'checked');
+                                }
+                                if(opButtons.length) {
+                                    opButtons[0].set('checked', 'checked');
+                                }
+
+                                whichOpSpan.style.display = opButtons.length ? "" : "none";
+                                leftRightSpan.style.display = leftRightButtons.length ? "" : "none";
+                            }
+                        }
+                    });
+    }
+
+    if( maskOps[0] )
+        this.maskOpButtons[0].set('checked', 'checked');
+
+    if( maskOps.length <= 1 )
+        maskOpListDiv.style.display = 'none';
 
     var actionBar = this._createActionBar();
 

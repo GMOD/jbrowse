@@ -69,7 +69,7 @@ constructor: function( args ) {
                 allowedOps:   ["&", "U", "X", "S"],
                 defaultOp :   "&"
             },
-            "quant":        {
+            "quantitative":        {
                 resultsTypes:   [{
                                      name: "XYPlot",
                                      path: "JBrowse/View/Track/Wiggle/XYPlot"
@@ -146,11 +146,11 @@ constructor: function( args ) {
             "JBrowse/View/Track/HTMLFeatures": "set",
             "JBrowse/View/Track/HTMLVariants": "set",
             "JBrowse/View/Track/CanvasFeatures": "set",
-            "JBrowse/Store/BigWig": "quant",
+            "JBrowse/Store/BigWig": "quantitative",
             "JBrowse/Store/SeqFeature/BAM": "BAM",
             "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
             "JBrowse/Store/SeqFeature/Combination": "set",
-            "JBrowse/Store/SeqFeature/QCombination": "quant",
+            "JBrowse/Store/SeqFeature/QCombination": "quantitative",
             "JBrowse/Store/SeqFeature/Mask": "mask"
         };
 
@@ -190,7 +190,7 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
                        widthPct, widthPx, scale) {
 
     this.inherited( arguments );
-    domClass.add( this.div, 'combination_track' );
+    domClass.add( this.div, 'combination_track empty' );
 
     this.scale = scale;
 
@@ -201,7 +201,8 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
                                   isSource: false,
                                   withHandles: true,
                                   creator: dojo.hitch( this, function( trackConfig, hint ) {
-                                                           // Renders the results track div (or avatar, depending).  Code for ensuring that we don't have several results tracks
+                                                           // Renders the results track div (or avatar, depending).
+                                                           // Code for ensuring that we don't have several results tracks
                                                            // is handled later in the file.
                                                            return {
                                                                data: trackConfig.resultsTrack || trackConfig,
@@ -302,7 +303,7 @@ reinitialize: function() {
     this.resultsTrack = undefined;
     this.storeType = undefined;
     this.oldType = undefined;
-    this.classIndex = {"set" : 0, "quant": 0, "BAM": 0};
+    this.classIndex = {"set" : 0, "quantitative": 0, "BAM": 0};
     this.storeToShow = 0;
     this.displayStore = undefined;
     this.maskStore = undefined;
@@ -329,6 +330,7 @@ addTrack: function(trackConfig) {
         this.resultsDiv = dom.create("div");
         this.resultsDiv.className = "track";
         this.resultsDiv.id = this.name + "_resultsDiv";
+        domClass.remove( this.div, 'empty' );
     }
 
     // Carry on the process of adding the track
@@ -615,7 +617,7 @@ _resultsTrackConfig: function(trackClass) {
         config.label = this.config.resultsTrack.label;
         config.metadata = this.config.resultsTrack.metadata;
     }
-    if(this.supportedBy[trackClass] == "quant") {
+    if(this.supportedBy[trackClass] == "quantitative") {
         config.autoscale = "local";
     }
     return config;
