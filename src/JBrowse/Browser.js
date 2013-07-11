@@ -679,7 +679,6 @@ initView: function() {
 
 createCombinationTrack: function() {
     if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
-    if(this.resultsTrackCount === undefined) this.resultsTrackCount = 0;
     var d = new Deferred();
     var storeConf = {
         browser: this,

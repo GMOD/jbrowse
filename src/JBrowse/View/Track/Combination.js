@@ -100,11 +100,11 @@ return declare([BlockBased, ExportMixin],
 						},
 				"BAM": {
 							resultsTypes: [{
-											name: "Alignments2",
+											name: "Detail",
 											path: "JBrowse/View/Track/Alignments2"
 										},
 										{
-											name: "SNP/Coverage",
+											name: "Summary",
 											path: "JBrowse/View/Track/SNPCoverage" //For now
 										}],
 							store: 		"JBrowse/Store/SeqFeature/BAMCombination",
@@ -175,9 +175,6 @@ return declare([BlockBased, ExportMixin],
 			// This is used to avoid creating a feedback loop in the height-updating process.
 			this.onlyRefreshOuter = false;
 
-			// Height of the top and bottom divs (when there is an results track)
-			this.topHeight = 20;
-			this.bottomHeight = 20;
 			this.heightResults = 0;
 
 			// Height of the track (when there is no results track)
@@ -202,16 +199,15 @@ return declare([BlockBased, ExportMixin],
 			this.dnd = new dndSource( this.div,
 			{
 				accept: ["track"], //Accepts only tracks
+				isSource: false,
 				withHandles: true,
 				creator: dojo.hitch( this, function( trackConfig, hint ) {
 						// Renders the results track div (or avatar, depending).  Code for ensuring that we don't have several results tracks
 						// is handled later in the file.
 						return {
-								data: trackConfig,
+								data: trackConfig.resultsTrack || trackConfig,
 								type: ["track"],
-								node: hint == 'avatar'
-									? dojo.create('div', { innerHTML: "Results", className: 'track-label dragging' })
-									: this.addTrack(trackConfig)
+								node: this.addTrack(trackConfig.resultsTrack || trackConfig)
 						};
 				})
 			});
@@ -229,29 +225,9 @@ return declare([BlockBased, ExportMixin],
 		// This function ensure that the combination track's drag-and-drop interface works correctly.
 		_attachDndEvents: function() {
 			var thisB = this;
-
+			
 			// What to do at the beginning of dnd process
 			on(thisB.dnd, "DndStart", function(source, nodes, copy) {
-					if(source == thisB.dnd && nodes[0] && thisB.resultsTrack) {
-						// Dragging the results track out of the outer track - need to use the config of the combined track rather than
-						// the initial config.
-						thisB._resultsConfig = source.getItem(nodes[0].id).data = thisB.resultsTrack.config;
-						thisB._resultsConfig.label = "combination_results_track" + thisB.browser.resultsTrackCount;
-						
-						// Ensures that when resultsTrack is a masked track and either the mask or the unmasked data are being viewed
-						// (not together) that the correct store will be loaded by wherever receives the track.
-						var store = thisB._visible().store;
-						thisB._resultsConfig.store = store.name;
-						thisB._resultsConfig.storeClass = store.config.type;
-						
-						// Doesn't remove the data from the results track when either the mask alone or the data alone is removed - only copies.
-						// Lincoln wanted it this way
-						if(store != thisB.store) {
-							thisB.dnd.copyOnly = true;
-						}
-						// Prevents the store and results track from being reloaded too often
-						thisB.onlyRefreshOuter = true;
-					}
 					// Stores the information about whether the source was copy-only, for future reference
 					thisB.currentDndSource = source;
 					thisB.sourceWasCopyOnly = source.copyOnly;
@@ -265,6 +241,7 @@ return declare([BlockBased, ExportMixin],
 					}
 					this.currentlyOver = true;
 			});
+
 			var dragEndingEvents = ["DraggingOut", "DndDrop", "DndCancel"];
 							
 			for(var eventName in dragEndingEvents)
@@ -276,36 +253,18 @@ return declare([BlockBased, ExportMixin],
 						this.currentlyOver = false;
 				});
 
-			on(thisB.dnd, "DndDrop", function(source, nodes, copy, target) {
-				// Ensures that all results tracks are given unique IDs to prevent crashing
-				if(source == thisB.dnd && nodes[0]) {
-					thisB.browser.resultsTrackCount++;
-					thisB.onlyRefreshOuter = false;
-					thisB.browser.addTracks([ thisB._resultsConfig ]);
-					delete thisB._resultsConfig;
-				}
-				if(!copy && nodes[0] && source == thisB.dnd && target != thisB.dnd) {
-					// Refresh the view when the results track is dragged out
-					thisB.reinitialize();
-					thisB.refresh();
-				}
-				thisB.dnd.copyOnly = false;
-			});
 			// Bug fixer
 			dojo.subscribe("/dnd/drop/before", function(source, nodes, copy, target) {
-					if(target == thisB.dnd && nodes[0]) {
-						thisB.dnd.current = null;
-					}
+				if(target == thisB.dnd && nodes[0]) {
+					thisB.dnd.current = null;
+				}
 			});
-			on(thisB.dnd, "DndCancel", function() {
-					thisB.onlyRefreshOuter = false;
-					thisB.dnd.copyOnly = false;
-			});
+
 			on(thisB.dnd, "OutEvent", function() {
 					// Fixes a glitch wherein the trackContainer is disabled when the track we're dragging leaves the combination track
 					dndManager.manager().overSource(thisB.genomeView.trackDndWidget);
 			});
-
+			
 			on(thisB.dnd, "DndSourceOver", function(source) {
 					// Fixes a glitch wherein tracks dragged into the combination track sometimes go to the trackContainer instead.
 					if(source != this && this.currentlyOver) {
@@ -315,6 +274,7 @@ return declare([BlockBased, ExportMixin],
 
 			// Further restricts what categories of tracks may be added to this track
 			// Should re-examine this
+			/*
 			var oldCheckAcceptance = this.dnd.checkAcceptance;
 			this.dnd.checkAcceptance = function(source, nodes) {
 				// If the original acceptance checker fails, this one will too.
@@ -327,7 +287,7 @@ return declare([BlockBased, ExportMixin],
 				}
 				
 				return accept;
-			};
+			};*/
 		},
 
 		// Reset a bunch of variables
@@ -354,6 +314,7 @@ return declare([BlockBased, ExportMixin],
 
 		// Modifies the results track when a new track is added
 		addTrack: function(trackConfig) {
+			console.log(trackConfig);
 			// Connect the track's name to its store for easy reading by user
 			if(trackConfig && trackConfig.key && trackConfig.store) {
 				this.storeToKey[trackConfig.store] = trackConfig.key;
@@ -371,7 +332,6 @@ return declare([BlockBased, ExportMixin],
 				this.resultsDiv = dom.create("div");
 				this.resultsDiv.className = "track";
 				this.resultsDiv.id = this.name + "_resultsDiv";
-				this.resultsDiv.style.top = this.topHeight + "px"; //Alter this.
 			}
 			
 			// Carry on the process of adding the track
@@ -592,29 +552,28 @@ return declare([BlockBased, ExportMixin],
 					var resultsHeightUpdate = function(height) {
 						thisB.resultsDiv.style.height = height + "px";
 						thisB.heightResults = height;
-						thisB.height = thisB.topHeight + height + thisB.bottomHeight;
+						thisB.height = height;
 						thisB.onlyRefreshOuter = true;
 						thisB.refresh();
 						thisB.onlyRefreshOuter = false;
 						thisB.heightUpdate(thisB.height);
 						thisB.div.style.height = thisB.height + "px";
 					}
+
+					// destroy the makeTrackLabel function of the results track, so that to the user it is exactly the same as the outer track
+
+					thisB.resultsTrack.makeTrackLabel = function() {};
 	  
 	  				// setViewInfo on results track
 					thisB.resultsTrack.setViewInfo (thisB.genomeView, resultsHeightUpdate,
 						thisB.numBlocks, thisB.resultsDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
-
-					// Changes the functionality of the results track's close button so that it doesn't show up on the track list.
-					thisB._redefineCloseButton();
-
-					// Removes the button for the results track's drop down menu - everything will be controlled from the outer track.
-	  				thisB.resultsTrack.labelMenuButton.parentNode.removeChild(thisB.resultsTrack.labelMenuButton);
 
 					// Only do this when the masked data is selected
 					// (we don't want editing the config to suddenly remove the data or the mask)
 					if(thisB._visible().store == thisB.store) {
 						// Refresh results track config, so that the track can be recreated when the config is edited
 						thisB.config.resultsTrack = thisB.resultsTrack.config;
+						thisB.browser.replaceTracks([ thisB.config ]);
 
 						if(typeof thisB.resultsTrack._exportFormats == 'function') {
 							thisB.config.noExport = false;
@@ -633,25 +592,6 @@ return declare([BlockBased, ExportMixin],
 					if(trackClass) makeTrack();
 				});
 	  		}
-		},
-
-		// The close button of the results track doesn't only hide the results track on the tracksel menu - it destroys it
-		_redefineCloseButton: function() {
-				var closeButton = this.resultsTrack.label.childNodes[0];
-				if(closeButton.className == "track-close-button") {
-					this.resultsTrack.label.removeChild(closeButton);
-					var closeButton = dojo.create('div',{
-															className: 'track-close-button'
-														}, this.resultsTrack.label, "first");
-
-					this.resultsTrack.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
-								this.browser.view.suppressDoubleClick( 100 );
-								this.reinitialize();
-								this.refresh();
-								evt.stopPropagation();
-					})));
-
-				}
 		},
 
 		// Generate the config of the results track
@@ -756,30 +696,12 @@ return declare([BlockBased, ExportMixin],
 				var block = args.block;
 				var leftBase = args.leftBase;
 
-				var text = "Add tracks here";
-				if(this.resultsTrack) {
-					// Border on the top
-					var topDiv = dom.create("div");
-					topDiv.className = "combination";
-					topDiv.style.height = this.topHeight + "px";
-					topDiv.appendChild( document.createTextNode( text ) );
-					block.domNode.appendChild( topDiv );
-
-					// Border on the bottom
-					var bottomDiv = dom.create("div");
-					bottomDiv.className = "combination";
-					bottomDiv.style.height = this.bottomHeight + "px";
-					bottomDiv.style.top = (this.topHeight + this.heightResults) + "px";
-					bottomDiv.appendChild( document.createTextNode( text ) );
-					block.domNode.appendChild( bottomDiv );
-				} else {
+				if(!this.resultsTrack) {
 					// If no results track, just one solid mass of grey.
-					var textDiv = dom.create("div");
-					textDiv.className = "combination";
-					var text = "Add tracks here";
-					textDiv.style.height = this.heightNoResults + "px";
-					textDiv.appendChild( document.createTextNode( text ) );  
-					block.domNode.appendChild( textDiv );
+					var noResultsDiv = dom.create("div");
+					noResultsDiv.className = "combination";
+					noResultsDiv.style.height = this.heightNoResults + "px";
+					block.domNode.appendChild( noResultsDiv );
 				}
 
 				// Ensures highlighting handled correctly.
@@ -787,7 +709,7 @@ return declare([BlockBased, ExportMixin],
 				if( highlight && highlight.ref == this.refSeq.name )
 						this.renderRegionHighlight( args, highlight );
 
-				this.height = (this.resultsTrack ? (this.topHeight + this.heightResults + this.bottomHeight) : this.heightNoResults);
+				this.height = this.resultsTrack ? this.heightResults : this.heightNoResults;
 
 				this.heightUpdate( this.height, blockIndex);
 				this.div.style.height = this.height + "px";
@@ -883,7 +805,7 @@ return declare([BlockBased, ExportMixin],
 				  { type: 'dijit/MenuSeparator' },
 				  {
 					children: classItems,
-					label: "Track type",
+					label: "Track display",
 					title: "Change what type of track is being displayed"
 				  }
 				]);
