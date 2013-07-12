@@ -273,20 +273,20 @@ _attachDndEvents: function() {
 
     // Further restricts what categories of tracks may be added to this track
     // Should re-examine this
-    /*
+    
      var oldCheckAcceptance = this.dnd.checkAcceptance;
      this.dnd.checkAcceptance = function(source, nodes) {
-     // If the original acceptance checker fails, this one will too.
-     var accept = oldCheckAcceptance.call(thisB.dnd, source, nodes);
+       // If the original acceptance checker fails, this one will too.
+       var accept = oldCheckAcceptance.call(thisB.dnd, source, nodes);
 
-     // Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
-     for(var i = 0; accept && nodes[i]; i++) {
-     var trackConfig = source.getItem(nodes[i].id).data;
-     accept = accept && (thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
-     }
+       // Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
+       for(var i = 0; accept && nodes[i]; i++) {
+       var trackConfig = source.getItem(nodes[i].id).data;
+       accept = accept && (thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
+       }
 
      return accept;
-     };*/
+     };
 },
 
 // Reset a bunch of variables
