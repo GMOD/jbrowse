@@ -121,6 +121,18 @@ getLeaves: function() {
     }
 
     return this.leftChild.getLeaves().concat(this.rightChild.getLeaves());
+},
+
+recursivelyCall: function(callback) {
+    if(this.leftChild) {
+        this.leftChild.recursivelyCall(callback);
+    }
+    if(this.rightChild) {
+        this.rightChild.recursivelyCall(callback);
+    }
+    callback(this);
 }
+
+
 });
 });

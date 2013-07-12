@@ -28,6 +28,10 @@
     /* white-space: nowrap; */
 }
 
+.combinationDialog .formulaPreview .leaf.highlighted {
+    background-color: #BBB;
+}
+
 .combinationDialog .formulaPreview .op {
     /* font-weight: bold; */
     /* color: #FFF; */

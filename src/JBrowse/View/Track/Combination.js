@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/on',
            'dojo/dom-construct',
            'dojo/dom-class',
@@ -19,6 +20,7 @@ define([
        ],
        function(
            declare,
+           lang,
            on,
            dom,
            domClass,
@@ -204,10 +206,15 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
                                                            // Renders the results track div (or avatar, depending).
                                                            // Code for ensuring that we don't have several results tracks
                                                            // is handled later in the file.
+                                                           var data = trackConfig;
+                                                           if(trackConfig.resultsTrack) {
+                                                              data = trackConfig.resultsTrack;
+                                                              data.storeToKey = trackConfig.storeToKey;
+                                                           }
                                                            return {
-                                                               data: trackConfig.resultsTrack || trackConfig,
+                                                               data: data,
                                                                type: ["track"],
-                                                               node: this.addTrack(trackConfig.resultsTrack || trackConfig)
+                                                               node: this.addTrack(data)
                                                            };
                                                        })
                               });
@@ -282,7 +289,7 @@ _attachDndEvents: function() {
        // Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
        for(var i = 0; accept && nodes[i]; i++) {
        var trackConfig = source.getItem(nodes[i].id).data;
-       accept = accept && (thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
+       accept = accept && (trackConfig.resultsTrack || thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
        }
 
      return accept;
@@ -316,6 +323,10 @@ addTrack: function(trackConfig) {
     // Connect the track's name to its store for easy reading by user
     if(trackConfig && trackConfig.key && trackConfig.store) {
         this.config.storeToKey[trackConfig.store] = trackConfig.key;
+    }
+
+    if(trackConfig && trackConfig.storeToKey) {
+      lang.mixin(this.config.storeToKey, trackConfig.storeToKey);
     }
 
     // Figure out which type of track (set, quant, etc) the user is adding
@@ -377,7 +388,7 @@ runDialog: function(trackConfig, store) {
                               this.preferencesDialog.destroyRecursive();
                           this.lastDialogDone = new Deferred();
                           this.preferencesDialog = new CombinationDialog({
-                                                                             key: trackConfig.key,
+                                                                             trackConfig: trackConfig,
                                                                              store: store,
                                                                              track: this
                                                                          });
@@ -409,15 +420,18 @@ _adjustStores: function (store) {
                                                                    d.resolve(true);
                                                                }));
     } else if(this.currType == "mask") {
-        this.maskStore = store.stores.mask;
-        this.displayStore = store.stores.display;
-        this.store = store;
-        var haveMaskStore = this.maskStore.reload(this.opTree.leftChild);
-        var haveDisplayStore = this.displayStore.reload(this.opTree.rightChild);
-        all([haveMaskStore, haveDisplayStore]).then(dojo.hitch(this, function() {
-                                                                   this.store.reload(this.opTree, this.maskStore, this.displayStore);
-                                                                   d.resolve(true);
-                                                               }));
+        var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
+                                                                         this.maskStore = newstore;
+                                                                         return this.maskStore.reload(this.opTree.leftChild);
+                                                                     }));
+        var displayType = this.supportedBy[store.stores.display.config.type];
+        var haveDisplayStore = this._createStore(displayType).then(dojo.hitch(this, function(newStore){
+                                                                                       this.displayStore = newStore;
+                                                                                       return this.displayStore.reload(this.opTree.rightChild);
+                                                                                   }));
+        this.storeType = "mask";
+        this.store = undefined;
+        d = all([haveMaskStore, haveDisplayStore]);
     } else if(this.opTree.get() == "M" || this.opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
         var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
                                                                          this.maskStore = newstore;

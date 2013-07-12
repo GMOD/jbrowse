@@ -257,6 +257,11 @@ _makeUnique: function(stringArray) {
 _createPreviewTree: function (opString, store ) {
         // Recursive cloning would probably be safer, but this seems to be working okay
         var newOpTree = store.opTree ? new TreeNode(store.opTree) : new TreeNode({Value: store});
+        if(newOpTree) {
+            newOpTree.recursivelyCall(function(node) {
+                node.highlighted = true;
+            });
+        }
         var superior = new TreeNode(this.opTree);
         var firstChars = opString.substring(0, 2);
         var inferior = newOpTree;
@@ -418,6 +423,12 @@ run: function( callback, cancelCallback, errorCallback) {
         this.dialog.show();
         var thisB = this;
         this.dialog.on("Hide", function() {
+                if(thisB.previewTree) {
+                    thisB.previewTree.recursivelyCall(function(node) {
+                        if(node.highlighted)
+                            delete node.highlighted;
+                    });
+                }
                 if(thisB.shouldCombine)
                         callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType);
                 else cancelCallback();
@@ -429,7 +440,7 @@ _generateTreeFormula: function(tree) {
                 return '<span class="null">NULL</span>';
         }
         if(tree.isLeaf()){
-                return '<span class="leaf">' + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
+                return '<span class="leaf' + (tree.highlighted ? ' highlighted': '') + '">' + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
                  : tree.get()) + '</span>';
         }
         return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";
