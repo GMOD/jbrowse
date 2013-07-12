@@ -334,7 +334,7 @@ _renderVerticalScrollBar: function() {
         },
         container
     );
-    this.verticalScrollBar = { container: container, positionMarker: positionMarker };
+    this.verticalScrollBar = { container: container, positionMarker: positionMarker, width: container.offsetWidth };
 },
 
 /**
@@ -349,13 +349,22 @@ _updateVerticalScrollBar: function( newDims ) {
         this.verticalScrollBar.container.style.height = trackPaneHeight-(this.pinUnderlay ? this.pinUnderlay.offsetHeight+heightAdjust : 0 ) +'px';
         var markerHeight = newDims.height / (this.containerHeight||1) * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
-        this.verticalScrollBar.container.style.display = newDims.height / (this.containerHeight||1) > 0.98 ? 'none' : 'block';
+        if( newDims.height / (this.containerHeight||1) > 0.98 ) {
+            this.verticalScrollBar.container.style.display = 'none';
+            this.verticalScrollBar.visible = false;
+        } else {
+            this.verticalScrollBar.container.style.display = 'block';
+            this.verticalScrollBar.visible = true;
+        }
     }
 
     if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
         this.verticalScrollBar.positionMarker.style.top    = (((newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0)+'%';
     }
+},
 
+verticalScrollBarVisibleWidth: function() {
+    return this.verticalScrollBar.visible && this.verticalScrollBar.width || 0;
 },
 
 /**
@@ -1145,12 +1154,13 @@ minVisible: function() {
  */
 maxVisible: function() {
     var mv = this.pxToBp(this.x + this.offset + this.getWidth());
+    var scrollbar = this.pxToBp( this.verticalScrollBarVisibleWidth() );
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
     if( mv > this.ref.end - this.pxToBp(1) )
-        return this.ref.end;
+        return this.ref.end - scrollbar;
     else
-        return Math.round(mv);
+        return Math.round(mv) - scrollbar;
 },
 
 showFine: function() {
