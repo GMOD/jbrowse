@@ -1012,6 +1012,7 @@ setLocation: function(refseq, startbp, endbp) {
         endbp = refseq.end;
 
     if (this.ref != refseq) {
+        var thisB = this;
     this.ref = refseq;
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
     var removeTrack = function(track) {
@@ -1025,7 +1026,7 @@ setLocation: function(refseq, startbp, endbp) {
         this.trackHeights = [];
         this.trackTops = [];
 
-        dojo.forEach(this.uiTracks, function(track) { track.clear(); });
+        dojo.forEach(this.uiTracks, function(track) { track.refSeq = thisB.ref; track.clear(); });
     this.overviewTrackIterate(removeTrack);
 
     this.addOverviewTrack(new LocationScaleTrack({

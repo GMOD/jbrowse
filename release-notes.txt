@@ -11,6 +11,9 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Fixed a bug in which the global highlighted region was not correctly drawn
+   when switching reference sequences.
+
  * Added support for an `addFeatures` variable in the query string of
    the URL used to start JBrowse.  This variable accepts feature data
    in JSON format in the form:
