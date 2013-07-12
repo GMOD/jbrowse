@@ -78,11 +78,17 @@ return declare( SeqFeatureStore,
 
             // fetch the trackdata
             var thisB = this;
-            xhr.get( url, { handleAs: "json", failOk: true })
-               .then( function( trackInfo ) {
+            xhr.get( url, { handleAs: 'json', failOk: true })
+               .then( function( trackInfo, request ) {
+                          //trackInfo = JSON.parse( trackInfo );
                           thisB._handleTrackInfo( refData, trackInfo, url );
                       },
-                      dojo.hitch( this, '_failAllDeferred' )
+                      function(error) {
+                          if( error.response.status == 404 ) {
+                              thisB._handleTrackInfo( refData, {}, url );
+                          } else
+                              thisB._failAllDeferred( error );
+                      }
                     );
         }
         return this._deferred.root;
@@ -90,12 +96,16 @@ return declare( SeqFeatureStore,
 
     _handleTrackInfo: function( refData, trackInfo, url ) {
         refData.stats = {
-            featureCount: trackInfo.featureCount,
-            featureDensity: trackInfo.featureCount / this.refSeq.length
+            featureCount: trackInfo.featureCount || 0,
+            featureDensity: ( trackInfo.featureCount || 0 ) / this.refSeq.length
         };
 
-        refData.attrs = new ArrayRepr( trackInfo.intervals.classes );
-        this.loadNCList( refData, trackInfo, url );
+        this.empty = !trackInfo.featureCount;
+
+        if( trackInfo.intervals ) {
+            refData.attrs = new ArrayRepr( trackInfo.intervals.classes );
+            this.loadNCList( refData, trackInfo, url );
+        }
 
         var histograms = trackInfo.histograms;
         if( histograms && histograms.meta ) {
@@ -154,7 +164,7 @@ return declare( SeqFeatureStore,
                      &&
                      Math.abs(binCount - Math.round(binCount)) < .0001
                    ) {
-                       console.log('server-supplied',query);
+                       //console.log('server-supplied',query);
                        // we can use the server-supplied counts
                        var firstServerBin = Math.floor( query.start / histogramMeta.basesPerBin);
                        binCount = Math.round(binCount);

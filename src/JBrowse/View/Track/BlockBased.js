@@ -89,7 +89,9 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @private
      */
     _defaultConfig: function() {
-        return {};
+        return {
+            maxFeatureSizeForUnderlyingRefSeq: 250000
+        };
     },
 
     heightUpdate: function(height, blockIndex) {
@@ -133,7 +135,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.labelHTML = "";
         this.labelHeight = 0;
 
-        if( this.config.initiallyPinned )
+        if( this.config.pinned )
             this.setPinned( true );
 
         if( ! this.label ) {
@@ -822,17 +824,17 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     setPinned: function( p ) {
-        this.pinned = !!p;
+        this.config.pinned = !!p;
 
-        if( this.pinned )
+        if( this.config.pinned )
             domClass.add( this.div, 'pinned' );
         else
             domClass.remove( this.div, 'pinned' );
 
-        return this.pinned;
+        return this.config.pinned;
     },
     isPinned: function() {
-        return !! this.pinned;
+        return !! this.config.pinned;
     },
 
     /**
@@ -1103,12 +1105,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             right -= trimRight;
         }
 
-        function toPct ( coord ) {
-            return (coord - args.leftBase) / block_span * 100;
-        }
-
-        left = toPct( left );
-        var width = toPct(right)-left;
+        var width = (right-left)*100/block_span;
+        left = (left - args.leftBase)*100/block_span;
         var el = domConstruct.create('div', {
                                 className: 'global_highlight'
                                     + (trimLeft <= 0 ? ' left' : '')

@@ -5,6 +5,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/on',
+            'dojo/query',
             'JBrowse/has',
             'dijit/Dialog',
             'dijit/form/Select',
@@ -24,6 +25,7 @@ define( [
                 dom,
                 domGeom,
                 on,
+                query,
                 has,
                 dijitDialog,
                 dijitSelect,
@@ -259,9 +261,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             if( ! block )
                 return;
 
-            dojo.query('> .feature', block.domNode )
-                .forEach(
-                    function(featDiv) {
+            array.forEach( block.domNode.childNodes, function( featDiv ) {
+                        if( ! featDiv.feature )
+                            return;
                         var feature = featDiv.feature;
                         var strand  = feature.get('strand');
                         if( ! strand )
@@ -273,8 +275,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
                         // minus strand
                         if( strand < 0 && fmax > viewmin ) {
-                            dojo.query( '> .minus-'+this.config.style.arrowheadClass, featDiv )
-                                .forEach( function( arrowhead ) {
+                            var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
+                            array.forEach( featDiv.childNodes, function( arrowhead ) {
+                                               if( ! arrowhead.className || arrowhead.className.indexOf( minusArrowClass ) == -1 )
+                                                   return;
+
                                               arrowhead.style.left =
                                                   ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
                                                                    : -this.minusArrowWidth
@@ -283,9 +288,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         }
                         // plus strand
                         else if( strand > 0 && fmin < viewmax ) {
-                            dojo.query( '> .plus-'+this.config.style.arrowheadClass, featDiv )
-                                .forEach( function( arrowhead ) {
-                                              arrowhead.style.right =
+                            var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
+                            array.forEach( featDiv.childNodes, function( arrowhead ) {
+                                               if( ! arrowhead.className || arrowhead.className.indexOf( plusArrowClass ) == -1 )
+                                                   return;
+                                               arrowhead.style.right =
                                                   ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
                                                                    : -this.plusArrowWidth
                                                   ) + 'px';
@@ -317,8 +324,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
             var blockWidth = block.endBase - block.startBase;
 
-            dojo.query( '.feature', block.domNode )
-                .forEach( function(featDiv) {
+            array.forEach( block.domNode.childNodes, function( featDiv ) {
                               if( ! featDiv.label ) return;
                               var labelDiv = featDiv.label;
                               var feature = featDiv.feature;
@@ -437,7 +443,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      */
     _removeYScale: function() {
         if( !this.yscale ) {
-            dojo.query( '.ruler', this.div ).orphan();
+            query( '.ruler', this.div ).orphan();
             return;
         }
         this.yscale.parentNode.removeChild( this.yscale );
@@ -1331,7 +1337,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
 
     _exportFormats: function() {
-        return [ 'GFF3', 'BED', { name: 'SequinTable', label: 'Sequin Table' } ];
+        return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
     },
 
     _trackMenuOptions: function() {

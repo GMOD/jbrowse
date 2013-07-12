@@ -12,7 +12,12 @@ class SimpleTrackSelector (TrackSelector):
         # drag the track label over
         self.test.actionchains() \
             .click_and_hold( tracklabel ) \
-            .move_by_offset( 250, 0 ) \
+            .move_by_offset( 400, 10 ) \
+            .perform()
+
+        time.sleep( 1 );
+
+        self.test.actionchains() \
             .release( None ) \
             .perform()
 

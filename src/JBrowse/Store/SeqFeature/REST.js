@@ -24,6 +24,13 @@ define([
 return declare( SeqFeatureStore,
 {
 
+    constructor: function( args ) {
+        // make sure the baseUrl has a trailing slash
+        this.baseUrl = args.baseUrl || this.config.baseUrl;
+        if( this.baseUrl.charAt( this.baseUrl.length-1 ) != '/' )
+            this.baseUrl = this.baseUrl + '/';
+    },
+
     getGlobalStats: function( callback, errorCallback ) {
         var url = this._makeURL( 'stats/global' );
         xhr.get( url, {
@@ -84,7 +91,7 @@ return declare( SeqFeatureStore,
     },
 
     _makeURL: function( subpath, query ) {
-        var url = this.config.baseUrl + subpath;
+        var url = this.baseUrl + subpath;
         if( query ) {
             query = dojo.mixin( {}, query );
             if( this.config.query )
@@ -109,13 +116,20 @@ return declare( SeqFeatureStore,
         endCallback();
     },
 
-    _makeFeature: function( data, parent ) {
+    _parseInt: function( data ) {
         array.forEach(['start','end','strand'], function( field ) {
             if( field in data )
                 data[field] = parseInt( data[field] );
         });
         if( 'score' in data )
             data.score = parseFloat( data.score );
+        if( 'subfeatures' in data )
+            for( var i=0; i<data.subfeatures.length; i++ )
+                this._parseInt( data.subfeatures[i] );
+    },
+
+    _makeFeature: function( data, parent ) {
+        this._parseInt( data );
         return new SimpleFeature( { data: data, parent: parent } );
     }
 });
