@@ -137,8 +137,8 @@ constructor: function( args ) {
         };
 
     // Each store becomes associated with the name of a track that uses that store, so that users can read more easily.
-    this.keyToStore = {};
-    this.storeToKey = {};
+    if(!this.config.storeToKey) 
+      this.config.storeToKey = {};
 
     // Shows which track or store types qualify as set-based, quantitative, etc.
     this.supportedBy =
@@ -315,8 +315,7 @@ reinitialize: function() {
 addTrack: function(trackConfig) {
     // Connect the track's name to its store for easy reading by user
     if(trackConfig && trackConfig.key && trackConfig.store) {
-        this.storeToKey[trackConfig.store] = trackConfig.key;
-        this.keyToStore[trackConfig.key] = trackConfig.store;
+        this.config.storeToKey[trackConfig.store] = trackConfig.key;
     }
 
     // Figure out which type of track (set, quant, etc) the user is adding
@@ -870,7 +869,7 @@ _generateTreeFormula: function(tree) {
         return "NULL";
     }
     if(tree.isLeaf()){
-        return "\"" + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
+        return "\"" + (tree.get().name ? (this.config.storeToKey[tree.get().name] ? this.config.storeToKey[tree.get().name] : tree.get().name)
                        : tree.get()) + "\"";
     }
     return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
@@ -878,6 +877,8 @@ _generateTreeFormula: function(tree) {
 
 _exportFormats: function() {
     return this.exportFormats || [];
+
+
 },
 
                 // These methods are not currently in use, but they allow direct loading of the opTree into the config.
