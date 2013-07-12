@@ -1025,19 +1025,3 @@ table.baseQuality td {
     display: block;
     text-align: center;
 }
-
-.combination_track:hover {
-    background: #DCEAFA;
-    background: rgba(173, 205, 246, 0.41);
-}
-.combination_track.empty {
-    background: #aaa;
-    background: rgba(0,0,0,0.1);
-}
-
-
-.formulaPreview {
-    text-align: center;
-    background-color: white;
-    border: 1px solid black;
-}
