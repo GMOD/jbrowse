@@ -23,6 +23,8 @@ constructor: function( args ) {
         this.supportedBy = this.track.supportedBy;
         this.displayType = this.track.displayStore ? this.supportedBy[this.track.displayStore.config.type] : undefined;
 
+        this.storeToKey = this.track.config.storeToKey;
+
         this.newDisplayType = this.displayType;
 
         this.inWords = this.track.inWords;
@@ -427,7 +429,7 @@ _generateTreeFormula: function(tree) {
                 return '<span class="null">NULL</span>';
         }
         if(tree.isLeaf()){
-                return '<span class="leaf">' + (tree.get().name ? (this.track.storeToKey[tree.get().name] ? this.track.storeToKey[tree.get().name] : tree.get().name)
+                return '<span class="leaf">' + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
                  : tree.get()) + '</span>';
         }
         return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";
