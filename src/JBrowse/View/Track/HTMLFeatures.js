@@ -257,49 +257,57 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 	var viewmin = this.browser.view.minVisible();
 	var viewmax = this.browser.view.maxVisible();
 
-        array.forEach( this.blocks, function( block ) {
-            if( ! block )
-                return;
+        var blocks = this.blocks;
 
-            array.forEach( block.domNode.childNodes, function( featDiv ) {
+        for( var blockIndex = 0; blockIndex < blocks.length; blockIndex++ ) {
+            var block = blocks[blockIndex];
+            if( ! block )
+                continue;
+            var childNodes = block.domNode.childNodes;
+            for( var i = 0; i<childNodes.length; i++ ) {
+                var featDiv = childNodes[i];
                         if( ! featDiv.feature )
-                            return;
+                            continue;
                         var feature = featDiv.feature;
                         var strand  = feature.get('strand');
                         if( ! strand )
-                            return;
+                            continue;
 
                         var fmin    = feature.get('start');
                         var fmax    = feature.get('end');
                         var arrowhead;
+                        var featDivChildren;
 
                         // minus strand
                         if( strand < 0 && fmax > viewmin ) {
                             var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
-                            array.forEach( featDiv.childNodes, function( arrowhead ) {
-                                               if( ! arrowhead.className || arrowhead.className.indexOf( minusArrowClass ) == -1 )
-                                                   return;
-
-                                              arrowhead.style.left =
-                                                  ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
-                                                                   : -this.minusArrowWidth
-                                                  ) + 'px';
-                                          }, this );
+                            featDivChildren = featDiv.childNodes;
+                            for( var j = 0; j<featDivChildren.length; j++ ) {
+                                arrowhead = featDivChildren[j];
+                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
+                                    arrowhead.style.left =
+                                        ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
+                                                         : -this.minusArrowWidth
+                                        ) + 'px';
+                                };
+                            }
                         }
                         // plus strand
                         else if( strand > 0 && fmin < viewmax ) {
                             var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
-                            array.forEach( featDiv.childNodes, function( arrowhead ) {
-                                               if( ! arrowhead.className || arrowhead.className.indexOf( plusArrowClass ) == -1 )
-                                                   return;
-                                               arrowhead.style.right =
-                                                  ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
-                                                                   : -this.plusArrowWidth
-                                                  ) + 'px';
-                                          }, this );
+                            featDivChildren = featDiv.childNodes;
+                            for( var j = 0; j<featDivChildren.length; j++ ) {
+                                arrowhead = featDivChildren[j];
+                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
+                                    arrowhead.style.right =
+                                        ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
+                                                         : -this.plusArrowWidth
+                                        ) + 'px';
+                                }
+                            }
                         }
-                    },this);
-        },this);
+                    }
+        }
     },
 
     updateFeatureLabelPositions: function( coords ) {
