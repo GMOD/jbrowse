@@ -29,7 +29,12 @@ constructor: function( args ) {
 
         this.trackClasses = this.track.trackClasses;
 
-        this.dialog = new Dialog({title: "Adding track \"" + this.newTrackKey + "\"", style: {width: "400px"}});
+        this.dialog = new Dialog(
+            {
+                title: "Combine with " + this.newTrackKey,
+                style: "width: 400px;",
+                className: "combinationDialog"
+            });
         var content = this._dialogContent(this.newStore);
         this.dialog.set('content', content);
 },
@@ -48,7 +53,7 @@ _dialogContent: function(store) {
     }
 
     nodesToAdd.push(
-        dom.create( "div", { innerHTML: "Adding \"" + this.newTrackKey + "\", which is a " + this.currType + " track.  " })
+        dom.create( "div", { className: 'intro', innerHTML: "Adding " + this.currType + " track " + this.newTrackKey + " to the combination." })
     );
 
     var maskOpListDiv = dom.create("div", {id: this.track.name + "_maskOpList"});
@@ -61,7 +66,7 @@ _dialogContent: function(store) {
     this.changingOpPanel = dom.create("div", {id: this.track.name + "_suffixLists"});
     nodesToAdd.push(this.changingOpPanel);
 
-    nodesToAdd.push(dom.create("h2", {innerHTML: "Combination formula preview"}));
+    nodesToAdd.push(dom.create("h2", {innerHTML: "Combination formula"}));
 
     this.formulaPreview = dom.create("div", {innerHTML: "(nothing currently selected)", className: "formulaPreview"});
     nodesToAdd.push(this.formulaPreview);
@@ -419,13 +424,13 @@ run: function( callback, cancelCallback, errorCallback) {
 
 _generateTreeFormula: function(tree) {
         if(!tree || tree === undefined){
-                return "NULL";
+                return '<span class="null">NULL</span>';
         }
         if(tree.isLeaf()){
-                return "\"" + (tree.get().name ? (this.track.storeToKey[tree.get().name] ? this.track.storeToKey[tree.get().name] : tree.get().name)
-                 : tree.get()) + "\"";
+                return '<span class="leaf">' + (tree.get().name ? (this.track.storeToKey[tree.get().name] ? this.track.storeToKey[tree.get().name] : tree.get().name)
+                 : tree.get()) + '</span>';
         }
-        return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
+        return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";
 },
 
 destroyRecursive: function() {
