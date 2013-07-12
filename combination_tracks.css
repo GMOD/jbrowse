@@ -1,5 +1,5 @@
 
-.combination_track:hover {
+.combination_track.dojoDndContainerOver {
     background: #DCEAFA;
     background: rgba(173, 205, 246, 0.41);
 }
