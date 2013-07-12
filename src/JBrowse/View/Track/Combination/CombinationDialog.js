@@ -34,7 +34,7 @@ constructor: function( args ) {
         this.dialog = new Dialog(
             {
                 title: "Combine with " + this.newTrackKey,
-                style: "width: 400px;",
+                style: "width: 450px;",
                 className: "combinationDialog"
             });
         var content = this._dialogContent(this.newStore);
@@ -97,8 +97,16 @@ _dialogContent: function(store) {
 
                             for(var i = 0; i < numOpLists; i++) {
 
-                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, style: {display: "inline-block"}}, thisB.changingOpPanel);
+                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, 
+                                    style: {display: "inline-block", "padding-left": "15px", "vertical-align": "top"}}, thisB.changingOpPanel);
+                                if(numOpLists == 3) {
+                                    var text = ["Main", "Mask", "Display"];
+                                    dom.create("h2", {innerHTML: text[i]}, opDiv);
+                                }
+
                                 var whichOpSpan = dom.create("h3", {innerHTML: "Combining operation", style: {display: "none"}}, opDiv);
+
+
                                 thisB.opListDivs[i] = dom.create("div", {id: thisB.track.name + "_OpList" + i}, opDiv);
 
                                 var leftRightSpan = dom.create("h3", {innerHTML: "Left or right?", style: {display: "none"}}, opDiv);
@@ -123,9 +131,13 @@ _dialogContent: function(store) {
 
     if( maskOps[0] )
         this.maskOpButtons[0].set('checked', 'checked');
-
-    if( maskOps.length <= 1 )
-        maskOpListDiv.style.display = 'none';
+    
+    if( maskOps.length <= 1 ) {
+        if ( !maskOps.length || maskOps[0] == "0000") {
+            maskOpListDiv.style.display = 'none';
+        }
+        this.maskOpButtons[0].set('disabled', 'disabled');
+    }
 
     var actionBar = this._createActionBar();
 
@@ -256,7 +268,7 @@ _makeUnique: function(stringArray) {
 
 _createPreviewTree: function (opString, store ) {
         // Recursive cloning would probably be safer, but this seems to be working okay
-        var newOpTree = store.opTree ? new TreeNode(store.opTree) : new TreeNode({Value: store});
+        var newOpTree = store.opTree ? store.opTree.clone() : new TreeNode({Value: store});
         if(newOpTree) {
             newOpTree.recursivelyCall(function(node) {
                 node.highlighted = true;

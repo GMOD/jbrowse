@@ -128,7 +128,7 @@ constructor: function( args ) {
             "M": "regular mask",
             "N": "inverse mask",
             // These four-digit codes are used by the CombinationDialog object to differentiate different types of masking operations.
-            "0000": "normal operation",
+            "0000": "combine without masking",
             "0020": "use new track as mask",
             "0002": "use old track as mask",
             "1111": "merge tracks",
