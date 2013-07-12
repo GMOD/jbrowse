@@ -622,11 +622,12 @@ getX: function() {
 getY: function() {
     return this.y || 0;
 },
+
 getHeight: function() {
-    return this.elem.offsetHeight;
+    return this.elemBox.h;
 },
 getWidth: function() {
-    return this.elem.offsetWidth;
+    return this.elemBox.w;
 },
 
 clampX: function(x) {
@@ -1435,6 +1436,7 @@ bpToPx: function(bp) {
  */
 sizeInit: function() {
     this.overviewBox = dojo.marginBox(this.overview);
+    this.elemBox = { h: this.elem.offsetHeight, w: this.elem.offsetWidth };
 
     //scale values, in pixels per bp, for all zoom levels
     var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];

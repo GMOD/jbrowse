@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+ * Further improved scrolling smoothness of HTML-based feature tracks.
+
  * Added a SPARQL data backend to allow displaying features directly
    from a SPARQL endpoint.  Many thanks to the NDBC/DBCLS BioHackathon
    2012 and 2013 participants for suggesting this and helping with
