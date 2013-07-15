@@ -7,7 +7,7 @@ define([
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Util',
-           'JBrowse/Store/SeqFeature/Combination/TreeNode'
+           'JBrowse/Model/BinaryTreeNode'
        ],
        function(
            declare,

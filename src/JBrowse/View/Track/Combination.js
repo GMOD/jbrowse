@@ -10,7 +10,7 @@ define([
            './Combination/CombinationDialog',
            'dijit/Dialog',
            'JBrowse/View/Track/BlockBased',
-           'JBrowse/Store/SeqFeature/Combination/TreeNode',
+           'JBrowse/Model/BinaryTreeNode',
            'dojo/dnd/move',
            'dojo/dnd/Source',
            'dojo/dnd/Manager',
@@ -80,7 +80,7 @@ constructor: function( args ) {
                                      name: "Density",
                                      path: "JBrowse/View/Track/Wiggle/Density"
                                  }],
-                store:        "JBrowse/Store/SeqFeature/QCombination",
+                store:        "JBrowse/Store/SeqFeature/QuantitativeCombination",
                 allowedOps:   ["+", "-", "*", "/"],
                 defaultOp:    "+"
             },
@@ -152,7 +152,7 @@ constructor: function( args ) {
             "JBrowse/Store/SeqFeature/BAM": "BAM",
             "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
             "JBrowse/Store/SeqFeature/Combination": "set",
-            "JBrowse/Store/SeqFeature/QCombination": "quantitative",
+            "JBrowse/Store/SeqFeature/QuantitativeCombination": "quantitative",
             "JBrowse/Store/SeqFeature/Mask": "mask"
         };
 
@@ -491,7 +491,8 @@ _storeConfig: function(storeType) {
     if(!storeType)
         storeType = this.storeType;
     var storeClass = this.trackClasses[storeType].store;
-
+    this.config.storeClass = storeClass;
+    
     var op = this.trackClasses[storeType].defaultOp;
     return  {
         browser: this.browser,

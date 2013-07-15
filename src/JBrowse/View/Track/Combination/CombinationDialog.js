@@ -4,7 +4,7 @@ define([
  		 'dijit/form/RadioButton',
  		 'dijit/form/Button',
  		 'dojo/dom-construct',
- 		 'JBrowse/Store/SeqFeature/Combination/TreeNode'
+ 		 'JBrowse/Model/BinaryTreeNode'
 	],
 	function(declare, Dialog, RadioButton, Button, dom, TreeNode) {
 
@@ -34,7 +34,7 @@ constructor: function( args ) {
         this.dialog = new Dialog(
             {
                 title: "Combine with " + this.newTrackKey,
-                style: "width: 450px;",
+                style: "width: 475px;",
                 className: "combinationDialog"
             });
         var content = this._dialogContent(this.newStore);
