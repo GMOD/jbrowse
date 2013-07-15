@@ -300,7 +300,18 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
  	       'got the right attributes in trackData.json')
 	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
     
-
+    # test subfeatures
+    # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
+    my $subFeatureIndex;
+    for my $i ( 0 .. scalar( @{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}} ) - 1 ) {
+	if ( $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}->[$i] eq 'Subfeatures' ){
+	    $subFeatureIndex = $i;
+	    last;
+	}
+    }
+    my $actualSubFeatureIndex = $subFeatureIndex + 1; # because the first thing in nclist is 0
+    ok( defined( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex] ), "got something in subfeatures");
+    undef;
 }
 
 {

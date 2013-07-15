@@ -23,25 +23,34 @@ sub _aggregate_features_from_gbk_record {
     my ( $self, $f ) = @_;
     $f->{'seq_id'} = $f->{'ACCESSION'};
 
+    # get index of top level feature ('mRNA' at current writing)
+    my $indexTopLevel;
+    my $count = 0;
     foreach my $feat ( @{$f->{FEATURES}} ){
-	next unless _isTopLevel( $feat );
-
-	# set subfeatures
-	$f->{'Subfeatures'} = undef;
-
-	# set start/stop
-	my $startStop = _extractStartStopFromJoinToken( $feat );
-	$f->{'start'} = $startStop->[0] + 1;
-	$f->{'end'} = $startStop->[1];
-
-	# deal with subfeatures
+	if ( _isTopLevel( $feat ) ){
+	    $indexTopLevel = $count;
+	}
+	$count++;
     }
 
-    # get rid of unnecessary stuff, this could get really big for some GBK files
-#    delete ${$f}{'COMMENT'};
-#    delete ${$f}{'SEQUENCE'};
-#    delete ${$f}{'ORIGIN'};
+    return undef if ( ! defined $indexTopLevel );
 
+    # start at top level, make feature and subfeature for all subsequent features
+    # this logic assumes that top level feature is above all subfeatures
+
+    # set start/stop
+    my $startStop = _extractStartStopFromJoinToken( $f->{FEATURES}->[$indexTopLevel] );
+    $f->{'start'} = $startStop->[0] + 1;
+    $f->{'end'} = $startStop->[1];
+
+    # add subfeatures
+    $f->{'Subfeatures'} = ();
+    if ( scalar( @{$f->{FEATURES}}) > $indexTopLevel ){
+      for my $i ( $indexTopLevel + 1 .. length( @{$f->{FEATURES}} ) - 1 ){
+	my $newFeature = {'start' => '1', 'end' => '1', 'foo' => 'bar'};
+	push @{$f->{'Subfeatures'}}, $newFeature;
+      }
+    }
     return $f;
 }
 
