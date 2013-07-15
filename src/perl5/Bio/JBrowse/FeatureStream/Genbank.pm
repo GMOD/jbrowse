@@ -26,11 +26,15 @@ sub _aggregate_features_from_gbk_record {
     foreach my $feat ( @{$f->{FEATURES}} ){
 	next unless _isTopLevel( $feat );
 
+	# set subfeatures
+	$f->{'Subfeatures'} = undef;
+
 	# set start/stop
 	my $startStop = _extractStartStopFromJoinToken( $feat );
 	$f->{'start'} = $startStop->[0] + 1;
 	$f->{'end'} = $startStop->[1];
 
+	# deal with subfeatures
     }
 
     # get rid of unnecessary stuff, this could get really big for some GBK files

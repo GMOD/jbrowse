@@ -293,14 +293,12 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[2] == 10950, "got right stop coordinate (full record)" );
 
     # test attributes are present in the correct order
-#     is_deeply( sort($trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}), 
-# 	       sort(
-#   ['Start', 'End', 'Strand', 'COMMENT', 'DEFINITION', 'CLASSIFICATION', 'LOCUS', 'FEATURES',
-#   'KEYWORDS', 'SEQUENCE', 'ACCESSION', 'Seq_id', 'NCBI_TAXON_ID', 'MOL_TYPE', 'ORIGIN', 'ORGANISM',
-#   'VERSION', 'SOURCE', "Subfeatures"]),
-# 	       'got the right attributes in trackData.json')
-#       or diag explain $trackdata->{'trackData.json'};
-
+     is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})], 
+		[sort(@{['Start', 'End', 'Strand', 'COMMENT', 'DEFINITION', 'CLASSIFICATION', 'LOCUS', 'FEATURES',
+		 'KEYWORDS', 'SEQUENCE', 'ACCESSION', 'Seq_id', 'NCBI_TAXON_ID', 'MOL_TYPE', 'ORIGIN', 'ORGANISM',
+		 'VERSION', 'SOURCE', "Subfeatures"]})],
+ 	       'got the right attributes in trackData.json')
+	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
     
 
 }
