@@ -243,7 +243,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
                         containerStart, containerEnd) {
-        this.range = arguments;
 
         if( this.fatalError ) {
             this.showFatalError( this.fatalError );

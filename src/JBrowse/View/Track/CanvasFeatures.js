@@ -478,7 +478,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         
 
         var displayModeList = ["pack", "squish", "dense"];
-        var displayModeMenuItems = displayModeList.map(function(displayMode) {
+        this.displayModeMenuItems = displayModeList.map(function(displayMode) {
             return {
                 label: displayMode,
                 type: 'dijit/CheckedMenuItem',
@@ -488,7 +488,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                     thisB.displayMode = displayMode;
                     thisB.hideAll();
                     thisB.genomeView.showVisibleBlocks(true);
+                    thisB.makeTrackMenu();
                 }
+            }
+        });
+
+        var updateMenuItems = dojo.hitch(this, function() {
+            for(var index in this.displayModeMenuItems) {
+                this.displayModeMenuItems[index].checked = (this.displayMode == this.displayModeMenuItems[index].label);
             }
         });
 
@@ -496,7 +503,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             label: "Display mode",
             iconClass: "dijitIconPackage",
             title: "Render this track in pack, squish, or dense mode to take up less space",
-            children: displayModeMenuItems
+            children: this.displayModeMenuItems
         });
 
         return opts;
