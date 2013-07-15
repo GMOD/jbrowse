@@ -321,19 +321,17 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[1] == 5001, "got right start coordinate (full record)" );
     ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[2] == 10950, "got right stop coordinate (full record)" );
 
-    # test attributes are present in the correct order
+    # test that the right attributes are present
      is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})], 
-		[sort(@{['Start', 'End', 'Strand', 'COMMENT', 'DEFINITION', 'CLASSIFICATION', 'LOCUS', 'FEATURES',
-		 'KEYWORDS', 'SEQUENCE', 'ACCESSION', 'Seq_id', 'NCBI_TAXON_ID', 'MOL_TYPE', 'ORIGIN', 'ORGANISM',
-		 'VERSION', 'SOURCE', "Subfeatures"]})],
- 	       'got the right attributes in trackData.json')
+		[sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM',  'VERSION',  'SOURCE',  'Subfeatures']})],
+		'got the right attributes in trackData.json')
 	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
     
     # test subfeatures
     # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
     my $subFeatureIndex;
     for my $i ( 0 .. scalar( @{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}} ) - 1 ) {
-	if ( $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}->[$i] eq 'Subfeatures' ){
+	if ( $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}->[$i] =~ m/subfeatures/i ){
 	    $subFeatureIndex = $i;
 	    last;
 	}

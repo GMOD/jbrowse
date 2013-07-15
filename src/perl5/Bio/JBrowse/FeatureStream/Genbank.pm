@@ -44,11 +44,11 @@ sub _aggregate_features_from_gbk_record {
     $f->{'end'} = $startStop->[1];
 
     # add subfeatures
-    $f->{'Subfeatures'} = ();
+    $f->{'subfeatures'} = ();
     if ( scalar( @{$f->{FEATURES}}) > $indexTopLevel ){
       for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ){
 	my $newFeature = {'start' => '1', 'end' => '1', 'foo' => 'bar'};
-	push @{$f->{'Subfeatures'}}, $newFeature;
+	push @{$f->{'subfeatures'}}, $newFeature;
       }
     }
     return $f;
