@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/on',
            'dojo/dom-construct',
            'dojo/dom-class',
@@ -9,7 +10,7 @@ define([
            './Combination/CombinationDialog',
            'dijit/Dialog',
            'JBrowse/View/Track/BlockBased',
-           'JBrowse/Store/SeqFeature/Combination/TreeNode',
+           'JBrowse/Model/BinaryTreeNode',
            'dojo/dnd/move',
            'dojo/dnd/Source',
            'dojo/dnd/Manager',
@@ -19,6 +20,7 @@ define([
        ],
        function(
            declare,
+           lang,
            on,
            dom,
            domClass,
@@ -78,7 +80,7 @@ constructor: function( args ) {
                                      name: "Density",
                                      path: "JBrowse/View/Track/Wiggle/Density"
                                  }],
-                store:        "JBrowse/Store/SeqFeature/QCombination",
+                store:        "JBrowse/Store/SeqFeature/QuantitativeCombination",
                 allowedOps:   ["+", "-", "*", "/"],
                 defaultOp:    "+"
             },
@@ -126,7 +128,7 @@ constructor: function( args ) {
             "M": "regular mask",
             "N": "inverse mask",
             // These four-digit codes are used by the CombinationDialog object to differentiate different types of masking operations.
-            "0000": "normal operation",
+            "0000": "combine without masking",
             "0020": "use new track as mask",
             "0002": "use old track as mask",
             "1111": "merge tracks",
@@ -137,8 +139,8 @@ constructor: function( args ) {
         };
 
     // Each store becomes associated with the name of a track that uses that store, so that users can read more easily.
-    this.keyToStore = {};
-    this.storeToKey = {};
+    if(!this.config.storeToKey) 
+      this.config.storeToKey = {};
 
     // Shows which track or store types qualify as set-based, quantitative, etc.
     this.supportedBy =
@@ -150,7 +152,7 @@ constructor: function( args ) {
             "JBrowse/Store/SeqFeature/BAM": "BAM",
             "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
             "JBrowse/Store/SeqFeature/Combination": "set",
-            "JBrowse/Store/SeqFeature/QCombination": "quantitative",
+            "JBrowse/Store/SeqFeature/QuantitativeCombination": "quantitative",
             "JBrowse/Store/SeqFeature/Mask": "mask"
         };
 
@@ -204,10 +206,15 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
                                                            // Renders the results track div (or avatar, depending).
                                                            // Code for ensuring that we don't have several results tracks
                                                            // is handled later in the file.
+                                                           var data = trackConfig;
+                                                           if(trackConfig.resultsTrack) {
+                                                              data = trackConfig.resultsTrack;
+                                                              data.storeToKey = trackConfig.storeToKey;
+                                                           }
                                                            return {
-                                                               data: trackConfig.resultsTrack || trackConfig,
+                                                               data: data,
                                                                type: ["track"],
-                                                               node: this.addTrack(trackConfig.resultsTrack || trackConfig)
+                                                               node: this.addTrack(data)
                                                            };
                                                        })
                               });
@@ -282,7 +289,7 @@ _attachDndEvents: function() {
        // Additional logic to disqualify bad tracks - if one node is unacceptable, the whole group is disqualified
        for(var i = 0; accept && nodes[i]; i++) {
        var trackConfig = source.getItem(nodes[i].id).data;
-       accept = accept && (thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
+       accept = accept && (trackConfig.resultsTrack || thisB.supportedBy[trackConfig.storeClass] || thisB.supportedBy[trackConfig.type]);
        }
 
      return accept;
@@ -315,8 +322,11 @@ reinitialize: function() {
 addTrack: function(trackConfig) {
     // Connect the track's name to its store for easy reading by user
     if(trackConfig && trackConfig.key && trackConfig.store) {
-        this.storeToKey[trackConfig.store] = trackConfig.key;
-        this.keyToStore[trackConfig.key] = trackConfig.store;
+        this.config.storeToKey[trackConfig.store] = trackConfig.key;
+    }
+
+    if(trackConfig && trackConfig.storeToKey) {
+      lang.mixin(this.config.storeToKey, trackConfig.storeToKey);
     }
 
     // Figure out which type of track (set, quant, etc) the user is adding
@@ -378,7 +388,7 @@ runDialog: function(trackConfig, store) {
                               this.preferencesDialog.destroyRecursive();
                           this.lastDialogDone = new Deferred();
                           this.preferencesDialog = new CombinationDialog({
-                                                                             key: trackConfig.key,
+                                                                             trackConfig: trackConfig,
                                                                              store: store,
                                                                              track: this
                                                                          });
@@ -410,15 +420,18 @@ _adjustStores: function (store) {
                                                                    d.resolve(true);
                                                                }));
     } else if(this.currType == "mask") {
-        this.maskStore = store.stores.mask;
-        this.displayStore = store.stores.display;
-        this.store = store;
-        var haveMaskStore = this.maskStore.reload(this.opTree.leftChild);
-        var haveDisplayStore = this.displayStore.reload(this.opTree.rightChild);
-        all([haveMaskStore, haveDisplayStore]).then(dojo.hitch(this, function() {
-                                                                   this.store.reload(this.opTree, this.maskStore, this.displayStore);
-                                                                   d.resolve(true);
-                                                               }));
+        var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
+                                                                         this.maskStore = newstore;
+                                                                         return this.maskStore.reload(this.opTree.leftChild);
+                                                                     }));
+        var displayType = this.supportedBy[store.stores.display.config.type];
+        var haveDisplayStore = this._createStore(displayType).then(dojo.hitch(this, function(newStore){
+                                                                                       this.displayStore = newStore;
+                                                                                       return this.displayStore.reload(this.opTree.rightChild);
+                                                                                   }));
+        this.storeType = "mask";
+        this.store = undefined;
+        d = all([haveMaskStore, haveDisplayStore]);
     } else if(this.opTree.get() == "M" || this.opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
         var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
                                                                          this.maskStore = newstore;
@@ -478,7 +491,8 @@ _storeConfig: function(storeType) {
     if(!storeType)
         storeType = this.storeType;
     var storeClass = this.trackClasses[storeType].store;
-
+    this.config.storeClass = storeClass;
+    
     var op = this.trackClasses[storeType].defaultOp;
     return  {
         browser: this.browser,
@@ -870,7 +884,7 @@ _generateTreeFormula: function(tree) {
         return "NULL";
     }
     if(tree.isLeaf()){
-        return "\"" + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
+        return "\"" + (tree.get().name ? (this.config.storeToKey[tree.get().name] ? this.config.storeToKey[tree.get().name] : tree.get().name)
                        : tree.get()) + "\"";
     }
     return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
@@ -878,6 +892,8 @@ _generateTreeFormula: function(tree) {
 
 _exportFormats: function() {
     return this.exportFormats || [];
+
+
 },
 
                 // These methods are not currently in use, but they allow direct loading of the opTree into the config.

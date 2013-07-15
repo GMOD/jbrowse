@@ -6,7 +6,7 @@ define([
            'dojo/promise/all',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Model/SimpleFeature',
-           'JBrowse/Store/SeqFeature/Combination/TreeNode',
+           'JBrowse/Model/BinaryTreeNode',
            'JBrowse/Util'
        ],
        function(

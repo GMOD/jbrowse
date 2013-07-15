@@ -1,7 +1,8 @@
 define([
-	   'dojo/_base/declare'
+	   'dojo/_base/declare',
+       'dojo/_base/lang'
        ],
-       function(declare) {
+       function(declare, lang) {
 
 	   // A class representing a node of a binary tree.
 
@@ -121,6 +122,32 @@ getLeaves: function() {
     }
 
     return this.leftChild.getLeaves().concat(this.rightChild.getLeaves());
+},
+
+recursivelyCall: function(callback) {
+    if(this.leftChild) {
+        this.leftChild.recursivelyCall(callback);
+    }
+    if(this.rightChild) {
+        this.rightChild.recursivelyCall(callback);
+    }
+    callback(this);
+},
+
+clone: function() {
+    var newTreeNode = lang.mixin({}, this);
+    if(this.leftChild) {
+        var newLeftChild = this.leftChild.clone();
+        newTreeNode.leftChild = newLeftChild;
+    }
+    if(this.rightChild) {
+        var newRightChild = this.rightChild.clone();
+        newTreeNode.rightChild = newRightChild;
+    }
+
+    return newTreeNode;
 }
+
+
 });
 });

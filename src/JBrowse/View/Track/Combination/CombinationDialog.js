@@ -4,7 +4,7 @@ define([
  		 'dijit/form/RadioButton',
  		 'dijit/form/Button',
  		 'dojo/dom-construct',
- 		 'JBrowse/Store/SeqFeature/Combination/TreeNode'
+ 		 'JBrowse/Model/BinaryTreeNode'
 	],
 	function(declare, Dialog, RadioButton, Button, dom, TreeNode) {
 
@@ -23,6 +23,8 @@ constructor: function( args ) {
         this.supportedBy = this.track.supportedBy;
         this.displayType = this.track.displayStore ? this.supportedBy[this.track.displayStore.config.type] : undefined;
 
+        this.storeToKey = this.track.config.storeToKey;
+
         this.newDisplayType = this.displayType;
 
         this.inWords = this.track.inWords;
@@ -32,7 +34,7 @@ constructor: function( args ) {
         this.dialog = new Dialog(
             {
                 title: "Combine with " + this.newTrackKey,
-                style: "width: 400px;",
+                style: "width: 475px;",
                 className: "combinationDialog"
             });
         var content = this._dialogContent(this.newStore);
@@ -95,8 +97,16 @@ _dialogContent: function(store) {
 
                             for(var i = 0; i < numOpLists; i++) {
 
-                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, style: {display: "inline-block"}}, thisB.changingOpPanel);
+                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, 
+                                    style: {display: "inline-block", "padding-left": "15px", "vertical-align": "top"}}, thisB.changingOpPanel);
+                                if(numOpLists == 3) {
+                                    var text = ["Main", "Mask", "Display"];
+                                    dom.create("h2", {innerHTML: text[i]}, opDiv);
+                                }
+
                                 var whichOpSpan = dom.create("h3", {innerHTML: "Combining operation", style: {display: "none"}}, opDiv);
+
+
                                 thisB.opListDivs[i] = dom.create("div", {id: thisB.track.name + "_OpList" + i}, opDiv);
 
                                 var leftRightSpan = dom.create("h3", {innerHTML: "Left or right?", style: {display: "none"}}, opDiv);
@@ -121,9 +131,13 @@ _dialogContent: function(store) {
 
     if( maskOps[0] )
         this.maskOpButtons[0].set('checked', 'checked');
-
-    if( maskOps.length <= 1 )
-        maskOpListDiv.style.display = 'none';
+    
+    if( maskOps.length <= 1 ) {
+        if ( !maskOps.length || maskOps[0] == "0000") {
+            maskOpListDiv.style.display = 'none';
+        }
+        this.maskOpButtons[0].set('disabled', 'disabled');
+    }
 
     var actionBar = this._createActionBar();
 
@@ -254,7 +268,12 @@ _makeUnique: function(stringArray) {
 
 _createPreviewTree: function (opString, store ) {
         // Recursive cloning would probably be safer, but this seems to be working okay
-        var newOpTree = store.opTree ? new TreeNode(store.opTree) : new TreeNode({Value: store});
+        var newOpTree = store.opTree ? store.opTree.clone() : new TreeNode({Value: store});
+        if(newOpTree) {
+            newOpTree.recursivelyCall(function(node) {
+                node.highlighted = true;
+            });
+        }
         var superior = new TreeNode(this.opTree);
         var firstChars = opString.substring(0, 2);
         var inferior = newOpTree;
@@ -416,6 +435,12 @@ run: function( callback, cancelCallback, errorCallback) {
         this.dialog.show();
         var thisB = this;
         this.dialog.on("Hide", function() {
+                if(thisB.previewTree) {
+                    thisB.previewTree.recursivelyCall(function(node) {
+                        if(node.highlighted)
+                            delete node.highlighted;
+                    });
+                }
                 if(thisB.shouldCombine)
                         callback(thisB.previewTree, thisB.newStore, thisB.newDisplayType);
                 else cancelCallback();
@@ -427,7 +452,7 @@ _generateTreeFormula: function(tree) {
                 return '<span class="null">NULL</span>';
         }
         if(tree.isLeaf()){
-                return '<span class="leaf">' + (tree.get().name ? (this.track.storeToKey[tree.get().name] ? this.track.storeToKey[tree.get().name] : tree.get().name)
+                return '<span class="leaf' + (tree.highlighted ? ' highlighted': '') + '">' + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
                  : tree.get()) + '</span>';
         }
         return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";

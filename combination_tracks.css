@@ -1,5 +1,5 @@
 
-.combination_track:hover {
+.combination_track.dojoDndContainerOver {
     background: #DCEAFA;
     background: rgba(173, 205, 246, 0.41);
 }
@@ -26,6 +26,10 @@
     text-decoration: underline;
     /* border: 1px solid #0DCA0D; */
     /* white-space: nowrap; */
+}
+
+.combinationDialog .formulaPreview .leaf.highlighted {
+    background-color: #BBB;
 }
 
 .combinationDialog .formulaPreview .op {
