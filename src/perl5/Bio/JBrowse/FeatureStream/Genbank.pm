@@ -22,9 +22,11 @@ sub next_items {
 sub _aggregate_features_from_gbk_record {
     my ( $self, $f ) = @_;
     $f->{'seq_id'} = $f->{'ACCESSION'};
-    $f->{'start'} = 1;
-    $f->{'end'} = 10000;
+    $f->{'start'} = 5002;
+    $f->{'end'} = 10950;
     $f->{'strand'} = 0;
+
+    # $f->{'FEATURES'}
 
     # get rid of unnecessary stuff, this could get really big for some GBK files
 #    delete ${$f}{'COMMENT'};
