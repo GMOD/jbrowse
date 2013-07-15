@@ -1,29 +1,20 @@
-package Bio::GenBankParser;
-
-# $Id: GenBankParser.pm 27 2010-06-23 16:45:50Z kyclark $
+package Bio::JBrowse::FeatureStream::Genbank::Parser;
 
 use warnings;
 use strict;
 use Carp qw( croak );
 use File::Spec::Functions;
 use Parse::RecDescent;
-use Readonly;
 
-Readonly my $GENBANK_RECORD_SEPARATOR => "//\n";
+my $GENBANK_RECORD_SEPARATOR = "//\n";
 
 =pod
 
 =head1 NAME
 
-Bio::GenBankParser - Parse::RecDescent parser for a GenBank record
-
-=head1 VERSION
-
-Version 0.05
+Bio::JBrowse::FeatureStream::Genbank::Parser - fork of kyclark's Bio::GenBankParser
 
 =cut
-
-our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
