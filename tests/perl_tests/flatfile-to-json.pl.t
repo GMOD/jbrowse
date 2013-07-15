@@ -193,7 +193,7 @@ sub tempdir {
 }
 
 {   
-    diag "testing options to set class name in trackList.json";
+    # diag "testing options to set class name in trackList.json";
 
     my $tempdir = tempdir();
     dircopy( 'tests/data/AU9', $tempdir );
