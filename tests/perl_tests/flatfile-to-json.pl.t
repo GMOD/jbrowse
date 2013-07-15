@@ -192,6 +192,35 @@ sub tempdir {
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10][0][10]}, 7, 'mRNA has 7 subfeatures' );
 }
 
+{   
+    diag "testing options to set class name in trackList.json";
+
+    my $tempdir = tempdir();
+    dircopy( 'tests/data/AU9', $tempdir );
+
+    # test default, should be 'feature'
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+        );
+
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'style'}->{'className'} eq 'feature', "default cssClassName is feature");
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+	'--cssClass' => 'flingwibbit'
+        );
+
+    $read_json = sub { slurp( $tempdir, @_ ) };
+    $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'style'}->{'className'} eq 'flingwibbit', "cssClassName set correctly");
+}
+
 for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffold_subset_sync.gff3" ) {
     # add a test for duplicate lazyclasses bug found by Gregg
 
