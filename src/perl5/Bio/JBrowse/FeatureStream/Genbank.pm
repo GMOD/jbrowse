@@ -47,7 +47,12 @@ sub _aggregate_features_from_gbk_record {
     $f->{'subfeatures'} = ();
     if ( scalar( @{$f->{FEATURES}}) > $indexTopLevel ){
       for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ){
-	my $newFeature = {'start' => '1', 'end' => '1', 'foo' => 'bar'};
+	my $startStop = _extractStartStopFromLocation( $f->{FEATURES}->[$i]->{'location'} );
+	$startStop->[0]++;
+	my $newFeature = {'start' => $startStop->[0] || 0,
+			  'end' => $startStop->[1] || 0,
+			  'foo' => 'bar','foo1' => 'bar','foo2' => 'bar','foo3' => 'bar','foo4' => 'bar','foo5' => 'bar','foo6' => 'bar','foo7' => 'bar','foo8' => 'bar','foo9' => 'bar','foo10' => 'bar','foo11' => 'bar','foo12' => 'bar','foo13' => 'bar','foo14' => 'bar',
+			 };
 	push @{$f->{'subfeatures'}}, $newFeature;
       }
     }
@@ -78,5 +83,16 @@ sub _extractStartStopFromJoinToken {
     }
     return \@startStop;
 }
+
+sub _extractStartStopFromLocation {
+    my $feat = shift;
+    my @startStop;
+    $feat =~ s/join\(//;
+    $feat =~ s/\)//;
+    my @coordinates = split(/\.\./, $feat);
+    $startStop[0] = $coordinates[0];
+    $startStop[1] = $coordinates[-1];
+    return \@startStop;
+  }
 
 1;
