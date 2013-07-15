@@ -157,9 +157,9 @@ Returns the next sequence from the C<file>.
         }
 
         if ( defined $rec && $rec =~ /\S+/ ) {
-	    # okay, coordinate parsing is broken because someone decided to split join() coordinates across >1 line. 
+	    # okay, parsing of coordinate info is broken because someone at Genbank decided to split join() coordinates across >1 line. 
 	    # so, let's hack this to work by removing the newline inside of join() tokens
-	    $rec =~ s/(^.*join\(.*\,)\n\s+(\d+.*\)$)/${1}${2}/m;
+	    $rec` =~ s/(^.*join\(.*\,)\n\s+(\d+.*\)$)/${1}${2}/m;
 
             return $self->parse( $rec );
         }
