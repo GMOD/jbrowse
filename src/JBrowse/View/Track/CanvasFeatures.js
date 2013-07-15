@@ -71,6 +71,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
         this.showLabels = this.config.style.showLabels;
+        this.displayMode = this.config.displayMode;
     },
 
     _defaultConfig: function() {
@@ -89,14 +90,15 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             maxHeight: 600,
 
             style: {
-
                 // not configured by users
                 _defaultHistScale: 4,
                 _defaultLabelScale: 30,
                 _defaultDescriptionScale: 120,
 
                 showLabels: true
-            }
+            },
+
+            displayMode: 'pack'
         };
     },
 
@@ -121,12 +123,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                 var renderHints = dojo.mixin(
                     {
                         stats: stats,
+                        displayMode: this.displayMode,
                         showFeatures: scale >= ( this.config.style.featureScale
                                                  || stats.featureDensity / this.config.maxFeatureScreenDensity ),
-                        showLabels: this.showLabels
+                        showLabels: this.showLabels && this.displayMode == "pack"
                             && scale >= ( this.config.style.labelScale
                                           || stats.featureDensity * this.config.style._defaultLabelScale ),
-                        showDescriptions: this.showLabels
+                        showDescriptions: this.showLabels && this.displayMode == "pack"
                             && scale >= ( this.config.style.descriptionScale
                                           || stats.featureDensity * this.config.style._defaultDescriptionScale)
                     },
@@ -162,7 +165,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
             var pitchY = this.config.layoutPitchY || 4;
-            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight') });
+            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.displayMode });
         }
 
         return this.layout;
@@ -247,7 +250,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                 function( feature ) {
                                     if( thisB.destroyed || ! thisB.filterFeature( feature ) )
                                         return;
-
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;

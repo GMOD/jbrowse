@@ -32,7 +32,7 @@ return declare( Component, {
         var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this.getStyle( feature, 'height' )
+            h: this._getFeatureHeight( viewArgs, feature )
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
@@ -63,6 +63,10 @@ return declare( Component, {
 
     //stub
     renderFeature: function( context, block, fRect ) {
+    },
+
+    _getFeatureHeight: function( viewArgs, feature ) {
+        return this.getStyle( feature, 'height');
     }
 
 });

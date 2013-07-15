@@ -52,11 +52,26 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
     },
 
+    _getFeatureHeight: function( viewArgs, feature ) {
+        var h = this.getStyle( feature, 'height');
+
+        switch( viewArgs.displayMode ) {
+            case "squish":
+                h = 0.6*h;
+                break;
+            case "dense":
+                h = 0.6*h;
+                break;
+            default:
+        }
+        return h;
+    },
+
     _getFeatureRectangle: function( viewArgs, feature ) {
         var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this.getStyle( feature, 'height' )
+            h: this._getFeatureHeight(viewArgs, feature)
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
@@ -66,6 +81,9 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
         fRect.w = fRect.rect.w; // in case it was increased
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
+
+        if( viewArgs.displayMode == "dense")
+            return fRect;
 
         // maybe get the feature's name, and update the layout box
         // accordingly

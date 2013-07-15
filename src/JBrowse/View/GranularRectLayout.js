@@ -21,6 +21,7 @@ return declare( null,
     constructor: function( args ) {
         this.pitchX = args.pitchX || 10;
         this.pitchY = args.pitchY || 10;
+        this.displayMode = args.displayMode;
         this.bitmap = [];
         this.rectangles = {};
         this.maxHeight = Math.ceil( ( args.maxHeight || Infinity ) / this.pitchY );
@@ -74,6 +75,9 @@ return declare( null,
     },
 
     _collides: function( rect, top ) {
+        if(this.displayMode == "dense")
+            return false;
+
         var bitmap = this.bitmap;
         //var mY = top + rect.h/2; // Y midpoint: ( top+height  + top ) / 2
 
