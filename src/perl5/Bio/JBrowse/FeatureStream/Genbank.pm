@@ -22,11 +22,16 @@ sub next_items {
 sub _aggregate_features_from_gbk_record {
     my ( $self, $f ) = @_;
     $f->{'seq_id'} = $f->{'ACCESSION'};
-    $f->{'start'} = 5002;
-    $f->{'end'} = 10950;
-    $f->{'strand'} = 0;
 
-    # $f->{'FEATURES'}
+    foreach my $feat ( @{$f->{FEATURES}} ){
+	next unless _isTopLevel( $feat );
+
+	# set start/stop
+	my $startStop = _extractStartStopFromJoinToken( $feat );
+	$f->{'start'} = $startStop->[0] + 1;
+	$f->{'end'} = $startStop->[1];
+
+    }
 
     # get rid of unnecessary stuff, this could get really big for some GBK files
 #    delete ${$f}{'COMMENT'};
@@ -36,16 +41,29 @@ sub _aggregate_features_from_gbk_record {
     return $f;
 }
 
-# sub _to_webapollo_feature
-#     my ( $self, $f ) = @_;
-#     $f->{'seq_id'} = $f->{'ACCESSION'};
-#     $f->{'start'} = $f->{'POS'};
-#     $f->{'end'} = $f->{'POS'};
-#     $f->{'strand'} = 0;
-#     if ( length( $f->{'REF'} ) == length( $f->{'ALT'}->[0] ) ){
-#         $f->{'Type'} = 'SNV';
-#     }
-#     return $f;
-# }
+sub _isTopLevel {
+    my $feat = shift;
+    my @topLevelFeatures = qw( mRNA ); # add more as needed?
+    my $isTopLevel = 0;
+    foreach my $thisTopFeat ( @topLevelFeatures ){
+	if ( $feat->{'name'} =~ m/$thisTopFeat/ ){
+	    $isTopLevel = 1;
+	    last;
+	}
+    }
+    return $isTopLevel;
+}
+
+sub _extractStartStopFromJoinToken {
+    my $feat = shift;
+    my @startStop;
+    if ( exists $feat->{'location'} && $feat->{'location'} =~ /join\((\d+)\..*\.(\d+)\)/ ){
+	$startStop[0] = $1;
+	$startStop[1] = $2;
+    }
+    else {
+    }
+    return \@startStop;
+}
 
 1;
