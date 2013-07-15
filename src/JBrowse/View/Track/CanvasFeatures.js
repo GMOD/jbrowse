@@ -472,6 +472,36 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         fRect.glyph.renderFeature( context, block, fRect );
     },
 
+    _trackMenuOptions: function () {
+        var opts = this.inherited(arguments);
+        var thisB = this;
+        
+
+        var displayModeList = ["pack", "squish", "dense"];
+        var displayModeMenuItems = displayModeList.map(function(displayMode) {
+            return {
+                label: displayMode,
+                type: 'dijit/CheckedMenuItem',
+                title: "Render this track in " + displayMode + " mode",
+                checked: thisB.displayMode == displayMode,
+                onClick: function() {
+                    thisB.displayMode = displayMode;
+                    thisB.hideAll();
+                    thisB.genomeView.showVisibleBlocks(true);
+                }
+            }
+        });
+
+        opts.push({
+            label: "Display mode",
+            iconClass: "dijitIconPackage",
+            title: "Render this track in pack, squish, or dense mode to take up less space",
+            children: displayModeMenuItems
+        });
+
+        return opts;
+    },
+
     destroy: function() {
         this.destroyed = true;
         delete this.layout;

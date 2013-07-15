@@ -243,6 +243,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
                         containerStart, containerEnd) {
+        this.range = arguments;
 
         if( this.fatalError ) {
             this.showFatalError( this.fatalError );
@@ -458,6 +459,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
                 + '.'
         );
+    },
+
+    redraw: function() {
+        this.clear();
+        this.genomeView.showVisibleBlocks(true);
     },
 
     markBlockHeightOverflow: function( block ) {
