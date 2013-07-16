@@ -25,26 +25,7 @@ sub _aggregate_features_from_gbk_record {
 
     # see if this is a region record, and if so, make a note of offset so 
     # we can add it to coordinates below
-    my $offset = 0;
-    if ( grep {$_ =~ /REGION\:/} @{$f->{'VERSION'}} ){ # this is a region file 
- 	# get array item after REGION token
- 	my $count = 0;
-	my $regionIndexInArray;
- 	foreach my $item ( @{$f->{'VERSION'}} ){
-	    if ( $item =~ /REGION\:/ ){
-		$regionIndexInArray = $count;
-		last;
-	    }
- 	    $count++;
- 	}
-	if ( defined $regionIndexInArray ){
-	    my ($start, $end) = split(/\.\./, @{$f->{'VERSION'}}[ $regionIndexInArray + 1]);
-	    if ( defined $start ){
-		$start -= 1 if ( $start > 0 );
-		$offset = $start;
-	    }
-	}
-    }
+    my $offset = _getRegionOffset( $f );
 
     # get index of top level feature ('mRNA' at current writing)
     my $indexTopLevel;
@@ -119,5 +100,31 @@ sub _extractStartStopFromLocation {
     $startStop[1] = $coordinates[-1];
     return \@startStop;
   }
+
+sub _getRegionOffset {
+
+    my $f = shift;
+    my $offset = 0;
+    if ( grep {$_ =~ /REGION\:/} @{$f->{'VERSION'}} ){ # this is a region file 
+ 	# get array item after REGION token
+ 	my $count = 0;
+	my $regionIndexInArray;
+ 	foreach my $item ( @{$f->{'VERSION'}} ){
+	    if ( $item =~ /REGION\:/ ){
+		$regionIndexInArray = $count;
+		last;
+	    }
+ 	    $count++;
+ 	}
+	if ( defined $regionIndexInArray ){
+	    my ($start, $end) = split(/\.\./, @{$f->{'VERSION'}}[ $regionIndexInArray + 1]);
+	    if ( defined $start ){
+		$start -= 1 if ( $start > 0 );
+		$offset = $start;
+	    }
+	}
+    }
+}
+
 
 1;
