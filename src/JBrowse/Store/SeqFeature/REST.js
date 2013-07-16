@@ -3,7 +3,7 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/io-query',
-           'dojo/request/xhr',
+           'dojo/request',
            'JBrowse/Store/LRUCache',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredFeaturesMixin',
@@ -16,7 +16,7 @@ define([
            lang,
            array,
            ioquery,
-           xhr,
+           request,
            LRUCache,
            SeqFeatureStore,
            DeferredFeaturesMixin,
@@ -79,7 +79,8 @@ return declare( SeqFeatureStore,
     _get: function( url, callback, errorCallback ) {
 
         if( this.config.noCache )
-            xhr.get( url, {
+            request( url, {
+                         method: 'GET',
                          handleAs: 'json'
                      }).then(
                          callback,
@@ -100,12 +101,17 @@ return declare( SeqFeatureStore,
                     maxSize: 25000, // cache up to about 5MB of data (assuming about 200B per feature)
                     sizeFunction: function( data ) { return data.length || 1; },
                     fillCallback: function( url, callback ) {
-                        xhr.get( url, {
-                                     handleAs: 'json'
-                                 }).then(
-                                     callback,
-                                     thisB._errorHandler( lang.partial( callback, null ) )
-                                 );
+                        var get = request( url, { method: 'GET', handleAs: 'json' },
+                                           true // work around dojo/request bug
+                                         );
+                        get.then(
+                                function(data) {
+                                    var nocacheResponse = /no-cache/.test(get.response.getHeader('Cache-Control'))
+                                        || /no-cache/.test(get.response.getHeader('Pragma'));
+                                    callback(data,null,{nocache: nocacheResponse});
+                                },
+                                thisB._errorHandler( lang.partial( callback, null ) )
+                            );
                     }
                 });
         }
