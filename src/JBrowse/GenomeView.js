@@ -1992,6 +1992,12 @@ showTracks: function( trackConfigs ) {
     this.trackDndWidget.insertNodes( false, needed );
 
     this.updateTrackList();
+
+    // scroll the view to the bottom so we can see the new track
+    var thisB = this;
+    window.setTimeout( function() {
+        thisB.setY( Infinity );
+    }, 300 );
 },
 
 /**
