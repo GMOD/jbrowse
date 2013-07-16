@@ -173,10 +173,7 @@ constructor: function( args ) {
 
     this.heightResults = 0;
 
-    // Height of the track (when there is no results track)
-    this.heightNoResults = 50;
-
-    this.height = args.height || this.heightNoResults;
+    this.height = args.height || 0;
 
     // This variable (which will later be a deferred) ensures that when multiple tracks are added simultaneously,
     // The dialogs for each one don't render all at once.
@@ -708,23 +705,18 @@ fillBlock: function( args ) {
     var block = args.block;
     var leftBase = args.leftBase;
 
-    if(!this.resultsTrack) {
-        // If no results track, just one solid mass of grey.
-        var noResultsDiv = dom.create("div");
-        noResultsDiv.className = "combination";
-        noResultsDiv.style.height = this.heightNoResults + "px";
-        block.domNode.appendChild( noResultsDiv );
+    if( !this.resultsTrack ) {
+        this.fillMessage( blockIndex, block, 'Drag tracks here to combine them.' );
     }
+    else {
 
     // Ensures highlighting handled correctly.
     var highlight = this.browser.getHighlight();
     if( highlight && highlight.ref == this.refSeq.name )
         this.renderRegionHighlight( args, highlight );
 
-    this.height = this.resultsTrack ? this.heightResults : this.heightNoResults;
-
-    this.heightUpdate( this.height, blockIndex);
-    this.div.style.height = this.height + "px";
+    this.heightUpdate( this.heightResults, blockIndex);
+    }
     args.finishCallback();
 },
 
