@@ -62,11 +62,8 @@ constructor: function( args ) {
                 resultsTypes:   [{
                                      name: "HTMLFeatures",
                                      path: "JBrowse/View/Track/HTMLFeatures"
-                                 },
-                                 {
-                                     name: "CanvasFeatures",
-                                     path: "JBrowse/View/Track/CanvasFeatures"
-                                 }],
+                                 }
+                                ],
                 store:        "JBrowse/Store/SeqFeature/Combination",
                 allowedOps:   ["&", "U", "X", "S"],
                 defaultOp :   "&"
