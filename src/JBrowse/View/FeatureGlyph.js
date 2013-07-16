@@ -14,11 +14,44 @@ define([
 return declare( Component, {
     constructor: function( args ) {
         this.track = args.track;
+        this.booleanAlpha = 0.17;
+
+
+        // This allows any features that are completely masked to have their transparency set before being rendered,
+        // saving the hassle of clearing and rerendering later on.
+        aspect.before(this, 'renderFeature',
+                    function( context, block, fRect ) {
+                        if (fRect.m) {
+                            var l = Math.floor(fRect.l);
+                            var w = Math.ceil(fRect.w + fRect.l) - l;
+                            fRect.m.sort(function(a,b) { return a.l - b.l});
+                            var m = fRect.m[0];
+                            if (m.l <= l) {
+                                // Determine whether the feature is entirely masked.
+                                var end = fRect.m[0].l;
+                                for(var i in fRect.m) {
+                                    var m = fRect.m[i];
+                                    if(m.l > end)
+                                        break;
+                                    end = m.l + m.w;
+                                }
+                                if(end >= l + w) {
+                                    context.globalAlpha = this.booleanAlpha;
+                                    fRect.noMask = true;
+                                }
+                            }
+                        }
+                    }, true);
+
         // after rendering the features, do masking if required
+
         aspect.after(this, 'renderFeature', 
                      function( context, block, fRect ) { 
-                        if (fRect.m) {
+                        if (fRect.m && !fRect.noMask) {
                             this.maskBySpans( context, block, fRect );
+                        } else if ( fRect.noMask) {
+                            delete fRect.noMask;
+                            context.globalAlpha = 1;
                         }
                     }, true);
     },
@@ -89,13 +122,13 @@ return declare( Component, {
     /* If it's a boolean track, mask accordingly */
     maskBySpans: function( context, block, fRect ) {
         var canvasHeight = context.canvas.height;
-        var booleanAlpha = 0.17;
 
         // make a temporary canvas to store image data
         var tempCan = dojo.create( 'canvas', {height: canvasHeight, width: context.canvas.width} );
         var ctx2 = tempCan.getContext('2d');
         var l = Math.floor(fRect.l);
-        var w = Math.ceil(fRect.w + fRect.l) - l; 
+        var w = Math.ceil(fRect.w + fRect.l) - l;
+
         /* note on the above: the rightmost pixel is determined 
            by l+w. If either of these is a float, then canvas 
            methods will not behave as desired (i.e. clear and 
@@ -116,7 +149,7 @@ return declare( Component, {
             if ( m.l + m.w > context.canvas.width )
                 m.w = context.canvas.width-m.l;
             ctx2.drawImage(context.canvas, m.l, fRect.t, m.w, fRect.h, m.l, fRect.t, m.w, fRect.h);
-            context.globalAlpha = booleanAlpha;
+            context.globalAlpha = this.booleanAlpha;
             // clear masked region and redraw at lower opacity.
             context.clearRect(m.l, fRect.t, m.w, fRect.h);
             context.drawImage(tempCan, m.l, fRect.t, m.w, fRect.h, m.l, fRect.t, m.w, fRect.h);
