@@ -23,6 +23,9 @@ sub _aggregate_features_from_gbk_record {
     my ( $self, $f ) = @_;
     $f->{'seq_id'} = $f->{'ACCESSION'};
 
+    # see if this is a region record, and if so, make a note of offset so 
+    # we can add it to coordinates below
+
     # get index of top level feature ('mRNA' at current writing)
     my $indexTopLevel;
     my $count = 0;
@@ -51,7 +54,7 @@ sub _aggregate_features_from_gbk_record {
 	$startStop->[0]++;
 	my $newFeature = {'start' => $startStop->[0] || 0,
 			  'end' => $startStop->[1] || 0,
-			  'foo' => 'bar','foo1' => 'bar','foo2' => 'bar','foo3' => 'bar','foo4' => 'bar','foo5' => 'bar','foo6' => 'bar','foo7' => 'bar','foo8' => 'bar','foo9' => 'bar','foo10' => 'bar','foo11' => 'bar','foo12' => 'bar','foo13' => 'bar','foo14' => 'bar',
+			  'foo' => 'null','foo1' => 'null','foo2' => 'null','foo3' => 'null','foo4' => 'null','foo5' => 'null','foo6' => 'null','foo7' => 'null','foo8' => 'null','foo9' => 'null','foo10' => 'null','foo11' => 'null','foo12' => 'null','foo13' => 'null','foo14' => 'null',
 			 };
 	push @{$f->{'subfeatures'}}, $newFeature;
       }
