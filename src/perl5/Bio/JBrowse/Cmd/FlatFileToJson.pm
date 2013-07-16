@@ -90,7 +90,7 @@ sub run {
 
     my %config = (
         type         => $self->opt('getType') || $self->opt('type') ? 1 : 0,
-        csstype      => $self->{'opt'}->{'trackType'},
+        jstype       => $self->opt('trackType'),
         phase        => $self->opt('getPhase'),
         subfeatures  => $self->opt('getSubs'),
         style          => {
