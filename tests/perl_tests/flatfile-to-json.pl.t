@@ -348,10 +348,11 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     # test start/stop of parent feature (full record)
     ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[1] == 5001, "got right start coordinate (full record)" );
     ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[2] == 10950, "got right stop coordinate (full record)" );
+    ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[17] eq 'mRNA', "got right type in parent feature (full record)" );
 
     # test that the right attributes are present
      is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})], 
-		[sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM',  'VERSION',  'SOURCE',  'Subfeatures']})],
+		[sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
 		'got the right attributes in trackData.json')
 	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
     
@@ -369,12 +370,13 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 
     my $subfeatures = $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex];
     ok ( scalar @{$subfeatures} == 15, "got the right number of subfeatures");
-    ok ( scalar(@{$subfeatures->[0]}) == scalar(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}}),
-	 "subfeature array is same length as attribute array");
+    ok ( scalar(@{$subfeatures->[0]}) + 1 == scalar(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}}),
+	 "subfeature array is the right length (length of attribute array + 1)");
     # test first subfeature completely
     ok ( exists $subfeatures->[0]->[0] && $subfeatures->[0]->[0] == 1, "first item set correctly in subfeature");
     ok ( exists $subfeatures->[0]->[1] && $subfeatures->[0]->[1] == 5001, "start set correctly in subfeature") || diag $subfeatures->[0]->[1];
     ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[2] == 5114, "end set correctly in subfeature") || diag $subfeatures->[0]->[2];
+    ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[17] eq 'exon', "type set correctly in subfeature") || diag $subfeatures->[0]->[2];
     undef;
 
 }

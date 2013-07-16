@@ -46,6 +46,7 @@ sub _aggregate_features_from_gbk_record {
     my $startStop = _extractStartStopFromJoinToken( $f->{FEATURES}->[$indexTopLevel] );
     $f->{'start'} = $startStop->[0] + $offset + 1;
     $f->{'end'} = $startStop->[1] + $offset;
+    $f->{'type'} = $f->{FEATURES}->[$indexTopLevel]->{'name'};
 
     # add subfeatures
     $f->{'subfeatures'} = ();
@@ -55,10 +56,13 @@ sub _aggregate_features_from_gbk_record {
 	$startStop->[0] += $offset;
 	$startStop->[1] += $offset;
 	$startStop->[0]++;
-	my $newFeature = {'start' => $startStop->[0] || 0,
-			  'end' => $startStop->[1] || 0,
-			  'foo' => 'null','foo1' => 'null','foo2' => 'null','foo3' => 'null','foo4' => 'null','foo5' => 'null','foo6' => 'null','foo7' => 'null','foo8' => 'null','foo9' => 'null','foo10' => 'null','foo11' => 'null','foo12' => 'null','foo13' => 'null','foo14' => 'null',
-			 };
+ 	my $newFeature = {'start' => $startStop->[0] || 0,
+ 			  'end' => $startStop->[1] || 0,
+ 			  'type' => $f->{FEATURES}->[$i]->{'name'} || 'null',
+ 			  'foo1' => 'null','foo2' => 'null','foo3' => 'null','foo4' => 'null','foo5' => 'null','foo6' => 'null','foo7' => 'null',
+ 			  'foo8' => 'null','foo9' => 'null','foo10' => 'null','foo11' => 'null','foo12' => 'null','foo13' => 'null','foo14' => 'null',
+ 			  'foo14' => 'null'
+ 			 };
 	push @{$f->{'subfeatures'}}, $newFeature;
       }
     }
