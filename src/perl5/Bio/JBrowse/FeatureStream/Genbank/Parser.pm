@@ -329,6 +329,13 @@ accession: /ACCESSION/ section_continuing_indented
     {
         my @accs = split /\s+/, $item[2];
         $record{'ACCESSION'} = shift @accs;
+	if ( exists $item[3] ){
+	    $record{'REGION'} = $item[3];
+	    if ( my ($start, $end) = split(/\.\./, $item[3]) ){
+		$record{'REGION_START'} = $start;
+		$record{'REGION_END'} = $end;
+	    }
+	}
         push @{ $record{'VERSION'} }, @accs;
     }
 

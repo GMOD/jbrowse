@@ -25,6 +25,26 @@ sub _aggregate_features_from_gbk_record {
 
     # see if this is a region record, and if so, make a note of offset so 
     # we can add it to coordinates below
+    my $offset = 0;
+    if ( grep {$_ =~ /REGION\:/} @{$f->{'VERSION'}} ){ # this is a region file 
+ 	# get array item after REGION token
+ 	my $count = 0;
+	my $regionIndexInArray;
+ 	foreach my $item ( @{$f->{'VERSION'}} ){
+	    if ( $item =~ /REGION\:/ ){
+		$regionIndexInArray = $count;
+		last;
+	    }
+ 	    $count++;
+ 	}
+	if ( defined $regionIndexInArray ){
+	    my ($start, $end) = split(/\.\./, @{$f->{'VERSION'}}[ $regionIndexInArray + 1]);
+	    if ( defined $start ){
+		$start -= 1 if ( $start > 0 );
+		$offset = $start;
+	    }
+	}
+    }
 
     # get index of top level feature ('mRNA' at current writing)
     my $indexTopLevel;
@@ -43,14 +63,16 @@ sub _aggregate_features_from_gbk_record {
 
     # set start/stop
     my $startStop = _extractStartStopFromJoinToken( $f->{FEATURES}->[$indexTopLevel] );
-    $f->{'start'} = $startStop->[0] + 1;
-    $f->{'end'} = $startStop->[1];
+    $f->{'start'} = $startStop->[0] + $offset + 1;
+    $f->{'end'} = $startStop->[1] + $offset;
 
     # add subfeatures
     $f->{'subfeatures'} = ();
     if ( scalar( @{$f->{FEATURES}}) > $indexTopLevel ){
       for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ){
 	my $startStop = _extractStartStopFromLocation( $f->{FEATURES}->[$i]->{'location'} );
+	$startStop->[0] += $offset;
+	$startStop->[1] += $offset;
 	$startStop->[0]++;
 	my $newFeature = {'start' => $startStop->[0] || 0,
 			  'end' => $startStop->[1] || 0,
