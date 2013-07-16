@@ -1,10 +1,10 @@
 define([
-	   'dojo/_base/declare',
-       'dojo/_base/lang'
+           'dojo/_base/declare',
+           'dojo/_base/lang'
        ],
        function(declare, lang) {
 
-	   // A class representing a node of a binary tree.
+           // A class representing a node of a binary tree.
 
 return declare( null,
 {
@@ -12,10 +12,10 @@ return declare( null,
 constructor: function(args) {
     this.Value = args.Value;
     if(args.leftChild) {
-	this.leftChild = args.leftChild;
+        this.leftChild = args.leftChild;
     }
     if(args.rightChild) {
-	this.rightChild = args.rightChild;
+        this.rightChild = args.rightChild;
     }
 
     this.leaf = args.leaf || false;
@@ -115,7 +115,7 @@ getLeaves: function() {
         var retArray = new Array();
         retArray[0] = this.Value;
         return retArray;
-    } else if(this.leftChild === undefined)	{
+    } else if(this.leftChild === undefined)     {
         return this.rightChild.getLeaves();
     } else if(this.rightChild === undefined) {
         return this.leftChild.getLeaves();

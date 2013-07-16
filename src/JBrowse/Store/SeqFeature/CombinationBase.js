@@ -23,23 +23,23 @@ define([
 // Helper object that wraps a feature and which store it comes from
 var featureWrapper = Util.fastDeclare(
     {
-        get: function( arg ) { 
+        get: function( arg ) {
             return this.feature.get(arg);
         },
 
-        id: function() { 
+        id: function() {
             return this.feature.id()+this.storeName;
         },
 
-        parent: function() { 
+        parent: function() {
             return this.feature.parent();
         },
 
-        children: function() { 
+        children: function() {
             return this.feature.children();
         },
 
-        tags: function() { 
+        tags: function() {
             return this.feature.tags();
         },
 
@@ -63,7 +63,7 @@ constructor: function( args ) {
 
     this.defaultOp = args.op;
     this.ref = this.config.refSeq;
-    
+
     // If constructed with an opTree already included, might as well try to get all the store info from that opTree.
     if(args.opTree) {
         this.reload(args.opTree);
@@ -126,7 +126,7 @@ reload: function( optree ) {
             return d.promise;
         }
     );
-    
+
     // Once we have all features, combine them according to the operation tree and create new features based on them.
     when( all( fetchAllFeatures ), function() {
         // Create a set of spans based on the evaluation of the operation tree
@@ -163,14 +163,14 @@ evalTree: function(featureArrays, tree, query) {
     } else if(tree.isLeaf()) {
         return this.toSpan(featureArrays[tree.get().name], query);
     } else if(!tree.hasLeft()) {
-        return this.toSpan(featureArrays[tree.right().get().name], query);  
+        return this.toSpan(featureArrays[tree.right().get().name], query);
     } else if(!tree.hasRight()) {
         return this.toSpan(featureArrays[tree.left().get().name], query);
     }
     return this.opSpan(
-                        tree.get(), 
-                        this.evalTree(featureArrays, tree.left(), query), 
-                        this.evalTree(featureArrays, tree.right(), query), 
+                        tree.get(),
+                        this.evalTree(featureArrays, tree.left(), query),
+                        this.evalTree(featureArrays, tree.right(), query),
                         query
                     );
 },

@@ -543,7 +543,7 @@ initView: function() {
                     iconClass: 'dijitIconSample',
                     onClick: dojo.hitch(this, 'createCombinationTrack')
                 }));
-            
+
             this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
 
