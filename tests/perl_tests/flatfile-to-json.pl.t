@@ -221,6 +221,34 @@ sub tempdir {
     ok( $trackList->{'tracks'}->[0]->{'style'}->{'className'} eq 'flingwibbit', "cssClassName set correctly");
 }
 
+{   
+    # diag "testing options to set track type in trackList.json";
+
+    my $tempdir = tempdir();
+    dircopy( 'tests/data/AU9', $tempdir );
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+        );
+
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'type'} eq 'FeatureTrack', "default track type is FeatureTrack");
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+	'--trackType' => 'flingwibbit'
+        );
+
+    $read_json = sub { slurp( $tempdir, @_ ) };
+    $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'type'} eq 'flingwibbit', "non-default track type set correctly");
+}
+
 for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffold_subset_sync.gff3" ) {
     # add a test for duplicate lazyclasses bug found by Gregg
 
