@@ -376,6 +376,36 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     ok ( exists $subfeatures->[0]->[1] && $subfeatures->[0]->[1] == 5001, "start set correctly in subfeature") || diag $subfeatures->[0]->[1];
     ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[2] == 5114, "end set correctly in subfeature") || diag $subfeatures->[0]->[2];
     undef;
+
+}
+
+{
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gbk' => catfile('tests','data','gstmu_region_from_chromosome.gb'),
+        '--key' => 'Fooish Bar Data',
+        '--trackLabel' => 'foo',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
+
+    # test subfeatures
+    # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
+    my $subFeatureIndex;
+    for my $i ( 0 .. scalar( @{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}} ) - 1 ) {
+	if ( $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}->[$i] =~ m/subfeatures/i ){
+	    $subFeatureIndex = $i;
+	    last;
+	}
+    }
+    my $actualSubFeatureIndex = $subFeatureIndex + 1; # because the first thing in nclist is 0
+    ok( defined( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex] ), "got something in subfeatures when parsing genbank partial region file");
+
+    my $subfeatures = $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex];
+    ok ( exists $subfeatures->[0]->[1] && $subfeatures->[0]->[1] == 5001, "start set correctly in subfeature (partial region of chromosome)") || diag $subfeatures->[0]->[1];
+    ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[2] == 5114, "end set correctly in subfeature (partial region of chromosome)") || diag $subfeatures->[0]->[2];
+
 }
 
 {

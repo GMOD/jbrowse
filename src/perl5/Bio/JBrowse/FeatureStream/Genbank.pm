@@ -89,7 +89,7 @@ sub _extractStartStopFromLocation {
     my @startStop;
     $feat =~ s/join\(//;
     $feat =~ s/\)//;
-    my @coordinates = split(/\.\./, $feat);
+    my @coordinates = split(/\.\.\>*/, $feat);
     $startStop[0] = $coordinates[0];
     $startStop[1] = $coordinates[-1];
     return \@startStop;
