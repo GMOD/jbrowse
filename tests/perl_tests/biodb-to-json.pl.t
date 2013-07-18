@@ -176,6 +176,7 @@ use FileSlurping 'slurp';
       'autocomplete' => 'all',
       'category' => 'Genes',
       'compress' => '0',
+      'storeClass' => 'JBrowse/Store/SeqFeature/NCList',
       'feature' => [
         'gene'
       ],
@@ -198,6 +199,7 @@ use FileSlurping 'slurp';
       'category' => 'Genes',
       'compress' => 0,
       'description' => 1,
+      'storeClass' => 'JBrowse/Store/SeqFeature/NCList',
       'feature' => [
         'mRNA'
       ],

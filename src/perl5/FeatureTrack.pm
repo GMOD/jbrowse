@@ -28,6 +28,7 @@ sub new {
     my ($class, $trackDirTemplate, $baseUrl, $label, $config, $key, $jsclass) = @_;
 
     $config->{compress} = $config->{compress} || 0;
+    $config->{storeClass} = 'JBrowse/Store/SeqFeature/NCList';
     my $self = {
                 trackDirTemplate => $trackDirTemplate,
                 label => $label,
