@@ -5,7 +5,8 @@
          "urlTemplate" : "seq/{refseq}/",
          "type" : "SequenceTrack",
          "label" : "DNA",
-         "key" : "Reference sequence"
+         "key" : "Reference sequence",
+         "storeClass": "JBrowse/Store/Sequence/StaticChunked"
       }
    ],
    "formatVersion" : 1

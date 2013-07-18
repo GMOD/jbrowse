@@ -37,7 +37,8 @@ is_deeply( $tracklist,
                        'urlTemplate' => 'seq/{refseq}/',
                        'key' => 'Reference sequence',
                        'label' => 'DNA',
-                       'type' => 'SequenceTrack'
+                       'type' => 'SequenceTrack',
+                       'storeClass' => 'JBrowse/Store/Sequence/StaticChunked',
                    },
                    {
                        'compress' => 0,

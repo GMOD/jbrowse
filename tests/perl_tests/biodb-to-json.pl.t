@@ -170,7 +170,8 @@ use FileSlurping 'slurp';
       'key' => 'Reference sequence',
       'label' => 'DNA',
       'type' => 'SequenceTrack',
-      'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-'
+      'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-',
+      'storeClass' => 'JBrowse/Store/Sequence/StaticChunked',
     },
     {
       'autocomplete' => 'all',
