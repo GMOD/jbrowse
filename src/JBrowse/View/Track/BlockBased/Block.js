@@ -13,6 +13,7 @@ return declare( Destroyable, {
         var nodeArgs = this.node || {};
         delete this.node;
         this.domNode = dojo.create( 'div', nodeArgs );
+        this.domNode.block = this;
     },
 
     bpToX: function( coord ) {
