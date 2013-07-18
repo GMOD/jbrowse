@@ -165,7 +165,7 @@ var RequestWorker = declare( null,
         f.max = fmax;
         f.type = 'remark';
         f.source = this.source;
-        f.parent = function(){ return undefined; }
+        f.parent = function(){ return undefined; };
 
         for (k in opts) {
             f[k] = opts[k];
