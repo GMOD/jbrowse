@@ -555,8 +555,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 // dynamically resize the coverage divs.
                 var start = sourceSlot.booleanCovs[key].span.s;
                 var end   = sourceSlot.booleanCovs[key].span.e;
-                if ( end < containerStart || start > containerEnd) 
-                    continue; 
+                if ( end < containerStart || start > containerEnd)
+                    continue;
                 // note: we should also remove it from booleanCovs at some point.
                 sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
                 sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
@@ -564,25 +564,25 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             }
         }
         // add the processed subfeatures, if in frame.
-        dojo.query( '.basicSubfeature', sourceSlot ).forEach( 
+        dojo.query( '.basicSubfeature', sourceSlot ).forEach(
             function(node, idx, arr) {
                 var start = node.subfeatureEdges.s;
                 var end   = node.subfeatureEdges.e;
-                if ( end < containerStart || start > containerEnd ) 
+                if ( end < containerStart || start > containerEnd )
                     return;
                 node.style.left = 100*(start-s)/(e-s)+'%';
                 node.style.width = 100*(end-start)/(e-s)+'%';
                 featDiv.appendChild(node);
             }
-        )
+        );
         if ( this.config.style.arrowheadClass ) {
             // add arrowheads
             var a = this.config.style.arrowheadClass;
-            dojo.query( '.minus-'+a+', .plus-'+a, sourceSlot ).forEach( 
+            dojo.query( '.minus-'+a+', .plus-'+a, sourceSlot ).forEach(
                 function(node, idx, arr) {
                     featDiv.appendChild(node);
                 }
-            )
+            );
         }
         featDiv.className = 'basic';
         featDiv.oldClassName = sourceSlot.oldClassName;
@@ -646,8 +646,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 function ( args ) {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
-                                    if ( args && args.maskingSpans ) { 
-                                        curTrack.maskBySpans( ); 
+                                    if ( args && args.maskingSpans ) {
+                                        curTrack.maskBySpans( );
                                     }
                                     finishCallback();
                                 },
@@ -704,9 +704,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         for ( var i in blocks ) {
             if ( blocks.hasOwnProperty(i) ) {
                 // loop through all blocks
-                if ( !blocks[i] ) 
+                if ( !blocks[i] )
                     continue;
-                var block = blocks[i]
+                var block = blocks[i];
                 var bs = block.startBase;
                 var be = block.endBase;
 
@@ -716,7 +716,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     var e = Math.min( featEnd, spanEnd );
                     if ( s < e ) { return {s:s, e:e}; }
                     return false;
-                }
+                };
 
                 var union = function ( start1, end1, start2, end2 ) {
                     // outputs the endpoints of the union
@@ -725,12 +725,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                  e: Math.max( end1, end2 ) };
                     }
                     else { return false; }
-                }
+                };
 
                 var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
                     // make a coverage div
                     var coverageNode = dojo.create('div');
-                    var s = parentDiv.featureEdges 
+                    var s = parentDiv.featureEdges
                             ? parentDiv.featureEdges.s
                             : parentDiv.subfeatureEdges.s;
                     var e = parentDiv.featureEdges
@@ -748,11 +748,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     coverageNode.style.top = '0px';
                     coverageNode.style.width = 100*(end-start)/(e-s)+'%';
                     return coverageNode;
-                }
+                };
 
                 var addDiv = function ( start, end, parentDiv, masked, voidClass, isAdded ) {
                     // Loop through coverage Nodes, combining existing nodes so they don't overlap, and add new divs.
-                    var isAdded = isAdded || false; 
+                    isAdded = isAdded || false;
                     for ( var key in parentDiv.childNodes ) {
                         if ( parentDiv.childNodes[key] && parentDiv.childNodes[key].booleanDiv ) {
                             var divStart = parentDiv.childNodes[key].span.s;
@@ -780,7 +780,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         parentDiv.appendChild(coverageNode);
                         parentDiv.booleanCovs.push(coverageNode);
                     }
-                }
+                };
 
                 var getInverseMasks = function(start, end, masks) {
                     var invSpan = [];
@@ -813,10 +813,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         var e = featDiv.subfeatureEdges.e;
                         var voidClass = 'basicSubfeature';
                         var feature = featDiv.parentNode.feature;
-                        if(feature)
-                            var spans = feature.masks;
-                        else
-                            var spans = [];
+                        var spans = feature ? feature.masks : [];
                     }
 
                     var invSpans = getInverseMasks(s, e, spans);
@@ -845,8 +842,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                         ? featDiv.oldClassName
                                         : featDiv.className;
                     featDiv.className = voidClass;
-                }
-                
+                };
+
                 for ( var key in block.featureNodes ) {
                     if (block.featureNodes.hasOwnProperty(key)) {
                         var featDiv = block.featureNodes[key];
@@ -1285,8 +1282,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         subDiv.subfeatureEdges = { s: subStart, e: subEnd };
 
         dojo.addClass(subDiv, "subfeature");
-        // check for className to avoid adding "null", "plus-null", "minus-null" 
-        if (className) {  
+        // check for className to avoid adding "null", "plus-null", "minus-null"
+        if (className) {
             switch ( subfeature.get('strand') ) {
             case 1:
             case '+':
