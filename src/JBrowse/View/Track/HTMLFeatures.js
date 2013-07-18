@@ -254,8 +254,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-	var viewmin = this.browser.view.minVisible();
-	var viewmax = this.browser.view.maxVisible();
+    var viewmin = this.browser.view.minVisible();
+    var viewmax = this.browser.view.maxVisible();
 
         var blocks = this.blocks;
 
@@ -336,7 +336,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                               if( ! featDiv.label ) return;
                               var labelDiv = featDiv.label;
                               var feature = featDiv.feature;
-
                               // get the feature start and end in terms of block width pct
                               var minLeft = parseInt( feature.get('start') );
                               minLeft = 100 * (minLeft - block.startBase) / blockWidth;
@@ -648,24 +647,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
                                     if ( args && args.maskingSpans ) { 
-                                        //note: spans have to be inverted
-                                        var invSpan = [];
-                                        invSpan[0] = { start: leftBase };
-                                        var i = 0;
-                                        for ( var span in args.maskingSpans) {
-                                            if (args.maskingSpans.hasOwnProperty(span)) {
-                                                span = args.maskingSpans[span];
-                                                invSpan[i].end = span.start;
-                                                i++;
-                                                invSpan[i] = { start: span.end };
-                                            }
-                                        }
-                                        invSpan[i].end = rightBase;
-                                        if (invSpan[i].end <= invSpan[i].start) {
-                                            invSpan.splice(i,1); }
-                                        if (invSpan[0].end <= invSpan[0].start) {
-                                            invSpan.splice(0,1); }
-                                        curTrack.maskBySpans( invSpan, args.maskingSpans ); 
+                                        curTrack.maskBySpans( ); 
                                     }
                                     finishCallback();
                                 },
@@ -717,7 +699,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     /**
      * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
      */
-    maskBySpans: function ( invSpans, spans ) {
+    maskBySpans: function () {
         var blocks = this.blocks;
         for ( var i in blocks ) {
             if ( blocks.hasOwnProperty(i) ) {
@@ -755,12 +737,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             ? parentDiv.featureEdges.e
                             : parentDiv.subfeatureEdges.e;
                     coverageNode.span = { s:start, e:end };
-                    coverageNode.className = masked ?  (feat.className == voidClass
-                                                        ? feat.oldClassName + ' Boolean-transparent'
-                                                        : feat.className +' Boolean-transparent')
-                                                    :  (feat.className == voidClass
-                                                        ? feat.oldClassName
-                                                        : feat.className);
+                    coverageNode.className = masked ?  (parentDiv.className == voidClass
+                                                        ? parentDiv.oldClassName + ' Boolean-transparent'
+                                                        : parentDiv.className +' Boolean-transparent')
+                                                    :  (parentDiv.className == voidClass
+                                                        ? parentDiv.oldClassName
+                                                        : parentDiv.className);
                     coverageNode.booleanDiv = true;
                     coverageNode.style.left = 100*(start-s)/(e-s)+'%';
                     coverageNode.style.top = '0px';
@@ -800,17 +782,53 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     }
                 }
 
-                var addOverlaps = function ( s, e, feat, spans, invSpans, voidClass ) {
-                    if ( !feat.booleanCovs ) {
-                        feat.booleanCovs = [];
+                var getInverseMasks = function(start, end, masks) {
+                    var invSpan = [];
+                    invSpan[0] = { start: start };
+                    var i = 0;
+                    for ( var span in masks) {
+                        if (masks.hasOwnProperty(span)) {
+                            span = masks[span];
+                            invSpan[i].end = span.start;
+                            i++;
+                            invSpan[i] = { start: span.end };
+                        }
+                    }
+                    invSpan[i].end = end;
+                    if (invSpan[i].end <= invSpan[i].start) {
+                        invSpan.splice(i,1); }
+                    if (invSpan[0].end <= invSpan[0].start) {
+                        invSpan.splice(0,1); }
+                    return invSpan;
+                };
+
+                var addOverlaps = function ( featDiv ) {
+                    if(featDiv.feature) {
+                        var s = featDiv.feature.get('start');
+                        var e = featDiv.feature.get('end');
+                        var spans = featDiv.feature.masks;
+                        var voidClass = 'basic';
+                    } else {
+                        var s = featDiv.subfeatureEdges.s;
+                        var e = featDiv.subfeatureEdges.e;
+                        var voidClass = 'basicSubfeature';
+                        var feature = featDiv.parentNode.feature;
+                        if(feature)
+                            var spans = feature.masks;
+                        else
+                            var spans = [];
+                    }
+
+                    var invSpans = getInverseMasks(s, e, spans);
+
+                    if ( !featDiv.booleanCovs ) {
+                        featDiv.booleanCovs = [];
                     }
                     // add opaque divs
+
                     for ( var index in invSpans ) {
                         if ( invSpans.hasOwnProperty(index) ) {
-                            var ov = overlaps( s, e, invSpans[index].start, invSpans[index].end );
-                            if ( ov ) {
-                                addDiv( ov.s, ov.e, feat, false, voidClass );
-                            }
+                            addDiv( invSpans[index].start, invSpans[index].end, featDiv, false, voidClass );
                         }
                     }
                     // add masked divs
@@ -818,30 +836,21 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         if ( spans.hasOwnProperty(index) ) {
                             var ov = overlaps( s, e, spans[index].start, spans[index].end );
                             if ( ov ) {
-                                addDiv( ov.s, ov.e, feat, true, voidClass );
+                                addDiv( ov.s, ov.e, featDiv, true, voidClass );
                             }
                         }
                     }
 
-                    feat.oldClassName = feat.className == voidClass
-                                        ? feat.oldClassName
-                                        : feat.className;
-                    feat.className = voidClass;
+                    featDiv.oldClassName = featDiv.className == voidClass
+                                        ? featDiv.oldClassName
+                                        : featDiv.className;
+                    featDiv.className = voidClass;
                 }
-
+                
                 for ( var key in block.featureNodes ) {
                     if (block.featureNodes.hasOwnProperty(key)) {
-                        var feat = block.featureNodes[key];
-                        if ( !feat.feature ) {
-                            // If there is no feature property, than it is a subfeature
-                            var s = feat.subfeatureEdges.s;
-                            var e = feat.subfeatureEdges.e;
-                            addOverlaps( s, e, feat, spans, invSpans, 'basicSubfeature' );
-                            continue;
-                        }
-                        var s = feat.feature.get('start');
-                        var e = feat.feature.get('end');
-                        addOverlaps( s, e, feat, spans, invSpans, 'basic' );
+                        var featDiv = block.featureNodes[key];
+                        addOverlaps( featDiv );
                     }
                 }
             }
@@ -1272,7 +1281,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             return null;
 
         var subDiv = document.createElement("div");
-        // used by boolean tracks to do positionning
+        // used by boolean tracks to do positioning
         subDiv.subfeatureEdges = { s: subStart, e: subEnd };
 
         dojo.addClass(subDiv, "subfeature");
