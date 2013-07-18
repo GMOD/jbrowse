@@ -123,6 +123,8 @@ return declare( Component, {
     maskBySpans: function( context, block, fRect ) {
         var canvasHeight = context.canvas.height;
 
+        var thisB = this;
+
         // make a temporary canvas to store image data
         var tempCan = dojo.create( 'canvas', {height: canvasHeight, width: context.canvas.width} );
         var ctx2 = tempCan.getContext('2d');
@@ -149,7 +151,7 @@ return declare( Component, {
             if ( m.l + m.w > context.canvas.width )
                 m.w = context.canvas.width-m.l;
             ctx2.drawImage(context.canvas, m.l, fRect.t, m.w, fRect.h, m.l, fRect.t, m.w, fRect.h);
-            context.globalAlpha = this.booleanAlpha;
+            context.globalAlpha = thisB.booleanAlpha;
             // clear masked region and redraw at lower opacity.
             context.clearRect(m.l, fRect.t, m.w, fRect.h);
             context.drawImage(tempCan, m.l, fRect.t, m.w, fRect.h, m.l, fRect.t, m.w, fRect.h);
