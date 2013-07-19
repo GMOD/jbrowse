@@ -148,7 +148,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var rectWidth = fRect.rect.w;
         var rectHeight = fRect.rect.h;
 
-        context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
+        if( this.track.displayMode != 'collapsed' )
+            context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
         // background
         var color = this.getStyle( fRect.f, 'color' );
