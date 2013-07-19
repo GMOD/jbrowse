@@ -177,7 +177,7 @@ constructor: function( args ) {
 
     // This variable (which will later be a deferred) ensures that when multiple tracks are added simultaneously,
     // The dialogs for each one don't render all at once.
-    this.lastDialogDone = true;
+    this.lastDialogDone = [true];
 
 },
 
@@ -375,12 +375,14 @@ runDialog: function(trackConfig, store) {
         this._adjustStores(store);
         return;
     }
+    var d = new Deferred();
+
+    this.lastDialogDone.push(d);
     // Once the last dialog has closed, opens a new one
-    when( this.lastDialogDone,
+    when( this.lastDialogDone.shift(),
           dojo.hitch( this, function() {
                           if(this.preferencesDialog)
                               this.preferencesDialog.destroyRecursive();
-                          this.lastDialogDone = new Deferred();
                           this.preferencesDialog = new CombinationDialog({
                                                                              trackConfig: trackConfig,
                                                                              store: store,
@@ -390,10 +392,10 @@ runDialog: function(trackConfig, store) {
                           this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
                                                                     this.opTree = opTree;
                                                                     this.displayType = displayType;
-                                                                    this.lastDialogDone.resolve(true);
+                                                                    d.resolve(true);
                                                                     this._adjustStores(newstore);
                                                                 }), dojo.hitch(this, function() {
-                                                                                   this.lastDialogDone.resolve(true);
+                                                                                   d.resolve(true);
                                                                                }));
                       }));
 },
