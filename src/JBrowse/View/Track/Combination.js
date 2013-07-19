@@ -664,6 +664,13 @@ refresh: function(track) {
                      }));
 },
 
+clear: function() {
+    this.inherited(arguments);
+    if(this.resultsTrack && !this.onlyRefreshOuter) {
+        this.resultsTrack.clear();
+    }
+},
+
 // Extends the BlockBased track's showRange function.
 showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
 
@@ -671,9 +678,6 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
                   b: bpPerBlock, sc: scale,
                   cs: containerStart, ce: containerEnd};
     if(this.resultsTrack && !this.onlyRefreshOuter) {
-
-        // The results track should be reloaded to show the same range as the outer track
-        this.resultsTrack.clear();
 
         // This is a workaround to a glitch that causes an opaque white rectangle to appear sometimes when a quantitative
         // track is loaded.
