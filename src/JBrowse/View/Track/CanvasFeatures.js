@@ -375,16 +375,18 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             return;
         }
 
-        // make features get highlighted on mouse move
-        block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
-                domGeom.normalizeEvent( evt );
-                var bpX = evt.layerX / block.scale + block.startBase;
-                var feature = thisB.layout.getByCoord( bpX, evt.layerY );
-                thisB.mouseoverFeature( feature );
-            }));
-        block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
-                    thisB.mouseoverFeature( undefined );
-            }));
+        if( this.displayMode != 'collapsed' ) {
+            // make features get highlighted on mouse move
+            block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
+                               domGeom.normalizeEvent( evt );
+                               var bpX = evt.layerX / block.scale + block.startBase;
+                               var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                               thisB.mouseoverFeature( feature );
+                           }));
+            block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
+                               thisB.mouseoverFeature( undefined );
+                           }));
+        }
 
         // connect up the event handlers
         for( var event in this.eventHandlers ) {
