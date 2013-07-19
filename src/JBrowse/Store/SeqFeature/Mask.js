@@ -95,7 +95,7 @@ getGlobalStats: function (callback, errorCallback) {
 },
 
 // The regional stats of this store should be the same as those for the display data.
-getRegionStats: function (query, successCallback, errorCallback) {
+getRegionStats: function (query, callback, errorCallback) {
     return this.stores.display.getRegionStats(query, callback, errorCallback);
 },
 
