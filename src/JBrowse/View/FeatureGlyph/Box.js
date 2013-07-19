@@ -55,15 +55,9 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     _getFeatureHeight: function( viewArgs, feature ) {
         var h = this.getStyle( feature, 'height');
 
-        switch( viewArgs.displayMode ) {
-            case "squish":
-                h = 0.6*h;
-                break;
-            case "dense":
-                h = 0.6*h;
-                break;
-            default:
-        }
+        if( viewArgs.displayMode == 'compact' )
+            h = Math.round( 0.4 * h );
+
         return h;
     },
 
@@ -82,7 +76,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         fRect.w = fRect.rect.w; // in case it was increased
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
-        if( viewArgs.displayMode == "dense")
+        if( viewArgs.displayMode == "collapsed")
             return fRect;
 
         // maybe get the feature's name, and update the layout box

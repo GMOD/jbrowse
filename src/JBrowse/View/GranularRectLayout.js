@@ -21,7 +21,13 @@ return declare( null,
     constructor: function( args ) {
         this.pitchX = args.pitchX || 10;
         this.pitchY = args.pitchY || 10;
+
         this.displayMode = args.displayMode;
+
+        // reduce the pitchY to try and pack the features tighter
+        if( this.displayMode == 'compact' )
+            this.pitchY = Math.round( this.pitchY/4 );
+
         this.bitmap = [];
         this.rectangles = {};
         this.maxHeight = Math.ceil( ( args.maxHeight || Infinity ) / this.pitchY );
@@ -75,7 +81,7 @@ return declare( null,
     },
 
     _collides: function( rect, top ) {
-        if(this.displayMode == "dense")
+        if( this.displayMode == "collapsed" )
             return false;
 
         var bitmap = this.bitmap;
