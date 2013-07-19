@@ -64,16 +64,18 @@ return declare( WiggleBase,
         dojo.forEach( pixels, function(p,i) {
             if (p) {
                 var score = p['score'];
+                var f = p['feat'];
+                
                 var n = normalize( score );
                 context.fillStyle = ''+featureColor( p, n );
                 context.fillRect( i, 0, 1, canvasHeight );
                 if( n > 1 ) { // pos clipped
                     context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
-                    context.fillRect( fRect.l, 0, fRect.w, 3 );
+                    context.fillRect( i, 0, 1, 3 );
                 }
                 else if( n < 0 ) { // neg clipped
                     context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
-                    context.fillRect( fRect.l, canvasHeight-3, fRect.w, 3 );
+                    context.fillRect( i, canvasHeight-3, 1, 3 );
                }
             }
         });

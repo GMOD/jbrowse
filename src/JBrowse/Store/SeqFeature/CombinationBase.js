@@ -6,6 +6,8 @@ define([
            'dojo/promise/all',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
+           'JBrowse/Store/DeferredFeaturesMixin',
+           'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Util',
            'JBrowse/Model/BinaryTreeNode'
        ],
@@ -17,6 +19,8 @@ define([
            all,
            SeqFeatureStore,
            DeferredStatsMixin,
+           DeferredFeaturesMixin,
+           GlobalStatsEstimationMixin,
            Util,
            TreeNode
        ) {
@@ -51,7 +55,7 @@ var featureWrapper = Util.fastDeclare(
     }
 );
 
-return declare([SeqFeatureStore, DeferredStatsMixin], {
+return declare([SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, GlobalStatsEstimationMixin], {
 
 // The base class for combination stores.  A combination store is one that pulls feature data from other stores
 // and combines it according to a binary tree of operations in order to produce new features.
@@ -71,10 +75,8 @@ constructor: function( args ) {
 
 },
 
-// Loads an operation tree (opTree) and gets all features from all stores.  This constructs an array of features that can be
-// easily filtered and returned when getFeatures are called.
+// Loads an operation tree (opTree).
 
-// The downside of this approach (e.g. global feature-loading) is it may slow things down substantially for large reference sequences.
 reload: function( optree ) {
     this._deferred.features = new Deferred();
     this._deferred.stats = new Deferred();
@@ -98,14 +100,27 @@ reload: function( optree ) {
     }
     var thisB = this;
 
+    this._deferred.features.resolve(true);
+    
+    this._estimateGlobalStats().then( dojo.hitch(
+                                                        this,
+                                                        function( stats ) {
+                                                            this.globalStats = stats;
+                                                            this._deferred.stats.resolve({success:true});
+                                                        }
+                                                    ),
+                                                    dojo.hitch( this, '_failAllDeferred' )
+                                                  );
+    return all([this._deferred.stats, this._deferred.features]);
+},
+
+// Filters the featureArrays to return the list of features for the query, and then calls finish() to pass to the callback
+_getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
+    var thisB = this;
+
     // featureArrays will be a map from the names of the stores to an array of each store's features
     var featureArrays = {};
 
-    this.globalQuery =   {
-                            ref: refSeq.name,
-                            start: refSeq.start,
-                            end: refSeq.end
-                        };
     // Generate map
     var fetchAllFeatures = thisB.stores.map(
         function (store) {
@@ -114,14 +129,13 @@ reload: function( optree ) {
                 featureArrays[store.name] = [];
             }
             store.getFeatures(
-                thisB.globalQuery,
+                query,
                 dojo.hitch( this, function( feature ) {
                     var feat = new featureWrapper( feature, store.name );
                     featureArrays[store.name].push( feat );
                 }),
                 function(){d.resolve( featureArrays[store.name] ); },
-                function(){d.reject("Error fetching features for store " + store.name);
-                console.log("Error");}
+                function(){d.reject("Error fetching features for store " + store.name);}
             );
             return d.promise;
         }
@@ -130,30 +144,11 @@ reload: function( optree ) {
     // Once we have all features, combine them according to the operation tree and create new features based on them.
     when( all( fetchAllFeatures ), function() {
         // Create a set of spans based on the evaluation of the operation tree
-        thisB.spans = thisB.evalTree(featureArrays, thisB.opTree, thisB.globalQuery);
-        thisB.featureArray = thisB.createFeatures(thisB.spans);
-        thisB._deferred.features.resolve(true);
+        var spans = thisB.evalTree(featureArrays, thisB.opTree, query);
+        var features = thisB.createFeatures(spans);
+
+        thisB.finish(features, spans, featCallback, doneCallback);
     });
-    // Set global stats once we have all features.
-    this._deferred.features.promise.then(dojo.hitch(this, '_setGlobalStats'));
-
-    return all([this._deferred.stats, this._deferred.features]);
-},
-
-// Filters the featureArrays to return the list of features for the query, and then calls finish() to pass to the callback
-getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
-    var thisB = this;
-    thisB._deferred.features.promise.then(function() {
-        var filteredFeats = array.filter(thisB.featureArray, function(item) {
-                return item.get('start') < query.end && item.get('end') >= query.start;
-            });
-        var filteredSpans = array.filter(thisB.spans, function(item) {
-                return item.start < query.end && item.end >= query.start;
-            });
-
-        thisB.finish(filteredFeats, filteredSpans, featCallback, doneCallback);
-    });
-
 },
 
 // Evaluate (recursively) an operation tree to create a list of spans (essentially pseudo-features)
@@ -191,9 +186,6 @@ finish: function( features, spans, featCallback, doneCallback ) {
 
 // Converts a list of spans into a list of features.
 createFeatures: function(spans) {},
-
-// Sets the global stats once all features are loaded.
-_setGlobalStats: function() {},
 
 // Transforms a set of features into a set of spans
 toSpan: function(features, query) {},

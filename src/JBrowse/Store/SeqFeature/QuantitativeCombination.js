@@ -25,21 +25,6 @@ return declare([CombinationBaseStore], {
 // An implementation of CombinationBase that deals with quantitative features (with score, as with BigWig features).
 // Usual operations are things like addition, subtraction, multiplication, and division.
 
-// Computes global stats by calling the regionStats method using the global query (the one ranging from beginning to end of the refseq).
-_setGlobalStats: function() {
-    var thisB = this;
-    this._regionStatsCache = undefined;
-    this._getRegionStats(this.globalQuery, 
-        function(stats) {
-            thisB.globalStats = stats;
-            thisB._deferred.stats.resolve(true);
-        }, 
-        function() {
-            thisB._deferred.stats.reject("Failed to load global stats");
-        });
-
-},
-
 // Applies a given operation on two scores.
 applyOp: function(scoreA, scoreB, op) {
     var retValue;

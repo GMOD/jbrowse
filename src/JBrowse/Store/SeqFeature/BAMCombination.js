@@ -29,21 +29,6 @@ define([
 			}
 			console.error("invalid operation");
 			return undefined;
-		},
-
-		// only sets the featureDensity of the resulting feature set.
-		_setGlobalStats: function() {
-			this.globalStats.featureDensity = this._treeFeatureDensity(this.opTree);
-			this._deferred.stats.resolve(true);
-		},
-
-		// Traverses the opTree adding featureDensities to obtain a final featureDensity.
-		_treeFeatureDensity: function(opTree) {
-			if(opTree.isLeaf()) {
-				return opTree.get().globalStats.featureDensity;
-			}
-			return (opTree.leftChild ? this._treeFeatureDensity(opTree.leftChild) : 0)
-			+ (opTree.rightChild ? this._treeFeatureDensity(opTree.rightChild) : 0);
 		}
 
 	});

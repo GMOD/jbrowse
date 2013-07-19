@@ -16,13 +16,6 @@ return declare([CombinationBaseStore], {
 // An implementation of CombinationBase that deals with set-type features (without score, as in HTMLFeatures tracks).
 // Usual operations are things like intersection, union, set subtraction and XOR.
 
-// Calculates featureCount and featureDensity from the featureArray
-_setGlobalStats: function() {
-    this.globalStats.featureCount = this.featureArray.length;
-    this.globalStats.featureDensity = this.featureArray.length/this.refSeq.length;
-    this._deferred.stats.resolve(true);
-},
-
 // Creates features from spans.  Essentially copies the basic span information and adds a feature id.
 createFeatures: function(spans) {
     var features = [];

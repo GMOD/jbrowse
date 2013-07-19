@@ -145,6 +145,8 @@ constructor: function( args ) {
             "JBrowse/View/Track/HTMLFeatures": "set",
             "JBrowse/View/Track/HTMLVariants": "set",
             "JBrowse/View/Track/CanvasFeatures": "set",
+            "JBrowse/View/Track/Alignments2": "BAM",
+            "JBrowse/View/Track/SNPCoverage": "BAM",
             "JBrowse/Store/BigWig": "quantitative",
             "JBrowse/Store/SeqFeature/BAM": "BAM",
             "JBrowse/Store/SeqFeature/BAMCombination": "BAM",
@@ -612,7 +614,8 @@ _resultsTrackConfig: function(trackClass) {
         key: "Results",
         label: this.name + "_results",
         metadata: { description: "This track was created from a combination track."},
-        type: trackClass
+        type: trackClass,
+        autoscale: "local"
     };
 
     if(this.config.resultsTrack) {
@@ -626,9 +629,6 @@ _resultsTrackConfig: function(trackClass) {
         config.key = this.config.resultsTrack.key;
         config.label = this.config.resultsTrack.label;
         config.metadata = this.config.resultsTrack.metadata;
-    }
-    if(this.supportedBy[trackClass] == "quantitative") {
-        config.autoscale = "local";
     }
     return config;
 },
