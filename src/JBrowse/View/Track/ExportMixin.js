@@ -213,7 +213,7 @@ return declare( null, {
                                             iconClass: 'dijitIconSave',
                                             label: 'Save',
                                             onClick: function() {
-                                                var filename = filenameText.get('value').replace(/[^ .a-zA-Z0-9_-]/g,'-');
+                                                var filename = fileNameText.get('value').replace(/[^ .a-zA-Z0-9_-]/g,'-');
                                                 exportView.hide();
                                                 track._fileDownload({ format: format, data: output, filename: filename });
                                             }
