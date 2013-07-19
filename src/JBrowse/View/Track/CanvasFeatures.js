@@ -98,7 +98,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                 showLabels: true
             },
 
-            displayMode: 'pack'
+            displayMode: 'normal'
         };
     },
 
