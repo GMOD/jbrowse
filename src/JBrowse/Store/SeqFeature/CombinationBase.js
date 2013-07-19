@@ -111,7 +111,7 @@ reload: function( optree ) {
                                                     ),
                                                     dojo.hitch( this, '_failAllDeferred' )
                                                   );
-    return all([this._deferred.stats, this._deferred.features]);
+    return this._deferred.stats;
 },
 
 // Filters the featureArrays to return the list of features for the query, and then calls finish() to pass to the callback
