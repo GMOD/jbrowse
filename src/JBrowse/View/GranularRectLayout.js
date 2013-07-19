@@ -25,8 +25,10 @@ return declare( null,
         this.displayMode = args.displayMode;
 
         // reduce the pitchY to try and pack the features tighter
-        if( this.displayMode == 'compact' )
+        if( this.displayMode == 'compact' ) {
             this.pitchY = Math.round( this.pitchY/4 );
+            this.pitchX = Math.round( this.pitchX/4 );
+        }
 
         this.bitmap = [];
         this.rectangles = {};
