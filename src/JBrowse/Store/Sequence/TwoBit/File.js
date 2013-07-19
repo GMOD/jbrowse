@@ -21,7 +21,7 @@ define ([
         },
 
         init: function( args ) {
-            var successCallack = args.success || function() {};
+            var successCallback = args.success || function() {};
             var failCallback = args.failure || function(e) {console.error(e); };
 
             this._read2bitHeader( dojo.hitch(this, function() { 
@@ -35,7 +35,7 @@ define ([
             this.data.read(0, 15, dojo.hitch(this, function(results) {
                 var signature = this._toByteArray(results, 0, 4);
                 if(!this._arrayEquals(signature, TWOBIT_MAGIC)) {
-                    if(this.arrayEquals(this.byteSwap(signature), TWOBIT_MAGIC)) {
+                    if(this._arrayEquals(this.byteSwap(signature), TWOBIT_MAGIC)) {
                         this.byteSwapped = true;
                     } else {
                         failCallback("Not a 2bit file");
@@ -45,7 +45,25 @@ define ([
                     successCallback();
                 }
             }), failCallback);
-        }
+        },
+
+        _read2bitIndex: function( successCallback, failCallback ) {
+            this.indexOf = {};
+            this.offset = [];
+            var maxLength = 256; // Since namesize is one byte, there are at most 256 bytes used for each name.
+            this.data.read(16, this.numSeqs*(maxLength + 5), dojo.hitch(this, function(results) {
+                var i = 0;
+                for(var seqIndex = 0; seqIndex < this.numSeqs; seqIndex++) {
+                    var nameSize = this._toInteger(results, i, i+1); i++;
+                    this.indexOf[this._toString(results, i, i+nameSize)] = seqIndex; i = i + nameSize;
+                    this.offset[seqIndex] = this._toInteger(results, i, i + 4); i += 4;
+                }
+                console.log(this.indexOf, this.offset);
+                successCallback();
+            }), failCallback);
+        },
+
+
 
         _arrayEquals: function (array1, array2) {
             if(array1.length != array2.length)
@@ -56,7 +74,18 @@ define ([
             }
 
             return true;
-        }
+        },
+
+        _toString: function (arrayBuffer, start, end) {
+            var byteArray = this._toByteArray(arrayBuffer, start, end);
+            var retString = "";
+            if(typeof byteArray == 'number')
+                return String.fromCharCode(byteArray);
+            for(var i in byteArray) {
+                retString = retString + String.fromCharCode(byteArray[i]);
+            }
+            return retString;
+        },
 
         _toInteger: function (arrayBuffer, start, end) {
             var byteArray = this._toByteArray(arrayBuffer, start, end);
@@ -75,13 +104,14 @@ define ([
             } else {
                 return byteArray;
             }
-        }
+        },
 
         _toByteArray: function (arrayBuffer, start, end) {
-            var slicedArray = begin && end ? arrayBuffer.slice(begin, end) : begin ? arrayBuffer.slice(begin) : arrayBuffer;
+
+            var slicedArray = start !== undefined && end !== undefined ? arrayBuffer.slice(start, end) : start !== undefined ? arrayBuffer.slice(start) : arrayBuffer;
             var typedArray = new Uint8Array(slicedArray);
             var retArray = [];
-            for(var i in typedArray) {
+            for(var i = 0; i < typedArray.length; i++) {
                 retArray.push(typedArray[i]);
             }
             return retArray;
