@@ -711,13 +711,7 @@ fillBlock: function( args ) {
         this.fillMessage( blockIndex, block, 'Drag tracks here to combine them.' );
     }
     else {
-
-    // Ensures highlighting handled correctly.
-    var highlight = this.browser.getHighlight();
-    if( highlight && highlight.ref == this.refSeq.name )
-        this.renderRegionHighlight( args, highlight );
-
-    this.heightUpdate( this.heightResults, blockIndex);
+        this.heightUpdate( this.heightResults, blockIndex);
     }
     args.finishCallback();
 },
