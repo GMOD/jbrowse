@@ -311,7 +311,7 @@ return declare( null, {
                 storeStats = s;
             });
             if( storeStats.featureDensity ) {
-                return storeStats.featureDensity*(l.end - l.start) <= ( thisB.config.maxExportFeatures || 5000 );
+                return storeStats.featureDensity*(l.end - l.start) <= ( thisB.config.maxExportFeatures || 50000 );
             }
         }
 
