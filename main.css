@@ -500,13 +500,7 @@ div.track-label, div.tracklist-label {
 
     border-width: 1px;
     border-style: solid;
-
-    border-top-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #555
-    border-right-color: #555;
-
-    border-radius: 6px;
+    border-color: #999;
 
     color: #111;
     font-weight: bold;
@@ -515,6 +509,7 @@ div.track-label, div.tracklist-label {
 div.tracklist-label {
     white-space: nowrap;
     overflow: hidden;
+    margin-top: -1px;
 }
 
 div.tracklist-label.collapsed {
@@ -646,13 +641,15 @@ div.tracklist-label {
 }
 div.tracklist-label:hover {
     background-color:  #396494;
-    color: #fefefe;
     border: 1px solid black;
 }
 
 div.tracklist-container.dojoDndItemSelected {
     background-color:  #396494;
     background-color: rgb(110, 132, 156)
+}
+div.tracklist-container.dojoDndItemSelected .tracklist-label {
+    background-color: #b2c3d6;
 }
 
 #trackPane {
@@ -679,7 +676,7 @@ div.tracklist-container.dojoDndItemSelected {
 }
 
 div.tracklist-container {
-    padding: 2px 5px;
+    padding: 0 4px;
 }
 
 .tracklist-container.dojoDndItemBefore {
