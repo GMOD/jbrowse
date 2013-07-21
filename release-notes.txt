@@ -21,6 +21,10 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Fixed a bug with GFF3 export in which the phase(!) column was
+   missing.  Thanks to Michael Campbell at the 2013 GMOD Summer School
+   for helping track this down!
+
  * Fixed a bug in which the global highlighted region was not correctly drawn
    when switching reference sequences.
 
