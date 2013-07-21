@@ -228,7 +228,9 @@ return declare( null,
                 if( ! request.end )
                     request.end = request.start + response.byteLength;
             }
-            callback( response );
+            var nocache = /no-cache/.test( req.getResponseHeader('Cache-Control') )
+                || /no-cache/.test( req.getResponseHeader('Pragma') );
+            callback( response, null, {nocache: nocache } );
         };
 
         req.onreadystatechange = dojo.hitch( this, function() {
@@ -268,7 +270,7 @@ return declare( null,
                         }
                     }).call(this);
                     if( response ) {
-                        callback( response );
+                        respond( response );
                     }
                 } else if( attempt == 3 ) {
                     callback( null, this._errorString( req, url ) );
