@@ -164,6 +164,7 @@ sub make_feature_filter {
         } @$types;
 
         push @filters, sub {
+            no warnings 'uninitialized';
             my ($f) = @_;
             my $type = $f->{type}
                 or return 0;
