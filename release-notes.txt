@@ -5,6 +5,11 @@
    tracks).  Thanks to OICR co-op student Daniel Kasenberg for
    implementing this!
 
+ * Added "Save track data" option to Alignments2 tracks.  This option
+   should have been there all along, but somehow slipped through the
+   cracks.  Thanks to Valerie Wong for pointing this out at the 2013
+   GMOD Summer School!
+
  * Added a SPARQL data backend to allow displaying features directly
    from a SPARQL endpoint.  Many thanks to the NDBC/DBCLS BioHackathon
    2012 and 2013 participants for suggesting this and helping with
