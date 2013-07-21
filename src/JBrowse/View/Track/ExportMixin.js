@@ -89,8 +89,10 @@ return declare( null, {
         var checked = 0;
         array.forEach( possibleRegions, function(r) {
                 var locstring = Util.assembleLocString(r);
-                var regionButton = new dijitRadioButton({ name: "region", id: "region_"+r.name, value: locstring,
-                    checked: r.canExport && checked++ ? "checked" : ""});
+                var regionButton = new dijitRadioButton(
+                    { name: "region", id: "region_"+r.name,
+                      value: locstring, checked: r.canExport && !(checked++) ? "checked" : ""
+                    });
                 regionFieldset.appendChild(regionButton.domNode);
                 var regionButtonLabel = dom.create("label", {for: regionButton.id, innerHTML: r.description+' - <span class="locString">'
                                    +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')'}, regionFieldset);
