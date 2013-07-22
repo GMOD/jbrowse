@@ -802,11 +802,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @returns {Object} DOM element containing a rendering of the
      *                   detailed metadata about this track
      */
-    _trackDetailsContent: function() {
+    _trackDetailsContent: function( additional ) {
         var details = domConstruct.create('div', { className: 'detail' });
-        var fmt = dojo.hitch(this, 'renderDetailField', details );
+        var fmt = lang.hitch(this, 'renderDetailField', details );
         fmt( 'Name', this.key || this.name );
-        var metadata = dojo.clone( this.getMetadata() );
+        var metadata = lang.clone( this.getMetadata() );
+        lang.mixin( metadata, additional );
         delete metadata.key;
         delete metadata.label;
         if( typeof metadata.conf == 'object' )
@@ -816,9 +817,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         for( var k in metadata )
             md_keys.push(k);
         // TODO: maybe do some intelligent sorting of the keys here?
-        dojo.forEach( md_keys, function(key) {
+        array.forEach( md_keys, function(key) {
                           fmt( Util.ucFirst(key), metadata[key] );
                       });
+
         return details;
     },
 
