@@ -118,6 +118,11 @@ reload: function( optree ) {
 _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
 
+    if(this.stores.length == 1) {
+        this.stores[0].getFeatures( query, featCallback, doneCallback, errorCallback);
+        return; 
+    }
+
     // featureArrays will be a map from the names of the stores to an array of each store's features
     var featureArrays = {};
 
