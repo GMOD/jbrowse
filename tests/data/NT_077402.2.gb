@@ -1,0 +1,360 @@
+LOCUS       NT_077402             257719 bp    DNA     linear   CON 30-OCT-2012
+DEFINITION  Homo sapiens chromosome 1 genomic contig, GRCh37.p10 Primary
+            Assembly.
+ACCESSION   NT_077402 GPS_000125215 NT_077911
+VERSION     NT_077402.2  GI:224514618
+DBLINK      BioProject: PRJNA168
+KEYWORDS    RefSeq.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 257719)
+  AUTHORS   Gregory,S.G., Barlow,K.F., McLay,K.E., Kaul,R., Swarbreck,D.,
+            Dunham,A., Scott,C.E., Howe,K.L., Woodfine,K., Spencer,C.C.,
+            Jones,M.C., Gillson,C., Searle,S., Zhou,Y., Kokocinski,F.,
+            McDonald,L., Evans,R., Phillips,K., Atkinson,A., Cooper,R.,
+            Jones,C., Hall,R.E., Andrews,T.D., Lloyd,C., Ainscough,R.,
+            Almeida,J.P., Ambrose,K.D., Anderson,F., Andrew,R.W., Ashwell,R.I.,
+            Aubin,K., Babbage,A.K., Bagguley,C.L., Bailey,J., Beasley,H.,
+            Bethel,G., Bird,C.P., Bray-Allen,S., Brown,J.Y., Brown,A.J.,
+            Buckley,D., Burton,J., Bye,J., Carder,C., Chapman,J.C., Clark,S.Y.,
+            Clarke,G., Clee,C., Cobley,V., Collier,R.E., Corby,N.,
+            Coville,G.J., Davies,J., Deadman,R., Dunn,M., Earthrowl,M.,
+            Ellington,A.G., Errington,H., Frankish,A., Frankland,J., French,L.,
+            Garner,P., Garnett,J., Gay,L., Ghori,M.R., Gibson,R., Gilby,L.M.,
+            Gillett,W., Glithero,R.J., Grafham,D.V., Griffiths,C.,
+            Griffiths-Jones,S., Grocock,R., Hammond,S., Harrison,E.S., Hart,E.,
+            Haugen,E., Heath,P.D., Holmes,S., Holt,K., Howden,P.J., Hunt,A.R.,
+            Hunt,S.E., Hunter,G., Isherwood,J., James,R., Johnson,C.,
+            Johnson,D., Joy,A., Kay,M., Kershaw,J.K., Kibukawa,M.,
+            Kimberley,A.M., King,A., Knights,A.J., Lad,H., Laird,G., Lawlor,S.,
+            Leongamornlert,D.A., Lloyd,D.M., Loveland,J., Lovell,J., Lush,M.J.,
+            Lyne,R., Martin,S., Mashreghi-Mohammadi,M., Matthews,L.,
+            Matthews,N.S., McLaren,S., Milne,S., Mistry,S., Moore,M.J.,
+            Nickerson,T., O'Dell,C.N., Oliver,K., Palmeiri,A., Palmer,S.A.,
+            Parker,A., Patel,D., Pearce,A.V., Peck,A.I., Pelan,S., Phelps,K.,
+            Phillimore,B.J., Plumb,R., Rajan,J., Raymond,C., Rouse,G.,
+            Saenphimmachak,C., Sehra,H.K., Sheridan,E., Shownkeen,R., Sims,S.,
+            Skuce,C.D., Smith,M., Steward,C., Subramanian,S., Sycamore,N.,
+            Tracey,A., Tromans,A., Van Helmond,Z., Wall,M., Wallis,J.M.,
+            White,S., Whitehead,S.L., Wilkinson,J.E., Willey,D.L., Williams,H.,
+            Wilming,L., Wray,P.W., Wu,Z., Coulson,A., Vaudin,M., Sulston,J.E.,
+            Durbin,R., Hubbard,T., Wooster,R., Dunham,I., Carter,N.P.,
+            McVean,G., Ross,M.T., Harrow,J., Olson,M.V., Beck,S., Rogers,J.,
+            Bentley,D.R., Banerjee,R., Bryant,S.P., Burford,D.C., Burrill,W.D.,
+            Clegg,S.M., Dhami,P., Dovey,O., Faulkner,L.M., Gribble,S.M.,
+            Langford,C.F., Pandian,R.D., Porter,K.M. and Prigmore,E.
+  TITLE     The DNA sequence and biological annotation of human chromosome 1
+  JOURNAL   Nature 441 (7091), 315-321 (2006)
+   PUBMED   16710414
+  REMARK    Erratum:[Nature. 2006 Oct 26;443(7114):1013. Banerjee, R [added];
+            Bryant, SP [added]; Burford, DC [added]; Burrill, WDH [added];
+            Clegg, SM [added]; Dhami, P [added]; Dovey, O [added]; Faulkner, LM
+            [added]; Gribble, SM [added]; Langford, CF [added]; Pandian, RD
+            [added]; Porter, KM [added]; Prigmore, E [added]]
+REFERENCE   2  (bases 1 to 257719)
+  CONSRTM   International Human Genome Sequencing Consortium
+  TITLE     Finishing the euchromatic sequence of the human genome
+  JOURNAL   Nature 431 (7011), 931-945 (2004)
+   PUBMED   15496913
+REFERENCE   3  (bases 1 to 257719)
+  AUTHORS   Lander,E.S., Linton,L.M., Birren,B., Nusbaum,C., Zody,M.C.,
+            Baldwin,J., Devon,K., Dewar,K., Doyle,M., FitzHugh,W., Funke,R.,
+            Gage,D., Harris,K., Heaford,A., Howland,J., Kann,L., Lehoczky,J.,
+            LeVine,R., McEwan,P., McKernan,K., Meldrim,J., Mesirov,J.P.,
+            Miranda,C., Morris,W., Naylor,J., Raymond,C., Rosetti,M.,
+            Santos,R., Sheridan,A., Sougnez,C., Stange-Thomann,N.,
+            Stojanovic,N., Subramanian,A., Wyman,D., Rogers,J., Sulston,J.,
+            Ainscough,R., Beck,S., Bentley,D., Burton,J., Clee,C., Carter,N.,
+            Coulson,A., Deadman,R., Deloukas,P., Dunham,A., Dunham,I.,
+            Durbin,R., French,L., Grafham,D., Gregory,S., Hubbard,T.,
+            Humphray,S., Hunt,A., Jones,M., Lloyd,C., McMurray,A., Matthews,L.,
+            Mercer,S., Milne,S., Mullikin,J.C., Mungall,A., Plumb,R., Ross,M.,
+            Shownkeen,R., Sims,S., Waterston,R.H., Wilson,R.K., Hillier,L.W.,
+            McPherson,J.D., Marra,M.A., Mardis,E.R., Fulton,L.A.,
+            Chinwalla,A.T., Pepin,K.H., Gish,W.R., Chissoe,S.L., Wendl,M.C.,
+            Delehaunty,K.D., Miner,T.L., Delehaunty,A., Kramer,J.B., Cook,L.L.,
+            Fulton,R.S., Johnson,D.L., Minx,P.J., Clifton,S.W., Hawkins,T.,
+            Branscomb,E., Predki,P., Richardson,P., Wenning,S., Slezak,T.,
+            Doggett,N., Cheng,J.F., Olsen,A., Lucas,S., Elkin,C.,
+            Uberbacher,E., Frazier,M., Gibbs,R.A., Muzny,D.M., Scherer,S.E.,
+            Bouck,J.B., Sodergren,E.J., Worley,K.C., Rives,C.M., Gorrell,J.H.,
+            Metzker,M.L., Naylor,S.L., Kucherlapati,R.S., Nelson,D.L.,
+            Weinstock,G.M., Sakaki,Y., Fujiyama,A., Hattori,M., Yada,T.,
+            Toyoda,A., Itoh,T., Kawagoe,C., Watanabe,H., Totoki,Y., Taylor,T.,
+            Weissenbach,J., Heilig,R., Saurin,W., Artiguenave,F., Brottier,P.,
+            Bruls,T., Pelletier,E., Robert,C., Wincker,P., Smith,D.R.,
+            Doucette-Stamm,L., Rubenfield,M., Weinstock,K., Lee,H.M.,
+            Dubois,J., Rosenthal,A., Platzer,M., Nyakatura,G., Taudien,S.,
+            Rump,A., Yang,H., Yu,J., Wang,J., Huang,G., Gu,J., Hood,L.,
+            Rowen,L., Madan,A., Qin,S., Davis,R.W., Federspiel,N.A.,
+            Abola,A.P., Proctor,M.J., Myers,R.M., Schmutz,J., Dickson,M.,
+            Grimwood,J., Cox,D.R., Olson,M.V., Kaul,R., Raymond,C., Shimizu,N.,
+            Kawasaki,K., Minoshima,S., Evans,G.A., Athanasiou,M., Schultz,R.,
+            Roe,B.A., Chen,F., Pan,H., Ramser,J., Lehrach,H., Reinhardt,R.,
+            McCombie,W.R., de la Bastide,M., Dedhia,N., Blocker,H.,
+            Hornischer,K., Nordsiek,G., Agarwala,R., Aravind,L., Bailey,J.A.,
+            Bateman,A., Batzoglou,S., Birney,E., Bork,P., Brown,D.G.,
+            Burge,C.B., Cerutti,L., Chen,H.C., Church,D., Clamp,M.,
+            Copley,R.R., Doerks,T., Eddy,S.R., Eichler,E.E., Furey,T.S.,
+            Galagan,J., Gilbert,J.G., Harmon,C., Hayashizaki,Y., Haussler,D.,
+            Hermjakob,H., Hokamp,K., Jang,W., Johnson,L.S., Jones,T.A.,
+            Kasif,S., Kaspryzk,A., Kennedy,S., Kent,W.J., Kitts,P.,
+            Koonin,E.V., Korf,I., Kulp,D., Lancet,D., Lowe,T.M., McLysaght,A.,
+            Mikkelsen,T., Moran,J.V., Mulder,N., Pollara,V.J., Ponting,C.P.,
+            Schuler,G., Schultz,J., Slater,G., Smit,A.F., Stupka,E.,
+            Szustakowski,J., Thierry-Mieg,D., Thierry-Mieg,J., Wagner,L.,
+            Wallis,J., Wheeler,R., Williams,A., Wolf,Y.I., Wolfe,K.H.,
+            Yang,S.P., Yeh,R.F., Collins,F., Guyer,M.S., Peterson,J.,
+            Felsenfeld,A., Wetterstrand,K.A., Patrinos,A., Morgan,M.J., de
+            Jong,P., Catanese,J.J., Osoegawa,K., Shizuya,H., Choi,S. and
+            Chen,Y.J.
+  CONSRTM   International Human Genome Sequencing Consortium
+  TITLE     Initial sequencing and analysis of the human genome
+  JOURNAL   Nature 409 (6822), 860-921 (2001)
+   PUBMED   11237011
+  REMARK    Erratum:[Nature 2001 Aug 2;412(6846):565]
+COMMENT     REFSEQ INFORMATION: The reference sequence is identical to
+            GL000001.1.
+            On or before Jun 10, 2009 this sequence version replaced
+            gi:29794400, gi:29794392.
+            Assembly Name: GRCh37.p10 Primary Assembly
+            The DNA sequence is composed of genomic sequence, primarily
+            finished clones that were sequenced as part of the Human Genome
+            Project. PCR products and WGS shotgun sequence have been added
+            where necessary to fill gaps or correct errors. All such additions
+            are manually curated by GRC staff. For more information see:
+            http://genomereference.org.
+            ##Genome-Annotation-Data-START##
+            Annotation Provider :: NCBI
+            Annotation Status   :: Full annotation
+            Annotation Version  :: Homo sapiens Annotation Release 104
+            Annotation Pipeline :: NCBI eukaryotic genome annotation pipeline
+            Annotation Method   :: Best-placed RefSeq; Gnomon
+            Features Annotated  :: Gene; mRNA; CDS; ncRNA
+            ##Genome-Annotation-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..257719
+                     /organism="Homo sapiens"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:9606"
+                     /chromosome="1"
+     gene            954..1507
+                     /gene="LOC100506145"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: GNOMON. Supporting evidence
+                     includes similarity to: 1 Protein"
+                     /pseudo
+                     /db_xref="GeneID:100506145"
+     exon            954..1507
+                     /gene="LOC100506145"
+                     /exception="unclassified transcription discrepancy"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: GNOMON. Supporting evidence
+                     includes similarity to: 1 Protein"
+                     /number=1
+                     /pseudo
+                     /db_xref="GeneID:100506145"
+     gene            1874..4409
+                     /gene="DDX11L1"
+                     /note="DEAD/H (Asp-Glu-Ala-Asp/His) box helicase 11 like
+                     1; Derived by automated computational analysis using gene
+                     prediction method: BestRefseq."
+                     /pseudo
+                     /db_xref="GeneID:100287102"
+                     /db_xref="HGNC:37102"
+     misc_RNA        join(1874..2227,2613..2721,3221..4409)
+                     /gene="DDX11L1"
+                     /product="DEAD/H (Asp-Glu-Ala-Asp/His) box helicase 11
+                     like 1"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /pseudo
+                     /transcript_id="NR_046018.2"
+                     /db_xref="GI:389886562"
+                     /db_xref="GeneID:100287102"
+                     /db_xref="HGNC:37102"
+     gene            complement(4362..19370)
+                     /gene="WASH7P"
+                     /gene_synonym="FAM39F; WASH5P"
+                     /note="WAS protein family homolog 7 pseudogene; Derived by
+                     automated computational analysis using gene prediction
+                     method: BestRefseq."
+                     /pseudo
+                     /db_xref="GeneID:653635"
+                     /db_xref="HGNC:38034"
+     misc_RNA        complement(join(4362..4829,4970..5038,5796..5947,
+                     6607..6765,6858..7055,7233..7368,7606..7742,7915..8061,
+                     8268..8366,14738..14891,19321..19370))
+                     /gene="WASH7P"
+                     /gene_synonym="FAM39F; WASH5P"
+                     /product="WAS protein family homolog 7 pseudogene"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /pseudo
+                     /transcript_id="NR_024540.1"
+                     /db_xref="GI:215277009"
+                     /db_xref="GeneID:653635"
+                     /db_xref="HGNC:38034"
+     STS             4596..4719
+                     /standard_name="G54113"
+                     /db_xref="UniSTS:109350"
+     gene            20366..20503
+                     /gene="MIR1302-2"
+                     /gene_synonym="hsa-mir-1302-2; MIRN1302-2"
+                     /note="microRNA 1302-2; Derived by automated computational
+                     analysis using gene prediction method: BestRefseq."
+                     /db_xref="GeneID:100302278"
+                     /db_xref="HGNC:35294"
+                     /db_xref="miRBase:MI0006363"
+     ncRNA           20366..20503
+                     /gene="MIR1302-2"
+                     /gene_synonym="hsa-mir-1302-2; MIRN1302-2"
+                     /ncRNA_class="miRNA"
+                     /product="microRNA 1302-2"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /transcript_id="NR_036051.1"
+                     /db_xref="GI:301173067"
+                     /db_xref="GeneID:100302278"
+                     /db_xref="HGNC:35294"
+                     /db_xref="miRBase:MI0006363"
+     ncRNA           20438..20458
+                     /gene="MIR1302-2"
+                     /gene_synonym="hsa-mir-1302-2; MIRN1302-2"
+                     /ncRNA_class="miRNA"
+                     /product="hsa-miR-1302"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /db_xref="miRBase:MIMAT0005890"
+                     /db_xref="GeneID:100302278"
+                     /db_xref="HGNC:35294"
+                     /db_xref="miRBase:MI0006363"
+     gene            complement(24611..26081)
+                     /gene="FAM138A"
+                     /gene_synonym="F379"
+                     /note="family with sequence similarity 138, member A;
+                     Derived by automated computational analysis using gene
+                     prediction method: BestRefseq."
+                     /db_xref="GeneID:645520"
+                     /db_xref="HGNC:32334"
+     misc_RNA        complement(join(24611..25174,25277..25481,25721..26081))
+                     /gene="FAM138A"
+                     /gene_synonym="F379"
+                     /product="family with sequence similarity 138, member A"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /transcript_id="NR_026818.1"
+                     /db_xref="GI:223555930"
+                     /db_xref="GeneID:645520"
+                     /db_xref="HGNC:32334"
+     gene            42453..43396
+                     /gene="OR4G4P"
+                     /note="olfactory receptor, family 4, subfamily G, member 4
+                     pseudogene; Derived by automated computational analysis
+                     using gene prediction method: Curated Genomic."
+                     /pseudo
+                     /db_xref="GeneID:79504"
+                     /db_xref="HGNC:14822"
+     gene            53016..53885
+                     /gene="OR4G11P"
+                     /note="olfactory receptor, family 4, subfamily G, member
+                     11 pseudogene; Derived by automated computational analysis
+                     using gene prediction method: Curated Genomic."
+                     /pseudo
+                     /db_xref="GeneID:403263"
+                     /db_xref="HGNC:31276"
+     gene            59091..60008
+                     /gene="OR4F5"
+                     /note="olfactory receptor, family 4, subfamily F, member
+                     5; Derived by automated computational analysis using gene
+                     prediction method: BestRefseq."
+                     /db_xref="GeneID:79501"
+                     /db_xref="HGNC:14825"
+                     /db_xref="HPRD:14974"
+     mRNA            59091..60008
+                     /gene="OR4F5"
+                     /product="olfactory receptor, family 4, subfamily F,
+                     member 5"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /transcript_id="NM_001005484.1"
+                     /db_xref="GI:53828739"
+                     /db_xref="GeneID:79501"
+                     /db_xref="HGNC:14825"
+                     /db_xref="HPRD:14974"
+     CDS             59091..60008
+                     /gene="OR4F5"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /codon_start=1
+                     /product="olfactory receptor 4F5"
+                     /protein_id="NP_001005484.1"
+                     /db_xref="GI:53828740"
+                     /db_xref="CCDS:CCDS30547.1"
+                     /db_xref="GeneID:79501"
+                     /db_xref="HGNC:14825"
+                     /db_xref="HPRD:14974"
+                     /translation="MVTEFIFLGLSDSQELQTFLFMLFFVFYGGIVFGNLLIVITVVS
+                     DSHLHSPMYFLLANLSLIDLSLSSVTAPKMITDFFSQRKVISFKGCLVQIFLLHFFGG
+                     SEMVILIAMGFDRYIAICKPLHYTTIMCGNACVGIMAVTWGIGFLHSVSQLAFAVHLL
+                     FCGPNEVDSFYCDLPRVIKLACTDTYRLDIMVIANSGVLTVCSFVLLIISYTIILMTI
+                     QHRPLDKSSKALSTLTAHITVVLLFFGPCVFIYAWPFPIKSLDKFLAVFYSVITPLLN
+                     PIIYTLRNKDMKTAIRQLRKWDAHSSVKF"
+     gene            121125..125677
+                     /gene="LOC100420257"
+                     /note="capicua homolog (Drosophila) pseudogene; Derived by
+                     automated computational analysis using gene prediction
+                     method: Curated Genomic."
+                     /pseudo
+                     /db_xref="GeneID:100420257"
+     gene            complement(124773..130566)
+                     /gene="LOC729737"
+                     /note="uncharacterized LOC729737; Derived by automated
+                     computational analysis using gene prediction method:
+                     BestRefseq."
+                     /db_xref="GeneID:729737"
+     misc_RNA        complement(join(124773..129696,129790..129847,
+                     130075..130566))
+                     /gene="LOC729737"
+                     /product="uncharacterized LOC729737"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefseq."
+                     /transcript_id="NR_039983.2"
+                     /db_xref="GI:366393019"
+                     /db_xref="GeneID:729737"
+     gene            complement(148610..158148)
+                     /gene="LOC100996442"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: GNOMON. Supporting evidence
+                     includes similarity to: 5 ESTs"
+                     /db_xref="GeneID:100996442"
+     misc_RNA        complement(join(148610..148674,154263..154791,
+                     155884..155942,158100..158148))
+                     /gene="LOC100996442"
+                     /product="uncharacterized LOC100996442"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: GNOMON. Supporting evidence
+                     includes similarity to: 5 ESTs"
+                     /transcript_id="XR_159064.2"
+                     /db_xref="GI:410170376"
+                     /db_xref="GeneID:100996442"
+     assembly_gap    167418..217417
+                     /estimated_length=50000
+                     /gap_type="within scaffold"
+                     /linkage_evidence="unspecified"
+     gene            complement(217770..218778)
+                     /gene="RPL23AP21"
+                     /gene_synonym="RPL23A_1_1"
+                     /note="ribosomal protein L23a pseudogene 21; Derived by
+                     automated computational analysis using gene prediction
+                     method: Curated Genomic."
+                     /pseudo
+                     /db_xref="GeneID:728481"
+                     /db_xref="HGNC:35827"
+CONTIG      join(complement(AP006221.1:36117..36731),AL627309.15:103..166904,
+            gap(50000),AP006222.1:1..40302)
+//
+
