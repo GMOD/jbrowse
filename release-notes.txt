@@ -1,7 +1,7 @@
 {{$NEXT}}
 
  * Added "normal", "compact", and "collapsed" feature layout options
-   for canvas-based feature tracks (currently only Alignments2
+   for canvas-based feature tracks (currently just Alignments2
    tracks).  Thanks to OICR co-op student Daniel Kasenberg for
    implementing this!
 
@@ -14,12 +14,21 @@
    from a SPARQL endpoint.  Many thanks to the NDBC/DBCLS BioHackathon
    2012 and 2013 participants for suggesting this and helping with
    this work! See http://www.biohackathon.org for more on this
-   fantastic series of hackathons.
+   fantastic (and I think very important) series of hackathons.
 
  * Added the ability to "pin" some tracks to the top of the display,
    so that they stay at the top of the pane while the rest of the
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
+
+ * Fixed a bad design decision with respect to track metadata stores.
+   Before, a given metadata key ("Category", "Conditions", etc) was
+   allowed to only be present in one source of track metadata (CSV
+   file, configuration file, etc).  The original thinking behind this
+   was that it would be better for people to be forced to keep each
+   kind of metadata in only one place.  This was silly thinking.
+   Thanks to the 2013 GMOD Summer School participants for helping me
+   to see the error of my ways.
 
  * Fixed a bug with GFF3 export in which the phase(!) column was
    missing.  Thanks to Michael Campbell at the 2013 GMOD Summer School
