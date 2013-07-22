@@ -6,12 +6,13 @@ define( [
             'dojo/mouse',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
+            'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, Util, Scale ) {
+        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, DetailStatsMixin, Util, Scale ) {
 
-return declare( [BlockBasedTrack,ExportMixin], {
+return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
         this.trackPadding = args.trackPadding || 0;

@@ -15,6 +15,7 @@ define( [
             'JBrowse/View/Track/YScaleMixin',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/View/Track/FeatureDetailMixin',
+            'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/Model/Location'
@@ -35,12 +36,13 @@ define( [
                 YScaleMixin,
                 ExportMixin,
                 FeatureDetailMixin,
+                TrackDetailsStatsMixin,
                 Util,
                 Layout,
                 Location
               ) {
 
-var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetailMixin ], {
+var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetailMixin, TrackDetailsStatsMixin ], {
     /**
      * A track that draws discrete features using `div` elements.
      * @constructs
@@ -1143,7 +1145,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         return o;
     }
-
 });
 
 return HTMLFeatures;
