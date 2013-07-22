@@ -37,6 +37,7 @@ sub option_definitions {(
     "fasta=s@",
     "refs=s",
     "refids=s",
+    "reftypes=s",
     "compress",
     "trackLabel=s",
     "seqType=s",
@@ -154,66 +155,52 @@ sub exportDB {
     my $compress = $self->opt('compress');
     my %refSeqs = %$refseqs;
 
-    unless ( defined $self->opt('refids') || defined $refs ) {
-        die "please specify which sequences to process using the --refs"
-             ." or --refids command line parameters\n";
-    }
-
+    my @queries;
 
     if ( defined $self->opt('refids') ) {
-        foreach my $refid (split ",", $self->opt('refids')) {
-            my $seg = $db->segment(-db_id => $refid);
-            unless( $seg ) {
-                warn "WARNING: Reference sequence with -db_id '$refid' not found in input.\n";
-                next;
-            }
+        for my $refid (split ",", $self->opt('refids')) {
+            push @queries, [ -db_id => $refid ];
+        }
+    }
+    if ( defined $refs ) {
+        for my $ref (split ",", $refs) {
+            push @queries, [ -name => $ref ];
+        }
+    }
+    if( my $reftypes = $self->opt('reftypes') ) {
+        push @queries, [ -type => [ split /[\s,]+/, $reftypes ] ];
+    }
+
+    my $refCount = 0;
+    for my $query ( @queries ) {
+        my @segments = $db->features( @$query );
+
+        unless( @segments ) {
+            warn "WARNING: Reference sequence with @$query not found in input.\n";
+            next;
+        }
+
+        for my $seg ( @segments ) {
 
             my $refInfo = {
                 name => $self->refName($seg),
-                id => $refid,   #keep ID for later querying
                 start => $seg->start - 1,
                 end => $seg->end,
                 length => $seg->length
                 };
 
-            unless( $self->opt('noseq') ) {
-                $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
-                                       [-db_id => $refid],
-                                       $seg->start, $seg->end);
-                $refInfo->{"seqChunkSize"} = $self->{chunkSize};
+            if ( $refSeqs{ $refInfo->{name} } ) {
+                warn "WARNING: multiple reference sequences found named '$refInfo->{name}', using only the first one.\n";
+            } else {
+                $refSeqs{ $refInfo->{name} } = $refInfo;
+
+                unless( $self->opt('noseq') ) {
+                    $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
+                                                  [ -name => $refInfo->{name} ],
+                                                  $seg->start, $seg->end);
+                    $refInfo->{"seqChunkSize"} = $self->{chunkSize};
+                }
             }
-
-            $refSeqs{ $refInfo->{name} } = $refInfo;
-        }
-    }
-    if ( defined $refs ) {
-        foreach my $ref (split ",", $refs) {
-
-            my ($seg) = my @segments = $db->segment(-name => $ref);
-
-            if (! @segments ) {
-                warn "WARNING: Reference sequence '$ref' not found in input.\n";
-                next;
-            } elsif ( @segments > 1 ) {
-                warn "WARNING: multiple matches for '$ref' found in input, using only the first one.\n";
-            }
-
-            my $refInfo =  {
-                name => $self->refName($seg),
-                start => $seg->start - 1,
-                end => $seg->end,
-                length => $seg->length,
-                ( $compress ? ( 'compress' => 1 ) : () ),
-            };
-
-            unless ($self->opt('noseq')) {
-                $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
-                                       [-name => $ref],
-                                       $seg->start, $seg->end);
-                $refInfo->{"seqChunkSize"} = $self->{chunkSize};
-            }
-
-            $refSeqs{ $refInfo->{name} } = $refInfo;
         }
     }
 
