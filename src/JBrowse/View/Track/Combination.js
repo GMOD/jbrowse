@@ -678,14 +678,26 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
                   b: bpPerBlock, sc: scale,
                   cs: containerStart, ce: containerEnd};
     if(this.resultsTrack && !this.onlyRefreshOuter) {
-
         // This is a workaround to a glitch that causes an opaque white rectangle to appear sometimes when a quantitative
         // track is loaded.
         var needsDiv = !this.resultsDiv.parentNode;
         if(needsDiv) {
             this.div.appendChild(this.resultsDiv);
         }
-        this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        
+        var d;
+        if( this._visible().which == "set") {
+          var start = startBase;
+          var end = startBase + (last + 1 - first)*bpPerBlock;
+          d = this._visible().store.loadRegion({ref: this.refSeq.name, start: start, end: end});
+          this.resultsTrack.clear();
+        } else {
+          d = true;
+        }
+        when(d, dojo.hitch(this, function(){
+          this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        }));
+
         if(needsDiv) {
             this.div.removeChild(this.resultsDiv);
         }
@@ -885,55 +897,55 @@ _exportFormats: function() {
 
 },
 
-                // These methods are not currently in use, but they allow direct loading of the opTree into the config.
-                /*
-                flatten: function(tree) {
-                        var newTree = {
-                                leaf: tree.leaf
-                        };
-                        if(tree.leftChild)
-                                newTree.leftChild = this.flatten(tree.leftChild);
-                        if(tree.rightChild)
-                                newTree.rightChild = this.flatten(tree.rightChild);
-                        if(tree.get().name)
-                                newTree.store = tree.get().name;
-                        else
-                                newTree.op = tree.get();
-                        return newTree;
-                },
+// These methods are not currently in use, but they allow direct loading of the opTree into the config.
+/*
+flatten: function(tree) {
+    var newTree = {
+            leaf: tree.leaf
+    };
+    if(tree.leftChild)
+            newTree.leftChild = this.flatten(tree.leftChild);
+    if(tree.rightChild)
+            newTree.rightChild = this.flatten(tree.rightChild);
+    if(tree.get().name)
+            newTree.store = tree.get().name;
+    else
+            newTree.op = tree.get();
+    return newTree;
+},
 
 
-                loadTree: function(tree) {
-                        var d = new Deferred();
-                        var haveLeft = undefined;
-                        var haveRight = undefined;
-                        var thisB = this;
+loadTree: function(tree) {
+    var d = new Deferred();
+    var haveLeft = undefined;
+    var haveRight = undefined;
+    var thisB = this;
 
-                        if(!tree) {
-                                d.resolve(undefined, true);
-                                return d.promise;
-                        }
+    if(!tree) {
+            d.resolve(undefined, true);
+            return d.promise;
+    }
 
-                        if(tree.leftChild) {
-                                haveLeft = this.loadTree(tree.leftChild);
-                        }
-                        if(tree.rightChild) {
-                                haveRight = this.loadTree(tree.rightChild);
-                        }
-                        when(all([haveLeft, haveRight]), function(results) {
-                                var newTree = new TreeNode({ leftChild: results[0], rightChild: results[1], leaf: tree.leaf});
-                                if(tree.store) {
-                                        thisB.browser.getStore(tree.store, function(store) {
-                                                newTree.set(store);
-                                        });
-                                        d.resolve(newTree, true);
-                                } else {
-                                        newTree.set(tree.op);
-                                        d.resolve(newTree, true);
-                                }
-                        });
-                        return d.promise;
-                }*/
-
+    if(tree.leftChild) {
+            haveLeft = this.loadTree(tree.leftChild);
+    }
+    if(tree.rightChild) {
+            haveRight = this.loadTree(tree.rightChild);
+    }
+    when(all([haveLeft, haveRight]), function(results) {
+            var newTree = new TreeNode({ leftChild: results[0], rightChild: results[1], leaf: tree.leaf});
+            if(tree.store) {
+                    thisB.browser.getStore(tree.store, function(store) {
+                            newTree.set(store);
+                    });
+                    d.resolve(newTree, true);
+            } else {
+                    newTree.set(tree.op);
+                    d.resolve(newTree, true);
+            }
+    });
+    return d.promise;
+}
+*/
 });
 });

@@ -1,12 +1,14 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/Deferred',
            'JBrowse/Model/SimpleFeature',
            'JBrowse/Store/SeqFeature/CombinationBase'
        ],
        function(
            declare,
            array,
+           Deferred,
            SimpleFeature,
            CombinationBaseStore
        ) {
@@ -50,7 +52,6 @@ opSpan: function(op, span1, span2, query) {
     }
     return undefined;
 },
-
 
 // given a set of features, takes the "union" of them and outputs a single set of nonoverlapping spans
 toSpan: function(features, query) {
@@ -213,9 +214,30 @@ _rawNotSpan: function( spans, query, strand ) {
         invSpan.splice(0,1);
     }
     return invSpan;
+},
+
+loadRegion: function ( region ) {
+    if(this.stores.length == 1) {
+        return true;
+    }
+    var d = new Deferred();
+    var thisB = this;
+    var regionLoaded = region;
+    regionLoaded.spans = [];
+
+    delete this.regionLoaded;
+
+    this._getFeatures(region, function(){}, function(results){
+        if(results && results.spans) {
+            regionLoaded.spans = results.spans;
+            thisB.regionLoaded = regionLoaded;
+        }
+        d.resolve(true);
+    }, function(){
+            d.reject("cannot load region");
+        });
+    return d.promise;
 }
-
-
 
 });
 });

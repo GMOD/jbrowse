@@ -123,6 +123,15 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         return; 
     }
 
+    if(this.regionLoaded) {
+        var spans = array.filter(this.regionLoaded.spans, function(span) {
+            return span.start <= query.end && span.end >= query.start;
+        });
+        var features = this.createFeatures(spans);
+        this.finish(features, spans, featCallback, doneCallback);
+        return;
+    }
+
     // featureArrays will be a map from the names of the stores to an array of each store's features
     var featureArrays = {};
 
@@ -151,7 +160,6 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         // Create a set of spans based on the evaluation of the operation tree
         var spans = thisB.evalTree(featureArrays, thisB.opTree, query);
         var features = thisB.createFeatures(spans);
-
         thisB.finish(features, spans, featCallback, doneCallback);
     });
 },
