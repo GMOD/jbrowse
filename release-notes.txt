@@ -27,6 +27,12 @@
    Gaelen Burke at the 2013 GMOD Summer School for pointing out the
    need for this, and for assistance in testing the new feature.
 
+ * Tweaked styling of inactive track handles in the default Simple
+   track selector to make them look less like pressable buttons.
+   Thanks to Pedro Pagan at the 2013 GMOD Summer School for pointing
+   out the need for this, and helping to brainstorm how the new styles
+   should look.
+
  * Horizontal mouse-wheel (or trackpad) events can now scroll the
    genome view horizontally.  Thanks to Mara Kim for help testing this
    at the 2013 GMOD Summer School.
