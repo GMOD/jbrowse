@@ -21,6 +21,12 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Added support for a --reftypes argument to `prepare-refseqs.pl`,
+   allowing you to search a database for reference sequences based on
+   the type of the reference sequences, e.g. 'chromosome'.  Thanks to
+   Gaelen Burke at the 2013 GMOD Summer School for pointing out the
+   need for this, and for assistance in testing the new feature.
+
  * Horizontal mouse-wheel (or trackpad) events can now scroll the
    genome view horizontally.  Thanks to Mara Kim for help testing this
    at the 2013 GMOD Summer School.
