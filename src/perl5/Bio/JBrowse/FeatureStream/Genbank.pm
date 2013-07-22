@@ -56,13 +56,16 @@ sub _aggregate_features_from_gbk_record {
 	$startStop->[0] += $offset;
 	$startStop->[1] += $offset;
 	$startStop->[0]++;
- 	my $newFeature = {'start' => $startStop->[0] || 0,
- 			  'end' => $startStop->[1] || 0,
- 			  'type' => $f->{FEATURES}->[$i]->{'name'} || 'null',
- 			  'foo1' => 'null','foo2' => 'null','foo3' => 'null','foo4' => 'null','foo5' => 'null','foo6' => 'null','foo7' => 'null',
- 			  'foo8' => 'null','foo9' => 'null','foo10' => 'null','foo11' => 'null','foo12' => 'null','foo13' => 'null','foo14' => 'null',
- 			  'foo14' => 'null'
- 			 };
+
+  	my $newFeature = {};
+	# sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
+
+	foreach my $attr ( 'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM', 'VERSION',  'SOURCE',  'Subfeatures' ){
+	    $newFeature->{$attr} = 'null';
+	}
+  	$newFeature->{'start'} = $startStop->[0] || 'null';
+  	$newFeature->{'end'} = $startStop->[1] || 'null';
+	$newFeature->{'type'} = $f->{FEATURES}->[$i]->{'name'} || 'null',
 	push @{$f->{'subfeatures'}}, $newFeature;
       }
     }
