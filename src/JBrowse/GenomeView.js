@@ -373,6 +373,22 @@ visibleTrackNames: function() {
     return dojo.map( this.visibleTracks(), function(t){ return t.name; } );
 },
 
+/**
+ * Called in response to a keyboard or mouse event to slide the view
+ * left or right.
+ */
+keySlideX: function( offset ) {
+    this.setX( this.getX() + offset );
+
+    var thisB = this;
+    if( ! this._keySlideTimeout )
+        this._keySlideTimeout = window.setTimeout(
+            function() {
+                thisB.afterSlide();
+                delete thisB._keySlideTimeout;
+            }, 300 );
+},
+
 
 /**
  * Behaviors (event handler bundles) for various states that the
@@ -395,9 +411,11 @@ _behaviors: function() { return {
                                           this.overview
                                         )
                           ));
+            var wheelevent = "onwheel" in document.createElement("div") ? "wheel"      :
+                                    document.onmousewheel !== undefined ? "mousewheel" :
+                                                                          "DOMMouseScroll";
             handles.push(
-                dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
-                dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
+                dojo.connect( this.scrollContainer,     wheelevent,     this, 'wheelScroll', false ),
 
                 dojo.connect( this.scaleTrackDiv,       "mousedown",
                               dojo.hitch( this, 'startRubberZoom',
@@ -437,17 +455,10 @@ _behaviors: function() { return {
 
                     var that = this;
                     if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
-
                         var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
                         if( evt.shiftKey )
                             offset *= 5;
-
-                        this.setX( this.getX() + offset );
-                        if( ! this._keySlideTimeout )
-                            this._keySlideTimeout = window.setTimeout(function() {
-                                that.afterSlide();
-                                delete that._keySlideTimeout;
-                            }, 300 );
+                        this.keySlideX( offset );
                     }
                     else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
                         // shift-up/down zooms in and out
@@ -593,10 +604,40 @@ calculatePositionLabelHeight: function( containerElement ) {
     return h;
 },
 
-wheelScroll: function(e) {
+wheelScroll: function( event ) {
 
-    // 60 pixels per mouse wheel event
-    this.setY( this.getY() - 60 * Util.wheel(e) );
+    if ( !event )
+        event = window.event;
+
+    // if( window.WheelEvent )
+    //     event = window.WheelEvent;
+
+    var delta = { x: 0, y: 0 };
+    if( 'wheelDeltaX' in event ) {
+        delta.x = event.wheelDeltaX/2;
+        delta.y = event.wheelDeltaY/2;
+    }
+    else if( 'deltaX' in event ) {
+        delta.x = event.deltaX*-40;
+        delta.y = event.deltaY*-10;
+    }
+    else if( event.wheelDelta ) {
+        delta.y = event.wheelDelta/2;
+        if( window.opera )
+            delta.y = -delta.y;
+    }
+    else if( event.detail ) {
+        delta.y = -event.detail*100;
+    }
+
+    delta.x = Math.round( delta.x * 2 );
+    delta.y = Math.round( delta.y );
+
+    if( delta.x )
+        this.keySlideX( -delta.x );
+    if( delta.y )
+        // 60 pixels per mouse wheel event
+        this.setY( this.getY() - delta.y );
 
     //the timeout is so that we don't have to run showVisibleBlocks
     //for every scroll wheel click (we just wait until so many ms
@@ -612,7 +653,7 @@ wheelScroll: function(e) {
         this.wheelScrollTimeout = null;
     }, 100));
 
-    dojo.stopEvent(e);
+    dojo.stopEvent(event);
 },
 
 getX: function() {

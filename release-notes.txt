@@ -21,6 +21,10 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Horizontal mouse-wheel (or trackpad) events can now scroll the
+   genome view horizontally.  Thanks to Mara Kim for help testing this
+   at the 2013 GMOD Summer School.
+
  * The "content" of configurable information popups (such as can be
    shown when clicking on features) can now accept a dojo/Deferred or
    other promise object that will provide the content to be shown
