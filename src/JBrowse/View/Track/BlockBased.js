@@ -956,6 +956,15 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         var dialog;
 
+        function setContent( dialog, content ) {
+            // content can be a promise or Deferred
+            if( typeof content.then == 'function' )
+                content.then( function( c ) { dialog.set( 'content', c ); } );
+            // or maybe it's just a regular object
+            else
+                dialog.set( 'content', content );
+        }
+
         // if dialog == xhr, open the link in a dialog
         // with the html from the URL just shoved in it
         if( type == 'xhr' || type == 'content' ) {
@@ -966,14 +975,16 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             context.dialog = dialog;
 
             if( type == 'content' )
-                dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+                setContent( dialog, this._evalConf( context, spec.content, null ) );
 
             Util.removeAttribute( context, 'dialog' );
         }
         else if( type == 'bare' ) {
             dialog = new Dialog( dialogOpts );
             context.dialog = dialog;
-            dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+
+            setContent( dialog, this._evalConf( context, spec.content, null ) );
+
             Util.removeAttribute( context, 'dialog' );
         }
         // open the link in a dialog with an iframe

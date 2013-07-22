@@ -21,6 +21,11 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * The "content" of configurable information popups (such as can be
+   shown when clicking on features) can now accept a dojo/Deferred or
+   other promise object that will provide the content to be shown
+   asynchronously.
+
  * Fixed a bad design decision with respect to track metadata stores.
    Before, a given metadata key ("Category", "Conditions", etc) was
    allowed to only be present in one source of track metadata (CSV
