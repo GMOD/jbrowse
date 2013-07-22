@@ -88,7 +88,7 @@ sub _isTopLevel {
 sub _extractStartStopFromJoinToken {
     my $feat = shift;
     my @startStop;
-    if ( exists $feat->{'location'} && $feat->{'location'} =~ /^\s*\S+\((\d+)\..*\.(\d+)\)/ ){
+    if ( exists $feat->{'location'} && $feat->{'location'} =~ /^\s*\S*?\(*(\d+)\..*\.(\d+)\)*/ ){
 	$startStop[0] = $1;
 	$startStop[1] = $2;
     }
@@ -100,8 +100,8 @@ sub _extractStartStopFromJoinToken {
 sub _extractStartStopFromLocation {
     my $feat = shift;
     my @startStop;
-    $feat =~ s/^\s*\S+\(//;
-    $feat =~ s/\)//;
+    $feat =~ s/^\s*\S*\(//;
+    $feat =~ s/\)+//;
     my @coordinates = split(/\.\.\>*/, $feat);
     $startStop[0] = $coordinates[0];
     $startStop[1] = $coordinates[-1];
