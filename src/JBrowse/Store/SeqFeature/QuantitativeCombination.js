@@ -72,16 +72,19 @@ opSpan: function(op, pseudosA, pseudosB, query) {
     var retPseudos = [];
     var i = 0;
     var j = 0;
-    
+
+    if(!pseudosA.length && !pseudosB.length)
+        return retPseudos;
+
     // Critical values are the starts and ends of features for either set of spans.
     // nextCritical will iterate through all critical values.
-    var nextCritical = Math.min(pseudosA[i].start, pseudosB[j].start);
+    var nextCritical = pseudosA[i] ? (pseudosB[j] ? Math.min(pseudosA[i].start, pseudosB[j].start) : pseudosA[i].start) : pseudosB[j].start;
     
     var inA;
     var inB;
 
-    while(i < pseudosA.length && j < pseudosB.length) {
 
+    while(i < pseudosA.length && j < pseudosB.length) {
         // Decide whether to add a span to the list at all - we don't add spans if the gap from this critical point to the
         // next critical point is not inside any feature.
         if(nextCritical == pseudosA[i].start) 

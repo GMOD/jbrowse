@@ -371,6 +371,14 @@ _addTrackStore: function(trackConfig) {
 runDialog: function(trackConfig, store) {
     // If this is the first track being added, it's not being combined with anything, so we don't need to ask - just adds the track alone
     if(this.oldType === undefined) {
+        if(store.isCombinationStore && !store.opTree && this.config.opTree) {
+            this.loadTree(this.config.opTree).then(dojo.hitch(this, function(tree){
+                this.opTree = tree;
+                this.displayType = (this.currType == "mask") ? this.supportedBy[tree.rightChild.get().config.type] : undefined;
+                this._adjustStores(store);
+            }));
+            return;
+        }
         var opTree = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
         this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
         this.opTree = opTree;
@@ -422,8 +430,7 @@ _adjustStores: function (store) {
                                                                          this.maskStore = newstore;
                                                                          return this.maskStore.reload(this.opTree.leftChild);
                                                                      }));
-        var displayType = this.supportedBy[store.stores.display.config.type];
-        var haveDisplayStore = this._createStore(displayType).then(dojo.hitch(this, function(newStore){
+        var haveDisplayStore = this._createStore(this.displayType).then(dojo.hitch(this, function(newStore){
                                                                                        this.displayStore = newStore;
                                                                                        return this.displayStore.reload(this.opTree.rightChild);
                                                                                    }));
@@ -581,9 +588,13 @@ renderResultsTrack: function() {
 
             // Only do this when the masked data is selected
             // (we don't want editing the config to suddenly remove the data or the mask)
+            thisB.config.opTree = thisB.flatten(thisB.opTree);
+            thisB.config.store = thisB.store.name;
+
             if(thisB._visible().store == thisB.store) {
                 // Refresh results track config, so that the track can be recreated when the config is edited
                 thisB.config.resultsTrack = thisB.resultsTrack.config;
+
                 thisB.browser.replaceTracks([ thisB.config ]);
 
                 if(typeof thisB.resultsTrack._exportFormats == 'function') {
@@ -642,12 +653,12 @@ refresh: function(track) {
     if(this._visible().store && !this.onlyRefreshOuter) {
         // Reload the store if it's not too much trouble
         storeIsReloaded = this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
-
     }
     else {
         if(!this.onlyRefreshOuter) {
             // Causes the resultsTrack to be removed from the config when it has been removed
             delete this.config.resultsTrack;
+            delete this.config.opTree;
         }
         storeIsReloaded = true;
     }
@@ -684,17 +695,20 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
         if(needsDiv) {
             this.div.appendChild(this.resultsDiv);
         }
-        
-        var d;
-        if( this._visible().which == "set") {
-          var start = startBase;
-          var end = startBase + (last + 1 - first)*bpPerBlock;
-          d = this._visible().store.loadRegion({ref: this.refSeq.name, start: start, end: end});
-          this.resultsTrack.clear();
-        } else {
-          d = true;
+
+        var loadedRegions = [];
+        var stores = [this.store, this.maskStore, this.displayStore];
+        for(var i in stores) {
+          if(stores[i] && typeof stores[i].loadRegion == 'function') {
+              var start = startBase;
+              var end = startBase + (last + 1 - first)*bpPerBlock;
+              loadedRegions.push(stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end}));
+              this.resultsTrack.clear();
+          } else {
+              loadedRegions.push(true);
+          }
         }
-        when(d, dojo.hitch(this, function(){
+        when(all(loadedRegions), dojo.hitch(this, function(){
           this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         }));
 
@@ -898,7 +912,7 @@ _exportFormats: function() {
 },
 
 // These methods are not currently in use, but they allow direct loading of the opTree into the config.
-/*
+
 flatten: function(tree) {
     var newTree = {
             leaf: tree.leaf
@@ -946,6 +960,6 @@ loadTree: function(tree) {
     });
     return d.promise;
 }
-*/
+
 });
 });
