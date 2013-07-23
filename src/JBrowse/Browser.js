@@ -521,7 +521,7 @@ initView: function() {
 
                 this.poweredByLink = dojo.create('a', {
                                 className: 'powered_by',
-                                innerHTML: 'JBrowse',
+                                innerHTML: this.browserMeta().title,
                                 onclick: dojo.hitch( aboutDialog, 'show' ),
                                 title: 'powered by JBrowse'
                             }, menuBar );
@@ -642,7 +642,7 @@ initView: function() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            document.title = thisObj.view.visibleRegionLocString()+' JBrowse';
+            document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
         };
         dojo.connect( this, "onCoarseMove",                     updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );

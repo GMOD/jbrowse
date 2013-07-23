@@ -27,6 +27,12 @@
    Gaelen Burke at the 2013 GMOD Summer School for pointing out the
    need for this, and for assistance in testing the new feature.
 
+ * The "JBrowse" link on the left side of the menu bar, and the
+   browser title, now display the "About this browser" title instead
+   of JBrowse, if `aboutThisBrowser` is set in the configuration.
+   Thanks to Joanna Kelley at the 2013 GMOD Summer School for
+   suggesting this.
+
  * Tweaked styling of inactive track handles in the default Simple
    track selector to make them look less like pressable buttons.
    Thanks to Pedro Pagan at the 2013 GMOD Summer School for pointing
