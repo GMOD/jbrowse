@@ -371,10 +371,13 @@ _addTrackStore: function(trackConfig) {
 runDialog: function(trackConfig, store) {
     // If this is the first track being added, it's not being combined with anything, so we don't need to ask - just adds the track alone
     if(this.oldType === undefined) {
+
+        // opTree can be directly reloaded from track config.  This is important (e.g.) when changing reference sequences
+        // to make sure that the right combinations of tracks are still included in this track.
         if(store.isCombinationStore && !store.opTree && this.config.opTree) {
             this.loadTree(this.config.opTree).then(dojo.hitch(this, function(tree){
                 this.opTree = tree;
-                this.displayType = (this.currType == "mask") ? this.supportedBy[tree.rightChild.get().config.type] : undefined;
+                this.displayType = this.config.displayType;
                 this._adjustStores(store);
             }));
             return;
@@ -594,6 +597,7 @@ renderResultsTrack: function() {
             if(thisB._visible().store == thisB.store) {
                 // Refresh results track config, so that the track can be recreated when the config is edited
                 thisB.config.resultsTrack = thisB.resultsTrack.config;
+                thisB.config.displayType = thisB.displayType;
 
                 thisB.browser.replaceTracks([ thisB.config ]);
 
