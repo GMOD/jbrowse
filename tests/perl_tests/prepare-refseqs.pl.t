@@ -111,6 +111,33 @@ is_deeply( $output->{"seq/refSeqs.json"},
                }
            ]);
 
+
+## check formatting from --sizes
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--sizes' => 'tests/data/volvox.sizes',
+    '--out'   => $tempdir,
+   );
+
+$output = slurp_tree( $tempdir );
+
+is_deeply( $output->{"seq/refSeqs.json"},
+           [
+               {
+                   'end' => '50001',
+                   'length' => '50001',
+                   'name' => 'ctgA',
+                   'start' => 0
+               },
+               {
+                   'end' => '6079',
+                   'length' => '6079',
+                   'name' => 'ctgB',
+                   'start' => 0
+               }
+           ]) or diag explain $output;
+
 ## test formatting from a Bio::DB::SeqFeature::Store with a
 ## biodb-to-json.pl conf file
 

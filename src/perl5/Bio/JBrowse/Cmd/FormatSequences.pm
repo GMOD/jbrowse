@@ -35,6 +35,7 @@ sub option_definitions {(
     "gff=s",
     "chunksize=s",
     "fasta=s@",
+    "sizes=s@",
     "refs=s",
     "refids=s",
     "reftypes=s",
@@ -53,8 +54,8 @@ sub run {
 
     $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
 
-    Pod::Usage::pod2usage( 'must provide either a --fasta, --gff, or --conf option' )
-        unless defined $self->opt('gff') || $self->opt('conf') || $self->opt('fasta');
+    Pod::Usage::pod2usage( 'must provide either a --fasta, --sizes, --gff, or --conf option' )
+        unless $self->opt('gff') || $self->opt('conf') || $self->opt('fasta') || $self->opt('sizes');
 
     {
         my $chunkSize = $self->opt('chunksize');
@@ -130,6 +131,29 @@ sub run {
 
         $self->exportDB( $db, $refs, {} );
         $self->writeTrackEntry();
+    }
+    elsif( $self->opt('sizes') ) {
+
+        my %refseqs;
+        for my $sizefile ( @{$self->opt('sizes')} ) {
+            open my $f, '<', $sizefile or warn "$! opening file $sizefile, skipping";
+            next unless $f;
+            while( my $line = <$f> ) {
+                next unless $line =~ /\S/;
+                chomp $line;
+                my ( $name, $length ) = split /\s+/,$line,2;
+                s/^\s+|\s+$//g for $name, $length;
+
+                $refseqs{$name} = {
+                    name   => $name,
+                    start  => 0,
+                    end    => $length,
+                    length => $length
+                };
+            }
+        }
+
+        $self->writeRefSeqsJSON( \%refseqs );
     }
 }
 
@@ -214,6 +238,8 @@ sub exportDB {
 
 sub writeRefSeqsJSON {
     my ( $self, $refseqs ) = @_;
+
+    mkpath( File::Spec->catdir($self->{storage}{outDir},'seq') );
 
     $self->{storage}->modify( 'seq/refSeqs.json',
                                    sub {

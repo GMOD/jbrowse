@@ -27,6 +27,12 @@
    Gaelen Burke at the 2013 GMOD Summer School for pointing out the
    need for this, and for assistance in testing the new feature.
 
+ * `prepare-refseqs.pl` can now format reference sequences from a
+   common .sizes (aka .len) file that is just a two-column
+   tab-separated list of reference sequence names and their lengths,
+   run like:
+       bin/prepare-refseqs.pl --sizes myrefs.sizes
+
  * The "JBrowse" link on the left side of the menu bar, and the
    browser title, now display the "About this browser" title instead
    of JBrowse, if `aboutThisBrowser` is set in the configuration.
