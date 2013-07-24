@@ -30,15 +30,18 @@ sub flatten_to_feature {
               @{$f}{ @{$class->{fields}} }
             );
 
-    for my $subfeature_field (qw( subfeatures derived_features )) {
-        if( my $sfi = $class->{field_idx}{ $subfeature_field } ) {
-            $f[ $sfi+1 ] = [
-                map {
-                    $self->flatten_to_feature($_)
-                } @{$f[$sfi+1]}
-            ];
+    unless( $self->{no_subfeatures} ) {
+        for my $subfeature_field (qw( subfeatures derived_features )) {
+            if ( my $sfi = $class->{field_idx}{ $subfeature_field } ) {
+                $f[ $sfi+1 ] = [
+                    map {
+                        $self->flatten_to_feature($_)
+                    } @{$f[$sfi+1]}
+                    ];
+            }
         }
     }
+
     # use Data::Dump 'dump';
     # print dump($_)."\n" for \@f, $class;
 
