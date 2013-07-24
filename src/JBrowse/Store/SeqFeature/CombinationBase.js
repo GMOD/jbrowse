@@ -140,18 +140,20 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         function (store) {
             var d = new Deferred();
             if ( !featureArrays[store.name] ) {
-                featureArrays[store.name] = [];
+                    featureArrays[store.name] = [];
+                store.getFeatures(
+                    query,
+                    dojo.hitch( this, function( feature ) {
+                        var feat = new featureWrapper( feature, store.name );
+                        featureArrays[store.name].push( feat );
+                    }),
+                    function(){d.resolve( featureArrays[store.name] ); },
+                    function(){d.reject("Error fetching features for store " + store.name);}
+                );
+                return d.promise;
+            } else {
+                d.resolve(featureArrays[store.name], true);
             }
-            store.getFeatures(
-                query,
-                dojo.hitch( this, function( feature ) {
-                    var feat = new featureWrapper( feature, store.name );
-                    featureArrays[store.name].push( feat );
-                }),
-                function(){d.resolve( featureArrays[store.name] ); },
-                function(){d.reject("Error fetching features for store " + store.name);}
-            );
-            return d.promise;
         }
     );
 
