@@ -686,6 +686,27 @@ clear: function() {
     }
 },
 
+hideAll: function() {
+    this.inherited(arguments);
+    if(this.resultsTrack && !this.onlyRefreshOuter) {
+        this.resultsTrack.hideAll();
+    }
+},
+
+hideRegion: function( location ) {
+    this.inherited(arguments);
+    if(this.resultsTrack && !this.onlyRefreshOuter) {
+        this.resultsTrack.hideRegion( location );
+    }
+},
+
+sizeInit: function( numBlocks, widthPct, blockDelta ) {
+    this.inherited(arguments);
+    if(this.resultsTrack && !this.onlyRefreshOuter) {
+        this.resultsTrack.sizeInit( numBlocks, widthPct, blockDelta);
+    }
+},
+
 // Extends the BlockBased track's showRange function.
 showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
 
