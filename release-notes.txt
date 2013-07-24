@@ -27,6 +27,13 @@
    Gaelen Burke at the 2013 GMOD Summer School for pointing out the
    need for this, and for assistance in testing the new feature.
 
+ * Integrated a `maker2jbrowse` script into the core JBrowse
+   distribution.  You can now visualize your MAKER results in JBrowse
+   with a single command:
+       `bin/maker2jbrowse -d /path/to/your/maker/master_datastore_index.log`
+   Thanks to the MAKER team and Yandell lab for providing the initial
+   implementation of `maker2jbrowse`.
+
  * `prepare-refseqs.pl` can now format reference sequences from a
    common .sizes (aka .len) file that is just a two-column
    tab-separated list of reference sequence names and their lengths,
