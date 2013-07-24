@@ -18,6 +18,10 @@ define ([
             this.data = args.data;
             this.store = args.store;
             this.maxChunkSize = args.maxChunkSize || 5000000;
+
+            this.chunkCache   = {};
+            this.seqChunkSize = args.seqChunkSize;
+            this.seqHeader = [];
         },
 
         init: function( args ) {
@@ -48,17 +52,17 @@ define ([
         },
 
         _read2bitIndex: function( successCallback, failCallback ) {
-            this.indexOf = {};
+            this.chrToIndex = {};
             this.offset = [];
             var maxLength = 256; // Since namesize is one byte, there are at most 256 bytes used for each name.
             this.data.read(16, this.numSeqs*(maxLength + 5), dojo.hitch(this, function(results) {
                 var i = 0;
                 for(var seqIndex = 0; seqIndex < this.numSeqs; seqIndex++) {
                     var nameSize = this._toInteger(results, i, i+1); i++;
-                    this.indexOf[this._toString(results, i, i+nameSize)] = seqIndex; i = i + nameSize;
+                    this.chrToIndex[this._toString(results, i, i+nameSize)] = seqIndex; i += nameSize;
                     this.offset[seqIndex] = this._toInteger(results, i, i + 4); i += 4;
                 }
-                console.log(this.indexOf, this.offset);
+                console.log(this.chrToIndex, this.offset);
                 successCallback();
             }), failCallback);
         },
@@ -115,6 +119,171 @@ define ([
                 retArray.push(typedArray[i]);
             }
             return retArray;
+        }, 
+
+        fetch: function( query, callback, endCallback, errorCallback) {
+            errorCallback = errorCallback || function(e) { console.error(e); };
+
+            var seqName = query.ref;
+
+            this._readSequenceHeader(seqName, dojo.hitch(this, function(header){
+                console.log(header);
+                this._fetchSequence(query, header, callback, endCallback, errorCallback);
+            }), errorCallback);
+            
+        },
+
+        _readSequenceHeader: function(seqName, callback, errorCallback) {
+            var index = this.chrToIndex[seqName];
+            if(this.seqHeader[index])
+                callback(this.seqHeader[index]);
+            else {
+                var headerStart = this.offset[index];
+
+                this.data.read(headerStart, 7, dojo.hitch(this, function(results) {
+                    var currData = headerStart;
+                    var dnaSize = this._toInteger(results, 0, 4);
+                    var nBlockCount = this._toInteger(results, 4, 8);
+                    var nBlocks = [];
+
+                    currData += 8;
+
+                    var haveNBlocks = new Deferred();
+                    
+                    if(nBlockCount) {
+                        this.data.read(currData, 8*nBlockCount - 1, dojo.hitch(this, function(nBlockData) {
+                            for(var i = 0; i < 4*nBlockCount; i+= 4) {
+                                var j = i + 4*nBlockCount;
+                                nBlocks.push({
+                                    start: this._toInteger(nBlockData, i, i+4),
+                                    size: this._toInteger(nBlockData, j, j + 4)
+                                });
+                            }
+                            haveNBlocks.resolve(nBlocks, true);
+                        }), errorCallback);
+                    } else {
+                        haveNBlocks = [];
+                    }
+
+                    currData += (8*nBlockCount);
+
+                    var haveMasks = new Deferred();
+                    this.data.read(currData, 4, dojo.hitch(this, function(rawMCount) {
+                        var maskBlockCount = this._toInteger(rawMCount, 0, 4);
+                        var maskBlocks = [];
+                        currData += 4;
+                        if(maskBlockCount) {
+                            this.data.read(currData, 8*maskBlockCount - 1, dojo.hitch(this, function(maskBlockData){
+                                for(var i = 0; i < 4*maskBlockCount; i += 4) {
+                                    var j = i + 4*maskBlockCount;
+                                    maskBlocks.push({
+                                        start: this._toInteger(maskBlockData, i, i + 4),
+                                        size: this._toInteger(maskBlockData, j, j + 4)
+                                    });
+                                }
+                                currData += 8*maskBlockCount;
+                                haveMasks.resolve(maskBlocks, true);
+                            }), errorCallback);    
+                        } else {
+                            haveMasks.resolve([], true);
+                        }
+                    }), errorCallback);
+
+                    when(all([haveNBlocks, haveMasks]), dojo.hitch(this, function(results) {
+                        currData += 4;
+                        var header = {
+                            dnaSize: dnaSize,
+                            nBlocks: results[0],
+                            maskBlocks: results[1],
+                            dnaStart: currData,
+                            dnaEnd: this.offset[index + 1]
+                        };
+                        this.seqHeader[index] = header;
+                        callback(header);
+                    }));
+                }), errorCallback);
+            }
+        },
+
+        _toBases: function( val ) {
+            var bitsToBase = ["T", "C", "A", "G"];
+            var firstFour = (val >> 4) & 0xf;
+            var lastFour = val & 0xf;
+
+            var first = (firstFour >> 2) & 0x3;
+            var second = firstFour & 0x3;
+            var third = (lastFour >> 2) & 0x3;
+            var fourth = lastFour & 0x3;
+
+            var bitArray = [first, second, third, fourth];
+
+            return bitArray.map( function(value){
+                return bitsToBase[value];
+            });
+        },
+
+        _toBaseString: function( byteArray ) {
+            var retString = "";
+            for(var index in byteArray) {
+                retString = retString + this._toBases(byteArray[index]).join("");
+            }
+            return retString;
+        },
+
+        _applyNBlocks: function( baseString, start, end, nBlocks ) {
+            var retString = baseString;
+            for(var i in nBlocks) {
+                var blockStart = Math.max(0, nBlocks[i].start - start);
+                var blockLength = nBlocks[i].size + Math.min(0, nBlocks[i].start - start);
+                blockLength = Math.max(0, Math.min(blockLength, end - nBlocks[i].start));
+                console.log(blockStart, blockLength);
+                retString = [retString.slice(0, blockStart), this._nBlock(blockLength), retString.slice(blockStart+blockLength)].join("");
+            }
+            return retString;
+        },
+
+        _nBlock: function( length ) {
+            return Array(length + 1).join("N");
+        },
+
+        _fetchSequence: function (query, header, callback, endCallback, errorCallback) {
+            var start = typeof query.start == 'number' ? query.start : parseInt(query.start);
+            var end = typeof query.end == 'number' ? query.end : parseInt(query.end);
+            var seqname    = query.ref;
+            var index = this.chrToIndex[seqname];
+            
+            var i = 0;
+
+            var nBlocksToApply = [];
+
+            while(header.nBlocks[i] && header.nBlocks[i].start <= start) {
+                if(header.nBlocks[i].start + header.nBlocks[i].size >= start) { // I'll need to test all this code for off-by-one errors.
+                    nBlocksToApply.push(header.nBlocks[i]);
+                }
+                i++;
+            }
+
+            while(header.nBlocks[i] && header.nBlocks[i].start < end) {
+                nBlocksToApply.push(header.nBlocks[i]);
+                i++;
+            }
+
+            // dataStart and dataEnd are still in bp, so we must convert them to bytes.
+            var byteStart = header.dnaStart + Math.floor(start / 4);
+            var byteEnd = header.dnaStart + Math.ceil(end / 4);
+            var byteLength = byteEnd - byteStart - 1;
+
+            if( byteLength >= 0) {
+                console.log(byteStart, byteLength);
+                this.data.read(byteStart, byteLength, dojo.hitch(this, function(results) {
+                    var byteArray = this._toByteArray(results);
+                    var baseString = this._toBaseString(byteArray);
+                    baseString = this._applyNBlocks(baseString, start, end, nBlocksToApply);
+                    console.log(baseString);
+                }), errorCallback);
+            } else {
+            }
+
         }
     
 });
