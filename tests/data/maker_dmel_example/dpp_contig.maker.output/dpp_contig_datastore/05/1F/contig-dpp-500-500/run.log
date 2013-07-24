@@ -1,0 +1,83 @@
+SHARED_ID	5e4b4e769ce038073815bdb8e4f2b12e	
+CTL_OPTIONS	maker_gff	
+CTL_OPTIONS	other_gff	
+CTL_OPTIONS	est	dpp_transcripts.fasta
+CTL_OPTIONS	est_reads	
+CTL_OPTIONS	altest	
+CTL_OPTIONS	est_gff	
+CTL_OPTIONS	altest_gff	
+CTL_OPTIONS	protein	dpp_proteins.fasta
+CTL_OPTIONS	protein_gff	
+CTL_OPTIONS	model_org	all
+CTL_OPTIONS	repeat_protein	te_proteins.fasta
+CTL_OPTIONS	rmlib	
+CTL_OPTIONS	rm_gff	
+CTL_OPTIONS	organism_type	eukaryotic
+CTL_OPTIONS	predictor	est2genome
+CTL_OPTIONS	est2genome	1
+CTL_OPTIONS	snaphmm	
+CTL_OPTIONS	gmhmm	
+CTL_OPTIONS	augustus_species	
+CTL_OPTIONS	fgenesh_par_file	
+CTL_OPTIONS	model_gff	
+CTL_OPTIONS	pred_gff	
+CTL_OPTIONS	max_dna_len	100000
+CTL_OPTIONS	split_hit	10000
+CTL_OPTIONS	pred_flank	200
+CTL_OPTIONS	pred_stats	0
+CTL_OPTIONS	min_protein	0
+CTL_OPTIONS	AED_threshold	1
+CTL_OPTIONS	single_exon	0
+CTL_OPTIONS	single_length	250
+CTL_OPTIONS	keep_preds	0
+CTL_OPTIONS	map_forward	0
+CTL_OPTIONS	est_forward	0
+CTL_OPTIONS	correct_est_fusion	0
+CTL_OPTIONS	alt_splice	0
+CTL_OPTIONS	always_complete	0
+CTL_OPTIONS	alt_peptide	C
+CTL_OPTIONS	evaluate	0
+CTL_OPTIONS	blast_type	ncbi+
+CTL_OPTIONS	softmask	1
+CTL_OPTIONS	pcov_blastn	0.8
+CTL_OPTIONS	pid_blastn	0.85
+CTL_OPTIONS	eval_blastn	1e-10
+CTL_OPTIONS	bit_blastn	40
+CTL_OPTIONS	depth_blastn	0
+CTL_OPTIONS	pcov_rm_blastx	0.5
+CTL_OPTIONS	pid_rm_blastx	0.4
+CTL_OPTIONS	eval_rm_blastx	1e-06
+CTL_OPTIONS	bit_rm_blastx	30
+CTL_OPTIONS	pcov_blastx	0.5
+CTL_OPTIONS	pid_blastx	0.4
+CTL_OPTIONS	depth_blastx	0
+CTL_OPTIONS	eval_blastx	1e-06
+CTL_OPTIONS	bit_blastx	30
+CTL_OPTIONS	pcov_tblastx	0.8
+CTL_OPTIONS	pid_tblastx	0.85
+CTL_OPTIONS	eval_tblastx	1e-10
+CTL_OPTIONS	bit_tblastx	40
+CTL_OPTIONS	depth_tblastx	0
+CTL_OPTIONS	ep_score_limit	20
+CTL_OPTIONS	en_score_limit	20
+CTL_OPTIONS	enable_fathom	0
+CTL_OPTIONS	unmask	0
+CTL_OPTIONS	model_pass	0
+CTL_OPTIONS	est_pass	0
+CTL_OPTIONS	altest_pass	0
+CTL_OPTIONS	protein_pass	0
+CTL_OPTIONS	rm_pass	0
+CTL_OPTIONS	other_pass	0
+CTL_OPTIONS	pred_pass	0
+CTL_OPTIONS	run	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+STARTED	dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/contig-dpp-500-500.0.final.section	
+FINISHED	dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/contig-dpp-500-500.0.final.section	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
+LOGCHILD	/home/ubuntu/maker_course/example1_dmel/dpp_contig.maker.output/dpp_contig_datastore/05/1F/contig-dpp-500-500//theVoid.contig-dpp-500-500/run.log.child.0	
