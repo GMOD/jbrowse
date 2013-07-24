@@ -30,13 +30,14 @@ use URI::Escape;
 
 Output dir for formatted data.  Defaults to './data'.
 
-=item --ds_index <file>, -d <file>
+=item --ds_index <file.log>, -d <file.log>
 
-Provide MAKER produced datastore index
+Take filenames from a MAKER master datastore index file
+(e.g. my_genome_master_datastore_index.log).
 
 =item --help, -h, -?
 
-Displays this usage statement
+Displays full help information.
 
 =cut
 
