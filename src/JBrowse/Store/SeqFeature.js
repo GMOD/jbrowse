@@ -19,7 +19,6 @@ return declare( Store,
 
     constructor: function( args ) {
         this.globalStats = {};
-        this.config = args || {};
     },
 
     /**
