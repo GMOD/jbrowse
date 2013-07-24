@@ -27,7 +27,7 @@ define( [
          */
         constructor: function( args ) {
             
-            var blob = new XHRBlob("http://localhost/jbrowse-1/data/C_elegans.2bit");
+            var blob = new XHRBlob("http://localhost/jbrowse-1/data/hg19.2bit");
             
             this.twoBit = new TwoBitFile({
                 data: blob,
@@ -65,8 +65,8 @@ define( [
         },
 
         // called by getFeatures from the DeferredFeaturesMixin
-        _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-            this.twoBit.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
+        _getFeatures: function( query, callback, endCallback, errorCallback ) {
+            this.twoBit.fetch( query, callback, endCallback, errorCallback );
         }
 
     });
