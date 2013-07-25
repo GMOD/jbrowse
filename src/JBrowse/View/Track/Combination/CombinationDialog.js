@@ -21,7 +21,7 @@ constructor: function( args ) {
         this.currType = this.track.currType;
         this.oldType = this.track.oldType;
         this.supportedBy = this.track.supportedBy;
-        this.displayType = this.track.displayStore ? this.supportedBy[this.track.displayStore.config.type] : undefined;
+        this.displayType = this.track.displayType;
 
         this.storeToKey = this.track.config.storeToKey;
 

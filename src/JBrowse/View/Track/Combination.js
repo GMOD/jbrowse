@@ -329,12 +329,6 @@ addTrack: function(trackConfig) {
       lang.mixin(this.config.storeToKey, trackConfig.storeToKey);
     }
 
-    // Figure out which type of track (set, quant, etc) the user is adding
-    this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
-
-    // What type of Combination store corresponds to the track just added
-    this.storeClass = this.trackClasses[this.currType].store;
-
     // Creates the results div, if it hasn't already been created
     if(!this.resultsDiv) {
         this.resultsDiv = dom.create("div");
@@ -375,6 +369,11 @@ _addTrackStore: function(trackConfig) {
 runDialog: function(trackConfig, store) {
     // If this is the first track being added, it's not being combined with anything, so we don't need to ask - just adds the track alone
     if(this.oldType === undefined) {
+        // Figure out which type of track (set, quant, etc) the user is adding
+        this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
+        this.oldType = this.storeType = this.currType;
+        // What type of Combination store corresponds to the track just added
+        this.storeClass = this.trackClasses[this.currType].store;
 
         // opTree can be directly reloaded from track config.  This is important (e.g.) when changing reference sequences
         // to make sure that the right combinations of tracks are still included in this track.
@@ -382,14 +381,14 @@ runDialog: function(trackConfig, store) {
             this.loadTree(this.config.opTree).then(dojo.hitch(this, function(tree){
                 this.opTree = tree;
                 this.displayType = this.config.displayType;
-                this._adjustStores(store);
+                this._adjustStores(store, this.oldType, this.currType);
             }));
             return;
         }
         var opTree = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
         this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
         this.opTree = opTree;
-        this._adjustStores(store);
+        this._adjustStores( store, this.oldType, this.currType );
         return;
     }
     var d = new Deferred();
@@ -400,6 +399,11 @@ runDialog: function(trackConfig, store) {
           dojo.hitch( this, function() {
                           if(this.preferencesDialog)
                               this.preferencesDialog.destroyRecursive();
+                          // Figure out which type of track (set, quant, etc) the user is adding
+                          this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
+                          this.oldType = this.storeType;
+                          // What type of Combination store corresponds to the track just added
+                          this.storeClass = this.trackClasses[this.currType].store;
                           this.preferencesDialog = new CombinationDialog({
                                                                              trackConfig: trackConfig,
                                                                              store: store,
@@ -409,8 +413,10 @@ runDialog: function(trackConfig, store) {
                           this.preferencesDialog.run(dojo.hitch(this, function(opTree, newstore, displayType) {
                                                                     this.opTree = opTree;
                                                                     this.displayType = displayType;
+                                                                    this.storeType = ( this.oldType == "mask" || this.opTree.get() == "M" ||
+                                                                                        this.opTree.get() == "N" ) ? "mask" : this.currType;
+                                                                    this._adjustStores(newstore, this.oldType, this.currType);
                                                                     d.resolve(true);
-                                                                    this._adjustStores(newstore);
                                                                 }), dojo.hitch(this, function() {
                                                                                    d.resolve(true);
                                                                                }));
@@ -421,16 +427,14 @@ runDialog: function(trackConfig, store) {
 // This function ensures that all secondary stores (one for the mask, one for the display) have been loaded.
 // If not, it loads them itself.  This function tries not to waste stores - if a store of a certain type already exists,
 // it uses it rather than creating a new one.
-_adjustStores: function (store) {
+_adjustStores: function (store, oldType, currType) {
     var d = new Deferred();
-
-    this.storeType = "mask";
-    if(this.oldType == "mask") {
+    if(oldType == "mask") {
         this.maskStore.reload(this.opTree.leftChild);
         this.displayStore.reload(this.opTree.rightChild);
         this.store.reload(this.opTree, this.maskStore, this.displayStore);
         d.resolve(true);
-    } else if(this.currType == "mask") {
+    } else if(currType == "mask") {
         var haveMaskStore = this._createStore("set"); 
         haveMaskStore.then(dojo.hitch(this, function(newstore) {
                                                                    this.maskStore = newstore;
@@ -443,7 +447,6 @@ _adjustStores: function (store) {
                                                      this.displayStore = newStore;
                                                      this.displayStore.reload(this.opTree.rightChild);
                                                  }));
-        this.storeType = "mask";
         this.store = undefined;
         d = all([haveMaskStore, haveDisplayStore]);
     } else if(this.opTree.get() == "M" || this.opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
@@ -457,14 +460,11 @@ _adjustStores: function (store) {
                                                                      this.displayStore = newStore;
                                                                      this.displayStore.reload(this.opTree.rightChild);
                                                                  }));
-        this.storeType = "mask";
         this.store = undefined;
         d = all([haveMaskStore, haveDisplayStore]);
     } else {
-        this.storeType = this.currType;
         d.resolve(true);
     }
-    this.oldType = this.storeType;
     d.then(dojo.hitch(this, function() {
                           this.createStore();
                       }));
