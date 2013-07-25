@@ -70,6 +70,10 @@
    other promise object that will provide the content to be shown
    asynchronously.
 
+ * The graphical value-display flag for Wiggle tracks now shows "no
+   data" at positions that contain no data, instead of just not being
+   displayed.
+
  * Fixed a bad design decision with respect to track metadata stores.
    Before, a given metadata key ("Category", "Conditions", etc) was
    allowed to only be present in one source of track metadata (CSV
