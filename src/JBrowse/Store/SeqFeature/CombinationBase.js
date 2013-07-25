@@ -101,7 +101,6 @@ reload: function( optree ) {
     var thisB = this;
 
     this._deferred.features.resolve(true);
-    
     this._estimateGlobalStats().then( dojo.hitch(
                                                         this,
                                                         function( stats ) {
@@ -111,13 +110,11 @@ reload: function( optree ) {
                                                     ),
                                                     dojo.hitch( this, '_failAllDeferred' )
                                                   );
-    return this._deferred.stats;
 },
 
 // Filters the featureArrays to return the list of features for the query, and then calls finish() to pass to the callback
 _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
-
     if(this.stores.length == 1) {
         this.stores[0].getFeatures( query, featCallback, doneCallback, errorCallback);
         return; 
@@ -150,10 +147,11 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                     function(){d.resolve( featureArrays[store.name] ); },
                     function(){d.reject("Error fetching features for store " + store.name);}
                 );
-                return d.promise;
             } else {
                 d.resolve(featureArrays[store.name], true);
             }
+            d.then(function(){}, errorCallback); // Makes sure that none of the rejected deferred promises keep propagating
+            return d.promise;
         }
     );
 
@@ -163,7 +161,7 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         var spans = thisB.evalTree(featureArrays, thisB.opTree, query);
         var features = thisB.createFeatures(spans);
         thisB.finish(features, spans, featCallback, doneCallback);
-    });
+    }, errorCallback);
 },
 
 // Evaluate (recursively) an operation tree to create a list of spans (essentially pseudo-features)

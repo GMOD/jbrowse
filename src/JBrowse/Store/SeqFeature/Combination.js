@@ -217,10 +217,12 @@ _rawNotSpan: function( spans, query, strand ) {
 },
 
 loadRegion: function ( region ) {
-    if(this.stores.length == 1) {
-        return true;
-    }
     var d = new Deferred();
+
+    if(this.stores.length == 1) {
+        d.resolve(true);
+        return d.promise;
+    }
     var thisB = this;
     var regionLoaded = region;
     regionLoaded.spans = [];

@@ -84,19 +84,19 @@ reload: function(opTree, mask, display) {
         this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
         this.gotAllStores.then(function() {
             thisB.opTree.leftChild = thisB.stores.mask.isCombinationStore ? thisB.stores.mask.opTree : new TreeNode({Value: thisB.stores.mask});
-            thisB.opTree.rightChild = thisB.stores.display.isCombinationStore ? thisB.stores.display.opTree : new TreeNode({Value: thisB.stores.display});
+            thisB.opTree.rightChild = thisB.stores.haveDisplayStorelay.isCombinationStore ? thisB.stores.display.opTree : new TreeNode({Value: thisB.stores.display});
         });
     }
 },
 
 // The global stats of this store should be the same as those for the display data.
 getGlobalStats: function (callback, errorCallback) {
-    return this.stores.display.getGlobalStats(callback, errorCallback);
+    this.stores.display.getGlobalStats(callback, errorCallback);
 },
 
 // The regional stats of this store should be the same as those for the display data.
 getRegionStats: function (query, callback, errorCallback) {
-    return this.stores.display.getRegionStats(query, callback, errorCallback);
+    this.stores.display.getRegionStats(query, callback, errorCallback);
 },
 
 // Gets the features from the mask and display stores, and then returns the display store features with the mask store features
@@ -132,9 +132,9 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
                     var features = featureArray.display;
 
                     thisB.maskFeatures(features, spans, featCallback, doneCallback);
-                }
+                }, errorCallback
             );
-        });
+        }, errorCallback);
 },
 
 

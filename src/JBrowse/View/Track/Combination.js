@@ -109,6 +109,10 @@ constructor: function( args ) {
             }
         };
 
+    this.errorCallback = dojo.hitch(this, function(error) {
+        this._handleError(error, {});
+    });
+
     // inWords just stores, in words, what each possible operation does.  This is helpful for dialogs and menus that
     // allow selection of different operations.
     this.inWords =
@@ -422,33 +426,37 @@ _adjustStores: function (store) {
 
     this.storeType = "mask";
     if(this.oldType == "mask") {
-        var haveMaskStore = this.maskStore.reload(this.opTree.leftChild);
-        var haveDisplayStore = this.displayStore.reload(this.opTree.rightChild);
-        all([haveMaskStore, haveDisplayStore]).then(dojo.hitch(this, function() {
-                                                                   this.store.reload(this.opTree, this.maskStore, this.displayStore);
-                                                                   d.resolve(true);
-                                                               }));
+        this.maskStore.reload(this.opTree.leftChild);
+        this.displayStore.reload(this.opTree.rightChild);
+        this.store.reload(this.opTree, this.maskStore, this.displayStore);
+        d.resolve(true);
     } else if(this.currType == "mask") {
-        var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
-                                                                         this.maskStore = newstore;
-                                                                         return this.maskStore.reload(this.opTree.leftChild);
-                                                                     }));
-        var haveDisplayStore = this._createStore(this.displayType).then(dojo.hitch(this, function(newStore){
-                                                                                       this.displayStore = newStore;
-                                                                                       return this.displayStore.reload(this.opTree.rightChild);
-                                                                                   }));
+        var haveMaskStore = this._createStore("set"); 
+        haveMaskStore.then(dojo.hitch(this, function(newstore) {
+                                                                   this.maskStore = newstore;
+                                                                   this.maskStore.reload(this.opTree.leftChild);
+                                                               }));
+        var haveDisplayStore = this._createStore(this.displayType);
+
+
+        haveDisplayStore.then(dojo.hitch(this, function(newStore){
+                                                     this.displayStore = newStore;
+                                                     this.displayStore.reload(this.opTree.rightChild);
+                                                 }));
         this.storeType = "mask";
         this.store = undefined;
         d = all([haveMaskStore, haveDisplayStore]);
     } else if(this.opTree.get() == "M" || this.opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
-        var haveMaskStore = this._createStore("set").then(dojo.hitch(this, function(newstore) {
-                                                                         this.maskStore = newstore;
-                                                                         return this.maskStore.reload(this.opTree.leftChild);
-                                                                     }));
-        var haveDisplayStore = this._createStore(this.displayType).then(dojo.hitch(this, function(newStore){
-                                                                                       this.displayStore = newStore;
-                                                                                       return this.displayStore.reload(this.opTree.rightChild);
-                                                                                   }));
+        var haveMaskStore = this._createStore("set"); 
+        haveMaskStore.then(dojo.hitch(this, function(newstore) {
+                                                                   this.maskStore = newstore;
+                                                                   this.maskStore.reload(this.opTree.leftChild);
+                                                               }));
+        var haveDisplayStore = this._createStore(this.displayType);
+        haveDisplayStore.then(dojo.hitch(this, function(newStore){
+                                                                     this.displayStore = newStore;
+                                                                     this.displayStore.reload(this.opTree.rightChild);
+                                                                 }));
         this.storeType = "mask";
         this.store = undefined;
         d = all([haveMaskStore, haveDisplayStore]);
@@ -476,7 +484,7 @@ createStore: function() {
                // All stores are now in place.  Make sure the operation tree of the store matches that of this track,
                // and then we can render the results track.
                thisB.store = store;
-               thisB.store.reload(thisB.opTree, thisB.maskStore, thisB.displayStore);
+               thisB.store.reload(thisB.opTree, thisB.maskStore, thisB.displayStore); 
                thisB.renderResultsTrack();
            });
 },
@@ -653,10 +661,9 @@ refresh: function(track) {
     if(!track) {
         track = this;
     }
-    var storeIsReloaded;
     if(this._visible().store && !this.onlyRefreshOuter) {
         // Reload the store if it's not too much trouble
-        storeIsReloaded = this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
+        this._visible().store.reload(this._visible().tree, this.maskStore, this.displayStore);
     }
     else {
         if(!this.onlyRefreshOuter) {
@@ -664,19 +671,15 @@ refresh: function(track) {
             delete this.config.resultsTrack;
             delete this.config.opTree;
         }
-        storeIsReloaded = true;
     }
 
     // once the store is properly reloaded, make sure the track is showing data correctly
-    when( storeIsReloaded,
-          dojo.hitch(this, function(reloadedStore) {
-                         if(this.range) {
-                             track.clear();
-                             track.showRange(this.range.f, this.range.l, this.range.st, this.range.b,
-                                             this.range.sc, this.range.cs, this.range.ce);
-                         }
-                         this.makeTrackMenu();
-                     }));
+     if(this.range) {
+         track.clear();
+         track.showRange(this.range.f, this.range.l, this.range.st, this.range.b,
+                         this.range.sc, this.range.cs, this.range.ce);
+     }
+     this.makeTrackMenu();
 },
 
 clear: function() {
@@ -728,14 +731,15 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
               var start = startBase;
               var end = startBase + (last + 1 - first)*bpPerBlock;
               loadedRegions.push(stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end}));
-              this.resultsTrack.clear();
+              loadedRegions[i].then(function(){}, this.errorCallback); // Add error callbacks to all deferred rejections
           } else {
               loadedRegions.push(true);
           }
         }
         when(all(loadedRegions), dojo.hitch(this, function(){
           this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
-        }));
+        }),
+        this.errorCallback);
 
         if(needsDiv) {
             this.div.removeChild(this.resultsDiv);
