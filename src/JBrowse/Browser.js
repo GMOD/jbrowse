@@ -9,6 +9,7 @@ define( [
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
+            'dojo/request',
             'JBrowse/has',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
@@ -49,6 +50,7 @@ define( [
             DeferredList,
             topic,
             aspect,
+            request,
             has,
             array,
             dijitContentPane,
@@ -330,19 +332,28 @@ fatalError: function( error ) {
             + '  <h1>Congratulations, JBrowse is on the web!</h1>'
             + "  <p>However, JBrowse could not start, either because it has not yet been configured"
             + "     and loaded with data, or because of an error.</p>"
-            + "  <p style=\"font-size: 110%; font-weight: bold\"><a title=\"View the tutorial\" href=\"docs/tutorial/\">If this is your first time running JBrowse, click here to follow the Quick-start Tutorial to get up and running.</a></p>"
-            + "  <p>Otherwise, please refer to the following resources for help in getting JBrowse up and running.</p>"
-            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a></li>'
-            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
-            + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
-            + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
+            + "  <p style=\"font-size: 110%; font-weight: bold\">If this is your first time running JBrowse, <a title=\"View the tutorial\" href=\"docs/tutorial/\" target=\"_blank\">click here to follow the Quick-start Tutorial to show your data in JBrowse.</a></p>"
+            + '  <p id="volvox_data_placeholder"></p>'
+            + "  <p>Otherwise, please refer to the following resources for help in setting up JBrowse to show your data.</p>"
+            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a> - get your data visible quickly with minimum fuss</li>'
+            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse_Configuration_Guide">JBrowse Configuration Guide</a> - a comprehensive reference</li>'
+            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki main page</a></li>'
+            + '      <li><a target="_blank" href="docs/config.html"><code>biodb-to-json.pl</code> configuration reference</a></li>'
+            + '      <li><a target="_blank" href="docs/featureglyphs.html">HTMLFeatures CSS class reference</a> - prepackaged styles (CSS classes) for HTMLFeatures tracks</li>'
             + '  </ul>'
-
             + '  <div id="fatal_error_list" class="errors"> <h2>Error message(s):</h2>'
             + ( error ? '<div class="error"> '+error+'</div>' : '' )
             + '  </div>'
             + '</div>'
             ;
+        request( 'sample_data/json/volvox/successfully_run' )
+        .then( function() {
+                   try {
+                       document.getElementById('volvox_data_placeholder')
+                           .innerHTML = 'Also, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data</a> here.';
+                   } catch(e) {}
+               });
+
         this.hasFatalErrors = true;
     } else {
         var errors_div = dojo.byId('fatal_error_list') || document.body;
