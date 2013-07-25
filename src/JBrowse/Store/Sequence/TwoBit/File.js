@@ -194,7 +194,7 @@ define ([
                         var header = {
                             dnaSize: dnaSize,
                             nBlocks: results[0],
-                            maskBlocks: results[1],
+                            masks: results[1],
                             dnaStart: currData,
                             dnaEnd: this.offset[index + 1]
                         };
@@ -232,12 +232,25 @@ define ([
 
         _applyNBlocks: function( baseString, start, end, nBlocks ) {
             var retString = baseString;
-            for(var i in nBlocks) {
-                var blockStart = Math.max(0, nBlocks[i].start - start);
-                var blockLength = nBlocks[i].size + Math.min(0, nBlocks[i].start - start);
-                blockLength = Math.max(0, Math.min(blockLength, end - nBlocks[i].start));
-                console.log(blockStart, blockLength);
-                retString = [retString.slice(0, blockStart), this._nBlock(blockLength), retString.slice(blockStart+blockLength)].join("");
+            for( var i in nBlocks ) {
+                var blockStart = Math.max( 0, nBlocks[i].start - start );
+                var blockLength = nBlocks[i].size + Math.min( 0, nBlocks[i].start - start );
+                blockLength = Math.max( 0, Math.min( blockLength, end - nBlocks[i].start ) );
+                retString = [ retString.slice( 0, blockStart ), this._nBlock( blockLength ), retString.slice( blockStart + blockLength ) ].join( "" );
+            }
+            return retString;
+        },
+
+        _applyMasks: function( baseString, start, end, masks ) {
+            var retString = baseString;
+            for( var i in masks ) {
+                var maskStart = Math.max( 0, masks[i].start - start );
+                var maskLength = masks[i].size + Math.min( 0, masks[i].start - start );
+                console.log(masks[i].start, masks[i].size, maskStart, maskLength);
+                maskLength = Math.max( 0, Math.min( maskLength, end - masks[i].start ) );
+                retString = [ retString.slice( 0, maskStart ),
+                    retString.slice(maskStart, maskStart + maskLength).toLowerCase(),
+                    retString.slice(maskStart + maskLength ) ].join("");
             }
             return retString;
         },
@@ -246,9 +259,9 @@ define ([
             return Array(length + 1).join("N");
         },
 
-        _fetchSequence: function (query, header, callback, endCallback, errorCallback) {
-            var start = typeof query.start == 'number' ? query.start : parseInt(query.start);
-            var end = typeof query.end == 'number' ? query.end : parseInt(query.end);
+        _fetchSequence: function ( query, header, callback, endCallback, errorCallback ) {
+            var start = typeof query.start == 'number' ? query.start : parseInt( query.start );
+            var end = typeof query.end == 'number' ? query.end : parseInt( query.end );
             var seqname    = query.ref;
             var index = this.chrToIndex[seqname];
             
@@ -256,32 +269,41 @@ define ([
 
             var nBlocksToApply = [];
 
-            while(header.nBlocks[i] && header.nBlocks[i].start <= start) {
-                if(header.nBlocks[i].start + header.nBlocks[i].size >= start) { // I'll need to test all this code for off-by-one errors.
-                    nBlocksToApply.push(header.nBlocks[i]);
-                }
+            while( header.nBlocks[i] && header.nBlocks[i].start + header.nBlocks[i].size <= start)  {
                 i++;
             }
 
-            while(header.nBlocks[i] && header.nBlocks[i].start < end) {
-                nBlocksToApply.push(header.nBlocks[i]);
+            while( header.nBlocks[i] && header.nBlocks[i].start < end ) {
+                nBlocksToApply.push( header.nBlocks[i] );
+                i++;
+            }
+
+            i = 0;
+            var masksToApply = [];
+            while( header.masks[i] && header.masks[i].start + header.masks[i].size <= start ) {
+                i++;
+            }
+
+            while( header.masks[i] && header.masks[i].start < end ) {
+                masksToApply.push( header.masks[i] );
                 i++;
             }
 
             // dataStart and dataEnd are still in bp, so we must convert them to bytes.
-            var byteStart = header.dnaStart + Math.floor(start / 4);
-            var byteEnd = header.dnaStart + Math.ceil(end / 4);
+            var byteStart = header.dnaStart + Math.floor( start / 4 );
+
+            var byteEnd = header.dnaStart + Math.ceil( end / 4 );
             var byteLength = byteEnd - byteStart - 1;
 
             if( byteLength >= 0) {
-                console.log(byteStart, byteLength);
-                this.data.read(byteStart, byteLength, dojo.hitch(this, function(results) {
-                    var byteArray = this._toByteArray(results);
-                    var baseString = this._toBaseString(byteArray);
-                    baseString = this._applyNBlocks(baseString, start, end, nBlocksToApply);
-                    console.log(baseString);
-                }), errorCallback);
-            } else {
+                console.log( byteStart, byteLength );
+                this.data.read(byteStart, byteLength, dojo.hitch( this, function( results ) {
+                    var byteArray = this._toByteArray( results );
+                    var baseString = this._toBaseString( byteArray );
+                    baseString = this._applyNBlocks( baseString, start, end, nBlocksToApply );
+                    baseString = this._applyMasks( baseString, start, end, masksToApply );
+                    console.log( baseString );
+                }), errorCallback );
             }
 
         }
