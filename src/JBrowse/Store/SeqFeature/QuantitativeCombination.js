@@ -148,7 +148,7 @@ opSpan: function(op, pseudosA, pseudosB, query) {
         retPseudos.push({
             start: Math.max(nextCritical, pseudosA[i].start),
             end: pseudosA[i].end,
-            score: pseudosA[i].score,
+            score: this.applyOp(pseudosA[i].score, 0, op),
             segment: pseudosA[i].segment,
             type: pseudosA[i].type
         });
@@ -157,7 +157,7 @@ opSpan: function(op, pseudosA, pseudosB, query) {
         retPseudos.push({
             start: Math.max(nextCritical, pseudosB[j].start),
             end: pseudosB[j].end,
-            score: pseudosB[j].score,
+            score: this.applyOp(0, pseudosB[j].score, op),
             segment: pseudosB[j].segment,
             type: pseudosB[j].type
         });
