@@ -94,7 +94,7 @@ return declare( null, {
                       value: locstring, checked: r.canExport && !(checked++) ? "checked" : ""
                     });
                 regionFieldset.appendChild(regionButton.domNode);
-                var regionButtonLabel = dom.create("label", {for: regionButton.id, innerHTML: r.description+' - <span class="locString">'
+                var regionButtonLabel = dom.create("label", {"for": regionButton.id, innerHTML: r.description+' - <span class="locString">'
                                    +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')'}, regionFieldset);
                 if(!r.canExport) {
                     regionButton.domNode.disabled = "disabled";
@@ -122,7 +122,7 @@ return declare( null, {
             nameToExtension[fmt.name] = fmt.fileExt;
             var formatButton = new dijitRadioButton({ name: "format", id: "format"+fmt.name, value: fmt.name, checked: checked++?"":"checked"});
             formatFieldset.appendChild(formatButton.domNode);
-            var formatButtonLabel = dom.create("label", {for: formatButton.id, innerHTML: fmt.label}, formatFieldset);
+            var formatButtonLabel = dom.create("label", {"for": formatButton.id, innerHTML: fmt.label}, formatFieldset);
 
             on(formatButton, "click", setFilenameValue);
             dom.create( "br", {}, formatFieldset );
