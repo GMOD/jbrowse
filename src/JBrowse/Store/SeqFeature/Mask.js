@@ -75,28 +75,28 @@ reload: function(opTree, mask, display) {
             return haveStore.promise;
         }
 
-        var haveMaskStore = grabStore(this.stores.mask).then(function(store) { 
+        var haveMaskStore = grabStore(this.stores.mask).then( function(store) { 
             thisB.stores.mask = store; 
         });
-        var haveDisplayStore = grabStore(this.stores.display).then(function(store) { 
+        var haveDisplayStore = grabStore(this.stores.display).then( function(store) { 
             thisB.stores.display = store; 
         });
         this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
-        this.gotAllStores.then(function() {
+        this.gotAllStores.then( function() {
             thisB.opTree.leftChild = thisB.stores.mask.isCombinationStore ? thisB.stores.mask.opTree : new TreeNode({Value: thisB.stores.mask});
-            thisB.opTree.rightChild = thisB.stores.haveDisplayStorelay.isCombinationStore ? thisB.stores.display.opTree : new TreeNode({Value: thisB.stores.display});
+            thisB.opTree.rightChild = thisB.stores.display.isCombinationStore ? thisB.stores.display.opTree : new TreeNode({Value: thisB.stores.display});
         });
     }
 },
 
 // The global stats of this store should be the same as those for the display data.
 getGlobalStats: function (callback, errorCallback) {
-    this.stores.display.getGlobalStats(callback, errorCallback);
+    this.stores.display.getGlobalStats( callback, errorCallback );
 },
 
 // The regional stats of this store should be the same as those for the display data.
 getRegionStats: function (query, callback, errorCallback) {
-    this.stores.display.getRegionStats(query, callback, errorCallback);
+    this.stores.display.getRegionStats( query, callback, errorCallback );
 },
 
 // Gets the features from the mask and display stores, and then returns the display store features with the mask store features
@@ -109,29 +109,29 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
             var featureArray = {};
             
             // Get features from one particular store
-            var grabFeats = function(key)  {
-                var d = new Deferred();
+            var grabFeats = function( key )  {
+                var d = new Deferred( );
                 featureArray[key] = [];
                 
-                thisB.stores[key].getFeatures(query,
+                thisB.stores[key].getFeatures( query,
                     function(feature) {
-                        featureArray[key].push(feature);
+                        featureArray[key].push( feature );
                     },
-                    function() { d.resolve(true); },
-                    function() { d.reject("failed to load features for " + key+ " store"); }
+                    function() { d.resolve( true ); },
+                    function() { d.reject( "failed to load features for " + key + " store" ); }
                 );
                 return d.promise;
             }
 
-            when(all([grabFeats("mask"), grabFeats("display")]),
+            when(all([grabFeats( "mask" ), grabFeats( "display" )]),
                 function() {
                     // Convert mask features into simplified spans
-                    var spans = thisB.toSpans(featureArray.mask, query);
+                    var spans = thisB.toSpans( featureArray.mask, query );
                     // invert masking spans if necessary
-                    spans = thisB.inverse ? thisB.notSpan(spans, query) : spans;
+                    spans = thisB.inverse ? thisB.notSpan( spans, query ) : spans;
                     var features = featureArray.display;
 
-                    thisB.maskFeatures(features, spans, featCallback, doneCallback);
+                    thisB.maskFeatures( features, spans, featCallback, doneCallback );
                 }, errorCallback
             );
         }, errorCallback);
@@ -155,13 +155,13 @@ maskFeatures: function( features, spans, featCallback, doneCallback ) {
      * For glyph based tracks, the masks passed to each feature will be used to do masking.
      */
     for ( var key in features ) {
-        if ( features.hasOwnProperty(key) ) {
+        if ( features.hasOwnProperty( key ) ) {
             var feat = features[key];
             delete feat.masks;
             for (var span in spans ) {
-                if ( spans.hasOwnProperty(span) && this.inSpan( feat, spans[span] ) ) {
+                if ( spans.hasOwnProperty( span ) && this.inSpan( feat, spans[span] ) ) {
                     // add masks to the feature. Used by Glyphs to do masking.
-                    feat.masks = feat.masks ? feat.masks.concat([spans[span]]) : [spans[span]];
+                    feat.masks = feat.masks ? feat.masks.concat( [spans[span]] ) : [spans[span]];
                 }
             }
             featCallback( features[key] )
@@ -176,7 +176,7 @@ notSpan: function( spans, query ) {
     invSpan[0] = { start: query.start };
     var i = 0;
     for (span in spans) {
-        if (spans.hasOwnProperty(span)) {
+        if ( spans.hasOwnProperty( span ) ) {
             span = spans[span];
             invSpan[i].end = span.start;
             i++;
