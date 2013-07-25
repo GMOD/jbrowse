@@ -2,15 +2,15 @@
 
 use strict;
 use warnings;
-use FindBin;
-use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../perl/lib";
-use Getopt::Long;
 
+use FindBin qw($RealBin);
+use lib "$RealBin/../src/perl5";
+use JBlibs;
+
+use Getopt::Long;
 use File::Basename;
 use File::Spec::Functions;
 use File::Temp;
-use File::Copy;
 use Pod::Usage;
 use URI::Escape;
 

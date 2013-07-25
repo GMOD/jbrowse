@@ -73,6 +73,7 @@ my %WriteMakefileArgs = (
     "Pod::Usage" => 0,
     "Scalar::Util" => 0,
     "Storable" => 0,
+    "URI::Escape" => 0,
     "base" => 0,
     "constant" => 0,
     "local::lib" => 0,
