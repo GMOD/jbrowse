@@ -426,8 +426,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     },
 
     _showPixelValue: function( scoreDisplay, score ) {
-        if (!score)
-            return false; // score may not be defined
         if( typeof score == 'number' ) {
             // display the score with only 6
             // significant digits, avoiding
@@ -439,7 +437,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             domClass.remove( scoreDisplay, 'noData' );
             return true;
         }
-        else if( score['score'] && typeof score['score'] == 'number' ) {
+        else if( score && score['score'] && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
             domClass.remove( scoreDisplay, 'noData' );
