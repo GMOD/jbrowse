@@ -732,6 +732,7 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
               var end = startBase + (last + 1 - first)*bpPerBlock;
               loadedRegions.push(stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end}));
               loadedRegions[i].then(function(){}, this.errorCallback); // Add error callbacks to all deferred rejections
+              this.resultsTrack.clear();
           } else {
               loadedRegions.push(true);
           }
