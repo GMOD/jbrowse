@@ -24,7 +24,7 @@ return declare( Component, {
                         if (fRect.m) {
                             var l = Math.floor(fRect.l);
                             var w = Math.ceil(fRect.w + fRect.l) - l;
-                            fRect.m.sort(function(a,b) { return a.l - b.l});
+                            fRect.m.sort(function(a,b) { return a.l - b.l; });
                             var m = fRect.m[0];
                             if (m.l <= l) {
                                 // Determine whether the feature is entirely masked.
@@ -44,9 +44,8 @@ return declare( Component, {
                     }, true);
 
         // after rendering the features, do masking if required
-
-        aspect.after(this, 'renderFeature', 
-                     function( context, block, fRect ) { 
+        aspect.after(this, 'renderFeature',
+                     function( context, block, fRect ) {
                         if (fRect.m && !fRect.noMask) {
                             this.maskBySpans( context, block, fRect );
                         } else if ( fRect.noMask) {
@@ -76,7 +75,7 @@ return declare( Component, {
         var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this.getStyle( feature, 'height' )
+            h: this._getFeatureHeight( viewArgs, feature )
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
@@ -131,9 +130,9 @@ return declare( Component, {
         var l = Math.floor(fRect.l);
         var w = Math.ceil(fRect.w + fRect.l) - l;
 
-        /* note on the above: the rightmost pixel is determined 
-           by l+w. If either of these is a float, then canvas 
-           methods will not behave as desired (i.e. clear and 
+        /* note on the above: the rightmost pixel is determined
+           by l+w. If either of these is a float, then canvas
+           methods will not behave as desired (i.e. clear and
            draw will not treat borders in the same way).*/
         array.forEach( fRect.m, function(m) { try {
             if ( m.l < l ) {
@@ -158,6 +157,10 @@ return declare( Component, {
             context.globalAlpha = 1;
         } catch(e) {};
         });
+    },
+
+    _getFeatureHeight: function( viewArgs, feature ) {
+        return this.getStyle( feature, 'height');
     }
 
 });

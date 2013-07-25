@@ -1,17 +1,93 @@
 {{$NEXT}}
 
- * Further improved scrolling smoothness of HTML-based feature tracks.
+ * Added "normal", "compact", and "collapsed" feature layout options
+   for canvas-based feature tracks (currently just Alignments2
+   tracks).  Thanks to OICR co-op student Daniel Kasenberg for
+   implementing this!
+
+ * Added "Save track data" option to Alignments2 tracks.  This option
+   should have been there all along, but somehow slipped through the
+   cracks.  Thanks to Valerie Wong for pointing this out at the 2013
+   GMOD Summer School!
 
  * Added a SPARQL data backend to allow displaying features directly
    from a SPARQL endpoint.  Many thanks to the NDBC/DBCLS BioHackathon
    2012 and 2013 participants for suggesting this and helping with
    this work! See http://www.biohackathon.org for more on this
-   fantastic series of hackathons.
+   fantastic (and I think very important) series of hackathons.
 
  * Added the ability to "pin" some tracks to the top of the display,
    so that they stay at the top of the pane while the rest of the
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
+
+ * Added support for a --reftypes argument to `prepare-refseqs.pl`,
+   allowing you to search a database for reference sequences based on
+   the type of the reference sequences, e.g. 'chromosome'.  Thanks to
+   Gaelen Burke at the 2013 GMOD Summer School for pointing out the
+   need for this, and for assistance in testing the new feature.
+
+ * Further improved scrolling smoothness of HTML-based feature tracks.
+
+ * Integrated a `maker2jbrowse` script into the core JBrowse
+   distribution.  You can now visualize your MAKER results in JBrowse
+   with a single command:
+       `bin/maker2jbrowse -d /path/to/your/maker/master_datastore_index.log`
+   Thanks to the MAKER team and Yandell lab for providing the initial
+   implementation of `maker2jbrowse`.
+
+ * `prepare-refseqs.pl` can now format reference sequences from a
+   common .sizes (aka .len) file that is just a two-column
+   tab-separated list of reference sequence names and their lengths,
+   run like:
+       bin/prepare-refseqs.pl --sizes myrefs.sizes
+
+ * Added a '--noSubfeatures' option for flatfile-to-json.pl to skip
+   importing subfeatures (since `--getSubfeatures` is on by default
+   for some time).
+
+ * The `style.label` configuration variable in HTMLFeatures (and
+   CanvasFeatures) tracks can now accept a comma-separated string of
+   field names in addition to a function callback.  Defaults to
+   'name,id';
+
+ * The "JBrowse" link on the left side of the menu bar, and the
+   browser title, now display the "About this browser" title instead
+   of JBrowse, if `aboutThisBrowser` is set in the configuration.
+   Thanks to Joanna Kelley at the 2013 GMOD Summer School for
+   suggesting this.
+
+ * Tweaked styling of inactive track handles in the default Simple
+   track selector to make them look less like pressable buttons.
+   Thanks to Pedro Pagan at the 2013 GMOD Summer School for pointing
+   out the need for this, and helping to brainstorm how the new styles
+   should look.
+
+ * Horizontal mouse-wheel (or trackpad) events can now scroll the
+   genome view horizontally.  Thanks to Mara Kim for help testing this
+   at the 2013 GMOD Summer School.
+
+ * The "content" of configurable information popups (such as can be
+   shown when clicking on features) can now accept a dojo/Deferred or
+   other promise object that will provide the content to be shown
+   asynchronously.
+
+ * The graphical value-display flag for Wiggle tracks now shows "no
+   data" at positions that contain no data, instead of just not being
+   displayed.
+
+ * Fixed a bad design decision with respect to track metadata stores.
+   Before, a given metadata key ("Category", "Conditions", etc) was
+   allowed to only be present in one source of track metadata (CSV
+   file, configuration file, etc).  The original thinking behind this
+   was that it would be better for people to be forced to keep each
+   kind of metadata in only one place.  This was silly thinking.
+   Thanks to the 2013 GMOD Summer School participants for helping me
+   to see the error of my ways.
+
+ * Fixed a bug with GFF3 export in which the phase(!) column was
+   missing.  Thanks to Michael Campbell at the 2013 GMOD Summer School
+   for helping track this down!
 
  * Fixed a bug in which the global highlighted region was not correctly drawn
    when switching reference sequences.

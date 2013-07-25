@@ -2,6 +2,7 @@
    "tracks" : [
       {
             "urlTemplate" : "tracks/knownGene/{refseq}/trackData.jsonz",
+            "storeClass": "JBrowse/Store/SeqFeature/NCList",
             "style" : {
                "className" : "generic_parent",
                "subfeatureClasses" : {

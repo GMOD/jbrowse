@@ -12,6 +12,7 @@ require({
         'xstyle',
         'put-selector',
         'json-schema',
+        'FileSaver',
         { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
         'dbind',
         { name: 'lazyload', main: 'lazyload' }

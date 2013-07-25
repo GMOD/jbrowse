@@ -462,6 +462,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         );
     },
 
+    redraw: function() {
+        this.clear();
+        this.genomeView.showVisibleBlocks(true);
+    },
+
     markBlockHeightOverflow: function( block ) {
         if( block.heightOverflowed )
             return;
@@ -799,11 +804,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @returns {Object} DOM element containing a rendering of the
      *                   detailed metadata about this track
      */
-    _trackDetailsContent: function() {
+    _trackDetailsContent: function( additional ) {
         var details = domConstruct.create('div', { className: 'detail' });
-        var fmt = dojo.hitch(this, 'renderDetailField', details );
+        var fmt = lang.hitch(this, 'renderDetailField', details );
         fmt( 'Name', this.key || this.name );
-        var metadata = dojo.clone( this.getMetadata() );
+        var metadata = lang.clone( this.getMetadata() );
+        lang.mixin( metadata, additional );
         delete metadata.key;
         delete metadata.label;
         if( typeof metadata.conf == 'object' )
@@ -813,9 +819,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         for( var k in metadata )
             md_keys.push(k);
         // TODO: maybe do some intelligent sorting of the keys here?
-        dojo.forEach( md_keys, function(key) {
+        array.forEach( md_keys, function(key) {
                           fmt( Util.ucFirst(key), metadata[key] );
                       });
+
         return details;
     },
 
@@ -951,6 +958,15 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         var dialog;
 
+        function setContent( dialog, content ) {
+            // content can be a promise or Deferred
+            if( typeof content.then == 'function' )
+                content.then( function( c ) { dialog.set( 'content', c ); } );
+            // or maybe it's just a regular object
+            else
+                dialog.set( 'content', content );
+        }
+
         // if dialog == xhr, open the link in a dialog
         // with the html from the URL just shoved in it
         if( type == 'xhr' || type == 'content' ) {
@@ -961,14 +977,16 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             context.dialog = dialog;
 
             if( type == 'content' )
-                dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+                setContent( dialog, this._evalConf( context, spec.content, null ) );
 
             Util.removeAttribute( context, 'dialog' );
         }
         else if( type == 'bare' ) {
             dialog = new Dialog( dialogOpts );
             context.dialog = dialog;
-            dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+
+            setContent( dialog, this._evalConf( context, spec.content, null ) );
+
             Util.removeAttribute( context, 'dialog' );
         }
         // open the link in a dialog with an iframe

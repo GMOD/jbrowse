@@ -278,7 +278,9 @@ var Meta = declare( null,
 
         // update our facet list to include any new attrs these
         // items have
+        var store_facets = dojof.keys( storeAttributes );
         var new_facets = this._addFacets( dojof.keys( storeAttributes ) );
+        var use_facets = array.filter( this.facets, function(f) { return f in storeAttributes; } );
 
         // initialize indexes for any new facets
         this.facetIndexes = this.facetIndexes || { itemCount: 0, bucketCount: 0, byName: {} };
@@ -289,14 +291,14 @@ var Meta = declare( null,
             }
         }, this);
 
-        // now update the indexes with the new facets
-        if( new_facets.length ) {
+        // now update the indexes with the new data
+        if( use_facets.length ) {
             var gotDataForItem = {};
-            dojo.forEach( new_facets, function(f){ gotDataForItem[f] = {};});
+            dojo.forEach( use_facets, function(f){ gotDataForItem[f] = {};});
 
             dojo.forEach( items, function( item ) {
                 this.facetIndexes.itemCount++;
-                dojo.forEach( new_facets, function( facet ) {
+                dojo.forEach( use_facets, function( facet ) {
                     var value = this.getValue( item, facet, undefined );
                     if( typeof value == 'undefined' )
                         return;
@@ -306,11 +308,9 @@ var Meta = declare( null,
             }, this);
 
             // index the items that do not have data for this facet
-            dojo.forEach( new_facets, function(facet) {
-                var gotSomeWithNoData = false;
+            dojo.forEach( use_facets, function(facet) {
                 dojo.forEach( dojof.values( this.identIndex ), function(item) {
                     if( ! gotDataForItem[facet][this.getIdentity(item)] ) {
-                        gotSomeWithNoData = true;
                         this._indexItem( facet, this._noDataValue, item );
                     }
                 },this);

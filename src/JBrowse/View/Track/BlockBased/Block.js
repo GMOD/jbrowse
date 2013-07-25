@@ -13,11 +13,17 @@ return declare( Destroyable, {
         var nodeArgs = this.node || {};
         delete this.node;
         this.domNode = dojo.create( 'div', nodeArgs );
+        this.domNode.block = this;
     },
 
     bpToX: function( coord ) {
         return (coord-this.startBase)*this.scale;
-    }
+    },
 
+    destroy: function() {
+        if( this.domNode )
+            delete this.domNode.block;
+        this.inherited( arguments );
+    }
 });
 });

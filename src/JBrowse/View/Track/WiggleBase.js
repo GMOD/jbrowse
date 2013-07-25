@@ -2,16 +2,30 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/dom-construct',
+            'dojo/dom-class',
             'dojo/on',
             'dojo/mouse',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
+            'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, Util, Scale ) {
+        function(
+            declare,
+            array,
+            dom,
+            domClass,
+            on,
+            mouse,
+            BlockBasedTrack,
+            ExportMixin,
+            DetailStatsMixin,
+            Util,
+            Scale
+        ) {
 
-return declare( [BlockBasedTrack,ExportMixin], {
+return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
         this.trackPadding = args.trackPadding || 0;
@@ -413,7 +427,7 @@ return declare( [BlockBasedTrack,ExportMixin], {
 
     _showPixelValue: function( scoreDisplay, score ) {
         if (!score)
-            return false // score may not be defined
+            return false; // score may not be defined
         if( typeof score == 'number' ) {
             // display the score with only 6
             // significant digits, avoiding
@@ -422,15 +436,19 @@ return declare( [BlockBasedTrack,ExportMixin], {
             // IEEE floating point numbers
             // parsed out of BigWig files
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
+            domClass.remove( scoreDisplay, 'noData' );
             return true;
         }
-        if( score['score'] && typeof score['score'] == 'number' ) {
+        else if( score['score'] && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
+            domClass.remove( scoreDisplay, 'noData' );
             return true;
         }
         else {
-            return false;
+            scoreDisplay.innerHTML = 'no data';
+            domClass.add( scoreDisplay, 'noData' );
+            return true;
         }
     },
 

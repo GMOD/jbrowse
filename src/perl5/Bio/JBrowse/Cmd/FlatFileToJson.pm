@@ -40,6 +40,7 @@ sub option_definitions {
         "getType",
         "getPhase",
         "getSubs|getSubfeatures",
+        "noSubfeatures",
         "getLabel",
         "urltemplate=s",
         "menuTemplate=s",
@@ -83,9 +84,6 @@ sub run {
 
 
     my %config = (
-        type         => $self->opt('getType') || $self->opt('type') ? 1 : 0,
-        phase        => $self->opt('getPhase'),
-        subfeatures  => $self->opt('getSubs'),
         style          => {
             %{ $self->opt('clientConfig') || {} },
             className      => $self->opt('cssClass'),
@@ -127,6 +125,7 @@ sub make_gff_stream {
 
     return Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
+        no_subfeatures => $self->opt('noSubfeatures'),
         track_label => $self->opt('trackLabel')
      );
 }
@@ -145,6 +144,7 @@ sub make_bed_stream {
         );
 
     return Bio::JBrowse::FeatureStream::BioPerl->new(
+        no_subfeatures => $self->opt('noSubfeatures'),
         stream => sub { $io->next_feature },
         track_label => $self->opt('trackLabel'),
     );
@@ -164,6 +164,7 @@ sub make_feature_filter {
         } @$types;
 
         push @filters, sub {
+            no warnings 'uninitialized';
             my ($f) = @_;
             my $type = $f->{type}
                 or return 0;

@@ -95,6 +95,7 @@ sub tempdir {
     is( scalar @{$cds_trackdata->{intervals}{nclist}[2][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
     my $tracklist = $read_json->('trackList.json');
+    is( $tracklist->{tracks}[1]{storeClass}, 'JBrowse/Store/SeqFeature/NCList' );
     is_deeply( $tracklist->{tracks}[1]{style},
                { featureCss   => 'height: 8px;',
                  histScale    => 2,

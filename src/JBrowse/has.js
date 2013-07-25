@@ -31,7 +31,11 @@ define([ 'dojo/has' ],
 
 
            has.add( 'save-generated-files', function() {
-               return Blob && !( has('ie') < 10 );
+                        var canSave = false;
+                        try {
+                            canSave = Blob && !( has('ie') < 10 );
+                        } catch(e) {}
+                        return canSave;
            },true);
 
            return has;

@@ -170,12 +170,14 @@ use FileSlurping 'slurp';
       'key' => 'Reference sequence',
       'label' => 'DNA',
       'type' => 'SequenceTrack',
-      'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-'
+      'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-',
+      'storeClass' => 'JBrowse/Store/Sequence/StaticChunked',
     },
     {
       'autocomplete' => 'all',
       'category' => 'Genes',
       'compress' => '0',
+      'storeClass' => 'JBrowse/Store/SeqFeature/NCList',
       'feature' => [
         'gene'
       ],
@@ -198,6 +200,7 @@ use FileSlurping 'slurp';
       'category' => 'Genes',
       'compress' => 0,
       'description' => 1,
+      'storeClass' => 'JBrowse/Store/SeqFeature/NCList',
       'feature' => [
         'mRNA'
       ],

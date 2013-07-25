@@ -21,11 +21,15 @@ prepare-refseqs.pl - format reference sequences for use by JBrowse
        prepare-refseqs.pl --fasta <file1> --fasta <file2>  [options]
    # OR:
        prepare-refseqs.pl --conf <JBrowse config file>  [options]
+   # OR:
+       prepare-refseqs.pl --sizes <sizes file>  [options]
 
 =head1 DESCRIPTION
 
-This tool can read fasta files compressed with gzip, if they end in
-.gz or .gzip.
+Formats reference sequence data for use with JBrowse.
+
+This tool can also read fasta files compressed with gzip, if they end
+in .gz or .gzip.
 
 You can use a GFF file to describe the reference sequences; or you can
 use a JBrowse config file (pointing to a BioPerl database) or a FASTA
@@ -43,6 +47,21 @@ database will be used.
 =head1 OPTIONS
 
 =over 4
+
+=item --gff <file>
+
+Get reference sequences from a GFF3 file with embedded sequence
+information.
+
+=item --fasta <file>
+
+A FASTA file, optionally gzipped from which to load reference
+sequences.
+
+=item --conf <file>
+
+biodb-to-json.pl configuration file that defines a database from which
+to get reference sequence information.
 
 =item --out <output directory>
 

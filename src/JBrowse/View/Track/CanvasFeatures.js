@@ -12,6 +12,7 @@ define( [
             'JBrowse/has',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
+            'JBrowse/View/Track/ExportMixin',
             'JBrowse/Errors',
             'JBrowse/View/Track/FeatureDetailMixin'
         ],
@@ -25,6 +26,7 @@ define( [
             has,
             Layout,
             BlockBasedTrack,
+            ExportMixin,
             Errors,
             FeatureDetailMixin
         ) {
@@ -63,7 +65,7 @@ var FRectIndex = declare( null,  {
     }
 });
 
-return declare( [BlockBasedTrack,FeatureDetailMixin], {
+return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
 
     constructor: function( args ) {
         this._setupEventHandlers();
@@ -71,6 +73,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
         this.showLabels = this.config.style.showLabels;
+        this.displayMode = this.config.displayMode;
     },
 
     _defaultConfig: function() {
@@ -89,14 +92,15 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             maxHeight: 600,
 
             style: {
-
                 // not configured by users
                 _defaultHistScale: 4,
                 _defaultLabelScale: 30,
                 _defaultDescriptionScale: 120,
 
                 showLabels: true
-            }
+            },
+
+            displayMode: 'normal'
         };
     },
 
@@ -121,12 +125,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                 var renderHints = dojo.mixin(
                     {
                         stats: stats,
+                        displayMode: this.displayMode,
                         showFeatures: scale >= ( this.config.style.featureScale
                                                  || stats.featureDensity / this.config.maxFeatureScreenDensity ),
-                        showLabels: this.showLabels
+                        showLabels: this.showLabels && this.displayMode == "pack"
                             && scale >= ( this.config.style.labelScale
                                           || stats.featureDensity * this.config.style._defaultLabelScale ),
-                        showDescriptions: this.showLabels
+                        showDescriptions: this.showLabels && this.displayMode == "pack"
                             && scale >= ( this.config.style.descriptionScale
                                           || stats.featureDensity * this.config.style._defaultDescriptionScale)
                     },
@@ -162,10 +167,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
             var pitchY = this.config.layoutPitchY || 4;
-            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight') });
+            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.displayMode });
         }
 
         return this.layout;
+    },
+
+    _clearLayout: function() {
+        delete this.layout;
     },
 
     hideAll: function() {
@@ -247,7 +256,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
                                 function( feature ) {
                                     if( thisB.destroyed || ! thisB.filterFeature( feature ) )
                                         return;
-
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;
@@ -369,16 +377,18 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
             return;
         }
 
-        // make features get highlighted on mouse move
-        block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
-                domGeom.normalizeEvent( evt );
-                var bpX = evt.layerX / block.scale + block.startBase;
-                var feature = thisB.layout.getByCoord( bpX, evt.layerY );
-                thisB.mouseoverFeature( feature );
-            }));
-        block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
-                    thisB.mouseoverFeature( undefined );
-            }));
+        if( this.displayMode != 'collapsed' ) {
+            // make features get highlighted on mouse move
+            block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
+                               domGeom.normalizeEvent( evt );
+                               var bpX = evt.layerX / block.scale + block.startBase;
+                               var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                               thisB.mouseoverFeature( feature );
+                           }));
+            block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
+                               thisB.mouseoverFeature( undefined );
+                           }));
+        }
 
         // connect up the event handlers
         for( var event in this.eventHandlers ) {
@@ -468,6 +478,47 @@ return declare( [BlockBasedTrack,FeatureDetailMixin], {
     // draw each feature
     renderFeature: function( context, block, fRect ) {
         fRect.glyph.renderFeature( context, block, fRect );
+    },
+
+    _trackMenuOptions: function () {
+        var opts = this.inherited(arguments);
+        var thisB = this;
+
+        var displayModeList = ["normal", "compact", "collapsed"];
+        this.displayModeMenuItems = displayModeList.map(function(displayMode) {
+            return {
+                label: displayMode,
+                type: 'dijit/CheckedMenuItem',
+                title: "Render this track in " + displayMode + " mode",
+                checked: thisB.displayMode == displayMode,
+                onClick: function() {
+                    thisB.displayMode = displayMode;
+                    thisB._clearLayout();
+                    thisB.hideAll();
+                    thisB.genomeView.showVisibleBlocks(true);
+                    thisB.makeTrackMenu();
+                }
+            };
+        });
+
+        var updateMenuItems = dojo.hitch(this, function() {
+            for(var index in this.displayModeMenuItems) {
+                this.displayModeMenuItems[index].checked = (this.displayMode == this.displayModeMenuItems[index].label);
+            }
+        });
+
+        opts.push({
+            label: "Display mode",
+            iconClass: "dijitIconPackage",
+            title: "Make features take up more or less space",
+            children: this.displayModeMenuItems
+        });
+
+        return opts;
+    },
+
+    _exportFormats: function() {
+        return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
     },
 
     destroy: function() {

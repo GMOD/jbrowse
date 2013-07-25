@@ -131,10 +131,20 @@ return declare(null,{
         }
     },
 
+    // get the label string for a feature, based on the setting
+    // of this.config.label
+    getFeatureLabel: function( feature ) {
+        return this._getFeatureDescriptiveThing( 'label', 'name,id', feature );
+    },
+
     // get the description string for a feature, based on the setting
     // of this.config.description
     getFeatureDescription: function( feature ) {
-        var dConf = this.config.style.description || this.config.description;
+        return this._getFeatureDescriptiveThing( 'description', 'note,description', feature );
+    },
+
+    _getFeatureDescriptiveThing: function( field, defaultFields, feature ) {
+        var dConf = this.config.style[field] || this.config[field];
 
         if( ! dConf )
             return null;
@@ -145,9 +155,11 @@ return declare(null,{
         }
         // otherwise try to parse it as a field list
         else {
+            if( ! this.descriptionFields )
+                this.descriptionFields = {};
 
             // parse our description varname conf if necessary
-            var fields = this.descriptionFields || function() {
+            var fields = this.descriptionFields[field] || function() {
                 var f = dConf;
                 if( f ) {
                     if( lang.isArray( f ) ) {
@@ -155,14 +167,14 @@ return declare(null,{
                     }
                     else if( typeof f != 'string' ) {
                         console.warn( 'invalid `description` setting ('+f+') for "'+this.name+'" track, falling back to "note,description"' );
-                        f = 'note,description';
+                        f = defaultFields;
                     }
                     f = f.toLowerCase().split(/\s*\,\s*/);
                 }
                 else {
                     f = [];
                 }
-                this.descriptionFields = f;
+                this.descriptionFields[field] = f;
                 return f;
             }.call(this);
 

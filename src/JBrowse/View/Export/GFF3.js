@@ -93,7 +93,7 @@ return declare( ExportBase,
     formatFeature: function( feature, parentID ) {
         var fields = dojo.map(
                 [ feature.get('seq_id') || this.refSeq.name ]
-                .concat( dojo.map( this.gff3_field_names.slice(1,7), function(field) {
+                .concat( dojo.map( this.gff3_field_names.slice(1,8), function(field) {
                                        return feature.get( field );
                                    },this)
                        ),
@@ -203,7 +203,7 @@ return declare( ExportBase,
                                 : this._gff3_escape( val );
             attrOrder.push( this._gff3_escape( tag )+'='+valstring);
         }
-        return attrOrder.join(';');
+        return attrOrder.join(';') || '.';
     },
 
     /**

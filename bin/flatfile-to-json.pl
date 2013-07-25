@@ -22,12 +22,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
       [ --className <CSS class name for displaying features> ]                \
-      [ --getType ]                                                           \
-      [ --getPhase ]                                                          \
-      [ --getSubfeatures ]                                                    \
-      [ --getLabel ]                                                          \
       [ --urltemplate "http://example.com/idlookup?id={id}" ]                 \
       [ --arrowheadClass <CSS class> ]                                        \
+      [ --noSubfeatures ]                                                     \
       [ --subfeatureClasses '{ JSON-format subfeature class map }' ]          \
       [ --clientConfig '{ JSON-format extra configuration for this track }' ] \
       [ --thinType <BAM -thin_type> ]                                         \
@@ -77,25 +74,13 @@ Output directory to write to.  Defaults to "data/".
 
 CSS class for features.  Defaults to "feature".
 
-=item --getType
-
-Include the type of the features in the JSON.
-
-=item --getPhase
-
-Include the phase of the features in the JSON.
-
-=item --getSubfeatures
-
-Include subfeatures in the JSON.
-
-=item --getLabel
-
-Include a label for the features in the JSON.
-
 =item --urltemplate "http://example.com/idlookup?id={id}"
 
 Template for a URL to be visited when features are clicked on.
+
+=item --noSubfeatures
+
+Do not format subfeature data.
 
 =item --arrowheadClass <CSS class>
 

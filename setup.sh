@@ -66,6 +66,8 @@ echo -n "Formatting Volvox example data ...";
     fi;
     ln -sf ../../docs/tutorial/conf_files/volvox.json sample_data/raw/;
 
+    touch sample_data/json/volvox/successfully_run;
+
 ) >>setup.log 2>&1
 done_message "To see the volvox example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
 
