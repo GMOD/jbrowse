@@ -20,6 +20,10 @@ return declare( Destroyable, {
         return (coord-this.startBase)*this.scale;
     },
 
+    toString: function() {
+        return this.startBase+'..'+this.endBase;
+    },
+
     destroy: function() {
         if( this.domNode )
             delete this.domNode.block;
