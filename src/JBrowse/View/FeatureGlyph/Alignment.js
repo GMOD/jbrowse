@@ -41,7 +41,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     color_missing_mate: '#D11919',
                     border_color: null,
 
-                    strand_arrow: false,
+                    strandArrow: false,
 
                     height: 7,
                     marginBottom: 1,
