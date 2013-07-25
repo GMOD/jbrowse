@@ -1,11 +1,15 @@
 define([
 		'dojo/_base/declare',
-		'JBrowse/Store/SeqFeature/CombinationBase'
+		'dojo/_base/array',
+		'JBrowse/Store/SeqFeature/CombinationBase',
+		'JBrowse/Store/SeqFeature/BAM/LazyFeature'
 		],
 
 		function(
 			declare,
-			CombinationBaseStore
+			array,
+			CombinationBaseStore,
+			BAMFeature
 		) {
 
 	return declare([CombinationBaseStore], {
@@ -19,16 +23,35 @@ define([
 		},
 
 		toSpan: function(features, query) {
-			return features;
+			return features.map(function(feat) {
+				return new BAMFeature( feat.feature ? feat.feature : feat )
+			});
 		},
 
 		// Only one supported operation - array concatenation
 		opSpan: function(op, span1, span2, query) {
+
 			if(op == "U") {
-				return span1.concat(span2);
+				this._appendStringToID( span1, "L" );
+				this._appendStringToID( span2, "R" );
+				return span1.concat( span2 );
 			}
-			console.error("invalid operation");
+			console.error( "invalid operation" );
 			return undefined;
+		},
+
+		_appendStringToID: function ( objArray, string ) {
+			array.forEach( objArray, function( object ) {
+				var oldID = object.id;
+				if( typeof oldID == 'function' ) {
+					object.id = function() {
+						return oldID.call( object ) + string;
+					}
+				} else {
+					object.id = oldID + string;
+				}
+			});
+			return objArray;
 		}
 
 	});

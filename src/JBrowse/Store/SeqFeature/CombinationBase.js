@@ -50,7 +50,7 @@ var featureWrapper = Util.fastDeclare(
         constructor: function( feat, storeName ) {
             this.feature = feat;
             this.storeName = storeName;
-            this.source = feat.source || undefined;
+            this.source = feat ? feat.source : undefined;
         }
     }
 );
