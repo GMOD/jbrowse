@@ -44,6 +44,11 @@
    importing subfeatures (since `--getSubfeatures` is on by default
    for some time).
 
+ * The `style.label` configuration variable in HTMLFeatures (and
+   CanvasFeatures) tracks can now accept a comma-separated string of
+   field names in addition to a function callback.  Defaults to
+   'name,id';
+
  * The "JBrowse" link on the left side of the menu bar, and the
    browser title, now display the "About this browser" title instead
    of JBrowse, if `aboutThisBrowser` is set in the configuration.

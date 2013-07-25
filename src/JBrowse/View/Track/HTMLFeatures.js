@@ -103,9 +103,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
                 minSubfeatureWidth: 6,
                 maxDescriptionLength: 70,
-                showLabels: true
-,
-                label: function( feature ) { return feature.get('name') || feature.get('id'); },
+                showLabels: true,
+
+                label: 'name,id',
                 description: 'note, description',
 
                 centerChildrenVertically: true  // by default use feature child centering
@@ -741,7 +741,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
         // if the label extends beyond the feature, use the
         // label end position as the end position for layout
-        var name = this.getConfForFeature( 'style.label', feature );
+        var name = this.getFeatureLabel( feature );
         var description = scale > descriptionScale && this.getFeatureDescription(feature);
         if( description && description.length > this.config.style.maxDescriptionLength )
             description = description.substr(0, this.config.style.maxDescriptionLength+1 ).replace(/(\s+\S+|\s*)$/,'')+String.fromCharCode(8230);
