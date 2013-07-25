@@ -1,12 +1,14 @@
 define( [
             'dojo/_base/declare',
-            'dojo/_base/lang'
+            'dojo/_base/lang',
+            'JBrowse/View/_FeatureDescriptionMixin'
         ],
         function(
             declare,
-            lang
+            lang,
+            FeatureDescriptionMixin
         ) {
-return declare( null,  {
+return declare( FeatureDescriptionMixin,  {
 
     /**
      * Estimate the height and width, in pixels, of the given
@@ -14,7 +16,7 @@ return declare( null,  {
      * the track's maxFeatureGlyphExpansion limit.
      */
     makeLabel: function( feature, fRect ) {
-        var text = this.getStyle( feature, 'label' );
+        var text = this.getFeatureLabel( feature );
         if( ! text )
             return null;
         var dims = this._labelDims
@@ -62,51 +64,6 @@ return declare( null,  {
             h: m.height || parseInt( font.match(/(\d+)px/)[1] ),
             w: m.width / testString.length
         };
-    },
-
-    // get the description string for a feature, based on the setting
-    // of this.config.description
-    getFeatureDescription: function( feature ) {
-        var dConf = this.config.style.description || this.config.description;
-
-        if( ! dConf )
-            return null;
-
-        // if the description is a function, just call it
-        if( typeof dConf == 'function' ) {
-            return dConf.call( this, feature );
-        }
-        // otherwise try to parse it as a field list
-        else {
-
-            // parse our description varname conf if necessary
-            var fields = this.descriptionFields || function() {
-                var f = dConf;
-                if( f ) {
-                    if( lang.isArray( f ) ) {
-                        f = f.join(',');
-                    }
-                    else if( typeof f != 'string' ) {
-                        console.warn( 'invalid `description` setting ('+f+') for "'+this.name+'" track, falling back to "note,description"' );
-                        f = 'note,description';
-                    }
-                    f = f.toLowerCase().split(/\s*\,\s*/);
-                }
-                else {
-                    f = [];
-                }
-                this.descriptionFields = f;
-                return f;
-            }.call(this);
-
-            // return the value of the first field that contains something
-            for( var i=0; i<fields.length; i++ ) {
-                var d = feature.get( fields[i] );
-                if( d )
-                    return d;
-            }
-            return null;
-        }
     }
 });
 });

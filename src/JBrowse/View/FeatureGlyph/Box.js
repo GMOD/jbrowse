@@ -33,7 +33,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
                     strandArrow: true,
 
-                    label: function( feature ) { return feature.get('name') || feature.get('id'); },
+                    label: 'name, id',
                     textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
                     textColor:  'black',
                     text2Color: 'blue',
@@ -145,11 +145,18 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     renderFeature: function( context, block, fRect ) {
-        var rectWidth = fRect.rect.w;
-        var rectHeight = fRect.rect.h;
-
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
+
+        this.renderBox( context, block, fRect );
+        this.renderLabel( context, block, fRect );
+        this.renderDescription( context, block, fRect );
+        this.renderArrowhead( context, block, fRect );
+    },
+
+    renderBox: function( context, block, fRect ) {
+        var rectWidth = fRect.rect.w;
+        var rectHeight = fRect.rect.h;
 
         // background
         var color = this.getStyle( fRect.f, 'color' );
@@ -180,35 +187,41 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 context.fillRect( fRect.l, fRect.t+fRect.h-1, rectWidth, 1 );
             }
         }
+    },
 
-        // label
+    // label
+    renderLabel: function( context, block, fRect ) {
         if( fRect.label ) {
             context.font = this.config.style.textFont;
             context.fillStyle = this.getStyle( fRect.f, 'textColor' );
             context.fillText( fRect.label.text, fRect.l, fRect.t + fRect.label.yOffset );
         }
+    },
 
-        // description
+    // description
+    renderDescription: function( context, block, fRect ) {
         if( fRect.description ) {
             context.font = this.config.style.text2Font;
             context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
             context.fillText( fRect.description.text, fRect.l, fRect.t + fRect.description.yOffset);
         }
+    },
 
-        // strand arrowhead
+    // strand arrowhead
+    renderArrowhead: function( context, block, fRect ) {
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 ) {
                 this.getEmbeddedImage( 'plus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.l + rectWidth, fRect.t + (rectHeight-img.height)/2 );
+                               context.drawImage( img, fRect.l + fRect.rect.w, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
             else if( fRect.strandArrow == -1 ) {
                 this.getEmbeddedImage( 'minus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.l, fRect.t + (rectHeight-img.height)/2 );
+                               context.drawImage( img, fRect.l, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
         }
