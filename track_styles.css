@@ -454,11 +454,6 @@ div.generic_parent-hist {
     -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
     box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 }
-.wiggleValueDisplay.noData {
-    color: #666;
-    font-weight: normal;
-}
-
 .wiggleValueDisplay table {
     border-spacing: 0;
 }
