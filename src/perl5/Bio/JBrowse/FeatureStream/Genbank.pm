@@ -58,11 +58,6 @@ sub _aggregate_features_from_gbk_record {
 	$startStop->[0]++;
 
   	my $newFeature = {};
-	# sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
-
-	foreach my $attr ( 'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM', 'VERSION',  'SOURCE',  'Subfeatures' ){
-	    $newFeature->{$attr} = 'null';
-	}
   	$newFeature->{'start'} = $startStop->[0] || 'null';
   	$newFeature->{'end'} = $startStop->[1] || 'null';
 	$newFeature->{'type'} = $f->{FEATURES}->[$i]->{'name'} || 'null',
