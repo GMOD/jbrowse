@@ -15,7 +15,7 @@ _defaultConfig: function() {
         {
             style: {
                 connector_color: '#333',
-                border_color: '#333'
+                border_color: '#383838'
             }
         });
 },
@@ -50,18 +50,25 @@ renderBox: function( context, block, fRect ) {
         var border_color;
         if( rectHeight > 3 ) {
             border_color = this.getStyle( fRect.f, 'border_color' );
+            context.lineWidth = 0.3;
+
             if( border_color ) {
-                context.lineWidth = 1;
                 context.strokeStyle = border_color;
+                context.fillStyle = border_color;
                 for( var i = 0; i < subfeatures.length; ++i ) {
                     var left = block.bpToX( subfeatures[i].get('start') );
                     var width = block.bpToX( subfeatures[i].get('end') ) - left;
 
-                    // need to stroke a smaller rectangle to remain within
-                    // the bounds of the feature's overall height and
-                    // width, because of the way stroking is done in
-                    // canvas.  thus the +0.5 and -1 business.
-                    context.strokeRect( left+0.5, fRect.t+0.5, width-1, rectHeight-1 );
+                    if( width > 3 ) {
+                        // need to stroke a smaller rectangle to remain within
+                        // the bounds of the feature's overall height and
+                        // width, because of the way stroking is done in
+                        // canvas.  thus the +0.5 and -1 business.
+                        context.strokeRect( left+0.5, fRect.t+0.5, width-1, rectHeight-1 );
+                    }
+                    else {
+                        context.fillRect( left, fRect.t, Math.max(0.7,width), rectHeight );
+                    }
                 }
             }
         }
