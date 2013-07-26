@@ -13,10 +13,10 @@
     line-height: 25px;
 }
 
-.combinationDialog .formulaPreview .tree {
+.formulaPreview .tree {
 }
 
-.combinationDialog .formulaPreview .leaf {
+.formulaPreview .leaf {
     /* background: #A1F0A1; */
     /* /\* margin: 0 1px; *\/ */
     padding: 0 4px;
@@ -25,11 +25,11 @@
     /* white-space: nowrap; */
 }
 
-.combinationDialog .formulaPreview .leaf.highlighted {
+.formulaPreview .leaf.highlighted {
     background-color: #BBB;
 }
 
-.combinationDialog .formulaPreview .op {
+.formulaPreview .op {
     /* font-weight: bold; */
     /* color: #FFF; */
     /* background: #000; */

@@ -884,11 +884,13 @@ _trackMenuOptions: function() {
                title: 'View the formula specifying this combination track',
                action: function() {
                    var formulaDialog = new Dialog({title: "View Formula"});
-                   var content = "";
-                   if(combTrack.opTree)
-                       content = combTrack._generateTreeFormula(combTrack.opTree);
-                   else
-                       content = "No operation formula defined";
+                   var content = [];
+                   var formulaDiv = dom.create("div", 
+                        {innerHTML: "No operation formula defined", className: "formulaPreview"});
+                   content.push(formulaDiv);
+                   if(combTrack.opTree) {
+                        formulaDiv.innerHTML = combTrack._generateTreeFormula(combTrack.opTree);
+                   }
                    formulaDialog.set("content", content);
                    formulaDialog.show();
                }
@@ -926,14 +928,14 @@ _trackMenuOptions: function() {
 
  // Turns an opTree into a formula to be better understood by the user.
 _generateTreeFormula: function(tree) {
-    if(!tree || tree === undefined){
-        return "NULL";
-    }
-    if(tree.isLeaf()){
-        return "\"" + (tree.get().name ? (this.config.storeToKey[tree.get().name] ? this.config.storeToKey[tree.get().name] : tree.get().name)
-                       : tree.get()) + "\"";
-    }
-    return "( " + this._generateTreeFormula(tree.left()) +" "+ tree.get() +" " + this._generateTreeFormula(tree.right()) +" )";
+        if(!tree || tree === undefined){
+                return '<span class="null">NULL</span>';
+        }
+        if(tree.isLeaf()){
+                return '<span class="leaf' + (tree.highlighted ? ' highlighted': '') + '">' + (tree.get().name ? (this.config.storeToKey[tree.get().name] ? this.config.storeToKey[tree.get().name] : tree.get().name)
+                 : tree.get()) + '</span>';
+        }
+        return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op" title="' + this.inWords[tree.get()] + '">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";
 },
 
 _exportFormats: function() {

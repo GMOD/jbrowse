@@ -455,7 +455,7 @@ _generateTreeFormula: function(tree) {
                 return '<span class="leaf' + (tree.highlighted ? ' highlighted': '') + '">' + (tree.get().name ? (this.storeToKey[tree.get().name] ? this.storeToKey[tree.get().name] : tree.get().name)
                  : tree.get()) + '</span>';
         }
-        return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";
+        return '<span class="tree">(' + this._generateTreeFormula(tree.left()) +' <span class="op" title="' + this.inWords[tree.get()] + '">'+ tree.get() +"</span> " + this._generateTreeFormula(tree.right()) +")</span>";
 },
 
 destroyRecursive: function() {
