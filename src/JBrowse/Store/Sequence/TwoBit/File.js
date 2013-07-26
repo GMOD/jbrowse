@@ -291,15 +291,18 @@ define ([
 
             // dataStart and dataEnd are still in bp, so we must convert them to bytes.
             var byteStart = header.dnaStart + Math.floor( start / 4 );
+            var sliceStart = start % 4;
 
             var byteEnd = header.dnaStart + Math.ceil( end / 4 );
+            var sliceEnd = sliceStart + (end - start);
+
             var byteLength = byteEnd - byteStart - 1;
 
             if( byteLength >= 0) {
-                console.log( byteStart, byteLength );
                 this.data.read(byteStart, byteLength, dojo.hitch( this, function( results ) {
                     var byteArray = this._toByteArray( results );
                     var baseString = this._toBaseString( byteArray );
+                    baseString = baseString.slice(sliceStart, sliceEnd);
                     baseString = this._applyNBlocks( baseString, start, end, nBlocksToApply );
                     baseString = this._applyMasks( baseString, start, end, masksToApply );
                     console.log( baseString );
