@@ -368,10 +368,10 @@ _addTrackStore: function(trackConfig) {
 // Runs the dialog that asks the user how to combine the track.
 runDialog: function(trackConfig, store) {
     // If this is the first track being added, it's not being combined with anything, so we don't need to ask - just adds the track alone
-    if(this.oldType === undefined) {
+    if(this.storeType === undefined) {
         // Figure out which type of track (set, quant, etc) the user is adding
         this.currType = this.supportedBy[trackConfig.storeClass] || this.supportedBy[trackConfig.type];
-        this.oldType = this.storeType = this.currType;
+        this.storeType = this.currType;
         // What type of Combination store corresponds to the track just added
         this.storeClass = this.trackClasses[this.currType].store;
 
