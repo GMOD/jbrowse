@@ -101,6 +101,7 @@ reload: function( optree ) {
     var thisB = this;
 
     this._deferred.features.resolve(true);
+    delete this._regionStatsCache;
     this._estimateGlobalStats().then( dojo.hitch(
                                                         this,
                                                         function( stats ) {
