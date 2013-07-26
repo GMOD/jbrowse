@@ -385,7 +385,7 @@ runDialog: function(trackConfig, store) {
             }));
             return;
         }
-        var opTree = store.isCombinationStore ? store.opTree : new TreeNode({Value: store, leaf: true});
+        var opTree = store.isCombinationStore ? store.opTree.clone() : new TreeNode({Value: store, leaf: true});
         this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
         this.opTree = opTree;
         this._adjustStores( store, this.oldType, this.currType );
