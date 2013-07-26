@@ -220,7 +220,7 @@ loadRegion: function ( region ) {
     var d = new Deferred();
 
     if(this.stores.length == 1) {
-        d.resolve(true);
+        d.resolve(this, true);
         return d.promise;
     }
     var thisB = this;
@@ -234,7 +234,7 @@ loadRegion: function ( region ) {
             regionLoaded.spans = results.spans;
             thisB.regionLoaded = regionLoaded;
         }
-        d.resolve(true);
+        d.resolve(thisB, true);
     }, function(){
             d.reject("cannot load region");
         });

@@ -730,14 +730,15 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
           if(stores[i] && typeof stores[i].loadRegion == 'function') {
               var start = startBase;
               var end = startBase + (last + 1 - first)*bpPerBlock;
-              loadedRegions.push(stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end}));
-              loadedRegions[i].then(function(){}, this.errorCallback); // Add error callbacks to all deferred rejections
-              this.resultsTrack.clear();
-          } else {
-              loadedRegions.push(true);
+              var loadedRegion = stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end})
+              loadedRegions.push(loadedRegion);
+              loadedRegion.then(function(){}, this.errorCallback); // Add error callbacks to all deferred rejections
           }
         }
-        when(all(loadedRegions), dojo.hitch(this, function(){
+        when(all(loadedRegions), dojo.hitch(this, function(reloadedStores){
+          if(reloadedStores.length && reloadedStores.indexOf(this._visible().store) != -1) {
+              this.resultsTrack.clear();
+          }
           this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         }),
         this.errorCallback);
