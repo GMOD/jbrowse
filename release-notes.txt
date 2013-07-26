@@ -79,6 +79,11 @@
    Thanks to the 2013 GMOD Summer School participants for helping me
    to see the error of my ways.
 
+ * Fixed a synchronization bug in NCList-based feature data stores
+   that causes some features to be missing when displaying with a
+   CanvasFeatures track.  This bug may also have affected 'Save track
+   data' (data export) in some situations.
+
  * Fixed a bug with GFF3 export in which the phase(!) column was
    missing.  Thanks to Michael Campbell at the 2013 GMOD Summer School
    for helping track this down!
