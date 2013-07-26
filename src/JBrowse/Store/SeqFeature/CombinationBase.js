@@ -66,7 +66,6 @@ constructor: function( args ) {
     this.isCombinationStore = true;
 
     this.defaultOp = args.op;
-    this.ref = this.config.refSeq;
 
     // If constructed with an opTree already included, might as well try to get all the store info from that opTree.
     if(args.opTree) {
@@ -85,9 +84,6 @@ reload: function( optree ) {
     // Load in opTree
     if( !optree) {
         optree = new TreeNode({ Value: this.defaultOp});
-    }
-    if( !refSeq) {
-        refSeq = this.ref;
     }
     this.opTree = optree;
     this.stores = optree.getLeaves() || [];
