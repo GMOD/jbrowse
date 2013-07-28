@@ -52,16 +52,17 @@ return declare( [BoxGlyph,MismatchesMixin], {
         );
     },
 
-    renderFeature: function( context, block, fRect ) {
+    renderFeature: function( context, fRect ) {
 
         this.inherited( arguments );
 
-        if( block.scale > 0.2 )
-            this._drawMismatches( context, block, fRect );
+        if( fRect.viewInfo.scale > 0.2 )
+            this._drawMismatches( context, fRect );
     },
 
-    _drawMismatches: function( context, block, fRect ) {
+    _drawMismatches: function( context, fRect ) {
         var feature = fRect.f;
+        var block = fRect.viewInfo.block;
         var scale = block.scale;
         // recall: scale is pixels/basepair
         if ( fRect.w > 1 ) {

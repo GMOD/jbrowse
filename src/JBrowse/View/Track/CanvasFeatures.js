@@ -431,7 +431,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             var thisB = this;
             array.forEach( fRects, function( fRect ) {
                 if( fRect )
-                    thisB.renderFeature( context, args.block, fRect );
+                    thisB.renderFeature( context, fRect );
             });
         }
     },
@@ -454,7 +454,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             if( this.lastMouseover ) {
                 var r = block.fRectIndex.getByID( this.lastMouseover.id() );
                 if( r )
-                    this.renderFeature( context, block, r );
+                    this.renderFeature( context, r );
             }
 
             if( feature ) {
@@ -462,7 +462,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
                 if( ! fRect )
                     return;
 
-                fRect.glyph.mouseoverFeature( context, block, fRect );
+                fRect.glyph.mouseoverFeature( context, fRect );
             }
         }, this );
 
@@ -476,8 +476,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
     },
 
     // draw each feature
-    renderFeature: function( context, block, fRect ) {
-        fRect.glyph.renderFeature( context, block, fRect );
+    renderFeature: function( context, fRect ) {
+        fRect.glyph.renderFeature( context, fRect );
     },
 
     _trackMenuOptions: function () {

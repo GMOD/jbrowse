@@ -47,19 +47,11 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             });
     },
 
-    mouseoverFeature: function( context, block, fRect ) {
-        this.renderFeature( context, block, fRect );
-
-        // highlight the feature rectangle if we're moused over
-        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-        context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
-    },
-
     _getFeatureHeight: function( viewArgs, feature ) {
         var h = this.getStyle( feature, 'height');
 
         if( viewArgs.displayMode == 'compact' )
-            h = Math.round( 0.4 * h );
+            h = Math.round( 0.45 * h );
 
         return h;
     },
@@ -68,7 +60,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this._getFeatureHeight(viewArgs, feature)
+            h: this._getFeatureHeight(viewArgs, feature),
+            viewInfo: viewArgs
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
@@ -147,20 +140,20 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 }.call(this));
     },
 
-    renderFeature: function( context, block, fRect ) {
+    renderFeature: function( context, fRect ) {
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
-        this.renderBox( context, block, fRect.f, fRect.t, fRect.rect.h, fRect.f );
-        this.renderLabel( context, block, fRect );
-        this.renderDescription( context, block, fRect );
-        this.renderArrowhead( context, block, fRect );
+        this.renderBox( context, fRect.viewInfo, fRect.f, fRect.t, fRect.rect.h, fRect.f );
+        this.renderLabel( context, fRect );
+        this.renderDescription( context, fRect );
+        this.renderArrowhead( context, fRect );
     },
 
     // top and height are in px
-    renderBox: function( context, block, feature, top, overallHeight, parentFeature, style ) {
-        var left  = block.bpToX( feature.get('start') );
-        var width = block.bpToX( feature.get('end') ) - left;
+    renderBox: function( context, viewInfo, feature, top, overallHeight, parentFeature, style ) {
+        var left  = viewInfo.block.bpToX( feature.get('start') );
+        var width = viewInfo.block.bpToX( feature.get('end') ) - left;
         //left = Math.round( left );
         //width = Math.round( width );
 
@@ -205,7 +198,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     // label
-    renderLabel: function( context, block, fRect ) {
+    renderLabel: function( context, fRect ) {
         if( fRect.label ) {
             context.font = this.config.style.textFont;
             context.fillStyle = this.getStyle( fRect.f, 'textColor' );
@@ -214,7 +207,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     // description
-    renderDescription: function( context, block, fRect ) {
+    renderDescription: function( context, fRect ) {
         if( fRect.description ) {
             context.font = this.config.style.text2Font;
             context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
@@ -223,7 +216,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     // strand arrowhead
-    renderArrowhead: function( context, block, fRect ) {
+    renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 ) {
                 this.getEmbeddedImage( 'plus_arrow' )

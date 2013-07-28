@@ -20,27 +20,32 @@ _defaultConfig: function() {
         });
 },
 
-renderFeature: function( context, block, fRect ) {
+renderFeature: function( context, fRect ) {
     if( this.track.displayMode != 'collapsed' )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
-    this.renderConnector( context, block, fRect );
-    this.renderSegments( context, block, fRect );
-    this.renderLabel( context, block, fRect );
-    this.renderDescription( context, block, fRect );
-    this.renderArrowhead( context, block, fRect );
+    this.renderConnector( context,  fRect );
+    this.renderSegments( context, fRect );
+    this.renderLabel( context, fRect );
+    this.renderDescription( context, fRect );
+    this.renderArrowhead( context, fRect );
 },
 
-renderConnector: function( context, block, fRect ) {
+renderConnector: function( context, fRect ) {
     // connector
     var connectorColor = this.getStyle( fRect.f, 'connector_color' );
     if( connectorColor ) {
         context.fillStyle = connectorColor;
-        context.fillRect( fRect.rect.l, fRect.t+Math.round(fRect.rect.h/2)-1, fRect.rect.w, 2 );
+        context.fillRect(
+            fRect.rect.l, // left
+            fRect.t+Math.round(fRect.rect.h/2)-1, // top
+            fRect.rect.w, // width
+            fRect.viewInfo.displayMode == 'normal' ? 2 : 1 // height
+        );
     }
 },
 
-renderSegments: function( context, block, fRect ) {
+renderSegments: function( context, fRect ) {
     var subfeatures = fRect.f.children();
     if( subfeatures ) {
 
@@ -48,11 +53,14 @@ renderSegments: function( context, block, fRect ) {
         var parentFeature = fRect.f;
 
         function style( feature, stylename ) {
+            if( stylename == 'height' )
+                return thisB._getFeatureHeight( fRect.viewInfo, feature );
+
             return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
         }
 
         for( var i = 0; i < subfeatures.length; ++i ) {
-            this.renderBox( context, block, subfeatures[i], fRect.t, fRect.rect.h, fRect.f, style );
+            this.renderBox( context, fRect.viewInfo, subfeatures[i], fRect.t, fRect.rect.h, fRect.f, style );
         }
     }
 }

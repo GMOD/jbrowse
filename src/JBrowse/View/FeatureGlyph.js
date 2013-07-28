@@ -25,14 +25,23 @@ return declare( Component, {
         return this.getConf( path, [feature, path, null, null, this, this.track ] );
     },
 
+    mouseoverFeature: function( context, fRect ) {
+        this.renderFeature( context, fRect );
+
+        // highlight the feature rectangle if we're moused over
+        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
+        context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
+    },
+
     /**
      * Get the dimensions of the rendered feature in pixels.
      */
-    _getFeatureRectangle: function( viewArgs, feature ) {
-        var block = viewArgs.block;
+    _getFeatureRectangle: function( viewInfo, feature ) {
+        var block = viewInfo.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this._getFeatureHeight( viewArgs, feature )
+            h: this._getFeatureHeight( viewArgs, feature ),
+            viewInfo: viewInfo
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
@@ -62,7 +71,7 @@ return declare( Component, {
     },
 
     //stub
-    renderFeature: function( context, block, fRect ) {
+    renderFeature: function( context, fRect ) {
     },
 
     _getFeatureHeight: function( viewArgs, feature ) {
