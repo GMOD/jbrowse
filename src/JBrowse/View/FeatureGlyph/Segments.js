@@ -15,6 +15,7 @@ _defaultConfig: function() {
         {
             style: {
                 connector_color: '#333',
+                connector_height: 2,
                 border_color: 'rgba( 0, 0, 0, 0.3 )'
             }
         });
@@ -36,11 +37,12 @@ renderConnector: function( context, fRect ) {
     var connectorColor = this.getStyle( fRect.f, 'connector_color' );
     if( connectorColor ) {
         context.fillStyle = connectorColor;
+        var connectorHeight = this.getStyle( fRect.f, 'connector_height' );
         context.fillRect(
             fRect.rect.l, // left
-            fRect.t+Math.round(fRect.rect.h/2)-1, // top
+            Math.round(fRect.t+(fRect.rect.h-connectorHeight)/2), // top
             fRect.rect.w, // width
-            fRect.viewInfo.displayMode == 'normal' ? 2 : 1 // height
+            connectorHeight
         );
     }
 },
