@@ -1,11 +1,13 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'JBrowse/Util/FastPromise',
            'JBrowse/View/FeatureGlyph',
            './_FeatureLabelMixin'
        ],
        function(
            declare,
+           lang,
            FastPromise,
            FeatureGlyph,
            FeatureLabelMixin
@@ -28,6 +30,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     color: 'goldenrod',
                     mouseovercolor: 'rgba(0,0,0,0.3)',
                     border_color: null,
+                    border_width: 0.5,
                     height: 11,
                     marginBottom: 2,
 
@@ -148,43 +151,55 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
-        this.renderBox( context, block, fRect );
+        this.renderBox( context, block, fRect.f, fRect.t, fRect.rect.h, fRect.f );
         this.renderLabel( context, block, fRect );
         this.renderDescription( context, block, fRect );
         this.renderArrowhead( context, block, fRect );
     },
 
-    renderBox: function( context, block, fRect ) {
-        var rectWidth = fRect.rect.w;
-        var rectHeight = fRect.rect.h;
+    // top and height are in px
+    renderBox: function( context, block, feature, top, overallHeight, parentFeature, style ) {
+        var left  = block.bpToX( feature.get('start') );
+        var width = block.bpToX( feature.get('end') ) - left;
+        //left = Math.round( left );
+        //width = Math.round( width );
+
+        style = style || lang.hitch( this, 'getStyle' );
+
+        var height = style( feature, 'height' );
+        if( ! height )
+            return;
+        if( height != overallHeight )
+            top -= Math.round( (overallHeight - height)/2 );
 
         // background
-        var color = this.getStyle( fRect.f, 'color' );
-        if( color ) {
-            context.fillStyle = color;
-            context.fillRect( fRect.rect.l, fRect.t, rectWidth, rectHeight );
+        var bgcolor = style( feature, 'color' );
+        if( bgcolor ) {
+            context.fillStyle = bgcolor;
+            context.fillRect( left, top, Math.max(1,width), height );
+        }
+        else {
+            context.clearRect( left, top, Math.max(1,width), height );
         }
 
         // foreground border
-        var border_color;
-        if( rectHeight > 3 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.lineWidth = 1;
-                context.strokeStyle = border_color;
+        var borderColor, lineWidth;
+        if( (borderColor = style( feature, 'border_color' )) && ( lineWidth = style( feature, 'border_width')) ) {
+            if( width > 3 ) {
+                context.lineWidth = lineWidth;
+                context.strokeStyle = borderColor;
 
                 // need to stroke a smaller rectangle to remain within
                 // the bounds of the feature's overall height and
                 // width, because of the way stroking is done in
                 // canvas.  thus the +0.5 and -1 business.
-                context.strokeRect( fRect.l+0.5, fRect.t+0.5, rectWidth-1, rectHeight-1 );
+                context.strokeRect( left+lineWidth/2, top+lineWidth/2, width-lineWidth, height-lineWidth );
             }
-        }
-        else if( rectHeight > 1 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.fillStyle = border_color;
-                context.fillRect( fRect.l, fRect.t+fRect.h-1, rectWidth, 1 );
+            else {
+                context.globalAlpha = lineWidth*2/width;
+                context.fillStyle = borderColor;
+                context.fillRect( left, top, Math.max(1,width), height );
+                context.globalAlpha = 1;
             }
         }
     },

@@ -15,76 +15,45 @@ _defaultConfig: function() {
         {
             style: {
                 connector_color: '#333',
-                border_color: '#383838'
+                border_color: 'rgba( 0, 0, 0, 0.3 )'
             }
         });
 },
 
-renderBox: function( context, block, fRect ) {
-    var rectWidth = fRect.rect.w;
-    var rectHeight = fRect.rect.h;
+renderFeature: function( context, block, fRect ) {
+    if( this.track.displayMode != 'collapsed' )
+        context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
+    this.renderConnector( context, block, fRect );
+    this.renderSegments( context, block, fRect );
+    this.renderLabel( context, block, fRect );
+    this.renderDescription( context, block, fRect );
+    this.renderArrowhead( context, block, fRect );
+},
+
+renderConnector: function( context, block, fRect ) {
     // connector
     var connectorColor = this.getStyle( fRect.f, 'connector_color' );
     if( connectorColor ) {
         context.fillStyle = connectorColor;
         context.fillRect( fRect.rect.l, fRect.t+Math.round(fRect.rect.h/2)-1, fRect.rect.w, 2 );
     }
+},
 
+renderSegments: function( context, block, fRect ) {
     var subfeatures = fRect.f.children();
     if( subfeatures ) {
 
-        // segment backgrounds
-        var color = this.getStyle( fRect.f, 'color' );
-        if( color ) {
-            context.fillStyle = color;
-            for( var i = 0; i < subfeatures.length; ++i ) {
-                var left = block.bpToX( subfeatures[i].get('start') );
-                var width = block.bpToX( subfeatures[i].get('end') ) - left;
-                context.fillRect( left, fRect.t, width, rectHeight );
-            }
+        var thisB = this;
+        var parentFeature = fRect.f;
+
+        function style( feature, stylename ) {
+            return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
         }
 
-        // segment foregrounds
-        // foreground border
-        var border_color;
-        if( rectHeight > 3 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            context.lineWidth = 0.3;
-
-            if( border_color ) {
-                context.strokeStyle = border_color;
-                context.fillStyle = border_color;
-                for( var i = 0; i < subfeatures.length; ++i ) {
-                    var left = block.bpToX( subfeatures[i].get('start') );
-                    var width = block.bpToX( subfeatures[i].get('end') ) - left;
-
-                    if( width > 3 ) {
-                        // need to stroke a smaller rectangle to remain within
-                        // the bounds of the feature's overall height and
-                        // width, because of the way stroking is done in
-                        // canvas.  thus the +0.5 and -1 business.
-                        context.strokeRect( left+0.5, fRect.t+0.5, width-1, rectHeight-1 );
-                    }
-                    else {
-                        context.fillRect( left, fRect.t, Math.max(0.7,width), rectHeight );
-                    }
-                }
-            }
+        for( var i = 0; i < subfeatures.length; ++i ) {
+            this.renderBox( context, block, subfeatures[i], fRect.t, fRect.rect.h, fRect.f, style );
         }
-        else if( rectHeight > 1 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.fillStyle = border_color;
-                for( var i = 0; i < subfeatures.length; ++i ) {
-                    var left = block.bpToX( subfeatures[i].get('start') );
-                    var width = block.bpToX( subfeatures[i].get('end') ) - left;
-
-                    context.fillRect( left, fRect.t+fRect.h-1, width, 1 );
-                }
-            }
-        }
-
     }
 }
 
