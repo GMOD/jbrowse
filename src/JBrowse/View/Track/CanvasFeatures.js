@@ -507,12 +507,26 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             }
         });
 
-        opts.push({
-            label: "Display mode",
-            iconClass: "dijitIconPackage",
-            title: "Make features take up more or less space",
-            children: this.displayModeMenuItems
-        });
+        opts.push.apply(
+            opts,
+            [
+                { type: 'dijit/MenuSeparator' },
+                {
+                    label: "Display mode",
+                    iconClass: "dijitIconPackage",
+                    title: "Make features take up more or less space",
+                    children: this.displayModeMenuItems
+                },
+                { label: 'Show labels',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
+                  onClick: function(event) {
+                      thisB.showLabels = this.checked;
+                      thisB.changed();
+                  }
+                }
+            ]
+        );
 
         return opts;
     },
