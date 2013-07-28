@@ -163,7 +163,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         if( ! height )
             return;
         if( height != overallHeight )
-            top -= Math.round( (overallHeight - height)/2 );
+            top += Math.round( (overallHeight - height)/2 );
 
         // background
         var bgcolor = style( feature, 'color' );
