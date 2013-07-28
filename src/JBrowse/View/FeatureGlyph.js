@@ -22,7 +22,7 @@ return declare( Component, {
      * user-defined callbacks.
      */
     getConfForFeature: function( path, feature ) {
-        return this.getConf( path, [feature, path, null, null, this, this.track ] );
+        return this.getConf( path, [feature, path, this, this.track ] );
     },
 
     mouseoverFeature: function( context, fRect ) {

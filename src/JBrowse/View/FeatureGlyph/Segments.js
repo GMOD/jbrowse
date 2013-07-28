@@ -15,7 +15,7 @@ _defaultConfig: function() {
         {
             style: {
                 connector_color: '#333',
-                connector_height: 2,
+                connector_height: 1,
                 border_color: 'rgba( 0, 0, 0, 0.3 )'
             }
         });

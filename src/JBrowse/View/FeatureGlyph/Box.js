@@ -32,7 +32,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     border_color: null,
                     border_width: 0.5,
                     height: 11,
-                    marginBottom: 2,
+                    marginBottom: 1,
 
                     strandArrow: true,
 
@@ -51,7 +51,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var h = this.getStyle( feature, 'height');
 
         if( viewArgs.displayMode == 'compact' )
-            h = Math.round( 0.45 * h );
+            h = 0.45 * h;
 
         return h;
     },
