@@ -65,7 +65,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         }
     }
     // calculate the width
-    fRect.w = fRect.r - fRect.l + 1;
+    fRect.w = fRect.r - fRect.l;
     delete fRect.r;
     fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
     fRect.w = fRect.rect.w; // in case it was increased
