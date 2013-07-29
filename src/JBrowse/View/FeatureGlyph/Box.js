@@ -226,14 +226,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     // strand arrowhead
     renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
-            if( fRect.strandArrow == 1 ) {
+            if( fRect.strandArrow == 1 && fRect.l+fRect.rect.w <= context.canvas.width ) {
                 this.getEmbeddedImage( 'plus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
                                context.drawImage( img, fRect.l + fRect.rect.w, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
-            else if( fRect.strandArrow == -1 ) {
+            else if( fRect.strandArrow == -1 && fRect.l >= 0 ) {
                 this.getEmbeddedImage( 'minus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
