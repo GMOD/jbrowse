@@ -198,7 +198,7 @@ return declare( null, {
                                 });
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
+                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'bytes)',
                                     content: [ text, actionBar ]
                                 });
                                 new dijitButton({ iconClass: 'dijitIconDelete',
