@@ -131,7 +131,9 @@ return declare( ExportBase,
         // ID for the parent
         fields[8] = this._gff3_format_attributes( attr );
 
-        return [ fields.join("\t")+"\n" ].concat( subfeatures );
+        var fl = fields.join("\t")+"\n";
+        subfeatures.unshift( fl );
+        return subfeatures.join('');
     },
 
     /**
