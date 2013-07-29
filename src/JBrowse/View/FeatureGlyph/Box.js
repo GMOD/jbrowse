@@ -127,20 +127,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         }
     },
 
-    _addMasksToRect: function( viewArgs, feature, fRect ) {
-        // if the feature has masks, add them to the fRect.
-        if( feature.masks ) {
-            fRect.m = [];
-            array.forEach( feature.masks, function(m) {
-                var tempM = { l: block.bpToX( m.start ) };
-                tempM.w = block.bpToX( m.end ) - tempM.l;
-                fRect.m.push(tempM);
-            });
-        }
-
-        return fRect;
-    },
-
     _imgData: {
          plus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
          minus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="

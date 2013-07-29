@@ -91,8 +91,14 @@ return declare( Component, {
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
 
-        // if feature has masks, add them to the fRect
-        if (feature.masks) {
+        this._addMasksToRect( viewInfo, feature, fRect );
+    },
+
+    _addMasksToRect: function( viewArgs, feature, fRect ) {
+        // if the feature has masks, add them to the fRect.
+        var block = viewArgs.block;
+
+        if( feature.masks ) {
             fRect.m = [];
             array.forEach( feature.masks, function(m) {
                 var tempM = { l: block.bpToX( m.start ) };
