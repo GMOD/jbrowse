@@ -35,7 +35,7 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureDescription( feature );
         if( ! text )
             return null;
-        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'text2Font' ), fRect );
         l.fill = this.getStyle( feature, 'text2Color' );
         return l;
     },

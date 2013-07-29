@@ -1,10 +1,12 @@
 define([
            'dojo/_base/declare',
-           'dijit/Destroyable'
+           'dijit/Destroyable',
+           'JBrowse/Util'
        ],
        function(
            declare,
-           Destroyable
+           Destroyable,
+           Util
        ) {
 return declare( Destroyable, {
 
@@ -26,7 +28,7 @@ return declare( Destroyable, {
 
     destroy: function() {
         if( this.domNode )
-            delete this.domNode.block;
+            Util.removeAttribute( this.domNode, 'block' );
         this.inherited( arguments );
     }
 });

@@ -29,6 +29,12 @@
 
  * Further improved scrolling smoothness of HTML-based feature tracks.
 
+ * `biodb-to-json.pl` configuration files now support a `trackType`
+   configuration key in each track configuration that can be used to
+   set the JavaScript track class that will be used for the formatted
+   data (e.g. "JBrowse/View/Track/CanvasFeatures" to use the new,
+   improved HTML5 canvas-based feature tracks).
+
  * Integrated a `maker2jbrowse` script into the core JBrowse
    distribution.  You can now visualize your MAKER results in JBrowse
    with a single command:
