@@ -20,7 +20,7 @@ return declare( Component, {
         // This allows any features that are completely masked to have their transparency set before being rendered,
         // saving the hassle of clearing and rerendering later on.
         aspect.before(this, 'renderFeature',
-                    function( context, block, fRect ) {
+                    function( context, fRect ) {
                         if (fRect.m) {
                             var l = Math.floor(fRect.l);
                             var w = Math.ceil(fRect.w + fRect.l) - l;
@@ -45,9 +45,9 @@ return declare( Component, {
 
         // after rendering the features, do masking if required
         aspect.after(this, 'renderFeature',
-                     function( context, block, fRect ) {
+                     function( context, fRect ) {
                         if (fRect.m && !fRect.noMask) {
-                            this.maskBySpans( context, block, fRect );
+                            this.maskBySpans( context, fRect );
                         } else if ( fRect.noMask) {
                             delete fRect.noMask;
                             context.globalAlpha = 1;
@@ -131,7 +131,7 @@ return declare( Component, {
     },
 
     /* If it's a boolean track, mask accordingly */
-    maskBySpans: function( context, block, fRect ) {
+    maskBySpans: function( context, fRect ) {
         var canvasHeight = context.canvas.height;
 
         var thisB = this;
