@@ -95,7 +95,7 @@ layoutFeature: function( viewInfo, layout, feature ) {
 
 renderFeature: function( context, fRect ) {
     if( fRect.viewInfo.displayMode != 'collapsed' )
-        context.clearRect( Math.floor(fRect.rect.l), fRect.t, Math.ceil(fRect.rect.w-Math.floor(fRect.rect.l)+fRect.rect.l), fRect.h );
+        context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
     var subRects = fRect.subRects;
     for( var i = 0; i < subRects.length; i++ ) {
