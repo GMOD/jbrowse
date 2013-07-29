@@ -57,11 +57,11 @@ _getFeatureRectangle: function( viewArgs, feature ) {
                             : this._boxGlyph()
                           )._getFeatureRectangle( subArgs, subfeatures[i] );
 
-            subRect.t = fRect.h ? fRect.h+padding : 0;
+            subRect.t = fRect.h && viewArgs.displayMode != 'collapsed' ? fRect.h+padding : 0;
             fRect.subRects.push( subRect );
             fRect.r = Math.max( fRect.r, subRect.l+subRect.w-1 );
             fRect.l = Math.min( fRect.l, subRect.l );
-            fRect.h += subRect.h+padding;
+            fRect.h = subRect.t+subRect.h+padding;
         }
     }
     // calculate the width
