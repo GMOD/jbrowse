@@ -5,6 +5,9 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
+            'dojo/_base/event',
+            'dojo/mouse',
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/Deferred',
@@ -14,11 +17,16 @@ define( [
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/Errors',
-            'JBrowse/View/Track/FeatureDetailMixin'
+            'JBrowse/View/Track/FeatureDetailMixin',
+            'JBrowse/View/Track/_FeatureContextMenusMixin',
+            'JBrowse/Model/Location'
         ],
         function(
             declare,
             array,
+            lang,
+            domEvent,
+            mouse,
             domConstruct,
             domGeom,
             Deferred,
@@ -28,7 +36,9 @@ define( [
             BlockBasedTrack,
             ExportMixin,
             Errors,
-            FeatureDetailMixin
+            FeatureDetailMixin,
+            FeatureContextMenuMixin,
+            Location
         ) {
 
 /**
@@ -65,15 +75,16 @@ var FRectIndex = declare( null,  {
     }
 });
 
-return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
+return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMenuMixin], {
 
     constructor: function( args ) {
-        this._setupEventHandlers();
         this.glyphsLoaded = {};
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
         this.showLabels = this.config.style.showLabels;
         this.displayMode = this.config.displayMode;
+
+        this._setupEventHandlers();
     },
 
     _defaultConfig: function() {
@@ -81,7 +92,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             maxFeatureScreenDensity: 400,
 
             // default glyph class to use
-            glyph: 'JBrowse/View/FeatureGlyph/Box',
+            glyph: lang.hitch( this, 'guessGlyphType' ),
 
             // maximum number of pixels on each side of a
             // feature's bounding coordinates that a glyph is
@@ -100,8 +111,42 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
                 showLabels: true
             },
 
-            displayMode: 'normal'
+            displayMode: 'normal',
+
+            events: {
+                contextmenu: function( feature, fRect, block, track, evt ) {
+                    evt = domEvent.fix( evt );
+                    if( fRect && fRect.contextMenu )
+                        fRect.contextMenu._openMyself({ target: block.featureCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
+                    domEvent.stop( evt );
+                }
+            },
+
+            menuTemplate: [
+                { label: 'View details',
+                  title: '{type} {name}',
+                  action: 'contentDialog',
+                  iconClass: 'dijitIconTask',
+                  content: dojo.hitch( this, 'defaultFeatureDetail' )
+                },
+                { label: function() {
+                      return 'Highlight this '
+                          +( this.feature && this.feature.get('type') ? this.feature.get('type')
+                                                                      : 'feature'
+                           );
+                  },
+                  action: function() {
+                     var loc = new Location({ feature: this.feature, tracks: [this.track] });
+                     this.track.browser.setHighlightAndRedraw(loc);
+                  },
+                  iconClass: 'dijitIconFilter'
+                }
+            ]
         };
+    },
+
+    guessGlyphType: function(feature) {
+        return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
     },
 
     fillBlock: function( args ) {
@@ -160,8 +205,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
         );
     },
 
+    // create the layout if we need to, and if we can
     _getLayout: function( scale ) {
-        // create the layout if we need to, and if we can
         if( ! this.layout || this.layout.pitchX != 4/scale ) {
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
@@ -281,7 +326,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
                                             }
                                             else {
                                                 // laid out successfully
-                                                fRect.glyph = glyph;
                                                 if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
                                                     fRects[rectNumber] = fRect;
                                             }
@@ -391,22 +435,38 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
         }
 
         // connect up the event handlers
+        this._connectEventHandlers( block );
+    },
+
+    _connectEventHandlers: function( block ) {
         for( var event in this.eventHandlers ) {
             var handler = this.eventHandlers[event];
-            block.own(
-                on( block.featureCanvas, event, function( evt ) {
-                    domGeom.normalizeEvent( evt );
-                    var bpX = evt.layerX / block.scale + block.startBase;
-                    var feature = thisB.layout.getByCoord( bpX, evt.layerY );
-                    if( feature ) {
-                        handler.call({
-                            track: thisB,
-                            feature: feature,
-                            callbackArgs: [ thisB, feature ]
-                        });
-                    }
-                })
-            );
+            (function( event, handler ) {
+                 var thisB = this;
+                 block.own(
+                     on( block.featureCanvas, event, function( evt ) {
+                             domGeom.normalizeEvent( evt );
+                             var bpX = evt.layerX / block.scale + block.startBase;
+                             var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                             if( feature ) {
+                                 var fRect = block.fRectIndex.getByID( feature.id() );
+                                 handler.call({
+                                                  track: thisB,
+                                                  feature: feature,
+                                                  fRect: fRect,
+                                                  block: block,
+                                                  callbackArgs: [ thisB, feature, fRect ]
+                                              },
+                                              feature,
+                                              fRect,
+                                              block,
+                                              thisB,
+                                              evt
+                                             );
+                             }
+                         })
+                 );
+             }).call( this, event, handler );
         }
     },
 
@@ -431,7 +491,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             var thisB = this;
             array.forEach( fRects, function( fRect ) {
                 if( fRect )
-                    thisB.renderFeature( context, args.block, fRect );
+                    thisB.renderFeature( context, fRect );
             });
         }
     },
@@ -454,7 +514,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             if( this.lastMouseover ) {
                 var r = block.fRectIndex.getByID( this.lastMouseover.id() );
                 if( r )
-                    this.renderFeature( context, block, r );
+                    this.renderFeature( context, r );
             }
 
             if( feature ) {
@@ -462,7 +522,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
                 if( ! fRect )
                     return;
 
-                fRect.glyph.mouseoverFeature( context, block, fRect );
+                fRect.glyph.mouseoverFeature( context, fRect );
+                this._refreshContextMenu( fRect );
             }
         }, this );
 
@@ -476,8 +537,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
     },
 
     // draw each feature
-    renderFeature: function( context, block, fRect ) {
-        fRect.glyph.renderFeature( context, block, fRect );
+    renderFeature: function( context, fRect ) {
+        fRect.glyph.renderFeature( context, fRect );
     },
 
     _trackMenuOptions: function () {
@@ -507,12 +568,26 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             }
         });
 
-        opts.push({
-            label: "Display mode",
-            iconClass: "dijitIconPackage",
-            title: "Make features take up more or less space",
-            children: this.displayModeMenuItems
-        });
+        opts.push.apply(
+            opts,
+            [
+                { type: 'dijit/MenuSeparator' },
+                {
+                    label: "Display mode",
+                    iconClass: "dijitIconPackage",
+                    title: "Make features take up more or less space",
+                    children: this.displayModeMenuItems
+                },
+                { label: 'Show labels',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
+                  onClick: function(event) {
+                      thisB.showLabels = this.checked;
+                      thisB.changed();
+                  }
+                }
+            ]
+        );
 
         return opts;
     },

@@ -1,25 +1,29 @@
 define( [
             'dojo/_base/declare',
-            'dojo/_base/lang'
+            'dojo/_base/lang',
+            'JBrowse/View/_FeatureDescriptionMixin'
         ],
         function(
             declare,
-            lang
+            lang,
+            FeatureDescriptionMixin
         ) {
-return declare( null,  {
+var fontMeasurementsCache = {};
+
+return declare( FeatureDescriptionMixin,  {
 
     /**
      * Estimate the height and width, in pixels, of the given
      * feature's label text, and trim it if necessary to fit within
      * the track's maxFeatureGlyphExpansion limit.
      */
-    makeLabel: function( feature, fRect ) {
-        var text = this.getStyle( feature, 'label' );
+    makeFeatureLabel: function( feature, fRect ) {
+        var text = this.getFeatureLabel( feature );
         if( ! text )
             return null;
-        var dims = this._labelDims
-            || ( this._labelDims = this._measureFont( this.config.style.textFont ) );
-        return this._trimText( text, dims, fRect );
+        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        l.fill = this.getStyle( feature, 'textColor' );
+        return l;
     },
 
     /**
@@ -27,86 +31,73 @@ return declare( null,  {
      * feature's description text, and trim it if necessary to fit
      * within the track's maxFeatureGlyphExpansion limit.
      */
-    makeDescription: function( feature, fRect ) {
+    makeFeatureDescriptionLabel: function( feature, fRect ) {
         var text = this.getFeatureDescription( feature );
         if( ! text )
             return null;
-        var dims = this._descDims
-            || ( this._descDims = this._measureFont( this.config.style.textFont ) );
-        return this._trimText( text, dims, fRect );
+        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        l.fill = this.getStyle( feature, 'text2Color' );
+        return l;
     },
 
-    _trimText: function( text, dims, fRect ) {
+    /**
+     * Makes a label that sits on the left or right side of a feature,
+     * respecting maxFeatureGlyphExpansion.
+     */
+    makeSideLabel: function( text, font, fRect ) {
+        if( ! text ) return null;
 
-        var excessCharacters = Math.round(( text.length * dims.w - fRect.w - this.track.config.maxFeatureGlyphExpansion ) / dims.w );
+        var dims = this.measureFont( font );
+        var excessCharacters = Math.round(( text.length * dims.w - this.track.getConf('maxFeatureGlyphExpansion') ) / dims.w );
         if( excessCharacters > 0 )
             text = text.slice( 0, text.length - excessCharacters - 1 ) + '…';
 
         return {
             text: text,
+            font: font,
+            baseline: 'middle',
             w: dims.w * text.length,
             h: dims.h
         };
     },
 
     /**
+     * Makes a label that lays across the bottom edge of a feature,
+     * respecting maxFeatureGlyphExpansion.
+     */
+    makeBottomOrTopLabel: function( text, font, fRect ) {
+        if( ! text ) return null;
+
+        var dims = this.measureFont( font );
+        var excessCharacters = Math.round(( text.length * dims.w - fRect.w - this.track.getConf('maxFeatureGlyphExpansion') ) / dims.w );
+        if( excessCharacters > 0 )
+            text = text.slice( 0, text.length - excessCharacters - 1 ) + '…';
+
+        return {
+            text: text,
+            font: font,
+            baseline: 'bottom',
+            w: dims.w * text.length,
+            h: dims.h
+        };
+   },
+
+    /**
      * Return an object with average `h` and `w` of characters in the
      * font described by the given string.
      */
-    _measureFont: function( font ) {
-        var ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = font;
-        var testString = "AaBbMmNn-..Zz1234567890";
-        var m = ctx.measureText( testString );
-        return {
-            h: m.height || parseInt( font.match(/(\d+)px/)[1] ),
-            w: m.width / testString.length
-        };
-    },
-
-    // get the description string for a feature, based on the setting
-    // of this.config.description
-    getFeatureDescription: function( feature ) {
-        var dConf = this.config.style.description || this.config.description;
-
-        if( ! dConf )
-            return null;
-
-        // if the description is a function, just call it
-        if( typeof dConf == 'function' ) {
-            return dConf.call( this, feature );
-        }
-        // otherwise try to parse it as a field list
-        else {
-
-            // parse our description varname conf if necessary
-            var fields = this.descriptionFields || function() {
-                var f = dConf;
-                if( f ) {
-                    if( lang.isArray( f ) ) {
-                        f = f.join(',');
-                    }
-                    else if( typeof f != 'string' ) {
-                        console.warn( 'invalid `description` setting ('+f+') for "'+this.name+'" track, falling back to "note,description"' );
-                        f = 'note,description';
-                    }
-                    f = f.toLowerCase().split(/\s*\,\s*/);
-                }
-                else {
-                    f = [];
-                }
-                this.descriptionFields = f;
-                return f;
-            }.call(this);
-
-            // return the value of the first field that contains something
-            for( var i=0; i<fields.length; i++ ) {
-                var d = feature.get( fields[i] );
-                if( d )
-                    return d;
-            }
-            return null;
-        }
+    measureFont: function( font ) {
+        return fontMeasurementsCache[ font ]
+            || ( fontMeasurementsCache[font] = function() {
+                     var ctx = document.createElement('canvas').getContext('2d');
+                     ctx.font = font;
+                     var testString = "MMMMMMMMMMMMXXXXXXXXXX1234567890-.CGCC12345";
+                     var m = ctx.measureText( testString );
+                     return {
+                         h: m.height || parseInt( font.match(/(\d+)px/)[1] ),
+                         w: m.width / testString.length
+                     };
+                 }.call( this ));
     }
 });
 });

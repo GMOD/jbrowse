@@ -88,7 +88,6 @@
    Thanks to the 2013 GMOD Summer School participants for helping me
    to see the error of my ways.
 
-
  * Fixed a bug with `prepare-refseqs.pl` in which, when multiple
    definitions of a reference sequence are found (as in a GFF3 file
    with both ##sequence-region directives and a FASTA section), the
