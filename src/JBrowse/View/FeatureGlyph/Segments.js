@@ -1,9 +1,13 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
+           'dojo/_base/array',
            'JBrowse/View/FeatureGlyph/Box'
        ],
        function(
            declare,
+           lang,
+           array,
            BoxGlyph
        ) {
 
@@ -17,7 +21,8 @@ _defaultConfig: function() {
                 connector_color: '#333',
                 connector_height: 1,
                 border_color: 'rgba( 0, 0, 0, 0.3 )'
-            }
+            },
+            sub_parts: function() { return true; } // accept all subparts by default
         });
 },
 
@@ -62,9 +67,47 @@ renderSegments: function( context, fRect ) {
         }
 
         for( var i = 0; i < subfeatures.length; ++i ) {
-            this.renderBox( context, fRect.viewInfo, subfeatures[i], fRect.t, fRect.rect.h, fRect.f, style );
+            if( this._filterSubpart( subfeatures[i] ) )
+                this.renderBox( context, fRect.viewInfo, subfeatures[i], fRect.t, fRect.rect.h, fRect.f, style );
         }
     }
+},
+
+_filterSubpart: function( f ) {
+    return ( this._subpartsFilter || (this._subpartsFilter = this._makeSubpartsFilter()) )(f);
+},
+
+// make a function that will filter subpart features according to the
+// sub_parts conf var
+_makeSubpartsFilter: function( f ) {
+    var filter = this.getConf( 'sub_parts' );
+
+    if( typeof filter == 'string' )
+        // convert to array
+        filter = filter.split( /\s*,\s*/ );
+
+    if( typeof filter == 'object' ) {
+        // lowercase and make into a function
+        if( lang.isArray( filter ) )
+            filter = function() {
+                var f = {};
+                array.forEach( filter, function(t) { f[t.toLowerCase()] = true; } );
+                return f;
+            }.call(this);
+        else
+            filter = function() {
+                var f = {};
+                for( var t in filter ) {
+                    f[t.toLowerCase()] = filter[t];
+                }
+                return f;
+            }.call(this);
+        return function(feature) {
+            return filter[ (feature.get('type')||'').toLowerCase() ];
+        };
+    }
+
+    return filter;
 }
 
 });

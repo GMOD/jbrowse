@@ -1,10 +1,12 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'dojox/color/Palette',
            'JBrowse/View/FeatureGlyph/Segments'
        ],
        function(
            declare,
+           array,
            Palette,
            SegmentsGlyph
        ) {
@@ -19,7 +21,8 @@ _defaultConfig: function() {
                 utr_color: function( feature, variable, glyph, track ) {
                     return glyph._utrColor( glyph.getStyle( feature.parent(), 'color' ) ).toString();
                 }
-            }
+            },
+            sub_parts: 'CDS, UTR, five_prime_UTR, three_prime_UTR'
         });
 },
 
