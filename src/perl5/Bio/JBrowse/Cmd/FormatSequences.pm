@@ -229,7 +229,7 @@ sub exportDB {
                 $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
                                               [ -name => $refInfo->{name} ],
                                               $seg->start, $seg->end);
-                $refInfo->{"seqChunkSize"} = $self->{chunkSize};
+                $refSeqs{ $refInfo->{name}}{seqChunkSize} = $self->{chunkSize};
             }
         }
     }

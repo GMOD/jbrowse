@@ -43,6 +43,12 @@
  * `prepare-refseqs.pl` can now format reference sequences from a
    gzipped GFF3 if the file's name ends with the suffix ".gz".
 
+ * Fixed a bug with `prepare-refseqs.pl` in which, when multiple
+   definitions of a reference sequence are found (as in a GFF3 file
+   with both ##sequence-region directives and a FASTA section), the
+   seqChunkSize value is not recorded in refSeqs.json and the sequence
+   bases cannot be displayed in the "Reference sequence" track.
+
  * Added a '--noSubfeatures' option for flatfile-to-json.pl to skip
    importing subfeatures (since `--getSubfeatures` is on by default
    for some time).
