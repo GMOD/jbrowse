@@ -32,7 +32,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     border_color: null,
                     border_width: 0.5,
                     height: 11,
-                    marginBottom: 1,
+                    marginBottom: 2,
 
                     strandArrow: true,
 
@@ -70,11 +70,30 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // we'll use for the rectangle itself
         fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
         fRect.w = fRect.rect.w; // in case it was increased
-        fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
+        if( viewArgs.displayMode != 'compact' )
+            fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
+        // if we are showing strand arrowheads, expand the frect a little
+        if( this.getStyle( feature, 'strandArrow') ) {
+            var strand = fRect.strandArrow = feature.get('strand');
+
+            fRect.w += 9;
+            if( strand == -1 )
+                fRect.l -= 9;
+        }
+
+        // no labels or descriptions if displayMode is collapsed, so stop here
         if( viewArgs.displayMode == "collapsed")
             return fRect;
 
+        this._expandRectangleWithLabels( viewArgs, feature, fRect );
+
+        return fRect;
+    },
+
+    // given an under-construction feature layout rectangle, expand it
+    // to accomodate a label and/or a description
+    _expandRectangleWithLabels: function( viewArgs, feature, fRect ) {
         // maybe get the feature's name, and update the layout box
         // accordingly
         if( viewArgs.showLabels ) {
@@ -98,17 +117,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 description.yOffset = fRect.h-(this.getStyle( feature, 'marginBottom' ) || 0);
             }
         }
-
-        // if we are showing strand arrowheads, expand the frect a little
-        if( this.getStyle( feature, 'strandArrow') ) {
-            var strand = fRect.strandArrow = feature.get('strand');
-
-            fRect.w += 9;
-            if( strand == -1 )
-                fRect.l -= 9;
-        }
-
-        return fRect;
     },
 
     _imgData: {
