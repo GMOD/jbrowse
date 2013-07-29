@@ -5,10 +5,25 @@
    tracks).  Thanks to OICR co-op student Daniel Kasenberg for
    implementing this!
 
- * Added "Save track data" option to Alignments2 tracks.  This option
-   should have been there all along, but somehow slipped through the
-   cracks.  Thanks to Valerie Wong for pointing this out at the 2013
-   GMOD Summer School!
+ * Greatly improved the `JBrowse/View/Track/CanvasFeatures` track
+   type, to the point where it is probably ready for experienced
+   JBrowse users to use in earnest. It renders features using a
+   modular glyph system that GBrowse users will find very familiar.
+   To give it a try, simply change the `type` key in an existing track
+   configuration to "JBrowse/View/Track/CanvasFeatures" and add a
+   `glyph` key to set which glyph to use.  Glyphs that are currently
+   implemented are:
+
+   * Box - draws a box, optionally with an arrow indicating strandedness.
+   * Segments - draws a series of boxes connected with a line, for
+     features with subparts.
+   * ProcessedTranscript - draws CDS and UTR features, with UTRs a
+     different color and thinner.
+   * Gene - draws a group of aligned ProcessedTranscript glyphs for
+     mRNAs that are subfeatures of a top-level gene feature.
+
+   Each of these glyphs have been patterned as near-clones of the
+   (very popular) analogous glyphs in GBrowse.
 
  * Added a SPARQL data backend to allow displaying features directly
    from a SPARQL endpoint.  Many thanks to the NDBC/DBCLS BioHackathon
@@ -20,6 +35,11 @@
    so that they stay at the top of the pane while the rest of the
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
+
+ * Added "Save track data" option to Alignments2 tracks.  This option
+   should have been there all along, but somehow slipped through the
+   cracks.  Thanks to Valerie Wong for pointing this out at the 2013
+   GMOD Summer School!
 
  * Added support for a --reftypes argument to `prepare-refseqs.pl`,
    allowing you to search a database for reference sequences based on
