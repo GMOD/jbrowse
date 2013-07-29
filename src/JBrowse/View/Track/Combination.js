@@ -572,11 +572,14 @@ renderResultsTrack: function() {
             thisB.resultsTrack = new trackClass({
                                                     config: config,
                                                     browser: thisB.browser,
+                                                    changeCallback: thisB._changedCallback,
                                                     refSeq: thisB.refSeq,
                                                     store: thisB._visible().store,
                                                     trackPadding: 0});
 
             // Removes all options from the results track's context menu.
+            thisB.resultsTrackMenuOptions = thisB.resultsTrack._trackMenuOptions;
+
             thisB.resultsTrack._trackMenuOptions = function(){ return []; };
 
             // This will be what happens when the results track updates its height - makes necessary changes to
@@ -826,7 +829,26 @@ getClassIndex: function(type) {
 
 // Adds options to the track context menu
 _trackMenuOptions: function() {
-    var o = this.inherited(arguments);
+    
+    // Allows the combination track to "mimic" the menu options of its results track
+    var resultsTrackOptions = ( this.resultsTrackMenuOptions || function() { return undefined; } ).call( this.resultsTrack );
+    resultsTrackOptions = resultsTrackOptions || [];
+
+    var inheritedOptions = this.inherited( arguments );
+    var inheritedLabels = inheritedOptions.map( function( menuItem ) {
+        return menuItem.label;
+    });
+
+    for( var i = 0; i < resultsTrackOptions.length; i++ ) {
+      if(resultsTrackOptions[i].label && inheritedLabels.indexOf( resultsTrackOptions[i].label ) != -1) {
+        resultsTrackOptions.splice( i--, 1);
+      }
+    }
+    var o = inheritedOptions.concat( resultsTrackOptions );
+
+    //var o = this.inherited(arguments);
+
+
     var combTrack = this;
 
     // If no tracks are added, we don't need to add any more options
