@@ -62,7 +62,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             l: block.bpToX( feature.get('start') ),
             h: this._getFeatureHeight(viewArgs, feature),
             viewInfo: viewArgs,
-            f: feature
+            f: feature,
+            glyph: this
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;

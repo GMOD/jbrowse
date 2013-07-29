@@ -5,6 +5,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/Deferred',
@@ -19,6 +20,7 @@ define( [
         function(
             declare,
             array,
+            lang,
             domConstruct,
             domGeom,
             Deferred,
@@ -81,7 +83,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
             maxFeatureScreenDensity: 400,
 
             // default glyph class to use
-            glyph: 'JBrowse/View/FeatureGlyph/Box',
+            glyph: lang.hitch( this, 'guessGlyphType' ),
 
             // maximum number of pixels on each side of a
             // feature's bounding coordinates that a glyph is
@@ -102,6 +104,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
 
             displayMode: 'normal'
         };
+    },
+
+    guessGlyphType: function(feature) {
+        return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
     },
 
     fillBlock: function( args ) {
@@ -281,7 +287,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
                                             }
                                             else {
                                                 // laid out successfully
-                                                fRect.glyph = glyph;
                                                 if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
                                                     fRects[rectNumber] = fRect;
                                             }
