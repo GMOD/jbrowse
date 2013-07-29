@@ -19,7 +19,8 @@ _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),
         {
-            transcript_type: 'mRNA'
+            transcript_type: 'mRNA',
+            marginBottom: 0
 
         });
 },
@@ -60,6 +61,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
                             : this._boxGlyph()
                           )._getFeatureRectangle( subArgs, subfeatures[i] );
 
+            padding = i == subfeatures.length-1 ? 0 : 1;
             subRect.t = fRect.h && viewArgs.displayMode != 'collapsed' ? fRect.h+padding : 0;
             fRect.subRects.push( subRect );
             fRect.r = Math.max( fRect.r, subRect.l+subRect.w-1 );
