@@ -68,7 +68,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         }
     }
     // calculate the width
-    fRect.w = Math.max( fRect.r - fRect.l, 2 );
+    fRect.w = Math.max( fRect.r - fRect.l + 1, 2 );
     delete fRect.r;
     fRect.rect = { l: fRect.l, h: fRect.h, w: fRect.w };
     if( viewArgs.displayMode != 'compact' )
