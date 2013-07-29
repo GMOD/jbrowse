@@ -45,27 +45,34 @@ sub _aggregate_features_from_gbk_record {
     # this logic assumes that top level feature is above all subfeatures
 
     # set start/stop
-    my $startStop = _extractStartStopFromJoinToken( $f->{FEATURES}->[$indexTopLevel] );
-    $f->{start} = $startStop->[0] + $offset + 1;
-    $f->{end} = $startStop->[1] + $offset;
-    $f->{type} = $f->{FEATURES}[$indexTopLevel]{name};
+    my ( $start, $end, $strand ) = _parseJoinToken( $f->{FEATURES}->[$indexTopLevel] );
+    $f->{start}  = $start + $offset + 1;
+    $f->{end}    = $end + $offset;
+    $f->{strand} = $strand;
+    $f->{type}   = $f->{FEATURES}[$indexTopLevel]{name};
+
+    %$f = ( %{$f->{FEATURES}[$indexTopLevel]{feature} || {}}, %$f ); # get other attrs
+    if( $f->{type} eq 'mRNA' ) {
+        $f->{name} = $f->{FEATURES}[$indexTopLevel]{feature}{gene};
+        $f->{description} = $f->{FEATURES}[$indexTopLevel]{feature}{product} || $f->{FEATURES}[$indexTopLevel]{feature}{note};
+    }
 
     # convert FEATURES to subfeatures
     $f->{subfeatures} = [];
     if ( scalar( @{$f->{FEATURES} || [] }) > $indexTopLevel ) {
         for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ) {
             my $feature = $f->{FEATURES}[$i];
-            my $startStop = _extractStartStopFromLocation( $feature->{location} );
-            $startStop->[0] += $offset;
-            $startStop->[1] += $offset;
-            $startStop->[0]++;
+            my ( $substart, $subend, $substrand ) = _parseLocation( $feature->{location} );
+            $substart += $offset + 1;
+            $subend += $offset;
 
             my $newFeature = {
                 %{ $feature->{feature}||{} },
-                start => $startStop->[0],
-                end   => $startStop->[1],
+                start => $substart,
+                end   => $subend,
+                strand => $substrand,
                 type  => $feature->{name}
-                };
+            };
 
             push @{$f->{subfeatures}}, $newFeature;
         }
@@ -88,28 +95,34 @@ sub _isTopLevel {
     return $isTopLevel;
 }
 
-sub _extractStartStopFromJoinToken {
-    my $feat = shift;
+sub _parseJoinToken {
+    my ( $feat ) = @_;
     my @startStop;
     if ( exists $feat->{'location'} && $feat->{'location'} =~ /^\s*\S*?\(*(\d+)\..*\.(\d+)\)*/ ){
 	$startStop[0] = $1;
 	$startStop[1] = $2;
     }
-    else {
+    my $strand = 1;
+    if( $startStop[0] > $startStop[1] ) {
+        @startStop = reverse @startStop;
+        $strand = -1;
     }
-    return \@startStop;
+    return ( @startStop, $strand );
 }
 
-sub _extractStartStopFromLocation {
-    my $feat = shift;
-    my @startStop;
-    $feat =~ s/^\s*\S*\(//;
-    $feat =~ s/\)+//;
-    my @coordinates = split(/\.\.\>*/, $feat);
-    $startStop[0] = $coordinates[0];
-    $startStop[1] = $coordinates[-1];
-    return \@startStop;
-  }
+sub _parseLocation {
+    my ( $loc ) = @_;
+    $loc =~ s/^\s*\S*\(//;
+    $loc =~ s/\)+//;
+    my @coordinates = split /\.\.\>*/, $loc;
+    my ( $start, $end ) = ( $coordinates[0], $coordinates[-1] );
+    my $strand = 1;
+    if( $start > $end ) {
+        ( $start, $end ) = ( $end, $start );
+        $strand = -1;
+    }
+    return ( $start, $end, $strand );
+}
 
 sub _getRegionOffset {
 
