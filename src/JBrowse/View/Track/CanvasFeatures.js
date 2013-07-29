@@ -128,10 +128,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin], {
                         displayMode: this.displayMode,
                         showFeatures: scale >= ( this.config.style.featureScale
                                                  || stats.featureDensity / this.config.maxFeatureScreenDensity ),
-                        showLabels: this.showLabels && this.displayMode == "pack"
+                        showLabels: this.showLabels && this.displayMode == "normal"
                             && scale >= ( this.config.style.labelScale
                                           || stats.featureDensity * this.config.style._defaultLabelScale ),
-                        showDescriptions: this.showLabels && this.displayMode == "pack"
+                        showDescriptions: this.showLabels && this.displayMode == "normal"
                             && scale >= ( this.config.style.descriptionScale
                                           || stats.featureDensity * this.config.style._defaultDescriptionScale)
                     },

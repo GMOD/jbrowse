@@ -2,7 +2,6 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/dom-construct',
-            'dojo/dom-class',
             'dojo/on',
             'dojo/mouse',
             'JBrowse/View/Track/BlockBased',
@@ -11,19 +10,7 @@ define( [
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function(
-            declare,
-            array,
-            dom,
-            domClass,
-            on,
-            mouse,
-            BlockBasedTrack,
-            ExportMixin,
-            DetailStatsMixin,
-            Util,
-            Scale
-        ) {
+        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, DetailStatsMixin, Util, Scale ) {
 
 return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
@@ -434,19 +421,15 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             // IEEE floating point numbers
             // parsed out of BigWig files
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
-            domClass.remove( scoreDisplay, 'noData' );
             return true;
         }
         else if( score && score['score'] && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
-            domClass.remove( scoreDisplay, 'noData' );
             return true;
         }
         else {
-            scoreDisplay.innerHTML = 'no data';
-            domClass.add( scoreDisplay, 'noData' );
-            return true;
+            return false;
         }
     },
 

@@ -33,7 +33,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     height: 11,
                     marginBottom: 2,
 
-                    strand_arrow: true,
+                    strandArrow: true,
 
                     label: function( feature ) { return feature.get('name') || feature.get('id'); },
                     textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
@@ -106,7 +106,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         }
 
         // if we are showing strand arrowheads, expand the frect a little
-        if( this.getStyle( feature, 'strand_arrow') ) {
+        if( this.getStyle( feature, 'strandArrow') ) {
             var strand = fRect.strandArrow = feature.get('strand');
 
             fRect.w += 9;
