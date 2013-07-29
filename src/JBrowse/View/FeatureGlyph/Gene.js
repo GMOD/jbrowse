@@ -1,12 +1,14 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
+           'dojo/_base/array',
            'JBrowse/View/FeatureGlyph/Box',
            'JBrowse/View/FeatureGlyph/ProcessedTranscript'
        ],
        function(
            declare,
            lang,
+           array,
            BoxGlyph,
            ProcessedTranscriptGlyph
        ) {
@@ -66,10 +68,9 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         }
     }
     // calculate the width
-    fRect.w = fRect.r - fRect.l;
+    fRect.w = Math.max( fRect.r - fRect.l, 2 );
     delete fRect.r;
-    fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
-    fRect.w = fRect.rect.w; // in case it was increased
+    fRect.rect = { l: fRect.l, h: fRect.h, w: fRect.w };
     if( viewArgs.displayMode != 'compact' )
         fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
 
@@ -80,6 +81,15 @@ _getFeatureRectangle: function( viewArgs, feature ) {
     // expand the fRect to accommodate labels if necessary
     this._expandRectangleWithLabels( viewArgs, feature, fRect );
 
+    return fRect;
+},
+
+layoutFeature: function( viewInfo, layout, feature ) {
+    var fRect = this.inherited( arguments );
+    if( fRect )
+        array.forEach( fRect.subRects, function( subrect ) {
+                           subrect.t += fRect.t;
+                       });
     return fRect;
 },
 
