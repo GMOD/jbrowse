@@ -319,7 +319,7 @@ return declare( null, {
             // will return immediately if the stats are available
             this.store.getGlobalStats( function( s ) {
                 storeStats = s;
-            });
+            }, function(error){ }); // error callback does nothing for now
             if( storeStats.featureDensity ) {
                 return storeStats.featureDensity*(l.end - l.start) <= ( thisB.config.maxExportFeatures || 50000 );
             }

@@ -213,7 +213,7 @@ return declare( SeqFeatureStore,
         this.getDataRoot( query.ref )
             .then( function( data ) {
                 thisB._getFeatures( data, query, origFeatCallback, finishCallback, errorCallback );
-            });
+            }, errorCallback);
     },
 
     _getFeatures: function( data, query,  origFeatCallback, finishCallback, errorCallback ) {

@@ -813,7 +813,7 @@ div.message {
     background: #eee;
 }
 div.block > div.message {
-    margin-top: 1em;
+    margin: 1em 0;
     position: absolute;
 }
 div.block:hover > div.message {
@@ -822,6 +822,7 @@ div.block:hover > div.message {
 
 .tundra .dijitDialogPaneContent {
     border-top: 1px solid #acacac;
+    font-family: sans-serif;
 }
 
 /* styles dealing with popups launched by clicking on features */
@@ -1028,4 +1029,3 @@ table.baseQuality td {
     display: block;
     text-align: center;
 }
-

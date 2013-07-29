@@ -90,7 +90,7 @@ sub run {
 
 
     my %config = (
-        jstype       => $self->opt('trackType'),
+        trackType      => $self->opt('trackType'),
         style          => {
             %{ $self->opt('clientConfig') || {} },
             className      => $self->opt('cssClass'),

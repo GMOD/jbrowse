@@ -256,52 +256,60 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-	var viewmin = this.browser.view.minVisible();
-	var viewmax = this.browser.view.maxVisible();
+    var viewmin = this.browser.view.minVisible();
+    var viewmax = this.browser.view.maxVisible();
 
-        array.forEach( this.blocks, function( block ) {
+        var blocks = this.blocks;
+
+        for( var blockIndex = 0; blockIndex < blocks.length; blockIndex++ ) {
+            var block = blocks[blockIndex];
             if( ! block )
-                return;
-
-            array.forEach( block.domNode.childNodes, function( featDiv ) {
+                continue;
+            var childNodes = block.domNode.childNodes;
+            for( var i = 0; i<childNodes.length; i++ ) {
+                var featDiv = childNodes[i];
                         if( ! featDiv.feature )
-                            return;
+                            continue;
                         var feature = featDiv.feature;
                         var strand  = feature.get('strand');
                         if( ! strand )
-                            return;
+                            continue;
 
                         var fmin    = feature.get('start');
                         var fmax    = feature.get('end');
                         var arrowhead;
+                        var featDivChildren;
 
                         // minus strand
                         if( strand < 0 && fmax > viewmin ) {
                             var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
-                            array.forEach( featDiv.childNodes, function( arrowhead ) {
-                                               if( ! arrowhead.className || arrowhead.className.indexOf( minusArrowClass ) == -1 )
-                                                   return;
-
-                                              arrowhead.style.left =
-                                                  ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
-                                                                   : -this.minusArrowWidth
-                                                  ) + 'px';
-                                          }, this );
+                            featDivChildren = featDiv.childNodes;
+                            for( var j = 0; j<featDivChildren.length; j++ ) {
+                                arrowhead = featDivChildren[j];
+                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
+                                    arrowhead.style.left =
+                                        ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
+                                                         : -this.minusArrowWidth
+                                        ) + 'px';
+                                };
+                            }
                         }
                         // plus strand
                         else if( strand > 0 && fmin < viewmax ) {
                             var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
-                            array.forEach( featDiv.childNodes, function( arrowhead ) {
-                                               if( ! arrowhead.className || arrowhead.className.indexOf( plusArrowClass ) == -1 )
-                                                   return;
-                                               arrowhead.style.right =
-                                                  ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
-                                                                   : -this.plusArrowWidth
-                                                  ) + 'px';
-                                          }, this );
+                            featDivChildren = featDiv.childNodes;
+                            for( var j = 0; j<featDivChildren.length; j++ ) {
+                                arrowhead = featDivChildren[j];
+                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
+                                    arrowhead.style.right =
+                                        ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
+                                                         : -this.plusArrowWidth
+                                        ) + 'px';
+                                }
+                            }
                         }
-                    },this);
-        },this);
+                    }
+        }
     },
 
     updateFeatureLabelPositions: function( coords ) {
@@ -519,12 +527,69 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                          delete sourceBlock.featureNodes[ overlaps[i] ];
 
                          /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                         this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
-                                                 destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
-                                                 containerStart, containerEnd );
+                         var featDiv = this.addFeatureToBlock( sourceSlot.feature, overlaps[i],
+                                                         destBlock, scale, sourceSlot._labelScale, sourceSlot._descriptionScale,
+                                                         containerStart, containerEnd );
+                         // if there are boolean coverage divs, modify feature accordingly.
+                         if ( sourceSlot.booleanCovs ) {
+                            this._maskTransfer( featDiv, sourceSlot, containerStart, containerEnd );
+                         }
                      }
             }
         }
+    },
+
+     /**
+     * Called by "tranfer" when sourceBlock gets deleted.  Ensures that any child features of
+     * sourceBlock that extend onto destBlock will remain masked when moved onto
+     * destBlock.
+     */
+    _maskTransfer: function( featDiv, sourceSlot, containerStart, containerEnd ) {
+        var subfeatures = [];
+        // remove subfeatures
+        while ( featDiv.firstChild ) {
+            subfeatures.push( featDiv.firstChild );
+            featDiv.removeChild( featDiv.firstChild );
+        }
+        var s = featDiv.featureEdges.s;
+        var e = featDiv.featureEdges.e;
+        for ( var key in sourceSlot.booleanCovs ) {
+            if ( sourceSlot.booleanCovs.hasOwnProperty(key) ) {
+                // dynamically resize the coverage divs.
+                var start = sourceSlot.booleanCovs[key].span.s;
+                var end   = sourceSlot.booleanCovs[key].span.e;
+                if ( end < containerStart || start > containerEnd)
+                    continue;
+                // note: we should also remove it from booleanCovs at some point.
+                sourceSlot.booleanCovs[key].style.left = 100*(start-s)/(e-s)+'%';
+                sourceSlot.booleanCovs[key].style.width = 100*(end-start)/(e-s)+'%';
+                featDiv.appendChild( sourceSlot.booleanCovs[key] );
+            }
+        }
+        // add the processed subfeatures, if in frame.
+        dojo.query( '.basicSubfeature', sourceSlot ).forEach(
+            function(node, idx, arr) {
+                var start = node.subfeatureEdges.s;
+                var end   = node.subfeatureEdges.e;
+                if ( end < containerStart || start > containerEnd ) 
+                    return;
+                node.style.left = 100*(start-s)/(e-s)+'%';
+                node.style.width = 100*(end-start)/(e-s)+'%';
+                featDiv.appendChild(node);
+            }
+        );
+        if ( this.config.style.arrowheadClass ) {
+            // add arrowheads
+            var a = this.config.style.arrowheadClass;
+            dojo.query( '.minus-'+a+', .plus-'+a, sourceSlot ).forEach( 
+                function(node, idx, arr) {
+                    featDiv.appendChild(node);
+                }
+            )
+        }
+        featDiv.className = 'basic';
+        featDiv.oldClassName = sourceSlot.oldClassName;
+        featDiv.booleanCovs = sourceSlot.booleanCovs;
     },
 
     /**
@@ -581,9 +646,29 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                   end: rightBase
                                 },
                                 featCallback,
-                                function () {
+                                function ( args ) {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
+                                    if ( args && args.maskingSpans ) { 
+                                        //note: spans have to be inverted
+                                        var invSpan = [];
+                                        invSpan[0] = { start: leftBase };
+                                        var i = 0;
+                                        for ( var span in args.maskingSpans) {
+                                            if (args.maskingSpans.hasOwnProperty(span)) {
+                                                span = args.maskingSpans[span];
+                                                invSpan[i].end = span.start;
+                                                i++;
+                                                invSpan[i] = { start: span.end };
+                                            }
+                                        }
+                                        invSpan[i].end = rightBase;
+                                        if (invSpan[i].end <= invSpan[i].start) {
+                                            invSpan.splice(i,1); }
+                                        if (invSpan[0].end <= invSpan[0].start) {
+                                            invSpan.splice(0,1); }
+                                        curTrack.maskBySpans( invSpan, args.maskingSpans ); 
+                                    }
                                     finishCallback();
                                 },
                                 function( error ) {
@@ -629,6 +714,140 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 return true;
         }
         return false;
+    },
+
+    /**
+     * If spans are passed to the track (i.e. if it is a boolean track), mask features accordingly.
+     */
+    maskBySpans: function ( invSpans, spans ) {
+        var blocks = this.blocks;
+        for ( var i in blocks ) {
+            if ( blocks.hasOwnProperty(i) ) {
+                // loop through all blocks
+                if ( !blocks[i] ) 
+                    continue;
+                var block = blocks[i]
+                var bs = block.startBase;
+                var be = block.endBase;
+
+                var overlaps = function ( featStart, featEnd, spanStart, spanEnd ) {
+                    // outputs start and end points of overlap
+                    var s = Math.max( featStart, spanStart );
+                    var e = Math.min( featEnd, spanEnd );
+                    if ( s < e ) { return {s:s, e:e}; }
+                    return false;
+                };
+
+                var union = function ( start1, end1, start2, end2 ) {
+                    // outputs the endpoints of the union
+                    if ( overlaps( start1, end1, start2, end2 ) ) {
+                        return { s: Math.min( start1, start2 ),
+                                 e: Math.max( end1, end2 ) };
+                    }
+                    else { return false; }
+                };
+
+                var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
+                    // make a coverage div
+                    var coverageNode = dojo.create('div');
+                    var s = parentDiv.featureEdges 
+                            ? parentDiv.featureEdges.s
+                            : parentDiv.subfeatureEdges.s;
+                    var e = parentDiv.featureEdges
+                            ? parentDiv.featureEdges.e
+                            : parentDiv.subfeatureEdges.e;
+                    coverageNode.span = { s:start, e:end };
+                    coverageNode.className = masked ?  (feat.className == voidClass
+                                                        ? feat.oldClassName + ' Boolean-transparent'
+                                                        : feat.className +' Boolean-transparent')
+                                                    :  (feat.className == voidClass
+                                                        ? feat.oldClassName
+                                                        : feat.className);
+                    coverageNode.booleanDiv = true;
+                    coverageNode.style.left = 100*(start-s)/(e-s)+'%';
+                    coverageNode.style.top = '0px';
+                    coverageNode.style.width = 100*(end-start)/(e-s)+'%';
+                    return coverageNode;
+                };
+
+                var addDiv = function ( start, end, parentDiv, masked, voidClass, isAdded ) {
+                    // Loop through coverage Nodes, combining existing nodes so they don't overlap, and add new divs.
+                    var isAdded = isAdded || false; 
+                    for ( var key in parentDiv.childNodes ) {
+                        if ( parentDiv.childNodes[key] && parentDiv.childNodes[key].booleanDiv ) {
+                            var divStart = parentDiv.childNodes[key].span.s;
+                            var divEnd   = parentDiv.childNodes[key].span.e;
+                            if ( divStart <= start && divEnd >= end ) {
+                                isAdded = true;
+                                break;
+                            }
+                            var u = union (start, end, divStart, divEnd );
+                            if ( u ) {
+                                var coverageNode = makeDiv( u.s, u.e, parentDiv, masked, voidClass );
+                                var tempIndex = parentDiv.booleanCovs.indexOf(parentDiv.childNodes[key]);
+                                parentDiv.removeChild(parentDiv.childNodes[key]);
+                                parentDiv.booleanCovs.splice(tempIndex, 1);
+                                parentDiv.appendChild(coverageNode);
+                                parentDiv.booleanCovs.push(coverageNode);
+                                isAdded = true;
+                                addDiv( u.s, u.e, parentDiv, masked, voidClass, true );
+                                break;
+                            }
+                        }
+                    }
+                    if ( !isAdded ) {
+                        var coverageNode = makeDiv( start, end, parentDiv, masked, voidClass );
+                        parentDiv.appendChild(coverageNode);
+                        parentDiv.booleanCovs.push(coverageNode);
+                    }
+                };
+
+                var addOverlaps = function ( s, e, feat, spans, invSpans, voidClass ) {
+                    if ( !feat.booleanCovs ) {
+                        feat.booleanCovs = [];
+                    }
+                    // add opaque divs
+                    for ( var index in invSpans ) {
+                        if ( invSpans.hasOwnProperty(index) ) {
+                            var ov = overlaps( s, e, invSpans[index].start, invSpans[index].end );
+                            if ( ov ) {
+                                addDiv( ov.s, ov.e, feat, false, voidClass );
+                            }
+                        }
+                    }
+                    // add masked divs
+                    for ( var index in spans ) {
+                        if ( spans.hasOwnProperty(index) ) {
+                            var ov = overlaps( s, e, spans[index].start, spans[index].end );
+                            if ( ov ) {
+                                addDiv( ov.s, ov.e, feat, true, voidClass );
+                            }
+                        }
+                    }
+
+                    feat.oldClassName = feat.className == voidClass
+                                        ? feat.oldClassName
+                                        : feat.className;
+                    feat.className = voidClass;
+                };
+
+                for ( var key in block.featureNodes ) {
+                    if (block.featureNodes.hasOwnProperty(key)) {
+                        var feat = block.featureNodes[key];
+                        if ( !feat.feature ) {
+                            // If there is no feature property, than it is a subfeature
+                            var s = feat.subfeatureEdges.s;
+                            var e = feat.subfeatureEdges.e;
+                            addOverlaps( s, e, feat, spans, invSpans, 'basicSubfeature' );
+                            continue;
+                        }
+                        var s = feat.feature.get('start');
+                        var e = feat.feature.get('end');
+                        addOverlaps( s, e, feat, spans, invSpans, 'basic' );
+                    }
+                }
+            }
+        }
     },
 
     measureStyles: function() {
@@ -779,6 +998,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         featDiv.track = this;
         featDiv.feature = feature;
         featDiv.layoutEnd = layoutEnd;
+
+        // border values used in positioning boolean subfeatures, if any.
+        featDiv.featureEdges = { s : Math.max( featDiv.feature.get('start'), containerStart ),
+                                 e : Math.min( featDiv.feature.get('end')  , containerEnd   ) };
 
         // (callbackArgs are the args that will be passed to callbacks
         // in this feature's context menu or left-click handlers)
@@ -1051,6 +1274,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             return null;
 
         var subDiv = document.createElement("div");
+        // used by boolean tracks to do positiocning
+        subDiv.subfeatureEdges = { s: subStart, e: subEnd };
+
         dojo.addClass(subDiv, "subfeature");
         // check for className to avoid adding "null", "plus-null", "minus-null"
         if (className) {
