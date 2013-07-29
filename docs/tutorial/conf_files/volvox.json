@@ -118,7 +118,14 @@
          "class" : "feature5",
          "key" : "Protein-coding genes",
          "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
-         "trackType": "JBrowse/View/Track/CanvasFeatures"
+         "trackType": "JBrowse/View/Track/CanvasFeatures",
+         "menuTemplate": [  {
+               "label" : "Popup with content snippet from string (feature {name})",
+               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "iconClass" : "dijitIconDatabase",
+               "action": "contentDialog",
+               "content" : "<h2>{name}</h2>This is some test content about {type} {name}, which goes from {start} to {end} on the {strand} strand."
+             }],
       },
       {
          "feature" : [
