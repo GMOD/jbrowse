@@ -224,6 +224,7 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
 
     // If config contains a config for the results track, use it. (This allows reloading when the track config is edited. )
     if(this.config.resultsTrack) {
+        this.reloadStoreNames = true;
         this.dnd.insertNodes(false, [this.config.resultsTrack]);
     }
 },
@@ -377,18 +378,23 @@ runDialog: function(trackConfig, store) {
 
         // opTree can be directly reloaded from track config.  This is important (e.g.) when changing reference sequences
         // to make sure that the right combinations of tracks are still included in this track.
-        if(store.isCombinationStore && !store.opTree && this.config.opTree) {
-            this.loadTree(this.config.opTree).then(dojo.hitch(this, function(tree){
+        if( store.isCombinationStore && !store.opTree && this.config.opTree ) {
+            this.loadTree( this.config.opTree ).then( dojo.hitch( this, function(tree){
                 this.opTree = tree;
                 this.displayType = this.config.displayType;
-                this._adjustStores(store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
+                this._adjustStores( store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
             }));
             return;
         }
         var opTree = store.isCombinationStore ? store.opTree.clone() : new TreeNode({Value: store, leaf: true});
         this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
         this.opTree = opTree;
-        this._adjustStores( store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
+        if(this.reloadStoreNames) {
+            this.reloadStoreNames = false;
+            this._adjustStores( store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
+            return;
+        }
+        this._adjustStores( store, this.oldType, this.currType );
         return;
     }
     var d = new Deferred();
