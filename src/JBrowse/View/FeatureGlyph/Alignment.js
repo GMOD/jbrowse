@@ -28,7 +28,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
             {
                 //maxFeatureScreenDensity: 400
                 style: {
-                    color: function( feature, path, partnum, totalParts, glyph, track ) {
+                    color: function( feature, path, glyph, track ) {
                         var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
                         var strand = feature.get('strand');
                         return                  missing_mate ? glyph.getStyle( feature, 'color_missing_mate' ) :
