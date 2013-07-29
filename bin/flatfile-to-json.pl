@@ -17,7 +17,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 =head1 USAGE
 
   flatfile-to-json.pl                                                         \
-      ( --gff <GFF3 file> | --bed <BED file> | --gbk <GBK file> )             \
+      ( --gff <GFF3 file> | --bed <BED file> | --gbk <GenBank file> )             \
       --trackLabel <track identifier>                                         \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
@@ -44,7 +44,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 =item --bed <BED file>
 
-Process a GFF3 or BED-format file containing annotation data.
+=item --gbk <GenBank file>
+
+Process a GFF3, BED, or GenBank file containing annotation data.
 
 NOTE: This script does not support GFF version 2 or GTF (GFF 2.5) input.
 
