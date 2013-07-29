@@ -17,8 +17,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 =head1 USAGE
 
   flatfile-to-json.pl                                                         \
-      ( --gff <GFF3 file> | --bed <BED file> | --gbk <GenBank file> )             \
+      ( --gff <GFF3 file> | --bed <BED file> | --gbk <GenBank file> )         \
       --trackLabel <track identifier>                                         \
+      [ --trackType <JS Class> ]                                              \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
       [ --className <CSS class name for displaying features> ]                \
@@ -71,6 +72,11 @@ Human-readable track name.
 =item --out <output directory>
 
 Output directory to write to.  Defaults to "data/".
+
+=item --trackType JBrowse/View/Track/HTMLFeatures
+
+Optional JavaScript class to use to display this track.  Defaults to
+JBrowse/View/Track/HTMLFeatures.
 
 =item --className <CSS class name for displaying features>
 
