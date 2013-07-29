@@ -43,6 +43,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         h: 0,
         r: -Infinity,
         subRects: [],
+        viewInfo: viewArgs,
         f: feature,
         glyph: this
     };
@@ -83,8 +84,8 @@ _getFeatureRectangle: function( viewArgs, feature ) {
 },
 
 renderFeature: function( context, fRect ) {
-    if( this.track.displayMode != 'collapsed' )
-        context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
+    if( fRect.viewInfo.displayMode != 'collapsed' )
+        context.clearRect( Math.floor(fRect.rect.l), fRect.t, Math.ceil(fRect.rect.w-Math.floor(fRect.rect.l)+fRect.rect.l), fRect.h );
 
     var subRects = fRect.subRects;
     for( var i = 0; i < subRects.length; i++ ) {

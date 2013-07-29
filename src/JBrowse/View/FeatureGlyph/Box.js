@@ -152,7 +152,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
     renderFeature: function( context, fRect ) {
         if( this.track.displayMode != 'collapsed' )
-            context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
+            context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
         this.renderBox( context, fRect.viewInfo, fRect.f, fRect.t, fRect.rect.h, fRect.f );
         this.renderLabel( context, fRect );
