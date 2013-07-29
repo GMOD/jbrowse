@@ -83,7 +83,12 @@ sub run {
     elsif ( $self->opt('gff') ) {
         my $db;
         my $gff = $self->opt('gff');
-        open my $fh, '<', $gff or die "$! reading GFF file $gff";
+        my $gzip = '';
+        if( $gff =~ /\.gz$/ ) {
+            require PerlIO::gzip;
+            $gzip = ':gzip';
+        }
+        open my $fh, "<$gzip", $gff or die "$! reading GFF file $gff";
         my %refSeqs;
         while ( <$fh> ) {
             if ( /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i ) { # header line
@@ -178,6 +183,7 @@ sub exportDB {
 
     my $compress = $self->opt('compress');
     my %refSeqs = %$refseqs;
+    my %exportedRefSeqs;
 
     my @queries;
 
@@ -217,13 +223,13 @@ sub exportDB {
                 warn "WARNING: multiple reference sequences found named '$refInfo->{name}', using only the first one.\n";
             } else {
                 $refSeqs{ $refInfo->{name} } = $refInfo;
+            }
 
-                unless( $self->opt('noseq') ) {
-                    $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
-                                                  [ -name => $refInfo->{name} ],
-                                                  $seg->start, $seg->end);
-                    $refInfo->{"seqChunkSize"} = $self->{chunkSize};
-                }
+            unless( $self->opt('noseq') || $exportedRefSeqs{ $refInfo->{name} }++ ) {
+                $self->exportSeqChunksFromDB( $refInfo, $self->{chunkSize}, $db,
+                                              [ -name => $refInfo->{name} ],
+                                              $seg->start, $seg->end);
+                $refInfo->{"seqChunkSize"} = $self->{chunkSize};
             }
         }
     }

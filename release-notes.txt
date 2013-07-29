@@ -40,6 +40,9 @@
    run like:
        bin/prepare-refseqs.pl --sizes myrefs.sizes
 
+ * `prepare-refseqs.pl` can now format reference sequences from a
+   gzipped GFF3 if the file's name ends with the suffix ".gz".
+
  * Added a '--noSubfeatures' option for flatfile-to-json.pl to skip
    importing subfeatures (since `--getSubfeatures` is on by default
    for some time).
