@@ -61,7 +61,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var fRect = {
             l: block.bpToX( feature.get('start') ),
             h: this._getFeatureHeight(viewArgs, feature),
-            viewInfo: viewArgs
+            viewInfo: viewArgs,
+            f: feature
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
@@ -71,8 +72,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
         fRect.w = fRect.rect.w; // in case it was increased
         if( viewArgs.displayMode != 'compact' )
-            fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
-
+            fRect.h += this.getStyle( feature, 'marginBottom' ) || 0
+;
         // if we are showing strand arrowheads, expand the frect a little
         if( this.getStyle( feature, 'strandArrow') ) {
             var strand = fRect.strandArrow = feature.get('strand');

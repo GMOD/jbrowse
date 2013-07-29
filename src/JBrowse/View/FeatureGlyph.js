@@ -41,7 +41,8 @@ return declare( Component, {
         var fRect = {
             l: block.bpToX( feature.get('start') ),
             h: this._getFeatureHeight( viewArgs, feature ),
-            viewInfo: viewInfo
+            viewInfo: viewInfo,
+            f: feature
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
