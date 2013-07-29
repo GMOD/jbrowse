@@ -346,16 +346,16 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
 
     # test start/stop of parent feature (full record)
-    ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[1] == 5001, "got right start coordinate (full record)" );
-    ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[2] == 10950, "got right stop coordinate (full record)" );
-    ok( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[17] eq 'mRNA', "got right type in parent feature (full record)" );
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][1], 5001, "got right start coordinate (full record)" );
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][2], 10950, "got right stop coordinate (full record)" );
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][15], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
 
     # test that the right attributes are present
-     is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})], 
-		[sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'FEATURES',  'KEYWORDS',  'SEQUENCE',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE',  'ORIGIN',  'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
+     is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})],
+		[sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'KEYWORDS',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
 		'got the right attributes in trackData.json')
 	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
-    
+
     # test subfeatures
     # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
     my $subFeatureIndex;
@@ -373,11 +373,10 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 #     ok ( scalar(@{$subfeatures->[0]}) == scalar(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}}) + 1,
 #	 "subfeature array is the right length (length of attribute array + 1)");
     # test first subfeature completely
-    ok ( exists $subfeatures->[0]->[0] && $subfeatures->[0]->[0] == 1, "first item set correctly in subfeature");
-    ok ( exists $subfeatures->[0]->[1] && $subfeatures->[0]->[1] == 5001, "start set correctly in subfeature") || diag $subfeatures->[0]->[1];
-    ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[2] == 5114, "end set correctly in subfeature") || diag $subfeatures->[0]->[2];
-    ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[19] eq 'exon', "type set correctly in subfeature") || diag $subfeatures->[0]->[2];
-    undef;
+    is ( $subfeatures->[0][0] && $subfeatures->[0][0], 1, "first item set correctly in subfeature");
+    is ( $subfeatures->[0][1] && $subfeatures->[0][1], 5001, "start set correctly in subfeature") or diag explain $subfeatures->[0];
+    is ( $subfeatures->[0][2] && $subfeatures->[0][2], 5114, "end set correctly in subfeature") or diag explain $subfeatures->[0];
+    is ( $subfeatures->[0][2] && $subfeatures->[0][8], 'exon', "type set correctly in subfeature") or diag explain $subfeatures->[0];
 
 }
 
