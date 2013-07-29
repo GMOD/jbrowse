@@ -381,14 +381,14 @@ runDialog: function(trackConfig, store) {
             this.loadTree(this.config.opTree).then(dojo.hitch(this, function(tree){
                 this.opTree = tree;
                 this.displayType = this.config.displayType;
-                this._adjustStores(store, this.oldType, this.currType);
+                this._adjustStores(store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
             }));
             return;
         }
         var opTree = store.isCombinationStore ? store.opTree.clone() : new TreeNode({Value: store, leaf: true});
         this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
         this.opTree = opTree;
-        this._adjustStores( store, this.oldType, this.currType );
+        this._adjustStores( store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
         return;
     }
     var d = new Deferred();
@@ -427,83 +427,72 @@ runDialog: function(trackConfig, store) {
 // This function ensures that all secondary stores (one for the mask, one for the display) have been loaded.
 // If not, it loads them itself.  This function tries not to waste stores - if a store of a certain type already exists,
 // it uses it rather than creating a new one.
-_adjustStores: function (store, oldType, currType) {
+_adjustStores: function ( store, oldType, currType, storeName, maskStoreName, displayStoreName ) {
     var d = new Deferred();
-    if(oldType == "mask") {
-        this.maskStore.reload(this.opTree.leftChild);
-        this.displayStore.reload(this.opTree.rightChild);
-        this.store.reload(this.opTree, this.maskStore, this.displayStore);
-        d.resolve(true);
-    } else if(currType == "mask") {
-        var haveMaskStore = this._createStore("set"); 
-        haveMaskStore.then(dojo.hitch(this, function(newstore) {
+    if( oldType == "mask" ) {
+        this.maskStore.reload( this.opTree.leftChild );
+        this.displayStore.reload( this.opTree.rightChild );
+        this.store.reload( this.opTree, this.maskStore, this.displayStore );
+        d.resolve( true );
+    } else if( currType == "mask" || this.opTree.get( ) == "M" || this.opTree.get( ) == "N" ) {
+        var haveMaskStore = this._createStore( "set", maskStoreName ); 
+        haveMaskStore.then( dojo.hitch( this, function( newstore ) {
                                                                    this.maskStore = newstore;
-                                                                   this.maskStore.reload(this.opTree.leftChild);
-                                                               }));
-        var haveDisplayStore = this._createStore(this.displayType);
+                                                                   this.maskStore.reload( this.opTree.leftChild );
+                                                               } ) );
+        var haveDisplayStore = this._createStore( this.displayType, displayStoreName );
 
 
-        haveDisplayStore.then(dojo.hitch(this, function(newStore){
+        haveDisplayStore.then( dojo.hitch( this, function( newStore ){
                                                      this.displayStore = newStore;
-                                                     this.displayStore.reload(this.opTree.rightChild);
-                                                 }));
+                                                     this.displayStore.reload( this.opTree.rightChild );
+                                                 } ) );
         this.store = undefined;
-        d = all([haveMaskStore, haveDisplayStore]);
-    } else if(this.opTree.get() == "M" || this.opTree.get() == "N") { // We may want to not hard-code this in.  Means the final store will be a masked store.
-        var haveMaskStore = this._createStore("set"); 
-        haveMaskStore.then(dojo.hitch(this, function(newstore) {
-                                                                   this.maskStore = newstore;
-                                                                   this.maskStore.reload(this.opTree.leftChild);
-                                                               }));
-        var haveDisplayStore = this._createStore(this.displayType);
-        haveDisplayStore.then(dojo.hitch(this, function(newStore){
-                                                                     this.displayStore = newStore;
-                                                                     this.displayStore.reload(this.opTree.rightChild);
-                                                                 }));
-        this.store = undefined;
-        d = all([haveMaskStore, haveDisplayStore]);
+        d = all( [haveMaskStore, haveDisplayStore] );
     } else {
-        d.resolve(true);
+        d.resolve( true );
     }
-    d.then(dojo.hitch(this, function() {
-                          this.createStore();
+    d.then( dojo.hitch( this, function() {
+                          this.createStore( storeName );
                       }));
 },
 
 // Checks if the primary store has been created yet.  If it hasn't, calls "_createStore" and makes it.
-createStore: function() {
+createStore: function( storeName ) {
     var d = new Deferred();
     var thisB = this;
 
-    if(!this.store) {
-        d = this._createStore();
+    if( !this.store ) {
+        d = this._createStore( undefined, storeName );
     } else {
-        d.resolve(this.store, true);
+        d.resolve( this.store, true );
     }
-    d.then(function(store) {
+    d.then( function(store) {
                // All stores are now in place.  Make sure the operation tree of the store matches that of this track,
                // and then we can render the results track.
                thisB.store = store;
-               thisB.store.reload(thisB.opTree, thisB.maskStore, thisB.displayStore); 
+               thisB.store.reload( thisB.opTree, thisB.maskStore, thisB.displayStore ); 
                thisB.renderResultsTrack();
            });
 },
 
 // Creates a store config and passes it to the browser, which creates the store and returns its name.
-_createStore: function(storeType) {
+_createStore: function( storeType, storeName ) {
     var d = new Deferred();
+    if( !storeName ) {
+        var storeConf = this._storeConfig( storeType );
+        storeName = this.browser._addStoreConfig( undefined, storeConf );
+        storeConf.name = storeName;
+    }
 
-    var storeConf = this._storeConfig(storeType);
-    var storeName = this.browser._addStoreConfig(undefined, storeConf);
-    storeConf.name = storeName;
-    this.browser.getStore(storeName, function(store) {
-                              d.resolve(store, true);
+    this.browser.getStore( storeName, function( store ) {
+                              d.resolve( store, true );
                           });
     return d.promise;
 },
 
 // Uses the current settings of the combination track to create a store
-_storeConfig: function(storeType) {
+_storeConfig: function( storeType ) {
     if(!storeType)
         storeType = this.storeType;
     var storeClass = this.trackClasses[storeType].store;
@@ -601,6 +590,8 @@ renderResultsTrack: function() {
             // (we don't want editing the config to suddenly remove the data or the mask)
             thisB.config.opTree = thisB.flatten(thisB.opTree);
             thisB.config.store = thisB.store.name;
+            thisB.config.maskStore = thisB.maskStore ? thisB.maskStore.name : undefined;
+            thisB.config.displayStore = thisB.displayStore ? thisB.displayStore.name : undefined;
 
             if(thisB._visible().store == thisB.store) {
                 // Refresh results track config, so that the track can be recreated when the config is edited
