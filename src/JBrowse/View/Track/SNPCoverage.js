@@ -180,8 +180,9 @@ return declare( [WiggleXY, AlignmentsMixin],
      * It displays more complete data.
      */
     _showPixelValue: function( scoreDisplay, score ) {
-        if( ! score )
+        if( ! score || ! score.score )
             return false;
+        score = score.score;
 
         function fmtNum( num ) {
             return parseFloat( num ).toPrecision(6).replace(/0+$/,'').replace(/\.$/,'');
@@ -225,7 +226,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             scoreDisplay.innerHTML = scoreSummary+'</table>';
             return true;
         } else {
-            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score['score'])+'</td></tr></table>';
+            scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
             return true;
         }
     }
