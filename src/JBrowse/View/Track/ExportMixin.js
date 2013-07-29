@@ -45,15 +45,18 @@ return declare( null, {
         if( this.config.noExport )
             return false;
 
+        var highlightedRegion = this.browser.getHighlight();
         var visibleRegion = this.browser.view.visibleRegion();
         var wholeRefSeqRegion = { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end };
         var canExportVisibleRegion = this._canExportRegion( visibleRegion );
         var canExportWholeRef = this._canExportRegion( wholeRefSeqRegion );
-        return canExportVisibleRegion || canExportWholeRef;
+        return highlightedRegion && this._canExportRegion( highlightedRegion )
+            || this._canExportRegion( visibleRegion )
+            || this._canExportRegion( wholeRefSeqRegion );
     },
 
     _possibleExportRegions: function() {
-        return [
+        var regions = [
             // the visible region
             (function() {
                  var r = dojo.clone( this.browser.view.visibleRegion() );
@@ -64,6 +67,13 @@ return declare( null, {
             // whole reference sequence
             { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end, description: 'Whole reference sequence', name: 'wholeref' }
         ];
+
+        var highlightedRegion = this.browser.getHighlight();
+        if( highlightedRegion ) {
+            regions.unshift( lang.mixin( lang.clone( highlightedRegion ), { description: "Highlighted region", name: "highlight" } ) );
+        }
+
+        return regions;
     },
 
     _exportDialogContent: function() {

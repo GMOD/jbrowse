@@ -58,6 +58,10 @@
    field names in addition to a function callback.  Defaults to
    'name,id';
 
+ * The "Save track data" (data exporting) menu now has "Highlighted
+   region" as one of the choices of which range to export, if there is
+   something highlighted.
+
  * The "JBrowse" link on the left side of the menu bar, and the
    browser title, now display the "About this browser" title instead
    of JBrowse, if `aboutThisBrowser` is set in the configuration.
