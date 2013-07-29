@@ -80,8 +80,11 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             var strand = fRect.strandArrow = feature.get('strand');
 
             fRect.w += 9;
-            if( strand == -1 )
+            fRect.rect.w += 9;
+            if( strand == -1 ) {
                 fRect.l -= 9;
+                fRect.rect.l -= 9;
+            }
         }
 
         // no labels or descriptions if displayMode is collapsed, so stop here
@@ -207,39 +210,48 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         }
     },
 
-    // label
+    // feature label
     renderLabel: function( context, fRect ) {
         if( fRect.label ) {
-            context.font = this.config.style.textFont;
-            context.fillStyle = this.getStyle( fRect.f, 'textColor' );
-            context.fillText( fRect.label.text, fRect.l, fRect.t + fRect.label.yOffset );
+            context.font = fRect.label.font;
+            context.fillStyle = fRect.label.fill;
+            context.textBaseline = fRect.label.baseline;
+            context.fillText( fRect.label.text,
+                              fRect.l+(fRect.label.xOffset||0),
+                              fRect.t+(fRect.label.yOffset||0)
+                            );
         }
     },
 
-    // description
+    // feature description
     renderDescription: function( context, fRect ) {
         if( fRect.description ) {
-            context.font = this.config.style.text2Font;
-            context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
-            context.fillText( fRect.description.text, fRect.l, fRect.t + fRect.description.yOffset);
+            context.font = fRect.description.font;
+            context.fillStyle = fRect.description.fill;
+            context.textBaseline = fRect.description.baseline;
+            context.fillText(
+                fRect.description.text,
+                fRect.l+(fRect.description.xOffset||0),
+                fRect.t + (fRect.description.yOffset||0)
+            );
         }
     },
 
     // strand arrowhead
     renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
-            if( fRect.strandArrow == 1 && fRect.l+fRect.rect.w <= context.canvas.width ) {
+            if( fRect.strandArrow == 1 && fRect.rect.l+fRect.rect.w <= context.canvas.width ) {
                 this.getEmbeddedImage( 'plus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.l + fRect.rect.w, fRect.t + (fRect.rect.h-img.height)/2 );
+                               context.drawImage( img, fRect.rect.l + fRect.rect.w - 9, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
-            else if( fRect.strandArrow == -1 && fRect.l >= 0 ) {
+            else if( fRect.strandArrow == -1 && fRect.rect.l >= 0 ) {
                 this.getEmbeddedImage( 'minus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.l, fRect.t + (fRect.rect.h-img.height)/2 );
+                               context.drawImage( img, fRect.rect.l, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
         }

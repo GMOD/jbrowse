@@ -45,7 +45,7 @@ renderConnector: function( context, fRect ) {
         var connectorHeight = this.getStyle( fRect.f, 'connector_height' );
         context.fillRect(
             fRect.rect.l, // left
-            Math.round(fRect.t+(fRect.rect.h-connectorHeight)/2), // top
+            Math.round(fRect.rect.t+(fRect.rect.h-connectorHeight)/2), // top
             fRect.rect.w, // width
             connectorHeight
         );

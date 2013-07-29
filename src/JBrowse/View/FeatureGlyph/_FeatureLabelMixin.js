@@ -21,7 +21,9 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureLabel( feature );
         if( ! text )
             return null;
-        return this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        l.fill = this.getStyle( feature, 'textColor' );
+        return l;
     },
 
     /**
@@ -33,7 +35,9 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureDescription( feature );
         if( ! text )
             return null;
-        return this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        l.fill = this.getStyle( feature, 'text2Color' );
+        return l;
     },
 
     /**
@@ -41,6 +45,8 @@ return declare( FeatureDescriptionMixin,  {
      * respecting maxFeatureGlyphExpansion.
      */
     makeSideLabel: function( text, font, fRect ) {
+        if( ! text ) return null;
+
         var dims = this.measureFont( font );
         var excessCharacters = Math.round(( text.length * dims.w - this.track.getConf('maxFeatureGlyphExpansion') ) / dims.w );
         if( excessCharacters > 0 )
@@ -48,6 +54,8 @@ return declare( FeatureDescriptionMixin,  {
 
         return {
             text: text,
+            font: font,
+            baseline: 'middle',
             w: dims.w * text.length,
             h: dims.h
         };
@@ -58,6 +66,8 @@ return declare( FeatureDescriptionMixin,  {
      * respecting maxFeatureGlyphExpansion.
      */
     makeBottomOrTopLabel: function( text, font, fRect ) {
+        if( ! text ) return null;
+
         var dims = this.measureFont( font );
         var excessCharacters = Math.round(( text.length * dims.w - fRect.w - this.track.getConf('maxFeatureGlyphExpansion') ) / dims.w );
         if( excessCharacters > 0 )
@@ -65,6 +75,8 @@ return declare( FeatureDescriptionMixin,  {
 
         return {
             text: text,
+            font: font,
+            baseline: 'bottom',
             w: dims.w * text.length,
             h: dims.h
         };
@@ -79,7 +91,7 @@ return declare( FeatureDescriptionMixin,  {
             || ( fontMeasurementsCache[font] = function() {
                      var ctx = document.createElement('canvas').getContext('2d');
                      ctx.font = font;
-                     var testString = "AaBbMmNn-..Zz1234567890";
+                     var testString = "MMMMMMMMMMMMXXXXXXXXXX1234567890-.CGCC12345";
                      var m = ctx.measureText( testString );
                      return {
                          h: m.height || parseInt( font.match(/(\d+)px/)[1] ),

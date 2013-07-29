@@ -20,8 +20,13 @@ _defaultConfig: function() {
         this.inherited(arguments),
         {
             transcript_type: 'mRNA',
+            style: {
+                transcriptLabelFont: 'normal 10px Univers,Helvetica,Arial,sans-serif',
+                transcriptLabelColor: 'black',
+                textFont: 'bold 12px Univers,Helvetica,Arial,sans-serif'
+            },
+            labelTranscripts: true,
             marginBottom: 0
-
         });
 },
 
@@ -62,7 +67,26 @@ _getFeatureRectangle: function( viewArgs, feature ) {
                           )._getFeatureRectangle( subArgs, subfeatures[i] );
 
             padding = i == subfeatures.length-1 ? 0 : 1;
-            subRect.t = fRect.h && viewArgs.displayMode != 'collapsed' ? fRect.h+padding : 0;
+            subRect.t = subRect.rect.t = fRect.h && viewArgs.displayMode != 'collapsed' ? fRect.h+padding : 0;
+
+            if( viewArgs.showLabels && this.getConfForFeature( 'labelTranscripts', subfeatures[i] ) ) {
+                var transcriptLabel = this.makeSideLabel(
+                    this.getFeatureLabel(subfeatures[i]),
+                    this.getStyle( subfeatures[i], 'transcriptLabelFont'),
+                    subRect
+                );
+                if( transcriptLabel ) {
+                    transcriptLabel.fill = this.getStyle( subfeatures[i], 'transcriptLabelColor' );
+                    subRect.label = transcriptLabel;
+                    subRect.l -= transcriptLabel.w;
+                    subRect.w += transcriptLabel.w;
+                    if( transcriptLabel.h > subRect.h )
+                        subRect.h = transcriptLabel.h;
+                    transcriptLabel.yOffset = Math.floor(subRect.h/2);
+                    transcriptLabel.xOffset = 0;
+                }
+            }
+
             fRect.subRects.push( subRect );
             fRect.r = Math.max( fRect.r, subRect.l+subRect.w-1 );
             fRect.l = Math.min( fRect.l, subRect.l );
@@ -91,6 +115,7 @@ layoutFeature: function( viewInfo, layout, feature ) {
     if( fRect )
         array.forEach( fRect.subRects, function( subrect ) {
                            subrect.t += fRect.t;
+                           subrect.rect.t += fRect.t;
                        });
     return fRect;
 },
