@@ -349,11 +349,11 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     # test start/stop of parent feature (full record)
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][1], 5001, "got right start coordinate (full record)" );
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][2], 10950, "got right stop coordinate (full record)" );
-    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][15], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][21], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
 
     # test that the right attributes are present
      is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})],
-		[sort(@{[ 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'KEYWORDS',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
+		[sort(@{[ 'Db_xref', 'Description', 'Gene', 'Gene_synonym', 'Name', 'Product', 'Transcript_id', 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'KEYWORDS',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
 		'got the right attributes in trackData.json')
 	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
 
