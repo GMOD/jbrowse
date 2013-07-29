@@ -17,7 +17,7 @@ define([ 'dojo/has' ],
            // does it support canvas?
            has.add( 'canvas', function() {
                         try {
-                            return !! document.createElement('canvas');
+                            return !! document.createElement('canvas').getContext('2d');
                         } catch(e) {}
                         return false;
                     });
