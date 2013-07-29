@@ -27,7 +27,16 @@
    Gaelen Burke at the 2013 GMOD Summer School for pointing out the
    need for this, and for assistance in testing the new feature.
 
+ * Added a `--gbk` option to `flatfile-to-json.pl` that accepts a
+   GenBank-format text file as input for loading annotation data.
+   Thanks to Justin Reese for the initial implementation of this.
+
  * Further improved scrolling smoothness of HTML-based feature tracks.
+
+ * `flatfile-to-json.pl` now supports a `--trackType` option that can
+   be used to set the JavaScript track class that will be used for the
+   formatted data (e.g. "JBrowse/View/Track/CanvasFeatures" to use the
+   new, improved HTML5 canvas-based feature tracks).
 
  * `biodb-to-json.pl` configuration files now support a `trackType`
    configuration key in each track configuration that can be used to
