@@ -162,7 +162,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                 var w = Math.round(( spans[index].end   - spans[index].start ) * scale );
                 var l = Math.round(( spans[index].start - leftBase ) * scale );
                 if (l+w >= canvas.width)
-                    w = canvas.width-l // correct possible rounding errors
+                    w = canvas.width-l; // correct possible rounding errors
                 if (w==0)
                     continue; // skip if there's no width.
                 ctx2.drawImage(canvas, l, 0, w, canvasHeight, l, 0, w, canvasHeight);
