@@ -104,8 +104,9 @@ sub writeTrackEntry {
                                      %{ $track->config || {} },
                                      label => $track->label,
                                      key => $track->key,
-                                     type => $track->type,
+                                     type => $track->{config}->{jstype} || $track->type,
                                     };
+
         return $trackData;
     };
 
