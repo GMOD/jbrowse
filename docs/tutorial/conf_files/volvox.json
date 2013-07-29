@@ -117,7 +117,8 @@
          "track" : "Genes",
          "class" : "feature5",
          "key" : "Protein-coding genes",
-         "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}"
+         "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
+         "trackType": "JBrowse/View/Track/CanvasFeatures"
       },
       {
          "feature" : [
