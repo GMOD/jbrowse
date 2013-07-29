@@ -22,9 +22,11 @@ sub next_items {
 sub _aggregate_features_from_gbk_record {
     my ( $self, $f ) = @_;
     $f->{'seq_id'} = $f->{'ACCESSION'};
+    delete $f->{ORIGIN};
+    delete $f->{SEQUENCE};
 
-    # see if this is a region record, and if so, make a note of offset so 
-    # we can add it to coordinates below
+    # see if this is a region record, and if so, make a note of offset
+    # so we can add it to coordinates below
     my $offset = _getRegionOffset( $f );
 
     # get index of top level feature ('mRNA' at current writing)
@@ -44,26 +46,32 @@ sub _aggregate_features_from_gbk_record {
 
     # set start/stop
     my $startStop = _extractStartStopFromJoinToken( $f->{FEATURES}->[$indexTopLevel] );
-    $f->{'start'} = $startStop->[0] + $offset + 1;
-    $f->{'end'} = $startStop->[1] + $offset;
-    $f->{'type'} = $f->{FEATURES}->[$indexTopLevel]->{'name'};
+    $f->{start} = $startStop->[0] + $offset + 1;
+    $f->{end} = $startStop->[1] + $offset;
+    $f->{type} = $f->{FEATURES}[$indexTopLevel]{name};
 
-    # add subfeatures
-    $f->{'subfeatures'} = ();
-    if ( scalar( @{$f->{FEATURES}}) > $indexTopLevel ){
-      for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ){
-	my $startStop = _extractStartStopFromLocation( $f->{FEATURES}->[$i]->{'location'} );
-	$startStop->[0] += $offset;
-	$startStop->[1] += $offset;
-	$startStop->[0]++;
+    # convert FEATURES to subfeatures
+    $f->{subfeatures} = [];
+    if ( scalar( @{$f->{FEATURES} || [] }) > $indexTopLevel ) {
+        for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ) {
+            my $feature = $f->{FEATURES}[$i];
+            my $startStop = _extractStartStopFromLocation( $feature->{location} );
+            $startStop->[0] += $offset;
+            $startStop->[1] += $offset;
+            $startStop->[0]++;
 
-  	my $newFeature = {};
-  	$newFeature->{'start'} = $startStop->[0] || 'null';
-  	$newFeature->{'end'} = $startStop->[1] || 'null';
-	$newFeature->{'type'} = $f->{FEATURES}->[$i]->{'name'} || 'null',
-	push @{$f->{'subfeatures'}}, $newFeature;
-      }
+            my $newFeature = {
+                %{ $feature->{feature}||{} },
+                start => $startStop->[0],
+                end   => $startStop->[1],
+                type  => $feature->{name}
+                };
+
+            push @{$f->{subfeatures}}, $newFeature;
+        }
     }
+    delete $f->{FEATURES};
+
     return $f;
 }
 
