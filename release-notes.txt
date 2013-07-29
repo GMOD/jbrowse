@@ -43,12 +43,6 @@
  * `prepare-refseqs.pl` can now format reference sequences from a
    gzipped GFF3 if the file's name ends with the suffix ".gz".
 
- * Fixed a bug with `prepare-refseqs.pl` in which, when multiple
-   definitions of a reference sequence are found (as in a GFF3 file
-   with both ##sequence-region directives and a FASTA section), the
-   seqChunkSize value is not recorded in refSeqs.json and the sequence
-   bases cannot be displayed in the "Reference sequence" track.
-
  * Added a '--noSubfeatures' option for flatfile-to-json.pl to skip
    importing subfeatures (since `--getSubfeatures` is on by default
    for some time).
@@ -92,6 +86,13 @@
    Thanks to the 2013 GMOD Summer School participants for helping me
    to see the error of my ways.
 
+
+ * Fixed a bug with `prepare-refseqs.pl` in which, when multiple
+   definitions of a reference sequence are found (as in a GFF3 file
+   with both ##sequence-region directives and a FASTA section), the
+   seqChunkSize value is not recorded in refSeqs.json and the sequence
+   bases cannot be displayed in the "Reference sequence" track.
+
  * Fixed a synchronization bug in NCList-based feature data stores
    that causes some features to be missing when displaying with a
    CanvasFeatures track.  This bug may also have affected 'Save track
@@ -100,6 +101,10 @@
  * Fixed a bug with GFF3 export in which the phase(!) column was
    missing.  Thanks to Michael Campbell at the 2013 GMOD Summer School
    for helping track this down!
+
+ * Fixed another bug with GFF3 export in which an extra comma would
+   sometimes be added at the beginning of GFF3 lines for some child
+   features.
 
  * Fixed a bug in which the global highlighted region was not correctly drawn
    when switching reference sequences.
