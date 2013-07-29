@@ -311,7 +311,7 @@ reinitialize: function() {
     this.resultsTrack = undefined;
     this.storeType = undefined;
     this.oldType = undefined;
-    this.classIndex = {"set" : 0, "quantitative": 0, "BAM": 0};
+    this.classIndex = {};
     this.storeToShow = 0;
     this.displayStore = undefined;
     this.maskStore = undefined;
@@ -382,12 +382,18 @@ runDialog: function(trackConfig, store) {
             this.loadTree( this.config.opTree ).then( dojo.hitch( this, function(tree){
                 this.opTree = tree;
                 this.displayType = this.config.displayType;
+                if( this.getClassIndex( this.displayType || this.storeType ) == undefined ) {
+                    this.setTrackClass( trackConfig.type, this.displayType || this.storeType );
+                }
                 this._adjustStores( store, this.oldType, this.currType, this.config.store, this.config.maskStore, this.config.displayStore );
             }));
             return;
         }
         var opTree = store.isCombinationStore ? store.opTree.clone() : new TreeNode({Value: store, leaf: true});
         this.displayType = (this.currType == "mask") ? this.supportedBy[store.stores.display.config.type] : undefined;
+        if( this.getClassIndex( this.displayType || this.storeType ) == undefined ) {
+            this.setTrackClass( trackConfig.type, this.displayType || this.storeType );
+        }
         this.opTree = opTree;
         if(this.reloadStoreNames) {
             this.reloadStoreNames = false;
@@ -421,6 +427,9 @@ runDialog: function(trackConfig, store) {
                                                                     this.displayType = displayType;
                                                                     this.storeType = ( this.oldType == "mask" || this.opTree.get() == "M" ||
                                                                                         this.opTree.get() == "N" ) ? "mask" : this.currType;
+                                                                    if( this.getClassIndex( this.displayType || this.storeType ) == undefined ) {
+                                                                        this.setTrackClass( trackConfig.type, this.displayType || this.storeType );
+                                                                    }
                                                                     this._adjustStores(newstore, this.oldType, this.currType);
                                                                     d.resolve(true);
                                                                 }), dojo.hitch(this, function() {
@@ -529,7 +538,7 @@ _visible: function() {
         if(which[i]) {
             var storeType = (i == 0 && this.storeType == "mask") ? "mask" : which[i];
             allTypes[i].allowedOps = this.trackClasses[storeType].allowedOps;
-            allTypes[i].trackType = this.trackClasses[which[i]].resultsTypes[this.getClassIndex(which[i])].path;
+            allTypes[i].trackType = this.trackClasses[which[i]].resultsTypes[this.getClassIndex(which[i]) || 0].path;
         }
     }
     if(this.storeType != "mask") return allTypes[0];
@@ -538,7 +547,6 @@ _visible: function() {
 
 // Time to actually render the results track.
 renderResultsTrack: function() {
-
     if(this.resultsTrack) {
         // Destroys the results track currently in place if it exists. We're going to create a new one.
         this.resultsTrack.clear();
@@ -796,6 +804,15 @@ setClassIndex: function(index, type) {
         if(type == "mask" && this.displayStore)
                 type = this.supportedBy[this.displayStore.config.type];
         this.classIndex[type] = index;
+},
+
+// Like the setClassIndex function, but accepts the actual file path of the track in question
+setTrackClass: function( tclass, type ) {
+    var allPaths = this.trackClasses[ type ].resultsTypes.map( function( item ) { return item.path; } );
+    var index = allPaths.indexOf( tclass );
+    if( index >= 0 ) {
+      this.setClassIndex( index, type );
+    }
 },
 
 // When the results track can be shown in multiple different classes
