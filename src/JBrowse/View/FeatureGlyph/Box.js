@@ -99,7 +99,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // maybe get the feature's name, and update the layout box
         // accordingly
         if( viewArgs.showLabels ) {
-            var label = this.makeLabel( feature, fRect );
+            var label = this.makeFeatureLabel( feature, fRect );
             if( label ) {
                 fRect.h += label.h;
                 fRect.w = Math.max( label.w, fRect.w );
@@ -111,7 +111,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // maybe get the feature's description if available, and
         // update the layout box accordingly
         if( viewArgs.showDescriptions ) {
-            var description = this.makeDescription( feature, fRect );
+            var description = this.makeFeatureDescriptionLabel( feature, fRect );
             if( description ) {
                 fRect.description = description;
                 fRect.h += description.h;
