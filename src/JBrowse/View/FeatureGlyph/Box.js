@@ -72,7 +72,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         // save the original rect in `rect` as the dimensions
         // we'll use for the rectangle itself
-        fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
+        fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ), t: 0 };
         fRect.w = fRect.rect.w; // in case it was increased
         if( viewArgs.displayMode != 'compact' )
             fRect.h += this.getStyle( feature, 'marginBottom' ) || 0
