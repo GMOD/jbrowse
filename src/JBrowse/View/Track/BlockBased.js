@@ -7,6 +7,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/dom-class',
+            'dojo/dom-style',
             'dojo/query',
             'dojo/on',
             'dijit/Destroyable',
@@ -34,6 +35,7 @@ define( [
                   domConstruct,
                   domGeom,
                   domClass,
+                  domStyle,
                   query,
                   on,
                   Destroyable,
@@ -657,7 +659,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 className: class_ || 'message',
                 innerHTML: message
             }, block.domNode );
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        this.heightUpdate( domGeom.getMarginBox(msgDiv, domStyle.getComputedStyle(msgDiv)).h, blockIndex );
     },
 
     /**
@@ -825,9 +827,9 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     getMetadata: function() {
-        return this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
+        return ( this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
                                           this.config.metadata ? this.config.metadata :
-                                                                 {};
+                                                                 {} ) || {};
     },
 
     setPinned: function( p ) {
