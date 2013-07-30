@@ -58,6 +58,35 @@
 
 ## Minor improvements
 
+ * Added support for an `addFeatures` variable in the query string of
+   the URL used to start JBrowse.  This variable accepts feature data
+   in JSON format in the form:
+
+      `[{ "seq_id":"ctgA", "start": 123, "end": 456, "name": "MyBLASTHit"},...}]`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+      `addFeatures=%5B%7B%20%22seq_id%22%3A%22ctgA%22%2C%20%22start%22%3A%20123%2C%20%22end%22%3A%20456%2C%20%22name%22%3A%20%22MyBLASTHit%22%7D%5D`
+
+   Developers integrating JBrowse into larger project may find this
+   feature useful for displaying results from other
+   non-JavaScript-based applications (such as legacy web BLAST tools)
+   in JBrowse.
+
+   Features added to JBrowse in this way are available in a special
+   data store named `url`, which can be specified in a track
+   configuration by adding `"store":"url"`.
+
+ * Added support for an `addTracks` variable in the query string of
+   the URL used to start JBrowse.  This variable accepts track
+   configurations in JSON format in the form:
+
+       `[{"label":"mytrack","store":"url","type":"JBrowse/View/Track/HTMLFeatures"},...]`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+       `addTracks=%5B%7B%22label%22%3A%22mytrack%22%2C%22store%22%3A%22url%22%2C%22type%22%3A%22JBrowse%2FView%2FTrack%2FHTMLFeatures%22%7D%5D`
+
  * Added "Save track data" option to Alignments2 tracks.  This option
    should have been there all along, but somehow slipped through the
    cracks.  Thanks to Valerie Wong for pointing this out at the 2013
@@ -84,6 +113,13 @@
    have many values for some attributes, such as Dbxrefs or GO terms.
 
  * Further improved scrolling smoothness of HTML-based feature tracks.
+
+ * Added a `JBrowse/Store/SeqFeature/FromConfig` feature store adapter
+   that can display feature data that is specified directly in
+   configuration.  This is mostly used to implement the support for
+   `addFeatures` in the JBrowse URL, but some administrators and
+   developers may find it conventient as well to define feature data
+   directly in the JBrowse configuration.
 
  * `flatfile-to-json.pl` now supports a `--trackType` option that can
    be used to set the JavaScript track class that will be used for the
@@ -139,6 +175,18 @@
    other promise object that will provide the content to be shown
    asynchronously.
 
+ * Added a `track.maxFeatureSizeForUnderlyingRefSeq` configuration
+   variable, defaulting to 250 Kbp, that sets the maximum length of a
+   feature for which the default feature detail popup will attempt to
+   display the underlying reference sequence.  Thanks to Colin
+   Davenport for pointing out the need for this (issue #291).
+
+ * Added the ability to specify the file name when exporting track
+   data to a file.  Thanks to Daniel Kasenberg for implementing this.
+
+ * Added a `track.noExportFiles` configuration variable that, if set
+   to true, disables exporting files from the "Save" menu of tracks.
+
 ## Bug fixes
 
  * Fixed a bug that prevented clicking on features in Alignments2 (and
@@ -177,54 +225,6 @@
 
  * Fixed a bug in which the global highlighted region was not correctly drawn
    when switching reference sequences.
-
- * Added support for an `addFeatures` variable in the query string of
-   the URL used to start JBrowse.  This variable accepts feature data
-   in JSON format in the form:
-
-      `[{ "seq_id":"ctgA", "start": 123, "end": 456, "name": "MyBLASTHit"},...}]`
-
-   which, when URI-escaped and put in the query string, looks like:
-
-      `addFeatures=%5B%7B%20%22seq_id%22%3A%22ctgA%22%2C%20%22start%22%3A%20123%2C%20%22end%22%3A%20456%2C%20%22name%22%3A%20%22MyBLASTHit%22%7D%5D`
-
-   Developers integrating JBrowse into larger project may find this
-   feature useful for displaying results from other
-   non-JavaScript-based applications (such as legacy web BLAST tools)
-   in JBrowse.
-
-   Features added to JBrowse in this way are available in a special
-   data store named `url`, which can be specified in a track
-   configuration by adding `"store":"url"`.
-
- * Added support for an `addTracks` variable in the query string of
-   the URL used to start JBrowse.  This variable accepts track
-   configurations in JSON format in the form:
-
-       `[{"label":"mytrack","store":"url","type":"JBrowse/View/Track/HTMLFeatures"},...]`
-
-   which, when URI-escaped and put in the query string, looks like:
-
-       `addTracks=%5B%7B%22label%22%3A%22mytrack%22%2C%22store%22%3A%22url%22%2C%22type%22%3A%22JBrowse%2FView%2FTrack%2FHTMLFeatures%22%7D%5D`
-
- * Added a `JBrowse/Store/SeqFeature/FromConfig` feature store adapter
-   that can display feature data that is specified directly in
-   configuration.  This is mostly used to implement the support for
-   `addFeatures` in the JBrowse URL, but some administrators and
-   developers may find it conventient as well to define feature data
-   directly in the JBrowse configuration.
-
- * Added a `track.maxFeatureSizeForUnderlyingRefSeq` configuration
-   variable, defaulting to 250 Kbp, that sets the maximum length of a
-   feature for which the default feature detail popup will attempt to
-   display the underlying reference sequence.  Thanks to Colin
-   Davenport for pointing out the need for this (issue #291).
-
- * Added the ability to specify the file name when exporting track
-   data to a file.  Thanks to Daniel Kasenberg for implementing this.
-
- * Added a `track.noExportFiles` configuration variable that, if set
-   to true, disables exporting files from the "Save" menu of tracks.
 
  * Fixed a minor bug in which the REST store backend did not coerce
    start, end, strand, and score to be numeric if the input JSON had
