@@ -99,6 +99,16 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         return fRect;
     },
 
+    layoutFeature: function( viewArgs, layout, feature ) {
+        var rect = this.inherited( arguments );
+        if( ! rect ) return rect;
+
+        // need to set the top of the inner rect
+        rect.rect.t = rect.t;
+
+        return rect;
+    },
+
     // given an under-construction feature layout rectangle, expand it
     // to accomodate a label and/or a description
     _expandRectangleWithLabels: function( viewArgs, feature, fRect ) {
