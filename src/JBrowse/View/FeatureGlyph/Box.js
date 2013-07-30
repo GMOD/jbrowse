@@ -82,10 +82,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             var strand = fRect.strandArrow = feature.get('strand');
 
             fRect.w += 9;
-            fRect.rect.w += 9;
             if( strand == -1 ) {
                 fRect.l -= 9;
-                fRect.rect.l -= 9;
             }
         }
 
@@ -257,14 +255,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 this.getEmbeddedImage( 'plus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.rect.l + fRect.rect.w - 9, fRect.t + (fRect.rect.h-img.height)/2 );
+                               context.drawImage( img, fRect.rect.l + fRect.rect.w, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
             else if( fRect.strandArrow == -1 && fRect.rect.l >= 0 ) {
                 this.getEmbeddedImage( 'minus_arrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.rect.l, fRect.t + (fRect.rect.h-img.height)/2 );
+                               context.drawImage( img, fRect.rect.l-9, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
         }
