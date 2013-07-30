@@ -2,11 +2,28 @@ define ([
         'dojo/_base/declare',
         'dojo/_base/array',
         'JBrowse/Model/XHRBlob',
+        'JBrowse/Util',
         'dojo/Deferred',
         'dojo/when',
         'dojo/promise/all'
-    ], function(declare, array, XHRBlob, Deferred, when, all ) {
+    ], function(declare, array, XHRBlob, Util, Deferred, when, all ) {
         
+
+        var Feature = Util.fastDeclare({
+            constructor: function(args) {
+                this.start = args.start;
+                this.end = args.end;
+                this.seq = args.seq;
+                this.seq_id = args.seq_id;
+            },
+            get: function( field ) {
+                return this[field];
+            },
+            tags: function() {
+                return ['seq_id','start','end','seq'];
+            }
+        });
+
         var TWOBIT_MAGIC =[ 26, 65, 39, 67];
 
         return declare(null, {
@@ -20,7 +37,7 @@ define ([
             this.maxChunkSize = args.maxChunkSize || 5000000;
 
             this.chunkCache   = {};
-            this.seqChunkSize = args.seqChunkSize;
+            this.seqChunkSize = args.seqChunkSize || 5000;
             this.seqHeader = [];
         },
 
@@ -59,10 +76,11 @@ define ([
                 var i = 0;
                 for(var seqIndex = 0; seqIndex < this.numSeqs; seqIndex++) {
                     var nameSize = this._toInteger(results, i, i+1); i++;
-                    this.chrToIndex[this._toString(results, i, i+nameSize)] = seqIndex; i += nameSize;
+                    var seqName = this._toString(results, i, i+nameSize);
+                    this.chunkCache[seqName] = [];
+                    this.chrToIndex[seqName] = seqIndex; i += nameSize;
                     this.offset[seqIndex] = this._toInteger(results, i, i + 4); i += 4;
                 }
-                console.log(this.chrToIndex, this.offset);
                 successCallback();
             }), failCallback);
         },
@@ -127,7 +145,6 @@ define ([
             var seqName = query.ref;
 
             this._readSequenceHeader(seqName, dojo.hitch(this, function(header){
-                console.log(header);
                 this._fetchSequence(query, header, callback, endCallback, errorCallback);
             }), errorCallback);
             
@@ -235,7 +252,7 @@ define ([
             for( var i in nBlocks ) {
                 var blockStart = Math.max( 0, nBlocks[i].start - start );
                 var blockLength = nBlocks[i].size + Math.min( 0, nBlocks[i].start - start );
-                blockLength = Math.max( 0, Math.min( blockLength, end - nBlocks[i].start ) );
+                blockLength = Math.max( 0, Math.min( blockLength, end - Math.max( nBlocks[i].start, start ) ) );
                 retString = [ retString.slice( 0, blockStart ), this._nBlock( blockLength ), retString.slice( blockStart + blockLength ) ].join( "" );
             }
             return retString;
@@ -246,7 +263,6 @@ define ([
             for( var i in masks ) {
                 var maskStart = Math.max( 0, masks[i].start - start );
                 var maskLength = masks[i].size + Math.min( 0, masks[i].start - start );
-                console.log(masks[i].start, masks[i].size, maskStart, maskLength);
                 maskLength = Math.max( 0, Math.min( maskLength, end - masks[i].start ) );
                 retString = [ retString.slice( 0, maskStart ),
                     retString.slice(maskStart, maskStart + maskLength).toLowerCase(),
@@ -262,51 +278,136 @@ define ([
         _fetchSequence: function ( query, header, callback, endCallback, errorCallback ) {
             var start = typeof query.start == 'number' ? query.start : parseInt( query.start );
             var end = typeof query.end == 'number' ? query.end : parseInt( query.end );
+            
+            var chunkSize = query.seqChunkSize || ( this.refSeq && this.refSeq.name == query.ref && this.refSeq.seqChunkSize ) || this.seqChunkSize;
+            var firstChunk = Math.floor( Math.max( 0, start ) / chunkSize );
+            var lastChunk = Math.floor( ( end - 1 ) / chunkSize );
+
             var seqname    = query.ref;
             var index = this.chrToIndex[seqname];
             
-            var i = 0;
+            // if a callback spans more than one chunk, we need to wrap the
+            // callback in another one that will be passed to each chunk to
+            // concatenate the different pieces from each chunk and *then*
+            // call the main callback
+            callback = (function() {
+                            var chunk_seqs = [],
+                            chunks_still_needed = lastChunk-firstChunk+1,
+                            orig_callback = callback;
+                            return function( start, end, seq, chunkNum) {
+                                chunk_seqs[chunkNum] = seq;
+                                if( --chunks_still_needed == 0 ) {
+                                    orig_callback( new Feature({seq_id: query.ref, start: start, end: end, seq: chunk_seqs.join("")}) );
+                                    if( endCallback )
+                                        endCallback();
+                                }
+                            };
+                        })();
 
-            var nBlocksToApply = [];
+            var callbackInfo = { start: start, end: end, success: callback, error: errorCallback  };
 
-            while( header.nBlocks[i] && header.nBlocks[i].start + header.nBlocks[i].size <= start)  {
-                i++;
+            if( !this.chunkCache[seqname] ) {
+                this.chunkCache[seqname] = [];
             }
 
-            while( header.nBlocks[i] && header.nBlocks[i].start < end ) {
-                nBlocksToApply.push( header.nBlocks[i] );
-                i++;
-            }
+            var chunkCacheForSeq = this.chunkCache[seqname];
 
-            i = 0;
-            var masksToApply = [];
-            while( header.masks[i] && header.masks[i].start + header.masks[i].size <= start ) {
-                i++;
-            }
+            for (var j = firstChunk; j <= lastChunk; j++) {
+                //console.log("working on chunk %d for %d .. %d", i, start, end);
 
-            while( header.masks[i] && header.masks[i].start < end ) {
-                masksToApply.push( header.masks[i] );
-                i++;
-            }
+                var chunk = chunkCacheForSeq[j];
+                if (chunk) {
+                    if (chunk.loaded) {
+                        callback( start,
+                                  end,
+                                  chunk.sequence.substring(
+                                      start - j*chunkSize,
+                                      end - j*chunkSize
+                                  ),
+                                  j
+                                );
+                    }
+                    else if( chunk.error ) {
+                        errorCallback( chunk.error );
+                    }
+                    else {
+                        //console.log("added callback for %d .. %d", start, end);
+                        chunk.callbacks.push(callbackInfo);
+                    }
+                } else {
+                    chunkCacheForSeq[j] = {
+                        loaded: false,
+                        num: j,
+                        callbacks: [callbackInfo]
+                    };
 
-            // dataStart and dataEnd are still in bp, so we must convert them to bytes.
-            var byteStart = header.dnaStart + Math.floor( start / 4 );
-            var sliceStart = start % 4;
+                    var blockStart = j * chunkSize;
+                    var blockEnd = ( j + 1 ) * chunkSize;
 
-            var byteEnd = header.dnaStart + Math.ceil( end / 4 );
-            var sliceEnd = sliceStart + (end - start);
+                    var i = 0;
 
-            var byteLength = byteEnd - byteStart - 1;
+                    var nBlocksToApply = [];
+                    while( header.nBlocks[i] && header.nBlocks[i].start + header.nBlocks[i].size <= blockStart )  {
+                        i++;
+                    }
 
-            if( byteLength >= 0) {
-                this.data.read(byteStart, byteLength, dojo.hitch( this, function( results ) {
-                    var byteArray = this._toByteArray( results );
-                    var baseString = this._toBaseString( byteArray );
-                    baseString = baseString.slice(sliceStart, sliceEnd);
-                    baseString = this._applyNBlocks( baseString, start, end, nBlocksToApply );
-                    baseString = this._applyMasks( baseString, start, end, masksToApply );
-                    console.log( baseString );
-                }), errorCallback );
+                    while( header.nBlocks[i] && header.nBlocks[i].start < blockEnd ) {
+                        nBlocksToApply.push( header.nBlocks[i] );
+                        i++;
+                    }
+
+                    i = 0;
+                    var masksToApply = [];
+                    while( header.masks[i] && header.masks[i].start + header.masks[i].size <= blockStart ) {
+                        i++;
+                    }
+
+                    while( header.masks[i] && header.masks[i].start < blockEnd ) {
+                        masksToApply.push( header.masks[i] );
+                        i++;
+                    }
+
+                    // dataStart and dataEnd are still in bp, so we must convert them to bytes.
+                    var byteStart = header.dnaStart + Math.floor( blockStart / 4 );
+                    var sliceStart = blockStart % 4;
+
+                    var byteEnd = header.dnaStart + Math.ceil( blockEnd / 4 );
+                    var sliceEnd = sliceStart + (blockEnd - blockStart);
+
+                    var byteLength = byteEnd - byteStart - 1;
+
+                    if( byteLength >= 0) {
+                        this.data.read(byteStart, byteLength, dojo.hitch( this, function(chunkRecord, results ) {
+                            var byteArray = this._toByteArray( results );
+                            var baseString = this._toBaseString( byteArray );
+                            baseString = baseString.slice(sliceStart, sliceEnd);
+                            baseString = this._applyNBlocks( baseString, blockStart, blockEnd, nBlocksToApply );
+                            baseString = this._applyMasks( baseString, blockStart, blockEnd, masksToApply );
+                            chunkRecord.sequence = baseString;
+                            chunkRecord.loaded = true;
+                            array.forEach( chunkRecord.callbacks, function(ci) {
+                                            ci.success( ci.start,
+                                                        ci.end,
+                                                        baseString.substring( ci.start - chunkRecord.num*chunkSize,
+                                                                            ci.end   - chunkRecord.num*chunkSize
+                                                                          ),
+                                                        chunkRecord.num
+                                                       );
+                                        });
+
+                            delete chunkRecord.callbacks;
+
+                        }, chunkCacheForSeq[j] ),
+                        dojo.hitch( this, function( chunkRecord, error ) {
+                            chunkRecord.error = error;
+                            array.forEach( chunkRecord.callbacks, function(ci) {
+                                ci.error(error);
+                            });
+                            delete chunkRecord.callbacks;
+                        }), chunkCacheForSeq[j] );
+                    }
+
+                }
             }
 
         }
