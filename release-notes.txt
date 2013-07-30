@@ -141,6 +141,9 @@
 
 ## Bug fixes
 
+ * Fixed a bug that prevented clicking on features in Alignments2 (and
+   other canvas feature tracks) in Internet Explorer.
+
  * Fixed a bad design decision with respect to track metadata stores.
    Before, a given metadata key ("Category", "Conditions", etc) was
    allowed to only be present in one source of track metadata (CSV

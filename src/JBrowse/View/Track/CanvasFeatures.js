@@ -425,8 +425,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             // make features get highlighted on mouse move
             block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
                                domGeom.normalizeEvent( evt );
-                               var bpX = evt.layerX / block.scale + block.startBase;
-                               var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                               var bpX = evt.offsetX / block.scale + block.startBase;
+                               var feature = thisB.layout.getByCoord( bpX, evt.offsetY );
                                thisB.mouseoverFeature( feature );
                            }));
             block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
@@ -446,8 +446,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                  block.own(
                      on( block.featureCanvas, event, function( evt ) {
                              domGeom.normalizeEvent( evt );
-                             var bpX = evt.layerX / block.scale + block.startBase;
-                             var feature = thisB.layout.getByCoord( bpX, evt.layerY );
+                             var bpX = evt.offsetX / block.scale + block.startBase;
+                             var feature = thisB.layout.getByCoord( bpX, evt.offsetY );
                              if( feature ) {
                                  var fRect = block.fRectIndex.getByID( feature.id() );
                                  handler.call({
