@@ -18,11 +18,11 @@ _defaultConfig: function() {
         this.inherited(arguments),
         {
             style: {
-                connector_color: '#333',
-                connector_thickness: 1,
-                border_color: 'rgba( 0, 0, 0, 0.3 )'
+                connectorColor: '#333',
+                connectorThickness: 1,
+                borderColor: 'rgba( 0, 0, 0, 0.3 )'
             },
-            sub_parts: function() { return true; } // accept all subparts by default
+            subParts: function() { return true; } // accept all subparts by default
         });
 },
 
@@ -39,10 +39,10 @@ renderFeature: function( context, fRect ) {
 
 renderConnector: function( context, fRect ) {
     // connector
-    var connectorColor = this.getStyle( fRect.f, 'connector_color' );
+    var connectorColor = this.getStyle( fRect.f, 'connectorColor' );
     if( connectorColor ) {
         context.fillStyle = connectorColor;
-        var connectorThickness = this.getStyle( fRect.f, 'connector_thickness' );
+        var connectorThickness = this.getStyle( fRect.f, 'connectorThickness' );
         context.fillRect(
             fRect.rect.l, // left
             Math.round(fRect.rect.t+(fRect.rect.h-connectorThickness)/2), // top
@@ -80,7 +80,7 @@ _filterSubpart: function( f ) {
 // make a function that will filter subpart features according to the
 // sub_parts conf var
 _makeSubpartsFilter: function( f ) {
-    var filter = this.getConf( 'sub_parts' );
+    var filter = this.getConf( 'subParts' );
 
     if( typeof filter == 'string' )
         // convert to array

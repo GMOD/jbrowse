@@ -19,7 +19,7 @@ _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),
         {
-            transcript_type: 'mRNA',
+            transcriptType: 'mRNA',
             style: {
                 transcriptLabelFont: 'normal 10px Univers,Helvetica,Arial,sans-serif',
                 transcriptLabelColor: 'black',
@@ -59,9 +59,9 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         // sort the children by name
         subfeatures.sort( function( a, b ) { return (a.get('name') || '').localeCompare( b.get('name')||'' ); } );
 
-        var transcript_type = this.getConfForFeature( 'transcript_type', feature );
+        var transcriptType = this.getConfForFeature( 'transcriptType', feature );
         for( var i = 0; i < subfeatures.length; i++ ) {
-            var subRect = ( subfeatures[i].get('type') == transcript_type
+            var subRect = ( subfeatures[i].get('type') == transcriptType
                             ? this._ptGlyph()
                             : this._boxGlyph()
                           )._getFeatureRectangle( subArgs, subfeatures[i] );

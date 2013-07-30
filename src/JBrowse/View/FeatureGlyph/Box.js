@@ -31,8 +31,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
                     color: 'goldenrod',
                     mouseovercolor: 'rgba(0,0,0,0.3)',
-                    border_color: null,
-                    border_width: 0.5,
+                    borderColor: null,
+                    borderWidth: 0.5,
                     height: 11,
                     marginBottom: 2,
 
@@ -136,8 +136,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     _imgData: {
-         plus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
-         minus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="
+         plusArrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
+         minusArrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="
     },
 
     /**
@@ -201,7 +201,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         // foreground border
         var borderColor, lineWidth;
-        if( (borderColor = style( feature, 'border_color' )) && ( lineWidth = style( feature, 'border_width')) ) {
+        if( (borderColor = style( feature, 'borderColor' )) && ( lineWidth = style( feature, 'borderWidth')) ) {
             if( width > 3 ) {
                 context.lineWidth = lineWidth;
                 context.strokeStyle = borderColor;
@@ -252,14 +252,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fRect.rect.l+fRect.rect.w <= context.canvas.width ) {
-                this.getEmbeddedImage( 'plus_arrow' )
+                this.getEmbeddedImage( 'plusArrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
                                context.drawImage( img, fRect.rect.l + fRect.rect.w, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
             else if( fRect.strandArrow == -1 && fRect.rect.l >= 0 ) {
-                this.getEmbeddedImage( 'minus_arrow' )
+                this.getEmbeddedImage( 'minusArrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
                                context.drawImage( img, fRect.rect.l-9, fRect.t + (fRect.rect.h-img.height)/2 );

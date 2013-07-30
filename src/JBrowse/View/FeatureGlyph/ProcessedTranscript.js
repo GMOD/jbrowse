@@ -18,11 +18,11 @@ _defaultConfig: function() {
         this.inherited(arguments),
         {
             style: {
-                utr_color: function( feature, variable, glyph, track ) {
+                utrColor: function( feature, variable, glyph, track ) {
                     return glyph._utrColor( glyph.getStyle( feature.parent(), 'color' ) ).toString();
                 }
             },
-            sub_parts: 'CDS, UTR, five_prime_UTR, three_prime_UTR'
+            subParts: 'CDS, UTR, five_prime_UTR, three_prime_UTR'
         });
 },
 
@@ -37,7 +37,7 @@ _isUTR: function( feature ) {
 getStyle: function( feature, name ) {
     if( name == 'color' ) {
         if( this._isUTR( feature ) )
-            return this.getStyle( feature, 'utr_color' );
+            return this.getStyle( feature, 'utrColor' );
     }
 
     return this.inherited(arguments);
