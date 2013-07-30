@@ -19,7 +19,7 @@ _defaultConfig: function() {
         {
             style: {
                 connector_color: '#333',
-                connector_height: 1,
+                connector_thickness: 1,
                 border_color: 'rgba( 0, 0, 0, 0.3 )'
             },
             sub_parts: function() { return true; } // accept all subparts by default
@@ -42,12 +42,12 @@ renderConnector: function( context, fRect ) {
     var connectorColor = this.getStyle( fRect.f, 'connector_color' );
     if( connectorColor ) {
         context.fillStyle = connectorColor;
-        var connectorHeight = this.getStyle( fRect.f, 'connector_height' );
+        var connectorThickness = this.getStyle( fRect.f, 'connector_thickness' );
         context.fillRect(
             fRect.rect.l, // left
-            Math.round(fRect.rect.t+(fRect.rect.h-connectorHeight)/2), // top
+            Math.round(fRect.rect.t+(fRect.rect.h-connectorThickness)/2), // top
             fRect.rect.w, // width
-            connectorHeight
+            connectorThickness
         );
     }
 },
