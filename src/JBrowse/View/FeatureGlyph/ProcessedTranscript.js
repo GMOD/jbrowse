@@ -31,7 +31,7 @@ _utrColor: function( baseColor ) {
 },
 
 _isUTR: function( feature ) {
-    return /[\b_]UTR\b|\buntranslated[_\s]region\b/.test( feature.get('type') || '' );
+    return /(\bUTR|_UTR|untranslated[_\s]region)\b/.test( feature.get('type') || '' );
 },
 
 getStyle: function( feature, name ) {
