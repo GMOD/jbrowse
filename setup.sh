@@ -101,7 +101,7 @@ echo -n "Building and installing legacy wiggle format support (superseded by Big
 done_message "" "Make sure libpng development libraries and header files are installed.";
 
 echo
-echo -n "Building and installing legacy BAM support (bam-to-json.pl, samtools, and Bio::DB::Sam) ...";
+echo -n "Building and installing legacy bam-to-json.pl support (superseded by direct BAM tracks) ...";
 (
     set -e;
 
