@@ -68,6 +68,13 @@
    GenBank-format text file as input for loading annotation data.
    Thanks to Justin Reese for the initial implementation of this.
 
+ * When formatting features with `flatfile-to-json.pl`, multi-valued
+   feature attributes are now only flattened (renamed foo, foo2, foo3,
+   etc) for "name", "id", "start", "end", "score", "strand",
+   "description", and "note" attributes.  Formerly, all attributes
+   were flattened.  This improves the default display of features that
+   have many values for some attributes, such as Dbxrefs or GO terms.
+
  * Further improved scrolling smoothness of HTML-based feature tracks.
 
  * `flatfile-to-json.pl` now supports a `--trackType` option that can
