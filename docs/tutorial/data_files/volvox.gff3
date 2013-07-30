@@ -19,6 +19,7 @@ ctgA	example	remark	46990	48410	.	-	.	Name=f11
 ctgA	example	remark	49758	50000	.	-	.	Name=f12
 
 ctgA	example	SNP	1000	1000	0.987	.	.	ID=FakeSNP1;Name=FakeSNP;Note=This is a fake SNP that should appear at 1000 with length 1	
+
 ctgA	example	remark	1000	2000	.	.	.	Name=Remark:hga;Alias=hga
 ctgA	example	protein_coding_primary_transcript	1100	2000	.	+	.	Name=Gene:hga;Alias=hga
 ctgA	example	polypeptide	1200	1900	.	+	.	Name=Protein:HGA;Alias=hga
@@ -192,15 +193,15 @@ ctgA	example	match	47858	47979	.	-	.	Name=seg15
 ctgA	example	match	48169	48453	.	-	.	Name=seg15
 
 # single exon gene - one CDS only
-ctgA	predicted	CDS	10000	11500	.	+	0	Name=Apple1
+ctgA	bare_predicted	CDS	10000	11500	.	+	0	Name=Apple1;Note=CDS with no parent
 
 # multi-exon gene - several linked CDSs
-ctgA	predicted	mRNA	13000	17200	.	+	0	ID=cds-Apple2;Name=Apple2
-ctgA	predicted	CDS	13000	13800	.	+	0	Parent=cds-Apple2
+ctgA	predicted	mRNA	13000	17200	.	+	0	ID=cds-Apple2;Name=Apple2;Note=mRNA with CDSs but no UTRs
+ctgA	predicted	CDS	13500	13800	.	+	0	Parent=cds-Apple2
 ctgA	predicted	CDS	15000	15500	.	+	1	Parent=cds-Apple2
-ctgA	predicted	CDS	17000	17200	.	+	2	Parent=cds-Apple2
+ctgA	predicted	CDS	16500	17000	.	+	2	Parent=cds-Apple2
 
-ctgA	exonerate	mRNA	17400	23000	.	+	.	ID=rna-Apple3;Name=Apple3;Note=Predicted
+ctgA	exonerate	mRNA	17400	23000	.	+	.	ID=rna-Apple3;Name=Apple3;Note=mRNA with both CDSs and UTRs
 ctgA	exonerate	UTR	17400	17999	.	+	.	Parent=rna-Apple3
 ctgA	exonerate	CDS	18000	18800	.	+	0	Parent=rna-Apple3
 ctgA	exonerate	CDS	19000	19500	.	+	1	Parent=rna-Apple3
