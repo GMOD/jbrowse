@@ -22,6 +22,7 @@ require([
             'JBrowse/View/Track/FeatureCoverage',
             'JBrowse/View/Track/SNPCoverage',
 
+            // track lists
             'JBrowse/View/TrackList/Simple',
             'JBrowse/Store/TrackMetaData',
 
