@@ -1,10 +1,5 @@
 
-.combination_track.empty {
-    background: #aaa;
-    background: rgba(0,0,0,0.1);
-}
-
-.combination_track.empty.pinned {
+.combination_track.empty, .combination_track.empty.pinned {
     background: #aaa;
     background: rgba(0,0,0,0.1);
 }
