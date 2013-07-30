@@ -4,6 +4,10 @@
     background: rgba(0,0,0,0.1);
 }
 
+.combination_track.empty.pinned {
+    background: #aaa;
+    background: rgba(0,0,0,0.1);
+}
 
 .combinationDialog .formulaPreview {
     text-align: center;
