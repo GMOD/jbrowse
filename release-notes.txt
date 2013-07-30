@@ -52,6 +52,9 @@
    cracks.  Thanks to Valerie Wong for pointing this out at the 2013
    GMOD Summer School!
 
+ * Statistics about a track's features are now shown in its "About
+   this track" dialog, if available.
+
  * Added support for a --reftypes argument to `prepare-refseqs.pl`,
    allowing you to search a database for reference sequences based on
    the type of the reference sequences, e.g. 'chromosome'.  Thanks to
