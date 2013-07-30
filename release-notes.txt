@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+ * Fixed a bug in which turning off the HTMLFeatures track's "Show
+   Labels" did not remove labels for features with descriptions. 
+
  * Added powerful combination tracks, which can combine data from
    multiple other tracks using range, arithmetic, or masking
    operations.  For example, a BigWig track can be masked to highlight
