@@ -85,14 +85,14 @@ sub tempdir {
                ) or diag explain $names_output;
 
     my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.jsonz ));
-    is( $cds_trackdata->{featureCount}, 3, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
+    is( $cds_trackdata->{featureCount}, 2, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
     is( scalar( @{$cds_trackdata->{histograms}{meta}}),
         scalar( @{$cds_trackdata->{histograms}{stats}}),
         'have stats for each precalculated hist' );
 
-    is( ref $cds_trackdata->{intervals}{nclist}[2][10], 'ARRAY', 'exonerate mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[1][10], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[2][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[1][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
     my $tracklist = $read_json->('trackList.json');
     is( $tracklist->{tracks}[1]{storeClass}, 'JBrowse/Store/SeqFeature/NCList' );
