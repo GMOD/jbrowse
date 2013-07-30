@@ -18,7 +18,7 @@ release: release-normal release-min release-normal-test release-min-test release
 	sha1sum *.zip
 
 release-notes.html: release-notes.txt
-	markdown release-notes.txt > $@
+	perl -MText::Markdown=markdown -e 'local $$/; print markdown(scalar <>)' $< > $@
 
 release-normal: superclean $(JS_SRCFILES)
 	mkdir $(RELEASE_FULL_DIR);  cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
@@ -28,7 +28,7 @@ release-normal: superclean $(JS_SRCFILES)
 	perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
 
         # date stamp the release notes
-	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/$(RELEASE_VERSION)     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
+	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/# Release $(RELEASE_VERSION)     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt
 	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
 

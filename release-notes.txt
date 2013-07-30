@@ -1,7 +1,6 @@
 {{$NEXT}}
 
- * Fixed a bug in which turning off the HTMLFeatures track's "Show
-   Labels" did not remove labels for features with descriptions. 
+## Major improvements
 
  * Added powerful combination tracks, which can combine data from
    multiple other tracks using range, arithmetic, or masking
@@ -50,6 +49,15 @@
    tracks are scrolled vertically.  Thanks to the WebApollo project
    for suggesting this.
 
+ * Integrated a `maker2jbrowse` script into the core JBrowse
+   distribution.  You can now visualize your MAKER results in JBrowse
+   with a single command:
+       `bin/maker2jbrowse -d /path/to/your/maker/master_datastore_index.log`
+   Thanks to the MAKER team and Yandell lab for providing the initial
+   implementation of `maker2jbrowse`.
+
+## Minor improvements
+
  * Added "Save track data" option to Alignments2 tracks.  This option
    should have been there all along, but somehow slipped through the
    cracks.  Thanks to Valerie Wong for pointing this out at the 2013
@@ -87,13 +95,6 @@
    set the JavaScript track class that will be used for the formatted
    data (e.g. "JBrowse/View/Track/CanvasFeatures" to use the new,
    improved HTML5 canvas-based feature tracks).
-
- * Integrated a `maker2jbrowse` script into the core JBrowse
-   distribution.  You can now visualize your MAKER results in JBrowse
-   with a single command:
-       `bin/maker2jbrowse -d /path/to/your/maker/master_datastore_index.log`
-   Thanks to the MAKER team and Yandell lab for providing the initial
-   implementation of `maker2jbrowse`.
 
  * `prepare-refseqs.pl` can now format reference sequences from a
    common .sizes (aka .len) file that is just a two-column
@@ -138,6 +139,8 @@
    other promise object that will provide the content to be shown
    asynchronously.
 
+## Bug fixes
+
  * Fixed a bad design decision with respect to track metadata stores.
    Before, a given metadata key ("Category", "Conditions", etc) was
    allowed to only be present in one source of track metadata (CSV
@@ -146,6 +149,9 @@
    kind of metadata in only one place.  This was silly thinking.
    Thanks to the 2013 GMOD Summer School participants for helping me
    to see the error of my ways.
+
+ * Fixed a bug in which turning off the HTMLFeatures track's "Show
+   Labels" did not remove labels for features with descriptions.
 
  * Fixed a bug with `prepare-refseqs.pl` in which, when multiple
    definitions of a reference sequence are found (as in a GFF3 file
@@ -221,7 +227,7 @@
    start, end, strand, and score to be numeric if the input JSON had
    them as strings.
 
-1.9.8     2013-07-05 09:22:36 EST5EDT
+# Release 1.9.8     2013-07-05 09:22:36 EST5EDT
 
  * Removed "XX has no data for this chromosome" popup warning message.
    It was just annoying and not very useful.
@@ -249,7 +255,7 @@
    '/' where one would expect.  Thanks to Alex Kalderimis for pointing
    this out.
 
-1.9.7     2013-06-25 15:41:22 Asia/Tokyo
+# Release 1.9.7     2013-06-25 15:41:22 Asia/Tokyo
 
  * Fixed a bug in which the initial viewing location (passed from a
    URL parameter or similar) is not always set correctly in all parts
@@ -264,7 +270,7 @@
    configured minimum value.  Thanks to GitHub user drusch for
    pointing this out.
 
-1.9.6     2013-06-18 14:57:26 EST5EDT
+# Release 1.9.6     2013-06-18 14:57:26 EST5EDT
 
  * Fixed a bug in which the reference sequence selection dropdown menu
    did not work for purely numeric reference sequence names.  Thanks
@@ -282,8 +288,7 @@
    ultimately store the name index.  Thanks to Alexie Papanicolaou for
    suggesting this. (issue #273).
 
-
-1.9.5     2013-06-12 12:35:53 EST5EDT
+# Release 1.9.5     2013-06-12 12:35:53 EST5EDT
 
  * Added an `trackSelector.initialSortColumn` configuration variable
    to the faceted track selector that can be used to set the initial
@@ -346,7 +351,7 @@
  * Added a workaround for problems with some types of nonstandard Perl
    installations.  Thanks to Rebecca Boes for pointing this out.
 
-1.9.4     2013-05-22 14:03:32 EST5EDT
+# Release 1.9.4     2013-05-22 14:03:32 EST5EDT
 
  * Fixed a bug with configuration handling that preventing disabling
    right-click feature menus, and probably had other undesirable
@@ -375,7 +380,7 @@
    src/dijit/_editor/nls/commands.js is missing.  Thanks to Steffi
    Geisen for pointing this out.
 
-1.9.3     2013-05-09 12:42:39 EST5EDT
+# Release 1.9.3     2013-05-09 12:42:39 EST5EDT
 
  * Fixed a bug in VCF backend that prevented display of VCF features
    containing lines in which the ALT column was '.' or not provided.
@@ -388,7 +393,7 @@
  * Fixed issue with HTMLVariants track type not being available for
    selection from the File->Open dialog.
 
-1.9.2     2013-05-02 13:30:12 EST5EDT
+# Release 1.9.2     2013-05-02 13:30:12 EST5EDT
 
  * Fixed bug in which JBrowse could not properly display all data in
    BAM files with reference sequence name sections bigger than 64KB.
@@ -417,7 +422,7 @@
    selector downward, so that it does not block access to the left
    side of the reference sequence overview.
 
-1.9.1     2013-04-25 12:02:25 EST5EDT
+# Release 1.9.1     2013-04-25 12:02:25 EST5EDT
 
  * Significant speed and memory optimizations in BAM data backend
    (issue #242).
@@ -490,7 +495,7 @@
  * Fixed "Max height reached" message sometimes being drawn under
    instead of over HTML-based features.
 
-1.9.0     2013-04-16 18:59:19 EST5EDT
+# Release 1.9.0     2013-04-16 18:59:19 EST5EDT
 
  * Added a direct-access data backend for reading variation data
    directly from VCF files that have been compressed with `bgzip` and
@@ -645,7 +650,7 @@
  * Fixed a bug with handling of timeout events in HTMLFeatures tracks.
    Thanks to Matt Henderson of KBase for pointing this out.
 
-1.8.1     2013-02-12 12:56:24 EST5EDT
+# Release 1.8.1     2013-02-12 12:56:24 EST5EDT
 
  * Added support for `cigarAttribute` and `mdAttributes` configuration
    variables to Alignments and Alignments2 tracks, allowing users to
@@ -674,7 +679,7 @@
  * Fixed annoying bug in which popup feature detail boxes are
    initially scrolled all the way to the bottom.
 
-1.8.0     2013-01-31 14:05:27 America/New_York
+# Release 1.8.0     2013-01-31 14:05:27 America/New_York
 
  * Added new "File -> Open" function that can display BAM, BigWig, and
    GFF3 files located on the user's machine, at remote URLs, or a
@@ -738,12 +743,12 @@
 
  * Fixed yet another bug that prevented display of some types of BAM files.
 
-1.7.6     2013-01-10 01:25:58 America/New_York
+# Release 1.7.6     2013-01-10 01:25:58 America/New_York
 
  * Fixed a bug in the BAM direct-access backend that prevented some
    BAM files from being displayed.
 
-1.7.5     2012-12-12 13:40:12 America/New_York
+# Release 1.7.5     2012-12-12 13:40:12 America/New_York
 
  * Fixed a bug in which typing a key that is bound to a global
    keyboard shortcut (currently only 't' or '?') in the location box
@@ -757,7 +762,7 @@
    equal percentage of the total width of the grid.  Thanks to Steffi
    Geisen for pointing this out.
 
-1.7.4     2012-12-06 23:08:22 America/New_York
+# Release 1.7.4     2012-12-06 23:08:22 America/New_York
 
  * Fixed a bug preventing loading of JBrowse in some browsers.  Thanks
    to Steffi Geisen for pointing this out.
@@ -779,7 +784,7 @@
 
  * Fixed blurry edges of location trapezoid in Firefox (Eric Derohanian).
 
-1.7.3     2012-11-28 23:29:48 America/New_York
+# Release 1.7.3     2012-11-28 23:29:48 America/New_York
 
  * Fixed several more bugs in the BAM data backend that prevented
    display of some BAM files.  Thanks to Gleb Kuznetzov for help in
@@ -814,13 +819,13 @@
    circumstances.  Thanks to Volodymyr Zavidovych and Steffi Geisen
    for pointing this out.
 
-1.7.2     2012-11-09 15:40:06 America/New_York
+# Release 1.7.2     2012-11-09 15:40:06 America/New_York
 
  * Fixed more bugs in BAM backends that failed to load some types of
    BAM files, including BAM files containing no alignments.  Thanks to
    John St. John for his assistance in isolating the problem.
 
-1.7.1     2012-11-07 11:25:39 America/New_York
+# Release 1.7.1     2012-11-07 11:25:39 America/New_York
 
  * Fixed bug in which bars below the origin of `Wiggle/XYPlot` were
    drawn incorrectly (issue #161).  Thanks to GitHub user @makela for
@@ -834,7 +839,7 @@
    browser crash with some BAM files.  Thanks to Gleb Kuznetzov for
    pointing this out.
 
-1.7.0     2012-11-05 19:22:17 America/New_York
+# Release 1.7.0     2012-11-05 19:22:17 America/New_York
 
  * Added a new direct-access storage driver for BAM files, removing
    the need for `bam-to-json.pl`.  This new method of BAM access is
@@ -943,7 +948,7 @@
  * Fixed bug in which the score display in Wiggle tracks would
    sometimes flicker when moving the mouse.
 
-1.6.5     2012-10-26 12:10:08 America/New_York
+# Release 1.6.5     2012-10-26 12:10:08 America/New_York
 
  * The location box now shows the length of the currently visible
    region in parentheses.  For example: `ctgB:1244..3566 (2.32 Kb)`.
@@ -987,7 +992,7 @@
  * Fixed bugs in which both the first few and the last few bases of a
    reference sequence were not displaying correctly in a DNA track.
 
-1.6.4     2012-10-16 11:50:44 America/New_York
+# Release 1.6.4     2012-10-16 11:50:44 America/New_York
 
  * Improvements to the scalability of `generate-names.pl`.  Many
    thanks to Steffi Geisen for her ongoing help with this.
@@ -1007,7 +1012,7 @@
    automatically update in all situations to reflect the current
    reference sequence.
 
-1.6.3     2012-09-28 11:33:36 America/New_York
+# Release 1.6.3     2012-09-28 11:33:36 America/New_York
 
  * Fixed bug with shift-rubberband-zooming not working on Windows
    (issue #150) (Erik Derohanian).
@@ -1035,7 +1040,7 @@
    allow customizing the appearance of the label for a particular
    track (issue #4) (Erik Derohanian).
 
-1.6.2     2012-09-10 17:47:43 America/New_York
+# Release 1.6.2     2012-09-10 17:47:43 America/New_York
 
  * Fixed feature-layout performance problem when zoomed very far in
    on features that are much larger than the viewing window.
@@ -1051,7 +1056,7 @@
  * `bin/add-track-json.pl` now replaces tracks in the target
    configuration if they have the same label.
 
-1.6.1     2012-08-28 16:50:41 America/New_York
+# Release 1.6.1     2012-08-28 16:50:41 America/New_York
 
  * JBrowse now attempts to prevent feature labels being obscured by
    track labels by keeping the feature labels a bit further away from
@@ -1067,7 +1072,7 @@
    important bugfix related to multi-location features (issue #109).
    Thanks to Victor Poten for help in isolating this problem.
 
-1.6.0     2012-08-25 18:04:44 America/New_York
+# Release 1.6.0     2012-08-25 18:04:44 America/New_York
 
  * Added `description` capabilities to HTML-based features, similar to
    GBrowse's descriptions.  If zoomed in far enough (as defined by
@@ -1111,7 +1116,7 @@
  * Fixed a bug with vertical centering of strand arrows and other
    sub-elements of HTML-based features.
 
-1.5.0     2012-08-13 15:37:27 America/New_York
+# Release 1.5.0     2012-08-13 15:37:27 America/New_York
 
  * Added a direct-access storage driver for BigWig data files, based
    on code from the Dalliance Genome Explorer by Thomas Down.  BigWig
@@ -1159,13 +1164,13 @@
    strand.  All elements in a feature are now vertically centered by
    default.
 
-1.4.2     2012-07-12 15:38:55 America/New_York
+# Release 1.4.2     2012-07-12 15:38:55 America/New_York
 
  * Restore support for histScale, subfeatureScale, and labelScale in
    --clientConfig and track configuration JSON.  Thanks to Hernán
    Bondino for pointing this out.
 
-1.4.1     2012-07-10 14:58:34 America/New_York
+# Release 1.4.1     2012-07-10 14:58:34 America/New_York
 
  * Made displayColumns option for the faceted track selector
    case-insensitive, and interpret a column name of "Name" as meaning
@@ -1178,7 +1183,7 @@
  * Introduced limits on the sizes of cookies that can be set,
    preventing '400 bad request' errors (issue #113).
 
-1.4.0     2012-06-14 17:43:50 America/New_York
+# Release 1.4.0     2012-06-14 17:43:50 America/New_York
 
  * Added a full-featured faceted track selector for users that have
    many (hundreds or thousands) of tracks.  This can be turned on by
@@ -1217,7 +1222,7 @@
    disable usage statistics by setting "suppressUsageStatistics: true"
    in the JBrowse configuration.
 
-1.3.1     2012-04-19 17:55:44 America/New_York
+# Release 1.3.1     2012-04-19 17:55:44 America/New_York
 
  * Fixed memory-management bug that caused way too much RAM to be used
    by FeatureTrack loading (flatfile, bam, and biodb-to-json.pl) when
@@ -1234,7 +1239,7 @@
  * flatfile-to-json.pl now loads the 'score' attribute of features in the
    JSON.
 
-1.3.0     2012-04-13 17:04:30 America/New_York
+# Release 1.3.0     2012-04-13 17:04:30 America/New_York
 
  * Added support for "rubberband" dynamic zooming, in which users can
    click and drag to select a region to zoom to.  Dragging on any
