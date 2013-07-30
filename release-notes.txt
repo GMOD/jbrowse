@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+ * Added powerful combination tracks, which can combine data from
+   multiple other tracks using range, arithmetic, or masking
+   operations.  For example, a BigWig track can be masked to highlight
+   only regions that lie within features from a BAM track.  Or the
+   intersection of two or more feature tracks can be calculated.  To
+   create a combination track, select "File->Add combination track"
+   from the menu bar, and then add tracks to the new combination track
+   by dragging them into it.  A huge thanks to OICR co-op students
+   Julien Smith-Roberge and Daniel Kasenberg for implementing this
+   powerful feature. It's a very significant accomplishment!
+
  * Added "normal", "compact", and "collapsed" feature layout options
    for canvas-based feature tracks (currently just Alignments2
    tracks).  Thanks to OICR co-op student Daniel Kasenberg for
