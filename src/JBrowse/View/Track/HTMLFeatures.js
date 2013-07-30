@@ -971,7 +971,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             layoutEnd = Math.max(layoutEnd, layoutStart + (''+name).length * this.labelWidth / scale );
             levelHeight += this.labelHeight + this.labelPad;
         }
-        if( description ) {
+        if( this.showLabels && description ) {
             layoutEnd = Math.max( layoutEnd, layoutStart + (''+description).length * this.labelWidth / scale );
             levelHeight += this.labelHeight + this.labelPad;
         }
@@ -1088,8 +1088,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 break;
             }
         }
-
-        if (name && this.showLabels && scale >= labelScale || description ) {
+        if ( ( name || description ) && this.showLabels && scale >= labelScale ) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label" + ( highlighted ? ' highlighted' : '' ),
                     innerHTML:  ( name ? '<div class="feature-name">'+name+'</div>' : '' )
