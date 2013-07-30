@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.0     2013-07-30 14:25:06 EST5EDT
+
 ## Major improvements
 
  * Added powerful combination tracks, which can combine data from
