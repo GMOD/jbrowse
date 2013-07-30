@@ -27,7 +27,7 @@ define( [
          */
         constructor: function( args ) {
             
-            var blob = new XHRBlob("http://localhost/jbrowse-1/data/hg19.2bit");
+            var blob = new XHRBlob("http://localhost/jbrowse-1/sample_data/json/hg19/seq/hg19.2bit");
             
             this.twoBit = new TwoBitFile({
                 data: blob,
