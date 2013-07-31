@@ -1,12 +1,13 @@
 define ([
         'dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/_base/lang',
         'JBrowse/Model/XHRBlob',
         'JBrowse/Util',
         'dojo/Deferred',
         'dojo/when',
         'dojo/promise/all'
-    ], function(declare, array, XHRBlob, Util, Deferred, when, all ) {
+    ], function(declare, array, lang, XHRBlob, Util, Deferred, when, all ) {
         
 
         var Feature = Util.fastDeclare({
@@ -37,6 +38,8 @@ define ([
             this.maxChunkSize = args.maxChunkSize || 5000000;
 
             this.chunkCache   = {};
+            this.headers = {};
+
             this.seqChunkSize = args.seqChunkSize || 5000;
             this.seqHeader = [];
         },
@@ -143,15 +146,45 @@ define ([
             errorCallback = errorCallback || function(e) { console.error(e); };
 
             var seqName = query.ref;
+            var callbackInfo = { query: query, seqFunc: dojo.hitch(this, "_fetchSequence"), callback: callback, endCallback: endCallback, errorCallback: errorCallback };
+            var seqHeader = this.headers[seqName];
 
-            this._readSequenceHeader(seqName, dojo.hitch(this, function(header){
-                this._fetchSequence(query, header, callback, endCallback, errorCallback);
-            }), errorCallback);
-            
+            // Only gets the sequence header once, to save load time.  Caches it thereafter.
+            if( seqHeader ) {
+                if( seqHeader.loaded ) {
+                    this._fetchSequence( query, seqHeader, callback, endCallback, errorCallback );
+                } else if( seqHeader.error ) {
+                    errorCallback( seqHeader.error );
+                } else {
+                    seqHeader.callbacks.push( callbackInfo )
+                }
+            } else {
+                this.headers[seqName] = {
+                    loaded: false,
+                    callbacks: [callbackInfo]
+                };
+                this._readSequenceHeader( seqName, dojo.hitch( this, function( newHeader, header ){
+                    lang.mixin( newHeader, header );
+                    newHeader.loaded = true;
+                    array.forEach( newHeader.callbacks, function( ci ) {
+                        ci.seqFunc( ci.query, header, ci.callback, ci.endCallback, ci.errorCallback );
+                    });
+                    delete newHeader.callbacks;
+                }, this.headers[seqName] ),
+                dojo.hitch( this, function( newHeader, error ) {
+                    newHeader.error = error;
+                    array.forEach( newHeader.callbacks, function( ci ) {
+                        ci.errorCallback( error );
+                    });
+                    delete newHeader.callbacks;
+                }, this.headers[seqName] ) );
+            }
         },
 
         _readSequenceHeader: function(seqName, callback, errorCallback) {
             var index = this.chrToIndex[seqName];
+            
+
             if(this.seqHeader[index])
                 callback(this.seqHeader[index]);
             else {
@@ -169,14 +202,7 @@ define ([
                     
                     if(nBlockCount) {
                         this.data.read(currData, 8*nBlockCount - 1, dojo.hitch(this, function(nBlockData) {
-                            for(var i = 0; i < 4*nBlockCount; i+= 4) {
-                                var j = i + 4*nBlockCount;
-                                nBlocks.push({
-                                    start: this._toInteger(nBlockData, i, i+4),
-                                    size: this._toInteger(nBlockData, j, j + 4)
-                                });
-                            }
-                            haveNBlocks.resolve(nBlocks, true);
+                            haveNBlocks.resolve(nBlockData, true);
                         }), errorCallback);
                     } else {
                         haveNBlocks = [];
@@ -191,15 +217,8 @@ define ([
                         currData += 4;
                         if(maskBlockCount) {
                             this.data.read(currData, 8*maskBlockCount - 1, dojo.hitch(this, function(maskBlockData){
-                                for(var i = 0; i < 4*maskBlockCount; i += 4) {
-                                    var j = i + 4*maskBlockCount;
-                                    maskBlocks.push({
-                                        start: this._toInteger(maskBlockData, i, i + 4),
-                                        size: this._toInteger(maskBlockData, j, j + 4)
-                                    });
-                                }
                                 currData += 8*maskBlockCount;
-                                haveMasks.resolve(maskBlocks, true);
+                                haveMasks.resolve(maskBlockData, true);
                             }), errorCallback);    
                         } else {
                             haveMasks.resolve([], true);
@@ -210,8 +229,8 @@ define ([
                         currData += 4;
                         var header = {
                             dnaSize: dnaSize,
-                            nBlocks: results[0],
-                            masks: results[1],
+                            nBlockData: results[0],
+                            maskData: results[1],
                             dnaStart: currData,
                             dnaEnd: this.offset[index + 1]
                         };
@@ -275,10 +294,77 @@ define ([
             return Array(length + 1).join("N");
         },
 
+        _getApplicable: function( blockBuffer, start, end ) {
+
+            var retArray = [];
+            
+            var firstApplicable = this._findApplicable( blockBuffer, start, end );
+
+            if( firstApplicable ) {
+                retArray.push( firstApplicable );
+                var index = firstApplicable.index + 1;
+                while( index < blockBuffer.byteLength / 8 ) {
+                    var i = index * 4;
+                    var j = i + blockBuffer.byteLength / 2;
+
+                    var nextStart = this._toInteger(blockBuffer, i, i + 4);
+                    var nextSize = this._toInteger(blockBuffer, j, j + 4);
+
+                    if( nextStart <= end ) {
+                        retArray.push({ start: nextStart, size: nextSize });
+                        index++;
+                    } else {
+                        break;
+                    }
+                }
+
+                index = firstApplicable.index - 1;
+                while( index >= 0) {
+                    var i = index * 4;
+                    var j = i + blockBuffer.byteLength / 2;
+                    var nextStart = this._toInteger( blockBuffer, i, i + 4 );
+                    var nextSize = this._toInteger( blockBuffer, j, j + 4 );
+
+                    if(nextStart + nextSize > start) {
+                        retArray.unshift({ start: nextStart, size: nextSize });
+                        index--;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            return retArray;
+        },
+
+        _findApplicable: function( blockBuffer, queryStart, queryEnd, blockStart, blockEnd) {
+            if( blockEnd === undefined )
+                blockEnd = blockBuffer.byteLength / 8 - 1; // Buffer's size will always be divisible by 8 for masks or nBlocks
+            if( blockStart === undefined )
+                blockStart = 0;
+
+            if(blockStart > blockEnd)
+                return undefined;
+
+            var sample = Math.floor((blockStart + blockEnd)/2);
+            var i = sample * 4;
+            var j = i + blockBuffer.byteLength / 2;
+
+            var sampleStart = this._toInteger( blockBuffer, i, i + 4 );
+            var sampleSize = this._toInteger( blockBuffer, j, j + 4 );
+
+            if( sampleStart + sampleSize > queryStart && sampleStart <= queryEnd ) {
+                return { start: sampleStart, size: sampleSize, index: sample };
+            } else if ( sampleStart > queryEnd ) {
+                return this._findApplicable( blockBuffer, queryStart, queryEnd, blockStart, sample - 1);
+            }
+            return this._findApplicable( blockBuffer, queryStart, queryEnd, sample + 1, blockEnd );
+        },
+
         _fetchSequence: function ( query, header, callback, endCallback, errorCallback ) {
             var start = typeof query.start == 'number' ? query.start : parseInt( query.start );
             var end = typeof query.end == 'number' ? query.end : parseInt( query.end );
-            
+
             var chunkSize = query.seqChunkSize || ( this.refSeq && this.refSeq.name == query.ref && this.refSeq.seqChunkSize ) || this.seqChunkSize;
             var firstChunk = Math.floor( Math.max( 0, start ) / chunkSize );
             var lastChunk = Math.floor( ( end - 1 ) / chunkSize );
@@ -346,26 +432,8 @@ define ([
 
                     var i = 0;
 
-                    var nBlocksToApply = [];
-                    while( header.nBlocks[i] && header.nBlocks[i].start + header.nBlocks[i].size <= blockStart )  {
-                        i++;
-                    }
-
-                    while( header.nBlocks[i] && header.nBlocks[i].start < blockEnd ) {
-                        nBlocksToApply.push( header.nBlocks[i] );
-                        i++;
-                    }
-
-                    i = 0;
-                    var masksToApply = [];
-                    while( header.masks[i] && header.masks[i].start + header.masks[i].size <= blockStart ) {
-                        i++;
-                    }
-
-                    while( header.masks[i] && header.masks[i].start < blockEnd ) {
-                        masksToApply.push( header.masks[i] );
-                        i++;
-                    }
+                    var nBlocksToApply = this._getApplicable( header.nBlockData, blockStart, blockEnd );
+                    var masksToApply = this._getApplicable( header.maskData, blockStart, blockEnd );
 
                     // dataStart and dataEnd are still in bp, so we must convert them to bytes.
                     var byteStart = header.dnaStart + Math.floor( blockStart / 4 );
