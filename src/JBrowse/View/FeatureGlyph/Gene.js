@@ -47,17 +47,21 @@ _getFeatureRectangle: function( viewArgs, feature ) {
     // get the rects for the children
     var padding = 1;
     var fRect = {
-        l: Infinity,
+        l: 0,
         h: 0,
-        r: -Infinity,
+        r: 0,
+        w: 0,
         subRects: [],
         viewInfo: viewArgs,
         f: feature,
         glyph: this
     };
-    if( subfeatures ) {
+    if( subfeatures && subfeatures.length ) {
         // sort the children by name
         subfeatures.sort( function( a, b ) { return (a.get('name') || '').localeCompare( b.get('name')||'' ); } );
+
+        fRect.l = Infinity;
+        fRect.r = -Infinity;
 
         var transcriptType = this.getConfForFeature( 'transcriptType', feature );
         for( var i = 0; i < subfeatures.length; i++ ) {
@@ -93,6 +97,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
             fRect.h = subRect.t+subRect.h+padding;
         }
     }
+
     // calculate the width
     fRect.w = Math.max( fRect.r - fRect.l + 1, 2 );
     delete fRect.r;
