@@ -79,7 +79,7 @@ define ([
                 var i = 0;
                 for(var seqIndex = 0; seqIndex < this.numSeqs; seqIndex++) {
                     var nameSize = this._toInteger(results, i, i+1); i++;
-                    var seqName = this._toString(results, i, i+nameSize);
+                    var seqName = this.store.browser.regularizeReferenceName(this._toString(results, i, i+nameSize));
                     this.chunkCache[seqName] = [];
                     this.chrToIndex[seqName] = seqIndex; i += nameSize;
                     this.offset[seqIndex] = this._toInteger(results, i, i + 4); i += 4;
@@ -145,7 +145,7 @@ define ([
         fetch: function( query, callback, endCallback, errorCallback) {
             errorCallback = errorCallback || function(e) { console.error(e); };
 
-            var seqName = query.ref;
+            var seqName = this.store.browser.regularizeReferenceName( query.ref );
             var callbackInfo = { query: query, seqFunc: dojo.hitch(this, "_fetchSequence"), callback: callback, endCallback: endCallback, errorCallback: errorCallback };
             var seqHeader = this.headers[seqName];
 
@@ -369,7 +369,7 @@ define ([
             var firstChunk = Math.floor( Math.max( 0, start ) / chunkSize );
             var lastChunk = Math.floor( ( end - 1 ) / chunkSize );
 
-            var seqname    = query.ref;
+            var seqname = this.store.browser.regularizeReferenceName( query.ref );
             var index = this.chrToIndex[seqname];
             
             // if a callback spans more than one chunk, we need to wrap the
