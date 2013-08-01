@@ -1,5 +1,5 @@
-define([ 'JBrowse/Finisher', 'JBrowse/Util'],
-      function( Finisher, Util ) {
+define([ 'JBrowse/Finisher', 'JBrowse/Util', 'dojo/Deferred'],
+      function( Finisher, Util, Deferred ) {
 
 /**
  * Legacy-compatible NCList for 1.2.1 backward compatibility.
@@ -173,16 +173,20 @@ NCList_v0.prototype.iterate = function(from, to, fun, postFun) {
     // intervals that overlap the given interval
     //if from <= to, iterates left-to-right, otherwise iterates right-to-left
 
+    var d = new Deferred();
     //inc: iterate leftward or rightward
     var inc = (from > to) ? -1 : 1;
     //searchIndex: search on start or end
     var searchIndex = (from > to) ? 0 : 1;
     //testIndex: test on start or end
     var testIndex = (from > to) ? 1 : 0;
-    var finish = new Finisher(postFun);
+    var finish = new Finisher(function() { d.resolve(true); });
+
     this.iterHelper(this.topList, from, to, fun, finish,
                     inc, searchIndex, testIndex, []);
     finish.finish();
+
+    d.then( postFun );
 };
 
 NCList_v0.prototype.histogram = function(from, to, numBins, callback) {

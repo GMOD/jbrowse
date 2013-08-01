@@ -46,7 +46,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.sequence()
 
         # test that the frame usage track claims to have links to NCBI
-        self.turn_on_track( 'Frame usage' )
+        self.turn_on_track( 'HTMLFeatures - mRNAs' )
         self.do_typed_query('ctgA:2,381..21,220')
         self.assert_element("//div[@title='search at NCBI']")
 
@@ -94,7 +94,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         time.sleep(0.5);
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
 
-        self.turn_on_track( 'Example Features' )
+        self.turn_on_track( 'HTMLFeatures - Example Features' )
         trackname = 'ExampleFeatures'
         time.sleep(0.5);
         self.export_track( trackname, 'Visible region','GFF3','View')
@@ -135,7 +135,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
-        self.turn_on_track( 'Example Features with Menus' )
+        self.turn_on_track( 'HTMLFeatures - Features with menus' )
         self.do_typed_query( '20147..35574' );
 
         # check that there is no dialog open
@@ -197,7 +197,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         label = self.assert_element( xpath )
         assert label.text == 'f15';
 
-        self.turn_off_track('Example Features')
+        self.turn_off_track('HTMLFeatures - Example Features')
 
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
