@@ -107,11 +107,10 @@ my %commands = (
                          '--type' => 'gene',
                          '--noSubfeatures'
                        ],
-    maker           => [ '--tracklabel' => "Transcripts",
-                         '--key' => "Transcripts",
+    maker           => [ '--key' => "Transcripts",
                          '--className' => 'transcript',
                          '--subfeatureClasses' => '{"exon": "exon", "CDS": "CDS", "five_prime_UTR": "five_prime_UTR", "three_prime_UTR": "three_prime_UTR"}',
-                        '--type'  => 'mRNA'
+                         '--type'  => 'mRNA'
                        ],
 
     #ab initio gene predictions
@@ -150,6 +149,16 @@ my %commands = (
                          '--subfeatureClasses' => '{"match_part": "fgenesh-exon"}',
                          '--type' => 'match:fgenesh_masked',
                        ],
+    pred_gff        => [ '--key' => "Predictions",
+                         '--className' => 'transcript',
+                         '--subfeatureClasses' => '{"match_part": "match_part"}',
+                         '--type' => 'match:pred_gff',
+                       ],
+    model_gff       => [ '--key' => "Models",
+                         '--className' => 'transcript',
+                         '--subfeatureClasses' => '{"match_part": "match_part"}',
+                         '--type' => 'match:model_gff',
+                       ],
 
     #evidence alignments
     blastn          => [ '--key' =>  "BLASTN",
@@ -182,6 +191,21 @@ my %commands = (
                          '--subfeatureClasses' => '{"match_part": "cdna2genome_part"}',
                          '--type' => 'expressed_sequence_match:cdna2genome',
                        ],
+    est_gff         => [ '--key' => "ESTs",
+                         '--className' => 'generic_parent',
+                         '--subfeatureClasses' => '{"match_part": "est2genome_part"}',
+                         '--type' => 'expressed_sequence_match:est_gff',
+                       ],
+    protein_gff     => [ '--key' =>  "Proteins",
+                         '--className' => 'generic_parent',
+                         '--subfeatureClasses' => '{"match_part": "protein2genome_part"}',
+                         '--type' => 'protein_match:protein_gff',
+                       ],
+    altest_gff      => [ '--key' =>  "altESTs",
+                         '--className' => 'generic_parent',
+                         '--subfeatureClasses' => '{"match_part": "cdna2genome_part"}',
+                         '--type' => 'expressed_sequence_match:altest_gff',
+                       ],
 
     #repeats
     repeatmasker   =>  [ '--key'        =>  "RepeatMasker",
@@ -193,7 +217,12 @@ my %commands = (
                          '--className' => 'generic_parent',
                          '--subfeatureClasses' => '{"match_part": "repeat_part"}',
                          '--type' => 'protein_match:repeatrunner',
-                       ]
+                       ],
+    repeat_gff    =>   [ '--key' =>  "Repeats",
+                         '--className' => 'generic_parent',
+                         '--subfeatureClasses' => '{"match_part": "repeat_part"}',
+                         '--type' => 'protein_match:repeat_gff',
+                       ],
 );
 
 for my $gff3_file (@files){
@@ -216,6 +245,11 @@ for my $gff3_file (@files){
         and die "prepare-refseqs.pl failed with exit status $?";
 
     for my $track ( @tracks_to_make ) {
+
+	if(!$commands{$track} && $track =~ /^([^\:]+)/ && $commands{$1}){
+	    @{$commands{$track}} = @{$commands{$1}}; #makes deep copy
+	    $commands{$track}[-1] =~ s/^([^\:]+)\:.*$/$1:$track/;
+	}
 
         unless( $commands{$track} ) {
             warn "Don't know how to format $track tracks, skipping.\n";

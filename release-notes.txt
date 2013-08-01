@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Added support in `maker2jbrowse` for user-defined source tags in
+   GFF3 output from MAKER.  Thanks to Carson Holt for contributing
+   this fix.
+
  * Fixed a bug in the Gene glyph that caused the browser to crash if a
    gene feature has no subfeatures.
 
