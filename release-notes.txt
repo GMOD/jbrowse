@@ -4,6 +4,9 @@
    GFF3 output from MAKER.  Thanks to Carson Holt for contributing
    this fix.
 
+ * Fixed bug preventing backward-compatibility with 1.2.1-formatted
+   data.  Thanks to Daniel Kasenberg for implementing this.
+
  * Fixed a bug in the Gene glyph that caused the browser to crash if a
    gene feature has no subfeatures.
 
