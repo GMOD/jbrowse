@@ -170,13 +170,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                         stats: stats,
                         displayMode: this.displayMode,
                         showFeatures: scale >= ( this.config.style.featureScale
-                                                 || stats.featureDensity / this.config.maxFeatureScreenDensity ),
+                                                 || (stats.featureDensity||0) / this.config.maxFeatureScreenDensity ),
                         showLabels: this.showLabels && this.displayMode == "normal"
                             && scale >= ( this.config.style.labelScale
-                                          || stats.featureDensity * this.config.style._defaultLabelScale ),
+                                          || (stats.featureDensity||0) * this.config.style._defaultLabelScale ),
                         showDescriptions: this.showLabels && this.displayMode == "normal"
                             && scale >= ( this.config.style.descriptionScale
-                                          || stats.featureDensity * this.config.style._defaultDescriptionScale)
+                                          || (stats.featureDensity||0) * this.config.style._defaultDescriptionScale)
                     },
                     args
                 );
