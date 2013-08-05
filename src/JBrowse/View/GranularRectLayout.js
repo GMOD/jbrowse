@@ -171,9 +171,13 @@ return declare( null,
     },
 
     getByCoord: function( x, y ) {
-        var pX   = Math.floor( x / this.pitchX );
         var pY   = Math.floor( y / this.pitchY );
-        return (this.bitmap[pY]||[])[pX];
+        var r = this.bitmap[pY];
+        if( ! r ) return undefined;
+        return r.allFilled || function() {
+            var pX   = Math.floor( x / this.pitchX );
+            return r[pX];
+        }.call(this);
     },
 
     getByID: function( id ) {
