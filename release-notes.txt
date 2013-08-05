@@ -1,12 +1,15 @@
 {{$NEXT}}
 
+ * Added support in `maker2jbrowse` for user-defined source tags in
+   GFF3 output from MAKER.  Thanks to Carson Holt for contributing
+   this fix.
+
  * Fixed a bug in which features in canvas-based feature tracks could
    not be clicked in Firefox.  Thanks to GitHub user mke21 for
    pointing this out.
 
- * Added support in `maker2jbrowse` for user-defined source tags in
-   GFF3 output from MAKER.  Thanks to Carson Holt for contributing
-   this fix.
+ * Fixed a bug with client-side GFF3 parsing in which the strand of
+   features was not being correctly parsed.
 
  * Fixed bug preventing backward-compatibility with 1.2.1-formatted
    data.  Thanks to Daniel Kasenberg for implementing this.
