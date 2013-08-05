@@ -2288,11 +2288,33 @@ updateTrackList: function() {
                                                        className: 'pin_underlay',
                                                        style: 'top: '+this.topSpace
                                                    }, this.scrollContainer );
+        if( ! this.pinGridlinesTrack ) {
+            var gridTrackDiv = domConstruct.create(
+                "div",
+                { className: "track",
+                  style: "top: 0px; height: 100%"
+                },
+                this.pinUnderlay );
+            this.pinGridlinesTrack = new GridLinesTrack({
+                                                            browser: this.browser,
+                                                            refSeq: this.ref
+                                                        });
+            this.pinGridlinesTrack.setViewInfo( this, function() {}, this.stripeCount,
+                                                gridTrackDiv, this.stripePercent,
+                                                this.stripeWidth, this.pxPerBp,
+                                                this.trackPadding);
+            this.uiTracks.push( this.pinGridlinesTrack );
+        }
     }
     else if( this.pinUnderlay ) {
         domConstruct.destroy( this.pinUnderlay );
         delete this.pinUnderlay;
+        this.uiTracks = array.filter( this.uiTracks, function(t) {
+                                          return t !== this.pinGridlinesTrack;
+                                      }, this );
+        delete this.pinGridlinesTrack;
     }
+
 
     // set the new tracklist
     var oldTracks = this.tracks;

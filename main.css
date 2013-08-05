@@ -324,7 +324,6 @@ div.pin_underlay {
     box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
 }
 div.track.pinned {
-    background: white;
     z-index: 20;
 }
 
