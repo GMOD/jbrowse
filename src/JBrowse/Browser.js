@@ -821,10 +821,11 @@ getTrackTypes: function() {
             // map of store type -> default track type to use for the store
             trackTypeDefaults: {
                 'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments2',
-                'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants'
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants',
+                'JBrowse/Store/SeqFeature/GFF3'       : 'JBrowse/View/Track/CanvasFeatures'
             },
 
             knownTrackTypes: [
@@ -833,6 +834,7 @@ getTrackTypes: function() {
                 'JBrowse/View/Track/FeatureCoverage',
                 'JBrowse/View/Track/SNPCoverage',
                 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/View/Track/HTMLVariants',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
