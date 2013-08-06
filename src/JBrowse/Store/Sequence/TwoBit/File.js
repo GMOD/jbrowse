@@ -62,7 +62,6 @@ define ([
                     } else {
                         failCallback("Not a 2bit file");
                     }
-
                     this.numSeqs = this._toInteger(results, 8, 12);
                     successCallback();
                 }
@@ -73,6 +72,10 @@ define ([
             this.chrToIndex = {};
             this.offset = [];
             var maxLength = 256; // Since namesize is one byte, there are at most 256 bytes used for each name.
+            if(this.numSeqs == 0) {
+                successCallback();
+                return;
+            }
             this.data.read(16, this.numSeqs*(maxLength + 5), dojo.hitch(this, function(results) {
                 var i = 0;
                 for(var seqIndex = 0; seqIndex < this.numSeqs; seqIndex++) {
@@ -367,6 +370,7 @@ define ([
 
         _fetchSequence: function ( query, header, callback, endCallback, errorCallback ) {
             var start = typeof query.start == 'number' ? query.start : parseInt( query.start );
+
             var end = typeof query.end == 'number' ? query.end : parseInt( query.end );
 
             var chunkSize = query.seqChunkSize || ( this.refSeq && this.refSeq.name == query.ref && this.refSeq.seqChunkSize ) || this.seqChunkSize;
@@ -431,7 +435,7 @@ define ([
                     };
 
                     var blockStart = j * chunkSize;
-                    var blockEnd = ( j + 1 ) * chunkSize;
+                    var blockEnd = Math.min( header.dnaSize, ( j + 1 ) * chunkSize);
 
                     var i = 0;
 
