@@ -4,6 +4,9 @@
    GFF3 output from MAKER.  Thanks to Carson Holt for contributing
    this fix.
 
+ * NCList data stores (actually the array representation used therein)
+   now store feature attribute names case-insensitively.
+
  * Fixed a bug in which features in canvas-based feature tracks could
    not be clicked in Firefox.  Thanks to GitHub user mke21 for
    pointing this out.
@@ -16,6 +19,7 @@
 
  * Fixed a bug in the Gene glyph that caused the browser to crash if a
    gene feature has no subfeatures.
+
 
 # Release 1.10.0     2013-07-30 14:25:06 EST5EDT
 

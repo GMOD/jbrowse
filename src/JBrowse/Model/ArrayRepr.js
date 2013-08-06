@@ -1,5 +1,9 @@
-define( [],
-        function() {
+define( [
+            'dojo/_base/array'
+        ],
+        function(
+            array
+        ) {
 
 /**
  * @class JBrowse.Model.ArrayRepr
@@ -97,7 +101,8 @@ define( [],
  * That's what this class facilitates.
  */
 function ArrayRepr (classes) {
-    this.classes = classes;
+    this.classes = classes = array.map(
+        classes, this._lowerCaseClass, this );
     this.fields = [];
     for (var cl = 0; cl < classes.length; cl++) {
         this.fields[cl] = {};
@@ -111,19 +116,42 @@ function ArrayRepr (classes) {
     }
 }
 
+ArrayRepr.prototype._lowerCaseClass = function( cl ) {
+    var newClass = {
+        isArrayAttr: {},
+        proto: {},
+        attributes: array.map( cl.attributes || [], function( aname ) { return aname.toLowerCase(); } )
+    };
+    var aname;
+    if( cl.isArrayAttr )
+        for( aname in cl.isArrayAttr ) {
+            newClass.isArrayAttr[ aname.toLowerCase() ] = cl.isArrayAttr[ aname ];
+        }
+    if( cl.proto )
+        for( aname in cl.proto ) {
+            newClass.proto[ aname.toLowerCase() ] = cl.proto[ aname ];
+        }
+
+    return newClass;
+};
+
 /**
  * @private
  */
 ArrayRepr.prototype.attrIndices = function(attr) {
+    attr = attr.toLowerCase();
+
     return this.classes.map(
         function(x) {
-            var i = x.attributes.indexOf(attr);
+            var i = x.attributes.indexOf( attr );
             return i >= 0 ? i + 1 : undefined;
         }
     );
 };
 
 ArrayRepr.prototype.get = function(obj, attr) {
+    attr = attr.toLowerCase();
+
     if (attr in this.fields[obj[0]]) {
         return obj[this.fields[obj[0]][attr]];
     } else {
@@ -138,6 +166,8 @@ ArrayRepr.prototype.get = function(obj, attr) {
 };
 
 ArrayRepr.prototype.set = function(obj, attr, val) {
+    attr = attr.toLowerCase();
+
     if (attr in this.fields[obj[0]]) {
         obj[this.fields[obj[0]][attr]] = val;
     } else {
