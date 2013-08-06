@@ -9,7 +9,8 @@
 
  * Fixed a bug in which features in canvas-based feature tracks could
    not be clicked in Firefox.  Thanks to GitHub user mke21 for
-   pointing this out.
+   pointing this out, and to Daniel Kasenberg for noticing and correcting 
+   a subsequent Chrome bug.
 
  * Fixed a bug with client-side GFF3 parsing in which the strand of
    features was not being correctly parsed.
