@@ -49,9 +49,7 @@ define ([
             var failCallback = args.failure || function(e) {console.error(e); };
 
             this._read2bitHeader( dojo.hitch(this, function() { 
-                this._read2bitIndex( function() {
-                    successCallback();
-                }, failCallback);
+                this._read2bitIndex( successCallback, failCallback);
             }), failCallback);
         },
 
@@ -146,6 +144,12 @@ define ([
             errorCallback = errorCallback || function(e) { console.error(e); };
 
             var seqName = this.store.browser.regularizeReferenceName( query.ref );
+
+            if( !(seqName in this.chrToIndex) && endCallback ) {
+                endCallback();
+                return;
+            }
+
             var callbackInfo = { query: query, seqFunc: dojo.hitch(this, "_fetchSequence"), callback: callback, endCallback: endCallback, errorCallback: errorCallback };
             var seqHeader = this.headers[seqName];
 
@@ -339,7 +343,7 @@ define ([
 
         _findApplicable: function( blockBuffer, queryStart, queryEnd, blockStart, blockEnd) {
             if( blockEnd === undefined )
-                blockEnd = blockBuffer.byteLength / 8 - 1; // Buffer's size will always be divisible by 8 for masks or nBlocks
+                blockEnd = (blockBuffer.byteLength || 0)/ 8 - 1; // Buffer's size will always be divisible by 8 for masks or nBlocks
             if( blockStart === undefined )
                 blockStart = 0;
 
@@ -370,7 +374,6 @@ define ([
             var lastChunk = Math.floor( ( end - 1 ) / chunkSize );
 
             var seqname = this.store.browser.regularizeReferenceName( query.ref );
-            var index = this.chrToIndex[seqname];
             
             // if a callback spans more than one chunk, we need to wrap the
             // callback in another one that will be passed to each chunk to
