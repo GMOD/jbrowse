@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.1     2013-08-06 15:32:21 EST5EDT
+
  * Added support in `maker2jbrowse` for user-defined source tags in
    GFF3 output from MAKER.  Thanks to Carson Holt for contributing
    this fix.
