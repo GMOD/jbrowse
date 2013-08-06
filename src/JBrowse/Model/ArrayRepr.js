@@ -251,14 +251,14 @@ ArrayRepr.prototype._makeAccessors = function() {
         tags,
         accessors = {
             get: function(field) {
-                var f = this.get.field_accessors[field];
+                var f = this.get.field_accessors[ field.toLowerCase() ];
                 if( f )
                     return f.call(this);
                 else
                     return undefined;
             },
             set: function(field,val) {
-                var f = this.set.field_accessors[field];
+                var f = this.set.field_accessors[ field.toLowerCase() ];
                 if( f )
                     return f.call(this,val);
                 else
