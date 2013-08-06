@@ -27,7 +27,7 @@ define( [
          */
         constructor: function( args ) {
             
-            var blob = new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ) );
+            var blob = args.blob || new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ) );
             
             this.twoBit = new TwoBitFile({
                 data: blob,
