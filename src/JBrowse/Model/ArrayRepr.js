@@ -1,9 +1,5 @@
-define( [
-            'dojo/_base/array'
-        ],
-        function(
-            array
-        ) {
+define( [],
+        function() {
 
 /**
  * @class JBrowse.Model.ArrayRepr
@@ -101,8 +97,7 @@ define( [
  * That's what this class facilitates.
  */
 function ArrayRepr (classes) {
-    this.classes = classes = array.map(
-        classes, this._lowerCaseClass, this );
+    this.classes = classes;
     this.fields = [];
     for (var cl = 0; cl < classes.length; cl++) {
         this.fields[cl] = {};
@@ -116,65 +111,54 @@ function ArrayRepr (classes) {
     }
 }
 
-ArrayRepr.prototype._lowerCaseClass = function( cl ) {
-    var newClass = {
-        isArrayAttr: {},
-        proto: {},
-        attributes: array.map( cl.attributes || [], function( aname ) { return aname.toLowerCase(); } )
-    };
-    var aname;
-    if( cl.isArrayAttr )
-        for( aname in cl.isArrayAttr ) {
-            newClass.isArrayAttr[ aname.toLowerCase() ] = cl.isArrayAttr[ aname ];
-        }
-    if( cl.proto )
-        for( aname in cl.proto ) {
-            newClass.proto[ aname.toLowerCase() ] = cl.proto[ aname ];
-        }
-
-    return newClass;
-};
-
 /**
  * @private
  */
 ArrayRepr.prototype.attrIndices = function(attr) {
-    attr = attr.toLowerCase();
-
     return this.classes.map(
         function(x) {
-            var i = x.attributes.indexOf( attr );
-            return i >= 0 ? i + 1 : undefined;
+            return (x.attributes.indexOf(attr)+1) || (x.attributes.indexOf(attr.toLowerCase())+1) || undefined;
         }
     );
 };
 
 ArrayRepr.prototype.get = function(obj, attr) {
-    attr = attr.toLowerCase();
-
     if (attr in this.fields[obj[0]]) {
         return obj[this.fields[obj[0]][attr]];
-    } else {
-        var adhocIndex = this.classes[obj[0]].attributes.length + 1;
-        if ((adhocIndex >= obj.length) || (!(attr in obj[adhocIndex]))) {
-            if (attr in this.classes[obj[0]].proto)
-                return this.classes[obj[0]].proto[attr];
-            return undefined;
+    }
+    else {
+        // try lowercase
+        var lcattr = attr.toLowerCase();
+        if( lcattr in this.fields[obj[0]]) {
+            return obj[this.fields[obj[0]][lcattr]];
         }
-        return obj[adhocIndex][attr];
+        else {
+            var adhocIndex = this.classes[obj[0]].attributes.length + 1;
+            if ((adhocIndex >= obj.length) || (!(attr in obj[adhocIndex]))) {
+                if (attr in this.classes[obj[0]].proto)
+                    return this.classes[obj[0]].proto[attr];
+                return undefined;
+            }
+            return obj[adhocIndex][attr];
+        }
     }
 };
 
 ArrayRepr.prototype.set = function(obj, attr, val) {
-    attr = attr.toLowerCase();
-
     if (attr in this.fields[obj[0]]) {
         obj[this.fields[obj[0]][attr]] = val;
     } else {
-        var adhocIndex = this.classes[obj[0]].attributes.length + 1;
-        if (adhocIndex >= obj.length)
-            obj[adhocIndex] = {};
-        obj[adhocIndex][attr] = val;
+        // try lowercase
+        var lcattr = attr.toLowerCase();
+        if( lcattr in this.fields[obj[0]]) {
+            obj[this.fields[obj[0]][lcattr]] = val;
+        }
+        else {
+            var adhocIndex = this.classes[obj[0]].attributes.length + 1;
+            if (adhocIndex >= obj.length)
+                obj[adhocIndex] = {};
+            obj[adhocIndex][attr] = val;
+        }
     }
 };
 
@@ -251,14 +235,14 @@ ArrayRepr.prototype._makeAccessors = function() {
         tags,
         accessors = {
             get: function(field) {
-                var f = this.get.field_accessors[ field.toLowerCase() ];
+                var f = this.get.field_accessors[field];
                 if( f )
                     return f.call(this);
                 else
                     return undefined;
             },
             set: function(field,val) {
-                var f = this.set.field_accessors[ field.toLowerCase() ];
+                var f = this.set.field_accessors[field];
                 if( f )
                     return f.call(this,val);
                 else
