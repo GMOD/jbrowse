@@ -6,6 +6,7 @@ define( [
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
+            'JBrowse/Store/DeferredStatsMixin',
             './GFF3/Parser'
         ],
         function(

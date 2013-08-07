@@ -66,7 +66,9 @@ require([
 
         it('reads the file stats (the totalSummary section)', function() {
                var stats;
-               b.getGlobalStats(function(s) {
+               b.getRegionStats(
+                   { ref: browser.regularizeReferenceName('ctgA'), start: 0, end: 50001 },
+                   function(s) {
                                 stats = s;
                });
                waitsFor(function() { return stats; });

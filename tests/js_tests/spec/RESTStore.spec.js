@@ -36,20 +36,6 @@ function testWithConfig(config) {
                             });
                   });
 
-              it( 'supports global stats', function() {
-                      var stats;
-                      var done;
-                      store.getGlobalStats(
-                                 function(s) {
-                                     stats = s;
-                                 }
-                               );
-                      waitsFor( function() { return stats; }, 2000 );
-                      runs( function() {
-                                expect( stats.featureDensity ).toEqual(20);
-                            });
-                  });
-
               it( 'emulates region stats', function() {
                       var stats;
                       var done;

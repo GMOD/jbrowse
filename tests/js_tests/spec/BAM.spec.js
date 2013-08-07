@@ -19,8 +19,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                   b = new BAMStore({
                                        browser: new Browser({ unitTestMode: true }),
                                        bam: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam'),
-                                       bai: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam.bai'),
-                                       refSeq: { name: 'ctgA', start: 1, end: 500001 }
+                                       bai: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam.bai')
                                    });
               });
 
@@ -35,7 +34,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.getFeatures({ start: 0, end: 50000 },
+                      b.getFeatures({ ref: 'ctgA', start: 0, end: 50000 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -56,8 +55,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
                       bam: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam'),
-                      bai: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam.bai'),
-                      refSeq: { name: 'Chromosome', start: 1, end: 20000 }
+                      bai: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam.bai')
                   });
               });
 
@@ -72,7 +70,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.getFeatures({ start: 17000, end: 18000 },
+                      b.getFeatures({ ref: 'chromosome', start: 17000, end: 18000 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -94,8 +92,7 @@ describe( 'empty BAM', function() {
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
                       bam: new XHRBlob('../data/empty.bam'),
-                      bai: new XHRBlob('../data/empty.bam.bai'),
-                      refSeq: { name: 'Chromosome', start: 1, end: 20000 }
+                      bai: new XHRBlob('../data/empty.bam.bai')
                   });
               });
 
@@ -110,7 +107,7 @@ describe( 'empty BAM', function() {
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.getFeatures( { start: 0, end: 50000 },
+                      b.getFeatures( { ref: 'ctgA', start: 0, end: 50000 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -131,13 +128,7 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
                       bam: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam'),
-                      bai: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai'),
-                      refSeq: { end: 27682,
-                                length: 27682,
-                                name: "chr21_gl000210_random",
-                                seqChunkSize: 80000,
-                                start: 0
-                              }
+                      bai: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai')
                   });
               });
 
@@ -152,7 +143,7 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                       aspect.after( b, 'loadSuccess', function() {
                           loaded = true;
                       });
-                      b.getFeatures({ start: 16589, end: 18964 },
+                      b.getFeatures({ ref: 'chr21_gl000210_RANDOM', start: 16589, end: 18964 },
                                  function( feature ) {
                                      features.push( feature );
                                  },
@@ -176,8 +167,7 @@ if( document.location.href.indexOf('extended_tests=1') > -1 ) {
                       b = new BAMStore({
                           browser: new Browser({ unitTestMode: true }),
                           bam: new XHRBlob('../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam'),
-                          bai: new XHRBlob('../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam.bai'),
-                          refSeq: { name: 'gi|338162049|dbj|BA000051.1|', start: 1, end: 5123684 }
+                          bai: new XHRBlob('../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam.bai')
                       });
                   });
 
@@ -191,7 +181,7 @@ if( document.location.href.indexOf('extended_tests=1') > -1 ) {
 
     // need 2:3905491-4019507 NODE_423_length_210786_cov_16.121635 3919331 3979772
 
-                          b.getFeatures({ start: 3799999, end: 4049999 },
+                          b.getFeatures({ ref: 'ctga', start: 3799999, end: 4049999 },
                                      function( feature ) {
                                          features.push( feature );
                                      },
