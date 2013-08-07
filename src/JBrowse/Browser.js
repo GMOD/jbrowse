@@ -972,6 +972,7 @@ _reportGoogleUsageStats: function( stats ) {
         ['_setCustomVar', 3, 'refSeqs-avgLen', stats['refSeqs-avgLen'], 3 ],
         ['_setCustomVar', 4, 'jbrowse-version', stats['ver'], 3 ],
         ['_setCustomVar', 5, 'loadTime', stats['loadTime'], 3 ],
+        ['_setCustomVar', 5, 'plugins', stats['plugins'], 3 ],
         ['_trackPageview']
     ]);
 
