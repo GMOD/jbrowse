@@ -1,6 +1,4 @@
-require({
-            packages: [{ name: 'jDataView', main: 'jdataview', location: '../jDataView/src' }]
-        },
+require(
         [
             'dojo/_base/declare',
             'dojo/_base/array',

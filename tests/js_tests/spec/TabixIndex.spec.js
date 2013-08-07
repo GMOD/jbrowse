@@ -1,7 +1,4 @@
-require({
-            packages: [{ name: 'jDataView', main: 'jdataview', location: '../jDataView/src' }]
-        },
-        [
+require([
             'JBrowse/Browser',
             'JBrowse/Model/TabixIndex',
             'JBrowse/Model/XHRBlob',
