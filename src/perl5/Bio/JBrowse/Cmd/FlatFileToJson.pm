@@ -31,15 +31,18 @@ sub option_definitions {
     (
         "gff=s",
         "bed=s",
+        "gbk=s",
         "bam=s",
         "out=s",
         "trackLabel=s",
+        "trackType=s",
         "key=s",
         "cssClass|className=s",
         "autocomplete=s",
         "getType",
         "getPhase",
         "getSubs|getSubfeatures",
+        "noSubfeatures",
         "getLabel",
         "urltemplate=s",
         "menuTemplate=s",
@@ -60,8 +63,12 @@ sub run {
     my ( $self ) = @_;
 
     Pod::Usage::pod2usage( "Must provide a --trackLabel parameter." ) unless defined $self->opt('trackLabel');
-    unless( defined $self->opt('gff') || defined $self->opt('bed') || defined $self->opt('bam') ) {
-        Pod::Usage::pod2usage( "You must supply either a --gff or --bed parameter." )
+    unless( defined $self->opt('gff') || 
+	    defined $self->opt('bed') || 
+	    defined $self->opt('gbk') || 
+	    defined $self->opt('bam') 
+	) {
+        Pod::Usage::pod2usage( "You must supply either a --gff or --bed or --gbk parameter." )
     }
 
     $self->opt('bam') and die "BAM support has been moved to a separate program: bam-to-json.pl\n";
@@ -83,9 +90,7 @@ sub run {
 
 
     my %config = (
-        type         => $self->opt('getType') || $self->opt('type') ? 1 : 0,
-        phase        => $self->opt('getPhase'),
-        subfeatures  => $self->opt('getSubs'),
+        trackType      => $self->opt('trackType'),
         style          => {
             %{ $self->opt('clientConfig') || {} },
             className      => $self->opt('cssClass'),
@@ -100,7 +105,8 @@ sub run {
 
     my $feature_stream = $self->opt('gff') ? $self->make_gff_stream :
                          $self->opt('bed') ? $self->make_bed_stream :
-                             die "Please specify --gff or --bed.\n";
+                         $self->opt('gbk') ? $self->make_gbk_stream :
+                             die "Please specify --gff or --bed or --gbk.\n";
 
     # build a filtering subroutine for the features
     my $types = $self->opt('type');
@@ -127,6 +133,7 @@ sub make_gff_stream {
 
     return Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
+        no_subfeatures => $self->opt('noSubfeatures'),
         track_label => $self->opt('trackLabel')
      );
 }
@@ -145,9 +152,26 @@ sub make_bed_stream {
         );
 
     return Bio::JBrowse::FeatureStream::BioPerl->new(
+        no_subfeatures => $self->opt('noSubfeatures'),
         stream => sub { $io->next_feature },
         track_label => $self->opt('trackLabel'),
     );
+}
+
+sub make_gbk_stream {
+    my $self = shift;
+
+    require Bio::JBrowse::FeatureStream::Genbank::Parser;
+    require Bio::JBrowse::FeatureStream::Genbank;
+
+    my $parser = Bio::JBrowse::FeatureStream::Genbank::Parser->new;
+    $parser->file( $self->opt('gbk') );
+
+    return Bio::JBrowse::FeatureStream::Genbank->new(
+         parser => $parser,
+         track_label => $self->opt('trackLabel')
+    );
+
 }
 
 sub make_feature_filter {
@@ -164,6 +188,7 @@ sub make_feature_filter {
         } @$types;
 
         push @filters, sub {
+            no warnings 'uninitialized';
             my ($f) = @_;
             my $type = $f->{type}
                 or return 0;

@@ -42,7 +42,7 @@ return declare( null, {
 
         // otherwise, use default formatting
 
-        class_ = class_ || title.replace(/\s+/g,'_').toLowerCase();
+        class_ = class_ || title.replace(/\W/g,'_').toLowerCase();
 
         // special case for values that include metadata about their
         // meaning, which are formed like { values: [], meta:
@@ -116,10 +116,18 @@ return declare( null, {
                             return null;
                         var k = keys.shift();
                         var value = val[k];
+
                         var item = { id: k };
-                        for( var field in value ) {
-                            item[field] = thisB._valToString( value[field] );
+
+                        if( typeof value == 'object' ) {
+                            for( var field in value ) {
+                                item[field] = thisB._valToString( value[field] );
+                            }
                         }
+                        else {
+                            item.value = value;
+                        }
+
                         return item;
                     },
                     // descriptions object

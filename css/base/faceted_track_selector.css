@@ -224,9 +224,6 @@
     padding: 2px 2px 2px 0.6em;
     color: #1B3047
 }
-.tundra #faceted_tracksel .dijitOpen {
-    background: white;
-}
 #faceted_tracksel .dijitOpen .facetTitle {
     font-weight: bold;
     color: black;

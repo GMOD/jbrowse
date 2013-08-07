@@ -396,7 +396,7 @@ _renderVerticalScrollBar: function() {
         },
         container
     );
-    this.verticalScrollBar = { container: container, positionMarker: positionMarker };
+    this.verticalScrollBar = { container: container, positionMarker: positionMarker, width: container.offsetWidth };
 },
 
 /**
@@ -414,13 +414,22 @@ _updateVerticalScrollBar: function( newDims ) {
         this.verticalScrollBar.container.style.height = trackPaneHeight-(this.pinUnderlay ? this.pinUnderlay.offsetHeight+heightAdjust : 0 ) +'px';
         var markerHeight = newDims.height / (this.containerHeight||1) * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
-        this.verticalScrollBar.container.style.display = newDims.height / (this.containerHeight||1) > 0.98 ? 'none' : 'block';
+        if( newDims.height / (this.containerHeight||1) > 0.98 ) {
+            this.verticalScrollBar.container.style.display = 'none';
+            this.verticalScrollBar.visible = false;
+        } else {
+            this.verticalScrollBar.container.style.display = 'block';
+            this.verticalScrollBar.visible = true;
+        }
     }
 
     if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
         this.verticalScrollBar.positionMarker.style.top    = (((newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0)+'%';
     }
+},
 
+verticalScrollBarVisibleWidth: function() {
+    return this.verticalScrollBar.visible && this.verticalScrollBar.width || 0;
 },
 
 /**
@@ -438,6 +447,22 @@ visibleTrackNames: function() {
     return dojo.map( this.visibleTracks(), function(t){ return t.name; } );
 },
 
+/**
+ * Called in response to a keyboard or mouse event to slide the view
+ * left or right.
+ */
+keySlideX: function( offset ) {
+    this.setX( this.getX() + offset );
+
+    var thisB = this;
+    if( ! this._keySlideTimeout )
+        this._keySlideTimeout = window.setTimeout(
+            function() {
+                thisB.afterSlide();
+                delete thisB._keySlideTimeout;
+            }, 300 );
+},
+
 
 /**
  * Behaviors (event handler bundles) for various states that the
@@ -452,9 +477,12 @@ _behaviors: function() { return {
         apply_on_init: true,
         apply: function() {
             var handles = [];
+
+            var wheelevent = "onwheel" in document.createElement("div") ? "wheel"      :
+                                    document.onmousewheel !== undefined ? "mousewheel" :
+                                                                          "DOMMouseScroll";
             handles.push(
-                dojo.connect( this.scrollContainer,     "mousewheel",     this, 'wheelScroll', false ),
-                dojo.connect( this.scrollContainer,     "DOMMouseScroll", this, 'wheelScroll', false ),
+                dojo.connect( this.scrollContainer,     wheelevent,     this, 'wheelScroll', false ),
 
                 dojo.connect( this.scaleTrackDiv,       "mousedown",
                               dojo.hitch( this, 'startRubberZoom',
@@ -472,19 +500,6 @@ _behaviors: function() { return {
                 dojo.connect( this.scaleTrackDiv,       "mouseover",      this,  'scaleMouseOver'    ),
                 dojo.connect( this.scaleTrackDiv,       "mouseout",       this,  'scaleMouseOut'     ),
                 dojo.connect( this.scaleTrackDiv,       "mousemove",      this,  'scaleMouseMove'    ),
-
-                // when the mouse leaves the document, need to cancel
-                // any keyboard-modifier-holding-down state
-                dojo.connect( document.body,            'onmouseleave',       this, function() {
-                    this.behaviorManager.swapBehaviors('shiftMouse','normalMouse');
-                }),
-
-                // when the mouse leaves the document, need to cancel
-                // any keyboard-modifier-holding-down state
-                dojo.connect( document.body,            'onmouseenter',       this, function(evt) {
-                    if( evt.shiftKey )
-                        this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
-                }),
 
                 dojo.connect( document.body, 'onkeyup', this, function(evt) {
                     if( evt.keyCode == dojo.keys.SHIFT ) // shift
@@ -505,17 +520,10 @@ _behaviors: function() { return {
 
                     var that = this;
                     if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
-
                         var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
                         if( evt.shiftKey )
                             offset *= 5;
-
-                        this.setX( this.getX() + offset );
-                        if( ! this._keySlideTimeout )
-                            this._keySlideTimeout = window.setTimeout(function() {
-                                that.afterSlide();
-                                delete that._keySlideTimeout;
-                            }, 300 );
+                        this.keySlideX( offset );
                     }
                     else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
                         // shift-up/down zooms in and out
@@ -551,17 +559,34 @@ _behaviors: function() { return {
         }
     },
 
+    // mouse events connected when we are in 'highlighting' mode,
+    // where dragging the mouse sets the global highlight
+    highlightingMouse: {
+        apply: function() {
+            dojo.removeClass(this.trackContainer,'draggable');
+            dojo.addClass(this.trackContainer,'highlightingAvailable');
+            return [
+                dojo.connect( this.outerTrackContainer, "mousedown",
+                              dojo.hitch( this, 'startMouseHighlight',
+                                          dojo.hitch(this,'absXtoBp'),
+                                          this.scrollContainer,
+                                          this.scaleTrackDiv
+                                        )
+                            ),
+                dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
+                dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+            ];
+        },
+        remove: function( mgr, handles ) {
+            dojo.forEach( handles, dojo.disconnect, dojo );
+            dojo.removeClass(this.trackContainer,'highlightingAvailable');
+            dojo.addClass(this.trackContainer,'draggable');
+        }
+    },
+
     // mouse events connected when the shift button is being held down
     shiftMouse: {
         apply: function() {
-            // function that draws the vertical position line only if
-            // we are not rubberbanding
-            var maybeDrawVerticalPositionLine = dojo.hitch( this, function( evt ) {
-                if( this.rubberbanding )
-                    return;
-                this.drawVerticalPositionLine( evt );
-            });
-
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
@@ -572,9 +597,9 @@ _behaviors: function() { return {
                                           this.scaleTrackDiv
                                         )
                             ),
-                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'              ),
-                dojo.connect( this.outerTrackContainer, "mouseover", maybeDrawVerticalPositionLine ),
-                dojo.connect( this.outerTrackContainer, "mousemove", maybeDrawVerticalPositionLine )
+                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'                  ),
+                dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
+                dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
             ];
         },
         remove: function( mgr, handles ) {
@@ -612,22 +637,55 @@ _behaviors: function() { return {
 
     // mouse events that are connected when we are in the middle of a
     // rubber-band zooming operation
-    mouseRubberBandZooming: {
+    mouseRubberBanding: {
         apply: function() {
             return [
-                dojo.connect(document.body, "mouseup",    this, 'rubberExecute'                                        ),
-                dojo.connect(document.body, "mousemove",  this, 'rubberMove'                                           ),
-                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'                                         ),
-                dojo.connect(window,        "onkeydown",  this, function(e){if(e.keyCode !== dojo.keys.SHIFT){ this.rubberCancel(e);} }  )
+                dojo.connect(document.body, "mouseup",    this, 'rubberExecute' ),
+                dojo.connect(document.body, "mousemove",  this, 'rubberMove'    ),
+                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'  ),
+                dojo.connect(window,        "onkeydown",  this, function(e){
+                                 if( e.keyCode !== dojo.keys.SHIFT )
+                                     this.rubberCancel(e);
+                             })
             ];
         }
     }
 };},
 
-wheelScroll: function(e) {
+wheelScroll: function( event ) {
 
-    // 60 pixels per mouse wheel event
-    this.setY( this.getY() - 60 * Util.wheel(e) );
+    if ( !event )
+        event = window.event;
+
+    // if( window.WheelEvent )
+    //     event = window.WheelEvent;
+
+    var delta = { x: 0, y: 0 };
+    if( 'wheelDeltaX' in event ) {
+        delta.x = event.wheelDeltaX/2;
+        delta.y = event.wheelDeltaY/2;
+    }
+    else if( 'deltaX' in event ) {
+        delta.x = event.deltaX*-40;
+        delta.y = event.deltaY*-10;
+    }
+    else if( event.wheelDelta ) {
+        delta.y = event.wheelDelta/2;
+        if( window.opera )
+            delta.y = -delta.y;
+    }
+    else if( event.detail ) {
+        delta.y = -event.detail*100;
+    }
+
+    delta.x = Math.round( delta.x * 2 );
+    delta.y = Math.round( delta.y );
+
+    if( delta.x )
+        this.keySlideX( -delta.x );
+    if( delta.y )
+        // 60 pixels per mouse wheel event
+        this.setY( this.getY() - delta.y );
 
     //the timeout is so that we don't have to run showVisibleBlocks
     //for every scroll wheel click (we just wait until so many ms
@@ -643,7 +701,7 @@ wheelScroll: function(e) {
         this.wheelScrollTimeout = null;
     }, 100));
 
-    dojo.stopEvent(e);
+    dojo.stopEvent(event);
 },
 
 getX: function() {
@@ -653,11 +711,12 @@ getX: function() {
 getY: function() {
     return this.y || 0;
 },
+
 getHeight: function() {
-    return this.elem.offsetHeight;
+    return this.elemBox.h;
 },
 getWidth: function() {
-    return this.elem.offsetWidth;
+    return this.elemBox.w;
 },
 
 clampX: function(x) {
@@ -825,6 +884,27 @@ startVerticalMouseDragScroll: function(event) {
     this.winStartPos = this.getPosition();
 },
 
+
+startMouseHighlight: function( absToBp, container, scaleDiv, event ) {
+    if( ! this._beforeMouseDrag(event) ) return;
+
+    this.behaviorManager.applyBehaviors('mouseRubberBanding');
+
+    this.rubberbanding = {
+        absFunc: absToBp,
+        container: container,
+        scaleDiv: scaleDiv,
+        message: 'Highlight region',
+        start: { x: event.clientX, y: event.clientY },
+        execute: function( start, end ) {
+            this.browser.setHighlightAndRedraw({ ref: this.ref.name, start: start, end: end });
+        }
+    };
+
+    this.winStartPos = this.getPosition();
+},
+
+
 /**
  * Start a rubber-band dynamic zoom.
  *
@@ -838,21 +918,30 @@ startVerticalMouseDragScroll: function(event) {
 startRubberZoom: function( absToBp, container, scaleDiv, event ) {
     if( ! this._beforeMouseDrag(event) ) return;
 
-    this.behaviorManager.applyBehaviors('mouseRubberBandZooming');
+    this.behaviorManager.applyBehaviors('mouseRubberBanding');
 
-    this.rubberbanding = { absFunc: absToBp, container: container, scaleDiv: scaleDiv };
-    this.rubberbandStartPos = {x: event.clientX,
-                               y: event.clientY};
+    this.rubberbanding = {
+        absFunc: absToBp,
+        container: container,
+        scaleDiv: scaleDiv,
+        message: 'Zoom to region',
+        start: { x: event.clientX, y: event.clientY },
+        execute: function( h_start_bp, h_end_bp ) {
+            this.setLocation( this.ref, h_start_bp, h_end_bp );
+        }
+    };
+
     this.winStartPos = this.getPosition();
     this.clearVerticalPositionLine();
     this.clearBasePairLabels();
 },
 
 _rubberStop: function(event) {
-    this.behaviorManager.removeBehaviors('mouseRubberBandZooming');
+    this.behaviorManager.removeBehaviors('mouseRubberBanding');
     this.hideRubberHighlight();
     this.clearBasePairLabels();
-    dojo.stopEvent(event);
+    if( event )
+        dojo.stopEvent(event);
     delete this.rubberbanding;
 },
 
@@ -868,24 +957,26 @@ rubberCancel: function(event) {
 },
 
 rubberMove: function(event) {
-    this.setRubberHighlight( this.rubberbandStartPos, { x: event.clientX, y: event.clientY } );
+    this.setRubberHighlight( this.rubberbanding.start, { x: event.clientX, y: event.clientY } );
 },
 
-rubberExecute: function(event) {
-    var start = this.rubberbandStartPos;
+rubberExecute: function( event) {
+    var start = this.rubberbanding.start;
     var end   = { x: event.clientX, y: event.clientY };
 
-    var h_start_bp = this.rubberbanding.absFunc( Math.min(start.x,end.x) );
-    var h_end_bp   = this.rubberbanding.absFunc( Math.max(start.x,end.x) );
+    var h_start_bp = Math.floor( this.rubberbanding.absFunc( Math.min(start.x,end.x) ) );
+    var h_end_bp   = Math.ceil(  this.rubberbanding.absFunc( Math.max(start.x,end.x) ) );
+
+    var exec = this.rubberbanding.execute;
 
     this._rubberStop(event);
 
     // cancel the rubber-zoom if the user has moved less than 3 pixels
     if( Math.abs( start.x - end.x ) < 3 ) {
-        return this._rubberStop(event);
+        return;
     }
 
-    this.setLocation( this.ref, h_start_bp, h_end_bp );
+    exec.call( this, h_start_bp, h_end_bp );
 },
 
 // draws the rubber-banding highlight region from start.x to end.x
@@ -899,7 +990,7 @@ setRubberHighlight: function( start, end ) {
         main.style.position = 'absolute';
         main.style.zIndex = 20;
         var text = document.createElement('div');
-        text.appendChild( document.createTextNode("Zoom to region") );
+        text.appendChild( document.createTextNode( this.rubberbanding.message ) );
         main.appendChild(text);
         text.style.position = 'relative';
         text.style.top = (50-container_coords.y) + "px";
@@ -1148,12 +1239,13 @@ minVisible: function() {
  */
 maxVisible: function() {
     var mv = this.pxToBp(this.x + this.offset + this.getWidth());
+    var scrollbar = this.pxToBp( this.verticalScrollBarVisibleWidth() );
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
     if( mv > this.ref.end - this.pxToBp(1) )
-        return this.ref.end;
+        return this.ref.end - scrollbar;
     else
-        return Math.round(mv);
+        return Math.round(mv) - scrollbar;
 },
 
 showFine: function() {
@@ -1224,6 +1316,16 @@ scaleMouseOut: function( evt ) {
 },
 
 /**
+ *  draws the vertical position line only if
+ *  we are not rubberbanding
+ */
+maybeDrawVerticalPositionLine: function( evt ) {
+    if( this.rubberbanding )
+        return;
+    this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+},
+
+/**
  * Draws the red line across the work area, or updates it if it already exists.
  */
 drawVerticalPositionLine: function( evt){
@@ -1275,7 +1377,8 @@ drawBasePairLabel: function ( args ){
 
     label.style.display = 'block';      //make label visible
     var absfunc = args.xToBp || dojo.hitch(this,'absXtoBp');
-    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )); //set text to BP location
+    //set text to BP location (adding 1 to convert from interbase)
+    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )+1);
 
     //label.style.top = args.top + 'px';
 
@@ -1359,7 +1462,7 @@ pxToBp: function(pixels) {
  * @returns {Number}
  */
 absXtoBp: function( /**Number*/ pixels) {
-    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels );
+    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels )-1;
 },
 
 bpToPx: function(bp) {
@@ -1375,6 +1478,8 @@ bpToPx: function(bp) {
 sizeInit: function() {
     //scale values, in pixels per bp, for all zoom levels
     var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
+
+    this.elemBox = { h: this.elem.offsetHeight, w: this.elem.offsetWidth };
 
     this.zoomLevels = [];
     for( var i = 0; i < desiredZoomLevels.length; i++ )  {
@@ -1843,24 +1948,38 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
  *        to add
  */
 showTracks: function( trackConfigs ) {
-    this.initialized.then( dojo.hitch( this, function() {
-        // look up configurations for any string track names
-        trackConfigs = array.map( trackConfigs, function( conf ) {
-            return conf.label ? conf : this.browser.trackConfigsByName[conf];
-        },this);
+    var thisB = this;
+    this.initialized.then(
+        function() {
+            if( typeof trackConfig == 'string' )
+                trackConfigs = trackConfigs.split(',');
 
-        // filter out any track configs that are already displayed
-        var needed = dojo.filter( trackConfigs, function(conf) {
-            return this._getTracks( [conf.label] ).length == 0;
-        },this);
-        if( ! needed.length ) return;
+            if( ! trackConfigs )
+                return;
 
-        // insert the track configs into the trackDndWidget ( the widget
-        // will call create() on the confs to render them)
-        this.trackDndWidget.insertNodes( false, needed );
+            // look up configurations for any string track names
+            trackConfigs = array.map( trackConfigs, function( conf ) {
+                return conf.label ? conf : this.browser.trackConfigsByName[conf];
+            },thisB);
 
-        this.updateTrackList();
-    }));
+            // filter out any track configs that are already displayed
+            var needed = array.filter( trackConfigs, function(conf) {
+               return conf && this._getTracks( [conf.label] ).length == 0;
+            },thisB);
+            if( needed.length ) {
+                // insert the track configs into the trackDndWidget ( the widget
+                // will call create() on the confs to render them)
+                thisB.trackDndWidget.insertNodes( false, needed );
+
+                thisB.updateTrackList();
+                // scroll the view to the bottom so we can see the new track
+                window.setTimeout( function() {
+                                       thisB.setY( Infinity );
+                                   }, 300 );
+            };
+        });
+
+    //this.updateTrackList();
 },
 
 /**
@@ -2327,26 +2446,6 @@ renderTrack: function( /**Object*/ trackConfig ) {
         if( typeof store.setTrack == 'function' )
             store.setTrack( track );
 
-        // if we can, check that the current reference sequence is
-        // contained in the store
-        if( store.hasRefSeq ) {
-            store.hasRefSeq(
-                this.ref.name,
-                function( foundRef ) {
-                    if( ! foundRef )
-                        new InfoDialog({
-                            title: 'No data',
-                            content: '<b>'
-                              +(trackConfig.key||trackConfig.label)
-                              +'</b> contains no data on this'
-                              +' reference sequence ('
-                              +thisB.ref.name
-                              +').'
-                        }).show();
-                }
-            );
-        }
-
         trackDiv.track = track;
 
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
@@ -2433,11 +2532,33 @@ updateTrackList: function() {
                                                        className: 'pin_underlay',
                                                        style: 'top: '+this.topSpace
                                                    }, this.scrollContainer );
+        if( ! this.pinGridlinesTrack ) {
+            var gridTrackDiv = domConstruct.create(
+                "div",
+                { className: "track",
+                  style: "top: 0px; height: 100%"
+                },
+                this.pinUnderlay );
+            this.pinGridlinesTrack = new GridLinesTrack({
+                                                            browser: this.browser,
+                                                            refSeq: this.ref
+                                                        });
+            this.pinGridlinesTrack.setViewInfo( this, function() {}, this.stripeCount,
+                                                gridTrackDiv, this.stripePercent,
+                                                this.stripeWidth, this.pxPerBp,
+                                                this.trackPadding);
+            this.uiTracks.push( this.pinGridlinesTrack );
+        }
     }
     else if( this.pinUnderlay ) {
         domConstruct.destroy( this.pinUnderlay );
         delete this.pinUnderlay;
+        this.uiTracks = array.filter( this.uiTracks, function(t) {
+                                          return t !== this.pinGridlinesTrack;
+                                      }, this );
+        delete this.pinGridlinesTrack;
     }
+
 
     // set the new tracklist
     var oldTracks = this.tracks;

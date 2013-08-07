@@ -178,6 +178,8 @@ sub segment {
                     );
 }
 
+*features = \&segment;
+
 # cache the last fetch from the index, which will cache the last
 # sequence we fetched, and make repeated fetches of the same sequence
 # fast.  returns a REFERENCE to a sequence string.

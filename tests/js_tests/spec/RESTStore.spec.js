@@ -1,18 +1,17 @@
 require([
-            'dojo/aspect',
+            'dojo/_base/lang',
             'JBrowse/Store/SeqFeature/REST'
-        ], function( aspect, RESTStore ) {
-describe( 'REST store', function() {
-              var store;
-              beforeEach( function() {
-                  store = new RESTStore({
+        ], function( lang, RESTStore ) {
+
+function testWithConfig(config) {
+    var store = new RESTStore({
                       browser: {},
-                      baseUrl: '../data/rest_store_test/',
-                      refSeq: { name: 'ctgA', start: 1, end: 500001 }
+                      baseUrl: '../data/rest_store_test',
+                      refSeq: { name: 'ctgA', start: 1, end: 500001 },
+                      config: config || {}
                   });
-              });
 
-
+    return function() {
               it( 'constructs', function() {
                       expect( store ).toBeTruthy();
                   });
@@ -64,6 +63,10 @@ describe( 'REST store', function() {
                                 expect( stats.featureDensity ).toEqual( 0.00012 );
                             });
                   });
+    };
+};
 
-});
+describe( 'REST store', testWithConfig({ foo: 1 }));
+describe( 'REST store with nocache', testWithConfig({ noCache: true, foo:2 }) );
+
 });

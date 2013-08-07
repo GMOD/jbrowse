@@ -46,7 +46,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.sequence()
 
         # test that the frame usage track claims to have links to NCBI
-        self.turn_on_track( 'Frame usage' )
+        self.turn_on_track( 'HTMLFeatures - mRNAs' )
         self.do_typed_query('ctgA:2,381..21,220')
         self.assert_element("//div[@title='search at NCBI']")
 
@@ -62,7 +62,47 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test vcf
         self.vcf()
 
+        # test CanvasFeatures tracks
+        self.canvasfeatures()
+
         self.browser.close()
+
+    def canvasfeatures( self ):
+
+        # turn on CanvasFeatures tracks and make sure they are created
+        self.do_typed_query( 'Apple1' );
+        self.turn_on_track('CanvasFeatures - Protein-coding genes');
+
+        self.assert_elements("//div[@id='track_Genes']//canvas");
+        self.assert_elements("//div[@id='track_CDS']//canvas");
+        self.assert_no_js_errors();
+
+
+        # test left-clicking on CanvasFeatures track
+        self.do_typed_query( 'ctgA:1049..9000' );
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]");
+        canvases = self.assert_elements("//div[@id='track_Genes']//canvas[@class='canvas-track']");
+        canvases[3].click();
+        time.sleep(0.5);
+        self.assert_elements("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]");
+        self.close_dialog("EDEN details");
+
+        # test Canvas-features context menu functionality
+        # right-click one of them
+        self.actionchains() \
+            .context_click(canvases[3]) \
+            .perform()
+
+        time.sleep(0.7);
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
+        self.menu_item_click("Popup with content snippet from string (feature EDEN)");
+        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
+        self.close_dialog('snippet');
+        time.sleep(0.4);
+
+        # turn off canvasFeatures tracks so they're not cluttering everything up
+        self.turn_off_track('CanvasFeatures - Protein-coding genes');
+        self.turn_off_track('CanvasFeatures - mixed')
 
     def vcf( self ):
         self.do_typed_query('ctgA:18918..19070');
@@ -94,13 +134,21 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         time.sleep(0.5);
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
 
-        self.turn_on_track( 'Example Features' )
+        self.turn_on_track( 'HTMLFeatures - Example Features' )
         trackname = 'ExampleFeatures'
         time.sleep(0.5);
         self.export_track( trackname, 'Visible region','GFF3','View')
         time.sleep(0.4)
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Save')
+
+        self.turn_on_track( 'CanvasFeatures - transcripts' )
+        trackname = 'Transcript'
+        time.sleep(0.5)
+        self.export_track( trackname, 'Visible region', 'GFF3', 'View')
+        time.sleep(0.4)
+        self.close_dialog('export')
+        self.export_track( trackname, 'Visible region', 'BED', 'Save')
 
         self.do_typed_query('ctgA:8379..31627');
         time.sleep(0.5);
@@ -135,7 +183,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
-        self.turn_on_track( 'Example Features with Menus' )
+        self.turn_on_track( 'HTMLFeatures - Features with menus' )
         self.do_typed_query( '20147..35574' );
 
         # check that there is no dialog open
@@ -197,7 +245,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         label = self.assert_element( xpath )
         assert label.text == 'f15';
 
-        self.turn_off_track('Example Features')
+        self.turn_off_track('HTMLFeatures - Example Features')
 
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):

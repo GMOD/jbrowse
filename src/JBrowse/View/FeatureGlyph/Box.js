@@ -1,11 +1,15 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
+           'dojo/_base/lang',
            'JBrowse/Util/FastPromise',
            'JBrowse/View/FeatureGlyph',
            './_FeatureLabelMixin'
        ],
        function(
            declare,
+           array,
+           lang,
            FastPromise,
            FeatureGlyph,
            FeatureLabelMixin
@@ -27,13 +31,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
                     color: 'goldenrod',
                     mouseovercolor: 'rgba(0,0,0,0.3)',
-                    border_color: null,
+                    borderColor: null,
+                    borderWidth: 0.5,
                     height: 11,
                     marginBottom: 2,
 
-                    strand_arrow: true,
+                    strandArrow: true,
 
-                    label: function( feature ) { return feature.get('name') || feature.get('id'); },
+                    label: 'name, id',
                     textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
                     textColor:  'black',
                     text2Color: 'blue',
@@ -44,33 +49,71 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             });
     },
 
-    mouseoverFeature: function( context, block, fRect ) {
-        this.renderFeature( context, block, fRect );
+    _getFeatureHeight: function( viewArgs, feature ) {
+        var h = this.getStyle( feature, 'height');
 
-        // highlight the feature rectangle if we're moused over
-        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
-        context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
+        if( viewArgs.displayMode == 'compact' )
+            h = 0.45 * h;
+
+        return h;
     },
 
     _getFeatureRectangle: function( viewArgs, feature ) {
         var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this.getStyle( feature, 'height' )
+            h: this._getFeatureHeight(viewArgs, feature),
+            viewInfo: viewArgs,
+            f: feature,
+            glyph: this
         };
 
         fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
 
         // save the original rect in `rect` as the dimensions
         // we'll use for the rectangle itself
-        fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ) };
+        fRect.rect = { l: fRect.l, h: fRect.h, w: Math.max( fRect.w, 2 ), t: 0 };
         fRect.w = fRect.rect.w; // in case it was increased
-        fRect.h += this.getStyle( feature, 'marginBottom' ) || 0;
+        if( viewArgs.displayMode != 'compact' )
+            fRect.h += this.getStyle( feature, 'marginBottom' ) || 0
+;
+        // if we are showing strand arrowheads, expand the frect a little
+        if( this.getStyle( feature, 'strandArrow') ) {
+            var strand = fRect.strandArrow = feature.get('strand');
 
+            fRect.w += 9;
+            if( strand == -1 ) {
+                fRect.l -= 9;
+            }
+        }
+
+        // no labels or descriptions if displayMode is collapsed, so stop here
+        if( viewArgs.displayMode == "collapsed")
+            return fRect;
+
+        this._expandRectangleWithLabels( viewArgs, feature, fRect );
+        this._addMasksToRect( viewArgs, feature, fRect );
+
+        return fRect;
+    },
+
+    layoutFeature: function( viewArgs, layout, feature ) {
+        var rect = this.inherited( arguments );
+        if( ! rect ) return rect;
+
+        // need to set the top of the inner rect
+        rect.rect.t = rect.t;
+
+        return rect;
+    },
+
+    // given an under-construction feature layout rectangle, expand it
+    // to accomodate a label and/or a description
+    _expandRectangleWithLabels: function( viewArgs, feature, fRect ) {
         // maybe get the feature's name, and update the layout box
         // accordingly
         if( viewArgs.showLabels ) {
-            var label = this.makeLabel( feature, fRect );
+            var label = this.makeFeatureLabel( feature, fRect );
             if( label ) {
                 fRect.h += label.h;
                 fRect.w = Math.max( label.w, fRect.w );
@@ -82,7 +125,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // maybe get the feature's description if available, and
         // update the layout box accordingly
         if( viewArgs.showDescriptions ) {
-            var description = this.makeDescription( feature, fRect );
+            var description = this.makeFeatureDescriptionLabel( feature, fRect );
             if( description ) {
                 fRect.description = description;
                 fRect.h += description.h;
@@ -90,22 +133,11 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 description.yOffset = fRect.h-(this.getStyle( feature, 'marginBottom' ) || 0);
             }
         }
-
-        // if we are showing strand arrowheads, expand the frect a little
-        if( this.getStyle( feature, 'strand_arrow') ) {
-            var strand = fRect.strandArrow = feature.get('strand');
-
-            fRect.w += 9;
-            if( strand == -1 )
-                fRect.l -= 9;
-        }
-
-        return fRect;
     },
 
     _imgData: {
-         plus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
-         minus_arrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="
+         plusArrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
+         minusArrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="
     },
 
     /**
@@ -132,70 +164,105 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 }.call(this));
     },
 
-    renderFeature: function( context, block, fRect ) {
-        var rectWidth = fRect.rect.w;
-        var rectHeight = fRect.rect.h;
+    renderFeature: function( context, fRect ) {
+        if( this.track.displayMode != 'collapsed' )
+            context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
-        context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
+        this.renderBox( context, fRect.viewInfo, fRect.f, fRect.t, fRect.rect.h, fRect.f );
+        this.renderLabel( context, fRect );
+        this.renderDescription( context, fRect );
+        this.renderArrowhead( context, fRect );
+    },
+
+    // top and height are in px
+    renderBox: function( context, viewInfo, feature, top, overallHeight, parentFeature, style ) {
+        var left  = viewInfo.block.bpToX( feature.get('start') );
+        var width = viewInfo.block.bpToX( feature.get('end') ) - left;
+        //left = Math.round( left );
+        //width = Math.round( width );
+
+        style = style || lang.hitch( this, 'getStyle' );
+
+        var height = style( feature, 'height' );
+        if( ! height )
+            return;
+        if( height != overallHeight )
+            top += Math.round( (overallHeight - height)/2 );
 
         // background
-        var color = this.getStyle( fRect.f, 'color' );
-        if( color ) {
-            context.fillStyle = color;
-            context.fillRect( fRect.rect.l, fRect.t, rectWidth, rectHeight );
+        var bgcolor = style( feature, 'color' );
+        if( bgcolor ) {
+            context.fillStyle = bgcolor;
+            context.fillRect( left, top, Math.max(1,width), height );
+        }
+        else {
+            context.clearRect( left, top, Math.max(1,width), height );
         }
 
         // foreground border
-        var border_color;
-        if( rectHeight > 3 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.lineWidth = 1;
-                context.strokeStyle = border_color;
+        var borderColor, lineWidth;
+        if( (borderColor = style( feature, 'borderColor' )) && ( lineWidth = style( feature, 'borderWidth')) ) {
+            if( width > 3 ) {
+                context.lineWidth = lineWidth;
+                context.strokeStyle = borderColor;
 
                 // need to stroke a smaller rectangle to remain within
                 // the bounds of the feature's overall height and
                 // width, because of the way stroking is done in
                 // canvas.  thus the +0.5 and -1 business.
-                context.strokeRect( fRect.l+0.5, fRect.t+0.5, rectWidth-1, rectHeight-1 );
+                context.strokeRect( left+lineWidth/2, top+lineWidth/2, width-lineWidth, height-lineWidth );
+            }
+            else {
+                context.globalAlpha = lineWidth*2/width;
+                context.fillStyle = borderColor;
+                context.fillRect( left, top, Math.max(1,width), height );
+                context.globalAlpha = 1;
             }
         }
-        else if( rectHeight > 1 ) {
-            border_color = this.getStyle( fRect.f, 'border_color' );
-            if( border_color ) {
-                context.fillStyle = border_color;
-                context.fillRect( fRect.l, fRect.t+fRect.h-1, rectWidth, 1 );
-            }
-        }
+    },
 
-        // label
+    // feature label
+    renderLabel: function( context, fRect ) {
         if( fRect.label ) {
-            context.font = this.config.style.textFont;
-            context.fillStyle = this.getStyle( fRect.f, 'textColor' );
-            context.fillText( fRect.label.text, fRect.l, fRect.t + fRect.label.yOffset );
+            context.font = fRect.label.font;
+            context.fillStyle = fRect.label.fill;
+            context.textBaseline = fRect.label.baseline;
+            context.fillText( fRect.label.text,
+                              fRect.l+(fRect.label.xOffset||0),
+                              fRect.t+(fRect.label.yOffset||0)
+                            );
         }
+    },
 
-        // description
+    // feature description
+    renderDescription: function( context, fRect ) {
         if( fRect.description ) {
-            context.font = this.config.style.text2Font;
-            context.fillStyle = this.getStyle( fRect.f, 'text2Color' );
-            context.fillText( fRect.description.text, fRect.l, fRect.t + fRect.description.yOffset);
+            context.font = fRect.description.font;
+            context.fillStyle = fRect.description.fill;
+            context.textBaseline = fRect.description.baseline;
+            context.fillText(
+                fRect.description.text,
+                fRect.l+(fRect.description.xOffset||0),
+                fRect.t + (fRect.description.yOffset||0)
+            );
         }
+    },
 
-        // strand arrowhead
+    // strand arrowhead
+    renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
-            if( fRect.strandArrow == 1 ) {
-                this.getEmbeddedImage( 'plus_arrow' )
+            if( fRect.strandArrow == 1 && fRect.rect.l+fRect.rect.w <= context.canvas.width ) {
+                this.getEmbeddedImage( 'plusArrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.l + rectWidth, fRect.t + (rectHeight-img.height)/2 );
+                               context.drawImage( img, fRect.rect.l + fRect.rect.w, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
-            else if( fRect.strandArrow == -1 ) {
-                this.getEmbeddedImage( 'minus_arrow' )
+            else if( fRect.strandArrow == -1 && fRect.rect.l >= 0 ) {
+                this.getEmbeddedImage( 'minusArrow' )
                     .then( function( img ) {
                                context.imageSmoothingEnabled = false;
-                               context.drawImage( img, fRect.l, fRect.t + (rectHeight-img.height)/2 );
+                               context.drawImage( img, fRect.rect.l-9, fRect.t + (fRect.rect.h-img.height)/2 );
                            });
             }
         }

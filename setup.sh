@@ -51,6 +51,7 @@ echo -n "Formatting Volvox example data ...";
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json
+    bin/add-track-json.pl docs/tutorial/data_files/volvox_fromconfig.conf sample_data/json/volvox/trackList.json
     bin/add-json.pl '{ "dataset_id": "volvox" }' sample_data/json/volvox/trackList.json
     bin/generate-names.pl -v --out sample_data/json/volvox;
 
@@ -64,6 +65,8 @@ echo -n "Formatting Volvox example data ...";
         ln -s ../../docs/tutorial/data_files sample_data/raw/volvox;
     fi;
     ln -sf ../../docs/tutorial/conf_files/volvox.json sample_data/raw/;
+
+    touch sample_data/json/volvox/successfully_run;
 
 ) >>setup.log 2>&1
 done_message "To see the volvox example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/volvox.";
@@ -98,7 +101,7 @@ echo -n "Building and installing legacy wiggle format support (superseded by Big
 done_message "" "Make sure libpng development libraries and header files are installed.";
 
 echo
-echo -n "Building and installing legacy BAM support (bam-to-json.pl, samtools, and Bio::DB::Sam) ...";
+echo -n "Building and installing legacy bam-to-json.pl support (superseded by direct BAM tracks) ...";
 (
     set -e;
 

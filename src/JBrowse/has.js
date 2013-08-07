@@ -17,7 +17,7 @@ define([ 'dojo/has' ],
            // does it support canvas?
            has.add( 'canvas', function() {
                         try {
-                            return !! document.createElement('canvas');
+                            return !! document.createElement('canvas').getContext('2d');
                         } catch(e) {}
                         return false;
                     });
@@ -28,6 +28,15 @@ define([ 'dojo/has' ],
            has.add( 'inaccurate-html-layout', function() {
                return has('safari') || has('ie') < 9;
            }, true );
+
+
+           has.add( 'save-generated-files', function() {
+                        var canSave = false;
+                        try {
+                            canSave = Blob && !( has('ie') < 10 );
+                        } catch(e) {}
+                        return canSave;
+           },true);
 
            return has;
        }

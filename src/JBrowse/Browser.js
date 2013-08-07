@@ -10,6 +10,7 @@ define( [
             'dojo/DeferredList',
             'dojo/topic',
             'dojo/aspect',
+            'dojo/request',
             'JBrowse/has',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
@@ -17,6 +18,7 @@ define( [
             'dijit/Dialog',
             'dijit/form/Button',
             'dijit/form/Select',
+            'dijit/form/ToggleButton',
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
@@ -49,6 +51,7 @@ define( [
             DeferredList,
             topic,
             aspect,
+            request,
             has,
             array,
             dijitContentPane,
@@ -56,6 +59,7 @@ define( [
             dijitDialog,
             dijitButton,
             dijitSelectBox,
+            dijitToggleButton,
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
@@ -275,19 +279,28 @@ fatalError: function( error ) {
             + '  <h1>Congratulations, JBrowse is on the web!</h1>'
             + "  <p>However, JBrowse could not start, either because it has not yet been configured"
             + "     and loaded with data, or because of an error.</p>"
-            + "  <p style=\"font-size: 110%; font-weight: bold\"><a title=\"View the tutorial\" href=\"docs/tutorial/\">If this is your first time running JBrowse, click here to follow the Quick-start Tutorial to get up and running.</a></p>"
-            + "  <p>Otherwise, please refer to the following resources for help in getting JBrowse up and running.</p>"
-            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a></li>'
-            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki</a></li>'
-            + '      <li><a target="_blank" href="docs/config.html">Configuration reference</a></li>'
-            + '      <li><a target="_blank" href="docs/featureglyphs.html">Feature glyph reference</a></li>'
+            + "  <p style=\"font-size: 110%; font-weight: bold\">If this is your first time running JBrowse, <a title=\"View the tutorial\" href=\"docs/tutorial/\" target=\"_blank\">click here to follow the Quick-start Tutorial to show your data in JBrowse.</a></p>"
+            + '  <p id="volvox_data_placeholder"></p>'
+            + "  <p>Otherwise, please refer to the following resources for help in setting up JBrowse to show your data.</p>"
+            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a> - get your data visible quickly with minimum fuss</li>'
+            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse_Configuration_Guide">JBrowse Configuration Guide</a> - a comprehensive reference</li>'
+            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki main page</a></li>'
+            + '      <li><a target="_blank" href="docs/config.html"><code>biodb-to-json.pl</code> configuration reference</a></li>'
+            + '      <li><a target="_blank" href="docs/featureglyphs.html">HTMLFeatures CSS class reference</a> - prepackaged styles (CSS classes) for HTMLFeatures tracks</li>'
             + '  </ul>'
-
             + '  <div id="fatal_error_list" class="errors"> <h2>Error message(s):</h2>'
             + ( error ? '<div class="error"> '+error+'</div>' : '' )
             + '  </div>'
             + '</div>'
             ;
+        request( 'sample_data/json/volvox/successfully_run' )
+        .then( function() {
+                   try {
+                       document.getElementById('volvox_data_placeholder')
+                           .innerHTML = 'Also, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data</a> here.';
+                   } catch(e) {}
+               });
+
         this.hasFatalErrors = true;
     } else {
         var errors_div = dojo.byId('fatal_error_list') || document.body;
@@ -481,7 +494,7 @@ initView: function() {
             var shareURL = thisB.makeCurrentViewURL();
             if( thisB.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            document.title = 'JBrowse';
+            document.title = thisB.browserMeta().title;
         };
 
         this.subscribe( '/jbrowse/v1/n/navigate',  updateLocationBar );
@@ -538,6 +551,13 @@ renderMenuBar: function( menuBar ) {
                                     onClick: dojo.hitch( this, 'openFileDialog' )
                                 })
                           );
+    this.addGlobalMenuItem( 'file', new dijitMenuItem(
+                                {
+                                    label: 'Add combination track',
+                                    iconClass: 'dijitIconSample',
+                                    onClick: dojo.hitch(this, 'createCombinationTrack')
+                                }));
+
     this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
 
@@ -547,6 +567,7 @@ renderMenuBar: function( menuBar ) {
         new dijitMenuItem(
             {
                 label: 'Set highlight',
+                iconClass: 'dijitIconFilter',
                 onClick: function() {
                     new SetHighlightDialog({
                                                browser: thisB,
@@ -558,6 +579,7 @@ renderMenuBar: function( menuBar ) {
     this._highlightClearButton = new dijitMenuItem(
         {
             label: 'Clear highlight',
+            iconClass: 'dijitIconFilter',
             onClick: dojo.hitch( this, function() {
                                      var h = this.getHighlight();
                                      if( h ) {
@@ -614,6 +636,36 @@ _initialLocation: function() {
     } else {
         return null;
     }
+},
+
+createCombinationTrack: function() {
+    if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
+    var d = new Deferred();
+    var storeConf = {
+        browser: this,
+        refSeq: this.refSeq,
+        type: 'JBrowse/Store/SeqFeature/Combination'
+    };
+    var storeName = this._addStoreConfig(undefined, storeConf);
+    storeConf.name = storeName;
+    this.getStore(storeName, function(store) {
+        d.resolve(true);
+    });
+    var thisB = this;
+    d.promise.then(function(){
+        var combTrackConfig = {
+            type: 'JBrowse/View/Track/Combination',
+            label: "combination_track" + (thisB._combinationTrackCount++),
+            key: "Combination Track " + (thisB._combinationTrackCount),
+            metadata: {Description: "Drag-and-drop interface that creates a track out of combinations of other tracks."},
+            store: storeName
+        };
+        // send out a message about how the user wants to create the new tracks
+        thisB.publish( '/jbrowse/v1/v/tracks/new', [combTrackConfig] );
+
+        // Open the track immediately
+        thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
+    });
 },
 
 renderDatasetSelect: function( parent ) {
@@ -714,10 +766,11 @@ getTrackTypes: function() {
             // map of store type -> default track type to use for the store
             trackTypeDefaults: {
                 'JBrowse/Store/SeqFeature/BAM'        : 'JBrowse/View/Track/Alignments2',
-                'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants'
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants',
+                'JBrowse/Store/SeqFeature/GFF3'       : 'JBrowse/View/Track/CanvasFeatures'
             },
 
             knownTrackTypes: [
@@ -726,6 +779,7 @@ getTrackTypes: function() {
                 'JBrowse/View/Track/FeatureCoverage',
                 'JBrowse/View/Track/SNPCoverage',
                 'JBrowse/View/Track/HTMLFeatures',
+                'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/View/Track/HTMLVariants',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
@@ -846,6 +900,17 @@ addGlobalMenuItem: function( menuName, item ) {
 _initEventRouting: function() {
     var that = this;
 
+    that.subscribe('/jbrowse/v1/v/store/new', function( storeConfigs ) {
+        array.forEach( storeConfigs, function( storeConfig ) {
+                           storeConfig = lang.mixin( {}, storeConfig );
+                           var name = storeConfig.name;
+                           delete storeConfig.name;
+                           that._addStoreConfig( name, storeConfig );
+                       });
+    });
+
+
+
     that.subscribe('/jbrowse/v1/v/tracks/hide', function( trackConfigs ) {
         that.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
     });
@@ -948,14 +1013,14 @@ getStoreDeferred: function( storeName ) {
 
         var conf = this.config.stores[storeName];
         if( ! conf ) {
-            d.reject( "store '"+storeName+"' not found" );
-            return d;
+            getStore.reject( "store '"+storeName+"' not found" );
+            return getStore;
         }
 
         var storeClassName = conf.type;
         if( ! storeClassName ) {
-            d.reject( "store "+storeName+" has no type defined" );
-            return d;
+            getStore.reject( "store "+storeName+" has no type defined" );
+            return getStore;
         }
 
         // use a Deferred for loading the store class, because
@@ -1492,37 +1557,6 @@ _searchNameIndex: function( loc ) {
         );
 },
 
-
-/**
- * load and display the given tracks
- * @example
- * gb=dojo.byId("GenomeBrowser").genomeBrowser
- * gb.showTracks(["DNA","gene","mRNA","noncodingRNA"])
- * @param trackNameList {Array|String} array or comma-separated string
- * of track names, each of which should correspond to the "label"
- * element of the track information
- */
-
-showTracks: function( trackNames ) {
-    this.afterMilestone('initView', dojo.hitch( this, function() {
-        if( typeof trackNames == 'string' )
-            trackNames = trackNames.split(',');
-
-        if( ! trackNames )
-            return;
-
-        var trackConfs = dojo.filter(
-            dojo.map( trackNames, function(n) {
-                          return this.trackConfigsByName[n];
-                      }, this),
-            function(c) {return c;} // filter out confs that are missing
-        );
-
-        // publish some events with the tracks to instruct the views to show them.
-        this.publish( '/jbrowse/v1/c/tracks/show', trackConfs );
-        this.publish( '/jbrowse/v1/n/tracks/visibleChanged' );
-    }));
-},
 
 /**
  * Create a global keyboard shortcut.

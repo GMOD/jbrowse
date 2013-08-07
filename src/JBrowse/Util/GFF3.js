@@ -30,12 +30,14 @@ return {
         for( var i = 0; i < gff3_field_names.length; i++ ) {
             parsed[ gff3_field_names[i] ] = f[i] == '.' ? null : f[i];
         }
-        if( parsed.start )
+        if( parsed.start !== null )
             parsed.start = parseInt( parsed.start, 10 );
-        if( parsed.end )
+        if( parsed.end !== null )
             parsed.end = parseInt( parsed.end, 10 );
-        if( parsed.score )
+        if( parsed.score !== null )
             parsed.score = parseFloat( parsed.score, 10 );
+        if( parsed.strand !== null )
+            parsed.strand = parsed.strand == '+' ? 1 : parsed.strand == '-' ? -1 : 0;
 
         return parsed;
     },

@@ -78,6 +78,18 @@ var profile = {
         'JBrowse/Store/SeqFeature/BAM': {
             include: [ 'JBrowse/Store/SeqFeature/BAM' ],
             exclude: ['JBrowse']
+        },
+
+        'JBrowse/View/Track/CanvasFeatures': {
+            include: [
+                'JBrowse/View/Track/CanvasFeatures',
+                'JBrowse/View/FeatureGlyph',
+                'JBrowse/View/FeatureGlyph/Box',
+                'JBrowse/View/FeatureGlyph/Segments',
+                'JBrowse/View/FeatureGlyph/Gene',
+                'JBrowse/View/FeatureGlyph/Alignment'
+            ],
+            exclude: ['JBrowse']
         }
     },
 

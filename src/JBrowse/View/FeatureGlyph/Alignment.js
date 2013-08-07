@@ -28,7 +28,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
             {
                 //maxFeatureScreenDensity: 400
                 style: {
-                    color: function( feature, path, partnum, totalParts, glyph, track ) {
+                    color: function( feature, path, glyph, track ) {
                         var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
                         var strand = feature.get('strand');
                         return                  missing_mate ? glyph.getStyle( feature, 'color_missing_mate' ) :
@@ -41,7 +41,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     color_missing_mate: '#D11919',
                     border_color: null,
 
-                    strand_arrow: false,
+                    strandArrow: false,
 
                     height: 7,
                     marginBottom: 1,
@@ -52,16 +52,17 @@ return declare( [BoxGlyph,MismatchesMixin], {
         );
     },
 
-    renderFeature: function( context, block, fRect ) {
+    renderFeature: function( context, fRect ) {
 
         this.inherited( arguments );
 
-        if( block.scale > 0.2 )
-            this._drawMismatches( context, block, fRect );
+        if( fRect.viewInfo.scale > 0.2 )
+            this._drawMismatches( context, fRect );
     },
 
-    _drawMismatches: function( context, block, fRect ) {
+    _drawMismatches: function( context, fRect ) {
         var feature = fRect.f;
+        var block = fRect.viewInfo.block;
         var scale = block.scale;
         // recall: scale is pixels/basepair
         if ( fRect.w > 1 ) {

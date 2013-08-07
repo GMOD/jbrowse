@@ -33,7 +33,7 @@ return declare( null, {
 
     _initialConfig: function( config ) {
         return this._mergeConfigs(
-            lang.clone( this.configBase = this._mergeConfigs( dojo.clone( this._defaultConfig() ), this.configBase ) ),
+            lang.mixin( {}, this.configBase = this._mergeConfigs( lang.mixin({}, this._defaultConfig()), this.configBase ) ),
             this.configLocal
         );
     },

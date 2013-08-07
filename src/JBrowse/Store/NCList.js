@@ -1,5 +1,15 @@
-define(['JBrowse/Finisher','JBrowse/Util'],
-      function(Finisher, Util) {
+define([
+           'dojo/request',
+           'dojo/promise/all',
+           'dojo/Deferred',
+           'JBrowse/Util'
+       ],
+      function(
+          request,
+          all,
+          Deferred,
+          Util
+      ) {
 
 /**
 
@@ -37,7 +47,7 @@ NCList.prototype.importExisting = function(nclist, attrs, baseURL,
 
 /**
  *
- *  Given an array of features, creates the nested containment list data structure 
+ *  Given an array of features, creates the nested containment list data structure
  *  WARNING: DO NOT USE directly for adding additional intervals!
  *  completely replaces existing nested containment structure
  *  (erases current topList and subarrays, repopulates from intervals)
@@ -121,56 +131,75 @@ NCList.prototype.binarySearch = function(arr, item, getter) {
     if (getter === this.end) return high; else return low;
 };
 
-NCList.prototype.iterHelper = function(arr, from, to, fun, finish,
+NCList.prototype.iterHelper = function(arr, from, to, fun,
                                        inc, searchGet, testGet, path) {
     var len = arr.length;
     var i = this.binarySearch(arr, from, searchGet);
     var getChunk = this.attrs.makeGetter("Chunk");
     var getSublist = this.attrs.makeGetter("Sublist");
 
+    var promises = [];
+
     while ((i < len)
            && (i >= 0)
            && ((inc * testGet(arr[i])) < (inc * to)) ) {
 
-        if (arr[i][0] == this.lazyClass) {
-            var ncl = this;
-            var chunkNum = getChunk(arr[i]);
-            if (!(chunkNum in this.lazyChunks)) {
-                this.lazyChunks[chunkNum] = {};
-            }
-            var chunk = this.lazyChunks[chunkNum];
-            finish.inc();
-            Util.maybeLoad({ url: Util.resolveUrl(this.baseURL,
-                                           this.lazyUrlTemplate.replace(
-                                                   /\{Chunk\}/ig, chunkNum
-                                           ) ),
-                             handleAs: 'json'
-                           },
-                           chunk,
-                           (function (myChunkNum) {
-                               return function(o) {
-                                   ncl.iterHelper(o, from, to, fun, finish,
-                                                  inc, searchGet, testGet,
-                                                  [myChunkNum]);
-                                   finish.dec();
-                               };
-                            })(chunkNum),
-                           function() {
-                               finish.dec();
-                           }
-                          );
+        if( arr[i][0] == this.lazyClass ) {
+            // this is a lazily-loaded chunk of the nclist
+            (function() {
+                var thisB = this;
+                var chunkNum = getChunk(arr[i]);
+                if( !(chunkNum in this.lazyChunks) ) {
+                    this.lazyChunks[chunkNum] = {};
+                }
+
+                var getDone = new Deferred();
+                promises.push( getDone.promise );
+
+                request.get(
+                    Util.resolveUrl(
+                    this.baseURL,
+                        this.lazyUrlTemplate.replace(
+                                /\{Chunk\}/ig, chunkNum
+                        )
+                    ),
+                    { handleAs: 'json' }
+                ).then(
+                    function( sublist ) {
+                        return thisB.iterHelper(
+                            sublist, from, to, fun,
+                            inc, searchGet, testGet,
+                            [chunkNum]
+                        ).then( function() { getDone.resolve(); } );
+                    },
+                    function( error ) {
+                        if( error.response.status != 404 )
+                            throw new Error( error );
+                        else
+                            getDone.resolve();
+                    }
+                );
+            }).call(this);
+
         } else {
+            // this is just a regular feature
+
             fun(arr[i], path.concat(i));
         }
 
+        // if this node has a contained sublist, process that too
         var sublist = getSublist(arr[i]);
         if (sublist)
-            this.iterHelper(sublist, from, to,
-                            fun, finish, inc, searchGet, testGet,
-                            path.concat(i));
+            promises.push( this.iterHelper(sublist, from, to,
+                                           fun, inc, searchGet, testGet,
+                                           path.concat(i))
+                         );
         i += inc;
     }
+
+    return all( promises );
 };
+
 
 NCList.prototype.iterate = function(from, to, fun, postFun) {
     // calls the given function once for each of the
@@ -183,14 +212,12 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
     var searchGet = (from > to) ? this.start : this.end;
     //testGet: test on start or end
     var testGet = (from > to) ? this.end : this.start;
-    var finish = new Finisher(postFun);
-
 
     if (this.topList.length > 0) {
-    this.iterHelper(this.topList, from, to, fun, finish,
-                    inc, searchGet, testGet, [0]);
+        this.iterHelper( this.topList, from, to, fun,
+                         inc, searchGet, testGet, [0])
+            .then( postFun );
     }
-    finish.finish();
 };
 
 NCList.prototype.histogram = function(from, to, numBins, callback) {

@@ -7,7 +7,7 @@
          "autocomplete" : "all",
          "track" : "ExampleFeatures",
          "class" : "feature2",
-         "key" : "Example Features"
+         "key" : "HTMLFeatures - Example Features",
       },
       {
          "feature" : [
@@ -16,7 +16,7 @@
          ],
          "track" : "NameTest",
          "class" : "feature2",
-         "key" : "Name test track has a really long track label"
+         "key" : "HTMLFeatures - Name test track has a really long track label"
       },
       {
          "feature" : [
@@ -24,7 +24,7 @@
          ],
          "track" : "snps",
          "class" : "triangle hgred",
-         "key" : "Test SNPs"
+         "key" : "HTMLFeatures - SNPs"
       },
       {
          "feature" : [
@@ -33,7 +33,7 @@
          "track" : "Motifs",
          "class" : "feature3",
          "description" : 1,
-         "key" : "Example motifs",
+         "key" : "HTMLFeatures - Example motifs",
          "style": {
            "label": "function(feature) { return feature.get('Name')+' (via JS callback)' }",
            "description": "function(feature) { return feature.get('Name')+': '+feature.get('Note'); }"
@@ -45,7 +45,7 @@
          ],
          "track" : "malformed_alignments",
          "class" : "feature4",
-         "key" : "Example Features with Menus",
+         "key" : "HTMLFeatures - Features with menus",
          "metadata": { "Description": "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback." },
          "hooks": {
              "modify": "function( track, feature, div ) { div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
@@ -116,8 +116,16 @@
          ],
          "track" : "Genes",
          "class" : "feature5",
-         "key" : "Protein-coding genes",
-         "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}"
+         "key" : "CanvasFeatures - Protein-coding genes",
+         "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
+         "trackType": "JBrowse/View/Track/CanvasFeatures",
+         "menuTemplate": [  {
+               "label" : "Popup with content snippet from string (feature {name})",
+               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "iconClass" : "dijitIconDatabase",
+               "action": "contentDialog",
+               "content" : "<h2>{name}</h2>This is some test content about {type} {name}, which goes from {start} to {end} on the {strand} strand."
+             }],
       },
       {
          "feature" : [
@@ -125,39 +133,36 @@
          ],
          "track" : "ReadingFrame",
          "category" : "Genes",
-         "class" : "dblhelix",
-         "key" : "Frame usage",
+         "class" : "cds",
+         "phase": 1,
+         "key" : "HTMLFeatures - mRNAs",
          "onClick": { "label": "search at NCBI", "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
       },
       {
          "feature" : [
-            "CDS:predicted",
+            "CDS:bare_predicted",
             "mRNA:exonerate",
             "mRNA:predicted"
          ],
          "urlTemplate" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}-{start}-{end}",
-         "phase" : 1,
          "track" : "CDS",
          "category" : "Genes",
          "class" : "cds",
-         "key" : "Predicted genes"
+         "key" : "CanvasFeatures - mixed",
+         "trackType": "CanvasFeatures"
       },
       {
          "track" : "Transcript",
          "description" : 1,
-         "key" : "Exonerate predictions",
+         "style": { "color": "#E32A3A" },
+         "key" : "CanvasFeatures - transcripts",
+         "trackType": "JBrowse/View/Track/CanvasFeatures",
          "feature" : [
             "mRNA:exonerate"
          ],
-         "arrowheadClass" : "transcript-arrowhead",
          "category" : "Genes",
-         "class" : "transcript",
-         "subfeature_classes" : {
-            "CDS" : "transcript-CDS",
-            "UTR" : "transcript-UTR"
-         },
          "subfeatures" : true,
-         "onClick": "function() { alert('This is a user-configurable JavaScript action!'); };"
+         "onClick": "function() { alert('This is an example of a user-provided JavaScript callback!'); };"
       },
       {
          "feature" : [
@@ -166,7 +171,7 @@
          "track" : "Clones",
          "class" : "exon",
          "description" : 1,
-         "key" : "Fingerprinted BACs"
+         "key" : "HTMLFeatures - Fingerprinted BACs"
       },
       {
          "feature" : [
@@ -174,7 +179,7 @@
          ],
          "track" : "EST",
          "class" : "est",
-         "key" : "ESTs"
+         "key" : "HTMLFeatures - ESTs"
       }
    ],
    "TRACK DEFAULTS" : {

@@ -102,10 +102,11 @@ sub writeTrackEntry {
 
         $trackList->[$trackIndex] = {
                                      %{ $track->config || {} },
+                                     type => $track->config->{trackType} || $track->type,
                                      label => $track->label,
                                      key => $track->key,
-                                     type => $track->type,
                                     };
+
         return $trackData;
     };
 

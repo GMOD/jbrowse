@@ -34,3 +34,6 @@
 [submodule "src/jDataView"]
 	path = src/jDataView
 	url = git://github.com/rbuels/jDataView.git
+[submodule "src/FileSaver"]
+	path = src/FileSaver
+	url = git://github.com/dkasenberg/FileSaver.js.git

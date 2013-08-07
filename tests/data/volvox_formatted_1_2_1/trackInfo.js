@@ -13,7 +13,7 @@ trackInfo =
       "url" : "tracks/{refseq}/ExampleFeatures/trackData.json",
       "label" : "ExampleFeatures",
       "type" : "FeatureTrack",
-      "key" : "Example Features"
+      "key" : "HTMLFeatures - Example Features"
    },
    {
       "url" : "tracks/{refseq}/NameTest/trackData.json",
@@ -31,7 +31,7 @@ trackInfo =
       "url" : "tracks/{refseq}/Alignments/trackData.json",
       "type" : "FeatureTrack",
       "label" : "malformed_alignments",
-      "key" : "Example Features with Menus"
+      "key" : "HTMLFeatures - Features with menus"
    },
    {
       "url" : "tracks/{refseq}/Genes/trackData.json",
@@ -43,7 +43,7 @@ trackInfo =
       "url" : "tracks/{refseq}/ReadingFrame/trackData.json",
       "type" : "FeatureTrack",
       "label" : "ReadingFrame",
-      "key" : "Frame usage"
+      "key" : "HTMLFeatures - mRNAs"
    },
    {
       "url" : "tracks/{refseq}/CDS/trackData.json",

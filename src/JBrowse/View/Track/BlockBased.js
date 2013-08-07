@@ -7,6 +7,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-geometry',
             'dojo/dom-class',
+            'dojo/dom-style',
             'dojo/query',
             'dojo/on',
             'dijit/Destroyable',
@@ -34,6 +35,7 @@ define( [
                   domConstruct,
                   domGeom,
                   domClass,
+                  domStyle,
                   query,
                   on,
                   Destroyable,
@@ -91,7 +93,9 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @private
      */
     _defaultConfig: function() {
-        return {};
+        return {
+            maxFeatureSizeForUnderlyingRefSeq: 250000
+        };
     },
 
     heightUpdate: function(height, blockIndex) {
@@ -135,7 +139,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.labelHTML = "";
         this.labelHeight = 0;
 
-        if( this.config.initiallyPinned )
+        if( this.config.pinned )
             this.setPinned( true );
 
         if( ! this.label ) {
@@ -460,6 +464,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         );
     },
 
+    redraw: function() {
+        this.clear();
+        this.genomeView.showVisibleBlocks(true);
+    },
+
     markBlockHeightOverflow: function( block ) {
         if( block.heightOverflowed )
             return;
@@ -652,7 +661,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 className: class_ || 'message',
                 innerHTML: message
             }, block.domNode );
-        this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
+        this.heightUpdate( domGeom.getMarginBox(msgDiv, domStyle.getComputedStyle(msgDiv)).h, blockIndex );
     },
 
     /**
@@ -797,11 +806,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @returns {Object} DOM element containing a rendering of the
      *                   detailed metadata about this track
      */
-    _trackDetailsContent: function() {
+    _trackDetailsContent: function( additional ) {
         var details = domConstruct.create('div', { className: 'detail' });
-        var fmt = dojo.hitch(this, 'renderDetailField', details );
+        var fmt = lang.hitch(this, 'renderDetailField', details );
         fmt( 'Name', this.key || this.name );
-        var metadata = dojo.clone( this.getMetadata() );
+        var metadata = lang.clone( this.getMetadata() );
+        lang.mixin( metadata, additional );
         delete metadata.key;
         delete metadata.label;
         if( typeof metadata.conf == 'object' )
@@ -811,30 +821,31 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         for( var k in metadata )
             md_keys.push(k);
         // TODO: maybe do some intelligent sorting of the keys here?
-        dojo.forEach( md_keys, function(key) {
+        array.forEach( md_keys, function(key) {
                           fmt( Util.ucFirst(key), metadata[key] );
                       });
+
         return details;
     },
 
     getMetadata: function() {
-        return this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
+        return ( this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
                                           this.config.metadata ? this.config.metadata :
-                                                                 {};
+                                                                 {} ) || {};
     },
 
     setPinned: function( p ) {
-        this.pinned = !!p;
+        this.config.pinned = !!p;
 
-        if( this.pinned )
+        if( this.config.pinned )
             domClass.add( this.div, 'pinned' );
         else
             domClass.remove( this.div, 'pinned' );
 
-        return this.pinned;
+        return this.config.pinned;
     },
     isPinned: function() {
-        return !! this.pinned;
+        return !! this.config.pinned;
     },
 
     /**
@@ -949,6 +960,15 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         var dialog;
 
+        function setContent( dialog, content ) {
+            // content can be a promise or Deferred
+            if( typeof content.then == 'function' )
+                content.then( function( c ) { dialog.set( 'content', c ); } );
+            // or maybe it's just a regular object
+            else
+                dialog.set( 'content', content );
+        }
+
         // if dialog == xhr, open the link in a dialog
         // with the html from the URL just shoved in it
         if( type == 'xhr' || type == 'content' ) {
@@ -959,14 +979,16 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             context.dialog = dialog;
 
             if( type == 'content' )
-                dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+                setContent( dialog, this._evalConf( context, spec.content, null ) );
 
             Util.removeAttribute( context, 'dialog' );
         }
         else if( type == 'bare' ) {
             dialog = new Dialog( dialogOpts );
             context.dialog = dialog;
-            dialog.set( 'content', this._evalConf( context, spec.content, null ) );
+
+            setContent( dialog, this._evalConf( context, spec.content, null ) );
+
             Util.removeAttribute( context, 'dialog' );
         }
         // open the link in a dialog with an iframe
@@ -1105,12 +1127,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             right -= trimRight;
         }
 
-        function toPct ( coord ) {
-            return (coord - args.leftBase) / block_span * 100;
-        }
-
-        left = toPct( left );
-        var width = toPct(right)-left;
+        var width = (right-left)*100/block_span;
+        left = (left - args.leftBase)*100/block_span;
         var el = domConstruct.create('div', {
                                 className: 'global_highlight'
                                     + (trimLeft <= 0 ? ' left' : '')

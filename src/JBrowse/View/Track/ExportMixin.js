@@ -1,46 +1,62 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/aspect',
+            'dojo/on',
             'JBrowse/has',
             'dojo/window',
             'dojo/dom-construct',
             'JBrowse/Util',
+            'dijit/form/TextBox',
             'dijit/form/Button',
             'dijit/form/RadioButton',
-            'dijit/Dialog'
+            'dijit/Dialog',
+            'FileSaver/FileSaver'
         ],
         function(
             declare,
             array,
+            lang,
             aspect,
+            on,
             has,
             dojoWindow,
             dom,
             Util,
+            dijitTextBox,
             dijitButton,
             dijitRadioButton,
-            dijitDialog
+            dijitDialog,
+            saveAs
         ) {
+
 /**
  * Mixin for a track that can export its data.
  * @lends JBrowse.View.Track.ExportMixin
  */
 return declare( null, {
 
+    _canSaveFiles: function() {
+        return has('save-generated-files') && ! this.config.noExportFiles;
+    },
+
     _canExport: function() {
         if( this.config.noExport )
             return false;
 
         var visibleRegion = this.genomeView.visibleRegion();
+        var highlightedRegion = this.browser.getHighlight();
         var wholeRefSeqRegion = { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end };
         var canExportVisibleRegion = this._canExportRegion( visibleRegion );
         var canExportWholeRef = this._canExportRegion( wholeRefSeqRegion );
-        return canExportVisibleRegion || canExportWholeRef;
+        return highlightedRegion && this._canExportRegion( highlightedRegion )
+            || this._canExportRegion( visibleRegion )
+            || this._canExportRegion( wholeRefSeqRegion );
     },
 
     _possibleExportRegions: function() {
-        return [
+        var regions = [
             // the visible region
             (function() {
                  var r = dojo.clone( this.genomeView.visibleRegion() );
@@ -51,6 +67,13 @@ return declare( null, {
             // whole reference sequence
             { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end, description: 'Whole reference sequence', name: 'wholeref' }
         ];
+
+        var highlightedRegion = this.browser.getHighlight();
+        if( highlightedRegion ) {
+            regions.unshift( lang.mixin( lang.clone( highlightedRegion ), { description: "Highlighted region", name: "highlight" } ) );
+        }
+
+        return regions;
     },
 
     _exportDialogContent: function() {
@@ -63,44 +86,64 @@ return declare( null, {
             region.canExport = this._canExportRegion( region );
         },this.track);
 
-        var form = dom.create('form', { onSubmit: function() { return false; } });
-        form.innerHTML = ''
-            + ' <fieldset class="region">'
-            + '   <legend>Region to save</legend>'
-            + function() {
-                    var regions = '';
-                    var checked = 0;
-                    array.forEach( possibleRegions, function(r) {
-                       var locstring = Util.assembleLocString(r);
-                       regions += ' <input '+( r.canExport ? checked++ ? '' : ' checked="checked"' : ' disabled="disabled"' )
-                               + '     type="radio" data-dojo-type="dijit.form.RadioButton" name="region" id="region_'+r.name+'"'
-                               + '     value="'+locstring+'" />'
-                               + '   <label '+( r.canExport ? '' : ' class="ghosted"')+' for="region_'+r.name+'">'+r.description+' - <span class="locString">'
-                               +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')</label>'
-                               + '   <br>';
-                   });
-                   return regions;
+        var setFilenameValue = dojo.hitch(this.track, function() {
+            var region = this._readRadio(form.elements.region);
+            var format = nameToExtension[this._readRadio(form.elements.format)];
+            form.elements.filename.value = ((this.key || this.label) + "-" + region).replace(/[^ .a-zA-Z0-9_-]/g,'-') + "." + format;
+        });
 
-              }.call(this)
-            + ' </fieldset>'
-            + ' '
-            + ' <fieldset class="format">'
-            + '   <legend>Format</legend>'
-            + function() {
-                   var fmts = '';
-                   var checked = 0;
-                   array.forEach( this.track._exportFormats(), function(fmt) {
-                       if( ! fmt.name ) {
-                           fmt = { name: fmt, label: fmt };
-                       }
-                       fmts += ' <input type="radio" '+ (checked++?'':'checked="checked" ')
-                               +'      data-dojo-type="dijit.form.RadioButton" name="format" id="format'+fmt.name+'" value="'+fmt.name+'" />'
-                               + '   <label for="format'+fmt.name+'">'+fmt.label+'</label>'
-                               + '   <br>';
-                   },this);
-                   return fmts;
-              }.call(this)
-            + ' </fieldset>';
+        var form = dom.create('form', { onSubmit: function() { return false; } });
+        var regionFieldset = dom.create('fieldset', {className: "region"}, form );
+        dom.create('legend', {innerHTML: "Region to save"}, regionFieldset);
+
+        var checked = 0;
+        array.forEach( possibleRegions, function(r) {
+                var locstring = Util.assembleLocString(r);
+                var regionButton = new dijitRadioButton(
+                    { name: "region", id: "region_"+r.name,
+                      value: locstring, checked: r.canExport && !(checked++) ? "checked" : ""
+                    });
+                regionFieldset.appendChild(regionButton.domNode);
+                var regionButtonLabel = dom.create("label", {"for": regionButton.id, innerHTML: r.description+' - <span class="locString">'
+                                   +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')'}, regionFieldset);
+                if(!r.canExport) {
+                    regionButton.domNode.disabled = "disabled";
+                    regionButtonLabel.className = "ghosted";
+                }
+
+                on(regionButton, "click", setFilenameValue);
+
+                dom.create('br',{},regionFieldset);
+        });
+
+
+        var formatFieldset = dom.create("fieldset", {className: "format"}, form);
+        dom.create("legend", {innerHTML: "Format"}, formatFieldset);
+
+        checked = 0;
+        var nameToExtension = {};
+        array.forEach( this.track._exportFormats(), function(fmt) {
+            if( ! fmt.name ) {
+                fmt = { name: fmt, label: fmt };
+            }
+            if( ! fmt.fileExt) {
+                fmt.fileExt = fmt.name || fmt;
+            }
+            nameToExtension[fmt.name] = fmt.fileExt;
+            var formatButton = new dijitRadioButton({ name: "format", id: "format"+fmt.name, value: fmt.name, checked: checked++?"":"checked"});
+            formatFieldset.appendChild(formatButton.domNode);
+            var formatButtonLabel = dom.create("label", {"for": formatButton.id, innerHTML: fmt.label}, formatFieldset);
+
+            on(formatButton, "click", setFilenameValue);
+            dom.create( "br", {}, formatFieldset );
+        },this);
+
+
+        var filenameFieldset = dom.create("fieldset", {className: "filename"}, form);
+        dom.create("legend", {innerHTML: "Filename"}, filenameFieldset);
+        dom.create("input", {type: "text", name: "filename", style: {width: "100%"}}, filenameFieldset);
+
+        setFilenameValue();
 
         var actionBar = dom.create( 'div', {
             className: 'dijitDialogPaneActionBar'
@@ -114,14 +157,43 @@ return declare( null, {
         var viewButton = new dijitButton({ iconClass: 'dijitIconTask',
                           label: 'View',
                           disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
-                          onClick: dojo.hitch( this.track, function() {
-                            var track = this;
+                          onClick: lang.partial( this.track._exportViewButtonClicked, this.track, form, dialog )
+            })
+            .placeAt( actionBar );
+
+        // don't show a download button if we for some reason can't save files
+        if( this.track._canSaveFiles() ) {
+
+            var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
+                              label: 'Save',
+                              disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
+                              onClick: dojo.hitch( this.track, function() {
+                                var format = this._readRadio( form.elements.format );
+                                var region = this._readRadio( form.elements.region );
+                                var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
+                                dlButton.set('disabled',true);
+                                dlButton.set('iconClass','jbrowseIconBusy');
+                                this.exportRegion( region, format, dojo.hitch( this, function( output ) {
+                                    dialog.hide();
+                                    this._fileDownload({ format: format, data: output, filename: filename });
+                                }));
+                              })})
+                .placeAt( actionBar );
+        }
+
+        return [ form, actionBar ];
+    },
+
+    // run when the 'View' button is clicked in the export dialog
+    _exportViewButtonClicked: function( track, form, dialog ) {
+                            var viewButton = this;
                             viewButton.set('disabled',true);
                             viewButton.set('iconClass','jbrowseIconBusy');
 
-                            var region = this._readRadio( form.elements.region );
-                            var format = this._readRadio( form.elements.format );
-                            this.exportRegion( region, format, function(output) {
+                            var region = track._readRadio( form.elements.region );
+                            var format = track._readRadio( form.elements.format );
+                            var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
+                            track.exportRegion( region, format, function(output) {
                                 dialog.hide();
                                 var text = dom.create('textarea', {
                                                            rows: Math.round( dojoWindow.getBox().h / 12 * 0.5 ),
@@ -136,7 +208,7 @@ return declare( null, {
                                 });
                                 var exportView = new dijitDialog({
                                     className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'b)',
+                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'bytes)',
                                     content: [ text, actionBar ]
                                 });
                                 new dijitButton({ iconClass: 'dijitIconDelete',
@@ -144,17 +216,24 @@ return declare( null, {
                                                 })
                                      .placeAt(actionBar);
 
-                                // data URL download doesn't work on IE < 10
-                                if( ! (has('ie') < 10) ) {
-                                    new dijitButton(
+                                // only show a button if the browser can save files
+                                if( track._canSaveFiles() ) {
+                                    var saveDiv = dom.create( "div", { className: "save" }, actionBar );
+
+                                    var saveButton = new dijitButton(
                                         {
                                             iconClass: 'dijitIconSave',
                                             label: 'Save',
                                             onClick: function() {
+                                                var filename = fileNameText.get('value').replace(/[^ .a-zA-Z0-9_-]/g,'-');
                                                 exportView.hide();
-                                                track._fileDownload({ format: format, data: output });
+                                                track._fileDownload({ format: format, data: output, filename: filename });
                                             }
-                                        }).placeAt(actionBar);
+                                        }).placeAt(saveDiv);
+                                    var fileNameText = new dijitTextBox({
+                                            value: filename,
+                                            style: "width: 24em"
+                                        }).placeAt( saveDiv );
                                 }
 
                                 aspect.after( exportView, 'hide', function() {
@@ -167,40 +246,11 @@ return declare( null, {
                                 });
                                 exportView.show();
                             });
-                          })})
-            .placeAt( actionBar );
-
-        // don't show a download button if the user is using IE older
-        // than 10, cause it won't work.
-        if( ! (has('ie') < 10) ) {
-            var dlButton = new dijitButton({ iconClass: 'dijitIconSave',
-                              label: 'Save',
-                              disabled: ! array.some(possibleRegions,function(r) { return r.canExport; }),
-                              onClick: dojo.hitch( this.track, function() {
-                                var format = this._readRadio( form.elements.format );
-                                var region = this._readRadio( form.elements.region );
-                                dlButton.set('disabled',true);
-                                dlButton.set('iconClass','jbrowseIconBusy');
-                                this.exportRegion( region, format, dojo.hitch( this, function( output ) {
-                                    dialog.hide();
-                                    this._fileDownload({ format: format, data: output });
-                                }));
-                              })})
-                .placeAt( actionBar );
-        }
-
-        return [ form, actionBar ];
-    },
+                          },
 
     _fileDownload: function( args ) {
-        // do the file download by setting the src of a hidden iframe,
-        // because missing with the href of the window messes up
-        // WebApollo long polling
-        var iframe = dom.create( 'iframe', {
-            style: { display: 'none' }
-        },this.div );
-        iframe.src = "data:"+( args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain' )
-            +","+escape( args.data || '' );
+        saveAs(new Blob([args.data], {type: args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain'}), args.filename);
+        // We will need to check whether this breaks the WebApollo plugin.
     },
 
     // cross-platform function for (portably) reading the value of a radio control. sigh. *rolls eyes*
@@ -269,7 +319,7 @@ return declare( null, {
             // will return immediately if the stats are available
             this.store.getRegionStats( region, function( s ) {
                 storeStats = s;
-            });
+            }, function(error){ }); // error callback does nothing for now
             if( storeStats.featureDensity ) {
                 return storeStats.featureDensity*(region.end - region.start) <= ( thisB.config.maxExportFeatures || 5000 );
             }

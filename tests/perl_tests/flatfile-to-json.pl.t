@@ -85,16 +85,17 @@ sub tempdir {
                ) or diag explain $names_output;
 
     my $cds_trackdata = $read_json->(qw( tracks CDS ctgA trackData.jsonz ));
-    is( $cds_trackdata->{featureCount}, 3, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
+    is( $cds_trackdata->{featureCount}, 2, 'got right feature count for CDS track' ) or diag explain $cds_trackdata;
     is( scalar( @{$cds_trackdata->{histograms}{meta}}),
         scalar( @{$cds_trackdata->{histograms}{stats}}),
         'have stats for each precalculated hist' );
 
-    is( ref $cds_trackdata->{intervals}{nclist}[2][10], 'ARRAY', 'exonerate mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[1][10], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[2][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[1][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
     my $tracklist = $read_json->('trackList.json');
+    is( $tracklist->{tracks}[1]{storeClass}, 'JBrowse/Store/SeqFeature/NCList' );
     is_deeply( $tracklist->{tracks}[1]{style},
                { featureCss   => 'height: 8px;',
                  histScale    => 2,
@@ -192,6 +193,63 @@ sub tempdir {
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10][0][10]}, 7, 'mRNA has 7 subfeatures' );
 }
 
+{   
+    # diag "testing options to set class name in trackList.json";
+
+    my $tempdir = tempdir();
+    dircopy( 'tests/data/AU9', $tempdir );
+
+    # test default, should be 'feature'
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+        );
+
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'style'}->{'className'} eq 'feature', "default cssClassName is feature");
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+	'--cssClass' => 'flingwibbit'
+        );
+
+    $read_json = sub { slurp( $tempdir, @_ ) };
+    $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'style'}->{'className'} eq 'flingwibbit', "cssClassName set correctly");
+}
+
+{   
+    # diag "testing options to set track type in trackList.json";
+
+    my $tempdir = tempdir();
+    dircopy( 'tests/data/AU9', $tempdir );
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+        );
+
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'type'} eq 'FeatureTrack', "default track type is FeatureTrack");
+
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => "tests/data/AU9/single_au9_gene.gff3",
+        '--trackLabel' => 'AU_mRNA',
+	'--trackType' => 'flingwibbit'
+        );
+
+    $read_json = sub { slurp( $tempdir, @_ ) };
+    $trackList = $read_json->(qw( trackList.json ) );
+    ok( $trackList->{'tracks'}->[0]->{'type'} eq 'flingwibbit', "non-default track type set correctly");
+}
+
 for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffold_subset_sync.gff3" ) {
     # add a test for duplicate lazyclasses bug found by Gregg
 
@@ -274,6 +332,86 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
                    }
                ) or diag explain $trackdata->{'trackData.jsonz'};
 
+}
+
+{
+    diag "testing GenBank file parsing...";
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gbk' => catfile('tests','data','gstmu_full_record.gb'),
+        '--key' => 'Fooish Bar Data',
+        '--trackLabel' => 'foo',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
+
+    # test start/stop of parent feature (full record)
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][1], 5001, "got right start coordinate (full record)" );
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][2], 10950, "got right stop coordinate (full record)" );
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][21], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
+
+    # test that the right attributes are present
+     is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})],
+		[sort(@{[ 'Db_xref', 'Description', 'Gene', 'Gene_synonym', 'Name', 'Product', 'Transcript_id', 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'KEYWORDS',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
+		'got the right attributes in trackData.json')
+	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
+
+    # test subfeatures
+    # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
+    my $subFeatureIndex;
+    for my $i ( 0 .. scalar( @{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}} ) - 1 ) {
+	if ( $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}->[$i] =~ m/subfeatures/i ){
+	    $subFeatureIndex = $i;
+	    last;
+	}
+    }
+    my $actualSubFeatureIndex = $subFeatureIndex + 1; # because the first thing in nclist is 0
+    ok( defined( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex] ), "got something in subfeatures");
+
+    my $subfeatures = $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex];
+    ok ( scalar @{$subfeatures} == 15, "got the right number of subfeatures");
+#     ok ( scalar(@{$subfeatures->[0]}) == scalar(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}}) + 1,
+#	 "subfeature array is the right length (length of attribute array + 1)");
+    # test first subfeature completely
+    is ( $subfeatures->[0][0] && $subfeatures->[0][0], 1, "first item set correctly in subfeature");
+    is ( $subfeatures->[0][1] && $subfeatures->[0][1], 5001, "start set correctly in subfeature") or diag explain $subfeatures->[0];
+    is ( $subfeatures->[0][2] && $subfeatures->[0][2], 5114, "end set correctly in subfeature") or diag explain $subfeatures->[0];
+    is ( $subfeatures->[0][2] && $subfeatures->[0][8], 'exon', "type set correctly in subfeature") or diag explain $subfeatures->[0];
+
+}
+
+{
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gbk' => catfile('tests','data','gstmu_region_from_chromosome.gb'),
+        '--key' => 'Fooish Bar Data',
+        '--trackLabel' => 'foo',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
+
+    # test subfeatures
+    # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
+    my $subFeatureIndex;
+    for my $i ( 0 .. scalar( @{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}} ) - 1 ) {
+	if ( $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}->[$i] =~ m/subfeatures/i ){
+	    $subFeatureIndex = $i;
+	    last;
+	}
+    }
+    my $actualSubFeatureIndex = $subFeatureIndex + 1; # because the first thing in nclist is 0
+    ok( defined( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex] ), "got something in subfeatures when parsing genbank partial region file");
+
+    my $subfeatures = $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex];
+    ok ( exists $subfeatures->[0]->[1] && $subfeatures->[0]->[1] == 5001, "start set correctly in subfeature (partial region of chromosome)") || diag $subfeatures->[0]->[1];
+    ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[2] == 5114, "end set correctly in subfeature (partial region of chromosome)") || diag $subfeatures->[0]->[2];
+
+}
+
+{
+    diag "end GenBank file parsing ";
 }
 
 

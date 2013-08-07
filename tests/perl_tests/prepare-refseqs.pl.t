@@ -46,7 +46,6 @@ is_deeply( $output,
 ;
 
 ## check genbank formatting
-
 $tempdir = File::Temp->newdir;
 
 system $^X, 'bin/prepare-refseqs.pl', (
@@ -57,6 +56,20 @@ system $^X, 'bin/prepare-refseqs.pl', (
 
 ok( !$?, 'yeast genbank formatting ran OK' );
 my @chunks = glob("$tempdir/seq/010/83b/05/NC_001133-*.txt");
+is( scalar @chunks, 12, 'see 12 uncompressed seq chunks' ) or diag explain \@chunks;
+#diag explain [glob("$tempdir/seq/*/*/*/*.txt")];
+
+## check --reftypes support
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--reftypes'  => 'chromosome,nonexistent',
+    '--conf' => 'sample_data/raw/yeast_genbank.json',
+    '--out'   => $tempdir
+   );
+
+ok( !$?, 'yeast genbank formatting ran OK with --reftypes' );
+@chunks = glob("$tempdir/seq/010/83b/05/NC_001133-*.txt");
 is( scalar @chunks, 12, 'see 12 uncompressed seq chunks' ) or diag explain \@chunks;
 #diag explain [glob("$tempdir/seq/*/*/*/*.txt")];
 
@@ -97,6 +110,33 @@ is_deeply( $output->{"seq/refSeqs.json"},
                    start => 0,
                }
            ]);
+
+
+## check formatting from --sizes
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--sizes' => 'tests/data/volvox.sizes',
+    '--out'   => $tempdir,
+   );
+
+$output = slurp_tree( $tempdir );
+
+is_deeply( $output->{"seq/refSeqs.json"},
+           [
+               {
+                   'end' => '50001',
+                   'length' => '50001',
+                   'name' => 'ctgA',
+                   'start' => 0
+               },
+               {
+                   'end' => '6079',
+                   'length' => '6079',
+                   'name' => 'ctgB',
+                   'start' => 0
+               }
+           ]) or diag explain $output;
 
 ## test formatting from a Bio::DB::SeqFeature::Store with a
 ## biodb-to-json.pl conf file

@@ -1,10 +1,12 @@
 define([
            'dojo/_base/declare',
-           'dijit/Destroyable'
+           'dijit/Destroyable',
+           'JBrowse/Util'
        ],
        function(
            declare,
-           Destroyable
+           Destroyable,
+           Util
        ) {
 return declare( Destroyable, {
 
@@ -19,11 +21,21 @@ return declare( Destroyable, {
         if( /[^\d-]/.test( this.endBase ) )
             throw 'invalid endBase '+this.endBase;
 
+        this.domNode.block = this;
     },
 
     bpToX: function( coord ) {
         return (coord-this.startBase)*this.scale;
-    }
+    },
 
+    toString: function() {
+        return this.startBase+'..'+this.endBase;
+    },
+
+    destroy: function() {
+        if( this.domNode )
+            Util.removeAttribute( this.domNode, 'block' );
+        this.inherited( arguments );
+    }
 });
 });

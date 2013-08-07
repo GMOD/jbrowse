@@ -34,7 +34,7 @@ return declare( WiggleBase,
         );
     },
 
-    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
+    _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
         var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
@@ -44,7 +44,9 @@ return declare( WiggleBase,
             (function() { // default color function uses conf variables
                 var disableClipMarkers = thisB.config.disable_clip_markers;
                 var normOrigin = normalize( dataScale.origin );
-                return function( feature, score, n ) {
+                
+                return function( p , n) {
+                    var feature = p['feat'];
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
                                // not clipped
                                ? Color.blendColors(
@@ -59,20 +61,47 @@ return declare( WiggleBase,
                 };
             })();
 
-        dojo.forEach( features, function(f,i) {
-            var fRect = featureRects[i];
-            var score = f.get('score');
-            var n = normalize( score );
-            context.fillStyle = featureColor( f, score, n );
-            context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
-            if( n > 1 ) { // pos clipped
-                context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
-                context.fillRect( fRect.l, 0, fRect.w, 3 );
+        dojo.forEach( pixels, function(p,i) {
+            if (p) {
+                var score = p['score'];
+                var f = p['feat'];
+                
+                var n = normalize( score );
+                context.fillStyle = ''+featureColor( p, n );
+                context.fillRect( i, 0, 1, canvasHeight );
+                if( n > 1 ) { // pos clipped
+                    context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
+                    context.fillRect( i, 0, 1, 3 );
+                }
+                else if( n < 0 ) { // neg clipped
+                    context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
+                    context.fillRect( i, canvasHeight-3, 1, 3 );
+               }
             }
-            else if( n < 0 ) { // neg clipped
-                context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
-                context.fillRect( fRect.l, canvasHeight-3, fRect.w, 3 );
-           }
+        });
+    },
+
+    /* If boolean track, mask accordingly */
+    _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
+        var context = canvas.getContext('2d');
+        var canvasHeight = canvas.height;
+        context.fillStyle = this.config.style.mask_color || 'rgba(128,128,128,0.6)';
+        this.config.style.mask_color = context.fillStyle;
+
+        for ( var index in spans ) {
+            if (spans.hasOwnProperty(index)) {
+                var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+                var l = Math.round(( spans[index].start - leftBase ) * scale );
+                context.fillRect( l, 0, w, canvasHeight );
+                context.clearRect( l, 0, w, canvasHeight/3);
+                context.clearRect( l, (2/3)*canvasHeight, w, canvasHeight/3);
+            }
+        }
+        dojo.forEach( pixels, function(p,i) {
+            if (!p) {
+                // if there is no data at a point, erase the mask.
+                context.clearRect( i, 0, 1, canvasHeight );
+            }
         });
     },
 

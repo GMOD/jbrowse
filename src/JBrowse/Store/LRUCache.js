@@ -134,11 +134,11 @@ return declare( null,
 
             if( ! fillRecord.running ) {
                 fillRecord.running = true;
-                this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value, error ) {
+                this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value, error, hints ) {
                     delete this._inProgressFills[ keyString ];
                     fillRecord.running = false;
 
-                    if( value ) {
+                    if( value && ! ( hints && hints.nocache ) ) {
                         this._log( 'fill', keyString );
                         this.set( inKey, value );
                     }

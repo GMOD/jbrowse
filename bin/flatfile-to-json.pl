@@ -17,17 +17,15 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 =head1 USAGE
 
   flatfile-to-json.pl                                                         \
-      ( --gff <GFF3 file> | --bed <BED file> )                                \
+      ( --gff <GFF3 file> | --bed <BED file> | --gbk <GenBank file> )         \
       --trackLabel <track identifier>                                         \
+      [ --trackType <JS Class> ]                                              \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
       [ --className <CSS class name for displaying features> ]                \
-      [ --getType ]                                                           \
-      [ --getPhase ]                                                          \
-      [ --getSubfeatures ]                                                    \
-      [ --getLabel ]                                                          \
       [ --urltemplate "http://example.com/idlookup?id={id}" ]                 \
       [ --arrowheadClass <CSS class> ]                                        \
+      [ --noSubfeatures ]                                                     \
       [ --subfeatureClasses '{ JSON-format subfeature class map }' ]          \
       [ --clientConfig '{ JSON-format extra configuration for this track }' ] \
       [ --thinType <BAM -thin_type> ]                                         \
@@ -47,7 +45,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 =item --bed <BED file>
 
-Process a GFF3 or BED-format file containing annotation data.
+=item --gbk <GenBank file>
+
+Process a GFF3, BED, or GenBank file containing annotation data.
 
 NOTE: This script does not support GFF version 2 or GTF (GFF 2.5) input.
 
@@ -73,29 +73,22 @@ Human-readable track name.
 
 Output directory to write to.  Defaults to "data/".
 
+=item --trackType JBrowse/View/Track/HTMLFeatures
+
+Optional JavaScript class to use to display this track.  Defaults to
+JBrowse/View/Track/HTMLFeatures.
+
 =item --className <CSS class name for displaying features>
 
 CSS class for features.  Defaults to "feature".
 
-=item --getType
-
-Include the type of the features in the JSON.
-
-=item --getPhase
-
-Include the phase of the features in the JSON.
-
-=item --getSubfeatures
-
-Include subfeatures in the JSON.
-
-=item --getLabel
-
-Include a label for the features in the JSON.
-
 =item --urltemplate "http://example.com/idlookup?id={id}"
 
 Template for a URL to be visited when features are clicked on.
+
+=item --noSubfeatures
+
+Do not format subfeature data.
 
 =item --arrowheadClass <CSS class>
 
