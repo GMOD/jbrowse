@@ -63,13 +63,13 @@ var dojof = Util.dojof;
  * @constructor
  */
 
-return declare( [Component,dijitBase,FeatureFiltererMixin], {
+return declare( [dijitBase,Component,FeatureFiltererMixin], {
 
 splitter: true,
+region: 'center',
 baseClass: 'jbrowseGenomeView',
 stripeWidth: 250,
 pxPerBp: 1/200,
-region: 'center',
 
 
 constructor: function() {
@@ -77,8 +77,6 @@ constructor: function() {
     // buildRendering to sidestep a dojo.mixin( this, params ) in the
     // dijit widget base code
     this.finalConfig = this.config;
-
-    this.region = this.config.region;
 },
 
 buildRendering: function() {
@@ -201,16 +199,15 @@ buildRendering: function() {
  * Returns object with all that's necessary to reconstruct this view's
  * current state.
  */
-getConfigLocal: function() {
-    var s = {};
+getState: function() {
+    var s = this.inherited(arguments);
     s.initialLocation = this.visibleRegion();
     s.region = this.region;
     s.initialTracks = this.visibleTrackNames();
     var height = this.domNode.style.height || '';
     if( /%/.test( height ) )
         s.style = { height: this.domNode.style.height };
-
-    return this.inherited(arguments, [ s ]);
+    return s;
 },
 
 _finishInitialization: function( refseq ) {
@@ -338,8 +335,7 @@ _finishInitialization: function( refseq ) {
 _defaultConfig: function() {
     return {
         maxPxPerBp: 20,
-        gridlines: true,
-        region: 'center'
+        gridlines: true
     };
 },
 

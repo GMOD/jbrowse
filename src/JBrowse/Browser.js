@@ -411,10 +411,10 @@ regularizeReferenceName: function( refname ) {
     return refname;
 },
 
-getConfigLocal: function() {
-    var l = lang.clone( this.config );
-    l.views = array.map( this.views, function(v) { return v.getConfigLocal(); } );
-    return l;
+getState: function() {
+    var s = lang.clone( this.config );
+    s.views = array.map( this.views, function(v) { return v.getState(); } );
+    return s;
 },
 
 initView: function() {

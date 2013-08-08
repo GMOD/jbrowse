@@ -18,81 +18,33 @@ return declare( null, {
     constructor: function( args ) {
         args = args || {};
 
+        // merge our config with the config defaults
+        this._finalizeConfig( args.config );
+
         this.browser = args.browser;
         if( ! this.browser )
             throw "a reference to the main browser is required by this constructor";
 
-        this.configLocal = args.configLocal || {};
-        this.configBase = args.configBase || args.config || {};
-        // merges the defaults, the base, and the diff configs
-        this.config = this._initialConfig();
-
-        // cache for compiled configuration values
         this.compiledConfig = {};
     },
 
-    _initialConfig: function( config ) {
-        return this._mergeConfigs(
-            lang.mixin( {}, this.configBase = this._mergeConfigs( lang.mixin({}, this._defaultConfig()), this.configBase ) ),
-            this.configLocal
-        );
+    _finalizeConfig: function( config ) {
+        this.config = this._mergeConfigs( dojo.clone( this._defaultConfig() ), config || {} );
     },
 
     _defaultConfig: function() {
         return {
-            baseUrl: '/',
-            region: 'center'
+            baseUrl: '/'
         };
     },
 
     /**
      * Return an object containing all information that should be
-     * saved in local storage across browser reloads in order to
-     * reconstruct the current state of this object.
+     * saved across browser reloads in order to reconstruct the
+     * current state of this object.
      */
-    getConfigLocal: function( additional ) {
-        function filter( base, local ) {
-            for( var k in local ) {
-                if( typeof local[k] == 'object' && ! lang.isArray( local[k] ) && base )
-                    filter( base[k], local[k] );
-                else if( base && base[k] === local[k] )
-                    delete local[k];
-            }
-            return local;
-        }
-
-        return this.configLocal = filter( this.configBase, lang.mixin( lang.mixin( {}, this.configLocal ), additional ) );
-    },
-
-    setConfig: function( pathstr, value ) {
-
-        function set (conf,diff,base,path,value ) {
-            if( path.length > 1 ) {
-                var k = path.shift();
-                if( ! conf[k] ) conf[k] = {};
-                if( ! diff[k] ) diff[k] = {};
-                if( ! base[k] ) base[k] = {};
-                set( conf[k], diff[k], base[k], path, value );
-            }
-            else {
-                var k = path[0];
-                conf[ k ] = value;
-                if( base[ k ] != value ) {
-                    delete this.compiledConfig[ pathstr ];
-                    diff[ k ] = value;
-                }
-            }
-        }
-
-        set.call( this,
-                  this.config,
-                  this.configLocal,
-                  this.configBase,
-                  pathstr.split('.'),
-                  value
-                );
-
-        return value;
+    getState: function() {
+        return lang.clone( this.config );
     },
 
     resolveUrl: function( url, args ) {
