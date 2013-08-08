@@ -4,28 +4,28 @@
  */
 define([
            'dojo/_base/declare',
-           '../Slot'
+           '../Slot',
+           '../../Configuration'
        ],
        function(
            declare,
-           Slot
+           Slot,
+           Configuration
        ) {
 return declare( Slot, {
    constructor: function( args ) {
-       if( ! this.schema )
-           throw new Error('SubConfiguration slot must be instantiated with a specification');
+       if( ! this.schemaDefinition )
+           throw new Error('SubConfiguration slot must be instantiated with a schema definition');
 
-       this.schema = new (this.schemaClass)( this.schema );
+       this.schema = new (this.schemaClass)( this.schemaDefinition );
        this.types = ['object'];
    },
 
-   normalizeValue: function( val, config ) {
+   normalizeValue: function( val ) {
        if( typeof val != 'object' )
            throw new Error( 'a subconfiguration must be an object, not a '+(typeof val) );
 
-       var ConfigurationClass = config.constructor._meta.bases[0];
-
-       return val instanceof ConfigurationClass ? val : new ConfigurationClass( this.schema, val );
+       return val instanceof Configuration ? val : this.schema.newConfig( val );
    }
 
 });

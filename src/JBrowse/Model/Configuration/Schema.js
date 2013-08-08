@@ -9,7 +9,8 @@ define([
            'dojo/_base/lang',
            './Slot',
            './Slot/Multi',
-           './Slot/SubConfiguration'
+           './Slot/SubConfiguration',
+           '../Configuration'
        ],
        function(
            declare,
@@ -17,7 +18,8 @@ define([
            lang,
            Slot,
            MultiSlot,
-           SubConfigurationSlot
+           SubConfigurationSlot,
+           Configuration
        ) {
 
 var slotClasses = {
@@ -72,6 +74,10 @@ return declare( null, {
             throw new Error( 'Unknown configuration key '+key );
 
         return slot.normalizeValue( value, config );
+    },
+
+    newConfig: function( baseConfig, localConfig ) {
+        return new (this.configurationClass || Configuration)( this, baseConfig, localConfig );
     }
 
 });

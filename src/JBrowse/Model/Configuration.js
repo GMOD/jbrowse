@@ -18,8 +18,6 @@ define( [
             lang
         ) {
 
-
-
 var Configuration = declare( null, {
 
     constructor: function( schema, base ) {

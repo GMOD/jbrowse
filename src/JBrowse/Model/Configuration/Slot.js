@@ -1,11 +1,15 @@
 define( [
             'dojo/_base/declare',
-            'dojo/_base/lang'
+            'dojo/_base/lang',
+            'dojo/json'
         ],
         function(
             declare,
-            lang
+            lang,
+            dJSON
         ) {
+
+var json = JSON || dJSON;
 
 var Slot = declare( null, {
 
@@ -15,6 +19,8 @@ var Slot = declare( null, {
   // context help text
   constructor: function( slotSpec, parent ) {
       declare.safeMixin( this, slotSpec );
+      if( ! this.type )
+          throw new Error('`type` missing from slot specification '+json.stringify( slotSpec ) );
       this.types = this._parseType( this.type );
       this.parent = parent;
   },

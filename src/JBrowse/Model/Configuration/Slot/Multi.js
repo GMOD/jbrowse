@@ -10,7 +10,8 @@ define([
 return declare( Slot, {
     constructor: function( def ) {
         this.elementType = this.type.replace(/^multi\-/i,'');
-        this.elementSlot = new ( this.getSlotClass( this.elementType) )({ name: 'unnamed', type: this.elementType });
+        var elementSlotDef = lang.mixin( lang.mixin( {}, def ), {name: 'unnamed', type: this.elementType });
+        this.elementSlot = new ( this.getSlotClass( elementSlotDef ) )( elementSlotDef, this );
         this.types = ['array'];
     },
 
