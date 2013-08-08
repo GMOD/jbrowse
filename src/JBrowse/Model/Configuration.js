@@ -73,39 +73,40 @@ var Configuration = declare( null, {
      * Load the given base configuration, overwriting any existing
      * values.
      */
-    loadBase: function( conf, keyBase ) {
-        this._loadObject( this._base, conf );
+    loadBase: function( input ) {
+        this._loadBase( input, this._base, '' );
+    },
+    _loadBase: function( input, targetConf, path ) {
+        for( var k in input ) {
+            var fullKey = path+k;
+            var v = input[k];
+            var slot = this._spec.getSlot( fullKey );
+            if( slot ) {
+                targetConf[ fullKey ] = slot.normalizeValue( v, this );
+            }
+            else if( typeof v == 'object' && ! lang.isArray(v) ) {
+                this._loadBase( v, targetConf, fullKey+'.' );
+            }
+            else {
+                throw new Error( 'Unknown configuration key '+fullKey );
+            }
+        }
     },
 
     /**
      * Load the given local configuration, overwriting any existing
      * values.
      */
-    loadLocal: function( conf, keyBase ) {
-        this._loadObject( this._local, conf );
-    },
-
-    // flatten and load the input into the target conf
-    _loadObject: function( target, input, keyBase ) {
-        var path = keyBase ? keyBase+'.' : '';
-
-        for( var k in input ) {
-            var v = input[k];
-            if( typeof v == 'object' && ! lang.isArray(v) ) {
-                this._loadObject( target, v, path+k );
-            }
-            else {
-                target[ path + k ] = this._spec.normalizeSetting( path+k, input[k] );
-            }
-        }
-    },
+    // loadLocal: function( conf, keyBase ) {
+    //     this.importObject( conf, this._local );
+    // },
 
     /**
      * Validate and possibly munge the given value before setting.
      * NOTE: Throw an Error object if it's invalid.
      */
     normalizeSetting: function( key, val ) {
-        return this._spec.normalizeSetting( key, val );
+        return this._spec.normalizeSetting( key, val, this );
     },
 
    /**

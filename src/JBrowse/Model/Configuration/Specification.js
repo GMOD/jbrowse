@@ -6,16 +6,23 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           './Slot'
+           'dojo/_base/lang',
+           './Slot',
+           './Slot/Multi',
+           './Slot/SubConfiguration'
        ],
        function(
            declare,
            array,
-           Slot
+           lang,
+           Slot,
+           MultiSlot,
+           SubConfigurationSlot
        ) {
 
 var slotClasses = {
     // add any custom slot classes here and load them above
+    'subconfiguration' : SubConfigurationSlot
 };
 
 return declare( null, {
@@ -29,14 +36,18 @@ return declare( null, {
 
     _load: function( spec ) {
         array.forEach( spec.slots || [], function( slotSpec ) {
-            var slot = new (this._getSlotClass( slotSpec ))( slotSpec );
+            slotSpec = lang.mixin( { specificationClass: this.constructor._meta.bases[0] }, slotSpec );
+            var slot = new (this.getSlotClass( slotSpec ))( slotSpec, this );
             this._slotsByName[ slot.name ] = slot;
             this._slotsList.push( slot );
         },this);
     },
 
-    _getSlotClass: function( slotSpec ) {
-        return slotClasses[ slotSpec.type ] || Slot;
+    getSlotClass: function( slotSpec ) {
+        if( /^multi\-/i.test(slotSpec.type) )
+            return MultiSlot;
+
+        return slotClasses[ (slotSpec.type||'').toLowerCase() ] || Slot;
     },
 
     getSlot: function( slotname ) {
@@ -47,13 +58,14 @@ return declare( null, {
      * Validate and possibly munge the given value before setting.
      * NOTE: Throw an Error object if it's invalid.
      */
-    normalizeSetting: function( key, value ) {
+    normalizeSetting: function( key, value, config ) {
         //console.log( 'validating '+key+' '+value );
         var slot = this.getSlot(key);
         if( ! slot )
             throw new Error( 'Unknown configuration key '+key );
 
-        return slot.normalizeValue( value );
+        return slot.normalizeValue( value, config );
     }
+
 });
 });

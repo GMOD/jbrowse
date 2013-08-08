@@ -13,20 +13,27 @@ var Slot = declare( null, {
   // loading provenance ( rel filename, path in that file ), as well
   // as human-readable metadata about the slot, like a description and
   // context help text
-  constructor: function( slotSpec ) {
+  constructor: function( slotSpec, parent ) {
       declare.safeMixin( this, slotSpec );
       this.types = this._parseType( this.type );
+      this.parent = parent;
   },
 
   /**
    * Validates and possibly munges the given setting.  Throws an Error
    * for invalid data.
    */
-  normalizeValue: function( value ) {
+  normalizeValue: function( value, config ) {
       if( this._validateType( value ) )
           return value;
       else
           throw new Error( 'invalid value '+value+', not of type '+this.type );
+  },
+
+  // delegate slot class resolution to the parent (Specification, or
+  // another Slot) of this class
+  getSlotClass: function( slotSpec ) {
+      return this.parent.getSlotClass( slotSpec );
   },
 
   // validates the value of this slot according to its given type

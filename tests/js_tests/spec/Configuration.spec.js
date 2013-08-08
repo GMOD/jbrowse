@@ -20,7 +20,7 @@ describe( 'Configuration data model', function() {
           expect( JSON.stringify(c.exportLocal()) ).toEqual( '{"noggin":{"zee":{"zaz":42}}}' );
   });
 
-  it( 'works with some test data', function() {
+  it( 'works with some simple test data', function() {
           var spec = new ConfigSpec(
               {
                   slots: [
@@ -67,5 +67,42 @@ describe( 'Configuration data model', function() {
           expect( type_error+'' ).toContain( 'type' );
           expect( c.get('bar.baz') ).toEqual( 1.1 );
     });
+
+
+  it( 'works with subconfigurations and multis', function() {
+          var spec = new ConfigSpec(
+              {
+                  slots: [
+                      { name: 'zonker', type: 'array' },
+                      { name: 'sub1', type: 'SubConfiguration',
+                        specification: { slots: [ { name: 'foo', type: 'integer' } ] }
+                      },
+                      { name: 'multi1', type: 'multi-integer' }
+                  ]
+              });
+          var c = new Configuration(
+              spec,
+              {
+                  zonker: [1,2,3],
+                  multi1: [4,5,6],
+                  sub1: { foo: 3 }
+              });
+          expect( c.get('zonker').length ).toEqual( 3 );
+          expect( c.get('multi1').length ).toEqual( 3 );
+          expect( c.get('sub1').get('foo') ).toEqual( 3 );
+          expect( JSON.stringify(c.exportLocal()) ).toEqual('{}');
+          var error;
+          try {
+              c.set('multi1',['foo',2]);
+          } catch(e) {
+              error = e;
+              console.log(error);
+          }
+
+          expect( error+'' ).toContain('type');
+          expect( c.get('multi1').length ).toEqual( 3 );
+
+    });
+
 });
 });
