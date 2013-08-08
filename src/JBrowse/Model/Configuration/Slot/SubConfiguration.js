@@ -12,10 +12,10 @@ define([
        ) {
 return declare( Slot, {
    constructor: function( args ) {
-       if( ! this.specification )
+       if( ! this.schema )
            throw new Error('SubConfiguration slot must be instantiated with a specification');
 
-       this.specification = new (this.specificationClass)( this.specification );
+       this.schema = new (this.schemaClass)( this.schema );
        this.types = ['object'];
    },
 
@@ -25,7 +25,7 @@ return declare( Slot, {
 
        var ConfigurationClass = config.constructor._meta.bases[0];
 
-       return val instanceof ConfigurationClass ? val : new ConfigurationClass( this.specification, val );
+       return val instanceof ConfigurationClass ? val : new ConfigurationClass( this.schema, val );
    }
 
 });

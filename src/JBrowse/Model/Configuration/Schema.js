@@ -27,16 +27,16 @@ var slotClasses = {
 
 return declare( null, {
 
-    constructor: function( specDef ) {
+    constructor: function( def ) {
         this._slotsByName = {};
         this._slotsList = [];
 
-        this._load( specDef );
+        this._load( def );
     },
 
-    _load: function( spec ) {
-        array.forEach( spec.slots || [], function( slotSpec ) {
-            slotSpec = lang.mixin( { specificationClass: this.constructor._meta.bases[0] }, slotSpec );
+    _load: function( def ) {
+        array.forEach( def.slots || [], function( slotSpec ) {
+            slotSpec = lang.mixin( { schemaClass: this.constructor._meta.bases[0] }, slotSpec );
             var slot = new (this.getSlotClass( slotSpec ))( slotSpec, this );
             this._slotsByName[ slot.name ] = slot;
             this._slotsList.push( slot );

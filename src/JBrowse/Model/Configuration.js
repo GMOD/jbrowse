@@ -22,22 +22,22 @@ define( [
 
 var Configuration = declare( null, {
 
-    constructor: function( spec, base ) {
+    constructor: function( schema, base ) {
         this._base  = {};
         this._local = {};
         this._compilationCache = {};
 
-        if( ! spec )
-            throw new Error('must provide a spec to Configuration constructor');
+        if( ! schema )
+            throw new Error('must provide a schema to Configuration constructor');
 
-        this._spec = spec;
+        this._schema = schema;
 
         if( base )
             this.loadBase( base );
     },
 
     set: function( key, val ) {
-        this._local[ key ] = this._spec.normalizeSetting( key, val );
+        this._local[ key ] = this._schema.normalizeSetting( key, val );
         delete this._compilationCache[ key ];
         return this._local[key];
     },
@@ -66,7 +66,7 @@ var Configuration = declare( null, {
     getRaw: function( key ) {
         return key in this._local ? this._local[ key ] :
                key in this._base  ? this._base[key] :
-                                    this._spec.getDefaultValue( key );
+                                    this._schema.getDefaultValue( key );
     },
 
     /**
@@ -80,7 +80,7 @@ var Configuration = declare( null, {
         for( var k in input ) {
             var fullKey = path+k;
             var v = input[k];
-            var slot = this._spec.getSlot( fullKey );
+            var slot = this._schema.getSlot( fullKey );
             if( slot ) {
                 targetConf[ fullKey ] = slot.normalizeValue( v, this );
             }
@@ -106,7 +106,7 @@ var Configuration = declare( null, {
      * NOTE: Throw an Error object if it's invalid.
      */
     normalizeSetting: function( key, val ) {
-        return this._spec.normalizeSetting( key, val, this );
+        return this._schema.normalizeSetting( key, val, this );
     },
 
    /**
@@ -154,7 +154,7 @@ return Configuration;
 });
 
 
-// == spec : nested object specifying what slots a configuration has, and
+// == schema : nested object specifying what slots a configuration has, and
 // their default values.  usually hardcoded.
 
 // == base: nested object specifying a new set of default values for the

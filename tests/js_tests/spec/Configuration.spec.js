@@ -1,19 +1,19 @@
 require([
             'JBrowse/Model/Configuration',
-            'JBrowse/Model/Configuration/Specification'
-        ], function( Configuration, ConfigSpec ) {
+            'JBrowse/Model/Configuration/Schema'
+        ], function( Configuration, ConfigSchema ) {
 
 describe( 'Configuration data model', function() {
 
   it( 'works when empty', function() {
-          var spec = new ConfigSpec(
+          var schema = new ConfigSchema(
               {
                   slots: [
                       { name: 'foo.bar', type: 'string' },
                       { name: 'noggin.zee.zaz', type: 'integer' }
                   ]
               });
-          var c = new Configuration( spec );
+          var c = new Configuration( schema );
           expect( c.get( 'foo.bar' ) ).toBe( undefined );
           expect( c.set( 'noggin.zee.zaz', 42 ) ).toEqual( 42 );
           expect( c.get( 'noggin.zee.zaz' ) ).toEqual( 42 );
@@ -21,7 +21,7 @@ describe( 'Configuration data model', function() {
   });
 
   it( 'works with some simple test data', function() {
-          var spec = new ConfigSpec(
+          var schema = new ConfigSchema(
               {
                   slots: [
                       { name: 'zonker', type: 'array' },
@@ -33,7 +33,7 @@ describe( 'Configuration data model', function() {
                   ]
               });
           var c = new Configuration(
-              spec,
+              schema,
               {
                   zonker: [1,2,3],
                   zee: 1,
@@ -70,19 +70,19 @@ describe( 'Configuration data model', function() {
 
 
   it( 'works with subconfigurations and multis', function() {
-          var spec = new ConfigSpec(
+          var schema = new ConfigSchema(
               {
                   slots: [
                       { name: 'zonker', type: 'array' },
                       { name: 'sub1', type: 'SubConfiguration',
-                        specification: { slots: [ { name: 'foo', type: 'integer' } ] }
+                        schema: { slots: [ { name: 'foo', type: 'integer' } ] }
                       },
                       { name: 'notset', type: 'float', defaultValue: 42.3 },
                       { name: 'multi1', type: 'multi-integer' }
                   ]
               });
           var c = new Configuration(
-              spec,
+              schema,
               {
                   zonker: [1,2,3],
                   multi1: [4,5,6],
