@@ -1,3 +1,8 @@
+/**
+ * Specifies the slots in a configuration and a variety of metadata
+ * about them, such as type, title, description, etc.
+ */
+
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
@@ -15,11 +20,11 @@ var slotClasses = {
 
 return declare( null, {
 
-    constructor: function( spec ) {
+    constructor: function( specDef ) {
         this._slotsByName = {};
         this._slotsList = [];
 
-        this._load( spec );
+        this._load( specDef );
     },
 
     _load: function( spec ) {
@@ -34,14 +39,21 @@ return declare( null, {
         return slotClasses[ slotSpec.type ] || Slot;
     },
 
-    validateSetting: function( key, value ) {
-        //console.log( 'validating '+key+' '+value );
-        var slot = this._slotsByName[key];
-        if( ! slot )
-            return new Error( 'Unknown configuration key '+key );
+    getSlot: function( slotname ) {
+        return this._slotsByName[slotname];
+    },
 
-        var error = slot.validateValue( value );
-        return error || null;
+    /**
+     * Validate and possibly munge the given value before setting.
+     * NOTE: Throw an Error object if it's invalid.
+     */
+    normalizeSetting: function( key, value ) {
+        //console.log( 'validating '+key+' '+value );
+        var slot = this.getSlot(key);
+        if( ! slot )
+            throw new Error( 'Unknown configuration key '+key );
+
+        return slot.normalizeValue( value );
     }
 });
 });

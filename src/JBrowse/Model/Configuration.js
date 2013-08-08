@@ -37,12 +37,9 @@ var Configuration = declare( null, {
     },
 
     set: function( key, val ) {
-        var error = this._spec.validateSetting( key, val );
-        if( error )
-            throw error;
-
+        this._local[ key ] = this._spec.normalizeSetting( key, val );
         delete this._compilationCache[ key ];
-        return this._local[ key ] = val;
+        return this._local[key];
     },
 
     /**
@@ -98,13 +95,17 @@ var Configuration = declare( null, {
                 this._loadObject( target, v, path+k );
             }
             else {
-                var error = this._spec.validateSetting( path+k, input[k] );
-                if( error )
-                    throw error;
-
-                target[ path + k ] = input[k];
+                target[ path + k ] = this._spec.normalizeSetting( path+k, input[k] );
             }
         }
+    },
+
+    /**
+     * Validate and possibly munge the given value before setting.
+     * NOTE: Throw an Error object if it's invalid.
+     */
+    normalizeSetting: function( key, val ) {
+        return this._spec.normalizeSetting( key, val );
     },
 
    /**

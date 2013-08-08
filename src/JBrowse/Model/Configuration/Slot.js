@@ -18,11 +18,21 @@ var Slot = declare( null, {
       this.types = this._parseType( this.type );
   },
 
-  validateValue: function( value ) {
-      return this._validateType( value ) ? null : new Error( 'invalid value '+value+', not of type '+this.type );
+  /**
+   * Validates and possibly munges the given setting.  Throws an Error
+   * for invalid data.
+   */
+  normalizeValue: function( value ) {
+      if( this._validateType( value ) )
+          return value;
+      else
+          throw new Error( 'invalid value '+value+', not of type '+this.type );
   },
 
+  // validates the value of this slot according to its given type
   _validateType: function( value ) {
+      if( ! this.types.length )
+          return true;
       for( var i = 0; i<this.types.length; i++ ) {
           if( this._validType( this.types[i], value ) )
               return true;
