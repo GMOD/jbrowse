@@ -54,6 +54,13 @@ return declare( null, {
         return this._slotsByName[slotname];
     },
 
+    getDefaultValue: function( key ) {
+        var slot = this.getSlot( key );
+        if( ! slot )
+            return undefined;
+        return slot.defaultValue;
+    },
+
     /**
      * Validate and possibly munge the given value before setting.
      * NOTE: Throw an Error object if it's invalid.

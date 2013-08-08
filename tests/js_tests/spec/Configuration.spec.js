@@ -77,6 +77,7 @@ describe( 'Configuration data model', function() {
                       { name: 'sub1', type: 'SubConfiguration',
                         specification: { slots: [ { name: 'foo', type: 'integer' } ] }
                       },
+                      { name: 'notset', type: 'float', defaultValue: 42.3 },
                       { name: 'multi1', type: 'multi-integer' }
                   ]
               });
@@ -101,6 +102,7 @@ describe( 'Configuration data model', function() {
 
           expect( error+'' ).toContain('type');
           expect( c.get('multi1').length ).toEqual( 3 );
+          expect( c.get('notset') ).toEqual( 42.3 );
 
     });
 

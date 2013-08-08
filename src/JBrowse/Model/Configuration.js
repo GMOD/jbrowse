@@ -64,9 +64,9 @@ var Configuration = declare( null, {
     },
 
     getRaw: function( key ) {
-        return key in this._local
-            ? this._local[ key ]
-            : this._base[ key ];
+        return key in this._local ? this._local[ key ] :
+               key in this._base  ? this._base[key] :
+                                    this._spec.getDefaultValue( key );
     },
 
     /**
