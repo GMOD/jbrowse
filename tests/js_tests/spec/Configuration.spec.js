@@ -1,7 +1,6 @@
 require([
-            'JBrowse/Model/Configuration',
             'JBrowse/Model/Configuration/Schema'
-        ], function( Configuration, ConfigSchema ) {
+        ], function( ConfigSchema ) {
 
 describe( 'Configuration data model', function() {
 
@@ -13,7 +12,7 @@ describe( 'Configuration data model', function() {
                       { name: 'noggin.zee.zaz', type: 'integer' }
                   ]
               });
-          var c = new Configuration( schema );
+          var c = schema.newConfig();
           expect( c.get( 'foo.bar' ) ).toBe( undefined );
           expect( c.set( 'noggin.zee.zaz', 42 ) ).toEqual( 42 );
           expect( c.get( 'noggin.zee.zaz' ) ).toEqual( 42 );
@@ -32,8 +31,7 @@ describe( 'Configuration data model', function() {
                       { name: 'bar.bee.quux', type: 'integer' }
                   ]
               });
-          var c = new Configuration(
-              schema,
+          var c = schema.newConfig(
               {
                   zonker: [1,2,3],
                   zee: 1,
@@ -78,26 +76,40 @@ describe( 'Configuration data model', function() {
                         schema: { slots: [ { name: 'foo', type: 'integer' } ] }
                       },
                       { name: 'notset', type: 'float', defaultValue: 42.3 },
-                      { name: 'multi1', type: 'multi-integer' }
+                      { name: 'multi1', type: 'multi-integer' },
+                      { name: 'multisub', type: 'multi-subconfiguration',
+                        schema: {
+                            slots: [
+                                {name: 'fog', type: 'string' },
+                                {name: 'bar', type: 'integer', defaultValue: 20 },
+                                {name: 'ziggy', type: 'string' }
+                            ]
+                        }
+                      }
                   ]
               });
-          var c = new Configuration(
-              schema,
+          var c = schema.newConfig(
               {
                   zonker: [1,2,3],
                   multi1: [4,5,6],
-                  sub1: { foo: 3 }
+                  sub1: { foo: 3 },
+                  multisub: [ { fog: 'zee' } ]
               });
+
           expect( c.get('zonker').length ).toEqual( 3 );
           expect( c.get('multi1').length ).toEqual( 3 );
           expect( c.get('sub1').get('foo') ).toEqual( 3 );
           expect( JSON.stringify(c.exportLocal()) ).toEqual('{}');
+          expect( c.get('multisub')[0].get('fog') ).toEqual( 'zee' );
+          expect( c.get('multisub')[0].get('ziggy') ).toBe( undefined );
+          expect( c.get('multisub')[0].get('bar') ).toEqual( 20 );
+          expect( c.get('multisub')[0].set('fog','zogger') ).toEqual( 'zogger' );
+
           var error;
           try {
               c.set('multi1',['foo',2]);
           } catch(e) {
               error = e;
-              console.log(error);
           }
 
           expect( error+'' ).toContain('type');

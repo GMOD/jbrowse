@@ -79,68 +79,75 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.glyphsLoaded = {};
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
-        this.showLabels = this.config.style.showLabels;
-        this.displayMode = this.config.displayMode;
+        this.showLabels = this.getConf('showLabels');
 
         this._setupEventHandlers();
     },
 
-    _defaultConfig: function() {
-        return {
-            maxFeatureScreenDensity: 400,
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+                { name: 'maxFeatureScreenDensity', defaultValue: 400, type: 'integer' },
+                { name: 'maxLabelScreenDensity', defaultValue: 1/30, type: 'integer' },
+                { name: 'maxDescriptionScreenDensity', defaultValue: 1/120, type: 'integer' },
+                { name: 'minHistScreenDensity', defaultValue: 400, type: 'integer' },
 
-            // default glyph class to use
-            glyph: lang.hitch( this, 'guessGlyphType' ),
+                { name: 'featureScale', type: 'float' },
+                { name: 'labelScale', type: 'float' },
+                { name: 'descriptionScale', type: 'float' },
 
-            // maximum number of pixels on each side of a
-            // feature's bounding coordinates that a glyph is
-            // allowed to use
-            maxFeatureGlyphExpansion: 500,
 
-            // maximum height of the track, in pixels
-            maxHeight: 600,
+                { name: 'layoutPitchY', type: 'integer', defaultValue: 4 },
 
-            style: {
-                // not configured by users
-                _defaultHistScale: 4,
-                _defaultLabelScale: 30,
-                _defaultDescriptionScale: 120,
+                // default glyph class to use
+                { name: 'glyph', defaultValue: lang.hitch( this, 'guessGlyphType' ), type: 'string|function' },
 
-                showLabels: true
-            },
+                // maximum number of pixels on each side of a
+                // feature's bounding coordinates that a glyph is
+                // allowed to use
+                { name: 'maxFeatureGlyphExpansion', defaultValue: 500, type: 'integer' },
 
-            displayMode: 'normal',
+                // maximum height of the track, in pixels
+                { name: 'maxHeight', defaultValue: 600, type: 'integer' },
 
-            events: {
-                contextmenu: function( feature, fRect, block, track, evt ) {
-                    evt = domEvent.fix( evt );
-                    if( fRect && fRect.contextMenu )
-                        fRect.contextMenu._openMyself({ target: block.featureCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
-                    domEvent.stop( evt );
-                }
-            },
+                { name: 'showLabels', defaultValue: true, type: 'boolean' },
 
-            menuTemplate: [
-                { label: 'View details',
-                  title: '{type} {name}',
-                  action: 'contentDialog',
-                  iconClass: 'dijitIconTask',
-                  content: dojo.hitch( this, 'defaultFeatureDetail' )
+                { name: 'displayMode', defaultValue: 'normal', type: 'string' },
+
+                { name: 'events', type: 'object', defaultValue: {
+                      contextmenu: function( feature, fRect, block, track, evt ) {
+                          evt = domEvent.fix( evt );
+                          if( fRect && fRect.contextMenu )
+                              fRect.contextMenu._openMyself({ target: block.featureCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
+                          domEvent.stop( evt );
+                      }
+                  }
                 },
-                { label: function() {
-                      return 'Highlight this '
-                          +( this.feature && this.feature.get('type') ? this.feature.get('type')
-                                                                      : 'feature'
-                           );
-                  },
-                  action: function() {
-                     var loc = new Location({ feature: this.feature, tracks: [this.track] });
-                     this.track.browser.setHighlightAndRedraw(loc);
-                  },
-                  iconClass: 'dijitIconFilter'
+
+                { name: 'menuTemplate', type: 'multi-object', defaultValue: [
+                      { label: 'View details',
+                        title: '{type} {name}',
+                        action: 'contentDialog',
+                        iconClass: 'dijitIconTask',
+                        content: dojo.hitch( this, 'defaultFeatureDetail' )
+                      },
+                      { label: function() {
+                            return 'Highlight this '
+                                +( this.feature && this.feature.get('type') ? this.feature.get('type')
+                                   : 'feature'
+                                 );
+                        },
+                        action: function() {
+                            var loc = new Location({ feature: this.feature, tracks: [this.track] });
+                            this.track.browser.setHighlightAndRedraw(loc);
+                        },
+                        iconClass: 'dijitIconFilter'
+                      }
+                  ]
                 }
-            ]
-        };
+            ]);
+
+        return def;
     },
 
     guessGlyphType: function(feature) {
@@ -168,15 +175,15 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 var renderHints = dojo.mixin(
                     {
                         stats: stats,
-                        displayMode: this.displayMode,
-                        showFeatures: scale >= ( this.config.style.featureScale
-                                                 || (stats.featureDensity||0) / this.config.maxFeatureScreenDensity ),
-                        showLabels: this.showLabels && this.displayMode == "normal"
-                            && scale >= ( this.config.style.labelScale
-                                          || (stats.featureDensity||0) * this.config.style._defaultLabelScale ),
-                        showDescriptions: this.showLabels && this.displayMode == "normal"
-                            && scale >= ( this.config.style.descriptionScale
-                                          || (stats.featureDensity||0) * this.config.style._defaultDescriptionScale)
+                        displayMode: this.getConf('displayMode'),
+                        showFeatures: scale >= ( this.getConf('featureScale')
+                                                 || (stats.featureDensity||0) / this.getConf('maxFeatureScreenDensity') ),
+                        showLabels: this.showLabels && this.getConf('displayMode') == "normal"
+                            && scale >= ( this.getConf('labelScale')
+                                          || (stats.featureDensity||0) / this.getConf('maxLabelScreenDensity') ),
+                        showDescriptions: this.showLabels && this.getConf('displayMode') == "normal"
+                            && scale >= ( this.getConf('descriptionScale')
+                                          || (stats.featureDensity||0) * this.getConf('maxDescriptionScreenDensity') )
                     },
                     args
                 );
@@ -210,8 +217,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
-            var pitchY = this.config.layoutPitchY || 4;
-            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.displayMode });
+            var pitchY = this.getConf('layoutPitchY');
+            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.getConf('displayMode') });
         }
 
         return this.layout;
@@ -290,7 +297,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         // but the feature of which does not actually lie in the block
         // (long labels that extend outside the feature's bounds, for
         // example)
-        var bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale );
+        var bpExpansion = Math.round( this.getConf('maxFeatureGlyphExpansion') / scale );
 
         var region = { ref: this.refSeq.name,
                        start: Math.max( 0, leftBase - bpExpansion ),
@@ -421,7 +428,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
-        if( this.displayMode != 'collapsed' ) {
+        if( this.getConf('displayMode') != 'collapsed' ) {
             // make features get highlighted on mouse move
             block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
                                evt = domEvent.fix( evt );
@@ -551,9 +558,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 label: displayMode,
                 type: 'dijit/CheckedMenuItem',
                 title: "Render this track in " + displayMode + " mode",
-                checked: thisB.displayMode == displayMode,
+                checked: thisB.getConf('displayMode') == displayMode,
                 onClick: function() {
-                    thisB.displayMode = displayMode;
+                    thisB.setConf( 'displayMode', displayMode );
                     thisB._clearLayout();
                     thisB.hideAll();
                     thisB.genomeView.showVisibleBlocks(true);
@@ -564,7 +571,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
         var updateMenuItems = dojo.hitch(this, function() {
             for(var index in this.displayModeMenuItems) {
-                this.displayModeMenuItems[index].checked = (this.displayMode == this.displayModeMenuItems[index].label);
+                this.displayModeMenuItems[index].checked = (this.getConf('displayMode') == this.displayModeMenuItems[index].label);
             }
         });
 
@@ -580,7 +587,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 },
                 { label: 'Show labels',
                   type: 'dijit/CheckedMenuItem',
-                  checked: !!( 'showLabels' in this ? this.showLabels : this.config.style.showLabels ),
+                  checked: !!( 'showLabels' in this ? this.showLabels : this.getConf('showLabels') ),
                   onClick: function(event) {
                       thisB.showLabels = this.checked;
                       thisB.changed();

@@ -13,6 +13,7 @@ return declare( Slot, {
         var elementSlotDef = lang.mixin( lang.mixin( {}, def ), {name: 'unnamed', type: this.elementType });
         this.elementSlot = new ( this.getSlotClass( elementSlotDef ) )( elementSlotDef, this );
         this.types = ['array'];
+        this.defaultValue = this.defaultValue || [];
     },
 
     normalizeValue: function( valueArray ) {

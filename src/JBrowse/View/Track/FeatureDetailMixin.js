@@ -36,29 +36,24 @@ return declare( FeatureDescriptionMixin, {
 
     _setupEventHandlers: function() {
         // make a default click event handler
-        var eventConf = dojo.clone( this.config.events || {} );
+        var eventConf = lang.clone( this.getConf('events') );
         if( ! eventConf.click ) {
-            eventConf.click = (this.config.style||{}).linkTemplate
-                    ? { action: "newWindow", url: this.config.style.linkTemplate }
-                    : { action: "contentDialog",
-                        title: '{type} {name}',
-                        content: dojo.hitch( this, 'defaultFeatureDetail' ) };
+            eventConf.click = {
+                action: "contentDialog",
+                title: '{type} {name}',
+                content: dojo.hitch( this, 'defaultFeatureDetail' ) };
         }
 
         // process the configuration to set up our event handlers
         this.eventHandlers = (function() {
-            var handlers = dojo.clone( eventConf );
-            // find conf vars that set events, like `onClick`
-            for( var key in this.config ) {
-                var handlerName = key.replace(/^on(?=[A-Z])/, '');
-                if( handlerName != key )
-                    handlers[ handlerName.toLowerCase() ] = this.config[key];
-            }
+            var handlers = lang.clone( eventConf );
+
             // interpret handlers that are just strings to be URLs that should be opened
             for( key in handlers ) {
                 if( typeof handlers[key] == 'string' )
                     handlers[key] = { url: handlers[key] };
             }
+
             return handlers;
         }).call(this);
         this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
@@ -145,7 +140,7 @@ return declare( FeatureDescriptionMixin, {
                 innerHTML: '<div style="height: 12em">Loading...</div>',
                 className: 'value feature_sequence'
             }, field_container);
-        var maxSize = this.config.maxFeatureSizeForUnderlyingRefSeq;
+        var maxSize = this.getConf('maxFeatureSizeForUnderlyingRefSeq');
         if( maxSize < (f.get('end') - f.get('start')) ) {
             valueContainer.innerHTML = 'Not displaying underlying reference sequence, feature is longer than maximum of '+Util.humanReadableNumber(maxSize)+'bp';
         } else {

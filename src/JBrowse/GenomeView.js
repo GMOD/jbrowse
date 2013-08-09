@@ -66,28 +66,30 @@ var dojof = Util.dojof;
 return declare( [dijitBase,Component,FeatureFiltererMixin], {
 
 splitter: true,
-region: 'center',
 baseClass: 'jbrowseGenomeView',
 stripeWidth: 250,
 pxPerBp: 1/200,
 
+// activate manual constructor chaining
+"-chains-": { constructor: 'manual' },
 
-constructor: function() {
-    // need to set this here and then copy it back into this.config in
-    // buildRendering to sidestep a dojo.mixin( this, params ) in the
-    // dijit widget base code
-    this.finalConfig = this.config;
+constructor: function( args ) {
+    this.browser = args.browser;
+
+    this._finalizeConfig( args.baseConfig || args.config, args.localConfig );
+
+    this.region = this.getConf('region');
+    this.style  = this.getConf('style');
+    this.inherited( arguments );
+    FeatureFiltererMixin.prototype.constructor.call( this, args );
 },
 
 buildRendering: function() {
     this.inherited( arguments );
 
-    this.config = this.finalConfig;
-    delete this.finalConfig;
-
     // keep a reference to the main browser object
     this.setFeatureFilterParentComponent( this.browser );
-    this.maxPxPerBp = this.config.maxPxPerBp;
+    this.maxPxPerBp = this.getConf('maxPxPerBp');
 
     //the page element that the GenomeView lives in
     this.navbox = this.createNavBox( this.domNode );
@@ -170,8 +172,8 @@ buildRendering: function() {
 
     this.zoomContainer.style.paddingTop = this.topSpace + "px";
 
-    var initialLoc = this.initialLocation;
-    var initialTracks = this.initialTracks;
+    var initialLoc = this.getConf('initialLocation');
+    var initialTracks = this.getConf('initialTracks');
 
     this.initialized = new Deferred();
 
@@ -186,7 +188,7 @@ buildRendering: function() {
             q,
             function(ref) {
                 thisB._finishInitialization( ref );
-                thisB.setLocation( ref, ref.start, ref.end, thisB.initialTracks );
+                thisB.setLocation( ref, ref.start, ref.end, thisB.getConf('initialTracks') );
                 thisB.initialized.resolve();
             },
             function() {},
@@ -201,9 +203,6 @@ buildRendering: function() {
  */
 getState: function() {
     var s = this.inherited(arguments);
-    s.initialLocation = this.visibleRegion();
-    s.region = this.region;
-    s.initialTracks = this.visibleTrackNames();
     var height = this.domNode.style.height || '';
     if( /%/.test( height ) )
         s.style = { height: this.domNode.style.height };
@@ -248,7 +247,7 @@ _finishInitialization: function( refseq ) {
 
     this.uiTracks = [ this.staticTrack ];
 
-    if( this.config.gridlines ) {
+    if( this.getConf('gridlines') ) {
         var gridTrackDiv = document.createElement("div");
         gridTrackDiv.className = "track";
         gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
@@ -332,10 +331,17 @@ _finishInitialization: function( refseq ) {
 },
 
 
-_defaultConfig: function() {
+_configSchemaDefinition: function() {
     return {
-        maxPxPerBp: 20,
-        gridlines: true
+        slots: [
+            { name: 'region', type: 'string', defaultValue: 'center' },
+            { name: 'style', type: 'string|object' },
+            { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
+            { name: 'gridlines', type: 'boolean', defaultValue: true },
+            { name: 'initialTracks', type: 'multi-string' },
+            { name: 'initialLocation', type: 'string' },
+            { name: 'locationBoxLength', type: 'integer' }
+        ]
     };
 },
 
@@ -2017,13 +2023,16 @@ replaceTracks: function( trackConfigs ) {
 
 /**
  * Remove the given track (configs) from the genome view.
- * @param trackConfigs {Array[Object]} array of track configurations
+ * @param tracks {Array[Object|String]} array of track configurations or track names
  */
-hideTracks: function( /**Array[String]*/ trackConfigs ) {
+hideTracks: function( tracks ) {
+    var trackConfigs = array.map( tracks, function( c ) {
+        return typeof c == 'string' ? this.browser.getTrackConfig(c) : c;
+    }, this );
 
     // filter out any track configs that are not displayed
-    var displayed = dojo.filter( trackConfigs, function(conf) {
-        return this._getTracks( [conf.label] ).length != 0;
+    var displayed = array.filter( trackConfigs, function(conf) {
+        return conf && this._getTracks( [conf.label] ).length != 0;
     },this);
     if( ! displayed.length ) return;
 
@@ -2276,7 +2285,7 @@ createNavBox: function( parent ) {
 
     // make the refseq selection dropdown
     this.browser.getStore('refseqs', function( store ) {
-        var max = thisB.browser.config.refSeqSelectorMaxSize || 30;
+        var max = thisB.browser.getConf('refSeqSelectorMaxSize');
         var refSeqOrder = [];
         store.getRefSeqMeta(
             { limit: max+1 },
@@ -2313,7 +2322,7 @@ createNavBox: function( parent ) {
             });
 
             // calculate how big to make the location box:  make it big enough to hold the
-            var locLength = thisB.config.locationBoxLength || function() {
+            var locLength = thisB.getConf('locationBoxLength') || function() {
                 // if we have no refseqs, just use 20 chars
                 if( ! refSeqOrder.length )
                     return 20;

@@ -13,17 +13,15 @@ define([
 
 return declare( BoxGlyph, {
 
-_defaultConfig: function() {
-    return this._mergeConfigs(
-        this.inherited(arguments),
-        {
-            style: {
-                connectorColor: '#333',
-                connectorThickness: 1,
-                borderColor: 'rgba( 0, 0, 0, 0.3 )'
-            },
-            subParts: function() { return true; } // accept all subparts by default
-        });
+_configSchemaDefinition: function() {
+    var def = this.inherited( arguments );
+    def.slots.push.apply( def.slots, [
+            { name: 'connectorColor', defaultValue: '#333', type: 'Color' },
+            { name: 'connectorThickness', defaultValue: 1, type: 'float' },
+            { name: 'borderColor', defaultValue: 'rgba( 0, 0, 0, 0.3 )', type: 'Color' },
+            { name: 'subParts', defaultValue: function() { return true; }, type: 'function' } // accept all subparts by default
+    ]);
+    return def;
 },
 
 renderFeature: function( context, fRect ) {
@@ -80,7 +78,7 @@ _filterSubpart: function( f ) {
 // make a function that will filter subpart features according to the
 // sub_parts conf var
 _makeSubpartsFilter: function( f ) {
-    var filter = this.getConf( 'subParts' );
+    var filter = this.getConfFunc( 'subParts' );
 
     if( typeof filter == 'string' )
         // convert to array

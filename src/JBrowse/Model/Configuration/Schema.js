@@ -10,6 +10,7 @@ define([
            './Slot',
            './Slot/Multi',
            './Slot/SubConfiguration',
+           './Slot/Color',
            '../Configuration'
        ],
        function(
@@ -19,12 +20,14 @@ define([
            Slot,
            MultiSlot,
            SubConfigurationSlot,
+           ColorSlot,
            Configuration
        ) {
 
 var slotClasses = {
     // add any custom slot classes here and load them above
-    'subconfiguration' : SubConfigurationSlot
+    'subconfiguration' : SubConfigurationSlot,
+    'color': ColorSlot
 };
 
 return declare( null, {
@@ -37,7 +40,14 @@ return declare( null, {
     },
 
     _load: function( def ) {
-        array.forEach( def.slots || [], function( slotSpec ) {
+        var seenName = {};
+        var slots = array.filter( def.slots || [], function( slot ) {
+            var seen = seenName[slot.name];
+            seenName[slot.name] = true;
+            return !seen;
+        });
+
+        array.forEach( slots, function( slotSpec ) {
             slotSpec = lang.mixin( { schemaClass: this.constructor._meta.bases[0] }, slotSpec );
             var slot = new (this.getSlotClass( slotSpec ))( slotSpec, this );
             this._slotsByName[ slot.name ] = slot;

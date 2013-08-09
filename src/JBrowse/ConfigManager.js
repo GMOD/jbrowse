@@ -33,12 +33,8 @@ getFinalConfig: function( callback ) {
         // merge the root config *into* the included config last, so
         // that values in the root config override the others
         this.config = this._mergeConfigs( includedConfig, this.config );
-
-        // now validate the final merged config, and finally give it
-        // to the callback
         this.config = this._applyDefaults( this.config, this.defaults );
-        if( ! this.skipValidation )
-            this._validateConfig( this.config );
+
         callback( this.config );
     }));
 },
@@ -154,22 +150,6 @@ _mergeIncludes: function( inputConfig, config_includes ) {
  */
 _applyDefaults: function( config, defaults ) {
     return Util.deepUpdate( dojo.clone(defaults), config );
-},
-
-/**
- * Examine the loaded and merged configuration for errors.  Throws
- * exceptions if it finds anything amiss.
- * @private
- * @returns nothing meaningful
- */
-_validateConfig: function( c ) {
-    if( ! c.tracks || ! c.tracks.length )
-        this._fatalError('No tracks defined in configuration.');
-    if( ! c.baseUrl ) {
-        this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
-    }
-    if( this.hasFatalErrors )
-        throw "Errors in configuration, cannot start.";
 },
 
 /**

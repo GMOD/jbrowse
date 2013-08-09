@@ -85,13 +85,16 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns the same object it was passed
          */
         regularize_conf: function( o, load_args ) {
-            o.sourceUrl = o.sourceUrl || load_args.config.url;
-            o.baseUrl   = o.baseUrl || Util.resolveUrl( o.sourceUrl, '.' );
+            var sourceUrl = o.sourceUrl || load_args.config.url;
+            delete o.sourceUrl;
+            delete o.formatVersion;
+
+            o.baseUrl   = o.baseUrl || Util.resolveUrl( sourceUrl, '.' );
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
             // set a default baseUrl in each of the track and store confs, and the names conf, if needed
-            if( o.sourceUrl ) {
+            if( o.baseUrl ) {
                 var addBase =
                     []
                     .concat( o.tracks || [] )

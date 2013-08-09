@@ -44,8 +44,11 @@ var Slot = declare( null, {
 
   // validates the value of this slot according to its given type
   _validateType: function( value ) {
-      if( ! this.types.length )
+      if( value === undefined    //< undefined is valid for all types
+          || ! this.types.length //< or if we have no set type
+        )
           return true;
+
       for( var i = 0; i<this.types.length; i++ ) {
           if( this._validType( this.types[i], value ) )
               return true;
@@ -64,6 +67,9 @@ var Slot = declare( null, {
       if( ! type ) return true;
       if( type == 'function' ) {
           return typeof value == 'function';
+      }
+      else if( type == 'boolean' ) {
+          return !!value === value;
       }
       else if( type == 'integer' ) {
           return Math.floor( value ) === value;

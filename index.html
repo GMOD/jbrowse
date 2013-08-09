@@ -28,8 +28,6 @@
 
                    // the initial configuration of this JBrowse instance
                    var config = {
-                       containerID: "GenomeBrowser",
-                       refSeqs: dataRoot + "/seq/refSeqs.json",
                        baseUrl: dataRoot+'/',
                        include: [
                            'jbrowse_conf.json',
@@ -43,16 +41,15 @@
                        initialHighlight: queryParams.highlight,
                        show_nav: queryParams.nav,
                        show_tracklist: queryParams.tracklist,
-                       show_overview: queryParams.overview,
                        stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
-                       makeFullViewURL: function( browser ) {
+                       fullViewURL: function( browser ) {
 
                            // the URL for the 'Full view' link
                            // in embedded mode should be the current
                            // view URL, except with 'nav', 'tracklist',
                            // and 'overview' parameters forced to 1.
 
-                           return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
+                           return browser.getConf('shareURL', [browser, { nav: 1, tracklist: 1, overview: 1 }]);
                        },
                        updateBrowserURL: true
                    };

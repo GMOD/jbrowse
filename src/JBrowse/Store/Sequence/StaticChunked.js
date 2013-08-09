@@ -49,16 +49,22 @@ return declare( SeqFeatureStore,
         if( ! this.urlTemplate ) {
             throw "no urlTemplate provided, cannot open sequence store";
         }
+    },
 
-        this.baseUrl      = args.baseUrl;
-        this.seqChunkSize = args.seqChunkSize || 20000;
+    _configSchemaDefinition: function() {
+        var def = this.inherited(arguments);
+        def.slots.push.apply( def.slots, [
+            { name: 'refSeqs', type: 'string', defaultValue: 'seq/refSeqs.json' },
+            { name: 'chunkSize', type: 'integer', defaultValue: 20000 }
+        ]);
+        return def;
     },
 
     _getRefSeqsInfo: function() {
         return this._refSeqsInfo || function() {
             var thisB = this;
             return this._refSeqsInfo =
-                xhr.get( this.config.refSeqs || this.browser.config.refSeqs, { handleAs: 'json' } )
+                xhr.get( this.resolveUrl( this.getConf('refSeqs') ), { handleAs: 'json' } )
                    .then( function( r ) {
                               var refsByName = {};
                               for( var i = 0; i<r.length; i++ ) {
@@ -95,7 +101,7 @@ return declare( SeqFeatureStore,
         var start = query.start;
         var end   = query.end;
         var seqname    = query.ref;
-        var chunkSize  = query.seqChunkSize || this.seqChunkSize;
+        var chunkSize  = query.seqChunkSize || this.getConf('chunkSize');
 
         var firstChunk = Math.floor( Math.max(0,start) / chunkSize );
         var lastChunk  = Math.floor( (end - 1)         / chunkSize );

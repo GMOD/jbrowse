@@ -38,11 +38,21 @@ define( [
 return declare( null, {
 
     _canSaveFiles: function() {
-        return has('save-generated-files') && ! this.config.noExportFiles;
+        return has('save-generated-files') && ! this.getConf('noExportFiles');
+    },
+
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'noExport', type: 'boolean', defaultValue: false },
+            { name: 'noExportFiles', type: 'boolean', defaultValue: false },
+            { name: 'maxExportSpan', type: 'integer' }
+        ]);
+        return def;
     },
 
     _canExport: function() {
-        if( this.config.noExport )
+        if( this.getConf('noExport') )
             return false;
 
         var visibleRegion = this.genomeView.visibleRegion();
@@ -290,7 +300,7 @@ return declare( null, {
     _trackMenuOptions: function() {
         var opts = this.inherited(arguments);
 
-        if( ! this.config.noExport )
+        if( ! this.getConf('noExport') )
             // add a "Save track data as" option to the track menu
             opts.push({ label: 'Save track data',
                         iconClass: 'dijitIconSave',
@@ -308,8 +318,8 @@ return declare( null, {
         if( ! region ) return false;
 
         // if we have a maxExportSpan configured for this track, use it.
-        if( typeof this.config.maxExportSpan == 'number' || typeof this.config.maxExportSpan == 'string' ) {
-            return region.end - region.start + 1 <= this.config.maxExportSpan;
+        if( this.getConf('maxExportSpan') ) {
+            return region.end - region.start + 1 <= this.getConf('maxExportSpan');
         }
         else {
             // if we know the store's feature density, then use that with
@@ -321,7 +331,7 @@ return declare( null, {
                 storeStats = s;
             }, function(error){ }); // error callback does nothing for now
             if( storeStats.featureDensity ) {
-                return storeStats.featureDensity*(region.end - region.start) <= ( thisB.config.maxExportFeatures || 5000 );
+                return storeStats.featureDensity*(region.end - region.start) <= ( thisB.getConf('maxExportFeatures') || 5000 );
             }
         }
 

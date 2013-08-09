@@ -56,7 +56,7 @@ return declare( Component, {
     },
 
     getStyle: function( feature, name ) {
-        return this.getConfForFeature( 'style.'+name, feature );
+        return this.getConfForFeature( name, feature );
     },
 
     /**

@@ -49,8 +49,11 @@ var Configuration = declare( null, {
      * configuration when called.
      */
     get: function( key, args ) {
-        return ( this._compilationCache[ key ] || ( this._compilationCache[ key ] = this._compile( key ) ) )
-            .apply( this, args );
+        return this.getFunc( key ).apply( this, args );
+    },
+
+    getFunc: function( key ) {
+        return this._compilationCache[ key ] || ( this._compilationCache[ key ] = this._compile( key ) );
     },
 
     _compile: function( key ) {
@@ -78,6 +81,9 @@ var Configuration = declare( null, {
         for( var k in input ) {
             var fullKey = path+k;
             var v = input[k];
+            if( v === undefined )
+                continue;
+
             var slot = this._schema.getSlot( fullKey );
             if( slot ) {
                 targetConf[ fullKey ] = slot.normalizeValue( v, this );
@@ -86,7 +92,8 @@ var Configuration = declare( null, {
                 this._loadBase( v, targetConf, fullKey+'.' );
             }
             else {
-                throw new Error( 'Unknown configuration key '+fullKey );
+                //throw new Error( 'Unknown configuration key '+fullKey );
+                console.error( 'Unknown configuration key "'+fullKey+'", ignoring.' );
             }
         }
     },
@@ -95,9 +102,9 @@ var Configuration = declare( null, {
      * Load the given local configuration, overwriting any existing
      * values.
      */
-    // loadLocal: function( conf, keyBase ) {
-    //     this.importObject( conf, this._local );
-    // },
+    loadLocal: function( conf, keyBase ) {
+        // TODO: implement this
+    },
 
     /**
      * Validate and possibly munge the given value before setting.

@@ -22,31 +22,28 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         this._embeddedImagePromises = {};
     },
 
-    _defaultConfig: function() {
-        return this._mergeConfigs(
-            this.inherited(arguments),
-            {
-                style: {
-                    maxDescriptionLength: 70,
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+                    { name: 'maxDescriptionLength', defaultValue: 70, type: 'integer' },
+                    { name: 'color', defaultValue: 'goldenrod', type: 'Color' },
+                    { name: 'mouseovercolor', defaultValue: 'rgba(0,0,0,0.3)', type: 'Color' },
+                    { name: 'borderColor', defaultValue: undefined, type: 'Color' },
+                    { name: 'borderWidth', defaultValue: 0.5, type: 'float' },
+                    { name: 'height', defaultValue: 11, type: 'float' },
+                    { name: 'marginBottom', defaultValue: 2, type: 'float' },
 
-                    color: 'goldenrod',
-                    mouseovercolor: 'rgba(0,0,0,0.3)',
-                    borderColor: null,
-                    borderWidth: 0.5,
-                    height: 11,
-                    marginBottom: 2,
+                    { name: 'strandArrow', defaultValue: true, type: 'boolean' },
 
-                    strandArrow: true,
+                    { name: 'label', defaultValue: 'name, id', type: 'string' },
+                    { name: 'textFont', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
+                    { name: 'textColor', defaultValue:  'black', type: 'Color' },
+                    { name: 'text2Color', defaultValue: 'blue', type: 'Color' },
+                    { name: 'text2Font', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'Color' },
 
-                    label: 'name, id',
-                    textFont: 'normal 12px Univers,Helvetica,Arial,sans-serif',
-                    textColor:  'black',
-                    text2Color: 'blue',
-                    text2Font: 'normal 12px Univers,Helvetica,Arial,sans-serif',
-
-                    description: 'note, description'
-                }
-            });
+                    { name: 'description', defaultValue: 'note, description', type: 'string' }
+                ]);
+        return def;
     },
 
     _getFeatureHeight: function( viewArgs, feature ) {

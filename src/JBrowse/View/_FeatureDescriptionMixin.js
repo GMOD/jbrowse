@@ -22,7 +22,7 @@ return declare( null, {
     },
 
     _getFeatureDescriptiveThing: function( field, defaultFields, feature ) {
-        var dConf = this.config.style[field] || this.config[field];
+        var dConf = this.getConf( field );
 
         if( ! dConf )
             return null;

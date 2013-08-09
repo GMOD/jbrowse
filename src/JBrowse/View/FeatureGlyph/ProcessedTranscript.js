@@ -13,17 +13,20 @@ define([
 
 return declare( SegmentsGlyph, {
 
-_defaultConfig: function() {
-    return this._mergeConfigs(
-        this.inherited(arguments),
-        {
-            style: {
-                utrColor: function( feature, variable, glyph, track ) {
-                    return glyph._utrColor( glyph.getStyle( feature.parent(), 'color' ) ).toString();
-                }
+_configSchemaDefinition: function() {
+    var def = this.inherited( arguments );
+    def.slots.push.apply(
+        def.slots,
+        [
+            { name: 'utrColor',
+              type: 'Color',
+              defaultValue: function( feature, variable, glyph, track ) {
+                  return glyph._utrColor( glyph.getStyle( feature.parent(), 'color' ) ).toString();
+              }
             },
-            subParts: 'CDS, UTR, five_prime_UTR, three_prime_UTR'
-        });
+            { name: 'subParts', defaultValue: 'CDS, UTR, five_prime_UTR, three_prime_UTR' }
+        ]);
+    return def;
 },
 
 _utrColor: function( baseColor ) {

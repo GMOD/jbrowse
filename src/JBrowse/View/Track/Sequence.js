@@ -18,13 +18,16 @@ return declare( [BlockBased, ExportMixin],
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function( args ) {},
+    constructor: function( args ) {
+    },
 
-    _defaultConfig: function() {
-        return {
-            maxExportSpan: 500000,
-            showReverseStrand: true
-        };
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+                { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
+                { name: 'showReverseStrand', type: 'boolean', defaultValue: true }
+            ]);
+        return def;
     },
     _exportFormats: function() {
         return [{name: 'FASTA', label: 'FASTA', fileExt: 'fasta'}];
@@ -111,7 +114,7 @@ return declare( [BlockBased, ExportMixin],
         seqNode.appendChild( this._renderSeqDiv( start, end, seq, scale ));
 
         // and one for the reverse strand
-        if( this.config.showReverseStrand ) {
+        if( this.getConf('showReverseStrand') ) {
             var comp = this._renderSeqDiv( start, end, Util.complement(seq), scale );
             comp.className = 'revcom';
             seqNode.appendChild( comp );

@@ -63,6 +63,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
 {
+
     /**
      * Base class for all JBrowse tracks.
      * @constructs
@@ -71,8 +72,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         args = args || {};
 
         this.refSeq = args.refSeq;
-        this.name = args.label || this.config.label;
-        this.key = args.key || this.config.key || this.name;
+        this.name = args.label || this.getConf('label');
+        this.key = this.name;
 
         this._changedCallback = args.changeCallback || function(){};
         this.height = 0;
@@ -92,10 +93,16 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * type.  Might want to override in subclasses.
      * @private
      */
-    _defaultConfig: function() {
-        return {
-            maxFeatureSizeForUnderlyingRefSeq: 250000
-        };
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'maxFeatureSizeForUnderlyingRefSeq', type: 'integer', defaultValue: 250000 },
+            { name: 'pinned', type: 'boolean', defaultValue:  false },
+            { name: 'metadata', type: 'object', defaultValue: {} },
+            { name: 'style.trackLabelCss', type: 'string' },
+            { name: 'label', type: 'string' }
+        ]);
+        return def;
     },
 
     heightUpdate: function(height, blockIndex) {
@@ -139,7 +146,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.labelHTML = "";
         this.labelHeight = 0;
 
-        if( this.config.pinned )
+        if( this.getConf('pinned') )
             this.setPinned( true );
 
         if( ! this.label ) {
@@ -161,7 +168,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         this.label = labelDiv;
 
-        if ( ( this.config.style || {} ).trackLabelCss){
+        if ( this.getConf( 'style.trackLabelCss', [this] ) ) {
             labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
         }
 
@@ -170,7 +177,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         },labelDiv);
         this.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
                 this.genomeView.suppressDoubleClick( 100 );
-                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.config]);
+                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.name]);
                 evt.stopPropagation();
         })));
 
@@ -829,23 +836,23 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     getMetadata: function() {
-        return ( this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
-                                          this.config.metadata ? this.config.metadata :
-                                                                 {} ) || {};
+        return this.browser && this.browser.trackMetaDataStore
+            ? this.browser.trackMetaDataStore.getItem(this.name)
+            : this.getConf('metadata');
     },
 
     setPinned: function( p ) {
-        this.config.pinned = !!p;
+        p = this.setConf( 'pinned', !!p );
 
-        if( this.config.pinned )
+        if( p )
             domClass.add( this.div, 'pinned' );
         else
             domClass.remove( this.div, 'pinned' );
 
-        return this.config.pinned;
+        return p;
     },
     isPinned: function() {
-        return !! this.config.pinned;
+        return !! this.getConf('pinned');
     },
 
     /**

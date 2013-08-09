@@ -14,10 +14,10 @@ define([
        ) {
 return declare( Slot, {
    constructor: function( args ) {
-       if( ! this.schemaDefinition )
-           throw new Error('SubConfiguration slot must be instantiated with a schema definition');
+       if( ! this.schema )
+           throw new Error( this.name + ' subconfiguration has no schema' );
 
-       this.schema = new (this.schemaClass)( this.schemaDefinition );
+       this.schema = new (this.schemaClass)( this.schema );
        this.types = ['object'];
    },
 
