@@ -144,9 +144,9 @@ var RequestWorker = declare( null,
 
     cirCompleted: function() {
         // merge contiguous blocks
-        //this.blocksToFetch = this.optimizeBlockList( this.blocksToFetch );
+        this.blockGroupsToFetch = this.groupBlocks( this.blocksToFetch );
 
-        if (this.blocksToFetch.length == 0) {
+        if (this.blockGroupsToFetch.length == 0) {
             this.callback([]);
         } else {
             this.features = [];
@@ -155,7 +155,7 @@ var RequestWorker = declare( null,
     },
 
 
-    optimizeBlockList: function( blocks ) {
+    groupBlocks: function( blocks ) {
 
         // sort the blocks by file offset
         blocks.sort(function(b0, b1) {
@@ -163,20 +163,23 @@ var RequestWorker = declare( null,
                     });
 
         // merge contiguous blocks
-        var outblocks = [];
+        var blockGroups = [];
         var lastBlock;
         var lastBlockEnd;
+
         for( var i = 0; i<blocks.length; i++ ) {
-            if( lastBlock && blocks[i].offset <= lastBlockEnd ) {
+            // group blocks that are within 2KB of eachother
+            if( lastBlock && (blocks[i].offset-lastBlockEnd) <= 2000 ) {
                 lastBlock.size += blocks[i].size - lastBlockEnd + blocks[i].offset;
+                lastBlock.blocks.push( blocks[i] );
             }
             else {
-                outblocks.push( lastBlock = blocks[i] );
+                blockGroups.push( lastBlock = { blocks: [blocks[i]], size: blocks[i].size, offset: blocks[i].offset } );
                 lastBlockEnd = lastBlock.offset + lastBlock.size;
             }
         }
 
-        return outblocks;
+        return blockGroups;
     },
 
     createFeature: function(fmin, fmax, opts) {
@@ -374,37 +377,44 @@ var RequestWorker = declare( null,
 
     readFeatures: function() {
         var thisB = this;
-        var blockFetches = array.map( thisB.blocksToFetch, function( block ) {
+        var blockFetches = array.map( thisB.blockGroupsToFetch, function( blockGroup ) {
+            //console.log( 'fetching blockgroup with '+blockGroup.blocks.length+' blocks: '+blockGroup );
             var d = new RejectableFastPromise();
             thisB.window.bwg.data
-                .slice( block.offset, block.size )
+                .slice( blockGroup.offset, blockGroup.size )
                 .fetch( function(result) {
-                            if( thisB.window.bwg.uncompressBufSize > 0 ) {
-                                // var beforeInf = new Date();
-                                block.data = inflate( result, 2, block.size - 2);
-                                // var afterInf = new Date();
-                                // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
-                            } else {
-                                var tmp = new Uint8Array(block.size);    // FIXME is this really the best we can do?
-                                arrayCopy(new Uint8Array(result, offset, block.size), 0, tmp, 0, block.size);
-                                block.data = tmp.buffer;
-                            }
-                            d.resolve( block );
+                            array.forEach( blockGroup.blocks, function( block ) {
+                                               var offset = block.offset-blockGroup.offset;
+                                               if( thisB.window.bwg.uncompressBufSize > 0 ) {
+                                                   // var beforeInf = new Date();
+                                                   block.data = inflate( result, offset+2, block.size - 2);
+                                                  //console.log( 'inflate', 2, block.size - 2);
+                                                   // var afterInf = new Date();
+                                                   // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
+                                               } else {
+                                                   var tmp = new Uint8Array(block.size);    // FIXME is this really the best we can do?
+                                                   arrayCopy(new Uint8Array(result, offset, block.size), 0, tmp, 0, block.size);
+                                                   block.data = tmp.buffer;
+                                               }
+                            });
+                            d.resolve( blockGroup );
                         }, dlang.hitch( d, 'reject' ) );
             return d;
         }, thisB );
 
-        all( blockFetches ).then( function( blocks ) {
-            array.forEach( blocks, function( block ) {
-                if( thisB.window.isSummary ) {
-                    thisB.parseSummaryBlock( block, block.fetchOffset||0 );
-                } else if (thisB.window.bwg.type == 'bigwig') {
-                    thisB.parseBigWigBlock( block, block.fetchOffset||0 );
-                } else if (thisB.window.bwg.type == 'bigbed') {
-                    thisB.parseBigBedBlock( block, block.fetchOffset||0 );
-                } else {
-                    dlog("Don't know what to do with " + thisB.window.bwg.type);
-                }
+        all( blockFetches ).then( function( blockGroups ) {
+            array.forEach( blockGroups, function( blockGroup ) {
+                array.forEach( blockGroup.blocks, function( block ) {
+                                   if( thisB.window.isSummary ) {
+                                       thisB.parseSummaryBlock( block, block.fetchOffset||0 );
+                                   } else if (thisB.window.bwg.type == 'bigwig') {
+                                       thisB.parseBigWigBlock( block, block.fetchOffset||0 );
+                                   } else if (thisB.window.bwg.type == 'bigbed') {
+                                       thisB.parseBigBedBlock( block, block.fetchOffset||0 );
+                                   } else {
+                                       dlog("Don't know what to do with " + thisB.window.bwg.type);
+                                   }
+                });
             });
 
             thisB.callback( thisB.features );
