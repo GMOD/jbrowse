@@ -100,7 +100,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             { name: 'pinned', type: 'boolean', defaultValue:  false },
             { name: 'metadata', type: 'object', defaultValue: {} },
             { name: 'style.trackLabelCss', type: 'string' },
-            { name: 'label', type: 'string' }
+            { name: 'label', type: 'string' },
+            { name: 'query', type: 'object', defaultValue: {}, shortDesc: "track-specific query variables to pass to the store" },
+            { name: 'store', type: 'string|object', shortDesc: 'the name of the store to use with this track' },
+            { name: 'type', type: 'string', shortDesc: 'the JavaScript type of this track' }
         ]);
         return def;
     },

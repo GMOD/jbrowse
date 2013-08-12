@@ -133,75 +133,15 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     }
                 }
 
-                // skip if it's a new-style track def
-                if( trackConfig.store )
-                    return;
+                if( ! trackConfig.store )
+                    trackConfig.store = 'default';
 
-                var trackClassName = this._regularizeClass(
-                    'JBrowse/View/Track', {
-                        'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',         'ImageTrack':        'JBrowse/View/Track/FixedImage',
-                        'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
-                        'SequenceTrack':     'JBrowse/View/Track/Sequence'
-                    }[ trackConfig.type ]
-                    || trackConfig.type
-                );
-                trackConfig.type = trackClassName;
-
-                // figure out what data store class to use with the track,
-                // applying some defaults if it is not explicit in the
-                // configuration
-                var urlTemplate = trackConfig.urlTemplate;
-                var storeClass = this._regularizeClass(
-                    'JBrowse/Store',
-                    trackConfig.storeClass                    ? trackConfig.storeClass :
-                        /\/FixedImage/.test( trackClassName ) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-                        /\.jsonz?$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-                        /\.bam$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BAM'                                                      :
-                        /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
-                        /\/Sequence$/.test( trackClassName )  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
-                                                                 null
-                );
-
-                if( ! storeClass ) {
-                    console.error( "Unable to determine an appropriate data store to use with track '"
-                                   + trackConfig.label + "', please explicitly specify a "
-                                   + "storeClass in the configuration." );
-                    return;
-                }
-
-                // synthesize a separate store conf
-                var storeConf = lang.mixin( {}, trackConfig );
-                lang.mixin( storeConf, {
-                    type: storeClass
-                });
-
-                // if this is the first sequence store we see, and we
-                // have no refseqs store defined explicitly, make this the refseqs store.
-                if( storeClass == 'JBrowse/Store/Sequence/StaticChunked' && !conf.stores['refseqs'] ) {
-                    storeConf.name = 'refseqs';
-                } else
-                    storeConf.name = 'store'+digest.objectFingerprint( storeConf );
-
-                // record it
-                conf.stores[storeConf.name] = storeConf;
-
-                // connect it to the track conf
-                trackConfig.store = storeConf.name;
+                if( ! trackConfig.type )
+                    trackConfig.type = 'JBrowse/View/Track/CanvasFeatures';
 
             }, this);
 
             return conf;
-        },
-
-        _regularizeClass: function( root, class_ ) {
-            if( ! class_ )
-                return null;
-
-            // prefix the class names with JBrowse/* if they contain no slashes
-            if( ! /\//.test( class_ ) )
-                class_ = root+'/'+class_;
-            class_ = class_.replace(/^\//);
-            return class_;
         }
 });
 });

@@ -339,7 +339,7 @@ _configSchemaDefinition: function() {
             { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
             { name: 'gridlines', type: 'boolean', defaultValue: true },
             { name: 'initialTracks', type: 'multi-string' },
-            { name: 'initialLocation', type: 'string' },
+            { name: 'initialLocation', type: 'object' },
             { name: 'locationBoxLength', type: 'integer' }
         ]
     };

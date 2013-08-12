@@ -32,6 +32,14 @@ return declare( Component,
             this.changeCallback( changeDescription );
     },
 
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'type', type: 'string', shortDesc: 'the JavaScript type of this store' }
+        ]);
+        return def;
+    },
+
     /**
      * If this store has any internal deferreds, resolves them all
      * with the given error.

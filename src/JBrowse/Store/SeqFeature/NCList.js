@@ -62,22 +62,23 @@ return declare( SeqFeatureStore,
                                      );
     },
 
-    getDataRoot: function( refName ) {
+    getDataRoot: function( query ) {
+        var refName = query.ref;
         if( ! refName )
             throw new Error('no refname given');
 
-        if( ! this._deferred.root || this.curRefName != refName ) {
+        var url = this.resolveUrl(
+            this.urlTemplates.root,
+            lang.mixin( { refseq: refName }, query )
+        );
+
+        if( ! this._deferred.root || this.curUrl != url ) {
             var d = this._deferred.root = new Deferred();
-            this.curRefName = refName;
+            this.curUrl = url;
 
             var refData = {
                 nclist: this.makeNCList()
             };
-
-            var url = this.resolveUrl(
-                this.urlTemplates.root,
-                { refseq: refName }
-            );
 
             // fetch the trackdata
             var thisB = this;
@@ -127,7 +128,7 @@ return declare( SeqFeatureStore,
     },
 
     getRegionStats: function( query, successCallback, errorCallback ) {
-        this.getDataRoot( query.ref )
+        this.getDataRoot( query )
             .then( function( data ) {
                        successCallback( data.stats );
                    },
@@ -136,7 +137,7 @@ return declare( SeqFeatureStore,
     },
 
     getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
-        this.getDataRoot( query.ref )
+        this.getDataRoot( query )
             .then( function( data ) {
                 var numBins = query.numBins || 25;
                 if( ! query.bpPerBin )
@@ -216,7 +217,7 @@ return declare( SeqFeatureStore,
         }
 
         var thisB = this;
-        this.getDataRoot( query.ref )
+        this.getDataRoot( query )
             .then( function( data ) {
                 thisB._getFeatures( data, query, origFeatCallback, finishCallback, errorCallback );
             }, errorCallback);

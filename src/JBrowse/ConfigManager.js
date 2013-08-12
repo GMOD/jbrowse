@@ -94,7 +94,7 @@ _loadIncludes: function( inputConfig, callback ) {
             include.format = 'JB_json';
         }
         if( include.format == 'JB_json' && ! ('version' in include) ) {
-            include.version = 1;
+            include.version = 2;
         }
 
         // instantiate the adaptor and load the config

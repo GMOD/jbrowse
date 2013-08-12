@@ -33,7 +33,7 @@ var Slot = declare( null, {
       if( this._validateType( value ) )
           return value;
       else
-          throw new Error( 'invalid value '+value+', not of type '+this.type );
+          throw new Error( 'invalid value '+value+' for '+this.name+', not of type '+this.type );
   },
 
   // delegate slot class resolution to the parent (Specification, or

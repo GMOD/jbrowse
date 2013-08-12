@@ -202,7 +202,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             });
 
         this.store.getRegionStats(
-            { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end },
+            lang.mixin( { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, this.getConf('query') ),
             fill,
             dojo.hitch( this, function(e) {
                             this._handleError( e, args );
@@ -299,11 +299,15 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         // example)
         var bpExpansion = Math.round( this.getConf('maxFeatureGlyphExpansion') / scale );
 
-        var region = { ref: this.refSeq.name,
-                       start: Math.max( 0, leftBase - bpExpansion ),
-                       end: rightBase + bpExpansion
-                     };
-        this.store.getFeatures( region,
+        var query = lang.mixin(
+            { ref: this.refSeq.name,
+              start: Math.max( 0, leftBase - bpExpansion ),
+              end: rightBase + bpExpansion
+            },
+            this.getConf('query')
+        );
+
+        this.store.getFeatures( query,
                                 function( feature ) {
                                     if( thisB.destroyed || ! thisB.filterFeature( feature ) )
                                         return;

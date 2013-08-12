@@ -327,7 +327,7 @@ return declare( null, {
             var thisB = this;
             var storeStats = {};
             // will return immediately if the stats are available
-            this.store.getRegionStats( region, function( s ) {
+            this.store.getRegionStats( lang.mixin( {}, region, this.getConf('query') ), function( s ) {
                 storeStats = s;
             }, function(error){ }); // error callback does nothing for now
             if( storeStats.featureDensity ) {
