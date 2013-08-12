@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+ * Fixed bugs and inefficiencies preventing JBrowse from handling very
+   dense BigWig files.  Thanks to Michael Axtell for pointing this out
+   (issue #312).
+
 # Release 1.10.1     2013-08-06 15:32:21 EST5EDT
 
  * Added support in `maker2jbrowse` for user-defined source tags in
