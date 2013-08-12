@@ -1,11 +1,14 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
+            'dojo/Deferred',
+            'dojo/promise/all',
             'JBrowse/Model/Range',
             'jszlib/inflate',
             'jszlib/arrayCopy'
         ],
-        function( declare, dlang, Range, inflate, arrayCopy ) {
+        function( declare, dlang, array, Deferred, all, Range, inflate, arrayCopy ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
@@ -140,9 +143,8 @@ var RequestWorker = declare( null,
     },
 
     cirCompleted: function() {
-        this.blocksToFetch.sort(function(b0, b1) {
-                               return (b0.offset|0) - (b1.offset|0);
-                           });
+        // merge contiguous blocks
+        //this.blocksToFetch = this.optimizeBlockList( this.blocksToFetch );
 
         if (this.blocksToFetch.length == 0) {
             this.callback([]);
@@ -150,6 +152,31 @@ var RequestWorker = declare( null,
             this.features = [];
             this.readFeatures();
         }
+    },
+
+
+    optimizeBlockList: function( blocks ) {
+
+        // sort the blocks by file offset
+        blocks.sort(function(b0, b1) {
+                        return (b0.offset|0) - (b1.offset|0);
+                    });
+
+        // merge contiguous blocks
+        var outblocks = [];
+        var lastBlock;
+        var lastBlockEnd;
+        for( var i = 0; i<blocks.length; i++ ) {
+            if( lastBlock && blocks[i].offset <= lastBlockEnd ) {
+                lastBlock.size += blocks[i].size - lastBlockEnd + blocks[i].offset;
+            }
+            else {
+                outblocks.push( lastBlock = blocks[i] );
+                lastBlockEnd = lastBlock.offset + lastBlock.size;
+            }
+        }
+
+        return outblocks;
     },
 
     createFeature: function(fmin, fmax, opts) {
@@ -345,66 +372,42 @@ var RequestWorker = declare( null,
     },
 
     readFeatures: function() {
-        if (this.blocksToFetch.length == 0) {
-            //var afterBWG = new Date();
-            // dlog('BWG fetch took ' + (afterBWG - beforeBWG) + 'ms');
-            this.callback( this.features );
-            return;  // just in case...
-        }
+        var thisB = this;
+        var blockFetches = array.map( thisB.blocksToFetch, function( block ) {
+            var d = new Deferred();
+            thisB.window.bwg.data
+                .slice( block.offset, block.size )
+                .fetch( function(result) {
+                            if( thisB.window.bwg.uncompressBufSize > 0 ) {
+                                // var beforeInf = new Date();
+                                block.data = inflate( result, 2, block.size - 2);
+                                // var afterInf = new Date();
+                                // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
+                            } else {
+                                var tmp = new Uint8Array(block.size);    // FIXME is this really the best we can do?
+                                arrayCopy(new Uint8Array(result, offset, block.size), 0, tmp, 0, block.size);
+                                block.data = tmp.buffer;
+                            }
+                            d.resolve( block );
+                        }, dlang.hitch( d, 'reject' ) );
+            return d.promise;
+        }, thisB );
 
-        var block = this.blocksToFetch[0];
-        if (block.data) {
-            if (this.window.isSummary) {
-                this.parseSummaryBlock( block );
-            } else if (this.window.bwg.type == 'bigwig') {
-                this.parseBigWigBlock( block );
-            } else if (this.window.bwg.type == 'bigbed') {
-                this.parseBigBedBlock( block );
-            } else {
-                dlog("Don't know what to do with " + this.window.bwg.type);
-            }
-            this.blocksToFetch.shift();
-            this.readFeatures();// recurse
-        }
+        all( blockFetches ).then( function( blocks ) {
+            array.forEach( blocks, function( block ) {
+                if( thisB.window.isSummary ) {
+                    thisB.parseSummaryBlock( block );
+                } else if (thisB.window.bwg.type == 'bigwig') {
+                    thisB.parseBigWigBlock( block );
+                } else if (thisB.window.bwg.type == 'bigbed') {
+                    thisB.parseBigBedBlock( block );
+                } else {
+                    dlog("Don't know what to do with " + thisB.window.bwg.type);
+                }
+            });
 
-        // block does not have data yet, fetch it
-        else {
-            var fetchStart = block.offset;
-            var fetchSize = block.size;
-            var bi = 1;
-            while (bi < this.blocksToFetch.length && this.blocksToFetch[bi].offset == (fetchStart + fetchSize)) {
-                fetchSize += this.blocksToFetch[bi].size;
-                ++bi;
-            }
-
-            //dlog('other thing');
-            this.window.bwg.data
-                .slice(fetchStart, fetchSize)
-                .fetch(dlang.hitch( this, function(result) {
-                                        var offset = 0;
-                                        var bi = 0;
-                                        while (offset < fetchSize) {
-                                            var fb = this.blocksToFetch[bi];
-
-                                            var data;
-                                            if (this.window.bwg.uncompressBufSize > 0) {
-                                                // var beforeInf = new Date();
-                                                data = inflate(result, offset + 2, fb.size - 2);
-                                                // var afterInf = new Date();
-                                                // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
-                                            } else {
-                                                var tmp = new Uint8Array(fb.size);    // FIXME is this really the best we can do?
-                                                arrayCopy(new Uint8Array(result, offset, fb.size), 0, tmp, 0, fb.size);
-                                                data = tmp.buffer;
-                                            }
-                                            fb.data = data;
-
-                                            offset += fb.size;
-                                            ++bi;
-                                        }
-                                        this.readFeatures(); // recurse
-                                    }), this.errorCallback );
-        }
+            thisB.callback( thisB.features );
+       }, thisB.errorCallback );
     }
 });
 
