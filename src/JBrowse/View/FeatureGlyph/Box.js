@@ -302,6 +302,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var fLabelWidth = fRect.label ? fRect.label.w : 0;
         var fDescriptionWidth = fRect.description ? fRect.description.w : 0;
         var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
+        var minLeft = bpToPx( fMin ) - bpToPx( vMin );
 
 
         if( fRect.label && fMin <= vMin + labelBp && fMax >= vMin ) {
@@ -310,18 +311,18 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             context.fillStyle = fRect.label.fill;
             context.textBaseline = fRect.label.baseline;
             context.fillText( fRect.label.text,
-                              Math.min( lWidth + 10, maxLeft ) + (fRect.label.xOffset||0),
+                              Math.max( Math.min( lWidth + 10, maxLeft ) + (fRect.label.xOffset||0), minLeft ),
                               fRect.t+(fRect.label.yOffset||0)
                             );
         }
 
-        if( fRect.description && fMin <= vMin + labelBp && fMax >= vMin) {
+        if( fRect.description && fMin <= vMin + labelBp && fMax >= vMin ) {
             context.font = fRect.description.font;
             context.fillStyle = fRect.description.fill;
             context.textBaseline = fRect.description.baseline;
             context.fillText(
                 fRect.description.text,
-                Math.min( lWidth + 10, maxLeft ) + (fRect.description.xOffset||0),
+                Math.max( Math.min( lWidth + 10, maxLeft ) + (fRect.description.xOffset||0), minLeft ),
                 fRect.t + (fRect.description.yOffset||0)
             );
         }

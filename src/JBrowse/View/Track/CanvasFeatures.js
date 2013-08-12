@@ -153,7 +153,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         this.inherited( arguments );
-        this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", position: "absolute", "z-index": 15 }}, trackDiv);
+        this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", cursor: "default", position: "absolute", "z-index": 15 }}, trackDiv);
         this.staticCanvas.height = this.staticCanvas.offsetHeight;
     },
 
