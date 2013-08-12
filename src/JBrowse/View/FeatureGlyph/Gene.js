@@ -137,6 +137,15 @@ renderFeature: function( context, fRect ) {
 
     this.renderLabel( context, fRect );
     this.renderDescription( context, fRect );
+},
+
+updateStaticElements: function( context, fRect, viewArgs ) {
+    this.inherited( arguments );
+
+    var subRects = fRect.subRects;
+    for( var i = 0; i < subRects.length; i++ ) {
+        subRects[i].glyph.updateStaticElements( context, subRects[i], viewArgs );
+    }
 }
 
 });

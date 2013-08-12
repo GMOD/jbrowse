@@ -436,15 +436,20 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
         if( this.displayMode != 'collapsed' ) {
             // make features get highlighted on mouse move
-            block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
-                               evt = domEvent.fix( evt );
-                               var bpX = ( evt.offsetX === undefined ? evt.layerX : evt.offsetX ) / block.scale + block.startBase;
-                               var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                               thisB.mouseoverFeature( feature );
-                           }));
-            block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
-                               thisB.mouseoverFeature( undefined );
-                           }));
+
+            var gv = this.browser.view;
+
+            // These handlers are being added in the wrong place
+            this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
+                evt = domEvent.fix( evt );
+                var bpX = gv.absXtoBp( evt.clientX );
+                var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
+                thisB.mouseoverFeature( feature );
+            }));
+
+            this.own( on( this.staticCanvas, 'mouseout', function( evt) {
+                thisB.mouseoverFeature( undefined );
+            }));
         }
 
         // connect up the event handlers
@@ -456,10 +461,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             var handler = this.eventHandlers[event];
             (function( event, handler ) {
                  var thisB = this;
-                 block.own(
-                     on( block.featureCanvas, event, function( evt ) {
+                 var gv = this.browser.view;
+                 this.own(
+                     on( this.staticCanvas, event, function( evt ) {
                              evt = domEvent.fix( evt );
-                             var bpX = ( evt.offsetX === undefined ? evt.layerX : evt.offsetX ) / block.scale + block.startBase;
+                             var bpX = gv.absXtoBp( evt.clientX );
                              var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
                              if( feature ) {
                                  var fRect = block.fRectIndex.getByID( feature.id() );
@@ -610,7 +616,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     updateStaticElements: function( coords ) {
-        console.log("uSE", coords);
         this.inherited( arguments );
 
         var context = this.staticCanvas.getContext('2d');
@@ -621,26 +626,29 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.staticCanvas.style.left = gv.getX() + "px";
         context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
 
+        var minVisible = this.browser.view.minVisible();
+        var maxVisible = this.browser.view.maxVisible();
+        var viewArgs = {
+            minVisible: minVisible,
+            maxVisible: maxVisible,
+            bpToPx: dojo.hitch(gv, "bpToPx"),
+            lWidth: this.label.offsetWidth
+        };
+
+        var allFRects = {};
 
         array.forEach( this.blocks, dojo.hitch( this, function(block) {
             if( !block || !( block.fRectIndex ) )
                 return;
-
-            var minVisible = this.browser.view.minVisible();
-            var maxVisible = this.browser.view.maxVisible();
-
-            var viewArgs = {
-                minVisible: minVisible,
-                maxVisible: maxVisible,
-                bpToPx: dojo.hitch(gv, "bpToPx"),
-                lWidth: this.label.offsetWidth
-            };
-
-            var fRects = block.fRectIndex.getAll();
-            array.forEach( fRects, dojo.hitch( this, function( fRect ) {
-                fRect.glyph.updateStaticElements( context, fRect, viewArgs );
-            }));
+            lang.mixin( allFRects, block.fRectIndex.byID );
         }));
+
+        for( var id in allFRects ) {
+            if( allFRects.hasOwnProperty( id ) ) {
+                var fRect = allFRects[id];
+                fRect.glyph.updateStaticElements( context, fRect, viewArgs );
+            }
+        }
     },
 
     heightUpdate: function( height, blockIndex ) {
