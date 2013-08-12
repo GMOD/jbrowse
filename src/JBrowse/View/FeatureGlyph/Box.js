@@ -271,16 +271,20 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     updateStaticElements: function( context, fRect, viewArgs ) {
+        var vMin = viewArgs.minVisible;
+        var vMax = viewArgs.maxVisible;
+        var block = fRect.viewInfo.block;
 
-        var scale = fRect.viewInfo.block.scale;
+        if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
+            return;
+
+        var scale = block.scale;
         var bpToPx = viewArgs.bpToPx;
         var lWidth = viewArgs.lWidth;
         var labelBp = lWidth / scale;
         var feature = fRect.f;
         var fMin = feature.get('start');
         var fMax = feature.get('end');
-        var vMin = viewArgs.minVisible;
-        var vMax = viewArgs.maxVisible;
 
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fMax >= vMax && fMin <= vMax ) {

@@ -635,20 +635,16 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             lWidth: this.label.offsetWidth
         };
 
-        var allFRects = {};
-
-        array.forEach( this.blocks, dojo.hitch( this, function(block) {
-            if( !block || !( block.fRectIndex ) )
+        array.forEach( this.blocks, function(block) {
+            if( !block || !block.fRectIndex )
                 return;
-            lang.mixin( allFRects, block.fRectIndex.byID );
-        }));
 
-        for( var id in allFRects ) {
-            if( allFRects.hasOwnProperty( id ) ) {
-                var fRect = allFRects[id];
-                fRect.glyph.updateStaticElements( context, fRect, viewArgs );
+            var idx = block.fRectIndex.byID;
+            for( var id in idx ) {
+                 var fRect = idx[id];
+                 fRect.glyph.updateStaticElements( context, fRect, viewArgs );
             }
-        }
+        }, this );
     },
 
     heightUpdate: function( height, blockIndex ) {
