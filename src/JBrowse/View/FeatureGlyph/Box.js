@@ -266,6 +266,58 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                            });
             }
         }
+    },
+
+    updateStaticElements: function( context, fRect, viewArgs ) {
+        var scale = fRect.viewInfo.block.scale;
+
+        var bpToPx = viewArgs.bpToPx;
+        var lWidth = viewArgs.lWidth;
+        var labelBp = lWidth / scale
+        var feature = fRect.f;
+        var fMin = feature.get('start');
+        var fMax = feature.get('end');
+        var vMin = viewArgs.minVisible;
+        var vMax = viewArgs.maxVisible;
+
+        if( fRect.strandArrow ) {
+            if( fRect.strandArrow == 1 && fMax >= vMax && fMin <= vMax ) {
+                this.getEmbeddedImage( 'plusArrow' )
+                    .then( function( img ) {
+                               context.imageSmoothingEnabled = false;
+                               context.drawImage( img, bpToPx(vMax) - bpToPx(vMin) - 9, fRect.t + (fRect.rect.h-img.height)/2 );
+                           });
+            }
+            else if( fRect.strandArrow == -1 && fMin <= vMin && fMax >= vMin ) {
+                this.getEmbeddedImage( 'minusArrow' )
+                    .then( function( img ) {
+                               context.imageSmoothingEnabled = false;
+                               context.drawImage( img, 0, fRect.t + (fRect.rect.h-img.height)/2 );
+                           });
+            }
+        }
+
+
+        if( fRect.label && fMin <= vMin + labelBp && fMax >= vMin) {
+            context.font = fRect.label.font;
+            context.fillStyle = fRect.label.fill;
+            context.textBaseline = fRect.label.baseline;
+            context.fillText( fRect.label.text,
+                              lWidth + 10 + (fRect.label.xOffset||0),
+                              fRect.t+(fRect.label.yOffset||0)
+                            );
+        }
+
+        if( fRect.description && fMin <= vMin + labelBp && fMax >= vMin) {
+            context.font = fRect.description.font;
+            context.fillStyle = fRect.description.fill;
+            context.textBaseline = fRect.description.baseline;
+            context.fillText(
+                fRect.description.text,
+                lWidth + 10 + (fRect.description.xOffset||0),
+                fRect.t + (fRect.description.yOffset||0)
+            );
+        }
     }
 
 });

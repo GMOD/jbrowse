@@ -70,6 +70,14 @@ var FRectIndex = declare( null,  {
             // by ID
             byID[ fRect.f.id() ] = fRect;
         }, this );
+    },
+
+    getAll: function( ) {
+        var fRects = [];
+        for( var id in this.byID ) {
+            fRects.push( this.byID[id] );
+        }
+        return fRects;
     }
 });
 
@@ -141,6 +149,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 }
             ]
         };
+    },
+
+    setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
+        this.inherited( arguments );
+        this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", position: "absolute", "z-index": 15 }}, trackDiv);
+        this.staticCanvas.height = this.staticCanvas.offsetHeight;
     },
 
     guessGlyphType: function(feature) {
@@ -595,8 +609,51 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
     },
 
+    updateStaticElements: function( coords ) {
+        console.log("uSE", coords);
+        this.inherited( arguments );
+
+        var context = this.staticCanvas.getContext('2d');
+
+        var gv = this.browser.view;
+
+        this.staticCanvas.width = gv.elem.clientWidth;
+        this.staticCanvas.style.left = gv.getX() + "px";
+        context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
+
+
+        array.forEach( this.blocks, dojo.hitch( this, function(block) {
+            if( !block || !( block.fRectIndex ) )
+                return;
+
+            var minVisible = this.browser.view.minVisible();
+            var maxVisible = this.browser.view.maxVisible();
+
+            var viewArgs = {
+                minVisible: minVisible,
+                maxVisible: maxVisible,
+                bpToPx: dojo.hitch(gv, "bpToPx"),
+                lWidth: this.label.offsetWidth
+            };
+
+            var fRects = block.fRectIndex.getAll();
+            array.forEach( fRects, dojo.hitch( this, function( fRect ) {
+                fRect.glyph.updateStaticElements( context, fRect, viewArgs );
+            }));
+        }));
+    },
+
+    heightUpdate: function( height, blockIndex ) {
+        this.inherited( arguments );
+        this.staticCanvas.height = this.staticCanvas.offsetHeight;
+    },
+
     destroy: function() {
         this.destroyed = true;
+
+        domConstruct.destroy( this.staticCanvas );
+        delete this.staticCanvas;
+
         delete this.layout;
         delete this.glyphsLoaded;
         this.inherited( arguments );
