@@ -2,13 +2,13 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
-            'dojo/Deferred',
+            'JBrowse/Util/RejectableFastPromise',
             'dojo/promise/all',
             'JBrowse/Model/Range',
             'jszlib/inflate',
             'jszlib/arrayCopy'
         ],
-        function( declare, dlang, array, Deferred, all, Range, inflate, arrayCopy ) {
+        function( declare, dlang, array, RejectableFastPromise, all, Range, inflate, arrayCopy ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
@@ -180,7 +180,8 @@ var RequestWorker = declare( null,
     },
 
     createFeature: function(fmin, fmax, opts) {
-        // dlog('createFeature(' + fmin +', ' + fmax + ')');
+        // dlog('createFeature(' + fmin +', ' + fmax + ', '+opts.score+')');
+
         var f = new Feature();
         f.seq_id = (this.window.bwg.refsByNumber[this.chr]||{}).name;
         f.start = fmin;
@@ -202,10 +203,10 @@ var RequestWorker = declare( null,
         }
     },
 
-    parseSummaryBlock: function( block ) {
-        var sa = new Int16Array(block.data);
-        var la = new Int32Array(block.data);
-        var fa = new Float32Array(block.data);
+    parseSummaryBlock: function( block, startOffset ) {
+        var sa = new Int16Array(block.data, startOffset );
+        var la = new Int32Array(block.data, startOffset );
+        var fa = new Float32Array(block.data, startOffset );
 
         var itemCount = block.data.byteLength/32;
         for (var i = 0; i < itemCount; ++i) {
@@ -228,11 +229,11 @@ var RequestWorker = declare( null,
         }
     },
 
-    parseBigWigBlock: function( block ) {
-        var ba = new Uint8Array(block.data);
-        var sa = new Int16Array(block.data);
-        var la = new Int32Array(block.data);
-        var fa = new Float32Array(block.data);
+    parseBigWigBlock: function( block, startOffset ) {
+        var ba = new Uint8Array(block.data, startOffset );
+        var sa = new Int16Array(block.data, startOffset );
+        var la = new Int32Array(block.data, startOffset );
+        var fa = new Float32Array(block.data, startOffset );
 
         var chromId = la[0];
         var blockStart = la[1];
@@ -270,8 +271,8 @@ var RequestWorker = declare( null,
         }
     },
 
-    parseBigBedBlock: function( block ) {
-        var ba = new Uint8Array(block.data);
+    parseBigBedBlock: function( block, startOffset ) {
+        var ba = new Uint8Array( block.data, startOffset );
         var offset = 0;
         while (offset < ba.length) {
             var chromId = (ba[offset+3]<<24) | (ba[offset+2]<<16) | (ba[offset+1]<<8) | (ba[offset+0]);
@@ -374,7 +375,7 @@ var RequestWorker = declare( null,
     readFeatures: function() {
         var thisB = this;
         var blockFetches = array.map( thisB.blocksToFetch, function( block ) {
-            var d = new Deferred();
+            var d = new RejectableFastPromise();
             thisB.window.bwg.data
                 .slice( block.offset, block.size )
                 .fetch( function(result) {
@@ -390,17 +391,17 @@ var RequestWorker = declare( null,
                             }
                             d.resolve( block );
                         }, dlang.hitch( d, 'reject' ) );
-            return d.promise;
+            return d;
         }, thisB );
 
         all( blockFetches ).then( function( blocks ) {
             array.forEach( blocks, function( block ) {
                 if( thisB.window.isSummary ) {
-                    thisB.parseSummaryBlock( block );
+                    thisB.parseSummaryBlock( block, block.fetchOffset||0 );
                 } else if (thisB.window.bwg.type == 'bigwig') {
-                    thisB.parseBigWigBlock( block );
+                    thisB.parseBigWigBlock( block, block.fetchOffset||0 );
                 } else if (thisB.window.bwg.type == 'bigbed') {
-                    thisB.parseBigBedBlock( block );
+                    thisB.parseBigBedBlock( block, block.fetchOffset||0 );
                 } else {
                     dlog("Don't know what to do with " + thisB.window.bwg.type);
                 }
