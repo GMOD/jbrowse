@@ -21,3 +21,5 @@ sample_data/raw/tomato
 /release-notes.html
 samtools-master/
 setup.log
+MYMETA.*
+
