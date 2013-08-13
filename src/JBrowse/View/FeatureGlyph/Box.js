@@ -227,7 +227,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             context.font = fRect.label.font;
             context.fillStyle = fRect.label.fill;
             context.textBaseline = fRect.label.baseline;
-            fRect.label.w = context.measureText( fRect.label.text ).width;
             context.fillText( fRect.label.text,
                               fRect.l+(fRect.label.xOffset||0),
                               fRect.t+(fRect.label.yOffset||0)
@@ -241,7 +240,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             context.font = fRect.description.font;
             context.fillStyle = fRect.description.fill;
             context.textBaseline = fRect.description.baseline;
-            fRect.description.w = context.measureText( fRect.description.text ).width;
             context.fillText(
                 fRect.description.text,
                 fRect.l+(fRect.description.xOffset||0),
@@ -308,28 +306,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
         var minLeft = bpToPx( fMin ) - bpToPx( vMin );
 
-
-        if( fRect.label && fMin <= vMin + labelBp && fMax >= vMin ) {
-
-            context.font = fRect.label.font;
-            context.fillStyle = fRect.label.fill;
-            context.textBaseline = fRect.label.baseline;
-            context.fillText( fRect.label.text,
-                              Math.max( Math.min( lWidth + 10, maxLeft ) + (fRect.label.xOffset||0), minLeft ),
-                              fRect.t+(fRect.label.yOffset||0)
-                            );
-        }
-
-        if( fRect.description && fMin <= vMin + labelBp && fMax >= vMin ) {
-            context.font = fRect.description.font;
-            context.fillStyle = fRect.description.fill;
-            context.textBaseline = fRect.description.baseline;
-            context.fillText(
-                fRect.description.text,
-                Math.max( Math.min( lWidth + 10, maxLeft ) + (fRect.description.xOffset||0), minLeft ),
-                fRect.t + (fRect.description.yOffset||0)
-            );
-        }
     }
 
 });
