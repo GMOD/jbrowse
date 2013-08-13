@@ -214,12 +214,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     // create the layout if we need to, and if we can
     _getLayout: function( scale ) {
-        if( ! this.layout || this.layout.pitchX != 4/scale ) {
+        if( ! this.layout || this._layoutpitchX != 4/scale ) {
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
+
             var pitchY = this.getConf('layoutPitchY');
             this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.getConf('displayMode') });
+            this._layoutpitchX = 4/scale;
         }
 
         return this.layout;
@@ -230,7 +232,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     hideAll: function() {
-        delete this.layout;
+        this._clearLayout();
         return this.inherited( arguments );
     },
 
@@ -469,6 +471,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                      on( block.featureCanvas, event, function( evt ) {
                              evt = domEvent.fix( evt );
                              var bpX = ( evt.offsetX === undefined ? evt.layerX : evt.offsetX ) / block.scale + block.startBase;
+                             if( ! thisB.layout )
+                                 return;
                              var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
                              if( feature ) {
                                  var fRect = block.fRectIndex.getByID( feature.id() );
