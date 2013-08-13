@@ -382,7 +382,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
                                     featuresLaidOut.then( function() {
 
-                                        var totalHeight = layout.getTotalHeight();
+                                        var totalHeight = layout ? layout.getTotalHeight() : 0;
                                         var c = block.featureCanvas =
                                             domConstruct.create(
                                                 'canvas',
