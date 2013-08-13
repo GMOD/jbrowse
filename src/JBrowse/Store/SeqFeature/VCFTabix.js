@@ -42,16 +42,10 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
         var thisB = this;
 
         var tbiBlob = args.tbi ||
-            new XHRBlob(
-                this.resolveUrl(
-                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
-                )
-            );
+            new XHRBlob( this.resolveUrl( this.getConf('tbiUrlTemplate')));
 
         var fileBlob = args.file ||
-            new XHRBlob(
-                this.resolveUrl( this.getConf('urlTemplate',[]) )
-            );
+            new XHRBlob( this.resolveUrl( this.getConf('urlTemplate')));
 
         this.indexedData = new VCFIndexedFile(
             {
@@ -63,6 +57,16 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
 
         this._loadHeader();
     },
+
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'urlTemplate', type: 'string' },
+            { name: 'tbiUrlTemplate', type: 'string', defaultValue: function(store) { return store.getConf('urlTemplate')+'.tbi'; } }
+        ]);
+        return def;
+    },
+
 
     /** fetch and parse the VCF header lines */
     _loadHeader: function() {
