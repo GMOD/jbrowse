@@ -202,7 +202,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         style = style || lang.hitch( this, 'getStyle' );
 
-        var height = this._getFeatureHeight( viewInfo, feature );
+        var height = this.getFeatureHeight( viewInfo, feature );
         if( ! height )
             return;
         if( height != overallHeight )
