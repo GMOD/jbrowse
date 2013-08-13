@@ -59,7 +59,7 @@ renderSegments: function( context, fRect ) {
 
         function style( feature, stylename ) {
             if( stylename == 'height' )
-                return thisB._getFeatureHeight( fRect.viewInfo, feature );
+                return thisB.getFeatureHeight( fRect.viewInfo, feature );
 
             return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
         }

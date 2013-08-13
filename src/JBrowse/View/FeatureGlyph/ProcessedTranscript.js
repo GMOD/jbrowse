@@ -46,7 +46,7 @@ getStyle: function( feature, name ) {
     return this.inherited(arguments);
 },
 
-_getFeatureHeight: function( viewInfo, feature ) {
+getFeatureHeight: function( viewInfo, feature ) {
     var height = this.inherited( arguments );
 
     if( this._isUTR( feature ) )

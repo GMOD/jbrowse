@@ -83,7 +83,7 @@ return declare( Component, {
         var block = viewInfo.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this._getFeatureHeight( viewArgs, feature ),
+            h: this.getFeatureHeight( viewArgs, feature ),
             viewInfo: viewInfo,
             f: feature,
             glyph: this
@@ -177,7 +177,7 @@ return declare( Component, {
         });
     },
 
-    _getFeatureHeight: function( viewArgs, feature ) {
+    getFeatureHeight: function( viewArgs, feature ) {
         return this.getStyle( feature, 'height');
     }
 

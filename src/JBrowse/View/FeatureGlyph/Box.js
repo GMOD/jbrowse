@@ -46,7 +46,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         return def;
     },
 
-    _getFeatureHeight: function( viewArgs, feature ) {
+    getFeatureHeight: function( viewArgs, feature ) {
         var h = this.getStyle( feature, 'height');
 
         if( viewArgs.displayMode == 'compact' )
@@ -59,7 +59,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var block = viewArgs.block;
         var fRect = {
             l: block.bpToX( feature.get('start') ),
-            h: this._getFeatureHeight(viewArgs, feature),
+            h: this.getFeatureHeight(viewArgs, feature),
             viewInfo: viewArgs,
             f: feature,
             glyph: this
