@@ -433,7 +433,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
-        this._attachMouseOverEvents( );
+        this._attachMouseOverEvents( block );
 
         // connect up the event handlers
         this._connectEventHandlers( block );
@@ -441,7 +441,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.updateStaticElements( { x: this.browser.view.getX() } );
     },
 
-    _attachMouseOverEvents: function() {
+    _attachMouseOverEvents: function( block ) {
         var gv = this.browser.view;
         var thisB = this;
 
@@ -456,7 +456,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 delete this._mouseoutEvent;
             }
         } else {
-
+            this._makeLabelTooltip( block );
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
                     evt = domEvent.fix( evt );
@@ -472,6 +472,70 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 }))[0];
             }
         }
+    },
+
+    _makeLabelTooltip: function( block ) {
+        var thisB = this;
+
+        var labelTooltip = domConstruct.create(
+            'div', {
+                className: 'wiggleValueDisplay',
+                style: {
+                    position: 'fixed',
+                    display: 'none',
+                    zIndex: 15
+                }
+            }, block.domNode );
+        var label = domConstruct.create(
+            'span', {
+                style: {
+                    display: 'block'
+                }
+            }, labelTooltip);
+        var description = domConstruct.create(
+            'span', {
+                style: {
+                    display: 'block'
+                }
+            }, labelTooltip);
+
+        var gv = this.browser.view;
+
+        array.forEach([this.staticCanvas, labelTooltip], dojo.hitch( this, function( element ) {
+            this.own( on( element, 'mousemove', function( evt ) {
+                evt = domEvent.fix( evt );
+                var bpX = gv.absXtoBp( evt.clientX );
+
+                if( !block.containsBp( bpX ) ) {
+                    labelTooltip.style.display = 'none';
+                    return;
+                }
+
+                var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
+                if( feature ) {
+                    var fRect = block.fRectIndex.getByID( feature.id() );
+                    if(  !fRect || (!fRect.label && !fRect.description ))
+                        return;
+
+                    labelTooltip.style.left = evt.clientX + "px";
+                    labelTooltip.style.top = (evt.clientY + 15) + "px";
+                    labelTooltip.style.display = 'block';
+                    if( fRect.label ) {
+                        label.style.font = fRect.label.font;
+                        label.style.color = fRect.label.fill;
+                        label.innerHTML = fRect.label.text;
+                    }
+                    if( fRect.description ) {
+                        description.style.font = fRect.description.font;
+                        description.style.color = fRect.description.fill;
+                        description.innerHTML = fRect.description.text;
+                    }
+                } else {
+                    labelTooltip.style.display = 'none';
+                }
+            }));
+        }));
+
     },
 
     _connectEventHandlers: function( block ) {
