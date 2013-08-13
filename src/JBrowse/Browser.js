@@ -1078,7 +1078,7 @@ getStoreDeferred: function( storeName ) {
     this._storeCache   = this._storeCache || {};
     this._storeClasses = this._storeClasses || {};
 
-    return this._storeCache[ storeName ] || function() {
+    return this._storeCache[ storeName ] || ( this._storeCache[ storeName ] = function() {
         var getStore = new Deferred();
 
         var conf = this.getConf('stores')[storeName];
@@ -1125,7 +1125,7 @@ getStoreDeferred: function( storeName ) {
         );
         return getStore;
 
-    }.call(this);
+    }.call(this));
 },
 
 getStore: function( storeName, callback ) {
