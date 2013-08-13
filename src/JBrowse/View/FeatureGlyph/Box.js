@@ -53,7 +53,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var h = this.getStyle( feature, 'height');
 
         if( viewArgs.displayMode == 'compact' )
-            h = 0.45 * h;
+            h = Math.round( 0.45 * h );
 
         if( this.getStyle( feature, 'strandArrow' ) ) {
             var strand = feature.get('strand');
@@ -205,7 +205,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         style = style || lang.hitch( this, 'getStyle' );
 
-        var height = style( feature, 'height' );
+        var height = this._getFeatureHeight( viewInfo, feature );
         if( ! height )
             return;
         if( height != overallHeight )
