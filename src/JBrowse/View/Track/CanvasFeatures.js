@@ -96,7 +96,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 { name: 'labelScale', type: 'float' },
                 { name: 'descriptionScale', type: 'float' },
 
-                { name: 'layoutPitchY', type: 'integer', defaultValue: 4 },
+                { name: 'layoutPitchY', type: 'integer' },
 
                 // default glyph class to use
                 { name: 'glyph', defaultValue: lang.hitch( this, 'guessGlyphType' ), type: 'string|function' },
@@ -213,15 +213,21 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     // create the layout if we need to, and if we can
-    _getLayout: function( scale ) {
-        if( ! this.layout || this._layoutpitchX != 4/scale ) {
+    _getLayout: function( args ) {
+        if( ! this.layout || args && this._layoutpitchX != 4/args.scale ) {
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
 
-            var pitchY = this.getConf('layoutPitchY');
-            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.getConf('displayMode') });
-            this._layoutpitchX = 4/scale;
+            var pitchY = this.getConf('layoutPitchY') || args.glyphHeight*0.7 || 4;
+            this.layout = new Layout(
+                {
+                    pitchX: 4/args.scale,
+                    pitchY: pitchY,
+                    maxHeight: this.getConf('maxHeight'),
+                    displayMode: this.getConf('displayMode')
+                });
+            this._layoutpitchX = 4/args.scale;
         }
 
         return this.layout;
@@ -303,8 +309,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             finishCallback(e);
         });
 
-        var layout = this._getLayout( scale );
-
         // query for a slightly larger region than the block, so that
         // we can draw any pieces of glyphs that overlap this block,
         // but the feature of which does not actually lie in the block
@@ -320,6 +324,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             this.getConf('query')
         );
 
+        var layout;
         this.store.getFeatures( query,
                                 function( feature ) {
                                     if( thisB.destroyed || ! thisB.filterFeature( feature ) )
@@ -337,6 +342,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                                             // to add a rendering of
                                             // this feature to the
                                             // layout
+                                            if( ! layout )
+                                                layout = thisB._getLayout({ scale: scale, glyphHeight: glyph.getFeatureHeight( args, feature ) });
+
                                             var fRect = glyph.layoutFeature(
                                                 args,
                                                 layout,
