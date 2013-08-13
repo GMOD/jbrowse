@@ -434,10 +434,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
+        var gv = this.browser.view;
+
         if( this.displayMode != 'collapsed' ) {
             // make features get highlighted on mouse move
 
-            var gv = this.browser.view;
 
             // These handlers are being added in the wrong place
             this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
@@ -454,6 +455,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
         // connect up the event handlers
         this._connectEventHandlers( block );
+
+        this.updateStaticElements( { x: gv.getX() } );
     },
 
     _connectEventHandlers: function( block ) {
@@ -618,33 +621,35 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     updateStaticElements: function( coords ) {
         this.inherited( arguments );
 
-        var context = this.staticCanvas.getContext('2d');
+        if( coords.hasOwnProperty("x") ) {
+            var context = this.staticCanvas.getContext('2d');
 
-        var gv = this.browser.view;
+            var gv = this.browser.view;
 
-        this.staticCanvas.width = gv.elem.clientWidth;
-        this.staticCanvas.style.left = gv.getX() + "px";
-        context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
+            this.staticCanvas.width = gv.elem.clientWidth;
+            this.staticCanvas.style.left = coords.x + "px";
+            context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
 
-        var minVisible = this.browser.view.minVisible();
-        var maxVisible = this.browser.view.maxVisible();
-        var viewArgs = {
-            minVisible: minVisible,
-            maxVisible: maxVisible,
-            bpToPx: dojo.hitch(gv, "bpToPx"),
-            lWidth: this.label.offsetWidth
-        };
+            var minVisible = this.browser.view.minVisible();
+            var maxVisible = this.browser.view.maxVisible();
+            var viewArgs = {
+                minVisible: minVisible,
+                maxVisible: maxVisible,
+                bpToPx: dojo.hitch(gv, "bpToPx"),
+                lWidth: this.label.offsetWidth
+            };
 
-        array.forEach( this.blocks, function(block) {
-            if( !block || !block.fRectIndex )
-                return;
+            array.forEach( this.blocks, function(block) {
+                if( !block || !block.fRectIndex )
+                    return;
 
-            var idx = block.fRectIndex.byID;
-            for( var id in idx ) {
-                 var fRect = idx[id];
-                 fRect.glyph.updateStaticElements( context, fRect, viewArgs );
-            }
-        }, this );
+                var idx = block.fRectIndex.byID;
+                for( var id in idx ) {
+                     var fRect = idx[id];
+                     fRect.glyph.updateStaticElements( context, fRect, viewArgs );
+                }
+            }, this );
+        }
     },
 
     heightUpdate: function( height, blockIndex ) {
