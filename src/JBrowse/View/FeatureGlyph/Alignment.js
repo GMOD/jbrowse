@@ -73,7 +73,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                 var mRect = {
                     h: (fRect.rect||{}).h || fRect.h,
                     l: block.bpToX( start ),
-                    t: fRect.t
+                    t: fRect.rect.t
                 };
                 mRect.w = Math.max( block.bpToX( end ) - mRect.l, 1 );
 
@@ -84,7 +84,8 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
                         context.font = this.getConf( 'mismatchFont' );
                         context.fillStyle = mismatch.type == 'deletion' ? 'white' : 'black';
-                        context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
+                        context.textBaseline = 'middle';
+                        context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h/2 );
                     }
                 }
                 else if( mismatch.type == 'insertion' ) {
