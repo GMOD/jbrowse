@@ -41,14 +41,17 @@ return declare( null, {
 
     _load: function( def ) {
         var seenName = {};
-        var slots = array.filter( def.slots || [], function( slot ) {
-            var seen = seenName[slot.name];
-            seenName[slot.name] = true;
-            return !seen;
-        });
 
-        array.forEach( slots, function( slotSpec ) {
-            slotSpec = lang.mixin( { schemaClass: this.constructor._meta.bases[0] }, slotSpec );
+        var mergedSlotSpecs = {};
+        array.forEach( def.slots || [], function( slot ) {
+            mergedSlotSpecs[ slot.name ] = lang.mixin( mergedSlotSpecs[ slot.name ] || { schemaClass: this.constructor._meta.bases[0] }, slot );
+        },this);
+
+        array.forEach( def.slots, function( slotSpec ) {
+            if( this._slotsByName[ slotSpec.name ] )
+                return;
+
+            slotSpec = mergedSlotSpecs[ slotSpec.name ];
             var slot = new (this.getSlotClass( slotSpec ))( slotSpec, this );
             this._slotsByName[ slot.name ] = slot;
             this._slotsList.push( slot );
