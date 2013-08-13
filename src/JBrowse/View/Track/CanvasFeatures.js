@@ -420,7 +420,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     renderClickMap: function( args, fRects ) {
-        var thisB = this;
         var block = args.block;
 
         // make an index of the fRects by ID, and by coordinate, and
@@ -434,29 +433,45 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
-        var gv = this.browser.view;
-
-        if( this.displayMode != 'collapsed' ) {
-            // make features get highlighted on mouse move
-
-
-            // These handlers are being added in the wrong place
-            this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
-                evt = domEvent.fix( evt );
-                var bpX = gv.absXtoBp( evt.clientX );
-                var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                thisB.mouseoverFeature( feature );
-            }));
-
-            this.own( on( this.staticCanvas, 'mouseout', function( evt) {
-                thisB.mouseoverFeature( undefined );
-            }));
-        }
+        this._attachMouseOverEvents( );
 
         // connect up the event handlers
         this._connectEventHandlers( block );
 
-        this.updateStaticElements( { x: gv.getX() } );
+        this.updateStaticElements( { x: this.browser.view.getX() } );
+    },
+
+    _attachMouseOverEvents: function() {
+        var gv = this.browser.view;
+        var thisB = this;
+
+        if( this.displayMode == 'collapsed' ) {
+            if( this._mouseoverEvent ) {
+                this._mouseoverEvent.remove();
+                delete this._mouseoverEvent;
+            }
+
+            if( this._mouseoutEvent ) {
+                this._mouseoutEvent.remove();
+                delete this._mouseoutEvent;
+            }
+        } else {
+
+            if( !this._mouseoverEvent ) {
+                this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
+                    evt = domEvent.fix( evt );
+                    var bpX = gv.absXtoBp( evt.clientX );
+                    var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
+                    thisB.mouseoverFeature( feature );
+                }))[0];
+            }
+
+            if( !this._mouseoutEvent ) {
+                this._mouseoutEvent = this.own( on( this.staticCanvas, 'mouseout', function( evt) {
+                    thisB.mouseoverFeature( undefined );
+                }))[0];
+            }
+        }
     },
 
     _connectEventHandlers: function( block ) {
@@ -465,26 +480,28 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             (function( event, handler ) {
                  var thisB = this;
                  var gv = this.browser.view;
-                 this.own(
+                 block.own(
                      on( this.staticCanvas, event, function( evt ) {
                              evt = domEvent.fix( evt );
                              var bpX = gv.absXtoBp( evt.clientX );
-                             var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                             if( feature ) {
-                                 var fRect = block.fRectIndex.getByID( feature.id() );
-                                 handler.call({
-                                                  track: thisB,
-                                                  feature: feature,
-                                                  fRect: fRect,
-                                                  block: block,
-                                                  callbackArgs: [ thisB, feature, fRect ]
-                                              },
-                                              feature,
-                                              fRect,
-                                              block,
-                                              thisB,
-                                              evt
-                                             );
+                             if( block.containsBp( bpX ) ) {
+                                 var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
+                                 if( feature ) {
+                                     var fRect = block.fRectIndex.getByID( feature.id() );
+                                     handler.call({
+                                                      track: thisB,
+                                                      feature: feature,
+                                                      fRect: fRect,
+                                                      block: block,
+                                                      callbackArgs: [ thisB, feature, fRect ]
+                                                  },
+                                                  feature,
+                                                  fRect,
+                                                  block,
+                                                  thisB,
+                                                  evt
+                                                 );
+                                 }
                              }
                          })
                  );
