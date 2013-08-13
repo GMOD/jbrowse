@@ -39,7 +39,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     { name: 'textFont', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
                     { name: 'textColor', defaultValue:  'black', type: 'Color' },
                     { name: 'text2Color', defaultValue: 'blue', type: 'Color' },
-                    { name: 'text2Font', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'Color' },
+                    { name: 'text2Font', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
 
                     { name: 'description', defaultValue: 'note, description', type: 'string' }
                 ]);
@@ -247,8 +247,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             context.fillStyle = fRect.label.fill;
             context.textBaseline = fRect.label.baseline;
             context.fillText( fRect.label.text,
-                              fRect.l+(fRect.label.xOffset||0),
-                              fRect.t+(fRect.label.yOffset||0)
+                              Math.round( fRect.l+(fRect.label.xOffset||0) ),
+                              Math.round( fRect.t+(fRect.label.yOffset||0) )
                             );
         }
     },
@@ -261,8 +261,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             context.textBaseline = fRect.description.baseline;
             context.fillText(
                 fRect.description.text,
-                fRect.l+(fRect.description.xOffset||0),
-                fRect.t + (fRect.description.yOffset||0)
+                Math.round( fRect.l+(fRect.description.xOffset||0) ),
+                Math.round( fRect.t + (fRect.description.yOffset||0) )
             );
         }
     },

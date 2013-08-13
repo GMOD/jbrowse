@@ -26,9 +26,12 @@ return declare( null,
 
         // reduce the pitchY to try and pack the features tighter
         if( this.displayMode == 'compact' ) {
-            this.pitchY = Math.round( this.pitchY/4 ) || 1;
-            this.pitchX = Math.round( this.pitchX/4 ) || 1;
+            this.pitchY = this.pitchY/4;
+            this.pitchX = this.pitchX/4;
         }
+
+        this.pitchX = Math.round( this.pitchX ) || 1;
+        this.pitchY = Math.round( this.pitchY ) || 1;
 
         this.bitmap = [];
         this.rectangles = {};
