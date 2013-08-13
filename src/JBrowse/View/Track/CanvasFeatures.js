@@ -96,11 +96,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 { name: 'labelScale', type: 'float' },
                 { name: 'descriptionScale', type: 'float' },
 
-
                 { name: 'layoutPitchY', type: 'integer', defaultValue: 4 },
 
                 // default glyph class to use
                 { name: 'glyph', defaultValue: lang.hitch( this, 'guessGlyphType' ), type: 'string|function' },
+
+                { name: 'glyphConfig', type: 'object|function', defaultValue: {}, shortDesc: 'object holding base configurations for each glyph class' },
 
                 // maximum number of pixels on each side of a
                 // feature's bounding coordinates that a glyph is
@@ -251,8 +252,18 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             this.glyphsBeingLoaded[glyphClassName] = [callback];
             require( [glyphClassName], function( GlyphClass ) {
 
-                         glyph = thisB.glyphsLoaded[glyphClassName] =
-                             new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
+                         var glyphArgs = { track: thisB, browser: thisB.browser };
+                         // use a specific glyphConfig for this class if we have one
+                         var glyphConfig = thisB.getConf('glyphConfig',[glyphClassName]);
+                         if(( glyphArgs.baseConfig = glyphConfig[glyphClassName] || glyphConfig['default'] )) {
+                             // ( do nothing more )
+                         }
+                         // otherwise just use our track config as the glyph config
+                         else {
+                             glyphArgs.baseConfig = thisB.exportBaseConfig();
+                             glyphArgs.localConfig = thisB.exportLocalConfig();
+                         }
+                         glyph = thisB.glyphsLoaded[glyphClassName] = new GlyphClass( glyphArgs );
 
                          array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
                                             cb( glyph );

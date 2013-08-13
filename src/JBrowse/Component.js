@@ -63,7 +63,16 @@ return declare( null, {
             this.getConf('baseUrl',[]),
             this.fillTemplate( url, args )
         );
+    },
 
+    exportMergedConfig: function() {
+        return this._config.exportMerged();
+    },
+    exportBaseConfig: function() {
+        return this._config.exportBase();
+    },
+    exportLocalConfig: function() {
+        return this._config.exportLocal();
     },
 
     /**
@@ -75,10 +84,10 @@ return declare( null, {
      * configuration when called.
      */
     getConf: function( path, args ) {
-        return this._config.get( path, args );
+        return this._config.get( path, args || [ this ] );
     },
     getConfFunc: function( path ) {
-        return this._config.getFunc( path );x
+        return this._config.getFunc( path );
     },
 
     setConf: function( path, value ) {

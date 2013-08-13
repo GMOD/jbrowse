@@ -123,10 +123,17 @@ var Configuration = declare( null, {
     },
 
     /**
+     * Get a nested object containing the base configuration data.
+     */
+    exportBase: function() {
+        return this._flatToNested( this._base );
+    },
+
+    /**
      * Get a new base for this configuration, with the local settings merged in.
      */
     exportMerged: function() {
-
+        return this._flatToNested( lang.mixin( {}, this._base, this._local ) );
     },
 
     // convert a flat config object { 'foo.bar.baz' : 42, ... } to a
