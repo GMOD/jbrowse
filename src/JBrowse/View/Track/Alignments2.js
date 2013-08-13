@@ -12,17 +12,14 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     constructor: function() {
     },
 
-    _defaultConfig: function() {
-        return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
-            {
-                glyph: 'JBrowse/View/FeatureGlyph/Alignment',
-                maxFeatureGlyphExpansion: 0,
-                style: {
-                    showLabels: false
-                }
-            }
-        );
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'glyph', type: 'string', defaultValue: 'JBrowse/View/FeatureGlyph/Alignment' },
+            { name: 'maxFeatureGlyphExpansion', type: 'integer', defaultValue: 0 },
+            { name: 'showLabels', type: 'boolean', defaultValue: false }
+        ]);
+        return def;
     }
 
 });

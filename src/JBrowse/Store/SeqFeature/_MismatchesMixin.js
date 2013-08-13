@@ -13,8 +13,17 @@ define([
 return declare( null, {
 
     constructor: function() {
-        this.cigarAttributeName = ( this.config.cigarAttribute || 'cigar' ).toLowerCase();
-        this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
+        this.cigarAttributeName = ( this.getConf('cigarAttribute') || 'cigar' ).toLowerCase();
+        this.mdAttributeName    = ( this.getConf('mdAttribute')    || 'md'    ).toLowerCase();
+    },
+
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'cigarAttribute', type: 'string', defaultValue: 'cigar' },
+            { name: 'mdAttribute', type: 'string', defaultValue: 'md' }
+        ]);
+        return def;
     },
 
     _getMismatches: function( feature ) {
