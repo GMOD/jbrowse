@@ -288,6 +288,7 @@ _finishInitialization: function( refseq ) {
             {
                 accept: ["track"], //accepts only tracks into the viewing field
                 withHandles: true,
+                copyOnly: true,
                 creator: dojo.hitch( this, function( trackConfig, hint ) {
                     return {
                         data: trackConfig,
