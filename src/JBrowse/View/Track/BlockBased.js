@@ -1150,6 +1150,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                                     top: '0px'
                                 }
                             }, args.block.domNode );
+    },
+
+    // prepares a query object for passing to the backend store
+    makeStoreQuery: function( q ) {
+        return lang.mixin( {}, this.getConf('query'), q || {} );
     }
 
 });

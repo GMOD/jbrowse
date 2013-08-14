@@ -19,10 +19,10 @@ return Util.fastDeclare({
     // the object itself, so does not use `this` in its implementation.
     needStats: function( config ) {
         return !(
-                 ( 'min_score' in config )
-              && ( 'max_score' in config )
-              && ( config.bicolor_pivot != 'z_score' && config.bicolor_pivot != 'mean' )
-              && ( config.scale != 'z_score' )
+                 ( 'minScore' in config )
+              && ( 'maxScore' in config )
+              && ( config.bicolorPivot != 'zScore' && config.bicolorPivot != 'mean' )
+              && ( config.scale != 'zScore' )
             );
     },
 
@@ -39,39 +39,39 @@ return Util.fastDeclare({
                 stats.scoreMin = 0;
         }
 
-        // if either autoscale or scale is set to z_score, the other one should default to z_score
-        if( config.autoscale == 'z_score' && ! config.scale
-            || config.scale == 'z_score'  && !config.autoscale
+        // if either autoscale or scale is set to zScore, the other one should default to zScore
+        if( config.autoscale == 'zScore' && ! config.scale
+            || config.scale == 'zScore'  && !config.autoscale
           ) {
-              config.scale = 'z_score';
-              config.autoscale = 'z_score';
+              config.scale = 'zScore';
+              config.autoscale = 'zScore';
           }
 
-        var z_score_bound = parseFloat( config.z_score_bound ) || 4;
-        var min = 'min_score' in config ? parseFloat( config.min_score ) :
+        var zScoreBound = parseFloat( config.zScoreBound ) || 4;
+        var min = 'minScore' in config ? parseFloat( config.minScore ) :
             (function() {
                  switch( config.autoscale ) {
-                     case 'z_score':
-                         return Math.max( -z_score_bound, (stats.scoreMin-stats.scoreMean) / stats.scoreStdDev );
+                     case 'zScore':
+                         return Math.max( -zScoreBound, (stats.scoreMin-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
                      case 'local':
                          return stats.scoreMin;
-                     case 'clipped_global':
+                     case 'clippedGlobal':
                      default:
-                         return Math.max( stats.scoreMin, stats.scoreMean - z_score_bound * stats.scoreStdDev );
+                         return Math.max( stats.scoreMin, stats.scoreMean - zScoreBound * stats.scoreStdDev );
                  }
              })();
-        var max = 'max_score' in config ? parseFloat( config.max_score ) :
+        var max = 'maxScore' in config ? parseFloat( config.maxScore ) :
             (function() {
                  switch( config.autoscale ) {
-                     case 'z_score':
-                         return Math.min( z_score_bound, (stats.scoreMax-stats.scoreMean) / stats.scoreStdDev );
+                     case 'zScore':
+                         return Math.min( zScoreBound, (stats.scoreMax-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
                      case 'local':
                          return stats.scoreMax;
-                     case 'clipped_global':
+                     case 'clippedGlobal':
                      default:
-                         return Math.min( stats.scoreMax, stats.scoreMean + z_score_bound * stats.scoreStdDev );
+                         return Math.min( stats.scoreMax, stats.scoreMean + zScoreBound * stats.scoreStdDev );
                  }
              })();
 
@@ -82,7 +82,7 @@ return Util.fastDeclare({
             max = min + 10;
         }
 
-        var offset = parseFloat( config.data_offset ) || 0;
+        var offset = config.dataOffset || 0;
 
         if( config.scale == 'log' ) {
             max = this.log( max + offset );
@@ -94,15 +94,15 @@ return Util.fastDeclare({
         }
 
         var origin = (function() {
-          if ( 'bicolor_pivot' in config ) {
-            if ( config.bicolor_pivot == 'mean' ) {
+          if ( 'bicolorPivot' in config ) {
+            if ( config.bicolorPivot == 'mean' ) {
               return stats.scoreMean || 0;
-            } else if ( config.bicolor_pivot == 'zero' ) {
+            } else if ( config.bicolorPivot == 'zero' ) {
               return 0;
             } else {
-              return parseFloat( config.bicolor_pivot );
+              return parseFloat( config.bicolorPivot );
             }
-          } else if ( config.scale == 'z_score' ) {
+          } else if ( config.scale == 'zScore' ) {
             return stats.scoreMean || 0;
           } else if ( config.scale == 'log' ) {
             return 1;
@@ -126,7 +126,7 @@ return Util.fastDeclare({
         var thisB = this;
         this.normalize = (function() {
             switch( config.scale ) {
-            case 'z_score':
+            case 'zScore':
                 return function( value ) {
                     with(thisB)
                         return (value+offset-stats.scoreMean) / stats.scoreStdDev-min / range;

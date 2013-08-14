@@ -19,18 +19,21 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
  * @extends JBrowse.View.Track.WiggleBase
  */
 {
-    _defaultConfig: function() {
-        return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
-            {
-                style: {
-                    pos_color: 'blue',
-                    neg_color: 'red',
-                    origin_color: '#888',
-                    variance_band_color: 'rgba(0,0,0,0.3)'
-                }
-            }
-        );
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'height', defaultValue: 31 },
+            { name: 'posColor', type: 'Color', defaultValue: 'blue' },
+            { name: 'negColor', type: 'Color', defaultValue: 'red' },
+            { name: 'originColor',  type: 'string', defaultValue: '#888' },
+            { name: 'clipMarkerColor', type: 'Color', defaultValue: 'red' },
+            { name: 'varianceBandColor', type: 'Color', defaultValue: 'rgba(0,0,0,0.3)' },
+            { name: 'showVarianceBands', type: 'boolean', defaultValue: false },
+            { name: 'varianceBandPositions', type: 'multi-float', defaultValue: [2,1] },
+            { name: 'color', type: 'Color' },
+            { name: 'maskAlpha', type: 'float', defaultValue: 0.2 }
+        ]);
+        return def;
     },
 
     _getScaling: function( successCallback, errorCallback ) {
@@ -40,7 +43,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
 
-                var scaling = new Scale( this.config, stats );
+                var scaling = new Scale( this.exportMergedConfig(), stats );
 
                 // bump minDisplayed to 0 if it is within 0.5% of it
                 if( Math.abs( scaling.min / scaling.max ) < 0.005 )
@@ -82,7 +85,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         });
         var originY = toY( dataScale.origin );
 
-        var disableClipMarkers = this.config.disable_clip_markers;
+        var disableClipMarkers = this.getConf('disable_clip_markers');
 
         dojo.forEach( pixels, function(p,i) {
             if (!p)
@@ -92,7 +95,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 
             // draw the background color if we are configured to do so
             if( score >= 0 ) {
-                var bgColor = this.getConfForFeature('style.bg_color', f );
+                var bgColor = this.getConfForFeature('bg_color', f );
                 if( bgColor ) {
                     context.fillStyle = bgColor;
                     context.fillRect( i, 0, 1, canvasHeight );
@@ -103,20 +106,20 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             if( score <= canvasHeight || score > originY) { // if the rectangle is visible at all
                 if( score <= originY ) {
                     // bar goes upward
-                    context.fillStyle = this.getConfForFeature('style.pos_color',f);
+                    context.fillStyle = this.getConfForFeature('posColor',f);
                     context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
-                        context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
+                        context.fillStyle = this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f);
                         context.fillRect( i, 0, 1, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
-                    context.fillStyle = this.getConfForFeature('style.neg_color',f);
+                    context.fillStyle = this.getConfForFeature('negColor',f);
                     context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
-                        context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
+                        context.fillStyle = this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f);
                         context.fillRect( i, canvasHeight-3, 1, 3 );
 
                     }
@@ -170,9 +173,9 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 context.clearRect( l, 0, w, canvasHeight );
             }
         }
-        context.globalAlpha = this.config.style.masked_transparancy || 0.2;
-        this.config.style.masked_transparancy = context.globalAlpha;
+        context.globalAlpha = this.getConf('maskAlpha');
         this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
+        context.globalAlpha = 1;
     },
 
     /**
@@ -186,48 +189,47 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         });
 
         // draw the variance_band if requested
-        if( this.config.variance_band ) {
-            var bandPositions =
-                typeof this.config.variance_band == 'object'
-                    ? array.map( this.config.variance_band, function(v) { return parseFloat(v); } ).sort().reverse()
-                    : [ 2, 1 ];
-            this.getRegionStats( { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, dojo.hitch( this, function( stats ) {
-                if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
-                    var drawVarianceBand = function( plusminus, fill, label ) {
-                        context.fillStyle = fill;
-                        var varTop = toY( stats.scoreMean + plusminus );
-                        var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
-                        varHeight = Math.max( 1, varHeight );
-                        context.fillRect( 0, varTop, canvas.width, varHeight );
-                        context.font = '12px sans-serif';
-                        if( plusminus > 0 ) {
-                            context.fillText( '+'+label, 2, varTop );
-                            context.fillText( '-'+label, 2, varTop+varHeight );
-                        }
-                        else {
-                            context.fillText( label, 2, varTop );
-                        }
-                    };
+        if( this.getConf('showVarianceBands') ) {
+            var bandPositions = this.getConf('varianceBandPositions').sort().reverse();
+            this.getRegionStats(
+                this.makeStoreQuery({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }),
+                dojo.hitch( this, function( stats ) {
+                                if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
+                                    var drawVarianceBand = function( plusminus, fill, label ) {
+                                        context.fillStyle = fill;
+                                        var varTop = toY( stats.scoreMean + plusminus );
+                                        var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
+                                        varHeight = Math.max( 1, varHeight );
+                                        context.fillRect( 0, varTop, canvas.width, varHeight );
+                                        context.font = '12px sans-serif';
+                                        if( plusminus > 0 ) {
+                                            context.fillText( '+'+label, 2, varTop );
+                                            context.fillText( '-'+label, 2, varTop+varHeight );
+                                        }
+                                        else {
+                                            context.fillText( label, 2, varTop );
+                                        }
+                                    };
 
-                    var maxColor = new Color( this.config.style.variance_band_color );
-                    var minColor = new Color( this.config.style.variance_band_color );
-                    minColor.a /= bandPositions.length;
+                                    var maxColor = new Color( this.getConf('varianceBandColor') );
+                                    var minColor = new Color( this.getConf('varianceBandColor') );
+                                    minColor.a /= bandPositions.length;
 
-                    var bandOpacityStep = 1/bandPositions.length;
-                    var minOpacity = bandOpacityStep;
+                                    var bandOpacityStep = 1/bandPositions.length;
+                                    var minOpacity = bandOpacityStep;
 
-                    array.forEach( bandPositions, function( pos,i ) {
-                        drawVarianceBand( pos*stats.scoreStdDev,
-                                          Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
-                                          pos+'σ');
-                    });
-                    drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
-                }
-            }));
+                                    array.forEach( bandPositions, function( pos,i ) {
+                                                       drawVarianceBand( pos*stats.scoreStdDev,
+                                                                         Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
+                                                                         pos+'σ');
+                                                   });
+                                    drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
+                                }
+                            }));
         }
 
         // draw the origin line if it is not disabled
-        var originColor = this.config.style.origin_color;
+        var originColor = this.getConf('originColor');
         if( typeof originColor == 'string' && !{'none':1,'off':1,'no':1,'zero':1}[originColor] ) {
             var originY = toY( dataScale.origin );
             context.fillStyle = originColor;

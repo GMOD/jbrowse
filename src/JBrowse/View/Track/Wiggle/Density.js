@@ -18,20 +18,18 @@ return declare( WiggleBase,
 
 {
 
-    _defaultConfig: function() {
-        return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
-            {
-                maxExportSpan: 500000,
-                style: {
-                    height: 31,
-                    pos_color: '#00f',
-                    neg_color: '#f00',
-                    bg_color: 'rgba(230,230,230,0.6)',
-                    clip_marker_color: 'black'
-                }
-            }
-        );
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'height', defaultValue: 31 },
+            { name: 'posColor', type: 'Color', defaultValue: '#00f' },
+            { name: 'negColor', type: 'Color', defaultValue: '#f00' },
+            { name: 'backgroundColor',  type: 'Color', defaultValue: 'rgba(230,230,230,0.6)' },
+            { name: 'clipMarkerColor', type: 'Color', defaultValue: 'red' },
+            { name: 'color', type: 'Color' },
+            { name: 'maskColor', type: 'Color', defaultValue: 'rgba(128,128,128,0.6)' }
+        ]);
+        return def;
     },
 
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
@@ -40,41 +38,43 @@ return declare( WiggleBase,
         var canvasHeight = canvas.height;
         var normalize = dataScale.normalize;
 
-        var featureColor = typeof this.config.style.color == 'function' ? this.config.style.color :
+        var featureColor = this.confIsSet('color') ? this.getConfFunc('color') :
             (function() { // default color function uses conf variables
-                var disableClipMarkers = thisB.config.disable_clip_markers;
+                var disableClipMarkers = thisB.getConf('disable_clip_markers');
                 var normOrigin = normalize( dataScale.origin );
-                
-                return function( p , n) {
-                    var feature = p['feat'];
-                    return ( disableClipMarkers || n <= 1 && n >= 0 )
+                return function( pixel ,normScore, normOrigin, disableClipMarkers ) {
+                    var feature = pixel.feat;
+                    return ( disableClipMarkers || normScore <= 1 && normScore >= 0 )
                                // not clipped
                                ? Color.blendColors(
-                                   new Color( thisB.getConfForFeature('style.bg_color', feature ) ),
-                                   new Color( thisB.getConfForFeature( n >= normOrigin ? 'style.pos_color' : 'style.neg_color', feature ) ),
-                                   Math.abs(n-normOrigin)
+                                   new Color( thisB.getConfForFeature('backgroundColor', feature ) ),
+                                   new Color( thisB.getConfForFeature( normScore >= normOrigin ? 'posColor' : 'negColor', feature ) ),
+                                   Math.abs(normScore-normOrigin)
                                  ).toString()
                                // clipped
-                               : ( n > 1 ? thisB.getConfForFeature( 'style.pos_color', feature )
-                                         : thisB.getConfForFeature( 'style.neg_color', feature ) );
+                               : ( normScore > 1 ? thisB.getConfForFeature( 'posColor', feature )
+                                                 : thisB.getConfForFeature( 'negColor', feature ) );
 
                 };
-            })();
+            }).call(this);
 
         dojo.forEach( pixels, function(p,i) {
             if (p) {
-                var score = p['score'];
-                var f = p['feat'];
-                
+                var score = p.score;
+                var f = p.feat;
+
+                // draw the bar for the value
                 var n = normalize( score );
                 context.fillStyle = ''+featureColor( p, n );
                 context.fillRect( i, 0, 1, canvasHeight );
+
+                // draw clip markers if present
                 if( n > 1 ) { // pos clipped
-                    context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
+                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f);
                     context.fillRect( i, 0, 1, 3 );
                 }
                 else if( n < 0 ) { // neg clipped
-                    context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
+                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f);
                     context.fillRect( i, canvasHeight-3, 1, 3 );
                }
             }
@@ -85,8 +85,7 @@ return declare( WiggleBase,
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        context.fillStyle = this.config.style.mask_color || 'rgba(128,128,128,0.6)';
-        this.config.style.mask_color = context.fillStyle;
+        context.fillStyle = this.getConf('maskColor');
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {

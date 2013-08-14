@@ -93,12 +93,10 @@ _makeTrackConfs: function() {
         this.trackConfs = this.trackConfs || {};
 
         this.trackConfs[ n ] =  {
-            store: this.storeConfs[n],
-            label: n,
-            key: n.replace(/_\d+$/,'').replace(/_/g,' '),
-            type: trackType,
-
-            autoscale: "local" // make locally-opened BigWig tracks default to local autoscaling
+                store: this.storeConfs[n],
+                label: n,
+                key: n.replace(/_\d+$/,'').replace(/_/g,' '),
+                type: trackType
         };
     }
 },

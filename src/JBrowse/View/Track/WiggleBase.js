@@ -16,19 +16,22 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
         this.trackPadding = args.trackPadding || 0;
-
-        if( ! ('style' in this.config ) ) {
-            this.config.style = {};
-        }
-
         this.store = args.store;
     },
 
-    _defaultConfig: function() {
-        return {
-            maxExportSpan: 500000,
-            autoscale: 'global'
-        };
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
+            { name: 'autoscale', type: 'string', defaultValue:  'local' },
+            { name: 'bicolorPivot', type: 'string' },
+            { name: 'maxScore', type: 'float' },
+            { name: 'minScore', type: 'float' },
+            { name: 'scale', type: 'string' },
+            { name: 'height', type: 'integer', defaultValue: 100 },
+            { name: 'dataOffset', type: 'float', defaultValue: 0 }
+        ]);
+        return def;
     },
 
     _getScaling: function( successCallback, errorCallback ) {
@@ -38,7 +41,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats(stats) ) {
                 try {
-                    this.lastScaling = new Scale( this.config, stats );
+                    this.lastScaling = new Scale( this.exportMergedConfig(), stats );
                     successCallback( this.lastScaling );
                 } catch( e ) {
                     errorCallback(e);
@@ -54,11 +57,11 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     // from the global stats for the store, or from the local region
     // if config.autoscale is 'local'
     _getScalingStats: function( callback, errorCallback ) {
-        if( ! Scale.prototype.needStats( this.config ) ) {
+        if( ! Scale.prototype.needStats( this.exportMergedConfig() ) ) {
             callback( null );
             return null;
         }
-        else if( this.config.autoscale == 'local' ) {
+        else if( this.getConf('autoscale') == 'local' ) {
             return this.getRegionStats.call( this, this.genomeView.visibleRegion(), callback, errorCallback );
         }
         else {
@@ -81,7 +84,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     // the canvas height in pixels for a block
     _canvasHeight: function() {
-        return parseInt(( this.config.style || {}).height) || 100;
+        return this.getConf('height');
     },
 
     _getBlockFeatures: function( args ) {

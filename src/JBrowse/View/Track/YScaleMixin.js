@@ -42,34 +42,17 @@ return declare( null, {
         this.yscale = rulerdiv;
 
         if( this.window_info && 'x' in this.window_info ) {
-            if ('yScalePosition' in this.config) {
-                if(this.config.yScalePosition == 'right') {
-                    this.yscale.style.left = (this.window_info.x + (this.window_info.width-1||0)) + "px";
-                }
-                else if(this.config.yScalePosition == 'left') {
-                    this.yscale.style.left = this.window_info.x + 10 + 1 + "px";
-                }
-                else if(this.config.yScalePosition == 'center') {
-                    this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
-                }
-            }
-            else {
-                this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
-            }
+            this._setScaleLeft();
         }
 
-        dojo.style(
-            rulerdiv,
-            ( this.config.align == 'top' ? { bottom: 0 } :
-              { top: 0 })
-        );
+        rulerdiv.style.top = 0;
 
         // now make a Ruler and draw the axis in the div we just made
         var ruler = new Ruler({
             min: min,
             max: max,
             direction: 'up',
-            leftBottom: !('yScalePosition' in this.config && this.config.yScalePosition == 'left'),
+            leftBottom: this.getConf('yScalePosition') != 'left',
             fixBounds: args.fixBounds || false
         });
         ruler.render_to( rulerdiv );
@@ -77,24 +60,20 @@ return declare( null, {
         this.ruler = ruler;
     },
 
+    _setScaleLeft: function() {
+        if( this.yscale ) {
+            var ypos = this.getConf('yScalePosition');
+            this.yscale.style.left = (
+                ypos == 'right' ? this.window_info.x + (this.window_info.width-1||0) :
+                ypos == 'left'  ? this.window_info.x + 10 + 1                        :
+                                  this.window_info.x + (this.window_info.width||0)/2
+            )+"px";
+        }
+    },
+
     updateYScaleFromViewDimensions: function( coords ) {
         if( typeof coords.x == 'number' || typeof coords.width == 'number' ) {
-            if( this.yscale ) {
-                if ('yScalePosition' in this.config) {
-                    if(this.config.yScalePosition == 'right') {
-                        this.yscale.style.left = (this.window_info.x + (this.window_info.width-1||0)) + "px";
-                    }
-                    else if(this.config.yScalePosition == 'left') {
-                        this.yscale.style.left = this.window_info.x + 10 + "px";
-                    }
-                    else if(this.config.yScalePosition == 'center') {
-                        this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
-                    }
-                }
-                else {
-                    this.yscale.style.left = (this.window_info.x + (this.window_info.width||0)/2) + "px";
-                }
-            }
+            this._setScaleLeft();
         }
     }
 });

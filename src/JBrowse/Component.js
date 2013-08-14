@@ -89,6 +89,9 @@ return declare( null, {
     getConfFunc: function( path ) {
         return this._config.getFunc( path );
     },
+    confIsSet: function( path ) {
+        return !! this._config.getRaw( path );
+    },
 
     setConf: function( path, value ) {
         return this._config.set( path, value );
