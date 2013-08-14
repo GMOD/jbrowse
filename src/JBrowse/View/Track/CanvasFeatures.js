@@ -488,9 +488,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 style: {
                     position: 'fixed',
                     display: 'none',
-                    zIndex: 15
+                    zIndex: 19
                 }
-            }, this.div );
+            }, document.body );
         domConstruct.create(
             'span', {
                 className: 'tooltipLabel',
