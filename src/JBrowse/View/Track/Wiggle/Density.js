@@ -27,7 +27,8 @@ return declare( WiggleBase,
             { name: 'backgroundColor',  type: 'Color', defaultValue: 'rgba(230,230,230,0.6)' },
             { name: 'clipMarkerColor', type: 'Color', defaultValue: 'red' },
             { name: 'color', type: 'Color' },
-            { name: 'maskColor', type: 'Color', defaultValue: 'rgba(128,128,128,0.6)' }
+            { name: 'maskColor', type: 'Color', defaultValue: 'rgba(128,128,128,0.6)' },
+            { name: 'disableClipMarkers', type: 'boolean', defaultValue: false }
         ]);
         return def;
     },
@@ -40,17 +41,17 @@ return declare( WiggleBase,
 
         var featureColor = this.confIsSet('color') ? this.getConfFunc('color') :
             (function() { // default color function uses conf variables
-                var disableClipMarkers = thisB.getConf('disable_clip_markers');
+                var disableClipMarkers = thisB.getConf('disableClipMarkers');
                 var normOrigin = normalize( dataScale.origin );
-                return function( pixel ,normScore, normOrigin, disableClipMarkers ) {
+                return function( pixel ,normScore ) {
                     var feature = pixel.feat;
                     return ( disableClipMarkers || normScore <= 1 && normScore >= 0 )
                                // not clipped
                                ? Color.blendColors(
-                                   new Color( thisB.getConfForFeature('backgroundColor', feature ) ),
-                                   new Color( thisB.getConfForFeature( normScore >= normOrigin ? 'posColor' : 'negColor', feature ) ),
+                                   thisB.getConfForFeature('backgroundColor', feature ),
+                                   thisB.getConfForFeature( normScore >= normOrigin ? 'posColor' : 'negColor', feature ),
                                    Math.abs(normScore-normOrigin)
-                                 ).toString()
+                                 )
                                // clipped
                                : ( normScore > 1 ? thisB.getConfForFeature( 'posColor', feature )
                                                  : thisB.getConfForFeature( 'negColor', feature ) );
@@ -65,16 +66,16 @@ return declare( WiggleBase,
 
                 // draw the bar for the value
                 var n = normalize( score );
-                context.fillStyle = ''+featureColor( p, n );
+                context.fillStyle = featureColor( p, n ).toString();
                 context.fillRect( i, 0, 1, canvasHeight );
 
                 // draw clip markers if present
                 if( n > 1 ) { // pos clipped
-                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f);
+                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f).toString();
                     context.fillRect( i, 0, 1, 3 );
                 }
                 else if( n < 0 ) { // neg clipped
-                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f);
+                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f).toString();
                     context.fillRect( i, canvasHeight-3, 1, 3 );
                }
             }
@@ -85,7 +86,7 @@ return declare( WiggleBase,
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        context.fillStyle = this.getConf('maskColor');
+        context.fillStyle = this.getConf('maskColor').toString();
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {

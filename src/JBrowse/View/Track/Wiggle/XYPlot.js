@@ -22,16 +22,18 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _configSchemaDefinition: function() {
         var def = this.inherited( arguments );
         def.slots.push.apply( def.slots, [
-            { name: 'height', defaultValue: 31 },
+            { name: 'height', defaultValue: 100 },
             { name: 'posColor', type: 'Color', defaultValue: 'blue' },
             { name: 'negColor', type: 'Color', defaultValue: 'red' },
             { name: 'originColor',  type: 'string', defaultValue: '#888' },
             { name: 'clipMarkerColor', type: 'Color', defaultValue: 'red' },
+            { name: 'backgroundColor', type: 'Color' },
             { name: 'varianceBandColor', type: 'Color', defaultValue: 'rgba(0,0,0,0.3)' },
             { name: 'showVarianceBands', type: 'boolean', defaultValue: false },
             { name: 'varianceBandPositions', type: 'multi-float', defaultValue: [2,1] },
             { name: 'color', type: 'Color' },
-            { name: 'maskAlpha', type: 'float', defaultValue: 0.2 }
+            { name: 'maskAlpha', type: 'float', defaultValue: 0.2 },
+            { name: 'disableClipMarkers', type: 'boolean', defaultValue: false }
         ]);
         return def;
     },
@@ -85,19 +87,19 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         });
         var originY = toY( dataScale.origin );
 
-        var disableClipMarkers = this.getConf('disable_clip_markers');
+        var disableClipMarkers = this.getConf('disableClipMarkers');
 
         dojo.forEach( pixels, function(p,i) {
             if (!p)
-                return
+                return;
             var score = toY(p['score']);
             var f = p['feat'];
 
             // draw the background color if we are configured to do so
             if( score >= 0 ) {
-                var bgColor = this.getConfForFeature('bg_color', f );
+                var bgColor = this.getConfForFeature('backgroundColor', f );
                 if( bgColor ) {
-                    context.fillStyle = bgColor;
+                    context.fillStyle = bgColor.toString();
                     context.fillRect( i, 0, 1, canvasHeight );
                 }
             }
@@ -106,20 +108,20 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             if( score <= canvasHeight || score > originY) { // if the rectangle is visible at all
                 if( score <= originY ) {
                     // bar goes upward
-                    context.fillStyle = this.getConfForFeature('posColor',f);
+                    context.fillStyle = this.getConfForFeature('posColor',f).toString();
                     context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
-                        context.fillStyle = this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f);
+                        context.fillStyle = (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f)).toString();
                         context.fillRect( i, 0, 1, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
-                    context.fillStyle = this.getConfForFeature('negColor',f);
+                    context.fillStyle = this.getConfForFeature('negColor',f).toString();
                     context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
-                        context.fillStyle = this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f);
+                        context.fillStyle = (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f)).toString();
                         context.fillRect( i, canvasHeight-3, 1, 3 );
 
                     }
@@ -196,7 +198,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 dojo.hitch( this, function( stats ) {
                                 if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                                     var drawVarianceBand = function( plusminus, fill, label ) {
-                                        context.fillStyle = fill;
+                                        context.fillStyle = fill.toString();
                                         var varTop = toY( stats.scoreMean + plusminus );
                                         var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
                                         varHeight = Math.max( 1, varHeight );
