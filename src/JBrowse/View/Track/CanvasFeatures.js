@@ -87,10 +87,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     _configSchemaDefinition: function() {
         var def = this.inherited( arguments );
         def.slots.push.apply( def.slots, [
-                { name: 'maxFeatureScreenDensity', defaultValue: 400, type: 'integer' },
-                { name: 'maxLabelScreenDensity', defaultValue: 1/30, type: 'integer' },
-                { name: 'maxDescriptionScreenDensity', defaultValue: 1/120, type: 'integer' },
-                { name: 'minHistScreenDensity', defaultValue: 400, type: 'integer' },
+                { name: 'maxFeatureScreenDensity', defaultValue: 400, type: 'float' },
+                { name: 'maxLabelScreenDensity', defaultValue: 1/30, type: 'float' },
+                { name: 'maxDescriptionScreenDensity', defaultValue: 1/120, type: 'float' },
+                { name: 'minHistScreenDensity', defaultValue: 400, type: 'float' },
 
                 { name: 'featureScale', type: 'float' },
                 { name: 'labelScale', type: 'float' },
@@ -99,9 +99,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 { name: 'layoutPitchY', type: 'integer' },
 
                 // default glyph class to use
-                { name: 'glyph', defaultValue: lang.hitch( this, 'guessGlyphType' ), type: 'string|function' },
+                { name: 'glyph', defaultValue: lang.hitch( this, 'guessGlyphType' ), type: 'string' },
 
-                { name: 'glyphConfig', type: 'object|function', defaultValue: {}, shortDesc: 'object holding base configurations for each glyph class' },
+                { name: 'glyphConfig', type: 'object', defaultValue: {}, shortDesc: 'object holding base configurations for each glyph class' },
 
                 // maximum number of pixels on each side of a
                 // feature's bounding coordinates that a glyph is
@@ -203,7 +203,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             });
 
         this.store.getRegionStats(
-            lang.mixin( { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, this.getConf('query') ),
+            this.makeStoreQuery( { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end } ),
             fill,
             dojo.hitch( this, function(e) {
                             this._handleError( e, args );

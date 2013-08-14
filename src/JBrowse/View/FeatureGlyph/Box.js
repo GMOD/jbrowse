@@ -211,7 +211,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // background
         var bgcolor = style( feature, 'color' );
         if( bgcolor ) {
-            context.fillStyle = bgcolor;
+            context.fillStyle = bgcolor.toString();
             context.fillRect( left, top, Math.max(1,width), height );
         }
         else {
@@ -223,7 +223,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         if( (borderColor = style( feature, 'borderColor' )) && ( lineWidth = style( feature, 'borderWidth')) ) {
             if( width > 3 ) {
                 context.lineWidth = lineWidth;
-                context.strokeStyle = borderColor;
+                context.strokeStyle = borderColor.toString();
 
                 // need to stroke a smaller rectangle to remain within
                 // the bounds of the feature's overall height and
@@ -233,7 +233,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             }
             else {
                 context.globalAlpha = lineWidth*2/width;
-                context.fillStyle = borderColor;
+                context.fillStyle = borderColor.toString();
                 context.fillRect( left, top, Math.max(1,width), height );
                 context.globalAlpha = 1;
             }
@@ -244,7 +244,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     renderLabel: function( context, fRect ) {
         if( fRect.label ) {
             context.font = fRect.label.font;
-            context.fillStyle = fRect.label.fill;
+            context.fillStyle = fRect.label.fill.toString();
             context.textBaseline = fRect.label.baseline;
             context.fillText( fRect.label.text,
                               Math.round( fRect.l+(fRect.label.xOffset||0) ),
@@ -257,7 +257,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     renderDescription: function( context, fRect ) {
         if( fRect.description ) {
             context.font = fRect.description.font;
-            context.fillStyle = fRect.description.fill;
+            context.fillStyle = fRect.description.fill.toString();
             context.textBaseline = fRect.description.baseline;
             context.fillText(
                 fRect.description.text,

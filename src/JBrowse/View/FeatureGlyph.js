@@ -72,7 +72,7 @@ return declare( Component, {
         this.renderFeature( context, fRect );
 
         // highlight the feature rectangle if we're moused over
-        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
+        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' ).toString();
         context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
     },
 

@@ -39,7 +39,7 @@ renderConnector: function( context, fRect ) {
     // connector
     var connectorColor = this.getStyle( fRect.f, 'connectorColor' );
     if( connectorColor ) {
-        context.fillStyle = connectorColor;
+        context.fillStyle = connectorColor.toString();
         var connectorThickness = this.getStyle( fRect.f, 'connectorThickness' );
         context.fillRect(
             fRect.rect.l, // left

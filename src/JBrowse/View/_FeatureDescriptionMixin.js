@@ -12,59 +12,44 @@ return declare( null, {
     // get the label string for a feature, based on the setting
     // of this.config.label
     getFeatureLabel: function( feature ) {
-        return this._getFeatureDescriptiveThing( 'label', 'name,id', feature );
+        return this.getConfForFeature('featureLabel', feature );
+    },
+
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+                { name: 'featureLabel', type: 'string', defaultValue: function( feature, path, glyph, track ) {
+                      var fields = track.getConfForFeature( 'featureLabelFields', feature );
+                      for( var i = 0; i<fields.length; i++ ) {
+                          var v = feature.get(fields[i]);
+                          if( v !== undefined )
+                              return v;
+                      }
+                      return undefined;
+                  }
+                },
+                { name: 'featureLabelFields', type: 'multi-string', defaultValue: [ 'name', 'id' ] },
+
+                { name: 'featureDescription', type: 'string', defaultValue: function( feature, path, glyph, track ) {
+                      var fields = track.getConfForFeature( 'featureDescriptionFields', feature );
+                      for( var i = 0; i<fields.length; i++ ) {
+                          var v = feature.get(fields[i]);
+                          if( v !== undefined )
+                              return v;
+                      }
+                      return undefined;
+                  }
+                },
+                { name: 'featureDescriptionFields', type: 'multi-string', defaultValue: [ 'note','description' ] }
+
+        ]);
+        return def;
     },
 
     // get the description string for a feature, based on the setting
     // of this.config.description
     getFeatureDescription: function( feature ) {
-        return this._getFeatureDescriptiveThing( 'description', 'note,description', feature );
-    },
-
-    _getFeatureDescriptiveThing: function( field, defaultFields, feature ) {
-        var dConf = this.getConf( field );
-
-        if( ! dConf )
-            return null;
-
-        // if the description is a function, just call it
-        if( typeof dConf == 'function' ) {
-            return dConf.call( this, feature );
-        }
-        // otherwise try to parse it as a field list
-        else {
-            if( ! this.descriptionFields )
-                this.descriptionFields = {};
-
-            // parse our description varname conf if necessary
-            var fields = this.descriptionFields[field] || function() {
-                var f = dConf;
-                if( f ) {
-                    if( lang.isArray( f ) ) {
-                        f = f.join(',');
-                    }
-                    else if( typeof f != 'string' ) {
-                        console.warn( 'invalid `description` setting ('+f+') for "'+(this.name||this.track.name)+'" track, falling back to "note,description"' );
-                        f = defaultFields;
-                    }
-                    f = f.toLowerCase().split(/\s*\,\s*/);
-                }
-                else {
-                    f = [];
-                }
-                this.descriptionFields[field] = f;
-                return f;
-            }.call(this);
-
-            // return the value of the first field that contains something
-            for( var i=0; i<fields.length; i++ ) {
-                var d = feature.get( fields[i] );
-                if( d )
-                    return d;
-            }
-            return null;
-        }
+        return this.getConfForFeature( 'featureDescription', feature );
     }
-
 });
 });

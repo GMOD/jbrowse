@@ -4,7 +4,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
-           'dojo/_base/Color',
+           'dojo/colors',
            '../Slot'
        ],
        function(
