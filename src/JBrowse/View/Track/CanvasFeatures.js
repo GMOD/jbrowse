@@ -437,7 +437,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
-        this._attachMouseOverEvents( block );
+        this._attachMouseOverEvents( );
 
         // connect up the event handlers
         this._connectEventHandlers( block );
@@ -445,7 +445,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.updateStaticElements( { x: this.browser.view.getX() } );
     },
 
-    _attachMouseOverEvents: function( block ) {
+    _attachMouseOverEvents: function( ) {
         var gv = this.browser.view;
         var thisB = this;
 
@@ -604,7 +604,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                     return;
 
                 if( block.containsBp( bpX ) ) {
-                    var lastMouseover = this.lastMouseover;
                     var renderTooltip = dojo.hitch( this, function() {
                         if( !this.labelTooltip )
                             return;
@@ -614,10 +613,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                         if( ( !label && !description ) )
                             return;
 
-                        if( lastMouseover === undefined ) {
+                        if( !this.ignoreTooltipTimeout ) {
                             this.labelTooltip.style.left = evt.clientX + "px";
                             this.labelTooltip.style.top = (evt.clientY + 15) + "px";
                         }
+                        this.ignoreTooltipTimeout = true;
                         this.labelTooltip.style.display = 'block';
                         if( label ) {
                             var labelSpan = this.labelTooltip.childNodes[0];
@@ -632,14 +632,16 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                             descriptionSpan.innerHTML = description.text;
                         }
                     });
-                    if( this.lastMouseover )
+                    if( this.ignoreTooltipTimeout )
                         renderTooltip();
                     else
-                        block.tooltipTimeout = window.setTimeout( renderTooltip, this.lastMouseover ? 0 : 600);
+                        block.tooltipTimeout = window.setTimeout( renderTooltip, 600);
                 }
 
                 fRect.glyph.mouseoverFeature( context, fRect );
                 this._refreshContextMenu( fRect );
+            } else {
+                block.tooltipTimeout = window.setTimeout( dojo.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 500);
             }
         }, this );
 
