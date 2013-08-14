@@ -173,7 +173,7 @@ _configSchemaDefinition: function() {
             { name: 'trackSelector', type: 'object', defaultValue: {} },
             { name: 'share_link', type: 'boolean', defaultValue: true },
             { name: 'queryParams', type: 'object', defaultValue: {} },
-            { name: 'shareURL', type: 'function|string',
+            { name: 'shareURL', type: 'string',
               defaultValue: function( browser, overrides ) {
                   var viewState = {
                       highlight: (browser.getHighlight()||'').toString()
@@ -196,7 +196,7 @@ _configSchemaDefinition: function() {
                       )
                   );
               }},
-            { name: 'fullViewURL', type: 'function' },
+            { name: 'fullViewURL', type: 'string' },
             { name: 'cookieSizeLimit', type: 'integer', defaultValue: 1200 },
             { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 },
             { name: 'baseUrl', type: 'string', defaultValue: Util.resolveUrl( window.location.href, '.' ) + '/data/' }
