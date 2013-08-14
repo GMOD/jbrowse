@@ -88,6 +88,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
         this.showLabels = this.config.style.showLabels;
+        this.showTooltips = this.config.style.showTooltips;
         this.displayMode = this.config.displayMode;
 
         this._setupEventHandlers();
@@ -114,7 +115,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 _defaultLabelScale: 30,
                 _defaultDescriptionScale: 120,
 
-                showLabels: true
+                showLabels: true,
+                showTooltips: true
             },
 
             displayMode: 'normal',
@@ -155,6 +157,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.inherited( arguments );
         this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }}, trackDiv);
         this.staticCanvas.height = this.staticCanvas.offsetHeight;
+
+        this._makeLabelTooltip( );
     },
 
     guessGlyphType: function(feature) {
@@ -456,13 +460,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 delete this._mouseoutEvent;
             }
         } else {
-            this._makeLabelTooltip( block );
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
                     evt = domEvent.fix( evt );
                     var bpX = gv.absXtoBp( evt.clientX );
                     var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                    thisB.mouseoverFeature( feature );
+                    thisB.mouseoverFeature( feature, evt );
                 }))[0];
             }
 
@@ -474,68 +477,34 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         }
     },
 
-    _makeLabelTooltip: function( block ) {
-        var thisB = this;
+    _makeLabelTooltip: function( ) {
 
-        var labelTooltip = domConstruct.create(
+        if( !this.showTooltips || this.labelTooltip )
+            return;
+
+        var labelTooltip = this.labelTooltip = domConstruct.create(
             'div', {
-                className: 'wiggleValueDisplay',
+                className: 'featureTooltip',
                 style: {
                     position: 'fixed',
                     display: 'none',
                     zIndex: 15
                 }
-            }, block.domNode );
-        var label = domConstruct.create(
+            }, this.div );
+        domConstruct.create(
             'span', {
+                className: 'tooltipLabel',
                 style: {
                     display: 'block'
                 }
             }, labelTooltip);
-        var description = domConstruct.create(
+        domConstruct.create(
             'span', {
+                className: 'tooltipDescription',
                 style: {
                     display: 'block'
                 }
             }, labelTooltip);
-
-        var gv = this.browser.view;
-
-        array.forEach([this.staticCanvas, labelTooltip], dojo.hitch( this, function( element ) {
-            this.own( on( element, 'mousemove', function( evt ) {
-                evt = domEvent.fix( evt );
-                var bpX = gv.absXtoBp( evt.clientX );
-
-                if( !block.containsBp( bpX ) ) {
-                    labelTooltip.style.display = 'none';
-                    return;
-                }
-
-                var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                if( feature ) {
-                    var fRect = block.fRectIndex.getByID( feature.id() );
-                    if(  !fRect || (!fRect.label && !fRect.description ))
-                        return;
-
-                    labelTooltip.style.left = evt.clientX + "px";
-                    labelTooltip.style.top = (evt.clientY + 15) + "px";
-                    labelTooltip.style.display = 'block';
-                    if( fRect.label ) {
-                        label.style.font = fRect.label.font;
-                        label.style.color = fRect.label.fill;
-                        label.innerHTML = fRect.label.text;
-                    }
-                    if( fRect.description ) {
-                        description.style.font = fRect.description.font;
-                        description.style.color = fRect.description.fill;
-                        description.innerHTML = fRect.description.text;
-                    }
-                } else {
-                    labelTooltip.style.display = 'none';
-                }
-            }));
-        }));
-
     },
 
     _connectEventHandlers: function( block ) {
@@ -602,10 +571,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     // given viewargs and a feature object, highlight that feature in
     // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
-    mouseoverFeature: function( feature ) {
+    mouseoverFeature: function( feature, evt ) {
 
         if( this.lastMouseover == feature )
             return;
+
+        if( evt )
+            var bpX = this.browser.view.absXtoBp( evt.clientX );
+
 
         array.forEach( this.blocks, function( block, i ) {
             if( ! block )
@@ -620,10 +593,46 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                     this.renderFeature( context, r );
             }
 
+            if( block.tooltipTimeout )
+                window.clearTimeout( block.tooltipTimeout );
+
+            if( this.labelTooltip)
+                this.labelTooltip.style.display = 'none';
+
             if( feature ) {
                 var fRect = block.fRectIndex.getByID( feature.id() );
                 if( ! fRect )
                     return;
+
+                if( block.containsBp( bpX ) ) {
+                    block.tooltipTimeout = window.setTimeout( dojo.hitch( this, function() {
+
+                        if( !this.labelTooltip )
+                            return;
+
+                        var label = fRect.label || fRect.glyph.makeFeatureLabel( feature, fRect );
+                        var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature, fRect );
+
+                        if( ( !label && !description ) )
+                            return;
+
+                        this.labelTooltip.style.left = evt.clientX + "px";
+                        this.labelTooltip.style.top = (evt.clientY + 15) + "px";
+                        this.labelTooltip.style.display = 'block';
+                        if( label ) {
+                            var labelSpan = this.labelTooltip.childNodes[0];
+                            labelSpan.style.font = label.font;
+                            labelSpan.style.color = label.fill;
+                            labelSpan.innerHTML = label.text;
+                        }
+                        if( description ) {
+                            var descriptionSpan = this.labelTooltip.childNodes[1];
+                            descriptionSpan.style.font = description.font;
+                            descriptionSpan.style.color = description.fill;
+                            descriptionSpan.innerHTML = description.text;
+                        }
+                    }), 600);
+                }
 
                 fRect.glyph.mouseoverFeature( context, fRect );
                 this._refreshContextMenu( fRect );
