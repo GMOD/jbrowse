@@ -579,6 +579,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         if( evt )
             var bpX = this.browser.view.absXtoBp( evt.clientX );
 
+        if( this.labelTooltip)
+            this.labelTooltip.style.display = 'none';
 
         array.forEach( this.blocks, function( block, i ) {
             if( ! block )
@@ -596,28 +598,26 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             if( block.tooltipTimeout )
                 window.clearTimeout( block.tooltipTimeout );
 
-            if( this.labelTooltip)
-                this.labelTooltip.style.display = 'none';
-
             if( feature ) {
                 var fRect = block.fRectIndex.getByID( feature.id() );
                 if( ! fRect )
                     return;
 
                 if( block.containsBp( bpX ) ) {
-                    block.tooltipTimeout = window.setTimeout( dojo.hitch( this, function() {
-
+                    var lastMouseover = this.lastMouseover;
+                    var renderTooltip = dojo.hitch( this, function() {
                         if( !this.labelTooltip )
                             return;
-
                         var label = fRect.label || fRect.glyph.makeFeatureLabel( feature, fRect );
                         var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature, fRect );
 
                         if( ( !label && !description ) )
                             return;
 
-                        this.labelTooltip.style.left = evt.clientX + "px";
-                        this.labelTooltip.style.top = (evt.clientY + 15) + "px";
+                        if( lastMouseover === undefined ) {
+                            this.labelTooltip.style.left = evt.clientX + "px";
+                            this.labelTooltip.style.top = (evt.clientY + 15) + "px";
+                        }
                         this.labelTooltip.style.display = 'block';
                         if( label ) {
                             var labelSpan = this.labelTooltip.childNodes[0];
@@ -631,7 +631,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                             descriptionSpan.style.color = description.fill;
                             descriptionSpan.innerHTML = description.text;
                         }
-                    }), 600);
+                    });
+                    if( this.lastMouseover )
+                        renderTooltip();
+                    else
+                        block.tooltipTimeout = window.setTimeout( renderTooltip, this.lastMouseover ? 0 : 600);
                 }
 
                 fRect.glyph.mouseoverFeature( context, fRect );
