@@ -944,7 +944,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * user-defined callbacks.
      */
     getConfForFeature: function( path, feature ) {
-        return this.getConf( path, [feature, path, null, null, this ] );
+        return this.getConf( path, [feature, path, null, this ] );
     },
 
     isFeatureHighlighted: function( feature, name ) {
