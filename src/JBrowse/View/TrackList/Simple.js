@@ -202,6 +202,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             {
                 accept: ["track"], // accepts only tracks into left div
                 withHandles: false,
+                copyOnly: true,
                 creator: dojo.hitch( this, function( trackConfig, hint ) {
                     var key = trackConfig.key || trackConfig.name || trackConfig.label;
                     var node = dojo.create(
