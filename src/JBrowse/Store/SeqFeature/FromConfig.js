@@ -22,8 +22,17 @@ define( [
 return declare( SeqFeatureStore,
 {
     constructor: function( args ) {
-        this.features = this._makeFeatures( this.config.features || [] );
+        this.features = this._makeFeatures( this.getConf('features') );
     },
+
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'features', type: 'multi-object', defaultValue: [] }
+        ]);
+        return def;
+    },
+
 
     _makeFeatures: function( fdata ) {
         var features = {};
