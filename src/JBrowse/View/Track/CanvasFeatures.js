@@ -430,7 +430,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     endZoom: function() {
         array.forEach( this.blocks, function(b) {
             try {
-                delete b.featureCanvas.style.width;
+                b.featureCanvas.style.width = '';
             } catch(e) {};
         });
 
