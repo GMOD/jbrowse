@@ -46,7 +46,7 @@ return declare( SeqFeatureStore,
         this.baseUrl = args.baseUrl;
         this.urlTemplates = { root: args.urlTemplate };
 
-        this._deferred = {};
+        this._roots = {};
     },
 
     makeNCList: function() {
@@ -63,18 +63,13 @@ return declare( SeqFeatureStore,
     },
 
     getDataRoot: function( query ) {
-        var refName = query.ref;
-        if( ! refName )
-            throw new Error('no refname given');
-
         var url = this.resolveUrl(
             this.urlTemplates.root,
-            lang.mixin( { refseq: refName }, query )
+            lang.mixin( { refseq: query.ref }, query )
         );
 
-        if( ! this._deferred.root || this.curUrl != url ) {
-            var d = this._deferred.root = new Deferred();
-            this.curUrl = url;
+        return this._roots[url] || ( this._roots[url] = function() {
+            var d = new Deferred();
 
             var refData = {
                 nclist: this.makeNCList()
@@ -85,20 +80,20 @@ return declare( SeqFeatureStore,
             xhr.get( url, { handleAs: 'json', failOk: true })
                .then( function( trackInfo, request ) {
                           //trackInfo = JSON.parse( trackInfo );
-                          thisB._handleTrackInfo( refData, trackInfo, url );
+                          d.resolve( thisB._handleTrackInfo( refData, trackInfo, url ) );
                       },
                       function(error) {
                           if( error.response.status == 404 ) {
                               thisB._handleTrackInfo( refData, {}, url );
                           } else if( error.response.status != 200) {
-                              thisB._failAllDeferred( "Server returned an HTTP " + error.response.status + " error" );
+                              d.reject( "Server returned an HTTP " + error.response.status + " error" );
                           }
                           else
-                              thisB._failAllDeferred( error );
+                              d.reject( error );
                       }
                     );
-        }
-        return this._deferred.root;
+            return d;
+        }.call(this) );
     },
 
     _handleTrackInfo: function( refData, trackInfo, url ) {
@@ -124,7 +119,7 @@ return declare( SeqFeatureStore,
             refData._histograms = histograms;
         }
 
-        this._deferred.root.resolve( refData );
+        return refData;
     },
 
     getRegionStats: function( query, successCallback, errorCallback ) {
