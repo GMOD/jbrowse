@@ -36,6 +36,13 @@ var Slot = declare( null, {
           throw new Error( 'invalid value '+value+' for '+this.name+', not of type '+this.type );
   },
 
+  normalizeFunction: function( valfunc, config ) {
+      var thisB = this;
+      return function() {
+          return thisB.normalizeValue( valfunc.apply( this, arguments ) );
+      };
+  },
+
   // delegate slot class resolution to the parent (Specification, or
   // another Slot) of this class
   getSlotClass: function( slotSpec ) {
@@ -65,10 +72,7 @@ var Slot = declare( null, {
   _validType: function( type, value ) {
       //console.log( 'validate '+value+' against '+type );
       if( ! type ) return true;
-      if( type == 'function' ) {
-          return typeof value == 'function';
-      }
-      else if( type == 'boolean' ) {
+      if( type == 'boolean' ) {
           return !!value === value;
       }
       else if( type == 'integer' ) {
@@ -85,9 +89,6 @@ var Slot = declare( null, {
       }
       else if( type == 'array' ) {
           return lang.isArray( value );
-      }
-      else if( type == 'function' ) {
-          return typeof value == 'function';
       }
       console.warn( 'unknown config slot type '+type );
       return false;

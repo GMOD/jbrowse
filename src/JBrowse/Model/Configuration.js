@@ -86,7 +86,8 @@ var Configuration = declare( null, {
 
             var slot = this._schema.getSlot( fullKey );
             if( slot ) {
-                targetConf[ fullKey ] = slot.normalizeValue( v, this );
+                targetConf[ fullKey ] = typeof v == 'function' ? slot.normalizeFunction( v, this )
+                                                               : slot.normalizeValue( v, this );
             }
             else if( typeof v == 'object' && ! lang.isArray(v) ) {
                 this._loadBase( v, targetConf, fullKey+'.' );

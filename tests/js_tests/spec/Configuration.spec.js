@@ -26,7 +26,7 @@ describe( 'Configuration data model', function() {
                       { name: 'zonker', type: 'array' },
                       { name: 'zee', type: 'integer' },
                       { name: 'foo', type: 'string' },
-                      { name: 'funcTest', type: 'string|function' },
+                      { name: 'funcTest', type: 'integer' },
                       { name: 'bar.baz', type: 'float' },
                       { name: 'bar.bee.quux', type: 'integer' }
                   ]
@@ -53,7 +53,7 @@ describe( 'Configuration data model', function() {
           expect( c.get( 'bar.baz' ) ).toEqual( 1.1 );
 
           expect( c.get('funcTest') ).toBe( undefined );
-          expect( c.get('funcTest', [456] ) ).toEqual( 456 );
+          expect( c.get('funcTest',[456]) ).toEqual( 456 );
 
           var type_error;
           try {

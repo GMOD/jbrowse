@@ -71,9 +71,12 @@ return declare( null, {
 
     getDefaultValue: function( key ) {
         var slot = this.getSlot( key );
-        if( ! slot )
+        if( slot && 'defaultValue' in slot )
+            return typeof slot.defaultValue == 'function'
+                ? slot.normalizeFunction( slot.defaultValue )
+                : slot.normalizeValue( slot.defaultValue );
+        else
             return undefined;
-        return slot.defaultValue;
     },
 
     /**
@@ -86,7 +89,7 @@ return declare( null, {
         if( ! slot )
             throw new Error( 'Unknown configuration key '+key );
 
-        return slot.normalizeValue( value, config );
+        return typeof value == 'function' ? slot.normalizeFunction( value, config ) : slot.normalizeValue( value, config );
     },
 
     newConfig: function( baseConfig, localConfig ) {
