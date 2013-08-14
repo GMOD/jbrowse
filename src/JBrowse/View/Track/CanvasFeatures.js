@@ -316,13 +316,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         // example)
         var bpExpansion = Math.round( this.getConf('maxFeatureGlyphExpansion') / scale );
 
-        var query = lang.mixin(
+        var query = this.makeStoreQuery(
             { ref: this.refSeq.name,
               start: Math.max( 0, leftBase - bpExpansion ),
               end: rightBase + bpExpansion
-            },
-            this.getConf('query')
-        );
+            });
 
         var layout;
         this.store.getFeatures( query,
