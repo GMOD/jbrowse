@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.2     2013-08-15 13:57:16 EST5EDT
+
  * Added mouse-over 'tooltips' to to CanvasFeatures tracks that show
    the a feature's label and description when the mouse hovers over
    it.  Thanks to Daniel Kasenberg for implementing this.
