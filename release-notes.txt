@@ -12,6 +12,9 @@
    misaligned vertically when feature labels are turned on (they are
    off by default for Alignments glyphs).
 
+ * Fixed a bug preventing the `defaultTracks` configuration variable
+   from operating correctly.
+
 # Release 1.10.1     2013-08-06 15:32:21 EST5EDT
 
  * Added support in `maker2jbrowse` for user-defined source tags in
