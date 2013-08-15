@@ -21,7 +21,8 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureLabel( feature );
         if( ! text )
             return null;
-        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'textFont' ), fRect );
+        var font = this.getStyle( feature, 'textFont' );
+        var l = fRect ? this.makeBottomOrTopLabel( text, font, fRect ) : this.makePopupLabel( text, font );
         l.fill = this.getStyle( feature, 'textColor' );
         return l;
     },
@@ -35,7 +36,8 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureDescription( feature );
         if( ! text )
             return null;
-        var l = this.makeBottomOrTopLabel( text, this.getStyle( feature, 'text2Font' ), fRect );
+        var font = this.getStyle( feature, 'text2Font' );
+        var l = fRect ? this.makeBottomOrTopLabel( text, font, fRect ) : this.makePopupLabel( text, font );
         l.fill = this.getStyle( feature, 'text2Color' );
         return l;
     },
@@ -81,6 +83,21 @@ return declare( FeatureDescriptionMixin,  {
             h: dims.h
         };
    },
+
+    /**
+     * Makes a label that can be put in a popup or tooltip,
+     * not respecting maxFeatureGlyphExpansion or the width of the fRect.
+     */
+    makePopupLabel: function( text, font ) {
+        if( ! text ) return null;
+        var dims = this.measureFont( font );
+        return {
+            text: text,
+            font: font,
+            w: dims.w * text.length,
+            h: dims.h
+        }
+    },
 
     /**
      * Return an object with average `h` and `w` of characters in the

@@ -607,8 +607,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                     var renderTooltip = dojo.hitch( this, function() {
                         if( !this.labelTooltip )
                             return;
-                        var label = fRect.label || fRect.glyph.makeFeatureLabel( feature, fRect );
-                        var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature, fRect );
+                        var label = fRect.label || fRect.glyph.makeFeatureLabel( feature );
+                        var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature );
 
                         if( ( !label && !description ) )
                             return;
