@@ -641,7 +641,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 fRect.glyph.mouseoverFeature( context, fRect );
                 this._refreshContextMenu( fRect );
             } else {
-                block.tooltipTimeout = window.setTimeout( dojo.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 500);
+                block.tooltipTimeout = window.setTimeout( dojo.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
             }
         }, this );
 
