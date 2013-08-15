@@ -4,6 +4,10 @@
    the a feature's label and description when the mouse hovers over
    it.  Thanks to Daniel Kasenberg for implementing this.
 
+ * Strand arrowheads in CanvasFeatures tracks now attempt to stay
+   visible on the screen, like they do in HTMLFeatures tracks.  Thanks
+   to Daniel Kasenberg for implementing this.
+
  * Fixed bugs and inefficiencies preventing JBrowse from handling very
    dense BigWig files.  Thanks to Michael Axtell for pointing this out
    (issue #312).
