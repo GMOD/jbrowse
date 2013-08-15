@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+ * Fixed a bug in which event handlers and blocks in CanvasFeatures
+   tracks were not being properly cleaned up.  The most prominent
+   visible consequence of this were duplicate dialog boxes being
+   opened when clicking on a canvas feature.
+
 # Release 1.10.2     2013-08-15 13:57:16 EST5EDT
 
  * Added mouse-over 'tooltips' to to CanvasFeatures tracks that show

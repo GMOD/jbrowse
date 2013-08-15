@@ -649,6 +649,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     cleanupBlock: function(block) {
+        this.inherited( arguments );
+
         // garbage collect the layout
         if ( block && this.layout )
             this.layout.discardRange( block.startBase, block.endBase );
