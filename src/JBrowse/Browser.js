@@ -555,8 +555,14 @@ initView: function() {
                     onClick: dojo.hitch(this, 'createCombinationTrack')
                 }));
 
-            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
+            this.addGlobalMenuItem( 'file', new dijitMenuItem(
+                {
+                    label: 'Add sequence search track',
+                    iconClass: 'dijitIconBookmark',
+                    onClick: dojo.hitch(this, 'createSearchTrack')
+                }));
 
+            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
@@ -720,6 +726,43 @@ createCombinationTrack: function() {
 
         // Open the track immediately
         thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
+    });
+},
+
+createSearchTrack: function() {
+    if(this._searchTrackCount === undefined ) this._searchTrackCount = 0;
+    var d = new Deferred();
+    var storeConf = {
+        browser: this,
+        refSeq: this.refSeq,
+        type: 'JBrowse/Store/SeqFeature/RegexSearch',
+        searchParams: {
+            expr: "TAT",
+            fwdStrand: true,
+            revStrand: true,
+            maxLen: 120
+        }
+    };
+    var storeName = this._addStoreConfig( undefined, storeConf );
+    storeConf.name = storeName;
+    this.getStore( storeName, function( store ) {
+        d.resolve(true);
+    });
+    var thisB = this;
+    d.promise.then(function() {
+        var searchTrackConfig = {
+            type: 'JBrowse/View/Track/HTMLFeatures',
+            label: 'search_track_' + (thisB._searchTrackCount++),
+            key: "Search Track " + thisB._searchTrackCount,
+            metadata: {Description: "Contains all matches of the text string/regular expression '" + storeConf.searchExpr + "'"},
+            store: storeName
+        }
+
+        // send out a message about how the user wants to create the new tracks
+        thisB.publish( '/jbrowse/v1/v/tracks/new', [searchTrackConfig] );
+
+        // Open the track immediately
+        thisB.publish( '/jbrowse/v1/v/tracks/show', [searchTrackConfig] );
     });
 },
 
