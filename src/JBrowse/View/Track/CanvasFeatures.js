@@ -223,12 +223,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     // create the layout if we need to, and if we can
     _getLayout: function( scale ) {
-        if( ! this.layout || this.layout.pitchX != 4/scale ) {
+        if( ! this.layout || this._layoutpitchX != 4/scale ) {
             // if no layoutPitchY configured, calculate it from the
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
-            var pitchY = this.config.layoutPitchY || 4;
+            var pitchY = this.getConf('layoutPitchY') || 4;
             this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.displayMode });
+            this._layoutpitchX = 4/scale;
         }
 
         return this.layout;
@@ -239,7 +240,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     hideAll: function() {
-        delete this.layout;
+        this._clearLayout();
         return this.inherited( arguments );
     },
 
@@ -512,11 +513,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             var handler = this.eventHandlers[event];
             (function( event, handler ) {
                  var thisB = this;
-                 var gv = this.browser.view;
                  block.own(
                      on( this.staticCanvas, event, function( evt ) {
                              evt = domEvent.fix( evt );
-                             var bpX = gv.absXtoBp( evt.clientX );
+                             var bpX = thisB.browser.view.absXtoBp( evt.clientX );
                              if( block.containsBp( bpX ) ) {
                                  var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
                                  if( feature ) {
@@ -720,9 +720,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         if( coords.hasOwnProperty("x") ) {
             var context = this.staticCanvas.getContext('2d');
 
-            var gv = this.browser.view;
-
-            this.staticCanvas.width = gv.elem.clientWidth;
+            this.staticCanvas.width = this.browser.view.elem.clientWidth;
             this.staticCanvas.style.left = coords.x + "px";
             context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
 
@@ -731,7 +729,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             var viewArgs = {
                 minVisible: minVisible,
                 maxVisible: maxVisible,
-                bpToPx: dojo.hitch(gv, "bpToPx"),
+                bpToPx: dojo.hitch(this.browser.view, "bpToPx"),
                 lWidth: this.label.offsetWidth
             };
 

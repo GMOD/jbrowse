@@ -53,7 +53,15 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         var h = this.getStyle( feature, 'height');
 
         if( viewArgs.displayMode == 'compact' )
-            h = 0.45 * h;
+            h = Math.round( 0.45 * h );
+
+        if( this.getStyle( feature, 'strandArrow' ) ) {
+            var strand = feature.get('strand');
+            if( strand == 1 )
+                h = Math.max( this._embeddedImages.plusArrow.height, h );
+            else if( strand == -1 )
+                h = Math.max( this._embeddedImages.minusArrow.height, h );
+        }
 
         return h;
     },
@@ -81,9 +89,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         if( this.getStyle( feature, 'strandArrow') ) {
             var strand = fRect.strandArrow = feature.get('strand');
 
-            fRect.w += 9;
             if( strand == -1 ) {
-                fRect.l -= 9;
+                var i = this._embeddedImages.minusArrow;
+                fRect.w += i.width;
+                fRect.l -= i.width;
+            }
+            else {
+                var i = this._embeddedImages.plusArrow;
+                fRect.w += i.width;
             }
         }
 
@@ -135,9 +148,18 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         }
     },
 
-    _imgData: {
-         plusArrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
-         minusArrow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII="
+    _embeddedImages: {
+         plusArrow: {
+             data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAATUlEQVQIW2NkwATGQKFYIG4A4g8gacb///+7AWlBmNq+vj6V4uLiJiD/FRBXA/F8xu7u7kcVFRWyMEVATQz//v0Dcf9CxaYRZxIxbgIARiAhmifVe8UAAAAASUVORK5CYII=",
+             width: 9,
+             height: 5
+         },
+
+         minusArrow: {
+             data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAASklEQVQIW2NkQAABILMBiBcD8VkkcQZGIAeEE4G4FYjFent764qKiu4gKXoPUjAJiLOggsxMTEwMjIwgYQjo6Oh4TLRJME043QQA+W8UD/sdk9IAAAAASUVORK5CYII=",
+             width: 9,
+             height: 5
+         }
     },
 
     /**
@@ -148,8 +170,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     getEmbeddedImage: function( name ) {
         return (this._embeddedImagePromises[name] || function() {
                     var p = new FastPromise();
-                    var data = this._imgData[ name ];
-                    if( ! data ) {
+                    var imgRec = this._embeddedImages[ name ];
+                    if( ! imgRec ) {
                         p.resolve( null );
                     }
                     else {
@@ -158,7 +180,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                         i.onload = function() {
                             p.resolve( this );
                         };
-                        i.src = data;
+                        i.src = imgRec.data;
                     }
                     return this._embeddedImagePromises[name] = p;
                 }.call(this));
@@ -183,7 +205,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
         style = style || lang.hitch( this, 'getStyle' );
 
-        var height = style( feature, 'height' );
+        var height = this._getFeatureHeight( viewInfo, feature );
         if( ! height )
             return;
         if( height != overallHeight )

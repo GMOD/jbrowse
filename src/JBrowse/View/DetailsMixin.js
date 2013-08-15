@@ -191,7 +191,7 @@ return declare( null, {
             store: new MemoryStore({ data: rows })
         }, parent );
 
-        return container;
+        return parent;
     },
 
     _valToString: function( val ) {

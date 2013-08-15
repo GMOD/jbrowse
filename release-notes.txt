@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+ * Fixed bugs and inefficiencies preventing JBrowse from handling very
+   dense BigWig files.  Thanks to Michael Axtell for pointing this out
+   (issue #312).
+
+ * Fixed a bug in which features were not always laid out correctly in
+   CanvasFeature tracks when the display mode is set to "compact".
+
+ * Fixed a bug causing the text labels of mismatching bases in
+   Alignments2 tracks (i.e. `Alignments` canvas glyphs) to be slightly
+   misaligned vertically when feature labels are turned on (they are
+   off by default for Alignments glyphs).
+
+ * Fixed a bug preventing the `defaultTracks` configuration variable
+   from operating correctly.
+
 # Release 1.10.1     2013-08-06 15:32:21 EST5EDT
 
  * Added support in `maker2jbrowse` for user-defined source tags in
