@@ -16,7 +16,7 @@ define([
 return declare( Slot, {
 
     normalizeValue: function( value )  {
-        return value instanceof Color ? value : new Color( value );
+        return value === undefined || value instanceof Color ? value : new Color( value );
     }
 
 });
