@@ -1,18 +1,22 @@
 define([
         'dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/_base/lang',
         'JBrowse/Store/SeqFeature',
         'JBrowse/Store/DeferredFeaturesMixin',
         'JBrowse/Model/SimpleFeature',
         'JBrowse/Util',
+        'JBrowse/CodonTable'
     ],
     function(
         declare,
         array,
+        lang,
         SeqFeatureStore,
         DeferredFeaturesMixin,
         SimpleFeature,
-        Util
+        Util,
+        CodonTable
     ) {
 
 
@@ -36,23 +40,54 @@ define([
         },
 
         _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
-            var searchParams = query.searchParams || this.searchParams;
+            var searchParams = lang.mixin( {}, this.searchParams, query.searchParams );
 
             // store the original query bounds - this helps prevent features from randomly disappearing
             searchParams.orig = { start: query.start, end: query.end };
 
-            query.start -= 100;
-            query.end += 100;
+            query.start = Math.max( query.start - searchParams.maxLen, this.refSeq.start );
+            query.end = Math.min( query.end + searchParams.maxLen, this.refSeq.end );
 
             this.refSeqStore.getFeatures(query,
                 dojo.hitch(this, function( feature ) {
-                    this.getSearchResultFeatures( feature, searchParams, featCallback );
+                    this.getSearchResults( feature, searchParams, featCallback );
                 }), doneCallback, errorCallback );
         },
 
-        getSearchResultFeatures: function( feature, params, featCallback ) {
+/*        _searchResultFeatures: function( sequence, expr, start, end, orig, strand, translated, frameOffset ) {
+            var features = [];
+            var match;
 
-            var expr = new RegExp( params.expr, "g", "i");
+            frameOffset = frameOffset || 0;
+
+            var relevantEnd = strand > 0 ? start : end;
+            var multiplier = translated ? 3 : 1;
+
+            while( (match = expr.exec( sequence )) !== null && match.length ) {
+                expr.lastIndex = match.index + 1;
+
+                var result = match[0];
+
+                var featStart = relevantEnd + strand*( frameOffset + multiplier * match.index );
+                var featLength = multiplier * result.length;
+
+                var newFeat = new SimpleFeature( { data: {
+                    start: Math.min( featStart, featStart + strand * featLength ),
+                    end: Math.max( featStart, featStart + strand * featLength ),
+                    strand: strand
+                } });
+
+                if( !this._queryOverlaps( orig, newFeat.data ) )
+                    continue;
+                newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
+                features.push( newFeat );
+            }
+            return features;
+        },*/
+
+        getSearchResults: function( feature, params, featCallback ) {
+
+            var expr = new RegExp( params.regex ? params.expr : this.escapeString( params.expr ), params.caseIgnore ? "gi" : "g" );
 
             var start = Math.max( feature.get('start'), this.refSeq.start );
 
@@ -65,26 +100,45 @@ define([
                 var sequence = feature.get( 'seq' );
                 var match;
 
-                while( (match = expr.exec( sequence )) !== null && match.length ) {
-                    if( !match[0].length ) {
-                        expr.lastIndex++; // Prevent infinite loops for zero-length features
+                if( params.translate ) {
+                    for( var frameOffset = 0; frameOffset < 3; frameOffset++ ) {
+                        var translatedSequence = this.translateSequence( sequence, frameOffset );
+                        while( (match = expr.exec( translatedSequence )) !== null && match.length ) {
+                            expr.lastIndex = match.index + 1;
+
+                            var result = match[0];
+
+                            var newFeat = new SimpleFeature( { data: {
+                                start: start + frameOffset + 3*match.index,
+                                end: start + frameOffset + 3*(match.index + result.length),
+                                searchResult: result,
+                                strand: 1,
+                            } });
+
+                            if( !this._queryOverlaps( params.orig, newFeat.data ) )
+                                continue;
+                            newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
+                            features.push( newFeat );
+                        }
                     }
+                } else {
+                    while( (match = expr.exec( sequence )) !== null && match.length ) {
+                        expr.lastIndex = match.index + 1;
 
-                    var result = match[0];
+                        var result = match[0];
 
-                    var newFeat = new SimpleFeature( { data: {
-                        start: start + match.index,
-                        end: start + match.index + result.length,
-                        seq: result,
-                        strand: 1,
-                    } });
+                        var newFeat = new SimpleFeature( { data: {
+                            start: start + match.index,
+                            end: start + match.index + result.length,
+                            searchResult: result,
+                            strand: 1,
+                        } });
 
-                    if( !this._queryContains( params.orig, newFeat.data.start ) && !this._queryContains( params.orig, newFeat.data.end ) )
-                        continue;
-
-                    newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand );
-
-                    features.push( newFeat );
+                        if( !this._queryOverlaps( params.orig, newFeat.data ) )
+                            continue;
+                        newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
+                        features.push( newFeat );
+                    }
                 }
             }
 
@@ -92,36 +146,72 @@ define([
                 var sequence = Util.revcom( feature.get('seq') );
                 var match;
 
-                while( (match = expr.exec( sequence )) !== null && match.length ) {
-                    if( !match[0].length ) {
-                        expr.lastIndex++; // Prevent infinite loops for zero-length features
+                if( params.translate ) {
+                    for( var frameOffset = 0; frameOffset < 3; frameOffset++ ) {
+                        var translatedSequence = this.translateSequence( sequence, frameOffset );
+                        while( (match = expr.exec( translatedSequence )) !== null && match.length ) {
+                            expr.lastIndex = match.index + 1; // Prevent infinite loops for zero-length features
+
+                            var result = match[0];
+
+                            var newFeat = new SimpleFeature( { data: {
+                                start: end - frameOffset - 3*( match.index + result.length ),
+                                end: end - frameOffset - 3*match.index,
+                                searchResult: result,
+                                strand: -1
+                            } });
+                            if( !this._queryOverlaps( params.orig, newFeat.data ) )
+                                continue;
+
+                            newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand );
+                            features.push( newFeat );
+                        }
                     }
+                } else {
+                    while( (match = expr.exec( sequence )) !== null && match.length ) {
+                        expr.lastIndex = match.index + 1; // Prevent infinite loops for zero-length features
 
-                    var result = match[0];
+                        var result = match[0];
 
-                    var newFeat = new SimpleFeature( { data: {
-                        start: end - ( match.index + result.length ),
-                        end: end - match.index,
-                        seq: result,
-                        strand: -1
-                    } });
+                        var newFeat = new SimpleFeature( { data: {
+                            start: end - ( match.index + result.length ),
+                            end: end - match.index,
+                            searchResult: result,
+                            strand: -1
+                        } });
+                        if( !this._queryOverlaps( params.orig, newFeat.data ) )
+                            continue;
 
-                    if( !this._queryContains( params.orig, newFeat.data.start ) && !this._queryContains( params.orig, newFeat.data.end ) )
-                        continue;
-
-                    newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand );
-                    features.push( newFeat );
+                        newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand );
+                        features.push( newFeat );
+                    }
                 }
             }
-
 
             array.forEach( features, function( feature ) {
                 featCallback( feature );
             });
         },
 
-        _queryContains: function( query, bp ) {
-            return query.start <= bp && query.end >= bp;
+        _queryOverlaps: function( query, feature ) {
+            return !( feature.end < query.start || feature.start > query.end );
+        },
+
+        translateSequence: function( sequence, frameOffset ) {
+            var slicedSeq = sequence.slice( frameOffset );
+            slicedSeq = slicedSeq.slice( 0, Math.floor( slicedSeq.length / 3 ) * 3);
+            
+            var translated = "";
+            for(var i = 0; i < slicedSeq.length; i += 3) {
+                var nextCodon = slicedSeq.slice(i, i + 3);
+                translated = translated + CodonTable[nextCodon];
+            }
+
+            return translated;
+        },
+
+        escapeString: function( str ) {
+            return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
         }
 
     });
