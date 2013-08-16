@@ -120,6 +120,18 @@ return Util.fastDeclare({
             _statsFingerprint: Digest.objectFingerprint( stats )
         });
 
+        // don't let range go all the way to zero
+        if( this.range == 0 ) {
+            var bump = 0.1 * ( this.max - this.origin );
+
+            if( this.min > origin )
+                this.min -= bump;
+            else
+                this.max -= bump;
+
+            this.range += bump;
+        }
+
         // make this.normalize a func that converts wiggle values to a
         // range between 0 and 1, depending on what kind of scale we
         // are using
