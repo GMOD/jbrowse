@@ -216,7 +216,7 @@ getPlugin: function( name, callback ) {
 initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
-        var plugins = this.config.plugins || [];
+        var plugins = this.config.plugins || this.config.Plugins || [];
 
         if( ! plugins ) {
             deferred.resolve({success: true});
