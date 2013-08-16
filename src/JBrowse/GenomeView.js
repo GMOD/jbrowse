@@ -332,18 +332,16 @@ _finishInitialization: function( refseq ) {
 },
 
 
-_configSchemaDefinition: function() {
-    return {
-        slots: [
-            { name: 'region', type: 'string', defaultValue: 'center' },
-            { name: 'style', type: 'string|object' },
-            { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
-            { name: 'gridlines', type: 'boolean', defaultValue: true },
-            { name: 'initialTracks', type: 'multi-string' },
-            { name: 'initialLocation', type: 'object' },
-            { name: 'locationBoxLength', type: 'integer' }
-        ]
-    };
+configSchema: {
+    slots: [
+        { name: 'region', type: 'string', defaultValue: 'center' },
+        { name: 'style', type: 'string|object' },
+        { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
+        { name: 'gridlines', type: 'boolean', defaultValue: true },
+        { name: 'initialTracks', type: 'multi-string' },
+        { name: 'initialLocation', type: 'object' },
+        { name: 'locationBoxLength', type: 'integer' }
+    ]
 },
 
 /**

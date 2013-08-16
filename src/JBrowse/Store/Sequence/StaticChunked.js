@@ -45,19 +45,14 @@ return declare( SeqFeatureStore,
     constructor: function(args) {
         this.chunkCache   = {};
         this.compress     = args.compress;
-        this.urlTemplate  = args.urlTemplate;
-        if( ! this.urlTemplate ) {
-            throw "no urlTemplate provided, cannot open sequence store";
-        }
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited(arguments);
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'refSeqs', type: 'string', defaultValue: 'seq/refSeqs.json' },
-            { name: 'chunkSize', type: 'integer', defaultValue: 20000 }
-        ]);
-        return def;
+            { name: 'chunkSize', type: 'integer', defaultValue: 20000 },
+            { name: 'urlTemplate', type: 'string', defaultValue: '' }
+        ]
     },
 
     _getRefSeqsInfo: function() {
@@ -161,7 +156,7 @@ return declare( SeqFeatureStore,
                 };
 
                 var sequrl = this.resolveUrl(
-                    this.urlTemplate,
+                    this.getConf('urlTemplate'),
                     {
                         'refseq': query.ref,
                         'refseq_dirpath': function() {

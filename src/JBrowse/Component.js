@@ -5,18 +5,20 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
+           'dojo/_base/array',
            'JBrowse/Util',
            'JBrowse/Model/Configuration/Schema'
        ],
        function(
            declare,
            lang,
+           array,
            Util,
            ConfigSchema,
            Configuration
        ) {
 
-return declare( null, {
+var Component = declare( null, {
 
     constructor: function( args ) {
         args = args || {};
@@ -32,7 +34,32 @@ return declare( null, {
     },
 
     _configSchema: function() {
-        return this.__configSchema || ( this.__configSchema = new ConfigSchema( this._configSchemaDefinition() ));
+        function composeConfigSchema( obj ) {
+            return obj.constructor._composedConfigSchema
+                || ( obj.constructor._composedConfigSchema = function() {
+
+                         var defs = array.map( this.constructor._meta.bases.slice(1), function( baseClass ) {
+                                                   return composeConfigSchema( baseClass.prototype );
+                                               });
+                         defs.unshift( this.constructor._meta.bases[0].prototype.configSchema||{} );
+                         defs = defs.reverse();
+                         defs.unshift( {} );
+
+                         // compose most of the properties with a mixin
+                         var composed = lang.mixin.apply( lang, defs );
+
+                         // compose the slots separately
+                         composed.slots = [];
+                         for( var i=0; i<defs.length; i++ ) {
+                             if( defs[i].slots )
+                                 composed.slots.push.apply( composed.slots, defs[i].slots );
+                         }
+
+                         return composed;
+                     }.call( obj ) );
+        }
+
+        return this.__configSchema || ( this.__configSchema = new ConfigSchema( composeConfigSchema( this ) ));
     },
 
     // fetch this component's local configuration from browser localstorage
@@ -40,12 +67,10 @@ return declare( null, {
         return {};
     },
 
-    _configSchemaDefinition: function() {
-        return {
-            slots: [
-                { name: 'baseUrl', type: 'string', defaultValue: '/' }
-            ]
-        };
+    configSchema: {
+        slots: [
+            { name: 'baseUrl', type: 'string', defaultValue: '/' }
+        ]
     },
 
     /**
@@ -134,4 +159,5 @@ return declare( null, {
         return Util.fillTemplate( str, templateFillArgs );
     }
 });
+return Component;
 });

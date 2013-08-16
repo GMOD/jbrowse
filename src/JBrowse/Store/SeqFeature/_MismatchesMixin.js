@@ -17,13 +17,11 @@ return declare( null, {
         this.mdAttributeName    = ( this.getConf('mdAttribute')    || 'md'    ).toLowerCase();
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'cigarAttribute', type: 'string', defaultValue: 'cigar' },
             { name: 'mdAttribute', type: 'string', defaultValue: 'md' }
-        ]);
-        return def;
+        ]
     },
 
     _getMismatches: function( feature ) {

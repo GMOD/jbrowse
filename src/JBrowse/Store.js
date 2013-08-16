@@ -32,12 +32,10 @@ return declare( Component,
             this.changeCallback( changeDescription );
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'type', type: 'string', shortDesc: 'the JavaScript type of this store' }
-        ]);
-        return def;
+        ]
     },
 
     /**

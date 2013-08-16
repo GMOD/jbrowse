@@ -58,15 +58,12 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
         this._loadHeader();
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'urlTemplate', type: 'string' },
             { name: 'tbiUrlTemplate', type: 'string', defaultValue: function(store) { return store.getConf('urlTemplate')+'.tbi'; } }
-        ]);
-        return def;
+        ]
     },
-
 
     /** fetch and parse the VCF header lines */
     _loadHeader: function() {

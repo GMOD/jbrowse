@@ -22,9 +22,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         this._embeddedImagePromises = {};
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
                     { name: 'maxDescriptionLength', defaultValue: 70, type: 'integer' },
                     { name: 'color', defaultValue: 'goldenrod', type: 'Color' },
                     { name: 'mouseovercolor', defaultValue: 'rgba(0,0,0,0.3)', type: 'Color' },
@@ -42,8 +41,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                     { name: 'text2Font', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
 
                     { name: 'description', defaultValue: 'note, description', type: 'string' }
-                ]);
-        return def;
+                ]
     },
 
     getFeatureHeight: function( viewArgs, feature ) {

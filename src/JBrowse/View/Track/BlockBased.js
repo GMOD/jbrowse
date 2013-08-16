@@ -88,14 +88,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.store = args.store;
     },
 
-    /**
-     * Returns object holding the default configuration for this track
-     * type.  Might want to override in subclasses.
-     * @private
-     */
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'maxFeatureSizeForUnderlyingRefSeq', type: 'integer', defaultValue: 250000 },
             { name: 'pinned', type: 'boolean', defaultValue:  false },
             { name: 'metadata', type: 'object', defaultValue: {} },
@@ -104,8 +98,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             { name: 'query', type: 'object', defaultValue: {}, shortDesc: "track-specific query variables to pass to the store" },
             { name: 'store', type: 'string|object', shortDesc: 'the name of the store to use with this track' },
             { name: 'type', type: 'string', shortDesc: 'the JavaScript type of this track' }
-        ]);
-        return def;
+        ]
     },
 
     heightUpdate: function(height, blockIndex) {

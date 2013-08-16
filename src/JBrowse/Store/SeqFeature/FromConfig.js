@@ -25,14 +25,11 @@ return declare( SeqFeatureStore,
         this.features = this._makeFeatures( this.getConf('features') );
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'features', type: 'multi-object', defaultValue: [] }
-        ]);
-        return def;
+        ]
     },
-
 
     _makeFeatures: function( fdata ) {
         var features = {};

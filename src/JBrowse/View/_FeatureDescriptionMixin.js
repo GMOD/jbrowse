@@ -15,9 +15,8 @@ return declare( null, {
         return this.getConfForFeature('featureLabel', feature );
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
                 { name: 'featureLabel', type: 'string', defaultValue: function( feature, path, glyph, track ) {
                       var fields = track.getConfForFeature( 'featureLabelFields', feature );
                       for( var i = 0; i<fields.length; i++ ) {
@@ -42,8 +41,7 @@ return declare( null, {
                 },
                 { name: 'featureDescriptionFields', type: 'multi-string', defaultValue: [ 'note','description' ] }
 
-        ]);
-        return def;
+        ]
     },
 
     // get the description string for a feature, based on the setting

@@ -19,9 +19,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
  * @extends JBrowse.View.Track.WiggleBase
  */
 {
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'height', defaultValue: 100 },
             { name: 'posColor', type: 'Color', defaultValue: 'blue' },
             { name: 'negColor', type: 'Color', defaultValue: 'red' },
@@ -34,8 +33,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             { name: 'color', type: 'Color' },
             { name: 'maskAlpha', type: 'float', defaultValue: 0.2 },
             { name: 'disableClipMarkers', type: 'boolean', defaultValue: false }
-        ]);
-        return def;
+        ]
     },
 
     _getScaling: function( successCallback, errorCallback ) {

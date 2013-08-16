@@ -18,9 +18,8 @@ return declare( WiggleBase,
 
 {
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'height', defaultValue: 31 },
             { name: 'posColor', type: 'Color', defaultValue: '#00f' },
             { name: 'negColor', type: 'Color', defaultValue: '#f00' },
@@ -29,8 +28,7 @@ return declare( WiggleBase,
             { name: 'color', type: 'Color' },
             { name: 'maskColor', type: 'Color', defaultValue: 'rgba(128,128,128,0.6)' },
             { name: 'disableClipMarkers', type: 'boolean', defaultValue: false }
-        ]);
-        return def;
+        ]
     },
 
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {

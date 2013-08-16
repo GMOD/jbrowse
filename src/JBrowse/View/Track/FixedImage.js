@@ -53,12 +53,10 @@ return declare( BlockBased,
 
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'align', type: 'string', defaultValue: 'bottom' }
-        ]);
-        return def;
+        ]
     },
 
     fillBlock: function( args ) {

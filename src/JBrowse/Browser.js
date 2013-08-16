@@ -140,9 +140,7 @@ constructor: function(params) {
     });
 },
 
-_configSchemaDefinition: function() {
-
-    return {
+configSchema: {
         slots: [
             { name: 'plugins',     type: 'multi-object' },
             { name: 'browserRoot', type: 'string', defaultValue: "" },
@@ -201,7 +199,6 @@ _configSchemaDefinition: function() {
             { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 },
             { name: 'baseUrl', type: 'string', defaultValue: Util.resolveUrl( window.location.href, '.' ) + '/data/' }
         ]
-    };
 },
 
 version: function() {

@@ -19,9 +19,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         this.store = args.store;
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
             { name: 'autoscale', type: 'string', defaultValue:  'local' },
             { name: 'bicolorPivot', type: 'string' },
@@ -30,8 +29,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             { name: 'scale', type: 'string' },
             { name: 'height', type: 'integer', defaultValue: 100 },
             { name: 'dataOffset', type: 'float', defaultValue: 0 }
-        ]);
-        return def;
+        ]
     },
 
     _getScaling: function( successCallback, errorCallback ) {

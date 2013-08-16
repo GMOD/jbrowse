@@ -22,10 +22,8 @@ return declare( [BoxGlyph,MismatchesMixin], {
 
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply(
-            def.slots,
+    configSchema: {
+        slots:
             [
                 { name: 'color', type: 'Color', defaultValue: function( feature, path, glyph, track ) {
                       var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
@@ -45,8 +43,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                 { name: 'marginBottom', defaultValue: 1 },
                 { name: 'showMismatches', defaultValue: true, type: 'boolean' },
                 { name: 'mismatchFont', type: 'string', defaultValue: 'bold 10px Courier New,monospace' }
-            ]);
-        return def;
+            ]
     },
 
     renderFeature: function( context, fRect ) {

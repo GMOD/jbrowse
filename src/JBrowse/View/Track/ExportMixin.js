@@ -35,20 +35,18 @@ define( [
  * Mixin for a track that can export its data.
  * @lends JBrowse.View.Track.ExportMixin
  */
-return declare( null, {
+var ExportMixin = declare( null, {
 
-    _canSaveFiles: function() {
-        return has('save-generated-files') && ! this.getConf('noExportFiles');
-    },
-
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'noExport', type: 'boolean', defaultValue: false },
             { name: 'noExportFiles', type: 'boolean', defaultValue: false },
             { name: 'maxExportSpan', type: 'integer' }
-        ]);
-        return def;
+        ]
+    },
+
+    _canSaveFiles: function() {
+        return has('save-generated-files') && ! this.getConf('noExportFiles');
     },
 
     _canExport: function() {
@@ -340,4 +338,6 @@ return declare( null, {
     }
 
 });
+
+return ExportMixin;
 });

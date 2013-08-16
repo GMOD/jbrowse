@@ -84,9 +84,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this._setupEventHandlers();
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
                 { name: 'maxFeatureScreenDensity', defaultValue: 400, type: 'float' },
                 { name: 'maxLabelScreenDensity', defaultValue: 1/30, type: 'float' },
                 { name: 'maxDescriptionScreenDensity', defaultValue: 1/120, type: 'float' },
@@ -99,7 +98,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 { name: 'layoutPitchY', type: 'integer' },
 
                 // default glyph class to use
-                { name: 'glyph', defaultValue: lang.hitch( this, 'guessGlyphType' ), type: 'string' },
+                { name: 'glyph', defaultValue: function( feature, path, glyph, track ) { return track.guessGlyphType(feature); }, type: 'string' },
 
                 { name: 'glyphConfig', type: 'object', defaultValue: {}, shortDesc: 'object holding base configurations for each glyph class' },
 
@@ -130,7 +129,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                         title: '{type} {name}',
                         action: 'contentDialog',
                         iconClass: 'dijitIconTask',
-                        content: dojo.hitch( this, 'defaultFeatureDetail' )
+                        content: function( feature, fRect, block, track ) {
+                            return track.defaultFeatureDetail();
+                        }
                       },
                       { label: function() {
                             return 'Highlight this '
@@ -146,9 +147,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                       }
                   ]
                 }
-            ]);
-
-        return def;
+            ]
     },
 
     guessGlyphType: function(feature) {

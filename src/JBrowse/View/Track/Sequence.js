@@ -21,14 +21,13 @@ return declare( [BlockBased, ExportMixin],
     constructor: function( args ) {
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
-                { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
-                { name: 'showReverseStrand', type: 'boolean', defaultValue: true }
-            ]);
-        return def;
+    configSchema: {
+        slots: [
+            { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
+            { name: 'showReverseStrand', type: 'boolean', defaultValue: true }
+        ]
     },
+
     _exportFormats: function() {
         return [{name: 'FASTA', label: 'FASTA', fileExt: 'fasta'}];
     },

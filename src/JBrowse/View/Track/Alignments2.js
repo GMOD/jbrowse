@@ -12,14 +12,12 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     constructor: function() {
     },
 
-    _configSchemaDefinition: function() {
-        var def = this.inherited( arguments );
-        def.slots.push.apply( def.slots, [
+    configSchema: {
+        slots: [
             { name: 'glyph', type: 'string', defaultValue: 'JBrowse/View/FeatureGlyph/Alignment' },
             { name: 'maxFeatureGlyphExpansion', type: 'integer', defaultValue: 0 },
             { name: 'showLabels', type: 'boolean', defaultValue: false }
-        ]);
-        return def;
+        ]
     }
 
 });

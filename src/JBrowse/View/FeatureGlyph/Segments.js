@@ -13,15 +13,13 @@ define([
 
 return declare( BoxGlyph, {
 
-_configSchemaDefinition: function() {
-    var def = this.inherited( arguments );
-    def.slots.push.apply( def.slots, [
+configSchema: {
+    slots: [
             { name: 'connectorColor', defaultValue: '#333', type: 'Color' },
             { name: 'connectorThickness', defaultValue: 1, type: 'float' },
             { name: 'borderColor', defaultValue: 'rgba( 0, 0, 0, 0.3 )', type: 'Color' },
             { name: 'subParts', defaultValue: function() { return true; }, type: 'function' } // accept all subparts by default
-    ]);
-    return def;
+    ]
 },
 
 renderFeature: function( context, fRect ) {
