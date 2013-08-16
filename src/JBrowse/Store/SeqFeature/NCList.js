@@ -84,7 +84,7 @@ return declare( SeqFeatureStore,
                       },
                       function(error) {
                           if( error.response.status == 404 ) {
-                              thisB._handleTrackInfo( refData, {}, url );
+                              d.resolve( thisB._handleTrackInfo( refData, {}, url ) );
                           } else if( error.response.status != 200) {
                               d.reject( "Server returned an HTTP " + error.response.status + " error" );
                           }
