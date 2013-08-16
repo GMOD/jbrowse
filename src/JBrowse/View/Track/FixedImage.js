@@ -53,6 +53,14 @@ return declare( BlockBased,
 
     },
 
+    _configSchemaDefinition: function() {
+        var def = this.inherited( arguments );
+        def.slots.push.apply( def.slots, [
+            { name: 'align', type: 'string', defaultValue: 'bottom' }
+        ]);
+        return def;
+    },
+
     fillBlock: function( args ) {
         var blockIndex = args.blockIndex;
         var block = args.block;
@@ -71,7 +79,7 @@ return declare( BlockBased,
                                   if (!(im.parentNode && im.parentNode.parentNode)) {
                                       im.style.position = "absolute";
                                       im.style.left = (100 * ((im.startBase - leftBase) / blockWidth)) + "%";
-                                      switch (this.config.align) {
+                                      switch ( this.getConf('align') ) {
                                       case "top":
                                           im.style.top = "0px";
                                           break;
