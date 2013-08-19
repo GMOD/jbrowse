@@ -539,9 +539,9 @@ initView: function() {
                 this.poweredByLink = dojo.create('a', {
                                 className: 'powered_by',
                                 innerHTML: this.browserMeta().title,
-                                onclick: dojo.hitch( aboutDialog, 'show' ),
                                 title: 'powered by JBrowse'
                             }, menuBar );
+                thisObj.poweredBy_clickHandle = dojo.connect(this.poweredByLink, "onclick", dojo.hitch( aboutDialog, 'show') );
             }
 
             // make the file menu
