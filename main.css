@@ -442,6 +442,36 @@ div.sequence > div:first-child {
     border-bottom-color: #4d4d4d;
 }
 
+div.translatedSequence {
+    position: relative;
+}
+
+div.block .aa {
+    height: 14px;
+    line-height: 14px;
+}
+
+span.aa {
+    display: inline-block;
+    text-align: center;
+    z-index: 2000;
+}
+
+.aa {
+    color: black;
+    font-family: Courier New,monospace;
+    font-weight: bold;
+    text-shadow: white 0px 0px 1px;
+}
+
+.aa_\* {
+    background-color: #FF0000;
+}
+
+.aa_m {
+    background-color: #00FF00;
+}
+
 span.base {
     display: inline-block;
     text-align: center;
