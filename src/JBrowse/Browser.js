@@ -151,15 +151,21 @@ constructor: function(params) {
                                thisB.navigateTo( initialLocString );
 
                            // figure out what initial track list we will use:
-                           //    from a param passed to our instance, or from a cookie, or
-                           //    the passed defaults, or the last-resort default of "DNA"?
-                           var origTracklist =
-                                  thisB.config.forceTracks
-                               || thisB.cookie( "tracks" )
-                               || thisB.config.defaultTracks
-                               || "DNA";
-
-                           thisB.showTracks( origTracklist );
+                           var tracksToShow = [];
+                           // always add alwaysOnTracks, regardless of any other track params                   
+                           if (thisB.config.alwaysOnTracks) { tracksToShow = tracksToShow.concat(thisB.config.alwaysOnTracks.split(",")); }
+                           // add tracks specified in URL track param, 
+                           //    if no URL track param then add last viewed tracks via tracks cookie
+                           //    if no URL param and no tracks cookie, then use defaultTracks 
+                           if (thisB.config.forceTracks)   { tracksToShow = tracksToShow.concat(thisB.config.forceTracks.split(",")); } 
+                           else if (thisB.cookie("tracks")) { tracksToShow = tracksToShow.concat(thisB.cookie("tracks").split(",")); }
+                           else if (thisB.config.defaultTracks) { tracksToShow = tracksToShow.concat(thisB.config.defaultTracks.split(",")); }
+                           // currently, force "DNA" _only_ if no other guides as to what to show?
+                           //    or should this be changed to always force DNA to show?
+                           if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
+                           // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
+                           tracksToShow = Util.uniq(tracksToShow);
+                           thisB.showTracks( tracksToShow );
 
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
