@@ -33,60 +33,101 @@ return declare( ActionBarDialog, {
         var content = {};
 
         // Render text box
+        var searchBoxDiv = dom.create('div', {
+            className: "search-dialog section"
+        });
+        searchBoxDiv.appendChild(
+            dom.create( 'span', {
+                className: "search-dialog header",
+                innerHTML: "Search Expression:"
+            })
+        );
         content.searchBox = new dTextArea();
+        searchBoxDiv.appendChild( content.searchBox.domNode );
 
 
         // Render 'ignore case' checkbox
-        content.textOptionsDiv = dom.create('div', {});
+        var textOptionsDiv = dom.create('div', {
+            className: "search-dialog section"
+        });
+        textOptionsDiv.appendChild(
+            dom.create( 'span', {
+                className: "search-dialog header",
+                innerHTML: "Search Options"
+            })
+        );
+
+        var caseDiv = dom.create("div", {
+            className: "search-dialog checkboxdiv"
+        });
         content.caseIgnore = new dCheckBox({
                                                 label: "Ignore case",
                                                 id: "search_ignore_case"
                                             });
-        content.textOptionsDiv.appendChild( content.caseIgnore.domNode );
-        dom.create( "label", { "for": "search_ignore_case", innerHTML: "Ignore Case"}, content.textOptionsDiv );
+        caseDiv.appendChild( content.caseIgnore.domNode );
+        dom.create( "label", { "for": "search_ignore_case", innerHTML: "Ignore Case"}, caseDiv );
+        textOptionsDiv.appendChild( caseDiv );
+
         // Render 'treat as regex' checkbox
-        dom.create( "br", {}, content.textOptionsDiv );
+
+        var regexDiv = dom.create("div", {
+            className: "search-dialog checkboxdiv"
+        });
         content.regex = new dCheckBox({
                                         label: "Treat as regular expression",
                                         id: "search_as_regex"
                                     });
-        content.textOptionsDiv.appendChild( content.regex.domNode );
-        dom.create( "label", { "for": "search_as_regex", innerHTML: "Treat as regular expression" }, content.textOptionsDiv );
+        regexDiv.appendChild( content.regex.domNode );
+        dom.create( "label", { "for": "search_as_regex", innerHTML: "Treat as regular expression" }, regexDiv );
+        textOptionsDiv.appendChild( regexDiv );
         
-
+        var translateDiv = dom.create("div", {
+            className: "search-dialog checkboxdiv"
+        });
         // Checkbox that toggles amino acid search
-        content.translateDiv = dom.create( 'div', {});
         content.translate = new dCheckBox({
                                                 label: "Translate Sequence",
                                                 id: "search_translate_first"
                                             });
-        content.translateDiv.appendChild( content.translate.domNode );
-        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate Sequence" }, content.translateDiv );
+        translateDiv.appendChild( content.translate.domNode );
+        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate Sequence" }, translateDiv );
+        textOptionsDiv.appendChild( translateDiv );
 
         // Render 'forward strand' and 'reverse strand' checkboxes
-        content.strandsDiv = dom.create( 'div', {} );
-        dom.create( "span", { innerHTML: "Strands to search" }, content.strandsDiv );
-        dom.create( "br", {}, content.strandsDiv );
+        var strandsDiv = dom.create( 'div', {
+            className: "search-dialog section"
+        } );
+        dom.create( "span", {
+            className: "search-dialog header",
+            innerHTML: "Strands to search"
+        }, strandsDiv );
+
+        var fwdDiv = dom.create("div", {
+            className: "search-dialog checkboxdiv"
+        });
         content.fwdStrand = new dCheckBox({
                                                 label: "Forward Strand",
                                                 id: "search_fwdstrand",
                                                 checked: true
                                             });
+        var revDiv = dom.create("div", {
+            className: "search-dialog checkboxdiv"
+        });
         content.revStrand = new dCheckBox({
                                                 label: "Reverse Strand",
                                                 id: "search_revstrand",
                                                 checked: true
                                             });
-        content.strandsDiv.appendChild( content.fwdStrand.domNode );
-        dom.create( "label", { "for": "search_fwdstrand", innerHTML: "Forward Strand"}, content.strandsDiv );
-        dom.create( "br", {}, content.strandsDiv );
-        content.strandsDiv.appendChild( content.revStrand.domNode );
-        dom.create( "label", { "for": "search_revstrand", innerHTML: "Reverse Strand"}, content.strandsDiv );
-
+        fwdDiv.appendChild( content.fwdStrand.domNode );
+        dom.create( "label", { "for": "search_fwdstrand", innerHTML: "Forward Strand"}, fwdDiv );
+        revDiv.appendChild( content.revStrand.domNode );
+        dom.create( "label", { "for": "search_revstrand", innerHTML: "Reverse Strand"}, revDiv );
+        strandsDiv.appendChild( fwdDiv );
+        strandsDiv.appendChild( revDiv );
 
         this.content = content;
 
-        return [ content.searchBox.domNode, content.textOptionsDiv, content.translateDiv, content.strandsDiv ];
+        return [ searchBoxDiv, textOptionsDiv, strandsDiv ];
     },
 
     _getSearchParams: function() {
