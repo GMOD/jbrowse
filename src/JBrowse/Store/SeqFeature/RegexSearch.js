@@ -54,37 +54,6 @@ define([
                 }), doneCallback, errorCallback );
         },
 
-/*        _searchResultFeatures: function( sequence, expr, start, end, orig, strand, translated, frameOffset ) {
-            var features = [];
-            var match;
-
-            frameOffset = frameOffset || 0;
-
-            var relevantEnd = strand > 0 ? start : end;
-            var multiplier = translated ? 3 : 1;
-
-            while( (match = expr.exec( sequence )) !== null && match.length ) {
-                expr.lastIndex = match.index + 1;
-
-                var result = match[0];
-
-                var featStart = relevantEnd + strand*( frameOffset + multiplier * match.index );
-                var featLength = multiplier * result.length;
-
-                var newFeat = new SimpleFeature( { data: {
-                    start: Math.min( featStart, featStart + strand * featLength ),
-                    end: Math.max( featStart, featStart + strand * featLength ),
-                    strand: strand
-                } });
-
-                if( !this._queryOverlaps( orig, newFeat.data ) )
-                    continue;
-                newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
-                features.push( newFeat );
-            }
-            return features;
-        },*/
-
         getSearchResults: function( feature, params, featCallback ) {
 
             var expr = new RegExp( params.regex ? params.expr : this.escapeString( params.expr ), params.caseIgnore ? "gi" : "g" );
@@ -95,96 +64,65 @@ define([
 
             var features = [];
 
+            var thisB = this;
+            
+            var _searchFeatureResults = function( sequence, expr, strand, translated, frameOffset ) {
+
+                if( translated )
+                    sequence = thisB.translateSequence( sequence, frameOffset );
+
+                frameOffset = frameOffset || 0;
+                var multiplier = translated ? 3 : 1;
+
+                var features = [];
+                var match;
+                while( (match = expr.exec( sequence )) !== null && match.length ) {
+                    expr.lastIndex = match.index + 1;
+
+                    var result = match[0];
+
+                    var newStart = strand > 0 ? start + frameOffset + multiplier*match.index
+                        : end - frameOffset - multiplier*(match.index + result.length);
+                    var newEnd = strand > 0 ? start + frameOffset + multiplier*(match.index + result.length)
+                        : end - frameOffset - multiplier*match.index;
+
+                    var newFeat = new SimpleFeature( { data: {
+                        start: newStart,
+                        end: newEnd,
+                        searchResult: result,
+                        strand: strand,
+                    } });
+
+                    if( !thisB._queryOverlaps( params.orig, newFeat.data ) )
+                        continue;
+                    newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
+                    features.push( newFeat );
+                }
+                return features;
+            }
+
             if( params.fwdStrand ) {
 
                 var sequence = feature.get( 'seq' );
-                var match;
 
                 if( params.translate ) {
                     for( var frameOffset = 0; frameOffset < 3; frameOffset++ ) {
-                        var translatedSequence = this.translateSequence( sequence, frameOffset );
-                        while( (match = expr.exec( translatedSequence )) !== null && match.length ) {
-                            expr.lastIndex = match.index + 1;
-
-                            var result = match[0];
-
-                            var newFeat = new SimpleFeature( { data: {
-                                start: start + frameOffset + 3*match.index,
-                                end: start + frameOffset + 3*(match.index + result.length),
-                                searchResult: result,
-                                strand: 1,
-                            } });
-
-                            if( !this._queryOverlaps( params.orig, newFeat.data ) )
-                                continue;
-                            newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
-                            features.push( newFeat );
-                        }
+                        features = features.concat(_searchFeatureResults( sequence, expr, 1, true, frameOffset ));
                     }
                 } else {
-                    while( (match = expr.exec( sequence )) !== null && match.length ) {
-                        expr.lastIndex = match.index + 1;
-
-                        var result = match[0];
-
-                        var newFeat = new SimpleFeature( { data: {
-                            start: start + match.index,
-                            end: start + match.index + result.length,
-                            searchResult: result,
-                            strand: 1,
-                        } });
-
-                        if( !this._queryOverlaps( params.orig, newFeat.data ) )
-                            continue;
-                        newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand )
-                        features.push( newFeat );
-                    }
+                    features = features.concat( _searchFeatureResults( sequence, expr, 1 ) );
                 }
             }
 
             if( params.revStrand ) {
                 var sequence = Util.revcom( feature.get('seq') );
-                var match;
 
                 if( params.translate ) {
                     for( var frameOffset = 0; frameOffset < 3; frameOffset++ ) {
-                        var translatedSequence = this.translateSequence( sequence, frameOffset );
-                        while( (match = expr.exec( translatedSequence )) !== null && match.length ) {
-                            expr.lastIndex = match.index + 1; // Prevent infinite loops for zero-length features
-
-                            var result = match[0];
-
-                            var newFeat = new SimpleFeature( { data: {
-                                start: end - frameOffset - 3*( match.index + result.length ),
-                                end: end - frameOffset - 3*match.index,
-                                searchResult: result,
-                                strand: -1
-                            } });
-                            if( !this._queryOverlaps( params.orig, newFeat.data ) )
-                                continue;
-
-                            newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand );
-                            features.push( newFeat );
-                        }
+                        features = features.concat(_searchFeatureResults( sequence, expr, -1, true, frameOffset ));
                     }
                 } else {
-                    while( (match = expr.exec( sequence )) !== null && match.length ) {
-                        expr.lastIndex = match.index + 1; // Prevent infinite loops for zero-length features
-
-                        var result = match[0];
-
-                        var newFeat = new SimpleFeature( { data: {
-                            start: end - ( match.index + result.length ),
-                            end: end - match.index,
-                            searchResult: result,
-                            strand: -1
-                        } });
-                        if( !this._queryOverlaps( params.orig, newFeat.data ) )
-                            continue;
-
-                        newFeat.id( newFeat.data.start + "_" + newFeat.data.end + "_" + newFeat.data.strand );
-                        features.push( newFeat );
-                    }
+                    features = features.concat( _searchFeatureResults( sequence, expr, -1 ) )
                 }
             }
 
