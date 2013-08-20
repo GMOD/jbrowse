@@ -442,8 +442,39 @@ div.sequence > div:first-child {
     border-bottom-color: #4d4d4d;
 }
 
+div.translatedSequence .aa.big {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
+    border-right: 1px solid #fff;
+    height: 16px;
+}
+
 div.translatedSequence {
     position: relative;
+    height: 16px;
+}
+
+div.translatedSequence .aa, div.translatedSequence > div {
+    height: 14px;
+    line-height: 14px;
+}
+
+.translatedSequence.frame0 {
+    background-color: #808080;
+    background-color: rgba(64, 64, 64, 0.5);
+}
+
+.translatedSequence.frame1 {
+    background-color: #B0B0B0;
+    background-color: rgba(88, 88, 88, 0.5);
+}
+
+.translatedSequence.frame2 {
+    background-color: #E0E0E0;
+    background-color: rgba(112, 112, 112, 0.5);
 }
 
 div.block .aa {
