@@ -548,6 +548,7 @@ initView: function() {
             this.addGlobalMenuItem( 'file',
                                     new dijitMenuItem(
                                         {
+                                            id: 'menubar_fileopen', 
                                             label: 'Open',
                                             iconClass: 'dijitIconFolderOpen',
                                             onClick: dojo.hitch( this, 'openFileDialog' )
@@ -556,6 +557,7 @@ initView: function() {
 
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
                 {
+                    id: 'menubar_combotrack', 
                     label: 'Add combination track',
                     iconClass: 'dijitIconSample',
                     onClick: dojo.hitch(this, 'createCombinationTrack')
@@ -566,6 +568,7 @@ initView: function() {
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                id: 'menubar_sethighlight', 
                 label: 'Set highlight',
                 iconClass: 'dijitIconFilter',
                 onClick: function() {
@@ -578,6 +581,7 @@ initView: function() {
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
+                    id: 'menubar_clearhighlight', 
                     label: 'Clear highlight',
                     iconClass: 'dijitIconFilter',
                     onClick: dojo.hitch( this, function() {
@@ -606,6 +610,7 @@ initView: function() {
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
+                                            id: 'menubar_about', 
                                             label: 'About',
                                             //iconClass: 'dijitIconFolderOpen',
                                             onClick: dojo.hitch( aboutDialog, 'show' )
@@ -619,6 +624,7 @@ initView: function() {
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
+                                            id: 'menubar_generalhelp', 
                                             label: 'General',
                                             iconClass: 'jbrowseIconHelp',
                                             onClick: showHelp
@@ -908,7 +914,8 @@ renderGlobalMenu: function( menuName, args, parent ) {
             {
                 className: menuName,
                 innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
-                dropDown: menu
+                dropDown: menu, 
+                id: 'dropdownbutton_'+menuName
             },
             args || {}
         );
@@ -924,7 +931,7 @@ makeGlobalMenu: function( menuName ) {
     if( ! items.length )
         return null;
 
-    var menu = new dijitDropDownMenu({ leftClickToOpen: true });
+    var menu = new dijitDropDownMenu({ id: 'dropdownmenu_'+menuName , leftClickToOpen: true });
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
