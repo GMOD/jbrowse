@@ -628,8 +628,10 @@ initView: function() {
             this.renderGlobalMenu( 'help', {}, menuBar );
         }
 
-        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
-            menuBar.appendChild( this.makeShareLink() );
+        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview ) {
+            var shareLink = this.makeShareLink();
+            if (shareLink) { menuBar.appendChild( shareLink ); }
+        }
         else
             menuBar.appendChild( this.makeFullViewLink() );
 
@@ -1780,9 +1782,9 @@ searchNames: function( /**String*/ loc ) {
                 // if it has one location, go to it
                 if( goingTo.location ) {
 
-                    //go to location, with some flanking region
-                    thisB.showRegionWithHighlight( goingTo.location );
-                }
+                        //go to location, with some flanking region
+                        thisB.showRegionWithHighlight( goingTo.location );
+                    }
                 // otherwise, pop up a dialog with a list of the locations to choose from
                 else if( goingTo.multipleLocations ) {
                     new LocationChoiceDialog(
