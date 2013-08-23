@@ -104,6 +104,7 @@ sub add_bw_track {
 	}
 
 	$bw_entry->{label} = $label;
+        $bw_entry->{autoscale} = "local";
 	$bw_entry->{urlTemplate} = $bw_url;
 	$bw_entry->{key} = $key;
 	$bw_entry->{bicolor_pivot} = $bicolor_pivot;
