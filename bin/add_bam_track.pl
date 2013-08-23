@@ -22,9 +22,8 @@ my $out_file;
 my $label;
 my $bam_url;
 my $key;
-my $classname = "bam-read";
-my $mismatches = 0;
 my $coverage = 0;
+my $classname = undef;
 my $min_score = undef;
 my $max_score = undef;
 
@@ -40,7 +39,6 @@ sub parse_options {
 		   "bam_url|u=s"	=> \$bam_url,
 		   "key|k=s"		=> \$key,
 		   "classname|c=s"	=> \$classname,
-		   "mismatches|m"	=> \$mismatches,
 		   "coverage|C"		=> \$coverage,
 		   "min_score|s=i"	=> \$min_score,
 		   "max_score|S=i"	=> \$max_score,
@@ -98,13 +96,12 @@ sub add_bam_track {
 	$bam_entry->{urlTemplate} = $bam_url;
 	$bam_entry->{key} = $key;
 	if (!$coverage) {
-		$bam_entry->{subfeatures} = $mismatches ?
-			JSON::false : JSON::true;
-		$bam_entry->{style}->{className} = $classname;
-		$bam_entry->{style}->{showSubfeatures} = $mismatches ?
-			JSON::false : JSON::true;
-		$bam_entry->{style}->{showMismatches} = $mismatches ?
-			JSON::true : JSON::false;
+          if (defined $classname)  {
+            if (! $bam_entry->{style}) {
+              $bam_entry->{style} = {};
+            }
+            $bam_entry->{style}->{className} = $classname;
+          }
 	}
 	else {
 		$bam_entry->{min_score} = $min_score;
@@ -121,10 +118,6 @@ sub generate_new_bam_alignment_entry {
 	return {
 		storeClass	=> $STORE_CLASS,
 		type		=> $ALIGNMENT_TYPE,
-		style	 	=> {
-			featureScale		=> 0.5,
-			labelScale		=> 100,
-		}
 	};
 }
 
@@ -153,7 +146,6 @@ add_bam_track.pl - add track configuration snippet(s) for BAM track(s)
 	--bam_url <url_to_bam_file>            \
 	[ --key <track_key> ]                  \
 	[ --classname <css_class> ]            \
-	[ --mismatches ]                       \
 	[ --coverage ]                         \
 	[ --min_score <min_score> ]            \
 	[ --max_score <max_score> ]            \
@@ -186,10 +178,6 @@ key (display name) for track [default: label value]
 =item --classname <classname>
 
 CSS class for display [default: bam]
-
-=item --mismatches
-
-display mismatches in alignment (generates no subfeatures)
 
 =item --coverage
 
