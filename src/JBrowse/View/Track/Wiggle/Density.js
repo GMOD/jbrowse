@@ -1,11 +1,12 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/_base/Color',
             'JBrowse/View/Track/WiggleBase',
             'JBrowse/Util'
         ],
-        function( declare, array, Color, WiggleBase, Util ) {
+        function( declare, array, domConstruct, Color, WiggleBase, Util ) {
 
 return declare( WiggleBase,
 
@@ -17,6 +18,77 @@ return declare( WiggleBase,
  */
 
 {
+
+    updateStaticElements: function( coords ) {
+        this.inherited( arguments );
+        if( this.legend && 'x' in coords )
+            this.legend.style.left = coords.x + "px"
+    },
+
+    _makeDensityLegend: function( dataScale ) {
+        if( !this.legend ) {
+            this.legend = domConstruct.create("div",
+            {
+                className: "densityLegend",
+                id: "legend_" + this.name,
+                style: {
+                    position: "absolute",
+                    top: "20px"
+                }
+            }, this.div);
+        } else {
+            dojo.empty( this.legend );
+        }
+
+        domConstruct.create("span", {
+            className: "densityLegend-title",
+            innerHTML: "Legend"
+        }, this.legend)
+
+        var colorDivs = [];
+        var disableClipMarkers = this.config.disable_clip_markers;
+
+        var normOrigin = dataScale.normalize( dataScale.origin );
+        for(var i = 1; i >= 0; i -= 0.2) {
+            var value = Math.round( i * dataScale.min + (1 - i) * dataScale.max );
+            var feature = { get: function( val ) {
+                switch(val) {
+                    case 'score':
+                        return value;
+                    default:
+                        return undefined;
+                }
+            }};
+            console.log(dataScale.min, dataScale.max, i, value, dataScale.normalize( value ), dataScale.origin, dataScale.normalize( dataScale.origin ) );
+            var n = dataScale.normalize( value );
+            var colorDiv = domConstruct.create(
+                "div",
+                {
+                    className: "densityLegend-sample",
+                    style: {
+                        display: "inline-block"
+                    }
+                }, this.legend
+            );
+            colorDivs.push( colorDiv );
+            domConstruct.create("div", {
+                className: "densityLegend-color",
+                style: {
+                    backgroundColor: ( disableClipMarkers || n <= 1 && n >= 0 ) ? Color.blendColors(
+                        new Color( this.getConfForFeature( 'style.bg_color', feature ) ),
+                        new Color( this.getConfForFeature( n >= normOrigin ? 'style.pos_color' : 'style.neg_color', feature ) ),
+                        Math.abs( n - normOrigin )                            
+                    ).toString()
+                   : ( n > 1 ? this.getConfForFeature( 'style.pos_color', feature )
+                             : this.getConfForFeature( 'style.neg_color', feature ) )
+                }
+            }, colorDiv );
+            domConstruct.create("span", {
+                className: "densityLegend-value",
+                innerHTML: value
+            }, colorDiv );
+        }
+    },
 
     _defaultConfig: function() {
         return Util.deepUpdate(
@@ -60,6 +132,10 @@ return declare( WiggleBase,
 
                 };
             })();
+
+        //if( this.config.legend ) {
+            this._makeDensityLegend( dataScale );
+        //}
 
         dojo.forEach( pixels, function(p,i) {
             if (p) {
