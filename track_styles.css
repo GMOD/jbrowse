@@ -498,3 +498,25 @@ div.generic_parent-hist {
     -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
     box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 }
+
+.densityLegend {
+    background-color: #FFFFFF;
+    border: 1px solid #000;
+    display: block;
+}
+
+.densityLegend-title {
+    font-weight: bold;
+    font-size: larger;
+    display: block;
+    text-align: center;
+}
+
+.densityLegend-sample {
+    padding: 5px;
+}
+
+.densityLegend-color {
+    width: 20px;
+    height: 20px;
+}
