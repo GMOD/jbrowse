@@ -55,6 +55,7 @@ return declare( null, {
            //     // nothing
            // }
            if( op == 'I' )
+               // GAH: shouldn't length of insertion really by 0, since JBrowse internally uses zero-interbase coordinates?
                mismatches.push( { start: currOffset, type: 'insertion', base: ''+len, length: 1 });
            else if( op == 'D' )
                mismatches.push( { start: currOffset, type: 'deletion',  base: '*', length: len  });
@@ -106,7 +107,7 @@ return declare( null, {
             var skipOffset = 0;
             array.forEach( cigarMismatches || [], function( mismatch ) {
                 if( mismatch.type == 'skip' && curr.start >= mismatch.start ) {
-                    curr.start += mismatch.len;
+                    curr.start += mismatch.length;
                 }
             });
 
