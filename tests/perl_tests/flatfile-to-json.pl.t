@@ -335,7 +335,6 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 }
 
 {
-    diag "testing GenBank file parsing...";
     my $tempdir = tempdir();
     run_with (
         '--out' => $tempdir,
@@ -347,6 +346,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246 )));
 
     # test start/stop of parent feature (full record)
+    #diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'};
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][1], 5001, "got right start coordinate (full record)" );
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][2], 10950, "got right stop coordinate (full record)" );
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][21], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
@@ -355,7 +355,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
      is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})],
 		[sort(@{[ 'Db_xref', 'Description', 'Gene', 'Gene_synonym', 'Name', 'Product', 'Transcript_id', 'Start', 'End',  'Strand',  'COMMENT',  'DEFINITION',  'CLASSIFICATION',  'LOCUS', 'KEYWORDS',  'ACCESSION',  'Seq_id',  'NCBI_TAXON_ID', 'MOL_TYPE', 'ORGANISM',  'Type', 'VERSION',  'SOURCE',  'Subfeatures']})],
 		'got the right attributes in trackData.json')
-	 or diag $trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'};
+	 or diag explain [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})];
 
     # test subfeatures
     # find index of subfeatures (to make test less brittle, in case attributes move around in the array)
@@ -370,14 +370,14 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     ok( defined( $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex] ), "got something in subfeatures");
 
     my $subfeatures = $trackdata->{'trackData.json'}->{'intervals'}->{'nclist'}->[0]->[$actualSubFeatureIndex];
-    ok ( scalar @{$subfeatures} == 15, "got the right number of subfeatures");
+    is ( scalar @{$subfeatures}, 22, "got the right number of subfeatures") or diag explain $subfeatures;
 #     ok ( scalar(@{$subfeatures->[0]}) == scalar(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}}) + 1,
 #	 "subfeature array is the right length (length of attribute array + 1)");
     # test first subfeature completely
     is ( $subfeatures->[0][0] && $subfeatures->[0][0], 1, "first item set correctly in subfeature");
     is ( $subfeatures->[0][1] && $subfeatures->[0][1], 5001, "start set correctly in subfeature") or diag explain $subfeatures->[0];
     is ( $subfeatures->[0][2] && $subfeatures->[0][2], 5114, "end set correctly in subfeature") or diag explain $subfeatures->[0];
-    is ( $subfeatures->[0][2] && $subfeatures->[0][8], 'exon', "type set correctly in subfeature") or diag explain $subfeatures->[0];
+    is ( $subfeatures->[0][2] && $subfeatures->[0][9], 'exon', "type set correctly in subfeature") or diag explain $subfeatures->[0];
 
 }
 
@@ -408,10 +408,6 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     ok ( exists $subfeatures->[0]->[1] && $subfeatures->[0]->[1] == 5001, "start set correctly in subfeature (partial region of chromosome)") || diag $subfeatures->[0]->[1];
     ok ( exists $subfeatures->[0]->[2] && $subfeatures->[0]->[2] == 5114, "end set correctly in subfeature (partial region of chromosome)") || diag $subfeatures->[0]->[2];
 
-}
-
-{
-    diag "end GenBank file parsing ";
 }
 
 

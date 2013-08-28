@@ -5,6 +5,9 @@
    visible consequences of this were duplicate dialog boxes being
    opened when clicking on a canvas feature.
 
+ * Fixed a bug with flatfile-to-json.pl parsing of GenBank locations.
+   Thanks to Steve Marshall for pointing this out (issue #323).
+
 # Release 1.10.2     2013-08-15 13:57:16 EST5EDT
 
  * Added mouse-over 'tooltips' to to CanvasFeatures tracks that show
