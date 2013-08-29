@@ -82,6 +82,8 @@ sub _aggregate_features_from_gbk_record {
                         type  => $feature->{name}
                         };
 
+                    $newFeature->{seq_id} ||= $record->{ACCESSION};
+
                     push @{$f->{subfeatures}}, $newFeature;
                 }
             }
