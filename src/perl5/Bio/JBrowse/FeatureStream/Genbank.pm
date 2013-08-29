@@ -48,7 +48,7 @@ sub _aggregate_features_from_gbk_record {
 
     my $f = { %$record, %{$locations[0]} };
     delete $f->{FEATURES};
-    $f->{seq_id} = $f->{ACCESSION};
+    my $seq_id = $f->{seq_id} = $f->{VERSION} && $f->{VERSION}[0] || $f->{ACCESSION};
     delete $f->{ORIGIN};
     delete $f->{SEQUENCE};
 
@@ -58,7 +58,7 @@ sub _aggregate_features_from_gbk_record {
         $f->{end}    += $offset;
         $f->{strand} = 1 unless defined $f->{strand};
         $f->{type}   = $record->{FEATURES}[$indexTopLevel]{name};
-        $f->{seq_id} ||= $record->{ACCESSION};
+        $f->{seq_id} ||= $seq_id;
 
         %$f = ( %{$record->{FEATURES}[$indexTopLevel]{feature} || {}}, %$f ); # get other attrs
         if( $f->{type} eq 'mRNA' ) {
@@ -82,7 +82,7 @@ sub _aggregate_features_from_gbk_record {
                         type  => $feature->{name}
                         };
 
-                    $newFeature->{seq_id} ||= $record->{ACCESSION};
+                    $newFeature->{seq_id} ||= $seq_id;
 
                     push @{$f->{subfeatures}}, $newFeature;
                 }
