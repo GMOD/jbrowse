@@ -1496,7 +1496,6 @@ addRefseqs: function( refSeqs ) {
 
     var refCookie = this.cookie('refseq');
     this.refSeq = this.refSeq || this.allRefs[refCookie] || this.allRefs[ this.refSeqOrder[0] ];
-    console.log(this.refSeq);
 },
 
 
@@ -1665,43 +1664,20 @@ navigateTo: function(loc) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
         // if it's a foo:123..456 location, go there
         var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-        // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie                        
+        // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
         if( location && ("start" in location) && ("end" in location)) {
             this.navigateToLocation( location );
         }
         // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
         else {
-            if (! (typeof loc == 'string')) { // if loc is location object rather than string, then reset loc to refSeq name
+            if( typeof loc != 'string')
                 loc = loc.ref;
-            }
+
             // is it just the name of one of our ref seqs?
-            var ref = Util.matchRefSeqName( loc, this.allRefs );
+            var ref = this.findReferenceSequence( loc );
             if( ref ) {
-                // see if we have a stored location for this ref seq in a
-                // cookie, and go there if we do
-                var oldLoc;
-                try {
-                    oldLoc = Util.parseLocString(
-                        dojo.fromJson(
-                            this.cookie("location")
-                        )[ref.name].l
-                    );
-                    oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
-                } catch (x) {}
-                if( oldLoc ) {
-                    this.navigateToLocation( oldLoc );
-                    return;
-                } else {
-                    // if we don't just go to the middle 80% of that refseq,
-                    // based on range that can be viewed (start to end)
-                    // rather than total length, in case start != 0 || end != length
-                    // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
-                    var visibleLength = ref.end - ref.start;
-                    this.navigateToLocation({ref:   ref.name,
-                                             start: ref.start + (visibleLength * 0.1),
-                                             end:   ref.start + (visibleLength * 0.9) } );
-                    return;
-                }
+                this.navigateToLocation( { ref: ref.name } );
+                return;
             }
 
             // lastly, try to search our feature names for it
@@ -1710,18 +1686,52 @@ navigateTo: function(loc) {
     }));
 },
 
+findReferenceSequence: function( name ) {
+    for( var n in this.allRefs ) {
+        if( ! this.compareReferenceNames( n, name ) )
+            return this.allRefs[n];
+    }
+    return null;
+},
+
 // given an object like { ref: 'foo', start: 2, end: 100 }, set the
 // browser's view to that location.  any of ref, start, or end may be
 // missing, in which case the function will try set the view to
 // something that seems intelligent
 navigateToLocation: function( location ) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
-        // validate the ref seq we were passed
-        var ref = location.ref ? Util.matchRefSeqName( location.ref, this.allRefs )
+
+        // regularize the ref seq name we were passed
+        var ref = location.ref ? this.findReferenceSequence( location.ref, this.allRefs )
                                : this.refSeq;
-        if( !ref )
-            return;
+        if( !ref ) return;
         location.ref = ref.name;
+
+        if( 'ref' in location && !( 'start' in location && 'end' in location ) ) {
+            // see if we have a stored location for this ref seq in a
+            // cookie, and go there if we do
+            var oldLoc;
+            try {
+                oldLoc = Util.parseLocString(
+                    dojo.fromJson(
+                        this.cookie("location")
+                    )[location.ref].l
+                );
+                oldLoc.ref = location.ref; // force the refseq name; older cookies don't have it
+            } catch (x) {}
+            if( oldLoc ) {
+                location = oldLoc;
+            } else {
+                // if we don't have a previous location, just go to
+                // the middle 80% of that refseq,
+                // based on range that can be viewed (start to end)
+                // rather than total length, in case start != 0 || end != length
+                // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                var visibleLength = ref.end - ref.start;
+                location.start = ref.start + (visibleLength * 0.1);
+                location.end   = ref.start + (visibleLength * 0.9);
+            }
+        }
 
         // clamp the start and end to the size of the ref seq
         location.start = Math.max( 0, location.start || 0 );
@@ -2374,7 +2384,7 @@ createNavBox: function( parent ) {
 
                     // only trigger navigation if actually switching sequences
                     if( newRefName != this.refSeq.name ) {
-                        this.navigateTo( newRefName );
+                        this.navigateToLocation({ ref: newRefName });
                     }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
