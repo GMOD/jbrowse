@@ -1620,7 +1620,7 @@ sizeInit: function() {
         track.sizeInit(view.overviewStripes,
                overviewStripePct);
             track.showRange(0, view.overviewStripes - 1,
-                            -1, view.overviewStripeBases,
+                            view.ref.start-1, view.overviewStripeBases,
                             view.overviewBox.w /
                             (view.ref.end - view.ref.start));
     });
@@ -1674,7 +1674,6 @@ addOverviewTrack: function(track) {
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
     trackDiv.style.height = this.overviewBox.h + "px";
-    trackDiv.style.left = (((-this.ref.start) / refLength) * this.overviewBox.w) + "px";
     trackDiv.id = "overviewtrack_" + track.name;
     trackDiv.track = track;
     var view = this;
@@ -1995,7 +1994,7 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
 
     this.overviewTrackIterate(function(track, view) {
                                   track.showRange(0, view.overviewStripes - 1,
-                                                  -1, view.overviewStripeBases,
+                                                  view.ref.start-1, view.overviewStripeBases,
                                                   view.overviewBox.w /
                                                   (view.ref.end - view.ref.start));
                       });
