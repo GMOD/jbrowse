@@ -48,7 +48,8 @@ sub _aggregate_features_from_gbk_record {
 
     my $f = { %$record, %{$locations[0]} };
     delete $f->{FEATURES};
-    my $seq_id = $f->{seq_id} = $f->{VERSION} && $f->{VERSION}[0] || $f->{ACCESSION};
+    my $seq_id = $f->{seq_id} = $f->{VERSION} ? ( $f->{VERSION}[0] =~ /REGION/ ? $f->{VERSION}[2] : $f->{VERSION}[0])
+                                              : $f->{ACCESSION};
     delete $f->{ORIGIN};
     delete $f->{SEQUENCE};
 

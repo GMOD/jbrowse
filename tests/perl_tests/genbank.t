@@ -112,7 +112,7 @@ sub tempdir {
         '--key' => 'Fooish Bar Data',
         '--trackLabel' => 'foo',
         );
-    system "find $tempdir";
+
     my $read_json = sub { slurp( $tempdir, @_ ) };
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo NG_009246.1 )));
 
