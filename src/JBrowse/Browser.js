@@ -143,7 +143,9 @@ constructor: function(params) {
                        // figure out our initial location
                        var initialLocString = thisB._initialLocation();
                        var initialLoc = Util.parseLocString( initialLocString );
-                       this.refSeq = initialLoc && initialLoc.ref || this.refSeq;
+                       if (initialLoc && initialLoc.ref && thisB.allRefs[initialLoc.ref]) {
+                           thisB.refSeq = thisB.allRefs[initialLoc.ref];
+                       }
 
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
@@ -1324,7 +1326,7 @@ passMilestone: function( name, result ) {
  * Return true if we have reached the named milestone, false otherwise.
  */
 reachedMilestone: function( name ) {
-    return this._getDeferred(name).fired >= 0;
+    return this._getDeferred(name).isResolved();
 },
 
 
@@ -1492,7 +1494,9 @@ addRefseqs: function( refSeqs ) {
                               });
         }.call(this);
 
-    this.refSeq = this.refSeq || this.allRefs[ this.refSeqOrder[0] ];
+    var refCookie = this.cookie('refseq');
+    this.refSeq = this.refSeq || this.allRefs[refCookie] || this.allRefs[ this.refSeqOrder[0] ];
+    console.log(this.refSeq);
 },
 
 
@@ -1661,12 +1665,15 @@ navigateTo: function(loc) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
         // if it's a foo:123..456 location, go there
         var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-        if( location ) {
+        // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie                        
+        if( location && ("start" in location) && ("end" in location)) {
             this.navigateToLocation( location );
         }
-        // otherwise, if it's just a word, try to figure out what it is
+        // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
         else {
-
+            if (! (typeof loc == 'string')) { // if loc is location object rather than string, then reset loc to refSeq name
+                loc = loc.ref;
+            }
             // is it just the name of one of our ref seqs?
             var ref = Util.matchRefSeqName( loc, this.allRefs );
             if( ref ) {
@@ -2085,6 +2092,7 @@ _updateLocationCookies: function( location ) {
     oldLocMap[this.refSeq.name] = { l: locString, t: Math.round( (new Date()).getTime() / 1000 ) - 1340211510 };
     oldLocMap = this._limitLocMap( oldLocMap, this.config.maxSavedLocations || 10 );
     this.cookie( 'location', dojo.toJson(oldLocMap), {expires: 60});
+    this.cookie('refseq', this.refSeq.name );
 },
 
 /**
@@ -2366,7 +2374,7 @@ createNavBox: function( parent ) {
 
                     // only trigger navigation if actually switching sequences
                     if( newRefName != this.refSeq.name ) {
-                        this.navigateToLocation({ ref: newRefName });
+                        this.navigateTo( newRefName );
                     }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );
