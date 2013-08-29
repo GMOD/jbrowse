@@ -1,21 +1,10 @@
-require({
-           packages: [
-               { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
-               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
-           ]
-       },
-       [],
-       function() {
-
-define.amd.jQuery = true;
-
 define(
        [
            'dojo/_base/declare',
            'dijit/CheckedMenuItem',
            'JBrowse/Plugin',
-           './FeatureEdgeMatchManager',
-	   './FeatureSelectionManager'
+           'WebApollo/FeatureEdgeMatchManager',
+	   'WebApollo/FeatureSelectionManager'
        ],
     function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager, FeatureSelectionManager ) {
 
