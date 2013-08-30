@@ -6,6 +6,19 @@
    Raine and Andrew Uzilov for pointing out the need for this, and for
    their input on its design (issue #332).
 
+ * Added support for an `addStores` variable in the query string of the
+   URL used to start JBrowse.  This variable accepts store
+   configurations (which are a way to specify data sources separately
+   from track configurations, so multiple tracks can use the same data
+   source) in JSON format.  For example, to add a store called
+   "urlbam" that points to a BAM file, you could use the JSON:
+
+       `{ "urlbam": { "type": "JBrowse/Store/SeqFeature/BAM", "urlTemplate": "/path/to/my/bamfile.bam" }}`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+       `addStores=%7B%20%22urlbam%22%3A%20%7B%20%22type%22%3A%20%22JBrowse%2FStore%2FSeqFeature%2FBAM%22%2C%20%22urlTemplate%22%3A%20%22%2Fpath%2Fto%2Fmy%2Fbamfile.bam%22%20%7D%7D`
+
  * Fixed a bug that prevented display of BAM reads that had MD tags
    but no associated CIGAR string.  Thanks to Keiran Raine for point
    this out (issue #330).

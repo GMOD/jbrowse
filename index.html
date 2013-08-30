@@ -69,6 +69,13 @@
                        config.tracks = JSON.parse( queryParams.addTracks );
                    }
 
+                   // if there is ?addStores in the query params, add
+                   // those store configurations to our initial
+                   // configuration
+                   if( queryParams.addStores ) {
+                       config.stores = JSON.parse( queryParams.addStores );
+                   }
+
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
         });
