@@ -79,8 +79,9 @@ return declare( null, {
         var mismatchRecords = [];
         var curr = { start: 0, base: '', length: 0, type: 'mismatch' };
 
-        // number of bases soft-clipped off the beginning of the template seq
-
+        // convert a position on the reference sequence to a position
+        // on the template sequence, taking into account hard and soft
+        // clipping of reads
         function getTemplateCoord( refCoord, cigarOps ) {
             var templateOffset = 0;
             var refOffset = 0;
@@ -134,7 +135,11 @@ return declare( null, {
           else if( token.match(/^[a-z]/i) ) { // mismatch
               for( var i = 0; i<token.length; i++ ) {
                   curr.length = 1;
-                  curr.base = seq ? seq.substr( getTemplateCoord( curr.start, cigarOps), 1 ) : 'X';
+                  curr.base = seq ? seq.substr( cigarOps ? getTemplateCoord( curr.start, cigarOps)
+                                                         : curr.start,
+                                                1
+                                              )
+                                  : 'X';
                   nextRecord();
               }
           }
