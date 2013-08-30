@@ -34,6 +34,15 @@ return declare( null, {
             mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
         }
 
+        // uniqify the mismatches
+        var seen = {};
+        mismatches = array.filter( mismatches, function( m ) {
+            var key = m.type+','+m.start+','+m.length;
+            var s = seen[key];
+            seen[key] = true;
+            return !s;
+        });
+
         return mismatches;
     },
 
