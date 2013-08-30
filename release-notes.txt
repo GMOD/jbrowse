@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+ * Added options to Alignments2 tracks to allow hiding reads that are
+   duplicates, fail vendor QC, have missing mate pairs, are secondary
+   alignments, and/or are supplementary alignments.  Thanks to Kieran
+   Raine and Andrew Uzilov for pointing out the need for this, and for
+   their input on its design (issue #332).
+
  * Fixed a bug in which the most recent location visited on a given
    reference sequence was not properly being restored from the saved
    cookie.  Thanks to Gregg Helt for the initial fix for this.

@@ -25,6 +25,13 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
             {
                 maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
+
+                hideDuplicateReads: true,
+                hideQCFailingReads: true,
+                hideSecondary: true,
+                hideSupplementary: true,
+                hideMissingMatepairs: false,
+
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
@@ -156,6 +163,13 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
         };
         containerElement.removeChild(widthTest);
         return result;
+    },
+
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
+        return o;
     }
 
 });
