@@ -6,6 +6,11 @@
    Raine and Andrew Uzilov for pointing out the need for this, and for
    their input on its design (issue #332).
 
+ * Added support for a `variables` configuration for SPARQL data
+   stores that can be used to specify additional variables for
+   interpolating into a SPARQL query.  Thanks to Toshiaki Katayama for
+   suggesting this.
+
  * Added support for an `addStores` variable in the query string of the
    URL used to start JBrowse.  This variable accepts store
    configurations (which are a way to specify data sources separately

@@ -71,6 +71,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
     // },
 
     _makeQuery: function( query ) {
+        if( this.config.variables )
+            query = dojo.mixin( dojo.mixin( {}, this.config.variables ),
+                                query
+                              );
+
         return Util.fillTemplate( this.queryTemplate, query );
     },
 
