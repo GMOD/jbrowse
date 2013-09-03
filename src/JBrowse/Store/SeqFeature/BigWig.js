@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
+            'JBrowse/Model/DataView',
             'JBrowse/has',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
@@ -11,7 +12,20 @@ define( [
             'JBrowse/Util',
             'JBrowse/Model/XHRBlob'
         ],
-        function( declare, lang, array, urlObj, has, SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin, Window, Util, XHRBlob ) {
+        function(
+            declare,
+            lang,
+            array,
+            urlObj,
+            jDataView,
+            has,
+            SeqFeatureStore,
+            DeferredFeaturesMixin,
+            DeferredStatsMixin,
+            Window,
+            Util,
+            XHRBlob
+        ) {
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
  /**
@@ -25,6 +39,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     BIG_WIG_TYPE_GRAPH: 1,
     BIG_WIG_TYPE_VSTEP: 2,
     BIG_WIG_TYPE_FSTEP: 3,
+
+    _littleEndian: true,
 
     /**
      * Data backend for reading wiggle data from BigWig or BigBed files.
@@ -59,99 +75,91 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _load: function() {
-        var bwg = this;
-        var headerSlice = bwg.data.slice(0, 512);
-        headerSlice.fetch( function( result ) {
-            if( ! result ) {
+        this.data.read( 0, 512, lang.hitch( this, function( bytes ) {
+            if( ! bytes ) {
                 this._failAllDeferred( 'BBI header not readable' );
                 return;
             }
 
-            bwg.fileSize = result.fileSize;;
-            var header = result;
-            var sa = new Int16Array(header);
-            var la = new Int32Array(header);
-            if (la[0] == bwg.BIG_WIG_MAGIC) {
-                bwg.type = 'bigwig';
-            } else if (la[0] == bwg.BIG_BED_MAGIC) {
-                bwg.type = 'bigbed';
-            } else {
-                console.error( 'Format '+la[0]+' not supported' );
-                bwg._failAllDeferred( 'Format '+la[0]+' not supported' );
-                return;
+            var data = this.newDataView( bytes );
+
+            // check magic numbers
+            var magic = data.getInt32();
+            if( magic != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC ) {
+                // try the other endianness if no magic
+                this._littleEndian = false;
+                data = this.newDataView( bytes );
+                if( data.getInt32() != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC) {
+                    console.error('Not a BigWig or BigBed file');
+                    deferred.reject('Not a BigWig or BigBed file');
+                    return;
+                }
             }
-            //        dlog('magic okay');
+            this.type = magic == this.BIG_BED_MAGIC ? 'bigbed' : 'bigwig';
 
-            bwg.version = sa[2];             // 4
-            bwg.numZoomLevels = sa[3];       // 6
-            bwg.chromTreeOffset = (la[2] << 32) | (la[3]);     // 8
-            bwg.unzoomedDataOffset = (la[4] << 32) | (la[5]);  // 16
-            bwg.unzoomedIndexOffset = (la[6] << 32) | (la[7]); // 24
-            bwg.fieldCount = sa[16];         // 32
-            bwg.definedFieldCount = sa[17];  // 34
-            bwg.asOffset = (la[9] << 32) | (la[10]);    // 36 (unaligned longlong)
-            bwg.totalSummaryOffset = (la[11] << 32) | (la[12]);    // 44 (unaligned longlong)
-            bwg.uncompressBufSize = la[13];  // 52
+            this.fileSize = bytes.fileSize;
 
-            // dlog('bigType: ' + bwg.type);
-            // dlog('chromTree at: ' + bwg.chromTreeOffset);
-            // dlog('uncompress: ' + bwg.uncompressBufSize);
-            // dlog('data at: ' + bwg.unzoomedDataOffset);
-            // dlog('index at: ' + bwg.unzoomedIndexOffset);
-            // dlog('field count: ' + bwg.fieldCount);
-            // dlog('defined count: ' + bwg.definedFieldCount);
+            this.version = data.getUint16();
+            this.numZoomLevels = data.getUint16();
+            this.chromTreeOffset = data.getUint64();
+            this.unzoomedDataOffset = data.getUint64();
+            this.unzoomedIndexOffset = data.getUint64();
+            this.fieldCount = data.getUint16();
+            this.definedFieldCount = data.getUint16();
+            this.asOffset = data.getUint64();
+            this.totalSummaryOffset = data.getUint64();
+            this.uncompressBufSize = data.getUint32();
 
-            bwg.zoomLevels = [];
-            for (var zl = 0; zl < bwg.numZoomLevels; ++zl) {
-                var zlReduction = la[zl*6 + 16];
-                var zlData = (la[zl*6 + 18]<<32)|(la[zl*6 + 19]);
-                var zlIndex = (la[zl*6 + 20]<<32)|(la[zl*6 + 21]);
+            // dlog('bigType: ' + this.type);
+            // dlog('chromTree at: ' + this.chromTreeOffset);
+            // dlog('uncompress: ' + this.uncompressBufSize);
+            // dlog('data at: ' + this.unzoomedDataOffset);
+            // dlog('index at: ' + this.unzoomedIndexOffset);
+            // dlog('field count: ' + this.fieldCount);
+            // dlog('defined count: ' + this.definedFieldCount);
+
+            this.zoomLevels = [];
+            for (var zl = 0; zl < this.numZoomLevels; ++zl) {
+                var zlReduction = data.getUint32( 4*(zl*6 + 16) );
+                var zlData = data.getUint64( 4*(zl*6 + 18) );
+                var zlIndex = data.getUint64( 4*(zl*6 + 20) );
+
                 //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
-                bwg.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
+                this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
             // parse the totalSummary if present (summary of all data in the file)
-            if( bwg.totalSummaryOffset ) {
-                if( Float64Array ) {
-                    (function() {
-                        var ua = new Uint32Array( header, bwg.totalSummaryOffset, 2 );
-                        var da = new Float64Array( header, bwg.totalSummaryOffset+8, 4 );
-                        var s = {
-                            basesCovered: ua[0]<<32 | ua[1],
-                            scoreMin: da[0],
-                            scoreMax: da[1],
-                            scoreSum: da[2],
-                            scoreSumSquares: da[3]
-                        };
-                        bwg._globalStats = s;
-                        // rest of these will be calculated on demand in getGlobalStats
-                    }).call();
-                } else {
-                    console.warn("BigWig "+bwg.data.url+ " total summary not available, this web browser is not capable of handling this data type.");
-                }
+            if( this.totalSummaryOffset ) {
+                (function() {
+                     var d = this.newDataView( bytes, this.totalSummaryOffset );
+                     var s = {
+                         basesCovered: d.getUint64(),
+                         scoreMin: d.getFloat64(),
+                         scoreMax: d.getFloat64(),
+                         scoreSum: d.getFloat64(),
+                         scoreSumSquares: d.getFloat64()
+                     };
+                     this._globalStats = s;
+                     // rest of stats will be calculated on demand in getGlobalStats
+                 }).call(this);
             } else {
-                    console.warn("BigWig "+bwg.data.url+ " has no total summary data.");
+                    console.warn("BigWig "+this.data.url+ " has no total summary data.");
             }
 
-            bwg._readChromTree(
+            this._readChromTree(
                 function() {
-                    bwg._deferred.features.resolve({success: true});
-                    bwg._deferred.stats.resolve({success: true});
+                    this._deferred.features.resolve({success: true});
+                    this._deferred.stats.resolve({success: true});
                 },
-                dojo.hitch( bwg, '_failAllDeferred' )
+                lang.hitch( this, '_failAllDeferred' )
             );
-        },
-        dojo.hitch( this, '_failAllDeferred' )
+        }),
+        lang.hitch( this, '_failAllDeferred' )
        );
     },
 
-
-    _readInt: function(ba, offset) {
-        return (ba[offset + 3] << 24) | (ba[offset + 2] << 16) | (ba[offset + 1] << 8) | (ba[offset]);
-    },
-
-    _readShort: function(ba, offset) {
-        return (ba[offset + 1] << 8) | (ba[offset]);
+    newDataView: function( bytes, offset, length ) {
+        return new jDataView( bytes, offset, length, this._littleEndian );
     },
 
     /**
@@ -167,33 +175,28 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             ++udo;
         }
 
-        var readInt   = this._readInt;
-        var readShort = this._readShort;
-
-        this.data.slice( this.chromTreeOffset, udo - this.chromTreeOffset )
-            .fetch(function(bpt) {
+        this.data.read( this.chromTreeOffset, udo - this.chromTreeOffset, function(bpt) {
                        if( ! has('typed-arrays') ) {
                            thisB._failAllDeferred( 'Web browser does not support typed arrays' );
                            return;
                        }
-                       var ba = new Uint8Array(bpt);
-                       var la = new Int32Array(bpt, 0, 6);
-                       var bptMagic = la[0];
-                       if( bptMagic !== 2026540177 )
+                       var data = thisB.newDataView( bpt );
+
+                       if( data.getUint32() !== 2026540177 )
                            throw "parse error: not a Kent bPlusTree";
-                       var blockSize = la[1];
-                       var keySize = la[2];
-                       var valSize = la[3];
-                       var itemCount = (la[4] << 32) | (la[5]);
+                       var blockSize = data.getUint32();
+                       var keySize = data.getUint32();
+                       var valSize = data.getUint32();
+                       var itemCount = data.getUint64();
                        var rootNodeOffset = 32;
 
                        //dlog('blockSize=' + blockSize + '    keySize=' + keySize + '   valSize=' + valSize + '    itemCount=' + itemCount);
 
                        var bptReadNode = function(offset) {
-                           if( offset >= ba.length )
+                           if( offset >= bpt.length )
                                throw "reading beyond end of buffer";
-                           var isLeafNode = ba[offset];
-                           var cnt = readShort( ba, offset+2 );
+                           var isLeafNode = data.getUint8( offset );
+                           var cnt = data.getUint16( offset+2 );
                            //dlog('ReadNode: ' + offset + '     type=' + isLeafNode + '   count=' + cnt);
                            offset += 4;
                            for (var n = 0; n < cnt; ++n) {
@@ -201,13 +204,13 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                    // parse leaf node
                                    var key = '';
                                    for (var ki = 0; ki < keySize; ++ki) {
-                                       var charCode = ba[offset++];
+                                       var charCode = data.getUint8( offset++ );
                                        if (charCode != 0) {
                                            key += String.fromCharCode(charCode);
                                        }
                                    }
-                                   var refId = readInt( ba, offset );
-                                   var refSize = readInt( ba, offset+4 );
+                                   var refId = data.getUint32( offset );
+                                   var refSize = data.getUint32( offset+4 );
                                    offset += 8;
 
                                    var refRec = { name: key, id: refId, length: refSize };
@@ -218,7 +221,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                } else {
                                    // parse index node
                                    offset += keySize;
-                                   var childOffset = (readInt( ba, offset+4 ) << 32) | readInt( ba, offset );
+                                   var childOffset = data.getUint64( offset );
                                    offset += 8;
                                    childOffset -= thisB.chromTreeOffset;
                                    bptReadNode(childOffset);
