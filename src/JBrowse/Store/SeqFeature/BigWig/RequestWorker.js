@@ -2,26 +2,28 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'JBrowse/Util',
             'JBrowse/Util/RejectableFastPromise',
             'dojo/promise/all',
             'JBrowse/Model/Range',
+            'JBrowse/Model/SimpleFeature',
             'jszlib/inflate',
             'jszlib/arrayCopy'
         ],
-        function( declare, dlang, array, RejectableFastPromise, all, Range, inflate, arrayCopy ) {
+        function(
+            declare,
+            dlang,
+            array,
+            Util,
+            RejectableFastPromise,
+            all,
+            Range,
+            SimpleFeature,
+            inflate,
+            arrayCopy
+        ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
-
-var gettable = declare( null, {
-    get: function(name) {
-        return this[name];
-    },
-    tags: function() {
-        return ['start','end','seq_id','score','type','source'];
-    }
-});
-var Feature = declare( gettable, {} );
-var Group = declare( gettable, {} );
 
 var RequestWorker = declare( null,
  /**
@@ -76,10 +78,10 @@ var RequestWorker = declare( null,
 
     cirFobStartFetch: function(offset, fr, level, attempts) {
         var length = fr.max() - fr.min();
-        //dlog('fetching ' + fr.min() + '-' + fr.max() + ' (' + (fr.max() - fr.min()) + ')');
+        dlog('fetching ' + fr.min() + '-' + fr.max() + ' (' + Util.humanReadableNumber(length) + ')');
         //console.log('cirfobstartfetch');
         this.window.bwg.data
-            .read( fr.min(), fr.max() - fr.min(), dlang.hitch( this,function(resultBuffer) {
+            .read( fr.min(), length, dlang.hitch( this,function(resultBuffer) {
                 for (var i = 0; i < offset.length; ++i) {
                         if (fr.contains(offset[i])) {
                             this.cirFobRecur2(resultBuffer, offset[i] - fr.min(), level);
@@ -175,17 +177,17 @@ var RequestWorker = declare( null,
     createFeature: function(fmin, fmax, opts) {
         // dlog('createFeature(' + fmin +', ' + fmax + ', '+opts.score+')');
 
-        var f = new Feature();
-        f.seq_id = (this.window.bwg.refsByNumber[this.chr]||{}).name;
-        f.start = fmin;
-        f.end = fmax;
-        f.source = this.source;
-        f.parent = function(){ return undefined; };
+        var data = { start: fmin,
+                     end: fmax,
+                     source: this.source
+                   };
 
-        if( opts )
-            for (k in opts) {
-                f[k] = opts[k];
-            }
+        for( var k in opts )
+            data[k] = opts[k];
+
+        var f = new SimpleFeature({
+            data: data
+        });
 
         this.features.push(f);
     },
@@ -223,31 +225,28 @@ var RequestWorker = declare( null,
     parseBigWigBlock: function( block, startOffset ) {
         var data = this.window.bwg.newDataView( block.data, startOffset );
 
-        var chromId = data.getUint32();
-        var blockStart = data.getInt32();
-        var blockEnd = data.getInt32();
-        var itemStep = data.getUint32();
-        var itemSpan = data.getUint32();
-        var blockType = data.getUint8();
-        var reserved = data.getUint8();
-        var itemCount = data.getUint16();
+        var itemSpan = data.getUint32( 16 );
+        var blockType = data.getUint8( 20 );
+        var itemCount = data.getUint16( 22 );
 
         // dlog('processing bigwig block, type=' + blockType + '; count=' + itemCount);
 
         if (blockType == this.BIG_WIG_TYPE_FSTEP) {
+            var blockStart = data.getInt32( 4 );
+            var itemStep = data.getUint32( 12 );
             for (var i = 0; i < itemCount; ++i) {
-                var score = data.getFloat32();
+                var score = data.getFloat32( 4*i+24 );
                 this.maybeCreateFeature( blockStart + (i*itemStep), blockStart + (i*itemStep) + itemSpan, {score: score});
             }
         } else if (blockType == this.BIG_WIG_TYPE_VSTEP) {
             for (var i = 0; i < itemCount; ++i) {
-                var start = data.getInt32();
+                var start = data.getInt32( 8*i+24 );
                 var score = data.getFloat32();
                 this.maybeCreateFeature( start, start + itemSpan, {score: score});
             }
         } else if (blockType == this.BIG_WIG_TYPE_GRAPH) {
             for (var i = 0; i < itemCount; ++i) {
-                var start = data.getInt32();
+                var start = data.getInt32( 12*i + 24 );
                 var end   = data.getInt32();
                 var score = data.getFloat32();
                 if (start > end) {
@@ -313,7 +312,7 @@ var RequestWorker = declare( null,
                 var blockStarts = bedColumns[8].split(',');
 
                 featureOpts.type = 'bb-transcript';
-                var grp = new Group();
+                var grp = new Feature();
                 grp.id = bedColumns[0];
                 grp.type = 'bb-transcript';
                 grp.notes = [];
@@ -322,7 +321,7 @@ var RequestWorker = declare( null,
                 if (bedColumns.length > 10) {
                     var geneId = bedColumns[9];
                     var geneName = bedColumns[10];
-                    var gg = new Group();
+                    var gg = new Feature();
                     gg.id = geneId;
                     gg.label = geneName;
                     gg.type = 'gene';

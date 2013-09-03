@@ -23,10 +23,10 @@ return declare( null,
      */
     constructor: function(bwg, cirTreeOffset, cirTreeLength, isSummary) {
         this.bwg = bwg;
-        if( cirTreeOffset < 0 )
-            throw "cirTreeOffset cannot be negative!";
-        if( cirTreeLength <= 0 )
-            throw "cirTreeLength must be positive nonzero!";
+        if( !( cirTreeOffset >= 0 ) )
+            throw "invalid cirTreeOffset!";
+        if( !( cirTreeLength > 0 ) )
+            throw "invalid cirTreeLength!";
 
         this.cirTreeOffset = cirTreeOffset;
         this.cirTreeLength = cirTreeLength;
