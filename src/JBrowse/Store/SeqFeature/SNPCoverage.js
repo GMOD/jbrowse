@@ -25,6 +25,7 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
 
     constructor: function( args ) {
         this.store = args.store;
+        this.filter = args.filter || function() { return true; };
     },
 
     getGlobalStats: function( callback, errorCallback ) {
@@ -83,6 +84,8 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
         thisB.store.getFeatures(
             query,
             function( feature ) {
+                if( ! thisB.filter( feature ) )
+                    return;
 
                 // calculate total coverage
                 var startBO = binOverlap( feature.get('start'), false );

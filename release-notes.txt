@@ -1,10 +1,11 @@
 {{$NEXT}}
 
- * Added options to Alignments2 tracks to allow hiding reads that are
-   duplicates, fail vendor QC, have missing mate pairs, are secondary
-   alignments, and/or are supplementary alignments.  Thanks to Kieran
-   Raine and Andrew Uzilov for pointing out the need for this, and for
-   their input on its design (issue #332).
+ * Added options to Alignments, Alignments2, and SNPCoverage tracks to
+   allow hiding reads that are duplicates, fail vendor QC, have
+   missing mate pairs, are secondary alignments, and/or are
+   supplementary alignments.  Thanks to Kieran Raine and Andrew Uzilov
+   for pointing out the need for this, and for their input on its
+   design (issue #332).
 
  * Added support for a `variables` configuration for SPARQL data
    stores that can be used to specify additional variables for
