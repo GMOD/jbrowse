@@ -25,6 +25,11 @@
 
        `addStores=%7B%20%22urlbam%22%3A%20%7B%20%22type%22%3A%20%22JBrowse%2FStore%2FSeqFeature%2FBAM%22%2C%20%22urlTemplate%22%3A%20%22%2Fpath%2Fto%2Fmy%2Fbamfile.bam%22%20%7D%7D`
 
+ * Slightly improved performance of generate-names.pl in cases where
+   --completionLimit is zero.  Also improved the POD documentation of
+   the --completionLimit parameter for generate-names.pl.  Thanks to
+   Richard Hayes for his patience, and pointing out the need for this.
+
  * Fixed a bug that prevented display of BAM reads that had MD tags
    but no associated CIGAR string.  Thanks to Keiran Raine for point
    this out (issue #330).
