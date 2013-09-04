@@ -5,6 +5,7 @@ define( [
             'dojo/_base/url',
             'JBrowse/Model/DataView',
             'JBrowse/has',
+            'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -19,6 +20,7 @@ define( [
             urlObj,
             jDataView,
             has,
+            JBrowseErrors,
             SeqFeatureStore,
             DeferredFeaturesMixin,
             DeferredStatsMixin,
@@ -62,6 +64,14 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         this._load();
     },
 
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                chunkSizeLimit: 30000000 // 30mb
+            });
+    },
+
     _getGlobalStats: function( successCallback, errorCallback ) {
         var s = this._globalStats || {};
 
@@ -74,8 +84,18 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         successCallback( s );
     },
 
+     /**
+      * Read from the bbi file, respecting the configured chunkSizeLimit.
+      */
+    _read: function( start, size, callback, errorcallback ) {
+        if( size > this.config.chunkSizeLimit )
+            errorcallback( new JBrowseErrors.DataOverflow('Too much data. Chunk size '+Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '+Util.commifyNumber(this.config.chunkSizeLimit)+'.' ) );
+        else
+            this.data.read.apply( this.data, arguments );
+    },
+
     _load: function() {
-        this.data.read( 0, 512, lang.hitch( this, function( bytes ) {
+        this._read( 0, 512, lang.hitch( this, function( bytes ) {
             if( ! bytes ) {
                 this._failAllDeferred( 'BBI header not readable' );
                 return;
@@ -175,7 +195,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             ++udo;
         }
 
-        this.data.read( this.chromTreeOffset, udo - this.chromTreeOffset, function(bpt) {
+        this._read( this.chromTreeOffset, udo - this.chromTreeOffset, function(bpt) {
                        if( ! has('typed-arrays') ) {
                            thisB._failAllDeferred( 'Web browser does not support typed arrays' );
                            return;
