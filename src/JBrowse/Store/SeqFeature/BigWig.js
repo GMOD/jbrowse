@@ -279,7 +279,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         var max = query.end;
 
         var v = query.basesPerSpan ? this.getView( 1/query.basesPerSpan ) :
-                       query.scale ? this.getView( scale )                :
+                       query.scale ? this.getView( query.scale )          :
                                      this.getView( 1 );
 
         if( !v ) {
