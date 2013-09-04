@@ -197,10 +197,10 @@ var RequestWorker = declare( null,
         }
     },
 
-    parseSummaryBlock: function( block, startOffset ) {
-        var data = this.window.bwg.newDataView( block.data, startOffset );
+    parseSummaryBlock: function( bytes, startOffset ) {
+        var data = this.window.bwg.newDataView( bytes, startOffset );
 
-        var itemCount = block.data.byteLength/32;
+        var itemCount = bytes.byteLength/32;
         for (var i = 0; i < itemCount; ++i) {
             var chromId =   data.getInt32();
             var start =     data.getInt32();
@@ -221,8 +221,8 @@ var RequestWorker = declare( null,
         }
     },
 
-    parseBigWigBlock: function( block, startOffset ) {
-        var data = this.window.bwg.newDataView( block.data, startOffset );
+    parseBigWigBlock: function( bytes, startOffset ) {
+        var data = this.window.bwg.newDataView( bytes, startOffset );
 
         var itemSpan = data.getUint32( 16 );
         var blockType = data.getUint8( 20 );
@@ -258,17 +258,17 @@ var RequestWorker = declare( null,
         }
     },
 
-    parseBigBedBlock: function( block, startOffset ) {
-        var data = this.window.bwg.newDataView( block.data, startOffset );
+    parseBigBedBlock: function( bytes, startOffset ) {
+        var data = this.window.bwg.newDataView( bytes, startOffset );
 
         var offset = 0;
-        while (offset < block.data.length) {
+        while (offset < bytes.length) {
             var chromId = data.getUint32( offset );
             var start = data.getInt32( offset+4 );
             var end = data.getInt32( offset+8 );
             offset += 12;
             var rest = '';
-            while( offset < block.data.length ) {
+            while( offset < bytes.length ) {
                 var ch = data.getUint8( offset++ );
                 if (ch != 0) {
                     rest += String.fromCharCode(ch);
@@ -365,21 +365,8 @@ var RequestWorker = declare( null,
         var blockFetches = array.map( thisB.blockGroupsToFetch, function( blockGroup ) {
             //console.log( 'fetching blockgroup with '+blockGroup.blocks.length+' blocks: '+blockGroup );
             var d = new RejectableFastPromise();
-            thisB.window.bwg._read( blockGroup.offset, blockGroup.size, function(result) {
-                            array.forEach( blockGroup.blocks, function( block ) {
-                                               var offset = block.offset-blockGroup.offset;
-                                               if( thisB.window.bwg.uncompressBufSize > 0 ) {
-                                                   // var beforeInf = new Date();
-                                                   block.data = inflate( result, offset+2, block.size - 2);
-                                                  //console.log( 'inflate', 2, block.size - 2);
-                                                   // var afterInf = new Date();
-                                                   // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
-                                               } else {
-                                                   var tmp = new Uint8Array(block.size);    // FIXME is this really the best we can do?
-                                                   arrayCopy(new Uint8Array(result, offset, block.size), 0, tmp, 0, block.size);
-                                                   block.data = tmp.buffer;
-                                               }
-                            });
+            thisB.window.bwg._read( blockGroup.offset, blockGroup.size, function( data ) {
+                            blockGroup.data = data;
                             d.resolve( blockGroup );
                         }, dlang.hitch( d, 'reject' ) );
             return d;
@@ -388,12 +375,25 @@ var RequestWorker = declare( null,
         all( blockFetches ).then( function( blockGroups ) {
             array.forEach( blockGroups, function( blockGroup ) {
                 array.forEach( blockGroup.blocks, function( block ) {
+                                   var data;
+                                   var offset = block.offset - blockGroup.offset;
+                                   if( thisB.window.bwg.uncompressBufSize > 0 ) {
+                                       // var beforeInf = new Date();
+                                       data = inflate( blockGroup.data, offset+2, block.size - 2);
+                                       offset = 0;
+                                       //console.log( 'inflate', 2, block.size - 2);
+                                       // var afterInf = new Date();
+                                       // dlog('inflate: ' + (afterInf - beforeInf) + 'ms');
+                                   } else {
+                                       data = blockGroup.data;
+                                   }
+
                                    if( thisB.window.isSummary ) {
-                                       thisB.parseSummaryBlock( block, block.fetchOffset||0 );
+                                       thisB.parseSummaryBlock( data, offset );
                                    } else if (thisB.window.bwg.type == 'bigwig') {
-                                       thisB.parseBigWigBlock( block, block.fetchOffset||0 );
+                                       thisB.parseBigWigBlock( data, offset );
                                    } else if (thisB.window.bwg.type == 'bigbed') {
-                                       thisB.parseBigBedBlock( block, block.fetchOffset||0 );
+                                       thisB.parseBigBedBlock( data, offset );
                                    } else {
                                        dlog("Don't know what to do with " + thisB.window.bwg.type);
                                    }
