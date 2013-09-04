@@ -1,11 +1,106 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added options to Alignments, Alignments2, and SNPCoverage tracks to
+   allow hiding reads that are duplicates, fail vendor QC, have
+   missing mate pairs, are secondary alignments, and/or are
+   supplementary alignments.  Thanks to Kieran Raine and Andrew Uzilov
+   for pointing out the need for this, and for their input on its
+   design (issue #332).
+
+ * Added support for a `variables` configuration for SPARQL data
+   stores that can be used to specify additional variables for
+   interpolating into a SPARQL query.  Thanks to Toshiaki Katayama for
+   suggesting this.
+
+ * Added support for an `addStores` variable in the query string of the
+   URL used to start JBrowse.  This variable accepts store
+   configurations (which are a way to specify data sources separately
+   from track configurations, so multiple tracks can use the same data
+   source) in JSON format.  For example, to add a store called
+   "urlbam" that points to a BAM file, you could use the JSON:
+
+       `{ "urlbam": { "type": "JBrowse/Store/SeqFeature/BAM", "urlTemplate": "/path/to/my/bamfile.bam" }}`
+
+   which, when URI-escaped and put in the query string, looks like:
+
+       `addStores=%7B%20%22urlbam%22%3A%20%7B%20%22type%22%3A%20%22JBrowse%2FStore%2FSeqFeature%2FBAM%22%2C%20%22urlTemplate%22%3A%20%22%2Fpath%2Fto%2Fmy%2Fbamfile.bam%22%20%7D%7D`
+
+ * Slightly improved performance of generate-names.pl in cases where
+   --completionLimit is zero.  Also improved the POD documentation of
+   the --completionLimit parameter for generate-names.pl. Thanks to
+   Richard Hayes for his continued patience.
+
+## Bug fixes
+
+ * Fixed some bugs that prevented proper display of BigWig files
+   larger than 4GB. Thanks to Keiran Raine for pointing this out.
+
+ * Fixed a major performance bug that unnecessarily slowed down
+   display of large BigWig files with Wiggle tracks when `autoscale`
+   is set to "local".
+
+ * Fixed a bug that prevented display of BAM reads that had MD tags
+   but no associated CIGAR string.  Thanks to Keiran Raine for point
+   this out (issue #330).
+
+ * Fixed a bug in which FixedImage tracks (e.g. legacy image-based
+   Wiggle tracks) never take down the "Loading" message when
+   displaying on a reference sequence for which no image data has been
+   provided.
+
+ * Fixed a bug that prevented rendering of mismatches, insertions, and
+   deletions in a BAM read that occurred after a skip. Thanks to Gregg
+   Helt for noticing this and fixing it (issue #325).
+
+ * Fixed a bug in which the SNP frequencies calculated by SNPCoverage
+   tracks were sometimes incorrect.  Thanks to Matthew Conte for
+   pointing this out (issue #335).
+
+ * Fixed a bug in which reference sequences with a start coordinate
+   other than zero would cause the overview scale track to not be
+   drawn correctly.  Thanks to Gregg Helt for noticing this and
+   working on an initial fix (issue #324).
+
+ * Fixed a bug in which the most recent location visited on a given
+   reference sequence was not properly being restored from the saved
+   cookie.  Thanks to Gregg Helt for the initial fix for this
+   (issue #321).
+
+ * Fixed a bug in which event handlers and blocks in CanvasFeatures
+   tracks were not being properly cleaned up.  The most prominent
+   visible consequences of this were duplicate dialog boxes being
+   opened when clicking on a canvas feature.  Thanks to Keiran Raine
+   for noticing this and making sure it was fixed (issue #329).
+
+ * Fixed a bug with flatfile-to-json.pl parsing of GenBank locations.
+   Thanks to Steve Marshall for pointing this out (issue #323).
+
+# Release 1.10.2     2013-08-15 13:57:16 EST5EDT
+
+ * Added mouse-over 'tooltips' to to CanvasFeatures tracks that show
+   the a feature's label and description when the mouse hovers over
+   it.  Thanks to Daniel Kasenberg for implementing this.
+
+ * Strand arrowheads in CanvasFeatures tracks now attempt to stay
+   visible on the screen, like they do in HTMLFeatures tracks.  Thanks
+   to Daniel Kasenberg for implementing this.
+
  * Fixed bugs and inefficiencies preventing JBrowse from handling very
    dense BigWig files.  Thanks to Michael Axtell for pointing this out
    (issue #312).
 
- * Fix a bug in which features were not always laid out correctly in
+ * Fixed a bug in which features were not always laid out correctly in
    CanvasFeature tracks when the display mode is set to "compact".
+
+ * Fixed a bug causing the text labels of mismatching bases in
+   Alignments2 tracks (i.e. `Alignments` canvas glyphs) to be slightly
+   misaligned vertically when feature labels are turned on (they are
+   off by default for Alignments glyphs).
+
+ * Fixed a bug preventing the `defaultTracks` configuration variable
+   from operating correctly.
 
 # Release 1.10.1     2013-08-06 15:32:21 EST5EDT
 

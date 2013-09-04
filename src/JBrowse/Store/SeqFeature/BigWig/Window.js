@@ -1,9 +1,10 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
             './RequestWorker'
         ],
-        function( declare, lang, RequestWorker ) {
+        function( declare, lang, array, RequestWorker ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
@@ -22,6 +23,11 @@ return declare( null,
      */
     constructor: function(bwg, cirTreeOffset, cirTreeLength, isSummary) {
         this.bwg = bwg;
+        if( !( cirTreeOffset >= 0 ) )
+            throw "invalid cirTreeOffset!";
+        if( !( cirTreeLength > 0 ) )
+            throw "invalid cirTreeLength!";
+
         this.cirTreeOffset = cirTreeOffset;
         this.cirTreeLength = cirTreeLength;
         this.isSummary = isSummary;
@@ -45,7 +51,7 @@ return declare( null,
 
     readWigDataById: function(chr, min, max, callback, errorCallback ) {
         if( !this.cirHeader ) {
-            var readCallback = lang.hitch( this, 'readWigDataById', chr, min, max, callback );
+            var readCallback = lang.hitch( this, 'readWigDataById', chr, min, max, callback, errorCallback );
             if( this.cirHeaderLoading ) {
                 this.cirHeaderLoading.push( readCallback );
             }
@@ -53,12 +59,10 @@ return declare( null,
                 this.cirHeaderLoading = [ readCallback ];
                 // dlog('No CIR yet, fetching');
                 this.bwg.data
-                    .slice(this.cirTreeOffset, 48)
-                    .fetch( lang.hitch( this, function(result) {
+                    .read( this.cirTreeOffset, 48, lang.hitch( this, function(result) {
                                 this.cirHeader = result;
-                                var la = new Int32Array( this.cirHeader, 0, 2 );
-                                this.cirBlockSize = la[1];
-                                dojo.forEach( this.cirHeaderLoading, function(c) { c(); });
+                                this.cirBlockSize = this.bwg.newDataView( result, 4, 4 ).getUint32();
+                                array.forEach( this.cirHeaderLoading, function(c) { c(); });
                                 delete this.cirHeaderLoading;
                             }), errorCallback );
             }

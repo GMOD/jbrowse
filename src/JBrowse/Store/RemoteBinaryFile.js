@@ -315,6 +315,12 @@ return declare( null,
         if( start && !end )
             throw "cannot specify a fetch start without a fetch end";
 
+        if( start < 0 )
+            throw "start cannot be negative!";
+        if( end < 0 )
+            throw "end cannot be negative!";
+
+
         if( ! args.success )
             throw new Error('success callback required');
         if( ! args.failure )

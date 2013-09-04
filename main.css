@@ -935,6 +935,7 @@ a.dialog-new-window {
     background: rgba( 0, 0, 0, 0.1 );
     border: 1px outset #B9B9B9;
     padding: 0.6em;
+    margin-bottom: 0.8em;
 }
 .feature-detail .fasta {
     clear: both;

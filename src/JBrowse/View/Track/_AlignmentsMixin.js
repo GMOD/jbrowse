@@ -16,6 +16,16 @@ define([
 
 return declare( MismatchesMixin ,{
 
+    constructor: function() {
+        // initialize alignments feature filters
+        for( var filtername in this.alignmentsFilters ) {
+            if( this.config[filtername] )
+                this.addFeatureFilter( this.alignmentsFilters[filtername] );
+            else
+                this.removeFeatureFilter( this.alignmentsFilters[filtername] );
+        }
+    },
+
     /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
@@ -122,6 +132,66 @@ return declare( MismatchesMixin ,{
         }.call(this);
 
         return this._baseStyles[base] || '#999';
+    },
+
+    _setAlignmentsFilter: function( filtername, isActive ) {
+        var previousSetting = this.config[filtername];
+        this.config[filtername] = isActive;
+
+        // nothing to do if not changed
+        if( previousSetting === this.config[filtername] )
+            return;
+
+        if( isActive )
+            this.addFeatureFilter( this.alignmentsFilters[filtername] );
+        else
+            this.removeFeatureFilter( this.alignmentsFilters[filtername] );
+
+        this.changed();
+    },
+
+    //methods for filtering BAM alignments according to some flags
+    // predefined feature filters
+    alignmentsFilters: {
+        hideDuplicateReads: function( f ) {
+            return ! f.get('duplicate');
+        },
+        hideQCFailingReads: function( f ) {
+            return ! f.get('qc_failed');
+        },
+        hideSecondary: function( f ) {
+            return ! f.get('secondary_alignment');
+        },
+        hideSupplementary: function( f ) {
+            return ! f.get('supplementary_alignment');
+        },
+        hideMissingMatepairs: function( f ) {
+            return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+        }
+    },
+
+    _alignmentsFilterTrackMenuOptions: function() {
+        // add toggles for feature filters
+        var track = this;
+        return array.map(
+            [
+                { desc: 'Hide PCR/Optical duplicate reads',   fname: 'hideDuplicateReads' },
+                { desc: 'Hide reads failing vendor QC',       fname: 'hideQCFailingReads' },
+                { desc: 'Hide reads with missing mate pairs', fname: 'hideMissingMatepairs' },
+                { desc: 'Hide secondary alignments',          fname: 'hideSecondary' },
+                { desc: 'Hide supplementary alignments',      fname: 'hideSupplementary' }
+            ],
+            function( spec ) {
+                return { label: spec.desc,
+                         type: 'dijit/CheckedMenuItem',
+                         checked: !! this.config[spec.fname],
+                         onClick: function(event) {
+                             track._setAlignmentsFilter( spec.fname, this.checked );
+                         }
+                       };
+            },
+            this
+        );
     }
 
 });

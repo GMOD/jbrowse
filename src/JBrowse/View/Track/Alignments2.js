@@ -9,20 +9,31 @@ define( [
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
-    constructor: function() {
-    },
-
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
             {
                 glyph: 'JBrowse/View/FeatureGlyph/Alignment',
                 maxFeatureGlyphExpansion: 0,
+
+                hideDuplicateReads: true,
+                hideQCFailingReads: true,
+                hideSecondary: true,
+                hideSupplementary: true,
+                hideMissingMatepairs: false,
+
                 style: {
                     showLabels: false
                 }
             }
         );
+    },
+
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
+        return o;
     }
 
 });

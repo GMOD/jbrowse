@@ -125,8 +125,6 @@ constructor: function( args ) {
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = stripeWidth;
 
-    //width, in pixels, of stripes at full zoom, is 10bp
-    this.fullZoomStripe = stripeWidth/10 * this.maxPxPerBp;
 
     this.overview = this.browser.overviewDiv;
     this.overviewBox = dojo.marginBox(this.overview);
@@ -1119,7 +1117,8 @@ setLocation: function(refseq, startbp, endbp) {
 
 stripeWidthForZoom: function(zoomLevel) {
     if ((this.zoomLevels.length - 1) == zoomLevel) {
-        return this.fullZoomStripe;
+        // width, in pixels, of stripes at full zoom, is 10bp
+        return this.regularStripe / 10 * this.maxPxPerBp;
     } else if (0 == zoomLevel) {
         return this.minZoomStripe;
     } else {
@@ -1620,7 +1619,7 @@ sizeInit: function() {
         track.sizeInit(view.overviewStripes,
                overviewStripePct);
             track.showRange(0, view.overviewStripes - 1,
-                            -1, view.overviewStripeBases,
+                            view.ref.start-1, view.overviewStripeBases,
                             view.overviewBox.w /
                             (view.ref.end - view.ref.start));
     });
@@ -1674,7 +1673,6 @@ addOverviewTrack: function(track) {
     var trackDiv = document.createElement("div");
     trackDiv.className = "track";
     trackDiv.style.height = this.overviewBox.h + "px";
-    trackDiv.style.left = (((-this.ref.start) / refLength) * this.overviewBox.w) + "px";
     trackDiv.id = "overviewtrack_" + track.name;
     trackDiv.track = track;
     var view = this;
@@ -1995,7 +1993,7 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
 
     this.overviewTrackIterate(function(track, view) {
                                   track.showRange(0, view.overviewStripes - 1,
-                                                  -1, view.overviewStripeBases,
+                                                  view.ref.start-1, view.overviewStripeBases,
                                                   view.overviewBox.w /
                                                   (view.ref.end - view.ref.start));
                       });

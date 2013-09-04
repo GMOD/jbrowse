@@ -1,9 +1,10 @@
 define(
     [
         'dojo/_base/declare',
+        'JBrowse/has',
         'JBrowse/View/Track/BlockBased'
     ],
-    function( declare, BlockBased ) {
+    function( declare, has, BlockBased ) {
 
 return declare( BlockBased,
  /**
@@ -41,15 +42,15 @@ return declare( BlockBased,
                                       return true;
                                   });
 
-        if( ! dojo.isIE )
-            return handler;
-        else
+        if( has('ie') )
             // in IE, have to delay calling it for a (arbitrary) 1/4
             // second because the image's height is not always
             // available when the onload event fires.  >:-{
             return function() {
                 window.setTimeout(handler,250);
             };
+        else
+            return handler;
 
     },
 
@@ -98,7 +99,7 @@ return declare( BlockBased,
         }),
         dojo.hitch( this, function( error ) {
             if( error.status == 404 ) {
-                // do nothing
+                finishCallback();
             } else {
                 this.fillBlockError( blockIndex, block, error );
             }
