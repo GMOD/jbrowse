@@ -11,8 +11,10 @@ var DataView = function() {
 };
 
 try {
-    DataView.prototype = new jDataView( new ArrayBuffer() );
-} catch(e) {}
+    DataView.prototype = new jDataView( new ArrayBuffer([1]), 0, 1 );
+} catch(e) {
+    console.error(e);
+}
 
 /**
  * Get a 53-bit integer from 64 bits and approximate the number if it overflows.
