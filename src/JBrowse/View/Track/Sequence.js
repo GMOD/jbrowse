@@ -28,6 +28,7 @@ return declare( [BlockBased, ExportMixin],
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
+            showForwardStrand: true,
             showReverseStrand: true,
             showTranslation: true
         };
@@ -115,12 +116,12 @@ return declare( [BlockBased, ExportMixin],
         var blockSeq = seq.substring( 2, seq.length - 2 );
         var blockLength = blockSeq.length;
 
-        if( this.config.showTranslation ) {
-            var extStart = start;
-            var extEnd = end;
-            var extStartSeq = seq.substring( 0, seq.length - 2 );
-            var extEndSeq = seq.substring( 2 );
+        var extStart = start;
+        var extEnd = end;
+        var extStartSeq = seq.substring( 0, seq.length - 2 );
+        var extEndSeq = seq.substring( 2 );
 
+        if( this.config.showForwardStrand && this.config.showTranslation ) {
             var frameDiv = [];
             for( var i = 0; i < 3; i++ ) {
                 var transStart = blockStart + i;
@@ -135,10 +136,12 @@ return declare( [BlockBased, ExportMixin],
         }
 
         // make a div to contain the sequences
-        var seqNode = dom.create("div", { className: "sequence", style: { width: "100%"} }, block.domNode);
+        if( this.config.showReverseStrand || this.config.showForwardStrand )
+            var seqNode = dom.create("div", { className: "sequence", style: { width: "100%"} }, block.domNode);
 
         // add a div for the forward strand
-        seqNode.appendChild( this._renderSeqDiv( blockStart, blockEnd, blockSeq, scale ));
+        if( this.config.showForwardStrand )
+            seqNode.appendChild( this._renderSeqDiv( blockStart, blockEnd, blockSeq, scale ));
 
         // and one for the reverse strand
         if( this.config.showReverseStrand ) {
@@ -191,7 +194,7 @@ return declare( [BlockBased, ExportMixin],
             });
 
         if( reverse ) {
-            container.style.top = "32px";
+            container.style.top = this.config.showForwardStrand ? "32px" : '16px';
             container.style.left = (100 - charWidth * (translated.length + offset / 3))+ "%";
         } else {
             container.style.left = (charWidth * offset / 3) + "%";
@@ -276,7 +279,23 @@ return declare( [BlockBased, ExportMixin],
         o.push( { type: 'dijit/MenuSeparator' } );
         o.push.apply( o,
             [
-                { label: 'Show 6-frame translation',
+                { label: 'Show forward strand',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !! this.config.showForwardStrand,
+                  onClick: function(event) {
+                      track.config.showForwardStrand = this.checked;
+                      track.changed();
+                  }
+                },
+                { label: 'Show reverse strand',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !! this.config.showReverseStrand,
+                  onClick: function(event) {
+                      track.config.showReverseStrand = this.checked;
+                      track.changed();
+                  }
+                },
+                { label: 'Show translation',
                   type: 'dijit/CheckedMenuItem',
                   checked: !! this.config.showTranslation,
                   onClick: function(event) {
