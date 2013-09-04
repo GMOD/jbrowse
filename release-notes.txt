@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.3     2013-09-04 16:22:17 EST5EDT
+
 ## Minor improvements
 
  * Added options to Alignments, Alignments2, and SNPCoverage tracks to
