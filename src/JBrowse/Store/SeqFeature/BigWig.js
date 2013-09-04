@@ -326,7 +326,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             maxLevel--;
         for( var i = maxLevel; i > 0; i-- ) {
             var zh = this.zoomLevels[i];
-            if( zh && zh.reductionLevel <= basesPerSpan ) {
+            if( zh && zh.reductionLevel <= 2*basesPerPx ) {
                 var indexLength = i < this.zoomLevels.length - 1
                     ? this.zoomLevels[i + 1].dataOffset - zh.indexOffset
                     : this.fileSize - 4 - zh.indexOffset;
