@@ -99,7 +99,7 @@ return declare( BlockBased,
         }),
         dojo.hitch( this, function( error ) {
             if( error.status == 404 ) {
-                // do nothing
+                finishCallback();
             } else {
                 this.fillBlockError( blockIndex, block, error );
             }
