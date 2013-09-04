@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/on',
             'dojo/mouse',
@@ -10,7 +11,19 @@ define( [
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
-        function( declare, array, dom, on, mouse, BlockBasedTrack, ExportMixin, DetailStatsMixin, Util, Scale ) {
+        function(
+            declare,
+            array,
+            lang,
+            dom,
+            on,
+            mouse,
+            BlockBasedTrack,
+            ExportMixin,
+            DetailStatsMixin,
+            Util,
+            Scale
+        ) {
 
 return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
@@ -31,9 +44,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         };
     },
 
-    _getScaling: function( successCallback, errorCallback ) {
-
-        this._getScalingStats( dojo.hitch(this, function( stats ) {
+    _getScaling: function( viewArgs, successCallback, errorCallback ) {
+        this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats(stats) ) {
@@ -53,16 +65,17 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     // get the statistics to use for scaling, if necessary, either
     // from the global stats for the store, or from the local region
     // if config.autoscale is 'local'
-    _getScalingStats: function( callback, errorCallback ) {
+    _getScalingStats: function( viewArgs, callback, errorCallback ) {
         if( ! Scale.prototype.needStats( this.config ) ) {
             callback( null );
             return null;
         }
         else if( this.config.autoscale == 'local' ) {
-            return this.getRegionStats.call( this, this.browser.view.visibleRegion(), callback, errorCallback );
+            var region = lang.mixin( { scale: viewArgs.scale }, this.browser.view.visibleRegion() );
+            return this.getRegionStats.call( this, region, callback, errorCallback );
         }
         else {
-            return this.getGlobalStats.apply( this, arguments );
+            return this.getGlobalStats.call( this, callback, errorCallback );
         }
     },
 
@@ -220,7 +233,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         // hook updateGraphs onto the end of the block feature fetch
         var oldFinish = args.finishCallback || function() {};
         args.finishCallback = function() {
-            thisB.updateGraphs( oldFinish );
+            thisB.updateGraphs( args, oldFinish );
         };
 
         // get the features for this block, and then set in motion the
@@ -228,11 +241,12 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         this._getBlockFeatures( args );
     },
 
-    updateGraphs: function( callback ) {
+    updateGraphs: function( viewArgs, callback ) {
         var thisB = this;
 
         // update the global scaling
-        this._getScaling( function( scaling ) {
+        this._getScaling( viewArgs,
+                          function( scaling ) {
                               thisB.scaling = scaling;
                               // render all of the blocks that need it
                               array.forEach( thisB.blocks, function( block, blockIndex ) {
