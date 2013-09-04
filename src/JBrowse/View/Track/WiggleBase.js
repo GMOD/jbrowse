@@ -72,6 +72,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         }
         else if( this.config.autoscale == 'local' ) {
             var region = lang.mixin( { scale: viewArgs.scale }, this.browser.view.visibleRegion() );
+            region.start = Math.ceil( region.start );
+            region.end = Math.floor( region.end );
             return this.getRegionStats.call( this, region, callback, errorCallback );
         }
         else {
