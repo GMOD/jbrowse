@@ -21,7 +21,6 @@ div.sequence .base.big {
     border: 1px solid #ccc;
     border-right-color: #333;
     border-bottom-color: #333;
-    height: 16px;
 }
 
 div.sequence > div {
@@ -40,17 +39,13 @@ div.translatedSequence .aa.big {
     -ms-box-sizing: border-box;
 
     border-right: 1px solid #fff;
-    height: 16px;
 }
 
 div.translatedSequence {
     position: relative;
-    height: 16px;
 }
 
 div.translatedSequence .aa, div.translatedSequence > div {
-    height: 14px;
-    line-height: 14px;
 }
 
 .translatedSequence.frame0 {
@@ -69,8 +64,6 @@ div.translatedSequence .aa, div.translatedSequence > div {
 }
 
 div.block .aa {
-    height: 14px;
-    line-height: 14px;
 }
 
 div.aa {
