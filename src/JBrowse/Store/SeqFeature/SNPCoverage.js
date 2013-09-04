@@ -176,7 +176,7 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                     makeFeatures();
                 }
             }
-        );
+        , errorCallback );
     }
 
 });
