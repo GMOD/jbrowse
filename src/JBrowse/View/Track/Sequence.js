@@ -268,7 +268,25 @@ return declare( [BlockBased, ExportMixin],
         };
         containerElement.removeChild(widthTest);
         return result;
-  }
+  },
+
+    _trackMenuOptions: function() {
+        var track = this;
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o,
+            [
+                { label: 'Show 6-frame translation',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !! this.config.showTranslation,
+                  onClick: function(event) {
+                      track.config.showTranslation = this.checked;
+                      track.changed();
+                  }
+                }
+            ]);
+        return o;
+    }
 
 });
 });
