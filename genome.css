@@ -3,6 +3,7 @@
 @import url("src/dojo/resources/dojo.css");
 
 @import url("main.css");
+@import url("sequence.css");
 @import url("menubar.css");
 @import url("icons.css");
 @import url("file_dialog.css");

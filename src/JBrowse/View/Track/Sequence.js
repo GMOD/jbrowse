@@ -21,12 +21,15 @@ return declare( [BlockBased, ExportMixin],
      * @constructs
      * @extends JBrowse.View.Track.BlockBased
      */
-    constructor: function( args ) {},
+    constructor: function( args ) {
+        this._charMeasurements = {};
+    },
 
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
-            showReverseStrand: true
+            showReverseStrand: true,
+            showTranslation: true
         };
     },
     _exportFormats: function() {
@@ -57,7 +60,7 @@ return declare( [BlockBased, ExportMixin],
         var leftExtended = leftBase - 2;
         var rightExtended = rightBase + 2;
 
-        var charSize = this.getCharacterMeasurements();
+        var charSize = this.getCharacterMeasurements('sequence');
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= 1 ) {
@@ -124,7 +127,7 @@ return declare( [BlockBased, ExportMixin],
                 var frame = (transStart % 3 + 3) % 3;
                 var translatedDiv = this._renderTranslation( extEndSeq, i, blockStart, blockEnd, blockLength, scale );
                 frameDiv[frame] = translatedDiv;
-                domClass.add( translatedDiv, "frame" + frame )
+                domClass.add( translatedDiv, "frame" + frame );
             }
             for( var i = 2; i >= 0; i-- ) {
                 block.domNode.appendChild( frameDiv[i] );
@@ -174,7 +177,7 @@ return declare( [BlockBased, ExportMixin],
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
 
-        var charSize = this.getCharacterMeasurements("translatedSequence");
+        var charSize = this.getCharacterMeasurements("aa");
 
         var charWidth = 100/(blockLength / 3);
 
@@ -199,7 +202,7 @@ return declare( [BlockBased, ExportMixin],
         var drawChars = scale >= charSize.w;
 
         for( var i=0; i<translated.length; i++ ) {
-            var aaSpan = document.createElement('span');
+            var aaSpan = document.createElement('div');
             aaSpan.className = 'aa aa_'+translated.charAt([i]).toLowerCase();
             aaSpan.style.width = charWidth;
             if( drawChars ) {
@@ -218,7 +221,7 @@ return declare( [BlockBased, ExportMixin],
      */
     _renderSeqDiv: function ( start, end, seq, scale ) {
 
-        var charSize = this.getCharacterMeasurements();
+        var charSize = this.getCharacterMeasurements('sequence');
 
         var container  = document.createElement('div');
         var charWidth = 100/(end-start)+"%";
@@ -243,9 +246,9 @@ return declare( [BlockBased, ExportMixin],
      *      in pixels, of the characters being used for sequences
      */
     getCharacterMeasurements: function( className ) {
-        if( !this._measurements )
-            this._measurements = this._measureSequenceCharacterSize( this.div, className );
-        return this._measurements;
+        return this._charMeasurements[className] || (
+            this._charMeasurements[className] = this._measureSequenceCharacterSize( this.div, className )
+        );
     },
 
     /**
@@ -254,7 +257,7 @@ return declare( [BlockBased, ExportMixin],
      */
     _measureSequenceCharacterSize: function( containerElement, className ) {
         var widthTest = document.createElement("div");
-        widthTest.className = className || "sequence";
+        widthTest.className = className;
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";
         widthTest.appendChild(document.createTextNode(widthText));
