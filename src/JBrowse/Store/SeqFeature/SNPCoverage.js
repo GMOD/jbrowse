@@ -36,7 +36,7 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
         var thisB = this;
         var leftBase  = query.start;
         var rightBase = query.end;
-        var scale = query.scale || ('basesPerSpan' in query ) ? 1/query.basesPerSpan : 10; // px/bp
+        var scale = query.scale || query.basesPerSpan && 1/query.basesPerSpan || 10; // px/bp
         var widthBp = rightBase-leftBase;
         var widthPx = widthBp * scale;
 
