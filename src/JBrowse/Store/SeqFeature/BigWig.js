@@ -118,6 +118,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             this.type = magic == this.BIG_BED_MAGIC ? 'bigbed' : 'bigwig';
 
             this.fileSize = bytes.fileSize;
+            if( ! this.fileSize )
+                console.warn("cannot get size of BigWig/BigBed file, widest zoom level not available");
 
             this.version = data.getUint16();
             this.numZoomLevels = data.getUint16();
@@ -317,9 +319,12 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _getView: function( scale ) {
-        var basesPerSpan = 1/scale;
+        var basesPerPx = 1/scale;
         //console.log('getting view for '+basesPerSpan+' bases per span');
-        for( var i = this.zoomLevels.length - 1; i > 0; i-- ) {
+        var maxLevel = this.zoomLevels.length;
+        if( ! this.fileSize ) // if we don't know the file size, we can't fetch the highest zoom level :-(
+            maxLevel--;
+        for( var i = maxLevel; i > 0; i-- ) {
             var zh = this.zoomLevels[i];
             if( zh && zh.reductionLevel <= basesPerSpan ) {
                 var indexLength = i < this.zoomLevels.length - 1
