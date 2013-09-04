@@ -14,6 +14,14 @@
    interpolating into a SPARQL query.  Thanks to Toshiaki Katayama for
    suggesting this.
 
+ * Added the ability for Sequence tracks to display a 6- or 3-frame
+   translation of the reference sequence.  Thanks to Daniel Kasenberg
+   for implementing this (issue #221).
+
+ * Added checkboxes in the track menu of Sequence tracks that allow
+   users to toggle the display of the forward strand, reverse strand,
+   and 6-frame translation.
+
  * Added support for an `addStores` variable in the query string of the
    URL used to start JBrowse.  This variable accepts store
    configurations (which are a way to specify data sources separately
