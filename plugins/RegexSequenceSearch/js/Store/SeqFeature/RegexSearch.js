@@ -44,7 +44,7 @@ define([
 
             var regionSize = query.end - query.start;
             if( regionSize > this.config.regionSizeLimit )
-                throw new JBrowseErrors.DataOverflow( Util.humanReadableNumber(regionSize) + 'b larger than regionSizeLimit of '+Util.humanReadableNumber(this.config.regionSizeLimit)+'b');
+                throw new JBrowseErrors.DataOverflow( 'Region too large to search' );
 
             var thisB = this;
             this.browser.getStore('refseqs', function( refSeqStore ) {
