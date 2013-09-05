@@ -30,7 +30,12 @@ return declare( ActionBarDialog, {
     },
 
     _dialogContent: function () {
-        var content = {};
+        var content = this.content = {};
+
+        var introdiv = dom.create('div', {
+            className: 'search-dialog intro',
+            innerHTML: 'This tool creates tracks showing regions of the reference sequence (or its translations) that match a given DNA or amino acid sequence.'
+        });
 
         // Render text box
         var searchBoxDiv = dom.create('div', {
@@ -39,7 +44,7 @@ return declare( ActionBarDialog, {
         searchBoxDiv.appendChild(
             dom.create( 'span', {
                 className: "search-dialog header",
-                innerHTML: "Search expression"
+                innerHTML: "Search for"
             })
         );
         content.searchBox = new dTextArea();
@@ -72,7 +77,7 @@ return declare( ActionBarDialog, {
                                                 id: "search_translate_first"
                                             });
         translateDiv.appendChild( content.translate.domNode );
-        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate sequence before searchings" }, translateDiv );
+        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate sequence before searching" }, translateDiv );
         textOptionsDiv.appendChild( translateDiv );
 
 
@@ -119,9 +124,7 @@ return declare( ActionBarDialog, {
         strandsDiv.appendChild( fwdDiv );
         strandsDiv.appendChild( revDiv );
 
-        this.content = content;
-
-        return [ searchBoxDiv, textOptionsDiv, strandsDiv ];
+        return [ introdiv, searchBoxDiv, textOptionsDiv, strandsDiv ];
     },
 
     _getSearchParams: function() {
@@ -163,7 +166,7 @@ return declare( ActionBarDialog, {
 
     show: function ( callback ) {
         this.callback = callback || function() {};
-        this.set( 'title', "Add Sequence Search Track");
+        this.set( 'title', "Add sequence search track");
         this.set( 'content', this._dialogContent() );
         this.inherited( arguments );
         focus.focus( this.closeButtonNode );
