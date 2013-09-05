@@ -219,7 +219,7 @@ getPlugin: function( name, callback ) {
 },
 
 _corePlugins: function() {
-    return ['SequenceSearch'];
+    return ['RegexSequenceSearch'];
 },
 
 /**

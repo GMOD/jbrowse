@@ -17,9 +17,6 @@ define([
 return declare( JBrowsePlugin,
 {
     constructor: function( args ) {
-        // do anything you need to initialize your plugin here
-        console.log( "SequenceSearch plugin starting" );
-
         this._searchTrackCount = 0;
 
         this.browser.addGlobalMenuItem( 'file', new dijitMenuItem(
@@ -43,7 +40,7 @@ return declare( JBrowsePlugin,
                 var storeConf = {
                     browser: thisB.browser,
                     refSeq: thisB.browser.refSeq,
-                    type: 'SequenceSearch/Store/SeqFeature/RegexSearch',
+                    type: 'RegexSequenceSearch/Store/SeqFeature/RegexSearch',
                     searchParams: searchParams
                 };
                 var storeName = thisB.browser.addStoreConfig( undefined, storeConf );
