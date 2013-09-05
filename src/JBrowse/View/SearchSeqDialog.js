@@ -39,7 +39,7 @@ return declare( ActionBarDialog, {
         searchBoxDiv.appendChild(
             dom.create( 'span', {
                 className: "search-dialog header",
-                innerHTML: "Search Expression:"
+                innerHTML: "Search expression"
             })
         );
         content.searchBox = new dTextArea();
@@ -50,23 +50,31 @@ return declare( ActionBarDialog, {
         var textOptionsDiv = dom.create('div', {
             className: "search-dialog section"
         });
-        textOptionsDiv.appendChild(
-            dom.create( 'span', {
-                className: "search-dialog header",
-                innerHTML: "Search Options"
-            })
-        );
 
         var caseDiv = dom.create("div", {
             className: "search-dialog checkboxdiv"
         });
-        content.caseIgnore = new dCheckBox({
-                                                label: "Ignore case",
-                                                id: "search_ignore_case"
+        content.caseIgnore = new dCheckBox({ label: "Ignore case",
+                                               id: "search_ignore_case",
+                                               checked: true
                                             });
         caseDiv.appendChild( content.caseIgnore.domNode );
         dom.create( "label", { "for": "search_ignore_case", innerHTML: "Ignore Case"}, caseDiv );
         textOptionsDiv.appendChild( caseDiv );
+
+
+        var translateDiv = dom.create("div", {
+            className: "search-dialog checkboxdiv"
+        });
+        // Checkbox that toggles amino acid search
+        content.translate = new dCheckBox({
+                                                label: "Translate sequence before searching",
+                                                id: "search_translate_first"
+                                            });
+        translateDiv.appendChild( content.translate.domNode );
+        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate sequence before searchings" }, translateDiv );
+        textOptionsDiv.appendChild( translateDiv );
+
 
         // Render 'treat as regex' checkbox
 
@@ -80,18 +88,6 @@ return declare( ActionBarDialog, {
         regexDiv.appendChild( content.regex.domNode );
         dom.create( "label", { "for": "search_as_regex", innerHTML: "Treat as regular expression" }, regexDiv );
         textOptionsDiv.appendChild( regexDiv );
-        
-        var translateDiv = dom.create("div", {
-            className: "search-dialog checkboxdiv"
-        });
-        // Checkbox that toggles amino acid search
-        content.translate = new dCheckBox({
-                                                label: "Translate Sequence",
-                                                id: "search_translate_first"
-                                            });
-        translateDiv.appendChild( content.translate.domNode );
-        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate Sequence" }, translateDiv );
-        textOptionsDiv.appendChild( translateDiv );
 
         // Render 'forward strand' and 'reverse strand' checkboxes
         var strandsDiv = dom.create( 'div', {
@@ -99,14 +95,13 @@ return declare( ActionBarDialog, {
         } );
         dom.create( "span", {
             className: "search-dialog header",
-            innerHTML: "Strands to search"
+            innerHTML: "Search strands"
         }, strandsDiv );
 
         var fwdDiv = dom.create("div", {
             className: "search-dialog checkboxdiv"
         });
         content.fwdStrand = new dCheckBox({
-                                                label: "Forward Strand",
                                                 id: "search_fwdstrand",
                                                 checked: true
                                             });
@@ -114,14 +109,13 @@ return declare( ActionBarDialog, {
             className: "search-dialog checkboxdiv"
         });
         content.revStrand = new dCheckBox({
-                                                label: "Reverse Strand",
                                                 id: "search_revstrand",
                                                 checked: true
                                             });
         fwdDiv.appendChild( content.fwdStrand.domNode );
-        dom.create( "label", { "for": "search_fwdstrand", innerHTML: "Forward Strand"}, fwdDiv );
+        dom.create( "label", { "for": "search_fwdstrand", innerHTML: "Forward"}, fwdDiv );
         revDiv.appendChild( content.revStrand.domNode );
-        dom.create( "label", { "for": "search_revstrand", innerHTML: "Reverse Strand"}, revDiv );
+        dom.create( "label", { "for": "search_revstrand", innerHTML: "Reverse"}, revDiv );
         strandsDiv.appendChild( fwdDiv );
         strandsDiv.appendChild( revDiv );
 

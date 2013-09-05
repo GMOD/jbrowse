@@ -756,10 +756,10 @@ createSearchTrack: function() {
               var searchTrackConfig = {
                   type: 'JBrowse/View/Track/HTMLFeatures',
                   label: 'search_track_' + (thisB._searchTrackCount++),
-                  key: "Results for search '" + searchParams.expr + "'",
+                  key: "Search reference sequence for '" + searchParams.expr + "'",
                   metadata: {Description: "Contains all matches of the text string/regular expression '" + storeConf.searchExpr + "'"},
                   store: storeName
-              }
+              };
 
               // send out a message about how the user wants to create the new tracks
               thisB.publish( '/jbrowse/v1/v/tracks/new', [searchTrackConfig] );
