@@ -32,45 +32,44 @@ return declare( ActionBarDialog, {
     _dialogContent: function () {
         var content = this.content = {};
 
+        var container = dom.create('div', { className: 'search-dialog' } );
+
         var introdiv = dom.create('div', {
             className: 'search-dialog intro',
             innerHTML: 'This tool creates tracks showing regions of the reference sequence (or its translations) that match a given DNA or amino acid sequence.'
-        });
+        }, container );
 
         // Render text box
         var searchBoxDiv = dom.create('div', {
-            className: "search-dialog section"
-        });
-        searchBoxDiv.appendChild(
-            dom.create( 'span', {
-                className: "search-dialog header",
-                innerHTML: "Search for"
-            })
-        );
+            className: "section"
+        }, container );
+        dom.create( 'span', {
+                        className: "header",
+                        innerHTML: "Search for"
+                    }, searchBoxDiv );
         content.searchBox = new dTextArea();
         searchBoxDiv.appendChild( content.searchBox.domNode );
 
 
         // Render 'ignore case' checkbox
         var textOptionsDiv = dom.create('div', {
-            className: "search-dialog section"
-        });
+            className: "section"
+        }, container );
 
         var caseDiv = dom.create("div", {
-            className: "search-dialog checkboxdiv"
-        });
+            className: "checkboxdiv"
+        }, textOptionsDiv );
         content.caseIgnore = new dCheckBox({ label: "Ignore case",
                                                id: "search_ignore_case",
                                                checked: true
                                             });
         caseDiv.appendChild( content.caseIgnore.domNode );
         dom.create( "label", { "for": "search_ignore_case", innerHTML: "Ignore Case"}, caseDiv );
-        textOptionsDiv.appendChild( caseDiv );
 
 
         var translateDiv = dom.create("div", {
-            className: "search-dialog checkboxdiv"
-        });
+            className: "checkboxdiv"
+        }, textOptionsDiv );
         // Checkbox that toggles amino acid search
         content.translate = new dCheckBox({
                                                 label: "Translate sequence before searching",
@@ -78,40 +77,37 @@ return declare( ActionBarDialog, {
                                             });
         translateDiv.appendChild( content.translate.domNode );
         dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate sequence before searching" }, translateDiv );
-        textOptionsDiv.appendChild( translateDiv );
 
 
         // Render 'treat as regex' checkbox
-
         var regexDiv = dom.create("div", {
-            className: "search-dialog checkboxdiv"
-        });
+            className: "checkboxdiv"
+        }, textOptionsDiv );
         content.regex = new dCheckBox({
                                         label: "Treat as regular expression",
                                         id: "search_as_regex"
                                     });
         regexDiv.appendChild( content.regex.domNode );
         dom.create( "label", { "for": "search_as_regex", innerHTML: "Treat as regular expression" }, regexDiv );
-        textOptionsDiv.appendChild( regexDiv );
 
         // Render 'forward strand' and 'reverse strand' checkboxes
         var strandsDiv = dom.create( 'div', {
-            className: "search-dialog section"
-        } );
+            className: "section"
+        }, container );
         dom.create( "span", {
-            className: "search-dialog header",
+            className: "header",
             innerHTML: "Search strands"
         }, strandsDiv );
 
         var fwdDiv = dom.create("div", {
-            className: "search-dialog checkboxdiv"
+            className: "checkboxdiv"
         });
         content.fwdStrand = new dCheckBox({
                                                 id: "search_fwdstrand",
                                                 checked: true
                                             });
         var revDiv = dom.create("div", {
-            className: "search-dialog checkboxdiv"
+            className: "checkboxdiv"
         });
         content.revStrand = new dCheckBox({
                                                 id: "search_revstrand",
@@ -124,7 +120,7 @@ return declare( ActionBarDialog, {
         strandsDiv.appendChild( fwdDiv );
         strandsDiv.appendChild( revDiv );
 
-        return [ introdiv, searchBoxDiv, textOptionsDiv, strandsDiv ];
+        return container;
     },
 
     _getSearchParams: function() {
@@ -144,8 +140,8 @@ return declare( ActionBarDialog, {
         var thisB = this;
 
         new dButton({
-                            className: 'yes',
                             label: 'Search',
+                            iconClass: 'dijitIconBookmark',
                             onClick: function() {
                                 var searchParams = thisB._getSearchParams();
                                 thisB.callback( searchParams );
@@ -154,8 +150,8 @@ return declare( ActionBarDialog, {
                         })
             .placeAt( actionBar );
         new dButton({
-                            className: 'no',
                             label: 'Cancel',
+                            iconClass: 'dijitIconDelete',
                             onClick: function() {
                                 thisB.callback( false );
                                 thisB.hide();

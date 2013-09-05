@@ -1,13 +1,13 @@
-.search-dialog.header {
+.search-dialog .header {
     display: block;
     font-weight: bold;
 }
 
-.search-dialog.checkboxdiv {
+.search-dialog .checkboxdiv {
     display:block;
 }
 
-.search-dialog.intro {
+.search-dialog .intro {
     width: 30em;
     padding: 2em;
 }
