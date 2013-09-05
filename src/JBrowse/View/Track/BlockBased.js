@@ -420,11 +420,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             this.fillBlockTimeout( errorContext.blockIndex, errorContext.block, error );
         else if( isObject && error instanceof Errors.DataOverflow ) {
             if( errorContext.block )
-                this.fillTooManyFeaturesMessage( errorContext.blockIndex, errorContext.block, error );
+                this.fillTooManyFeaturesMessage( errorContext.blockIndex, errorContext.block, viewArgs.scale, error );
             else
                 array.forEach( this.blocks, function( block, blockIndex ) {
                     if( block )
-                        this.fillTooManyFeaturesMessage( blockIndex, block, error );
+                        this.fillTooManyFeaturesMessage( blockIndex, block, viewArgs.scale, error );
                 },this);
         }
         else {
@@ -452,11 +452,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             }, parent );
     },
 
-    fillTooManyFeaturesMessage: function( blockIndex, block, scale ) {
+    fillTooManyFeaturesMessage: function( blockIndex, block, scale, error ) {
         this.fillMessage(
             blockIndex,
             block,
-            'Too much data to show'
+            (error && error.message || 'Too much data to show')
                 + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
                 + '.'
         );
@@ -536,8 +536,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 block.domNode.removeChild( loadMessage );
         };
 
-        try {
-            this.fillBlock({
+        var viewargs = {
                 blockIndex: blockIndex,
                 block:      block,
                 leftBlock:  this.blocks[blockIndex - 1],
@@ -549,10 +548,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 containerStart: containerStart,
                 containerEnd:   containerEnd,
                 finishCallback: finish
-            });
+            };
+        try {
+            this.fillBlock( viewargs );
         } catch( e ) {
-            console.error( e, e.stack );
-            this.fillBlockError( blockIndex, block, e );
+            this._handleError( e, viewargs );
             finish();
         }
     },

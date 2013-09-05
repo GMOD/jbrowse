@@ -4,6 +4,7 @@ define([
         'dojo/_base/lang',
         'JBrowse/Store/SeqFeature',
         'JBrowse/Model/SimpleFeature',
+        'JBrowse/Errors',
         'JBrowse/Util',
         'JBrowse/CodonTable'
     ],
@@ -13,6 +14,7 @@ define([
         lang,
         SeqFeatureStore,
         SimpleFeature,
+        JBrowseErrors,
         Util,
         CodonTable
     ) {
@@ -24,8 +26,12 @@ define([
             this.searchParams = args.searchParams;
         },
 
-        setSearchParams: function( params ) {
-            this.searchParams = params;
+        _defaultConfig: function() {
+            return Util.deepUpdate(
+                dojo.clone( this.inherited(arguments) ),
+                {
+                    regionSizeLimit: 200000 // 200kb
+                });
         },
 
         getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
@@ -35,6 +41,10 @@ define([
                 this.searchParams,
                 query.searchParams
             );
+
+            var regionSize = query.end - query.start;
+            if( regionSize > this.config.regionSizeLimit )
+                throw new JBrowseErrors.DataOverflow( Util.humanReadableNumber(regionSize) + 'b larger than regionSizeLimit of '+Util.humanReadableNumber(this.config.regionSizeLimit)+'b');
 
             var thisB = this;
             this.browser.getStore('refseqs', function( refSeqStore ) {
@@ -58,28 +68,21 @@ define([
                 params.caseIgnore ? "gi" : "g"
             );
 
-            if( params.fwdStrand ) {
+            var sequences = [];
+            if( params.fwdStrand )
+                sequences.push( [sequence,1] );
+            if( params.revStrand )
+                sequences.push( [Util.revcom( sequence ),-1] );
+
+            array.forEach( sequences, function( r ) {
                 if( params.translate ) {
                     for( var frameOffset = 0; frameOffset < 3; frameOffset++ ) {
-                        this._searchSequence( query, sequence, expr, 1, featCallback, true, frameOffset );
+                        this._searchSequence( query, r[0], expr, r[1], featCallback, true, frameOffset );
                     }
                 } else {
-                    this._searchSequence( query, sequence, expr, 1, featCallback );
+                    this._searchSequence( query, r[0], expr, r[1], featCallback );
                 }
-            }
-
-            if( params.revStrand ) {
-                var revseq = Util.revcom( sequence );
-
-                if( params.translate ) {
-                    for( var frameOffset = 0; frameOffset < 3; frameOffset++ ) {
-                        this._searchSequence( query, revseq, expr, -1, featCallback, true, frameOffset );
-                    }
-                } else {
-                    this._searchSequence( query, revseq, expr, -1, featCallback );
-                }
-            }
-
+            }, this );
         },
 
         _searchSequence: function( query, sequence, expr, strand, featCallback, translated, frameOffset ) {
