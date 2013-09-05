@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added a File->Add sequence search track menu item that can make
+   tracks that show which regions of the reference sequence contain a
+   given (small) sequence, or match a given regular expression.
+   Thanks to Daniel Kasenberg for the initial implementation of this
+   (issue #315).
+
 # Release 1.10.3     2013-09-04 16:22:17 EST5EDT
 
 ## Minor improvements
