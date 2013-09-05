@@ -5,7 +5,7 @@ define([
         'dijit/focus',
         'dijit/form/Button',
         'dijit/form/CheckBox',
-        'dijit/form/Textarea',
+        'dijit/form/TextBox',
         'JBrowse/View/Dialog/WithActionBar'
     ],
     function(
@@ -15,7 +15,7 @@ define([
         focus,
         dButton,
         dCheckBox,
-        dTextArea,
+        dTextBox,
         ActionBarDialog
     ) {
 
@@ -47,7 +47,7 @@ return declare( ActionBarDialog, {
                         className: "header",
                         innerHTML: "Search for"
                     }, searchBoxDiv );
-        content.searchBox = new dTextArea();
+        content.searchBox = new dTextBox({});
         searchBoxDiv.appendChild( content.searchBox.domNode );
 
 
