@@ -409,8 +409,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     // generic handler for all types of errors
     _handleError: function( error, viewArgs ) {
-        console.error( ''+error, error.stack, error );
-
         var errorContext = dojo.mixin( {}, error );
         dojo.mixin( errorContext, viewArgs );
 
@@ -428,6 +426,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 },this);
         }
         else {
+            console.error( ''+error, error.stack, error );
             this.fatalError = error;
             this.showFatalError( error );
         }
