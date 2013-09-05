@@ -21,16 +21,16 @@ return declare( ExportBase,
 
     // will need to override this if you're not exporting regular features
     exportRegion: function( region, callback ) {
-        this.store.getFeatures( region,
-            dojo.hitch( this,function ( f ) {
-                callback( this._formatFASTA( region, f ) );
+        this.store.getReferenceSequence( region,
+            dojo.hitch( this,function ( seq ) {
+                callback( this._formatFASTA( region, seq ) );
             }));
     },
 
-    _formatFASTA: function( region, f ) {
+    _formatFASTA: function( region, seq ) {
         return '>' + this.refSeq.name
             +' '+Util.assembleLocString(region) + "\n"
-            + this._wrap( f.get('seq'), 78 );
+            + this._wrap( seq, 78 );
     },
 
     _wrap: function( string, length ) {

@@ -152,11 +152,10 @@ return declare( FeatureDescriptionMixin, {
              track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
                  valueContainer = dojo.byId(valueContainerID) || valueContainer;
                  if( refSeqStore ) {
-                     refSeqStore.getFeatures(
+                     refSeqStore.getReferenceSequence(
                          { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
                          // feature callback
-                         dojo.hitch( this, function( feature ) {
-                             var seq = feature.get('seq');
+                         dojo.hitch( this, function( seq ) {
                              valueContainer = dojo.byId(valueContainerID) || valueContainer;
                              valueContainer.innerHTML = '';
                              // the HTML is rewritten by the dojo dialog
