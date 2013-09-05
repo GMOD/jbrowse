@@ -946,12 +946,3 @@ table.baseQuality td {
     display: block;
     text-align: center;
 }
-
-.search-dialog.header {
-    display: block;
-    font-weight: bold;
-}
-
-.search-dialog.checkboxdiv {
-    display:block;
-}
