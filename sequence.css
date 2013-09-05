@@ -8,7 +8,7 @@ div.sequence .highlighted {
 div.sequence .revcom {
     color: red;
 }
-div.sequence .base, div.sequence > div  {
+div.sequence .base, div.sequence > div, div.translatedSequence > div, div.translatedSequence  {
     height: 14px;
     line-height: 14px;
 }
@@ -61,9 +61,6 @@ div.translatedSequence .aa, div.translatedSequence > div {
 .translatedSequence.frame2 {
     background-color: #E0E0E0;
     background-color: rgba(112, 112, 112, 0.5);
-}
-
-div.block .aa {
 }
 
 div.aa {
