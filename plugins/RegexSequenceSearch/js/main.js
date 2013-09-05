@@ -19,12 +19,15 @@ return declare( JBrowsePlugin,
     constructor: function( args ) {
         this._searchTrackCount = 0;
 
-        this.browser.addGlobalMenuItem( 'file', new dijitMenuItem(
-                                       {
-                                           label: 'Add sequence search track',
-                                           iconClass: 'dijitIconBookmark',
-                                           onClick: lang.hitch(this, 'createSearchTrack')
-                                       }));
+        var thisB = this;
+        this.browser.afterMilestone('initView', function() {
+            this.browser.addGlobalMenuItem( 'file', new dijitMenuItem(
+                                           {
+                                               label: 'Add sequence search track',
+                                               iconClass: 'dijitIconBookmark',
+                                               onClick: lang.hitch(this, 'createSearchTrack')
+                                           }));
+        }, this );
 
     },
 

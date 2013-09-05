@@ -914,22 +914,24 @@ deleteTracks: function( confs ) {
 },
 
 renderGlobalMenu: function( menuName, args, parent ) {
-    var menu = this.makeGlobalMenu( menuName );
-    if( menu ) {
-        args = dojo.mixin(
-            {
-                className: menuName,
-                innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
-                dropDown: menu, 
-                id: 'dropdownbutton_'+menuName
-            },
-            args || {}
-        );
+    this.afterMilestone( 'initView', function() {
+        var menu = this.makeGlobalMenu( menuName );
+        if( menu ) {
+            args = dojo.mixin(
+                {
+                    className: menuName,
+                    innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
+                    dropDown: menu,
+                    id: 'dropdownbutton_'+menuName
+                },
+                args || {}
+            );
 
-        var menuButton = new dijitDropDownButton( args );
-        dojo.addClass( menuButton.domNode, 'menu' );
-        parent.appendChild( menuButton.domNode );
-    }
+            var menuButton = new dijitDropDownButton( args );
+            dojo.addClass( menuButton.domNode, 'menu' );
+            parent.appendChild( menuButton.domNode );
+        }
+    },this);
 },
 
 makeGlobalMenu: function( menuName ) {
@@ -1308,11 +1310,11 @@ _getDeferred: function( name ) {
 /**
  * Attach a callback to a milestone.
  */
-afterMilestone: function( name, func ) {
+afterMilestone: function( name, func, ctx ) {
     return this._getDeferred(name)
         .then( function() {
                    try {
-                       func();
+                       func.call( ctx || this );
                    } catch( e ) {
                        console.error( ''+e, e.stack, e );
                    }
