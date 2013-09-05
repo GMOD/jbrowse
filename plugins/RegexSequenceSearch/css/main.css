@@ -1,0 +1,25 @@
+.search-dialog .header {
+    display: block;
+    font-weight: bold;
+}
+
+.search-dialog .checkboxdiv {
+    display:block;
+}
+
+.search-dialog .intro {
+    width: 25em;
+    padding: 2em;
+}
+
+.search-dialog .section {
+    margin: 0.5em auto;
+    width: 25em;
+}
+
+.search-dialog .dijitTextBox {
+    width: 25em;
+}
+.search-dialog .dijitTextBox * {
+    font-size: 110%;
+}

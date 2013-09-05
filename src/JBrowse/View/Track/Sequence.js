@@ -65,7 +65,7 @@ return declare( [BlockBased, ExportMixin],
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= 1 ) {
-            this.store.getFeatures(
+            this.store.getReferenceSequence(
                 {
                     ref: this.refSeq.name,
                     seqChunkSize: this.refSeq.seqChunkSize,
@@ -91,33 +91,16 @@ return declare( [BlockBased, ExportMixin],
         args.finishCallback();
     },
 
-    _fillSequenceBlock: function( block, scale, feature ) {
-        var seq = feature.get('seq');
-        var start = feature.get('start');
-        var end = feature.get('end');
+    _fillSequenceBlock: function( block, scale, seq ) {
+        seq = seq.replace(/\s/g,this.nbsp);
 
-        // fill with leading blanks if the
-        // sequence does not extend all the way
-        // pad with blanks if the sequence does not extend all the way
-        // across our range
-        if( start < this.refSeq.start )
-            while( seq.length < (end-start) ) {
-                //nbsp is an "&nbsp;" entity
-                seq = this.nbsp+seq;
-            }
-        else if( end > this.refSeq.end )
-            while( seq.length < (end-start) ) {
-                //nbsp is an "&nbsp;" entity
-                seq += this.nbsp;
-            }
-
-        var blockStart = start + 2;
-        var blockEnd = end - 2;
+        var blockStart = block.startBase;
+        var blockEnd = block.endBase;
         var blockSeq = seq.substring( 2, seq.length - 2 );
         var blockLength = blockSeq.length;
 
-        var extStart = start;
-        var extEnd = end;
+        var extStart = blockStart-2;
+        var extEnd = blockStart+2;
         var extStartSeq = seq.substring( 0, seq.length - 2 );
         var extEndSeq = seq.substring( 2 );
 

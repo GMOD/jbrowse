@@ -218,13 +218,18 @@ getPlugin: function( name, callback ) {
     }));
 },
 
+_corePlugins: function() {
+    return ['RegexSequenceSearch'];
+},
+
 /**
  * Load and instantiate any plugins defined in the configuration.
  */
 initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
-        var plugins = this.config.plugins || this.config.Plugins || [];
+        var plugins = this._corePlugins();
+        plugins.push.apply( plugins, this.config.plugins || this.config.Plugins || [] );
 
         if( ! plugins ) {
             deferred.resolve({success: true});
@@ -567,7 +572,6 @@ initView: function() {
 
             this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
-
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
                 id: 'menubar_sethighlight', 
@@ -717,7 +721,7 @@ createCombinationTrack: function() {
         refSeq: this.refSeq,
         type: 'JBrowse/Store/SeqFeature/Combination'
     };
-    var storeName = this._addStoreConfig(undefined, storeConf);
+    var storeName = this.addStoreConfig(undefined, storeConf);
     storeConf.name = storeName;
     this.getStore(storeName, function(store) {
         d.resolve(true);
@@ -880,7 +884,7 @@ openFileDialog: function() {
                         var storeConf = conf.store;
                         if( storeConf && typeof storeConf == 'object' ) {
                             delete conf.store;
-                            var name = this._addStoreConfig( storeConf.name, storeConf );
+                            var name = this.addStoreConfig( storeConf.name, storeConf );
                             conf.store = name;
                         }
                     },this);
@@ -910,22 +914,24 @@ deleteTracks: function( confs ) {
 },
 
 renderGlobalMenu: function( menuName, args, parent ) {
-    var menu = this.makeGlobalMenu( menuName );
-    if( menu ) {
-        args = dojo.mixin(
-            {
-                className: menuName,
-                innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
-                dropDown: menu, 
-                id: 'dropdownbutton_'+menuName
-            },
-            args || {}
-        );
+    this.afterMilestone( 'initView', function() {
+        var menu = this.makeGlobalMenu( menuName );
+        if( menu ) {
+            args = dojo.mixin(
+                {
+                    className: menuName,
+                    innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
+                    dropDown: menu,
+                    id: 'dropdownbutton_'+menuName
+                },
+                args || {}
+            );
 
-        var menuButton = new dijitDropDownButton( args );
-        dojo.addClass( menuButton.domNode, 'menu' );
-        parent.appendChild( menuButton.domNode );
-    }
+            var menuButton = new dijitDropDownButton( args );
+            dojo.addClass( menuButton.domNode, 'menu' );
+            parent.appendChild( menuButton.domNode );
+        }
+    },this);
 },
 
 makeGlobalMenu: function( menuName ) {
@@ -978,7 +984,7 @@ _initEventRouting: function() {
                            storeConfig = lang.mixin( {}, storeConfig );
                            var name = storeConfig.name;
                            delete storeConfig.name;
-                           that._addStoreConfig( name, storeConfig );
+                           that.addStoreConfig( name, storeConfig );
                        });
     });
 
@@ -1129,7 +1135,7 @@ getStore: function( storeName, callback ) {
  * @private
  */
 uniqCounter: 0,
-_addStoreConfig: function( /**String*/ name, /**Object*/ storeConfig ) {
+addStoreConfig: function( /**String*/ name, /**Object*/ storeConfig ) {
     name = name || 'addStore'+this.uniqCounter++;
 
     if( ! this.config.stores )
@@ -1304,11 +1310,11 @@ _getDeferred: function( name ) {
 /**
  * Attach a callback to a milestone.
  */
-afterMilestone: function( name, func ) {
+afterMilestone: function( name, func, ctx ) {
     return this._getDeferred(name)
         .then( function() {
                    try {
-                       func();
+                       func.call( ctx || this );
                    } catch( e ) {
                        console.error( ''+e, e.stack, e );
                    }
