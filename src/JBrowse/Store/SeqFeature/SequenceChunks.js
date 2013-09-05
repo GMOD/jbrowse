@@ -1,6 +1,8 @@
 define( [ 'dojo/_base/declare',
+          'dojo/_base/lang',
           'dojo/request',
           'dojo/promise/all',
+          'dojo/Deferred',
           'JBrowse/Store/SeqFeature',
           'JBrowse/Util',
           'JBrowse/Model/SimpleFeature',
@@ -8,8 +10,10 @@ define( [ 'dojo/_base/declare',
         ],
         function(
             declare,
+            lang,
             request,
             all,
+            Deferred,
             SeqFeatureStore,
             Util,
             SimpleFeature,
@@ -75,19 +79,26 @@ return declare( SeqFeatureStore,
         for( var chunkNum = firstChunk; chunkNum <= lastChunk; chunkNum++ ) {
             (function( chunkNum ) {
                  var thisB = this;
-                 fetches.push(
-                     this._fetchChunk( sequrl, chunkNum )
-                         .then( function( sequenceString ) {
-                                    if( error )
-                                        return;
-                                    featureCallback( thisB._makeFeature( refname, chunkNum, chunkSize, sequenceString ) );
-                                },
+                 var d = new Deferred(); // need to have our own deferred that is resolved to '' on 404
+                 this._fetchChunk( sequrl, chunkNum )
+                         .then( lang.hitch( d, 'resolve' ),
                                 function( e ) {
-                                    if( !error )
-                                        errorCallback( error = e );
+                                    if( e.response.status == 404 )
+                                        d.resolve( '' );
+                                    else
+                                        d.reject( e );
                                 }
-                              )
-                 );
+                              );
+                 d.then( function( sequenceString ) {
+                             if( error )
+                                     return;
+                             featureCallback( thisB._makeFeature( refname, chunkNum, chunkSize, sequenceString ) );
+                         },
+                         function( e ) {
+                             if( !error )
+                                 errorCallback( error = e );
+                         });
+                 fetches.push( d );
              }).call(this,chunkNum);
         }
 
