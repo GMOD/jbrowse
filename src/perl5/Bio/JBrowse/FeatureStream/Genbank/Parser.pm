@@ -481,20 +481,20 @@ features: /FEATURES/ section_continuing_indented
             }
             elsif ( $fline =~ /^\s{5}(\S+) \s+ (.+)$/xms ) {
                 my ( $this_feature_name, $this_location ) = ( $1, $2 );
-                $cur_key = '';
 
                 if ( $cur_feature_name ) {
                     push @{ $record{'FEATURES'} }, {
                         name     => $cur_feature_name,
-                        location => $location,
+                        location => delete $cur_features{location},
                         feature  => { %cur_features },
                     };
 
                     %cur_features = ();
                 }
 
-                ( $cur_feature_name, $location ) = 
-                    ( $this_feature_name, $this_location );
+                $cur_key = 'location';
+                $cur_features{location} = $this_location;
+                $cur_feature_name = $this_feature_name;
             }
             elsif ( $fline =~ /^\s{21}([^"]+)["]?$/ ) {
                 if ( $cur_key ) {
@@ -508,7 +508,7 @@ features: /FEATURES/ section_continuing_indented
 
         push @{ $record{'FEATURES'} }, {
             name     => $cur_feature_name,
-            location => $location,
+            location => delete $cur_features{location},
             feature  => { %cur_features },
         };
     }

@@ -256,7 +256,7 @@ Util = {
             }
         }
         else { // one number?
-            tokens = locstring.match( /^\s*([\d,]+)/ );
+            tokens = locstring.match( /^\s*([\d,]+)\b/ );
             if( tokens ) {
                 location.end = location.start = parseCoord( tokens[1] )-1;
             }

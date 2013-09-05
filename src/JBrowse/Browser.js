@@ -145,7 +145,9 @@ constructor: function(params) {
                        // figure out our initial location
                        var initialLocString = thisB._initialLocation();
                        var initialLoc = Util.parseLocString( initialLocString );
-                       this.refSeq = initialLoc && initialLoc.ref || this.refSeq;
+                       if (initialLoc && initialLoc.ref && thisB.allRefs[initialLoc.ref]) {
+                           thisB.refSeq = thisB.allRefs[initialLoc.ref];
+                       }
 
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
@@ -153,15 +155,21 @@ constructor: function(params) {
                                thisB.navigateTo( initialLocString );
 
                            // figure out what initial track list we will use:
-                           //    from a param passed to our instance, or from a cookie, or
-                           //    the passed defaults, or the last-resort default of "DNA"?
-                           var origTracklist =
-                                  thisB.config.forceTracks
-                               || thisB.cookie( "tracks" )
-                               || thisB.config.defaultTracks
-                               || "DNA";
-
-                           thisB.showTracks( origTracklist );
+                           var tracksToShow = [];
+                           // always add alwaysOnTracks, regardless of any other track params                   
+                           if (thisB.config.alwaysOnTracks) { tracksToShow = tracksToShow.concat(thisB.config.alwaysOnTracks.split(",")); }
+                           // add tracks specified in URL track param, 
+                           //    if no URL track param then add last viewed tracks via tracks cookie
+                           //    if no URL param and no tracks cookie, then use defaultTracks 
+                           if (thisB.config.forceTracks)   { tracksToShow = tracksToShow.concat(thisB.config.forceTracks.split(",")); } 
+                           else if (thisB.cookie("tracks")) { tracksToShow = tracksToShow.concat(thisB.cookie("tracks").split(",")); }
+                           else if (thisB.config.defaultTracks) { tracksToShow = tracksToShow.concat(thisB.config.defaultTracks.split(",")); }
+                           // currently, force "DNA" _only_ if no other guides as to what to show?
+                           //    or should this be changed to always force DNA to show?
+                           if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
+                           // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
+                           tracksToShow = Util.uniq(tracksToShow);
+                           thisB.showTracks( tracksToShow );
 
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
@@ -218,7 +226,7 @@ getPlugin: function( name, callback ) {
 initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
-        var plugins = this.config.plugins || [];
+        var plugins = this.config.plugins || this.config.Plugins || [];
 
         if( ! plugins ) {
             deferred.resolve({success: true});
@@ -535,15 +543,16 @@ initView: function() {
                 this.poweredByLink = dojo.create('a', {
                                 className: 'powered_by',
                                 innerHTML: this.browserMeta().title,
-                                onclick: dojo.hitch( aboutDialog, 'show' ),
                                 title: 'powered by JBrowse'
                             }, menuBar );
+                thisObj.poweredBy_clickHandle = dojo.connect(this.poweredByLink, "onclick", dojo.hitch( aboutDialog, 'show') );
             }
 
             // make the file menu
             this.addGlobalMenuItem( 'file',
                                     new dijitMenuItem(
                                         {
+                                            id: 'menubar_fileopen', 
                                             label: 'Open',
                                             iconClass: 'dijitIconFolderOpen',
                                             onClick: dojo.hitch( this, 'openFileDialog' )
@@ -552,6 +561,7 @@ initView: function() {
 
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
                 {
+                    id: 'menubar_combotrack', 
                     label: 'Add combination track',
                     iconClass: 'dijitIconSample',
                     onClick: dojo.hitch(this, 'createCombinationTrack')
@@ -568,6 +578,7 @@ initView: function() {
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                id: 'menubar_sethighlight', 
                 label: 'Set highlight',
                 iconClass: 'dijitIconFilter',
                 onClick: function() {
@@ -580,6 +591,7 @@ initView: function() {
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
+                    id: 'menubar_clearhighlight', 
                     label: 'Clear highlight',
                     iconClass: 'dijitIconFilter',
                     onClick: dojo.hitch( this, function() {
@@ -608,6 +620,7 @@ initView: function() {
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
+                                            id: 'menubar_about', 
                                             label: 'About',
                                             //iconClass: 'dijitIconFolderOpen',
                                             onClick: dojo.hitch( aboutDialog, 'show' )
@@ -621,6 +634,7 @@ initView: function() {
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
+                                            id: 'menubar_generalhelp', 
                                             label: 'General',
                                             iconClass: 'jbrowseIconHelp',
                                             onClick: showHelp
@@ -630,8 +644,10 @@ initView: function() {
             this.renderGlobalMenu( 'help', {}, menuBar );
         }
 
-        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview )
-            menuBar.appendChild( this.makeShareLink() );
+        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview ) {
+            var shareLink = this.makeShareLink();
+            if (shareLink) { menuBar.appendChild( shareLink ); }
+        }
         else
             menuBar.appendChild( this.makeFullViewLink() );
 
@@ -947,7 +963,8 @@ renderGlobalMenu: function( menuName, args, parent ) {
             {
                 className: menuName,
                 innerHTML: '<span class="icon"></span> '+ ( args.text || Util.ucFirst(menuName)),
-                dropDown: menu
+                dropDown: menu, 
+                id: 'dropdownbutton_'+menuName
             },
             args || {}
         );
@@ -963,11 +980,12 @@ makeGlobalMenu: function( menuName ) {
     if( ! items.length )
         return null;
 
-    var menu = new dijitDropDownMenu({ leftClickToOpen: true });
+    var menu = new dijitDropDownMenu({ id: 'dropdownmenu_'+menuName , leftClickToOpen: true });
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
     dojo.addClass( menu.domNode, 'globalMenu' );
+    dojo.addClass( menu.domNode, menuName );
     menu.startup();
     return menu;
 },
@@ -1355,7 +1373,7 @@ passMilestone: function( name, result ) {
  * Return true if we have reached the named milestone, false otherwise.
  */
 reachedMilestone: function( name ) {
-    return this._getDeferred(name).fired >= 0;
+    return this._getDeferred(name).isResolved();
 },
 
 
@@ -1523,7 +1541,8 @@ addRefseqs: function( refSeqs ) {
                               });
         }.call(this);
 
-    this.refSeq = this.refSeq || this.allRefs[ this.refSeqOrder[0] ];
+    var refCookie = this.cookie('refseq');
+    this.refSeq = this.refSeq || this.allRefs[refCookie] || this.allRefs[ this.refSeqOrder[0] ];
 },
 
 
@@ -1692,40 +1711,20 @@ navigateTo: function(loc) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
         // if it's a foo:123..456 location, go there
         var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-        if( location ) {
+        // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
+        if( location && ("start" in location) && ("end" in location)) {
             this.navigateToLocation( location );
         }
-        // otherwise, if it's just a word, try to figure out what it is
+        // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
         else {
+            if( typeof loc != 'string')
+                loc = loc.ref;
 
             // is it just the name of one of our ref seqs?
-            var ref = Util.matchRefSeqName( loc, this.allRefs );
+            var ref = this.findReferenceSequence( loc );
             if( ref ) {
-                // see if we have a stored location for this ref seq in a
-                // cookie, and go there if we do
-                var oldLoc;
-                try {
-                    oldLoc = Util.parseLocString(
-                        dojo.fromJson(
-                            this.cookie("location")
-                        )[ref.name].l
-                    );
-                    oldLoc.ref = ref.name; // force the refseq name; older cookies don't have it
-                } catch (x) {}
-                if( oldLoc ) {
-                    this.navigateToLocation( oldLoc );
-                    return;
-                } else {
-                    // if we don't just go to the middle 80% of that refseq,
-                    // based on range that can be viewed (start to end)
-                    // rather than total length, in case start != 0 || end != length
-                    // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
-                    var visibleLength = ref.end - ref.start;
-                    this.navigateToLocation({ref:   ref.name,
-                                             start: ref.start + (visibleLength * 0.1),
-                                             end:   ref.start + (visibleLength * 0.9) } );
-                    return;
-                }
+                this.navigateToLocation( { ref: ref.name } );
+                return;
             }
 
             // lastly, try to search our feature names for it
@@ -1734,18 +1733,52 @@ navigateTo: function(loc) {
     }));
 },
 
+findReferenceSequence: function( name ) {
+    for( var n in this.allRefs ) {
+        if( ! this.compareReferenceNames( n, name ) )
+            return this.allRefs[n];
+    }
+    return null;
+},
+
 // given an object like { ref: 'foo', start: 2, end: 100 }, set the
 // browser's view to that location.  any of ref, start, or end may be
 // missing, in which case the function will try set the view to
 // something that seems intelligent
 navigateToLocation: function( location ) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
-        // validate the ref seq we were passed
-        var ref = location.ref ? Util.matchRefSeqName( location.ref, this.allRefs )
+
+        // regularize the ref seq name we were passed
+        var ref = location.ref ? this.findReferenceSequence( location.ref, this.allRefs )
                                : this.refSeq;
-        if( !ref )
-            return;
+        if( !ref ) return;
         location.ref = ref.name;
+
+        if( 'ref' in location && !( 'start' in location && 'end' in location ) ) {
+            // see if we have a stored location for this ref seq in a
+            // cookie, and go there if we do
+            var oldLoc;
+            try {
+                oldLoc = Util.parseLocString(
+                    dojo.fromJson(
+                        this.cookie("location")
+                    )[location.ref].l
+                );
+                oldLoc.ref = location.ref; // force the refseq name; older cookies don't have it
+            } catch (x) {}
+            if( oldLoc ) {
+                location = oldLoc;
+            } else {
+                // if we don't have a previous location, just go to
+                // the middle 80% of that refseq,
+                // based on range that can be viewed (start to end)
+                // rather than total length, in case start != 0 || end != length
+                // this.navigateToLocation({ref: ref.name, start: ref.end*0.1, end: ref.end*0.9 });
+                var visibleLength = ref.end - ref.start;
+                location.start = ref.start + (visibleLength * 0.1);
+                location.end   = ref.start + (visibleLength * 0.9);
+            }
+        }
 
         // clamp the start and end to the size of the ref seq
         location.start = Math.max( 0, location.start || 0 );
@@ -1820,9 +1853,9 @@ searchNames: function( /**String*/ loc ) {
                 // if it has one location, go to it
                 if( goingTo.location ) {
 
-                    //go to location, with some flanking region
-                    thisB.showRegionWithHighlight( goingTo.location );
-                }
+                        //go to location, with some flanking region
+                        thisB.showRegionWithHighlight( goingTo.location );
+                    }
                 // otherwise, pop up a dialog with a list of the locations to choose from
                 else if( goingTo.multipleLocations ) {
                     new LocationChoiceDialog(
@@ -2116,6 +2149,7 @@ _updateLocationCookies: function( location ) {
     oldLocMap[this.refSeq.name] = { l: locString, t: Math.round( (new Date()).getTime() / 1000 ) - 1340211510 };
     oldLocMap = this._limitLocMap( oldLocMap, this.config.maxSavedLocations || 10 );
     this.cookie( 'location', dojo.toJson(oldLocMap), {expires: 60});
+    this.cookie('refseq', this.refSeq.name );
 },
 
 /**

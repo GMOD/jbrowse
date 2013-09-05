@@ -33,9 +33,9 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         );
     },
 
-    _getScaling: function( successCallback, errorCallback ) {
+    _getScaling: function( viewArgs, successCallback, errorCallback ) {
 
-        this._getScalingStats( dojo.hitch(this, function( stats ) {
+        this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
             if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {

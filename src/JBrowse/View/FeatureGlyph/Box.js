@@ -288,6 +288,46 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                            });
             }
         }
+    },
+
+    updateStaticElements: function( context, fRect, viewArgs ) {
+        var vMin = viewArgs.minVisible;
+        var vMax = viewArgs.maxVisible;
+        var block = fRect.viewInfo.block;
+
+        if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
+            return;
+
+        var scale = block.scale;
+        var bpToPx = viewArgs.bpToPx;
+        var lWidth = viewArgs.lWidth;
+        var labelBp = lWidth / scale;
+        var feature = fRect.f;
+        var fMin = feature.get('start');
+        var fMax = feature.get('end');
+
+        if( fRect.strandArrow ) {
+            if( fRect.strandArrow == 1 && fMax >= vMax && fMin <= vMax ) {
+                this.getEmbeddedImage( 'plusArrow' )
+                    .then( function( img ) {
+                               context.imageSmoothingEnabled = false;
+                               context.drawImage( img, bpToPx(vMax) - bpToPx(vMin) - 9, fRect.t + (fRect.rect.h-img.height)/2 );
+                           });
+            }
+            else if( fRect.strandArrow == -1 && fMin <= vMin && fMax >= vMin ) {
+                this.getEmbeddedImage( 'minusArrow' )
+                    .then( function( img ) {
+                               context.imageSmoothingEnabled = false;
+                               context.drawImage( img, 0, fRect.t + (fRect.rect.h-img.height)/2 );
+                           });
+            }
+        }
+
+        var fLabelWidth = fRect.label ? fRect.label.w : 0;
+        var fDescriptionWidth = fRect.description ? fRect.description.w : 0;
+        var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
+        var minLeft = bpToPx( fMin ) - bpToPx( vMin );
+
     }
 
 });

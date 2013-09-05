@@ -17,7 +17,14 @@ return declare( [WiggleXY, AlignmentsMixin],
         delete this.config.scale;
         delete this.config.align;
 
-        this.store = new SNPCoverageStore({ store: this.store, browser: this.browser });
+        var thisB = this;
+        this.store = new SNPCoverageStore(
+            { store: this.store,
+              browser: this.browser,
+              filter: function( f ) {
+                  return thisB.filterFeature( f );
+              }
+            });
     },
 
     _defaultConfig: function() {
@@ -25,7 +32,13 @@ return declare( [WiggleXY, AlignmentsMixin],
             dojo.clone( this.inherited(arguments) ),
             {
                 autoscale: 'local',
-                min_score: 0
+                min_score: 0,
+
+                hideDuplicateReads: true,
+                hideQCFailingReads: true,
+                hideSecondary: true,
+                hideSupplementary: true,
+                hideMissingMatepairs: false
             }
         );
     },
@@ -229,6 +242,14 @@ return declare( [WiggleXY, AlignmentsMixin],
             scoreDisplay.innerHTML = '<table><tr><td>Total</td><td class="count">'+fmtNum(score)+'</td></tr></table>';
             return true;
         }
+    },
+
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
+        return o;
     }
+
 });
 });

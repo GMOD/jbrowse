@@ -36,7 +36,6 @@
                            dataRoot + "/trackList.json"
                        ],
                        nameUrl: dataRoot + "/names/root.json",
-                       defaultTracks: "DNA,Annotations,RefSeq",
                        queryParams: queryParams,
                        location: queryParams.loc,
                        forceTracks: queryParams.tracks,
@@ -68,6 +67,13 @@
                    // configuration
                    if( queryParams.addTracks ) {
                        config.tracks = JSON.parse( queryParams.addTracks );
+                   }
+
+                   // if there is ?addStores in the query params, add
+                   // those store configurations to our initial
+                   // configuration
+                   if( queryParams.addStores ) {
+                       config.stores = JSON.parse( queryParams.addStores );
                    }
 
                    // create a JBrowse global variable holding the JBrowse instance

@@ -1,8 +1,8 @@
 /**
- * Extends dojo/has with a few additional tests.
+ * Extends dojo/has with a few additional tests, and makes sure dojo/sniff is loaded.
  */
 
-define([ 'dojo/has' ],
+define([ 'dojo/has', 'dojo/sniff' ],
        function( has ) {
 
            // does the browser support typed arrays?
