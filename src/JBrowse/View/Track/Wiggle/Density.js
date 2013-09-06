@@ -59,7 +59,7 @@ return declare( WiggleBase,
                         return undefined;
                 }
             }};
-            console.log(dataScale.min, dataScale.max, i, value, dataScale.normalize( value ), dataScale.origin, dataScale.normalize( dataScale.origin ) );
+            //console.log(dataScale.min, dataScale.max, i, value, dataScale.normalize( value ), dataScale.origin, dataScale.normalize( dataScale.origin ) );
             var n = dataScale.normalize( value );
             var colorDiv = domConstruct.create(
                 "div",
