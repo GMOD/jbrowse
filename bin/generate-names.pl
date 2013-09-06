@@ -48,7 +48,11 @@ intermediate results of name indexing.
 
 =item --completionLimit <number>
 
-Maximum number of completions to store for a given prefix.  Default 20.
+Maximum number of name completions to store for a given prefix.
+Default 20.  Set to 0 to disable auto-completion of feature names.
+Note that the name index always contains exact matches for feature
+names; this setting only disables autocompletion based on incomplete
+names.
 
 =item --totalNames <number>
 
@@ -292,21 +296,19 @@ sub make_operations {
 
     my $lc_name = lc $record->[0];
 
-    # generate all the prefixes
-    my @prefixes;
-    {
+    my @ops = ( [ $lc_name, OP_ADD_EXACT, $record ] );
+
+    if( $max_completions > 0 ) {
+        # generate all the prefixes
         my $l = $lc_name;
         chop $l;
-        while( $l ) {
-            push @prefixes, $l;
+        while ( $l ) {
+            push @ops, [ $l, OP_ADD_PREFIX, $record->[0] ];
             chop $l;
         }
     }
 
-    return (
-        [ $lc_name, OP_ADD_EXACT, $record ],
-        map [ $_, OP_ADD_PREFIX, $record->[0] ], @prefixes
-    );
+    return @ops;
 }
 
 

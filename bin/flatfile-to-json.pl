@@ -49,7 +49,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 Process a GFF3, BED, or GenBank file containing annotation data.
 
-NOTE: This script does not support GFF version 2 or GTF (GFF 2.5) input.
+This script does not support GFF version 2 or GTF (GFF 2.5) input.
+The GenBank input adaptor is limited to handling records for single
+genes.
 
 =item --trackLabel <track identifier>
 

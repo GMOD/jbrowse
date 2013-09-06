@@ -11,6 +11,8 @@ use warnings;
 
 use base 'Bio::JBrowse::FeatureStream';
 
+use Bio::JBrowse::FeatureStream::Genbank::LocationParser;
+
 sub next_items {
     my ( $self ) = @_;
     while ( my $i = $self->{parser}->next_seq ) {
@@ -20,64 +22,74 @@ sub next_items {
 }
 
 sub _aggregate_features_from_gbk_record {
-    my ( $self, $f ) = @_;
-    $f->{'seq_id'} = $f->{'ACCESSION'};
-    delete $f->{ORIGIN};
-    delete $f->{SEQUENCE};
+    my ( $self, $record ) = @_;
 
     # see if this is a region record, and if so, make a note of offset
     # so we can add it to coordinates below
-    my $offset = _getRegionOffset( $f );
+    my $offset = _getRegionOffset( $record );
 
     # get index of top level feature ('mRNA' at current writing)
     my $indexTopLevel;
     my $count = 0;
-    foreach my $feat ( @{$f->{FEATURES}} ){
+    foreach my $feat ( @{$record->{FEATURES}} ){
 	if ( _isTopLevel( $feat ) ){
 	    $indexTopLevel = $count;
 	}
 	$count++;
     }
 
-    return undef if ( ! defined $indexTopLevel );
+    return unless defined $indexTopLevel;
 
     # start at top level, make feature and subfeature for all subsequent features
     # this logic assumes that top level feature is above all subfeatures
 
     # set start/stop
-    my ( $start, $end, $strand ) = _parseJoinToken( $f->{FEATURES}->[$indexTopLevel] );
-    $f->{start}  = $start + $offset + 1;
-    $f->{end}    = $end + $offset;
-    $f->{strand} = $strand;
-    $f->{type}   = $f->{FEATURES}[$indexTopLevel]{name};
+    my @locations = sort { $a->{start} <=> $b->{start} } _parseLocation( $record->{FEATURES}->[$indexTopLevel]->{location} || '' );
 
-    %$f = ( %{$f->{FEATURES}[$indexTopLevel]{feature} || {}}, %$f ); # get other attrs
-    if( $f->{type} eq 'mRNA' ) {
-        $f->{name} = $f->{FEATURES}[$indexTopLevel]{feature}{gene};
-        $f->{description} = $f->{FEATURES}[$indexTopLevel]{feature}{product} || $f->{FEATURES}[$indexTopLevel]{feature}{note};
-    }
-
-    # convert FEATURES to subfeatures
-    $f->{subfeatures} = [];
-    if ( scalar( @{$f->{FEATURES} || [] }) > $indexTopLevel ) {
-        for my $i ( $indexTopLevel + 1 .. scalar( @{$f->{FEATURES}} ) - 1 ) {
-            my $feature = $f->{FEATURES}[$i];
-            my ( $substart, $subend, $substrand ) = _parseLocation( $feature->{location} );
-            $substart += $offset + 1;
-            $subend += $offset;
-
-            my $newFeature = {
-                %{ $feature->{feature}||{} },
-                start => $substart,
-                end   => $subend,
-                strand => $substrand,
-                type  => $feature->{name}
-            };
-
-            push @{$f->{subfeatures}}, $newFeature;
-        }
-    }
+    my $f = { %$record, %{$locations[0]} };
     delete $f->{FEATURES};
+    my $seq_id = $f->{seq_id} = $f->{VERSION} ? ( $f->{VERSION}[0] =~ /REGION/ ? $f->{VERSION}[2] : $f->{VERSION}[0])
+                                              : $f->{ACCESSION};
+    delete $f->{ORIGIN};
+    delete $f->{SEQUENCE};
+
+    $f->{end} = $locations[-1]{end};
+    #for my $f ( @features ) {
+        $f->{start}  += $offset + 1;
+        $f->{end}    += $offset;
+        $f->{strand} = 1 unless defined $f->{strand};
+        $f->{type}   = $record->{FEATURES}[$indexTopLevel]{name};
+        $f->{seq_id} ||= $seq_id;
+
+        %$f = ( %{$record->{FEATURES}[$indexTopLevel]{feature} || {}}, %$f ); # get other attrs
+        if( $f->{type} eq 'mRNA' ) {
+            $f->{name} = $record->{FEATURES}[$indexTopLevel]{feature}{gene};
+            $f->{description} = $record->{FEATURES}[$indexTopLevel]{feature}{product} || $f->{FEATURES}[$indexTopLevel]{feature}{note};
+        }
+
+        # convert FEATURES to subfeatures
+        $f->{subfeatures} = [];
+        if ( scalar( @{$record->{FEATURES} || [] }) > $indexTopLevel ) {
+            for my $i ( $indexTopLevel + 1 .. $#{$record->{FEATURES}} ) {
+                my $feature = $record->{FEATURES}[$i];
+                my @sublocations = _parseLocation( $feature->{location} );
+                for my $subloc ( @sublocations ) {
+                    $subloc->{start} += $offset + 1;
+                    $subloc->{end} += $offset;
+
+                    my $newFeature = {
+                        %{ $feature->{feature}||{} },
+                        %$subloc,
+                        type  => $feature->{name}
+                        };
+
+                    $newFeature->{seq_id} ||= $seq_id;
+
+                    push @{$f->{subfeatures}}, $newFeature;
+                }
+            }
+        }
+#    }
 
     return $f;
 }
@@ -95,33 +107,8 @@ sub _isTopLevel {
     return $isTopLevel;
 }
 
-sub _parseJoinToken {
-    my ( $feat ) = @_;
-    my @startStop;
-    if ( exists $feat->{'location'} && $feat->{'location'} =~ /^\s*\S*?\(*(\d+)\..*\.(\d+)\)*/ ){
-	$startStop[0] = $1;
-	$startStop[1] = $2;
-    }
-    my $strand = 1;
-    if( $startStop[0] > $startStop[1] ) {
-        @startStop = reverse @startStop;
-        $strand = -1;
-    }
-    return ( @startStop, $strand );
-}
-
 sub _parseLocation {
-    my ( $loc ) = @_;
-    $loc =~ s/^\s*\S*\(//;
-    $loc =~ s/\)+//;
-    my @coordinates = split /\.\.\>*/, $loc;
-    my ( $start, $end ) = ( $coordinates[0], $coordinates[-1] );
-    my $strand = 1;
-    if( $start > $end ) {
-        ( $start, $end ) = ( $end, $start );
-        $strand = -1;
-    }
-    return ( $start, $end, $strand );
+    return @{ Bio::JBrowse::FeatureStream::Genbank::LocationParser->parse( $_[0] ) };
 }
 
 sub _getRegionOffset {

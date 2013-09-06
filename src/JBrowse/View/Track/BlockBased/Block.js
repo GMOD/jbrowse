@@ -24,6 +24,10 @@ return declare( Destroyable, {
         this.domNode.block = this;
     },
 
+    containsBp: function( bp ) {
+        return this.startBase <= bp && this.endBase >= bp;
+    },
+
     bpToX: function( coord ) {
         return (coord-this.startBase)*this.scale;
     },

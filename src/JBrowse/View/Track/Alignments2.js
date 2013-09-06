@@ -9,15 +9,19 @@ define( [
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
-    constructor: function() {
-    },
-
     configSchema: {
         slots: [
             { name: 'glyph', type: 'string', defaultValue: 'JBrowse/View/FeatureGlyph/Alignment' },
             { name: 'maxFeatureGlyphExpansion', type: 'integer', defaultValue: 0 },
             { name: 'showLabels', type: 'boolean', defaultValue: false }
         ]
+    },
+
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
+        return o;
     }
 
 });

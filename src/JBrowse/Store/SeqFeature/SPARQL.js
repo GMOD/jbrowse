@@ -62,18 +62,19 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
             );
     },
 
-    // load: function() {
-    //     // ping the endpoint to see if it's there
-    //     dojo.xhrGet({ url: this.url+'?'+ioQuery.objectToQuery({ query: 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1' }),
-    //                   handleAs: "text",
-    //                   failOk: false,
-    //                   load:  Util.debugHandler( this, function(o) { this.loadSuccess(o); }),
-    //                   error: dojo.hitch( this, function(error) { this.loadFail(error, this.url); } )
-    //     });
-    // },
+    configSchema: {
+        slots: [
+            { name: 'variables', type: 'object', shortDesc: 'additional variables available for interpolation into the SPARQL query' }
+        ]
+    },
 
-    _makeFeatureQuery: function( templateVars ) {
-        return Util.fillTemplate( this.featureQueryTemplate, templateVars );
+    _makeFeatureQuery: function( query ) {
+        if( this.config.variables )
+            query = dojo.mixin( dojo.mixin( {}, this.getConf('variables') ),
+                                query
+                              );
+
+        return Util.fillTemplate( this.queryTemplate, query );
     },
 
     _getFeatures: function() {

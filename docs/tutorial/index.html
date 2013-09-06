@@ -152,31 +152,32 @@ cd JBrowse-1.8.0
       </p>
       <dl>
 
-        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl" class="code">bin/biodb-to-json.pl</a></dt>
-        <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">Chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
-
-          You use <span class="code">bin/biodb-to-json.pl</span> with a configuration file <a href="../config.html">(documented here)</a>.
-
-          <div class="code">bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</div>
-
-        </dd>
-
         <dt class="code"><a class="anchor" name="flatfile-to-json.pl" id="flatfile-to-json.pl">bin/flatfile-to-json.pl</a></dt>
         <dd>
           If you have flat files like GFF3 or BED, it is usually best
-          to use
-          JBrowse's <span class="code"><a href="#flatfile-to-json.pl">flatfile-to-json.pl</a></span>.
-          <span class="code">bin/flatfile-to-json.pl</span> doesn't
-          use a configuration file; instead, per-track settings are
-          given as command-line arguments.
+          to use <span class="code">bin/flatfile-to-json.pl</span> to
+          import them.
+          <span class="code">bin/flatfile-to-json.pl</span> accepts
+          many different command-line settings that can be used to
+          customize the appearance of the new track.
           Run <span class="code">bin/flatfile-to-json.pl --help</span>
-          to see a description of the available settings.  Most of
-          them correspond to track settings in the config file used
-          by <span class="code">biodb-to-json.pl</span>, so
-          see <a href="../config-desc.html#track_settings">the track
-          settings section in the config file documentation</a> for
-          more details.
+          to see a description of the available settings.
+
+          <div class="code">bin/flatfile-to-json.pl --gff path/to/my.gff3 --trackType CanvasFeatures</div>
+
         </dd>
+
+        <dt class="code"><a name="biodb-to-json.pl" id="biodb-to-json.pl" class="code">bin/biodb-to-json.pl</a></dt>
+        <dd>If you have a genomic annotation database such as <a href="http://gmod.org/wiki/Chado">Chado</a>, <a href="http://www.bioperl.org/wiki/Module:Bio::DB::SeqFeature::Store">Bio::DB::SeqFeature::Store</a>, or <a href="http://www.bioperl.org/wiki/Module:Bio::DB::GFF">Bio::DB::GFF</a>, then you can use JBrowse's <span class="code"><a href="#biodb-to-json.pl">biodb-to-json.pl</a></span>.
+
+          You use <span class="code">bin/biodb-to-json.pl</span> with
+          a configuration file <a href="../config.html">(the format of
+          which is documented here)</a>.
+
+                    <div class="code">bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json</div>
+
+        </dd>
+
       </dl>
 
       <a name="Next-gen reads" id="Next-gen"></a>
@@ -279,7 +280,7 @@ cd JBrowse-1.8.0
 
       <a name="Troubleshooting"><h2>Troubleshooting</h2></a>
       <p>
-        Sometimes things just don't go well.  It seems like nothing's
+        Sometimes things just don't go well.  It seems like nothing is
         ever as easy as it should be.  Here are several resources you
         can use if it turns out that this guide is not enough to get
         JBrowse working for you.

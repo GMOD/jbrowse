@@ -17,6 +17,8 @@ var fastpromise = function() {
 fastpromise.prototype.then = function( callback, errback ) {
     if( 'value' in this )
         callback( this.value );
+    else if( 'error' in this )
+        errback( this.error );
     else {
         this.callbacks.push( callback );
         this.errbacks.push( errback );
@@ -33,6 +35,7 @@ fastpromise.prototype.resolve = function( value ) {
 };
 
 fastpromise.prototype.reject = function( error ) {
+    this.error = error;
     delete this.callbacks;
     var c = this.errbacks;
     delete this.errbacks;

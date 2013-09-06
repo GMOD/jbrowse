@@ -1,2 +1,0 @@
-from WebApolloTest import WebApolloTest
-

@@ -132,9 +132,6 @@ buildRendering: function() {
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = this.stripeWidth;
 
-    //width, in pixels, of stripes at full zoom, is 10bp
-    this.fullZoomStripe = this.stripeWidth/10 * this.maxPxPerBp;
-
     this.tracks = [];
     this.uiTracks = [];
     this.trackIndices = {};
@@ -1164,7 +1161,8 @@ setLocation: function(refseq, startbp, endbp, showTracks ) {
 
 stripeWidthForZoom: function(zoomLevel) {
     if ((this.zoomLevels.length - 1) == zoomLevel) {
-        return this.fullZoomStripe;
+        // width, in pixels, of stripes at full zoom, is 10bp
+        return this.regularStripe / 10 * this.maxPxPerBp;
     } else if (0 == zoomLevel) {
         return this.minZoomStripe;
     } else {
@@ -2134,8 +2132,6 @@ _updateRefSeqSelectBox: function() {
         this.refSeqSelectBox.set( 'value', this.ref.name, false );
     }
 },
-
-
 
 // asynchronous
 navigateTo: function( something ) {

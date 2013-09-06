@@ -175,7 +175,7 @@ _mergeConfigs: function( a, b, spaces ) {
 
     for (var prop in b) {
         if( prop == 'tracks' && (prop in a) ) {
-            a[prop] = this._mergeTrackConfigs( a[prop], b[prop] );
+            a[prop] = this._mergeTrackConfigs( a[prop] || [], b[prop] || [] );
         }
         else if ( (prop in a)
               && ("object" == typeof b[prop])

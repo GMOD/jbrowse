@@ -12,19 +12,34 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
  * @lends JBrowse.View.Track.Alignments
  */
 {
+    constructor: function( args )  {
+        // if his track shows subfeatures, turn subfeature creation on in store
+        // howevery if this.config.style.showSubfeatures is false, not setting store.createSubfeatures to 
+        //    false, because other tracks may be using same store, and may need it toggled on
+        if (this.config.style.showSubfeatures) { this.store.createSubfeatures = true; }
+    }, 
+
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
             {
                 maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
+
+                hideDuplicateReads: true,
+                hideQCFailingReads: true,
+                hideSecondary: true,
+                hideSupplementary: true,
+                hideMissingMatepairs: false,
+
                 style: {
                     _defaultLabelScale: 50,
                     className: 'alignment',
                     arrowheadClass: 'arrowhead',
                     centerChildrenVertically: true,
                     showMismatches: true,
-                    showSubfeatures: false
+                    showSubfeatures: false, 
+                    showLabels: false
                 }
             }
         );
@@ -148,6 +163,13 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
         };
         containerElement.removeChild(widthTest);
         return result;
+    },
+
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
+        return o;
     }
 
 });

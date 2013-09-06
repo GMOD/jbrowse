@@ -38,6 +38,8 @@ describe( 'Util.parseLocString', function() {
 
     testAll( Util.parseLocString,
              [
+                 [ ['2RHet'], null ],
+                 [ ['2L'], null ],
                  [ ['snark123'], null ],
                  [ ['ctgA:3000..4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
                  [ ['ctgA:4000..3000'], { ref: 'ctgA', start: 2999, end: 4000 } ],

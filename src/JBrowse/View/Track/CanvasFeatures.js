@@ -70,6 +70,14 @@ var FRectIndex = declare( null,  {
             // by ID
             byID[ fRect.f.id() ] = fRect;
         }, this );
+    },
+
+    getAll: function( ) {
+        var fRects = [];
+        for( var id in this.byID ) {
+            fRects.push( this.byID[id] );
+        }
+        return fRects;
     }
 });
 
@@ -79,7 +87,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.glyphsLoaded = {};
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
-        this.showLabels = this.getConf('showLabels');
 
         this._setupEventHandlers();
     },
@@ -111,6 +118,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 { name: 'maxHeight', defaultValue: 600, type: 'integer' },
 
                 { name: 'showLabels', defaultValue: true, type: 'boolean' },
+                { name: 'showTooltips', defaultValue: true, type: 'boolean' },
 
                 { name: 'displayMode', defaultValue: 'normal', type: 'string' },
 
@@ -150,6 +158,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             ]
     },
 
+    setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
+        this.inherited( arguments );
+        this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }}, trackDiv);
+        this.staticCanvas.height = this.staticCanvas.offsetHeight;
+
+        this._makeLabelTooltip( );
+    },
+
     guessGlyphType: function(feature) {
         return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
     },
@@ -178,10 +194,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                         displayMode: this.getConf('displayMode'),
                         showFeatures: scale >= ( this.getConf('featureScale')
                                                  || (stats.featureDensity||0) / this.getConf('maxFeatureScreenDensity') ),
-                        showLabels: this.showLabels && this.getConf('displayMode') == "normal"
+                        showLabels: this.getConf('showLabels') && this.getConf('displayMode') == "normal"
                             && scale >= ( this.getConf('labelScale')
                                           || (stats.featureDensity||0) / this.getConf('maxLabelScreenDensity') ),
-                        showDescriptions: this.showLabels && this.getConf('displayMode') == "normal"
+                        showDescriptions: this.getConf('showLabels') && this.getConf('displayMode') == "normal"
                             && scale >= ( this.getConf('descriptionScale')
                                           || (stats.featureDensity||0) * this.getConf('maxDescriptionScreenDensity') )
                     },
@@ -388,7 +404,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                                                   style: {
                                                       cursor: 'default',
                                                       height: totalHeight+'px',
-                                                      position: 'relative'
+                                                      position: 'absolute'
                                                   },
                                                   innerHTML: 'Your web browser cannot display this type of track.',
                                                   className: 'canvas-track'
@@ -436,7 +452,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     renderClickMap: function( args, fRects ) {
-        var thisB = this;
         var block = args.block;
 
         // make an index of the fRects by ID, and by coordinate, and
@@ -463,8 +478,73 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                            }));
         }
 
+        this._attachMouseOverEvents( );
+
         // connect up the event handlers
         this._connectEventHandlers( block );
+
+        this.updateStaticElements( { x: this.genomeView.getX() } );
+    },
+
+    _attachMouseOverEvents: function( ) {
+        var thisB = this;
+
+        if( this.getConf('displayMode') == 'collapsed' ) {
+            if( this._mouseoverEvent ) {
+                this._mouseoverEvent.remove();
+                delete this._mouseoverEvent;
+            }
+
+            if( this._mouseoutEvent ) {
+                this._mouseoutEvent.remove();
+                delete this._mouseoutEvent;
+            }
+        } else {
+            if( !this._mouseoverEvent ) {
+                this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
+                    evt = domEvent.fix( evt );
+                    var bpX = thisB.genomeView.absXtoBp( evt.clientX );
+                    var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
+                    thisB.mouseoverFeature( feature, evt );
+                }))[0];
+            }
+
+            if( !this._mouseoutEvent ) {
+                this._mouseoutEvent = this.own( on( this.staticCanvas, 'mouseout', function( evt) {
+                    thisB.mouseoverFeature( undefined );
+                }))[0];
+            }
+        }
+    },
+
+    _makeLabelTooltip: function( ) {
+
+        if( ! this.getConf('showTooltips') || this.labelTooltip )
+            return;
+
+        var labelTooltip = this.labelTooltip = domConstruct.create(
+            'div', {
+                className: 'featureTooltip',
+                style: {
+                    position: 'fixed',
+                    display: 'none',
+                    zIndex: 19
+                }
+            }, document.body );
+        domConstruct.create(
+            'span', {
+                className: 'tooltipLabel',
+                style: {
+                    display: 'block'
+                }
+            }, labelTooltip);
+        domConstruct.create(
+            'span', {
+                className: 'tooltipDescription',
+                style: {
+                    display: 'block'
+                }
+            }, labelTooltip);
     },
 
     _connectEventHandlers: function( block ) {
@@ -473,27 +553,27 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             (function( event, handler ) {
                  var thisB = this;
                  block.own(
-                     on( block.featureCanvas, event, function( evt ) {
+                     on( this.staticCanvas, event, function( evt ) {
                              evt = domEvent.fix( evt );
-                             var bpX = ( evt.offsetX === undefined ? evt.layerX : evt.offsetX ) / block.scale + block.startBase;
-                             if( ! thisB.layout )
-                                 return;
-                             var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                             if( feature ) {
-                                 var fRect = block.fRectIndex.getByID( feature.id() );
-                                 handler.call({
-                                                  track: thisB,
-                                                  feature: feature,
-                                                  fRect: fRect,
-                                                  block: block,
-                                                  callbackArgs: [ thisB, feature, fRect ]
-                                              },
-                                              feature,
-                                              fRect,
-                                              block,
-                                              thisB,
-                                              evt
-                                             );
+                             var bpX = thisB.genomeView.absXtoBp( evt.clientX );
+                             if( block.containsBp( bpX ) ) {
+                                 var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
+                                 if( feature ) {
+                                     var fRect = block.fRectIndex.getByID( feature.id() );
+                                     handler.call({
+                                                      track: thisB,
+                                                      feature: feature,
+                                                      fRect: fRect,
+                                                      block: block,
+                                                      callbackArgs: [ thisB, feature, fRect ]
+                                                  },
+                                                  feature,
+                                                  fRect,
+                                                  block,
+                                                  thisB,
+                                                  evt
+                                                 );
+                                 }
                              }
                          })
                  );
@@ -530,10 +610,16 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     // given viewargs and a feature object, highlight that feature in
     // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
-    mouseoverFeature: function( feature ) {
+    mouseoverFeature: function( feature, evt ) {
 
         if( this.lastMouseover == feature )
             return;
+
+        if( evt )
+            var bpX = this.genomeView.absXtoBp( evt.clientX );
+
+        if( this.labelTooltip)
+            this.labelTooltip.style.display = 'none';
 
         array.forEach( this.blocks, function( block, i ) {
             if( ! block )
@@ -548,13 +634,53 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                     this.renderFeature( context, r );
             }
 
+            if( block.tooltipTimeout )
+                window.clearTimeout( block.tooltipTimeout );
+
             if( feature ) {
                 var fRect = block.fRectIndex.getByID( feature.id() );
                 if( ! fRect )
                     return;
 
+                if( block.containsBp( bpX ) ) {
+                    var renderTooltip = dojo.hitch( this, function() {
+                        if( !this.labelTooltip )
+                            return;
+                        var label = fRect.label || fRect.glyph.makeFeatureLabel( feature );
+                        var description = fRect.description || fRect.glyph.makeFeatureDescriptionLabel( feature );
+
+                        if( ( !label && !description ) )
+                            return;
+
+                        if( !this.ignoreTooltipTimeout ) {
+                            this.labelTooltip.style.left = evt.clientX + "px";
+                            this.labelTooltip.style.top = (evt.clientY + 15) + "px";
+                        }
+                        this.ignoreTooltipTimeout = true;
+                        this.labelTooltip.style.display = 'block';
+                        if( label ) {
+                            var labelSpan = this.labelTooltip.childNodes[0];
+                            labelSpan.style.font = label.font;
+                            labelSpan.style.color = label.fill;
+                            labelSpan.innerHTML = label.text;
+                        }
+                        if( description ) {
+                            var descriptionSpan = this.labelTooltip.childNodes[1];
+                            descriptionSpan.style.font = description.font;
+                            descriptionSpan.style.color = description.fill;
+                            descriptionSpan.innerHTML = description.text;
+                        }
+                    });
+                    if( this.ignoreTooltipTimeout )
+                        renderTooltip();
+                    else
+                        block.tooltipTimeout = window.setTimeout( renderTooltip, 600);
+                }
+
                 fRect.glyph.mouseoverFeature( context, fRect );
                 this._refreshContextMenu( fRect );
+            } else {
+                block.tooltipTimeout = window.setTimeout( dojo.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
             }
         }, this );
 
@@ -562,6 +688,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     cleanupBlock: function(block) {
+        this.inherited( arguments );
+
         // garbage collect the layout
         if ( block && this.layout )
             this.layout.discardRange( block.startBase, block.endBase );
@@ -577,14 +705,14 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         var thisB = this;
 
         var displayModeList = ["normal", "compact", "collapsed"];
-        this.displayModeMenuItems = displayModeList.map(function(displayMode) {
+        this.displayModeMenuItems = displayModeList.map(function( modename ) {
             return {
-                label: displayMode,
+                label: modename,
                 type: 'dijit/CheckedMenuItem',
-                title: "Render this track in " + displayMode + " mode",
-                checked: thisB.getConf('displayMode') == displayMode,
+                title: "Render this track in " + modename + " mode",
+                checked: thisB.getConf('displayMode') == modename,
                 onClick: function() {
-                    thisB.setConf( 'displayMode', displayMode );
+                    thisB.setConf( 'displayMode', modename );
                     thisB._clearLayout();
                     thisB.hideAll();
                     thisB.genomeView.showVisibleBlocks(true);
@@ -611,9 +739,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 },
                 { label: 'Show labels',
                   type: 'dijit/CheckedMenuItem',
-                  checked: !!( 'showLabels' in this ? this.showLabels : this.getConf('showLabels') ),
+                  checked: this.getConf('showLabels'),
                   onClick: function(event) {
-                      thisB.showLabels = this.checked;
+                      thisB.setConf( 'showLabels', this.checked );
                       thisB.changed();
                   }
                 }
@@ -627,8 +755,49 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
     },
 
+    updateStaticElements: function( coords ) {
+        this.inherited( arguments );
+
+        if( coords.hasOwnProperty("x") ) {
+            var context = this.staticCanvas.getContext('2d');
+
+            this.staticCanvas.width = this.genomeView.elem.clientWidth;
+            this.staticCanvas.style.left = coords.x + "px";
+            context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
+
+            var minVisible = this.genomeView.minVisible();
+            var maxVisible = this.genomeView.maxVisible();
+            var viewArgs = {
+                minVisible: minVisible,
+                maxVisible: maxVisible,
+                bpToPx: dojo.hitch(this.genomeView, "bpToPx"),
+                lWidth: this.label.offsetWidth
+            };
+
+            array.forEach( this.blocks, function(block) {
+                if( !block || !block.fRectIndex )
+                    return;
+
+                var idx = block.fRectIndex.byID;
+                for( var id in idx ) {
+                     var fRect = idx[id];
+                     fRect.glyph.updateStaticElements( context, fRect, viewArgs );
+                }
+            }, this );
+        }
+    },
+
+    heightUpdate: function( height, blockIndex ) {
+        this.inherited( arguments );
+        this.staticCanvas.height = this.staticCanvas.offsetHeight;
+    },
+
     destroy: function() {
         this.destroyed = true;
+
+        domConstruct.destroy( this.staticCanvas );
+        delete this.staticCanvas;
+
         delete this.layout;
         delete this.glyphsLoaded;
         this.inherited( arguments );

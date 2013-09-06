@@ -179,6 +179,10 @@ return declare( Component, {
 
     getFeatureHeight: function( viewArgs, feature ) {
         return this.getStyle( feature, 'height');
+    },
+
+    updateStaticElements: function( context, fRect, viewArgs ) {
+
     }
 
 });
