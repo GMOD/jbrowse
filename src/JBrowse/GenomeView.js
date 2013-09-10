@@ -3,6 +3,7 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/dom-construct',
+           'dojo/dom-class',
            'dojo/on',
            'dojo/mouse',
            'dojo/Deferred',
@@ -30,6 +31,7 @@ define([
            array,
            lang,
            domConstruct,
+           domClass,
            on,
            mouse,
            Deferred,
@@ -78,6 +80,7 @@ constructor: function( args ) {
 
     this._finalizeConfig( args.baseConfig || args.config, args.localConfig );
 
+    this.className = this.getConf('className');
     this.region = this.getConf('region');
     this.style  = this.getConf('style');
     this.inherited( arguments );
@@ -87,20 +90,23 @@ constructor: function( args ) {
 buildRendering: function() {
     this.inherited( arguments );
 
+    domClass.add( this.domNode, this.className );
+
+    // Add an arbitrary 50% padding between the position labels and the
+    // topmost track
+    this.topSpace = 15;
+
     // keep a reference to the main browser object
     this.setFeatureFilterParentComponent( this.browser );
     this.maxPxPerBp = this.getConf('maxPxPerBp');
-
-    //the page element that the GenomeView lives in
-    this.navbox = this.createNavBox( this.domNode );
 
     this.elem = domConstruct.create('div', {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
     }, this.domNode );
 
-    // Add an arbitrary 50% padding between the position labels and the
-    // topmost track
-    this.topSpace = 15;
+    //the page element that the GenomeView lives in
+    this.createSearchControls( this.domNode );
+
 
     // the scrollContainer is the element that changes position
     // when the user scrolls
@@ -114,7 +120,6 @@ buildRendering: function() {
     // they used to be the same element, but making zoomContainer separate
     // enables it to be narrower than this.elem.
     this.zoomContainer = document.createElement("div");
-    this.zoomContainer.id = "zoomContainer";
     this.zoomContainer.style.cssText =
         "position: absolute; left: 0px; top: 0px; height: 100%;";
     this.scrollContainer.appendChild(this.zoomContainer);
@@ -331,6 +336,7 @@ _finishInitialization: function( refseq ) {
 
 configSchema: {
     slots: [
+        { name: 'className', type: 'string', defaultValue: 'colorScheme1' },
         { name: 'region', type: 'string', defaultValue: 'center' },
         { name: 'style', type: 'string|object' },
         { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
@@ -2097,12 +2103,6 @@ _getTracks: function( /**Array[String]*/ trackNames ) {
 _updateLocationDisplays: function( region ) {
     var positionString = Util.assembleLocString( region  );
 
-    if( this.positionDisplay ) {
-        this.positionDisplay.innerHTML = positionString;
-    }
-    if( this.sizeDisplay ) {
-        this.sizeDisplay.innerHTML = Util.humanReadableNumber( this.getWidth()/this.pxPerBp )+'bp';
-    }
     if( this.locationBox ) {
         this.locationBox.set(
             'value',
@@ -2170,52 +2170,22 @@ navigateTo: function( something ) {
 /**
  * @private
  */
-createNavBox: function( parent ) {
+createSearchControls: function( parent ) {
     var thisB = this;
 
-    this.positionDisplay = domConstruct.create(
-        'div',
-        { className: 'pane-position',
-          style: 'height: 1em'
-        },
-        parent );
+    this.topBar = domConstruct.create( 'div', { className: 'topBar' }, this.domNode );
+    var viewLabelContainer = domConstruct.create('div',  { className: 'viewLabelContainer' }, this.topBar );
+    this.viewLabel = domConstruct.create('span',  { className: 'viewLabel', innerHTML: this.name || 'View' }, viewLabelContainer );
 
-    this.sizeDisplay = domConstruct.create(
-        'div',
-        { className: 'pane-size',
-          style: 'height: 1em'
-        }, parent );
-
-    var navbox = document.createElement("div");
-    navbox.className = "nav-controls";
-    navbox.style.top = this.topSpace + 'px';
-    parent.appendChild(navbox);
-    var navboxHideTimeout;
-
-    on( this.positionDisplay, 'click', function() {
-            if( navboxHideTimeout )
-                window.clearTimeout( navboxHideTimeout );
-            navbox.style.display = 'block';
-    });
-    on( navbox, 'mouseover', function() {
-            if( navboxHideTimeout )
-                window.clearTimeout( navboxHideTimeout );
-    });
-    on( navbox, mouse.leave, function() {
-            if( navboxHideTimeout )
-                window.clearTimeout( navboxHideTimeout );
-            navboxHideTimeout = window.setTimeout( function() { navbox.style.display = 'none'; }, 300 );
-    });
-
-    var miniTrap = domConstruct.create(
-        'div', {
-            className: "miniTrap"
-        }, navbox );
+    this.searchControlsContainer = domConstruct.create(
+            'div', {
+                className: 'searchControls'
+            }, this.topBar );
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
-    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, navbox );
+    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, this.searchControlsContainer );
 
     // make the location box
     this.locationBox = new dijitComboBox(
@@ -2225,7 +2195,8 @@ createNavBox: function( parent ) {
             searchAttr: "name",
             style: "height: 18px"
         },
-        dojo.create('input', {}, navbox) );
+        domConstruct.create('div',{},this.searchControlsContainer) );
+
     this.browser.afterMilestone( 'loadNames', dojo.hitch(this, function() {
         if( this.browser.nameStore )
             this.locationBox.set( 'store', this.browser.nameStore );
@@ -2276,7 +2247,7 @@ createNavBox: function( parent ) {
                 dojo.stopEvent(event);
             }),
             style: "height: 18px"
-        }, dojo.create('button',{},navbox));
+        }, dojo.create('button',{},this.searchControlsContainer));
 
     // make the refseq selection dropdown
     this.browser.getStore('refseqs', function( store ) {
@@ -2353,46 +2324,36 @@ createNavBox: function( parent ) {
 
         });
 
-    var zoomOut = document.createElement("input");
-    zoomOut.type = "image";
-    zoomOut.src = this.browser.resolveUrl( "img/zoom-out-1.png" );
-    zoomOut.id = "zoomOut";
-    zoomOut.className = "icon nav";
-    zoomOut.style.height = "40px";
-    navbox.appendChild(zoomOut);
-    dojo.connect( zoomOut, "click", this,
+    var zoomControlsContainer = domConstruct.create( 'div', { className: 'zoomControls' }, this.topBar );
+
+    var zoomOut = domConstruct.create('span', {
+                                          className: "icon nav zoomOut"
+                                      }, zoomControlsContainer );
+    this.own( on( zoomOut, "click",
                   function(event) {
                       dojo.stopEvent(event);
-                      this.zoomSlider.set( 'value', Math.max( 0, this.zoomSlider.get('value')-1 ) );
-                      this.zoomOut(undefined,undefined, 1);
-                  });
-
+                      thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
+                      thisB.zoomOut(undefined,undefined, 1);
+                  }));
 
     this.zoomSliderContainer =
         dojo.create('span', {
-                        className: 'nav zoomSliderContainer',
-                    }, navbox );
+                        className: 'nav zoomSliderContainer'
+                    }, zoomControlsContainer );
     this.zoomSliderText =
         dojo.create('div', {
                         className: 'zoomSliderText'
                     }, this.zoomSliderContainer );
 
-    var zoomIn = document.createElement("input");
-    zoomIn.type = "image";
-    zoomIn.src = this.browser.resolveUrl( "img/zoom-in-1.png" );
-    zoomIn.id = "zoomIn";
-    zoomIn.className = "icon nav";
-    zoomIn.style.height = "40px";
-    navbox.appendChild(zoomIn);
-    dojo.connect( zoomIn, "click", this,
+    var zoomIn = domConstruct.create('span', {
+                                          className: "icon nav zoomIn"
+                                      }, zoomControlsContainer );
+    this.own( on( zoomIn, "click",
                   function(event) {
                       dojo.stopEvent(event);
-                      this.zoomSlider.set( 'value', Math.min( this.zoomLevels.length-1, this.zoomSlider.get('value')+1 ) );
-                      this.zoomIn(undefined,undefined,1);
-                  });
-
-
-    return navbox;
+                      thisB.zoomSlider.set( 'value', Math.min( thisB.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
+                      thisB.zoomIn(undefined,undefined,1);
+                  }));
 },
 
 /**

@@ -1,5 +1,14 @@
 @import url('../base/main.css');
+@import url('genomeview.css');
 @import url('menubar.css');
+
+.jbrowse.metro {
+    font-family: Open Sans, sans-serif;
+}
+
+.jbrowse.metro .dijitSplitterH {
+    height: 4px;
+}
 
 .jbrowse.metro .pane-position, .jbrowse.metro .pane-size {
     background: #d5d5d5;

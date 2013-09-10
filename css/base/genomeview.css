@@ -1,0 +1,362 @@
+/* .nav-controls .dijitTextBox, .nav-controls .dijitSelect { */
+/*     height: 24px; */
+/*     box-sizing: border-box; */
+/*     -moz-box-sizing: border-box; */
+/*     -webkit-box-sizing: border-box; */
+/*     -ms-box-sizing: border-box; */
+/* } */
+
+/* .nav-controls .dijitSelectLabel { */
+/*     padding: 0 2px; */
+/* } */
+
+/* .nav-controls .dijitTextBox .dijitInputField { */
+/*     padding-left: 2px; */
+/* } */
+/* .nav-controls .nav { */
+/*     position: relative; */
+/* } */
+/* .nav-controls .zoomSliderContainer { */
+/*     top: -2px; */
+/* } */
+
+/* #navbox .highlightButton.dijitChecked .dijitButtonNode { */
+/*     background: #E9F10C; */
+/* } */
+/* #navbox .highlightButton .dijitIcon { */
+/*     position: relative; */
+/*     left: 3px; */
+/* } */
+/* #navbox .highlightButton .dijitButtonContents { */
+/*     outline: none; */
+/* } */
+
+
+div.block {
+    position: absolute;
+    overflow: visible;
+    top: 0px;
+    height: 100%;
+}
+div.block.height_overflow .height_overflow_message {
+    position: absolute;
+    color: rgb(77,77,77);
+    border-bottom: 2px solid rgb(77,77,77);
+    text-shadow: white 0px 0px 1px;
+    white-space: nowrap;
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+    z-index: 2000;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+div.block.timed_out {
+    background: #ddd;
+    background: rgba( 0,0,0, 0.1 );
+}
+
+div.track {
+    position: absolute;
+    left: 0px;
+    width: 100%;
+    z-index: 5;
+    padding: 0;
+    margin: 0;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+div.pin_underlay {
+    width: 100%;
+    position: absolute;
+    background: white;
+    z-index: 6;
+
+    -moz-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+    -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+    box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+}
+div.track.pinned {
+    z-index: 20;
+}
+
+.track.dojoDndItemOver {
+    cursor: inherit;
+    background: inherit;
+}
+.track.dojoDndItemAnchor {
+    background: inherit;
+}
+.track.dojoDndItemSelected {
+    background: inherit;
+}
+
+.track.dojoDndItemBefore {
+    border-top: 3px solid #999;
+    margin-top: -3px;
+}
+
+.track.dojoDndItemAfter {
+    border-bottom: 3px solid #999;
+    margin-bottom: -3px;
+}
+
+
+div.gridline {
+    position: absolute;
+    left: 0px;
+    top: 0px
+    width: 0px;
+    height: 100%;
+    border-style: none none none solid;
+    border-width: 1px;
+    border-color: red;
+    z-index: 0;
+}
+div.gridline_major {
+    border-color: #bbb;
+}
+div.gridline_minor {
+    border-color: #eee;
+}
+
+div.pos-label {
+    position: relative;
+    left: -0.35em;
+    top: -1px;
+    z-index: 100;
+}
+
+
+div.blank-block {
+    position: absolute;
+    overflow: visible;
+    top: 0px;
+    height: 100%;
+    background-color: white;
+    z-index: 19;
+}
+
+div.track-label, div.tracklist-label {
+    z-index: 20;
+
+    padding: 1px 6px;
+    overflow: hidden;
+    cursor: pointer;
+
+    border-width: 1px;
+    border-style: solid;
+    border-color: #999;
+
+    color: #111;
+    font-weight: bold;
+}
+
+div.tracklist-label {
+    white-space: nowrap;
+    overflow: hidden;
+    margin-top: -1px;
+}
+
+div.tracklist-label.collapsed {
+    height: 3px;
+    padding: 0;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+/* NOTE: browsers that don't support rgba colors will fall back to all
+   track labels being #bcbcbc */
+
+.notfound-dialog .message {
+    margin: 1em;
+    text-align: center;
+}
+
+.track .loading {
+    background: #fafafa;
+    color: #777;
+    margin: 0;
+    font-weight: bold;
+    height: 100%;
+    width: 100%;
+    z-index: 15;
+    position: absolute;
+}
+.track .loading .text {
+    display: inline;
+    line-height: 40px;
+    margin: 1em;
+}
+
+div.track-label {
+    color: black;
+    margin: 3px 0 0 3px;
+    overflow: show;
+    background: white;
+    padding: 0 5px;
+
+    height: 23px;
+    line-height: 23px;
+
+    z-index: 20;
+    border-color: #eee;
+    opacity: 0.7;
+
+    /* setting white-space to "nowrap" prevents Chrome-specific bug with
+       label text sometimes disappearing after zoom in Chrome was
+       wrapping track-label text to next line, which falls outside of
+       track-label fixed height and therefore not seen. see chromium
+       bug report for more details on underlying issue:
+       http://code.google.com/p/chromium/issues/detail?id=138918
+    */
+    white-space: nowrap;
+}
+
+div.track-label .track-label-text {
+    display: inline-block;
+    white-space: nowrap;
+}
+div.track-label .track-close-button {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    top: 50%;
+    height: 20px;
+    width: 25px;
+    margin: -10px -3px -4px -6px;
+}
+div.track-label .track-menu-button {
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+    right: -5px;
+    top: 0px;
+
+    width: 24px;
+    height: 100%;
+
+    border-radius: 0 6px 6px 0;
+    border-left: 1px inset transparent;
+
+}
+div.track-label .feature-density {
+    font-size: 90%;
+    font-weight: normal;
+}
+.tundra div.track-label:hover .track-menu-button div {
+    height: 8px;
+    width: 8px;
+    position: absolute;
+    left: 8px;
+    top: 7px;
+    background: url("../../img/spriteArrows.png") no-repeat -28px 0;
+}
+
+.tundra div.track-label:hover .track-menu-button:hover {
+    background-color: rgba( 0, 0, 100, 0.05 );
+    border-left-color: #ccc;
+}
+.tundra div.track-label .track-close-button {
+    background: url("../../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
+}
+.tundra div.track-label .track-close-button:hover {
+    background-image: url("../../src/dijit/themes/tundra/images/tabCloseHover.png");
+}
+.tundra div.track-label:hover .track-menu-button:hover div {
+    background-position-x: 0px;
+}
+div.track-label:hover {
+    background: #FAFAFA url(../../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+
+    border-width: 1px;
+    border-color: #666;
+    border-color: rgba( 0,0,0, 1);
+
+    background-color: #ddd;
+    opacity: 1.0;
+}
+
+div.tracklist-label {
+    padding: 3px;
+    background-color: #ddd;
+    background-color: rgba( 220, 220, 220, 0.9 );
+}
+div.tracklist-label:hover {
+    background-color:  #396494;
+    border: 1px solid black;
+}
+
+div.tracklist-container.dojoDndItemSelected {
+    background-color:  #396494;
+    background-color: rgb(110, 132, 156)
+}
+div.tracklist-container.dojoDndItemSelected .tracklist-label {
+    background-color: #b2c3d6;
+}
+
+.jbrowseGenomeView .topBar {
+    height: 45px;
+}
+
+div.viewscale {
+    top: 0px;
+    height: 14px;
+    position: absolute;
+    border-bottom: 1px solid rgba #979797;
+    z-index: 20;
+}
+
+.jbrowseGenomeView .viewLabelContainer {
+    float: left;
+}
+
+.jbrowseGenomeView .searchControls {
+    float: left;
+}
+.jbrowseGenomeView .zoomControls {
+    position: absolute;
+    left: 50%;
+    text-align: center;
+}
+
+.jbrowseGenomeView .zoomControls .zoomSliderContainer {
+    display: inline-block;
+}
+.jbrowseGenomeView .zoomControls .zoomSliderText {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 100%;
+    text-align: center;
+}
+
+.jbrowseGenomeView .dragWindow {
+    position:absolute;
+    top: 45px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+div.vertical_scrollbar {
+    width: 6px;
+    background: #eee;
+    background: rgba(235, 235, 235, 0.62);
+    border-left: 1px solid #DDD9D9;
+}
+div.vertical_scrollbar .vertical_position_marker {
+    background: #555;
+    opacity: 0.8;
+    border-radius: 5px;
+    width: 100%;
+    border-right: 1px solid #ccc;
+}

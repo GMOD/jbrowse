@@ -1,0 +1,91 @@
+.jbrowse.metro .jbrowseGenomeView .topBar {
+    height: 29px;
+}
+.jbrowse.metro .jbrowseGenomeView .dragWindow {
+    top: 29px;
+}
+.jbrowse.metro .jbrowseGenomeView.colorScheme1 .topBar {
+    background: #e6e6e6;
+    border-top: 1px solid #393939;
+}
+.jbrowse.metro .jbrowseGenomeView.colorScheme1 .viewscale {
+    background: url("img/view_top_bg_1.png") #e6e6e6 repeat-x 0 100%;
+}
+.jbrowse.metro .jbrowseGenomeView.colorScheme2 .topBar {
+    background: #4687d4;
+    border-top: 1px solid #315e94;
+}
+.jbrowse.metro .jbrowseGenomeView.colorScheme2 .viewscale {
+    background: url("img/view_top_bg_2.png") #4687d4 repeat-x 0 100%;
+}
+
+.jbrowse.metro .jbrowseGenomeView .viewscale {
+    height: 16px;
+}
+
+.jbrowse.metro .jbrowseGenomeView .viewscale .pos-label {
+    position: relative;
+    left: -0.35em;
+    top: -4px;
+    z-index: 100;
+    font-size: 14px;
+}
+
+/* .jbrowse.metro .jbrowseGenomeView .viewLabelContainer { */
+/* } */
+.jbrowse.metro .jbrowseGenomeView .viewLabel {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 0 5px;
+}
+
+.jbrowse.metro .jbrowseGenomeView .searchControls {
+    display: inline-block;
+}
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls {
+    background: #fafafa;
+    border: 1px solid #979797;
+    height: 24px;
+    width: 198px;
+}
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomIn {
+    height: 24px;
+    width: 35px;
+    position: absolute;
+    right: 0;
+    background-image: url("img/zoom-in-1.png");
+    background-repeat: no-repeat;
+    background-position: 8px 2px;
+}
+.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomOut {
+    height: 24px;
+    width: 35px;
+    position: absolute;
+    left: 0;
+    background-image: url("img/zoom-out-1.png");
+    background-repeat: no-repeat;
+    background-position: 8px 3px;
+}
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomSliderText {
+    display: none;
+}
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRemainingBarH,
+.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderProgressBarH,
+.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderLeftBumper,
+.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRightBumper
+{
+    border-color: #cecece;
+    background: #4d4d4d;
+}
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderImageHandleH {
+    width: 5px;
+    height: 17px;
+    background: #4d4d4d;
+    border: 1px solid #cecece;
+    top: -7px;
+}

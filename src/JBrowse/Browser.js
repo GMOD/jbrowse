@@ -539,21 +539,23 @@ initView: function() {
             new GenomeView(
                 { browser: this,
                   config: {
-                      region: 'center',
-                      initialLocation: initialLoc,
-                      initialTracks: initialTracks.split(',')
-                  }
-                }),
-            new GenomeView(
-                { browser: this,
-                  config: {
+                      className: 'colorScheme1',
                       region: 'top',
                       gridlines: false,
                       style: 'height: 40%',
                       initialLocation: initialLoc,
                       initialTracks: initialTracks.split(',')
                   }
-                } )
+                } ),
+            new GenomeView(
+                { browser: this,
+                  config: {
+                      className: 'colorScheme2',
+                      region: 'center',
+                      initialLocation: initialLoc,
+                      initialTracks: initialTracks.split(',')
+                  }
+                })
         ];
         array.forEach( this.views, function(v) {
             v.placeAt( this.container );
