@@ -517,16 +517,34 @@ var Meta = declare( null,
             filteredSets[0].facetName = 'Contains text';
         }
         filteredSets.push.apply( filteredSets,
-                dojo.map( dojof.keys( query ), function( facetName ) {
+                array.map( dojof.keys( query ), function( facetName ) {
                     var values = query[facetName];
                     var items = [];
                     if( ! this.facetIndexes.byName[facetName] ) {
                         console.error( "No facet defined with name '"+facetName+"'." );
                         throw "No facet defined with name '"+facetName+"', faceted search failed.";
                     }
-                    dojo.forEach( values, function(value) {
-                        var idx = this.facetIndexes.byName[facetName].byValue[value] || {};
-                        items.push.apply( items, this._filterDeleted( idx.items || [] ) );
+                    array.forEach( values, function(value) {
+                        var indexes;
+                        // search for values by wildcard
+                        if( /\*$/.test( value ) ) {
+                            var regexp = new RegExp( value.replace( /\*$/, '.*$' ), 'i' );
+                            indexes = array.map( array.filter(
+                                                     dojof.keys( this.facetIndexes.byName[facetName].byValue ),
+                                                     function( value ) {
+                                                         return regexp.test( value );
+                                                     }),
+                                                 function( val ) {
+                                                     return this.facetIndexes.byName[facetName].byValue[val];
+                                                 }, this);
+                        }
+                        // search for exact value
+                        else {
+                            indexes = [ this.facetIndexes.byName[facetName].byValue[value] || {} ];
+                        }
+                        array.forEach( indexes, function( idx ) {
+                            items.push.apply( items, this._filterDeleted( idx.items || [] ) );
+                        }, this );
                     },this);
                     items.facetName = facetName;
                     items.sort( dojo.hitch( this, '_itemSortFunc' ));
