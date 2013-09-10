@@ -6,6 +6,7 @@
 .jbrowse.metro .menuBar .powered_by {
     position: relative;
     top: 2px;
+    line-height: 20px;
 }
 
 .jbrowse.metro .menuBar .dijitButtonNode {

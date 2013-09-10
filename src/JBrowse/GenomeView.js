@@ -2192,8 +2192,7 @@ createSearchControls: function( parent ) {
         {
             name: "location",
             maxLength: 400,
-            searchAttr: "name",
-            style: "height: 18px"
+            searchAttr: "name"
         },
         domConstruct.create('div',{},this.searchControlsContainer) );
 
@@ -2240,13 +2239,11 @@ createSearchControls: function( parent ) {
     // make the 'Go' button'
     this.goButton = new dijitButton(
         {
-            label: 'Go',
             onClick: dojo.hitch( this, function(event) {
                 this.navigateTo(this.locationBox.get('value'));
                 this.goButton.set('disabled',true);
                 dojo.stopEvent(event);
-            }),
-            style: "height: 18px"
+            })
         }, dojo.create('button',{},this.searchControlsContainer));
 
     // make the refseq selection dropdown

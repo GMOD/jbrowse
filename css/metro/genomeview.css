@@ -1,6 +1,14 @@
 .jbrowse.metro .jbrowseGenomeView .topBar {
     height: 29px;
+    color: #333;
 }
+.jbrowse.metro .jbrowseGenomeView .topBar > * {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
 .jbrowse.metro .jbrowseGenomeView .dragWindow {
     top: 29px;
 }
@@ -29,7 +37,7 @@
     left: -0.35em;
     top: -4px;
     z-index: 100;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* .jbrowse.metro .jbrowseGenomeView .viewLabelContainer { */
@@ -40,13 +48,64 @@
     padding: 0 5px;
 }
 
-.jbrowse.metro .jbrowseGenomeView .searchControls {
+/** search box and location controls */
+.jbrowse.metro .searchControls {
     display: inline-block;
+
+    /* border: 1px solid #979797; */
+
+    height: 24px;
+
+    font-size: 16px;
+    line-height: 22px;
+
+    /* -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
+    /* -moz-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
+    /* box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
 }
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls, .jbrowse.metro .jbrowseGenomeView .panControls  {
+.jbrowse.metro .searchControls .dijitButtonNode {
+    padding: 0;
+}
+
+.jbrowse.metro .searchControls .dijitInputField {
+    padding: 0 0.25em;
+}
+
+.jbrowse.metro .searchControls .dijitSelect,
+.jbrowse.metro .searchControls .dijitTextBox,
+.jbrowse.metro .searchControls .dijitButton
+ {
+    height: 22px;
+    position: relative;
+    top: -2px;
+    border: 0;
+}
+
+.jbrowse.metro .searchControls .dijitButton {
+   background: #d5d5d5;
+   margin: 0;
+   width: 22px;
+}
+.jbrowse.metro .searchControls .dijitButtonNode {
+   background: #d5d5d5;
+   border: 0;
+}
+.jbrowse.metro .searchControls .dijitButton .dijitButtonNode {
+    position: relative;
+    top: -1px;
+   background: url("img/search.png") #d5d5d5 no-repeat 0 0;
+   width: 22px;
+}
+
+
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls,
+.jbrowse.metro .jbrowseGenomeView .panControls,
+.jbrowse.metro .jbrowseGenomeView .searchControls  {
     background: #fafafa;
-    border: 1px solid #979797;
+    /* border: 1px solid #979797; */
+    border: 1px solid rgba( 20, 20, 20, 0.6 );
 }
 
 .jbrowse.metro .jbrowseGenomeView .panControls {
