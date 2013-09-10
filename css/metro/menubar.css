@@ -2,3 +2,18 @@
     background: #333;
     text-align: right;
 }
+
+.jbrowse.metro .menuBar .powered_by {
+    position: relative;
+    top: 2px;
+}
+
+.jbrowse.metro .menuBar .dijitButtonNode {
+    padding: 0;
+    border: 0;
+}
+
+.jbrowse.metro .menuBar > .dataset_select .dijitSelectLabel {
+    padding-right: 0.1em;
+    font-size: 16px;
+}

@@ -17,6 +17,7 @@
 }
 .jbrowse.metro .jbrowseGenomeView.colorScheme2 .viewscale {
     background: url("img/view_top_bg_2.png") #4687d4 repeat-x 0 100%;
+    color: white;
 }
 
 .jbrowse.metro .jbrowseGenomeView .viewscale {
@@ -43,9 +44,44 @@
     display: inline-block;
 }
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls {
+.jbrowse.metro .jbrowseGenomeView .zoomControls, .jbrowse.metro .jbrowseGenomeView .panControls  {
     background: #fafafa;
     border: 1px solid #979797;
+}
+
+.jbrowse.metro .jbrowseGenomeView .panControls {
+    height: 24px;
+    width: 79px;
+}
+.jbrowse.metro .jbrowseGenomeView .panControls .panSeparator {
+    background: #e4e4e4;
+    position: absolute;
+    height: 14px;
+    width: 1px;
+    left: 39px;
+    top: 5px;
+}
+.jbrowse.metro .jbrowseGenomeView .panControls .panLeft {
+    height: 24px;
+    width: 35px;
+    position: absolute;
+    left: 0;
+    background-image: url("img/pan-left.png");
+    background-repeat: no-repeat;
+    background-position: 8px 2px;
+}
+.jbrowse.metro .jbrowseGenomeView .panControls .panRight {
+    height: 24px;
+    width: 35px;
+    position: absolute;
+    right: 0;
+    background-image: url("img/pan-right.png");
+    background-repeat: no-repeat;
+    background-position: 8px 2px;
+}
+
+
+.jbrowse.metro .jbrowseGenomeView .zoomControls {
     height: 24px;
     width: 198px;
 }
@@ -67,8 +103,8 @@
     background-image: url("img/zoom-out-1.png");
     background-repeat: no-repeat;
     background-position: 8px 3px;
-}
 
+}
 .jbrowse.metro .jbrowseGenomeView .zoomControls .zoomSliderText {
     display: none;
 }

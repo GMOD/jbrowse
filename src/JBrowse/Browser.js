@@ -328,6 +328,10 @@ resolveUrl: function( url ) {
     return Util.resolveUrl( browserRoot, url );
 },
 
+resolveThemeUrl: function( relUrl ) {
+    return this.resolveUrl( 'css/'+this.getConf('theme')+'/'+relUrl );
+},
+
 /**
  * Displays links to configuration help in the main window.  Called
  * when the main browser cannot run at all, due to configuration
@@ -602,16 +606,16 @@ renderMenuBar: function( menuBar ) {
     if( this.getConf('datasets').length && ! this.getConf('dataset_id') ) {
         console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
     }
+
+    this.poweredByLink = dojo.create('a', {
+                                         className: 'powered_by',
+                                         innerHTML: '<img src="'+this.resolveThemeUrl('img/menubar_logo.png')+'">',
+                                         onclick: dojo.hitch( aboutDialog, 'show' ),
+                                         title: 'powered by JBrowse'
+                                     }, menuBar );
+
     if( this.getConf('datasets') && this.getConf('dataset_id') ) {
         this.renderDatasetSelect( menuBar );
-    } else {
-
-        this.poweredByLink = dojo.create('a', {
-                                             className: 'powered_by',
-                                             innerHTML: 'JBrowse',
-                                             onclick: dojo.hitch( aboutDialog, 'show' ),
-                                             title: 'powered by JBrowse'
-                                         }, menuBar );
     }
 
     // make the file menu

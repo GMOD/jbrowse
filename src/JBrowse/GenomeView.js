@@ -2324,8 +2324,8 @@ createSearchControls: function( parent ) {
 
         });
 
+    // zoom controls
     var zoomControlsContainer = domConstruct.create( 'div', { className: 'zoomControls' }, this.topBar );
-
     var zoomOut = domConstruct.create('span', {
                                           className: "icon nav zoomOut"
                                       }, zoomControlsContainer );
@@ -2335,7 +2335,6 @@ createSearchControls: function( parent ) {
                       thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
                       thisB.zoomOut(undefined,undefined, 1);
                   }));
-
     this.zoomSliderContainer =
         dojo.create('span', {
                         className: 'nav zoomSliderContainer'
@@ -2344,7 +2343,6 @@ createSearchControls: function( parent ) {
         dojo.create('div', {
                         className: 'zoomSliderText'
                     }, this.zoomSliderContainer );
-
     var zoomIn = domConstruct.create('span', {
                                           className: "icon nav zoomIn"
                                       }, zoomControlsContainer );
@@ -2353,6 +2351,30 @@ createSearchControls: function( parent ) {
                       dojo.stopEvent(event);
                       thisB.zoomSlider.set( 'value', Math.min( thisB.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
                       thisB.zoomIn(undefined,undefined,1);
+                  }));
+
+    // pan controls
+    var panControlsContainer = domConstruct.create( 'div', { className: 'panControls' }, this.topBar );
+    var panLeft = domConstruct.create('span', {
+                                          className: "icon nav panLeft"
+                                      }, panControlsContainer );
+    this.own( on( panLeft, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      thisB.slide(0.9);
+                  }));
+
+    domConstruct.create('span', {
+                            className: "panSeparator"
+                        }, panControlsContainer );
+
+    var panRight = domConstruct.create('span', {
+                                          className: "icon nav panRight"
+                                      }, panControlsContainer );
+    this.own( on( panRight, "click",
+                  function(event) {
+                      dojo.stopEvent(event);
+                      thisB.slide(-0.9);
                   }));
 },
 

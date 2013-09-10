@@ -325,10 +325,9 @@ div.viewscale {
 }
 .jbrowseGenomeView .zoomControls {
     position: absolute;
-    left: 50%;
+    left: 40%;
     text-align: center;
 }
-
 .jbrowseGenomeView .zoomControls .zoomSliderContainer {
     display: inline-block;
 }
@@ -337,6 +336,13 @@ div.viewscale {
     left: 0;
     top: 14px;
     width: 100%;
+    text-align: center;
+}
+
+
+.jbrowseGenomeView .panControls {
+    position: absolute;
+    left: 70%;
     text-align: center;
 }
 
