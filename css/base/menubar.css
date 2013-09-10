@@ -1,9 +1,9 @@
 /* styles for the top menu bar */
-div.menuBar {
+.jbrowse div.menuBar {
     padding: 1px 0;
     height: 25px;
 }
-div.topLink {
+.jbrowse div.topLink {
     position: absolute;
     right: 0;
     top: 0;
@@ -12,11 +12,11 @@ div.topLink {
     border: 1px solid #888;
     border-width: 0 0 1px 1px;
 }
-div.menuBar a, .topLink a {
+.jbrowse div.menuBar a, .topLink a {
     padding: 0 0.8ex;
     text-decoration: none;
 }
-.menuBar .powered_by {
+.jbrowse .menuBar .powered_by {
     float: left;
     font-size: 125%;
     font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
@@ -25,7 +25,7 @@ div.menuBar a, .topLink a {
     cursor: pointer;
 }
 
-.share .icon {
+.jbrowse .share .icon {
     height: 8px;
     width: 19px;
     display: inline;
@@ -34,22 +34,22 @@ div.menuBar a, .topLink a {
     margin-right: 2px;
     margin-top: -2px;
 }
-a.topLink, a.topLink * {
+.jbrowse a.topLink, a.topLink * {
     cursor: pointer;
 }
-.topLink .powered_by {
+.jbrowse .topLink .powered_by {
     padding: 0 0.5em;
     color: black;
     text-decoration: none;
 }
-.menuBar * {
+.jbrowse .menuBar * {
     outline: none;
 }
-.menuBar .dijitButtonNode {
+.jbrowse .menuBar .dijitButtonNode {
     padding: 0 1em;
 }
 
-.menuBar .dijitButtonNode * {
+.jbrowse .menuBar .dijitButtonNode * {
     color: white;
 }
 .menuBar .config .icon {
@@ -63,29 +63,86 @@ a.topLink, a.topLink * {
 }
 
 /* dataset selector */
-.menuBar > .menu, .menuBar > .dataset_select {
+.jbrowse .menuBar > .menu, .menuBar > .dataset_select {
     float: left;
     font-size: 120%;
     color: white;
 }
-.menuBar > .dataset_select {
+.jbrowse .menuBar > .dataset_select {
     margin: 1px 0 0 1px;
     font-weight: bold;
     height: 100%;
     background: transparent;
     border: none;
 }
-.menuBar > .dataset_select .dijitSelectLabel {
+.jbrowse .menuBar > .dataset_select .dijitSelectLabel {
     padding: 0 0.5em;
 }
-.menuBar > .dataset_select.dijitSelectHover td {
+.jbrowse .menuBar > .dataset_select.dijitSelectHover td {
     color: white;
 }
-.menuBar > .dataset_select .dijitButtonContents {
+.jbrowse .menuBar > .dataset_select .dijitButtonContents {
     background: transparent;
     border-color: transparent;
 }
-.menuBar > .dataset_select .dijitArrowButtonInner {
+.jbrowse .menuBar > .dataset_select .dijitArrowButtonInner {
     background: url("../../img/spriteArrows.png") no-repeat scroll -56px center;
 }
 
+/** base colors */
+
+.jbrowse .menuBar {
+    background: #396494;
+    text-align: right;
+}
+.jbrowse .menuBar a {
+    color: white;
+}
+.jbrowse .menuBar .dijitButtonNode {
+    background: transparent;
+}
+
+.jbrowse .menuBar .dijitButtonNode {
+    border: 2px outset rgba( 120, 120, 120, 0.2 );
+}
+.jbrowse .menuBar .dijitButtonHover .dijitButtonNode,
+.jbrowse .menuBar .dijitDropDownButtonHover .dijitButtonNode {
+    background: rgba( 255, 255, 255, 0.07 );
+}
+.jbrowse .menuBar .dijitButtonActive .dijitButtonNode,
+.jbrowse .menuBar .dijitDropDownButtonActive .dijitButtonNode {
+    border: 2px inset rgba( 120, 120, 120, 0.2 );
+}
+.jbrowse .menuBar .config .icon {
+    height: 16px;
+    width: 16px;
+    margin-right: 2px;
+    margin-top: -2px;
+    display: inline;
+    display: inline-block;
+    background: url("../../img/glyphs_white.png") no-repeat -168px -27px;
+}
+
+.jbrowse .globalMenu .dijitMenuItem td {
+    padding: 0.5em 2px 0.5em 5px;
+}
+
+.jbrowse .menuBar > .menu .dijitButtonNode {
+    border: none;
+}
+.jbrowse .menuBar > .menu.dijitDropDownButton,
+.jbrowse .menuBar > .menu.dijitDropDownButton * {
+    margin: 0;
+    padding: 0;
+    line-height: 25px;
+}
+.jbrowse .menuBar > .menu.dijitDropDownButton .dijitButtonNode {
+    padding: 0 1em 0 0.7em;
+    text-align: left;
+}
+.jbrowse .menuBar > .menu .dijitDropDownButtonHover .dijitButtonNode {
+    background: rgba( 255, 255, 255, 0.07 );
+}
+.jbrowse .menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
+    border: none;
+}
