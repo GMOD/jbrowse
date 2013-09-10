@@ -1,0 +1,213 @@
+{
+    "stores": {
+        "default": {
+            "type": "JBrowse/Store/SeqFeature/NCList",
+            "urlTemplate" : "tracks/{set}/{refseq}/trackData.json"
+        },
+        "refseqs": {
+            "type": "JBrowse/Store/Sequence/StaticChunked",
+            "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-",
+            "chunkSize" : 20000
+        },
+        "volvox-sorted BAM": {
+            "type" : "JBrowse/Store/SeqFeature/BAM",
+            "urlTemplate" : "../sample_data/raw/volvox/volvox-sorted.bam"
+        },
+        "test vcf": {
+            "type": "JBrowse/Store/SeqFeature/VCFTabix",
+            "urlTemplate" : "../sample_data/raw/volvox/volvox.test.vcf.gz"
+        },
+        "volvox vcf": {
+            "type": "JBrowse/Store/SeqFeature/VCFTabix",
+            "urlTemplate" : "../sample_data/raw/volvox/volvox.filtered.vcf.gz"
+        },
+        "volvox_microarray bigwig": {
+            "type": "JBrowse/Store/SeqFeature/BigWig",
+            "urlTemplate" : "../sample_data/raw/volvox/volvox_microarray.bw"
+        },
+        "wiggle images": {
+            "urlTemplate" : "tracks/volvox_microarray.wig/{refseq}/trackData.json",
+            "type": "JBrowse/Store/TiledImage/Fixed"
+        },
+        "fromconfig test": {
+            "features" : [
+                {
+                    "seq_id" : "ctga",
+                    "name" : "Test1",
+                    "polarity" : "frobnicated",
+                    "description" : "Test feature defined solely in configuration",
+                    "end" : 400,
+                    "start" : 300
+                }
+            ],
+            "type" : "JBrowse/Store/SeqFeature/FromConfig"
+        }
+    },
+
+    "tracks" : [
+        {
+            "store": "refseqs",
+            "type" : "JBrowse/View/Track/Sequence",
+            "label" : "Reference sequence",
+        },
+
+        {
+            "style" : { "className" : "feature2" },
+            "query": { "set": "ExampleFeatures" },
+            "label" : "HTMLFeatures - Example Features"
+        },
+
+        {
+            "style" : { "className" : "feature2" },
+            "query": { "set": "NameTest" },
+            "label" : "HTMLFeatures - Name test",
+            "type": "JBrowse/View/Track/HTMLFeatures"
+        },
+
+        {
+            "style" : { "className" : "triangle hgred" },
+            "query": { "set": "snps" },
+            "label" : "HTMLFeatures - SNPs"
+        },
+
+        {
+            "store": "volvox-sorted BAM",
+            "label" : "BAM - volvox-sorted.bam",
+            "type" : "JBrowse/View/Track/Alignments2",
+            "glyphConfig": {
+                "default": { "height": 4 }
+            },
+            "metadata" : {
+                "Description" : "BAM-format alignments of simulated resequencing reads on the volvox test ctgA reference."
+            }
+        },
+
+        {
+            "type" : "JBrowse/View/Track/HTMLVariants",
+            "store": "volvox vcf",
+            "metadata" : {
+                "Description" : "Variants called from volvox-sorted.bam using samtools and bcftools"
+            },
+            "label" : "VCF - volvox-sorted variants"
+        },
+
+      {
+          "negColor" : "function(feature) { return feature.get('score') < 150 ? 'green' : 'red'; }",
+          "store": "volvox_microarray bigwig",
+          "bicolorPivot" : "mean",
+          "label" : "BigWig Density - volvox_microarray",
+          "type" : "JBrowse/View/Track/Wiggle/Density",
+          "metadata" : {
+              "Description" : "Wiggle/Density view of volvox_microarray.bw.  Also demonstrates use of a user-configurable callback to set the value of neg_color to green when the score is below 150."
+          }
+      },
+        {
+            "posColor" : "function(feature) { return feature.get('score') > 300 ? 'red' : 'blue'; }",
+            "showVarianceBands" : true,
+            "store": "volvox_microarray bigwig",
+            "label" : "BigWig XY - volvox_microarray",
+            "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+            "metadata" : {
+                "description" : "Wiggle/XYPlot view of volvox_microarray.bw.  Demonstrates use of a user-configured callback to set the bar color to red when the score is above 300."
+            }
+        },
+
+       { "label": "Features from config",
+         "store": "fromconfig test",
+         "type": "JBrowse/View/Track/CanvasFeatures"
+       },
+
+      {
+         "autocomplete" : "all",
+         "track" : "malformed_alignments",
+         "style" : {
+            "className" : "feature4"
+         },
+         "menuTemplate" : [
+            {
+               "children" : [
+                  {
+                     "children" : [
+                        {
+                           "iconClass" : "dijitIconBookmark",
+                           "url" : "http://wiki.trin.org.au/{name}-{start}-{end}",
+                           "action" : "newWindow",
+                           "label" : "Query trin for {name}"
+                        },
+                        {
+                           "iconClass" : "dijitIconSearch",
+                           "url" : "http://example.com/{name}-{start}-{end}",
+                           "label" : "Query example.com for {name}"
+                        }
+                     ],
+                     "label" : "Check gene on databases"
+                  },
+                  {
+                     "label" : "2nd child of demo"
+                  },
+                  {
+                     "label" : "3rd child: this is a track"
+                  }
+               ],
+               "label" : "Item with submenu"
+            },
+            {
+               "iconClass" : "dijitIconDatabase",
+               "url" : "http://www.example.com?featurename={name}",
+               "action" : "iframeDialog",
+               "title" : "The magnificent example.com (feature {name})",
+               "label" : "Open example.com in an iframe popup"
+            },
+            {
+               "iconClass" : "dijitIconDatabase",
+               "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}",
+               "action" : "xhrDialog",
+               "title" : "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }",
+               "label" : "Open popup with XHR HTML snippet (btw this is feature {name})"
+            },
+            {
+               "iconClass" : "dijitIconDatabase",
+               "content" : "function(track,feature,div) { return '<h2>'+feature.get('name')+'</h2><p>This is some test content!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} ",
+               "action" : "contentDialog",
+               "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "label" : "Popup with content snippet from a function (feature {name})"
+            },
+            {
+               "iconClass" : "dijitIconDatabase",
+               "content" : "<h2>{name}</h2><p>This is some test content about {name}, which goes from {start} to {end} on the {strand} strand.</p>",
+               "action" : "contentDialog",
+               "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "label" : "Popup with content snippet from string (feature {name})"
+            },
+            {
+               "iconClass" : "dijitIconDatabase",
+               "action" : "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }",
+               "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }"
+            }
+         ],
+         "hooks" : {
+            "modify" : "function( track, feature, div ) { div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
+         },
+         "query": { "set": "malformed_alignments" },
+         "metadata" : {
+            "Description" : "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback."
+         },
+         "type" : "JBrowse/View/Track/CanvasFeatures",
+         "label" : "HTMLFeature - test features with menus"
+      },
+
+      {
+         "style" : { "className" : "image" },
+         "type" : "JBrowse/View/Track/FixedImage/Wiggle",
+         "label" : "Image - volvox_microarray.wig",
+         "store": "wiggle images"
+      }
+
+    ],
+    "names" : {
+        "url" : "names/",
+        "type" : "Hash"
+    },
+    "dataset_id" : "volvox",
+    "formatVersion" : 2
+}
