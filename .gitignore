@@ -3,14 +3,10 @@
 .#*
 \#*\#
 *.index
-/bin/wig2png
 *.pyc
 *TODO.txt
 Makefile
 /sample_data/json
-/src/wig2png/config.log
-/src/wig2png/config.status
-/src/wig2png/src/config.h
 /docs/jsdoc/
 /*-debug.html
 /extlib/

@@ -12,7 +12,7 @@ RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
 ZIP=zip -q --symlinks -r
 
-all: docs bin/wig2png
+all: docs
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
 	sha1sum *.zip
@@ -79,13 +79,6 @@ release-min-test: release-min
 	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
-
-bin/wig2png: src/wig2png/Makefile
-	$(MAKE) -C src/wig2png;
-src/wig2png/Makefile: src/wig2png/configure
-	cd src/wig2png && ./configure
-src/wig2png/configure: src/wig2png/configure.in
-	cd src/wig2png && autoconf
 
 docs: doc
 
