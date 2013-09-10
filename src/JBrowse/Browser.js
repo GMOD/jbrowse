@@ -543,6 +543,7 @@ initView: function() {
             new GenomeView(
                 { browser: this,
                   config: {
+                      name: 'Overview',
                       className: 'colorScheme1',
                       region: 'top',
                       gridlines: false,
@@ -554,6 +555,7 @@ initView: function() {
             new GenomeView(
                 { browser: this,
                   config: {
+                      name: 'Detail',
                       className: 'colorScheme2',
                       region: 'center',
                       initialLocation: initialLoc,

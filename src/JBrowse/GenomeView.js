@@ -336,6 +336,7 @@ _finishInitialization: function( refseq ) {
 
 configSchema: {
     slots: [
+        { name: 'name', type: 'string', defaultValue: 'View' },
         { name: 'className', type: 'string', defaultValue: 'colorScheme1' },
         { name: 'region', type: 'string', defaultValue: 'center' },
         { name: 'style', type: 'string|object' },
@@ -2175,7 +2176,7 @@ createSearchControls: function( parent ) {
 
     this.topBar = domConstruct.create( 'div', { className: 'topBar' }, this.domNode );
     var viewLabelContainer = domConstruct.create('div',  { className: 'viewLabelContainer' }, this.topBar );
-    this.viewLabel = domConstruct.create('span',  { className: 'viewLabel', innerHTML: this.name || 'View' }, viewLabelContainer );
+    this.viewLabel = domConstruct.create('span',  { className: 'viewLabel', innerHTML: this.getConf('name') }, viewLabelContainer );
 
     this.searchControlsContainer = domConstruct.create(
             'div', {
