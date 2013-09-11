@@ -376,14 +376,7 @@ _renderVerticalScrollBar: function() {
     var container = domConstruct.create(
         'div',
         {
-            className: 'vertical_scrollbar',
-            style: { position: 'absolute',
-                     right: '0px',
-                     top: this.scaleTrackDiv.offsetHeight+'px',
-                     height: '100%',
-                     width: '10px',
-                     zIndex: 1000
-                   }
+            className: 'vertical_scrollbar'
         },
         this.domNode
     );
@@ -392,14 +385,13 @@ _renderVerticalScrollBar: function() {
         'div',
         {
             className: 'vertical_position_marker',
-            style: {
-                position: 'absolute',
-                height: '100%'
-            }
+            style: 'position: absolute'
         },
         container
     );
     this.verticalScrollBar = { container: container, positionMarker: positionMarker, width: container.offsetWidth };
+
+    this._updateVerticalScrollBar( { y: this.getY(), height: this.getHeight() } );
 },
 
 /**
@@ -412,11 +404,16 @@ _updateVerticalScrollBar: function( newDims ) {
         return;
 
     if( typeof newDims.height == 'number' ) {
-        var heightAdjust = this.staticTrack ? -this.staticTrack.div.offsetHeight : 0;
-        var trackPaneHeight = newDims.height + heightAdjust;
-        this.verticalScrollBar.container.style.height = trackPaneHeight-(this.pinUnderlay ? this.pinUnderlay.offsetHeight+heightAdjust : 0 ) +'px';
+
+        var containerTop = this.elem.offsetTop + this.scaleTrackDiv.offsetHeight;
+        var containerHeight = this.domNode.offsetHeight - containerTop;
+
+        this.verticalScrollBar.container.style.top = containerTop+'px';
+        this.verticalScrollBar.container.style.height = containerHeight+'px';
+
         var markerHeight = newDims.height / (this.containerHeight||1) * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
+
         if( newDims.height / (this.containerHeight||1) > 0.98 ) {
             this.verticalScrollBar.container.style.display = 'none';
             this.verticalScrollBar.visible = false;
