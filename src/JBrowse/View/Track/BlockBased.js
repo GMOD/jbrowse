@@ -468,7 +468,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     redraw: function() {
         this.clear();
-        this.genomeView.showVisibleBlocks(true);
+        this.genomeView.showVisibleBlocks();
     },
 
     markBlockHeightOverflow: function( block ) {

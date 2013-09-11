@@ -702,7 +702,7 @@ wheelScroll: function( event ) {
     // cutoff for deciding when the user is done scrolling
     // (set by a bit of experimentation)
     this.wheelScrollTimeout = window.setTimeout( dojo.hitch( this, function() {
-        this.showVisibleBlocks(true);
+        this.showVisibleBlocks();
         this.wheelScrollTimeout = null;
     }, 100));
 
@@ -807,7 +807,7 @@ zoomCallback: function() {
 afterSlide: function() {
     this.showCoarse();
     this.scrollUpdate();
-    this.showVisibleBlocks(true);
+    this.showVisibleBlocks();
 },
 
 /**
@@ -1037,7 +1037,7 @@ dragEnd: function(event) {
     this.showCoarse();
 
     this.scrollUpdate();
-    this.showVisibleBlocks(true);
+    this.showVisibleBlocks();
 
     // wait 100 ms before releasing our drag indication, since onclick
     // events from during the drag might fire after the dragEnd event
@@ -1197,7 +1197,7 @@ centerAtBase: function(base, instantly) {
     this.offset = stripesLeft * this.stripeWidth;
     this.setX(pxDist - this.offset - (this.getWidth() / 2));
     this.trackIterate(function(track) { track.clear(); });
-    this.showVisibleBlocks(true);
+    this.showVisibleBlocks();
         this.showCoarse();
     } else {
     var startbp = this.pxToBp(this.x + this.offset);
@@ -1265,6 +1265,7 @@ showCoarse: function() {
  * Hook for other components to dojo.connect to.
  */
 onFineMove: function( startbp, endbp ) {
+    this.showVisibleBlocks( true );
 },
 
 /**
@@ -1658,7 +1659,7 @@ trimVertical: function(y) {
 
 redrawTracks: function() {
     this.trackIterate( function(t) { t.hideAll(); } );
-    this.showVisibleBlocks( false );
+    this.showVisibleBlocks(  );
 },
 
 hideRegion: function( location ) {
@@ -1668,7 +1669,7 @@ hideRegion: function( location ) {
 redrawRegions: function( regions ) {
     array.forEach( regions,
                    lang.hitch( this, 'hideRegion' ));
-    this.showVisibleBlocks( false );
+    this.showVisibleBlocks(  );
 },
 
 zoomIn: function(e, zoomLoc, steps) {
@@ -1852,7 +1853,7 @@ zoomUpdate: function(zoomLoc, fixedBp) {
         track.endZoom( this.pxPerBp,Math.round(this.stripeWidth / this.pxPerBp));
     });
 
-    this.showVisibleBlocks(true);
+    this.showVisibleBlocks();
     this.showCoarse();
 },
 
@@ -1911,10 +1912,10 @@ trackHeightUpdate: function(trackName, height) {
     this.updateStaticElements({ height: this.getHeight() });
 },
 
-showVisibleBlocks: function(updateHeight, pos, startX, endX) {
-    if (pos === undefined) pos = this.getPosition();
-    if (startX === undefined) startX = pos.x - (this.drawMargin * this.getWidth());
-    if (endX === undefined) endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
+showVisibleBlocks: function( uiOnly ) {
+    var pos = this.getPosition();
+    var startX = pos.x - (this.drawMargin * this.getWidth());
+    var endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
     var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
     var rightVisible = Math.min(this.stripeCount - 1,
                                (endX / this.stripeWidth) | 0);
@@ -1929,21 +1930,30 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
-    this.trackIterate(function(track, view) {
-                          track.showRange(leftVisible, rightVisible,
-                                          startBase, bpPerBlock,
-                                          view.pxPerBp,
-                                          containerStart, containerEnd);
-                      });
+    if( uiOnly ) {
+        array.forEach( this.uiTracks, function( track ) {
+            track.showRange(leftVisible, rightVisible,
+                            startBase, bpPerBlock,
+                            this.pxPerBp,
+                            containerStart, containerEnd);
+        },this);
+    } else {
+        this.trackIterate(function(track, view) {
+                              track.showRange(leftVisible, rightVisible,
+                                              startBase, bpPerBlock,
+                                              view.pxPerBp,
+                                              containerStart, containerEnd);
+                          });
 
-    this.updateStaticElements({
-                                  height: this.getHeight(),
-                                  width: this.getWidth(),
-                                  x: this.getX(),
-                                  y: this.getY()
-                              });
+        this.updateStaticElements({
+                                      height: this.getHeight(),
+                                      width: this.getWidth(),
+                                      x: this.getX(),
+                                      y: this.getY()
+                                  });
 
-    this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
+        this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
+    }
 },
 
 /**
@@ -2460,7 +2470,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
         var track = new trackClass({
                 refSeq: this.ref,
                 config: trackConfig,
-                changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
+                changeCallback: dojo.hitch( this, 'showVisibleBlocks' ),
                 trackPadding: this.trackPadding,
                 store: store,
                 genomeView: this,
