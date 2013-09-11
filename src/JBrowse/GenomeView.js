@@ -1255,23 +1255,12 @@ maxVisible: function() {
 },
 
 showFine: function() {
-    this.onFineMove(this.minVisible(), this.maxVisible());
+    this.showVisibleBlocks( 'uiOnly' );
 },
+
 showCoarse: function() {
-    this.onCoarseMove(this.minVisible(), this.maxVisible());
-},
+    var startbp = this.minVisible(), endbp = this.maxVisible();
 
-/**
- * Hook for other components to dojo.connect to.
- */
-onFineMove: function( startbp, endbp ) {
-    this.showVisibleBlocks( true );
-},
-
-/**
- * Hook for other components to dojo.connect to.
- */
-onCoarseMove: function( startbp, endbp ) {
     // update the location box with our current location
     this._updateLocationDisplays({ start: startbp, end: endbp, ref: this.ref.name });
 
