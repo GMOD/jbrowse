@@ -150,7 +150,6 @@ configSchema: {
             { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
             { name: 'dijitTheme', type: 'string', defaultValue: 'tundra' },
             { name: 'theme', type: 'string', defaultValue: 'metro' },
-            { name: 'show_nav', type: 'boolean', defaultValue: true },
             { name: 'showTracks', type: 'string', defaultValue: '' },
             { name: 'updateBrowserURL', type: 'boolean', defaultValue: true },
             { name: 'datasets', type: 'object', defaultValue: {} },
@@ -486,27 +485,12 @@ initView: function() {
         dojo.addClass( document.body, this.getConf('dijitTheme') );
         dojo.addClass( this.container, this.getConf('theme') );
 
-        var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
-
         // make our top menu bar
-        var menuBar = dojo.create(
-            'div',
-            {
-                className: this.getConf('show_nav') ? 'menuBar' : 'topLink'
-            }
-            );
+        var menuBar = thisB.menuBar = dojo.create('div',{className:  'menuBar' },this.container);
 
-        thisB.menuBar = menuBar;
-        ( this.getConf('show_nav') ? topPane : this.container ).appendChild( menuBar );
+        this.renderMenuBar( menuBar );
 
-        if( this.getConf('show_nav') ) {
-            this.renderMenuBar( menuBar );
-        }
-
-        if( this.getConf('show_nav') )
-            menuBar.appendChild( this.makeShareLink() );
-        else
-            menuBar.appendChild( this.makeFullViewLink() );
+        menuBar.appendChild( this.makeShareLink() );
 
         this.containerWidget = new dijitBorderContainer({
             liveSplitters: false,
@@ -515,11 +499,10 @@ initView: function() {
         }, this.container);
 
         var contentWidget =
-            new dijitContentPane({region: "top"}, topPane);
+            new dijitContentPane({region: "top"}, menuBar );
 
         var initialLocString = this._initialLocation();
         var initialLoc = Util.parseLocString( initialLocString ) || undefined;
-
 
         // figure out what initial track list we will use:
         //    from a param passed to our instance, or from a cookie, or

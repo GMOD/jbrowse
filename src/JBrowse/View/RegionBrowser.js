@@ -100,13 +100,12 @@ buildRendering: function() {
     this.setFeatureFilterParentComponent( this.browser );
     this.maxPxPerBp = this.getConf('maxPxPerBp');
 
-    this.elem = domConstruct.create('div', {
-        className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
-    }, this.domNode );
-
     //the page element that the GenomeView lives in
     this.createSearchControls( this.domNode );
 
+    this.elem = domConstruct.create('div', {
+        className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
+    }, this.domNode );
 
     // the scrollContainer is the element that changes position
     // when the user scrolls
