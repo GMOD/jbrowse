@@ -7,7 +7,7 @@ define( [
             'dojo/on',
             'dojo/keys',
             'dojo/Deferred',
-            'dojo/DeferredList',
+            'dojo/promise/all',
             'dojo/topic',
             'dojo/aspect',
             'dojo/request',
@@ -48,7 +48,7 @@ define( [
             on,
             keys,
             Deferred,
-            DeferredList,
+            all,
             topic,
             aspect,
             request,
@@ -260,7 +260,7 @@ initPlugins: function() {
         });
 
         // fire the "all plugins done" deferred when all of the plugins are done loading
-        (new DeferredList( pluginDeferreds ))
+        all( pluginDeferreds )
             .then( function() { deferred.resolve({success: true}); });
 
         require( {
@@ -383,17 +383,12 @@ loadCSS: function() {
         var css = this.getConf('css');
         css.unshift( this.resolveThemeUrl( 'main.css' ) );
 
-        // if( ! css.length ) {
-        //     deferred.resolve({success:true});
-        //     return;
-        // }
-
         var thisB = this;
         var cssDeferreds = array.map( css, function( css ) {
             return thisB._loadCSS( css );
         });
 
-        new DeferredList(cssDeferreds)
+        all(cssDeferreds)
             .then( function() { deferred.resolve({success:true}); } );
    });
 },
