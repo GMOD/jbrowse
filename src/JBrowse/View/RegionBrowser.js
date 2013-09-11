@@ -65,6 +65,8 @@ var dojof = Util.dojof;
  * @constructor
  */
 
+var serialNumber = 0;
+
 return declare( [dijitBase,Component,FeatureFiltererMixin], {
 
 splitter: true,
@@ -83,6 +85,8 @@ constructor: function( args ) {
     this.className = this.getConf('className');
     this.region = this.getConf('region');
     this.style  = this.getConf('style');
+    this.serialNumber = ++serialNumber;
+
     this.inherited( arguments );
     FeatureFiltererMixin.prototype.constructor.call( this, args );
 },
@@ -333,7 +337,11 @@ _finishInitialization: function( refseq ) {
 
 configSchema: {
     slots: [
-        { name: 'name', type: 'string', defaultValue: 'View' },
+        { name: 'name', type: 'string',
+          defaultValue: function(view) {
+              return 'View '+view.serialNumber;
+          }
+        },
         { name: 'className', type: 'string', defaultValue: 'colorScheme1' },
         { name: 'region', type: 'string', defaultValue: 'center' },
         { name: 'style', type: 'string|object' },
