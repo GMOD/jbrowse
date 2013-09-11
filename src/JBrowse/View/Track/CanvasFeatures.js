@@ -468,6 +468,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         if( this.getConf('displayMode') != 'collapsed' ) {
             // make features get highlighted on mouse move
             block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
+                               if( ! thisB.layout )
+                                   return;
+
                                evt = domEvent.fix( evt );
                                var bpX = ( evt.offsetX === undefined ? evt.layerX : evt.offsetX ) / block.scale + block.startBase;
                                var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
