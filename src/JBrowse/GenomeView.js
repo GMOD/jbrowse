@@ -2175,13 +2175,16 @@ createSearchControls: function( parent ) {
     var thisB = this;
 
     this.topBar = domConstruct.create( 'div', { className: 'topBar' }, this.domNode );
-    var viewLabelContainer = domConstruct.create('div',  { className: 'viewLabelContainer' }, this.topBar );
+
+    var tableLayout = domConstruct.create('tr',{},domConstruct.create('table', {}, this.topBar ) );
+
+    var viewLabelContainer = domConstruct.create('td',  { className: 'viewLabelLayout' }, tableLayout );
     this.viewLabel = domConstruct.create('span',  { className: 'viewLabel', innerHTML: this.getConf('name') }, viewLabelContainer );
 
     this.searchControlsContainer = domConstruct.create(
             'div', {
                 className: 'searchControls'
-            }, this.topBar );
+            }, domConstruct.create('td', { className: 'searchControlsLayout'}, tableLayout ) );
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
@@ -2323,7 +2326,11 @@ createSearchControls: function( parent ) {
         });
 
     // zoom controls
-    var zoomControlsContainer = domConstruct.create( 'div', { className: 'zoomControls' }, this.topBar );
+    var zoomControlsContainer = domConstruct.create(
+        'div',
+        { className: 'zoomControls' },
+        domConstruct.create('td', { className: 'zoomControlsLayout' }, tableLayout )
+    );
     var zoomOut = domConstruct.create('span', {
                                           className: "icon nav zoomOut"
                                       }, zoomControlsContainer );
@@ -2352,7 +2359,11 @@ createSearchControls: function( parent ) {
                   }));
 
     // pan controls
-    var panControlsContainer = domConstruct.create( 'div', { className: 'panControls' }, this.topBar );
+    var panControlsContainer = domConstruct.create(
+        'div',
+        { className: 'panControls' },
+        domConstruct.create('td', { className: 'panControlsLayout' }, tableLayout )
+    );
     var panLeft = domConstruct.create('span', {
                                           className: "icon nav panLeft"
                                       }, panControlsContainer );
@@ -2374,6 +2385,24 @@ createSearchControls: function( parent ) {
                       dojo.stopEvent(event);
                       thisB.slide(-0.9);
                   }));
+
+    var trackSelectContainer = domConstruct.create(
+        'div',
+        { className: 'trackSelect' },
+        domConstruct.create('td', { className: 'trackSelectLayout' }, tableLayout )
+    );
+    this.trackFindBox = new dijitComboBox(
+        {
+            labelAttr: "label",
+            maxLength: 400,
+            searchAttr: "label"
+        },
+        domConstruct.create('div',{},trackSelectContainer) );
+    this.trackFindBox.focusNode.spellcheck = false;
+    this.browser.afterMilestone('initTrackMetadata', function() {
+        thisB.trackFindBox.set( 'store', thisB.browser.trackMetaDataStore );
+    });
+
 },
 
 /**

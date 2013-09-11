@@ -2,7 +2,13 @@
     height: 29px;
     color: #333;
 }
-.jbrowse.metro .jbrowseGenomeView .topBar > * {
+.jbrowse.metro .jbrowseGenomeView .topBar > table {
+    width: 100%;
+}
+.jbrowse.metro .jbrowseGenomeView .topBar > table > tr > td  {
+    overflow: hidden;
+}
+.jbrowse.metro .jbrowseGenomeView .topBar > table > tr > td > * {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -45,7 +51,7 @@
 .jbrowse.metro .jbrowseGenomeView .viewLabel {
     font-weight: bold;
     font-size: 16px;
-    padding: 0 5px;
+    padding: 0 2em 0 5px;
 }
 
 /** search box and location controls */
@@ -174,13 +180,16 @@
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRightBumper
 {
     border-color: #cecece;
-    background: #4d4d4d;
+    background: #3f3f3f;
 }
 
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderImageHandleH {
     width: 5px;
     height: 17px;
-    background: #4d4d4d;
+    background: #3f3f3f;
     border: 1px solid #cecece;
     top: -7px;
 }
+
+
+
