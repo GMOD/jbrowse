@@ -135,9 +135,12 @@ Util = {
                                             return f();
                                         else
                                             return f;
-                                    } else {
-                                        return "{" + group + "}";
+                                    } else if( fillWith.callback ) {
+                                        var v = fillWith.callback.call( this, group );
+                                        if( v !== undefined )
+                                            return v;
                                     }
+                                    return "{" + group + "}";
                                 });
     },
 
