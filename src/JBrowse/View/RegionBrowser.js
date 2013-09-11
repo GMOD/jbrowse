@@ -2175,6 +2175,39 @@ createSearchControls: function( parent ) {
     var viewLabelContainer = domConstruct.create('td',  { className: 'viewLabelLayout' }, tableLayout );
     this.viewLabel = domConstruct.create('span',  { className: 'viewLabel', innerHTML: this.getConf('name') }, viewLabelContainer );
 
+
+
+
+    var trackSelectContainer = domConstruct.create(
+        'div',
+        { className: 'controlGroup trackSelect' },
+        domConstruct.create('td', { className: 'trackSelectLayout' }, tableLayout )
+    );
+    this.trackFindBox = new dijitComboBox(
+        {
+            labelAttr: "label",
+            maxLength: 400,
+            placeHolder: 'Search tracks',
+            searchAttr: "label",
+            onChange: function( val ) {
+                thisB.browser.getTrackConfig( val )
+                    .then( function( t ) {
+                               if( t )
+                                   thisB.showTracks([t]);
+                           });
+                this.set( 'value','', false );
+            }
+        },
+        domConstruct.create('div',{},trackSelectContainer) );
+    this.trackFindBox.focusNode.spellcheck = false;
+
+    this.browser.afterMilestone('initTrackMetadata', function() {
+        thisB.trackFindBox.set( 'store', thisB.browser.trackMetaDataStore );
+    });
+
+    this.trackFindBox._buttonNode.innerHTML = 'Tracks'+this.trackFindBox._buttonNode.innerHTML;
+
+    // make the search controls
     this.searchControlsContainer = domConstruct.create(
             'div', {
                 className: 'controlGroup searchControls'
@@ -2381,32 +2414,6 @@ createSearchControls: function( parent ) {
                       dojo.stopEvent(event);
                       thisB.slide(-0.9);
                   }));
-
-    var trackSelectContainer = domConstruct.create(
-        'div',
-        { className: 'controlGroup trackSelect' },
-        domConstruct.create('td', { className: 'trackSelectLayout' }, tableLayout )
-    );
-    this.trackFindBox = new dijitComboBox(
-        {
-            labelAttr: "label",
-            maxLength: 400,
-            placeHolder: 'Find tracks',
-            searchAttr: "label",
-            onChange: function( val ) {
-                thisB.browser.getTrackConfig( val )
-                    .then( function( t ) {
-                               if( t )
-                                   thisB.showTracks([t]);
-                           });
-                this.set( 'value','', false );
-            }
-        },
-        domConstruct.create('div',{},trackSelectContainer) );
-    this.trackFindBox.focusNode.spellcheck = false;
-    this.browser.afterMilestone('initTrackMetadata', function() {
-        thisB.trackFindBox.set( 'store', thisB.browser.trackMetaDataStore );
-    });
 
 },
 

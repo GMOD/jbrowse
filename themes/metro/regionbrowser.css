@@ -207,7 +207,7 @@
 
 
 .jbrowse.metro .regionBrowserPane .trackSelect {
-    width: 15em;
+    width: 21em;
 }
 .jbrowse.metro .regionBrowserPane .trackSelect > * {
     width: 100%;
@@ -219,6 +219,16 @@
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
+/* make the combobox button be on the left instead of the right */
+.jbrowse.metro .regionBrowserPane .trackSelect .dijitArrowButtonContainer {
+    float: left;
+    white-space: nowrap;
+}
+.jbrowse.metro .regionBrowserPane .trackSelect .dijitArrowButtonContainer input {
+    float: none;
+    vertical-align: top;
+}
+
 .jbrowse.metro .regionBrowserPane .trackSelect .dijitPlaceHolder {
     margin-left: 0.4em;
 }
