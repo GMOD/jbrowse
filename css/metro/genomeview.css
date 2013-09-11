@@ -174,13 +174,17 @@
     display: none;
 }
 
+.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderH {
+    border-color: #cecece;
+    background: #3f3f3f;
+}
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRemainingBarH,
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderProgressBarH,
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderLeftBumper,
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRightBumper
 {
-    border-color: #cecece;
-    background: #3f3f3f;
+    border-color: transparent;
+    background: transparent;
 }
 
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderImageHandleH {
