@@ -800,10 +800,6 @@ getPosition: function() {
     return { x: this.x, y: this.y };
 },
 
-zoomCallback: function() {
-    this.zoomUpdate();
-},
-
 afterSlide: function() {
     this.showCoarse();
     this.scrollUpdate();
