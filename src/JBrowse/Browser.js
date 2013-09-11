@@ -521,18 +521,21 @@ initView: function() {
                       initialLocation: initialLoc,
                       initialTracks: initialTracks.split(',')
                   }
-                } ),
-            new RegionBrowserPane(
-                { browser: this,
-                  config: {
-                      name: 'Detail',
-                      className: 'colorScheme2',
-                      region: 'center',
-                      initialLocation: initialLoc,
-                      initialTracks: initialTracks.split(',')
-                  }
-                })
-        ];
+                } )
+            ];
+         this.views.push(
+             new RegionBrowserPane(
+                 { browser: this,
+                   config: {
+                       className: 'colorScheme2',
+                       region: 'center',
+                       parentViewName: 'Overview',
+                       initialLocation: initialLoc,
+                       initialTracks: initialTracks.split(',')
+                   }
+                 })
+         );
+
         array.forEach( this.views, function(v) {
             v.placeAt( this.container );
         }, this );
@@ -563,6 +566,15 @@ initView: function() {
             deferred.resolve({ success: true });
 //      }));
     });
+},
+
+getView: function( name ) {
+    var v = this.views || [];
+    for( var i = 0; i < v.length; i++ ) {
+        if( v[i].getConf('name') == name )
+            return v[i];
+    }
+    return undefined;
 },
 
 renderMenuBar: function( menuBar ) {

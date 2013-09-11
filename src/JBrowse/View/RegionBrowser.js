@@ -25,7 +25,8 @@ define([
            'JBrowse/BehaviorManager',
            './RegionBrowser/Animation/Zoomer',
            './RegionBrowser/Animation/Slider',
-           'JBrowse/View/InfoDialog'
+           'JBrowse/View/InfoDialog',
+           'JBrowse/Model/Location'
        ], function(
            declare,
            array,
@@ -53,7 +54,8 @@ define([
            BehaviorManager,
            Zoomer,
            Slider,
-           InfoDialog
+           InfoDialog,
+           Location
        ) {
 
 var dojof = Util.dojof;
@@ -86,6 +88,9 @@ constructor: function( args ) {
     this.region = this.getConf('region');
     this.style  = this.getConf('style');
     this.serialNumber = ++serialNumber;
+
+    if( this.getConf('parentViewName') )
+        this.parentView = this.browser.getView( this.getConf('parentViewName') );
 
     this.inherited( arguments );
     FeatureFiltererMixin.prototype.constructor.call( this, args );
@@ -268,7 +273,7 @@ _finishInitialization: function( refseq ) {
         this.uiTracks.push( gridTrack );
     }
 
-    var highlightsTrack = new RegionHighlightsTrack(
+    var highlightsTrack = this.highlightsTrack = new RegionHighlightsTrack(
         {
             browser: this.browser,
             genomeView: this,
@@ -342,6 +347,7 @@ configSchema: {
               return 'View '+view.serialNumber;
           }
         },
+        { name: 'parentViewName', type: 'string', defaultValue: '' },
         { name: 'className', type: 'string', defaultValue: 'colorScheme1' },
         { name: 'region', type: 'string', defaultValue: 'center' },
         { name: 'style', type: 'string|object' },
@@ -1247,8 +1253,11 @@ maxVisible: function() {
 showCoarse: function() {
     var startbp = this.minVisible(), endbp = this.maxVisible();
 
+    var loc = new Location({ start: startbp, end: endbp, ref: this.ref.name });
+    this._notifyParentView( loc );
+
     // update the location box with our current location
-    this._updateLocationDisplays({ start: startbp, end: endbp, ref: this.ref.name });
+    this._updateLocationDisplays(loc);
 
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
@@ -1257,6 +1266,16 @@ showCoarse: function() {
 
     // send out a message notifying of the move
     this.browser.publish( '/jbrowse/v1/n/navigate', currRegion );
+},
+
+_notifyParentView: function( newlocation ) {
+    if( this.parentView ) {
+        this.parentView._updateChildViewHighlight( this.getConf('name'), newlocation );
+    }
+},
+
+_updateChildViewHighlight: function( viewname, newlocation ) {
+
 },
 
 /**
