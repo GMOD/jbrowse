@@ -173,7 +173,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         },labelDiv);
         this.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
                 this.genomeView.suppressDoubleClick( 100 );
-                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.name]);
+                this.genomeView.hideTracks([ this.name ]);
                 evt.stopPropagation();
         })));
 

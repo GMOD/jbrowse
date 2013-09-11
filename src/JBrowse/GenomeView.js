@@ -2030,21 +2030,26 @@ replaceTracks: function( trackConfigs ) {
  * @param tracks {Array[Object|String]} array of track configurations or track names
  */
 hideTracks: function( tracks ) {
-    var trackConfigs = array.map( tracks, function( c ) {
-        return typeof c == 'string' ? this.browser.getTrackConfig(c) : c;
-    }, this );
+    var labels = array.map( tracks, function( conf ) {
+        return typeof conf == 'string' ? conf : conf.label;
+    });
+
+    // var trackConfigs = array.map( tracks, function( c ) {
+    //     return typeof c == 'string' ? this.browser.getTrackConfig(c) : c;
+    // }, this );
 
     // filter out any track configs that are not displayed
-    var displayed = array.filter( trackConfigs, function(conf) {
-        return conf && this._getTracks( [conf.label] ).length != 0;
+    var displayed = array.filter( labels, function(label) {
+        return label && this._getTracks( [label] ).length != 0;
     },this);
+
     if( ! displayed.length ) return;
 
     // remove the track configs from the trackDndWidget ( the widget
     // will call create() on the confs to render them )
-    dojo.forEach( displayed, function( conf ) {
+    dojo.forEach( displayed, function( label ) {
         this.trackDndWidget.forInItems(function(obj, id, map) {
-            if( conf.label === obj.data.label ) {
+            if( label === obj.data.label ) {
                 this.trackDndWidget.delItem( id );
                 var item = dojo.byId(id);
                 if( item && item.parentNode )
@@ -2395,7 +2400,16 @@ createSearchControls: function( parent ) {
         {
             labelAttr: "label",
             maxLength: 400,
-            searchAttr: "label"
+            placeHolder: 'Find tracks',
+            searchAttr: "label",
+            onChange: function( val ) {
+                thisB.browser.getTrackConfig( val )
+                    .then( function( t ) {
+                               if( t )
+                                   thisB.showTracks([t]);
+                           });
+                this.set( 'value','', false );
+            }
         },
         domConstruct.create('div',{},trackSelectContainer) );
     this.trackFindBox.focusNode.spellcheck = false;

@@ -580,7 +580,7 @@ initView: function() {
         this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', updateLocationBar );
 
         //set initial location
-        this.createTrackList().then( dojo.hitch( this, function() {
+        //this.createTrackList().then( dojo.hitch( this, function() {
             this.containerWidget.startup();
 
             // make our global keyboard shortcut handler
@@ -591,7 +591,7 @@ initView: function() {
 
             // done with initView
             deferred.resolve({ success: true });
-      }));
+//      }));
     });
 },
 
@@ -1351,7 +1351,9 @@ getConf: function( key, args ) {
 },
 
 getTrackConfig: function( trackname ) {
-    return this.trackConfigsByName[ trackname ];
+    var d = new Deferred();
+    d.resolve( this.trackConfigsByName[ trackname ] );
+    return d;
 },
 
 /**
