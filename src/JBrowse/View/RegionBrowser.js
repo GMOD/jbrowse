@@ -68,7 +68,7 @@ var dojof = Util.dojof;
 return declare( [dijitBase,Component,FeatureFiltererMixin], {
 
 splitter: true,
-baseClass: 'jbrowseGenomeView',
+baseClass: 'regionBrowserPane',
 stripeWidth: 250,
 pxPerBp: 1/200,
 

@@ -29,7 +29,7 @@ html, body {
     padding-right: 0.5em;
 }
 
-.jbrowseGenomeView {
+.regionBrowserPane {
     overflow: hidden;
 }
 .track .global_highlight {

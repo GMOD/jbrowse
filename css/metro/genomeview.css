@@ -1,44 +1,44 @@
-.jbrowse.metro .jbrowseGenomeView .topBar {
+.jbrowse.metro .regionBrowserPane .topBar {
     height: 29px;
     color: #333;
 }
-.jbrowse.metro .jbrowseGenomeView .topBar > table {
+.jbrowse.metro .regionBrowserPane .topBar > table {
     width: 100%;
 }
-.jbrowse.metro .jbrowseGenomeView .topBar > table > tr > td  {
+.jbrowse.metro .regionBrowserPane .topBar > table > tr > td  {
     overflow: hidden;
 }
-.jbrowse.metro .jbrowseGenomeView .topBar > table > tr > td > * {
+.jbrowse.metro .regionBrowserPane .topBar > table > tr > td > * {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
 
-.jbrowse.metro .jbrowseGenomeView .dragWindow {
+.jbrowse.metro .regionBrowserPane .dragWindow {
     top: 29px;
 }
-.jbrowse.metro .jbrowseGenomeView.colorScheme1 .topBar {
+.jbrowse.metro .regionBrowserPane.colorScheme1 .topBar {
     background: #e6e6e6;
     border-top: 1px solid #393939;
 }
-.jbrowse.metro .jbrowseGenomeView.colorScheme1 .viewscale {
+.jbrowse.metro .regionBrowserPane.colorScheme1 .viewscale {
     background: url("img/view_top_bg_1.png") #e6e6e6 repeat-x 0 100%;
 }
-.jbrowse.metro .jbrowseGenomeView.colorScheme2 .topBar {
+.jbrowse.metro .regionBrowserPane.colorScheme2 .topBar {
     background: #4687d4;
     border-top: 1px solid #315e94;
 }
-.jbrowse.metro .jbrowseGenomeView.colorScheme2 .viewscale {
+.jbrowse.metro .regionBrowserPane.colorScheme2 .viewscale {
     background: url("img/view_top_bg_2.png") #4687d4 repeat-x 0 100%;
     color: white;
 }
 
-.jbrowse.metro .jbrowseGenomeView .viewscale {
+.jbrowse.metro .regionBrowserPane .viewscale {
     height: 16px;
 }
 
-.jbrowse.metro .jbrowseGenomeView .viewscale .pos-label {
+.jbrowse.metro .regionBrowserPane .viewscale .pos-label {
     position: relative;
     left: -0.35em;
     top: -4px;
@@ -46,9 +46,9 @@
     font-size: 13px;
 }
 
-/* .jbrowse.metro .jbrowseGenomeView .viewLabelContainer { */
+/* .jbrowse.metro .regionBrowserPane .viewLabelContainer { */
 /* } */
-.jbrowse.metro .jbrowseGenomeView .viewLabel {
+.jbrowse.metro .regionBrowserPane .viewLabel {
     font-weight: bold;
     font-size: 16px;
     padding: 0 2em 0 5px;
@@ -106,7 +106,7 @@
 
 
 
-.jbrowse.metro .jbrowseGenomeView .controlGroup {
+.jbrowse.metro .regionBrowserPane .controlGroup {
     position: relative;
 
     display: inline-block;
@@ -126,11 +126,11 @@
     overflow: hidden;
 }
 
-.jbrowse.metro .jbrowseGenomeView .panControls {
+.jbrowse.metro .regionBrowserPane .panControls {
     width: 79px;
     top: 2px;
 }
-.jbrowse.metro .jbrowseGenomeView .panControls .panSeparator {
+.jbrowse.metro .regionBrowserPane .panControls .panSeparator {
     background: #e4e4e4;
     position: absolute;
     height: 12px;
@@ -139,7 +139,7 @@
     margin-top: -6px;
     top: 50%;
 }
-.jbrowse.metro .jbrowseGenomeView .panControls .panLeft {
+.jbrowse.metro .regionBrowserPane .panControls .panLeft {
     height: 100%;
     width: 35px;
     position: absolute;
@@ -148,7 +148,7 @@
     background-repeat: no-repeat;
     background-position: 8px 0;
 }
-.jbrowse.metro .jbrowseGenomeView .panControls .panRight {
+.jbrowse.metro .regionBrowserPane .panControls .panRight {
     height: 100%;
     width: 35px;
     position: absolute;
@@ -159,12 +159,12 @@
 }
 
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls {
+.jbrowse.metro .regionBrowserPane .zoomControls {
     width: 198px;
     top: -1px;
 }
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomIn {
+.jbrowse.metro .regionBrowserPane .zoomControls .zoomIn {
     height: 24px;
     width: 35px;
     position: absolute;
@@ -173,7 +173,7 @@
     background-repeat: no-repeat;
     background-position: 8px 0;
 }
-.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomOut {
+.jbrowse.metro .regionBrowserPane .zoomControls .zoomOut {
     height: 24px;
     width: 35px;
     position: absolute;
@@ -183,28 +183,28 @@
     background-position: 8px 1px;
 
 }
-.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomSliderContainer {
+.jbrowse.metro .regionBrowserPane .zoomControls .zoomSliderContainer {
     height: 0;
 }
-.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomSliderText {
+.jbrowse.metro .regionBrowserPane .zoomControls .zoomSliderText {
     display: none;
 }
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderH {
+.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderH {
     border-color: #cecece;
     background: #3f3f3f;
     width: 100px;
 }
-.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRemainingBarH,
-.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderProgressBarH,
-.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderLeftBumper,
-.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRightBumper
+.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderRemainingBarH,
+.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderProgressBarH,
+.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderLeftBumper,
+.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderRightBumper
 {
     border-color: transparent;
     background: transparent;
 }
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderImageHandleH {
+.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderImageHandleH {
     width: 5px;
     height: 14px;
     background: #3f3f3f;
@@ -213,10 +213,10 @@
 }
 
 
-.jbrowse.metro .jbrowseGenomeView .trackSelect {
+.jbrowse.metro .regionBrowserPane .trackSelect {
     width: 15em;
 }
-.jbrowse.metro .jbrowseGenomeView .trackSelect > * {
+.jbrowse.metro .regionBrowserPane .trackSelect > * {
     width: 100%;
     position: relative;
     border: 0;
@@ -226,6 +226,6 @@
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-.jbrowse.metro .jbrowseGenomeView .trackSelect .dijitPlaceHolder {
+.jbrowse.metro .regionBrowserPane .trackSelect .dijitPlaceHolder {
     margin-left: 0.4em;
 }

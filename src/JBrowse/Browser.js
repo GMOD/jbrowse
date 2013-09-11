@@ -29,7 +29,7 @@ define( [
             'dojo/store/DataStore',
             'JBrowse/Store/Names/Hash',
             'JBrowse/FeatureFiltererMixin',
-            'JBrowse/GenomeView',
+            'JBrowse/View/RegionBrowser',
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
@@ -70,7 +70,7 @@ define( [
             DojoDataStore,
             NamesHashStore,
             FeatureFiltererMixin,
-            GenomeView,
+            RegionBrowserPane,
             ConfigManager,
             InfoDialog,
             FileDialog,
@@ -490,7 +490,6 @@ initView: function() {
     var thisB = this;
     return this._milestoneFunction('initView', function( deferred ) {
 
-        //set up nav pane and main GenomeView pane
         dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
         dojo.addClass( document.body, this.getConf('dijitTheme') );
         dojo.addClass( this.container, this.getConf('theme') );
@@ -540,7 +539,7 @@ initView: function() {
 
         // instantiate our views
         this.views = [
-            new GenomeView(
+            new RegionBrowserPane(
                 { browser: this,
                   config: {
                       name: 'Overview',
@@ -552,7 +551,7 @@ initView: function() {
                       initialTracks: initialTracks.split(',')
                   }
                 } ),
-            new GenomeView(
+            new RegionBrowserPane(
                 { browser: this,
                   config: {
                       name: 'Detail',

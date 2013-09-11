@@ -304,7 +304,7 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     background-color: #b2c3d6;
 }
 
-.jbrowseGenomeView .topBar {
+.regionBrowserPane .topBar {
     height: 45px;
 }
 
@@ -316,19 +316,19 @@ div.viewscale {
     z-index: 20;
 }
 
-.jbrowseGenomeView .viewLabelContainer {
+.regionBrowserPane .viewLabelContainer {
 }
 
-.jbrowseGenomeView .searchControls {
+.regionBrowserPane .searchControls {
 }
-.jbrowseGenomeView .controlGroup {
+.regionBrowserPane .controlGroup {
     position: relative;
     text-align: center;
 }
-.jbrowseGenomeView .zoomControls .zoomSliderContainer {
+.regionBrowserPane .zoomControls .zoomSliderContainer {
     display: inline-block;
 }
-.jbrowseGenomeView .zoomControls .zoomSliderText {
+.regionBrowserPane .zoomControls .zoomSliderText {
     position: absolute;
     left: 0;
     top: 14px;
@@ -336,12 +336,12 @@ div.viewscale {
     text-align: center;
 }
 
-.jbrowseGenomeView .panControls {
+.regionBrowserPane .panControls {
     position: relative;
     text-align: center;
 }
 
-.jbrowseGenomeView .dragWindow {
+.regionBrowserPane .dragWindow {
     position:absolute;
     top: 45px;
     overflow: hidden;
