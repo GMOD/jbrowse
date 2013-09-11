@@ -21,6 +21,7 @@ return declare( WiggleBase,
     configSchema: {
         slots: [
             { name: 'height', defaultValue: 31 },
+            { name: 'autoscale', defaultValue: 'global' },
             { name: 'posColor', type: 'Color', defaultValue: '#00f' },
             { name: 'negColor', type: 'Color', defaultValue: '#f00' },
             { name: 'backgroundColor',  type: 'Color', defaultValue: 'rgba(230,230,230,0.6)' },
