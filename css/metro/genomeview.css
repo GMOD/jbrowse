@@ -23,14 +23,14 @@
     border-top: 1px solid #393939;
 }
 .jbrowse.metro .regionBrowserPane.colorScheme1 .viewscale {
-    background: url("img/view_top_bg_1.png") #e6e6e6 repeat-x 0 100%;
+    background: url("img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
 }
 .jbrowse.metro .regionBrowserPane.colorScheme2 .topBar {
     background: #4687d4;
     border-top: 1px solid #315e94;
 }
 .jbrowse.metro .regionBrowserPane.colorScheme2 .viewscale {
-    background: url("img/view_top_bg_2.png") #4687d4 repeat-x 0 100%;
+    background: url("img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
     color: white;
 }
 
