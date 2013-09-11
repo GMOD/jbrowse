@@ -9,10 +9,6 @@
     overflow: hidden;
 }
 .jbrowse.metro .regionBrowserPane .topBar > table > tr > td > * {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
 }
 
 .jbrowse.metro .regionBrowserPane .dragWindow {
@@ -56,6 +52,7 @@
 
 /** search box and location controls */
 .jbrowse.metro .searchControls {
+    width: 213px;
     /* border: 1px solid #979797; */
 
     /* -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
@@ -83,7 +80,7 @@
    background: #d5d5d5;
    margin: 0;
    width: 22px;
-   height: 18px;
+   height: 20px;
    position: relative;
 }
 
@@ -98,9 +95,7 @@
 .jbrowse.metro .searchControls .dijitButton  {
 }
 .jbrowse.metro .searchControls .dijitButton .dijitButtonNode {
-    position: relative;
     background: url("img/search.png") #d5d5d5 no-repeat 0 -2px;
-    top: 0;
     width: 22px;
 }
 
@@ -109,7 +104,7 @@
 .jbrowse.metro .regionBrowserPane .controlGroup {
     position: relative;
 
-    display: inline-block;
+    display: block;
     height: 20px;
     background: #fafafa;
     /* border: 1px solid #979797; */
@@ -128,7 +123,6 @@
 
 .jbrowse.metro .regionBrowserPane .panControls {
     width: 79px;
-    top: 2px;
 }
 .jbrowse.metro .regionBrowserPane .panControls .panSeparator {
     background: #e4e4e4;
@@ -161,7 +155,6 @@
 
 .jbrowse.metro .regionBrowserPane .zoomControls {
     width: 198px;
-    top: -1px;
 }
 
 .jbrowse.metro .regionBrowserPane .zoomControls .zoomIn {
