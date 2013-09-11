@@ -1,4 +1,4 @@
-define(['JBrowse/View/Animation'],
+define(['../Animation'],
       function(Animation) {
 
 /**

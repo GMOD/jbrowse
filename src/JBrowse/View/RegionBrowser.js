@@ -23,8 +23,8 @@ define([
            'JBrowse/View/Track/GridLines',
            'JBrowse/View/Track/RegionHighlights',
            'JBrowse/BehaviorManager',
-           'JBrowse/View/Animation/Zoomer',
-           'JBrowse/View/Animation/Slider',
+           './RegionBrowser/Animation/Zoomer',
+           './RegionBrowser/Animation/Slider',
            'JBrowse/View/InfoDialog'
        ], function(
            declare,
