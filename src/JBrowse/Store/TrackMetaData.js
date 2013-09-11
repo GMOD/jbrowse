@@ -527,8 +527,8 @@ var Meta = declare( null,
                     array.forEach( values, function(value) {
                         var indexes;
                         // search for values by wildcard
-                        if( /\*$/.test( value ) ) {
-                            var regexp = new RegExp( value.replace( /\*$/, '.*$' ), 'i' );
+                        if( /\*/.test( value ) ) {
+                            var regexp = new RegExp( '^'+value.replace( /\*$/g, '.*' )+'$', 'i' );
                             indexes = array.map( array.filter(
                                                      dojof.keys( this.facetIndexes.byName[facetName].byValue ),
                                                      function( value ) {
