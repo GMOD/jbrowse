@@ -2,6 +2,7 @@
 .jbrowse div.menuBar {
     padding: 1px 0;
     height: 25px;
+    overflow: hidden;
 }
 .jbrowse div.topLink {
     position: absolute;

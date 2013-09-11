@@ -1,37 +1,3 @@
-/* .nav-controls .dijitTextBox, .nav-controls .dijitSelect { */
-/*     height: 24px; */
-/*     box-sizing: border-box; */
-/*     -moz-box-sizing: border-box; */
-/*     -webkit-box-sizing: border-box; */
-/*     -ms-box-sizing: border-box; */
-/* } */
-
-/* .nav-controls .dijitSelectLabel { */
-/*     padding: 0 2px; */
-/* } */
-
-/* .nav-controls .dijitTextBox .dijitInputField { */
-/*     padding-left: 2px; */
-/* } */
-/* .nav-controls .nav { */
-/*     position: relative; */
-/* } */
-/* .nav-controls .zoomSliderContainer { */
-/*     top: -2px; */
-/* } */
-
-/* #navbox .highlightButton.dijitChecked .dijitButtonNode { */
-/*     background: #E9F10C; */
-/* } */
-/* #navbox .highlightButton .dijitIcon { */
-/*     position: relative; */
-/*     left: 3px; */
-/* } */
-/* #navbox .highlightButton .dijitButtonContents { */
-/*     outline: none; */
-/* } */
-
-
 div.block {
     position: absolute;
     overflow: visible;
