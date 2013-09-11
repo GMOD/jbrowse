@@ -1581,7 +1581,6 @@ sizeInit: function() {
         maximum: this.zoomLevels.length - 1,
         intermediateChanges: true,
         showButtons: false,
-        style: "width:100px; margin: 7px 0 0 0; display: inline-block",
         discreteValues: this.zoomLevels.length,
         onChange: function( newLevel ){
             thisB.zoomSliderText.innerHTML = ''; //< sidesteps a bug in some Chromes
@@ -2188,7 +2187,7 @@ createSearchControls: function( parent ) {
 
     this.searchControlsContainer = domConstruct.create(
             'div', {
-                className: 'searchControls'
+                className: 'controlGroup searchControls'
             }, domConstruct.create('td', { className: 'searchControlsLayout'}, tableLayout ) );
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
@@ -2333,7 +2332,7 @@ createSearchControls: function( parent ) {
     // zoom controls
     var zoomControlsContainer = domConstruct.create(
         'div',
-        { className: 'zoomControls' },
+        { className: 'controlGroup zoomControls' },
         domConstruct.create('td', { className: 'zoomControlsLayout' }, tableLayout )
     );
     var zoomOut = domConstruct.create('span', {
@@ -2366,7 +2365,7 @@ createSearchControls: function( parent ) {
     // pan controls
     var panControlsContainer = domConstruct.create(
         'div',
-        { className: 'panControls' },
+        { className: 'controlGroup panControls' },
         domConstruct.create('td', { className: 'panControlsLayout' }, tableLayout )
     );
     var panLeft = domConstruct.create('span', {
@@ -2393,7 +2392,7 @@ createSearchControls: function( parent ) {
 
     var trackSelectContainer = domConstruct.create(
         'div',
-        { className: 'trackSelect' },
+        { className: 'controlGroup trackSelect' },
         domConstruct.create('td', { className: 'trackSelectLayout' }, tableLayout )
     );
     this.trackFindBox = new dijitComboBox(

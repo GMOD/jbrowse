@@ -56,14 +56,7 @@
 
 /** search box and location controls */
 .jbrowse.metro .searchControls {
-    display: inline-block;
-
     /* border: 1px solid #979797; */
-
-    height: 24px;
-
-    font-size: 16px;
-    line-height: 22px;
 
     /* -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
     /* -moz-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
@@ -82,75 +75,93 @@
 .jbrowse.metro .searchControls .dijitTextBox,
 .jbrowse.metro .searchControls .dijitButton
  {
-    height: 22px;
-    position: relative;
-    top: -2px;
     border: 0;
 }
-
+.jbrowse.metro .searchControls .dijitTextBox {
+}
 .jbrowse.metro .topBar .dijitButton {
    background: #d5d5d5;
    margin: 0;
    width: 22px;
+   height: 18px;
+   position: relative;
 }
+
 .jbrowse.metro .topBar .dijitButtonNode {
    background: #d5d5d5;
+   height: 19px;
    border: 0;
+}
+.jbrowse.metro .topBar .dijitDownArrowButton {
+    position: relative;
+}
+.jbrowse.metro .searchControls .dijitButton  {
 }
 .jbrowse.metro .searchControls .dijitButton .dijitButtonNode {
     position: relative;
-    top: -1px;
-   background: url("img/search.png") #d5d5d5 no-repeat 0 0;
-   width: 22px;
+    background: url("img/search.png") #d5d5d5 no-repeat 0 -2px;
+    top: 0;
+    width: 22px;
 }
 
 
 
-.jbrowse.metro .jbrowseGenomeView .zoomControls,
-.jbrowse.metro .jbrowseGenomeView .panControls,
-.jbrowse.metro .jbrowseGenomeView .searchControls,
-.jbrowse.metro .jbrowseGenomeView .trackSelect
- {
+.jbrowse.metro .jbrowseGenomeView .controlGroup {
+    position: relative;
+
+    display: inline-block;
+    height: 20px;
     background: #fafafa;
     /* border: 1px solid #979797; */
     border: 1px solid rgba( 20, 20, 20, 0.6 );
+
+    font-size: 13px;
+    line-height: 10px;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
+    overflow: hidden;
 }
 
 .jbrowse.metro .jbrowseGenomeView .panControls {
-    height: 24px;
     width: 79px;
+    top: 2px;
 }
 .jbrowse.metro .jbrowseGenomeView .panControls .panSeparator {
     background: #e4e4e4;
     position: absolute;
-    height: 14px;
+    height: 12px;
     width: 1px;
     left: 39px;
-    top: 5px;
+    margin-top: -6px;
+    top: 50%;
 }
 .jbrowse.metro .jbrowseGenomeView .panControls .panLeft {
-    height: 24px;
+    height: 100%;
     width: 35px;
     position: absolute;
     left: 0;
     background-image: url("img/pan-left.png");
     background-repeat: no-repeat;
-    background-position: 8px 2px;
+    background-position: 8px 0;
 }
 .jbrowse.metro .jbrowseGenomeView .panControls .panRight {
-    height: 24px;
+    height: 100%;
     width: 35px;
     position: absolute;
     right: 0;
     background-image: url("img/pan-right.png");
     background-repeat: no-repeat;
-    background-position: 8px 2px;
+    background-position: 8px 0;
 }
 
 
 .jbrowse.metro .jbrowseGenomeView .zoomControls {
-    height: 24px;
     width: 198px;
+    top: -1px;
 }
 
 .jbrowse.metro .jbrowseGenomeView .zoomControls .zoomIn {
@@ -160,7 +171,7 @@
     right: 0;
     background-image: url("img/zoom-in-1.png");
     background-repeat: no-repeat;
-    background-position: 8px 2px;
+    background-position: 8px 0;
 }
 .jbrowse.metro .jbrowseGenomeView .zoomControls .zoomOut {
     height: 24px;
@@ -169,8 +180,11 @@
     left: 0;
     background-image: url("img/zoom-out-1.png");
     background-repeat: no-repeat;
-    background-position: 8px 3px;
+    background-position: 8px 1px;
 
+}
+.jbrowse.metro .jbrowseGenomeView .zoomControls .zoomSliderContainer {
+    height: 0;
 }
 .jbrowse.metro .jbrowseGenomeView .zoomControls .zoomSliderText {
     display: none;
@@ -179,6 +193,7 @@
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderH {
     border-color: #cecece;
     background: #3f3f3f;
+    width: 100px;
 }
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderRemainingBarH,
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderProgressBarH,
@@ -191,17 +206,15 @@
 
 .jbrowse.metro .jbrowseGenomeView .zoomControls .dijitSliderImageHandleH {
     width: 5px;
-    height: 17px;
+    height: 14px;
     background: #3f3f3f;
     border: 1px solid #cecece;
-    top: -7px;
+    top: -6px;
 }
 
 
 .jbrowse.metro .jbrowseGenomeView .trackSelect {
-    height: 24px;
     width: 15em;
-    font-size: 16px;
 }
 .jbrowse.metro .jbrowseGenomeView .trackSelect > * {
     width: 100%;

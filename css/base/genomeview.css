@@ -321,7 +321,7 @@ div.viewscale {
 
 .jbrowseGenomeView .searchControls {
 }
-.jbrowseGenomeView .zoomControls {
+.jbrowseGenomeView .controlGroup {
     position: relative;
     text-align: center;
 }
