@@ -505,6 +505,9 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         } else {
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
+                    if( ! thisB.layout )
+                        return;
+
                     evt = domEvent.fix( evt );
                     var bpX = thisB.genomeView.absXtoBp( evt.clientX );
                     var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
@@ -559,7 +562,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                      on( this.staticCanvas, event, function( evt ) {
                              evt = domEvent.fix( evt );
                              var bpX = thisB.genomeView.absXtoBp( evt.clientX );
-                             if( block.containsBp( bpX ) ) {
+                             if( block.containsBp( bpX ) && thisB.layout ) {
                                  var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
                                  if( feature ) {
                                      var fRect = block.fRectIndex.getByID( feature.id() );
