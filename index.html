@@ -30,60 +30,31 @@
                                'JBrowse', 'FileSaver'
                              ]
                  },
-            [ 'JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
-            function (Browser,ioQuery,JSON) {
-                   var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
-                   var dataRoot = queryParams.data || 'data';
+            [ 'JBrowse/Browser', 'dojo/_base/array', 'dojo/io-query', 'dojo/json' ],
+            function (Browser,array,ioQuery,JSON) {
+                   var queryConfig = ioQuery.queryToObject( window.location.search.slice(1) );
 
-                   // the initial configuration of this JBrowse instance
-                   var config = {
-                       baseUrl: dataRoot+'/',
-                       include: [
+                   // parse any JSON strings in the configuration
+                   for( var varName in queryConfig ) {
+                       var jsonString = (queryConfig[varName]||'').replace( /^json:/i, '' );
+                       if( jsonString != queryConfig[varName] ) {
+                           try {
+                               queryConfig[varName] = JSON.parse( jsonString );
+                           } catch(error) {
+                               console.error( 'Error parsing JSON in URL '+varName+': '+error );
+                           }
+                       }
+                   }
+
+                   if( !( 'include' in queryConfig ) ) {
+                       queryConfig.include = [
                            'jbrowse_conf.json',
-                           dataRoot + "/trackList.json"
-                       ],
-                       nameUrl: dataRoot + "/names/root.json",
-                       queryParams: queryParams,
-                       location: queryParams.loc,
-                       forceTracks: queryParams.tracks,
-                       initialHighlight: queryParams.highlight,
-                       show_nav: queryParams.nav,
-                       show_tracklist: queryParams.tracklist,
-                       stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
-                       fullViewURL: function( browser ) {
-
-                           // the URL for the 'Full view' link
-                           // in embedded mode should be the current
-                           // view URL, except with 'nav', 'tracklist',
-                           // and 'overview' parameters forced to 1.
-
-                           return browser.getConf('shareURL', [browser, { nav: 1, tracklist: 1, overview: 1 }]);
-                       },
-                       updateBrowserURL: true
-                   };
-
-                   //if there is ?addFeatures in the query params,
-                   //define a store for data from the URL
-                   if( queryParams.addFeatures ) {
-                       config.stores.url.features = JSON.parse( queryParams.addFeatures );
-                   }
-
-                   // if there is ?addTracks in the query params, add
-                   // those track configurations to our initial
-                   // configuration
-                   if( queryParams.addTracks ) {
-                       config.tracks = JSON.parse( queryParams.addTracks );
-                   }
-
-                   // if there is ?addStores in the query params, add
-                   // those store configurations to our initial
-                   // configuration
-                   if( queryParams.addStores ) {
-                       config.stores = JSON.parse( queryParams.addStores );
+                           '{dataRoot}/trackList.json'
+                       ];
                    }
 
                    // create a JBrowse global variable holding the JBrowse instance
-                   JBrowse = new Browser( config );
+                   JBrowse = new Browser( queryConfig );
         });
     </script>
 

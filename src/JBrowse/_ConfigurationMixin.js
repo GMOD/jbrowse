@@ -32,6 +32,9 @@ return declare( null, {
         // TODO: import local config here
     },
 
+    // assembles the complete config schema for this object by
+    // composing the configSchema members of all the classes and
+    // mixins it inherits from, in C3 order.
     _configSchema: function() {
         function composeConfigSchema( obj ) {
             return obj.constructor._composedConfigSchema

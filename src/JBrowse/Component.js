@@ -44,8 +44,10 @@ var Component = declare( [ MessagingMixin, ConfigurationMixin ], {
             return str;
 
         // fill in a bunch of args for this.refSeq or this.ref
+        var thisB = this;
         var templateFillArgs = {
-            'refseq': (this.refSeq||{}).name || (this.ref||{}).name || this.ref || ''
+            'refseq': (this.refSeq||{}).name || (this.ref||{}).name || this.ref || '',
+            callback: function(varname) { return thisB.getConf(varname); }
         };
         templateFillArgs.refSeq = templateFillArgs.refseq;
 

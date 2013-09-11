@@ -3,16 +3,13 @@ define(
         'dojo/_base/declare',
         'JBrowse/Util'
     ],
-function( declare, Util ) { return declare(null,
+    function(
+        declare,
+        Util
+    ) {
 
-/**
- * @lends JBrowse.ConfigManager.prototype
- */
-{
+return declare(null, {
 
-/**
- * @constructs
- */
 constructor: function( args ) {
     this.config = dojo.clone( args.config || {} );
     this.defaults = dojo.clone( args.defaults || {} );
@@ -65,6 +62,7 @@ _getConfigAdaptor: function( config_def, callback ) {
  * @private
  */
 _loadIncludes: function( inputConfig, callback ) {
+    var thisB = this;
     inputConfig = dojo.clone( inputConfig );
 
     var includes = inputConfig.include || [];
@@ -77,6 +75,10 @@ _loadIncludes: function( inputConfig, callback ) {
     for (var i = 0; i < includes.length; i++) {
         if( typeof includes[i] == 'string' )
             includes[i] = { url: includes[i] };
+
+        // template the URLs with configuration variables
+        if( includes[i].url )
+            includes[i].url = this.browser.fillTemplate( includes[i].url );
     }
 
     var configs_remaining = includes.length;
@@ -194,7 +196,7 @@ _mergeConfigs: function( a, b, spaces ) {
  * @private
  */
 _mergeTrackConfigs: function( a, b ) {
-    if( ! b.length ) return;
+    if( ! b.length ) return null;
 
     // index the tracks in `a` by track label
     var aTracks = {};

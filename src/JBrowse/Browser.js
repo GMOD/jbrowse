@@ -71,7 +71,7 @@ define( [
             NamesHashStore,
             FeatureFiltererMixin,
             RegionBrowserPane,
-            ConfigManager,
+            ConfigLoader,
             InfoDialog,
             FileDialog,
             Location,
@@ -119,8 +119,8 @@ constructor: function(params) {
         thisB.loadConfig().then( function() {
 
             // initialize our highlight if one was set in the config
-            if( thisB.getConf('initialHighlight') )
-                thisB.setHighlight( new Location( thisB.getConf('initialHighlight') ) );
+            if( thisB.getConf('highlight') )
+                thisB.setHighlight( new Location( thisB.getConf('highlight') ) );
 
             thisB.loadNames();
             thisB.initPlugins().then( function() {
@@ -141,39 +141,37 @@ constructor: function(params) {
 
 configSchema: {
         slots: [
-            { name: 'plugins',     type: 'multi-object' },
+            { name: 'plugins',  type: 'multi-object' },
+            { name: 'dataRoot', type: 'string', defaultValue: "data" },
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'names', type: 'object', defaultValue: {} },
-            { name: 'nameUrl', type: 'string', defaultValue: 'data/names' },
+            { name: 'nameUrl', type: 'string', defaultValue: function(b) { return b.getConf('dataRoot')+'/names/root.json'; } },
             { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
             { name: 'dijitTheme', type: 'string', defaultValue: 'tundra' },
             { name: 'theme', type: 'string', defaultValue: 'metro' },
             { name: 'show_nav', type: 'boolean', defaultValue: true },
-            { name: 'show_tracklist', type: 'boolean', defaultValue: true },
-            { name: 'forceTracks', type: 'string' },
-            { name: 'defaultTracks', type: 'string' },
+            { name: 'showTracks', type: 'string', defaultValue: '' },
             { name: 'updateBrowserURL', type: 'boolean', defaultValue: true },
             { name: 'datasets', type: 'object', defaultValue: {} },
             { name: 'dataset_id', type: 'string' },
             { name: 'quickHelp', type: 'object', defaultValue: {} },
             { name: 'location', type: 'string' },
-            { name: 'defaultLocation', type: 'string' },
-            { name: 'initialHighlight', type: 'string' },
+            { name: 'highlight', type: 'string' },
             { name: 'aboutThisBrowser', type: 'object', defaultValue: {} },
             { name: 'suppressUsageStatistics', type: 'boolean', defaultValue: false },
-            { name: 'stores', type: 'object', defaultValue: {} },
+            { name: 'stores', type: 'object', defaultValue: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } } },
             { name: 'tracks', type: 'multi-object' },
             { name: 'logMessages', type: 'boolean', defaultValue: false },
             { name: 'maxRecentTracks', type: 'integer', defaultValue: 10 },
             { name: 'trackMetadata', type: 'object', defaultValue: { sources: [] } },
             { name: 'trackSelector', type: 'object', defaultValue: {} },
             { name: 'share_link', type: 'boolean', defaultValue: true },
-            { name: 'queryParams', type: 'object', defaultValue: {} },
             { name: 'shareURL', type: 'string',
               defaultValue: function( browser, overrides ) {
                   var viewState = {
-                      highlight: (browser.getHighlight()||'').toString()
+                      highlight: (browser.getHighlight()||'').toString(),
+                      dataRoot: browser.getConf('dataRoot')
                   };
 
                   return "".concat(
@@ -183,20 +181,14 @@ configSchema: {
                       window.location.pathname,
                       "?",
                       dojo.objectToQuery(
-                          dojo.mixin(
-                              dojo.mixin( {}, browser.getConf('queryParams') ),
-                              dojo.mixin(
-                                  viewState,
-                                  overrides || {}
-                              )
-                          )
+                          dojo.mixin( viewState,
+                                      overrides || {}
+                                    )
                       )
                   );
               }},
-            { name: 'fullViewURL', type: 'string' },
             { name: 'cookieSizeLimit', type: 'integer', defaultValue: 1200 },
-            { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 },
-            { name: 'baseUrl', type: 'string', defaultValue: Util.resolveUrl( window.location.href, '.' ) + '/data/' }
+            { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 }
         ]
 },
 
@@ -511,7 +503,7 @@ initView: function() {
             this.renderMenuBar( menuBar );
         }
 
-        if( this.getConf('show_nav') && this.getConf('show_tracklist') )
+        if( this.getConf('show_nav') )
             menuBar.appendChild( this.makeShareLink() );
         else
             menuBar.appendChild( this.makeFullViewLink() );
@@ -533,8 +525,7 @@ initView: function() {
         //    from a param passed to our instance, or from a cookie, or
         //    the passed defaults, or the last-resort default of "DNA"?
         var initialTracks =
-               thisB.getConf('forceTracks')
-            || thisB.getConf('defaultTracks')
+               thisB.getConf('showTracks')
             || "DNA";
 
         // instantiate our views
@@ -708,8 +699,6 @@ _initialLocation: function() {
         return this.getConf('location');
     } else if( oldLoc ) {
         return oldLoc;
-    } else if( this.getConf('defaultLocation') ){
-        return this.getConf('defaultLocation');
     } else {
         return null;
     }
@@ -1328,7 +1317,8 @@ reachedMilestone: function( name ) {
  */
 loadConfig:function () {
     return this._milestoneFunction( 'loadConfig', function( deferred ) {
-        var c = new ConfigManager({ config: this._constructorArgs, defaults: {}, browser: this });
+        var c = new ConfigLoader({ config: this._constructorArgs, defaults: {}, browser: this });
+        this._finalizeConfig( this._constructorArgs || {} );
         c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
                 // pass the tracks configurations through
                 // addTrackConfigs so that it will be indexed and such
@@ -1468,8 +1458,7 @@ initTrackMetadata: function( callback ) {
 createTrackList: function() {
     return this._milestoneFunction('createTrack', function( deferred ) {
         // find the tracklist class to use
-        var tl_class = !this.getConf('show_tracklist')     ? 'Null'                             :
-                       this.getConf('trackSelector').type  ? this.getConf('trackSelector').type :
+        var tl_class = this.getConf('trackSelector').type  ? this.getConf('trackSelector').type :
                                                              'Simple';
         if( ! /\//.test( tl_class ) )
             tl_class = 'JBrowse/View/TrackList/'+tl_class;
@@ -1755,7 +1744,7 @@ makeFullViewLink: function () {
 
     // update it when the view is moved or tracks are changed
     var update_link = function() {
-        link.href = thisB.getConf('fullViewURL') || thisB.getConf('shareURL');
+        link.href = thisB.getConf('shareURL');
     };
     this.subscribe( '/jbrowse/v1/n/navigate',               update_link );
     this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  update_link );
