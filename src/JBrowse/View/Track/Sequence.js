@@ -129,7 +129,7 @@ return declare( [BlockBased, ExportMixin],
             comp.className = 'revcom';
             seqNode.appendChild( comp );
 
-            if( this.config.showTranslation ) {
+            if( this.getConf('showTranslation') ) {
                 var frameDiv = [];
                 for(var i = 0; i < 3; i++) {
                     var transStart = blockStart + 1 - i;
@@ -174,7 +174,7 @@ return declare( [BlockBased, ExportMixin],
             });
 
         if( reverse ) {
-            container.style.top = this.config.showForwardStrand ? "32px" : '16px';
+            container.style.top = this.getConf('showForwardStrand') ? "32px" : '16px';
             container.style.left = (100 - charWidth * (translated.length + offset / 3))+ "%";
         } else {
             container.style.left = (charWidth * offset / 3) + "%";
@@ -261,25 +261,25 @@ return declare( [BlockBased, ExportMixin],
             [
                 { label: 'Show forward strand',
                   type: 'dijit/CheckedMenuItem',
-                  checked: !! this.config.showForwardStrand,
+                  checked: this.getConf('showForwardStrand'),
                   onClick: function(event) {
-                      track.config.showForwardStrand = this.checked;
+                      track.setConf('showForwardStrand',this.checked);
                       track.changed();
                   }
                 },
                 { label: 'Show reverse strand',
                   type: 'dijit/CheckedMenuItem',
-                  checked: !! this.config.showReverseStrand,
+                  checked: this.getConf('showReverseStrand'),
                   onClick: function(event) {
-                      track.config.showReverseStrand = this.checked;
+                      track.setConf('showReverseStrand', this.checked );
                       track.changed();
                   }
                 },
                 { label: 'Show translation',
                   type: 'dijit/CheckedMenuItem',
-                  checked: !! this.config.showTranslation,
+                  checked: this.getConf('showTranslation'),
                   onClick: function(event) {
-                      track.config.showTranslation = this.checked;
+                      track.setConf('showTranslation', this.checked );
                       track.changed();
                   }
                 }
