@@ -94,7 +94,7 @@ var Configuration = declare( null, {
             }
             else {
                 //throw new Error( 'Unknown configuration key '+fullKey );
-                console.error( 'Unknown configuration key "'+fullKey+'", ignoring.' );
+                console.warn( 'Unknown configuration key "'+fullKey+'", ignoring.' );
             }
         }
     },
