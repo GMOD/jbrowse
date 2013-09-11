@@ -229,10 +229,9 @@ _finishInitialization: function( refseq ) {
     //this prevents us from scrolling off the left end of the ref seq
     this.minLeft = this.bpToPx(this.ref.start);
 
-
+    // make the scale track
     var scaleTrackDiv = document.createElement("div");
     scaleTrackDiv.className = "track viewscale rubberBandAvailable";
-
     this.scaleTrackDiv = scaleTrackDiv;
     this.staticTrack = new LocationScaleTrack({
         label: "static_track",
@@ -406,10 +405,9 @@ _updateVerticalScrollBar: function( newDims ) {
     if( typeof newDims.height == 'number' ) {
 
         var containerTop = this.elem.offsetTop + this.scaleTrackDiv.offsetHeight;
-        var containerHeight = this.domNode.offsetHeight - containerTop;
 
         this.verticalScrollBar.container.style.top = containerTop+'px';
-        this.verticalScrollBar.container.style.height = containerHeight+'px';
+        this.verticalScrollBar.container.style.height = newDims.height-this.scaleTrackDiv.offsetHeight+'px';
 
         var markerHeight = newDims.height / (this.containerHeight||1) * 100;
         this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
@@ -1458,7 +1456,8 @@ sizeInit: function() {
     //scale values, in pixels per bp, for all zoom levels
     var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
 
-    this.elemBox = { h: this.elem.offsetHeight, w: this.elem.offsetWidth };
+    this.elemBox = { h: this.domNode.offsetHeight - this.elem.offsetTop,
+                     w: this.elem.offsetWidth };
 
     this.zoomLevels = [];
     for( var i = 0; i < desiredZoomLevels.length; i++ )  {
