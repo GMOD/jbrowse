@@ -1185,38 +1185,29 @@ instantZoomUpdate: function() {
 },
 
 centerAtBase: function(base, instantly) {
-    base = Math.min(Math.max(base, this.ref.start), this.ref.end);
+    base = Math.min( Math.max( base, this.ref.start ), this.ref.end );
     if (instantly) {
-    var pxDist = this.bpToPx(base);
-    var containerWidth = this.stripeCount * this.stripeWidth;
-    var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
-    this.offset = stripesLeft * this.stripeWidth;
-    this.setX(pxDist - this.offset - (this.getWidth() / 2));
-    this.trackIterate(function(track) { track.clear(); });
-    this.showVisibleBlocks();
+        var pxDist = this.bpToPx(base);
+        var containerWidth = this.stripeCount * this.stripeWidth;
+        var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
+        this.offset = stripesLeft * this.stripeWidth;
+        this.setX(pxDist - this.offset - (this.getWidth() / 2));
+        this.trackIterate(function(track) { track.clear(); });
+        this.showVisibleBlocks();
         this.showCoarse();
     } else {
-    var startbp = this.pxToBp(this.x + this.offset);
-    var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
-    var endbp = startbp + halfWidth + halfWidth;
-    var center = startbp + halfWidth;
-    if ((base >= (startbp  - halfWidth))
-        && (base <= (endbp + halfWidth))) {
-        //we're moving somewhere nearby, so move smoothly
-            if (this.animation) this.animation.stop();
-            var distance = (center - base) * this.pxPerBp;
-        this.trimVertical();
-            // slide for an amount of time that's a function of the
-            // distance being traveled plus an arbitrary extra 200
-            // milliseconds so that short slides aren't too fast
-            // (200 chosen by experimentation)
-            new Slider(this, this.afterSlide,
-                       Math.abs(distance) * this.slideTimeMultiple + 200,
-               distance);
-    } else {
-        //we're moving far away, move instantly
-        this.centerAtBase(base, true);
-    }
+        var startbp = this.pxToBp(this.x + this.offset);
+        var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
+        var center = startbp + halfWidth;
+        if (    base >= (startbp  - halfWidth)
+             && base <= (startbp + 3*halfWidth)
+           ) {
+            //we're moving somewhere nearby, so move smoothly
+            this.slide( (center - base) * this.pxPerBp / this.getWidth() );
+        } else {
+            //we're moving far away, move instantly
+            this.centerAtBase(base, true);
+        }
     }
 },
 
