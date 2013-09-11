@@ -219,14 +219,13 @@
 .jbrowse.metro .jbrowseGenomeView .trackSelect > * {
     width: 100%;
     position: relative;
-    top: -1px;
+    border: 0;
 
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-
-
-
-
+.jbrowse.metro .jbrowseGenomeView .trackSelect .dijitPlaceHolder {
+    margin-left: 0.4em;
+}
