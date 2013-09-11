@@ -324,7 +324,6 @@ _finishInitialization: function( refseq ) {
     );
 
 
-    this.showFine();
     this.showCoarse();
 
     // initialize the behavior manager used for setting what this view
@@ -750,7 +749,7 @@ setX: function(x) {
     x = this.clampX(x);
     this.rawSetX( x );
     this.updateStaticElements( { x: x } );
-    this.showFine();
+    this.showVisibleBlocks( 'ui only' );
     return x;
 },
 
@@ -790,7 +789,7 @@ setPosition: function(pos) {
     this.updateStaticElements( {x: x, y: y} );
     this.rawSetX( x );
     this.rawSetY( y );
-    this.showFine();
+    this.showVisibleBlocks( 'ui only' );
 },
 
 /**
@@ -1136,7 +1135,9 @@ setLocation: function(refseq, startbp, endbp, showTracks ) {
 
     this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
-    this.zoomSlider.set('value',this.curZoom);
+
+    if( this.zoomSlider )
+        this.zoomSlider.set( 'value', this.curZoom );
 
     if( has('inaccurate-html-layout') )
         this.pxPerBp = this.zoomLevels[ this.curZoom ];
@@ -1241,10 +1242,6 @@ maxVisible: function() {
         return Math.round(mv) - scrollbar;
 },
 
-showFine: function() {
-    this.showVisibleBlocks( 'uiOnly' );
-},
-
 showCoarse: function() {
     var startbp = this.minVisible(), endbp = this.maxVisible();
 
@@ -1269,7 +1266,6 @@ layout: function() {
         function() {
             thisB.sizeInit();
             thisB.showVisibleBlocks();
-            thisB.showFine();
             thisB.showCoarse();
         });
 },
@@ -1405,10 +1401,6 @@ scaleClicked: function( evt ) {
     },100));
 },
 
-checkY: function(y) {
-    return Math.min((y < 0 ? 0 : y), this.containerHeight - this.getHeight());
-},
-
 /**
  * Given a new X and Y pixels position for the main track container,
  * reposition static elements that "float" over it, like track labels,
@@ -1435,6 +1427,11 @@ updateStaticElements: function( args ) {
     this._updateVerticalScrollBar( args );
 },
 
+/**
+ * Convert relative pixels X position to base pair position on the
+ * current reference sequence.
+ * @returns {Number}
+ */
 pxToBp: function(pixels) {
     return pixels / this.pxPerBp;
 },
@@ -1448,6 +1445,9 @@ absXtoBp: function( /**Number*/ pixels) {
     return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels )-1;
 },
 
+/**
+ * Convert basepair position into pixels.
+ */
 bpToPx: function(bp) {
     return bp * this.pxPerBp;
 },
@@ -1544,13 +1544,44 @@ sizeInit: function() {
     }
 
     // update our zoom slider
+    this._updateZoomControls();
+
+    // update the sizes for each of the tracks
+    this.trackIterate(function(track, view) {
+                          track.sizeInit(view.stripeCount,
+                                         view.stripePercent,
+                                         blockDelta);
+                      });
+
+    var newHeight =
+        this.trackHeights && this.trackHeights.length
+          ? Math.max(
+              dojof.reduce( this.trackHeights, '+') + this.trackPadding * this.trackHeights.length,
+              this.getHeight()
+            )
+          : this.getHeight();
+    this.scrollContainer.style.height = newHeight + "px";
+    this.containerHeight = newHeight;
+
+    this.updateScroll();
+},
+
+
+/**
+ * Updates/re-creates the zoom controls based on the current window
+ * width, zoom level, etc.
+ */
+_updateZoomControls: function() {
+
+    // destroy the zoom slider if present
     if( this.zoomSlider ) {
         this.zoomSlider.destroyRecursive();
         domConstruct.destroy( this.zoomSlider.domNode );
     }
+
+    // re-create the zoom slider
     var sliderTimeout;
     var thisB = this;
-    this.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.pxPerBp )+'bp';
     this.zoomSlider = new dijitSlider({
         name: "slider",
         value: this.curZoom,
@@ -1576,25 +1607,8 @@ sizeInit: function() {
         }
     }, dojo.create('input',{},this.zoomSliderContainer) );
 
-
-    // update the sizes for each of the tracks
-    this.trackIterate(function(track, view) {
-                          track.sizeInit(view.stripeCount,
-                                         view.stripePercent,
-                                         blockDelta);
-                      });
-
-    var newHeight =
-        this.trackHeights && this.trackHeights.length
-          ? Math.max(
-              dojof.reduce( this.trackHeights, '+') + this.trackPadding * this.trackHeights.length,
-              this.getHeight()
-            )
-          : this.getHeight();
-    this.scrollContainer.style.height = newHeight + "px";
-    this.containerHeight = newHeight;
-
-    this.updateScroll();
+    // update the zoom slider text
+    this.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.pxPerBp )+'bp';
 },
 
 /**
@@ -1631,11 +1645,6 @@ trimVertical: function(y) {
             trackTop = trackBottom + this.trackPadding;
         }
     }
-},
-
-redrawTracks: function() {
-    this.trackIterate( function(t) { t.hideAll(); } );
-    this.showVisibleBlocks(  );
 },
 
 hideRegion: function( location ) {
@@ -2327,7 +2336,8 @@ createSearchControls: function( parent ) {
     this.own( on( zoomOut, "click",
                   function(event) {
                       dojo.stopEvent(event);
-                      thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
+                      if( thisB.zoomSlider )
+                          thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
                       thisB.zoomOut(undefined,undefined, 1);
                   }));
     this.zoomSliderContainer =
@@ -2344,7 +2354,8 @@ createSearchControls: function( parent ) {
     this.own( on( zoomIn, "click",
                   function(event) {
                       dojo.stopEvent(event);
-                      thisB.zoomSlider.set( 'value', Math.min( thisB.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
+                      if( thisB.zoomSlider )
+                          thisB.zoomSlider.set( 'value', Math.min( thisB.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
                       thisB.zoomIn(undefined,undefined,1);
                   }));
 
@@ -2649,16 +2660,3 @@ layoutTracks: function() {
 }
 });
 });
-
-/*
-
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
-
-Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
-
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
-
-*/
