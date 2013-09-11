@@ -21,9 +21,14 @@ return declare( null, {
         if( ! actionFunc )
             throw new Error( 'no method '+actionFunc+' defined in scope '+this );
 
+        if( oldMethod._JBrowsePublished )
+            return oldMethod;
+
         this[methodName] = function() {
             return this.publishRun( channel, arguments, oldMethod );
         };
+
+        this[methodName]._JBrowsePublished = true;
 
         return oldMethod;
     },
@@ -48,15 +53,9 @@ return declare( null, {
         return ret;
     },
 
-    publish: function( channel, args ) {
-        this._publish( channel+'/before', args );
-        this._publish( channel, args );
-        this._publish( channel+'/after', args );
-    },
-
     messageTag: '',
 
-    _publish: function( channel, args ) {
+    publish: function( channel, args ) {
         var envelope = { from: this, args: args };
         channel = '/jbrowse/v2/'+this.messageTag+channel;
 

@@ -119,10 +119,6 @@ return declare( null, {
 
     setConf: function( path, value ) {
         return this._config.set( path, value );
-    },
-
-    
-
-
+    }
 });
 });
