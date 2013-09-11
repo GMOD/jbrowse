@@ -124,7 +124,7 @@ constructor: function(params) {
 
             thisB.loadNames();
             thisB.initPlugins().then( function() {
-                thisB.loadUserCSS().then( function() {
+                thisB.loadCSS().then( function() {
 
                     thisB.initTrackMetadata();
 
@@ -320,7 +320,7 @@ resolveUrl: function( url ) {
 },
 
 resolveThemeUrl: function( relUrl ) {
-    return this.resolveUrl( 'css/'+this.getConf('theme')+'/'+relUrl );
+    return this.resolveUrl( 'themes/'+this.getConf('theme')+'/'+relUrl );
 },
 
 /**
@@ -378,17 +378,19 @@ fatalError: function( error ) {
 onRefSeqsLoaded: function() {
 },
 
-loadUserCSS: function() {
-    return this._milestoneFunction( 'loadUserCSS', function( deferred ) {
+loadCSS: function() {
+    return this._milestoneFunction( 'loadCSS', function( deferred ) {
         var css = this.getConf('css');
-        if( ! css.length ) {
-            deferred.resolve({success:true});
-            return;
-        }
+        css.unshift( this.resolveThemeUrl( 'main.css' ) );
 
-        var that = this;
+        // if( ! css.length ) {
+        //     deferred.resolve({success:true});
+        //     return;
+        // }
+
+        var thisB = this;
         var cssDeferreds = array.map( css, function( css ) {
-            return that._loadCSS( css );
+            return thisB._loadCSS( css );
         });
 
         new DeferredList(cssDeferreds)
