@@ -39,13 +39,19 @@ var parseCytoBand = function(line){
         return tmpCytoBand;
 
     } else { 
-        console.log ("No match"); 
+        return undefined;
     }    
 }
 
 cytoHolder = [];
-for (var line in cytoLines){;
-    cytoHolder.push(parseCytoBand(cytoLines[line]))
+for (var line in cytoLines){
+    var toPush = parseCytoBand(cytoLines[line]);
+    if (toPush){
+        cytoHolder.push(toPush);
+    } else {
+        console.warn ("Check line " + (parseInt(line)+1) + ", it is incorrectly formatted.");
+
+    }
 }
 
 </script>
