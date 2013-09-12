@@ -217,7 +217,8 @@ my $operation_stream = sub {
 
 # estimate the total number of name records we probably have based on the input file sizes
 #print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
-$est_total_name_records = int( (sum( map { -s $_->{fullpath} } @all_names_files )||0) / ($total_namerec_sizes/$namerecs_buffered));
+my $avg_record_text_bytes = $total_namerec_sizes/$namerecs_buffered;
+$est_total_name_records = int( (sum( map { -s $_->{fullpath} } @all_names_files )||0) / $avg_record_text_bytes );
 my $est_total_operations = $est_total_name_records * ( @operation_buffer / $namerecs_converted );
 
 my $nameStore = Bio::JBrowse::HashStore->open(
@@ -240,7 +241,17 @@ my $nameStore = Bio::JBrowse::HashStore->open(
 my $progressbar;
 my $operations_processed = 0;
 my $progress_next_update = 0;
+my $est_total_hash_mem = int( $est_total_name_records*$avg_record_text_bytes*8 );
+my $use_sort = !$no_sort && $sort_mem < $est_total_hash_mem*0.6;
 if( $verbose ) {
+
+    print "Estimated total memory $est_total_hash_mem.\n";
+    if( $use_sort ) {
+        print "Using sorted load process.\n";
+    } else {
+        print "Using unsorted load process.\n";
+    }
+
     print "Estimated $est_total_name_records total name records to index, $est_total_operations store operations.\n";
     print "Using ".$nameStore->{hash_bits}."-bit hashing (".2**$nameStore->{hash_bits}." files).\n";
     eval {
@@ -252,9 +263,9 @@ if( $verbose ) {
     }
 }
 
-if( $sort_mem ) {
-# sort the stream by hash key to imprterove cache locality (very
-# important for performance)
+if( $use_sort ) {
+    # sort the stream by hash key to imprterove cache locality (very
+    # important for performance)
     my $entry_stream = $nameStore->sort_stream( $operation_stream );
     # now write it to the store
     while ( my $entry = $entry_stream->() ) {
