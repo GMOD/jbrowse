@@ -96,6 +96,7 @@ my $help;
 my $max_completions = 20;
 my $max_locations = 100;
 my $thresh;
+my $no_sort = 0;
 my $sort_mem = 256 * 2**20;
 my $est_total_name_records;
 my $hash_bits;
@@ -103,6 +104,7 @@ GetOptions("dir|out=s" => \$outDir,
            "completionLimit=i" => \$max_completions,
            "locationLimit=i" => \$max_locations,
            "verbose+" => \$verbose,
+           "noSort" => \$no_sort,
            "thresh=i" => \$thresh,
            "sortMem=i" => \$sort_mem,
            "workdir=s" => \$workDir,
@@ -350,15 +352,15 @@ sub make_operations {
     return @ops;
 }
 
-
+my %full_entries;
 sub do_sorted_operation {
     my ( $store_entry, $op ) = @_;
 
     my ( $lc_name, $op_name, $record ) = @$op;
 
-    my $r = $store_entry->get || { exact => [], prefix => [] };
-
     if( $op_name == OP_ADD_EXACT ) {
+        my $r = $store_entry->get || { exact => [], prefix => [] };
+
         if( $max_locations && @{ $r->{exact} } < $max_locations ) {
             push @{ $r->{exact} }, $record;
             $store_entry->set( $r );
@@ -367,7 +369,9 @@ sub do_sorted_operation {
         #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
         # }
     }
-    elsif( $op_name == OP_ADD_PREFIX ) {
+    elsif( $op_name == OP_ADD_PREFIX && ! exists $full_entries{$lc_name}) {
+        my $r = $store_entry->get || { exact => [], prefix => [] };
+
         my $name = $record;
 
         my $p = $r->{prefix};
@@ -380,6 +384,7 @@ sub do_sorted_operation {
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
             $store_entry->set( $r );
+            $full_entries{$lc_name} = 1;
         }
     }
 
@@ -396,9 +401,9 @@ sub do_unsorted_operation {
 
     my ( $lc_name, $op_name, $record ) = @$op;
 
-    my $r = $store->get($lc_name) || { exact => [], prefix => [] };
-
     if( $op_name == OP_ADD_EXACT ) {
+        my $r = $store->get($lc_name) || { exact => [], prefix => [] };
+
         if( $max_locations && @{ $r->{exact} } < $max_locations ) {
             push @{ $r->{exact} }, $record;
             $store->set( $lc_name, $r );
@@ -407,7 +412,9 @@ sub do_unsorted_operation {
         #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
         # }
     }
-    elsif( $op_name == OP_ADD_PREFIX ) {
+    elsif( $op_name == OP_ADD_PREFIX && ! exists $full_entries{$lc_name} ) {
+        my $r = $store->get($lc_name) || { exact => [], prefix => [] };
+
         my $name = $record;
 
         my $p = $r->{prefix};
@@ -420,6 +427,7 @@ sub do_unsorted_operation {
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
             $store->set( $lc_name, $r );
+            $full_entries{$lc_name} = 1;
         }
     }
 
