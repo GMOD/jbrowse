@@ -146,7 +146,7 @@ unless( @tracks ) {
 }
 
 if( $verbose ) {
-    print STDERR "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
+    print "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
 }
 
 # read the name list for each track that has one
@@ -162,9 +162,7 @@ if( ! @names_files ) {
 
 # estimate the total number of name records we probably have based on the input file sizes
 $est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
-if( $verbose ) {
-    print STDERR "Estimated $est_total_name_records total name records to index.\n";
-}
+my $est_total_operations = $est_total_name_records * (($max_completions||0)+1);
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
@@ -183,8 +181,20 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     ),
 );
 
+
+my $progressbar;
+my $operations_processed = 0;
+my $progress_next_update = 0;
 if( $verbose ) {
-    print STDERR "Using ".$nameStore->{hash_bits}."-bit hashing.\n";
+    print "Estimated $est_total_name_records total name records to index, $est_total_operations store operations.\n";
+    print "Using ".$nameStore->{hash_bits}."-bit hashing.\n";
+    eval {
+        require Term::ProgressBar;
+        $progressbar = Term::ProgressBar->new({name  => 'Indexing names',
+                                               count => $est_total_operations,
+                                               ETA   => 'linear', });
+        $progressbar->max_update_rate(1);
+    }
 }
 
 # insert a name record for all of the reference sequences
@@ -242,6 +252,10 @@ my $entry_stream = $nameStore->sort_stream( $operation_stream );
 # now write it to the store
 while( my $entry = $entry_stream->() ) {
     do_operation( $entry, $entry->data );
+}
+
+if( $progressbar && $est_total_operations >= $progress_next_update ) {
+    $progressbar->update( $est_total_operations );
 }
 
 # store the list of tracks that have names
@@ -341,6 +355,13 @@ sub do_operation {
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
             $store_entry->set( $r );
+        }
+    }
+
+    if( $progressbar ) {
+        $operations_processed++;
+        if( $operations_processed > $progress_next_update ) {
+            $progress_next_update = $progressbar->update( $operations_processed );
         }
     }
 }
