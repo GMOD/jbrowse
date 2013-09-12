@@ -50,10 +50,10 @@ return declare(BlockBased,
                                           .replace(/0{9}$/,'g')
                                           .replace(/0{6}$/,'m')
                                           .replace(/0{3}$/,'k')
-                                          .replace(/(\d)0{11}/,'.$1t')
-                                          .replace(/(\d)0{8}/,'.$1g')
-                                          .replace(/(\d)0{5}/,'.$1m')
-                                          .replace(/(\d)0{2}/,'.$1k')
+                                          .replace(/(\d)0{11}$/,'.$1t')
+                                          .replace(/(\d)0{8}$/,'.$1g')
+                                          .replace(/(\d)0{5}$/,'.$1m')
+                                          .replace(/(\d)0{2}$/,'.$1k')
                                         );
 
             posLabel.className = this.labelClass;
