@@ -21,8 +21,8 @@ var Chunk = Util.fastDeclare({
     }
 });
 
-// contains chunks of files, stitches them together if necessary, wraps, and returns them
-// to satisfy requests
+// contains chunks of files, stitches them together if necessary,
+// wraps, and returns them to satisfy requests
 return declare( null,
 
 /**
@@ -238,13 +238,14 @@ return declare( null,
                 if (req.status == 200 || req.status == 206) {
 
                     // if this response tells us the file's total size, remember that
-                    this.totalSizes[request.url] = (function() {
-                        var contentRange = req.getResponseHeader('Content-Range');
-                        if( ! contentRange )
-                            return undefined;
-                        var match = contentRange.match(/\/(\d+)$/);
-                        return match ? parseInt(match[1]) : undefined;
-                    })();
+                    if( !( request.url in this.totalSizes ) )
+                        this.totalSizes[request.url] = (function() {
+                            var contentRange = req.getResponseHeader('Content-Range');
+                            if( ! contentRange )
+                                return undefined;
+                            var match = contentRange.match(/\/(\d+)$/);
+                            return match ? parseInt(match[1]) : undefined;
+                        })();
 
                     var response = req.response || req.mozResponseArrayBuffer || (function() {
                         try{
