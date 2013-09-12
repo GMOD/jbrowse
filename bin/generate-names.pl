@@ -54,13 +54,6 @@ Note that the name index always contains exact matches for feature
 names; this setting only disables autocompletion based on incomplete
 names.
 
-=item --totalNames <number>
-
-Optional estimate of the total number of names that will go into this
-names index.  Used to choose some parameters for how the name index is
-built.  If not passed, tries to estimate this based on the size of the
-input names files.
-
 =item --verbose
 
 Print more progress messages.
@@ -153,16 +146,79 @@ if( $verbose ) {
 my $trackNum = 0;
 
 # find the names files we will be working with
-my @names_files = find_names_files();
+my @all_names_files = my @names_files = find_names_files();
 if( ! @names_files ) {
     warn "WARNING: No feature names found for indexing, only reference sequence names will be indexed.\n";
 }
 
 #print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
 
+# insert a name record for all of the reference sequences
+
+my $name_records_iterator = sub {};
+my @namerecord_buffer;
+for my $ref ( @refSeqs ) {
+    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+}
+
+
+my %trackHash;
+my @tracksWithNames;
+my $total_namerec_sizes = 0;
+my $namerecs_buffered = 0;
+
+my $record_stream = sub {
+    while( ! @namerecord_buffer ) {
+        my $nameinfo = $name_records_iterator->() || do {
+            my $file = shift @names_files;
+            return unless $file;
+            #print STDERR "Processing $file->{fullpath}\n";
+            $name_records_iterator = make_names_iterator( $file );
+            $name_records_iterator->();
+        } or return;
+        my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
+        foreach my $alias ( @aliases ) {
+                my $track = $nameinfo->[1];
+                unless ( defined $trackHash{$track} ) {
+                    $trackHash{$track} = $trackNum++;
+                    push @tracksWithNames, $track;
+                }
+                $namerecs_buffered++;
+                push @namerecord_buffer, [
+                    $alias,
+                    $trackHash{$track},
+                    @{$nameinfo}[2..$#{$nameinfo}]
+                    ];
+        }
+    }
+    return shift @namerecord_buffer;
+};
+
+# convert the stream of name records into a stream of operations to do
+# on the data in the hash store
+my @operation_buffer;
+my $namerecs_converted = 0;
+# try to fill the operation buffer a bit to estimate the number of operations per name record
+{
+    while( @operation_buffer < 10000 && ( my $name_record = $record_stream->()) ) {
+        $namerecs_converted++;
+        push @operation_buffer, make_operations( $name_record );
+    }
+}
+my $operation_stream = sub {
+    unless( @operation_buffer ) {
+        if( my $name_record = $record_stream->() ) {
+            $namerecs_converted++;
+            push @operation_buffer, make_operations( $name_record );
+        }
+    }
+    return shift @operation_buffer;
+};
+
 # estimate the total number of name records we probably have based on the input file sizes
-$est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
-my $est_total_operations = $est_total_name_records * (($max_completions||0)+1);
+#print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
+$est_total_name_records = int( (sum( map { -s $_->{fullpath} } @all_names_files )||0) / ($total_namerec_sizes/$namerecs_buffered));
+my $est_total_operations = $est_total_name_records * ( @operation_buffer / $namerecs_converted );
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
@@ -181,13 +237,12 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     ),
 );
 
-
 my $progressbar;
 my $operations_processed = 0;
 my $progress_next_update = 0;
 if( $verbose ) {
     print "Estimated $est_total_name_records total name records to index, $est_total_operations store operations.\n";
-    print "Using ".$nameStore->{hash_bits}."-bit hashing.\n";
+    print "Using ".$nameStore->{hash_bits}."-bit hashing (".2**$nameStore->{hash_bits}." files).\n";
     eval {
         require Term::ProgressBar;
         $progressbar = Term::ProgressBar->new({name  => 'Indexing names',
@@ -197,63 +252,21 @@ if( $verbose ) {
     }
 }
 
-# insert a name record for all of the reference sequences
-
-my $name_records_iterator = sub {};
-my @namerecord_buffer;
-for my $ref ( @refSeqs ) {
-    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
-}
-
-
-my %trackHash;
-my @tracksWithNames;
-my $record_stream = sub {
-    while( ! @namerecord_buffer ) {
-        my $nameinfo = $name_records_iterator->() || do {
-            my $file = shift @names_files;
-            return unless $file;
-            #print STDERR "Processing $file->{fullpath}\n";
-            $name_records_iterator = make_names_iterator( $file );
-            $name_records_iterator->();
-        } or return;
-        my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
-        foreach my $alias ( @aliases ) {
-                my $track = $nameinfo->[1];
-                unless ( defined $trackHash{$track} ) {
-                    $trackHash{$track} = $trackNum++;
-                    push @tracksWithNames, $track;
-                }
-                push @namerecord_buffer, [
-                    $alias,
-                    $trackHash{$track},
-                    @{$nameinfo}[2..$#{$nameinfo}]
-                    ];
-        }
-    }
-    return shift @namerecord_buffer;
-};
-
-# convert the stream of name records into a stream of operations to do
-# on the data in the hash store
-my @operation_buffer;
-my $operation_stream = sub {
-    unless( @operation_buffer ) {
-        if( my $name_record = $record_stream->() ) {
-            push @operation_buffer, make_operations( $name_record );
-        }
-    }
-    return shift @operation_buffer;
-};
-
-# sort the stream by hash key to improve cache locality (very
+if( $sort_mem ) {
+# sort the stream by hash key to imprterove cache locality (very
 # important for performance)
-my $entry_stream = $nameStore->sort_stream( $operation_stream );
-
-# now write it to the store
-while( my $entry = $entry_stream->() ) {
-    do_operation( $entry, $entry->data );
+    my $entry_stream = $nameStore->sort_stream( $operation_stream );
+    # now write it to the store
+    while ( my $entry = $entry_stream->() ) {
+        do_sorted_operation( $entry, $entry->data );
+    }
+} else {
+    # now write it to the store
+    while( my $op = $operation_stream->() ) {
+        do_unsorted_operation( $nameStore, $op );
+    }
 }
+
 
 if( $progressbar && $est_total_operations >= $progress_next_update ) {
     $progressbar->update( $est_total_operations );
@@ -327,7 +340,7 @@ sub make_operations {
 }
 
 
-sub do_operation {
+sub do_sorted_operation {
     my ( $store_entry, $op ) = @_;
 
     my ( $lc_name, $op_name, $record ) = @$op;
@@ -367,6 +380,46 @@ sub do_operation {
     }
 }
 
+sub do_unsorted_operation {
+    my ( $store, $op ) = @_;
+
+    my ( $lc_name, $op_name, $record ) = @$op;
+
+    my $r = $store->get($lc_name) || { exact => [], prefix => [] };
+
+    if( $op_name == OP_ADD_EXACT ) {
+        if( $max_locations && @{ $r->{exact} } < $max_locations ) {
+            push @{ $r->{exact} }, $record;
+            $store->set( $lc_name, $r );
+        }
+        # elsif( $verbose ) {
+        #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
+        # }
+    }
+    elsif( $op_name == OP_ADD_PREFIX ) {
+        my $name = $record;
+
+        my $p = $r->{prefix};
+        if( @$p < $max_completions ) {
+            if( ! grep $name eq $_, @$p ) {
+                push @{ $r->{prefix} }, $name;
+                $store->set( $lc_name, $r );
+            }
+        }
+        elsif( @{ $r->{prefix} } == $max_completions ) {
+            push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
+            $store->set( $lc_name, $r );
+        }
+    }
+
+    if( $progressbar ) {
+        $operations_processed++;
+        if( $operations_processed > $progress_next_update ) {
+            $progress_next_update = $progressbar->update( $operations_processed );
+        }
+    }
+}
+
 
 # each of these takes an input filename and returns a subroutine that
 # returns name records until there are no more, for either names.txt
@@ -380,7 +433,11 @@ sub make_names_iterator {
         # files can be very big.
         return sub {
             my $t = <$input_fh>;
-            return $t ? eval { JSON::from_json( $t ) } : undef;
+            if( $t ) {
+                $total_namerec_sizes += length $t;
+                return eval { JSON::from_json( $t ) };
+            }
+            return undef;
         };
     }
     elsif( $file_record->{type} eq 'json' ) {
