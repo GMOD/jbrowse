@@ -513,10 +513,9 @@ initView: function() {
             new RegionBrowserPane(
                 { browser: this,
                   config: {
-                      name: 'Overview',
+                      name: 'View 1',
                       className: 'colorScheme1',
                       region: 'top',
-                      gridlines: false,
                       style: 'height: 40%',
                       initialLocation: initialLoc,
                       initialTracks: initialTracks.split(',')
@@ -529,7 +528,7 @@ initView: function() {
                    config: {
                        className: 'colorScheme2',
                        region: 'center',
-                       parentViewName: 'Overview',
+                       parentViewName: 'View 1',
                        initialLocation: initialLoc,
                        initialTracks: initialTracks.split(',')
                    }
