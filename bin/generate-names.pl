@@ -217,17 +217,18 @@ my $record_stream = sub {
             $name_records_iterator = make_names_iterator( $file );
             $name_records_iterator->();
         } or return;
-        foreach my $alias ( @{$nameinfo->[0]} ) {
-            my $track = $nameinfo->[1];
-            unless ( defined $trackHash{$track} ) {
-                $trackHash{$track} = $trackNum++;
-                push @tracksWithNames, $track;
-            }
-            push @namerecord_buffer, [
-                $alias,
-                $trackHash{$track},
-                @{$nameinfo}[2..$#{$nameinfo}]
-                ];
+        my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
+        foreach my $alias ( @aliases ) {
+                my $track = $nameinfo->[1];
+                unless ( defined $trackHash{$track} ) {
+                    $trackHash{$track} = $trackNum++;
+                    push @tracksWithNames, $track;
+                }
+                push @namerecord_buffer, [
+                    $alias,
+                    $trackHash{$track},
+                    @{$nameinfo}[2..$#{$nameinfo}]
+                    ];
         }
     }
     return shift @namerecord_buffer;

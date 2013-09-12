@@ -8,6 +8,11 @@
    Thanks to Daniel Kasenberg for the initial implementation of this
    (issue #315).
 
+## Bug fixes
+
+ * Fixed a bug that prevented indexing of feature aliases in the names
+   index.
+
 # Release 1.10.3     2013-09-04 16:22:17 EST5EDT
 
 ## Minor improvements
