@@ -17,16 +17,36 @@ var cyto = //a properly formatted text string for testing
     "chrX\t145800000\t153692391\tq28\tgneg"
    ].join('\n');
 
- //document.write("<pre>" + cyto + "</pre>");
+//document.write("<pre>" + cyto + "</pre>");
 
-var cytobandRegex = 
-    /^(.+)\t(\d+)\t(\d+)\t(.+)\t(gneg|gpos50|gpos75|gpos25|gpos100|acen|gvar|stalk)/;
+var cytobandRegex = // chrom \t chromStart \t chromEnd \t name \t gieStain 
+    /(.+)\t(\d+)\t(\d+)\t(.+)\t(gneg|gpos50|gpos75|gpos25|gpos100|acen|gvar|stalk)/;
 
-if (match = cyto.match(cytobandRegex)){ //if it's a match, print it, if not, say so
-    for (i=1; i<=5; i++){
-        console.log (match[i]);
-    }
-} else { console.log ("No match"); }    
+cytoLines = cyto.split(/\r\n|\r|\n/);
+
+var parseCytoBand = function(line){
+    if (match = line.match(cytobandRegex)){ //if it's a match, print it, if not, say so
+    
+       tmpCytoBand = {
+            "chrom" : match[1],
+            "chromStart" : match[2],
+            "chromEnd" : match[3],
+            "name" : match[4],
+            "gieStain" : match[5]
+        };
+        
+        console.log(tmpCytoBand);
+        return tmpCytoBand;
+
+    } else { 
+        console.log ("No match"); 
+    }    
+}
+
+cytoHolder = [];
+for (var line in cytoLines){;
+    cytoHolder.push(parseCytoBand(cytoLines[line]))
+}
 
 </script>
 </body>
