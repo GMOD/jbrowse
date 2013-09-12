@@ -45,7 +45,17 @@ return declare(BlockBased,
 
         if( leftBase < this.refSeq.end ) {
             var posLabel = document.createElement("div");
-            var numtext = Util.addCommas( labelNumber );
+            var numtext = Util.addCommas( labelNumber.toString()
+                                          .replace(/0{12}$/,'t')
+                                          .replace(/0{9}$/,'g')
+                                          .replace(/0{6}$/,'m')
+                                          .replace(/0{3}$/,'k')
+                                          .replace(/(\d)0{11}/,'.$1t')
+                                          .replace(/(\d)0{8}/,'.$1g')
+                                          .replace(/(\d)0{5}/,'.$1m')
+                                          .replace(/(\d)0{2}/,'.$1k')
+                                        );
+
             posLabel.className = this.labelClass;
 
             // give the position label a negative left offset in ex's to
