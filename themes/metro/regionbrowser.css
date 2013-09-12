@@ -48,6 +48,7 @@
     font-weight: bold;
     font-size: 16px;
     padding: 0 2em 0 5px;
+    white-space: nowrap;
 }
 
 /** search box and location controls */

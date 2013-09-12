@@ -272,6 +272,7 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
 
 .regionBrowserPane .topBar {
     height: 45px;
+    overflow: hidden;
 }
 
 div.viewscale {
@@ -282,11 +283,6 @@ div.viewscale {
     z-index: 20;
 }
 
-.regionBrowserPane .viewLabelContainer {
-}
-
-.regionBrowserPane .searchControls {
-}
 .regionBrowserPane .controlGroup {
     position: relative;
     text-align: center;
