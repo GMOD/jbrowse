@@ -2,6 +2,10 @@
 
 ## Minor improvements
 
+ * Rewrote many parts of generate-names.pl, making heavy use of
+   temporary BerkeleyDB stores (using Perl's DB_File module).  This
+   improves generate-names.pl performance by more than 10x.
+
  * Added a File->Add sequence search track menu item that can make
    tracks that show which regions of the reference sequence contain a
    given (small) sequence, or match a given regular expression.
@@ -11,7 +15,7 @@
 ## Bug fixes
 
  * Fixed a bug that prevented indexing of feature aliases in the names
-   index.
+   index when running generate-names.pl.
 
 # Release 1.10.3     2013-09-04 16:22:17 EST5EDT
 
