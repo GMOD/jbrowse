@@ -144,6 +144,9 @@ sub set {
 
 =head2 stream_set( $kv_stream )
 
+Given a stream that returns ( $key, $value ) when called repeatedly,
+set all those values in the hash.
+
 =cut
 
 sub stream_set {
