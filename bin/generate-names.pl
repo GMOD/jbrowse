@@ -258,16 +258,17 @@ sub make_name_record_stream {
 
 sub make_key_value_stream {
     my ( $workdir, $operation_stream, $operation_stream_estimate ) = @_;
-    my $tempfile = File::Temp->new( undef, TMPDIR => $workdir );
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
     print "Temporary DBM file: $tempfile\n" if $verbose;
     my $db_conf = new DB_File::BTREEINFO;
     $db_conf->{cachesize} = int($mem/200);
-    my $db = tie( my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR, 0666, $db_conf );
+    my $db = tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
 
     my $progressbar;
     my $operations_processed = 0;
     my $progress_next_update = 0;
     if( $verbose ) {
+        print "Estimating $operation_stream_estimate index operations on $record_stream_estimate records.\n";
         eval {
             require Term::ProgressBar;
             $progressbar = Term::ProgressBar->new({name  => 'Building index',
@@ -345,7 +346,7 @@ sub make_operation_stream {
     #print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
     my $avg_record_text_bytes = $total_namerec_sizes/($namerecs_buffered||1);
     $record_stream_estimate = int( (sum( map { -s $_->{fullpath} } @names_files )||0) / ($avg_record_text_bytes||1));;
-    $operation_stream_estimate = $record_stream_estimate * ( @operation_buffer / ($namerecs_converted||1) );
+    $operation_stream_estimate = $record_stream_estimate * int( @operation_buffer / ($namerecs_converted||1) );
 
     return sub {
         unless( @operation_buffer ) {

@@ -156,7 +156,7 @@ sub stream_set {
     require Storable;
     require DB_File;
 
-    my $tempfile = File::Temp->new( CLEANUP => 0, TMP_DIR => $self->{work_dir} );
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{work_dir} );
     $tempfile->close;
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
 
