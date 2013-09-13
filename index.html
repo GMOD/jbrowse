@@ -5,6 +5,7 @@
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="genome.css">
     <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
 
     <script type="text/javascript">
         window.onerror=function(msg){
@@ -13,16 +14,8 @@
         }
 
         var JBrowse;
-        require( { baseUrl: 'src',
-                   packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
-                               { name: 'lazyload', main: 'lazyload' },
-                               'dgrid', 'xstyle', 'put-selector',
-                               { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
-                               'JBrowse', 'FileSaver'
-                             ]
-                 },
-            [ 'JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
-            function (Browser,ioQuery,JSON) {
+        require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
+             function (Browser,ioQuery,JSON) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
                    var dataRoot = queryParams.data || 'data';
 

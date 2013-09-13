@@ -43,7 +43,7 @@ release-normal-test: release-normal
 release-min: release-normal
 
 	# run the dojo build in the full dir to minify
-	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(BASEDIR)/build/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
+	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
