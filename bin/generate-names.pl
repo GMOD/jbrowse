@@ -153,82 +153,31 @@ if( $verbose ) {
 my $trackNum = 0;
 
 # find the names files we will be working with
-my @all_names_files = my @names_files = find_names_files();
+my @names_files = find_names_files();
 if( ! @names_files ) {
     warn "WARNING: No feature names found for indexing, only reference sequence names will be indexed.\n";
 }
 
 #print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
 
-# insert a name record for all of the reference sequences
-
-my $name_records_iterator = sub {};
-my @namerecord_buffer;
-for my $ref ( @refSeqs ) {
-    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
-}
-
-
-my %trackHash;
-my @tracksWithNames;
 my $total_namerec_sizes = 0;
 my $namerecs_buffered = 0;
+my @tracksWithNames;
 
-my $record_stream = sub {
-    while( ! @namerecord_buffer ) {
-        my $nameinfo = $name_records_iterator->() || do {
-            my $file = shift @names_files;
-            return unless $file;
-            #print STDERR "Processing $file->{fullpath}\n";
-            $name_records_iterator = make_names_iterator( $file );
-            $name_records_iterator->();
-        } or return;
-        my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
-        foreach my $alias ( @aliases ) {
-                my $track = $nameinfo->[1];
-                unless ( defined $trackHash{$track} ) {
-                    $trackHash{$track} = $trackNum++;
-                    push @tracksWithNames, $track;
-                }
-                $namerecs_buffered++;
-                push @namerecord_buffer, [
-                    $alias,
-                    $trackHash{$track},
-                    @{$nameinfo}[2..$#{$nameinfo}]
-                    ];
-        }
-    }
-    return shift @namerecord_buffer;
-};
+my $record_stream = make_name_record_stream( \@refSeqs, \@names_files );
 
 # convert the stream of name records into a stream of operations to do
 # on the data in the hash store
-my @operation_buffer;
 my $namerecs_converted = 0;
-# try to fill the operation buffer a bit to estimate the number of operations per name record
-{
-    while( @operation_buffer < 10000 && ( my $name_record = $record_stream->()) ) {
-        $namerecs_converted++;
-        push @operation_buffer, make_operations( $name_record );
-    }
-}
-my $operation_stream = sub {
-    unless( @operation_buffer ) {
-        if( my $name_record = $record_stream->() ) {
-            $namerecs_converted++;
-            push @operation_buffer, make_operations( $name_record );
-        }
-    }
-    return shift @operation_buffer;
-};
+my $operation_stream_estimate;
+my $operation_stream = make_operation_stream( $record_stream );
 
 # estimate the total number of name records we probably have based on the input file sizes
 #print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
 my $avg_record_text_bytes = $total_namerec_sizes/$namerecs_buffered;
-$est_total_name_records = int( (sum( map { -s $_->{fullpath} } @all_names_files )||0) / $avg_record_text_bytes );
-my $est_total_operations = $est_total_name_records * ( @operation_buffer / $namerecs_converted );
-
-my $kv_stream = make_kv_stream( $workDir || $outDir, $operation_stream, $est_total_operations );
+$est_total_name_records = int( (sum( map { -s $_->{fullpath} } @names_files )||0) / $avg_record_text_bytes );
+my $est_total_operations = $est_total_name_records * ( $operation_stream_estimate / $namerecs_converted );
+my $kv_stream = make_key_value_stream( $workDir || $outDir, $operation_stream, $est_total_operations );
 
 # finally copy the temp store to the namestore
 print "Formatting index as JSON ...\n" if $verbose;
@@ -268,7 +217,49 @@ exit;
 
 ################ HELPER SUBROUTINES ##############################
 
-sub make_kv_stream {
+sub make_name_record_stream {
+    my ( $refseqs, $names_files ) = @_;
+    my @names_files = @$names_files;
+
+    my $name_records_iterator = sub {};
+    my @namerecord_buffer;
+
+    # insert a name record for all of the reference sequences
+    for my $ref ( @$refseqs ) {
+        push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+    }
+
+    my %trackHash;
+
+    return sub {
+        while( ! @namerecord_buffer ) {
+            my $nameinfo = $name_records_iterator->() || do {
+                my $file = shift @names_files;
+                return unless $file;
+                #print STDERR "Processing $file->{fullpath}\n";
+                $name_records_iterator = make_names_iterator( $file );
+                $name_records_iterator->();
+            } or return;
+            my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
+            foreach my $alias ( @aliases ) {
+                    my $track = $nameinfo->[1];
+                    unless ( defined $trackHash{$track} ) {
+                        $trackHash{$track} = $trackNum++;
+                        push @tracksWithNames, $track;
+                    }
+                    $namerecs_buffered++;
+                    push @namerecord_buffer, [
+                        $alias,
+                        $trackHash{$track},
+                        @{$nameinfo}[2..$#{$nameinfo}]
+                        ];
+            }
+        }
+        return shift @namerecord_buffer;
+    };
+}
+
+sub make_key_value_stream {
     my ( $workdir, $operation_stream, $operation_stream_estimate ) = @_;
     my $tempfile = File::Temp->new( TMPDIR => $workdir );
     print "Temporary DBM file: $tempfile\n" if $verbose;
@@ -334,6 +325,31 @@ sub find_names_files {
         }
     }
     return @files;
+}
+
+sub make_operation_stream {
+    my ( $record_stream ) = @_;
+
+    my @operation_buffer;
+    # try to fill the operation buffer a bit to estimate the number of operations per name record
+    {
+        while( @operation_buffer < 10000 && ( my $name_record = $record_stream->()) ) {
+            $namerecs_converted++;
+            push @operation_buffer, make_operations( $name_record );
+        }
+    }
+
+    $operation_stream_estimate = @operation_buffer;
+
+    return sub {
+        unless( @operation_buffer ) {
+            if( my $name_record = $record_stream->() ) {
+                $namerecs_converted++;
+                push @operation_buffer, make_operations( $name_record );
+            }
+        }
+        return shift @operation_buffer;
+    };
 }
 
 use constant OP_ADD_EXACT  => 1;
