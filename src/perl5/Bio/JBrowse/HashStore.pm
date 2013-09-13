@@ -69,7 +69,7 @@ sub open {
     my $cache_items = int( $self->{sort_mem} / 50000 / 6 );
     #warn "Hash store cache size: $cache_items";
     $self->{bucket_cache} = $self->_make_cache( size => $cache_items );
-    $self->{bucket_path_cache_by_hash} = $self->_make_cache( size => $cache_items );
+    $self->{bucket_path_cache_by_hex} = $self->_make_cache( size => $cache_items );
 
     return $self;
 }
@@ -142,6 +142,44 @@ sub set {
     $self->{meta}{last_changed_entry} = $key;
 
     return $value;
+}
+
+=head2 stream_set( $kv_stream )
+
+=cut
+
+sub stream_set {
+    my ( $self, $kv_stream ) = @_;
+
+    require POSIX;
+    require File::Temp;
+    require Storable;
+    require DB_File;
+
+    my $tempfile = File::Temp->new( CLEANUP => 0, TMP_DIR => $self->{work_dir} );
+    $tempfile->close;
+    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
+
+    #print "hashing into $tempfile\n";
+    while( my ( $k, $v ) = $kv_stream->() ) {
+        my $hex = $self->_hex( $self->_hash( $k ) );
+        #print "$hex input $k $v\n";
+        my $b = $buckets{$hex};
+        #print "$hex read ".length( $b )."\n";
+        $b = $b ? Storable::thaw( $buckets{$hex} ) : {};
+        $b->{$k} = $v;
+        $b = Storable::freeze( $b );
+        $buckets{$hex} = $b;
+        #print "$hex set ".length($b)." ".length($buckets{$hex})."\n";
+    }
+    $kv_stream = undef;
+
+    #print "formatting\n";
+    while( my ( $hex, $contents ) = each %buckets ) {
+        my $bucket = $self->_getBucketFromHex( $hex );
+        $bucket->{data} = Storable::thaw( $contents );
+        $bucket->{dirty} = 1;
+    }
 }
 
 =head2 sort_stream( $data_stream )
@@ -222,9 +260,13 @@ sub _hash {
     return $crc & $self->{hash_mask};
 }
 
-sub _hashToPath {
+sub _hex {
     my ( $self, $crc ) = @_;
-    my $hex = lc sprintf( $self->{hash_sprintf_pattern}, $crc );
+    return sprintf( $self->{hash_sprintf_pattern}, $crc );
+}
+
+sub _hexToPath {
+    my ( $self, $hex ) = @_;
     my @dir = ( $self->{dir}, reverse $hex =~ /(.{1,3})/g );
     my $file = (pop @dir).$self->{file_extension};
     my $dir = File::Spec->catdir(@dir);
@@ -234,12 +276,12 @@ sub _hashToPath {
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    return $self->_getBucketFromHash( $self->_hash( $key ) );
+    return $self->_getBucketFromHex( $self->_hex( $self->_hash( $key ) ) );
 }
 
-sub _getBucketFromHash {
-    my ( $self, $hash ) = @_;
-    my $pathinfo = $self->{bucket_path_cache_by_hash}->compute( $hash, sub { $self->_hashToPath( $hash ) }  );
+sub _getBucketFromHex {
+    my ( $self, $hex ) = @_;
+    my $pathinfo = $self->{bucket_path_cache_by_hex}->compute( $hex, sub { $self->_hexToPath( $hex ) }  );
     return $self->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $self->_readBucket( $pathinfo ); } );
 }
 
@@ -344,7 +386,7 @@ sub _getBucket {
     }
     else {
         my $store = $self->{store};
-        my $pathinfo = $store->_hashToPath( $self->{hash} );
+        my $pathinfo = $store->_hexToPath( $store->_hex( $self->{hash} ) );
         my $bucket = $store->_readBucket( $pathinfo );
         $tinycache->{hash} = $self->{hash};
         $tinycache->{bucket} = $bucket;

@@ -227,6 +227,40 @@ my $avg_record_text_bytes = $total_namerec_sizes/$namerecs_buffered;
 $est_total_name_records = int( (sum( map { -s $_->{fullpath} } @all_names_files )||0) / $avg_record_text_bytes );
 my $est_total_operations = $est_total_name_records * ( @operation_buffer / $namerecs_converted );
 
+use POSIX;
+my $tempfile = File::Temp->new( CLEANUP => 1, ($workDir ? ( TMPDIR => $workDir ) : ()));
+print "Temporary DBM file: $tempfile\n" if $verbose;
+tie my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR;
+
+my $progressbar;
+my $operations_processed = 0;
+my $progress_next_update = 0;
+my $est_total_hash_mem = int( $est_total_name_records*$avg_record_text_bytes*8 );
+my $use_sort = !$no_sort && $sort_mem < $est_total_hash_mem*0.6;
+if( $verbose ) {
+    eval {
+        require Term::ProgressBar;
+        $progressbar = Term::ProgressBar->new({name  => 'Building index',
+                                               count => $est_total_operations,
+                                               ETA   => 'linear', });
+        $progressbar->max_update_rate(1);
+    }
+}
+
+# now write it to the temp store
+while( my $op = $operation_stream->() ) {
+    do_hash_operation( \%temp_store, $op );
+}
+if( $progressbar && $est_total_operations >= $progress_next_update ) {
+    $progressbar->update( $est_total_operations );
+}
+
+# finally copy the temp store to the namestore
+print "Formatting index as JSON ...\n" if $verbose;
+$hash_bits ||= $est_total_name_records
+  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
+  : 12;
+
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     work_dir => $workDir,
@@ -237,59 +271,16 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     # average of about 500 bytes per name record, for about 100
     # records per file. if the store has existing data in it, this
     # will be ignored
-    hash_bits => $hash_bits || (
-        $est_total_name_records
-            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
-            : 12
-    ),
+    hash_bits => $hash_bits,,
 );
 
-my $progressbar;
-my $operations_processed = 0;
-my $progress_next_update = 0;
-my $est_total_hash_mem = int( $est_total_name_records*$avg_record_text_bytes*8 );
-my $use_sort = !$no_sort && $sort_mem < $est_total_hash_mem*0.6;
-if( $verbose ) {
 
-    print "Estimated total memory $est_total_hash_mem.\n";
-    if( $use_sort ) {
-        print "Using sorted load process.\n";
-    } else {
-        print "Using unsorted load process.\n";
-    }
-
-    print "Estimated $est_total_name_records total name records to index, $est_total_operations store operations.\n";
-    print "Using ".$nameStore->{hash_bits}."-bit hashing (".2**$nameStore->{hash_bits}." files).\n";
-    eval {
-        require Term::ProgressBar;
-        $progressbar = Term::ProgressBar->new({name  => 'Building index',
-                                               count => $est_total_operations,
-                                               ETA   => 'linear', });
-        $progressbar->max_update_rate(1);
-    }
-}
-
-use POSIX;
-my $tempfile = File::Temp->new( CLEANUP => 1, ($workDir ? ( TMPDIR => $workDir ) : ()));
-print "Temporary DBM file: $tempfile\n" if $verbose;
-tie my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR;
-
-# now write it to the temp store
-while( my $op = $operation_stream->() ) {
-    do_hash_operation( \%temp_store, $op );
-}
-
-#
-if( $progressbar && $est_total_operations >= $progress_next_update ) {
-    $progressbar->update( $est_total_operations );
-}
-
-
-# finally copy the temp store to the namestore
-print "Formatting index as JSON ...\n" if $verbose;
-while( my ( $k, $v ) = each %temp_store ) {
-    $nameStore->set( $k, Storable::thaw( $v ) );
-}
+my $lastk;
+$nameStore->stream_set( sub {
+    my ( $k, $v ) = each %temp_store;
+    $lastk = $k;
+    return $k ? ( $k, Storable::thaw($v) ) : ();
+});
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
