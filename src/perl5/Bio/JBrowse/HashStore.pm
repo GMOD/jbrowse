@@ -61,12 +61,15 @@ sub open {
     $self->{format} ||= $self->{meta}{format} || 'json';
 
     $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
+    $self->{hash_mask} = 2**($self->{hash_bits}) - 1;
     $self->{meta}{hash_bits} = $self->{hash_bits};
-    $self->{hash_characters} = int( $self->{hash_bits}/4 );
+    $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 
-    $self->{bucket_cache} = $self->_make_cache( size => 30 );
-    $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
+    my $cache_items = int( $self->{sort_mem} / 50000 / 6 );
+    #warn "Hash store cache size: $cache_items";
+    $self->{bucket_cache} = $self->_make_cache( size => $cache_items );
+    $self->{bucket_path_cache_by_hash} = $self->_make_cache( size => $cache_items );
 
     return $self;
 }
@@ -184,14 +187,14 @@ sub sort_stream {
             ? $hash_cache->{hash}
             : do {
                 $hash_cache->{key} = $key;
-                $hash_cache->{hash} = $self->_hexHash( $key );
+                $hash_cache->{hash} = $self->_hash( $key );
             };
 
         return Bio::JBrowse::HashStore::Entry->new(
             store    => $self,
             key      => $key,
             data     => $d,
-            hex_hash => $hash
+            hash => $hash
         );
     };
 }
@@ -212,26 +215,31 @@ sub empty {
 
 ########## helper methods ###########
 
-sub _hexHash {
+sub _hash {
     my ( $self, $key ) = @_;
     my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
                   ->strcrc32( $key );
-    my $hex = lc sprintf( '%08x', $crc );
-    $hex = substr( $hex, 8-$self->{hash_characters} );
-    return $hex;
+    return $crc & $self->{hash_mask};
 }
 
-sub _hexToPath {
-    my ( $self, $hex ) = @_;
+sub _hashToPath {
+    my ( $self, $crc ) = @_;
+    my $hex = lc sprintf( $self->{hash_sprintf_pattern}, $crc );
     my @dir = ( $self->{dir}, reverse $hex =~ /(.{1,3})/g );
     my $file = (pop @dir).$self->{file_extension};
     my $dir = File::Spec->catdir(@dir);
+    #warn "crc: $crc, fullpath: ".File::Spec->catfile( $dir, $file )."\n";
     return { dir => $dir, fullpath => File::Spec->catfile( $dir, $file ) };
 }
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    my $pathinfo = $self->{bucket_path_cache_by_key}->compute( $key, sub { $self->_hexToPath( $self->_hexHash( $key ) ); }  );
+    return $self->_getBucketFromHash( $self->_hash( $key ) );
+}
+
+sub _getBucketFromHash {
+    my ( $self, $hash ) = @_;
+    my $pathinfo = $self->{bucket_path_cache_by_hash}->compute( $hash, sub { $self->_hashToPath( $hash ) }  );
     return $self->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $self->_readBucket( $pathinfo ); } );
 }
 
@@ -330,15 +338,15 @@ sub _getBucket {
 
     # use a one-element cache for this _getBucket, because Entrys
     # come from sort_stream, and thus should have perfect cache locality
-    my $tinycache = $self->{store}{tiny_bucket_cache} ||= { hex_hash => '' };
-    if( $tinycache->{hex_hash} eq $self->{hex_hash} ) {
+    my $tinycache = $self->{store}{tiny_bucket_cache} ||= { hash => -1 };
+    if( $tinycache->{hash} == $self->{hash} ) {
         return $tinycache->{bucket};
     }
     else {
         my $store = $self->{store};
-        my $pathinfo = $store->_hexToPath( $self->{hex_hash} );
+        my $pathinfo = $store->_hashToPath( $self->{hash} );
         my $bucket = $store->_readBucket( $pathinfo );
-        $tinycache->{hex_hash} = $self->{hex_hash};
+        $tinycache->{hash} = $self->{hash};
         $tinycache->{bucket} = $bucket;
         return $bucket;
     }
