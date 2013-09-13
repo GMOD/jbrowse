@@ -79,6 +79,10 @@ use Getopt::Long;
 use Pod::Usage;
 use List::Util qw/ sum min max /;
 
+use Storable;
+use DB_File;
+use File::Temp ();
+
 use PerlIO::gzip;
 
 use JSON 2;
@@ -258,31 +262,33 @@ if( $verbose ) {
     print "Using ".$nameStore->{hash_bits}."-bit hashing (".2**$nameStore->{hash_bits}." files).\n";
     eval {
         require Term::ProgressBar;
-        $progressbar = Term::ProgressBar->new({name  => 'Indexing names',
+        $progressbar = Term::ProgressBar->new({name  => 'Building index',
                                                count => $est_total_operations,
                                                ETA   => 'linear', });
         $progressbar->max_update_rate(1);
     }
 }
 
-if( $use_sort ) {
-    # sort the stream by hash key to imprterove cache locality (very
-    # important for performance)
-    my $entry_stream = $nameStore->sort_stream( $operation_stream );
-    # now write it to the store
-    while ( my $entry = $entry_stream->() ) {
-        do_sorted_operation( $entry, $entry->data );
-    }
-} else {
-    # now write it to the store
-    while( my $op = $operation_stream->() ) {
-        do_unsorted_operation( $nameStore, $op );
-    }
+use POSIX;
+my $tempfile = File::Temp->new( CLEANUP => 1, ($workDir ? ( TMPDIR => $workDir ) : ()));
+print "Temporary DBM file: $tempfile\n" if $verbose;
+tie my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR;
+
+# now write it to the temp store
+while( my $op = $operation_stream->() ) {
+    do_hash_operation( \%temp_store, $op );
+}
+
+#
+if( $progressbar && $est_total_operations >= $progress_next_update ) {
+    $progressbar->update( $est_total_operations );
 }
 
 
-if( $progressbar && $est_total_operations >= $progress_next_update ) {
-    $progressbar->update( $est_total_operations );
+# finally copy the temp store to the namestore
+print "Formatting index as JSON ...\n" if $verbose;
+while( my ( $k, $v ) = each %temp_store ) {
+    $nameStore->set( $k, Storable::thaw( $v ) );
 }
 
 # store the list of tracks that have names
@@ -353,67 +359,26 @@ sub make_operations {
 }
 
 my %full_entries;
-sub do_sorted_operation {
-    my ( $store_entry, $op ) = @_;
+sub do_hash_operation {
+    my ( $tempstore, $op ) = @_;
 
     my ( $lc_name, $op_name, $record ) = @$op;
 
     if( $op_name == OP_ADD_EXACT ) {
-        my $r = $store_entry->get || { exact => [], prefix => [] };
+        my $r = $tempstore->{$lc_name};
+        $r = $r ? Storable::thaw($r) : { exact => [], prefix => [] };
 
         if( $max_locations && @{ $r->{exact} } < $max_locations ) {
             push @{ $r->{exact} }, $record;
-            $store_entry->set( $r );
-        }
-        # elsif( $verbose ) {
-        #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
-        # }
-    }
-    elsif( $op_name == OP_ADD_PREFIX && ! exists $full_entries{$lc_name}) {
-        my $r = $store_entry->get || { exact => [], prefix => [] };
-
-        my $name = $record;
-
-        my $p = $r->{prefix};
-        if( @$p < $max_completions ) {
-            if( ! grep $name eq $_, @$p ) {
-                push @{ $r->{prefix} }, $name;
-                $store_entry->set( $r );
-            }
-        }
-        elsif( @{ $r->{prefix} } == $max_completions ) {
-            push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
-            $store_entry->set( $r );
-            $full_entries{$lc_name} = 1;
-        }
-    }
-
-    if( $progressbar ) {
-        $operations_processed++;
-        if( $operations_processed > $progress_next_update ) {
-            $progress_next_update = $progressbar->update( $operations_processed );
-        }
-    }
-}
-
-sub do_unsorted_operation {
-    my ( $store, $op ) = @_;
-
-    my ( $lc_name, $op_name, $record ) = @$op;
-
-    if( $op_name == OP_ADD_EXACT ) {
-        my $r = $store->get($lc_name) || { exact => [], prefix => [] };
-
-        if( $max_locations && @{ $r->{exact} } < $max_locations ) {
-            push @{ $r->{exact} }, $record;
-            $store->set( $lc_name, $r );
+            $tempstore->{$lc_name} = Storable::freeze( $r );
         }
         # elsif( $verbose ) {
         #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
         # }
     }
     elsif( $op_name == OP_ADD_PREFIX && ! exists $full_entries{$lc_name} ) {
-        my $r = $store->get($lc_name) || { exact => [], prefix => [] };
+        my $r = $tempstore->{$lc_name};
+        $r = $r ? Storable::thaw($r) : { exact => [], prefix => [] };
 
         my $name = $record;
 
@@ -421,12 +386,12 @@ sub do_unsorted_operation {
         if( @$p < $max_completions ) {
             if( ! grep $name eq $_, @$p ) {
                 push @{ $r->{prefix} }, $name;
-                $store->set( $lc_name, $r );
+                $tempstore->{$lc_name} = Storable::freeze( $r );
             }
         }
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
-            $store->set( $lc_name, $r );
+            $tempstore->{$lc_name} = Storable::freeze( $r );
             $full_entries{$lc_name} = 1;
         }
     }
@@ -438,7 +403,6 @@ sub do_unsorted_operation {
         }
     }
 }
-
 
 # each of these takes an input filename and returns a subroutine that
 # returns name records until there are no more, for either names.txt
