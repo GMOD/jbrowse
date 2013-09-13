@@ -80,6 +80,7 @@ use Pod::Usage;
 use List::Util qw/ sum min max /;
 
 use Storable;
+use POSIX;
 use DB_File;
 use File::Temp ();
 
@@ -227,33 +228,7 @@ my $avg_record_text_bytes = $total_namerec_sizes/$namerecs_buffered;
 $est_total_name_records = int( (sum( map { -s $_->{fullpath} } @all_names_files )||0) / $avg_record_text_bytes );
 my $est_total_operations = $est_total_name_records * ( @operation_buffer / $namerecs_converted );
 
-use POSIX;
-my $tempfile = File::Temp->new( CLEANUP => 1, ($workDir ? ( TMPDIR => $workDir ) : ()));
-print "Temporary DBM file: $tempfile\n" if $verbose;
-tie my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR;
-
-my $progressbar;
-my $operations_processed = 0;
-my $progress_next_update = 0;
-my $est_total_hash_mem = int( $est_total_name_records*$avg_record_text_bytes*8 );
-my $use_sort = !$no_sort && $sort_mem < $est_total_hash_mem*0.6;
-if( $verbose ) {
-    eval {
-        require Term::ProgressBar;
-        $progressbar = Term::ProgressBar->new({name  => 'Building index',
-                                               count => $est_total_operations,
-                                               ETA   => 'linear', });
-        $progressbar->max_update_rate(1);
-    }
-}
-
-# now write it to the temp store
-while( my $op = $operation_stream->() ) {
-    do_hash_operation( \%temp_store, $op );
-}
-if( $progressbar && $est_total_operations >= $progress_next_update ) {
-    $progressbar->update( $est_total_operations );
-}
+my $kv_stream = make_kv_stream( $workDir || $outDir, $operation_stream, $est_total_operations );
 
 # finally copy the temp store to the namestore
 print "Formatting index as JSON ...\n" if $verbose;
@@ -274,13 +249,7 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     hash_bits => $hash_bits,,
 );
 
-
-my $lastk;
-$nameStore->stream_set( sub {
-    my ( $k, $v ) = each %temp_store;
-    $lastk = $k;
-    return $k ? ( $k, Storable::thaw($v) ) : ();
-});
+$nameStore->stream_set( $kv_stream );
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
@@ -298,6 +267,47 @@ $gdb->modifyTrackList( sub {
 exit;
 
 ################ HELPER SUBROUTINES ##############################
+
+sub make_kv_stream {
+    my ( $workdir, $operation_stream, $operation_stream_estimate ) = @_;
+    my $tempfile = File::Temp->new( TMPDIR => $workdir );
+    print "Temporary DBM file: $tempfile\n" if $verbose;
+    tie my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR;
+
+    my $progressbar;
+    my $operations_processed = 0;
+    my $progress_next_update = 0;
+    if( $verbose ) {
+        eval {
+            require Term::ProgressBar;
+            $progressbar = Term::ProgressBar->new({name  => 'Building index',
+                                                   count => $operation_stream_estimate,
+                                                   ETA   => 'linear', });
+            $progressbar->max_update_rate(1);
+        }
+    }
+
+    # now write it to the temp store
+    while( my $op = $operation_stream->() ) {
+        do_hash_operation( \%temp_store, $op );
+
+        if( $progressbar ) {
+            $operations_processed++;
+            if( $operations_processed > $progress_next_update ) {
+                $progress_next_update = $progressbar->update( $operations_processed );
+            }
+        }
+    }
+
+    if( $progressbar && $est_total_operations >= $progress_next_update ) {
+        $progressbar->update( $est_total_operations );
+    }
+
+    return sub {
+        my ( $k, $v ) = each %temp_store;
+        return $k ? ( $k, Storable::thaw($v) ) : ();
+    };
+}
 
 sub find_names_files {
     my @files;
@@ -384,13 +394,6 @@ sub do_hash_operation {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
             $tempstore->{$lc_name} = Storable::freeze( $r );
             $full_entries{$lc_name} = 1;
-        }
-    }
-
-    if( $progressbar ) {
-        $operations_processed++;
-        if( $operations_processed > $progress_next_update ) {
-            $progress_next_update = $progressbar->update( $operations_processed );
         }
     }
 }
