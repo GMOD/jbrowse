@@ -3,8 +3,6 @@ define([ 'dojo/_base/declare',
          'dojo/_base/array',
          'dojo/request/xhr',
          'JBrowse/Store/SeqFeature',
-         'JBrowse/Store/DeferredStatsMixin',
-         'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
          'JBrowse/Util',
          'JBrowse/Model/SimpleFeature',
          'dojo/io-query'
@@ -15,18 +13,12 @@ define([ 'dojo/_base/declare',
            array,
            xhr,
            SeqFeatureStore,
-           DeferredStatsMixin,
-           GlobalStatsEstimationMixin,
            Util,
            SimpleFeature,
            ioQuery
        ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixin ],
-
-/**
- * @lends JBrowse.Store.SeqFeature.SPARQL
- */
+return declare( SeqFeatureStore,
 {
 
     /**
@@ -34,16 +26,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
      * @constructs
      */
     constructor: function(args) {
-        this.url = this.urlTemplate;
+        this.urlTemplate = args.urlTemplate;
         this.refSeq = args.refSeq;
         this.baseUrl = args.baseUrl;
         this.density = 0;
-        this.url = Util.resolveUrl(
-            this.baseUrl,
-            Util.fillTemplate( args.urlTemplate,
-                               { 'refseq': this.refSeq.name }
-                             )
-        );
         this.featureQueryTemplate = args.featureQueryTemplate || args.queryTemplate;
         if( ! this.featureQueryTemplate ) {
             console.error("No featureQueryTemplate set for SPARQL backend, no data will be displayed");
@@ -51,28 +37,20 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
 
         this.refSeqQueryTemplate = args.refSeqQueryTemplate;
 
-        var thisB = this;
-        this._estimateGlobalStats()
-            .then(
-                function( stats ) {
-                    thisB.globalStats = stats;
-                    thisB._deferred.stats.resolve( stats );
-                },
-                lang.hitch( this, '_failAllDeferred' )
-            );
     },
 
     configSchema: {
         slots: [
-            { name: 'variables', type: 'object', shortDesc: 'additional variables available for interpolation into the SPARQL query' }
+            { name: 'sparqlVariables', type: 'object', shortDesc: 'additional variables available for interpolation into the SPARQL query', defaultValue: {} },
+            { name: 'query', type: 'object', defaultValue: {} }
         ]
     },
 
     _makeFeatureQuery: function( query ) {
-        if( this.config.variables )
-            query = dojo.mixin( dojo.mixin( {}, this.getConf('variables') ),
-                                query
-                              );
+        query = lang.mixin( {},
+                            this.getConf('sparqlVariables'),
+                            query
+                          );
 
         return Util.fillTemplate( this.queryTemplate, query );
     },
@@ -81,11 +59,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
         this.getFeatures.apply( this, arguments );
     },
 
-    _executeQuery: function( sparqlQuery ) {
-        var qvars = lang.clone( this.config.queryVariables || {} );
+
+    _executeQuery: function( query, sparqlQuery ) {
+
+        var url = Util.resolveUrl(
+            this.baseUrl,
+            Util.fillTemplate( this.urlTemplate,
+                               { 'refseq': query.ref }
+                             )
+        );
+
+        var qvars = lang.mixin( {}, this.getConf('query') );
         qvars.query = sparqlQuery;
+
         return xhr.get(
-            this.url+'?'+ioQuery.objectToQuery( qvars ),
+            url+'?'+ioQuery.objectToQuery( qvars ),
             {
                 headers: { "Accept": "application/json" },
                 handleAs: "json",
@@ -96,7 +84,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
     getFeatures: function( fquery, featCallback, finishCallback, errorCallback ) {
         if( this.featureQueryTemplate ) {
             var thisB = this;
-            this._executeQuery( this._makeFeatureQuery( fquery ) )
+            this._executeQuery( fquery, this._makeFeatureQuery( fquery ) )
                 .then( function( data ) {
                            thisB._resultsToFeatures( data, featCallback );
                            finishCallback();
@@ -108,7 +96,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
         }
     },
 
-    _forRows: function( results, rowCallback ) {
+    _forRows: function( results, rowCallback, ctx ) {
         var rows = ((results||{}).results||{}).bindings || [];
         if( ! rows.length ) {
             return;
@@ -120,10 +108,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
             var row = rows[i];
             for( var j = 0; j<fields.length; j++ ) {
                 var item = {};
+                var field = fields[i];
                 if( field in row )
                     item[field] = row[field].value;
-                rowCallback( item );
             }
+            rowCallback.call( ctx||this, item );
         }
     },
 
@@ -176,7 +165,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
         }
 
         var thisB = this;
-        this._executeQuery( sparql )
+        this._executeQuery( query, sparql )
             .then( function( data ) {
                        thisB._forRows( data, refSeqCallback );
                        finishCallback();

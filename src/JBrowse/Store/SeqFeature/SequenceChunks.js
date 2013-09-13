@@ -30,72 +30,78 @@ return declare( SeqFeatureStore,
         slots: [
             { name: 'refSeqs', type: 'string', defaultValue: 'seq/refSeqs.json' },
             { name: 'chunkSize', type: 'integer', defaultValue: 20000 },
-            { name: 'urlTemplate', type: 'string', defaultValue: '' },
+            { name: 'urlTemplate', type: 'string', defaultValue: "seq/{refseq_dirpath}/{refseq}-" },
             { name: 'compress', type: 'boolean', defaultValue: false }
         ]
     },
 
     getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
-
+        var thisB = this;
         errorCallback = errorCallback || function(e) { console.error(e); };
 
         var refname = query.ref;
-        var chunkSize  = query.seqChunkSize || this.getConf('seqChunkSize');
+        var chunkSize  = query.seqChunkSize || this.getConf('chunkSize');
 
-        var sequrl = this.resolveUrl(
-            this.getConf('urlTemplate'),
-            {
-                'refseq': refname,
-                'refseq_dirpath': function() {
-                    var hex = Crc32.crc32( refname )
-                        .toString(16)
-                        .toLowerCase()
-                        .replace('-','n');
-                    // zero-pad the hex string to be 8 chars if necessary
-                    while( hex.length < 8 )
-                        hex = '0'+hex;
-                    var dirpath = [];
-                    for( var i = 0; i < hex.length; i += 3 ) {
-                        dirpath.push( hex.substring( i, i+3 ) );
+        this.getRefSeqMeta(
+            { name: refname, limit: 1 },
+            function(r) { refname = r.name; },
+            function() {
+                var sequrl = thisB.resolveUrl(
+                    thisB.getConf('urlTemplate'),
+                    {
+                        'refseq': refname,
+                        'refseq_dirpath': function() {
+                            var hex = Crc32.crc32( refname )
+                                .toString(16)
+                                .toLowerCase()
+                                .replace('-','n');
+                            // zero-pad the hex string to be 8 chars if necessary
+                            while( hex.length < 8 )
+                                hex = '0'+hex;
+                            var dirpath = [];
+                            for( var i = 0; i < hex.length; i += 3 ) {
+                                dirpath.push( hex.substring( i, i+3 ) );
+                            }
+                            return dirpath.join('/');
+                        }
                     }
-                    return dirpath.join('/');
+                );
+
+                var firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
+                var lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
+
+                var error;
+                var fetches = [];
+                for( var chunkNum = firstChunk; chunkNum <= lastChunk; chunkNum++ ) {
+                    (function( chunkNum ) {
+                         var d = new Deferred(); // need to have our own deferred that is resolved to '' on 404
+                         thisB._fetchChunk( sequrl, chunkNum )
+                                 .then( lang.hitch( d, 'resolve' ),
+                                        function( e ) {
+                                            if( e.response.status == 404 )
+                                                d.resolve( '' );
+                                            else
+                                                d.reject( e );
+                                        }
+                                      );
+                         d.then( function( sequenceString ) {
+                                     if( error )
+                                             return;
+                                     featureCallback( thisB._makeFeature( refname, chunkNum, chunkSize, sequenceString ) );
+                                 },
+                                 function( e ) {
+                                     if( !error )
+                                         errorCallback( error = e );
+                                 });
+                         fetches.push( d );
+                     }).call(thisB,chunkNum);
                 }
-            }
+
+
+                all( fetches ).then( endCallback );
+            },
+            errorCallback
         );
-
-        var firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
-        var lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
-
-        var error;
-        var fetches = [];
-        for( var chunkNum = firstChunk; chunkNum <= lastChunk; chunkNum++ ) {
-            (function( chunkNum ) {
-                 var thisB = this;
-                 var d = new Deferred(); // need to have our own deferred that is resolved to '' on 404
-                 this._fetchChunk( sequrl, chunkNum )
-                         .then( lang.hitch( d, 'resolve' ),
-                                function( e ) {
-                                    if( e.response.status == 404 )
-                                        d.resolve( '' );
-                                    else
-                                        d.reject( e );
-                                }
-                              );
-                 d.then( function( sequenceString ) {
-                             if( error )
-                                     return;
-                             featureCallback( thisB._makeFeature( refname, chunkNum, chunkSize, sequenceString ) );
-                         },
-                         function( e ) {
-                             if( !error )
-                                 errorCallback( error = e );
-                         });
-                 fetches.push( d );
-             }).call(this,chunkNum);
-        }
-
-
-        all( fetches ).then( endCallback );
     },
 
     _fetchChunk: function( sequrl, chunkNum ) {

@@ -28,10 +28,9 @@ describe( 'SPARQL store', function() {
                       {
                           baseUrl: '',
                           browser: new Browser({ unitTestMode: true }),
-                          refSeq: { name: 'ctgA', start: 1, end: 500001 },
                           queryTemplate: "fake query",
                           urlTemplate: "/sparql",
-                          variables: { foo: 42 }
+                          sparqlVariables: { foo: 42 }
                       });
               });
 
