@@ -44,7 +44,6 @@ my %WriteMakefileArgs = (
     "Bio::SeqFeature::Annotated" => 0,
     "Bio::SeqFeature::Lite" => 0, #< for Bio::DB::BAM
     "Carp" => 0,
-    "Cache::Ref::FIFO" => 0,
     "Cwd" => 0,
     "DBI" => 0,
     "Data::Dumper" => 0,

@@ -74,8 +74,7 @@ sub open {
 
 sub _make_cache {
     my ( $self, @args ) = @_;
-    require Cache::Ref::FIFO;
-    return Cache::Ref::FIFO->new( @args );
+    return Bio::JBrowse::HashStore::FIFOCache->new( @args );
 }
 
 # write out meta.json file when the store itself is destroyed
@@ -289,6 +288,30 @@ sub DESTROY {
 }
 
 
+##### inner cache for FIFO caching ###
+package Bio::JBrowse::HashStore::FIFOCache;
+
+sub new {
+    my $class = shift;
+    return bless {
+        fifo  => [],
+        bykey => {},
+        size  => 100,
+        @_
+    }, $class;
+}
+
+sub compute {
+    my ( $self, $key, $callback ) = @_;
+    return $self->{bykey}{$key} ||= do {
+        my $fifo = $self->{fifo};
+        if( @$fifo >= $self->{size} ) {
+            delete $self->{bykey}{ shift @$fifo };
+        }
+        push @$fifo, $key;
+        return $self->{bykey}{$key} = $callback->($key);
+    };
+}
 
 
 1;
