@@ -102,8 +102,7 @@ my $max_completions = 20;
 my $max_locations = 100;
 my $thresh;
 my $no_sort = 0;
-my $sort_mem = 256 * 2**20;
-my $est_total_name_records;
+my $mem = 256 * 2**20;
 my $hash_bits;
 GetOptions("dir|out=s" => \$outDir,
            "completionLimit=i" => \$max_completions,
@@ -111,9 +110,9 @@ GetOptions("dir|out=s" => \$outDir,
            "verbose+" => \$verbose,
            "noSort" => \$no_sort,
            "thresh=i" => \$thresh,
-           "sortMem=i" => \$sort_mem,
+           "sortMem=i" => \$mem,
+           "mem=i" => \$mem,
            "workdir=s" => \$workDir,
-           "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
            'hashBits=i' => \$hash_bits,
            "help|h|?" => \$help) or pod2usage();
@@ -168,37 +167,35 @@ my $record_stream = make_name_record_stream( \@refSeqs, \@names_files );
 
 # convert the stream of name records into a stream of operations to do
 # on the data in the hash store
-my $namerecs_converted = 0;
+my $record_stream_estimate;
 my $operation_stream_estimate;
 my $operation_stream = make_operation_stream( $record_stream );
 
-# estimate the total number of name records we probably have based on the input file sizes
-#print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
-my $avg_record_text_bytes = $total_namerec_sizes/$namerecs_buffered;
-$est_total_name_records = int( (sum( map { -s $_->{fullpath} } @names_files )||0) / $avg_record_text_bytes );
-my $est_total_operations = $est_total_name_records * ( $operation_stream_estimate / $namerecs_converted );
-my $kv_stream = make_key_value_stream( $workDir || $outDir, $operation_stream, $est_total_operations );
+my $key_value_stream = make_key_value_stream( $workDir || $outDir, $operation_stream, $operation_stream_estimate );
 
 # finally copy the temp store to the namestore
-print "Formatting index as JSON ...\n" if $verbose;
-$hash_bits ||= $est_total_name_records
-  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
+
+$hash_bits ||= $record_stream_estimate
+  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $record_stream_estimate / 100 )/ 4 / log(2)) )))
   : 12;
+
+print "Formatting index as JSON, using $hash_bits-bit hashing.\n" if $verbose;
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     work_dir => $workDir,
     empty => 1,
-    sort_mem => $sort_mem,
+    sort_mem => $mem,
 
     # set the hash size to try to get about 50KB per file, at an
     # average of about 500 bytes per name record, for about 100
     # records per file. if the store has existing data in it, this
     # will be ignored
-    hash_bits => $hash_bits,,
+    hash_bits => $hash_bits
 );
 
-$nameStore->stream_set( $kv_stream );
+# load all the key/value pairs into the HashStore
+$nameStore->stream_set( $key_value_stream );
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
@@ -261,9 +258,11 @@ sub make_name_record_stream {
 
 sub make_key_value_stream {
     my ( $workdir, $operation_stream, $operation_stream_estimate ) = @_;
-    my $tempfile = File::Temp->new( TMPDIR => $workdir );
+    my $tempfile = File::Temp->new( undef, TMPDIR => $workdir );
     print "Temporary DBM file: $tempfile\n" if $verbose;
-    tie my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR;
+    my $db_conf = new DB_File::BTREEINFO;
+    $db_conf->{cachesize} = int($mem/200);
+    my $db = tie( my %temp_store, 'DB_File', "$tempfile", O_CREAT|O_RDWR, 0666, $db_conf );
 
     my $progressbar;
     my $operations_processed = 0;
@@ -290,8 +289,8 @@ sub make_key_value_stream {
         }
     }
 
-    if( $progressbar && $est_total_operations >= $progress_next_update ) {
-        $progressbar->update( $est_total_operations );
+    if( $progressbar && $operation_stream_estimate >= $progress_next_update ) {
+        $progressbar->update( $operation_stream_estimate );
     }
 
     return sub {
@@ -330,6 +329,7 @@ sub find_names_files {
 sub make_operation_stream {
     my ( $record_stream ) = @_;
 
+    my $namerecs_converted = 0;
     my @operation_buffer;
     # try to fill the operation buffer a bit to estimate the number of operations per name record
     {
@@ -340,6 +340,12 @@ sub make_operation_stream {
     }
 
     $operation_stream_estimate = @operation_buffer;
+
+    # estimate the total number of name records we probably have based on the input file sizes
+    #print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
+    my $avg_record_text_bytes = $total_namerec_sizes/($namerecs_buffered||1);
+    $record_stream_estimate = int( (sum( map { -s $_->{fullpath} } @names_files )||0) / ($avg_record_text_bytes||1));;
+    $operation_stream_estimate = $record_stream_estimate * ( @operation_buffer / ($namerecs_converted||1) );
 
     return sub {
         unless( @operation_buffer ) {
