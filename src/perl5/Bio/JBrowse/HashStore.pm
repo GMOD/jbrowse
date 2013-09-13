@@ -31,6 +31,7 @@ use warnings;
 
 use Carp;
 
+use Storable;
 use JSON 2;
 
 use File::Spec ();
@@ -57,11 +58,12 @@ sub open {
     $self->empty if $self->{empty};
 
     $self->{meta} = $self->_read_meta;
+    $self->{format} ||= $self->{meta}{format} || 'json';
 
     $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
     $self->{meta}{hash_bits} = $self->{hash_bits};
     $self->{hash_characters} = int( $self->{hash_bits}/4 );
-    $self->{file_extension} = '.json';
+    $self->{file_extension} = '.'.$self->{format};
 
     $self->{bucket_cache} = $self->_make_cache( size => 30 );
     $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
@@ -240,16 +242,24 @@ sub _readBucket {
     my $dir = $pathinfo->{dir};
 
     if( -f $path ) {
-        local $/;
-        CORE::open my $in, '<', $path or die "$! reading $path";
         return $bucket_class->new(
-             dir => $dir,
-             fullpath => $path,
-             data => eval { JSON::from_json( scalar <$in> ) } || {}
-             );
+            format => $self->{format},
+            dir => $dir,
+            fullpath => $path,
+            data => eval {
+                if( $self->{format} eq 'storable' ) {
+                    Storable::retrieve( $path )
+                } else {
+                    CORE::open my $in, '<', $path or die "$! reading $path";
+                    local $/;
+                    JSON::from_json( scalar <$in> )
+                }
+            } || {}
+        );
     }
     else {
         return $bucket_class->new(
+            format => $self->{format},
             dir => $dir,
             fullpath => $path,
             data => {},
@@ -272,11 +282,15 @@ sub new {
 sub DESTROY {
     my ( $self ) = @_;
 
-    return unless $self->{dirty} && %{$self->{data}};
-
-    File::Path::mkpath( $self->{dir} ) unless -d $self->{dir};
-    CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
-    $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
+    if( $self->{dirty} && %{$self->{data}} ) {
+        File::Path::mkpath( $self->{dir} ) unless -d $self->{dir};
+        if( $self->{format} eq 'storable' ) {
+            Storable::store( $self->{data}, $self->{fullpath} );
+        } else {
+            CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
+            $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
+        }
+    }
 }
 
 package Bio::JBrowse::HashStore::Entry;
