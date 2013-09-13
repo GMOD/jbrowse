@@ -37,8 +37,6 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
-use Bio::JBrowse::PartialSorter;
-
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
@@ -182,62 +180,6 @@ sub stream_set {
     }
 }
 
-=head2 sort_stream( $data_stream )
-
-Given a data stream (sub that returns arrayrefs of [ key, (any amount
-of other data) ] when called repeatedly), returns another stream that
-emits small objects that can be used to get and set the contents of
-the name store at that key ( $entry->get and $entry->set( $value ) )
-and will return the original data you passed (including the key) if
-you call $entry->data.
-
-Using this can greatly speed up bulk operations on the hash store,
-because it allows the internal caches of the HashStore to operate at
-maximum efficiency.
-
-This is achieved by doing an external sort of the data items, which
-involves writing all of the data items to temporary files and then
-reading them back in sorted order.
-
-=cut
-
-sub sort_stream {
-    my ( $self, $in_stream ) = @_;
-
-    my $sorted_stream = Bio::JBrowse::PartialSorter
-        ->new(
-            mem => $self->{sort_mem} || 256 * 2**20,
-            compare => sub($$) {
-                $_[0][0] cmp $_[1][0]
-               },
-           )
-        ->sort( $in_stream );
-
-    # sorted entries should have nearly perfect cache locality, so use a
-    # 1-element cache for crc32 computations
-    my $hash_cache = $self->{tiny_hash_cache} ||= { key => '' };
-    return sub {
-        my $d = $sorted_stream->()
-            or return;
-
-        my $key = $d->[0];
-        my $hash = $hash_cache->{key} eq $key
-            ? $hash_cache->{hash}
-            : do {
-                $hash_cache->{key} = $key;
-                $hash_cache->{hash} = $self->_hash( $key );
-            };
-
-        return Bio::JBrowse::HashStore::Entry->new(
-            store    => $self,
-            key      => $key,
-            data     => $d,
-            hash => $hash
-        );
-    };
-}
-
-
 =head2 empty
 
 Clear the store of all contents.  Deletes all files and directories
@@ -343,55 +285,7 @@ sub DESTROY {
     }
 }
 
-package Bio::JBrowse::HashStore::Entry;
 
-sub new {
-    my $class = shift;
-    bless { @_ }, $class;
-}
 
-sub get {
-    my ( $self ) = @_;
-    my $bucket = $self->_getBucket;
-    return $bucket->{data}{ $self->{key} };
-}
-
-sub set {
-    my ( $self, $value ) = @_;
-
-    my $bucket = $self->_getBucket;
-    $bucket->{data}{ $self->{key} } = $value;
-    $bucket->{dirty} = 1;
-    $self->{store}{meta}{last_changed_entry} = $self->{key};
-
-    return $value;
-}
-
-sub data {
-    $_[0]->{data};
-}
-
-sub store {
-    $_[0]->{store};
-}
-
-sub _getBucket {
-    my ( $self ) = @_;
-
-    # use a one-element cache for this _getBucket, because Entrys
-    # come from sort_stream, and thus should have perfect cache locality
-    my $tinycache = $self->{store}{tiny_bucket_cache} ||= { hash => -1 };
-    if( $tinycache->{hash} == $self->{hash} ) {
-        return $tinycache->{bucket};
-    }
-    else {
-        my $store = $self->{store};
-        my $pathinfo = $store->_hexToPath( $store->_hex( $self->{hash} ) );
-        my $bucket = $store->_readBucket( $pathinfo );
-        $tinycache->{hash} = $self->{hash};
-        $tinycache->{bucket} = $bucket;
-        return $bucket;
-    }
-}
 
 1;
