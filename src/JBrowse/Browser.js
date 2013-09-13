@@ -102,8 +102,10 @@ constructor: function(params) {
     this._constructorArgs = params || {};
 
     // if we're in the unit tests, stop here and don't do any more initialization
-    if( this._constructorArgs.unitTestMode )
+    if( this._constructorArgs.unitTestMode ) {
+        this._finalizeConfig( this._constructorArgs || {} );
         return;
+    }
 
     this.startTime = new Date();
 

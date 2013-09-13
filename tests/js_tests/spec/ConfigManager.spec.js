@@ -1,10 +1,10 @@
-require(['JBrowse/ConfigManager'], function( ConfigManager ) {
+require(['JBrowse/Browser','JBrowse/ConfigManager'], function( Browser, ConfigManager ) {
 
 describe("ConfigManager", function () {
     it( "should work with a config with no includes", function() {
             var m = new ConfigManager({
                 config: { foo: 1 },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: new Browser({ unitTestMode: true }),
                 skipValidation: true
             });
             var config;
@@ -29,7 +29,7 @@ describe("ConfigManager", function () {
                         { label: "zaz", honk: "beep", root: "root!"}
                     ]
                 },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: new Browser({ unitTestMode: true }),
                 skipValidation: true
             });
             var config;
