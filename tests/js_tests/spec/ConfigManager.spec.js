@@ -64,7 +64,7 @@ describe("ConfigManager", function () {
                         { label: "zaz", honk: "beep", root: "root!"}
                     ]
                 },
-                browser: { fatalError: function(error) { throw error; } },
+                browser: new Browser({ unitTestMode: true }),
                 skipValidation: true
             });
             var config;

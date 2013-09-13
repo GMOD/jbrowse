@@ -74,13 +74,13 @@ require([
                waitsFor(function() { return stats; });
                runs( function() {
                    //console.log(stats);
-                   expect(stats.basesCovered).toEqual(50690);
+                   expect(stats.basesCovered).toEqual(50001);
                    expect(stats.scoreMin).toEqual(100);
                    expect(stats.scoreMax).toEqual(899);
-                   expect(stats.scoreSum).toEqual(16863706);
-                   expect(stats.scoreSumSquares).toEqual(8911515204);
-                   expect(stats.scoreStdDev).toEqual(255.20080383762445);
-                   expect(stats.scoreMean).toEqual(332.6830933122904);
+                   expect(stats.scoreSum).toEqual(165785);
+                   expect(stats.scoreSumSquares).toEqual(87271461);
+                   expect(stats.scoreStdDev).toEqual(254.4282306449074);
+                   expect(stats.scoreMean).toEqual(331.57);
                });
         });
 
@@ -147,24 +147,6 @@ require([
             runs(function() {
                 expect(wigData.length).toEqual(0);
             });
-        });
-
-        it('reads the file stats (the totalSummary section)', function() {
-               var stats;
-               b.getGlobalStats(function(s) {
-                                stats = s;
-               });
-               waitsFor(function() { return stats; });
-               runs( function() {
-                   console.log(stats);
-                   expect(stats.basesCovered).toEqual(0);
-                   expect(stats.scoreMin).toEqual(0);
-                   expect(stats.scoreMax).toEqual(3);
-                   expect(stats.scoreSum).toEqual(0);
-                   expect(stats.scoreSumSquares).toEqual(0);
-                   expect(stats.scoreStdDev).toEqual(0);
-                   expect(stats.scoreMean).toEqual(0);
-               });
         });
 
         it('reads good data when zoomed very little', function() {
@@ -237,17 +219,6 @@ require([
                                                     });
                                       //console.log(wigData);
                                   });
-                         });
-
-                      it('reads the file stats (the totalSummary section)', function() {
-                             var stats = b.getGlobalStats();
-                             expect(stats.basesCovered).toEqual(141149153);
-                             expect(stats.minVal).toEqual(1);
-                             expect(stats.maxVal).toEqual(62066);
-                             expect(stats.sumData).toEqual(16922295025);
-                             expect(stats.sumSquares).toEqual(45582937421360);
-                             expect(stats.stdDev).toEqual(555.4891087210976);
-                             expect(stats.mean).toEqual(119.88945498666932);
                          });
 
                       it('reads good data when zoomed very little', function() {

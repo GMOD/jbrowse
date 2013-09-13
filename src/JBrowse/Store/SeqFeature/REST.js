@@ -32,21 +32,23 @@ return declare( SeqFeatureStore,
     constructor: function( args ) {
 
         // make sure the baseUrl has a trailing slash
-        this.baseUrl = args.baseUrl || this.config.baseUrl;
+        this.baseUrl = args.baseUrl || this.getConf('baseUrl');
         if( this.baseUrl.charAt( this.baseUrl.length-1 ) != '/' )
             this.baseUrl = this.baseUrl + '/';
 
     },
 
-    _defaultConfig: function() {
-        return {
-            noCache: false
-        };
+    configSchema: {
+        slots: [
+             { name: 'noCache',     type: 'boolean', defaultValue: false },
+             { name: 'regionStats', type: 'boolean', defaultValue: false },
+             { name: 'query', type: 'object', defaultValue: {} }
+        ]
     },
 
     getRegionStats: function( query, successCallback, errorCallback ) {
 
-        if( ! this.config.region_stats ) {
+        if( ! this.getConf('regionStats') ) {
             this._getRegionStats.apply( this, arguments );
             return;
         }
@@ -73,7 +75,7 @@ return declare( SeqFeatureStore,
     // HELPER METHODS
     _get: function( url, callback, errorCallback ) {
 
-        if( this.config.noCache )
+        if( this.getConf('noCache') )
             request( url, {
                          method: 'GET',
                          handleAs: 'json'
@@ -137,16 +139,18 @@ return declare( SeqFeatureStore,
 
     _makeURL: function( subpath, query ) {
         var url = this.baseUrl + subpath;
-        if( query ) {
-            query = dojo.mixin( {}, query );
-            if( this.config.query )
-                query = dojo.mixin( dojo.mixin( {}, this.config.query ),
-                                    query
-                                  );
-            var ref = query.ref || (this.refSeq||{}).name;
-            delete query.ref;
-            url += (ref ? '/' + ref : '' ) + '?' + ioquery.objectToQuery( query );
-        }
+        query =  dojo.mixin( {}, this.getConf('query'), query || {} );
+
+        var ref = query.ref || (this.refSeq||{}).name;
+        delete query.ref;
+        if( ref )
+            url += '/'+ref;
+
+        var qstr = ioquery.objectToQuery( query );
+
+        if( qstr )
+            url += '?' + qstr;
+
         return url;
     },
 
