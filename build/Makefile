@@ -1,6 +1,7 @@
 BASEDIR = $(PWD)
 
 JSDIR = $(BASEDIR)/src/JBrowse
+PLUGINDIR = $(BASEDIR)/plugins
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
@@ -40,7 +41,13 @@ release-normal-test: release-normal
 	  && ./setup.sh \
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
-release-min: release-normal
+
+PLUGINS = $(wildcard $(PLUGINDIR)/*)
+plugins-min: $(PLUGINS)
+	( cd $(BASEDIR)/src/util/buildscripts; for pdir in $(PLUGINS); do pname=`dirname $$pdir`; node $(BASEDIR)/src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --require $$pdir/js/init.js --profile $$pdir/js/profile.js --releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname"; done )
+
+
+release-min: release-normal plugins-min
 
 	# run the dojo build in the full dir to minify
 	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
@@ -100,4 +107,4 @@ superclean: clean
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
-.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test
+.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test plugins-min
