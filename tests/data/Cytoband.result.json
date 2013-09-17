@@ -1,0 +1,13 @@
+[
+    {"chrom":"chr1","chromStart":"34300000","chromEnd":"39600000","name":"p34.3","gieStain":"gneg"},
+    {"chrom":"chr1","chromStart":"39600000","chromEnd":"43600000","name":"p34.2","gieStain":"gpos25"},
+    {"chrom":"chr1","chromStart":"46100000","chromEnd":"50100000","name":"p33","gieStain":"gpos75"},
+    {"chrom":"chr1","chromStart":"55400000","chromEnd":"58300000","name":"p32.2","gieStain":"gpos50"},
+    {"chrom":"chr1","chromStart":"69100000","chromEnd":"84300000","name":"p31.1","gieStain":"gpos100"},
+    {"chrom":"chr1","chromStart":"120000000","chromEnd":"123200000","name":"p11.1","gieStain":"acen"},
+    {"chrom":"chr1","chromStart":"126900000","chromEnd":"140800000","name":"q12","gieStain":"gvar"},
+    {"chrom":"chr1","chromStart":"140800000","chromEnd":"145900000","name":"q21.1","gieStain":"gneg"},
+    {"chrom":"chr13","chromStart":"3500000","chromEnd":"7700000","name":"p12","gieStain":"stalk"},
+    {"chrom":"chr13","chromStart":"7700000","chromEnd":"12600000","name":"p11.2","gieStain":"gvar"},
+    {"chrom":"chrX","chromStart":"145800000","chromEnd":"153692391","name":"q28","gieStain":"gneg"}
+]
