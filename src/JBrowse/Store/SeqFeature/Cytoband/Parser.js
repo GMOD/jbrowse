@@ -7,14 +7,21 @@ define([
 
 return declare( null, {
 
-    constructor: function( args ) {},
+    constructor: function( args ) {
+        lang.mixin( this, {
+                        featureCallback:   args.featureCallback || function() {},
+                        endCallback:       args.endCallback || function() {},
+                        errorCallback:     args.errorCallback || function(e) { console.error(e); },
+        });
+        
+    },
 
     parseFile: function (lines) {
 
         var cytoLines = lines.split(/\r?\n/);
         var cytoHolder = [];
         for (var line in cytoLines){
-            var parsedLine = this._parseCytoBand(cytoLines[line]);
+            var parsedLine = this.addLine(cytoLines[line]);
             if (parsedLine){
                 cytoHolder.push(parsedLine);
             } else {
@@ -22,16 +29,13 @@ return declare( null, {
             }
         }
     },
-
-    _parseCytoBand : function (line) {
+    
+    addLine: function (line) {
  
         var cytobandRegex = // chrom \t chromStart \t chromEnd \t name \t gieStain 
             /(.+)\t(\d+)\t(\d+)\t(.+)\t(gneg|gpos50|gpos75|gpos25|gpos100|acen|gvar|stalk)/;
 
-        var match = line.match(cytobandRegex);
-        match = match && this._checkMatch(match) ? match : undefined;
-
-        if (match) {    //if it's a match, print it, if not, say so
+        if (this._checkMatch(match = line.match(cytobandRegex))){
             tmpCytoBand = {
                 "chrom" : match[1],
                 "chromStart" : match[2],
@@ -39,16 +43,22 @@ return declare( null, {
                 "name" : match[4],
                 "gieStain" : match[5]
             };
-            
-            console.log(tmpCytoBand);
-            return tmpCytoBand;
-        } else { 
-            return undefined;
-        }    
-    }
+            //do something with tmp
+        } 
+        else if (/^\s*$/.test(line)) { //Do nothing, empty line
+        } 
+        else { //error
+            line = line.replace( /\r?\n?$/g, '' );
+            throw "GFF3 parse error.  Cannot parse '"+line+"'.";
+        }
+    },
 
+    finish : function (){
+
+    },
+    
     _checkMatch : function (match) {
-        if (match.chromStart <= match.chromEnd){
+        if (match && (match.chromStart <= match.chromEnd)){
             return true;
         } else {
             return false;

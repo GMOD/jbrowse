@@ -1,38 +1,37 @@
 require([
             'dojo/request/xhr',
+            'dojo/_base/lang',
             'JBrowse/Browser',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature/Cytoband/Parser',
             'JBrowse/Store/SeqFeature/Cytoband'
         ], function(
             xhr,
+            lang,
             Browser,
             XHRBlob,
             Parser,
-            Cytoband
+            CytobandStore
         ) {
 
 describe( 'Cytoband parser', function() {
    it( 'can parse Cytoband', function() {
-           var stuff = { features: [], directives: [], fasta: [] };
+           var stuff = [];
            var parseFinished, fetched;
            var p = new Parser({
-                                  featureCallback: function(f) {
-                                      stuff.features.push(f);
-                                  },
-                                  directiveCallback: function(d) {
-                                      stuff.directives.push(d);
-                                  },
-                                  endCallback: function() {
-                                      parseFinished = true;
-                                  }
-                              });
-           var f =  new XHRBlob( '../data/gff3_with_syncs.gff3' );
+               featureCallback : function(f) {
+                   stuff.features.push(f);
+               },
+               endCallback : function(){
+                   parseFinished = true;
+               }
+           });
+           var f =  new XHRBlob( '../data/Cytoband_test.txt' );
            f.fetchLines( function(l) { p.addLine( l ); },
                          function()  { p.finish();     },
                          function(e) { console.error(e); } );
            var referenceResult;
-           xhr( '../data/gff3_with_syncs.result.json', { handleAs: 'json' } )
+           xhr( '../data/Cytoband.result.json', { handleAs: 'json' } )
                .then( function(data) { referenceResult = data; } );
 
            waitsFor( function() { return parseFinished && referenceResult; } );
