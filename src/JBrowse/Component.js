@@ -19,10 +19,12 @@ define([
            ConfigurationMixin
        ) {
 
+var serialNumber = 0;
 var Component = declare( [ MessagingMixin, ConfigurationMixin ], {
 
     constructor: function( args ) {
         args = args || {};
+        this.serialNumber = ++serialNumber;
         this.browser = args.browser;
     },
 
