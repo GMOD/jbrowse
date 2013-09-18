@@ -29,6 +29,7 @@ define( [
             'dojo/store/DataStore',
             'JBrowse/Store/Names/Hash',
             'JBrowse/FeatureFiltererMixin',
+            'JBrowse/Auth/_AuthManagerMixin',
             'JBrowse/View/RegionBrowser',
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
@@ -70,6 +71,7 @@ define( [
             DojoDataStore,
             NamesHashStore,
             FeatureFiltererMixin,
+            AuthManagerMixin,
             RegionBrowserPane,
             ConfigLoader,
             InfoDialog,
@@ -91,12 +93,14 @@ var dojof = Util.dojof;
  * @constructor
  * @param params an object with initial configuration
  */
-return declare( [JBrowseComponent,FeatureFiltererMixin], {
+return declare( [JBrowseComponent,FeatureFiltererMixin,AuthManagerMixin], {
 
 // set constructor method chaining to manual, we need to do some special things
 "-chains-": { constructor: "manual" },
 
 constructor: function(params) {
+    this.browser = this;
+
     this.globalKeyboardShortcuts = {};
 
     this._constructorArgs = params || {};

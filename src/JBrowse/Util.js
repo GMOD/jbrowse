@@ -1,8 +1,9 @@
 // MISC
 define( [ 'dojo/_base/array',
+          'dojo/Deferred',
           'dojox/lang/functional/object',
           'dojox/lang/functional/fold'
-        ], function( array ) {
+        ], function( array, Deferred ) {
 var Util;
 Util = {
     dojof: dojox.lang.functional,
@@ -52,6 +53,28 @@ Util = {
             return true;
         }
     },
+
+    loadJS: function( paths ) {
+        if( typeof paths == 'string' )
+            paths = [ paths ];
+
+        var d = new Deferred();
+        require( paths, function() {
+            var modules = Array.prototype.slice.call( arguments );
+
+            // check the loaded modules for success
+            for( var i = 0; i<modules.length; i++ ) {
+                if( typeof modules[i] != 'object' ) {
+                    d.reject("could not load "+paths[i]+": "+modules[i]);
+                    return;
+                }
+            }
+
+            d.resolve( modules );
+        });
+        return d;
+    },
+
 
     /**
      * Fast, simple class-maker, used for classes that need speed more

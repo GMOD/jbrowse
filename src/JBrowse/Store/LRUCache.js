@@ -1,10 +1,11 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/_base/array',
            'JBrowse/Util',
            'JBrowse/Digest/Crc32'
        ],
-       function( declare, array, Util, digest ) {
+       function( declare, lang, array, Util, digest ) {
 
 return declare( null,
 
@@ -49,7 +50,7 @@ return declare( null,
         this._inProgressFills = {};
     },
 
-    get: function( inKey, callback ) {
+    get: function( inKey, callback, fillCallback ) {
         var keyString = this._keyString( inKey );
         var record = this._cacheByKey[ keyString ];
 
@@ -57,7 +58,7 @@ return declare( null,
             this._log( 'miss', keyString );
 
             // call our fill callback if we can
-            this._attemptFill( inKey, keyString, callback );
+            this._attemptFill( inKey, keyString, callback, fillCallback );
             return;
 
         } else {
@@ -124,8 +125,9 @@ return declare( null,
             this._cacheOldest = record;
     },
 
-    _attemptFill: function( inKey, keyString, callback ) {
-        if( this.fill ) {
+    _attemptFill: function( inKey, keyString, callback, fillCallback ) {
+        var fill = fillCallback || this.fill;
+        if( fill ) {
 
             var fillRecord = this._inProgressFills[ keyString ] =
                 this._inProgressFills[ keyString ] || { callbacks: [], running: false };
@@ -134,22 +136,32 @@ return declare( null,
 
             if( ! fillRecord.running ) {
                 fillRecord.running = true;
-                this.fill( inKey, dojo.hitch( this, function( keyString, inKey, fillRecord, value, error, hints ) {
-                    delete this._inProgressFills[ keyString ];
-                    fillRecord.running = false;
+                fill.call(
+                    this,
+                    inKey,
+                    lang.hitch(
+                        this,
+                        function( keyString, inKey, fillRecord, value, error, hints ) {
+                            delete this._inProgressFills[ keyString ];
+                            fillRecord.running = false;
 
-                    if( value && ! ( hints && hints.nocache ) ) {
-                        this._log( 'fill', keyString );
-                        this.set( inKey, value );
-                    }
-                    array.forEach( fillRecord.callbacks, function( cb ) {
-                                       try {
-                                           cb.call( this, value, error );
-                                       } catch(x) {
-                                           console.error(''+x, x.stack, x);
-                                       }
-                                   }, this );
-                }, keyString, inKey, fillRecord ));
+                            if( value && ! ( hints && hints.nocache ) ) {
+                                this._log( 'fill', keyString );
+                                this.set( inKey, value );
+                            }
+                            array.forEach( fillRecord.callbacks, function( cb ) {
+                                               try {
+                                                   cb.call( this, value, error );
+                                               } catch(x) {
+                                                   console.error(''+x, x.stack, x);
+                                               }
+                                           }, this );
+                        },
+                        keyString,
+                        inKey,
+                        fillRecord
+                    )
+                );
             }
         }
         else {
