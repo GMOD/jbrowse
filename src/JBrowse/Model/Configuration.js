@@ -11,11 +11,13 @@
 
 define( [
             'dojo/_base/declare',
-            'dojo/_base/lang'
+            'dojo/_base/lang',
+            'dojo/_base/array'
         ],
         function(
             declare,
-            lang
+            lang,
+            array
         ) {
 
 var Configuration = declare( null, {
@@ -97,6 +99,20 @@ var Configuration = declare( null, {
                 console.warn( 'Unknown configuration key "'+fullKey+'", ignoring.' );
             }
         }
+    },
+
+    /**
+     * Inspect this configuration to find any variables that are not
+     * set, but that are marked as 'required'.
+     */
+    missingRequired: function() {
+        var errors = [];
+        array.forEach( this._schema.getAllSlots(), function( slot ) {
+            var name = slot.name;
+            if( slot.required && !( 'defaultValue' in slot ) && ! ( name in this._local || name in this._base ) )
+                errors.push( slot.name );
+        }, this );
+        return errors;
     },
 
     /**

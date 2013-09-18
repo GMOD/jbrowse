@@ -30,6 +30,11 @@ return declare( null, {
     _finalizeConfig: function( baseConfig, localConfig ) {
         this._config = this._configSchema().newConfig( baseConfig );
         // TODO: import local config here
+
+        var missing = this._config.missingRequired();
+        if( missing && missing.length ) {
+            throw new Error( "Missing required configuration: "+missing.join(', ') );
+        }
     },
 
     // assembles the complete config schema for this object by

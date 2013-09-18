@@ -69,6 +69,10 @@ return declare( null, {
         return this._slotsByName[slotname];
     },
 
+    getAllSlots: function() {
+        return this._slotsList.slice();
+    },
+
     getDefaultValue: function( key ) {
         var slot = this.getSlot( key );
         if( slot && 'defaultValue' in slot )
