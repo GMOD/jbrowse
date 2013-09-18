@@ -1,8 +1,10 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
        ],
        function(
-           declare
+           declare,
+           lang
        ) {
 
 return declare( null, {
@@ -15,20 +17,6 @@ return declare( null, {
         });
         
     },
-
-    parseFile: function (lines) {
-
-        var cytoLines = lines.split(/\r?\n/);
-        var cytoHolder = [];
-        for (var line in cytoLines){
-            var parsedLine = this.addLine(cytoLines[line]);
-            if (parsedLine){
-                cytoHolder.push(parsedLine);
-            } else {
-                console.warn ("Check line " + (parseInt(line)+1) + ", it is incorrectly formatted.");
-            }
-        }
-    },
     
     addLine: function (line) {
  
@@ -36,20 +24,20 @@ return declare( null, {
             /(.+)\t(\d+)\t(\d+)\t(.+)\t(gneg|gpos50|gpos75|gpos25|gpos100|acen|gvar|stalk)/;
 
         if (this._checkMatch(match = line.match(cytobandRegex))){
-            tmpCytoBand = {
+            var tmpCytoband = {
                 "chrom" : match[1],
-                "chromStart" : match[2],
-                "chromEnd" : match[3],
+                "chromStart" : parseInt(match[2]),
+                "chromEnd" : parseInt(match[3]),
                 "name" : match[4],
                 "gieStain" : match[5]
             };
-            //do something with tmp
+        this.featureCallback(tmpCytoband)
         } 
         else if (/^\s*$/.test(line)) { //Do nothing, empty line
         } 
         else { //error
             line = line.replace( /\r?\n?$/g, '' );
-            throw "GFF3 parse error.  Cannot parse '"+line+"'.";
+            throw "Cytoband parse error.  Cannot parse '"+line+"'.";
         }
     },
 
@@ -58,7 +46,7 @@ return declare( null, {
     },
     
     _checkMatch : function (match) {
-        if (match && (match.chromStart <= match.chromEnd)){
+        if (match && (parseInt(match[2]) <= parseInt(match[3]))){ //start <= finish
             return true;
         } else {
             return false;

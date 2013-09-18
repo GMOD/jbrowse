@@ -1,13 +1,11 @@
 require([
             'dojo/request/xhr',
-            'dojo/_base/lang',
             'JBrowse/Browser',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature/Cytoband/Parser',
             'JBrowse/Store/SeqFeature/Cytoband'
         ], function(
             xhr,
-            lang,
             Browser,
             XHRBlob,
             Parser,
@@ -16,7 +14,7 @@ require([
 
 describe( 'Cytoband parser', function() {
    it( 'can parse Cytoband', function() {
-           var stuff = [];
+           var stuff = {features: []};
            var parseFinished, fetched;
            var p = new Parser({
                featureCallback : function(f) {
@@ -43,7 +41,7 @@ describe( 'Cytoband parser', function() {
 
 describe( 'Cytoband store', function() {
    it( 'can pass off files to the Parser', function() {
-           var p = new GFF3Store({
+           var p = new CytobandStore({
                                      browser: new Browser({ unitTestMode: true }),
                                      blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.gff3' ),
                                      refSeq: { name: 'ctgA', start: 0, end: 50001 }
