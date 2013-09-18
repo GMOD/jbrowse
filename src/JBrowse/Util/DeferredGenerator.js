@@ -25,7 +25,7 @@ var DeferredGenerator = declare( null, {
       return this;
   },
 
-  then: function( each, end, error ) {
+  each: function( each, end, error ) {
       var child = new DeferredGenerator( this );
       child._onEnd   = end;
       child._onError = error;
@@ -40,6 +40,10 @@ var DeferredGenerator = declare( null, {
       child._onEach  = each;
 
       return child;
+  },
+
+  then: function( end, error ) {
+      return this.each( null, end, error );
   },
 
   feed: function( item ) {
