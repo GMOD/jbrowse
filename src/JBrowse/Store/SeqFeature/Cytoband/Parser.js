@@ -22,7 +22,8 @@ return declare( null, {
  
         var cytobandRegex = // chrom \t chromStart \t chromEnd \t name \t gieStain 
             /(.+)\t(\d+)\t(\d+)\t(.+)\t(gneg|gpos50|gpos75|gpos25|gpos100|acen|gvar|stalk)/;
-
+        
+        var match = [];
         if (this._checkMatch(match = line.match(cytobandRegex))){
             var tmpCytoband = {
                 "chrom" : match[1],
@@ -42,7 +43,7 @@ return declare( null, {
     },
 
     finish : function (){
-
+        this.endCallback();
     },
     
     _checkMatch : function (match) {
