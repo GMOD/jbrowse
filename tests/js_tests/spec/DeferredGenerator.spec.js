@@ -18,11 +18,10 @@ describe('deferred generator', function() {
                                  }, 200 );
           });
           var items = [];
-          var done;
-          d.then( function(i) { return i*2; } )
-           .then( function(i) { return i+1; } )
-           .then( function(i) { items.push(i); },
-                  function() { done = true; } )
+          var done = '';
+          d.then( function(i) { return i*2; }, function() { done += 'one'; } )
+           .then( function(i) { return i+1; }, function() { done += 'two'; } )
+           .then( function(i) { items.push(i); }, function() { done += 'three'; } )
            .start();
           waitsFor( function() { return done; }, 800 );
           runs( function() {
@@ -31,6 +30,7 @@ describe('deferred generator', function() {
                     expect( items[2] ).toEqual( 7 );
                     expect( items[3] ).toEqual( 9 );
                     expect( items.length ).toEqual( 4 );
+                    expect( done ).toEqual('onetwothree');
           });
    });
 
