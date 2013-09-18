@@ -70,8 +70,8 @@ return declare( null, {
                 }
             }
             else {
-                contents = contents.replace(/\s*/,'');
-                this._return_item({ comment: contents });
+                // trim off the newline and return as a comment
+                this._return_item({ comment: contents.replace(/\s*$/,'') });
             }
         }
         else if( /^\s*$/.test( line ) ) {
