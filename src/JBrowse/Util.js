@@ -55,16 +55,13 @@ Util = {
     },
 
     loadJS: function( paths ) {
-        if( typeof paths == 'string' )
-            paths = [ paths ];
-
         var d = new Deferred();
         require( paths, function() {
             var modules = Array.prototype.slice.call( arguments );
 
             // check the loaded modules for success
             for( var i = 0; i<modules.length; i++ ) {
-                if( typeof modules[i] != 'object' ) {
+                if( typeof modules[i] != 'function' ) {
                     d.reject("could not load "+paths[i]+": "+modules[i]);
                     return;
                 }
