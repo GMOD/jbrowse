@@ -8,6 +8,13 @@ serve statically the files under tests/data if logged in.
 
 =cut
 
+=pod
+
+ http://localhost:3000/file/sample_data/raw/volvox/volvox-sorted.bam
+ http://localhost:3000/file/sample_data/raw/volvox/volvox-sorted.bam.bai
+
+=cut
+
 # Documentation browser under "/perldoc"
 plugin 'PODRenderer';
 
@@ -28,7 +35,7 @@ get '/login' => sub {
 
 post '/login' => sub {
     my $self = shift;
-    if( $self->param('password') eq 'seekrit!' ) {
+    if( $self->param('password') eq 'secret' ) {
         $self->session->{username} = $self->param('user');
         $self->redirect_to( delete( $self->session->{'after_login'} ) || '/' );
     }
@@ -43,19 +50,64 @@ get '/logout' => sub {
     $self->redirect_to('/');
 };
 
+sub set_cors_headers {
+    my ( $self ) = @_;
+    $self->res->headers->add( @$_ ) for (
+        ['Access-Control-Allow-Origin', '*' ],
+        ['Access-Control-Allow-Credentials', 'true'],
+        ['Access-Control-Allow-Methods', 'GET, POST, OPTIONS' ],
+        ['Access-Control-Allow-Headers', 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' ],
+        ['Access-Control-Expose-Headers', 'Content-Range' ],
+    );
+}
+
+options '/file/*path' => sub {
+    my $self = shift;
+    set_cors_headers( $self );
+    $self->render( text => 'null' );
+};
+
 get '/file/*path' => sub {
     my $self = shift;
     my $path = $self->stash('path');
-    unless( $self->session->{username} ) {
-        $self->session->{after_login} = "/file/$path";
-        return $self->redirect_to( "login" );
+
+    set_cors_headers( $self );
+
+    # unless( $self->session->{username} ) {
+    #     # $self->session->{after_login} = $self->url_with;
+    #     # return $self->redirect_to( "login" );
+    #     $self->render( text => 'Login required' );
+    #     $self->res->code(403);
+    #     return;
+    # }
+
+    $self->res->headers->content_type('application/octet-stream');
+
+    my $asset = Mojo::Asset::File->new( path => "./$path" );
+    my $range = $self->req->headers->range;
+    if( $range ) {
+        $range =~ s/\s//g;
+        my ( $start, $end ) = $range =~ /^bytes=(\d+)-(\d+)$/i;
+
+        unless( defined $start && defined $end ) {
+            $self->render( text => '501: Byte range format not supported.' );
+            $self->res->code( 501 );
+            return;
+        }
+
+        my $total = $asset->size;
+        if( $end >= $total ) {
+            $end = $total-1;
+        }
+        $asset->start_range( $start );
+        $asset->end_range( $end );
+        $self->res->headers->content_range("bytes $start-$end/$total");
+        $self->res->headers->content_length( $end-$start+1 );
+        $self->rendered( 206 );
     }
 
-    my $f = "data/$path";
-    #$self->render( text => Cwd::getcwd() );
-    $self->res->headers->content_type('application/octet-stream');
-    $self->res->content->asset( Mojo::Asset::File->new( path => $f ) );
-    $self->rendered(200);
+    $self->res->content->asset( $asset );
+    $self->rendered( $range ? 206 : 200 );
 };
 
 app->start;
