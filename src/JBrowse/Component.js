@@ -20,6 +20,7 @@ define([
        ) {
 
 var serialNumber = 0;
+
 var Component = declare( [ MessagingMixin, ConfigurationMixin ], {
 
     constructor: function( args ) {

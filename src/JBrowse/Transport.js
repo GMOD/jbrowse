@@ -63,10 +63,19 @@ return declare( null, {
    * Override this in subclasses to fetch a resource.
    * @returns Deferred
    */
-  _fetch: function( resourceDefinition, credentialSlots ) {
+  _fetch: function( resourceDefinition, opts, credentialSlots ) {
       var d = new Deferred();
       d.resolve(undefined);
       return d;
+  },
+
+  /**
+   * Return true if this transport driver knows how to fetch the given
+   * resource definition.  Override this in subclasses.
+   * @returns boolean
+   */
+  canHandle: function( resourceDefinition ) {
+      return false;
   },
 
   /**

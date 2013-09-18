@@ -14,12 +14,24 @@ define( [
  * @extends JBrowse.Store
  * @constructor
  */
-
 return declare( Store,
 {
 
     constructor: function( args ) {
         this.globalStats = {};
+    },
+
+    configSchema: {
+        slots: [
+            { name: 'name', type: 'string', defaultValue: function(store) { return 'Store '+store.serialNumber; } }
+        ]
+    },
+
+    openResource: function( resourceClass, resourceDef, opts ) {
+        var transport = this.browser.getTransportForResource( resourceDef );
+        if( ! transport )
+            throw new Error( 'no transport driver found for resource '+resourceDef );
+        return new resourceClass({ transport: transport, resource: resourceDef, fetchOpts: opts });
     },
 
     /**

@@ -34,7 +34,6 @@ var FileBlob = declare( null,
 
     _newlineCode: "\n".charCodeAt(0),
 
-
     fetchLines: function( lineCallback, endCallback, failCallback ) {
         var thisB = this;
         this.fetch( function( data ) {

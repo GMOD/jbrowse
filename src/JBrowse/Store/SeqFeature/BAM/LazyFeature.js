@@ -204,12 +204,11 @@ var Feature = Util.fastDeclare(
             return undefined;
     },
     subfeatures: function() {
-        if( ! this.store.createSubfeatures )
-            return undefined;
-
-        var cigar = this._get('cigar');
-        if( cigar )
-            return this._cigarToSubfeats( cigar );
+        if( this.store.getConf('createSubfeatures' ) ) {
+            var cigar = this._get('cigar');
+            if( cigar )
+                return this._cigarToSubfeats( cigar );
+        }
 
         return undefined;
     },

@@ -30,6 +30,7 @@ define( [
             'JBrowse/Store/Names/Hash',
             'JBrowse/FeatureFiltererMixin',
             'JBrowse/Auth/_AuthManagerMixin',
+            'JBrowse/Transport/_TransportManagerMixin',
             'JBrowse/View/RegionBrowser',
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
@@ -72,6 +73,7 @@ define( [
             NamesHashStore,
             FeatureFiltererMixin,
             AuthManagerMixin,
+            TransportManagerMixin,
             RegionBrowserPane,
             ConfigLoader,
             InfoDialog,
@@ -93,7 +95,7 @@ var dojof = Util.dojof;
  * @constructor
  * @param params an object with initial configuration
  */
-return declare( [JBrowseComponent,FeatureFiltererMixin,AuthManagerMixin], {
+return declare( [JBrowseComponent,FeatureFiltererMixin,AuthManagerMixin,TransportManagerMixin], {
 
 // set constructor method chaining to manual, we need to do some special things
 "-chains-": { constructor: "manual" },
@@ -119,11 +121,12 @@ constructor: function(params) {
 
     this.trackConfigsByName = {};
 
+    this._initTransportDrivers();
+
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
-
             // initialize our highlight if one was set in the config
             if( thisB.getConf('highlight') )
                 thisB.setHighlight( new Location( thisB.getConf('highlight') ) );
@@ -1091,32 +1094,13 @@ getStoreDeferred: function( storeName ) {
             return getStore;
         }
 
-        // use a Deferred for loading the store class, because
-        // require() doesn't really aggregate load requests correctly
-        var getStoreClass = this._storeClasses[storeClassName] || function() {
-            var loadClass = new Deferred();
-            require( [ storeClassName ], function( storeClass ) {
-                 if( typeof storeClass == 'string' )
-                     loadClass.reject( storeClass+' could not be loaded' );
-                 else
-                     loadClass.resolve( storeClass );
-                 loadClass = undefined;
-            });
-            return this._storeClasses[storeClassName] = loadClass;
-        }.call(this);
+        var getStoreClass = this._storeClasses[storeClassName] ||
+            ( this._storeClasses[storeClassName] = Util.loadJSClass(storeClassName));
 
         var thisB = this;
         getStoreClass.then(
             function( storeClass ) {
-                var storeArgs = {};
-                dojo.mixin( storeArgs, conf );
-                dojo.mixin( storeArgs,
-                            {
-                                config: conf,
-                                browser: thisB
-                            });
-
-                var store = new storeClass( storeArgs );
+                var store = new storeClass({ browser: thisB, config: conf });
                 getStore.resolve( store );
             },
             lang.hitch( getStore, 'reject' )

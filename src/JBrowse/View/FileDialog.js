@@ -9,6 +9,7 @@ define( [
             'dijit/Dialog',
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
+            'JBrowse/Component',
             './FileDialog/ResourceList',
             './FileDialog/TrackList'
         ],
@@ -23,15 +24,14 @@ define( [
             Dialog,
             Uploaded,
             ignore,
+            JBComponent,
             ResourceList,
             TrackList
         ) {
 
-return declare( null, {
+return declare( JBComponent, {
 
     constructor: function( args ) {
-        this.browser = args.browser;
-        this.config = dojo.clone( args.config || {} );
         this.browserSupports = {
             dnd: 'draggable' in document.createElement('span')
         };

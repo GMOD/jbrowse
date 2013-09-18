@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/_base/url',
            'dojo/request',
            'dojo/Deferred',
            'JBrowse/has',
@@ -11,6 +12,7 @@ define([
            declare,
            lang,
            array,
+           URL,
            request,
            Deferred,
            has,
@@ -23,8 +25,23 @@ return declare( TransportBase, {
       this.totalSizes = {};
   },
 
+  _normalizeResourceDefinition: function( resourceDefinition ) {
+      if( typeof resourceDefinition == 'string' )
+          return { url: resourceDefinition };
+      return resourceDefinition;
+  },
+
+  canHandle: function( resourceDefinition ) {
+      resourceDefinition = this._normalizeResourceDefinition( resourceDefinition );
+      var url = resourceDefinition.url;
+      if( ! url )
+          return false;
+      var protocol = ((new URL( url )).scheme || window.location.protocol.replace(':','')).toLowerCase();
+      return protocol == 'http' || protocol == 'https';
+  },
+
   _fetch: function( resourceDef, opts, credentialSlots ) {
-      var req = lang.mixin( {}, resourceDef, opts );
+      var req = lang.mixin( { headers: {} }, this._normalizeResourceDefinition( resourceDef ), opts );
 
       // give each credential an opportunity to decorate the HTTP
       // request
@@ -33,7 +50,14 @@ return declare( TransportBase, {
               cred.decorateHTTPRequest( req );
       });
 
-      if( resourceDef.handleAs == 'arraybuffer' ) {
+      // handle `range` arg
+      var range;
+      if(( range = req.range )) {
+          delete req.range;
+          req.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
+      }
+
+      if( req.handleAs == 'arraybuffer' ) {
           return this._binaryFetch( req, credentialSlots );
       }
       else {
@@ -42,15 +66,15 @@ return declare( TransportBase, {
   },
 
   _dojoFetch: function( req, credentialSlots ) {
-          var fetch = request( req.url, req );
-          return fetch;
+      return request( req.url, req );
   },
 
   _binaryFetch: function( request, credentialSlots ) {
+      request = lang.mixin( {}, request );
+
       var d = new Deferred();
 
       var req = new XMLHttpRequest();
-      var length;
       var url = request.url;
 
       // Safari browsers cache XHRs to a single resource, regardless
@@ -65,18 +89,22 @@ return declare( TransportBase, {
       }
 
       req.open('GET', url, true );
+
       if( req.overrideMimeType )
           req.overrideMimeType('text/plain; charset=x-user-defined');
-      if (request.range) {
-          req.setRequestHeader('Range', 'bytes=' + request.range[0] + '-' + request.range[1]);
-          length = request.range[1] - request.range[0] + 1;
+
+      for( var header in request.headers ) {
+          try {
+              req.setRequestHeader( header, request.headers[header] );
+          } catch(e) { console.error(e); }
       }
+
       req.responseType = 'arraybuffer';
 
       var respond = function( response ) {
           var nocache = /no-cache/.test( req.getResponseHeader('Cache-Control') )
               || /no-cache/.test( req.getResponseHeader('Pragma') );
-          d.resolve( response, null, {nocache: nocache } );
+          d.resolve( response );
       };
 
       req.onreadystatechange = dojo.hitch( this, function() {

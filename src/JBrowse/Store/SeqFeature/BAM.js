@@ -1,3 +1,6 @@
+/**
+ * Data backend for reading feature data directly from a BAM file.
+ */
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
@@ -8,7 +11,8 @@ define( [
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
-            'JBrowse/Model/XHRBlob',
+            'JBrowse/Model/Resource/Bytes',
+            'JBrowse/Model/Resource/BGZBytes',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             './BAM/File'
         ],
@@ -22,48 +26,49 @@ define( [
             SeqFeatureStore,
             DeferredStatsMixin,
             DeferredFeaturesMixin,
-            XHRBlob,
+            Bytes,
+            BGZBytes,
             GlobalStatsEstimationMixin,
             BAMFile
         ) {
 
 var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
-
-/**
- * @lends JBrowse.Store.SeqFeature.BAM
- */
 {
-    /**
-     * Data backend for reading feature data directly from a
-     * web-accessible BAM file.
-     *
-     * @constructs
-     */
+
+    configSchema: {
+        slots: [
+            { name: 'createSubfeatures', type: 'boolean', defaultValue: false },
+            { name: 'bam', type: 'object|string', defaultValue: function( store ) {
+                  var urlT = store.getConf('urlTemplate' );
+                  if( ! urlT )
+                      throw "Must provide either `bam` or config `urlTemplate`";
+                  return store.resolveUrl( urlT );
+              }
+            },
+            { name: 'bai', type: 'object|string', defaultValue: function( store ) {
+                  return store.resolveUrl( store.getConf('baiUrlTemplate') );
+              }
+            },
+            { name: 'urlTemplate', type: 'string' },
+            { name: 'baiUrlTemplate', type: 'string', defaultValue: function( store ) { return store.getConf('urlTemplate')+'.bai'; } },
+            { name: 'chunkSizeLimit', type: 'integer', defaultValue: 5000000 }
+        ]
+    },
+
     constructor: function( args ) {
-
-        this.createSubfeatures = args.subfeatures;
-
-        var bamBlob = args.bam ||
-            new XHRBlob( this.resolveUrl(
-                             args.urlTemplate || 'data.bam'
-                         )
-                       );
-
-        var baiBlob = args.bai ||
-            new XHRBlob( this.resolveUrl(
-                             args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
-                         )
-                       );
+        var bamResource = this.openResource( BGZBytes, this.getConf('bam') );
+        var baiResource = this.openResource( Bytes,    this.getConf('bai') );
 
         this.bam = new BAMFile({
                 store: this,
-                data: bamBlob,
-                bai: baiBlob,
-                chunkSizeLimit: args.chunkSizeLimit
+                data: bamResource,
+                bai: baiResource,
+                chunkSizeLimit: this.getConf('chunkSizeLimit')
         });
 
-        this.source = ( bamBlob.url  ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
-                        bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
+        this.source = ( bamResource.url  ? bamResource.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
+                        bamResource.blob ? bamResource.blob.name : undefined )
+                        || undefined;
 
         if( ! has( 'typed-arrays' ) ) {
             this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );

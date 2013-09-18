@@ -41,7 +41,7 @@ return declare( null, {
           throw new Error( "credentials definition has no `type`: "+JSON.stringify( def ) );
       if( classname.indexOf('/') == -1 )
           classname = "JBrowse/Auth/Credential/"+classname;
-      return Util.loadJS( classname )
+      return Util.loadJSClass( classname )
           .then( function( slotClass ) {
                      return new SlotClass({ browser: thisB.browser, config: def });
                  });

@@ -72,6 +72,13 @@ Util = {
         return d;
     },
 
+    loadJSClass: function( classname ) {
+        return Util.loadJS( [ classname ] )
+            .then( function( modules ) {
+                       return modules[0];
+                   });
+    },
+
 
     /**
      * Fast, simple class-maker, used for classes that need speed more

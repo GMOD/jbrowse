@@ -71,21 +71,16 @@ var BamFile = declare( null,
     },
 
     _readBAI: function( successCallback, failCallback ) {
-        // Do we really need to fetch the whole thing? :-(
-        this.bai.fetch( dojo.hitch( this, function(header) {
-            if (!header) {
-                dlog("No data read from BAM index (BAI) file");
-                failCallback("No data read from BAM index (BAI) file");
-                return;
-            }
+        if( ! has('typed-arrays') ) {
+            dlog('Web browser does not support typed arrays');
+            failCallback('Web browser does not support typed arrays');
+            return;
+        }
 
-            if( ! has('typed-arrays') ) {
-                dlog('Web browser does not support typed arrays');
-                failCallback('Web browser does not support typed arrays');
-                return;
-            }
-
-            var uncba = new Uint8Array(header);
+        // Do we really need to fetch the whole thing? >:-{
+        this.bai.fetch()
+            .then( dojo.hitch( this, function(header) {
+            var uncba = new Uint8Array( header );
             if( readInt(uncba, 0) != BAI_MAGIC) {
                 dlog('Not a BAI file');
                 failCallback('Not a BAI file');
@@ -142,11 +137,11 @@ var BamFile = declare( null,
         // up to the start of the BGZF block that the first
         // alignment is in, plus 64KB, which should get us that whole
         // BGZF block, assuming BGZF blocks are no bigger than 64KB.
-        thisB.data.read(
+        thisB.data.fetchRange(
             0,
-            thisB.minAlignmentVO ? thisB.minAlignmentVO.block + 65535 : null,
-            function(r) {
-                var unc = BAMUtil.unbgzf(r);
+            thisB.minAlignmentVO ? thisB.minAlignmentVO.block + 65535 : null
+        ).then(
+            function( unc ) {
                 var uncba = new Uint8Array(unc);
 
                 if( readInt(uncba, 0) != BAM_MAGIC) {
@@ -169,9 +164,8 @@ var BamFile = declare( null,
         // minAlignment VO is just flat wrong.
         // if headLen is not too big, this will just be in the
         // RemoteBinaryFile cache
-        thisB.data.read( 0, start+refSeqBytes,
-                         function(r) {
-            var unc = BAMUtil.unbgzf(r);
+        thisB.data.fetchRange( 0, start+refSeqBytes )
+             .then( function(unc) {
             var uncba = new Uint8Array(unc);
 
             var nRef = readInt(uncba, start );
@@ -409,16 +403,12 @@ var BamFile = declare( null,
         var features = [];
         // console.log('chunk '+chunk+' size ',Util.humanReadableNumber(size));
 
-        thisB.data.read( chunk.minv.block, chunk.fetchedSize(), function(r) {
-            try {
-                var data = BAMUtil.unbgzf(r, chunk.maxv.block - chunk.minv.block + 1);
-                thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
-            } catch( e ) {
-                callback( null, new Errors.Fatal(e) );
-            }
-        }, function( e ) {
-            callback( null, new Errors.Fatal(e) );
-        });
+        thisB.data.fetchRange( chunk.minv.block, chunk.fetchedSize() )
+             .then( function(data) {
+                        thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
+                    }, function( e ) {
+                        callback( null, new Errors.Fatal(e) );
+                    });
     },
 
     readBamFeatures: function(ba, blockStart, sink, callback ) {
