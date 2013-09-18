@@ -73,13 +73,13 @@ get '/file/*path' => sub {
 
     set_cors_headers( $self );
 
-    # unless( $self->session->{username} ) {
-    #     # $self->session->{after_login} = $self->url_with;
-    #     # return $self->redirect_to( "login" );
-    #     $self->render( text => 'Login required' );
-    #     $self->res->code(403);
-    #     return;
-    # }
+    unless( $self->session->{username} ) {
+        # $self->session->{after_login} = $self->url_with;
+        # return $self->redirect_to( "login" );
+        $self->render( text => 'Login required' );
+        $self->res->code(403);
+        return;
+    }
 
     $self->res->headers->content_type('application/octet-stream');
 
