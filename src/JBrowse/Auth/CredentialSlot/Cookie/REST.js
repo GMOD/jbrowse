@@ -47,26 +47,27 @@ return declare( CredentialSlot, {
       var resolve = lang.hitch(d, 'resolve');
       var reject = lang.hitch(d,   'reject');
 
-      this._promptForData( 'Login', this.getConf('loginRequest' ) )
-          .then( function( loginRequest ) {
-                     var t = thisB.browser.getTransportForResource(loginRequest);
-                     if( ! t ) {
-                         reject('no transport found for login request');
-                         return;
-                     }
-                     function tryLogin( attempt ) {
+      function tryLogin( attempt ) {
+          thisB._promptForData( 'Login', thisB.getConf('loginRequest' ) )
+              .then( function( loginRequest ) {
+                         var t = thisB.browser.getTransportForResource(loginRequest);
+                         if( ! t ) {
+                             reject('no transport found for login request');
+                             return;
+                         }
                          t.fetch(loginRequest)
-                          .then( resolve,
-                                 function(error) {
-                                     if( thisB.shouldRetryLogin( error, loginRequest, attempt ) )
-                                         tryLogin(++attempt);
-                                     else
-                                         reject(error);
-                                 });
-                     }
+                             .then( resolve,
+                                    function(error) {
+                                        if( thisB.shouldRetryLogin( error, loginRequest, attempt ) )
+                                            tryLogin(++attempt);
+                                        else
+                                            reject(error);
+                                    });
+                     }, reject );
+      }
 
-                     tryLogin(1);
-                 }, reject );
+      tryLogin( 1 );
+
       return d;
   },
 

@@ -42,7 +42,7 @@ return declare( null, {
       if( ! classname )
           throw new Error( "credentials definition has no `type`: "+JSON.stringify( def ) );
       if( classname.indexOf('/') == -1 )
-          classname = "JBrowse/Auth/CredentialSlot/"+classname;
+          classname = "JBrowse/Auth/CredentialSlot/"+classname.replace(/\./g,'/');
 
       var thisB = this;
       return Util.loadJSClass( classname )
