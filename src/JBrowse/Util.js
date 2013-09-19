@@ -25,35 +25,6 @@ Util = {
         return this.addCommas.apply( this, arguments );
     },
 
-
-    /**
-     * Coerce a value of unknown type to a boolean, treating string 'true'
-     * and 'false' as the values they indicate, and string numbers as
-     * numbers.
-     * @private
-     */
-    coerceBoolean: function(val) {
-        if( typeof val == 'string' ) {
-            val = val.toLowerCase();
-            if( val == 'true' ) {
-                return true;
-            }
-            else if( val == 'false' )
-            return false;
-            else
-                return parseInt(val);
-        }
-        else if( typeof val == 'boolean' ) {
-            return val;
-        }
-        else if( typeof val == 'number' ) {
-            return !!val;
-        }
-        else {
-            return true;
-        }
-    },
-
     loadJS: function( paths ) {
         var d = new Deferred();
         require( paths, function() {
@@ -79,7 +50,6 @@ Util = {
                    });
     },
 
-
     /**
      * Fast, simple class-maker, used for classes that need speed more
      * than they need dojo.declare's nice features.
@@ -102,34 +72,6 @@ Util = {
             return e.button == 2;
         else
             return false;
-    },
-
-    getViewportWidth: function() {
-        var width = 0;
-        if( document.documentElement && document.documentElement.clientWidth ) {
-            width = document.documentElement.clientWidth;
-        }
-        else if( document.body && document.body.clientWidth ) {
-            width = document.body.clientWidth;
-        }
-        else if( window.innerWidth ) {
-            width = window.innerWidth - 18;
-        }
-        return width;
-    },
-
-    getViewportHeight: function() {
-        var height = 0;
-        if( document.documentElement && document.documentElement.clientHeight ) {
-            height = document.documentElement.clientHeight;
-        }
-        else if( document.body && document.body.clientHeight ) {
-            height = document.body.clientHeight;
-        }
-        else if( window.innerHeight ) {
-            height = window.innerHeight - 18;
-        }
-        return height;
     },
 
     findNearest: function(numArray, num) {
@@ -169,47 +111,6 @@ Util = {
                                     }
                                     return "{" + group + "}";
                                 });
-    },
-
-    /**
-     * function to load a specified resource only once
-     * @param {Object}   dojoXhrArgs object containing arguments for dojo.xhrGet,
-     *                               like <code>url</code> and <code>handleAs</code>
-     * @param {Object}   stateObj object that stores the state of the load
-     * @param {Function} successCallback function to call on a successful load
-     * @param {Function} errorCallback function to call on an unsuccessful load
-     */
-    maybeLoad: function ( dojoXhrArgs, stateObj, successCallback, errorCallback) {
-        if (stateObj.state) {
-            if ("loaded" == stateObj.state) {
-                successCallback(stateObj.data);
-            } else if ("error" == stateObj.state) {
-                errorCallback();
-            } else if ("loading" == stateObj.state) {
-                stateObj.successCallbacks.push(successCallback);
-                if (errorCallback) stateObj.errorCallbacks.push(errorCallback);
-            }
-        } else {
-            stateObj.state = "loading";
-            stateObj.successCallbacks = [successCallback];
-            stateObj.errorCallbacks = [errorCallback];
-
-            var args = dojo.clone( dojoXhrArgs );
-            args.load = function(o) {
-                stateObj.state = "loaded";
-                stateObj.data = o;
-                var cbs = stateObj.successCallbacks;
-                for (var c = 0; c < cbs.length; c++) cbs[c](o);
-            };
-            args.error = function(error) {
-                console.error(''+error);
-                stateObj.state = "error";
-                var cbs = stateObj.errorCallbacks;
-                for (var c = 0; c < cbs.length; c++) cbs[c]();
-            };
-
-            dojo.xhrGet( args );
-        }
     },
 
     /**
@@ -443,23 +344,6 @@ Util = {
               }
         }
         return null;
-    },
-
-    /**
-     * Wrap a handler function to be called 1ms later in a window timeout.
-     * This will usually give a better stack trace for figuring out where
-     * errors are happening.
-     */
-    debugHandler: function( context, func ) {
-        return function() {
-            var args = arguments;
-            window.setTimeout( function() {
-                                   var f = func;
-                                   if( typeof f == 'string' )
-                                       f = context[f];
-                                   f.apply(context,args);
-                               }, 1);
-        };
     },
 
     ucFirst: function(str) {
