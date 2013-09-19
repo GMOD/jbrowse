@@ -450,7 +450,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         return domConstruct.create(
             'div', {
                 className: 'error',
-                innerHTML: '<h2>Error</h2><div class="text">An error was encountered when displaying this track.</div>'
+                innerHTML: '<h2>Oops!</h2><div class="text">There was a problem displaying this track.</div>'
                     +( message ? '<div class="codecaption">Diagnostic message</div><code>'+message+'</code>' : '' ),
                 title: 'An error occurred'
             }, parent );
