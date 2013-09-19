@@ -20,7 +20,7 @@ plugin 'PODRenderer';
 
 app->secret('secret passphrase for test app 1');
 
-get '/' => sub {
+get '/home' => sub {
   my $self = shift;
   $self->render('index');
 };
@@ -28,7 +28,7 @@ get '/' => sub {
 get '/login' => sub {
     my $self = shift;
     if( $self->session->{username} ) {
-        return $self->redirect_to('/');
+        return $self->redirect_to('/home');
     }
     $self->render( 'login' );
 };
@@ -37,7 +37,7 @@ post '/login' => sub {
     my $self = shift;
     if( $self->param('password') eq 'secret' ) {
         $self->session->{username} = $self->param('user');
-        $self->redirect_to( delete( $self->session->{'after_login'} ) || '/' );
+        $self->redirect_to( delete( $self->session->{'after_login'} ) || '/home' );
     }
     else {
         $self->redirect_to('login');
@@ -47,8 +47,59 @@ post '/login' => sub {
 get '/logout' => sub {
     my $self = shift;
     delete $self->session->{username};
-    $self->redirect_to('/');
+    $self->redirect_to('/home');
 };
+
+post '/rest/login' => sub {
+    my $self = shift;
+    if( $self->session->{username} ) {
+        $self->render(json => { success => 'true' });
+    } elsif( $self->param('password') eq 'secret' ) {
+        $self->session->{username} = $self->param('user');
+        $self->render(json => { success => 'true' });
+    } else {
+        $self->render(json => { success => 'false', error => 'incorrect password' });
+        $self->res->code( 400 );
+    }
+};
+
+post '/rest/logout' => sub {
+    my $self = shift;
+    delete $self->session->{username};
+    $self->render(json => { success => 'true'});
+};
+
+options '/file/sample_data/*path' => sub {
+    my $self = shift;
+    set_cors_headers( $self );
+    $self->render( text => 'null' );
+};
+get '/file/sample_data/*path' => sub {
+    my $self = shift;
+    my $path = $self->stash('path');
+
+    unless( $self->session->{username} ) {
+        # $self->session->{after_login} = $self->url_with;
+        # return $self->redirect_to( "login" );
+        $self->render( text => 'Login required' );
+        $self->res->code(403);
+        return;
+    }
+
+    serve_static( $self, "./sample_data/$path" );
+};
+
+
+app->hook( before_dispatch => sub {
+              my $c = shift;
+              push @{$c->req->url->base->path->trailing_slash(1)},
+                  shift @{$c->req->url->path->leading_slash(0)};
+          });
+app->start;
+
+exit;
+
+########## HELPER SUBS ###########
 
 sub set_cors_headers {
     my ( $self ) = @_;
@@ -60,30 +111,14 @@ sub set_cors_headers {
         ['Access-Control-Expose-Headers', 'Content-Range' ],
     );
 }
-
-options '/file/*path' => sub {
-    my $self = shift;
-    set_cors_headers( $self );
-    $self->render( text => 'null' );
-};
-
-get '/file/*path' => sub {
-    my $self = shift;
-    my $path = $self->stash('path');
+sub serve_static {
+    my ( $self, $path ) = @_;
 
     set_cors_headers( $self );
-
-    unless( $self->session->{username} ) {
-        # $self->session->{after_login} = $self->url_with;
-        # return $self->redirect_to( "login" );
-        $self->render( text => 'Login required' );
-        $self->res->code(403);
-        return;
-    }
 
     $self->res->headers->content_type('application/octet-stream');
 
-    my $asset = Mojo::Asset::File->new( path => "./$path" );
+    my $asset = Mojo::Asset::File->new( path => $path );
     my $range = $self->req->headers->range;
     if( $range ) {
         $range =~ s/\s//g;
@@ -108,9 +143,9 @@ get '/file/*path' => sub {
 
     $self->res->content->asset( $asset );
     $self->rendered( $range ? 206 : 200 );
-};
+}
 
-app->start;
+
 __DATA__
 
 @@ login.html.ep
@@ -134,9 +169,9 @@ __DATA__
   <body>
     <div style="float: right; width: 20em; font-weight: bold">
         <% if( session('username') ) { %>
-            Hello <%=session 'username'%>! <a href="/logout">Log out</a>
+            Hello <%=session 'username'%>! <a href="/testapp1/logout">Log out</a>
         <% } else { %>
-            <a href="/login">Log in</a>
+            <a href="/testapp1/login">Log in</a>
         <% } %>
     </div>
     <%= content %>
