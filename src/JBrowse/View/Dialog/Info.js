@@ -1,12 +1,21 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/_base/lang',
            'dijit/focus',
            'JBrowse/View/Dialog/WithActionBar',
            'dojo/on',
            'dijit/form/Button'
        ],
-       function( declare, array, focus, ActionBarDialog, on, dijitButton ) {
+       function(
+           declare,
+           array,
+           lang,
+           focus,
+           ActionBarDialog,
+           on,
+           dijitButton
+       ) {
 
 return declare( ActionBarDialog,
 
@@ -23,7 +32,7 @@ return declare( ActionBarDialog,
             new dijitButton({
                 className: 'OK',
                 label: 'OK',
-                onClick: dojo.hitch(this,'hide'),
+                onClick: lang.hitch(this,'hide'),
                 focus: false
             })
             .placeAt( actionBar);
@@ -35,20 +44,16 @@ return declare( ActionBarDialog,
 
         var thisB = this;
 
-        // holds the handles for the extra events we are registering
-        // so we can clean them up in the hide() method
-        this._extraEvents = [];
-
         // make it so that clicking outside the dialog (on the underlay) will close it
         var underlay = ((dijit||{})._underlay||{}).domNode;
         if( underlay ) {
-            this._extraEvents.push(
-                on( underlay, 'click', dojo.hitch( this, 'hideIfVisible' ))
+            this.own(
+                on( underlay, 'click', lang.hitch( this, 'hideIfVisible' ))
             );
         }
 
         // also make ESCAPE or ENTER close the dialog box
-        this._extraEvents.push(
+        this.own(
             on( document.body, 'keydown', function( evt ) {
                     if( [ dojo.keys.ESCAPE, dojo.keys.ENTER ].indexOf( evt.keyCode ) >= 0 )
                         thisB.hideIfVisible();
@@ -65,10 +70,7 @@ return declare( ActionBarDialog,
 
     hide: function() {
         this.inherited(arguments);
-
-        array.forEach( this._extraEvents, function( e ) {
-                          e.remove();
-                      });
+        window.setTimeout( lang.hitch( this, 'destroyRecursive' ), 1000 );
     }
 
 });
