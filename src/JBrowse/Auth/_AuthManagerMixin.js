@@ -28,22 +28,26 @@ return declare( null, {
    * currently configured credential slots.
    */
   getCredentialSlots: function() {
-      var thisB = this;
       return this._credentialSlots || ( this._credentialSlots = function() {
           var conf = this.getConf('credentials');
-          return all( array.map( conf, lang.hitch( thisB, '_inflateSlotDefinition' )));
+          return all( array.map( conf, lang.hitch( this, '_inflateSlotDefinition' )));
       }.call(this) );
   },
 
+  /**
+   * Instantiate a config slot object from a config definition.
+   */
   _inflateSlotDefinition: function( def ) {
       var classname = def.type;
       if( ! classname )
           throw new Error( "credentials definition has no `type`: "+JSON.stringify( def ) );
       if( classname.indexOf('/') == -1 )
-          classname = "JBrowse/Auth/Credential/"+classname;
+          classname = "JBrowse/Auth/CredentialSlot/"+classname;
+
+      var thisB = this;
       return Util.loadJSClass( classname )
           .then( function( slotClass ) {
-                     return new SlotClass({ browser: thisB.browser, config: def });
+                     return new slotClass({ browser: thisB.browser, config: def });
                  });
   },
 
@@ -59,18 +63,23 @@ return declare( null, {
                 });
   },
 
-  // deferred
+  /**
+   * Return a Deferred list of all the needed credentials for a
+   * resource, making sure each one is ready before resolving.
+   */
   getCredentialsForResource: function( resourceDefinition ) {
       return this.getCredentialSlots()
           .then( function( slots ) {
-              var credentials = array.filter(
+              var neededCredentials = array.filter(
                   slots,
                   function( credentialSlot ) {
                       return credentialSlot.neededFor( resourceDefinition );
                   });
-              return credentials;
-              // return all( array.map( credentials, function(c) { return c.ready(); } ) )
-              //           .then( lang.hitch( d, 'resolve' ), lang.hitch( d, 'reject' ) );
+              return all( array.map( neededCredentials, function(c) {
+                                         return c.ready()
+                                                 .then(function(){ return c; });
+                                     })
+                        );
           });
   }
 });

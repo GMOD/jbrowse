@@ -1,11 +1,13 @@
 define([
            'dojo/_base/declare',
            'dojo/Deferred',
+           'JBrowse/Util',
            'JBrowse/Component'
        ],
        function(
            declare,
            Deferred,
+           Util,
            Component
        ) {
 
@@ -13,21 +15,21 @@ return declare( Component, {
 
   configSchema: {
       slots: [
-          { name: 'type', type: 'string' },
+          { name: 'type', type: 'string', required: true },
 
-          { name: 'baseUrl', type: 'string' },
-          { name: 'urlRegex', type: 'string' },
-          { name: 'urlRegexOpts', type: 'string', defaultValue: '' },
-          { name: 'predicate', type: 'function', defaultValue: function( slot, resourceDef ) {
+          { name: 'urlPrefix', type: 'string' },
+          { name: 'urlRegExp', type: 'string' },
+          { name: 'urlRegExpOpts', type: 'string', defaultValue: 'i' },
+          { name: 'predicate', type: 'boolean', defaultValue: function( slot, resourceDef ) {
                 var url = resourceDef.url || '';
-                var re = this.getConf('urlRegex');
+                var re = slot.getConf('urlRegExp');
                 if( re ) {
-                    re = new RegExp( re, this.getConf('urlRegexOpts') );
+                    re = new RegExp( re, slot.getConf('urlRegExpOpts') );
                     return re.test( url );
                 }
-                var base = this.getConf('baseUrl');
-                if( base ) {
-                    return url.indexOf( base ) != -1;
+                var prefix = slot.getConf('urlPrefix');
+                if( prefix ) {
+                    return url.indexOf( prefix ) != -1;
                 }
                 return false;
             }
@@ -37,10 +39,7 @@ return declare( Component, {
   },
 
   ready: function() {
-      var thisB = this;
-      return this._ready || ( this._ready = function() {
-          return thisB._getCredentials();
-      });
+      return this._ready || ( this._ready = this._getCredentials() );
   },
 
   neededFor: function( resourceDefinition ) {
@@ -51,10 +50,9 @@ return declare( Component, {
       throw new Error('override either _getCredentials() or ready() in a subclass');
   },
 
-  clear: function() {
-      var d = new Deferred();
-      d.resolve();
-      return d;
+  release: function() {
+      delete this._ready;
+      return Util.resolved(true);
   }
 
   // implement this to decorate HTTP requests with tokens and so forth

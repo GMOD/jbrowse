@@ -25,6 +25,16 @@ Util = {
         return this.addCommas.apply( this, arguments );
     },
 
+    /**
+     * Returns a Deferred that is already resolved with the given
+     * value.
+     */
+    resolved: function( value ) {
+        var d = new Deferred();
+        d.resolve( value );
+        return d;
+    },
+
     loadJS: function( paths ) {
         var d = new Deferred();
         require( paths, function() {

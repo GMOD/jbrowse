@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
+           'dojo/when',
            'JBrowse/Store/ByteRangeCache',
            'JBrowse/Errors'
        ],
@@ -9,6 +10,7 @@ define([
            declare,
            lang,
            Deferred,
+           when,
            ByteRangeCache,
            JBrowseErrors
        ) {
@@ -47,15 +49,16 @@ return declare( null, {
           .then(
                resolve,
                function( error ) {
-                   var retry = thisB.handleError( error );
-                   if( retry ) {
-                       thisB.fetch( resourceDefinition )
-                           .then( resolve, reject );
-                  }
-                  else
-                      reject( error );
-              });
-
+                   when( thisB.handleError( error ) )
+                       .then( function( retry ) {
+                                  if( retry ) {
+                                      thisB.fetch( resourceDefinition )
+                                          .then( resolve, reject );
+                                  }
+                                  else
+                                      reject( error );
+                              });
+               });
       return deferred;
   },
 

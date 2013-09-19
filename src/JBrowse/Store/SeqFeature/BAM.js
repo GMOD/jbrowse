@@ -95,7 +95,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
             }
             thisB._estimateGlobalStats( { name: query.ref, start: 0, end: thisB.bam.indexToChr[ i ].length } )
                 .then( statsCallback, errorCallback );
-        });
+        }, errorCallback );
     },
 
     /**
