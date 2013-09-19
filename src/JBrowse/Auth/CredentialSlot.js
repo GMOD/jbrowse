@@ -53,9 +53,16 @@ return declare( Component, {
   release: function() {
       delete this._ready;
       return Util.resolved(true);
+  },
+
+  // TODO: implement this stub
+  _promptForData: function( title, data ) {
+      data.prompted = false;
+      return Util.resolved( data );
   }
 
-  // implement this to decorate HTTP requests with tokens and so forth
+  // implement this in a subclass to decorate HTTP requests with
+  // auth tokens and so forth
   // decorateHTTPRequest: function( req ) {
   // }
 
