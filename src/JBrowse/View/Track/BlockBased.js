@@ -11,7 +11,7 @@ define( [
             'dojo/query',
             'dojo/on',
             'dijit/Destroyable',
-            'JBrowse/View/InfoDialog',
+            'JBrowse/View/Dialog/Info',
             'dijit/Dialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',

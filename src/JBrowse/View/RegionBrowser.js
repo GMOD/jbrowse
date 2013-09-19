@@ -25,7 +25,7 @@ define([
            'JBrowse/BehaviorManager',
            './RegionBrowser/Animation/Zoomer',
            './RegionBrowser/Animation/Slider',
-           'JBrowse/View/InfoDialog',
+           'JBrowse/View/Dialog/Info',
            'JBrowse/Model/Location'
        ], function(
            declare,

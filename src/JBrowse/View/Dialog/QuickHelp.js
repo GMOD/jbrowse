@@ -1,6 +1,6 @@
 define( [
             'dojo/_base/declare',
-            'JBrowse/View/InfoDialog'
+            'JBrowse/View/Dialog/Info'
         ],
         function(
             declare,

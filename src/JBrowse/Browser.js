@@ -33,7 +33,7 @@ define( [
             'JBrowse/Transport/_TransportManagerMixin',
             'JBrowse/View/RegionBrowser',
             'JBrowse/ConfigManager',
-            'JBrowse/View/InfoDialog',
+            'JBrowse/View/Dialog/Info',
             'JBrowse/View/FileDialog',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
