@@ -3,7 +3,9 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/_base/url',
-           'dojo/request',
+           'dojo/request/xhr',
+           'dojo/request/iframe',
+           'dojo/request/script',
            'dojo/Deferred',
            'JBrowse/has',
            'JBrowse/Transport'
@@ -13,7 +15,9 @@ define([
            lang,
            array,
            URL,
-           request,
+           xhrReq,
+           iframeReq,
+           scriptReq,
            Deferred,
            has,
            TransportBase
@@ -66,7 +70,12 @@ return declare( TransportBase, {
   },
 
   _dojoFetch: function( req, credentialSlots ) {
-      return request( req.url, req );
+      if( req.requestTechnique == 'iframe' )
+          return iframeReq( req.url, req );
+      else if( req.requestTechnique == 'script' )
+          return scriptReq( req.url, req );
+      else
+          return xhrReq( req.url, req );
   },
 
   _binaryFetch: function( request, credentialSlots ) {
@@ -155,6 +164,5 @@ return declare( TransportBase, {
         else
             return 'Unable to fetch '+url;
     }
-
 });
 });
