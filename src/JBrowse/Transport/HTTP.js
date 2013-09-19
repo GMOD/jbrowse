@@ -8,7 +8,7 @@ define([
            'dojo/request/script',
            'dojo/Deferred',
            'JBrowse/has',
-           'JBrowse/Transport'
+           './_RequestBased'
        ],
        function(
            declare,
@@ -20,10 +20,10 @@ define([
            scriptReq,
            Deferred,
            has,
-           TransportBase
+           RequestBasedTransport
        ) {
 
-return declare( TransportBase, {
+return declare( RequestBasedTransport, {
 
   constructor: function() {
       this.totalSizes = {};
