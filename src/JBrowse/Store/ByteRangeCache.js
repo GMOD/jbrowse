@@ -2,12 +2,22 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/Deferred',
            'JBrowse/has',
            'JBrowse/Util',
            'JBrowse/Store/LRUCache',
            'jszlib/arrayCopy'
        ],
-       function( declare, lang, array, has, Util, LRUCache, arrayCopy ) {
+       function(
+           declare,
+           lang,
+           array,
+           Deferred,
+           has,
+           Util,
+           LRUCache,
+           arrayCopy
+       ) {
 
 var Chunk = Util.fastDeclare({
     constructor: function( values ) {
@@ -137,10 +147,10 @@ return declare( null,
 
         var needToFetch = array.filter( goldenPath, function(n) { return ! n.value; });
 
-        this._log( 'need to fetch', needed );
+        this._log( 'need to fetch', needToFetch );
 
         // now fetch all the needed chunks
-        // remember that chunk records in the 'needed' array are also
+        // remember that chunk records in the 'needToFetch' array are also
         // present in the 'goldenPath' array, so setting their value
         // will affect both places
         if( needToFetch.length ) {
@@ -156,8 +166,8 @@ return declare( null,
                         else if( ++fetchedCount == needToFetch.length )
                             callback( goldenPath );
                     },
-                    function( chunk ) {
-                        fetchCallback( chunk.url, chunk.start, chunk.end );
+                    function( chunk, callback ) {
+                        fetchCallback( chunk.url, chunk.start, chunk.end, callback );
                     }
                 );
             }, this );
@@ -204,26 +214,27 @@ return declare( null,
     },
 
     /**
-     * @param args.key     {String|Object} unique resource identifier, such as the URL being fetched
-     * @param args.start   {Number|undefined} start byte offset
-     * @param args.end     {Number|undefined} end byte offset
-     * @param args.success {Function} success callback
-     * @param args.failure {Function} failure callback
-     * @param args.fetch   {Function} fetch callback
+     * @param key     {String|Object} unique resource identifier, such as the URL being fetched
+     * @param start   {Number|undefined} start byte offset
+     * @param end     {Number|undefined} end byte offset
+     * @param fetch   {Function} fetch callback
      */
-    get: function( args ) {
+    get: function( key, start, end, fetch ) {
+        var d = new Deferred();
+        var resolve = lang.hitch( d, 'resolve' );
+        var reject = lang.hitch( d, 'reject' );
+
         if( ! has('typed-arrays') ) {
-            (args.failure || function(m) { console.error(m); })('This web browser lacks support for JavaScript typed arrays.');
-            return;
+            d.reject('This web browser lacks support for JavaScript typed arrays.');
+            return d;
         }
 
-        if( /^\[object /i.test( args.key ) )
+        if( /^\[object /i.test( key ) )
             throw new Error( "key must either be a unique string, or have a toString method that returns a unique string" );
 
-        this._log( 'get', args.key, args.start, args.end );
+        this._log( 'get', key, start, end );
 
-        var start = args.start || 0;
-        var end = args.end;
+        start = start || 0;
         if( start && !end )
             throw "cannot specify a fetch start without a fetch end";
 
@@ -232,19 +243,12 @@ return declare( null,
         if( end < 0 )
             throw "end cannot be negative!";
 
-
-        if( ! args.success )
-            throw new Error('success callback required');
-        if( ! args.failure )
-            throw new Error('failure callback required');
-
         this._fetchChunks(
-            args.key,
+            key,
             start,
             end,
-            dojo.hitch( this,  function( chunks ) {
-
-                 var totalSize = this.totalSizes[ args.key ];
+            lang.hitch( this,  function( chunks ) {
+                 var totalSize = this.totalSizes[ key ];
 
                  this._assembleChunks(
                          start,
@@ -252,21 +256,18 @@ return declare( null,
                          function( resultBuffer ) {
                              if( typeof totalSize == 'number' )
                                  resultBuffer.fileSize = totalSize;
-                             try {
-                                 args.success.call( this, resultBuffer );
-                             } catch( e ) {
-                                 console.error(''+e, e.stack, e);
-                                 if( args.failure )
-                                     args.failure( e );
-                             }
+
+                             resolve( resultBuffer );
                          },
-                         args.failure,
+                         reject,
                          chunks
                  );
             }),
-            args.failure,
-            args.fetch
+            reject,
+            fetch
         );
+
+        return d;
     },
 
     _assembleChunks: function( start, end, successCallback, failureCallback, chunks ) {
@@ -333,7 +334,7 @@ return declare( null,
     },
     _error: function() {
         console.error.apply( console,  this._logf.apply(this,arguments) );
-        throw 'file error';
+        throw new Error('file error');
     },
     _logf: function() {
         arguments[0] = this.name+' '+arguments[0];

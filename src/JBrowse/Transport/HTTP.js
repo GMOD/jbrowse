@@ -45,7 +45,7 @@ return declare( RequestBasedTransport, {
   },
 
   _fetch: function( resourceDef, opts, credentialSlots ) {
-      var req = lang.mixin( { headers: {} }, this._normalizeResourceDefinition( resourceDef ), opts );
+      var req = lang.mixin( { headers: {}, toString: function() { return this.url; } }, this._normalizeResourceDefinition( resourceDef ), opts );
 
       // give each credential an opportunity to decorate the HTTP
       // request
@@ -54,15 +54,19 @@ return declare( RequestBasedTransport, {
               cred.decorateHTTPRequest( req );
       });
 
-      // handle `range` arg
-      var range;
-      if(( range = req.range )) {
-          delete req.range;
-          req.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
-      }
-
       if( req.handleAs == 'arraybuffer' ) {
-          return this._binaryFetch( req, credentialSlots );
+          if( req.range ) {
+              var thisB = this;
+              return this._byteCache.get( req, req.range[0], req.range[1], function(req,start,end,callback) {
+                                              req = lang.mixin( {}, req, { range: [start,end] } );
+                                              thisB._binaryFetch( req, credentialSlots )
+                                                   .then( callback,
+                                                          function(e){ callback(null,e); }
+                                                        );
+                                          });
+          } else {
+              return this._binaryFetch( req, credentialSlots );
+          }
       }
       else {
           return this._dojoFetch( req, credentialSlots );
@@ -70,6 +74,13 @@ return declare( RequestBasedTransport, {
   },
 
   _dojoFetch: function( req, credentialSlots ) {
+      // handle `range` arg
+      var range;
+      if(( range = req.range )) {
+          delete req.range;
+          req.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
+      }
+
       if( req.requestTechnique == 'iframe' )
           return iframeReq( req.url, req );
       else if( req.requestTechnique == 'script' )
@@ -80,6 +91,13 @@ return declare( RequestBasedTransport, {
 
   _binaryFetch: function( request, credentialSlots ) {
       request = lang.mixin( {}, request );
+
+      // handle `range` arg
+      var range;
+      if(( range = request.range )) {
+          delete request.range;
+          request.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
+      }
 
       var d = new Deferred();
 
