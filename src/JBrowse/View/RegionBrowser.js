@@ -2177,13 +2177,17 @@ navigateTo: function( something ) {
         else {
             return thisB.browser.searchNames( something )
                 .then( function( location ) {
-                           return thisB.browser.findRefSeq( location.ref )
-                                       .then( function( refseq ) {
-                                                  return { ref: refseq, start: location.start, end: location.end };
-                                              });
+                           if( location )
+                               return thisB.browser.findRefSeq( location.ref )
+                                   .then( function( refseq ) {
+                                              return { ref: refseq, start: location.start, end: location.end };
+                                          });
+                           else
+                               return null;
                        })
                 .then( function( location ) {
-                           thisB.setLocation( location.ref, location.start, location.end );
+                           if( location )
+                               thisB.setLocation( location.ref, location.start, location.end );
                        });
         }
     });
