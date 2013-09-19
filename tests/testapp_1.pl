@@ -52,9 +52,7 @@ get '/logout' => sub {
 
 post '/rest/login' => sub {
     my $self = shift;
-    if( $self->session->{username} ) {
-        $self->render(json => { success => 'true' });
-    } elsif( $self->param('password') eq 'secret' ) {
+    if( $self->param('password') eq 'secret' ) {
         $self->session->{username} = $self->param('user');
         $self->render(json => { success => 'true' });
     } else {
