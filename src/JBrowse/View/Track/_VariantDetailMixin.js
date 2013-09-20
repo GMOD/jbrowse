@@ -11,6 +11,7 @@ define([
            'dojo/dom-class',
            'JBrowse/Util',
            'JBrowse/View/Track/_FeatureDetailMixin',
+           'JBrowse/View/Track/_TogglingFeatureFiltersMixin',
            'JBrowse/Model/NestedFrequencyTable'
        ],
        function(
@@ -21,10 +22,11 @@ define([
            domClass,
            Util,
            FeatureDetailMixin,
+           TogglingFeatureFiltersMixin,
            NestedFrequencyTable
        ) {
 
-return declare( FeatureDetailMixin, {
+return declare( [FeatureDetailMixin, TogglingFeatureFiltersMixin], {
 
 
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
@@ -189,6 +191,50 @@ return declare( FeatureDetailMixin, {
         domConstruct.create('td', { className: 'category total', innerHTML: 'Total' }, totalTR );
         domConstruct.create('td', { className: 'count total', innerHTML: total }, totalTR );
         domConstruct.create('td', { className: 'pct total', innerHTML: '100%' }, totalTR );
+    },
+
+
+    // filters for BAM alignments according to some flags
+    _getTogglingFeatureFilters: function() {
+        return lang.mixin( {}, this.inherited( arguments ),
+            {
+                hideFilterPass: function( f ) {
+                    try {
+                        return f.get('filter').values.join('').toUpperCase() != 'PASS';
+                    } catch(e) {
+                        return (''+f.get('filter')).toUpperCase() != 'PASS';
+                    }
+                },
+                hideNotFilterPass: function( f ) {
+                    try {
+                        return f.get('filter').values.join('').toUpperCase() == 'PASS';
+                    } catch(e) {
+                        return (''+f.get('filter')).toUpperCase() == 'PASS';
+                    }
+                }
+            });
+    },
+
+    _variantsFilterTrackMenuOptions: function() {
+        // add toggles for feature filters
+        var track = this;
+        return array.map(
+            [
+                { desc: 'Hide sites passing all filters', fname: 'hideFilterPass' },
+                { desc: 'Hide sites not passing all filters', fname: 'hideNotFilterPass' }
+            ],
+            function( spec ) {
+                return { label: spec.desc,
+                         type: 'dijit/CheckedMenuItem',
+                         checked: !! track.config[spec.fname],
+                         onClick: function(event) {
+                             track._toggleFeatureFilter( spec.fname, this.checked );
+                         }
+                       };
+            },
+            this
+        );
     }
+
 });
 });

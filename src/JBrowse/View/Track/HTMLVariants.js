@@ -15,5 +15,11 @@ define( [
              VariantDetailsMixin
          ) {
 return declare( [ HTMLFeatures, VariantDetailsMixin ], {
+    _trackMenuOptions: function() {
+        var o = this.inherited(arguments);
+        o.push( { type: 'dijit/MenuSeparator' } );
+        o.push.apply( o, this._variantsFilterTrackMenuOptions() );
+        return o;
+    }
 });
 });
