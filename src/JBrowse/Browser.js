@@ -844,7 +844,7 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants',
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'       : 'JBrowse/View/Track/CanvasFeatures'
             },
 
@@ -856,6 +856,7 @@ getTrackTypes: function() {
                 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/View/Track/HTMLVariants',
+                'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
                 'JBrowse/View/Track/Sequence'

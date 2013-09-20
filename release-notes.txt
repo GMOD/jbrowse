@@ -12,12 +12,16 @@
    Thanks to Daniel Kasenberg for the initial implementation of this
    (issue #315).
 
- * Added checkboxes to HTMLVariants tracks that allow filtering
-   displayed features based on the FILTER attribute in a VCF file.  In
-   addition to filtering based on the presence or absence of PASS,
-   users can filter based on the custom filters defined in the VCF
-   header.  Thanks to Keiran Raine and Andrew Uzilov for suggesting
-   this (issue #344).
+ * Added a CanvasVariants track type, similar to HTMLVariants, which
+   utilizes the faster CanvasFeatures rendering backend for displaying
+   variant data.
+
+ * Added checkboxes to HTMLVariants and CanvasVariants track menus
+   that allow filtering displayed features based on the FILTER
+   attribute in a VCF file.  In addition to filtering based on the
+   presence or absence of PASS, users can filter based on the custom
+   filters defined in the VCF header.  Thanks to Keiran Raine and
+   Andrew Uzilov for suggesting this (issue #344).
 
  * Added "Hide forward strand" and "Hide reverse strand" checkboxes to
    Alignments and Alignments2 track menus that allow alignments on the
