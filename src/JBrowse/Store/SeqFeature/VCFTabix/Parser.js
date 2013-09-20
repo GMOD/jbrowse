@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/json',
+           'JBrowse/Util/TextIterator',
            'JBrowse/Digest/Crc32',
            './LazyFeature'
        ],
@@ -9,6 +10,7 @@ define([
            declare,
            array,
            JSON,
+           TextIterator,
            Digest,
            LazyFeature
        ) {
@@ -23,9 +25,9 @@ return declare( null, {
 
         // parse the header lines
         var headData = {};
-        var parseState = { data: headerBytes, offset: 0 };
+        var lineIterator = new TextIterator.FromBytes({ bytes: headerBytes });
         var line;
-        while(( line = this._getlineFromBytes( parseState ))) {
+        while(( line = lineIterator.getline() )) {
             // only interested in meta and header lines
             if( line[0] != '#' )
                 continue;
@@ -121,28 +123,6 @@ return declare( null, {
 
         return f;
     },
-
-    _newlineCode: "\n".charCodeAt(0),
-
-    /**
-     *  helper method that parses the next line from a Uint8Array or similar.
-     *  @param parseState.data the byte array
-     *  @param parseState.offset the offset to start parsing.  <MODIFIED AS A SIDE EFFECT OF THI SMETHOD
-     */
-    _getlineFromBytes: function( parseState ) {
-        if( ! parseState.offset )
-            parseState.offset = 0;
-
-        var newlineIndex = array.indexOf( parseState.data, this._newlineCode, parseState.offset );
-
-        if( newlineIndex == -1 ) // no more lines
-            return null;
-
-        var line = String.fromCharCode.apply( String, Array.prototype.slice.call( parseState.data, parseState.offset, newlineIndex ));
-        parseState.offset = newlineIndex+1;
-        return line;
-    },
-
 
     _parseGenericHeaderLine: function( metaData ) {
         metaData = metaData.replace(/^<|>$/g,'');
