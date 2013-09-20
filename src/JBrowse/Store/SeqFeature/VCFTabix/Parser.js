@@ -106,7 +106,7 @@ return declare( null, {
                     description: 'List of filters that this site has not passed, or PASS if it has passed all filters',
                     filters: this.header.filter
                 },
-                values: fields[6].split(/[,;]/)
+                values: fields[6].split(';')
             };
         }
 
@@ -115,7 +115,7 @@ return declare( null, {
                 meta: {
                     description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
                 },
-                values: alt.split(/[,;]/)
+                values: alt
             };
 
         // parse the info field and store its contents as attributes in featureData
