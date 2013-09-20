@@ -4,27 +4,21 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/_base/lang',
            'JBrowse/Util',
-           'JBrowse/Store/SeqFeature/_MismatchesMixin'
+           'JBrowse/Store/SeqFeature/_MismatchesMixin',
+           'JBrowse/View/Track/_TogglingFeatureFiltersMixin'
         ],
         function(
             declare,
             array,
+            lang,
             Util,
-            MismatchesMixin
+            MismatchesMixin,
+            TogglingFeatureFiltersMixin
         ) {
 
-return declare( MismatchesMixin ,{
-
-    constructor: function() {
-        // initialize alignments feature filters
-        for( var filtername in this.alignmentsFilters ) {
-            if( this.config[filtername] )
-                this.addFeatureFilter( this.alignmentsFilters[filtername] );
-            else
-                this.removeFeatureFilter( this.alignmentsFilters[filtername] );
-        }
-    },
+return declare([ MismatchesMixin, TogglingFeatureFiltersMixin ], {
 
     /**
      * Make a default feature detail page for the given feature.
@@ -134,40 +128,27 @@ return declare( MismatchesMixin ,{
         return this._baseStyles[base] || '#999';
     },
 
-    _setAlignmentsFilter: function( filtername, isActive ) {
-        var previousSetting = this.config[filtername];
-        this.config[filtername] = isActive;
 
-        // nothing to do if not changed
-        if( previousSetting === this.config[filtername] )
-            return;
-
-        if( isActive )
-            this.addFeatureFilter( this.alignmentsFilters[filtername] );
-        else
-            this.removeFeatureFilter( this.alignmentsFilters[filtername] );
-
-        this.changed();
-    },
-
-    //methods for filtering BAM alignments according to some flags
-    // predefined feature filters
-    alignmentsFilters: {
-        hideDuplicateReads: function( f ) {
-            return ! f.get('duplicate');
-        },
-        hideQCFailingReads: function( f ) {
-            return ! f.get('qc_failed');
-        },
-        hideSecondary: function( f ) {
-            return ! f.get('secondary_alignment');
-        },
-        hideSupplementary: function( f ) {
-            return ! f.get('supplementary_alignment');
-        },
-        hideMissingMatepairs: function( f ) {
-            return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
-        }
+    // filters for BAM alignments according to some flags
+    _getTogglingFeatureFilters: function() {
+        return lang.mixin( {}, this.inherited( arguments ),
+            {
+                hideDuplicateReads: function( f ) {
+                    return ! f.get('duplicate');
+                },
+                hideQCFailingReads: function( f ) {
+                    return ! f.get('qc_failed');
+                },
+                hideSecondary: function( f ) {
+                    return ! f.get('secondary_alignment');
+                },
+                hideSupplementary: function( f ) {
+                    return ! f.get('supplementary_alignment');
+                },
+                hideMissingMatepairs: function( f ) {
+                    return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+                }
+            });
     },
 
     _alignmentsFilterTrackMenuOptions: function() {
@@ -182,11 +163,14 @@ return declare( MismatchesMixin ,{
                 { desc: 'Hide supplementary alignments',      fname: 'hideSupplementary' }
             ],
             function( spec ) {
+                if( spec == 'SEPARATOR' )
+                    return { type: 'dijit/MenuSeparator' };
+
                 return { label: spec.desc,
                          type: 'dijit/CheckedMenuItem',
                          checked: !! this.config[spec.fname],
                          onClick: function(event) {
-                             track._setAlignmentsFilter( spec.fname, this.checked );
+                             track._toggleFeatureFilter( spec.fname, this.checked );
                          }
                        };
             },

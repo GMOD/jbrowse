@@ -26,8 +26,9 @@ return declare( null, {
 
     removeFeatureFilter: function( filter ) {
         var newchain = [];
+        var filterStr = filter.toString();
         for( var i = 0; i < this._featureFilterChain.length; i++ ) {
-            if( this._featureFilterChain[i] !== filter )
+            if( this._featureFilterChain[i].toString() !== filterStr )
                 newchain.push( this._featureFilterChain[i] );
         }
         this._featureFilterChain = newchain;
