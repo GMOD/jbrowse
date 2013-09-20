@@ -69,7 +69,7 @@ var Feature = Util.fastDeclare(
         // parse the genotype data fields
         var genotypes = [];
         var format = array.map( fields[8].split(':'), function( fieldID ) {
-                         return { id: fieldID, meta: parser._getFormatMeta( fieldID ) };
+                         return { id: fieldID, meta: parser.getVCFMetaData( 'FORMAT', fieldID ) };
                      }, this );
         for( var i = 9; i < fields.length; ++i ) {
             var g = (fields[i]||'').split(':');

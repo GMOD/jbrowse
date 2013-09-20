@@ -100,15 +100,22 @@ return declare( null, {
 
         if( fields[5] !== null )
             featureData.score = parseFloat( fields[5] );
-        if( fields[6] !== null )
-            featureData.filter = fields[6];
+        if( fields[6] !== null ) {
+            featureData.filter = {
+                meta: {
+                    description: 'List of filters that this site has not passed, or PASS if it has passed all filters',
+                    filters: this.header.filter
+                },
+                values: fields[6].split(/[,;]/)
+            };
+        }
 
         if( alt && alt[0] != '<' )
             featureData.alternative_alleles = {
                 meta: {
                     description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
                 },
-                values: alt
+                values: alt.split(/[,;]/)
             };
 
         // parse the info field and store its contents as attributes in featureData
@@ -242,7 +249,7 @@ return declare( null, {
                         values: info[field],
                         toString: function() { return (this.values || []).join(','); }
                     };
-                    var meta = this._getInfoMeta( field );
+                    var meta = this.getVCFMetaData( 'INFO', field );
                     if( meta )
                         i.meta = meta;
             }
@@ -251,14 +258,14 @@ return declare( null, {
         dojo.mixin( featureData, info );
     },
 
-    _getAltMeta: function( alt ) {
-        return (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
-    },
-    _getInfoMeta: function( id ) {
-        return (this.header.info||{})[id] || this._vcfReservedInfoFields[id];
-    },
-    _getFormatMeta: function( fieldname ) {
-        return (this.header.format||{})[fieldname] || this._vcfStandardGenotypeFields[fieldname];
+    getVCFMetaData: function( field, key ) {
+        field = field.toLowerCase();
+        var inHeader = this.header[field] || {};
+        var inFormat = { alt: this._vcfReservedAltTypes,
+                         info: this._vcfReservedInfoFileds,
+                         format: this._vcfStandardGenotypeFields
+                       }[field] || {};
+        return inHeader[key] || inFormat[key];
     },
 
     /**
@@ -372,7 +379,7 @@ return declare( null, {
 
         alt = alt.replace(/^<|>$/g,'');
 
-        var def = this._getAltMeta( alt );
+        var def = this.getVCFMetaData( 'alt', alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
     },
 
