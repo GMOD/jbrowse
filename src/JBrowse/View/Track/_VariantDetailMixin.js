@@ -10,7 +10,7 @@ define([
            'dojo/dom-construct',
            'dojo/dom-class',
            'JBrowse/Util',
-           'JBrowse/View/Track/FeatureDetailMixin',
+           'JBrowse/View/Track/_FeatureDetailMixin',
            'JBrowse/Model/NestedFrequencyTable'
        ],
        function(

@@ -6,7 +6,7 @@
 define( [
              'dojo/_base/declare',
              'JBrowse/View/Track/HTMLFeatures',
-             'JBrowse/View/Track/VariantDetailMixin'
+             'JBrowse/View/Track/_VariantDetailMixin'
          ],
 
          function(

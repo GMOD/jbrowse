@@ -3,7 +3,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-class',
             'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/ExportMixin',
+            'JBrowse/View/Track/_ExportMixin',
             'JBrowse/CodonTable',
             'JBrowse/Util'
         ],

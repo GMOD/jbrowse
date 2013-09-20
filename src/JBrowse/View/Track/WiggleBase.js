@@ -6,7 +6,7 @@ define( [
             'dojo/on',
             'dojo/mouse',
             'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/ExportMixin',
+            'JBrowse/View/Track/_ExportMixin',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
             './Wiggle/_Scale'

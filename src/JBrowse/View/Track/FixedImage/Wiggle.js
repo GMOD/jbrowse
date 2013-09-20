@@ -1,7 +1,7 @@
 define([
            'dojo/_base/declare',
            'JBrowse/View/Track/FixedImage',
-           'JBrowse/View/Track/YScaleMixin'
+           'JBrowse/View/Track/_YScaleMixin'
        ],
        function( declare, FixedImage, YScaleMixin ) {
 

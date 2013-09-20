@@ -16,7 +16,7 @@ define([
            'dojo/dnd/Manager',
            'JBrowse/Util',
            'JBrowse/View/TrackConfigEditor',
-           'JBrowse/View/Track/ExportMixin'
+           'JBrowse/View/Track/_ExportMixin'
        ],
        function(
            declare,
