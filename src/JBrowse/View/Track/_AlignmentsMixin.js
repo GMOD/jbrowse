@@ -7,7 +7,7 @@ define([
            'dojo/_base/lang',
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/_MismatchesMixin',
-           'JBrowse/View/Track/_TogglingFeatureFiltersMixin'
+           'JBrowse/View/Track/_NamedFeatureFiltersMixin'
         ],
         function(
             declare,
@@ -15,10 +15,10 @@ define([
             lang,
             Util,
             MismatchesMixin,
-            TogglingFeatureFiltersMixin
+            NamedFeatureFiltersMixin
         ) {
 
-return declare([ MismatchesMixin, TogglingFeatureFiltersMixin ], {
+return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
     /**
      * Make a default feature detail page for the given feature.
@@ -130,7 +130,7 @@ return declare([ MismatchesMixin, TogglingFeatureFiltersMixin ], {
 
 
     // filters for BAM alignments according to some flags
-    _getTogglingFeatureFilters: function() {
+    _getNamedFeatureFilters: function() {
         return lang.mixin( {}, this.inherited( arguments ),
             {
                 hideDuplicateReads: function( f ) {

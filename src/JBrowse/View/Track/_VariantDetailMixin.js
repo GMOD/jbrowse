@@ -11,7 +11,7 @@ define([
            'dojo/dom-class',
            'JBrowse/Util',
            'JBrowse/View/Track/_FeatureDetailMixin',
-           'JBrowse/View/Track/_TogglingFeatureFiltersMixin',
+           'JBrowse/View/Track/_NamedFeatureFiltersMixin',
            'JBrowse/Model/NestedFrequencyTable'
        ],
        function(
@@ -22,11 +22,11 @@ define([
            domClass,
            Util,
            FeatureDetailMixin,
-           TogglingFeatureFiltersMixin,
+           NamedFeatureFiltersMixin,
            NestedFrequencyTable
        ) {
 
-return declare( [FeatureDetailMixin, TogglingFeatureFiltersMixin], {
+return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
 
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
@@ -195,7 +195,7 @@ return declare( [FeatureDetailMixin, TogglingFeatureFiltersMixin], {
 
 
     // filters for BAM alignments according to some flags
-    _getTogglingFeatureFilters: function() {
+    _getNamedFeatureFilters: function() {
         return lang.mixin( {}, this.inherited( arguments ),
             {
                 hideFilterPass: function( f ) {

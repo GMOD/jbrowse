@@ -7,7 +7,7 @@ define([
 return declare( null, {
     constructor: function() {
         // initialize toggling feature filters
-        var filters = this._getTogglingFeatureFilters();
+        var filters = this._getNamedFeatureFilters();
         for( var filtername in filters ) {
             if( this.config[filtername] )
                 this.addFeatureFilter( filters[filtername] );
@@ -28,14 +28,14 @@ return declare( null, {
         this.config[filtername] = setActive;
 
         if( setActive )
-            this.addFeatureFilter( this._getTogglingFeatureFilters()[filtername] );
+            this.addFeatureFilter( this._getNamedFeatureFilters()[filtername] );
         else
-            this.removeFeatureFilter( this._getTogglingFeatureFilters()[filtername] );
+            this.removeFeatureFilter( this._getNamedFeatureFilters()[filtername] );
 
         this.changed();
     },
 
-    _getTogglingFeatureFilters: function() {
+    _getNamedFeatureFilters: function() {
         return {};
         // return lang.mixin(
         //     {},
