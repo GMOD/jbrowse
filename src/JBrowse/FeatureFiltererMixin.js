@@ -12,6 +12,9 @@ define([
            declare,
            array
        ) {
+
+var serialNumber = 0;
+
 return declare( null, {
     filterFeature: function( feature ) {
         return true;
@@ -19,16 +22,26 @@ return declare( null, {
 
     _featureFilterChain: [],
 
-    addFeatureFilter: function( filter ) {
-        this._featureFilterChain.push( filter );
+    addFeatureFilter: function( filter, uniqName ) {
+        uniqName = this._getFeatureFilterName( uniqName );
+        this._featureFilterChain.push({ name: uniqName, filter: filter });
         this._buildFeatureFilter();
+        return uniqName;
     },
 
-    removeFeatureFilter: function( filter ) {
+    // need to have a unique name for every function we're passed so
+    // that we can tell them apart.  stringification and strict
+    // equality don't always work.
+    _getFeatureFilterName: function( uniqName ) {
+        if( uniqName === undefined )
+            return 'featureFilter_'+(++serialNumber);
+        return uniqName;
+    },
+
+    removeFeatureFilter: function( uniqName ) {
         var newchain = [];
-        var filterStr = filter.toString();
         for( var i = 0; i < this._featureFilterChain.length; i++ ) {
-            if( this._featureFilterChain[i].toString() !== filterStr )
+            if( this._featureFilterChain[i].name !== uniqName )
                 newchain.push( this._featureFilterChain[i] );
         }
         this._featureFilterChain = newchain;
@@ -37,29 +50,21 @@ return declare( null, {
 
     _buildFeatureFilter: function() {
 
-        // de-dup the filter chain
-        var filterChain = function() {
-            var seen = {};
-            return array.filter( this._featureFilterChain || [], function( filterFunc ) {
-                              var str = filterFunc.toString();
-                              var s = !( str in seen );
-                              seen[str] = true;
-                              return s;
-                          });
-        }.call(this);
+        var filterChain = this._featureFilterChain.slice();
 
         if( ! filterChain.length )
             this.filterFeature = function( feat ) {
                 return this.featureFilterParentComponent.filterFeature( feat );
             };
-        else if( filterChain.length == 1 )
+        else if( filterChain.length == 1 ) {
+            var single = filterChain[0].filter;
             this.filterFeature = function(feat) {
-                return filterChain[0].call(this,feat) && this.featureFilterParentComponent.filterFeature( feat );
+                return single.call(this,feat) && this.featureFilterParentComponent.filterFeature( feat );
             };
-        else
+        } else
             this.filterFeature = function( feat ) {
                 for( var i = 0; i<filterChain.length; i++ )
-                    if( ! filterChain[i].call( this, feat ) )
+                    if( ! filterChain[i].filter.call( this, feat ) )
                         return false;
 
                 if( ! this.featureFilterParentComponent.filterFeature( feat ) )
@@ -71,8 +76,13 @@ return declare( null, {
 
     featureFilterParentComponent: { filterFeature: function() { return true; } },
 
-    setFeatureFilter: function( filter ) {
-        this._featureFilterChain = [ filter ];
+    setFeatureFilter: function( filter, uniqName ) {
+        this._featureFilterChain = [];
+        this.addFeatureFilter( filter, uniqName );
+    },
+
+    clearFeatureFilter: function() {
+        this._featureFilterChain = [];
         this._buildFeatureFilter();
     },
 

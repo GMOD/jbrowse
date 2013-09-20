@@ -20,9 +20,9 @@ return declare( null, {
             .then( function( filters ) {
                        for( var filtername in filters ) {
                            if( thisB.config[filtername] )
-                               thisB.addFeatureFilter( filters[filtername].func );
+                               thisB.addFeatureFilter( filters[filtername].func, filtername );
                            else
-                               thisB.removeFeatureFilter( filters[filtername].func );
+                               thisB.removeFeatureFilter( filtername );
                        }
                    });
     },
@@ -42,9 +42,9 @@ return declare( null, {
         when( this._getNamedFeatureFilters(),
               function( filters ) {
                   if( setActive )
-                      thisB.addFeatureFilter( filters[filtername].func );
+                      thisB.addFeatureFilter( filters[filtername].func, filtername );
                   else
-                      thisB.removeFeatureFilter( filters[filtername].func );
+                      thisB.removeFeatureFilter( filtername );
 
                   thisB.changed();
               });
