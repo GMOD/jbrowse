@@ -1,10 +1,18 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
+         'dojo/promise/all',
          'JBrowse/Util',
          'JBrowse/View/Track/HTMLFeatures',
          'JBrowse/View/Track/_AlignmentsMixin'
         ],
-        function( declare, array, Util, HTMLFeatures, AlignmentsMixin ) {
+        function(
+            declare,
+            array,
+            all,
+            Util,
+            HTMLFeatures,
+            AlignmentsMixin
+        ) {
 
 // return declare( HTMLFeatures,
 return declare( [ HTMLFeatures, AlignmentsMixin],
@@ -168,11 +176,12 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
     },
 
     _trackMenuOptions: function() {
-        var o = this.inherited(arguments);
-        o.push( { type: 'dijit/MenuSeparator' } );
-        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
-        return o;
+        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+            .then( function( options ) {
+                       var o = options.shift();
+                       options.unshift({ type: 'dijit/MenuSeparator' } );
+                       return o.concat.apply( o, options );
+                   });
     }
-
 });
 });

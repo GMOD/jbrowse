@@ -1,19 +1,30 @@
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+           'dojo/_base/array',
+           'dojo/when'
        ],
        function(
-           declare
+           declare,
+           array,
+           when
        ) {
 return declare( null, {
     constructor: function() {
+        this._initializeConfiguredFeatureFilters();
+    },
+
+    _initializeConfiguredFeatureFilters: function() {
         // initialize toggling feature filters
-        var filters = this._getNamedFeatureFilters();
-        for( var filtername in filters ) {
-            if( this.config[filtername] )
-                this.addFeatureFilter( filters[filtername] );
-            else
-                this.removeFeatureFilter( filters[filtername] );
-        }
+        var thisB = this;
+        return when( this._getNamedFeatureFilters() )
+            .then( function( filters ) {
+                       for( var filtername in filters ) {
+                           if( thisB.config[filtername] )
+                               thisB.addFeatureFilter( filters[filtername].func );
+                           else
+                               thisB.removeFeatureFilter( filters[filtername].func );
+                       }
+                   });
     },
 
     _toggleFeatureFilter: function( filtername, setActive ) {
@@ -27,12 +38,16 @@ return declare( null, {
 
         this.config[filtername] = setActive;
 
-        if( setActive )
-            this.addFeatureFilter( this._getNamedFeatureFilters()[filtername] );
-        else
-            this.removeFeatureFilter( this._getNamedFeatureFilters()[filtername] );
+        var thisB = this;
+        when( this._getNamedFeatureFilters(),
+              function( filters ) {
+                  if( setActive )
+                      thisB.addFeatureFilter( filters[filtername].func );
+                  else
+                      thisB.removeFeatureFilter( filters[filtername].func );
 
-        this.changed();
+                  thisB.changed();
+              });
     },
 
     _getNamedFeatureFilters: function() {
@@ -43,6 +58,32 @@ return declare( null, {
         //     {
 
         //     });
+    },
+
+    _makeFeatureFilterTrackMenuItems: function( names, filters ) {
+        var thisB = this;
+        return when( filters || this._getNamedFeatureFilters() )
+            .then( function( filters ) {
+                       return array.map(
+                           names,
+                           function( name ) {
+                               return thisB._makeFeatureFilterTrackMenuItem( name, filters[name] );
+                           }
+                       );
+                   });
+    },
+
+    _makeFeatureFilterTrackMenuItem: function( filtername, filterspec ) {
+        var thisB = this;
+        if( filtername == 'SEPARATOR' )
+            return { type: 'dijit/MenuSeparator' };
+        return { label: filterspec.desc,
+                 type: 'dijit/CheckedMenuItem',
+                 checked: !! thisB.config[filtername],
+                 onClick: function(event) {
+                     thisB._toggleFeatureFilter( filtername, this.checked );
+                 }
+               };
     }
 
 });

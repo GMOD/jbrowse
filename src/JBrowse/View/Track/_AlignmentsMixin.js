@@ -5,6 +5,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
+           'dojo/when',
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/_MismatchesMixin',
            'JBrowse/View/Track/_NamedFeatureFiltersMixin'
@@ -13,6 +14,7 @@ define([
             declare,
             array,
             lang,
+            when,
             Util,
             MismatchesMixin,
             NamedFeatureFiltersMixin
@@ -133,59 +135,70 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
     _getNamedFeatureFilters: function() {
         return lang.mixin( {}, this.inherited( arguments ),
             {
-                hideDuplicateReads: function( f ) {
-                    return ! f.get('duplicate');
+                hideDuplicateReads: {
+                    desc: 'Hide PCR/Optical duplicate reads',
+                    func: function( f ) {
+                        return ! f.get('duplicate');
+                    }
                 },
-                hideQCFailingReads: function( f ) {
-                    return ! f.get('qc_failed');
+                hideQCFailingReads: {
+                    desc: 'Hide reads failing vendor QC',
+                    func: function( f ) {
+                        return ! f.get('qc_failed');
+                    }
                 },
-                hideSecondary: function( f ) {
-                    return ! f.get('secondary_alignment');
-                },
-                hideSupplementary: function( f ) {
-                    return ! f.get('supplementary_alignment');
-                },
-                hideMissingMatepairs: function( f ) {
-                    return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
-                },
-                hideForwardStrand: function( f ) {
-                    return f.get('strand') != 1;
-                },
-                hideReverseStrand: function( f ) {
-                    return f.get('strand') != -1;
-                }
+                hideSecondary: {
+                    desc: 'Hide secondary alignments',
 
+                    func: function( f ) {
+                        return ! f.get('secondary_alignment');
+                    }
+                },
+                hideSupplementary: {
+                    desc: 'Hide supplementary alignments',
+                    func: function( f ) {
+                        return ! f.get('supplementary_alignment');
+                    }
+                },
+                hideMissingMatepairs: {
+                    desc: 'Hide reads with missing mate pairs',
+                    func: function( f ) {
+                        return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+                    }
+                },
+                hideForwardStrand: {
+                    desc: 'Hide reads aligned to the forward strand',
+                    func: function( f ) {
+                        return f.get('strand') != 1;
+                    }
+                },
+                hideReverseStrand: {
+                    desc: 'Hide reads aligned to the reverse strand',
+                    func: function( f ) {
+                        return f.get('strand') != -1;
+                    }
+                }
             });
     },
 
     _alignmentsFilterTrackMenuOptions: function() {
         // add toggles for feature filters
         var track = this;
-        return array.map(
-            [
-                { desc: 'Hide PCR/Optical duplicate reads',   fname: 'hideDuplicateReads' },
-                { desc: 'Hide reads failing vendor QC',       fname: 'hideQCFailingReads' },
-                { desc: 'Hide reads with missing mate pairs', fname: 'hideMissingMatepairs' },
-                { desc: 'Hide secondary alignments',          fname: 'hideSecondary' },
-                { desc: 'Hide supplementary alignments',      fname: 'hideSupplementary' },
-                'SEPARATOR',
-                { desc: 'Hide forward strand',                fname: 'hideForwardStrand' },
-                { desc: 'Hide reverse strand',                fname: 'hideReverseStrand' }
-            ],
-            function( spec ) {
-                if( spec == 'SEPARATOR' )
-                    return { type: 'dijit/MenuSeparator' };
-
-                return { label: spec.desc,
-                         type: 'dijit/CheckedMenuItem',
-                         checked: !! this.config[spec.fname],
-                         onClick: function(event) {
-                             track._toggleFeatureFilter( spec.fname, this.checked );
-                         }
-                       };
-            },
-            this
-        );
+        return when( this._getNamedFeatureFilters() )
+            .then( function( filters ) {
+                       return track._makeFeatureFilterTrackMenuItems(
+                           [
+                               'hideDuplicateReads',
+                               'hideQCFailingReads',
+                               'hideMissingMatepairs',
+                               'hideSecondary',
+                               'hideSupplementary',
+                               'SEPARATOR',
+                               'hideForwardStrand',
+                               'hideReverseStrand'
+                           ],
+                           filters );
+                   });
     }
 
 });

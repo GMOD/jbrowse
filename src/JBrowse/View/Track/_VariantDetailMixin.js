@@ -9,6 +9,8 @@ define([
            'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
+           'dojo/promise/all',
+           'dojo/when',
            'JBrowse/Util',
            'JBrowse/View/Track/_FeatureDetailMixin',
            'JBrowse/View/Track/_NamedFeatureFiltersMixin',
@@ -20,6 +22,8 @@ define([
            lang,
            domConstruct,
            domClass,
+           all,
+           when,
            Util,
            FeatureDetailMixin,
            NamedFeatureFiltersMixin,
@@ -194,46 +198,102 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     },
 
 
-    // filters for BAM alignments according to some flags
+    // filters for VCF sites
     _getNamedFeatureFilters: function() {
-        return lang.mixin( {}, this.inherited( arguments ),
+        var thisB = this;
+        return all([ this.store.getVCFHeader && this.store.getVCFHeader(), this.inherited(arguments) ])
+            .then( function() {
+                       if( arguments[0][0] )
+                           return thisB._makeVCFFilters.apply( thisB, arguments[0] );
+                       else
+                           return inheritedFilters;
+                   });
+    },
+
+    // given a parsed VCF header, make some appropriate named feature
+    // filters to filter its data
+    _makeVCFFilters: function( vcfHeader, inheritedFilters ) {
+        // wraps the callback to return true if there
+        // is no filter attr
+        function makeFilterFilter( condition ) {
+            return function(f) {
+                f = f.get('filter');
+                return !f || condition(f);
+            };
+        }
+        var filters = lang.mixin(
+            {},
+            inheritedFilters,
             {
-                hideFilterPass: function( f ) {
-                    try {
-                        return f.get('filter').values.join('').toUpperCase() != 'PASS';
-                    } catch(e) {
-                        return (''+f.get('filter')).toUpperCase() != 'PASS';
-                    }
+                hideFilterPass: {
+                    desc: 'Hide sites passing all filters',
+                    func: makeFilterFilter(
+                        function( filter ) {
+                            try {
+                                return filter.values.join('').toUpperCase() != 'PASS';
+                            } catch(e) {
+                                return filter.toUpperCase() != 'PASS';
+                            }
+                        })
                 },
-                hideNotFilterPass: function( f ) {
-                    try {
-                        return f.get('filter').values.join('').toUpperCase() == 'PASS';
-                    } catch(e) {
-                        return (''+f.get('filter')).toUpperCase() == 'PASS';
-                    }
+                hideNotFilterPass: {
+                    desc: 'Hide sites not passing all filters',
+                    func: makeFilterFilter(
+                        function( f ) {
+                            try {
+                                return f.values.join('').toUpperCase() == 'PASS';
+                            } catch(e) {
+                                return f.toUpperCase() != 'PASS';
+                            }
+                        })
                 }
             });
+        if( vcfHeader.filter ) {
+            for( var filterName in vcfHeader.filter ) {
+                filters[filterName] = function( filterName ) {
+                    return {
+                        desc: 'Hide sites not passing filter "'+filterName+'"',
+                        func: makeFilterFilter(
+                            function( f ) {
+                                var fs = f.values || f;
+                                if( ! fs[0] ) return true;
+
+                                return ! array.some(
+                                    fs,
+                                    function(fname) {
+                                        return fname == filterName;
+                                    });
+                            })
+                    };
+                }.call(this, filterName);
+            }
+        }
+        return filters;
     },
 
     _variantsFilterTrackMenuOptions: function() {
         // add toggles for feature filters
         var track = this;
-        return array.map(
-            [
-                { desc: 'Hide sites passing all filters', fname: 'hideFilterPass' },
-                { desc: 'Hide sites not passing all filters', fname: 'hideNotFilterPass' }
-            ],
-            function( spec ) {
-                return { label: spec.desc,
-                         type: 'dijit/CheckedMenuItem',
-                         checked: !! track.config[spec.fname],
-                         onClick: function(event) {
-                             track._toggleFeatureFilter( spec.fname, this.checked );
-                         }
-                       };
-            },
-            this
-        );
+        return this._getNamedFeatureFilters()
+            .then( function( filters ) {
+
+                       // merge our builtin filters with additional ones
+                       // that might have been generated in
+                       // _getNamedFeatureFilters() based on e.g. the VCF
+                       // header
+                       var menuItems = [
+                           'hideFilterPass',
+                           'hideNotFilterPass',
+                           'SEPARATOR'
+                       ];
+                       var withAdditional = Util.uniq( menuItems.concat( Util.dojof.keys( filters ) ) );
+                       if( withAdditional.length > menuItems.length )
+                           menuItems = withAdditional;
+                       else
+                           menuItems.pop(); //< pop off the separator since we have no additional ones
+
+                       return track._makeFeatureFilterTrackMenuItems( menuItems, filters );
+                   });
     }
 
 });
