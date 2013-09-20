@@ -31,6 +31,8 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
                 hideSecondary: true,
                 hideSupplementary: true,
                 hideMissingMatepairs: false,
+                hideForwardStrand: false,
+                hideReverseStrand: false,
 
                 style: {
                     _defaultLabelScale: 50,

@@ -21,6 +21,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideSecondary: true,
                 hideSupplementary: true,
                 hideMissingMatepairs: false,
+                hideForwardStrand: false,
+                hideReverseStrand: false,
 
                 style: {
                     showLabels: false

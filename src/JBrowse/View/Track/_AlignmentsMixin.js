@@ -147,7 +147,14 @@ return declare([ MismatchesMixin, TogglingFeatureFiltersMixin ], {
                 },
                 hideMissingMatepairs: function( f ) {
                     return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+                },
+                hideForwardStrand: function( f ) {
+                    return f.get('strand') != 1;
+                },
+                hideReverseStrand: function( f ) {
+                    return f.get('strand') != -1;
                 }
+
             });
     },
 
@@ -160,7 +167,10 @@ return declare([ MismatchesMixin, TogglingFeatureFiltersMixin ], {
                 { desc: 'Hide reads failing vendor QC',       fname: 'hideQCFailingReads' },
                 { desc: 'Hide reads with missing mate pairs', fname: 'hideMissingMatepairs' },
                 { desc: 'Hide secondary alignments',          fname: 'hideSecondary' },
-                { desc: 'Hide supplementary alignments',      fname: 'hideSupplementary' }
+                { desc: 'Hide supplementary alignments',      fname: 'hideSupplementary' },
+                'SEPARATOR',
+                { desc: 'Hide forward strand',                fname: 'hideForwardStrand' },
+                { desc: 'Hide reverse strand',                fname: 'hideReverseStrand' }
             ],
             function( spec ) {
                 if( spec == 'SEPARATOR' )
