@@ -30,7 +30,7 @@ return declare( [BlockBased, ExportMixin],
             maxExportSpan: 500000,
             showForwardStrand: true,
             showReverseStrand: true,
-            showTranslation: true
+            showTranslation: false
         };
     },
     _exportFormats: function() {
@@ -120,15 +120,15 @@ return declare( [BlockBased, ExportMixin],
 
         // make a div to contain the sequences
         if( this.config.showReverseStrand || this.config.showForwardStrand )
-            var seqNode = dom.create("div", { className: "sequence", style: { width: "100%"} }, block.domNode);
+            var seqNode = dom.create("table", { className: "sequence", style: { width: "100%", borderCollapse:"collapse", cellSpacing:"0", cellPadding:"0" } }, block.domNode);
 
         // add a div for the forward strand
         if( this.config.showForwardStrand )
-            seqNode.appendChild( this._renderSeqDiv( blockStart, blockEnd, blockSeq, scale ));
+            seqNode.appendChild( this._renderSeqTr( blockStart, blockEnd, blockSeq, scale ));
 
         // and one for the reverse strand
         if( this.config.showReverseStrand ) {
-            var comp = this._renderSeqDiv( blockStart, blockEnd, Util.complement(blockSeq), scale );
+            var comp = this._renderSeqTr( blockStart, blockEnd, Util.complement(blockSeq), scale );
             comp.className = 'revcom';
             seqNode.appendChild( comp );
 
@@ -167,11 +167,12 @@ return declare( [BlockBased, ExportMixin],
 
         var charWidth = 100/(blockLength / 3);
 
-        var container  = dom.create('div',
+        var container  = dom.create('table',
             {
                 className: 'translatedSequence offset'+offset,
                 style:
                 {
+                    borderWidth: "0px",
                     width: (charWidth * translated.length) + "%"
                 }
             });
@@ -188,7 +189,7 @@ return declare( [BlockBased, ExportMixin],
         var drawChars = scale >= charSize.w;
 
         for( var i=0; i<translated.length; i++ ) {
-            var aaSpan = document.createElement('div');
+            var aaSpan = document.createElement('td');
             aaSpan.className = 'aa aa_'+translated.charAt([i]).toLowerCase();
             aaSpan.style.width = charWidth;
             if( drawChars ) {
@@ -205,16 +206,16 @@ return declare( [BlockBased, ExportMixin],
      * makes a div containing the sequence.
      * @private
      */
-    _renderSeqDiv: function ( start, end, seq, scale ) {
+    _renderSeqTr: function ( start, end, seq, scale ) {
 
         var charSize = this.getCharacterMeasurements('sequence');
 
-        var container  = document.createElement('div');
+        var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
-            var base = document.createElement('span');
+            var base = document.createElement('td');
             base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
