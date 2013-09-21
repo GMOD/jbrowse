@@ -363,7 +363,7 @@ fatalError: function( error ) {
         .then( function() {
                    try {
                        document.getElementById('volvox_data_placeholder')
-                           .innerHTML = 'Also, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data</a> here.';
+                           .innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data here</a>.';
                    } catch(e) {}
                });
 
