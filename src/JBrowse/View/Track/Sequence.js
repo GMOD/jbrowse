@@ -218,6 +218,7 @@ return declare( [BlockBased, ExportMixin],
             var base = document.createElement('td');
             base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;
+            base.style.textAlign = "center";
             if( drawChars ) {
                 if( bigTiles )
                     base.className = base.className + ' big';
