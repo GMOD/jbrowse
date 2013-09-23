@@ -33,7 +33,7 @@ release-normal: superclean $(JS_SRCFILES)
 	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
 
-	# zip up the dev release
+        # zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
@@ -49,7 +49,7 @@ plugins-min: $(PLUGINS)
 
 release-min: release-normal plugins-min
 
-	# run the dojo build in the full dir to minify
+        # run the dojo build in the full dir to minify
 	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
