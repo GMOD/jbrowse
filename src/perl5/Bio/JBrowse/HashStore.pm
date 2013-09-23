@@ -169,7 +169,7 @@ sub _hash_to_temp {
     require Storable;
     require DB_File;
 
-    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{work_dir} );
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
     $tempfile->close;
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
 
