@@ -202,7 +202,7 @@ return declare( [BlockBased, ExportMixin],
 
     /**
      * Given the start and end coordinates, and the sequence bases,
-     * makes a div containing the sequence.
+     * makes 2 table rows containing the sequence.
      * @private
      */
     _renderSeqTr: function ( start, end, seq, scale ) {
