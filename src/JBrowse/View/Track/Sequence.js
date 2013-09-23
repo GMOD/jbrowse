@@ -218,7 +218,6 @@ return declare( [BlockBased, ExportMixin],
             var base = document.createElement('td');
             base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;
-            base.style.textAlign = "center";
             if( drawChars ) {
                 if( bigTiles )
                     base.className = base.className + ' big';
@@ -244,7 +243,7 @@ return declare( [BlockBased, ExportMixin],
      * and height.
      */
     _measureSequenceCharacterSize: function( containerElement, className ) {
-        var widthTest = document.createElement("div");
+        var widthTest = document.createElement("tr");
         widthTest.className = className;
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";

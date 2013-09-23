@@ -1,37 +1,32 @@
-div.sequence {
+table.sequence {
     position: absolute;
     left: 0px;
 }
-div.sequence .highlighted {
+table.sequence .highlighted {
     background: #ff0;
 }
-div.sequence .revcom {
+table.sequence .revcom {
     color: red;
 }
-div.sequence .base, div.sequence > div, div.translatedSequence > div, div.translatedSequence  {
+table.sequence .base, table.sequence > tr, div.translatedSequence > tr, div.translatedSequence  {
     height: 14px;
     line-height: 14px;
 }
-div.sequence .base.big {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
+table.sequence .base.big {
     border: 1px solid #ccc;
     border-right-color: #333;
     border-bottom-color: #333;
 }
 
-div.sequence > div {
+table.sequence > tr {
     border-top: 1px solid #4d4d4d;
     border-bottom: 1px solid black;
     background: #C6C6C6;
 }
-div.sequence > div:first-child {
+table.sequence > tr:first-child {
     border-bottom-color: #4d4d4d;
 }
-
+/*
 div.translatedSequence .aa.big {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -62,7 +57,6 @@ div.translatedSequence .aa, div.translatedSequence > div {
     background-color: #E0E0E0;
     background-color: rgba(112, 112, 112, 0.5);
 }
-
 div.aa {
     display: inline-block;
     text-align: center;
@@ -83,9 +77,8 @@ div.aa {
 .aa_m {
     background-color: #00FF00;
 }
-
-span.base {
-    display: inline-block;
+*/
+td.base {
     text-align: center;
     z-index: 2000;
 }
@@ -121,8 +114,8 @@ span.base {
     background-color: black;
     background-color: #000;
 }
-
-div.sequence_blur {
+/*
+table.sequence_blur {
     background: none;
     height: 8px;
     border-top: 2px solid #aaa;
@@ -130,4 +123,4 @@ div.sequence_blur {
     border-left-width: 0;
     border-right-width: 0;
     margin-top: 5px;
-}
+}*/
