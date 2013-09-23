@@ -27,9 +27,9 @@ not passed, all tracks are indexed.
 
 Maximum number of distinct locations to store for a single name.  Default 100.
 
-=item --sortMem <bytes>
+=item --mem <bytes>
 
-Number of bytes of RAM we are allowed to use for sorting memory.
+Number of bytes of RAM we are allowed to use for caching memory.
 Default 256000000 (256 MiB).  If you machine has enough RAM,
 increasing this amount can speed up this script's running time
 significantly.
