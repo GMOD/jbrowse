@@ -329,6 +329,12 @@ div.hgblue-hist {
     border-width: 8px 4px 8px 4px;
     border-color: white blue white blue;
     cursor: pointer;
+
+    box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    -ms-box-sizing: content-box;
+
 }
 
 div.transcript-hist {

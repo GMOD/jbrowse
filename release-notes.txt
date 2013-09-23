@@ -32,6 +32,10 @@
  * Fixed a bug that prevented indexing of feature aliases in the names
    index when running generate-names.pl.
 
+ * Fixed a bug that prevented proper display of the "ibeam" feature
+   class in HTMLFeatures tracks.  Thanks to Ed Lee for pointing this
+   out.
+
 # Release 1.10.3     2013-09-04 16:22:17 EST5EDT
 
 ## Minor improvements
