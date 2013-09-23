@@ -15,7 +15,6 @@ var profile = {
     packages: [
         {name: 'RegexSequenceSearch', location: '../plugins/RegexSequenceSearch/js' }
     ],
-    releaseDir: '../plugins/RegexSequenceSearch/built',
 
     layerOptimize: 'closure',
     stripConsole: 'normal',
@@ -23,9 +22,12 @@ var profile = {
 
     layers: {
         'RegexSequenceSearch/main': {
-            include: [ 'RegexSequenceSearch' ],
-            exclude: [ 'JBrowse' ],
-            customBase: true
+            include: [
+                'RegexSequenceSearch',
+                'RegexSequenceSearch/Store/SeqFeature/RegexSearch',
+                'RegexSequenceSearch/View/SearchSeqDialog'
+            ],
+            exclude: [ 'JBrowse' ]
         }
     },
 
@@ -51,15 +53,12 @@ var profile = {
 
         // Files that are AMD modules.
         amd: function (filename, mid) {
-            console.log( filename );
             return !copyOnly(mid) && /\.js$/.test(filename);
         },
 
         // Files that should not be copied when the “mini” compiler flag is set to true.
         miniExclude: function (filename, mid) {
-            return mid in {
-                'JBrowse/profile': 1
-            };
+            return ! ( /^RegexSequenceSearch/.test(mid) );
         }
     }
 };

@@ -44,8 +44,19 @@ release-normal-test: release-normal
 
 PLUGINS = $(wildcard $(PLUGINDIR)/*)
 plugins-min: $(PLUGINS)
-	( cd $(BASEDIR)/src/util/buildscripts; for pdir in $(PLUGINS); do pname=`dirname $$pdir`; node $(BASEDIR)/src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --require $$pdir/js/init.js --profile $$pdir/js/profile.js --releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname"; done )
-
+#	( for pdir in $(PLUGINS); do pname=`basename $$pdir`; node $(BASEDIR)/src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$$pdir/js/$$pname" --releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname $(RELEASE_FULL_DIR)/plugins/$$pname/js"; rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; done )
+	mkdir -p $(RELEASE_FULL_DIR)/plugins/$$pname;
+	for pdir in $(PLUGINS); do  \
+		pname=`basename $$pdir`; \
+		cp -r $$pdir $(RELEASE_FULL_DIR)/plugins/$$pname; \
+		node $(BASEDIR)/src/dojo/dojo.js load=build \
+			--require "$(JSDIR)/init.js" \
+			--profile "$$pdir/js/$$pname" \
+			--releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
+		mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname" "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
+		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+	done
 
 release-min: release-normal plugins-min
 
