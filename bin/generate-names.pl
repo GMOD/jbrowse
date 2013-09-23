@@ -163,13 +163,11 @@ my $total_namerec_sizes = 0;
 my $namerecs_buffered = 0;
 my @tracksWithNames;
 
-my $record_stream = make_name_record_stream( \@refSeqs, \@names_files );
-
 # convert the stream of name records into a stream of operations to do
 # on the data in the hash store
 my $record_stream_estimate;
 my $operation_stream_estimate;
-my $operation_stream = make_operation_stream( $record_stream );
+my $operation_stream = make_operation_stream( make_name_record_stream( \@refSeqs, \@names_files ) );
 
 $hash_bits ||= $record_stream_estimate
   ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $record_stream_estimate / 100 )/ 4 / log(2)) )))
