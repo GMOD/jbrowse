@@ -30,7 +30,7 @@ return declare( [BlockBased, ExportMixin],
             maxExportSpan: 500000,
             showForwardStrand: true,
             showReverseStrand: true,
-            showTranslation: false
+            showTranslation: true 
         };
     },
     _exportFormats: function() {
@@ -120,7 +120,7 @@ return declare( [BlockBased, ExportMixin],
 
         // make a div to contain the sequences
         if( this.config.showReverseStrand || this.config.showForwardStrand )
-            var seqNode = dom.create("table", { className: "sequence", style: { width: "100%", borderCollapse:"collapse", cellSpacing:"0", cellPadding:"0" } }, block.domNode);
+            var seqNode = dom.create("table", { className: "sequence", style: { width: "100%" } }, block.domNode);
 
         // add a div for the forward strand
         if( this.config.showForwardStrand )
@@ -172,7 +172,6 @@ return declare( [BlockBased, ExportMixin],
                 className: 'translatedSequence offset'+offset,
                 style:
                 {
-                    borderWidth: "0px",
                     width: (charWidth * translated.length) + "%"
                 }
             });

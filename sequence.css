@@ -1,6 +1,6 @@
 table.sequence {
     position: absolute;
-    left: 0px;
+    border-collapse: collapse;
 }
 table.sequence .highlighted {
     background: #ff0;
@@ -8,7 +8,7 @@ table.sequence .highlighted {
 table.sequence .revcom {
     color: red;
 }
-table.sequence .base, table.sequence > tr, div.translatedSequence > tr, div.translatedSequence  {
+table.sequence .base, table.sequence > tr, table.translatedSequence > tr, table.translatedSequence  {
     height: 14px;
     line-height: 14px;
 }
@@ -26,8 +26,8 @@ table.sequence > tr {
 table.sequence > tr:first-child {
     border-bottom-color: #4d4d4d;
 }
-/*
-div.translatedSequence .aa.big {
+
+table.translatedSequence .aa.big {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -36,11 +36,12 @@ div.translatedSequence .aa.big {
     border-right: 1px solid #fff;
 }
 
-div.translatedSequence {
+table.translatedSequence {
     position: relative;
+    border-width: 0px,
 }
 
-div.translatedSequence .aa, div.translatedSequence > div {
+table.translatedSequence .aa, table.translatedSequence > div {
 }
 
 .translatedSequence.frame0 {
@@ -57,7 +58,7 @@ div.translatedSequence .aa, div.translatedSequence > div {
     background-color: #E0E0E0;
     background-color: rgba(112, 112, 112, 0.5);
 }
-div.aa {
+td.aa {
     display: inline-block;
     text-align: center;
     z-index: 2000;
@@ -77,7 +78,7 @@ div.aa {
 .aa_m {
     background-color: #00FF00;
 }
-*/
+
 td.base {
     text-align: center;
     z-index: 2000;
