@@ -118,11 +118,11 @@ return declare( [BlockBased, ExportMixin],
             }
         }
 
-        // make a div to contain the sequences
+        // make a table to contain the sequences
         if( this.config.showReverseStrand || this.config.showForwardStrand )
             var seqNode = dom.create("table", { className: "sequence", style: { width: "100%" } }, block.domNode);
 
-        // add a div for the forward strand
+        // add a table for the forward strand
         if( this.config.showForwardStrand )
             seqNode.appendChild( this._renderSeqTr( blockStart, blockEnd, blockSeq, scale ));
 

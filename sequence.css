@@ -38,10 +38,8 @@ table.translatedSequence .aa.big {
 
 table.translatedSequence {
     position: relative;
-    border-width: 0px,
-}
-
-table.translatedSequence .aa, table.translatedSequence > div {
+    border-width: 0px;
+    border-collapse: collapse;
 }
 
 .translatedSequence.frame0 {
@@ -59,7 +57,6 @@ table.translatedSequence .aa, table.translatedSequence > div {
     background-color: rgba(112, 112, 112, 0.5);
 }
 td.aa {
-    display: inline-block;
     text-align: center;
     z-index: 2000;
 }
