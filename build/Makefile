@@ -16,6 +16,7 @@ ZIP=zip -q --symlinks -r
 all: docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
+	ls -l *.zip
 	sha1sum *.zip
 
 release-notes.html: release-notes.txt
@@ -89,6 +90,9 @@ release-min: release-normal plugins-min
 		    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	    fi;\
 	done
+
+	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
+
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
 release-min-test: release-min
