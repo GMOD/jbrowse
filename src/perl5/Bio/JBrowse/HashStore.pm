@@ -150,7 +150,19 @@ set all those values in the hash.
 
 sub stream_set {
     my $self = shift;
-    my $kv_stream = shift;
+
+    my $buckets = $self->_hash_to_temp( shift );
+
+    #print "formatting\n";
+    while( my ( $hex, $contents ) = each %$buckets ) {
+        my $bucket = $self->_getBucketFromHex( $hex );
+        $bucket->{data} = Storable::thaw( $contents );
+        $bucket->{dirty} = 1;
+    }
+}
+
+sub _hash_to_temp {
+    my ( $self, $kv_stream ) = @_;
 
     require POSIX;
     require File::Temp;
@@ -162,7 +174,7 @@ sub stream_set {
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
 
     #print "hashing into $tempfile\n";
-    while( my ( $k, $v ) = $kv_stream->() ) {
+    while ( my ( $k, $v ) = $kv_stream->() ) {
         my $hex = $self->_hex( $self->_hash( $k ) );
         #print "$hex input $k $v\n";
         my $b = $buckets{$hex};
@@ -173,15 +185,10 @@ sub stream_set {
         $buckets{$hex} = $b;
         #print "$hex set ".length($b)." ".length($buckets{$hex})."\n";
     }
-    $kv_stream = undef; #< free the kv_stream to save memory
 
-    #print "formatting\n";
-    while( my ( $hex, $contents ) = each %buckets ) {
-        my $bucket = $self->_getBucketFromHex( $hex );
-        $bucket->{data} = Storable::thaw( $contents );
-        $bucket->{dirty} = 1;
-    }
+    return \%buckets;
 }
+
 
 =head2 empty
 
