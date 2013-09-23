@@ -153,7 +153,7 @@ sub stream_set {
 
     my $buckets = $self->_hash_to_temp( shift );
 
-    #print "formatting\n";
+    print "Hashing done, writing buckets.\n" if $self->{verbose};
     while( my ( $hex, $contents ) = each %$buckets ) {
         my $bucket = $self->_getBucketFromHex( $hex );
         $bucket->{data} = Storable::thaw( $contents );
@@ -173,7 +173,7 @@ sub _hash_to_temp {
     $tempfile->close;
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
 
-    #print "hashing into $tempfile\n";
+    print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
     while ( my ( $k, $v ) = $kv_stream->() ) {
         my $hex = $self->_hex( $self->_hash( $k ) );
         #print "$hex input $k $v\n";

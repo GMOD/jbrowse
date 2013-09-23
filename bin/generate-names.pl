@@ -189,7 +189,9 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     # average of about 500 bytes per name record, for about 100
     # records per file. if the store has existing data in it, this
     # will be ignored
-    hash_bits => $hash_bits
+    hash_bits => $hash_bits,
+
+    verbose => $verbose
 );
 
 # make a stream of key/value pairs and load them into the HashStore
@@ -257,7 +259,7 @@ sub make_name_record_stream {
 sub make_key_value_stream {
     my ( $workdir, $operation_stream, $operation_stream_estimate ) = @_;
     my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
-    print "Temporary DBM file: $tempfile\n" if $verbose;
+    print "Temporary key-value DBM file: $tempfile\n" if $verbose;
     my $db_conf = new DB_File::BTREEINFO;
     $db_conf->{cachesize} = int($mem/300);
     my $db = tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
