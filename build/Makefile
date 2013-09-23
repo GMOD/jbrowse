@@ -41,14 +41,12 @@ release-normal-test: release-normal
 	  && ./setup.sh \
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
-
 PLUGINS = $(wildcard $(PLUGINDIR)/*)
-plugins-min: $(PLUGINS)
+
+plugins-min: release-normal
 #	( for pdir in $(PLUGINS); do pname=`basename $$pdir`; node $(BASEDIR)/src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$$pdir/js/$$pname" --releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname $(RELEASE_FULL_DIR)/plugins/$$pname/js"; rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; done )
-	mkdir -p $(RELEASE_FULL_DIR)/plugins/$$pname;
 	for pdir in $(PLUGINS); do  \
 		pname=`basename $$pdir`; \
-		cp -r $$pdir $(RELEASE_FULL_DIR)/plugins/$$pname; \
 		node $(BASEDIR)/src/dojo/dojo.js load=build \
 			--require "$(JSDIR)/init.js" \
 			--profile "$$pdir/js/$$pname" \
