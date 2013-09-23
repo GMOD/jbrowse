@@ -199,6 +199,7 @@ from the store directory.
 
 sub empty {
     my ( $self ) = @_;
+    print "Removing existing contents of target dir $self->{dir}\n" if $self->{verbose};
     File::Path::rmtree( $self->{dir} );
     File::Path::mkpath( $self->{dir} );
 }
