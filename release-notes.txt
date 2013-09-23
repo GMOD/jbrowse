@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Further improved the memory footprint of generate-names.pl.  Thanks
+   to Richard Hayes for his continued help with testing improvements
+   and reporting problems.
+
 # Release 1.10.4     2013-09-23 16:16:50 EST5EDT
 
 ## Minor improvements

@@ -149,7 +149,8 @@ set all those values in the hash.
 =cut
 
 sub stream_set {
-    my ( $self, $kv_stream ) = @_;
+    my $self = shift;
+    my $kv_stream = shift;
 
     require POSIX;
     require File::Temp;
@@ -172,7 +173,7 @@ sub stream_set {
         $buckets{$hex} = $b;
         #print "$hex set ".length($b)." ".length($buckets{$hex})."\n";
     }
-    $kv_stream = undef;
+    $kv_stream = undef; #< free the kv_stream to save memory
 
     #print "formatting\n";
     while( my ( $hex, $contents ) = each %buckets ) {

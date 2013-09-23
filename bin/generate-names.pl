@@ -171,13 +171,11 @@ my $record_stream_estimate;
 my $operation_stream_estimate;
 my $operation_stream = make_operation_stream( $record_stream );
 
-my $key_value_stream = make_key_value_stream( $workDir || $outDir, $operation_stream, $operation_stream_estimate );
-
-# finally copy the temp store to the namestore
-
 $hash_bits ||= $record_stream_estimate
   ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $record_stream_estimate / 100 )/ 4 / log(2)) )))
   : 12;
+
+# finally copy the temp store to the namestore
 
 print "Formatting index as JSON, using $hash_bits-bit hashing.\n" if $verbose;
 
@@ -194,8 +192,8 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     hash_bits => $hash_bits
 );
 
-# load all the key/value pairs into the HashStore
-$nameStore->stream_set( $key_value_stream );
+# make a stream of key/value pairs and load them into the HashStore
+$nameStore->stream_set( make_key_value_stream( $workDir || $outDir, $operation_stream, $operation_stream_estimate ) );
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = \@tracksWithNames;
