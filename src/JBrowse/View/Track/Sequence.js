@@ -250,7 +250,7 @@ return declare( [BlockBased, ExportMixin],
         widthTest.appendChild(document.createTextNode(widthText));
         containerElement.appendChild(widthTest);
         var result = {
-            w:  widthTest.clientWidth / widthText.length,
+            w:  (widthTest.clientWidth / widthText.length)+1,
             h: widthTest.clientHeight
         };
         containerElement.removeChild(widthTest);
