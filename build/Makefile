@@ -12,19 +12,23 @@ RELEASE_MIN  = $(RELEASE_NAME)
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
 ZIP=zip -q --symlinks -r
+UNZIP=unzip -q
 
 all: docs bin/wig2png
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
-	ls -l *.zip
+	ls -lh *.zip
 	sha1sum *.zip
 
 release-notes.html: release-notes.txt
 	perl -MText::Markdown=markdown -e 'local $$/; print markdown(scalar <>)' $< > $@
 
 release-normal: superclean $(JS_SRCFILES)
-	mkdir $(RELEASE_FULL_DIR);  cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
+	mkdir $(RELEASE_FULL_DIR);
+	cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
+
+	mv $(RELEASE_FULL_DIR)/src/dojo/nls $(RELEASE_FULL_DIR)/src/nls;
 
         # version-stamp Browser.js
 	perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
@@ -38,6 +42,9 @@ release-normal: superclean $(JS_SRCFILES)
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
+        # unzip to make sure we are looking at what's really in the releases
+	rm -rf $(RELEASE_FULL_DIR);
+	$(UNZIP) $(RELEASE_FULL).zip
 	cd $(RELEASE_FULL_DIR) \
 	  && ./setup.sh \
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
@@ -60,7 +67,7 @@ plugins-min: release-normal
 release-min: release-normal plugins-min
 
         # run the dojo build in the full dir to minify
-	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
+	node src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src";
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
@@ -91,11 +98,17 @@ release-min: release-normal plugins-min
 	    fi;\
 	done
 
+	mv $(RELEASE_MIN_DIR)/src/dojo/nls $(RELEASE_MIN_DIR)/src/nls;
+
 	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
 
+        # zip it up
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
 release-min-test: release-min
+        # unzip to make sure we are looking at what's really in the releases
+	rm -rf $(RELEASE_MIN_DIR);
+	$(UNZIP) $(RELEASE_MIN).zip
 	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
