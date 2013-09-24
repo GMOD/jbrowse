@@ -242,7 +242,7 @@ return declare( [BlockBased, ExportMixin],
      * and height.
      */
     _measureSequenceCharacterSize: function( containerElement, className ) {
-        var widthTest = document.createElement("tr");
+        var widthTest = document.createElement("td");
         widthTest.className = className;
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";
