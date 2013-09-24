@@ -349,7 +349,7 @@ sub make_operation_stream {
     $stats{operation_stream_estimated_count} = $stats{record_stream_estimated_count} * int( @operation_buffer / ($stats{namerecs_converted_to_operations}||1) );
 
     if( $verbose ) {
-        print "Input stats:\n";
+        print "Sampled input stats:\n";
         while( my ($k,$v) = each %stats ) {
             $k =~ s/_/ /g;
             printf( '%40s'." $v\n", $k );
