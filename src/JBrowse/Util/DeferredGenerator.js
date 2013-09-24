@@ -1,130 +1,132 @@
 /**
  * Deferred generator object, allows chained asynchronous iteration.
  * Like an iterating version of dojo/Deferred.
+ * Designed to be compatible with dojo/Deferred.
  */
 
 define(
     [
-        'dojo/_base/declare'
+        'dojo/_base/declare',
+        'dojo/errors/CancelError'
     ],
     function(
-        declare
+        declare,
+        CancelError
     ) {
 
+var EMIT = 0, RESOLVE = 1, REJECT = 2, PROGRESS = 3, CANCEL = 4;
+var METHODNAMES = [ 'emit', 'resolve', 'reject', 'progress', 'cancel' ];
+
 var DeferredGenerator = declare( null, {
-  constructor: function( parent ) {
+  constructor: function( cancel, parent ) {
       this._parent = parent;
+      var thisB = this;
+      this._callbacks = [ undefined, undefined, undefined, undefined, cancel ];
   },
 
   generator: function( generator ) {
       if( this._parent )
           this._parent.generator( generator );
       else {
-          if( this._generatorFunction ) {
+          if( this._generatorFunction )
               console.warn( "redefining generator function, removing: "+this._generatorFunction );
-          }
           this._generatorFunction = generator;
       }
       return this;
   },
 
-  each: function( each, end, error ) {
-      var child = new DeferredGenerator( this );
-      child._onEnd   = end;
-      child._onError = error;
-      child._onEach  = each;
+  each: function( each, end, error, progress ) {
+      var child = new DeferredGenerator( undefined, this );
+      child._callbacks = [ each, end, error, progress ];
 
-      if( '_rejected' in this ) {
-          child.reject( (error || function(){})( this._rejected ) );
-      }
-      else if( '_resolved' in this ) {
-          child.resolve( (end || function(){})( this._resolved ) );
+      if( '_fulfilled' in this ) {
+          var method = child[ METHODNAMES[type] ];
+          return method && method.call( deferred, this._value );
       }
 
       return child;
   },
 
-  then: function( end, error ) {
-      return this.each( null, end, error );
+  then: function( end, error, progress ) {
+      return this.each( undefined, end, error, progress );
   },
 
   emit: function( item ) {
-      if( this._parent )
-          item = this._parent.emit( item );
-      if( this._onEach )
-          item = this._onEach( item );
-      return item;
+      return this._signal( item, EMIT );
   },
 
-  resolve: function( value ) {
-      delete this._onEach;
-
-      if( this._parent ) {
-          value = this._parent.resolve( value );
-          delete this._parent;
-      }
+  _signal: function( value, type ) {
+      if( this._parent )
+          value = this._parent._signal( value, type );
 
       if( value && typeof value.then == 'function' ) {
           var thisB = this;
-          return value.then(
-              function(e) { return thisB._fireEnd(e);   },
-              function(e) { return thisB._fireError(e); }
+          value = value.then(
+              function(v) { return thisB._signal(v,RESOLVE, true  ); },
+              function(v) { return thisB._signal(v,REJECT, true   ); },
+              function(v) { return thisB._signal(v,PROGRESS, true ); }
           );
       } else {
-          return this._fireEnd(value);
+          var cb = this._callbacks[type];
+          if( cb ) {
+              value = cb.call(this,value);
+          }
+
+          if( type != EMIT && type != PROGRESS )
+              this._fulfill( type, value );
+      }
+      return value;
+  },
+
+  _fulfill: function( type, value ) {
+      this._fulfilled = type;
+      this._value = value;
+
+      // free parent and callbacks
+      delete this._parent;
+      this._callbacks = [];
+
+      return value;
+  },
+
+  resolve: function( value ) {
+      this._signal( value, RESOLVE );
+  },
+  reject: function( error ) {
+      this._signal( error, REJECT );
+  },
+  progress: function( value ) {
+      this._signal( value, PROGRESS );
+  },
+  cancel: function( reason ) {
+      if( ! reason )
+          reason = new CancelError();
+
+      if( this._parent )
+          this._parent.cancel( reason );
+      else {
+          // the root of the hierarchy calls its cancel callback, and then rejects.
+          this._callbacks[CANCEL]( reason );
+          this.reject( reason );
       }
   },
 
   isResolved: function() {
-      return '_resolved' in this;
+      return this._fulfilled == RESOLVE;
   },
-
   isRejected: function() {
-      return '_rejected' in this;
+      return this._fulfilled == REJECT;
   },
-
   isFulfilled: function() {
-      return this.isResolved() || this.isRejected();
+      return this._fulfilled && this._fulfilled != CANCEL;
   },
-
-  _fireEnd: function( value ) {
-      if( this._onEnd ) {
-          value = this._onEnd(value);
-          delete this._onEnd;
-      }
-      return this._resolved = value;
-  },
-
-  reject: function( error ) {
-      delete this._onEach;
-
-      if( this._parent ) {
-          error = this._parent.reject( error );
-          delete this._parent;
-      }
-
-      if( error && typeof error.then == 'function' ) {
-          var thisB = this;
-          return error.then(
-              function(v) { return thisB._fireEnd(v);   },
-              function(e) { return thisB._fireError(e); }
-          );
-      } else {
-          return this._fireError(error);
-      }
-  },
-
-  _fireError: function( error ) {
-      if( this._onError ) {
-          error = this._onError( error );
-          delete this._onError;
-      }
-
-      return this._rejected = error;
+  isCanceled: function() {
+      return this._fulfilled == CANCEL;
   },
 
   start: function() {
       this._start( this );
+      return this;
   },
   _start: function( head ) {
       if( '_started' in this )

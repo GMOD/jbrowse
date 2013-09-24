@@ -6,8 +6,8 @@ require([
 describe('deferred generator', function() {
 
    it('works in a basic way', function() {
-          var d = new DeferredGenerator();
-          d.generator( function( d ) {
+          var root = new DeferredGenerator();
+          root.generator( function( d ) {
               window.setTimeout( function() {
                                      d.emit( 1 );
                                      d.emit( 2 );
@@ -21,11 +21,11 @@ describe('deferred generator', function() {
           var items = [];
           var done = '';
 
-          expect( d.isFulfilled() ).toBeFalsy();
-          expect( d.isRejected() ).toBeFalsy();
-          expect( d.isResolved() ).toBeFalsy();
+          expect( root.isFulfilled() ).toBeFalsy();
+          expect( root.isRejected() ).toBeFalsy();
+          expect( root.isResolved() ).toBeFalsy();
 
-          d.each( function(i) { return i*2; }, function() { done += 'one'; } )
+          var d = root.each( function(i) { return i*2; }, function() { done += 'one'; } )
            .each( function(i) { return i+1; }, function() { done += 'two'; } )
            .each( function(i) { items.push(i); }, function() { done += 'three'; } )
            .then( function()  { done += 'four'; } )
@@ -46,8 +46,8 @@ describe('deferred generator', function() {
    });
 
    it('detects branching chains', function() {
-          var d = new DeferredGenerator();
-          d.generator( function( d ) {
+          var root = new DeferredGenerator();
+          root.generator( function( d ) {
               window.setTimeout( function() {
                                      d.emit( 1 );
                                      d.emit( 2 );
@@ -56,7 +56,7 @@ describe('deferred generator', function() {
           });
           var items = [];
           var done;
-          d = d.each( function(i) { return i*2; } )
+          var d = root.each( function(i) { return i*2; } )
               .each( function(i) { return i+1; } )
               .each( function(i) { items.push(i); },
                      function() { done = true; } );
@@ -86,9 +86,10 @@ describe('deferred generator', function() {
           });
    });
 
-   it('supports returning Deferreds or DeferredGenerators from end callbacks', function() {
-          var d = new DeferredGenerator();
-          d.generator( function( d ) {
+   it('supports returning Deferred* from end callbacks', function() {
+          var canceled;
+          var root = new DeferredGenerator(function(reason) { canceled = reason; });
+          root.generator( function( d ) {
               window.setTimeout( function() {
                                      d.emit( 1 );
                                      d.emit( 2 );
@@ -99,10 +100,17 @@ describe('deferred generator', function() {
                                                        }, 200 );
                                  }, 200 );
           });
+          expect( canceled ).toBeFalsy();
+
           var items = [];
           var done;
           var endString = '';
-          d.each( function(i) { return i*2; }, function() { endString += 'one'; } )
+          root.each( function(i) { return i*2; },
+                  function() {
+                      var d = new Deferred();
+                      window.setTimeout( function() { endString += 'one'; d.resolve(); }, 200 );
+                      return d;
+                  })
            .each( function(i) { return i+1; }, function() { endString += 'two'; } )
            .each( function(i) { items.push(i); }, function() {
                       var d = new Deferred();
@@ -119,6 +127,7 @@ describe('deferred generator', function() {
                     expect( items[3] ).toEqual( 9 );
                     expect( items.length ).toEqual( 4 );
                     expect( endString ).toEqual('onetwothreefour');
+                    expect( canceled ).toBeFalsy();
           });
    });
 
