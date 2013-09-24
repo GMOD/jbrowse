@@ -18,25 +18,14 @@ var EMIT = 0, RESOLVE = 1, REJECT = 2, PROGRESS = 3, CANCEL = 4;
 var METHODNAMES = [ 'emit', 'resolve', 'reject', 'progress', 'cancel' ];
 
 var DeferredGenerator = declare( null, {
-  constructor: function( cancel, parent ) {
+  constructor: function( generator, cancel, parent ) {
+      this._generatorFunction = generator;
       this._parent = parent;
-      var thisB = this;
       this._callbacks = [ undefined, undefined, undefined, undefined, cancel ];
   },
 
-  generator: function( generator ) {
-      if( this._parent )
-          this._parent.generator( generator );
-      else {
-          if( this._generatorFunction )
-              console.warn( "redefining generator function, removing: "+this._generatorFunction );
-          this._generatorFunction = generator;
-      }
-      return this;
-  },
-
   each: function( each, end, error, progress ) {
-      var child = new DeferredGenerator( undefined, this );
+      var child = new DeferredGenerator( undefined, undefined, this );
       child._callbacks = [ each, end, error, progress ];
 
       if( '_fulfilled' in this ) {
@@ -68,9 +57,8 @@ var DeferredGenerator = declare( null, {
           );
       } else {
           var cb = this._callbacks[type];
-          if( cb ) {
+          if( cb )
               value = cb.call(this,value);
-          }
 
           if( type != EMIT && type != PROGRESS )
               this._fulfill( type, value );
@@ -125,7 +113,9 @@ var DeferredGenerator = declare( null, {
   },
 
   start: function() {
-      this._start( this );
+      if( ! this._fulfilled )
+          this._start( this );
+
       return this;
   },
   _start: function( head ) {

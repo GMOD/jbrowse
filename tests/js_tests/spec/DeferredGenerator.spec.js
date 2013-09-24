@@ -6,8 +6,7 @@ require([
 describe('deferred generator', function() {
 
    it('works in a basic way', function() {
-          var root = new DeferredGenerator();
-          root.generator( function( d ) {
+          var root = new DeferredGenerator( function( d ) {
               window.setTimeout( function() {
                                      d.emit( 1 );
                                      d.emit( 2 );
@@ -46,8 +45,7 @@ describe('deferred generator', function() {
    });
 
    it('detects branching chains', function() {
-          var root = new DeferredGenerator();
-          root.generator( function( d ) {
+          var root = new DeferredGenerator( function( d ) {
               window.setTimeout( function() {
                                      d.emit( 1 );
                                      d.emit( 2 );
@@ -88,18 +86,20 @@ describe('deferred generator', function() {
 
    it('supports returning Deferred* from end callbacks', function() {
           var canceled;
-          var root = new DeferredGenerator(function(reason) { canceled = reason; });
-          root.generator( function( d ) {
-              window.setTimeout( function() {
-                                     d.emit( 1 );
-                                     d.emit( 2 );
-                                     d.emit( 3 );
-                                     window.setTimeout(function() {
-                                                           d.emit( 4 );
-                                                           d.resolve();
-                                                       }, 200 );
-                                 }, 200 );
-          });
+          var root = new DeferredGenerator(
+              function( d ) {
+                  window.setTimeout( function() {
+                                         d.emit( 1 );
+                                         d.emit( 2 );
+                                         d.emit( 3 );
+                                         window.setTimeout(function() {
+                                                               d.emit( 4 );
+                                                               d.resolve();
+                                                           }, 200 );
+                                     }, 200 );
+              },
+              function(reason) { canceled = reason; }
+          );
           expect( canceled ).toBeFalsy();
 
           var items = [];
