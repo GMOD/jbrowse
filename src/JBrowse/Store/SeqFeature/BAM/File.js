@@ -1,14 +1,31 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/promise/all',
+            'dojo/Deferred',
             'JBrowse/has',
             'JBrowse/Util',
+            'JBrowse/Util/DeferredGenerator',
             'JBrowse/Errors',
             'JBrowse/Store/LRUCache',
             './Util',
             './LazyFeature'
         ],
-        function( declare, array, has, Util, Errors, LRUCache, BAMUtil, BAMFeature ) {
+        function(
+            declare,
+            lang,
+            array,
+            all,
+            Deferred,
+            has,
+            Util,
+            DeferredGenerator,
+            Errors,
+            LRUCache,
+            BAMUtil,
+            BAMFeature
+        ) {
 
 var BAM_MAGIC = 21840194;
 var BAI_MAGIC = 21578050;
@@ -56,71 +73,69 @@ var BamFile = declare( null,
         this.bai   = args.bai;
 
         this.chunkSizeLimit = args.chunkSizeLimit || 5000000;
+
+        var thisB = this;
+        this._initialized =
+            this._readBAI()
+                .then( lang.hitch( this, '_readBAMheader') )
+                .then( function() { return thisB; } );
     },
 
-    init: function( args ) {
-        var bam = this;
-        var successCallback = args.success || function() {};
-        var failCallback = args.failure || function(e) { console.error(e, e.stack); };
-
-        this._readBAI( dojo.hitch( this, function() {
-            this._readBAMheader( function() {
-                successCallback();
-            }, failCallback );
-        }), failCallback );
+    init: function() {
+        return this._initialized;
     },
 
-    _readBAI: function( successCallback, failCallback ) {
+    _readBAI: function() {
+        var d = new Deferred();
         if( ! has('typed-arrays') ) {
             dlog('Web browser does not support typed arrays');
-            failCallback('Web browser does not support typed arrays');
-            return;
+            d.reject('Web browser does not support typed arrays');
+            return d;
         }
 
-        // Do we really need to fetch the whole thing? >:-{
-        this.bai.fetch()
-            .then( dojo.hitch( this, function(header) {
-            var uncba = new Uint8Array( header );
-            if( readInt(uncba, 0) != BAI_MAGIC) {
-                dlog('Not a BAI file');
-                failCallback('Not a BAI file');
-                return;
-            }
+        var thisB = this;
+        return this.bai.fetch()
+            .then( lang.hitch( this, '_parseBAI' ) );
+    },
 
-            var nref = readInt(uncba, 4);
+    _parseBAI:function( headerData) {
+        var uncba = new Uint8Array( headerData );
+        if( readInt(uncba, 0) != BAI_MAGIC) {
+            throw new Error('Not a BAI file');
+        }
 
-            this.indices = [];
+        var nref = readInt(uncba, 4);
+        this.indices = [];
 
-            var p = 8;
-            for (var ref = 0; ref < nref; ++ref) {
-                var blockStart = p;
-                var nbin = readInt(uncba, p); p += 4;
-                for (var b = 0; b < nbin; ++b) {
-                    var bin = readInt(uncba, p);
-                    var nchnk = readInt(uncba, p+4);
-                    p += 8;
-                    for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
-                        var vo = readVirtualOffset( uncba, p );
-                        this._findMinAlignment( vo );
-                        p += 16;
-                    }
-                }
-                var nintv = readInt(uncba, p); p += 4;
-                // as we're going through the linear index, figure out
-                // the smallest virtual offset in the indexes, which
-                // tells us where the BAM header ends
-                this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
-
-                p += nintv * 8;
-                if( nbin > 0 || nintv > 0 ) {
-                    this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
+        var p = 8;
+        for (var ref = 0; ref < nref; ++ref) {
+            var blockStart = p;
+            var nbin = readInt(uncba, p); p += 4;
+            for (var b = 0; b < nbin; ++b) {
+                var bin = readInt(uncba, p);
+                var nchnk = readInt(uncba, p+4);
+                p += 8;
+                for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
+                    var vo = readVirtualOffset( uncba, p );
+                    this._findMinAlignment( vo );
+                    p += 16;
                 }
             }
+            var nintv = readInt(uncba, p); p += 4;
+            // as we're going through the linear index, figure out
+            // the smallest virtual offset in the indexes, which
+            // tells us where the BAM header ends
+            this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
 
-            this.empty = ! this.indices.length;
+            p += nintv * 8;
+            if( nbin > 0 || nintv > 0 ) {
+                this.indices[ref] = new Uint8Array(headerData, blockStart, p - blockStart);
+            }
+        }
 
-            successCallback( this.indices, this.minAlignmentVO );
-        }), failCallback );
+        this.empty = ! this.indices.length;
+
+        return [ this.indices, this.minAlignmentVO ];
     },
 
     _findMinAlignment: function( candidate ) {
@@ -128,7 +143,7 @@ var BamFile = declare( null,
             this.minAlignmentVO = candidate;
     },
 
-    _readBAMheader: function( successCallback, failCallback ) {
+    _readBAMheader: function() {
         var thisB = this;
         // We have the virtual offset of the first alignment
         // in the file.  Cannot completely determine how
@@ -137,75 +152,68 @@ var BamFile = declare( null,
         // up to the start of the BGZF block that the first
         // alignment is in, plus 64KB, which should get us that whole
         // BGZF block, assuming BGZF blocks are no bigger than 64KB.
-        thisB.data.fetchRange(
+        return thisB.data.fetchRange(
             0,
-            thisB.minAlignmentVO ? thisB.minAlignmentVO.block + 65535 : null
-        ).then(
-            function( unc ) {
-                var uncba = new Uint8Array(unc);
+            thisB.minAlignmentVO ? thisB.minAlignmentVO.block : null
+        ).then( function( unc ) {
+                    var uncba = new Uint8Array(unc,0,8);
 
-                if( readInt(uncba, 0) != BAM_MAGIC) {
-                    dlog('Not a BAM file');
-                    failCallback( 'Not a BAM file' );
-                    return;
+                    if( readInt(uncba, 0) != BAM_MAGIC)
+                        throw new Error( 'Not a BAM file' );
+
+                    var headLen = readInt(uncba, 4);
+
+                    return thisB._readRefSeqs( headLen+8, 65536*4 );
                 }
-
-                var headLen = readInt(uncba, 4);
-
-                thisB._readRefSeqs( headLen+8, 65536*4, successCallback, failCallback );
-            },
-            failCallback
-        );
+              );
     },
 
-    _readRefSeqs: function( start, refSeqBytes, successCallback, failCallback ) {
+    _readRefSeqs: function( start, refSeqBytes ) {
         var thisB = this;
         // have to do another request, because sometimes
-        // minAlignment VO is just flat wrong.
+        // minAlignmentVO is just flat wrong.
         // if headLen is not too big, this will just be in the
-        // RemoteBinaryFile cache
-        thisB.data.fetchRange( 0, start+refSeqBytes )
-             .then( function(unc) {
-            var uncba = new Uint8Array(unc);
+        // global byte-range cache
+        return thisB.data.fetchRange( 0, start+refSeqBytes )
+            .then( function(unc) {
+                       var uncba = new Uint8Array(unc);
 
-            var nRef = readInt(uncba, start );
-            var p = start + 4;
+                       var nRef = readInt(uncba, start );
+                       var p = start + 4;
 
-            thisB.chrToIndex = {};
-            thisB.indexToChr = [];
-            for (var i = 0; i < nRef; ++i) {
-                var lName = readInt(uncba, p);
-                var name = '';
-                for (var j = 0; j < lName-1; ++j) {
-                    name += String.fromCharCode(uncba[p + 4 + j]);
-                }
+                       thisB.chrToIndex = {};
+                       thisB.indexToChr = [];
+                       for (var i = 0; i < nRef; ++i) {
+                           var lName = readInt(uncba, p);
+                           var name = '';
+                           for (var j = 0; j < lName-1; ++j) {
+                               name += String.fromCharCode(uncba[p + 4 + j]);
+                           }
 
-                var lRef = readInt(uncba, p + lName + 4);
-                //console.log(name + ': ' + lRef);
-                thisB.chrToIndex[ thisB.store.browser.regularizeReferenceName( name ) ] = i;
-                thisB.indexToChr.push({ name: name, length: lRef });
+                           var lRef = readInt(uncba, p + lName + 4);
+                           //console.log(name + ': ' + lRef);
+                           thisB.chrToIndex[ thisB.store.browser.regularizeReferenceName( name ) ] = i;
+                           thisB.indexToChr.push({ name: name, length: lRef });
 
-                p = p + 8 + lName;
-                if( p > uncba.length ) {
-                    // we've gotten to the end of the data without
-                    // finishing reading the ref seqs, need to fetch a
-                    // bigger chunk and try again.  :-(
-                    refSeqBytes *= 2;
-                    console.warn( 'BAM header is very big.  Re-fetching '+refSeqBytes+' bytes.' );
-                    thisB._readRefSeqs( start, refSeqBytes, successCallback, failCallback );
-                    return;
-                }
-            }
+                           p = p + 8 + lName;
+                           if( p > uncba.length ) {
+                               // we've gotten to the end of the data without
+                               // finishing reading the ref seqs, need to fetch a
+                               // bigger chunk and try again.  :-(
+                               refSeqBytes *= 2;
+                               console.warn( 'BAM header is very big.  Re-fetching '+refSeqBytes+' bytes.' );
+                               return thisB._readRefSeqs( start, refSeqBytes );
+                           }
+                       }
 
-            successCallback();
-
-        }, failCallback );
+                       return null;
+                   });
     },
 
     /**
      * Get an array of Chunk objects for the given ref seq id and range.
      */
-    blocksForRange: function(refId, min, max) {
+    _blocksForRange: function(refId, min, max) {
         var index = this.indices[refId];
         if (!index) {
             return [];
@@ -304,48 +312,49 @@ var BamFile = declare( null,
         return mergedChunks;
     },
 
-    fetch: function(chr, min, max, featCallback, endCallback, errorCallback ) {
+    fetchFeatures: function( chr, min, max ) {
+        var thisB = this;
+        return new DeferredGenerator(
+            function( d ) {
+                thisB.init()
+                    .then( function( thisB ) {
+                               chr = thisB.store.browser.regularizeReferenceName( chr );
 
-        chr = this.store.browser.regularizeReferenceName( chr );
+                               var chrId = thisB.chrToIndex && thisB.chrToIndex[chr];
+                               var chunks;
+                               if( !( chrId >= 0 ) ) {
+                                   chunks = [];
+                               } else {
+                                   chunks = thisB._blocksForRange(chrId, min, max);
+                                   if (!chunks) {
+                                       throw new Errors.Fatal('Index fetch failed for '+chrId+':'+min+'..'+max);
+                                   }
+                               }
 
-        var chrId = this.chrToIndex && this.chrToIndex[chr];
-        var chunks;
-        if( !( chrId >= 0 ) ) {
-            chunks = [];
-        } else {
-            chunks = this.blocksForRange(chrId, min, max);
-            if (!chunks) {
-                errorCallback( new Errors.Fatal('Error in index fetch') );
-            }
-        }
+                               // toString function is used by the cache for making cache keys
+                               chunks.toString = function() {
+                                   return thisB.join(', ');
+                               };
 
-        // toString function is used by the cache for making cache keys
-        chunks.toString = function() {
-            return this.join(', ');
-        };
+                               //console.log( chr, min, max, chunks.toString() );
 
-        //console.log( chr, min, max, chunks.toString() );
-
-        try {
-            this._fetchChunkFeatures(
-                chunks,
-                chrId,
-                min,
-                max,
-                featCallback,
-                endCallback,
-                errorCallback
-            );
-        } catch( e ) {
-            errorCallback( e );
-        }
+                               return thisB._fetchChunkFeatures(
+                                   d,
+                                   chunks,
+                                   chrId,
+                                   min,
+                                   max
+                               );
+                           });
+            });
+        return d;
     },
 
-    _fetchChunkFeatures: function( chunks, chrId, min, max, featCallback, endCallback, errorCallback ) {
+    _fetchChunkFeatures: function( d, chunks, chrId, min, max ) {
         var thisB = this;
 
         if( ! chunks.length ) {
-            endCallback();
+            d.resolve();
             return;
         }
 
@@ -365,37 +374,33 @@ var BamFile = declare( null,
         for( var i = 0; i<chunks.length; i++ ) {
             var size = chunks[i].fetchedSize();
             if( size > this.chunkSizeLimit ) {
-                errorCallback( new Errors.DataOverflow('Too many BAM features. BAM chunk size '+Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '+Util.commifyNumber(this.chunkSizeLimit)+'.' ) );
-                return;
+                throw new Errors.DataOverflow('Too many BAM features. BAM chunk size '+Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '+Util.commifyNumber(this.chunkSizeLimit)+'.' );
             }
         }
 
         var haveError;
         var pastStart;
-        array.forEach( chunks, function( c ) {
-            cache.get( c, function( f, e ) {
-                if( e && !haveError )
-                    errorCallback(e);
-                if(( haveError = haveError || e )) {
-                    return;
-                }
+        var chunkFetches =
+            array.map(
+                chunks,
+                function( c ) {
+                    return cache.getD( c )
+                        .then( function( f ) {
+                                   for( var i = 0; i<f.length; i++ ) {
+                                       var feature = f[i];
+                                       if( feature._refID == chrId ) {
+                                           // on the right ref seq
+                                           if( feature.get('start') > max ) // past end of range, can stop iterating
+                                               break;
+                                           else if( feature.get('end') >= min ) // must be in range
+                                           d.emit( feature );
+                                       }
+                                   }
+                               });
+                });
 
-                for( var i = 0; i<f.length; i++ ) {
-                    var feature = f[i];
-                    if( feature._refID == chrId ) {
-                        // on the right ref seq
-                        if( feature.get('start') > max ) // past end of range, can stop iterating
-                            break;
-                        else if( feature.get('end') >= min ) // must be in range
-                            featCallback( feature );
-                    }
-                }
-                if( ++chunksProcessed == chunks.length ) {
-                    endCallback();
-                }
-            });
-        });
-
+        all( chunkFetches )
+           .then( lang.hitch( d, 'resolve' ) );
     },
 
     _readChunk: function( chunk, callback ) {
@@ -405,13 +410,13 @@ var BamFile = declare( null,
 
         thisB.data.fetchRange( chunk.minv.block, chunk.fetchedSize() )
              .then( function(data) {
-                        thisB.readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
+                        thisB._readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
                     }, function( e ) {
                         callback( null, new Errors.Fatal(e) );
                     });
     },
 
-    readBamFeatures: function(ba, blockStart, sink, callback ) {
+    _readBamFeatures: function(ba, blockStart, sink, callback ) {
         var that = this;
         var featureCount = 0;
 
@@ -446,7 +451,7 @@ var BamFile = declare( null,
                 // features, put the rest of our work into a timeout to continue
                 // later, avoiding blocking any UI stuff that's going on
                 window.setTimeout( function() {
-                    that.readBamFeatures( ba, blockStart, sink, callback );
+                    that._readBamFeatures( ba, blockStart, sink, callback );
                 }, 1);
                 return;
             }

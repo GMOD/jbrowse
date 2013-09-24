@@ -1,9 +1,8 @@
 require([
             'dojo/aspect',
             'JBrowse/Browser',
-            'JBrowse/Store/SeqFeature/BAM',
-            'JBrowse/Model/XHRBlob'
-        ], function( aspect, Browser, BAMStore, XHRBlob ) {
+            'JBrowse/Store/SeqFeature/BAM'
+        ], function( aspect, Browser, BAMStore ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -18,8 +17,10 @@ describe( 'BAM with volvox-sorted.bam', function() {
               beforeEach( function() {
                   b = new BAMStore({
                                        browser: new Browser({ unitTestMode: true }),
-                                       bam: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam'),
-                                       bai: new XHRBlob('../../sample_data/raw/volvox/volvox-sorted.bam.bai')
+                                       config: {
+                                           urlTemplate: '../../../sample_data/raw/volvox/volvox-sorted.bam',
+                                           baiUrlTemplate: '../../../sample_data/raw/volvox/volvox-sorted.bam.bai'
+                                       }
                                    });
               });
 
@@ -28,20 +29,18 @@ describe( 'BAM with volvox-sorted.bam', function() {
                   });
 
               it( 'loads some data', function() {
-                      var loaded;
                       var features = [];
                       var done;
-                      aspect.after( b, 'loadSuccess', function() {
-                          loaded = true;
-                      });
-                      b.getFeatures({ ref: 'ctgA', start: 0, end: 50000 },
-                                 function( feature ) {
-                                     features.push( feature );
-                                 },
-                                 function() {
-                                     done = true;
-                                 }
-                               );
+                      b.getFeatures({ ref: 'ctgA', start: 0, end: 50000 })
+                       .each( function( feature ) {
+                                  features.push( feature );
+                              },
+                              function() {
+                                  done = true;
+                              }
+                            )
+                      .start();
+
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
                                 expect(features.length).toBeGreaterThan(1000);
@@ -54,8 +53,10 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
               beforeEach( function() {
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
-                      bam: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam'),
-                      bai: new XHRBlob('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam.bai')
+                      config: {
+                          urlTemplate: '../../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam',
+                          baiUrlTemplate: '../../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam.bai'
+                      }
                   });
               });
 
@@ -64,20 +65,18 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                   });
 
               it( 'loads some data', function() {
-                      var loaded;
                       var features = [];
                       var done;
-                      aspect.after( b, 'loadSuccess', function() {
-                          loaded = true;
-                      });
-                      b.getFeatures({ ref: 'chromosome', start: 17000, end: 18000 },
-                                 function( feature ) {
-                                     features.push( feature );
-                                 },
-                                 function() {
-                                     done = true;
-                                 }
-                               );
+                      b.getFeatures({ ref: 'chromosome', start: 17000, end: 18000 } )
+                        .each( function( feature ) {
+                                   features.push( feature );
+                               },
+                               function() {
+                                   done = true;
+                               }
+                             )
+                        .start();
+
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
                                 expect(features.length).toEqual(124);
@@ -91,8 +90,10 @@ describe( 'empty BAM', function() {
               beforeEach( function() {
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
-                      bam: new XHRBlob('../data/empty.bam'),
-                      bai: new XHRBlob('../data/empty.bam.bai')
+                      config: {
+                          urlTemplate: '../../data/empty.bam',
+                          baiUrlTemplate: '../../data/empty.bam.bai'
+                      }
                   });
               });
 
@@ -101,20 +102,19 @@ describe( 'empty BAM', function() {
                   });
 
               it( "returns no data, but doesn't crash", function() {
-                      var loaded;
                       var features = [];
                       var done;
-                      aspect.after( b, 'loadSuccess', function() {
-                          loaded = true;
-                      });
-                      b.getFeatures( { ref: 'ctgA', start: 0, end: 50000 },
-                                 function( feature ) {
-                                     features.push( feature );
-                                 },
-                                 function() {
-                                     done = true;
-                                 }
-                               );
+                      b.getFeatures( { ref: 'ctgA', start: 0, end: 50000 } )
+                       .each(
+                           function( feature ) {
+                               features.push( feature );
+                           },
+                           function() {
+                               done = true;
+                           }
+                         )
+                        .start();
+
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
                                 expect(features.length).toEqual( 0 );
@@ -127,8 +127,10 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
               beforeEach( function() {
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
-                      bam: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam'),
-                      bai: new XHRBlob('../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai')
+                      config: {
+                          urlTemplate: '../../data/final.merged.sorted.rgid.mkdup.realign.recal.bam',
+                          baiUrlTemplate: '../../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai'
+                      }
                   });
               });
 
@@ -137,20 +139,18 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                   });
 
               it( 'loads some data', function() {
-                      var loaded;
                       var features = [];
                       var done;
-                      aspect.after( b, 'loadSuccess', function() {
-                          loaded = true;
-                      });
-                      b.getFeatures({ ref: 'chr21_gl000210_RANDOM', start: 16589, end: 18964 },
-                                 function( feature ) {
-                                     features.push( feature );
-                                 },
-                                 function() {
-                                     done = true;
-                                 }
-                               );
+                      b.getFeatures({ ref: 'chr21_gl000210_RANDOM', start: 16589, end: 18964 })
+                       .each( function( feature ) {
+                                  features.push( feature );
+                              },
+                              function() {
+                                  done = true;
+                              }
+                            )
+                       .start();
+
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
                                 expect(features.length).toEqual(281);
@@ -166,29 +166,27 @@ if( document.location.href.indexOf('extended_tests=1') > -1 ) {
                   beforeEach( function() {
                       b = new BAMStore({
                           browser: new Browser({ unitTestMode: true }),
-                          bam: new XHRBlob('../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam'),
-                          bai: new XHRBlob('../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam.bai')
+                          config: {
+                              urlTemplate: '../../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam',
+                              baiUrlTemplate: '../../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam.bai'
+                          }
                       });
                   });
 
                   it( 'loads some data', function() {
-                          var loaded;
                           var features = [];
                           var done;
-                          aspect.after( b, 'loadSuccess', function() {
-                              loaded = true;
-                          });
-
     // need 2:3905491-4019507 NODE_423_length_210786_cov_16.121635 3919331 3979772
+                          b.getFeatures({ ref: 'ctga', start: 3799999, end: 4049999 })
+                           .each( function( feature ) {
+                                      features.push( feature );
+                                  },
+                                  function() {
+                                      done = true;
+                                  }
+                                )
+                            .start();
 
-                          b.getFeatures({ ref: 'ctga', start: 3799999, end: 4049999 },
-                                     function( feature ) {
-                                         features.push( feature );
-                                     },
-                                     function() {
-                                         done = true;
-                                     }
-                                   );
                           waitsFor( function() { return done; }, 2000 );
                           runs( function() {
                                     expect(features.length).toEqual(13);

@@ -2,10 +2,11 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/Deferred',
            'JBrowse/Util',
            'JBrowse/Digest/Crc32'
        ],
-       function( declare, lang, array, Util, digest ) {
+       function( declare, lang, array, Deferred, Util, digest ) {
 
 return declare( null,
 
@@ -48,6 +49,17 @@ return declare( null,
         // we aggregate cache fill calls that are in progress, indexed
         // by cache key
         this._inProgressFills = {};
+    },
+
+    getD: function( key, fillCallback ) {
+        var d = new Deferred();
+        this.get( key, function( val, error ) {
+                      if( error )
+                          d.reject(error);
+                      else
+                          d.resolve(val);
+                  }, fillCallback );
+        return d;
     },
 
     get: function( inKey, callback, fillCallback ) {

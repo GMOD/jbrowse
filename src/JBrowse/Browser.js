@@ -108,6 +108,8 @@ constructor: function(params) {
     this._constructorArgs = params || {};
 
     // if we're in the unit tests, stop here and don't do any more initialization
+    this._initTransportDrivers();
+
     if( this._constructorArgs.unitTestMode ) {
         this._finalizeConfig( this._constructorArgs || {} );
         return;
@@ -121,12 +123,12 @@ constructor: function(params) {
 
     this.trackConfigsByName = {};
 
-    this._initTransportDrivers();
-
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
+            thisB._initTransportDrivers();
+
             // initialize our highlight if one was set in the config
             if( thisB.getConf('highlight') )
                 thisB.setHighlight( new Location( thisB.getConf('highlight') ) );
@@ -156,6 +158,7 @@ configSchema: {
             { name: 'css', type: 'multi-string|object' },
             { name: 'names', type: 'object', defaultValue: {} },
             { name: 'nameUrl', type: 'string', defaultValue: function(b) { return b.getConf('dataRoot')+'/names/root.json'; } },
+            { name: 'unitTestMode', type: 'boolean', defaultValue: false },
             { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
             { name: 'dijitTheme', type: 'string', defaultValue: 'tundra' },
             { name: 'theme', type: 'string', defaultValue: 'metro' },
