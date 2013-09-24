@@ -148,8 +148,6 @@ if( $verbose ) {
     print "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
 }
 
-# read the name list for each track that has one
-my $trackNum = 0;
 
 # find the names files we will be working with
 my @names_files = find_names_files();
@@ -159,18 +157,20 @@ if( ! @names_files ) {
 
 #print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
 
-my $total_namerec_sizes = 0;
-my $namerecs_buffered = 0;
-my @tracksWithNames;
+my %stats = (
+    total_namerec_bytes => 0,
+    namerecs_buffered   => 0,
+    tracksWithNames => [],
+    record_stream_estimated_count => 0,
+    operation_stream_estimated_count => 0,
+    );
 
 # convert the stream of name records into a stream of operations to do
 # on the data in the hash store
-my $record_stream_estimate;
-my $operation_stream_estimate;
 my $operation_stream = make_operation_stream( make_name_record_stream( \@refSeqs, \@names_files ) );
 
-$hash_bits ||= $record_stream_estimate
-  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $record_stream_estimate / 100 )/ 4 / log(2)) )))
+$hash_bits ||= $stats{record_stream_estimated_count}
+  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $stats{record_stream_estimated_count} / 100 )/ 4 / log(2)) )))
   : 12;
 
 # finally copy the temp store to the namestore
@@ -193,10 +193,10 @@ my $nameStore = Bio::JBrowse::HashStore->open(
 );
 
 # make a stream of key/value pairs and load them into the HashStore
-$nameStore->stream_set( make_key_value_stream( $workDir || $outDir, $operation_stream, $operation_stream_estimate ) );
+$nameStore->stream_set( make_key_value_stream( $workDir || $outDir, $operation_stream ) );
 
 # store the list of tracks that have names
-$nameStore->{meta}{track_names} = \@tracksWithNames;
+$nameStore->{meta}{track_names} = $stats{tracksWithNames};
 # record the fact that all the keys are lowercased
 $nameStore->{meta}{lowercase_keys} = 1;
 
@@ -221,10 +221,16 @@ sub make_name_record_stream {
 
     # insert a name record for all of the reference sequences
     for my $ref ( @$refseqs ) {
-        push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+        $stats{name_input_records}++;
+        $stats{namerecs_buffered}++;
+        my $rec = [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+        $stats{total_namerec_bytes} += length join(",",$rec);
+        push @namerecord_buffer, $rec;
     }
 
     my %trackHash;
+
+    my $trackNum = 0;
 
     return sub {
         while( ! @namerecord_buffer ) {
@@ -240,9 +246,9 @@ sub make_name_record_stream {
                     my $track = $nameinfo->[1];
                     unless ( defined $trackHash{$track} ) {
                         $trackHash{$track} = $trackNum++;
-                        push @tracksWithNames, $track;
+                        push @{$stats{tracksWithNames}}, $track;
                     }
-                    $namerecs_buffered++;
+                    $stats{namerecs_buffered}++;
                     push @namerecord_buffer, [
                         $alias,
                         $trackHash{$track},
@@ -255,7 +261,7 @@ sub make_name_record_stream {
 }
 
 sub make_key_value_stream {
-    my ( $workdir, $operation_stream, $operation_stream_estimate ) = @_;
+    my ( $workdir, $operation_stream ) = @_;
     my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
     print "Temporary key-value DBM file: $tempfile\n" if $verbose;
     my $db_conf = new DB_File::BTREEINFO;
@@ -266,11 +272,11 @@ sub make_key_value_stream {
     my $operations_processed = 0;
     my $progress_next_update = 0;
     if( $verbose ) {
-        print "Estimating $operation_stream_estimate index operations on $record_stream_estimate records.\n";
+        print "Estimating $stats{operation_stream_estimated_count} index operations on $stats{record_stream_estimated_count} completion records.\n";
         eval {
             require Term::ProgressBar;
             $progressbar = Term::ProgressBar->new({name  => 'Building index',
-                                                   count => $operation_stream_estimate,
+                                                   count => $stats{operation_stream_estimated_count},
                                                    ETA   => 'linear', });
             $progressbar->max_update_rate(1);
         }
@@ -281,15 +287,15 @@ sub make_key_value_stream {
         do_hash_operation( \%temp_store, $op );
 
         if( $progressbar ) {
-            $operations_processed++;
+            $stats{operations_processed}++;
             if( $operations_processed > $progress_next_update ) {
                 $progress_next_update = $progressbar->update( $operations_processed );
             }
         }
     }
 
-    if( $progressbar && $operation_stream_estimate >= $progress_next_update ) {
-        $progressbar->update( $operation_stream_estimate );
+    if( $progressbar && $stats{operation_stream_estimated_count} >= $progress_next_update ) {
+        $progressbar->update( $stats{operation_stream_estimated_count} );
     }
 
     return sub {
@@ -328,28 +334,35 @@ sub find_names_files {
 sub make_operation_stream {
     my ( $record_stream ) = @_;
 
-    my $namerecs_converted = 0;
+    $stats{namerecs_converted_to_operations} = 0;
     my @operation_buffer;
     # try to fill the operation buffer a bit to estimate the number of operations per name record
     {
-        while( @operation_buffer < 10000 && ( my $name_record = $record_stream->()) ) {
-            $namerecs_converted++;
+        while( @operation_buffer < 50000 && ( my $name_record = $record_stream->()) ) {
+            $stats{namerecs_converted_to_operations}++;
             push @operation_buffer, make_operations( $name_record );
         }
     }
 
-    $operation_stream_estimate = @operation_buffer;
-
     # estimate the total number of name records we probably have based on the input file sizes
-    #print "sizes: $total_namerec_sizes, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
-    my $avg_record_text_bytes = $total_namerec_sizes/($namerecs_buffered||1);
-    $record_stream_estimate = int( (sum( map { -s $_->{fullpath} } @names_files )||0) / ($avg_record_text_bytes||1));;
-    $operation_stream_estimate = $record_stream_estimate * int( @operation_buffer / ($namerecs_converted||1) );
+    #print "sizes: $stats{total_namerec_bytes}, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
+    $stats{avg_record_text_bytes} = $stats{total_namerec_bytes}/($stats{namerecs_buffered}||1);
+    $stats{total_input_bytes} = sum( map { -s $_->{fullpath} } @names_files ) || 0;
+    $stats{record_stream_estimated_count} = int( $stats{total_input_bytes} / ($stats{avg_record_text_bytes}||1));;
+    $stats{operation_stream_estimated_count} = $stats{record_stream_estimated_count} * int( @operation_buffer / ($stats{namerecs_converted_to_operations}||1) );
+
+    if( $verbose ) {
+        print "Input stats:\n";
+        while( my ($k,$v) = each %stats ) {
+            $k =~ s/_/ /g;
+            printf( '%40s'." $v\n", $k );
+        }
+    }
 
     return sub {
         unless( @operation_buffer ) {
             if( my $name_record = $record_stream->() ) {
-                $namerecs_converted++;
+                #$stats{namerecs_converted_to_operations}++;
                 push @operation_buffer, make_operations( $name_record );
             }
         }
@@ -376,6 +389,8 @@ sub make_operations {
             chop $l;
         }
     }
+
+    $stats{operations_made} += scalar @ops;
 
     return @ops;
 }
@@ -432,7 +447,8 @@ sub make_names_iterator {
         return sub {
             my $t = <$input_fh>;
             if( $t ) {
-                $total_namerec_sizes += length $t;
+                $stats{name_input_records}++;
+                $stats{total_namerec_bytes} += length $t;
                 return eval { JSON::from_json( $t ) };
             }
             return undef;
@@ -442,10 +458,15 @@ sub make_names_iterator {
         # read old-style names.json files all from memory
         my $input_fh = open_names_file( $file_record->{fullpath} );
 
+
         my $data = JSON::from_json(do {
             local $/;
-            scalar <$input_fh>
+            my $text = scalar <$input_fh>;
+            $stats{total_namerec_bytes} += length $text;
+            $text;
         });
+
+        $stats{name_input_records} += scalar @$data;
 
         open my $nt, '>', $file_record->{namestxt} or die;
         return sub {
