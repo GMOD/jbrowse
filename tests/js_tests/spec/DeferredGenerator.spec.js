@@ -1,6 +1,7 @@
 require([
+            'dojo/Deferred',
             'JBrowse/Util/DeferredGenerator'
-        ], function( DeferredGenerator ) {
+        ], function( Deferred, DeferredGenerator ) {
 
 describe('deferred generator', function() {
 
@@ -8,11 +9,11 @@ describe('deferred generator', function() {
           var d = new DeferredGenerator();
           d.generator( function( d ) {
               window.setTimeout( function() {
-                                     d.feed( 1 );
-                                     d.feed( 2 );
-                                     d.feed( 3 );
+                                     d.emit( 1 );
+                                     d.emit( 2 );
+                                     d.emit( 3 );
                                      window.setTimeout(function() {
-                                                           d.feed( 4 );
+                                                           d.emit( 4 );
                                                            d.resolve();
                                                        }, 200 );
                                  }, 200 );
@@ -39,8 +40,8 @@ describe('deferred generator', function() {
           var d = new DeferredGenerator();
           d.generator( function( d ) {
               window.setTimeout( function() {
-                                     d.feed( 1 );
-                                     d.feed( 2 );
+                                     d.emit( 1 );
+                                     d.emit( 2 );
                                      d.resolve();
                                  }, 200 );
           });
@@ -75,5 +76,42 @@ describe('deferred generator', function() {
                     expect( d2error ).toMatch( /started/ );
           });
    });
+
+   it('supports returning Deferreds or DeferredGenerators from end callbacks', function() {
+          var d = new DeferredGenerator();
+          d.generator( function( d ) {
+              window.setTimeout( function() {
+                                     d.emit( 1 );
+                                     d.emit( 2 );
+                                     d.emit( 3 );
+                                     window.setTimeout(function() {
+                                                           d.emit( 4 );
+                                                           d.resolve();
+                                                       }, 200 );
+                                 }, 200 );
+          });
+          var items = [];
+          var done;
+          var endString = '';
+          d.each( function(i) { return i*2; }, function() { endString += 'one'; } )
+           .each( function(i) { return i+1; }, function() { endString += 'two'; } )
+           .each( function(i) { items.push(i); }, function() {
+                      var d = new Deferred();
+                      window.setTimeout( function() { endString += 'three'; d.resolve(); }, 200 );
+                      return d;
+                  })
+           .then( function()  { endString += 'four'; done = true; } )
+           .start();
+          waitsFor( function() { return done; }, 800 );
+          runs( function() {
+                    expect( items[0] ).toEqual( 3 );
+                    expect( items[1] ).toEqual( 5 );
+                    expect( items[2] ).toEqual( 7 );
+                    expect( items[3] ).toEqual( 9 );
+                    expect( items.length ).toEqual( 4 );
+                    expect( endString ).toEqual('onetwothreefour');
+          });
+   });
+
 });
 });

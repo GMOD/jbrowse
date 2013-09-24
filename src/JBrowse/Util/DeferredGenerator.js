@@ -4,10 +4,13 @@
  */
 
 define(
-    ['dojo/_base/declare'],
+    [
+        'dojo/_base/declare'
+    ],
     function(
         declare
     ) {
+
 var DeferredGenerator = declare( null, {
   constructor: function( parent ) {
       this._parent = parent;
@@ -29,6 +32,7 @@ var DeferredGenerator = declare( null, {
       var child = new DeferredGenerator( this );
       child._onEnd   = end;
       child._onError = error;
+      child._onEach  = each;
 
       if( '_rejected' in this ) {
           child.reject( (error || function(){})( this._rejected ) );
@@ -37,8 +41,6 @@ var DeferredGenerator = declare( null, {
           child.resolve( (end || function(){})( this._resolved ) );
       }
 
-      child._onEach  = each;
-
       return child;
   },
 
@@ -46,9 +48,9 @@ var DeferredGenerator = declare( null, {
       return this.each( null, end, error );
   },
 
-  feed: function( item ) {
+  emit: function( item ) {
       if( this._parent )
-          item = this._parent.feed( item );
+          item = this._parent.emit( item );
       if( this._onEach )
           item = this._onEach( item );
       return item;
@@ -62,11 +64,22 @@ var DeferredGenerator = declare( null, {
           delete this._parent;
       }
 
+      if( value && typeof value.then == 'function' ) {
+          var thisB = this;
+          return value.then(
+              function(e) { return thisB._fireEnd(e);   },
+              function(e) { return thisB._fireError(e); }
+          );
+      } else {
+          return this._fireEnd(value);
+      }
+  },
+
+  _fireEnd: function( value ) {
       if( this._onEnd ) {
           value = this._onEnd(value);
           delete this._onEnd;
       }
-
       return this._resolved = value;
   },
 
@@ -78,6 +91,18 @@ var DeferredGenerator = declare( null, {
           delete this._parent;
       }
 
+      if( error && typeof error.then == 'function' ) {
+          var thisB = this;
+          return error.then(
+              function(v) { return thisB._fireEnd(v);   },
+              function(e) { return thisB._fireError(e); }
+          );
+      } else {
+          return this._fireError(error);
+      }
+  },
+
+  _fireError: function( error ) {
       if( this._onError ) {
           error = this._onError( error );
           delete this._onError;
