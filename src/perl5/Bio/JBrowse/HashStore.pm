@@ -151,10 +151,33 @@ set all those values in the hash.
 sub stream_set {
     my $self = shift;
 
-    my $buckets = $self->_hash_to_temp( shift );
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
+    $tempfile->close;
+    my %buckets;
+    {
+        my $kv_stream = shift;
+        @_ = ();
+
+        require POSIX;
+        require File::Temp;
+        require Storable;
+        require DB_File;
+
+        tie %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
+
+        print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
+        while ( my ( $k, $v ) = $kv_stream->() ) {
+            my $hex = $self->_hex( $self->_hash( $k ) );
+            my $b = $buckets{$hex};
+            $b = $b ? Storable::thaw( $buckets{$hex} ) : {};
+            $b->{$k} = $v;
+            $b = Storable::freeze( $b );
+            $buckets{$hex} = $b;
+        }
+    }
 
     print "Hashing done, writing buckets.\n" if $self->{verbose};
-    while( my ( $hex, $contents ) = each %$buckets ) {
+    while( my ( $hex, $contents ) = each %buckets ) {
         my $bucket = $self->_getBucketFromHex( $hex );
         $bucket->{data} = Storable::thaw( $contents );
         $bucket->{dirty} = 1;
@@ -164,29 +187,6 @@ sub stream_set {
 sub _hash_to_temp {
     my ( $self, $kv_stream ) = @_;
 
-    require POSIX;
-    require File::Temp;
-    require Storable;
-    require DB_File;
-
-    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
-    $tempfile->close;
-    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
-
-    print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
-    while ( my ( $k, $v ) = $kv_stream->() ) {
-        my $hex = $self->_hex( $self->_hash( $k ) );
-        #print "$hex input $k $v\n";
-        my $b = $buckets{$hex};
-        #print "$hex read ".length( $b )."\n";
-        $b = $b ? Storable::thaw( $buckets{$hex} ) : {};
-        $b->{$k} = $v;
-        $b = Storable::freeze( $b );
-        $buckets{$hex} = $b;
-        #print "$hex set ".length($b)." ".length($buckets{$hex})."\n";
-    }
-
-    return \%buckets;
 }
 
 

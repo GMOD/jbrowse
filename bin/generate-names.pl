@@ -175,7 +175,7 @@ $hash_bits ||= $stats{record_stream_estimated_count}
 
 # finally copy the temp store to the namestore
 
-print "Formatting index as JSON, using $hash_bits-bit hashing.\n" if $verbose;
+print "Using $hash_bits-bit hashing.\n" if $verbose;
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
