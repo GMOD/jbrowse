@@ -156,6 +156,7 @@ return declare( null,
         if( needToFetch.length ) {
             var fetchedCount = 0;
             array.forEach( needToFetch, function( c ) {
+                var thisB = this;
                 this.chunkCache.get(
                     c.key,
                     function( data, error ) {
@@ -167,7 +168,29 @@ return declare( null,
                             callback( goldenPath );
                     },
                     function( chunk, callback ) {
-                        fetchCallback( chunk.url, chunk.start, chunk.end, callback );
+                        fetchCallback( chunk.url, chunk.start, chunk.end )
+                            .then( function( data ) {
+
+                                       // try to get the total size of the file from the Content-Range header and remember it
+                                       try {
+                                           if( !( data.url in thisB.totalSizes )) {
+                                               thisB.totalSizes[ data.url ] = function() {
+                                                   var contentRange = data.req.getResponseHeader('Content-Range');
+                                                   if( ! contentRange )
+                                                       return undefined;
+                                                   var match = contentRange.match(/\/(\d+)$/);
+                                                   //console.log( 'size of '+data.url+' is '+match[1]);
+                                                   return match ? parseInt(match[1]) : undefined;
+                                               }.call();
+                                           }
+                                       } catch(e) {console.error(''+e, e.stack);}
+
+
+                                       callback( data );
+                                   },
+                                   function( error ) {
+                                       callback( null, error );
+                                   });
                     }
                 );
             }, this );
@@ -217,7 +240,7 @@ return declare( null,
      * @param key     {String|Object} unique resource identifier, such as the URL being fetched
      * @param start   {Number|undefined} start byte offset
      * @param end     {Number|undefined} end byte offset
-     * @param fetch   {Function} fetch callback
+     * @param fetch   {Function} fetch callback, signature ( url, startbyte, endbyte ), returns Deferred value
      */
     get: function( key, start, end, fetch ) {
         var d = new Deferred();

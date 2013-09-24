@@ -57,12 +57,10 @@ return declare( RequestBasedTransport, {
       if( req.handleAs == 'arraybuffer' ) {
           if( req.range ) {
               var thisB = this;
-              return this._byteCache.get( req, req.range[0], req.range[1], function(req,start,end,callback) {
+              return this._byteCache.get( req, req.range[0], req.range[1],
+                                          function(req,start,end) {
                                               req = lang.mixin( {}, req, { range: [start,end] } );
-                                              thisB._binaryFetch( req, credentialSlots )
-                                                   .then( callback,
-                                                          function(e){ callback(null,e); }
-                                                        );
+                                              return thisB._binaryFetch( req, credentialSlots );
                                           });
           } else {
               return this._binaryFetch( req, credentialSlots );
@@ -129,8 +127,13 @@ return declare( RequestBasedTransport, {
       req.responseType = 'arraybuffer';
 
       var respond = function( response ) {
-          var nocache = /no-cache/.test( req.getResponseHeader('Cache-Control') )
-              || /no-cache/.test( req.getResponseHeader('Pragma') );
+          try {
+              response.nocache = /no-cache/.test( req.getResponseHeader('Cache-Control') )
+                  || /no-cache/.test( req.getResponseHeader('Pragma') );
+              response.req = req;
+              response.url = url;
+              response.req.url = url;
+          } catch(e) {}
           d.resolve( response );
       };
 
