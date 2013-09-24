@@ -269,7 +269,6 @@ sub make_key_value_stream {
     my $db = tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
 
     my $progressbar;
-    my $operations_processed = 0;
     my $progress_next_update = 0;
     if( $verbose ) {
         print "Estimating $stats{operation_stream_estimated_count} index operations on $stats{record_stream_estimated_count} completion records.\n";
@@ -285,12 +284,10 @@ sub make_key_value_stream {
     # now write it to the temp store
     while( my $op = $operation_stream->() ) {
         do_hash_operation( \%temp_store, $op );
+        $stats{operations_processed}++;
 
-        if( $progressbar ) {
-            $stats{operations_processed}++;
-            if( $operations_processed > $progress_next_update ) {
-                $progress_next_update = $progressbar->update( $operations_processed );
-            }
+        if( $progressbar && $stats{operations_processed} > $progress_next_update ) {
+            $progress_next_update = $progressbar->update( $stats{operations_processed} );
         }
     }
 
