@@ -168,7 +168,7 @@ return declare( RequestBasedTransport, {
                       respond( response );
                   }
               } else {
-                  d.reject( this._errorString( req, url ) );
+                  d.reject( this._makeError( request, req, url ) );
                   return null;
               }
           }
@@ -179,11 +179,13 @@ return declare( RequestBasedTransport, {
       return d;
     },
 
-    _errorString: function( req, url ) {
-        if( req.status )
-            return req.status+' ('+req.statusText+') when attempting to fetch '+url;
-        else
-            return 'Unable to fetch '+url;
+    _makeError: function( request, xhr, url ) {
+        var e = new Error( xhr.status ? xhr.status+' ('+xhr.statusText+') when attempting to fetch '+url
+                           : 'Unable to fetch '+url );
+        e.request = request;
+        e.xhr = xhr;
+        e.url = url;
+        return e;
     }
 });
 });

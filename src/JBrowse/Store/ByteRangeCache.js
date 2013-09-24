@@ -93,6 +93,8 @@ return declare( null,
     },
 
     _fetchChunks: function( url, start, end, callback, errorCallback, fetchCallback ) {
+        var thisB = this;
+
         start = start || 0;
 
         // if we already know how big the file is, use that information for the end
@@ -149,6 +151,36 @@ return declare( null,
 
         this._log( 'need to fetch', needToFetch );
 
+        function tryFetch( d, chunk, attempt ) {
+            fetchCallback( chunk.url, chunk.start, chunk.end )
+                .then( function( data ) {
+
+                           // try to get the total size of the file from the Content-Range header and remember it
+                           try {
+                               if( !( data.url in thisB.totalSizes )) {
+                                   thisB.totalSizes[ data.url ] = function() {
+                                       var contentRange = data.req.getResponseHeader('Content-Range');
+                                       if( ! contentRange )
+                                           return undefined;
+                                       var match = contentRange.match(/\/(\d+)$/);
+                                       //console.log( 'size of '+data.url+' is '+match[1]);
+                                       return match ? parseInt(match[1]) : undefined;
+                                   }.call();
+                               }
+                           } catch(e) {console.error(''+e, e.stack);}
+
+                           d.resolve( data );
+                       },
+                       function( error ) {
+                           // retry 416 (bad range) once
+                           var shouldRetry = error.xhr.status == 416;
+                           if( shouldRetry )
+                               tryFetch( d, chunk, attempt+1 );
+                           else
+                               d.reject( error );
+                       });
+        };
+
         // now fetch all the needed chunks
         // remember that chunk records in the 'needToFetch' array are also
         // present in the 'goldenPath' array, so setting their value
@@ -156,7 +188,6 @@ return declare( null,
         if( needToFetch.length ) {
             var fetchedCount = 0;
             array.forEach( needToFetch, function( c ) {
-                var thisB = this;
                 this.chunkCache.get(
                     c.key,
                     function( data, error ) {
@@ -168,29 +199,10 @@ return declare( null,
                             callback( goldenPath );
                     },
                     function( chunk, callback ) {
-                        fetchCallback( chunk.url, chunk.start, chunk.end )
-                            .then( function( data ) {
-
-                                       // try to get the total size of the file from the Content-Range header and remember it
-                                       try {
-                                           if( !( data.url in thisB.totalSizes )) {
-                                               thisB.totalSizes[ data.url ] = function() {
-                                                   var contentRange = data.req.getResponseHeader('Content-Range');
-                                                   if( ! contentRange )
-                                                       return undefined;
-                                                   var match = contentRange.match(/\/(\d+)$/);
-                                                   //console.log( 'size of '+data.url+' is '+match[1]);
-                                                   return match ? parseInt(match[1]) : undefined;
-                                               }.call();
-                                           }
-                                       } catch(e) {console.error(''+e, e.stack);}
-
-
-                                       callback( data );
-                                   },
-                                   function( error ) {
-                                       callback( null, error );
-                                   });
+                        var d = new Deferred();
+                        tryFetch( d, chunk, 1 );
+                        d.then( callback, function( e ) { callback( null, e ); } );
+                        return d;
                     }
                 );
             }, this );
