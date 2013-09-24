@@ -75,6 +75,18 @@ var DeferredGenerator = declare( null, {
       }
   },
 
+  isResolved: function() {
+      return '_resolved' in this;
+  },
+
+  isRejected: function() {
+      return '_rejected' in this;
+  },
+
+  isFulfilled: function() {
+      return this.isResolved() || this.isRejected();
+  },
+
   _fireEnd: function( value ) {
       if( this._onEnd ) {
           value = this._onEnd(value);
