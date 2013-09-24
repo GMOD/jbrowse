@@ -157,13 +157,13 @@ return declare( [BlockBased, ExportMixin],
         var translated = "";
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
-            var aa = CodonTable[nextCodon] || this.nbsp;
-            translated = translated + aa;
+            var aminoAcid = CodonTable[nextCodon] || this.nbsp;
+            translated = translated + aminoAcid;
         }
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
 
-        var charSize = this.getCharacterMeasurements("aa");
+        var charSize = this.getCharacterMeasurements("aminoAcid");
 
         var charWidth = 100/(blockLength / 3);
 
@@ -188,14 +188,14 @@ return declare( [BlockBased, ExportMixin],
         var drawChars = scale >= charSize.w;
 
         for( var i=0; i<translated.length; i++ ) {
-            var aaSpan = document.createElement('td');
-            aaSpan.className = 'aa aa_'+translated.charAt([i]).toLowerCase();
-            aaSpan.style.width = charWidth;
+            var aminoAcidSpan = document.createElement('td');
+            aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt([i]).toLowerCase();
+            aminoAcidSpan.style.width = charWidth;
             if( drawChars ) {
-                aaSpan.className = aaSpan.className + ' big';
-                aaSpan.innerHTML = translated.charAt([i]);
+                aminoAcidSpan.className = aminoAcidSpan.className + ' big';
+                aminoAcidSpan.innerHTML = translated.charAt([i]);
             }
-            container.appendChild(aaSpan);
+            container.appendChild(aminoAcidSpan);
         }
         return container;
     },
