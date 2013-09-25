@@ -40,7 +40,7 @@ use File::Path ();
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_bits => 16, sort_mem => 256 * 2**20 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16, mem => 256 * 2**20 )
 
 =cut
 
@@ -48,7 +48,7 @@ sub open {
     my $class = shift;
 
     # source of data: defaults, overridden by open args, overridden by meta.json contents
-    my $self = bless { @_ }, $class;
+    my $self = bless { mem => 256*2**20, @_ }, $class;
 
     $self->{final_dir} = $self->{dir} or croak "dir option required";
     $self->{dir} = $self->{work_dir} || $self->{final_dir};
@@ -64,10 +64,8 @@ sub open {
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 
-    my $cache_items = int( $self->{sort_mem} / 50000 / 6 );
-    #warn "Hash store cache size: $cache_items";
-    $self->{bucket_cache} = $self->_make_cache( size => $cache_items );
-    $self->{bucket_path_cache_by_hex} = $self->_make_cache( size => $cache_items );
+    $self->{cache_size} = int( $self->{mem} / 50000 / 6 );
+    print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
     return $self;
 }
@@ -163,7 +161,12 @@ sub stream_set {
         require Storable;
         require DB_File;
 
-        tie %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR;
+        #my $db_conf = DB_File::HASHINFO->new;
+        my $db_conf = DB_File::BTREEINFO->new;
+        $db_conf->{flags} = 0x1; #< DB_TXN_NOSYNC
+        $db_conf->{cachesize} = $self->{mem};
+
+        tie %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
 
         print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
         while ( my ( $k, $v ) = $kv_stream->() ) {
@@ -178,7 +181,7 @@ sub stream_set {
 
     print "Hashing done, writing buckets.\n" if $self->{verbose};
     while( my ( $hex, $contents ) = each %buckets ) {
-        my $bucket = $self->_getBucketFromHex( $hex );
+        my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
         $bucket->{data} = Storable::thaw( $contents );
         $bucket->{dirty} = 1;
     }
@@ -234,8 +237,13 @@ sub _getBucket {
 
 sub _getBucketFromHex {
     my ( $self, $hex ) = @_;
-    my $pathinfo = $self->{bucket_path_cache_by_hex}->compute( $hex, sub { $self->_hexToPath( $hex ) }  );
-    return $self->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $self->_readBucket( $pathinfo ); } );
+
+    my $bucket_cache = $self->{bucket_cache} ||= $self->_make_cache( size => $self->{cache_size} );
+    return $bucket_cache->compute( $hex, sub {
+        my $path_cache = $self->{bucket_path_cache_by_hex} ||= $self->_make_cache( size => $self->{cache_size} );
+        my $pathinfo = $path_cache->compute( $hex, sub { $self->_hexToPath( $hex ) });
+        return $self->_readBucket( $pathinfo )
+    });
 }
 
 sub _readBucket {

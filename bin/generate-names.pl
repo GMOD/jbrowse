@@ -181,7 +181,7 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     work_dir => $workDir,
     empty => 1,
-    sort_mem => int($mem/2),
+    mem => int($mem/2),
 
     # set the hash size to try to get about 50KB per file, at an
     # average of about 500 bytes per name record, for about 100
@@ -264,8 +264,10 @@ sub make_key_value_stream {
     my ( $workdir, $operation_stream ) = @_;
     my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
     print "Temporary key-value DBM file: $tempfile\n" if $verbose;
-    my $db_conf = new DB_File::BTREEINFO;
-    $db_conf->{cachesize} = int($mem/300);
+    #my $db_conf = DB_File::HASHINFO->new;
+    my $db_conf = DB_File::BTREEINFO->new;
+    $db_conf->{flags} = 0x1; #< DB_TXN_NOSYNC
+    $db_conf->{cachesize} = int($mem/4);
     my $db = tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
 
     my $progressbar;
