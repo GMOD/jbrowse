@@ -44,7 +44,7 @@ describe('deferred generator', function() {
           });
    });
 
-   it('detects branching chains', function() {
+   it('detects multiple attempts to start network', function() {
           var root = new DeferredGenerator( function( d ) {
               window.setTimeout( function() {
                                      d.emit( 1 );
@@ -79,7 +79,7 @@ describe('deferred generator', function() {
                     expect( items[1] ).toEqual( 5 );
                     expect( items.length ).toEqual( 2 );
 
-                    expect( d2ran ).toBeFalsy();
+                    expect( d2ran ).toBeTruthy();
                     expect( d2error ).toMatch( /started/ );
           });
    });
