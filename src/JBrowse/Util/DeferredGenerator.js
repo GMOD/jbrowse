@@ -134,8 +134,8 @@ var DeferredGenerator = declare( null, {
   },
 
   forEach: function() {
-      this.each.apply( this, arguments );
-      return this.run();
+      return this.each.apply( this, arguments )
+          .run();
   },
 
   then: function( end, error, progress ) {
@@ -167,22 +167,22 @@ var DeferredGenerator = declare( null, {
           var val = this._starter( this ); // will recur up to the root of the tree
           delete this._starter;
           if( val ) {
-                  if(typeof val.each === 'function' ) {
-                      val.each(
-                          this._makeDeferredSignaler( this, this.EMIT ),
-                          this._makeDeferredSignaler( this, this.RESOLVED ),
-                          this._makeDeferredSignaler( this, this.REJECTED ),
-                          this._makeDeferredSignaler( this, this.PROGRESS )
-                      );
-                      return;
-                  } else if ( typeof val.then === 'function' ) {
-                      val.then(
-                          this._makeDeferredSignaler( this, this.RESOLVED ),
-                          this._makeDeferredSignaler( this, this.REJECTED ),
-                          this._makeDeferredSignaler( this, this.PROGRESS )
-                      );
-                      return;
-                  }
+              if( typeof val.each === 'function' ) {
+                  val.each(
+                      this._makeDeferredSignaler( this, this.EMIT ),
+                      this._makeDeferredSignaler( this, this.RESOLVED ),
+                      this._makeDeferredSignaler( this, this.REJECTED ),
+                      this._makeDeferredSignaler( this, this.PROGRESS )
+                  );
+                  return;
+              } else if ( typeof val.then === 'function' ) {
+                  val.then(
+                      this._makeDeferredSignaler( this, this.RESOLVED ),
+                      this._makeDeferredSignaler( this, this.REJECTED ),
+                      this._makeDeferredSignaler( this, this.PROGRESS )
+                  );
+                  return;
+              }
           }
       }
       else {
@@ -249,8 +249,11 @@ var DeferredGenerator = declare( null, {
   },
 
   _signalDeferred: function( deferred, type, result ) {
-      if( ! deferred.isCanceled() )
-          deferred[ this.METHODNAMES[type] ].call( deferred, result );
+      if( ! deferred.isCanceled() ) {
+          var method = deferred[ this.METHODNAMES[type] ];
+          if( method )
+              method.call( deferred, result );
+      }
   },
 
   _makeDeferredSignaler: function( deferred, type ) {
