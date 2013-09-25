@@ -64,7 +64,7 @@ Util = {
      * Fast, simple class-maker, used for classes that need speed more
      * than they need dojo.declare's nice features.
      */
-    fastDeclare: function( members, className ) {
+    fastDeclare: function( members ) {
         var constructor = members.constructor;
         var fastDeclareClass = function() {
             constructor.apply( this, arguments );
@@ -373,7 +373,7 @@ Util = {
         };
         var result = [],
         seen   = {};
-        dojo.forEach( stuff, function(thing) {
+        array.forEach( stuff, function(thing) {
                           var norm = normalizer(thing);
                           if( !seen[ normalizer(thing) ] )
                               result.push( thing );
