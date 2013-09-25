@@ -172,36 +172,24 @@ return declare( SeqFeatureStore,
         });
     },
 
-    _getReferenceSequence: function( name ) {
-        var thisB = this;
-        name = this.browser.regularizeReferenceName( name );
-        return thisB._fetchRefSeqsJson()
-            .then( function( refseqs ) {
-                       return refseqs[ name ] = thisB._makeReferenceSequence( refseqs[name] );
-                   });
-    },
-
     getReferenceSequences: function( query ) {
         var thisB = this;
         return new DeferredGenerator( function( generator ) {
-            if( query.name || query.ref )
-                thisB._getReferenceSequence( query.name || query.ref )
-                     .then( function(ref) {
-                                generator.emit(ref);
-                                generator.resolve();
-                            },
-                            lang.hitch( generator, 'reject' ));
-            else
-                thisB._fetchRefSeqsJson()
-                     .then( function( refSeqs ) {
-                                var limit = query.limit || Infinity;
-                                for( var n in refSeqs ) {
-                                    generator.emit( refSeqs[n] = thisB._makeReferenceSequence( refSeqs[n] ) );
-                                    if( ! --limit )
-                                        break;
-                                }
-                                generator.resolve();
-                            });
+            return thisB._fetchRefSeqsJson()
+                        .then( function( refSeqs ) {
+                                   var name = query.name || query.ref;
+                                   if( name ) {
+                                       name = thisB.browser.regularizeReferenceName( name);
+                                       generator.emit( refSeqs[ name ] = thisB._makeReferenceSequence( refSeqs[name] ) );
+                                   } else {
+                                       var limit = query.limit || Infinity;
+                                       for( var n in refSeqs ) {
+                                           generator.emit( refSeqs[n] = thisB._makeReferenceSequence( refSeqs[n] ) );
+                                           if( ! --limit )
+                                               break;
+                                       }
+                                   }
+                               });
         });
     }
 
