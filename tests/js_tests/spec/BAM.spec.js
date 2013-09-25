@@ -39,7 +39,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                                   done = true;
                               }
                             )
-                      .start();
+                      .run();
 
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
@@ -75,7 +75,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                                    done = true;
                                }
                              )
-                        .start();
+                        .run();
 
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
@@ -113,7 +113,7 @@ describe( 'empty BAM', function() {
                                done = true;
                            }
                          )
-                        .start();
+                        .run();
 
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
@@ -149,7 +149,7 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                                   done = true;
                               }
                             )
-                       .start();
+                       .run();
 
                       waitsFor( function() { return done; }, 2000 );
                       runs( function() {
@@ -185,7 +185,7 @@ if( document.location.href.indexOf('extended_tests=1') > -1 ) {
                                       done = true;
                                   }
                                 )
-                            .start();
+                            .run();
 
                           waitsFor( function() { return done; }, 2000 );
                           runs( function() {
