@@ -28,7 +28,7 @@ describe('deferred generator', function() {
            .each( function(i) { return i+1; }, function() { done += 'two'; } )
            .each( function(i) { items.push(i); }, function() { done += 'three'; } )
            .then( function()  { done += 'four'; } )
-           .start();
+           .run();
           waitsFor( function() { return done; }, 800 );
           runs( function() {
                     expect( items[0] ).toEqual( 3 );
@@ -66,10 +66,10 @@ describe('deferred generator', function() {
                   d2ran = true;
               }
           );
-          d.start();
+          d.run();
           var d2error;
           try {
-              d2.start();
+              d2.run();
           } catch( e ) {
               d2error=e;
           }
@@ -118,7 +118,7 @@ describe('deferred generator', function() {
                       return d;
                   })
            .then( function()  { endString += 'four'; done = true; } )
-           .start();
+           .run();
           waitsFor( function() { return done; }, 800 );
           runs( function() {
                     expect( items[0] ).toEqual( 3 );

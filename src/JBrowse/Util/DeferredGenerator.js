@@ -12,7 +12,7 @@ define(
         'dojo/has',
         'dojo/Deferred',
         'dojo/errors/CancelError',
-	"dojo/has!config-deferredInstrumentation?dojo/promise/instrumentation"
+        "dojo/has!config-deferredInstrumentation?dojo/promise/instrumentation"
     ],
     function(
         declare,
@@ -42,29 +42,29 @@ var DeferredGenerator = declare( null, {
 
   resolve: function( value, strict ) {
       if( ! this._fulfilled ){
-	  // Set fulfilled, store value. After signaling waiting listeners, free _waiting
-	  this._signalWaitingListeners( this._fulfilled = this.RESOLVED, this._result = value, null );
-	  this._waiting = null;
+          // Set fulfilled, store value. After signaling waiting listeners, free _waiting
+          this._signalWaitingListeners( this._fulfilled = this.RESOLVED, this._result = value, null );
+          this._waiting = null;
           return this._promise;
       } else if( strict === true ) {
-	  throw new Error( this.FULFILLED_ERROR_MESSAGE );
+          throw new Error( this.FULFILLED_ERROR_MESSAGE );
       } else {
-	  return this._promise;
+          return this._promise;
       }
   },
 
   reject: function( error, strict ) {
       if( ! this._fulfilled ){
-	  if( has("config-deferredInstrumentation") && Error.captureStackTrace ){
-	      Error.captureStackTrace( this._rejection = {}, reject );
-	  }
-	  this._signalWaitingListeners( this._fulfilled = this.REJECTED, this._result = error, this._rejection );
-	  this._waiting = null;
-	  return this._promise;
+          if( has("config-deferredInstrumentation") && Error.captureStackTrace ){
+              Error.captureStackTrace( this._rejection = {}, this.reject );
+          }
+          this._signalWaitingListeners( this._fulfilled = this.REJECTED, this._result = error, this._rejection );
+          this._waiting = null;
+          return this._promise;
       } else if(strict === true){
-	  throw new Error(FULFILLED_ERROR_MESSAGE);
+          throw new Error(FULFILLED_ERROR_MESSAGE);
       } else {
-	  return this._promise;
+          return this._promise;
       }
   },
 
@@ -74,24 +74,24 @@ var DeferredGenerator = declare( null, {
 
   cancel: function( reason ) {
       if( ! this._fulfilled ){
-	  // Cancel can be called even after the deferred is fulfilled
-	  if( this._canceler ){
-	      var returnedReason = this._canceler( reason );
-	      reason = typeof returnedReason === "undefined" ? reason : returnedReason;
-	  }
-	  this._canceled = true;
-	  if( ! this._fulfilled ){
-	      // Allow canceler to provide its own reason, but fall back to a CancelError
-	      if( typeof reason === "undefined" ){
-		  reason = new CancelError();
-	      }
-	      this.reject( reason );
-	      return reason;
-	  } else if( this._fulfilled === this.REJECTED && this._result === reason ){
-	      return reason;
-	  }
+          // Cancel can be called even after the deferred is fulfilled
+          if( this._canceler ){
+              var returnedReason = this._canceler( reason );
+              reason = typeof returnedReason === "undefined" ? reason : returnedReason;
+          }
+          this._canceled = true;
+          if( ! this._fulfilled ){
+              // Allow canceler to provide its own reason, but fall back to a CancelError
+              if( typeof reason === "undefined" ){
+                  reason = new CancelError();
+              }
+              this.reject( reason );
+              return reason;
+          } else if( this._fulfilled === this.REJECTED && this._result === reason ){
+              return reason;
+          }
       } else if( strict === true ){
-	  throw new Error( this.FULFILLED_ERROR_MESSAGE);
+          throw new Error( this.FULFILLED_ERROR_MESSAGE);
       }
 
       return reason;
@@ -116,18 +116,26 @@ var DeferredGenerator = declare( null, {
       var thisB = this;
       var listener = [ each, end, error, progress ];
       listener.deferred = new DeferredGenerator(
-          lang.hitch( this, 'start' ),
-          lang.hitch( this, 'cancel' )
+          lang.hitch( this, '_start' ),
+          function() {
+              if( listener.cancel )
+                  listener.cancel();
+              thisB.cancel();
+          }
       );
 
       if( '_fulfilled' in this && ! this._waiting ) {
-          var method = listener[ METHODNAMES[type] ];
           this._signalListener( listener, this._fulfilled, this._result, this._rejection );
       }
       else
           this._waiting.push( listener );
 
       return listener.deferred;
+  },
+
+  forEach: function() {
+      this.each.apply( this, arguments );
+      return this.run();
   },
 
   then: function( end, error, progress ) {
@@ -139,7 +147,7 @@ var DeferredGenerator = declare( null, {
           this._signalWaitingListeners( this.EMIT, item );
   },
 
-  start: function() {
+  run: function() {
       this._start();
 
       // make a Deferred that can be used after starting to still do
@@ -156,8 +164,26 @@ var DeferredGenerator = declare( null, {
 
   _start: function() {
       if( this._starter ) {
-          this._starter( this ); // will recur up to the root of the tree
+          var val = this._starter( this ); // will recur up to the root of the tree
           delete this._starter;
+          if( val ) {
+                  if(typeof val.each === 'function' ) {
+                      val.each(
+                          this._makeDeferredSignaler( this, this.EMIT ),
+                          this._makeDeferredSignaler( this, this.RESOLVED ),
+                          this._makeDeferredSignaler( this, this.REJECTED ),
+                          this._makeDeferredSignaler( this, this.PROGRESS )
+                      );
+                      return;
+                  } else if ( typeof val.then === 'function' ) {
+                      val.then(
+                          this._makeDeferredSignaler( this, this.RESOLVED ),
+                          this._makeDeferredSignaler( this, this.REJECTED ),
+                          this._makeDeferredSignaler( this, this.PROGRESS )
+                      );
+                      return;
+                  }
+          }
       }
       else {
           throw new Error('DeferredGenerator already started');
@@ -176,47 +202,49 @@ var DeferredGenerator = declare( null, {
       var func = listener[ type ];
       var deferred = listener.deferred;
       if( func ){
-	  try{
-	      var newResult = func(result);
-	      if( type === this.PROGRESS ){
-		  if( newResult !== undefined ){
-		      this._signalDeferred( deferred, type, newResult );
-		  }
-	      } else {
-		  if( newResult ) {
+          try{
+              var newResult = func(result);
+              if( type === this.PROGRESS ){
+                  if( newResult !== undefined ){
+                      this._signalDeferred( deferred, type, newResult );
+                  }
+              } else {
+                  if( newResult ) {
                       if( typeof newResult.each == 'function' ) {
-		          listener.cancel = newResult.cancel;
-		          newResult.then(
-			      // Only make resolvers if they're actually going to be used
-			      this._makeDeferredSignaler( deferred, this.EMIT ),
-			      this._makeDeferredSignaler( deferred, this.RESOLVED ),
-			      this._makeDeferredSignaler( deferred, this.REJECTED ),
-			      this._makeDeferredSignaler( deferred, this.PROGRESS ));
-		          return;
+                          listener.cancel = newResult.cancel;
+                          newResult.each(
+                              // Only make resolvers if they're actually going to be used
+                              this._makeDeferredSignaler( deferred, this.EMIT ),
+                              this._makeDeferredSignaler( deferred, this.RESOLVED ),
+                              this._makeDeferredSignaler( deferred, this.REJECTED ),
+                              this._makeDeferredSignaler( deferred, this.PROGRESS )
+                          );
+                          return;
                       }
                       else if( typeof newResult.then === "function" ){
-		          listener.cancel = newResult.cancel;
-		          newResult.then(
-			      // Only make resolvers if they're actually going to be used
-			      this._makeDeferredSignaler( deferred, this.RESOLVED ),
-			      this._makeDeferredSignaler( deferred, this.REJECTED ),
-			      this._makeDeferredSignaler( deferred, this.PROGRESS ));
-		          return;
-		      }
+                          listener.cancel = newResult.cancel;
+                          newResult.then(
+                              // Only make resolvers if they're actually going to be used
+                              this._makeDeferredSignaler( deferred, this.RESOLVED ),
+                              this._makeDeferredSignaler( deferred, this.REJECTED ),
+                              this._makeDeferredSignaler( deferred, this.PROGRESS )
+                          );
+                          return;
+                      }
                   }
-		  this._signalDeferred( deferred, type, newResult );
-	      }
-	  } catch( error ) {
-	      this._signalDeferred( deferred, this.REJECTED, error );
-	  }
+                  this._signalDeferred( deferred, type, newResult );
+              }
+          } catch( error ) {
+              this._signalDeferred( deferred, this.REJECTED, error );
+          }
       } else {
-	  this._signalDeferred( deferred, type, result );
+          this._signalDeferred( deferred, type, result );
       }
 
       if( has("config-deferredInstrumentation") ) {
-	  if( type === this.REJECTED && Deferred.instrumentRejected ) {
-	      Deferred.instrumentRejected(result, !!func, rejection, deferred.promise);
-	  }
+          if( type === this.REJECTED && Deferred.instrumentRejected ) {
+              Deferred.instrumentRejected( this._result, !!func, this._rejection, this );
+          }
       }
   },
 
@@ -228,7 +256,7 @@ var DeferredGenerator = declare( null, {
   _makeDeferredSignaler: function( deferred, type ) {
       var thisB = this;
       return function( value ){
-	  thisB._signalDeferred( deferred, type, value );
+          thisB._signalDeferred( deferred, type, value );
       };
   }
 
