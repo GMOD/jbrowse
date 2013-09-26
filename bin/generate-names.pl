@@ -181,7 +181,7 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     work_dir => $workDir,
     empty => 1,
-    mem => int($mem/2),
+    mem => $mem,
 
     # set the hash size to try to get about 50KB per file, at an
     # average of about 500 bytes per name record, for about 100
@@ -261,18 +261,34 @@ sub make_name_record_stream {
 }
 
 sub make_key_value_stream {
-    my ( $workdir, $operation_stream ) = @_;
+    my $workdir = shift;
+
     my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
     print "Temporary key-value DBM file: $tempfile\n" if $verbose;
-    #my $db_conf = DB_File::HASHINFO->new;
+
+    # load a temporary DB_File with the completion data
+    _build_index_temp( shift, $tempfile ); #< use shift to free the $operation_stream after index is built
+
+    # reopen the temp store with default cache size to save memory
     my $db_conf = DB_File::BTREEINFO->new;
-    $db_conf->{flags} = 0x1; #< DB_TXN_NOSYNC
-    $db_conf->{cachesize} = int($mem/4);
-    my $db = tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
+    tie( my %temp_store, 'DB_File', "$tempfile", O_RDONLY, 0666, DB_File::BTREEINFO->new );
+    return sub {
+        my ( $k, $v ) = each %temp_store;
+        return $k ? ( $k, Storable::thaw($v) ) : ();
+    };
+}
+
+sub _build_index_temp {
+    my ( $operation_stream, $tempfile ) = @_;
+
+    my $db_conf = DB_File::BTREEINFO->new;
+    $db_conf->{flags} = 0x1;    #< DB_TXN_NOSYNC
+    $db_conf->{cachesize} = $mem;
+    tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
 
     my $progressbar;
     my $progress_next_update = 0;
-    if( $verbose ) {
+    if ( $verbose ) {
         print "Estimating $stats{operation_stream_estimated_count} index operations on $stats{record_stream_estimated_count} completion records.\n";
         eval {
             require Term::ProgressBar;
@@ -284,24 +300,20 @@ sub make_key_value_stream {
     }
 
     # now write it to the temp store
-    while( my $op = $operation_stream->() ) {
+    while ( my $op = $operation_stream->() ) {
         do_hash_operation( \%temp_store, $op );
         $stats{operations_processed}++;
 
-        if( $progressbar && $stats{operations_processed} > $progress_next_update ) {
+        if ( $progressbar && $stats{operations_processed} > $progress_next_update ) {
             $progress_next_update = $progressbar->update( $stats{operations_processed} );
         }
     }
 
-    if( $progressbar && $stats{operation_stream_estimated_count} >= $progress_next_update ) {
+    if ( $progressbar && $stats{operation_stream_estimated_count} >= $progress_next_update ) {
         $progressbar->update( $stats{operation_stream_estimated_count} );
     }
-
-    return sub {
-        my ( $k, $v ) = each %temp_store;
-        return $k ? ( $k, Storable::thaw($v) ) : ();
-    };
 }
+
 
 sub find_names_files {
     my @files;

@@ -169,6 +169,7 @@ sub stream_set {
         tie %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
 
         print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
+        print "Hashing to HashStore buckets.\n" if $self->{verbose};
         while ( my ( $k, $v ) = $kv_stream->() ) {
             my $hex = $self->_hex( $self->_hash( $k ) );
             my $b = $buckets{$hex};
