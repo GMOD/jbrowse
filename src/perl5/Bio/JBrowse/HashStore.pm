@@ -139,10 +139,13 @@ sub set {
     return $value;
 }
 
-=head2 stream_set( $kv_stream )
+=head2 stream_set( $kv_stream, $key_count )
 
 Given a stream that returns ( $key, $value ) when called repeatedly,
 set all those values in the hash.
+
+If $key_count is provided, and C<verbose> is set on this HashStore,
+will attempt to print progress bars of the loading.
 
 =cut
 
@@ -151,51 +154,99 @@ sub stream_set {
 
     my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
     $tempfile->close;
+    print "Temporary rehashing DBM file: $tempfile\n" if $self->{verbose};
 
-    {
-        my $kv_stream = shift;
-        @_ = ();
 
-        require POSIX;
-        require File::Temp;
-        require Storable;
-        require DB_File;
+    # convert the input key => value stream to a temp hash of
+    # bucket_hex => { key => value, key => value }
+    my $bucket_count = $self->_hash_keys_to_temp( shift, $tempfile, shift );
 
-        #my $db_conf = DB_File::HASHINFO->new;
-        my $db_conf = DB_File::BTREEINFO->new;
-        $db_conf->{flags} = 0x1; #< DB_TXN_NOSYNC
-        $db_conf->{cachesize} = $self->{mem};
-
-        tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
-
-        print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
-        print "Hashing keys and aggregating HashStore buckets...\n" if $self->{verbose};
-        while ( my ( $k, $v ) = $kv_stream->() ) {
-            my $hex = $self->_hex( $self->_hash( $k ) );
-            my $b = $buckets{$hex};
-            $b = $b ? Storable::thaw( $buckets{$hex} ) : {};
-            $b->{$k} = $v;
-            $b = Storable::freeze( $b );
-            $buckets{$hex} = $b;
-        }
-    }
-
-    # reopen the database to free the big cache memory, not needed for iterating
+    # reopen the database, this is better because for iterating we
+    # don't need the big cache memory used in hashing the keys
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new;
 
-    print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose};
+    my $progressbar = $bucket_count && $self->_make_progressbar('Writing buckets to '.$self->{format}, $bucket_count );
+    my $progressbar_next_update = 0;
+
+    print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose} && ! $progressbar;
+
+    my $buckets_written = 0;
     while( my ( $hex, $contents ) = each %buckets ) {
         my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
         $bucket->{data} = Storable::thaw( $contents );
         $bucket->{dirty} = 1;
+
+        if ( $progressbar && $buckets_written > $progressbar_next_update ) {
+            $progressbar_next_update = $progressbar->update( $buckets_written );
+        }
+    }
+    if ( $progressbar && $buckets_written >= $progressbar_next_update ) {
+        $progressbar->update( $bucket_count );
     }
 
     print "Hash store bulk load finished.\n" if $self->{verbose};
 }
 
-sub _hash_to_temp {
-    my ( $self, $kv_stream ) = @_;
+sub _hash_keys_to_temp {
+    my ( $self, $kv_stream, $tempfile, $key_count ) = @_;
 
+    require POSIX;
+    require File::Temp;
+    require Storable;
+    require DB_File;
+
+    #my $db_conf = DB_File::HASHINFO->new;
+    my $db_conf = DB_File::BTREEINFO->new;
+    $db_conf->{flags} = 0x1;    #< DB_TXN_NOSYNC
+    $db_conf->{cachesize} = $self->{mem};
+
+    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
+
+    my $progressbar = $key_count && $self->_make_progressbar( 'Rehashing to final buckets', $key_count );
+    my $progressbar_next_update = 0;
+    my $bucket_count = 0;
+    my $keys_processed = 0;
+
+    print "Rehashing to final HashStore buckets...\n" if $self->{verbose} && ! $progressbar;
+
+    while ( my ( $k, $v ) = $kv_stream->() ) {
+        my $hex = $self->_hex( $self->_hash( $k ) );
+        my $b = $buckets{$hex};
+        if( $b ) {
+            $b = Storable::thaw( $buckets{$hex} );
+        } else {
+            $b = {};
+            $bucket_count++;
+        }
+        $b->{$k} = $v;
+        $b = Storable::freeze( $b );
+        $buckets{$hex} = $b;
+
+        $keys_processed++;
+        if ( $progressbar && $keys_processed > $progressbar_next_update ) {
+            $progressbar_next_update = $progressbar->update( $keys_processed );
+        }
+    }
+    if ( $progressbar && $keys_processed >= $progressbar_next_update ) {
+        $progressbar->update( $key_count );
+    }
+
+    return $bucket_count;
+}
+
+sub _make_progressbar {
+    my ( $self, $description, $total_count ) = @_;
+
+    return unless $self->{verbose};
+
+    eval { require Term::ProgressBar };
+    return if $@;
+
+    my $progressbar = Term::ProgressBar->new({ name  => $description,
+                                               count => $total_count,
+                                               ETA   => 'linear'       });
+    $progressbar->max_update_rate(1);
+    return $progressbar;
 }
 
 

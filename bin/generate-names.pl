@@ -193,7 +193,8 @@ my $nameStore = Bio::JBrowse::HashStore->open(
 );
 
 # make a stream of key/value pairs and load them into the HashStore
-$nameStore->stream_set( make_key_value_stream( $workDir || $outDir, $operation_stream ) );
+my $key_count; #< set as side effect of make_key_value_stream
+$nameStore->stream_set( make_key_value_stream( $workDir || $outDir, $operation_stream ), $key_count );
 
 # store the list of tracks that have names
 $nameStore->{meta}{track_names} = $stats{tracksWithNames};
@@ -272,6 +273,9 @@ sub make_key_value_stream {
     # reopen the temp store with default cache size to save memory
     my $db_conf = DB_File::BTREEINFO->new;
     tie( my %temp_store, 'DB_File', "$tempfile", O_RDONLY, 0666, DB_File::BTREEINFO->new );
+
+    $key_count = scalar keys %temp_store;
+
     return sub {
         my ( $k, $v ) = each %temp_store;
         return $k ? ( $k, Storable::thaw($v) ) : ();
@@ -292,7 +296,7 @@ sub _build_index_temp {
         print "Estimating $stats{operation_stream_estimated_count} index operations on $stats{record_stream_estimated_count} completion records.\n";
         eval {
             require Term::ProgressBar;
-            $progressbar = Term::ProgressBar->new({name  => 'Building index',
+            $progressbar = Term::ProgressBar->new({name  => 'Gathering locations, generating completions',
                                                    count => $stats{operation_stream_estimated_count},
                                                    ETA   => 'linear', });
             $progressbar->max_update_rate(1);
@@ -304,7 +308,9 @@ sub _build_index_temp {
         do_hash_operation( \%temp_store, $op );
         $stats{operations_processed}++;
 
-        if ( $progressbar && $stats{operations_processed} > $progress_next_update ) {
+        if ( $progressbar && $stats{operations_processed} > $progress_next_update
+             && $stats{operations_processed} < $stats{operation_stream_estimated_count}
+           ) {
             $progress_next_update = $progressbar->update( $stats{operations_processed} );
         }
     }
