@@ -37,10 +37,12 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
+use IO::File ();
+
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_bits => 16, mem => 256 * 2**20 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16, mem => 256 * 2**20, nosync => 0 )
 
 =cut
 
@@ -317,31 +319,25 @@ sub _readBucket {
     my $path = $pathinfo->{fullpath};
     my $dir = $pathinfo->{dir};
 
-    if( -f $path ) {
-        return $bucket_class->new(
-            format => $self->{format},
-            dir => $dir,
-            fullpath => $path,
-            data => eval {
-                if( $self->{format} eq 'storable' ) {
-                    Storable::retrieve( $path )
-                } else {
-                    CORE::open my $in, '<', $path or die "$! reading $path";
-                    local $/;
-                    JSON::from_json( scalar <$in> )
-                }
-            } || {}
-        );
-    }
-    else {
-        return $bucket_class->new(
-            format => $self->{format},
-            dir => $dir,
-            fullpath => $path,
-            data => {},
-            dirty => 1
-            );
-    }
+    return $bucket_class->new(
+        format => $self->{format},
+        nosync => $self->{nosync},
+        dir => $dir,
+        fullpath => $path,
+        ( -f $path
+            ? (
+                data => eval {
+                    if ( $self->{format} eq 'storable' ) {
+                        Storable::retrieve( $path )
+                      } else {
+                          CORE::open my $in, '<', $path or die "$! reading $path";
+                          local $/;
+                          JSON::from_json( scalar <$in> )
+                        }
+                } || {}
+              )
+            : ( dirty => 1 )
+        ));
 }
 
 
@@ -363,7 +359,9 @@ sub DESTROY {
         if( $self->{format} eq 'storable' ) {
             Storable::store( $self->{data}, $self->{fullpath} );
         } else {
-            CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
+            my $out = IO::File->new( $self->{fullpath}, 'w' )
+                or die "$! writing $self->{fullpath}";
+            $out->blocking( 0 ) if $self->{nosync};
             $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
         }
     }

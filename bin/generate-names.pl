@@ -182,6 +182,7 @@ my $nameStore = Bio::JBrowse::HashStore->open(
     work_dir => $workDir,
     empty => 1,
     mem => $mem,
+    nosync => 1,
 
     # set the hash size to try to get about 50KB per file, at an
     # average of about 500 bytes per name record, for about 100
