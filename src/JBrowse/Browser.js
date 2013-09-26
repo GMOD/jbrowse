@@ -39,6 +39,7 @@ define( [
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
             'JBrowse/View/Dialog/QuickHelp',
+            'JBrowse/View/Auth/Keyring',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -82,6 +83,7 @@ define( [
             LocationChoiceDialog,
             SetHighlightDialog,
             HelpDialog,
+            KeyringView,
             dijitFocus,
             LazyLoad
         ) {
@@ -498,6 +500,10 @@ initView: function() {
         var menuBar = thisB.menuBar = dojo.create('div',{className:  'menuBar' },this.container);
 
         this.renderMenuBar( menuBar );
+
+        // make the keyring control
+        this.keyringControl = KeyringView.makeKeyringControl( this );
+        menuBar.appendChild( this.keyringControl.button.domNode );
 
         menuBar.appendChild( this.makeShareLink() );
 
@@ -1636,7 +1642,7 @@ makeShareLink: function () {
 
     // make the share link
     var button = new dijitButton({
-            className: 'share',
+            className: 'menuBarControl share',
             innerHTML: '<span class="icon"></span> Share',
             title: 'share this view',
             onClick: function() {

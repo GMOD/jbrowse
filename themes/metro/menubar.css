@@ -1,6 +1,8 @@
 .jbrowse.metro .menuBar {
     background: #333;
     text-align: right;
+    height: 27px;
+    padding: 0;
 }
 
 .jbrowse.metro .menuBar .powered_by {
@@ -9,12 +11,42 @@
     line-height: 20px;
 }
 
+.jbrowse .menuBar > .menu.dijitDropDownButton,
+.jbrowse .menuBar > .menu.dijitDropDownButton * {
+    line-height: 27px;
+}
+
 .jbrowse.metro .menuBar .dijitButtonNode {
-    padding: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     border: 0;
+}
+
+.jbrowse.metro .menuBar > .dataset_select .dijitButtonNode {
+    padding: 0;
+}
+
+.jbrowse.metro .menuBar > .dataset_select {
+    height: 25px;
 }
 
 .jbrowse.metro .menuBar > .dataset_select .dijitSelectLabel {
     padding-right: 0.1em;
     font-size: 16px;
+}
+
+.jbrowse.metro .menuBar .menuBarControl {
+    font-size: 120%;
+}
+
+.jbrowse.metro .keyring .icon {
+    height: 26px;
+    width: 13px;
+    background: url("img/glyphs_white.png") no-repeat -44px 2px;
+}
+
+.jbrowse.metro .share .icon {
+    height: 26px;
+    width: 25px;
+    background: url("img/glyphs_white.png") no-repeat -15px 2px;
 }

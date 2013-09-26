@@ -30,8 +30,10 @@ return declare( dijitDialog,
     show: function( callback ) {
         this._addActionBar();
         this.inherited( arguments );
-        var titleDims = domGeom.position( this.titleBar );
-        this.domNode.style.width = titleDims.w + 'px';
+        try {
+            var titleDims = domGeom.position( this.titleBar );
+            this.domNode.style.width = titleDims.w + 'px';
+        } catch(e) {}
     }
 
 });
