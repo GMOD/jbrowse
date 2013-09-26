@@ -2,9 +2,9 @@
 
 ## Minor improvements
 
- * Further improved the memory footprint of generate-names.pl.  Thanks
-   to Richard Hayes for his continued help with testing improvements
-   and reporting problems.
+ * Further improved the memory footprint and speed of
+   generate-names.pl.  Thanks to Richard Hayes for his continued help
+   with testing improvements and reporting problems.
 
 ## Bug fixes
 
