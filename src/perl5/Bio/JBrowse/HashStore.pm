@@ -159,13 +159,22 @@ sub stream_set {
 
     # convert the input key => value stream to a temp hash of
     # bucket_hex => { key => value, key => value }
-    my $bucket_count = $self->_hash_keys_to_temp( shift, $tempfile, shift );
+    my $bucket_count = $self->_stream_set_build_buckets( shift, $tempfile, shift );
+
+    # write out the bucket files
+    $self->_stream_set_write_bucket_files( $tempfile, $bucket_count );
+
+    print "Hash store bulk load finished.\n" if $self->{verbose};
+}
+
+sub _stream_set_write_bucket_files {
+    my ( $self, $tempfile, $bucket_count ) = @_;
 
     # reopen the database, this is better because for iterating we
     # don't need the big cache memory used in hashing the keys
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new;
 
-    my $progressbar = $bucket_count && $self->_make_progressbar('Writing buckets to '.$self->{format}, $bucket_count );
+    my $progressbar = $bucket_count && $self->_make_progressbar('Writing bucket files', $bucket_count );
     my $progressbar_next_update = 0;
 
     print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose} && ! $progressbar;
@@ -175,6 +184,7 @@ sub stream_set {
         my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
         $bucket->{data} = Storable::thaw( $contents );
         $bucket->{dirty} = 1;
+        $buckets_written++;
 
         if ( $progressbar && $buckets_written > $progressbar_next_update ) {
             $progressbar_next_update = $progressbar->update( $buckets_written );
@@ -183,11 +193,9 @@ sub stream_set {
     if ( $progressbar && $buckets_written >= $progressbar_next_update ) {
         $progressbar->update( $bucket_count );
     }
-
-    print "Hash store bulk load finished.\n" if $self->{verbose};
 }
 
-sub _hash_keys_to_temp {
+sub _stream_set_build_buckets {
     my ( $self, $kv_stream, $tempfile, $key_count ) = @_;
 
     require POSIX;
