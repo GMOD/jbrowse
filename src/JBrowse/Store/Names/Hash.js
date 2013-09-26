@@ -4,7 +4,7 @@ define( [
             'dojo/store/util/QueryResults',
             'JBrowse/Util',
             'JBrowse/Store/Hash',
-            'JBrowse/Model/Location'
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
@@ -12,7 +12,7 @@ define( [
             QueryResults,
             Util,
             HashStore,
-            Location
+            SimpleFeature
         ) {
 
 return declare( HashStore,
@@ -50,13 +50,15 @@ return declare( HashStore,
             if( typeof nameRecord == 'object' ) {
                 item.name = nameRecord[0];
                 var trackConfig = this._findTrackConfig( ((this.meta||{}).track_names||{})[ nameRecord[1] ] );
-                item.location = new Location({
-                    ref: nameRecord[3],
-                    start: parseInt( nameRecord[4] ),
-                    end: parseInt( nameRecord[5] ),
-                    tracks: [ trackConfig  ],
-                    objectName: nameRecord[0]
-                });
+                item.location = new SimpleFeature(
+                    { data :{
+                          seq_id: nameRecord[3],
+                          start: parseInt( nameRecord[4] ),
+                          end: parseInt( nameRecord[5] ),
+                          tracks: [ trackConfig  ],
+                          objectName: nameRecord[0]
+                      }
+                    });
             } else {
                 item.name = nameRecord;
             }

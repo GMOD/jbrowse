@@ -26,7 +26,7 @@ define([
            './RegionBrowser/Animation/Zoomer',
            './RegionBrowser/Animation/Slider',
            'JBrowse/View/Dialog/Info',
-           'JBrowse/Model/Location'
+           'JBrowse/Model/SimpleFeature'
        ], function(
            declare,
            array,
@@ -55,7 +55,7 @@ define([
            Zoomer,
            Slider,
            InfoDialog,
-           Location
+           SimpleFeature
        ) {
 
 var dojof = Util.dojof;
@@ -190,21 +190,23 @@ buildRendering: function() {
     // fetch the refseq store and the ref seq before we can continue
     // initializing our view, because we need its length.
     var thisB = this;
-    this.browser.getStore( 'refseqs', function( refStore ) {
-        var q = { limit: 1 };
-        if( initialLoc )
-            q.name = initialLoc.ref;
-        refStore.getRefSeqMeta(
-            q,
-            function(ref) {
-                thisB._finishInitialization( ref );
-                thisB.setLocation( ref, ref.start, ref.end, thisB.getConf('initialTracks') );
-                thisB.initialized.resolve();
-            },
-            function() {},
-            function(e) { console.error(e); }
-        );
-    });
+    this.browser.getStoreDeferred( 'refseqs' )
+        .then(
+            function( refStore ) {
+                var q = { limit: 1 };
+                if( initialLoc )
+                    q.name = initialLoc.ref;
+                return refStore.getReferenceFeatures(q)
+                    .forEach( function(ref) {
+                                  // convert the feature to a bare object
+                                  thisB._finishInitialization( ref );
+                                  thisB.setLocation( ref, ref.get('start'), ref.get('end'), thisB.getConf('initialTracks') );
+                                  thisB.initialized.resolve();
+                              },
+                              function() {},
+                              function(e) { console.error(e); }
+                            );
+            });
 },
 
 /**
@@ -233,10 +235,10 @@ _finishInitialization: function( refseq ) {
     this.offset = 0;
     //largest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the right end of the ref seq
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
+    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
     //smallest value for the sum of this.offset and this.getX()
     //this prevents us from scrolling off the left end of the ref seq
-    this.minLeft = this.bpToPx(this.ref.start);
+    this.minLeft = this.bpToPx(this.ref.get('start'));
 
     // make the scale track
     var scaleTrackDiv = document.createElement("div");
@@ -366,11 +368,11 @@ visibleRegion: function() {
     if( ! this.ref )
         return null;
 
-    return {
-               ref:   this.ref.name,
-               start: this.minVisible(),
-               end:   this.maxVisible()
-           };
+    return new SimpleFeature({ data: {
+               seq_id: this.ref.get('name'),
+               start:  this.minVisible(),
+               end:    this.maxVisible()
+           }});
 },
 
 /**
@@ -905,7 +907,7 @@ startMouseHighlight: function( absToBp, container, scaleDiv, event ) {
         message: 'Highlight region',
         start: { x: event.clientX, y: event.clientY },
         execute: function( start, end ) {
-            this.browser.setHighlightAndRedraw({ ref: this.ref.name, start: start, end: end });
+            this.browser.setHighlightAndRedraw({ ref: this.ref.get('name'), start: start, end: end });
         }
     };
 
@@ -1162,6 +1164,8 @@ setLocation: function(refseq, startbp, endbp, showTracks ) {
         this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
     }
     this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
+    if( ! this.stripeWidth )
+        throw new Error('invalid stripe width');
     this.instantZoomUpdate();
 
     this.centerAtBase((startbp + endbp) / 2, true);
@@ -1188,13 +1192,13 @@ instantZoomUpdate: function() {
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
     this.maxOffset =
-        this.bpToPx(this.ref.end) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
-    this.minLeft = this.bpToPx(this.ref.start);
+        this.bpToPx(this.ref.get('end')) - this.stripeCount * this.stripeWidth;
+    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
+    this.minLeft = this.bpToPx(this.ref.get('start'));
 },
 
 centerAtBase: function(base, instantly) {
-    base = Math.min( Math.max( base, this.ref.start ), this.ref.end );
+    base = Math.min( Math.max( base, this.ref.get('start') ), this.ref.get('end') );
     if (instantly) {
         var pxDist = this.bpToPx(base);
         var containerWidth = this.stripeCount * this.stripeWidth;
@@ -1244,8 +1248,8 @@ maxVisible: function() {
     var scrollbar = this.pxToBp( this.verticalScrollBarVisibleWidth() );
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
-    if( mv > this.ref.end - this.pxToBp(1) )
-        return this.ref.end - scrollbar;
+    if( mv > this.ref.get('end') - this.pxToBp(1) )
+        return this.ref.get('end') - scrollbar;
     else
         return Math.round(mv) - scrollbar;
 },
@@ -1253,7 +1257,7 @@ maxVisible: function() {
 showCoarse: function() {
     var startbp = this.minVisible(), endbp = this.maxVisible();
 
-    var loc = new Location({ start: startbp, end: endbp, ref: this.ref.name });
+    var loc = new SimpleFeature({data: { start: startbp, end: endbp }, ref: this.ref.get('name') });
     this._notifyParentView( loc );
 
     // update the location box with our current location
@@ -1262,7 +1266,7 @@ showCoarse: function() {
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
 
-    var currRegion = { start: startbp, end: endbp, ref: this.ref.name };
+    var currRegion = { start: startbp, end: endbp, ref: this.ref.get('name') };
 
     // send out a message notifying of the move
     this.browser.publish( '/jbrowse/v1/n/navigate', currRegion );
@@ -1497,11 +1501,11 @@ sizeInit: function() {
     this.zoomLevels.push( this.maxPxPerBp );
 
     //make sure we don't zoom out too far
-    while (((this.ref.end - this.ref.start) * this.zoomLevels[0])
+    while (((this.ref.get('end') - this.ref.get('start')) * this.zoomLevels[0])
            < this.getWidth()) {
         this.zoomLevels.shift();
     }
-    this.zoomLevels.unshift(this.getWidth() / (this.ref.end - this.ref.start));
+    this.zoomLevels.unshift(this.getWidth() / (this.ref.get('end') - this.ref.get('start')));
 
     //width, in pixels, of stripes at min zoom (so the view covers
     //the whole ref seq)
@@ -1510,7 +1514,7 @@ sizeInit: function() {
     this.curZoom = 0;
     while (this.pxPerBp > this.zoomLevels[this.curZoom])
         this.curZoom++;
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
+    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
 
     delete this.stripePercent;
     //25, 50, 100 don't work as well due to the way scrollUpdate works
@@ -1695,7 +1699,7 @@ zoomIn: function(e, zoomLoc, steps) {
     var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
     this.curZoom += steps;
     this.pxPerBp = this.zoomLevels[this.curZoom];
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
+    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
 
     for (var track = 0; track < this.tracks.length; track++)
     this.tracks[track].startZoom(this.pxPerBp,
@@ -1731,7 +1735,7 @@ zoomToBaseLevel: function(e, pos) {
     this.curZoom = baseZoomIndex;
     this.pxPerBp = this.zoomLevels[baseZoomIndex];
 
-    this.maxLeft = (this.pxPerBp * this.ref.end) - this.getWidth();
+    this.maxLeft = (this.pxPerBp * this.ref.get('end')) - this.getWidth();
 
     for (var track = 0; track < this.tracks.length; track++)
 	this.tracks[track].startZoom(this.pxPerBp,
@@ -1757,11 +1761,11 @@ zoomOut: function(e, zoomLoc, steps) {
     this.trimVertical(pos.y);
     if (zoomLoc === undefined) zoomLoc = 0.5;
     var scale = this.zoomLevels[this.curZoom - steps] / this.pxPerBp;
-    var edgeDist = this.bpToPx(this.ref.end) - (this.offset + pos.x + this.getWidth());
+    var edgeDist = this.bpToPx(this.ref.get('end')) - (this.offset + pos.x + this.getWidth());
         //zoomLoc is a number on [0,1] that indicates
         //the fixed point of the zoom
     zoomLoc = Math.max(zoomLoc, 1 - (((edgeDist * scale) / (1 - scale)) / this.getWidth()));
-    edgeDist = pos.x + this.offset - this.bpToPx(this.ref.start);
+    edgeDist = pos.x + this.offset - this.bpToPx(this.ref.get('start'));
     zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.getWidth());
     var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
     this.curZoom -= steps;
@@ -1775,7 +1779,7 @@ zoomOut: function(e, zoomLoc, steps) {
                                                 / this.pxPerBp));
 
     //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
-    this.minLeft = this.pxPerBp * this.ref.start;
+    this.minLeft = this.pxPerBp * this.ref.get('start');
 
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
@@ -1811,7 +1815,7 @@ zoomBackOut: function(e) {
     							/ this.pxPerBp));
 	}
 
-    this.minLeft = this.pxPerBp * this.ref.start;
+    this.minLeft = this.pxPerBp * this.ref.get('start');
     var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
@@ -1848,9 +1852,9 @@ zoomUpdate: function(zoomLoc, fixedBp) {
     var centerStripe = Math.round(centerPx / this.stripeWidth);
     var firstStripe = (centerStripe - ((this.stripeCount) / 2)) | 0;
     this.offset = firstStripe * this.stripeWidth;
-    this.maxOffset = this.bpToPx(this.ref.end+1) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
-    this.minLeft = this.bpToPx(this.ref.start);
+    this.maxOffset = this.bpToPx(this.ref.get('end')+1) - this.stripeCount * this.stripeWidth;
+    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
+    this.minLeft = this.bpToPx(this.ref.get('start'));
     this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
 
@@ -2141,17 +2145,17 @@ _updateRefSeqSelectBox: function() {
         // if none of the options in the select box match this
         // reference sequence, add another one to the end for it
         if( ! array.some( this.refSeqSelectBox.getOptions(), function( option ) {
-                              return option.value == this.ref.name;
+                              return option.value == this.ref.get('name');
                         }, this)
           ) {
               this.refSeqSelectBox.set( 'options',
                                      this.refSeqSelectBox.getOptions()
-                                     .concat({ label: this.ref.name, value: this.ref.name })
+                                     .concat({ label: this.ref.get('name'), value: this.ref.get('name') })
                                    );
         }
 
         // set its value to the current ref seq
-        this.refSeqSelectBox.set( 'value', this.ref.name, false );
+        this.refSeqSelectBox.set( 'value', this.ref.get('name'), false );
     }
 },
 
@@ -2162,13 +2166,13 @@ navigateTo: function( something ) {
         // if it's a foo:123..456 location, try to go there
         var location = typeof something == 'string' && Util.parseLocString( something );
         if( location ) {
-            return thisB.browser.findRefSeq( location.ref )
+            return thisB.browser.getReferenceFeature( location.refSeqName() )
                 .then(
                     function( refseq ) {
                         if( refseq )
-                            thisB.setLocation( refseq, location.start, location.end );
+                            thisB.setLocation( refseq, location.get('start'), location.get('end') );
                         else
-                            console.warn( 'reference sequence '+location.ref+' not found' );
+                            console.warn( 'reference sequence '+location.refSeqName()+' not found' );
                         d.resolve();
                     }
                 );
@@ -2178,16 +2182,17 @@ navigateTo: function( something ) {
             return thisB.browser.searchNames( something )
                 .then( function( location ) {
                            if( location )
-                               return thisB.browser.findRefSeq( location.ref )
+                               // check that we actually have that reference sequence
+                               return thisB.browser.getReferenceFeature( location.refSeqName() )
                                    .then( function( refseq ) {
-                                              return { ref: refseq, start: location.start, end: location.end };
+                                              return location;
                                           });
                            else
                                return null;
                        })
                 .then( function( location ) {
                            if( location )
-                               thisB.setLocation( location.ref, location.start, location.end );
+                               thisB.setLocation( location.refSeqName(), location.get('start'), location.get('end') );
                        });
         }
     });
@@ -2312,39 +2317,39 @@ createSearchControls: function( parent ) {
     this.browser.getStore('refseqs', function( store ) {
         var max = thisB.browser.getConf('refSeqSelectorMaxSize');
         var refSeqOrder = [];
-        store.getRefSeqMeta(
-            { limit: max+1 },
-            function( refseq ) {
-                refSeqOrder.push( refseq );
-            },
-            function() {
-                var numrefs = Math.min( max, refSeqOrder.length);
-                var options = [];
-                for ( var i = 0; i < numrefs; i++ ) {
-                    options.push( { label: refSeqOrder[i].name, value: refSeqOrder[i].name } );
-                }
-                var tooManyMessage = '(first '+numrefs+' ref seqs)';
-                if( refSeqOrder.length > max ) {
-                    options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
-                }
-                thisB.refSeqSelectBox = new dijitSelectBox({
-                    name: 'refseq',
-                    value: thisB.ref ? thisB.ref.name : null,
-                    options: options,
-                    onChange: dojo.hitch(thisB, function( newRefName ) {
-                        // don't trigger nav if it's the too-many message
-                        if( newRefName == tooManyMessage ) {
-                            this.refSeqSelectBox.set('value', this.refSeq.name );
-                            return;
-                        }
+        store.getReferenceFeatures({ limit: max+1 })
+             .forEach( function( refseq ) {
+                           refSeqOrder.push( refseq );
+                       },
+                       function() {
+                           var numrefs = Math.min( max, refSeqOrder.length);
+                           var options = [];
+                           for ( var i = 0; i < numrefs; i++ ) {
+                               options.push( { label: refSeqOrder[i].get('name'), value: refSeqOrder[i].get('name') } );
+                           }
+                           var tooManyMessage = '(first '+numrefs+' ref seqs)';
+                           if( refSeqOrder.length > max ) {
+                               options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+                           }
+                           thisB.refSeqSelectBox = new dijitSelectBox(
+                               {
+                                   name: 'refseq',
+                                   value: thisB.ref ? thisB.ref.get('name') : null,
+                                   options: options,
+                                   onChange: dojo.hitch(thisB, function( newRefName ) {
+                                                            // don't trigger nav if it's the too-many message
+                                                            if( newRefName == tooManyMessage ) {
+                                                                this.refSeqSelectBox.set('value', this.refSeq.name );
+                                                                return;
+                                                            }
 
-                        // only trigger navigation if actually switching sequences
-                        if( newRefName != this.ref.name ) {
-                            this.navigateTo(newRefName);
-                        }
-                    })
-                }).placeAt( refSeqSelectBoxPlaceHolder );
-            });
+                                                            // only trigger navigation if actually switching sequences
+                                                            if( newRefName != this.ref.get('name') ) {
+                                                                this.navigateTo(newRefName);
+                                                            }
+                                                        })
+                               }).placeAt( refSeqSelectBoxPlaceHolder );
+                       });
 
             // calculate how big to make the location box:  make it big enough to hold the
             var locLength = thisB.getConf('locationBoxLength') || function() {
@@ -2358,21 +2363,20 @@ createSearchControls: function( parent ) {
                     && function() {
                            var longestNamedRef;
                            array.forEach( refSeqOrder, function(ref) {
-                               if( ! ref.length )
-                                   ref.length = ref.end - ref.start + 1;
-                               if( ! longestNamedRef || longestNamedRef.length < ref.length )
+                               if( ! longestNamedRef
+                                   || (longestNamedRef.get('end') - longestNamedRef.get('start')) < (ref.get('end') - ref.get('start')) )
                                    longestNamedRef = ref;
                            });
                            return longestNamedRef;
                        }.call()
-                    || refSeqOrder.length && refSeqOrder[ refSeqOrder.length - 1 ].name.length
+                    || refSeqOrder.length && refSeqOrder[ refSeqOrder.length - 1 ].get('name').length
                     || 20;
 
                 var locstring = Util.assembleLocStringWithLength(
-                    { ref: ref.name,
-                      start: ref.end-1,
-                      end: ref.end,
-                      length: ref.length
+                    { ref: ref.get('name'),
+                      start: ref.get('end')-1,
+                      end: ref.get('end'),
+                      length: ref.get('end') - ref.get('start')
                     });
 
                 //console.log( locstring, locstring.length );

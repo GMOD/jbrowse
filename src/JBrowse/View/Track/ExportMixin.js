@@ -55,31 +55,30 @@ var ExportMixin = declare( null, {
 
         var visibleRegion = this.genomeView.visibleRegion();
         var highlightedRegion = this.browser.getHighlight();
-        var wholeRefSeqRegion = { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end };
         var canExportVisibleRegion = this._canExportRegion( visibleRegion );
-        var canExportWholeRef = this._canExportRegion( wholeRefSeqRegion );
+        var canExportWholeRef = this._canExportRegion( this.refSeq );
         return highlightedRegion && this._canExportRegion( highlightedRegion )
             || this._canExportRegion( visibleRegion )
-            || this._canExportRegion( wholeRefSeqRegion );
+            || this._canExportRegion( this.refSeq );
     },
 
     _possibleExportRegions: function() {
         var regions = [
             // the visible region
-            (function() {
-                 var r = dojo.clone( this.genomeView.visibleRegion() );
-                 r.description = 'Visible region';
-                 r.name = 'visible';
-                 return r;
-             }.call(this)),
+            { region: this.genomeView.visibleRegion(),
+              description: 'Visible region',
+              name: 'visible'
+            },
             // whole reference sequence
-            { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end, description: 'Whole reference sequence', name: 'wholeref' }
+            { region: this.refSeq,
+              description: 'Whole reference sequence',
+              name: 'wholeref'
+            }
         ];
 
         var highlightedRegion = this.browser.getHighlight();
-        if( highlightedRegion ) {
-            regions.unshift( lang.mixin( lang.clone( highlightedRegion ), { description: "Highlighted region", name: "highlight" } ) );
-        }
+        if( highlightedRegion )
+            regions.unshift( { region: highlightedRegion, description: "Highlighted region", name: "highlight" } );
 
         return regions;
     },
@@ -90,7 +89,7 @@ var ExportMixin = declare( null, {
 
         // for each region, calculate its length and determine whether we can export it
         array.forEach( possibleRegions, function( region ) {
-            region.length = Math.round( region.end - region.start + 1 );
+            region.length = Math.round( region.get('end') - region.get('start') + 1 );
             region.canExport = this._canExportRegion( region );
         },this.track);
 
@@ -317,7 +316,7 @@ var ExportMixin = declare( null, {
 
         // if we have a maxExportSpan configured for this track, use it.
         if( this.getConf('maxExportSpan') ) {
-            return region.end - region.start + 1 <= this.getConf('maxExportSpan');
+            return region.get('end') - region.get('start') + 1 <= this.getConf('maxExportSpan');
         }
         else {
             // if we know the store's feature density, then use that with
@@ -325,11 +324,10 @@ var ExportMixin = declare( null, {
             var thisB = this;
             var storeStats = {};
             // will return immediately if the stats are available
-            this.store.getRegionStats( lang.mixin( {}, region, this.getConf('query') ), function( s ) {
-                storeStats = s;
-            }, function(error){ }); // error callback does nothing for now
+            this.store.getRegionStats( this.makeStoreQuery( region ) )
+                .then( function( s ) { storeStats = s; } );
             if( storeStats.featureDensity ) {
-                return storeStats.featureDensity*(region.end - region.start) <= ( thisB.getConf('maxExportFeatures') || 5000 );
+                return storeStats.featureDensity*(region.get('end') - region.get('start')) <= ( thisB.getConf('maxExportFeatures') || 5000 );
             }
         }
 

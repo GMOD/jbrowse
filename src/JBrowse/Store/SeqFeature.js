@@ -1,10 +1,17 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'JBrowse/Util/DeferredGenerator',
             'JBrowse/Store',
             'JBrowse/Store/LRUCache'
         ],
-        function( declare, lang, Store, LRUCache ) {
+        function(
+            declare,
+            lang,
+            DeferredGenerator,
+            Store,
+            LRUCache
+        ) {
 
 /**
  * Base class for JBrowse data backends that hold sequences and
@@ -23,7 +30,9 @@ return declare( Store,
 
     configSchema: {
         slots: [
-            { name: 'name', type: 'string', defaultValue: function(store) { return 'Store '+store.serialNumber; } }
+            { name: 'name', type: 'string',
+              defaultValue: function(store) { return 'Store '+store.serialNumber; }
+            }
         ]
     },
 
@@ -40,14 +49,10 @@ return declare( Store,
      * @param {String} query.ref    the name of the reference sequence
      * @param {Number} query.start  start of the region in interbase coordinates
      * @param {Number} query.end    end of the region in interbase coordinates
-     * @param {Function} successCallback(stats) callback to receive the
-     *   statistics.  called with one argument, an object containing
-     *   attributes with various statistics.
-     * @param {Function} errorCallback(error) in the event of an error, this
-     *   callback will be called with one argument, which is anything
-     *   that can stringify to an error message.
      */
     getRegionStats: function( query, successCallback, errorCallback ) {
+        if( successCallback ) throw new Error('getRegionStats no longer takes callback arguments');
+
         return this._getRegionStats.apply( this, arguments );
     },
 
@@ -98,6 +103,13 @@ return declare( Store,
                             successCallback( stats );
                     });
 
+    },
+
+    // most stores can't store sequences, override this if you can.
+    getSequenceFragments: function() {
+        var d = new DeferredGenerator();
+        d.resolve( undefined );
+        return d;
     },
 
     // utility method that calculates standard deviation from sum and sum of squares

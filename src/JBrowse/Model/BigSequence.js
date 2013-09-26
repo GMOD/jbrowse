@@ -23,7 +23,8 @@ return Util.fastDeclare({
        }
 
        this.store = args.store;
-       this.sequenceQuery = args.sequenceQuery || { name: this.name, seq_id: this.name, type: '_sequence_fragment' };
+       this.sequenceQuery = args.sequenceQuery
+           || { name: this.name, seq_id: this.name, type: '_sequence_fragment' };
    },
 
    getRange: function( start, end ) {

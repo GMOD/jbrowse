@@ -33,9 +33,9 @@ define( [
             'JBrowse/Transport/_TransportManagerMixin',
             'JBrowse/View/RegionBrowser',
             'JBrowse/ConfigManager',
+            'JBrowse/Model/SimpleFeature',
             'JBrowse/View/Dialog/Info',
             'JBrowse/View/FileDialog',
-            'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
             'JBrowse/View/Dialog/QuickHelp',
@@ -76,9 +76,9 @@ define( [
             TransportManagerMixin,
             RegionBrowserPane,
             ConfigLoader,
+            SimpleFeature,
             InfoDialog,
             FileDialog,
-            Location,
             LocationChoiceDialog,
             SetHighlightDialog,
             HelpDialog,
@@ -131,7 +131,7 @@ constructor: function(params) {
 
             // initialize our highlight if one was set in the config
             if( thisB.getConf('highlight') )
-                thisB.setHighlight( new Location( thisB.getConf('highlight') ) );
+                thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
 
             thisB.loadNames();
             thisB.initPlugins().then( function() {
@@ -1497,18 +1497,12 @@ showRegion: function( location ) {
     }
 },
 
-findRefSeq: function( refname ) {
-    var d = new Deferred();
-    this.getStore( 'refseqs', function( store ) {
-        var ref;
-        store.getRefSeqMeta(
-            { name: refname, limit: 1 },
-            function(r) { ref = r; },
-            function(){ d.resolve(ref); },
-            lang.hitch( d, 'reject' )
-        );
-    });
-    return d;
+getReferenceFeature: function( refname ) {
+    return this.getStoreDeferred( 'refseqs' )
+         .then( function( store ) {
+                    return store.getReferenceFeatures({ name: refname, limit: 1 })
+                        .first();
+             });
 },
 
 /**
@@ -1519,10 +1513,10 @@ searchNames: function( /**String*/ loc ) {
     var thisB = this;
 
     // first see if it's a reference sequence
-    return this.findRefSeq( loc )
+    return this.getReferenceFeature( loc )
                .then( function( refseq ) {
                    if( refseq )
-                       return { ref: refseq.name, start: refseq.start, end: refseq.end };
+                       return { ref: refseq.get('name'), start: refseq.get('start'), end: refseq.get('end') };
 
                    // if not, look it up in the names index
                    return thisB._searchNameIndex( loc );
@@ -1817,7 +1811,7 @@ setHighlight: function( newHighlight ) {
     if( newHighlight && ( newHighlight instanceof Location ) )
         this._highlight = newHighlight;
     else if( newHighlight )
-        this._highlight = new Location( newHighlight );
+        this._highlight = new SimpleFeature({ data: newHighlight });
 
     this.publish( '/jbrowse/v1/n/globalhighlight/changed', [this._highlight] );
 

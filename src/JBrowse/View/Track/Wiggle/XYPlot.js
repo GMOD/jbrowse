@@ -192,7 +192,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         if( this.getConf('showVarianceBands') ) {
             var bandPositions = this.getConf('varianceBandPositions').sort().reverse();
             this.getRegionStats(
-                this.makeStoreQuery({ ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }),
+                this.makeStoreQuery({ ref: this.refSeq.get('name'), start: this.refSeq.get('start'), end: this.refSeq.get('end') }),
                 dojo.hitch( this, function( stats ) {
                                 if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
                                     var drawVarianceBand = function( plusminus, fill, label ) {

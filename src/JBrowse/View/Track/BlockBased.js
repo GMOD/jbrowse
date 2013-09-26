@@ -371,7 +371,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         if (null == this.firstAttached) return;
         // hide all blocks that overlap the given region
         for (var i = this.firstAttached; i <= this.lastAttached; i++)
-            if( this.blocks[i] && location.ref == this.refSeq.name && !(  this.blocks[i].leftBase > location.end || this.blocks[i].rightBase < location.start ) )
+            if( this.blocks[i] && location.ref == this.refSeq.get('name') && !(  this.blocks[i].leftBase > location.end || this.blocks[i].rightBase < location.start ) )
                 this._hideBlock(i);
 
         this._adjustBlanks();
@@ -943,7 +943,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         var highlight = this.browser.getHighlight();
         return highlight
             && ( highlight.objectName && highlight.objectName == name )
-            && highlight.ref == this.refSeq.name
+            && highlight.ref == this.refSeq.get('name')
             && !( feature.get('start') > highlight.end || feature.get('end') < highlight.start );
     },
 
@@ -1146,21 +1146,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     // prepares a query object for passing to the backend store
     makeStoreQuery: function( q ) {
+        if( typeof q.get == 'function' )
+            q = { ref: q.get('seq_id'), start: q.get('start'), end: q.get('end') };
+
         return lang.mixin( {}, this.getConf('query'), q || {} );
     }
 
 });
 });
 
-/*
-
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
-
-Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
-
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
-
-*/

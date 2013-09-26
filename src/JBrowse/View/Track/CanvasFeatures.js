@@ -18,7 +18,7 @@ define( [
             'JBrowse/Errors',
             'JBrowse/View/Track/FeatureDetailMixin',
             'JBrowse/View/Track/_FeatureContextMenusMixin',
-            'JBrowse/Model/Location'
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
@@ -36,7 +36,7 @@ define( [
             Errors,
             FeatureDetailMixin,
             FeatureContextMenuMixin,
-            Location
+            SimpleFeature
         ) {
 
 /**
@@ -148,8 +148,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                                  );
                         },
                         action: function() {
-                            var loc = new Location({ feature: this.feature, tracks: [this.track] });
-                            this.track.browser.setHighlightAndRedraw(loc);
+                            this.track.browser.setHighlightAndRedraw( this.feature );
                         },
                         iconClass: 'dijitIconFilter'
                       }
@@ -171,6 +170,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     fillBlock: function( args ) {
+        var thisB = this;
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -183,47 +183,45 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
-        var fill = dojo.hitch( this, function( stats ) {
-
+        this.store.getRegionStats(
+            this.makeStoreQuery( { ref: this.refSeq.get('name'), start: this.refSeq.get('start'), end: this.refSeq.get('end') } )
+        ).then(
+            function( stats ) {
                 // calculate some additional view parameters that
                 // might depend on the feature stats and add them to
                 // the view args we pass down
-                var renderHints = dojo.mixin(
+                var renderHints = lang.mixin(
                     {
                         stats: stats,
-                        displayMode: this.getConf('displayMode'),
-                        showFeatures: scale >= ( this.getConf('featureScale')
-                                                 || (stats.featureDensity||0) / this.getConf('maxFeatureScreenDensity') ),
-                        showLabels: this.getConf('showLabels') && this.getConf('displayMode') == "normal"
-                            && scale >= ( this.getConf('labelScale')
-                                          || (stats.featureDensity||0) / this.getConf('maxLabelScreenDensity') ),
-                        showDescriptions: this.getConf('showLabels') && this.getConf('displayMode') == "normal"
-                            && scale >= ( this.getConf('descriptionScale')
-                                          || (stats.featureDensity||0) * this.getConf('maxDescriptionScreenDensity') )
+                        displayMode: thisB.getConf('displayMode'),
+                        showFeatures: scale >= ( thisB.getConf('featureScale')
+                                                 || (stats.featureDensity||0) / thisB.getConf('maxFeatureScreenDensity') ),
+                        showLabels: thisB.getConf('showLabels') && thisB.getConf('displayMode') == "normal"
+                            && scale >= ( thisB.getConf('labelScale')
+                                          || (stats.featureDensity||0) / thisB.getConf('maxLabelScreenDensity') ),
+                        showDescriptions: thisB.getConf('showLabels') && thisB.getConf('displayMode') == "normal"
+                            && scale >= ( thisB.getConf('descriptionScale')
+                                          || (stats.featureDensity||0) * thisB.getConf('maxDescriptionScreenDensity') )
                     },
                     args
                 );
 
                 if( renderHints.showFeatures ) {
-                    this.fillFeatures( dojo.mixin( renderHints, args ) );
+                    thisB.fillFeatures( lang.mixin( renderHints, args ) );
                 }
                 else {
-                    this.fillTooManyFeaturesMessage(
+                    thisB.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
                         scale
                     );
                     args.finishCallback();
                 }
-            });
-
-        this.store.getRegionStats(
-            this.makeStoreQuery( { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end } ),
-            fill,
-            dojo.hitch( this, function(e) {
-                            this._handleError( e, args );
-                            args.finishCallback(e);
-                        })
+            },
+            function( error ) {
+                thisB._handleError( error, args );
+                args.finishCallback(e);
+            }
         );
     },
 
@@ -319,10 +317,10 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         // store (not necessarily laid out yet)
         var allFeaturesRead = false;
 
-        var errorCallback = dojo.hitch( thisB, function( e ) {
-            this._handleError( e, args );
+        var errorCallback = function( e ) {
+            thisB._handleError( e, args );
             finishCallback(e);
-        });
+        };
 
         // query for a slightly larger region than the block, so that
         // we can draw any pieces of glyphs that overlap this block,
@@ -332,102 +330,103 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         var bpExpansion = Math.round( this.getConf('maxFeatureGlyphExpansion') / scale );
 
         var query = this.makeStoreQuery(
-            { ref: this.refSeq.name,
+            { ref: this.refSeq.get('name'),
               start: Math.max( 0, leftBase - bpExpansion ),
               end: rightBase + bpExpansion
             });
 
         var layout;
-        this.store.getFeatures( query,
-                                function( feature ) {
-                                    if( thisB.destroyed || ! thisB.filterFeature( feature ) )
-                                        return;
-                                    fRects.push( null ); // put a placeholder in the fRects array
-                                    featuresInProgress++;
-                                    var rectNumber = fRects.length-1;
+        return this.store
+            .getFeatures( query )
+            .forEach( function( feature ) {
+                       if( thisB.destroyed || ! thisB.filterFeature( feature ) )
+                           return;
+                       fRects.push( null ); // put a placeholder in the fRects array
+                       featuresInProgress++;
+                       var rectNumber = fRects.length-1;
 
-                                    // get the appropriate glyph object to render this feature
-                                    thisB.getGlyph(
-                                        args,
-                                        feature,
-                                        function( glyph ) {
-                                            // have the glyph attempt
-                                            // to add a rendering of
-                                            // this feature to the
-                                            // layout
-                                            if( ! layout )
-                                                layout = thisB._getLayout({ scale: scale, glyphHeight: glyph.getFeatureHeight( args, feature ) });
+                       // get the appropriate glyph object to render this feature
+                       thisB.getGlyph(
+                           args,
+                           feature,
+                           function( glyph ) {
+                               // have the glyph attempt
+                               // to add a rendering of
+                               // this feature to the
+                               // layout
+                               if( ! layout )
+                                   layout = thisB._getLayout({ scale: scale, glyphHeight: glyph.getFeatureHeight( args, feature ) });
 
-                                            var fRect = glyph.layoutFeature(
-                                                args,
-                                                layout,
-                                                feature
-                                            );
-                                            if( fRect === null ) {
-                                                // could not lay out, would exceed our configured maxHeight
-                                                // mark the block as exceeding the max height
-                                                block.maxHeightExceeded = true;
-                                            }
-                                            else {
-                                                // laid out successfully
-                                                if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
-                                                    fRects[rectNumber] = fRect;
-                                            }
+                               var fRect = glyph.layoutFeature(
+                                   args,
+                                   layout,
+                                   feature
+                               );
+                               if( fRect === null ) {
+                                   // could not lay out, would exceed our configured maxHeight
+                                   // mark the block as exceeding the max height
+                                   block.maxHeightExceeded = true;
+                               }
+                               else {
+                                   // laid out successfully
+                                   if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
+                                       fRects[rectNumber] = fRect;
+                               }
 
-                                            // this might happen after all the features have been sent from the store
-                                            if( ! --featuresInProgress && allFeaturesRead ) {
-                                                featuresLaidOut.resolve();
-                                            }
-                                        },
-                                        errorCallback
-                                    );
-                                },
+                               // this might happen after all the features have been sent from the store
+                               if( ! --featuresInProgress && allFeaturesRead ) {
+                                   featuresLaidOut.resolve();
+                               }
+                           },
+                           errorCallback
+                       );
+                   },
 
-                                // callback when all features sent
-                                function () {
-                                    if( thisB.destroyed )
-                                        return;
+                   // callback when all features sent
+                   function () {
+                       if( thisB.destroyed )
+                           return;
 
-                                    allFeaturesRead = true;
-                                    if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
-                                        featuresLaidOut.resolve();
-                                    }
+                       allFeaturesRead = true;
+                       if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
+                           featuresLaidOut.resolve();
+                       }
 
-                                    featuresLaidOut.then( function() {
+                       featuresLaidOut.then( function() {
 
-                                        var totalHeight = layout ? layout.getTotalHeight() : 0;
-                                        var c = block.featureCanvas =
-                                            domConstruct.create(
-                                                'canvas',
-                                                { height: totalHeight,
-                                                  width:  block.domNode.offsetWidth+1,
-                                                  style: {
-                                                      cursor: 'default',
-                                                      height: totalHeight+'px',
-                                                      position: 'absolute'
-                                                  },
-                                                  innerHTML: 'Your web browser cannot display this type of track.',
-                                                  className: 'canvas-track'
-                                                },
-                                                block.domNode
-                                            );
+                                                 var totalHeight = layout ? layout.getTotalHeight() : 0;
+                                                 var c = block.featureCanvas =
+                                                     domConstruct.create(
+                                                         'canvas',
+                                                         { height: totalHeight,
+                                                           width:  block.domNode.offsetWidth+1,
+                                                           style: {
+                                                               cursor: 'default',
+                                                               height: totalHeight+'px',
+                                                               position: 'absolute'
+                                                           },
+                                                           innerHTML: 'Your web browser cannot display this type of track.',
+                                                           className: 'canvas-track'
+                                                         },
+                                                         block.domNode
+                                                     );
 
-                                        if( block.maxHeightExceeded )
-                                            thisB.markBlockHeightOverflow( block );
+                                                 if( block.maxHeightExceeded )
+                                                     thisB.markBlockHeightOverflow( block );
 
-                                        thisB.heightUpdate( totalHeight,
-                                                            blockIndex );
+                                                 thisB.heightUpdate( totalHeight,
+                                                                     blockIndex );
 
 
-                                        thisB.renderFeatures( args, fRects );
+                                                 thisB.renderFeatures( args, fRects );
 
-                                        thisB.renderClickMap( args, fRects );
+                                                 thisB.renderClickMap( args, fRects );
 
-                                        finishCallback();
-                                    });
-                                },
-                                errorCallback
-                              );
+                                                 finishCallback();
+                                             });
+                   },
+                   errorCallback
+                 );
     },
 
     startZoom: function() {
@@ -649,7 +648,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                     return;
 
                 if( block.containsBp( bpX ) ) {
-                    var renderTooltip = dojo.hitch( this, function() {
+                    var renderTooltip = lang.hitch( this, function() {
                         if( !this.labelTooltip )
                             return;
                         var label = fRect.label || fRect.glyph.makeFeatureLabel( feature );
@@ -686,7 +685,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                 fRect.glyph.mouseoverFeature( context, fRect );
                 this._refreshContextMenu( fRect );
             } else {
-                block.tooltipTimeout = window.setTimeout( dojo.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
+                block.tooltipTimeout = window.setTimeout( lang.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
             }
         }, this );
 
@@ -727,7 +726,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             };
         });
 
-        var updateMenuItems = dojo.hitch(this, function() {
+        var updateMenuItems = lang.hitch(this, function() {
             for(var index in this.displayModeMenuItems) {
                 this.displayModeMenuItems[index].checked = (this.getConf('displayMode') == this.displayModeMenuItems[index].label);
             }
@@ -776,7 +775,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             var viewArgs = {
                 minVisible: minVisible,
                 maxVisible: maxVisible,
-                bpToPx: dojo.hitch(this.genomeView, "bpToPx"),
+                bpToPx: lang.hitch(this.genomeView, "bpToPx"),
                 lWidth: this.label.offsetWidth
             };
 

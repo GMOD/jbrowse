@@ -20,52 +20,43 @@ return declare( null, {
      * @private
      */
     _estimateGlobalStats: function( refseq ) {
-        return this._globalStatsEstimate || function() {
-            var deferred = new Deferred();
-
+        return this._globalStatsEstimate || ( this._globalStatsEstimate = function() {
+            var thisB = this;
             if( ! refseq )
                 throw new Error('sample refseq parameter required');
 
-            var statsFromInterval = function( length, callback ) {
-                var thisB = this;
+            function statsFromInterval( length ) {
                 var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
                 var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
                 var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
                 var features = [];
-                this.getFeatures( { ref: refseq.name, start: start, end: end},
-                                  function( f ) { features.push(f); },
-                                  function( error ) {
-                                      features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
-                                      callback.call( thisB, length,
-                                                     {
-                                                         featureDensity: features.length / length,
-                                                         _statsSampleFeatures: features.length,
-                                                         _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
-                                                     });
-                                  },
-                                  function( error ) {
-                                          console.error( error );
-                                          callback.call( thisB, length,  null, error );
-                                  });
+                return thisB.getFeatures( { ref: refseq.name, start: start, end: end} )
+                    .forEach( function( f ) {
+                                  if( f.get('start') >= start && f.get('end') <= end )
+                                      features.push(f);
+                              },
+                              function() {
+                                  return {
+                                      featureDensity: features.length / length,
+                                      _statsSampleFeatures: features.length,
+                                      _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
+                                  };
+                              });
             };
 
-            var maybeRecordStats = function( interval, stats, error ) {
-                if( error ) {
-                    deferred.reject( error );
+            function maybeRecordStats( stats ) {
+                var refLen = refseq.end - refseq.start;
+                var interval = stats._statsSampleInterval.length;
+                if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen ) {
+                    console.log( 'Store statistics: '+(thisB.source||thisB.name), stats );
+                    return stats;
                 } else {
-                    var refLen = refseq.end - refseq.start;
-                     if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
-                         console.log( 'Store statistics: '+(this.source||this.name), stats );
-                         deferred.resolve( stats );
-                     } else {
-                         statsFromInterval.call( this, interval * 2, maybeRecordStats );
-                     }
+                    return statsFromInterval( interval * 2 ).then( maybeRecordStats );
                 }
             };
 
-            statsFromInterval.call( this, 100, maybeRecordStats );
-            return this._globalStatsEstimate = deferred;
-        }.call(this);
+            return this._globalStatsEstimate = statsFromInterval( 100  ).then( maybeRecordStats );
+        }.call(this));
     }
 });
 });

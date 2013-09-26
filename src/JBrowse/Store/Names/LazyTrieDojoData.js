@@ -7,12 +7,12 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'JBrowse/Util',
-           'JBrowse/Model/Location'
+           'JBrowse/Model/SimpleFeature'
        ],function(
            declare,
            array,
            Util,
-           Location
+           SimpleFeature
        ) {
 return declare( null,
 /**
@@ -123,13 +123,15 @@ return declare( null,
                                    if( matchesRemaining-- ) {
                                        var name = this.nodeText(node);
                                        array.forEach( node[1], function(n) {
-                                           var location = new Location({
-                                               ref: n[ post1_4 ? 3 : 2 ],
-                                               start: parseInt( n[ post1_4 ? 4 : 3 ]),
-                                               end: parseInt( n[ post1_4 ? 5 : 4 ]),
-                                               tracks: [ this.namesTrie.extra[ n[ post1_4 ? 1 : 0 ] ] ],
-                                               objectName: name
-                                           });
+                                           var location = new SimpleFeature(
+                                               { data: {
+                                                     seq_id: n[ post1_4 ? 3 : 2 ],
+                                                     start: parseInt( n[ post1_4 ? 4 : 3 ]),
+                                                     end: parseInt( n[ post1_4 ? 5 : 4 ]),
+                                                     tracks: [ this.namesTrie.extra[ n[ post1_4 ? 1 : 0 ] ] ],
+                                                     objectName: name
+                                                 }
+                                               });
 
                                            matches.push({
                                                         name: name,

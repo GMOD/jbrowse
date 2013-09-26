@@ -78,7 +78,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             return this.getRegionStats.call( this, region, callback, errorCallback );
         }
         else {
-            return this.getRegionStats.call( this, { scale: 1000/(this.refSeq.end - this.refSeq.start ), ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, callback, errorCallback );
+            return this.getRegionStats.call( this, { scale: 1000/(this.refSeq.get('end') - this.refSeq.get('start')), ref: this.refSeq.get('name'), start: this.refSeq.get('start'), end: this.refSeq.get('end') }, callback, errorCallback );
         }
     },
 
@@ -115,7 +115,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
             var features = [];
             this.getFeatures(
-                { ref: this.refSeq.name,
+                { ref: this.refSeq.get('name'),
                   basesPerSpan: 1/scale,
                   scale: scale,
                   start: leftBase,

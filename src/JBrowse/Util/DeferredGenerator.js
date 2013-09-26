@@ -137,6 +137,30 @@ var DeferredGenerator = declare( null, {
       return this.each.apply( this, arguments )
           .run();
   },
+  last: function( end, error, progress ) {
+      var val;
+      var first = true;
+      return this.each( function(v) { return val = v; },
+                        function() { return val; }
+                      )
+                 .run()
+                 .then( end, error, progress );
+  },
+  first: function( end, error, progress ) {
+      var val;
+      var first = true;
+      return this.each( function(v) {
+                            if( first ) {
+                                val = v;
+                                first = false;
+                            }
+                            return v;
+                        },
+                        function() { return val; }
+                      )
+                 .run()
+                 .then( end, error, progress );
+  },
 
   then: function( end, error, progress ) {
       return this.each( undefined, end, error, progress );

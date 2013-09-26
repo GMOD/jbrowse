@@ -48,7 +48,7 @@ return dojo.declare( BlockBased,
             !( base_span % 2  ) ? 2  :
                                   0;
 
-        var maxminor = 100*(this.refSeq.end - leftBase)/base_span;
+        var maxminor = 100*(this.refSeq.get('end') - leftBase)/base_span;
         for( var i=0; i<minor_count; i++ ) {
             var pos = 100/minor_count*i;
             var cls = pos == 0 || (minor_count == 20 && i == 10)
@@ -61,8 +61,8 @@ return dojo.declare( BlockBased,
             block.domNode.appendChild( new_gridline( cls, pos) );
         }
 
-        if( rightBase > this.refSeq.end && leftBase < this.refSeq.end ) {
-            block.domNode.appendChild( new_gridline( 'gridline_refseq_end', 100*(this.refSeq.end-leftBase)/base_span ) );
+        if( rightBase > this.refSeq.get('end') && leftBase < this.refSeq.get('end') ) {
+            block.domNode.appendChild( new_gridline( 'gridline_refseq_end', 100*(this.refSeq.get('end')-leftBase)/base_span ) );
         }
     }
 });

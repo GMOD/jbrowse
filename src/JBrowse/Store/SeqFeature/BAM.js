@@ -67,7 +67,9 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
                         || undefined;
     },
 
-    getRegionStats: function( query ) {
+    getRegionStats: function( query, callback ) {
+        if( callback ) throw 'getRegionStats no longer takes callback arguments';
+
         var thisB = this;
         return thisB.bam.init()
             .then( function() {
@@ -96,7 +98,9 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
                    });
     },
 
-    getFeatures: function( query ) {
+    getFeatures: function( query, callback ) {
+        if( callback ) throw 'getFeatures no longer takes callback arguments';
+
         return this.bam.fetchFeatures( query.ref, query.start, query.end );
     }
 

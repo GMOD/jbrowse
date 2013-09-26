@@ -208,7 +208,7 @@ Util = {
 
         if( locstring.indexOf(':') != -1 ) {
             tokens = locstring.split(':',2);
-            location.ref = dojo.trim( tokens[0] );
+            location.seq_id = dojo.trim( tokens[0] );
             locstring = tokens[1];
         }
 
@@ -236,7 +236,7 @@ Util = {
         if( extra )
             location.extra = extra;
 
-        return location;
+        return new SimpleFeature({ data: location });
     },
 
     basename: function( str, suffixList ) {
@@ -266,12 +266,22 @@ Util = {
 
         // filter the incoming loc_in to only pay attention to slots that we
         // know how to handle
-        for( var slot in types ) {
-            if( types[slot] == typeof loc_in[slot]
-                && (types[slot] != 'number' || !isNaN(loc_in[slot])) //filter any NaNs
-              ) {
-                  location[slot] = loc_in[slot];
-              }
+        if( typeof loc_in.get == 'function' ) {
+            for( var slot in types ) {
+                if( types[slot] == typeof loc_in.get(slot)
+                    && (types[slot] != 'number' || !isNaN(loc_in.get(slot))) //filter any NaNs
+                  ) {
+                      location[slot] = loc_in.get(slot);
+                  }
+            }
+        } else {
+            for( var slot in types ) {
+                if( types[slot] == typeof loc_in[slot]
+                    && (types[slot] != 'number' || !isNaN(loc_in[slot])) //filter any NaNs
+                  ) {
+                      location[slot] = loc_in[slot];
+                  }
+            }
         }
 
         //finally assemble our string

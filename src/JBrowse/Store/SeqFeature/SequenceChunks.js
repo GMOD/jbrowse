@@ -12,7 +12,7 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Util',
           'JBrowse/Util/DeferredGenerator',
           'JBrowse/Model/SimpleFeature',
-          'JBrowse/Model/ReferenceSequence',
+          'JBrowse/Model/ReferenceFeature',
           'JBrowse/Model/BigSequence',
           'JBrowse/Digest/Crc32'
         ],
@@ -70,12 +70,20 @@ return declare( SeqFeatureStore,
         return this.getFeatures( query );
     },
 
+    getReferenceSequence: function( name, start, end ) {
+        var seq;
+        return this.getReferenceFeatures({ ref: name })
+                   .forEach( function(s) { seq = s; },
+                             function() { return seq && seq.getSequence(start,end); }
+                           );
+    },
+
     getFeatures: function( query ) {
         var thisB = this;
         var refname;
         var chunkSize  = query.seqChunkSize || thisB.getConf('chunkSize');
         return new DeferredGenerator( function( generator ) {
-            return thisB.getReferenceSequences({ name: query.ref, limit: 1 })
+            return thisB.getReferenceFeatures({ name: query.ref, limit: 1 })
                 .forEach( function(r) {
                               refname = r.get('name');
                           },
@@ -156,7 +164,7 @@ return declare( SeqFeatureStore,
         }.call(this);
     },
 
-    _makeReferenceSequence: function( data ) {
+    _makeReferenceFeature: function( data ) {
         if( ! data )
             return undefined;
         if( data instanceof ReferenceSequence )
@@ -172,7 +180,7 @@ return declare( SeqFeatureStore,
         });
     },
 
-    getReferenceSequences: function( query ) {
+    getReferenceFeatures: function( query ) {
         var thisB = this;
         return new DeferredGenerator( function( generator ) {
             return thisB._fetchRefSeqsJson()
@@ -180,11 +188,11 @@ return declare( SeqFeatureStore,
                                    var name = query.name || query.ref;
                                    if( name ) {
                                        name = thisB.browser.regularizeReferenceName( name);
-                                       generator.emit( refSeqs[ name ] = thisB._makeReferenceSequence( refSeqs[name] ) );
+                                       generator.emit( refSeqs[ name ] = thisB._makeReferenceFeature( refSeqs[name] ) );
                                    } else {
                                        var limit = query.limit || Infinity;
                                        for( var n in refSeqs ) {
-                                           generator.emit( refSeqs[n] = thisB._makeReferenceSequence( refSeqs[n] ) );
+                                           generator.emit( refSeqs[n] = thisB._makeReferenceFeature( refSeqs[n] ) );
                                            if( ! --limit )
                                                break;
                                        }

@@ -43,7 +43,7 @@ return declare(BlockBased,
         var labelOffset = (leftBase+1-labelNumber)*scale/10;
         // console.log( leftBase+1, labelNumber, labelOffset );
 
-        if( leftBase < this.refSeq.end ) {
+        if( leftBase < this.refSeq.get('end') ) {
             var posLabel = document.createElement("div");
             var numtext = Util.addCommas( labelNumber.toString()
                                           .replace(/0{12}$/,'t')

@@ -6,6 +6,7 @@
  */
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/dom-class',
             'JBrowse/View/Track/BlockBased',
@@ -13,7 +14,16 @@ define( [
             'JBrowse/CodonTable',
             'JBrowse/Util'
         ],
-        function( declare, dom, domClass, BlockBased, ExportMixin, CodonTable, Util ) {
+        function(
+            declare,
+            lang,
+            dom,
+            domClass,
+            BlockBased,
+            ExportMixin,
+            CodonTable,
+            Util
+        ) {
 
 return declare( [BlockBased, ExportMixin],
 {
@@ -48,7 +58,7 @@ return declare( [BlockBased, ExportMixin],
     nbsp: String.fromCharCode(160),
 
     fillBlock:function( args ) {
-
+        var thisB = this;
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -62,30 +72,27 @@ return declare( [BlockBased, ExportMixin],
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale >= 1 ) {
-            this.store.getReferenceSequence(
-                {
-                    ref: this.refSeq.name,
-                    seqChunkSize: this.refSeq.seqChunkSize,
-                    start: leftExtended,
-                    end: rightExtended
-                },
-                dojo.hitch( this, '_fillSequenceBlock', block, scale ),
-                function() {}
-            );
-            this.heightUpdate( this.getConf('showTranslation') ? (charSize.h + 2)*8 : charSize.h*2, blockIndex );
+            this.store.getReferenceSequence( this.refSeq.get('name'), leftExtended, rightExtended )
+                .then( lang.hitch( this, '_fillSequenceBlock', block, scale ) )
+                .then( lang.hitch( this, 'heightUpdate',
+                                   this.getConf('showTranslation') ? (charSize.h + 2)*8 : charSize.h*2,
+                                   blockIndex
+                                 ),
+                       function(e) { thisB._handleError( e, args ); }
+                     )
+                .then( args.finishCallback );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
             var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
-            var blur = dojo.create( 'div', {
+            var blur = dom.create( 'div', {
                              className: 'sequence_blur',
                              style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
                          }, block.domNode );
             this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
+            args.finishCallback();
         }
-
-        args.finishCallback();
     },
 
     _fillSequenceBlock: function( block, scale, seq ) {

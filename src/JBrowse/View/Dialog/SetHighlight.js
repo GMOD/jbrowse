@@ -6,9 +6,9 @@ define([
            'JBrowse/View/Dialog/WithActionBar',
            'dojo/on',
            'dijit/form/Button',
-           'JBrowse/Model/Location'
+           'JBrowse/Util'
        ],
-       function( declare, dom, focus, dijitTextBox, ActionBarDialog, on, Button, Location ) {
+       function( declare, dom, focus, dijitTextBox, ActionBarDialog, on, Button, Util ) {
 
 
 return declare( ActionBarDialog,
@@ -72,7 +72,7 @@ return declare( ActionBarDialog,
 
     getLocation: function() {
         // have to use onChange to get the value of the text box to work around a bug in dijit
-        return new Location( this.highlightInput.get('value') );
+        return Util.parseLocString( this.highlightInput.get('value') );
     },
 
     hide: function() {
