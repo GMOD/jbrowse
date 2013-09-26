@@ -151,7 +151,7 @@ sub stream_set {
 
     my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
     $tempfile->close;
-    my %buckets;
+
     {
         my $kv_stream = shift;
         @_ = ();
@@ -166,10 +166,10 @@ sub stream_set {
         $db_conf->{flags} = 0x1; #< DB_TXN_NOSYNC
         $db_conf->{cachesize} = $self->{mem};
 
-        tie %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
+        tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
 
         print "Temporary bucket DBM file: $tempfile\n" if $self->{verbose};
-        print "Hashing to HashStore buckets.\n" if $self->{verbose};
+        print "Hashing keys and aggregating HashStore buckets...\n" if $self->{verbose};
         while ( my ( $k, $v ) = $kv_stream->() ) {
             my $hex = $self->_hex( $self->_hash( $k ) );
             my $b = $buckets{$hex};
@@ -180,12 +180,17 @@ sub stream_set {
         }
     }
 
-    print "Hashing done, writing buckets.\n" if $self->{verbose};
+    # reopen the database to free the big cache memory, not needed for iterating
+    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new;
+
+    print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose};
     while( my ( $hex, $contents ) = each %buckets ) {
         my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
         $bucket->{data} = Storable::thaw( $contents );
         $bucket->{dirty} = 1;
     }
+
+    print "Hash store bulk load finished.\n" if $self->{verbose};
 }
 
 sub _hash_to_temp {
