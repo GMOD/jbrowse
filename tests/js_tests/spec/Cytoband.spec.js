@@ -12,6 +12,10 @@ require([
             CytobandStore
         ) {
 
+       var referenceResult;
+       xhr( '../data/Cytoband.result.json', { handleAs: 'json' } )
+           .then( function(data) { referenceResult = data; } );
+
 describe( 'Cytoband parser', function() {
    it( 'can parse Cytoband', function() {
            var stuff = {features: []};
@@ -28,9 +32,6 @@ describe( 'Cytoband parser', function() {
            f.fetchLines( function(l) { p.addLine( l ); },
                          function()  { p.finish();     },
                          function(e) { console.error(e); } );
-           var referenceResult;
-           xhr( '../data/Cytoband.result.json', { handleAs: 'json' } )
-               .then( function(data) { referenceResult = data; } );
 
            waitsFor( function() { return parseFinished && referenceResult; } );
            runs( function() {
@@ -41,14 +42,15 @@ describe( 'Cytoband parser', function() {
 
 describe( 'Cytoband store', function() {
    it( 'can pass off files to the Parser', function() {
-           var p = new CytobandStore({
-                                     browser: new Browser({ unitTestMode: true }),
-                                     blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.gff3' ),
-                                     refSeq: { name: 'ctgA', start: 0, end: 50001 }
-                                 });
+           var p = new CytobandStore(
+               {
+                   browser: new Browser({ unitTestMode: true }),
+                   blob: new XHRBlob( '../data/Cytoband_test.txt' ),
+                   refSeq: { name: 'ctgA', start: 0, end: 50001 }
+               });
            (function() {
                var features = [];
-               var done;
+               var done = false;
 
                p.getFeatures(
                    { ref: 'ctgA', start: 1, end: 50000 },
@@ -65,7 +67,6 @@ describe( 'Cytoband store', function() {
                          expect( features[6].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
                      });
            }).call();
-
    });
 });
 

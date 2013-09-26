@@ -1,12 +1,14 @@
 define( [
             'dojo/_base/declare',
             'JBrowse/Model/SimpleFeature',
-            './Cytoband/Parser'
+            './Cytoband/Parser',
+            'JBrowse/Model/XHRBlob'
         ],
         function(
             declare,
             SimpleFeature,
-            Parser
+            Parser,
+            XHRBlob
         ) {
 
 return declare(null,
@@ -19,8 +21,31 @@ return declare(null,
     },
 
     _loadFeatures: function() {
-        var parser = new Parser();
-        parser.parseFile(this.data);
+        var stuff = {features: []};
+        var parseFinished, fetched;
+        var p = new Parser({
+            featureCallback : function(f) {
+                stuff.features.push(f);
+            },
+            endCallback : function(){
+                parseFinished = true;
+            }
+        });
+
+        this.data.fetchLines( function(l) { p.addLine(l);     },
+                              function( ) { p.finish();       },
+                              function(e) { console.error(e); } );
+        waitsFor( function() { return parseFinished; } );
+        runs(function(){
+            console.log();
+        })
+
     },
+
+    getFeatures: function( query, featureCallback, finishCallback, errorCallback ){
+        for(i=0; i<stuff.features.length(); i++){
+            
+        }
+    }
 });
 });
