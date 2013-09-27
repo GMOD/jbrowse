@@ -15,6 +15,9 @@
    generate-names.pl was not being created in the correct location.
    Thanks to Richard Hayes for testing this.
 
+ * Fixed a bug in which `generate-names.pl` could sometimes crash when
+   run with the -v (verbose) switch, or in setup.sh.
+
  * Fixed odd behavior when entering coordinate ranges in the location
    box under Safari.  Thanks to Keiran Raine for pointing this out
    (issue #341).
