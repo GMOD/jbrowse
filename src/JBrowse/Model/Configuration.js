@@ -67,6 +67,11 @@ var Configuration = declare( null, {
     },
 
     getRaw: function( key ) {
+        if( ! this._schema.getSlot( key ) ) {
+            console.warn('Attempt to access undefined configuration key "'+key+'"');
+            return undefined;
+        }
+
         return key in this._local ? this._local[ key ] :
                key in this._base  ? this._base[key] :
                                     this._schema.getDefaultValue( key );
@@ -96,7 +101,7 @@ var Configuration = declare( null, {
             }
             else {
                 //throw new Error( 'Unknown configuration key '+fullKey );
-                console.warn( 'Unknown configuration key "'+fullKey+'", ignoring.' );
+                console.warn( 'Unknown configuration key "'+fullKey+'", in base configuration, ignoring.' );
             }
         }
     },

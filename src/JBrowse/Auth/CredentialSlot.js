@@ -1,11 +1,13 @@
 define([
            'dojo/_base/declare',
+           'dojo/Deferred',
            'JBrowse/Util',
            'JBrowse/Component',
            'JBrowse/View/Dialog/Prompt'
        ],
        function(
            declare,
+           Deferred,
            Util,
            Component,
            PromptDialog
@@ -13,9 +15,46 @@ define([
 
 return declare( Component, {
 
+  constructor: function() {
+      this._credentials = new Deferred();
+  },
+
   configSchema: {
       slots: [
+          { name: 'name', type: 'string', defaultValue: 'site' },
           { name: 'type', type: 'string', required: true },
+
+          { name: 'getActionLabel', type: 'string',
+            description: 'string describing the action of getting these credentials',
+            defaultValue: 'Log in'
+            //defaultValue: function(slot) { return 'Log into '+slot.getConf('name'); }
+          },
+          { name: 'releaseActionLabel', type: 'string',
+            description: 'string describing the action of getting these credentials',
+            defaultValue: 'Log out'
+            //defaultValue: function(slot) { return 'Log out of '+slot.getConf('name'); }
+          },
+          { name: 'getSuccessMessage', type: 'string',
+            description: 'message displayed when credentials are successfully obtained',
+            defaultValue: 'Successfully logged in'
+          },
+          { name: 'getFailureMessage', type: 'string',
+            description: 'message displayed when credentials could not be obtained',
+            defaultValue: 'Login failed'
+          },
+          { name: 'releaseSuccessMessage', type: 'string',
+            description: 'message displayed when credentials are successfully released',
+            defaultValue: 'Successfully logged out'
+          },
+          { name: 'releaseFailureMessage', type: 'string',
+            description: 'message displayed when credentials could not be released',
+            defaultValue: 'Logout failed'
+          },
+
+          { name: 'keyringCSSClass', type: 'string',
+            description: "CSS class used for this credential's item in the keyring menu",
+            defaultValue: ''
+          },
 
           { name: 'urlPrefix', type: 'string' },
           { name: 'urlRegExp', type: 'string' },
@@ -38,8 +77,14 @@ return declare( Component, {
       ]
   },
 
-  ready: function() {
-      return this._ready || ( this._ready = this._getCredentials() );
+  get: function() {
+      if( ! this.ready )
+          this._getCredentials();
+      return this._credentials;
+  },
+
+  isReady: function() {
+      return this._credentials.isResolved();
   },
 
   neededFor: function( resourceDefinition ) {
@@ -47,18 +92,18 @@ return declare( Component, {
   },
 
   _getCredentials: function() {
-      throw new Error('override either _getCredentials() or ready() in a subclass');
+      throw new Error('override either _getCredentials() or get() in a subclass');
   },
 
   release: function() {
-      delete this._ready;
-      return Util.resolved(true);
+      this._credentials = new Deferred();
+      return Util.resolved( true );
   },
 
   _promptForData: function( title, data ) {
       return new PromptDialog(
               {
-                  title: title || ''
+                  title: title || this.getConf('name')
               })
               .promptForPlaceHolders( data );
   }

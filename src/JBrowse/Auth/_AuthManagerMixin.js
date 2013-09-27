@@ -82,5 +82,6 @@ return declare( null, {
                         );
           });
   }
+
 });
 });

@@ -43,7 +43,7 @@ return declare( CredentialSlot, {
 
   _getCredentials: function() {
       var thisB = this;
-      var d = new Deferred();
+      var d = this._credentials;
       var resolve = lang.hitch(d, 'resolve');
       var reject = lang.hitch(d,   'reject');
 
@@ -76,12 +76,14 @@ return declare( CredentialSlot, {
   },
 
   release: function() {
-      return this._promptForData( 'Logout', this.getConf('logoutRequest' ) )
-                 .then( function( logoutRequest ) {
-                            var f = this.browser.getTransportForResource(loginRequest)
-                                        .fetch( logoutRequest );
-                            f.then(function() { delete thisB._ready(); });
-                            return f;
+      var thisB = this;
+      return this.inherited( arguments )
+                 .then( function() {
+                            return thisB._promptForData( 'Logout', thisB.getConf('logoutRequest' ) )
+                                .then( function( logoutRequest ) {
+                                           return thisB.browser.getTransportForResource(logoutRequest)
+                                               .fetch( logoutRequest );
+                                       });
                         });
   }
 

@@ -502,8 +502,8 @@ initView: function() {
         this.renderMenuBar( menuBar );
 
         // make the keyring control
-        this.keyringControl = KeyringView.makeKeyringControl( this );
-        menuBar.appendChild( this.keyringControl.button.domNode );
+        this.keyringControl = new KeyringView({ browser: this });
+        menuBar.appendChild( this.keyringControl.getButton().domNode );
 
         menuBar.appendChild( this.makeShareLink() );
 
