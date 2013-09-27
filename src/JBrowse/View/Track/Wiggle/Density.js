@@ -43,8 +43,8 @@ return declare( WiggleBase,
         var featureColor = typeof this.config.style.color == 'function' ? this.config.style.color :
             (function() { // default color function uses conf variables
                 var disableClipMarkers = thisB.config.disable_clip_markers;
-                var normOrigin = normalize( dataScale.origin );
-                
+                var normOrigin = dataScale.normalize( dataScale.origin );
+
                 return function( p , n) {
                     var feature = p['feat'];
                     return ( disableClipMarkers || n <= 1 && n >= 0 )
@@ -65,8 +65,8 @@ return declare( WiggleBase,
             if (p) {
                 var score = p['score'];
                 var f = p['feat'];
-                
-                var n = normalize( score );
+
+                var n = dataScale.normalize( score );
                 context.fillStyle = ''+featureColor( p, n );
                 context.fillRect( i, 0, 1, canvasHeight );
                 if( n > 1 ) { // pos clipped

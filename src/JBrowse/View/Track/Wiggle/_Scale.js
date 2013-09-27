@@ -6,10 +6,14 @@
  */
 
 define([
+           'dojo/_base/lang',
            'JBrowse/Util',
            'JBrowse/Digest/Crc32'
        ],
-       function( Util, Digest ) {
+       function( lang,
+                 Util,
+                 Digest
+               ) {
 return Util.fastDeclare({
 
     // Returns a boolean value saying whether a stats object is needed
@@ -32,7 +36,7 @@ return Util.fastDeclare({
             throw 'No stats object provided, cannot calculate scale';
 
         if( needStats && stats.scoreMin == stats.scoreMax ) {
-            stats = dojo.clone( stats );
+            stats = lang.mixin( {}, stats );
             if( stats.scoreMin < 0 )
                 stats.scoreMax = 0;
             else
@@ -111,39 +115,37 @@ return Util.fastDeclare({
           }
         })();
 
-        dojo.mixin( this, {
+        lang.mixin( this, {
             offset: offset,
             min: min,
             max: max,
             range: max - min,
             origin: origin,
+            scoreMean: stats.scoreMean,
+            scoreStdDev: stats.scoreStdDev,
             _statsFingerprint: Digest.objectFingerprint( stats )
         });
 
         // make this.normalize a func that converts wiggle values to a
         // range between 0 and 1, depending on what kind of scale we
         // are using
-        var thisB = this;
-        this.normalize = (function() {
+        this.normalize = (function(config) {
             switch( config.scale ) {
             case 'z_score':
                 return function( value ) {
-                    with(thisB)
-                        return (value+offset-stats.scoreMean) / stats.scoreStdDev-min / range;
+                    return (value+this.offset-this.scoreMean) / this.scoreStdDev-this.min / this.range;
                 };
             case 'log':
                 return function( value ) {
-                    with(thisB)
-                        return ( thisB.log(value+offset) - min )/range;
+                    return ( this.log(value+this.offset) - this.min )/this.range;
                 };
             case 'linear':
             default:
                 return function( value ) {
-                    with(thisB)
-                        return ( value + offset - min ) / range;
+                    return ( value + this.offset - this.min ) / this.range;
                 };
             }
-        })();
+        })(config);
     },
 
     log: function( value ) {
