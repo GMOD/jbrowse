@@ -86,7 +86,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 
         dojo.forEach( pixels, function(p,i) {
             if (!p)
-                return
+                return;
             var score = toY(p['score']);
             var f = p['feat'];
 
@@ -145,7 +145,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     pixelValues[j]['lastUsedStore'] = store;
                 }
                 else {
-                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f }
+                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
                 }
             }
         },this);
