@@ -16,16 +16,17 @@ return declare(null,
 {
     constructor: function( args ) {
         this.data = args.blob;
-        this.features = [];
         this._loadFeatures();
+        this.browser = args.browser;
     },
 
     _loadFeatures: function() {
-        var stuff = {features: []};
+        this.stuff = {features: []};
+        var that = this;
         var parseFinished, fetched;
         var p = new Parser({
             featureCallback : function(f) {
-                stuff.features.push(f);
+                that.stuff.features.push(f);
             },
             endCallback : function(){
                 parseFinished = true;
@@ -37,14 +38,18 @@ return declare(null,
                               function(e) { console.error(e); } );
         waitsFor( function() { return parseFinished; } );
         runs(function(){
-            console.log();
+            console.log("End of Constructor => "+JSON.stringify(that.stuff.features));
         })
 
     },
 
     getFeatures: function( query, featureCallback, finishCallback, errorCallback ){
-        for(i=0; i<stuff.features.length(); i++){
-            
+        var refName = this.browser.regularizeReferenceName( query.ref );
+        
+        console.log("getFeatures => " +JSON.stringify(this.features));
+
+        for(var band in this.stuff.features){
+            console.log(JSON.stringify(band));            
         }
     }
 });
