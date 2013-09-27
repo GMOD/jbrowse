@@ -203,6 +203,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
               bpPerBin: Math.abs( rightBase - leftBase )/this.numBins
             },
             function( histData ) {
+                if( track._fillType != 'histograms' )
+                    return; // we must have moved on
+
                 var hist = histData.bins;
                 var maxBin = 0;
                 for (var bin = 0; bin < track.numBins; bin++) {
@@ -387,6 +390,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
                 // if we our store offers density histograms, and we are zoomed out far enough, draw them
                 if( this.store.getRegionFeatureDensities && scale < histScale ) {
+                    this._fillType = 'histograms';
                     this.fillHist( args );
                 }
                 // if we have no histograms, check the predicted density of
@@ -404,6 +408,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     // if we have transitioned to viewing features, delete the
                     // y-scale used for the histograms
                     this._removeYScale();
+                    this._fillType = 'features';
                     this.fillFeatures( dojo.mixin( {stats: stats}, args ) );
                 }
         }),
