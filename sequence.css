@@ -1,51 +1,35 @@
-div.sequence {
+table.sequence {
     position: absolute;
-    left: 0px;
+    border-collapse: collapse;
 }
-div.sequence .highlighted {
+table.sequence .highlighted {
     background: #ff0;
 }
-div.sequence .revcom {
+table.sequence .revcom {
     color: red;
 }
-div.sequence .base, div.sequence > div, div.translatedSequence > div, div.translatedSequence  {
+table.sequence .base, table.sequence > tr, table.translatedSequence > tr, table.translatedSequence  {
     height: 14px;
     line-height: 14px;
 }
-div.sequence .base.big {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
-    border: 1px solid #ccc;
-    border-right-color: #333;
-    border-bottom-color: #333;
+table.sequence .base.big {
+    border-right: 1px solid #333;
 }
 
-div.sequence > div {
+table.sequence > tr {
     border-top: 1px solid #4d4d4d;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #4d4d4d;
     background: #C6C6C6;
 }
-div.sequence > div:first-child {
-    border-bottom-color: #4d4d4d;
+
+table.translatedSequence, table.translatedSequence > td.aminoAcid.big {
+    border-right: 1px solid #777;
 }
 
-div.translatedSequence .aa.big {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
-    border-right: 1px solid #fff;
-}
-
-div.translatedSequence {
+table.translatedSequence {
     position: relative;
-}
-
-div.translatedSequence .aa, div.translatedSequence > div {
+    border-width: 0px;
+    border-collapse: collapse;
 }
 
 .translatedSequence.frame0 {
@@ -62,30 +46,27 @@ div.translatedSequence .aa, div.translatedSequence > div {
     background-color: #E0E0E0;
     background-color: rgba(112, 112, 112, 0.5);
 }
-
-div.aa {
-    display: inline-block;
+table.translatedSequence > td.aminoAcid {
     text-align: center;
     z-index: 2000;
 }
 
-.aa {
+table.translatedSequence > td.aminoAcid {
     color: black;
     font-family: Courier New,monospace;
     font-weight: bold;
     text-shadow: white 0px 0px 1px;
 }
 
-.aa_\* {
+table.translatedSequence > td.aminoAcid_\* {
     background-color: #FF0000;
 }
 
-.aa_m {
+table.translatedSequence > td.aminoAcid_m {
     background-color: #00FF00;
 }
 
-span.base {
-    display: inline-block;
+td.base {
     text-align: center;
     z-index: 2000;
 }

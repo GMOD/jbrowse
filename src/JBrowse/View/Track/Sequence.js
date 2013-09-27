@@ -30,7 +30,7 @@ return declare( [BlockBased, ExportMixin],
             maxExportSpan: 500000,
             showForwardStrand: true,
             showReverseStrand: true,
-            showTranslation: true
+            showTranslation: true 
         };
     },
     _exportFormats: function() {
@@ -118,17 +118,17 @@ return declare( [BlockBased, ExportMixin],
             }
         }
 
-        // make a div to contain the sequences
+        // make a table to contain the sequences
         if( this.config.showReverseStrand || this.config.showForwardStrand )
-            var seqNode = dom.create("div", { className: "sequence", style: { width: "100%"} }, block.domNode);
+            var seqNode = dom.create("table", { className: "sequence", style: { width: "100%" } }, block.domNode);
 
-        // add a div for the forward strand
+        // add a table for the forward strand
         if( this.config.showForwardStrand )
-            seqNode.appendChild( this._renderSeqDiv( blockStart, blockEnd, blockSeq, scale ));
+            seqNode.appendChild( this._renderSeqTr( blockStart, blockEnd, blockSeq, scale ));
 
         // and one for the reverse strand
         if( this.config.showReverseStrand ) {
-            var comp = this._renderSeqDiv( blockStart, blockEnd, Util.complement(blockSeq), scale );
+            var comp = this._renderSeqTr( blockStart, blockEnd, Util.complement(blockSeq), scale );
             comp.className = 'revcom';
             seqNode.appendChild( comp );
 
@@ -157,17 +157,17 @@ return declare( [BlockBased, ExportMixin],
         var translated = "";
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
-            var aa = CodonTable[nextCodon] || this.nbsp;
-            translated = translated + aa;
+            var aminoAcid = CodonTable[nextCodon] || this.nbsp;
+            translated = translated + aminoAcid;
         }
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
 
-        var charSize = this.getCharacterMeasurements("aa");
+        var charSize = this.getCharacterMeasurements("aminoAcid");
 
         var charWidth = 100/(blockLength / 3);
 
-        var container  = dom.create('div',
+        var container  = dom.create('table',
             {
                 className: 'translatedSequence offset'+offset,
                 style:
@@ -177,7 +177,7 @@ return declare( [BlockBased, ExportMixin],
             });
 
         if( reverse ) {
-            container.style.top = this.config.showForwardStrand ? "32px" : '16px';
+            container.style.top = this.config.showForwardStrand ? "31px" : '16px';
             container.style.left = (100 - charWidth * (translated.length + offset / 3))+ "%";
         } else {
             container.style.left = (charWidth * offset / 3) + "%";
@@ -188,33 +188,33 @@ return declare( [BlockBased, ExportMixin],
         var drawChars = scale >= charSize.w;
 
         for( var i=0; i<translated.length; i++ ) {
-            var aaSpan = document.createElement('div');
-            aaSpan.className = 'aa aa_'+translated.charAt([i]).toLowerCase();
-            aaSpan.style.width = charWidth;
+            var aminoAcidSpan = document.createElement('td');
+            aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt([i]).toLowerCase();
+            aminoAcidSpan.style.width = charWidth;
             if( drawChars ) {
-                aaSpan.className = aaSpan.className + ' big';
-                aaSpan.innerHTML = translated.charAt([i]);
+                aminoAcidSpan.className = aminoAcidSpan.className + ' big';
+                aminoAcidSpan.innerHTML = translated.charAt([i]);
             }
-            container.appendChild(aaSpan);
+            container.appendChild(aminoAcidSpan);
         }
         return container;
     },
 
     /**
      * Given the start and end coordinates, and the sequence bases,
-     * makes a div containing the sequence.
+     * makes 2 table rows containing the sequence.
      * @private
      */
-    _renderSeqDiv: function ( start, end, seq, scale ) {
+    _renderSeqTr: function ( start, end, seq, scale ) {
 
         var charSize = this.getCharacterMeasurements('sequence');
 
-        var container  = document.createElement('div');
+        var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
-            var base = document.createElement('span');
+            var base = document.createElement('td');
             base.className = 'base base_'+seq.charAt([i]).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
@@ -242,14 +242,14 @@ return declare( [BlockBased, ExportMixin],
      * and height.
      */
     _measureSequenceCharacterSize: function( containerElement, className ) {
-        var widthTest = document.createElement("div");
+        var widthTest = document.createElement("td");
         widthTest.className = className;
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";
         widthTest.appendChild(document.createTextNode(widthText));
         containerElement.appendChild(widthTest);
         var result = {
-            w:  widthTest.clientWidth / widthText.length,
+            w:  (widthTest.clientWidth / widthText.length)+1,
             h: widthTest.clientHeight
         };
         containerElement.removeChild(widthTest);

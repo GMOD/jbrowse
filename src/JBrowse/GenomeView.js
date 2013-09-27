@@ -1095,8 +1095,8 @@ setLocation: function(refseq, startbp, endbp) {
     this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
 
-    if( has('inaccurate-html-layout') )
-        this.pxPerBp = this.zoomLevels[ this.curZoom ];
+//    if( has('inaccurate-html-layout') )
+  //      this.pxPerBp = this.zoomLevels[ this.curZoom ];
 
     if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
         //the cookie-saved location is in round bases, so if the saved
