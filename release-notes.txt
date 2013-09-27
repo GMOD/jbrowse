@@ -8,6 +8,9 @@
 
 ## Bug fixes
 
+ * Fixed a bad bug that prevented combination tracks from working.
+   Thanks to Harry Yoo for pointing this out (issue #351).
+
  * Fixed a bug in which one of the temporary files used by
    generate-names.pl was not being created in the correct location.
    Thanks to Richard Hayes for testing this.
