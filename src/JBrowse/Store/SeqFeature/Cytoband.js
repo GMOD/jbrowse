@@ -36,20 +36,17 @@ return declare(null,
         this.data.fetchLines( function(l) { p.addLine(l);     },
                               function( ) { p.finish();       },
                               function(e) { console.error(e); } );
-        waitsFor( function() { return parseFinished; } );
-        runs(function(){
-            console.log("End of Constructor => "+JSON.stringify(that.stuff.features));
-        })
 
+        console.log("End of Constructor => "+JSON.stringify(this.stuff));
     },
 
     getFeatures: function( query, featureCallback, finishCallback, errorCallback ){
         var refName = this.browser.regularizeReferenceName( query.ref );
         
-        console.log("getFeatures => " +JSON.stringify(this.features));
+        console.log("getFeatures => " +JSON.stringify(this.stuff.features));
 
         for(var band in this.stuff.features){
-            console.log(JSON.stringify(band));            
+            console.log("band => " + JSON.stringify(band));            
         }
     }
 });
