@@ -177,7 +177,7 @@ return declare( [BlockBased, ExportMixin],
             });
 
         if( reverse ) {
-            container.style.top = this.config.showForwardStrand ? "32px" : '16px';
+            container.style.top = this.config.showForwardStrand ? "31px" : '16px';
             container.style.left = (100 - charWidth * (translated.length + offset / 3))+ "%";
         } else {
             container.style.left = (charWidth * offset / 3) + "%";

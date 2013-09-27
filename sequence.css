@@ -13,27 +13,17 @@ table.sequence .base, table.sequence > tr, table.translatedSequence > tr, table.
     line-height: 14px;
 }
 table.sequence .base.big {
-    border: 1px solid #ccc;
-    border-right-color: #333;
-    border-bottom-color: #333;
+    border-right: 1px solid #333;
 }
 
 table.sequence > tr {
     border-top: 1px solid #4d4d4d;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #4d4d4d;
     background: #C6C6C6;
-}
-table.sequence > tr:first-child {
-    border-bottom-color: #4d4d4d;
 }
 
 table.translatedSequence, table.translatedSequence > td.aminoAcid.big {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
-    border-right: 1px solid #fff;
+    border-right: 1px solid #777;
 }
 
 table.translatedSequence {
