@@ -184,28 +184,35 @@ return declare( null, {
         }
     },
 
-    // stub method, override in subclasses or instances
     parseItem: function( iterator ) {
         var metaChar = this.index.metaChar;
-
-        var line;
+        var line, item;
         do {
             line = iterator.getline();
-        } while( line && line[0] == metaChar );
+        } while( line && (    line.charAt(0) == metaChar // meta line, skip
+                           || line.charAt( line.length - 1 ) != "\n" // no newline at the end, incomplete
+                           || ! ( item = this.tryParseLine( line ) )   // line could not be parsed
+                         )
+               );
 
-        if( !line )
+        if( line && item )
+            return item;
+
+        return null;
+    },
+
+    tryParseLine: function( line ) {
+        try {
+            return this.parseLine( line );
+        } catch(e) {
+            console.warn('parse failed: "'+line+'"');
             return null;
+        }
+    },
 
-        // function extractColumn( colNum ) {
-        //     var skips = '';
-        //     while( colNum-- > 1 )
-        //         skips += '^[^\t]*\t';
-        //     var match = (new Regexp( skips+'([^\t]*)' )).exec( line );
-        //     if( ! match )
-        //         return null;
-        //     return match[1];
-        // }
+    parseLine: function( line ) {
         var fields = line.split( "\t" );
+        fields[fields.length-1] = fields[fields.length-1].replace(/\n$/,''); // trim off the newline
         var item = { // note: index column numbers are 1-based
             ref:   fields[this.index.columnNumbers.ref-1],
             _regularizedRef: this.browser.regularizeReferenceName( fields[this.index.columnNumbers.ref-1] ),
@@ -215,5 +222,6 @@ return declare( null, {
         };
         return item;
     }
+
 });
 });

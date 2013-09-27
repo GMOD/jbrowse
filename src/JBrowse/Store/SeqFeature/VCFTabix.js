@@ -29,7 +29,7 @@ define([
 // files don't actually have an end coordinate, so we have to make it
 // here.  also convert coordinates to interbase.
 var VCFIndexedFile = declare( TabixIndexedFile, {
-    parseItem: function() {
+    parseLine: function() {
         var i = this.inherited( arguments );
         if( i ) {
             i.start--;
