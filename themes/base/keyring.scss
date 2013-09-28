@@ -1,0 +1,48 @@
+.credentialStatus {
+    background: white;
+    position: relative;
+    border: 1px solid #acacac;
+
+    .releaseButton {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+
+        display: none;
+
+        height: 11px;
+        width: 10px;
+
+        background: red;
+    }
+
+    .icon, .displayedData, .actionLabel {
+        float: left;
+    }
+    .icon {
+        height: 49px;
+        width: 49px;
+    }
+    .displayedData {
+        color: #333;
+        float: left;
+    }
+    .slotName {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+
+        font-weight: bold;
+        color: #666;
+    }
+
+    &.credentialStatusReady {
+        .icon {
+            background: #12aa40;
+        }
+        .actionLabel {
+            color: #00c437;
+        }
+    }
+}
+

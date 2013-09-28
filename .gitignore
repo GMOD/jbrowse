@@ -18,3 +18,4 @@ sample_data/raw/tomato
 samtools-master/
 setup.log
 MYMETA.*
+.sass-cache/

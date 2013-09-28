@@ -72,16 +72,21 @@ return declare( [ JBrowseComponent, Destroyable ], {
               'label',
               Util.fillTemplate(
                   (''
-                   + '<div class="credentialStatus {className}">'
-                     + '<span class="icon"></span>'
-                     + '<span class="name">{name}</span>'
-                     + '<span class="actionLabel">Click to {actionLabel}</span>'
-                     + '<span class="message"></span>'
+                   + '<div class="credentialStatus {statusClass} {errorClass} {configuredClass}">'
+                     + '<div class="icon"></div>'
+                     + '<div class="displayedData"></div>'
+                     + '<div class="actionLabel">{actionLabel}</div>'
+                     + '<div class="slotName">{name}</div>'
+                     + '<div class="message">{message}</div>'
+                     + '<div class="releaseButton"></div>'
                    + '</div>'
                   ),
-                  { className: credential.getConf('keyringCSSClass'),
-                    name: credential.getConf('name'),
-                    actionLabel: credential.getConf( ( isReady ? 'release' : 'get' )+'ActionLabel')
+                  {
+                      errorClass: credentialError ? 'credentialError' : '',
+                      statusClass: 'credentialStatus'+( isReady ? 'Ready' : 'NotReady' ),
+                      configuredClass: credential.getConf('keyringCSSClass'),
+                      name: credential.getConf('name'),
+                      actionLabel: credential.getConf( ( isReady ? 'release' : 'get' )+'ActionLabel')
                   })
           );
           menuItem.set( 'onClick', function() {
