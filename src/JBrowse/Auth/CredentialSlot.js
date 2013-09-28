@@ -16,23 +16,26 @@ define([
 return declare( Component, {
 
   constructor: function() {
-      this._credentials = new Deferred();
   },
 
   configSchema: {
       slots: [
-          { name: 'name', type: 'string', defaultValue: 'site' },
-          { name: 'type', type: 'string', required: true },
-
-          { name: 'getActionLabel', type: 'string',
-            description: 'string describing the action of getting these credentials',
-            defaultValue: 'Log in'
-            //defaultValue: function(slot) { return 'Log into '+slot.getConf('name'); }
+          { name: 'name', type: 'string',
+            description: 'name of this kind of credential, e.g. "MySite", or "Google"',
+            defaultValue: 'Site'
           },
-          { name: 'releaseActionLabel', type: 'string',
-            description: 'string describing the action of getting these credentials',
-            defaultValue: 'Log out'
-            //defaultValue: function(slot) { return 'Log out of '+slot.getConf('name'); }
+          { name: 'type', type: 'string',
+            description: "JavaScript type of this credential",
+            required: true
+          },
+
+          { name: 'notReadyStatusLabel', type: 'string',
+            description: 'status string that should be shown in the keyring control when these credentials are not ready',
+            defaultValue: 'Click to log in'
+          },
+          { name: 'readyStatusLabel', type: 'string',
+            description: 'status string that should be shown in the keyring control when these credentials are not ready',
+            defaultValue: 'Logged in'
           },
           { name: 'getSuccessMessage', type: 'string',
             description: 'message displayed when credentials are successfully obtained',
@@ -49,6 +52,11 @@ return declare( Component, {
           { name: 'releaseFailureMessage', type: 'string',
             description: 'message displayed when credentials could not be released',
             defaultValue: 'Logout failed'
+          },
+
+          { name: 'label', type: 'string',
+            description: 'label that should be shown in the UI for the credential when it is ready.  Usually a username.  Templated using the credential data.',
+            defaultValue: '{user}'
           },
 
           { name: 'keyringCSSClass', type: 'string',
@@ -78,25 +86,34 @@ return declare( Component, {
   },
 
   get: function() {
-      if( ! this.ready )
-          this._getCredentials();
-      return this._credentials;
+      return this._credentials || ( this._credentials = this._getCredentials() );
   },
-
-  isReady: function() {
-      return this._credentials.isResolved();
-  },
-
-  neededFor: function( resourceDefinition ) {
-      return this.getConf('predicate', [ this, resourceDefinition ]);
+  getSync: function() {
+      return this._credentials ? Util.sync( this._credentials ) : undefined;
   },
 
   _getCredentials: function() {
       throw new Error('override either _getCredentials() or get() in a subclass');
   },
 
+  isReady: function() {
+      return !!this._credentials && this._credentials.isResolved();
+  },
+
+  getLabel: function() {
+      var thisB = this;
+      return this.get()
+          .then( function(data) {
+                     return Util.fillTemplate( thisB.getConf('label'), data );
+                 });
+  },
+
+  neededFor: function( resourceDefinition ) {
+      return this.getConf('predicate', [ this, resourceDefinition ]);
+  },
+
   release: function() {
-      this._credentials = new Deferred();
+      delete this._credentials;
       return Util.resolved( true );
   },
 

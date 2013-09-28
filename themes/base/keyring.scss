@@ -1,7 +1,23 @@
+.keyringPane {
+    /* background: #2a2a2a; */
+    background: #333;
+    border: 1px solid #868686;
+    border-top-width: 0;
+
+    width: 232px;
+
+    padding: 5px 5px 0 5px;
+
+    font-size: 14px;
+}
+
 .credentialStatus {
     background: white;
     position: relative;
     border: 1px solid #acacac;
+    height: 57px;
+
+    margin-bottom: 5px;
 
     .releaseButton {
         position: absolute;
@@ -12,16 +28,20 @@
 
         height: 11px;
         width: 10px;
-
-        background: red;
     }
 
-    .icon, .displayedData, .actionLabel {
+    .icon, .label, .status, .message {
         float: left;
+        background: transparent;
+        border: none;
+    }
+    .status, .icon { /* clickable */
+        cursor: pointer;
     }
     .icon {
         height: 49px;
         width: 49px;
+        margin: 4px;
     }
     .displayedData {
         color: #333;
@@ -36,12 +56,26 @@
         color: #666;
     }
 
-    &.credentialStatusReady {
+    &.credentialReady {
+        .releaseButton {
+            display: block;
+        }
         .icon {
             background: #12aa40;
         }
-        .actionLabel {
+        .status {
             color: #00c437;
+        }
+    }
+
+    &.credentialNotReady {
+        .icon {
+            background: #666;
+        }
+        .status {
+            color: #808080;
+            font-style: italic;
+            margin-top: 0.5em;
         }
     }
 }

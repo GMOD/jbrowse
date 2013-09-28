@@ -35,6 +35,24 @@ Util = {
         return d;
     },
 
+    /**
+     * Read from a Deferred if it is resolved already, otherwise
+     * return undefined.  If the Deferred is rejected, throws the
+     * error it contains.
+     */
+    sync: function( deferred ) {
+        if( deferred.isFulfilled() ) {
+            var value, gotValue, error, gotError;
+            deferred.then(function(v) { gotValue = true; value = v; }, function(e) { gotError = true; error = e; });
+            if( gotValue )
+                return value;
+            else if( gotError )
+                throw error;
+        }
+        return undefined;
+    },
+
+
     loadJS: function( paths ) {
         var d = new Deferred();
         require( paths, function() {
