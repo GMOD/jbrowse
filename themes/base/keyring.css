@@ -20,11 +20,15 @@
     display: none;
     height: 11px;
     width: 10px;
-    color: #808080; }
+    color: #808080;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    cursor: pointer; }
   .credentialStatus .icon, .credentialStatus .label {
     float: left; }
   .credentialStatus .label {
-    width: 70%; }
+    width: 70%;
+    margin-top: 4px; }
   .credentialStatus .icon, .credentialStatus .label, .credentialStatus .status, .credentialStatus .message {
     background: transparent;
     border: none; }

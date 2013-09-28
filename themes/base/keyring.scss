@@ -29,6 +29,11 @@
         height: 11px;
         width: 10px;
         color: #808080;
+
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+
+        cursor: pointer;
     }
 
     .icon, .label {
@@ -36,6 +41,7 @@
     }
     .label {
         width: 70%;
+        margin-top: 4px;
     }
     .icon, .label, .status, .message {
         background: transparent;
