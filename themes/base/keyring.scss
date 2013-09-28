@@ -47,8 +47,16 @@
         background: transparent;
         border: none;
     }
-    .status, .icon { /* clickable */
-        cursor: pointer;
+    .error, .message {
+        font-size: 10px;
+    }
+    .message {
+        color: #333;
+        display: none;
+    }
+    .error {
+        display: none;
+        padding: 0;
     }
     .icon {
         height: 49px;
@@ -68,6 +76,12 @@
         color: #666;
     }
 
+    &.credentialError {
+        .error {
+            display: block;
+        }
+    }
+
     &.credentialReady {
         .releaseButton {
             display: block;
@@ -81,6 +95,9 @@
     }
 
     &.credentialNotReady {
+        .status, .icon { /* clickable */
+            cursor: pointer;
+        }
         .icon {
             background: #666;
         }

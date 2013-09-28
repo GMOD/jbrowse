@@ -32,9 +32,14 @@
   .credentialStatus .icon, .credentialStatus .label, .credentialStatus .status, .credentialStatus .message {
     background: transparent;
     border: none; }
-  .credentialStatus .status, .credentialStatus .icon {
-    /* clickable */
-    cursor: pointer; }
+  .credentialStatus .error, .credentialStatus .message {
+    font-size: 10px; }
+  .credentialStatus .message {
+    color: #333;
+    display: none; }
+  .credentialStatus .error {
+    display: none;
+    padding: 0; }
   .credentialStatus .icon {
     height: 49px;
     width: 49px;
@@ -48,12 +53,17 @@
     right: 4px;
     font-weight: bold;
     color: #666; }
+  .credentialStatus.credentialError .error {
+    display: block; }
   .credentialStatus.credentialReady .releaseButton {
     display: block; }
   .credentialStatus.credentialReady .icon {
     background: #12aa40; }
   .credentialStatus.credentialReady .status {
     color: #00c437; }
+  .credentialStatus.credentialNotReady .status, .credentialStatus.credentialNotReady .icon {
+    /* clickable */
+    cursor: pointer; }
   .credentialStatus.credentialNotReady .icon {
     background: #666; }
   .credentialStatus.credentialNotReady .status {

@@ -3,14 +3,16 @@ define([
            'dojo/Deferred',
            'JBrowse/Util',
            'JBrowse/Component',
-           'JBrowse/View/Dialog/Prompt'
+           'JBrowse/View/Dialog/Prompt',
+           'JBrowse/Errors'
        ],
        function(
            declare,
            Deferred,
            Util,
            Component,
-           PromptDialog
+           PromptDialog,
+           Errors
        ) {
 
 return declare( Component, {
@@ -86,7 +88,10 @@ return declare( Component, {
   },
 
   get: function() {
-      return this._credentials || ( this._credentials = this._getCredentials() );
+      var thisB = this;
+      return this._credentials && ! this._credentials.isRejected() ? this._credentials : (
+          this._credentials = this._getCredentials()
+      );
   },
   getSync: function() {
       return this._credentials ? Util.sync( this._credentials ) : undefined;

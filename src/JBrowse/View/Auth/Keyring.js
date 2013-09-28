@@ -19,7 +19,9 @@ define([
            'dijit/form/DropDownButton',
 
            'JBrowse/Component',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Errors',
+           'JBrowse/View/Dialog/Error'
        ],
        function(
            declare,
@@ -42,7 +44,9 @@ define([
            dijitDropDownButton,
 
            JBrowseComponent,
-           Util
+           Util,
+           Errors,
+           ErrorDialog
        ) {
 
 var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
@@ -54,6 +58,7 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
                        + '<div class="status" data-dojo-attach-point="statusNode"></div>'
                        + '<div class="slotName" data-dojo-attach-point="slotNameNode"></div>'
                        + '<div class="message" data-dojo-attach-point="messageNode"></div>'
+                       + '<div class="error" data-dojo-attach-point="errorNode"></div>'
                        + '<div class="releaseButton" data-dojo-type="dijit/form/Button" data-dojo-attach-event="onclick:releaseCredentials" data-dojo-attach-point="releaseButtonNode">X</div>'
                      + '</div>'),
 
@@ -103,11 +108,15 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
 
     _onCredentialErrorChange: function() {
         var credentialError = this.get('credentialError');
-        if( credentialError ) {
+        if( credentialError && !( credentialError instanceof Errors.UserCancel )) {
             cssClass.add( this.containerNode, 'credentialError' );
-            this.messageNode.innerHTML = ''+credentialError;
+            this.errorNode.innerHTML = ''+credentialError;
+            this.errorNode.title = ''+credentialError;
+            new ErrorDialog({ description: ''+credentialError, diagnosticMessage: ''+credentialError }).show();
         }
         else {
+            this.errorNode.innerHTML = ' ';
+            this.errorNode.title = ' ';
             cssClass.remove( this.containerNode, 'credentialError' );
         }
     },
