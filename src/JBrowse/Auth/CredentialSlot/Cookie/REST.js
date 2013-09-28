@@ -69,11 +69,7 @@ return declare( CredentialSlot, {
                      });
       }
 
-      return tryLogin( 1 )
-          .then( function(response) {
-                     console.log('response',response);
-                     return { user: 'louie' };
-                 });
+      return tryLogin( 1 );
   },
 
   shouldRetryLogin: function( error, loginRequest, attemptNumber ) {
