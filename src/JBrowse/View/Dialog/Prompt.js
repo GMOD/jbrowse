@@ -8,6 +8,7 @@ define([
            'dijit/form/TextBox',
            'JBrowse/View/Dialog/WithActionBar',
            'JBrowse/Util',
+           'JBrowse/Errors',
            'dijit/form/Button'
        ],
        function(
@@ -20,13 +21,14 @@ define([
            dijitTextBox,
            ActionBarDialog,
            Util,
+           Errors,
            dijitButton
        ) {
 
 return declare( ActionBarDialog, {
 
-    refocus: false,
-    autofocus: false,
+    refocus: true,
+    autofocus: true,
 
     // given a nested object containing some items of the form name:
     // '<prompt>', prompt for those items and return a Deferred copy
@@ -38,8 +40,9 @@ return declare( ActionBarDialog, {
         var promptFields = [];
         function findPrompts(d,path) {
             for( var k in d ) {
-                if( d[k] == '<prompt>' )
-                    promptFields.push( { name: k, label: Util.ucFirst(k).replace(/_/g,' '), path: path.concat(k) } );
+                var match = typeof d[k] == 'string' && d[k].match( /<prompt:?([^>]+)?>/ );
+                if( match )
+                    promptFields.push( { name: k, type: match[1] || 'text', label: Util.ucFirst(k).replace(/_/g,' '), path: path.concat(k) } );
                 else if( typeof d[k] == 'object' || lang.isArray( d[k] ) ) {
                     findPrompts( d[k], path.concat(k) );
                 }
@@ -51,10 +54,11 @@ return declare( ActionBarDialog, {
             data.prompted = true;
 
             var form = new dijitForm();
+            var container = dom.create('div', { className: 'autoprompt' }, form.domNode );
             array.forEach( promptFields,
                            function( f ) {
-                               var label = dom.create( 'label', {innerHTML: f.label}, form.domNode );
-                               new dijitTextBox({ name: f.name }, dom.create('div',{},label));
+                               var label = dom.create( 'label', {innerHTML: '<div class="text">'+f.label+'</div>'}, container );
+                               new dijitTextBox({ name: f.name, type: f.type }).placeAt(label);
                            });
             this.form = form;
             this.set( 'content', this.form );
@@ -90,24 +94,24 @@ return declare( ActionBarDialog, {
             new dijitButton({
                 className: 'Submit',
                 label: 'Submit',
-                onClick: function() {
-                    thisB.submit();
-                },
-                focus: false
+                onClick: lang.hitch( this, '_submit' )
             })
             .placeAt( actionBar);
 
             new dijitButton({
                 className: 'Cancel',
                 label: 'Cancel',
-                onClick: dojo.hitch(this,'hide'),
-                focus: false
+                onClick: lang.hitch(this,'_cancel')
             })
             .placeAt( actionBar);
     },
 
-    submit: function() {
+    _submit: function() {
         this.deferredResults.resolve( this.form.getValues() );
+        this.hide();
+    },
+    _cancel: function() {
+        this.deferredResults.cancel( new Errors.UserCancel( 'canceled by user action') );
         this.hide();
     },
 

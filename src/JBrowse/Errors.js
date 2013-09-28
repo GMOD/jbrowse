@@ -48,6 +48,9 @@ Errors.DataOverflow = declare( Base, {
     _defaultMessage: 'Too much data to show.'
 });
 
+Errors.UserCancel = declare( Base, {
+    _defaultMessage: 'Action canceled by the user.'
+});
 
 return Errors;
 });

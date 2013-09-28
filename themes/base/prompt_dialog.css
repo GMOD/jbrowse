@@ -1,0 +1,11 @@
+.autoprompt label {
+    display: block;
+}
+.autoprompt label > div.text {
+    width: 15em;
+    font-weight: bold;
+}
+
+.autoprompt label > input {
+    margin-left: 1em;
+}
