@@ -28,10 +28,16 @@
 
         height: 11px;
         width: 10px;
+        color: #808080;
     }
 
-    .icon, .label, .status, .message {
+    .icon, .label {
         float: left;
+    }
+    .label {
+        width: 70%;
+    }
+    .icon, .label, .status, .message {
         background: transparent;
         border: none;
     }

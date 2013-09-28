@@ -115,6 +115,7 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
     _onCredentialReadyChange: function() {
         var credential = this.get('credentialSlot');
         var isReady = this.get('credentialReady');
+        var thisB = this;
 
         if( isReady ) {
             cssClass.replace( this.containerNode, 'credentialReady', 'credentialNotReady' );
@@ -123,7 +124,14 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
             cssClass.replace( this.containerNode, 'credentialNotReady', 'credentialReady' );
         }
 
-        this.labelNode.innerHTML = isReady && Util.sync( credential.getLabel() ) || '';
+        if( isReady ) {
+            credential.getLabel()
+                .then( function(label) {
+                           thisB.labelNode.innerHTML = label;
+                       });
+        } else {
+            this.labelNode.innerHTML = ' ';
+        }
 
         if( isReady ) {
             this.statusNode.innerHTML = credential.getConf('readyStatusLabel');

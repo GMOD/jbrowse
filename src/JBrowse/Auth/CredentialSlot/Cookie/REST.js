@@ -55,10 +55,10 @@ return declare( CredentialSlot, {
                          if( ! t )
                              throw new Error( 'no transport found for login request' );
                          var d = new Deferred();
-                         var resolve = lang.hitch( d, 'resolve' );
+                         var resolve = lang.hitch( d, 'resolve', loginRequest.data );
                          var reject = lang.hitch( d, 'reject' );
                          t.fetch(loginRequest)
-                          .then( function() { return d.resolve(arguments); },
+                          .then( resolve,
                                  function(error) {
                                      if( thisB.shouldRetryLogin( error, loginRequest, attempt ) )
                                          tryLogin(++attempt).then( resolve, reject );
