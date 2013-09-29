@@ -17,7 +17,8 @@ define([
            'JBrowse/Component',
            'JBrowse/Util',
            'JBrowse/Errors',
-           'JBrowse/View/Dialog/Error'
+           'JBrowse/View/Dialog/Error',
+           'JBrowse/View/_FadingPopupMixin'
        ],
        function(
            declare,
@@ -38,7 +39,8 @@ define([
            JBrowseComponent,
            Util,
            Errors,
-           ErrorDialog
+           ErrorDialog,
+           _FadingPopupMixin
        ) {
 
 var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
@@ -153,7 +155,7 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
 
 });
 
-var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container ], {
+var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPopupMixin ], {
 
     baseClass: "keyringPane",
     credentialSlots: [],
