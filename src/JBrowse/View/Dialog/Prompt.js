@@ -4,12 +4,16 @@ define([
            'dojo/_base/array',
            'dojo/dom-construct',
            'dojo/Deferred',
+           'dojo/on',
+           'dojo/keys',
+
            'dijit/form/Form',
            'dijit/form/TextBox',
+           'dijit/form/Button',
+
            'JBrowse/View/Dialog/WithActionBar',
            'JBrowse/Util',
-           'JBrowse/Errors',
-           'dijit/form/Button'
+           'JBrowse/Errors'
        ],
        function(
            declare,
@@ -17,12 +21,16 @@ define([
            array,
            dom,
            Deferred,
+           on,
+           keys,
+
            dijitForm,
            dijitTextBox,
+           dijitButton,
+
            ActionBarDialog,
            Util,
-           Errors,
-           dijitButton
+           Errors
        ) {
 
 return declare( ActionBarDialog, {
@@ -34,6 +42,7 @@ return declare( ActionBarDialog, {
     // '<prompt>', prompt for those items and return a Deferred copy
     // of the hash with them filled in.
     promptForPlaceHolders: function( data ) {
+        var thisB = this;
         data = lang.clone( data );
 
         // find <prompt> tags in the input data
@@ -54,6 +63,11 @@ return declare( ActionBarDialog, {
             data.prompted = true;
 
             var form = new dijitForm();
+            on( form.domNode, 'keyup', function(evt) {
+                    if( evt.keyCode == keys.ENTER )
+                        thisB._submit();
+                });
+
             var container = dom.create('div', { className: 'autoprompt' }, form.domNode );
             array.forEach( promptFields,
                            function( f ) {
@@ -88,7 +102,7 @@ return declare( ActionBarDialog, {
     _fillActionBar: function( actionBar ) {
         var thisB = this;
         thisB.form.onSubmit = function() {
-            thisB.submit();
+            thisB._submit();
             return false;
         };
             new dijitButton({

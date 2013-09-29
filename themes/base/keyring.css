@@ -66,12 +66,14 @@
     background: #12aa40; }
   .credentialStatus.credentialReady .status {
     color: #00c437; }
-  .credentialStatus.credentialNotReady .status, .credentialStatus.credentialNotReady .icon {
-    /* clickable */
-    cursor: pointer; }
-  .credentialStatus.credentialNotReady .icon {
-    background: #666; }
-  .credentialStatus.credentialNotReady .status {
-    color: #808080;
-    font-style: italic;
-    margin-top: 0.5em; }
+  .credentialStatus.credentialNotReady {
+    cursor: pointer;
+    /* clickable to log in */ }
+    .credentialStatus.credentialNotReady .icon {
+      background: #dbdbdb; }
+    .credentialStatus.credentialNotReady .status {
+      color: #808080;
+      font-style: italic;
+      margin-top: 0.5em; }
+    .credentialStatus.credentialNotReady:hover .status {
+      color: #333333; }

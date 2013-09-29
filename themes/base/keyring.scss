@@ -102,16 +102,19 @@
     }
 
     &.credentialNotReady {
-        .status, .icon { /* clickable */
-            cursor: pointer;
-        }
+        cursor: pointer; /* clickable to log in */
+
         .icon {
-            background: #666;
+            background: #dbdbdb;
         }
         .status {
             color: #808080;
             font-style: italic;
             margin-top: 0.5em;
+        }
+
+        &:hover {
+            .status { color: #333 }
         }
     }
 }

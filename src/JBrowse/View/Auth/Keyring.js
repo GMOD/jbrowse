@@ -142,9 +142,9 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
             this.statusNode.innerHTML = credential.getConf('notReadyStatusLabel');
             var getcreds = lang.hitch( this, 'getCredentials' );
             this.loginClicks = array.map(
-                [ this.statusNode, this.iconNode ],
-                function() {
-                    var h =  on(this.statusNode, 'click', getcreds );
+                [ this.containerNode ],
+                function(node) {
+                    var h =  on( node, 'click', getcreds );
                     this.own( h );
                     return h;
                 }, this );
