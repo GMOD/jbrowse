@@ -19,6 +19,8 @@
 
     margin-bottom: 5px;
 
+    overflow: hidden;
+
     .releaseButton {
         position: absolute;
         top: 2px;
@@ -69,8 +71,10 @@
     }
     .slotName {
         position: absolute;
-        bottom: 4px;
-        right: 4px;
+        bottom: 0;
+        right: 0;
+
+        padding: 4px;
 
         font-weight: bold;
         color: #666;
@@ -79,6 +83,9 @@
     &.credentialError {
         .error {
             display: block;
+            position: absolute;
+            width: 50%;
+            margin: 0 2px;
         }
     }
 

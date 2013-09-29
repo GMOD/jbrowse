@@ -2,11 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
-           'dojo/dom-construct',
            'dojo/dom-class',
-           'dojo/query',
-           'dojo/NodeList-dom',
-           'dojo/NodeList-manipulate',
            'dojo/on',
 
            'dijit/Destroyable',
@@ -27,11 +23,7 @@ define([
            declare,
            lang,
            array,
-           dom,
            cssClass,
-           query,
-           nodelistDom,
-           nodelistManipulate,
            on,
 
            Destroyable,
@@ -92,7 +84,7 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
     _doCredentialOp: function( opname ) {
         if( this.credentialSlot ) {
             var thisB = this;
-            return this.credentialSlot[opname]()
+            return this.credentialSlot[opname]( 'interactive' )
                .then( function() { thisB.updateCredentialState(); },
                       function(e) { thisB.updateCredentialState(e); }
                     );

@@ -2,12 +2,14 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
+           'dojo/when',
            'JBrowse/Auth/CredentialSlot'
        ],
        function(
            declare,
            lang,
            Deferred,
+           when,
            CredentialSlot
        ) {
 return declare( CredentialSlot, {
@@ -22,7 +24,8 @@ return declare( CredentialSlot, {
             defaultValue: '{user}'
           },
 
-          { name: 'loginRequest', type: 'object', defaultValue: function(slot) {
+          { name: 'loginRequest', type: 'object',
+            defaultValue: function(slot) {
                 return {
                     url: slot.getConf('loginURL'),
                     method: 'post',
@@ -31,10 +34,13 @@ return declare( CredentialSlot, {
                 };
             }},
 
-          { name: 'logoutURL', type: 'string', defaultValue: '/logout' },
-          { name: 'logoutData', type: 'object', defaultValue: {} },
+          { name: 'logoutURL', type: 'string',
+            defaultValue: '/logout' },
+          { name: 'logoutData', type: 'object',
+            defaultValue: {} },
 
-          { name: 'logoutRequest', type: 'object', defaultValue: function(slot) {
+          { name: 'logoutRequest', type: 'object',
+            defaultValue: function(slot) {
                 return {
                     url: slot.getConf('logoutURL'),
                     method: 'post',
@@ -42,25 +48,42 @@ return declare( CredentialSlot, {
                     handleAs: 'json'
                 };
             }
-          }
+          },
+
+          { name: 'promptTitle', type: 'string',
+            description: 'title of the dialog box used to prompt for login data',
+            defaultValue: 'Login' }
       ]
   },
 
-  _getCredentials: function() {
+  _getCredentials: function( allowInteractive ) {
       var thisB = this;
       function tryLogin( attempt ) {
-          return thisB._promptForData( 'Login', thisB.getConf('loginRequest' ) )
-              .then( function( loginRequest ) {
+          return when(
+              allowInteractive
+                  ? thisB._promptForData( thisB.getConf('promptTitle'),
+                                          thisB.getConf('loginRequest' ) )
+                  : thisB.getConf('loginRequest')
+            ).then( function( loginRequest ) {
                          var t = thisB.browser.getTransportForResource(loginRequest);
                          if( ! t )
                              throw new Error( 'no transport found for login request' );
+
                          var d = new Deferred();
-                         var resolve = lang.hitch( d, 'resolve', loginRequest.data );
+                         var resolve = function( response ) {
+                             d.resolve( thisB._extractCredentialsData( response, loginRequest ) );
+                         };
                          var reject = lang.hitch( d, 'reject' );
-                         t.fetch(loginRequest)
+
+                         thisB._lastRequest = loginRequest;
+
+                         var isInteractive = loginRequest.prompted;
+
+                         t.fetch( loginRequest )
                           .then( resolve,
                                  function(error) {
-                                     if( thisB.shouldRetryLogin( error, loginRequest, attempt ) )
+                                     thisB._lastError   = error;
+                                     if( thisB.shouldRetry( isInteractive, attempt ) )
                                          tryLogin(++attempt).then( resolve, reject );
                                      else
                                          reject(error);
@@ -72,8 +95,12 @@ return declare( CredentialSlot, {
       return tryLogin( 1 );
   },
 
-  shouldRetryLogin: function( error, loginRequest, attemptNumber ) {
-      return loginRequest.prompted && error.response.status == 400 && attemptNumber < 3;
+  lastErrorWasUsersFault: function() {
+      return this._lastError && this._lastError.response.status == 400;
+  },
+
+  _extractCredentialsData: function( response, request ) {
+      return request.data;
   },
 
   release: function() {

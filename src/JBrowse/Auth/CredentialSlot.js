@@ -66,6 +66,11 @@ return declare( Component, {
             defaultValue: ''
           },
 
+          { name: 'maxInteractiveAttempts', type: 'integer',
+            description: 'maximum number of attempts before failing when interacting with the user to manage the authentication',
+            defaultValue: 3
+          },
+
           { name: 'urlPrefix', type: 'string' },
           { name: 'urlRegExp', type: 'string' },
           { name: 'urlRegExpOpts', type: 'string', defaultValue: 'i' },
@@ -87,53 +92,93 @@ return declare( Component, {
       ]
   },
 
-  get: function() {
+  /**
+   * Get the credentials.  Accepts a boolean flag of whether user
+   * interaction is allowed during this process.
+   */
+  get: function( allowInteractive ) {
       var thisB = this;
-      return this._credentials && ! this._credentials.isRejected() ? this._credentials : (
-          this._credentials = this._getCredentials()
-      );
+      return this._credentials && ( !this._credentials.isRejected() || !this.shouldRetry( allowInteractive ) )
+          ? this._credentials
+          : ( this._credentials = this._getCredentials( allowInteractive ) );
   },
-  getSync: function() {
-      return this._credentials ? Util.sync( this._credentials ) : undefined;
-  },
-
   _getCredentials: function() {
       throw new Error('override either _getCredentials() or get() in a subclass');
   },
 
+  /**
+   * Return boolean indicating whether we should try again to get the credentials.
+   */
+  shouldRetry: function( interactive, attemptNumber ) {
+      return interactive && ( !attemptNumber || attemptNumber < this.getConf('maxInteractiveAttempts') );
+  },
+
+  /**
+   * Return true if the last error encountered getting credentials was probably caused by the user.
+   */
+  lastErrorWasUsersFault: function() {
+      return false;
+  },
+
+  /**
+   * Returns true if the credentials in this slot have already been
+   * fetched.
+   */
   isReady: function() {
       return !!this._credentials && this._credentials.isResolved();
   },
 
-  getLabel: function() {
+  /**
+   * Get the human-readable label for the credentials in this slot.
+   * Gets the credentials if they have not already been fetched.
+   *
+   * @returns {Deferred} string
+   */
+  getLabel: function( allowInteractive ) {
       var thisB = this;
-      return this.get()
+      return this.get( allowInteractive )
           .then( function(data) {
                      return Util.fillTemplate( thisB.getConf('label'), data );
                  });
   },
 
+  /**
+   * Given a resource definition, return true if the credentials that
+   * go in this slot will be needed to access the resource.
+   */
   neededFor: function( resourceDefinition ) {
       return this.getConf('predicate', [ this, resourceDefinition ]);
   },
 
-  release: function() {
+  /**
+   * Release the credentials in this slot (i.e. log out, or whatever).
+   * Do not necessarily clear stored credentials.
+   *
+   * Takes a flag saying whether user interaction is allowed during this process.
+   */
+  release: function( allowInteractive ) {
       delete this._credentials;
       return Util.resolved( true );
   },
 
-  _promptForData: function( title, data ) {
-      return new PromptDialog(
-              {
-                  title: title || this.getConf('name')
-              })
-              .promptForPlaceHolders( data );
-  }
+  /**
+   * Delete any stored credentials for this slot.
+   */
+  clear: function() {
+  },
 
-  // implement this in a subclass to decorate HTTP requests with
-  // auth tokens and so forth
-  // decorateHTTPRequest: function( req ) {
-  // }
+  _promptForData: function( title, data ) {
+      return new PromptDialog({ title: title || this.getConf('name') })
+          .promptForPlaceHolders( data );
+  },
+
+  /**
+   * implement this in a subclass to decorate HTTP requests with auth
+   * token headers and so forth
+   */
+  decorateHTTPRequest: function( req ) {
+      return req;
+  }
 
 });
 });
