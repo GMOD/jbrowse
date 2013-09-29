@@ -100,24 +100,34 @@ return declare( Component, {
       var thisB = this;
       return this._credentials && ( !this._credentials.isRejected() || !this.shouldRetry( allowInteractive ) )
           ? this._credentials
-          : ( this._credentials = this._getCredentials( allowInteractive ) );
+          : ( this._credentials = this._getCredentials( allowInteractive ) )
+              .then( function(data) { thisB.gotCredentials(data); return data; },
+                     function(error) { thisB.gotCredentialError(error); return error; } )
+            ;
   },
   _getCredentials: function() {
       throw new Error('override either _getCredentials() or get() in a subclass');
   },
 
   /**
+   * Hook called after credentials are successfully fetched into this slot.
+   */
+  gotCredentials: function( credentialData ) {
+  },
+
+  /**
+   * Hook called after a non-retryable error was encountered fetching
+   * credentials for this slot.
+   */
+   gotCredentialError: function( error ) {
+       this._lastError = error;
+   },
+
+  /**
    * Return boolean indicating whether we should try again to get the credentials.
    */
   shouldRetry: function( interactive, attemptNumber ) {
       return interactive && ( !attemptNumber || attemptNumber < this.getConf('maxInteractiveAttempts') );
-  },
-
-  /**
-   * Return true if the last error encountered getting credentials was probably caused by the user.
-   */
-  lastErrorWasUsersFault: function() {
-      return false;
   },
 
   /**

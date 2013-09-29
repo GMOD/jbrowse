@@ -44,7 +44,7 @@ return declare( Transport, {
       var resolve = lang.hitch( deferred, 'resolve' );
       var reject  = lang.hitch( deferred, 'reject'  );
 
-      thisB.browser.getCredentialsForResource( resourceDefinition )
+      thisB.browser.getCredentialsForResource( resourceDefinition, opts )
           .then(
               function( credentialSlots ) {
                   return thisB._fetch( resourceDefinition, opts, credentialSlots );

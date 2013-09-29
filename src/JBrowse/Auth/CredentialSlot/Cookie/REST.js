@@ -77,13 +77,11 @@ return declare( CredentialSlot, {
 
                          thisB._lastRequest = loginRequest;
 
-                         var isInteractive = loginRequest.prompted;
-
                          t.fetch( loginRequest )
                           .then( resolve,
                                  function(error) {
                                      thisB._lastError   = error;
-                                     if( thisB.shouldRetry( isInteractive, attempt ) )
+                                     if( thisB.shouldRetry( allowInteractive, attempt ) )
                                          tryLogin(++attempt).then( resolve, reject );
                                      else
                                          reject(error);

@@ -4,6 +4,7 @@ define([
            'dojo/_base/array',
            'dojo/dom-class',
            'dojo/on',
+           'dojo/aspect',
 
            'dijit/Destroyable',
 	   "dijit/_WidgetBase",
@@ -26,6 +27,7 @@ define([
            array,
            cssClass,
            on,
+           aspect,
 
            Destroyable,
            _WidgetBase,
@@ -62,19 +64,35 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
         this.slotNameNode.innerHTML = this.credentialSlot.getConf('name');
 
         var thisB = this;
+
         this.watch( 'credentialSlot', function() {
+                        thisB._watchCredentialSlot();
                         thisB.updateCredentialState();
                     });
         this.watch('credentialReady', function() {
                        thisB._onCredentialReadyChange();
+                       thisB.getParent().peek();
                    });
         this.watch('credentialError', function() {
                        thisB._onCredentialErrorChange();
+                       thisB.getParent().peek();
                    });
 
         this.updateCredentialState( null, true );
+        this._watchCredentialSlot();
         this._onCredentialReadyChange();
         this._onCredentialErrorChange();
+    },
+
+    // watch out credentialslot for any changes
+    _watchCredentialSlot: function() {
+        var thisB = this;
+        aspect.after( this.credentialSlot, 'gotCredentials', function() {
+                          thisB.updateCredentialState();
+                      });
+        aspect.after( this.credentialSlot, 'gotCredential', function(error) {
+                          thisB.updateCredentialState(error);
+                      });
     },
 
     getCredentials: function() {
@@ -94,7 +112,7 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
         return undefined;
     },
 
-    updateCredentialState: function( credentialError, suppressEvent ) {
+    updateCredentialState: function( credentialError ) {
         var credential = this.credentialSlot;
         this.set( 'credentialReady', credential.isReady() );
         this.set( 'credentialError', credentialError );
