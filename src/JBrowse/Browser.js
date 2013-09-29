@@ -5,13 +5,13 @@ define( [
             'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/on',
-            'dojo/keys',
             'dojo/Deferred',
             'dojo/promise/all',
             'dojo/topic',
             'dojo/aspect',
             'dojo/request',
-            'JBrowse/has',
+            'dojo/store/DataStore',
+
             'dojo/_base/array',
             'dijit/layout/ContentPane',
             'dijit/layout/BorderContainer',
@@ -22,11 +22,15 @@ define( [
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
+            'dijit/focus',
+
+            'lazyload', // for dynamic CSS loading
+
+            'JBrowse/has',
             'JBrowse/Component',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
-            'dojo/store/DataStore',
             'JBrowse/Store/Names/Hash',
             'JBrowse/FeatureFiltererMixin',
             'JBrowse/Auth/_AuthManagerMixin',
@@ -39,23 +43,20 @@ define( [
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
             'JBrowse/View/Dialog/QuickHelp',
-            'JBrowse/View/Auth/Keyring',
-            'dijit/focus',
-            'lazyload', // for dynamic CSS loading
-            'dojo/domReady!'
+            'JBrowse/View/Auth/Keyring'
         ],
         function(
             declare,
             lang,
             domConstruct,
             on,
-            keys,
             Deferred,
             all,
             topic,
             aspect,
             request,
-            has,
+            DojoDataStore,
+
             array,
             dijitContentPane,
             dijitBorderContainer,
@@ -66,11 +67,15 @@ define( [
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
+            dijitFocus,
+
+            LazyLoad,
+
+            has,
             JBrowseComponent,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
-            DojoDataStore,
             NamesHashStore,
             FeatureFiltererMixin,
             AuthManagerMixin,
@@ -83,11 +88,8 @@ define( [
             LocationChoiceDialog,
             SetHighlightDialog,
             HelpDialog,
-            KeyringView,
-            dijitFocus,
-            LazyLoad
+            KeyringView
         ) {
-
 
 var dojof = Util.dojof;
 
