@@ -32,8 +32,7 @@ return declare( ActionBarDialog,
             new dijitButton({
                 className: 'OK',
                 label: 'OK',
-                onClick: lang.hitch(this,'hide'),
-                focus: false
+                onClick: lang.hitch(this,'hide')
             })
             .placeAt( actionBar);
     },
