@@ -27,16 +27,15 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     },
 
     _loadFeatures: function() {
-        this.stuff = {features: []};
         var thisB = this;
-        var features = this.bareFeatures = [];
+        var features = [];
         var parseFinished, fetched;
         var parser = new Parser({
             featureCallback : function(f) {
-                thisB.stuff.features.push(f);
+                features.push(f);
             },
             endCallback : function(){
-                console.log("End of Constructor => "+JSON.stringify(thisB.stuff));
+                console.log("End of Constructor => "+JSON.stringify(features));
                 thisB._deferred.features.resolve( features );
             }
         });
@@ -54,16 +53,16 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     _getFeatures: function( query, featureCallback, finishCallback, errorCallback ){
         var thisB = this;
         this._deferred.features.then( function() {
-            thisB._search( query, featureCallback, finishedCallback, errorCallback );
+            thisB._search( query, featureCallback, finishCallback, errorCallback );
         });
     },
 
     _search: function( query, featureCallback, finishCallback, errorCallback ) {
         var refName = this.browser.regularizeReferenceName( query.ref );
         
-        console.log("getFeatures => " +JSON.stringify(this.stuff.features));
+        console.log("getFeatures => " +JSON.stringify(this.features));
 
-        for(var band in this.stuff.features){
+        for(var band in this.features){
             console.log("band => " + JSON.stringify(band));            
         }
     }
