@@ -1,17 +1,23 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'JBrowse/Model/SimpleFeature',
             './Cytoband/Parser',
-            'JBrowse/Model/XHRBlob'
+            'JBrowse/Store/SeqFeature',
+            'JBrowse/Store/DeferredFeaturesMixin',
+            'JBrowse/Store/DeferredStatsMixin'
         ],
         function(
             declare,
+            lang,
             SimpleFeature,
             Parser,
-            XHRBlob
+            SeqFeatureStore,
+            DeferredFeatures,
+            DeferredStats
         ) {
 
-return declare(null,
+return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
 
 {
     constructor: function( args ) {
@@ -22,25 +28,37 @@ return declare(null,
 
     _loadFeatures: function() {
         this.stuff = {features: []};
-        var that = this;
+        var thisB = this;
+        var features = this.bareFeatures = [];
         var parseFinished, fetched;
-        var p = new Parser({
+        var parser = new Parser({
             featureCallback : function(f) {
-                that.stuff.features.push(f);
+                thisB.stuff.features.push(f);
             },
             endCallback : function(){
-                parseFinished = true;
+                console.log("End of Constructor => "+JSON.stringify(thisB.stuff));
+                thisB._deferred.features.resolve( features );
             }
         });
 
-        this.data.fetchLines( function(l) { p.addLine(l);     },
-                              function( ) { p.finish();       },
-                              function(e) { console.error(e); } );
+        this.data.fetchLines(
+            function( line ) {
+                parser.addLine(line);
+            },
+            lang.hitch( parser, 'finish' ),
+            lang.hitch( this, '_failAllDeferred' )
+        );
 
-        console.log("End of Constructor => "+JSON.stringify(this.stuff));
     },
 
-    getFeatures: function( query, featureCallback, finishCallback, errorCallback ){
+    _getFeatures: function( query, featureCallback, finishCallback, errorCallback ){
+        var thisB = this;
+        this._deferred.features.then( function() {
+            thisB._search( query, featureCallback, finishedCallback, errorCallback );
+        });
+    },
+
+    _search: function( query, featureCallback, finishCallback, errorCallback ) {
         var refName = this.browser.regularizeReferenceName( query.ref );
         
         console.log("getFeatures => " +JSON.stringify(this.stuff.features));
