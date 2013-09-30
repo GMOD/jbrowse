@@ -3,7 +3,10 @@ var _gaq = _gaq || []; // global task queue for Google Analytics
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/dom',
             'dojo/dom-construct',
+            'dojo/io-query',
+            'dojo/json',
             'dojo/on',
             'dojo/Deferred',
             'dojo/promise/all',
@@ -48,7 +51,10 @@ define( [
         function(
             declare,
             lang,
+            dom,
             domConstruct,
+            ioQuery,
+            JSON,
             on,
             Deferred,
             all,
@@ -109,7 +115,7 @@ constructor: function(params) {
 
     this.globalKeyboardShortcuts = {};
 
-    this._constructorArgs = params || {};
+    this._constructorArgs = this._parseQueryString( params || {} );
 
     // if we're in the unit tests, stop here and don't do any more initialization
     this._initTransportDrivers();
@@ -121,38 +127,35 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-    this.containerID = 'GenomeBrowser';
-    this.container = dojo.byId( this.containerID );
+    this.container = dom.byId( params.container );
     this.container.onselectstart = function() { return false; };
 
     this.trackConfigsByName = {};
 
     // start the initialization process
     var thisB = this;
-    dojo.addOnLoad( function() {
-        thisB.loadConfig().then( function() {
-            thisB._initTransportDrivers();
+    thisB.loadConfig().then( function() {
+        thisB._initTransportDrivers();
 
-            // initialize our highlight if one was set in the config
-            if( thisB.getConf('highlight') )
-                thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
+        // initialize our highlight if one was set in the config
+        if( thisB.getConf('highlight') )
+            thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
 
-            thisB.loadNames();
-            thisB.initPlugins().then( function() {
-                thisB.loadCSS().then( function() {
+        thisB.loadNames();
+        thisB.initPlugins().then( function() {
+            thisB.loadCSS().then( function() {
 
-                    thisB.initTrackMetadata();
+                thisB.initTrackMetadata();
 
-                    thisB.initView().then( function() {
-                           thisB.passMilestone( 'completely initialized', { success: true } );
-                    });
-
-                    thisB.reportUsageStats();
+                thisB.initView().then( function() {
+                       thisB.passMilestone( 'completely initialized', { success: true } );
                 });
+
+                thisB.reportUsageStats();
             });
         });
     });
-},
+ },
 
 configSchema: {
         slots: [
@@ -214,6 +217,40 @@ version: function() {
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call(),
 
+/**
+ * If a `queryString` attr is present in the passed object, parse it
+ * as a query string containing additional configuration, returning a
+ * new object containing the query string configuration mixed in.
+ */
+_parseQueryString: function( constructorArgs ) {
+    if(! constructorArgs.queryString )
+        return constructorArgs;
+
+    var queryConfig = ioQuery.queryToObject( constructorArgs.queryString.replace(/^\?/,'') );
+
+    // parse any JSON strings in the configuration
+    for( var varName in queryConfig ) {
+        var jsonString = (queryConfig[varName]||'').replace( /^json:/i, '' );
+        if( jsonString != queryConfig[varName] ) {
+            try {
+                queryConfig[varName] = JSON.parse( jsonString );
+            } catch( error ) {
+                console.error( 'Error parsing JSON in URL '+varName+': '+error );
+            }
+        }
+    }
+
+    if( !( 'include' in queryConfig ) ) {
+        queryConfig.include = [
+            'jbrowse_conf.json',
+            '{dataRoot}/trackList.json'
+        ];
+    }
+
+    var newargs = lang.mixin( {}, constructorArgs, queryConfig );
+    delete newargs.queryString;
+    return newargs;
+},
 
 /**
  * Get a plugin, if it is present.  Note that, if plugin
@@ -352,7 +389,7 @@ fatalError: function( error ) {
     }
     if( ! this.hasFatalErrors ) {
         var container =
-            dojo.byId( 'GenomeBrowser' )
+            dom.byId( 'GenomeBrowser' )
             || document.body;
         container.innerHTML = ''
             + '<div class="fatal_error">'
@@ -376,14 +413,14 @@ fatalError: function( error ) {
         request( 'sample_data/json/volvox/successfully_run' )
         .then( function() {
                    try {
-                       document.getElementById('volvox_data_placeholder')
+                       dom.byId('volvox_data_placeholder')
                            .innerHTML = 'Also, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data</a> here.';
                    } catch(e) {}
                });
 
         this.hasFatalErrors = true;
     } else {
-        var errors_div = dojo.byId('fatal_error_list') || document.body;
+        var errors_div = dom.byId('fatal_error_list') || document.body;
         dojo.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
     }
 },
@@ -673,7 +710,6 @@ renderMenuBar: function( menuBar ) {
 
     this.addGlobalMenuItem( 'view', this._highlightClearButton );
     this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
-
 
     // make the options menu
     this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );

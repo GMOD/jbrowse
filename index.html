@@ -5,62 +5,40 @@
     <title>JBrowse</title>
 
     <style>
-        html, body {
+        html,body {
             height: 100%;
             width: 100%;
             padding: 0;
             border: 0;
         }
     </style>
-
-    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1"></script>
-    <script type="text/javascript">
-        window.onerror=function(msg){
-            if( document.body )
-                document.body.setAttribute("JSError",msg);
-        }
-
-        var JBrowse;
-        require( { baseUrl: 'src',
-                   packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
-                               { name: 'lazyload', main: 'lazyload' },
-                               'dgrid', 'xstyle', 'put-selector',
-                               { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
-                               'JBrowse', 'FileSaver'
-                             ]
-                 },
-            [ 'JBrowse/Browser', 'dojo/_base/array', 'dojo/io-query', 'dojo/json' ],
-            function (Browser,array,ioQuery,JSON) {
-                   var queryConfig = ioQuery.queryToObject( window.location.search.slice(1) );
-
-                   // parse any JSON strings in the configuration
-                   for( var varName in queryConfig ) {
-                       var jsonString = (queryConfig[varName]||'').replace( /^json:/i, '' );
-                       if( jsonString != queryConfig[varName] ) {
-                           try {
-                               queryConfig[varName] = JSON.parse( jsonString );
-                           } catch(error) {
-                               console.error( 'Error parsing JSON in URL '+varName+': '+error );
-                           }
-                       }
-                   }
-
-                   if( !( 'include' in queryConfig ) ) {
-                       queryConfig.include = [
-                           'jbrowse_conf.json',
-                           '{dataRoot}/trackList.json'
-                       ];
-                   }
-
-                   // create a JBrowse global variable holding the JBrowse instance
-                   JBrowse = new Browser( queryConfig );
-        });
-    </script>
-
   </head>
 
   <body>
-    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+    <div id="JBrowse" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
+
+  <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1"></script>
+  <script type="text/javascript">
+      window.onerror = function(msg){
+          if( document.body )
+              document.body.setAttribute( "JSError", msg );
+      }
+
+      var JBrowse;
+      require( { baseUrl: 'src',
+                 packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
+                             { name: 'lazyload', main: 'lazyload' },
+                             'dgrid', 'xstyle', 'put-selector',
+                             { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
+                             'JBrowse', 'FileSaver'
+                           ]
+               },
+          [ 'JBrowse/Browser' ],
+          function( Browser ) {
+                 // create a JBrowse global variable holding the JBrowse instance
+                 JBrowse = new Browser({ container: 'JBrowse', queryString: window.location.search });
+      });
+  </script>
 </html>
