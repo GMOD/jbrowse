@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/_base/event',
            'dojo/dom-class',
            'dojo/on',
            'dojo/aspect',
@@ -25,6 +26,7 @@ define([
            declare,
            lang,
            array,
+           event,
            cssClass,
            on,
            aspect,
@@ -98,7 +100,9 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
     getCredentials: function() {
         return this._doCredentialOp( 'get' );
     },
-    releaseCredentials: function() {
+    releaseCredentials: function(evt) {
+        if( evt && evt.target ) event.stop( evt );
+
         return this._doCredentialOp( 'release' );
     },
     _doCredentialOp: function( opname ) {
@@ -160,11 +164,13 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
             this.loginClicks = [];
         } else {
             this.statusNode.innerHTML = credential.getConf('notReadyStatusLabel');
-            var getcreds = lang.hitch( this, 'getCredentials' );
             this.loginClicks = array.map(
                 [ this.containerNode ],
                 function(node) {
-                    var h =  on( node, 'click', getcreds );
+                    var h =  on( node, 'click', function(evt) {
+                                     thisB.getCredentials();
+                                     event.stop( evt );
+                                 });
                     this.own( h );
                     return h;
                 }, this );
