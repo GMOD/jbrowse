@@ -71,8 +71,10 @@ return declare( CredentialSlot, {
                              throw new Error( 'no transport found for login request' );
 
                          var d = new Deferred();
-                         var resolve = function( response ) {
-                             d.resolve( thisB._extractCredentialsData( response, loginRequest ) );
+                         var resolve = function(response) {
+                             if( ! response.req )
+                                 response.req = loginRequest;
+                             d.resolve( response );
                          };
                          var reject = lang.hitch( d, 'reject' );
 
@@ -95,12 +97,20 @@ return declare( CredentialSlot, {
       return tryLogin( 1 );
   },
 
+  getUserInfo: function(opts) {
+      var thisB = this;
+      return this.get( opts )
+          .then( function( response ) {
+                    d.resolve( thisB._extractCredentialsData( response ) );
+                });
+  },
+
   lastErrorWasUsersFault: function() {
       return this._lastError && this._lastError.response.status == 400;
   },
 
   _extractCredentialsData: function( response, request ) {
-      return request.data;
+      return response.req.data;
   },
 
   release: function() {

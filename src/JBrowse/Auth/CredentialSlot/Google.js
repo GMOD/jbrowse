@@ -28,7 +28,11 @@ define([
        ) {
 
 var knownScopes = {
-    drive: 'https://www.googleapis.com/auth/drive'
+    driveFiles:    'https://www.googleapis.com/auth/drive.file',
+    driveRead:     'https://www.googleapis.com/auth/drive.readonly',
+    //plusLogin:     'https://www.googleapis.com/auth/plus.login',
+    //userinfoEmail: 'https://www.googleapis.com/auth/userinfo.email',
+    userinfoProfile: 'https://www.googleapis.com/auth/userinfo.profile'
 };
 
 return declare( CredentialSlot, {
@@ -53,16 +57,20 @@ return declare( CredentialSlot, {
          },
          { name: 'defaultScopes', type: 'multi-string',
            description: 'set of authentication scopes to ask for by default',
-           defaultValue: [ knownScopes.drive ]
+           defaultValue: Util.dojof.values( knownScopes )
          },
-
          { name: 'authWindowOpts', type: 'multi-string',
            description: 'array of [name,options] to use when instantiating the authentication window',
            defaultValue: function( slot ) {
-               return [ slot.getConf('name')+'AuthWindow', 'status=no,toolbar=no,width=400,height=400' ];
+               return [ slot.getConf('name')+'AuthWindow', 'status=no,toolbar=no,width=460,height=700' ];
            }
-         }
+         },
+         { name: 'userInfoURL', type: 'string',
+           description: 'REST service URL used to fetch basic information about a user',
+           defaultValue: 'https://www.googleapis.com/oauth2/v1/userinfo'
+         },
 
+         { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' }
      ]
   },
 
@@ -79,7 +87,6 @@ return declare( CredentialSlot, {
       var bearer = array.map( this._tokensForResource( req ), function(tok) {
                                   return 'Bearer '+tok;
                               }).join(';');
-
       if( ! req.headers )
           req.headers = {};
       if(! req.headers.Authorization )
@@ -107,6 +114,15 @@ return declare( CredentialSlot, {
       return this._getTokensForScopes( scopes );
   },
 
+  getUserInfo: function( opts ) {
+      var thisB = this;
+      return this.get(opts)
+          .then( function( tokens ) {
+                     // fetch the user's data
+                     return thisB._fetchUserInfo( tokens[0] );
+                 });
+  },
+
   _getTokensForScopes: function( scopes ) {
       return this._tokenStore.getAccessTokensForScopes( scopes );
   },
@@ -123,6 +139,8 @@ return declare( CredentialSlot, {
               client_id:      this.getConf('clientID'),
               scope:          scopes.join(' '),
               redirect_uri:   Util.resolveUrl( ''+window.location, 'themes/blank.html' )
+              //, prompt: 'consent' // force display of consent prompt
+
               // TODO: set login_hint here if credentials are stored
           });
 
@@ -149,18 +167,36 @@ return declare( CredentialSlot, {
       var authWindow = window.open.apply( window, [authUrl].concat( this.getConf('authWindowOpts') ) );
       if( ! authWindow )
           throw new Error( "Could not open popup window to do "+this.getConf('name')+' authentication.  Is a popup blocker active?' );
+
       var tokenData;
+      function getdata() {
+
+      }
 
       // set up an interval to detect if the window is closed without
       // completing auth.  can't use on() for this, because the window
       // might not be open in the same domain as us, and the browser
       // won't give us the events
-      var closePoll = window.setInterval(
+      var poll = window.setInterval(
           function() {
-              if( authWindow.closed && ! tokenData )
-                  d.reject( new Error( 'Authentication failed' ) );
+              if( authWindow ) {
+                  tokenData = tokenData || thisB._parseCredentials( authWindow );
+                  if( tokenData )
+                      authWindow.close();
+                  if( authWindow.closed ) {
+                      if( tokenData ) {
+                          if( tokenData.error )
+                              d.reject( tokenData.error );
+                          else
+                              d.resolve( tokenData );
+                      }
+                      else
+                          d.reject( new Error( 'Authentication failed' ) );
+                  }
+              }
           }, 400 );
-      d.then( null, function(e) { window.clearInterval( closePoll ); throw e; });
+      d.then( function(v) { window.clearInterval(poll);   return v; },
+              function(e) { window.clearInterval( poll );  throw e; });
 
       // if we get a load event from the window, it must have gotten
       // to our redirect URL and should have a token for us in its URL
@@ -170,6 +206,7 @@ return declare( CredentialSlot, {
               if( ! tokenData )
                   return;
               authWindow.close();
+              authWindow = undefined;
 
               if( tokenData.error )
                   d.reject( tokenData.error );
@@ -183,24 +220,37 @@ return declare( CredentialSlot, {
       return d;
   },
 
+  _fetchUserInfo: function( token ) {
+      var resourceDef = {
+          url: this.getConf('userInfoURL'),
+          query: { callback: 'jbrowse_google_tokeninfo_callback', access_token: token.tokenString },
+          jsonp: 'callback',
+          requestTechnique: 'script'
+      };
+      return this.browser.getTransportForResource( resourceDef )
+          .fetch( resourceDef )
+          .then( function( response ) {
+                     if( response.error )
+                         throw new Error( response.error );
+
+                     console.log(response);
+                     return response;
+                 });
+  },
+
   _createAndValidateToken: function( tokenString, metaData ) {
       var thisB = this;
 
       // CORS isn't working on googleapis.com, apparently, so we have to use JSONP  >:={
-      // code around jsonp bug in dojo 1.8.1
-      // TODO: remove this hack when upgrading dojo
-      var jsonpD = new Deferred();
-      jbrowse_google_jsonp_callback = lang.hitch( jsonpD, 'resolve' );
       var resourceDef = {
           url: this.getConf('tokenValidateURL'),
-          method: 'get',
-          query: { callback: 'jbrowse_google_jsonp_callback', access_token: tokenString },
+          query: { callback: 'jbrowse_google_tokeninfo_callback', access_token: tokenString },
+          jsonp: 'callback',
           requestTechnique: 'script'
       };
 
       return this.browser.getTransportForResource( resourceDef )
           .fetch( resourceDef )
-          .then( function(json) { return jsonpD; } )
           .then( function( response ) {
                   if( response.error )
                       throw new Error( response.error );

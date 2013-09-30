@@ -57,7 +57,7 @@ return declare( Component, {
           },
 
           { name: 'label', type: 'string',
-            description: 'label that should be shown in the UI for the credential when it is ready.  Usually a username.  Templated using the credential data.',
+            description: 'label that should be shown in the UI for the credential when it is ready.  Usually a username.  Templated with the data from getUserInfo.',
             defaultValue: '{user}'
           },
 
@@ -121,6 +121,7 @@ return declare( Component, {
    */
    gotCredentialError: function( error ) {
        this._lastError = error;
+       console.error( error.stack || ''+error );
    },
 
   /**
@@ -138,6 +139,10 @@ return declare( Component, {
       return !!this._credentials && this._credentials.isResolved();
   },
 
+  getUserInfo: function( opts ) {
+      return this.get( opts );
+  },
+
   /**
    * Get the human-readable label for the credentials in this slot.
    * Gets the credentials if they have not already been fetched.
@@ -146,7 +151,7 @@ return declare( Component, {
    */
   getLabel: function( opts ) {
       var thisB = this;
-      return this.get( opts )
+      return this.getUserInfo( opts )
           .then( function(data) {
                      return Util.fillTemplate( thisB.getConf('label'), data );
                  });
