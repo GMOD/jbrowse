@@ -1,5 +1,6 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
            'dojo/io-query',
@@ -13,6 +14,7 @@ define([
        ],
        function(
            declare,
+           lang,
            array,
            Deferred,
            ioQuery,
@@ -183,15 +185,22 @@ return declare( CredentialSlot, {
 
   _createAndValidateToken: function( tokenString, metaData ) {
       var thisB = this;
+
+      // CORS isn't working on googleapis.com, apparently, so we have to use JSONP  >:={
+      // code around jsonp bug in dojo 1.8.1
+      // TODO: remove this hack when upgrading dojo
+      var jsonpD = new Deferred();
+      jbrowse_google_jsonp_callback = lang.hitch( jsonpD, 'resolve' );
       var resourceDef = {
           url: this.getConf('tokenValidateURL'),
           method: 'get',
-          query: { access_token: tokenString },
-          handleAs: 'json'
+          query: { callback: 'jbrowse_google_jsonp_callback', access_token: tokenString },
+          requestTechnique: 'script'
       };
 
       return this.browser.getTransportForResource( resourceDef )
           .fetch( resourceDef )
+          .then( function(json) { return jsonpD; } )
           .then( function( response ) {
                   if( response.error )
                       throw new Error( response.error );
