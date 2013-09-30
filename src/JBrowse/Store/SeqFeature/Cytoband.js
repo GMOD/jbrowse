@@ -22,8 +22,8 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
 {
     constructor: function( args ) {
         this.data = args.blob;
+        this.features = [];
         this._loadFeatures();
-        this.browser = args.browser;
     },
 
     _loadFeatures: function() {
@@ -32,10 +32,10 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
         var parseFinished, fetched;
         var parser = new Parser({
             featureCallback : function(f) {
-                features.push(f);
+                thisB.features.push(f);
             },
             endCallback : function(){
-                console.log("End of Constructor => "+JSON.stringify(features));
+                console.log("End of Constructor => "+JSON.stringify(thisB.features));
                 thisB._deferred.features.resolve( features );
             }
         });
