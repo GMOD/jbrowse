@@ -181,16 +181,23 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
 
     templateString: (''
                      + '<div class="dijitReset" data-dojo-attach-point="containerNode">'
+                       + '<div class="emptyMessage" data-dojo-attach-point="emptyMessageNode">none</div>'
                      + '</div>'),
 
     buildRendering: function() {
         this.inherited( arguments );
         var thisB = this;
-        array.forEach( this.credentialSlots, function(credential) {
-                           var credentialWidget = new KeyringCredentialWidget({ credentialSlot: credential });
-                           thisB.addChild( credentialWidget );
-                           credentialWidget.watch('credentialReady', function() { thisB.peek(); } );
-                       });
+        if( this.credentialSlots.length ) {
+            cssClass.remove( this.containerNode, 'empty' );
+
+            array.forEach( this.credentialSlots, function(credential) {
+                               var credentialWidget = new KeyringCredentialWidget({ credentialSlot: credential });
+                               thisB.addChild( credentialWidget );
+                               credentialWidget.watch('credentialReady', function() { thisB.peek(); } );
+                           });
+        } else {
+            cssClass.add( this.containerNode, 'empty' );
+        }
     },
 
     // open the pane for a short time to show changes, then close it
