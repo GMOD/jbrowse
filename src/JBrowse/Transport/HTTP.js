@@ -23,6 +23,9 @@ define([
            RequestBasedTransport
        ) {
 
+jbrowse_jsonp_callbacks = {};
+var serialNumber = 0;
+
 return declare( RequestBasedTransport, {
 
   constructor: function() {
@@ -81,10 +84,35 @@ return declare( RequestBasedTransport, {
 
       if( req.requestTechnique == 'iframe' )
           return iframeReq( req.url, req );
-      else if( req.requestTechnique == 'script' )
-          return scriptReq( req.url, req );
-      else
+      else if( req.requestTechnique == 'script' ) {
+          // TODO: delete this JSONP re-implementation when upgrading
+          // to dojo 1.9.1
+          var jsonpCallbackVarName = req.jsonp;
+          delete req.jsonp;
+          if( jsonpCallbackVarName ) {
+              if( ! req.query ) req.query = {};
+              var cb = this._makeJSONPCallback();
+              req.query[jsonpCallbackVarName] = cb.name;
+              return scriptReq(req.url, req).then( function(v) { return cb.deferred; } );
+          }
+          else {
+              return scriptReq( req.url, req );
+          }
+      } else
           return xhrReq( req.url, req );
+  },
+
+  _makeJSONPCallback: function() {
+      var name = 'cb'+(++serialNumber);
+      var d = new Deferred();
+      jbrowse_jsonp_callbacks[name] = function(data) {
+          delete jbrowse_jsonp_callbacks[name];
+          d.resolve( data );
+      };
+      return {
+          name: 'jbrowse_jsonp_callbacks.'+name,
+          deferred: d
+      };
   },
 
   _binaryFetch: function( request, credentialSlots ) {
