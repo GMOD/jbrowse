@@ -256,7 +256,7 @@ var DeferredGenerator = declare( null, {
                           return;
                       }
                   }
-                  this._signalDeferred( deferred, type, newResult );
+                  this._signalDeferred( deferred, this.RESOLVED, newResult );
               }
           } catch( error ) {
               this._signalDeferred( deferred, this.REJECTED, error );

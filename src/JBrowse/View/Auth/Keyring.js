@@ -104,9 +104,9 @@ var KeyringCredentialWidget = declare( [_WidgetBase, _TemplatedMixin, _Contained
     _doCredentialOp: function( opname ) {
         if( this.credentialSlot ) {
             var thisB = this;
-            return this.credentialSlot[opname]( 'interactive' )
+            return this.credentialSlot[opname]({ interactive: true })
                .then( function() { thisB.updateCredentialState(); },
-                      function(e) { thisB.updateCredentialState(e); }
+                      function(e) { thisB.updateCredentialState(e); throw e; }
                     );
         }
         return undefined;
@@ -202,8 +202,10 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
             return;
 
         if( button.openDropDown ) {
-            button.openDropDown();
-            window.setTimeout( function() { button.closeDropDown(); }, this.get('peekDuration') );
+            try {
+                button.openDropDown();
+                window.setTimeout( function() { button.closeDropDown(); }, this.get('peekDuration') );
+            } catch(e) {}
         }
     },
 

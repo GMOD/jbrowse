@@ -56,8 +56,9 @@ return declare( CredentialSlot, {
       ]
   },
 
-  _getCredentials: function( allowInteractive ) {
+  _getCredentials: function( opts ) {
       var thisB = this;
+      var allowInteractive = opts.interactive;
       function tryLogin( attempt ) {
           return when(
               allowInteractive
@@ -82,9 +83,10 @@ return declare( CredentialSlot, {
                                  function(error) {
                                      thisB._lastError   = error;
                                      if( thisB.shouldRetry( allowInteractive, attempt ) )
-                                         tryLogin(++attempt).then( resolve, reject );
+                                         tryLogin(++attempt).then( resolve, function(e) { reject(e); throw e } );
                                      else
                                          reject(error);
+                                     throw error;
                                  });
                          return d;
                      });

@@ -96,13 +96,13 @@ return declare( Component, {
    * Get the credentials.  Accepts a boolean flag of whether user
    * interaction is allowed during this process.
    */
-  get: function( allowInteractive ) {
+  get: function( opts ) {
       var thisB = this;
-      return this._credentials && ( !this._credentials.isRejected() || !this.shouldRetry( allowInteractive ) )
+      return this._credentials && ( !this._credentials.isRejected() || !this.shouldRetry( opts ) )
           ? this._credentials
-          : ( this._credentials = this._getCredentials( allowInteractive ) )
+          : ( this._credentials = this._getCredentials( opts ) )
               .then( function(data) { thisB.gotCredentials(data); return data; },
-                     function(error) { thisB.gotCredentialError(error); return error; } )
+                     function(error) { thisB.gotCredentialError(error); throw error; } )
             ;
   },
   _getCredentials: function() {
@@ -126,8 +126,8 @@ return declare( Component, {
   /**
    * Return boolean indicating whether we should try again to get the credentials.
    */
-  shouldRetry: function( interactive, attemptNumber ) {
-      return interactive && ( !attemptNumber || attemptNumber < this.getConf('maxInteractiveAttempts') );
+  shouldRetry: function( opts, attemptNumber ) {
+      return opts.interactive && ( !attemptNumber || attemptNumber < this.getConf('maxInteractiveAttempts') );
   },
 
   /**
@@ -144,9 +144,9 @@ return declare( Component, {
    *
    * @returns {Deferred} string
    */
-  getLabel: function( allowInteractive ) {
+  getLabel: function( opts ) {
       var thisB = this;
-      return this.get( allowInteractive )
+      return this.get( opts )
           .then( function(data) {
                      return Util.fillTemplate( thisB.getConf('label'), data );
                  });
@@ -166,7 +166,7 @@ return declare( Component, {
    *
    * Takes a flag saying whether user interaction is allowed during this process.
    */
-  release: function( allowInteractive ) {
+  release: function( opts ) {
       delete this._credentials;
       return Util.resolved( true );
   },

@@ -204,7 +204,7 @@ buildRendering: function() {
                                   thisB.initialized.resolve();
                               },
                               function() {},
-                              function(e) { console.error(e); }
+                              function(e) { console.error( e.stack || ''+e ); }
                             );
             });
 },
