@@ -224,7 +224,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             },
             function( error ) {
                 thisB._handleError( error, args );
-                args.finishCallback(e);
+                args.finishCallback( error );
             }
         );
     },
