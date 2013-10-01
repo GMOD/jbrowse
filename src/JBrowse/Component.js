@@ -1,5 +1,6 @@
 /**
- * A JBrowse component keeps a reference to the main browser object, and is configurable.
+ * A JBrowse component keeps a reference to the main browser object,
+ * and is configurable.
  */
 
 define([

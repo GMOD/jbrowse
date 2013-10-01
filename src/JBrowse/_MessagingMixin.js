@@ -1,6 +1,8 @@
 /**
  * Mixin for JBrowse/Component that contains all of the stuff related
  * to messaging.
+ *
+ * Functions like a blend of dojo/aspect and dojo/topic.
  */
 define([
            'dojo/_base/declare',

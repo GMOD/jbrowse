@@ -228,6 +228,10 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
     }
 });
 
+/**
+ * Small JBrowse component that encapsulates the 'Keyring' dropdown
+ * button, on which is attached the Keyring pane widget.
+ */
 return declare( [ JBrowseComponent, Destroyable ], {
   constructor: function( browser ) {
       this.button = new dijitDropDownButton({
