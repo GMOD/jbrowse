@@ -53,14 +53,14 @@
         cursor: pointer;
     }
 
-    .icon, .label {
+    .picture, .label {
         float: left;
     }
     .label {
         width: 70%;
         margin-top: 4px;
     }
-    .icon, .label, .status, .message {
+    .picture, .label, .status, .message {
         background: transparent;
         border: none;
     }
@@ -75,7 +75,7 @@
         display: none;
         padding: 0;
     }
-    .icon {
+    .picture {
         height: 49px;
         width: 49px;
         margin: 4px;
@@ -108,7 +108,7 @@
         .releaseButton {
             display: block;
         }
-        .icon {
+        .picture {
             background: #12aa40;
         }
         .status {
@@ -119,7 +119,7 @@
     &.credentialNotReady {
         cursor: pointer; /* clickable to log in */
 
-        .icon {
+        .picture {
             background: #dbdbdb;
         }
         .status {

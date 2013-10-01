@@ -33,12 +33,12 @@
     font-family: Arial, sans-serif;
     font-size: 15px;
     cursor: pointer; }
-  .credentialStatus .icon, .credentialStatus .label {
+  .credentialStatus .picture, .credentialStatus .label {
     float: left; }
   .credentialStatus .label {
     width: 70%;
     margin-top: 4px; }
-  .credentialStatus .icon, .credentialStatus .label, .credentialStatus .status, .credentialStatus .message {
+  .credentialStatus .picture, .credentialStatus .label, .credentialStatus .status, .credentialStatus .message {
     background: transparent;
     border: none; }
   .credentialStatus .error, .credentialStatus .message {
@@ -49,7 +49,7 @@
   .credentialStatus .error {
     display: none;
     padding: 0; }
-  .credentialStatus .icon {
+  .credentialStatus .picture {
     height: 49px;
     width: 49px;
     margin: 4px; }
@@ -70,14 +70,14 @@
     margin: 0 2px; }
   .credentialStatus.credentialReady .releaseButton {
     display: block; }
-  .credentialStatus.credentialReady .icon {
+  .credentialStatus.credentialReady .picture {
     background: #12aa40; }
   .credentialStatus.credentialReady .status {
     color: #00c437; }
   .credentialStatus.credentialNotReady {
     cursor: pointer;
     /* clickable to log in */ }
-    .credentialStatus.credentialNotReady .icon {
+    .credentialStatus.credentialNotReady .picture {
       background: #dbdbdb; }
     .credentialStatus.credentialNotReady .status {
       color: #808080;

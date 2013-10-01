@@ -1,10 +1,12 @@
 /**
- * GUI control for managing a single credential slot.  Typically shown in the JBrowse Keyring pane.
+ * GUI control for managing a single credential slot.  Typically shown
+ * in the JBrowse Keyring pane.
  */
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/event',
+           'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/on',
            'dojo/aspect',
@@ -21,6 +23,7 @@ define([
            declare,
            array,
            event,
+           domConstruct,
            cssClass,
            on,
            aspect,
@@ -38,21 +41,22 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
 
     templateString: (''
                      + '<div class="credentialStatus" data-dojo-attach-point="containerNode">'
-                       + '<div class="icon" data-dojo-attach-point="iconNode"></div>'
+                       + '<div class="picture" data-dojo-attach-point="pictureNode"></div>'
                        + '<div class="label" data-dojo-attach-point="labelNode"></div>'
                        + '<div class="status" data-dojo-attach-point="statusNode"></div>'
                        + '<div class="slotName" data-dojo-attach-point="slotNameNode"></div>'
                        + '<div class="message" data-dojo-attach-point="messageNode"></div>'
                        + '<div class="error" data-dojo-attach-point="errorNode"></div>'
-                       + '<div class="releaseButton" data-dojo-type="dijit/form/Button"'
-                       + '     data-dojo-attach-event="onclick:releaseCredentials"'
+                       + '<div class="releaseButton"'
+                       + '     data-dojo-type="dijit/form/Button"'
+                       + '     data-dojo-attach-event="onclick:releaseCredentials"' //< note the onclick
                        + '     data-dojo-attach-point="releaseButtonNode">X</div>'
                      + '</div>'),
 
     buildRendering: function() {
         this.inherited(arguments);
         cssClass.add( this.containerNode, this.credentialSlot.getConf('keyringCSSClass') );
-       this.slotNameNode.innerHTML = this.credentialSlot.getConf('name');
+        this.slotNameNode.innerHTML = this.credentialSlot.getConf('name');
 
         var thisB = this;
 
@@ -90,7 +94,8 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
         return this._doCredentialOp( 'get' );
     },
     releaseCredentials: function(evt) {
-        if( evt && evt.target ) event.stop( evt );
+        if( evt && evt.target )
+            event.stop( evt );
 
         return this._doCredentialOp( 'release' );
     },
@@ -117,7 +122,7 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
             cssClass.add( this.containerNode, 'credentialError' );
             this.errorNode.innerHTML = ''+credentialError;
             this.errorNode.title = ''+credentialError;
-            new ErrorDialog({ description: ''+credentialError, diagnosticMessage: ''+credentialError }).show();
+            new ErrorDialog({ description: ''+credentialError, diagnosticMessage: credentialError.stack || ''+credentialError }).show();
         }
         else {
             this.errorNode.innerHTML = ' ';
@@ -146,6 +151,23 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
         } else {
             this.labelNode.innerHTML = ' ';
         }
+
+        // picture
+        if( isReady ) {
+            credential.getUserInfo()
+            .then( function( userinfo ) {
+                       var pictureUrl = userinfo.picture || userinfo.avatar || userinfo.image;
+                       if( pictureUrl )
+                           domConstruct.create(
+                               'img', {
+                                   src: pictureUrl,
+                                   style: 'width: 100%; height: 100%; display: block'
+                               }, thisB.pictureNode );
+                   });
+        } else {
+            domConstruct.empty( this.pictureNode );
+        }
+
 
         if( isReady ) {
             this.statusNode.innerHTML = credential.getConf('readyStatusLabel');
