@@ -33,6 +33,12 @@
     font-family: Arial, sans-serif;
     font-size: 15px;
     cursor: pointer; }
+  .credentialStatus .slotIcon {
+    height: 16px;
+    width: 16px;
+    float: left;
+    margin-right: 3px;
+    background: transparent; }
   .credentialStatus .picture, .credentialStatus .label {
     float: left; }
   .credentialStatus .label {
@@ -56,7 +62,7 @@
   .credentialStatus .displayedData {
     color: #333;
     float: left; }
-  .credentialStatus .slotName {
+  .credentialStatus .slotType {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -85,3 +91,5 @@
       margin-top: 0.5em; }
     .credentialStatus.credentialNotReady:hover .status {
       color: #333333; }
+  .credentialStatus.google .slotIcon {
+    background: url("img/glyphs.png") rgba(0, 0, 0, 0) no-repeat -175px -73px; }

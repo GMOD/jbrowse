@@ -53,6 +53,14 @@
         cursor: pointer;
     }
 
+    .slotIcon {
+        height: 16px;
+        width: 16px;
+        float: left;
+        margin-right: 3px;
+        background: transparent;
+    }
+
     .picture, .label {
         float: left;
     }
@@ -84,7 +92,7 @@
         color: #333;
         float: left;
     }
-    .slotName {
+    .slotType {
         position: absolute;
         bottom: 0;
         right: 0;
@@ -130,6 +138,12 @@
 
         &:hover {
             .status { color: #333 }
+        }
+    }
+
+    &.google {
+        .slotIcon {
+            background: url("img/glyphs.png") rgba(0, 0, 0, 0) no-repeat -175px -73px;
         }
     }
 }

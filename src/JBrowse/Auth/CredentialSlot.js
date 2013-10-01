@@ -64,14 +64,17 @@ return declare( Component, {
             description: "CSS class used for this credential's item in the keyring menu",
             defaultValue: ''
           },
-
-          { name: 'maxInteractiveAttempts', type: 'integer',
-            description: 'maximum number of attempts before failing when interacting with the user to manage the authentication',
-            defaultValue: 3
+          { name: 'icon', type: 'string',
+            description: "URL of an icon that should be shown next to the slot's name in the credential control"
           },
 
           { name: 'keyringWidgetClass', type: 'object',
             description: "JavaScript class to be used for this slot's GUI control in the JBrowse keyring"
+          },
+
+          { name: 'maxInteractiveAttempts', type: 'integer',
+            description: 'maximum number of attempts before failing when interacting with the user to manage the authentication',
+            defaultValue: 3
           },
 
           { name: 'urlPrefix', type: 'string' },

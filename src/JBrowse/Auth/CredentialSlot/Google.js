@@ -72,7 +72,10 @@ return declare( CredentialSlot, {
            defaultValue: 'https://www.googleapis.com/oauth2/v1/userinfo'
          },
 
-         { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' }
+         { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' },
+         { name: 'keyringCSSClass',  defaultValue: 'google' },
+         { name: 'notReadyStatusLabel',  defaultValue: 'Click to authorize' },
+         { name: 'readyStatusLabel', defaultValue: 'Connected' }
      ]
   },
 
