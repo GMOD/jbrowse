@@ -6,17 +6,27 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
+           'dojo/promise/all',
+           'dojo/json',
 
-           'JBrowse/Util'
+           'JBrowse/Util',
+           './Token'
        ],
        function(
            declare,
            lang,
            array,
            Deferred,
+           all,
+           djson,
 
-           Util
+           Util,
+           Token
        ) {
+
+// use native JSON if possible
+var JSON = window.JSON || djson;
+
 return declare( null, {
 
   constructor: function(args) {
@@ -31,30 +41,32 @@ return declare( null, {
 
   addAccessToken: function( token ) {
       this._accessTokens = Util.uniq( this._accessTokens.concat( token ) );
+      this._organizeTokens();
+      this._saveTokens();
   },
 
   removeAccessToken: function( token ) {
       this._accessTokens = array.filter( this._accessTokens, function( t ) {
           return t.toString() != token.toString();
       });
+      this._saveTokens();
   },
 
   clear: function() {
       this._accessTokens = [];
+      this._saveTokens();
   },
 
-  getAccessTokensForScopes: function( scopes ) {
-      this._organizeTokens();
-
+  getAccessTokensForScope: function( scope ) {
       var relevantTokens = {};
 
-      var scopesStillNeeded = [];
-      array.forEach( scopes, function( scope ) {
+      var scopeStillNeeded = [];
+      array.forEach( scope, function( scope ) {
           // find the first existing token that includes this scope
           // (this._accessTokens is sorted by most to least widely-scoped
           // tokens)
           var scopeIsCovered = array.some( this._accessTokens, function( token ) {
-             if( ! token.isExpired() && array.indexOf( token.scopes, scope ) >= 0 ) {
+             if( ! token.isExpired() && array.indexOf( token.getMeta('scope'), scope ) >= 0 ) {
                  relevantTokens[token.toString()] = token;
                  return true;
              }
@@ -62,25 +74,32 @@ return declare( null, {
           }, this );
 
           if( ! scopeIsCovered )
-              scopesStillNeeded.push( scope );
+              scopeStillNeeded.push( scope );
       },this);
 
       // convert relevantTokens to an array of its values
       relevantTokens = Util.dojof.values( relevantTokens );
 
+      // validate all the tokens that have not been validated yet
+      var deferredTokens = array.map( relevantTokens, function( token ) {
+          return token.isValid() ? Util.resolved( token )
+                                 : this.credentialSlot.validateToken( token );
+      },this);
+
       // fetch tokens if we need to, or just return what we have if
       // that's sufficient
-      if( scopesStillNeeded.length ) {
+      if( scopeStillNeeded.length ) {
           var thisB = this;
-          return this.credentialSlot._getNewToken( scopesStillNeeded )
-              .then( function( newToken ) {
-                         thisB.addAccessToken( newToken );
-                         return [newToken].concat(relevantTokens);
-                     });
+          deferredTokens.push(
+              this.credentialSlot._getNewToken( scopeStillNeeded )
+                  .then( function( newToken ) {
+                             thisB.addAccessToken( newToken );
+                             return newToken;
+                         })
+          );
       }
-      else {
-          return Util.resolved( relevantTokens );
-      }
+
+      return all( deferredTokens );
   },
 
   _organizeTokens: function() {
@@ -90,15 +109,36 @@ return declare( null, {
            // arrays descending (i.e. broadest scope first), then by
            // their expiry descending
           .sort( function( t1, t2 ) {
-                     return t2.scopes.length - t1.scopes.length || t2.expires - t1.expires;
+                     return t2.scope.length - t1.scope.length || t2.expires - t1.expires;
                  });
+  },
 
-      // TODO: store tokens in local storage
+  _saveTokens: function() {
+      // store tokens in local storage if we can
+      try {
+          window.localStorage.setItem(
+              'JBrowse-'+this.name,
+              '{ "accessTokens":['
+                  +array.map( this._accessTokens || [], function(t) { return t.toJSON();} ).join(',')
+                  +']}'
+          );
+      } catch(e) {
+          console.warn( 'Could not store tokens in localStorage: '+e );
+      }
   },
 
   _loadTokens: function() {
-      // TODO: load tokens from local storage
       this._accessTokens = [];
+
+      // get tokens from local storage if we can
+      try {
+          var data = JSON.parse( window.localStorage.getItem( 'JBrowse-'+this.name ) || '{ "accessTokens": [] }' );
+          this._accessTokens = array.map( data.accessTokens || [], function( tdata ) {
+                                              return new Token( tdata[0], tdata[1] );
+                                          });
+      } catch(e) {
+          console.warn('Could not get tokens from localStorage: '+e);
+      }
   }
 
 });

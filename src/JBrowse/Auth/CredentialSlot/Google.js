@@ -27,7 +27,7 @@ define([
            TokenStore
        ) {
 
-var knownScopes = {
+var knownScopeTokens = {
     driveFiles:    'https://www.googleapis.com/auth/drive.file',
     driveRead:     'https://www.googleapis.com/auth/drive.readonly',
     //plusLogin:     'https://www.googleapis.com/auth/plus.login',
@@ -55,9 +55,9 @@ return declare( CredentialSlot, {
            required: true,
            defaultValue: '506915665486-mlc9gh1gr973vprppl4cu0ohdoh2nuq0.apps.googleusercontent.com'
          },
-         { name: 'defaultScopes', type: 'multi-string',
-           description: 'set of authentication scopes to ask for by default',
-           defaultValue: Util.dojof.values( knownScopes )
+         { name: 'defaultScope', type: 'multi-string',
+           description: 'array of authentication scope tokens to ask for by default',
+           defaultValue: Util.dojof.values( knownScopeTokens )
          },
          { name: 'authWindowOpts', type: 'multi-string',
            description: 'array of [name,options] to use when instantiating the authentication window',
@@ -79,8 +79,8 @@ return declare( CredentialSlot, {
   },
 
   neededFor: function( resourceDef ) {
-      var scopes = this._scopesForResource( resourceDef );
-      return !!( scopes && scopes.length );
+      var scope = this._scopeForResource( resourceDef );
+      return !!( scope && scope.length );
   },
 
   decorateHTTPRequest: function(req) {
@@ -98,20 +98,18 @@ return declare( CredentialSlot, {
   _getCredentials: function( opts ) {
       var thisB = this;
 
-      // see if we can figure out from the opts what scopes we really need
-      var scopes = opts.url && this._scopesForResource( opts ) || [];
-      // if all the scopes we need for this request are in the
-      // defaultScopes, just go ahead and ask for the default set
-      var defaultScopes = this.getConf('defaultScopes');
-      if( array.every( scopes, function(scope) { return array.indexOf( defaultScopes, scope ) >= 0; } ) )
-          scopes = defaultScopes;
+      // see if we can figure out from the opts what scope we really need
+      var scope = opts.url && this._scopeForResource( opts ) || [];
+      // if all the scope we need for this request are in the
+      // defaultScope, just go ahead and ask for the default set
+      var defaultScope = this.getConf('defaultScope');
+      if( array.every( scope, function(scope) { return array.indexOf( defaultScope, scope ) >= 0; } ) )
+          scope = defaultScope;
 
-      console.log( scopes.length+' scopes: '+scopes.join(' ') );
-
-      if( ! scopes.length )
+      if( ! scope.length )
           return Util.resolved( [] );
 
-      return this._getTokensForScopes( scopes );
+      return this._getTokensForScope( scope );
   },
 
   getUserInfo: function( opts ) {
@@ -123,21 +121,21 @@ return declare( CredentialSlot, {
                  });
   },
 
-  _getTokensForScopes: function( scopes ) {
-      return this._tokenStore.getAccessTokensForScopes( scopes );
+  _getTokensForScope: function( scope ) {
+      return this._tokenStore.getAccessTokensForScope( scope );
   },
 
   /**
-   * Get a new access token for the given scopes.  Will be called by
+   * Get a new access token for the given scope.  Will be called by
    * the tokenstore if it needs more tokens to satisfy the given
-   * scopes.
+   * scope.
    */
-  _getNewToken: function( scopes ) {
+  _getNewToken: function( scope ) {
       var authUrl = this.getConf('authStartURL') + '?' + ioQuery.objectToQuery(
           {
               response_type:  'token',
               client_id:      this.getConf('clientID'),
-              scope:          scopes.join(' '),
+              scope:          scope.join(' '),
               redirect_uri:   Util.resolveUrl( ''+window.location, 'themes/blank.html' )
               //, prompt: 'consent' // force display of consent prompt
 
@@ -152,7 +150,9 @@ return declare( CredentialSlot, {
                      if( ! tokenString )
                          throw new Error('Could not find token in token data', tokenData );
                      delete tokenData.access_token;
-                     return thisB._createAndValidateToken( tokenString, tokenData );
+                     tokenData.scope = scope;
+
+                     return thisB.validateToken( new Token( tokenString, tokenData ) );
                  });
   },
 
@@ -169,9 +169,6 @@ return declare( CredentialSlot, {
           throw new Error( "Could not open popup window to do "+this.getConf('name')+' authentication.  Is a popup blocker active?' );
 
       var tokenData;
-      function getdata() {
-
-      }
 
       // set up an interval to detect if the window is closed without
       // completing auth.  can't use on() for this, because the window
@@ -233,18 +230,17 @@ return declare( CredentialSlot, {
                      if( response.error )
                          throw new Error( response.error );
 
-                     console.log(response);
                      return response;
                  });
   },
 
-  _createAndValidateToken: function( tokenString, metaData ) {
+  validateToken: function( token ) {
       var thisB = this;
 
       // CORS isn't working on googleapis.com, apparently, so we have to use JSONP  >:={
       var resourceDef = {
           url: this.getConf('tokenValidateURL'),
-          query: { callback: 'jbrowse_google_tokeninfo_callback', access_token: tokenString },
+          query: { callback: 'jbrowse_google_tokeninfo_callback', access_token: token.tokenString },
           jsonp: 'callback',
           requestTechnique: 'script'
       };
@@ -260,7 +256,14 @@ return declare( CredentialSlot, {
                   if( audience != thisB.getConf('clientID') )
                       throw new Error( 'Authentication token is for the wrong Client ID.' );
 
-                  return new Token( tokenString, response );
+                  if( typeof response.scope == 'string' )
+                      response.scope = response.scope.split(/\s+/);
+
+                  var newTokenMeta = lang.mixin( {}, token.getMeta(), response );
+
+                  token = new Token( token.tokenString, newTokenMeta );
+                  token.setValidated();
+                  return token;
               });
   },
 
@@ -274,16 +277,16 @@ return declare( CredentialSlot, {
   },
 
   _tokensForResource: function( req ) {
-      var scopes = this._scopesForResource( req );
-      return scopes && scopes.length ? this._getTokensForScopes( scopes ) : [];
+      var scope = this._scopeForResource( req );
+      return scope && scope.length ? this._getTokensForScope( scope ) : [];
   },
 
-  _scopesForResource: function( resourceDef ) {
-      var scopes = [];
+  _scopeForResource: function( resourceDef ) {
+      var scope = [];
       if( /^google\-drive:/.test( resourceDef.url ) ) {
-          scopes.push( knownScopes.drive );
+          scope.push( knownScopeTokens.driveRead );
       }
-      return scopes;
+      return scope;
   }
 
 });

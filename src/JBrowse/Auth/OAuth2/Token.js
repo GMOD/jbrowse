@@ -3,47 +3,68 @@
  */
 define([
            'dojo/_base/declare',
-           'dojo/_base/lang'
+           'dojo/_base/lang',
+           'dojo/json'
        ],
        function(
            declare,
-           lang
+           lang,
+           djson
        ) {
+
+var JSON = window.JSON || djson;
+
 return declare( null, {
 
    constructor: function( tokenString, metaData ) {
-       this.tokenString = tokenString;
+       metaData = metaData || {};
 
-       if( metaData ) { // normalize metadata and mix it in
+       // expiry
+       if( metaData.expires_in ) {
+           metaData.expires = (new Date()).getTime()+parseFloat( metaData.expires_in );
+           delete metaData.expires_in;
+       }
+       if( ! metaData.expires )
+           metaData.expires = Infinity;
 
-           // expiry
-           if( metaData.expires_in ) {
-               metaData.expires = (new Date()).getTime()+parseFloat( metaData.expires_in );
-               delete metaData.expires_in;
-           }
-           if( ! metaData.expires )
-               metaData.expires = Infinity;
-
-           // scopes
-           if( metaData.scope && ! metaData.scopes ) {
-               metaData.scopes = [ metaData.scope ];
-           }
-           delete metaData.scope;
-
-           if( ! metaData.scopes )
-               throw new Error('scopes required');
-
-           declare.safeMixin( this, metaData );
+       // scope
+       if( typeof metaData.scope == 'string' ) {
+           metaData.scope = metaData.scope.split(/\s+/);
        }
 
+       if( ! metaData.scope )
+           throw new Error('scope required');
+
+       this.tokenString = tokenString;
+       this._meta = metaData;
+       this._validated = false;
+   },
+
+   getMeta: function( key ) {
+       if( key !== undefined )
+           return this._meta[key];
+
+       return this._meta;
+   },
+
+   setValidated: function() {
+       this._validated = true;
+   },
+
+   isValid: function() {
+       return this._validated && ! this.isExpired();
    },
 
    isExpired: function() {
-       return this.expires-2 <= (new Date()).getTime();
+       return this._meta.expires-2 <= (new Date()).getTime()/1000;
    },
 
    toString: function() {
-       return this.access_token+'';
+       return this.tokenString+'';
+   },
+
+   toJSON: function() {
+       return JSON.stringify([ this.tokenString, this._meta || {} ]);
    }
 
 });
