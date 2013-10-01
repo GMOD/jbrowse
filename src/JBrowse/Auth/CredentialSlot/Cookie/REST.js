@@ -101,7 +101,7 @@ return declare( CredentialSlot, {
       var thisB = this;
       return this.get( opts )
           .then( function( response ) {
-                    d.resolve( thisB._extractCredentialsData( response ) );
+                     return thisB._extractCredentialsData( response );
                 });
   },
 
