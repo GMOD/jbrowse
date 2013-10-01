@@ -84,7 +84,7 @@ return declare( CredentialSlot, {
                           .then( resolve,
                                  function(error) {
                                      thisB._lastError   = error;
-                                     if( thisB.shouldRetry( allowInteractive, attempt ) )
+                                     if( thisB.shouldRetry( opts, attempt ) )
                                          tryLogin(++attempt).then( resolve, function(e) { reject(e); throw e } );
                                      else
                                          reject(error);
