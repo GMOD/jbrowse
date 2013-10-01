@@ -93,7 +93,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     configSchema: {
         slots: [
-                { name: 'maxFeatureScreenDensity', defaultValue: 400, type: 'float' },
+                { name: 'maxFeatureScreenDensity', defaultValue: 400, type: 'float',
+                  description: "Maximum feature density (features per horizontal pixel)"
+                               + " at which to show features.  When density grows higher"
+                               + " than this (e.g. when zoomed further out), features will not be shown."
+                },
                 { name: 'maxLabelScreenDensity', defaultValue: 1/30, type: 'float' },
                 { name: 'maxDescriptionScreenDensity', defaultValue: 1/120, type: 'float' },
                 { name: 'minHistScreenDensity', defaultValue: 400, type: 'float' },
