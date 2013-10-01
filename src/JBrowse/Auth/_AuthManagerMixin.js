@@ -76,7 +76,7 @@ return declare( null, {
                       return credentialSlot.neededFor( resourceDefinition );
                   });
               return all( array.map( neededCredentials, function(c) {
-                                         return c.get( resourceDefinition, opts )
+                                         return c.get( opts )
                                                  .then(function(){ return c; });
                                      })
                         );

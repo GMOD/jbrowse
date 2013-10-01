@@ -15,7 +15,7 @@ var Resource = declare( null, {
     },
 
     _defaultFetchOpts: function() {
-        return {};
+        return { interactive: true };
     },
 
     fetch: function( opts ) {
