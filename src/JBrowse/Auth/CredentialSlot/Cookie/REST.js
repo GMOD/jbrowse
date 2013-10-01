@@ -105,10 +105,6 @@ return declare( CredentialSlot, {
                 });
   },
 
-  lastErrorWasUsersFault: function() {
-      return this._lastError && this._lastError.response.status == 400;
-  },
-
   _extractCredentialsData: function( response, request ) {
       return response.req.data;
   },
