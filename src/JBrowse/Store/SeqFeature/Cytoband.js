@@ -1,8 +1,8 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
-            'JBrowse/Model/SimpleFeature',
             './Cytoband/Parser',
+            'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/DeferredStatsMixin'
@@ -10,8 +10,8 @@ define( [
         function(
             declare,
             lang,
-            SimpleFeature,
             Parser,
+            SimpleFeature,
             SeqFeatureStore,
             DeferredFeatures,
             DeferredStats
@@ -29,13 +29,11 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     _loadFeatures: function() {
         var thisB = this;
         var features = [];
-        var parseFinished, fetched;
         var parser = new Parser({
             featureCallback : function(f) {
                 thisB.features.push(f);
             },
             endCallback : function(){
-                console.log("End of Constructor => "+JSON.stringify(thisB.features));
                 thisB._deferred.features.resolve( features );
             }
         });
@@ -59,16 +57,13 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
 
     _search: function( query, featureCallback, finishCallback, errorCallback ) {
         var refName = this.browser.regularizeReferenceName( query.ref );
-        
-        console.log("getFeatures => " +JSON.stringify(this.features));
-        
         var converted = [];
         for(var band in this.features){
-            //console.log("band => " + JSON.stringify(this.features[band]));
-            var bandRef = this.browser.regularizeReferenceName( this.features[band].chrom );
-            if ( bandRef === refName && !(this.features[band].chromStart > query.end || this.features[band].chromEnd < query.start))
+            var b = this.features[band];
+            var bandRef = this.browser.regularizeReferenceName( b.chrom );
+            if ( bandRef === refName && !(b.chromStart > query.end || b.chromEnd < query.start))
             {
-                var f = this._formatFeature( this.features[band] );
+                var f = this._formatFeature( b );
                 featureCallback(f);
             }
         }
@@ -76,7 +71,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     },
 
     _formatFeature: function(data){
-        var f = new SimpleFeature({
+        return new SimpleFeature({
             data:
             {
                 start: data.chromStart,
@@ -85,7 +80,6 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
                 gieStain: data.gieStain                
             }
         });
-        return f;
     }
 });
 });

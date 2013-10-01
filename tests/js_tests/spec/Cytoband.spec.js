@@ -45,8 +45,7 @@ describe( 'Cytoband store', function() {
            var p = new CytobandStore(
                {
                    browser: new Browser({ unitTestMode: true }),
-                   blob: new XHRBlob( '../data/Cytoband_test.txt' ),
-                   refSeq: { name: 'ctgA', start: 0, end: 50001 }
+                   blob: new XHRBlob( '../data/Cytoband_test.txt' )
                });
            (function() {
                var features = [];
@@ -61,12 +60,10 @@ describe( 'Cytoband store', function() {
 
                waitsFor( function() { return done; } );
                runs( function() {
-                         console.log( JSON.stringify(features) );
                          expect( features.length ).toEqual( 4 );
                          expect( features[2].get('gieStain')).toEqual( 'gpos50' );
                      });
            }).call();
    });
 });
-
 });
