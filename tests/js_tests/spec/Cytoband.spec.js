@@ -53,7 +53,7 @@ describe( 'Cytoband store', function() {
                var done = false;
 
                p.getFeatures(
-                   { ref: 'ctgA', start: 1, end: 50000 },
+                   { ref: 'chr1', start: 40000000, end: 100000000 },
                    function(f) { features.push(f); },
                    function() { done = true; },
                    function(e) { console.error(e); }
@@ -61,10 +61,9 @@ describe( 'Cytoband store', function() {
 
                waitsFor( function() { return done; } );
                runs( function() {
-                         //console.log( features );
-                         expect( features.length ).toEqual( 197 );
-                         expect( features[6].get('subfeatures').length ).toEqual( 3 );
-                         expect( features[6].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
+                         console.log( JSON.stringify(features) );
+                         expect( features.length ).toEqual( 4 );
+                         expect( features[2].get('gieStain')).toEqual( 'gpos50' );
                      });
            }).call();
    });

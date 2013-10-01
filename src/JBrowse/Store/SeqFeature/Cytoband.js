@@ -61,10 +61,31 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
         var refName = this.browser.regularizeReferenceName( query.ref );
         
         console.log("getFeatures => " +JSON.stringify(this.features));
-
+        
+        var converted = [];
         for(var band in this.features){
-            console.log("band => " + JSON.stringify(band));            
+            //console.log("band => " + JSON.stringify(this.features[band]));
+            var bandRef = this.browser.regularizeReferenceName( this.features[band].chrom );
+            if ( bandRef === refName && !(this.features[band].chromStart > query.end || this.features[band].chromEnd < query.start))
+            {
+                var f = this._formatFeature( this.features[band] );
+                featureCallback(f);
+            }
         }
+        finishCallback();
+    },
+
+    _formatFeature: function(data){
+        var f = new SimpleFeature({
+            data:
+            {
+                start: data.chromStart,
+                end: data.chromEnd,
+                name: data.name,
+                gieStain: data.gieStain                
+            }
+        });
+        return f;
     }
 });
 });
