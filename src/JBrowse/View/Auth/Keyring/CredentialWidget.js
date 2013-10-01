@@ -121,11 +121,11 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
 
     _onCredentialErrorChange: function() {
         var credentialError = this.get('credentialError');
-        if( credentialError && !( credentialError instanceof Errors.UserCancel )) {
+        if( credentialError && !( credentialError instanceof Errors.UserCancel ) ) {
             cssClass.add( this.containerNode, 'credentialError' );
             this.errorNode.innerHTML = ''+credentialError;
             this.errorNode.title = ''+credentialError;
-            new ErrorDialog({ description: ''+credentialError, diagnosticMessage: credentialError.stack || ''+credentialError }).show();
+            //new ErrorDialog({ description: ''+credentialError, diagnosticMessage: credentialError.stack || ''+credentialError }).show();
         }
         else {
             this.errorNode.innerHTML = ' ';

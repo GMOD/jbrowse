@@ -73,7 +73,11 @@
     display: block;
     position: absolute;
     width: 50%;
-    margin: 0 2px; }
+    margin: 0;
+    border: 0;
+    top: 50%;
+    left: 0;
+    padding: 1px 2px; }
   .credentialStatus.credentialReady .releaseButton {
     display: block; }
   .credentialStatus.credentialReady .picture {
