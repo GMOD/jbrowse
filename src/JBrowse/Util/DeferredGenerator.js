@@ -228,7 +228,10 @@ var DeferredGenerator = declare( null, {
       if( func ){
           try{
               var newResult = func(result);
-              if( type === this.PROGRESS ){
+              if( type === this.EMIT ) {
+                  this._signalDeferred( deferred, type, newResult );
+              }
+              else if( type === this.PROGRESS ){
                   if( newResult !== undefined ){
                       this._signalDeferred( deferred, type, newResult );
                   }
