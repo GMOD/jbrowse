@@ -1,14 +1,14 @@
 # Installing JBrowse
 
-To install JBrowse, see the main JBrowse wiki at http://gmod.org/wiki/JBrowse.
+Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install.
 
-The rest of this file is aimed primarily at developers.
+Unless you intend to work on the JBrowse code itself, or develop a JBrowse plugin, stop reading now and go to http://jbrowse.org/install.
 
-# About running from a `git` repository
+# About running from a `git` clone
 
-Unless you are actively working or collaborating on the JBrowse code, you
-should not run JBrowse from a git repository.  For one reason, it has a much, much slower initial load
-time than the built release zipfiles.  Also, since the master branch code is ''in development'' for the next JBrowse release, it has a lot more bugs than the official releases.  Be warned.
+Only developers should run JBrowse from a git repository.
+For one reason, the development version has a much, much slower initial load
+time than the built release zipfiles.  Also, since the master branch code is ''in development'' for the next JBrowse release, it often (usually?) contains bad bugs, much more so than the official releases put up on JBrowse.org.
 
 # Setting up a development environment
 
