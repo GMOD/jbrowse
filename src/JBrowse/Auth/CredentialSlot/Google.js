@@ -271,7 +271,11 @@ return declare( CredentialSlot, {
       var poll = window.setInterval(
           function() {
               if( authWindow ) {
-                  tokenData = tokenData || thisB._parseCredentials( authWindow );
+
+                  try {
+                      tokenData = tokenData || thisB._parseCredentials( authWindow );
+                  } catch(e) {}
+
                   if( tokenData )
                       authWindow.close();
                   if( authWindow.closed ) {
