@@ -58,6 +58,9 @@ return declare( null, {
    isExpired: function() {
        return this._meta.expires-2 <= (new Date()).getTime()/1000;
    },
+   getExpiryTime: function() {
+       return this._meta.expires;
+   },
 
    toString: function() {
        return this.tokenString+'';

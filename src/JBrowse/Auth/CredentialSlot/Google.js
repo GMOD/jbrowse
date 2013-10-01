@@ -61,8 +61,8 @@ return declare( CredentialSlot, {
            description: 'array of authentication scope tokens to ask for by default',
            defaultValue: Util.dojof.values( knownScopeTokens )
          },
-         { name: 'authWindowOpts', type: 'multi-string',
-           description: 'array of [name,options] to use when instantiating the authentication window',
+         { name: 'authPopupWindowOpts', type: 'multi-string',
+           description: 'array of [name,optionsString] to use when instantiating an authentication popup window',
            defaultValue: function( slot ) {
                return [ slot.getConf('name')+'AuthWindow', 'status=no,toolbar=no,width=460,height=700' ];
            }
@@ -80,21 +80,25 @@ return declare( CredentialSlot, {
       var thisB = this;
       this._tokenStore = new TokenStore({ credentialSlot: this });
 
-      // try to fetch existing tokens when constructed
-      var fetchExisting = this._getExistingTokensForScope( this.getConf('defaultScope') );
-      this._credentials = fetchExisting;
-      this._credentials
-          .then( function( tokens ) {
-                     if( tokens && tokens.length ) {
-                         thisB.gotCredentials(tokens);
-                     } else if( thisB._credentials === fetchExisting )
-                         delete thisB._credentials;
-                     return tokens;
-                 },
-                 function( error ) {
-                     if( thisB._credentials === fetchExisting )
-                         delete thisB._credentials;
-                 });
+      // try to fetch user info with existing tokens when constructed
+      var fetchExisting = this._userinfo =
+          this.getExistingTokensForScope( this.getConf('defaultScope') )
+              .then( function( tokens ) {
+                         // if we have some valid existing tokens
+                         if( tokens && tokens.length )
+                             return thisB._fetchUserInfo(tokens[0]);
+
+                         if( thisB._userinfo === fetchExisting )
+                             delete thisB._userinfo;
+
+                         return undefined;
+                     },
+                     function( error ) {
+                         console.warn( error.stack || ''+error );
+                         if( thisB._credentials === fetchExisting )
+                             delete thisB._credentials;
+                     }
+                   );
   },
 
   neededFor: function( resourceDef ) {
@@ -114,55 +118,102 @@ return declare( CredentialSlot, {
           req.headers.Authorization += ';'+bearer;
  },
 
-  _getCredentials: function( opts ) {
+  // true if we have some existing, valid tokens.
+  isReady: function() {
+      return array.some( this._tokenStore.getAccessTokens(), function(t) { return t.isValid(); } );
+  },
+
+  release: function() {
+      this._tokenStore.clear();
+      delete this._userinfo;
+      return this._watchDeferred( Util.resolved(true) );
+  },
+
+  get: function( opts ) {
       var thisB = this;
+      if( !opts ) opts = {};
 
-      // see if we can figure out from the opts what scope we really need
-      var scope = opts.url && this._scopeForResource( opts ) || [];
-      // if all the scope we need for this request are in the
-      // defaultScope, just go ahead and ask for the default set
-      var defaultScope = this.getConf('defaultScope');
-      if( array.every( scope, function(scope) { return array.indexOf( defaultScope, scope ) >= 0; } ) )
-          scope = defaultScope;
+      // add scope to the opts if necessary
+      var scope = opts.scope;
+      if( ! scope ) {
+          // see if we can figure out from the opts what scope we really need
+          scope = opts.url && this._scopeForResource( opts ) || [];
+          // if all the scope we need for this request are in the
+          // defaultScope, just go ahead and ask for the default set
+          var defaultScope = this.getConf('defaultScope');
+          if( array.every( scope, function(scope) { return array.indexOf( defaultScope, scope ) >= 0; } ) )
+              scope = defaultScope;
+      }
+      else if( typeof scope == 'string' )
+          scope = scope.split(/\s+/);
 
-      if( ! scope.length )
-          return Util.resolved( [] );
-
-      return this._getTokensForScope( scope );
+      return this.getTokensForScope( scope );
   },
 
   getUserInfo: function( opts ) {
       var thisB = this;
-      return this.get(opts)
-          .then( function( tokens ) {
-                     // fetch the user's data
-                     return thisB._fetchUserInfo( tokens[0] );
-                 });
+      return this._userinfo && ! this._userinfo.isRejected()
+          ? this._userinfo
+          : ( this._userinfo =
+                  this.get( opts )
+                      .then( function( tokens ) {
+                                 // fetch the user's data
+                                 if( tokens && tokens[0] )
+                                     return thisB._fetchUserInfo( tokens[0] );
+                                 throw 'could not obtain any auth tokens to get user info';
+                             })
+            );
   },
 
-  _getExistingTokensForScope: function( scope ) {
-      return all( this._tokenStore.getAccessTokensForScope( scope ).deferredTokens );
+  getExistingTokensForScope: function( scope ) {
+      return this.validateAndFilterTokens(
+          this._tokenStore.getAccessTokensForScope( scope ).tokens
+      );
   },
 
-  _getTokensForScope: function( scope ) {
+  /**
+   * Filter the given array of tokens to make sure they are all valid,
+   * and remove any undefined.  Throws an error if the array then
+   * becomes empty.
+   */
+  _ensureValidTokens: function( tokens ) {
+      tokens = this._filterTokens( tokens );
+      if( ! tokens.length ) throw 'no valid tokens found';
+      return tokens;
+  },
+  _filterTokens: function( tokens ) {
+      return array.filter( tokens, function( t ) { return t && t.isValid(); } );
+  },
+
+  getTokensForScope: function( scope ) {
+      var thisB = this;
       var res = this._tokenStore.getAccessTokensForScope( scope );
-      var tokens = res.deferredTokens;
+      var existingTokens = res.tokens;
       var scopeStillNeeded = res.unmatchedScopeTokens;
 
-      // fetch tokens if we need to, or just return what we have if
-      // that's sufficient
-      if( scopeStillNeeded.length ) {
-          var thisB = this;
-          tokens.push(
-              this.credentialSlot._getNewToken( scopeStillNeeded )
+      // if the existing tokens did not cover our whole scope, get a
+      // new token and just return that
+      if( scopeStillNeeded && scopeStillNeeded.length ) {
+          return this._getNewToken( scope )
                   .then( function( newToken ) {
-                             thisB._tokenStore.addAccessToken( newToken );
-                             return newToken;
-                         })
-          );
+                             return [ newToken ];
+                         });
       }
-
-      return all( tokens );
+      else {
+          // if the existing tokens cover the scope, try to make sure they are all valid
+          return this.validateAndFilterTokens( existingTokens )
+              .then( function( existingValidTokens ) {
+                         if( existingValidTokens.length == existingTokens.length ) {
+                             return existingValidTokens;
+                         }
+                         else { // if they are not all valid, we need to get a new token
+                             return thisB._getNewToken( scope )
+                                 .then( function(t) {
+                                            return [t];
+                                        });
+                         }
+                     });
+      }
   },
 
   /**
@@ -171,6 +222,8 @@ return declare( CredentialSlot, {
    * scope.
    */
   _getNewToken: function( scope ) {
+      var thisB = this;
+
       var authUrl = this.getConf('authStartURL') + '?' + ioQuery.objectToQuery(
           {
               response_type:  'token',
@@ -182,9 +235,7 @@ return declare( CredentialSlot, {
               // TODO: set login_hint here if credentials are stored
           });
 
-      var thisB = this;
-
-      return this._getTokenData( authUrl )
+      return this._getTokenFromPopupWindow( authUrl )
           .then( function( tokenData ) {
                      var tokenString = tokenData.access_token;
                      if( ! tokenString )
@@ -192,7 +243,7 @@ return declare( CredentialSlot, {
                      delete tokenData.access_token;
                      tokenData.scope = scope;
 
-                     return thisB._validateToken( new Token( tokenString, tokenData ) );
+                     return thisB.validateToken( new Token( tokenString, tokenData ) );
                  });
   },
 
@@ -200,11 +251,11 @@ return declare( CredentialSlot, {
    * open the auth window and get the token from its URL when it's ready.
    * returns deferred plain object of token data
    */
-  _getTokenData: function( authUrl ) {
+  _getTokenFromPopupWindow: function( authUrl ) {
       var thisB = this;
       var d = new Deferred();
 
-      var authWindow = window.open.apply( window, [authUrl].concat( this.getConf('authWindowOpts') ) );
+      var authWindow = window.open.apply( window, [authUrl].concat( this.getConf('authPopupWindowOpts') ) );
       if( ! authWindow )
           throw new Error( "Could not open popup window to do "+this.getConf('name')+' authentication.  Is a popup blocker active?' );
 
@@ -260,11 +311,11 @@ return declare( CredentialSlot, {
   _fetchUserInfo: function( token ) {
       var resourceDef = {
           url: this.getConf('userInfoURL'),
-          query: { callback: 'jbrowse_google_tokeninfo_callback', access_token: token.tokenString },
+          query: { access_token: token.tokenString },
           jsonp: 'callback',
           requestTechnique: 'script'
       };
-      return this.browser.getTransportForResource( resourceDef )
+      var fetch = this.browser.getTransportForResource( resourceDef )
           .fetch( resourceDef )
           .then( function( response ) {
                      if( response.error )
@@ -272,15 +323,38 @@ return declare( CredentialSlot, {
 
                      return response;
                  });
+      this._watchDeferred( fetch );
+      return fetch;
   },
 
-  validateToken: function( token ) {
+  /**
+   * Given an array of tokens, try to validate all that need to be
+   * validated, and filter out the ones that turned out to be invalid.
+   *
+   * Returns a deferred array of tokens.
+   */
+  validateAndFilterTokens: function( tokens ) {
+      return all( array.map( tokens, function(t) {
+                                 return t.isValid() ? t : this.validateToken(t);
+                             }, this )
+                )
+          .then( function( tokens ) {
+                     return array.filter( tokens, function( t ) { return t && t.isValid(); } );
+                 });
+  },
+
+  /**
+   * Takes a Token, returns a Deferred with either a new validated
+   * Token with the same data, or undefined if the Token could not be
+   * validated.
+   */
+  validateToken: function( inputToken ) {
       var thisB = this;
 
       // CORS isn't working on googleapis.com, apparently, so we have to use JSONP  >:={
       var resourceDef = {
           url: this.getConf('tokenValidateURL'),
-          query: { callback: 'jbrowse_google_tokeninfo_callback', access_token: token.tokenString },
+          query: { access_token: inputToken.tokenString },
           jsonp: 'callback',
           requestTechnique: 'script'
       };
@@ -289,22 +363,34 @@ return declare( CredentialSlot, {
           .fetch( resourceDef )
           .then( function( response ) {
                   if( response.error )
-                      throw new Error( response.error );
+                      throw response.error;
 
                   // check `audience`; critical for security
                   var audience = response.audience || response.issued_to;
-                  if( audience != thisB.getConf('clientID') )
-                      throw new Error( 'Authentication token is for the wrong Client ID.' );
+                  if( audience != thisB.getConf('clientID') ) {
+                      console.warn( 'Authentication token is for the wrong Client ID.' );
+                      throw 'invalid_token';
+                  }
 
                   if( typeof response.scope == 'string' )
                       response.scope = response.scope.split(/\s+/);
 
-                  var newTokenMeta = lang.mixin( {}, token.getMeta(), response );
+                  var newTokenMeta = lang.mixin( {}, inputToken.getMeta(), response );
 
-                  token = new Token( token.tokenString, newTokenMeta );
-                  token.setValidated();
-                  return token;
-              });
+                  var validatedToken = new Token( inputToken.tokenString, newTokenMeta );
+                  validatedToken.setValidated();
+                  thisB._tokenStore.replaceAccessToken( inputToken, validatedToken );
+
+                  return validatedToken;
+                 })
+           .then( null, function( error ) {
+                     if( error == 'invalid_token' ) {
+                         // if the token was invalid, remove it from the token store
+                         thisB._tokenStore.removeAccessTokens([inputToken]);
+                         return undefined;
+                     } else
+                         throw error;
+                 });
   },
 
   _parseCredentials: function( authWindow ) {
@@ -318,7 +404,7 @@ return declare( CredentialSlot, {
 
   _tokensForResource: function( req ) {
       var scope = this._scopeForResource( req );
-      return scope && scope.length ? this._getTokensForScope( scope ) : [];
+      return scope && scope.length ? this.getTokensForScope( scope ) : [];
   },
 
   _scopeForResource: function( resourceDef ) {

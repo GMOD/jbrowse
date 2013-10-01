@@ -30,7 +30,6 @@ return declare( Component, {
             description: "JavaScript type of this credential",
             required: true
           },
-
           { name: 'notReadyStatusLabel', type: 'string',
             description: 'status string that should be shown in the keyring control when these credentials are not ready',
             defaultValue: 'Click to log in'
@@ -104,10 +103,16 @@ return declare( Component, {
       var thisB = this;
       return this._credentials && ( !this._credentials.isRejected() || !this.shouldRetry( opts ) )
           ? this._credentials
-          : ( this._credentials = this._getCredentials( opts ) )
-              .then( function(data) { thisB.gotCredentials(data); return data; },
-                     function(error) { thisB.gotCredentialError(error); throw error; } )
-            ;
+          : this._watchDeferred( this._credentials = this._getCredentials( opts ) );
+  },
+
+  // watch a deferred/promise and call gotCredentials or gotCredentialError
+  // when it resolves or rejects
+  _watchDeferred: function(d) {
+      var thisB = this;
+      d.then( function(data) { thisB.gotCredentials(data); return data; },
+              function(error) { thisB.gotCredentialError(error); throw error; } );
+      return d;
   },
 
   _getCredentials: function() {
@@ -172,19 +177,12 @@ return declare( Component, {
 
   /**
    * Release the credentials in this slot (i.e. log out, or whatever).
-   * Do not necessarily clear stored credentials.
    *
    * Takes a flag saying whether user interaction is allowed during this process.
    */
   release: function( opts ) {
       delete this._credentials;
       return Util.resolved( true );
-  },
-
-  /**
-   * Delete any stored credentials for this slot.
-   */
-  clear: function() {
   },
 
   _promptForData: function( title, data ) {

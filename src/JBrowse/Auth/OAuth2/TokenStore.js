@@ -29,30 +29,44 @@ return declare( null, {
 
   constructor: function(args) {
 
-      this.credentialSlot = args.credentialSlot;
-      if( !this.credentialSlot ) throw new Error( 'credentialSlot required' );
-
-      this.name = this.credentialSlot.getConf('name')+'-TokenStore';
+      this.name = args.name || args.credentialSlot && args.credentialSlot.getConf('name')+'-TokenStore';
+      if( ! this.name )
+          throw 'must provide either `name` or `credentialSlot` when instantiating token store';
 
       this._loadTokens();
   },
 
-  addAccessToken: function( token ) {
-      this._accessTokens = Util.uniq( this._accessTokens.concat( token ) );
+  addAccessTokens: function( token ) {
+      this._accessTokens.push( token );
       this._organizeTokens();
       this._saveTokens();
   },
 
-  removeAccessToken: function( token ) {
-      this._accessTokens = array.filter( this._accessTokens, function( t ) {
-          return t.toString() != token.toString();
+  removeAccessTokens: function( tokens ) {
+      this._accessTokens = array.filter( this._accessTokens, function( existing ) {
+          return ! array.some( tokens, function( toRemove ) {
+                                   return toRemove.toString() == existing.toString();
+                               });
       });
+      this._saveTokens();
+  },
+
+  replaceAccessToken: function( old, newToken ) {
+      this._accessTokens = array.filter( this._accessTokens, function( t ) {
+          return t.toString() != old.toString() && t.toString() != newToken.toString();
+      });
+      this._accessTokens.unshift( newToken );
+      this._organizeTokens();
       this._saveTokens();
   },
 
   clear: function() {
       this._accessTokens = [];
       this._saveTokens();
+  },
+
+  getAccessTokens: function() {
+      return this._accessTokens.slice();
   },
 
   getAccessTokensForScope: function( scope ) {
@@ -79,13 +93,7 @@ return declare( null, {
       return {
           // convert relevantTokens to an array of its values, and
           // validate all the tokens that need it
-          deferredTokens: array.map(
-              Util.dojof.values( relevantTokens ),
-              function( token ) {
-                  return token.isValid() ? Util.resolved( token )
-                      : this.credentialSlot.validateToken( token );
-              },this),
-
+          tokens: Util.dojof.values( relevantTokens ),
           unmatchedScopeTokens: scopeStillNeeded
       };
    },
@@ -97,7 +105,7 @@ return declare( null, {
            // arrays descending (i.e. broadest scope first), then by
            // their expiry descending
           .sort( function( t1, t2 ) {
-                     return t2.scope.length - t1.scope.length || t2.expires - t1.expires;
+                     return t2.getMeta('scope').length - t1.getMeta('scope').length || t2.getExpiryTime() - t1.getExpiryTime();
                  });
   },
 
