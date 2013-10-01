@@ -54,7 +54,8 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
             cssClass.remove( this.containerNode, 'empty' );
 
             array.forEach( this.credentialSlots, function(credential) {
-                               var credentialWidget = new KeyringCredentialWidget({ credentialSlot: credential });
+                               var widgetClass = credential.getConf('keyringWidgetClass') || KeyringCredentialWidget;
+                               var credentialWidget = new widgetClass({ credentialSlot: credential });
                                thisB.addChild( credentialWidget );
                                credentialWidget.watch('credentialReady', function() { thisB.peek(); } );
                            });

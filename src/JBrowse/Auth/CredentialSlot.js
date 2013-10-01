@@ -71,6 +71,10 @@ return declare( Component, {
             defaultValue: 3
           },
 
+          { name: 'keyringWidgetClass', type: 'object',
+            description: "JavaScript class to be used for this slot's GUI control in the JBrowse keyring"
+          },
+
           { name: 'urlPrefix', type: 'string' },
           { name: 'urlRegExp', type: 'string' },
           { name: 'urlRegExpOpts', type: 'string', defaultValue: 'i' },
