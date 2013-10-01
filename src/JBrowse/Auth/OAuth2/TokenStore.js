@@ -6,7 +6,6 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
-           'dojo/promise/all',
            'dojo/json',
 
            'JBrowse/Util',
@@ -17,7 +16,6 @@ define([
            lang,
            array,
            Deferred,
-           all,
            djson,
 
            Util,
@@ -77,30 +75,20 @@ return declare( null, {
               scopeStillNeeded.push( scope );
       },this);
 
-      // convert relevantTokens to an array of its values
-      relevantTokens = Util.dojof.values( relevantTokens );
 
-      // validate all the tokens that have not been validated yet
-      var deferredTokens = array.map( relevantTokens, function( token ) {
-          return token.isValid() ? Util.resolved( token )
-                                 : this.credentialSlot.validateToken( token );
-      },this);
+      return {
+          // convert relevantTokens to an array of its values, and
+          // validate all the tokens that need it
+          deferredTokens: array.map(
+              Util.dojof.values( relevantTokens ),
+              function( token ) {
+                  return token.isValid() ? Util.resolved( token )
+                      : this.credentialSlot.validateToken( token );
+              },this),
 
-      // fetch tokens if we need to, or just return what we have if
-      // that's sufficient
-      if( scopeStillNeeded.length ) {
-          var thisB = this;
-          deferredTokens.push(
-              this.credentialSlot._getNewToken( scopeStillNeeded )
-                  .then( function( newToken ) {
-                             thisB.addAccessToken( newToken );
-                             return newToken;
-                         })
-          );
-      }
-
-      return all( deferredTokens );
-  },
+          unmatchedScopeTokens: scopeStillNeeded
+      };
+   },
 
   _organizeTokens: function() {
       // throw out expired access tokens

@@ -21,7 +21,7 @@ return declare( null, {
 
        // expiry
        if( metaData.expires_in ) {
-           metaData.expires = (new Date()).getTime()+parseFloat( metaData.expires_in );
+           metaData.expires = Math.floor( (new Date()).getTime()/1000 + parseFloat( metaData.expires_in ) );
            delete metaData.expires_in;
        }
        if( ! metaData.expires )

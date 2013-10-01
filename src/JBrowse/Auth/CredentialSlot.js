@@ -105,6 +105,7 @@ return declare( Component, {
                      function(error) { thisB.gotCredentialError(error); throw error; } )
             ;
   },
+
   _getCredentials: function() {
       throw new Error('override either _getCredentials() or get() in a subclass');
   },

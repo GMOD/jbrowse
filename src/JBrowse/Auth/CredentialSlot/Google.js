@@ -3,6 +3,7 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
+           'dojo/promise/all',
            'dojo/io-query',
            'dojo/on',
 
@@ -17,6 +18,7 @@ define([
            lang,
            array,
            Deferred,
+           all,
            ioQuery,
            on,
 
@@ -75,7 +77,24 @@ return declare( CredentialSlot, {
   },
 
   constructor: function() {
+      var thisB = this;
       this._tokenStore = new TokenStore({ credentialSlot: this });
+
+      // try to fetch existing tokens when constructed
+      var fetchExisting = this._getExistingTokensForScope( this.getConf('defaultScope') );
+      this._credentials = fetchExisting;
+      this._credentials
+          .then( function( tokens ) {
+                     if( tokens && tokens.length ) {
+                         thisB.gotCredentials(tokens);
+                     } else if( thisB._credentials === fetchExisting )
+                         delete thisB._credentials;
+                     return tokens;
+                 },
+                 function( error ) {
+                     if( thisB._credentials === fetchExisting )
+                         delete thisB._credentials;
+                 });
   },
 
   neededFor: function( resourceDef ) {
@@ -121,8 +140,29 @@ return declare( CredentialSlot, {
                  });
   },
 
+  _getExistingTokensForScope: function( scope ) {
+      return all( this._tokenStore.getAccessTokensForScope( scope ).deferredTokens );
+  },
+
   _getTokensForScope: function( scope ) {
-      return this._tokenStore.getAccessTokensForScope( scope );
+      var res = this._tokenStore.getAccessTokensForScope( scope );
+      var tokens = res.deferredTokens;
+      var scopeStillNeeded = res.unmatchedScopeTokens;
+
+      // fetch tokens if we need to, or just return what we have if
+      // that's sufficient
+      if( scopeStillNeeded.length ) {
+          var thisB = this;
+          tokens.push(
+              this.credentialSlot._getNewToken( scopeStillNeeded )
+                  .then( function( newToken ) {
+                             thisB._tokenStore.addAccessToken( newToken );
+                             return newToken;
+                         })
+          );
+      }
+
+      return all( tokens );
   },
 
   /**
@@ -152,7 +192,7 @@ return declare( CredentialSlot, {
                      delete tokenData.access_token;
                      tokenData.scope = scope;
 
-                     return thisB.validateToken( new Token( tokenString, tokenData ) );
+                     return thisB._validateToken( new Token( tokenString, tokenData ) );
                  });
   },
 
