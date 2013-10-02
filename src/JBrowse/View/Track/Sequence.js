@@ -3,12 +3,23 @@ define( [
             'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/dom-class',
+            'dojo/query',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_ExportMixin',
             'JBrowse/CodonTable',
             'JBrowse/Util'
         ],
-        function( declare, array, dom, domClass, BlockBased, ExportMixin, CodonTable, Util ) {
+        function(
+            declare,
+            array,
+            dom,
+            domClass,
+            query,
+            BlockBased,
+            ExportMixin,
+            CodonTable,
+            Util
+        ) {
 
 return declare( [BlockBased, ExportMixin],
  /**
@@ -248,6 +259,10 @@ return declare( [BlockBased, ExportMixin],
             container.appendChild(base);
         }
         return container;
+    },
+
+    startZoom: function() {
+        query('.base', this.div ).empty();
     },
 
     /**
