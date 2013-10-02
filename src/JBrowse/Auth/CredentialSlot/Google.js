@@ -102,25 +102,13 @@ return declare( CredentialSlot, {
       this._tokenStore = new TokenStore({ credentialSlot: this });
 
       // try to fetch user info with existing tokens when constructed
-      var fetchExisting = this._userinfo =
+      var fetchExisting =
           this.getExistingTokensForScope( this.getConf('defaultScope') )
               .then( function( tokens ) {
                          // if we have some valid existing tokens
                          if( tokens && tokens.length )
-                             return thisB._fetchUserInfo(tokens[0]);
-
-                         if( thisB._userinfo === fetchExisting )
-                             delete thisB._userinfo;
-
-                         throw 'no ready tokens';
-                     },
-                     function( error ) {
-                         console.warn( error.stack || ''+error );
-                         if( thisB._credentials === fetchExisting )
-                             delete thisB._credentials;
-                     }
-                   );
-      fetchExisting._jbrowseGoogleInitial = true;
+                             thisB._userinfo = thisB._fetchUserInfo(tokens[0]);
+                     });
   },
 
   neededFor: function( resourceDef ) {
