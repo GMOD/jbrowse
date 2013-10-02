@@ -81,21 +81,29 @@ return declare( Component, {
           { name: 'urlRegExp', type: 'string' },
           { name: 'urlRegExpOpts', type: 'string', defaultValue: 'i' },
           { name: 'predicate', type: 'boolean', defaultValue: function( slot, resourceDef ) {
-                var url = resourceDef.url || '';
-                var re = slot.getConf('urlRegExp');
-                if( re ) {
-                    re = new RegExp( re, slot.getConf('urlRegExpOpts') );
-                    return re.test( url );
-                }
-                var prefix = slot.getConf('urlPrefix');
-                if( prefix ) {
-                    return url.indexOf( prefix ) != -1;
-                }
-                return false;
+                return slot._urlMatches(
+                    resourceDef.url || '',
+                    { urlRegExp: slot.getConf('urlRegExp'),
+                      urlRegExpOpts: slot.getConf('urlRegExpOpts'),
+                      urlPrefix: slot.getConf('urlPrefix')
+                    });
             }
           }
 
       ]
+  },
+
+  _urlMatches: function( url, spec ) {
+      var re = spec.urlRegExp;
+      if( re ) {
+          re = new RegExp( re, spec.urlRegExpOpts || '' );
+          return re.test( url );
+      }
+      var prefix = spec.urlPrefix;
+      if( prefix ) {
+          return url.indexOf( prefix ) != -1;
+      }
+      return false;
   },
 
   /**

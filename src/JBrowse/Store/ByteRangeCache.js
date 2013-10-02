@@ -92,6 +92,15 @@ return declare( null,
                              }, this);
     },
 
+    /**
+     * Report the total size of the resource at a certain URL, if it
+     * was discovered through some method other than the Content-Range
+     * response header.
+     */
+    setTotalSize: function( url, totalSize ) {
+        this.totalSizes[url] = totalSize;
+    },
+
     _fetchChunks: function( url, start, end, callback, errorCallback, fetchCallback ) {
         var thisB = this;
 

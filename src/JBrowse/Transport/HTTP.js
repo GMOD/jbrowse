@@ -7,6 +7,8 @@ define([
            'dojo/request/iframe',
            'dojo/request/script',
            'dojo/Deferred',
+           'dojo/promise/all',
+
            'JBrowse/has',
            './_RequestBased'
        ],
@@ -19,6 +21,8 @@ define([
            iframeReq,
            scriptReq,
            Deferred,
+           all,
+
            has,
            RequestBasedTransport
        ) {
@@ -28,8 +32,9 @@ var serialNumber = 0;
 
 return declare( RequestBasedTransport, {
 
+  name: 'HTTP',
+
   constructor: function() {
-      this.totalSizes = {};
   },
 
   _normalizeResourceDefinition: function( resourceDefinition ) {
@@ -41,37 +46,45 @@ return declare( RequestBasedTransport, {
   canHandle: function( resourceDefinition ) {
       resourceDefinition = this._normalizeResourceDefinition( resourceDefinition );
       var url = resourceDefinition.url;
-      if( ! url )
-          return false;
-      var protocol = ((new URL( url )).scheme || window.location.protocol.replace(':','')).toLowerCase();
-      return protocol == 'http' || protocol == 'https';
+      if( ! url ) return false;
+      return /^https?$/.test( this._urlProtocol( url ) );
+  },
+
+  _urlProtocol: function( url ) {
+      return ((new URL( url )).scheme || window.location.protocol.replace(':','')).toLowerCase();
   },
 
   _fetch: function( resourceDef, opts, credentialSlots ) {
-      var req = lang.mixin( { headers: {}, toString: function() { return this.url; } }, this._normalizeResourceDefinition( resourceDef ), opts );
+      var req = lang.mixin(
+          { headers: {}, toString: function() { return this.url; } },
+          this._normalizeResourceDefinition( resourceDef ),
+          opts
+      );
 
       // give each credential an opportunity to decorate the HTTP
       // request
-      array.forEach( credentialSlots, function( cred ) {
-          if( cred.decorateHTTPRequest )
-              cred.decorateHTTPRequest( req );
-      });
-
-      if( req.handleAs == 'arraybuffer' ) {
-          if( req.range ) {
-              var thisB = this;
-              return this._byteCache.get( req, req.range[0], req.range[1],
-                                          function(req,start,end) {
-                                              req = lang.mixin( {}, req, { range: [start,end] } );
-                                              return thisB._binaryFetch( req, credentialSlots );
-                                          });
-          } else {
-              return this._binaryFetch( req, credentialSlots );
-          }
-      }
-      else {
-          return this._dojoFetch( req, credentialSlots );
-      }
+      var thisB = this;
+      return all( array.map( credentialSlots, function( cred ) {
+                          if( cred.decorateHTTPRequest )
+                              return cred.decorateHTTPRequest( req );
+                          return undefined;
+                      }) )
+          .then( function() {
+                     if( req.handleAs == 'arraybuffer' ) {
+                         if( req.range ) {
+                             return thisB._byteCache.get( req, req.range[0], req.range[1],
+                                                         function(req,start,end) {
+                                                             req = lang.mixin( {}, req, { range: [start,end] } );
+                                                             return thisB._binaryFetch( req, credentialSlots );
+                                                         });
+                         } else {
+                             return thisB._binaryFetch( req, credentialSlots );
+                         }
+                     }
+                     else {
+                         return thisB._dojoFetch( req, credentialSlots );
+                     }
+                 });
   },
 
   _dojoFetch: function( req, credentialSlots ) {
@@ -84,7 +97,7 @@ return declare( RequestBasedTransport, {
 
       if( req.requestTechnique == 'iframe' )
           return iframeReq( req.url, req );
-      else if( req.requestTechnique == 'script' ) {
+      else if( req.jsonp || req.requestTechnique == 'script' ) {
           // TODO: delete this JSONP re-implementation when upgrading
           // to dojo 1.9.1
           var jsonpCallbackVarName = req.jsonp;
@@ -168,17 +181,6 @@ return declare( RequestBasedTransport, {
       req.onreadystatechange = dojo.hitch( this, function() {
           if (req.readyState == 4) {
               if (req.status == 200 || req.status == 206) {
-
-                  // if this response tells us the file's total size, remember that
-                  if( !( request.url in this.totalSizes ) )
-                      this.totalSizes[request.url] = (function() {
-                          var contentRange = req.getResponseHeader('Content-Range');
-                          if( ! contentRange )
-                              return undefined;
-                          var match = contentRange.match(/\/(\d+)$/);
-                          return match ? parseInt(match[1]) : undefined;
-                      })();
-
                   var response = req.response || req.mozResponseArrayBuffer || (function() {
                       try {
                           respond( this._stringToBuffer(req.responseText) );

@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/_base/url',
            'dojo/Deferred',
            'dojo/promise/all',
            'dojo/io-query',
@@ -17,6 +18,7 @@ define([
            declare,
            lang,
            array,
+           URL,
            Deferred,
            all,
            ioQuery,
@@ -29,11 +31,11 @@ define([
            TokenStore
        ) {
 
-var knownScopeTokens = {
-    driveFiles:    'https://www.googleapis.com/auth/drive.file',
-    driveRead:     'https://www.googleapis.com/auth/drive.readonly',
-    //plusLogin:     'https://www.googleapis.com/auth/plus.login',
-    //userinfoEmail: 'https://www.googleapis.com/auth/userinfo.email',
+var knownScopes = {
+    driveFiles:      'https://www.googleapis.com/auth/drive.file',
+    driveRead:       'https://www.googleapis.com/auth/drive.readonly',
+    plusLogin:       'https://www.googleapis.com/auth/plus.login',
+    userinfoEmail:   'https://www.googleapis.com/auth/userinfo.email',
     userinfoProfile: 'https://www.googleapis.com/auth/userinfo.profile'
 };
 
@@ -59,7 +61,7 @@ return declare( CredentialSlot, {
          },
          { name: 'defaultScope', type: 'multi-string',
            description: 'array of authentication scope tokens to ask for by default',
-           defaultValue: Util.dojof.values( knownScopeTokens )
+           defaultValue: [ knownScopes.userinfoProfile, knownScopes.driveRead, knownScopes.driveFiles ]
          },
          { name: 'authPopupWindowOpts', type: 'multi-string',
            description: 'array of [name,optionsString] to use when instantiating an authentication popup window',
@@ -75,7 +77,23 @@ return declare( CredentialSlot, {
          { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' },
          { name: 'keyringCSSClass',  defaultValue: 'google' },
          { name: 'notReadyStatusLabel',  defaultValue: 'Click to authorize' },
-         { name: 'readyStatusLabel', defaultValue: 'Connected' }
+         { name: 'readyStatusLabel', defaultValue: 'Connected' },
+
+         { name: 'accessTokenQueryVar', type: 'string',
+           description: 'URL query string variable to use for putting access tokens in JSONP or other requests',
+           defaultValue: 'access_token'
+         },
+
+         { name: 'scopeMap', type: 'multi-object',
+           defaultValue: [
+               { urlPrefix: 'https://www.googleapis.com/drive/v2/files',
+                 requires: [ knownScopes.driveFiles, knownScopes.driveRead ]
+               },
+               { urlRegExp: 'docs\.googleusercontent\.com',
+                 requires: [ knownScopes.driveFiles, knownScopes.driveRead ]
+               }
+           ]
+         }
      ]
   },
 
@@ -94,7 +112,7 @@ return declare( CredentialSlot, {
                          if( thisB._userinfo === fetchExisting )
                              delete thisB._userinfo;
 
-                         return undefined;
+                         throw 'no ready tokens';
                      },
                      function( error ) {
                          console.warn( error.stack || ''+error );
@@ -102,6 +120,7 @@ return declare( CredentialSlot, {
                              delete thisB._credentials;
                      }
                    );
+      fetchExisting._jbrowseGoogleInitial = true;
   },
 
   neededFor: function( resourceDef ) {
@@ -109,16 +128,28 @@ return declare( CredentialSlot, {
       return !!( scope && scope.length );
   },
 
-  decorateHTTPRequest: function(req) {
-      var bearer = array.map( this._tokensForResource( req ), function(tok) {
-                                  return 'Bearer '+tok;
-                              }).join(';');
-      if( ! req.headers )
-          req.headers = {};
-      if(! req.headers.Authorization )
-          req.headers.Authorization = bearer;
-      else
-          req.headers.Authorization += ';'+bearer;
+  decorateHTTPRequest: function( req ) {
+      var thisB = this;
+      return this._tokensForResource( req )
+          .then( function( tokens ) {
+                     if( !req.jsonp && req.requestTechnique != 'script' && req.requestTechnique != 'iframe' ) {
+                         var bearer = array.map( tokens, function(tok) {
+                                                     return 'Bearer '+tok;
+                                                 }).join(';');
+                         if( ! req.headers )
+                             req.headers = {};
+                         if(! req.headers.Authorization )
+                             req.headers.Authorization = bearer;
+                         else
+                             req.headers.Authorization += ';'+bearer;
+                     } else {
+                         if( ! req.query )
+                             req.query = {};
+                         req.query[ thisB.getConf('accessTokenQueryVar') ] = tokens[0];
+                     }
+
+                     return req;
+                 });
  },
 
   // true if we have some existing, valid tokens.
@@ -415,10 +446,26 @@ return declare( CredentialSlot, {
   },
 
   _scopeForResource: function( resourceDef ) {
-      var scope = [];
-      if( /^google\-drive:/.test( resourceDef.url ) ) {
-          scope.push( knownScopeTokens.driveRead );
-      }
+      var url = typeof resourceDef == 'string' ? resourceDef : resourceDef.url;
+      if( ! url )
+          return undefined;
+
+      var scopeMap = this.getConf('scopeMap');
+
+      var scope;
+      array.some( scopeMap, function( sm ) {
+          if( this._urlMatches( url, sm ) ) {
+              scope = sm.requires.slice();
+              return true;
+          }
+          return false;
+      },this);
+
+      // if( ! scope )
+      //     console.warn( "No "+this.getConf('name')+" auth scopes found for url: "+url );
+      // else
+      //     console.log( this.getConf('name')+" scope for url '"+url+"': "+scope.join(' ') );
+
       return scope;
   }
 

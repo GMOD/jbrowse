@@ -1,10 +1,12 @@
 define([
            'dojo/_base/declare',
-           'JBrowse/Transport/HTTP'
+           'JBrowse/Transport/HTTP',
+           'JBrowse/Transport/GoogleDrive'
        ],
        function(
            declare,
-           HTTPTransport
+           HTTPTransport,
+           GoogleDrive
        ) {
 return declare( null, {
 
@@ -15,8 +17,17 @@ return declare( null, {
   _initTransportDrivers: function() {
       // instantiate the default transport drivers
       this._transportDrivers = [
-          new HTTPTransport({ browser: this })
+          new HTTPTransport({ browser: this }),
+          new GoogleDrive({ browser: this })
       ];
+  },
+
+  getTransport: function( name ) {
+      for( var i = 0; i<this._transportDrivers.length; i++ ) {
+          if( this._transportDrivers[i].name == name )
+              return this._transportDrivers[i];
+      }
+      return undefined;
   },
 
   // can be called by plugins to add their own transport drivers

@@ -13,6 +13,11 @@
             "type" : "JBrowse/Store/SeqFeature/BAM",
             "urlTemplate" : "../sample_data/raw/volvox/volvox-sorted.bam"
         },
+        "google drive BAM": {
+            "type" : "JBrowse/Store/SeqFeature/BAM",
+            "bam": "google-drive://?fileId=0B0-hjEIqYxjYUDF3dDhxNndpd0U",
+            "bai": "google-drive://?fileId=0B0-hjEIqYxjYNEtBY05ZT3B6WUk"
+        },
         "test vcf": {
             "type": "JBrowse/Store/SeqFeature/VCFTabix",
             "urlTemplate" : "../sample_data/raw/volvox/volvox.test.vcf.gz"
@@ -79,6 +84,18 @@
             },
             "metadata" : {
                 "Description" : "BAM-format alignments of simulated resequencing reads on the volvox test ctgA reference."
+            }
+        },
+
+        {
+            "store": "google drive BAM",
+            "label" : "BAM - Google Drive volvox-sorted",
+            "type" : "JBrowse/View/Track/Alignments2",
+            "glyphConfig": {
+                "default": { "height": 4 }
+            },
+            "metadata" : {
+                "Description" : "volvox-sorted BAM, served from Google Drive!"
             }
         },
 
