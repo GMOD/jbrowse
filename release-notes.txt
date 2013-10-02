@@ -2,13 +2,17 @@
 
 ## Minor improvements
 
+ * Added an `impliedUTRs` option to the ProcessedTranscript and Gene
+   glyphs for CanvasFeatures tracks.  Thanks to Ben Booth for pointing
+   out the need for this (issue #348).
+
  * Upgraded flatfile-to-json.pl to use a new version of
    Bio::GFF3::LowLevel::Parser for GFF3 parser, which has a lookback
    buffer limit that makes it easier to parse large GFF3 files that do
    not contain enough '###' directives.
 
  * Further improved the memory footprint and speed of
-   generate-names.pl.  Thanks to Richard Hayes for his continued help
+   generate-names.pl. Thanks to Richard Hayes for his continued help
    with testing improvements and reporting problems.
 
 ## Bug fixes
