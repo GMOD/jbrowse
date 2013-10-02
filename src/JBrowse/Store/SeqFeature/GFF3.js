@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/Deferred',
+            'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -14,6 +15,7 @@ define( [
             lang,
             array,
             Deferred,
+            XHRBlob,
             SimpleFeature,
             SeqFeatureStore,
             DeferredFeatures,
@@ -28,7 +30,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
   */
 {
     constructor: function( args ) {
-        this.data = args.blob;
+        this.data = args.blob || new XHRBlob( this.resolveUrl(args.urlTemplate||'data.gff3')) ;
         this.features = [];
         this._loadFeatures();
     },
