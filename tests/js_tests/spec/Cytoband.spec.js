@@ -52,7 +52,7 @@ describe( 'Cytoband store', function() {
                var done = false;
 
                p.getFeatures(
-                   { ref: 'chr1', start: 40000000, end: 100000000 },
+                   { ref: 'chr1', start: 40000, end: 100000 },
                    function(f) { features.push(f); },
                    function() { done = true; },
                    function(e) { console.error(e); }

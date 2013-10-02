@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             './Cytoband/Parser',
+            'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -11,6 +12,7 @@ define( [
             declare,
             lang,
             Parser,
+            XHRBlob,
             SimpleFeature,
             SeqFeatureStore,
             DeferredFeatures,
@@ -21,7 +23,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
 
 {
     constructor: function( args ) {
-        this.data = args.blob;
+        this.data = args.blob || new XHRBlob(this.resolveUrl(args.urlTemplate||'data.txt'));
         this.features = [];
         this._loadFeatures();
     },
