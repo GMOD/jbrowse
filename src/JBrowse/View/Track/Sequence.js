@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/dom-class',
             'JBrowse/View/Track/BlockBased',
@@ -7,7 +8,7 @@ define( [
             'JBrowse/CodonTable',
             'JBrowse/Util'
         ],
-        function( declare, dom, domClass, BlockBased, ExportMixin, CodonTable, Util ) {
+        function( declare, array, dom, domClass, BlockBased, ExportMixin, CodonTable, Util ) {
 
 return declare( [BlockBased, ExportMixin],
  /**
@@ -72,10 +73,9 @@ return declare( [BlockBased, ExportMixin],
                     start: leftExtended,
                     end: rightExtended
                 },
-                dojo.hitch( this, '_fillSequenceBlock', block, scale ),
+                dojo.hitch( this, '_fillSequenceBlock', block, blockIndex, scale ),
                 function() {}
             );
-            this.heightUpdate( this.config.showTranslation ? (charSize.h + 2)*8 : charSize.h*2, blockIndex );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
@@ -91,7 +91,7 @@ return declare( [BlockBased, ExportMixin],
         args.finishCallback();
     },
 
-    _fillSequenceBlock: function( block, scale, seq ) {
+    _fillSequenceBlock: function( block, blockIndex, scale, seq ) {
         seq = seq.replace(/\s/g,this.nbsp);
 
         var blockStart = block.startBase;
@@ -146,6 +146,12 @@ return declare( [BlockBased, ExportMixin],
                 }
             }
         }
+
+        var totalHeight = 0;
+        array.forEach( block.domNode.childNodes, function( table ) {
+                           totalHeight += (table.clientHeight || table.offsetHeight);
+                       });
+        this.heightUpdate( totalHeight, blockIndex );
     },
 
     _renderTranslation: function( seq, offset, blockStart, blockEnd, blockLength, scale, reverse ) {
