@@ -39,9 +39,24 @@ var ExportMixin = declare( null, {
 
     configSchema: {
         slots: [
-            { name: 'noExport', type: 'boolean', defaultValue: false },
-            { name: 'noExportFiles', type: 'boolean', defaultValue: false },
-            { name: 'maxExportSpan', type: 'integer' }
+            { name: 'noExport', type: 'boolean',
+              description: 'if set to true, disable data export for this track',
+              defaultValue: false
+            },
+            { name: 'noExportFiles', type: 'boolean',
+              description: 'if set to true, disables data export to on-disk files for this track',
+              defaultValue: false
+            },
+            { name: 'maxExportSpan', type: 'integer',
+              description: 'maximum size of region span that can be exported from this track'
+            },
+            { name: 'maxExportFeatures', type: 'integer',
+              description: "Maximum number of features that can be exported from"
+                           + " this track.  Note: this is compared against the"
+                           + " estimated number of features in a given region,"
+                           + " based on the dataset's (possibly approximate) statistics.",
+              defaultValue: 5000
+            }
         ]
     },
 
@@ -327,7 +342,7 @@ var ExportMixin = declare( null, {
             this.store.getRegionStats( this.makeStoreQuery( region ) )
                 .then( function( s ) { storeStats = s; } );
             if( storeStats.featureDensity ) {
-                return storeStats.featureDensity*(region.get('end') - region.get('start')) <= ( thisB.getConf('maxExportFeatures') || 5000 );
+                return storeStats.featureDensity*(region.get('end') - region.get('start')) <= thisB.getConf('maxExportFeatures');
             }
         }
 
