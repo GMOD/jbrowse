@@ -52,7 +52,7 @@ return declare( [WiggleXY, AlignmentsMixin],
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var toY = dojo.hitch( this, function( val ) {
-           return canvasHeight * ( 1-dataScale.normalize.call(this, val) );
+           return canvasHeight * ( 1-dataScale.normalize(val) );
         });
         var originY = toY( dataScale.origin );
 
