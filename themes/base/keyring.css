@@ -44,6 +44,11 @@
   .credentialStatus .label {
     width: 70%;
     margin-top: 4px; }
+  .credentialStatus .label a {
+    text-decoration: none;
+    color: #525252; }
+    .credentialStatus .label a:hover {
+      text-decoration: underline; }
   .credentialStatus .picture, .credentialStatus .label, .credentialStatus .status, .credentialStatus .message {
     background: transparent;
     border: none; }

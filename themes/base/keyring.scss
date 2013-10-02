@@ -25,7 +25,6 @@
     }
 }
 
-
 .credentialStatus {
     background: white;
     position: relative;
@@ -67,6 +66,13 @@
     .label {
         width: 70%;
         margin-top: 4px;
+    }
+    .label a {
+        text-decoration: none;
+        color: #525252;
+        &:hover {
+            text-decoration: underline;
+        }
     }
     .picture, .label, .status, .message {
         background: transparent;
