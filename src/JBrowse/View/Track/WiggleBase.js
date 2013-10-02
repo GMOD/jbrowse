@@ -377,7 +377,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                     display: 'none',
                     zIndex: 15
                 }
-            }, block.domNode );
+            }, this.browser.container );
         var verticalLine = dojo.create( 'div', {
                 className: 'wigglePositionIndicator',
                 style: {
