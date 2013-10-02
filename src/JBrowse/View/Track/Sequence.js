@@ -62,10 +62,24 @@ return declare( [BlockBased, ExportMixin],
         var leftExtended = leftBase - 2;
         var rightExtended = rightBase + 2;
 
-        var charSize = this.getCharacterMeasurements('sequence');
+        var thisB = this;
+
+        var blur = dojo.create(
+            'div',
+            { className: 'sequence_blur',
+              innerHTML: '<span class="loading">Loading</span>',
+              style: {
+                  height: ( this.config.showTranslation ? 6*14 : 0 )
+                      + ( this.config.showForwardStrand ? 14 : 0 )
+                      + ( this.config.showReverseStrand ? 14 : 0 ) + 'px'
+              }
+            }, block.domNode );
+        blur.style.lineHeight = blur.style.height;
+
+        this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
 
         // if we are zoomed in far enough to draw bases, then draw them
-        if ( scale >= 1 ) {
+        if ( scale >= 1.3 ) {
             this.store.getReferenceSequence(
                 {
                     ref: this.refSeq.name,
@@ -73,19 +87,17 @@ return declare( [BlockBased, ExportMixin],
                     start: leftExtended,
                     end: rightExtended
                 },
-                dojo.hitch( this, '_fillSequenceBlock', block, blockIndex, scale ),
+                function( seq ) {
+                    dom.empty( block.domNode );
+                    thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                },
                 function() {}
             );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
-            var blur = dojo.create( 'div', {
-                             className: 'sequence_blur',
-                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
-                         }, block.domNode );
-            this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
+            blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
         }
 
         args.finishCallback();
@@ -119,8 +131,15 @@ return declare( [BlockBased, ExportMixin],
         }
 
         // make a table to contain the sequences
+        var charSize = this.getCharacterMeasurements('sequence');
+        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
+
         if( this.config.showReverseStrand || this.config.showForwardStrand )
-            var seqNode = dom.create("table", { className: "sequence", style: { width: "100%" } }, block.domNode);
+            var seqNode = dom.create(
+                "table", {
+                    className: "sequence" + (bigTiles ? ' big' : ''),
+                    style: { width: "100%" }
+                }, block.domNode);
 
         // add a table for the forward strand
         if( this.config.showForwardStrand )
@@ -170,62 +189,60 @@ return declare( [BlockBased, ExportMixin],
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
 
         var charSize = this.getCharacterMeasurements("aminoAcid");
+        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
 
         var charWidth = 100/(blockLength / 3);
 
-        var container  = dom.create('table',
+        var container = dom.create( 'div',{ className: 'translatedSequence' } );
+        var table  = dom.create('table',
             {
-                className: 'translatedSequence offset'+offset,
+                className: 'translatedSequence offset'+offset+(bigTiles ? ' big' : ''),
                 style:
                 {
                     width: (charWidth * translated.length) + "%"
                 }
-            });
+            }, container );
+        var tr = dom.create('tr', {}, table );
 
-        if( reverse ) {
-            container.style.top = this.config.showForwardStrand ? "31px" : '16px';
-            container.style.left = (100 - charWidth * (translated.length + offset / 3))+ "%";
-        } else {
-            container.style.left = (charWidth * offset / 3) + "%";
-        }
+        table.style.left = (
+            reverse ? 100 - charWidth * (translated.length + offset / 3)
+                    : charWidth*offset/3
+        ) + "%";
 
         charWidth = 100/ translated.length + "%";
 
         var drawChars = scale >= charSize.w;
+        if( drawChars )
+            table.className += ' big';
 
         for( var i=0; i<translated.length; i++ ) {
             var aminoAcidSpan = document.createElement('td');
-            aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt([i]).toLowerCase();
+            aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt(i).toLowerCase();
             aminoAcidSpan.style.width = charWidth;
             if( drawChars ) {
-                aminoAcidSpan.className = aminoAcidSpan.className + ' big';
-                aminoAcidSpan.innerHTML = translated.charAt([i]);
+                aminoAcidSpan.innerHTML = translated.charAt( i );
             }
-            container.appendChild(aminoAcidSpan);
+            tr.appendChild(aminoAcidSpan);
         }
         return container;
     },
 
     /**
      * Given the start and end coordinates, and the sequence bases,
-     * makes 2 table rows containing the sequence.
+     * makes a table row containing the sequence.
      * @private
      */
     _renderSeqTr: function ( start, end, seq, scale ) {
 
         var charSize = this.getCharacterMeasurements('sequence');
-
         var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
-        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('td');
-            base.className = 'base base_'+seq.charAt([i]).toLowerCase();
+            base.className = 'base base_'+seq.charAt(i).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
-                if( bigTiles )
-                    base.className = base.className + ' big';
                 base.innerHTML = seq.charAt(i);
             }
             container.appendChild(base);
