@@ -41,11 +41,18 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
     baseClass: "keyringPane",
     credentialSlots: [],
     peekDuration: 2000,
+    disablePeekOnLoad: 3000,
 
     templateString: (''
                      + '<div class="dijitReset" data-dojo-attach-point="containerNode">'
                        + '<div class="emptyMessage" data-dojo-attach-point="emptyMessageNode">none</div>'
                      + '</div>'),
+
+    constructor: function() {
+        this._disablePeek = true;
+        var thisB = this;
+        window.setTimeout( function() { thisB._disablePeek = false; }, this.disablePeekOnLoad );
+    },
 
     buildRendering: function() {
         this.inherited( arguments );
@@ -67,6 +74,9 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
     // open the pane for a short time to show changes, then close it
     // again
     peek: function() {
+        if( this._disablePeek )
+            return;
+
         var button = this.get('button');
 
         if( !button || button.get('_opened') )
