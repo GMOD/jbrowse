@@ -53,6 +53,18 @@ return declare( null,
 
     getD: function( key, fillCallback ) {
         var d = new Deferred();
+
+        if( fillCallback ) {
+            // wrap the fillcallback to support it returning a Deferred
+            var oldCallback = fillCallback;
+            fillCallback = function( key, callback ) {
+                oldCallback(key)
+                    .then( callback,
+                           function(error) { callback( null, error ); }
+                         );
+            };
+        }
+
         this.get( key, function( val, error ) {
                       if( error )
                           d.reject(error);

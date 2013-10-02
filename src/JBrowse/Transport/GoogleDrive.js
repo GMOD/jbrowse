@@ -4,6 +4,7 @@ define([
            'dojo/_base/url',
            'dojo/io-query',
 
+           'JBrowse/Store/LRUCache',
            './_RequestBased'
        ],
        function(
@@ -12,6 +13,7 @@ define([
            URL,
            ioQuery,
 
+           LRUCache,
            _RequestBased
        ) {
 
@@ -19,6 +21,16 @@ define([
 return declare( _RequestBased, {
 
   name: 'GoogleDrive',
+
+  constructor: function() {
+      this._fileMetaCache = new LRUCache({
+          name: 'GoogleDrive file metadata cache',
+          sizeFunction: function( bytes ) {
+              return 1;
+          },
+          maxSize: 100 // cache metadata for up to 100 files
+      });
+  },
 
   _http: function() {
       return this.__http || ( this.__http = this.browser.getTransport('HTTP') );
@@ -48,7 +60,7 @@ return declare( _RequestBased, {
   _fetch: function( resourceDefinition, opts, credentialSlots ) {
       var resource = this._normalizeResourceDefinition( resourceDefinition );
       var thisB = this;
-      return this._fetchFileMeta( resource, opts, credentialSlots )
+      return this._getFileMeta( resource, opts, credentialSlots )
           .then( function( fileMeta ) {
                      if( ! fileMeta.downloadUrl )
                          return null;
@@ -58,6 +70,14 @@ return declare( _RequestBased, {
 
                      return thisB._http().fetch( fileMeta.downloadUrl, opts );
                  });
+  },
+
+  _getFileMeta: function( resource, opts, credentialSlots ) {
+      var key = resource.fileId || resource.title && 'title = '+resource.title;
+      var thisB = this;
+      return this._fileMetaCache.getD( key, function() {
+          return thisB._fetchFileMeta( resource, opts, credentialSlots );
+      });
   },
 
   _fetchFileMeta: function( resource, opts, credentialSlots ) {
