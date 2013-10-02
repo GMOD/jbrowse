@@ -41,6 +41,10 @@
                 }
             ],
             "type" : "JBrowse/Store/SeqFeature/FromConfig"
+        },
+        "Cytoband": {
+            "type": "JBrowse/Store/SeqFeature/Cytoband",
+            "urlTemplate": "../tests/data/Cytoband_test.txt"
         }
     },
 
@@ -50,7 +54,11 @@
             "type" : "JBrowse/View/Track/Sequence",
             "label" : "Reference sequence",
         },
-
+        
+        {
+            "store": "Cytoband",
+            "label": "Cytoband test file"
+        },
         {
             "style" : { "className" : "feature2" },
             "query": { "set": "ExampleFeatures" },
