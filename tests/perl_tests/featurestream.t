@@ -17,7 +17,7 @@ sub tempdir {
 
 {
     require Bio::GFF3::LowLevel::Parser;
-    my $p = Bio::GFF3::LowLevel::Parser->new( 'tests/data/redundant.gff3' );
+    my $p = Bio::GFF3::LowLevel::Parser->open( 'tests/data/redundant.gff3' );
 
     my $s = Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
@@ -43,7 +43,7 @@ sub tempdir {
     'type' => 'gene'
   }
 ]
- ) or diag explain \@i;
+ ) or diag explain \@i, $p;
 }
 
 done_testing;

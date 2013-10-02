@@ -13,11 +13,15 @@ use base 'Bio::JBrowse::FeatureStream';
 
 sub next_items {
     my ( $self ) = @_;
-    while ( my $i = $self->{parser}->next_item ) {
-        return $self->_to_hashref( $i ) if $i->{child_features};
+    while ( my $items = $self->{parser}->next_item ) {
+        if( ref $items eq 'ARRAY' ) {
+            return map $self->_to_hashref( $_ ), @$items;
+        }
     }
     return;
 }
+
+use Carp::Always;
 
 sub _to_hashref {
     my ( $self, $f ) = @_;
@@ -25,7 +29,6 @@ sub _to_hashref {
     # if( ref $f ne 'HASH' ) {
     #     Carp::confess( dump $f );
     # }
-    $f = { %$f };
     $f->{score} += 0 if defined $f->{score};
     $f->{phase} += 0 if defined $f->{phase};
 
@@ -42,14 +45,14 @@ sub _to_hashref {
     if( $h{child_features} ) {
         $h{subfeatures} = [
             map {
-                [ map $self->_to_hashref( $_ ), @$_ ]
+                [ map $self->_to_hashref( $_ ), map @$_, @$_ ]
             } @{delete $h{child_features}}
         ];
     }
     if( $h{derived_features} ) {
         $h{derived_features} = [
             map {
-                [ map $self->_to_hashref( $_ ), @$_ ]
+                [ map $self->_to_hashref( $_ ), map @$_, @$_ ]
             } @{$h{derived_features}}
         ];
     }

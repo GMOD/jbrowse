@@ -24,6 +24,7 @@ sub option_defaults {
       out => 'data',
       cssClass => 'feature',
       sortMem => 1024 * 1024 * 512,
+      maxLookback => 10000
     )
 }
 
@@ -48,6 +49,7 @@ sub option_definitions {
         "menuTemplate=s",
         "arrowheadClass=s",
         "subfeatureClasses=s",
+        "maxLookback=i",
         "clientConfig=s",
         "thinType=s",
         "thickType=s",
@@ -129,7 +131,8 @@ sub make_gff_stream {
     require Bio::GFF3::LowLevel::Parser;
     require Bio::JBrowse::FeatureStream::GFF3_LowLevel;
 
-    my $p = Bio::GFF3::LowLevel::Parser->new( $self->opt('gff') );
+    my $p = Bio::GFF3::LowLevel::Parser->open( $self->opt('gff') );
+    $p->max_lookback( $self->opt('maxLookback') );
 
     return Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
