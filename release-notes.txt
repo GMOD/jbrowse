@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.5     2013-10-03 10:21:37 EST5EDT
+
 ## Minor improvements
 
  * Greatly improved the speed and reduced the memory footprint when
