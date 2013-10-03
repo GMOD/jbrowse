@@ -2031,8 +2031,8 @@ makeFullViewLink: function () {
         className: 'topLink',
         href: window.location.href,
         target: '_blank',
-        title: 'View in full browser',
-        innerHTML: 'Full view'
+        title: 'View in full-screen browser',
+        innerHTML: 'Full-screen view'
     });
 
     var makeURL = this.config.makeFullViewURL || this.makeCurrentViewURL;
