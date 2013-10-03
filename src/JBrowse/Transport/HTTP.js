@@ -37,28 +37,22 @@ return declare( RequestBasedTransport, {
   constructor: function() {
   },
 
-  _normalizeResourceDefinition: function( resourceDefinition ) {
-      if( typeof resourceDefinition == 'string' )
-          return { url: resourceDefinition };
-      return resourceDefinition;
+  canHandle: function( url ) {
+      // can only handle string URLs
+      if( typeof url != 'string' )
+          return false;
+      try {
+          var scheme = ((new URL( url )).scheme || window.location.protocol.replace(':','')).toLowerCase();
+          return /^https?$/.test( scheme );
+      } catch(e) {}
+      return false;
   },
 
-  canHandle: function( resourceDefinition ) {
-      resourceDefinition = this._normalizeResourceDefinition( resourceDefinition );
-      var url = resourceDefinition.url;
-      if( ! url ) return false;
-      return /^https?$/.test( this._urlProtocol( url ) );
-  },
-
-  _urlProtocol: function( url ) {
-      return ((new URL( url )).scheme || window.location.protocol.replace(':','')).toLowerCase();
-  },
-
-  _fetch: function( resourceDef, opts, credentialSlots ) {
+  _request: function( resourceDef, requestOptions, credentialSlots ) {
       var req = lang.mixin(
           { headers: {}, toString: function() { return this.url; } },
-          this._normalizeResourceDefinition( resourceDef ),
-          opts
+          requestOptions,
+          { url: resourceDef }
       );
 
       // give each credential an opportunity to decorate the HTTP
@@ -82,12 +76,12 @@ return declare( RequestBasedTransport, {
                          }
                      }
                      else {
-                         return thisB._dojoFetch( req, credentialSlots );
+                         return thisB._dojoRequest( req, credentialSlots );
                      }
                  });
   },
 
-  _dojoFetch: function( req, credentialSlots ) {
+  _dojoRequest: function( req, credentialSlots ) {
       // handle `range` arg
       var range;
       if(( range = req.range )) {
@@ -210,8 +204,8 @@ return declare( RequestBasedTransport, {
     },
 
     _makeError: function( request, xhr, url ) {
-        var e = new Error( xhr.status ? xhr.status+' ('+xhr.statusText+') when attempting to fetch '+url
-                           : 'Unable to fetch '+url );
+        var e = new Error( xhr.status ? xhr.status+' ('+xhr.statusText+') when attempting to request '+url
+                           : 'Unable to request '+url );
         e.request = request;
         e.xhr = xhr;
         e.url = url;

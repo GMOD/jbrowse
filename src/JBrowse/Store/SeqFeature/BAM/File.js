@@ -94,7 +94,7 @@ var BamFile = declare( null,
         }
 
         var thisB = this;
-        return this.bai.fetch()
+        return this.bai.readAll()
             .then( lang.hitch( this, '_parseBAI' ) );
     },
 
@@ -152,7 +152,7 @@ var BamFile = declare( null,
         // up to the start of the BGZF block that the first
         // alignment is in, plus 64KB, which should get us that whole
         // BGZF block, assuming BGZF blocks are no bigger than 64KB.
-        return thisB.data.fetchRange(
+        return thisB.data.readRange(
             0,
             thisB.minAlignmentVO ? thisB.minAlignmentVO.block : null
         ).then( function( unc ) {
@@ -174,7 +174,7 @@ var BamFile = declare( null,
         // minAlignmentVO is just flat wrong.
         // if headLen is not too big, this will just be in the
         // global byte-range cache
-        return thisB.data.fetchRange( 0, start+refSeqBytes )
+        return thisB.data.readRange( 0, start+refSeqBytes )
             .then( function(unc) {
                        var uncba = new Uint8Array(unc);
 
@@ -408,7 +408,7 @@ var BamFile = declare( null,
         var features = [];
         // console.log('chunk '+chunk+' size ',Util.humanReadableNumber(size));
 
-        thisB.data.fetchRange( chunk.minv.block, chunk.fetchedSize() )
+        thisB.data.readRange( chunk.minv.block, chunk.fetchedSize() )
              .then( function(data) {
                         thisB._readBamFeatures( new Uint8Array(data), chunk.minv.offset, features, callback );
                     }, function( e ) {

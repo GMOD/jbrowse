@@ -9,7 +9,7 @@ define([
            Resource
        ) {
 return declare( Resource, {
-    _defaultFetchOpts: function() {
+    _defaultRequestOpts: function() {
         return lang.mixin(
             this.inherited(arguments),
             {

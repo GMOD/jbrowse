@@ -17,8 +17,8 @@ return declare( null, {
   _initTransportDrivers: function() {
       // instantiate the default transport drivers
       this._transportDrivers = [
-          new HTTPTransport({ browser: this }),
-          new GoogleDrive({ browser: this })
+          new HTTPTransport({ transportManager: this }),
+          new GoogleDrive({ transportManager: this })
       ];
   },
 
@@ -41,6 +41,13 @@ return declare( null, {
               return this._transportDrivers[i];
       }
       return undefined;
+  },
+
+  openResource: function( resourceClass, resourceDef, transportOpts) {
+      var transport = this.getTransportForResource( resourceDef );
+      if( ! transport )
+          throw new Error( 'no transport driver found for resource '+resourceDef );
+      return new resourceClass({ authManager: this, transport: transport, resource: resourceDef, transportOpts: transportOpts });
   }
 
 });

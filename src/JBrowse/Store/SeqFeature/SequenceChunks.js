@@ -125,7 +125,7 @@ return declare( SeqFeatureStore,
         var resource = this.openResource( TextResource, url );
 
         var d = new Deferred(); // need to have our own deferred that is resolved to '' on 404
-        resource.fetch()
+        resource.readAll()
             .then( lang.hitch( d, 'resolve' ),
                    function( e ) {
                        if( e.response.status == 404 )
@@ -153,7 +153,7 @@ return declare( SeqFeatureStore,
         return this._refSeqsInfo || function() {
             var thisB = this;
             var resource = this.openResource( JSONResource, this.resolveUrl( this.getConf('refSeqs') ) );
-            return this._refSeqsInfo = resource.fetch()
+            return this._refSeqsInfo = resource.readAll()
                 .then( function( refseqs ) {
                            var refsByName = {};
                            for( var i = 0; i<refseqs.length; i++ ) {

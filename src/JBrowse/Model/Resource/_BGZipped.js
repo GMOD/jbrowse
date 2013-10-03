@@ -13,8 +13,8 @@ return declare( null, {
         return 1<<16;
     },
 
-    fetchRange: function( offset, length, opts ) {
-        // need to over-fetch by a whole block size in bgzipped files to make sure we get the whole block
+    readRange: function( offset, length, opts ) {
+        // need to over-request by a whole block size in bgzipped files to make sure we get the whole block
         return this.inherited( arguments, [ offset, length+this._blockSize(), opts ] );
     },
 

@@ -33,18 +33,7 @@ return declare( _RequestBased, {
   },
 
   _http: function() {
-      return this.__http || ( this.__http = this.browser.getTransport('HTTP') );
-  },
-
-  _normalizeResourceDefinition: function( def ) {
-      if( typeof def == 'string' )
-          def = { url: def };
-
-      if( def.url ) {
-          lang.mixin( def, this._parseURL( def.url ) );
-      }
-
-      return def;
+      return this.__http || ( this.__http = this.transportManager.getTransport('HTTP') );
   },
 
   _parseURL: function( url ) {
@@ -52,15 +41,18 @@ return declare( _RequestBased, {
       return lang.mixin( { scheme: url.scheme }, ioQuery.queryToObject( url.query ) );
   },
 
-  canHandle: function( resourceDefinition ) {
-      resourceDefinition = this._normalizeResourceDefinition( resourceDefinition );
-      return resourceDefinition.scheme == 'google-drive' && ( resourceDefinition.fileId || resourceDefinition.title );
+  canHandle: function( url ) {
+      if( typeof url != 'string' )
+          return false;
+
+      url = this._parseURL( url );
+      return url.scheme == 'google-drive' && ( url.fileId || url.title );
   },
 
-  _fetch: function( resourceDefinition, opts, credentialSlots ) {
-      var resource = this._normalizeResourceDefinition( resourceDefinition );
+  _request: function( url, requestOptions, credentialSlots ) {
+      var resource = this._parseURL( url );
       var thisB = this;
-      return this._getFileMeta( resource, opts, credentialSlots )
+      return this._getFileMeta( resource, requestOptions, credentialSlots )
           .then( function( fileMeta ) {
                      if( ! fileMeta.downloadUrl )
                          return null;
@@ -68,28 +60,28 @@ return declare( _RequestBased, {
                      if( parseInt( fileMeta.fileSize ) )
                          thisB._byteCache.setTotalSize( fileMeta.downloadUrl, parseInt( fileMeta.fileSize ) );
 
-                     return thisB._http().fetch( fileMeta.downloadUrl, opts );
+                     return thisB._http().request( fileMeta.downloadUrl, requestOptions );
                  });
   },
 
-  _getFileMeta: function( resource, opts, credentialSlots ) {
+  _getFileMeta: function( resource, requestOptions, credentialSlots ) {
       var key = resource.fileId || resource.title && 'title = '+resource.title;
       var thisB = this;
       return this._fileMetaCache.getD( key, function() {
-          return thisB._fetchFileMeta( resource, opts, credentialSlots );
+          return thisB._fetchFileMeta( resource, requestOptions, credentialSlots );
       });
   },
 
-  _fetchFileMeta: function( resource, opts, credentialSlots ) {
+  _fetchFileMeta: function( resource, requestOptions, credentialSlots ) {
       var base = 'https://www.googleapis.com/drive/v2/files';
       var thisB = this;
       if( resource.fileId )
-          return this._http().fetch(
+          return this._http().request(
               base + '/'+resource.fileId,
               { jsonp: 'callback', handleAs: 'json' }
           );
       else if( resource.title )
-          return this._http().fetch(
+          return this._http().request(
               { url: base,
                 jsonp: 'callback',
                 query: { q: "title = '"+resource.title.replace("'","\\'")+"'" }

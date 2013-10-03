@@ -66,7 +66,7 @@ return declare( CredentialSlot, {
                                           thisB.getConf('loginRequest' ) )
                   : thisB.getConf('loginRequest')
             ).then( function( loginRequest ) {
-                         var t = thisB.browser.getTransportForResource(loginRequest);
+                         var t = thisB.browser.getTransportForResource( loginRequest.url );
                          if( ! t )
                              throw new Error( 'no transport found for login request' );
 
@@ -80,7 +80,7 @@ return declare( CredentialSlot, {
 
                          thisB._lastRequest = loginRequest;
 
-                         t.fetch( loginRequest )
+                         t.request( loginRequest.url, loginRequest )
                           .then( resolve,
                                  function(error) {
                                      thisB._lastError   = error;
@@ -115,8 +115,8 @@ return declare( CredentialSlot, {
                  .then( function() {
                             return thisB._promptForData( 'Logout', thisB.getConf('logoutRequest' ) )
                                 .then( function( logoutRequest ) {
-                                           return thisB.browser.getTransportForResource(logoutRequest)
-                                               .fetch( logoutRequest );
+                                           return thisB.browser.getTransportForResource( logoutRequest.url )
+                                               .request( logoutRequest.url, logoutRequest );
                                        });
                         });
   }

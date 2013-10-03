@@ -8,14 +8,14 @@ define([
 return declare( null, {
 
   constructor: function( args ) {
-      this.browser = args.browser;
-      if( ! this.browser )
-          throw new Error("browser object required");
+      this.transportManager = args.transportManager;
+      if( ! this.transportManager )
+          throw new Error("transportManager object required");
   },
 
   /**
-   * Return true if this transport driver knows how to fetch the given
-   * resource definition.  Override this in subclasses.
+   * Return true if this transport driver knows how to communicate
+   * with the given resource.  Override this in subclasses.
    * @returns boolean
    */
   canHandle: function( resourceDefinition ) {

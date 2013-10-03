@@ -65,15 +65,16 @@ return declare( null, {
 
   /**
    * Return a Deferred list of all the needed credentials for a
-   * resource, making sure each one is ready before resolving.
+   * resource object, making sure each one is ready to use before
+   * resolving.
    */
-  getCredentialsForResource: function( resourceDefinition, opts ) {
+  getCredentialsForResource: function( resourceHandle, requestOpts ) {
       return this.getCredentialSlots()
           .then( function( slots ) {
               var neededCredentials = array.filter(
                   slots,
                   function( credentialSlot ) {
-                      return credentialSlot.neededFor( resourceDefinition );
+                      return credentialSlot.neededFor( resourceHandle );
                   });
               return all( array.map( neededCredentials, function(c) {
                                          return c.get( opts )

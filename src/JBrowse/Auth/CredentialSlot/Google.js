@@ -115,14 +115,14 @@ return declare( CredentialSlot, {
                      });
   },
 
-  neededFor: function( resourceDef ) {
-      var scope = this._scopeForResource( resourceDef );
+  neededFor: function( resourceObject ) {
+      var scope = this._scopeForResource( resourceObject );
       return !!( scope && scope.length );
   },
 
   decorateHTTPRequest: function( req ) {
       var thisB = this;
-      return this._tokensForResource( req )
+      return this._tokensForRequest( req )
           .then( function( tokens ) {
                      if( !req.jsonp && req.requestTechnique != 'script' && req.requestTechnique != 'iframe' ) {
                          var bearer = array.map( tokens, function(tok) {
@@ -163,7 +163,7 @@ return declare( CredentialSlot, {
       var scope = opts.scope;
       if( ! scope ) {
           // see if we can figure out from the opts what scope we really need
-          scope = opts.url && this._scopeForResource( opts ) || [];
+          scope = opts.resource && this._scopeForResource( opts.resource ) || [];
           // if all the scope we need for this request are in the
           // defaultScope, just go ahead and ask for the default set
           var defaultScope = this.getConf('defaultScope');
@@ -206,6 +206,7 @@ return declare( CredentialSlot, {
 
       // filter for defined and valid tokens
       tokens = array.filter( tokens, function( t ) { return t && t.isValid(); } );
+      if( ! tokens.length ) return tokens;
 
       // filter the tokens to all be for the same user, just in case.
       var userIDField = this.getConf('userIDField');
@@ -441,8 +442,8 @@ return declare( CredentialSlot, {
       return ioQuery.queryToObject( fragment );
   },
 
-  _tokensForResource: function( req ) {
-      var scope = this._scopeForResource( req );
+  _tokensForRequest: function( req ) {
+      var scope = this._scopeForResource( req.url );
       return scope && scope.length ? this.getTokensForScope( scope ) : [];
   },
 

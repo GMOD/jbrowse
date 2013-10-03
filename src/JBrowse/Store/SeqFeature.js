@@ -36,11 +36,8 @@ return declare( Store,
         ]
     },
 
-    openResource: function( resourceClass, resourceDef, opts ) {
-        var transport = this.browser.getTransportForResource( resourceDef );
-        if( ! transport )
-            throw new Error( 'no transport driver found for resource '+resourceDef );
-        return new resourceClass({ transport: transport, resource: resourceDef, fetchOpts: opts });
+    openResource: function() {
+        return this.browser.openResource.apply( this.browser, arguments );
     },
 
     /**

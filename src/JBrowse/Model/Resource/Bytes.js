@@ -11,7 +11,7 @@ define([
 return declare( Resource, {
     _newlineCode: "\n".charCodeAt(0),
 
-    _defaultFetchOpts: function() {
+    _defaultRequestOpts: function() {
         return lang.mixin(
             this.inherited(arguments),
             {
