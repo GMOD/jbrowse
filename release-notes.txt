@@ -2,6 +2,9 @@
 
 ## Minor improvements
 
+ * Greatly improved the speed and reduced the memory footprint when
+   running `prepare-refseqs.pl` with the --fasta option.
+
  * Added an `impliedUTRs` option to the ProcessedTranscript and Gene
    glyphs for CanvasFeatures tracks.  Thanks to Ben Booth for pointing
    out the need for this (issue #348).

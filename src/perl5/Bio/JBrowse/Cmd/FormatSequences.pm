@@ -66,19 +66,9 @@ sub run {
     my $refs = $self->opt('refs');
 
     if ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
-        my $db = FastaDatabase->from_fasta( @{$self->opt('fasta')});
-
-        die "IDs not implemented for FASTA database" if defined $self->opt('refids');
-
-        if ( ! defined $refs && ! defined $self->opt('refids') ) {
-            $refs = join (",", $db->seq_ids);
-        }
-
-        die "found no sequences in FASTA file" if "" eq $refs;
-
-        $self->exportDB( $db, $refs, {} );
+        die "--refids not implemented for FASTA files" if defined $self->opt('refids');
+        $self->exportFASTA( $refs, $self->opt('fasta') );
         $self->writeTrackEntry();
-        #$self->exportFASTAFiles( $refs, $self->opt('fasta') );
     }
     elsif ( $self->opt('gff') ) {
         my $db;
@@ -178,6 +168,67 @@ sub trackLabel {
     return lc $st;
 }
 
+sub exportFASTA {
+    my ( $self, $refs, $files ) = @_;
+    my $accept_ref = sub {1};
+    if( $refs ) {
+        $refs = { map $_ => 1, split /\s*,\s*/, $refs };
+        $accept_ref = sub { $refs->{$_[0]} };
+    }
+
+    my %refSeqs;
+    for my $fasta ( @$files ) {
+        my $gzip = $fasta =~ /\.gz(ip)?$/i ? ':gzip' : '';
+        require PerlIO::gzip if $gzip;
+
+        open my $fasta_fh, "<$gzip", $fasta or die "$! reading $fasta";
+
+        my $curr_seq;
+        my $curr_chunk;
+        my $chunk_num;
+
+        my $writechunk = sub {
+            $self->openChunkFile( $curr_seq, $chunk_num )
+                 ->print(
+                     substr( $curr_chunk, 0, $self->{chunkSize}, '' ) #< shifts off the first part of the string
+                   );
+        };
+
+        local $_;
+        while ( <$fasta_fh> ) {
+            if ( /^\s*>\s*(\S+)\s*(.*)/ ) {
+                $writechunk->() if $curr_seq;
+
+                if ( $accept_ref->($1) ) {
+                    $chunk_num = 0;
+                    $curr_chunk = '';
+                    $curr_seq = $refSeqs{$1} = {
+                        name => $1,
+                        start => 0,
+                        end => 0,
+                        seqChunkSize => $self->{chunkSize},
+                        $2 ? ( description => $2 ) : ()
+                        };
+                } else {
+                    undef $curr_seq;
+                }
+            } elsif ( $curr_seq && /\S/ ) {
+                s/[\s\r\n]//g;
+                $curr_seq->{end} += length;
+                $curr_chunk .= $_;
+
+                if ( length $curr_chunk >= $self->{chunkSize} ) {
+                    $writechunk->();
+                    $chunk_num++;
+                }
+            }
+        }
+        $writechunk->();
+    }
+
+    $self->writeRefSeqsJSON( \%refSeqs );
+}
+
 sub exportDB {
     my ( $self, $db, $refs, $refseqs ) = @_;
 
@@ -259,6 +310,9 @@ sub writeRefSeqsJSON {
                                            }
                                        }
                                        foreach my $name (sort keys %refs) {
+                                           if( not exists $refs{$name}{length} ) {
+                                               $refs{$name}{length} = $refs{$name}{end} - $refs{$name}{start};
+                                           }
                                            push @{$old}, $refs{$name};
                                        }
                                        return $old;
