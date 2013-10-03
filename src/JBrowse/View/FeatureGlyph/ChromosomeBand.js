@@ -23,7 +23,8 @@ return declare([ BoxGlyph ], {
               }
             return colourList[feature.get('gieStain')]; 
             }
-          }
+          },
+          { name: 'height', defaultValue: 30, type: 'float' },
       ]
   }
 });
