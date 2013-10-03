@@ -45,7 +45,7 @@ var KeyringPane = declare([ _WidgetBase, _TemplatedMixin, _Container, _FadingPop
 
     templateString: (''
                      + '<div class="dijitReset" data-dojo-attach-point="containerNode">'
-                       + '<div class="emptyMessage" data-dojo-attach-point="emptyMessageNode">none</div>'
+                       + '<div class="emptyMessage" data-dojo-attach-point="emptyMessageNode">no credentials defined</div>'
                      + '</div>'),
 
     constructor: function() {
