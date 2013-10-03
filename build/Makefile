@@ -21,7 +21,7 @@ release: release-normal release-min release-normal-test release-min-test release
 	sha1sum *.zip
 
 release-notes.html: release-notes.txt
-	perl -MText::Markdown=markdown -e 'local $$/; print markdown(scalar <>)' $< > $@
+	build/format_release_notes.pl $< > $@
 
 release-normal: superclean $(JS_SRCFILES)
 	mkdir $(RELEASE_FULL_DIR);
