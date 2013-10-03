@@ -79,7 +79,10 @@ return declare( _RequestBased, {
           return this._http().request(
               base + '/'+resource.fileId,
               { jsonp: 'callback', handleAs: 'json' }
-          );
+          ).then( function(data) {
+                      if( data.error ) throw data.error;
+                      return data;
+                  });
       else if( resource.title )
           return this._http().request(
               { url: base,
@@ -88,6 +91,7 @@ return declare( _RequestBased, {
               },
               { handleAs: 'json' }
           ).then( function( fileList ) {
+                      if( fileList.error ) throw fileList.error;
                       return fileList.items[0];
                   });
       else
