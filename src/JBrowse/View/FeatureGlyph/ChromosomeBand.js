@@ -12,7 +12,6 @@ return declare([ BoxGlyph ], {
       slots: [
           { name: 'color', defaultValue: function(feature) { 
               var colourList = {
-                  'acen'   :"#8B2323",
                   'gneg'   :"#FFFFFF",
                   'gpos100':"#000000",
                   'gpos75' :"#666666",
@@ -25,6 +24,8 @@ return declare([ BoxGlyph ], {
             }
           },
           { name: 'height', defaultValue: 30, type: 'float' },
+          { name: 'borderColor', defaultValue: 'black', type: 'Color' },
+          { name: 'borderWidth', defaultValue: 1, type: 'float' }
       ]
   }
 });
