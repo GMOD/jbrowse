@@ -20,7 +20,6 @@ use POSIX;
 
 use Bio::JBrowse::JSON;
 use JsonFileStorage;
-use FastaDatabase;
 
 sub option_defaults {(
     out => 'data',
@@ -91,22 +90,17 @@ sub run {
             }
             elsif( /^##FASTA\s*$/ ) {
                 # start of the sequence block, pass the filehandle to our fasta database
-                $db = FastaDatabase->from_fasta( $fh );
+                $self->exportFASTA( $refs, [$fh] );
                 last;
             }
             elsif( /^>/ ) {
                 # beginning of implicit sequence block, need to seek
                 # back
                 seek $fh, -length($_), SEEK_CUR;
-                $db = FastaDatabase->from_fasta( $fh );
+                $self->exportFASTA( $refs, [$fh] );
                 last;
             }
         }
-        if ( $db && ! defined $refs && ! defined $self->opt('refids') ) {
-            $refs = join (",", $db->seq_ids);
-        }
-
-        $self->exportDB( $db, $refs, \%refSeqs );
         $self->writeTrackEntry();
 
     } elsif ( $self->opt('conf') ) {
@@ -181,7 +175,12 @@ sub exportFASTA {
         my $gzip = $fasta =~ /\.gz(ip)?$/i ? ':gzip' : '';
         require PerlIO::gzip if $gzip;
 
-        open my $fasta_fh, "<$gzip", $fasta or die "$! reading $fasta";
+        my $fasta_fh;
+        if( ref $fasta ) {
+            $fasta_fh = $fasta;
+        } else {
+            open $fasta_fh, "<$gzip", $fasta or die "$! reading $fasta";
+        }
 
         my $curr_seq;
         my $curr_chunk;
