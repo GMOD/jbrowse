@@ -17,8 +17,8 @@ return declare( null, {
   _initTransportDrivers: function() {
       // instantiate the default transport drivers
       this._transportDrivers = [
-          new HTTPTransport({ transportManager: this }),
-          new GoogleDrive({ transportManager: this })
+          new HTTPTransport({ transportManager: this, authManager: this }),
+          new GoogleDrive({ transportManager: this, authManager: this })
       ];
   },
 

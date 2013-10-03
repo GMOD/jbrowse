@@ -68,16 +68,16 @@ return declare( null, {
    * resource object, making sure each one is ready to use before
    * resolving.
    */
-  getCredentialsForResource: function( resourceHandle, requestOpts ) {
+  getCredentialsForRequest: function( request ) {
       return this.getCredentialSlots()
           .then( function( slots ) {
               var neededCredentials = array.filter(
                   slots,
                   function( credentialSlot ) {
-                      return credentialSlot.neededFor( resourceHandle );
+                      return credentialSlot.neededFor( request );
                   });
               return all( array.map( neededCredentials, function(c) {
-                                         return c.get( opts )
+                                         return c.get( request )
                                                  .then(function(){ return c; });
                                      })
                         );

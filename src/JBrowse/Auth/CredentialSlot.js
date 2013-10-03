@@ -107,8 +107,7 @@ return declare( Component, {
   },
 
   /**
-   * Get the credentials.  Accepts a boolean flag of whether user
-   * interaction is allowed during this process.
+   * Get the credentials.  Accepts an object containing various options.
    */
   get: function( opts ) {
       var thisB = this;
@@ -182,7 +181,7 @@ return declare( Component, {
    * Given a resource definition, return true if the credentials that
    * go in this slot will be needed to access the resource.
    */
-  neededFor: function( resourceDefinition ) {
+  neededFor: function( resourceDefinition, requestOpts ) {
       return this.getConf('predicate', [ this, resourceDefinition ]);
   },
 

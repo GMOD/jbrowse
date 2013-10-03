@@ -11,6 +11,11 @@ return declare( null, {
       this.transportManager = args.transportManager;
       if( ! this.transportManager )
           throw new Error("transportManager object required");
+
+      this.authManager = args.authManager;
+      if( ! this.authManager )
+          throw new Error("authManager object required");
+
   },
 
   /**

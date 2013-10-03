@@ -115,8 +115,8 @@ return declare( CredentialSlot, {
                      });
   },
 
-  neededFor: function( resourceObject ) {
-      var scope = this._scopeForResource( resourceObject );
+  neededFor: function( request ) {
+      var scope = this._scopeForResource( request.resource );
       return !!( scope && scope.length );
   },
 
@@ -155,15 +155,15 @@ return declare( CredentialSlot, {
       return this._watchDeferred( Util.resolved(true) );
   },
 
-  get: function( opts ) {
+  get: function( request ) {
       var thisB = this;
-      if( !opts ) opts = {};
+      if( !request ) request = {};
 
       // add scope to the opts if necessary
-      var scope = opts.scope;
+      var scope = request.scope;
       if( ! scope ) {
           // see if we can figure out from the opts what scope we really need
-          scope = opts.resource && this._scopeForResource( opts.resource ) || [];
+          scope = this._scopeForResource( request.resource ) || [];
           // if all the scope we need for this request are in the
           // defaultScope, just go ahead and ask for the default set
           var defaultScope = this.getConf('defaultScope');
@@ -176,12 +176,12 @@ return declare( CredentialSlot, {
       return this.getTokensForScope( scope );
   },
 
-  getUserInfo: function( opts ) {
+  getUserInfo: function(opts) {
       var thisB = this;
       return this._userinfo && ! this._userinfo.isRejected()
           ? this._userinfo
           : ( this._userinfo =
-                  this.get( opts )
+                  this.get(opts)
                       .then( function( tokens ) {
                                  // fetch the user's data
                                  if( tokens && tokens[0] )
@@ -447,8 +447,7 @@ return declare( CredentialSlot, {
       return scope && scope.length ? this.getTokensForScope( scope ) : [];
   },
 
-  _scopeForResource: function( resourceObject ) {
-      var resourceDef = resourceObject.getResourceDefinition();
+  _scopeForResource: function( resourceDef ) {
       var url = typeof resourceDef == 'string' ? resourceDef : resourceDef.url;
       if( ! url )
           return undefined;

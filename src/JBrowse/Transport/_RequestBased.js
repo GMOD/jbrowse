@@ -38,13 +38,18 @@ return declare( Transport, {
       this._byteCache = byteRangeCache;
   },
 
-  request: function( resourceDefinition, requestOptions, credentialSlots ) {
+  request: function( resourceDefinition, requestOptions ) {
       var thisB = this;
       var deferred = new Deferred();
       var resolve = lang.hitch( deferred, 'resolve' );
       var reject  = lang.hitch( deferred, 'reject'  );
 
-      this._request( resourceDefinition, requestOptions, credentialSlots )
+      thisB.authManager.getCredentialsForRequest(
+            lang.mixin( { url: resourceDefinition, resource: resourceDefinition}, requestOptions )
+         ).then(
+              function( credentialSlots ) {
+                  return thisB._request( resourceDefinition, requestOptions, credentialSlots );
+              })
           .then(
                resolve,
                function( error ) {

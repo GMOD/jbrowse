@@ -13,7 +13,6 @@ define([
 var Resource = declare( null, {
 
     constructor: function( args ) {
-        this.authManager = args.authManager;
         this.transport = args.transport;
         this.resourceDef = args.resource;
         this.defaultOpts = lang.mixin( this._defaultRequestOpts(), args.transportOpts || {} );
@@ -33,15 +32,12 @@ var Resource = declare( null, {
 
     _read: function( requestOpts ) {
         var thisB = this;
-        return this.authManager.getCredentialsForResource( this, requestOpts )
-            .then(function( credentialSlots ) {
-                      return thisB.transport.request(
-                                 thisB.resourceDef,
-                                 requestOpts,
-                                 credentialSlots
-                             ).then( lang.hitch( thisB, '_decodeData' ) );
-                });
+        return thisB.transport.request(
+            thisB.resourceDef,
+            requestOpts
+        ).then( lang.hitch( thisB, '_decodeData' ) );
     },
+
     readRange: function( offset, length, opts ) {
         return this._read( lang.mixin( { range: [ offset, offset+length-1 ] }, this.defaultOpts, opts || {} ) );
     },
