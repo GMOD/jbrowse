@@ -37,6 +37,8 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
             },
             endCallback : function(){
                 thisB._deferred.features.resolve( features );
+                thisB._deferred.stats.resolve();
+
             }
         });
 
