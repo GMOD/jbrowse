@@ -58,7 +58,6 @@ my %WriteMakefileArgs = (
     "File::Spec::Functions" => 0,
     "File::Temp" => 0,
     "FindBin" => 0,
-    "GD::Image" => 0,
     "Getopt::Long" => 0,
     "Hash::Merge" => 0,
     "Heap::Simple" => 0,

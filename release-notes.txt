@@ -18,6 +18,11 @@
    generate-names.pl. Thanks to Richard Hayes for his continued help
    with testing improvements and reporting problems.
 
+ * Removed explicit dependency on GD::Image, which is only used by the
+   old tiled-image generation demo code.  This will make dependency
+   installation easier for many people, at a (very) small cost to
+   backward compatibility.
+
 ## Bug fixes
 
  * Fixed a bad bug that prevented combination tracks from working.
