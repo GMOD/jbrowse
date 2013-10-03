@@ -1,15 +1,15 @@
-{"features":
+{ "features" :
     [
-        {"chrom":"chr1",  "chromStart":34300,  "chromEnd":39600,  "name":"p34.3", "gieStain":"gneg"},
-        {"chrom":"chr1",  "chromStart":39600,  "chromEnd":43600,  "name":"p34.2", "gieStain":"gpos25"},
-        {"chrom":"chr1",  "chromStart":46100,  "chromEnd":50100,  "name":"p33",   "gieStain":"gpos75"},
-        {"chrom":"chr1",  "chromStart":55400,  "chromEnd":58300,  "name":"p32.2", "gieStain":"gpos50"},
-        {"chrom":"chr1",  "chromStart":69100,  "chromEnd":84300,  "name":"p31.1", "gieStain":"gpos100"},
-        {"chrom":"chr1",  "chromStart":120000, "chromEnd":123200, "name":"p11.1", "gieStain":"acen"},
-        {"chrom":"chr1",  "chromStart":126900, "chromEnd":140800, "name":"q12",   "gieStain":"gvar"},
-        {"chrom":"chr1",  "chromStart":140800, "chromEnd":145900, "name":"q21.1", "gieStain":"gneg"},
-        {"chrom":"chr13", "chromStart":3500,   "chromEnd":7700,   "name":"p12",   "gieStain":"stalk"},
-        {"chrom":"chr13", "chromStart":7700,   "chromEnd":12600,  "name":"p11.2", "gieStain":"gvar"},
-        {"chrom":"chrX",  "chromStart":145800, "chromEnd":153691, "name":"q28",   "gieStain":"gneg"}
+        { "chrom" : "ctgA", "chromStart" : 5, "chromEnd" : 3400, "name" : "p34.3", "gieStain" : "gneg" },
+        { "chrom" : "ctgA", "chromStart" : 3400, "chromEnd" : 12070, "name" : "p34.2", "gieStain" : "gpos25" },
+        { "chrom" : "ctgA", "chromStart" : 12070, "chromEnd" : 20005, "name" : "p33", "gieStain" : "gpos75" },
+        { "chrom" : "ctgA", "chromStart" : 20005, "chromEnd" : 25500, "name" : "p32.2", "gieStain" : "gpos50" },
+        { "chrom" : "ctgA", "chromStart" : 25500, "chromEnd" : 30500, "name" : "p31.1", "gieStain" : "gpos100" },
+        { "chrom" : "ctgA", "chromStart" : 30500, "chromEnd" : 39575, "name" : "p11.1", "gieStain" : "acen" },
+        { "chrom" : "ctgA", "chromStart" : 39575, "chromEnd" : 42800, "name" : "q12", "gieStain" : "gvar" },
+        { "chrom" : "ctgA", "chromStart" : 42800, "chromEnd" : 49500, "name" : "q21.1", "gieStain" : "stalk" },
+        { "chrom" : "ctgB", "chromStart" : 3500, "chromEnd" : 7700, "name" : "p12", "gieStain" : "stalk" },
+        { "chrom" : "ctgB", "chromStart" : 7700, "chromEnd" : 12600, "name" : "p11.2", "gieStain" : "gvar" },
+        { "chrom" : "someChrom", "chromStart" : 145800, "chromEnd" : 153691, "name" : "q28", "gieStain" : "gneg" }
     ]
 }

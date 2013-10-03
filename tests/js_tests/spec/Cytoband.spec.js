@@ -52,7 +52,7 @@ describe( 'Cytoband store', function() {
                var done = false;
 
                p.getFeatures(
-                   { ref: 'chr1', start: 40000, end: 100000 },
+                   { ref: 'ctgA', start: 5, end: 50000 },
                    function(f) { features.push(f); },
                    function() { done = true; },
                    function(e) { console.error(e); }
@@ -60,8 +60,8 @@ describe( 'Cytoband store', function() {
 
                waitsFor( function() { return done; } );
                runs( function() {
-                         expect( features.length ).toEqual( 4 );
-                         expect( features[2].get('gieStain')).toEqual( 'gpos50' );
+                         expect( features.length ).toEqual( 8 );
+                         expect( features[2].get('gieStain')).toEqual( 'gpos75' );
                      });
            }).call();
    });
