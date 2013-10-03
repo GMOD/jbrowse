@@ -140,19 +140,19 @@ return declare( SeqFeatureStore,
         this.getDataRoot( query.ref )
             .then( function( data ) {
                 var numBins = query.numBins || 25;
-                if( ! query.bpPerBin )
-                    throw 'bpPerBin arg required for getRegionFeatureDensities';
+                if( ! query.basesPerBin )
+                    throw 'basesPerBin arg required for getRegionFeatureDensities';
 
                 // pick the relevant entry in our pre-calculated stats
-                var statEntry = (function( bpPerBin, stats ) {
+                var statEntry = (function( basesPerBin, stats ) {
                     for (var i = 0; i < stats.length; i++) {
-                        if( stats[i].basesPerBin >= bpPerBin ) {
+                        if( stats[i].basesPerBin >= basesPerBin ) {
                             return stats[i];
                             break;
                         }
                     }
                     return undefined;
-                })( query.bpPerBin, data._histograms.stats || [] );
+                })( query.basesPerBin, data._histograms.stats || [] );
 
                 // The histogramMeta array describes multiple levels of histogram detail,
                 // going from the finest (smallest number of bases per bin) to the
@@ -166,12 +166,12 @@ return declare( SeqFeatureStore,
                 // rather than the 20,000)
                 var histogramMeta = data._histograms.meta[0];
                 for (var i = 0; i < data._histograms.meta.length; i++) {
-                    if( query.bpPerBin >= data._histograms.meta[i].basesPerBin )
+                    if( query.basesPerBin >= data._histograms.meta[i].basesPerBin )
                         histogramMeta = data._histograms.meta[i];
                 }
 
                 // number of bins in the server-supplied histogram for each current bin
-                var binCount = query.bpPerBin / histogramMeta.basesPerBin;
+                var binCount = query.basesPerBin / histogramMeta.basesPerBin;
 
                 // if the server-supplied histogram fits neatly into our requested
                 if ( binCount > .9
