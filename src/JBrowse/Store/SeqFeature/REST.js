@@ -57,7 +57,7 @@ return declare( SeqFeatureStore,
         }
 
         var url = this._makeURL( 'stats/region', query );
-        this._get( url, callback, errorCallback );
+        this._get( url, successCallback, errorCallback );
     },
 
     getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
