@@ -68,6 +68,8 @@ return declare( [BoxGlyph,MismatchesMixin], {
         if ( fRect.w > 1 ) {
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements( context );
+            context.textBaseline = 'middle'; // reset to alphabetic (the default) after loop
+
             array.forEach( mismatches, function( mismatch ) {
                 var start = feature.get('start') + mismatch.start;
                 var end = start + mismatch.length;
@@ -86,7 +88,6 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
                         context.font = this.config.style.mismatchFont;
                         context.fillStyle = mismatch.type == 'deletion' ? 'white' : 'black';
-                        context.textBaseline = 'middle';
                         context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h/2 );
                     }
                 }
@@ -106,6 +107,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     context.fillRect( mRect.l, mRect.t+(mRect.h-2)/2, mRect.w, 2 );
                 }
             },this);
+            context.textBaseline = 'alphabetic';
         }
     },
 
