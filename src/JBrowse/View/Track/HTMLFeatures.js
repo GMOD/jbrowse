@@ -176,7 +176,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
               basesPerBin: basesPerBin
             },
             function( histData ) {
-                console.log( JSON.stringify(histData));
                 if( track._fillType != 'histograms' )
                     return; // we must have moved on
 
