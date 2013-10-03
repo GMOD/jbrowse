@@ -143,6 +143,17 @@ return declare( SeqFeatureStore,
                 if( ! query.bpPerBin )
                     throw 'bpPerBin arg required for getRegionFeatureDensities';
 
+                // pick the relevant entry in our pre-calculated stats
+                var statEntry = (function( bpPerBin, stats ) {
+                    for (var i = 0; i < stats.length; i++) {
+                        if( stats[i].basesPerBin >= bpPerBin ) {
+                            return stats[i];
+                            break;
+                        }
+                    }
+                    return undefined;
+                })( query.bpPerBin, data._histograms.stats || [] );
+
                 // The histogramMeta array describes multiple levels of histogram detail,
                 // going from the finest (smallest number of bases per bin) to the
                 // coarsest (largest number of bases per bin).
@@ -185,7 +196,7 @@ return declare( SeqFeatureStore,
                                histogram[ Math.floor( (i - firstServerBin) / binCount ) ] += val;
                            },
                            function() {
-                               successCallback({ bins: histogram, stats: data._histograms.stats });
+                               successCallback({ bins: histogram, stats: statEntry });
                            }
                        );
                    } else {
@@ -197,11 +208,12 @@ return declare( SeqFeatureStore,
                            query.end,
                            numBins,
                            function( hist ) {
-                               successCallback({ bins: hist, stats: data._histograms.stats });
+                               successCallback({ bins: hist, stats: statEntry });
                            });
                    }
                }, errorCallback );
     },
+
 
     getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
         if( this.empty ) {

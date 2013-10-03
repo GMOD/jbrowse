@@ -156,38 +156,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         };
     },
 
-    /**
-     * Return an object with some statistics about the histograms we will
-     * draw for a given block size in base pairs.
-     * @private
-     */
-    _histDimensions: function( blockSizeBp, stats ) {
-
-        // bases in each histogram bin that we're currently rendering
-        var bpPerBin = blockSizeBp / this.numBins;
-        var pxPerCount = 2;
-        var logScale = false;
-        var statEntry;
-        for (var i = 0; i < stats.length; i++) {
-            if (stats[i].basesPerBin >= bpPerBin) {
-                //console.log("bpPerBin: " + bpPerBin + ", histStats bases: " + this.histStats[i].bases + ", mean/max: " + (this.histStats[i].mean / this.histStats[i].max));
-                logScale = ((stats[i].mean / stats[i].max) < .01);
-                pxPerCount = 100 / (logScale ?
-                                    Math.log(stats[i].max) :
-                                    stats[i].max);
-                statEntry = stats[i];
-                break;
-            }
-        }
-
-        return {
-            bpPerBin: bpPerBin,
-            pxPerCount: pxPerCount,
-            logScale: logScale,
-            stats: statEntry
-        };
-    },
-
     fillHist: function( args ) {
         var blockIndex = args.blockIndex;
         var block = args.block;
@@ -195,26 +163,41 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var rightBase = args.rightBase;
         var stripeWidth = args.stripeWidth;
 
+        var blockSizeBp = Math.abs( rightBase - leftBase );
+
+        // bases in each histogram bin that we're currently rendering
+        var basesPerBin = blockSizeBp / this.numBins;
+
         var track = this;
         this.store.getRegionFeatureDensities(
             { ref:   this.refSeq.name,
               start: args.leftBase,
               end:   args.rightBase,
-              bpPerBin: Math.abs( rightBase - leftBase )/this.numBins
+              basesPerBin: basesPerBin
             },
             function( histData ) {
+                console.log( JSON.stringify(histData));
                 if( track._fillType != 'histograms' )
                     return; // we must have moved on
 
                 var hist = histData.bins;
                 var maxBin = 0;
                 for (var bin = 0; bin < track.numBins; bin++) {
-                    if (typeof hist[bin] == 'number' && isFinite(hist[bin])) {
+                    if( typeof hist[bin] == 'number' && isFinite(hist[bin]) ) {
                         maxBin = Math.max(maxBin, hist[bin]);
                     }
                 }
 
-                var dims = track._histDimensions( Math.abs( rightBase - leftBase ), histData.stats );
+                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < .01)
+                                                : false;
+                var pxPerCount = histData.stats ? ( 100 / (logScale ? Math.log(histData.stats.max) : histData.stats.max) )
+                                                : 2;
+                var dims = {
+                    basesPerBin: basesPerBin,
+                    pxPerCount: pxPerCount,
+                    logScale: logScale,
+                    stats: histData.stats
+                };
 
                 var binDiv;
                 for (bin = 0; bin < track.numBins; bin++) {
@@ -238,8 +221,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
                 track.heightUpdate( dims.pxPerCount * ( dims.logScale ? Math.log(maxBin) : maxBin ),
                                     blockIndex );
-                track.makeHistogramYScale( Math.abs(rightBase-leftBase), histData );
-            });
+                track.makeHistogramYScale( blockSizeBp, dims, histData );
+            },
+            dojo.hitch( this, 'fillBlockError', blockIndex, block )
+            );
 
         args.finishCallback();
     },
@@ -421,11 +406,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
      * the histogram bars are drawn, because it sometimes must use the
      * track height to calculate the max value if there are no explicit
      * histogram stats.
-     * @param {Number} blockSizeBp the size of the blocks in base pairs.
-     * Necessary for calculating histogram stats.
      */
-    makeHistogramYScale: function( blockSizeBp, histData ) {
-        var dims = this._histDimensions( blockSizeBp, histData.stats );
+    makeHistogramYScale: function( blockSizeBp, dims, histData ) {
         if( dims.logScale ) {
             console.error("Log histogram scale axis labels not yet implemented.");
             return;
