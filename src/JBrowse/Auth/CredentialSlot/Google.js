@@ -73,6 +73,10 @@ return declare( CredentialSlot, {
            description: 'REST service URL used to fetch basic information about a user',
            defaultValue: 'https://www.googleapis.com/oauth2/v1/userinfo'
          },
+         { name: 'userIDField', type: 'string',
+           description: 'Token metadata field name that contains the unique ID of the user it was issued to.',
+           defaultValue: 'user_id'
+         },
 
          { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' },
          { name: 'keyringCSSClass',  defaultValue: 'google' },
@@ -198,13 +202,21 @@ return declare( CredentialSlot, {
    * and remove any undefined.  Throws an error if the array then
    * becomes empty.
    */
-  _ensureValidTokens: function( tokens ) {
-      tokens = this._filterTokens( tokens );
-      if( ! tokens.length ) throw 'no valid tokens found';
-      return tokens;
-  },
   _filterTokens: function( tokens ) {
-      return array.filter( tokens, function( t ) { return t && t.isValid(); } );
+
+      // filter for defined and valid tokens
+      tokens = array.filter( tokens, function( t ) { return t && t.isValid(); } );
+
+      // filter the tokens to all be for the same user, just in case.
+      var userIDField = this.getConf('userIDField');
+      if( ! userIDField ) return tokens;
+      tokens.sort( function(a,b) {
+                       return b.getMetab.getExpiryTime() - a.getExpiryTime();
+                   });
+      var primary_user = tokens[0].getMeta( userIDField );
+      if( ! primary_user ) return tokens;
+      tokens = array.filter( tokens, function(t) { return t.getMeta(userIDField) == primary_user; } );
+      return tokens;
   },
 
   getTokensForScope: function( scope ) {
@@ -360,12 +372,13 @@ return declare( CredentialSlot, {
    * Returns a deferred array of tokens.
    */
   validateAndFilterTokens: function( tokens ) {
+      var thisB = this;
       return all( array.map( tokens, function(t) {
                                  return t.isValid() ? t : this.validateToken(t);
                              }, this )
                 )
           .then( function( tokens ) {
-                     return array.filter( tokens, function( t ) { return t && t.isValid(); } );
+                     return thisB._filterTokens( tokens );
                  });
   },
 
