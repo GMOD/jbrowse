@@ -19,6 +19,10 @@ var Resource = declare( null, {
         this.defaultOpts = lang.mixin( this._defaultRequestOpts(), args.transportOpts || {} );
     },
 
+    getResourceDefinition: function() {
+        return this.resourceDef;
+    },
+
     _defaultRequestOpts: function() {
         return { interactive: true };
     },

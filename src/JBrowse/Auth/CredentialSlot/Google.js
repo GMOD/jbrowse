@@ -348,14 +348,14 @@ return declare( CredentialSlot, {
   },
 
   _fetchUserInfo: function( token ) {
-      var resourceDef = {
-          url: this.getConf('userInfoURL'),
+      var fetchOpts = {
           query: { access_token: token.tokenString },
           jsonp: 'callback',
           requestTechnique: 'script'
       };
-      var fetch = this.browser.getTransportForResource( resourceDef )
-          .fetch( resourceDef )
+      var url = this.getConf('userInfoURL');
+      var fetch = this.browser.getTransportForResource( url )
+          .request( url, fetchOpts )
           .then( function( response ) {
                      if( response.error )
                          throw new Error( response.error );
@@ -392,15 +392,15 @@ return declare( CredentialSlot, {
       var thisB = this;
 
       // CORS isn't working on googleapis.com, apparently, so we have to use JSONP  >:={
-      var resourceDef = {
-          url: this.getConf('tokenValidateURL'),
+      var requestOpts = {
           query: { access_token: inputToken.tokenString },
           jsonp: 'callback',
           requestTechnique: 'script'
       };
+      var url = this.getConf('tokenValidateURL');
 
-      return this.browser.getTransportForResource( resourceDef )
-          .fetch( resourceDef )
+      return this.browser.getTransportForResource( url )
+          .request( url, requestOpts )
           .then( function( response ) {
                   if( response.error )
                       throw response.error;
@@ -447,7 +447,8 @@ return declare( CredentialSlot, {
       return scope && scope.length ? this.getTokensForScope( scope ) : [];
   },
 
-  _scopeForResource: function( resourceDef ) {
+  _scopeForResource: function( resourceObject ) {
+      var resourceDef = resourceObject.getResourceDefinition();
       var url = typeof resourceDef == 'string' ? resourceDef : resourceDef.url;
       if( ! url )
           return undefined;
