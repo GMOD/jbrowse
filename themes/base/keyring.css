@@ -102,3 +102,5 @@
       color: #333333; }
   .credentialStatus.google .slotIcon {
     background: url("img/glyphs.png") rgba(0, 0, 0, 0) no-repeat -175px -73px; }
+  .credentialStatus.dropbox .slotIcon {
+    background: url("img/glyphs.png") rgba(0, 0, 0, 0) no-repeat -196px -73px; }

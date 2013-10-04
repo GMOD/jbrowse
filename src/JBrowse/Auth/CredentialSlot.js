@@ -55,7 +55,7 @@ return declare( Component, {
             defaultValue: 'Logout failed'
           },
 
-          { name: 'label', type: 'string',
+          { name: 'keyringLabel', type: 'string',
             description: 'label that should be shown in the UI for the credential when it is ready.  Typically a username.  Templated with the data from getUserInfo.',
             defaultValue: '{user}'
           },
@@ -169,11 +169,11 @@ return declare( Component, {
    *
    * @returns {Deferred} string
    */
-  getLabel: function( opts ) {
+  getKeyringLabel: function( opts ) {
       var thisB = this;
       return this.getUserInfo( opts )
           .then( function(data) {
-                     return Util.fillTemplate( thisB.getConf('label'), data );
+                     return Util.fillTemplate( thisB.getConf('keyringLabel'), data );
                  });
   },
 

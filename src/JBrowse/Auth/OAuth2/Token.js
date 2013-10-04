@@ -46,6 +46,9 @@ return declare( null, {
 
        return this._meta;
    },
+   setMeta: function( key, val ) {
+       return this._meta[key] = val;
+   },
 
    setValidated: function() {
        this._validated = true;

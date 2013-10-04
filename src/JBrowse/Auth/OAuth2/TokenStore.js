@@ -70,6 +70,11 @@ return declare( null, {
   },
 
   getAccessTokensForScope: function( scope ) {
+      if( ! scope.length )
+          return { tokens: this.getAccessTokens(),
+                   unmatchedScopeTokens: []
+                 };
+
       var relevantTokens = {};
 
       var scopeStillNeeded = [];

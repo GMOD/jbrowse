@@ -47,11 +47,11 @@ return declare( CredentialSlot, {
 
          // default request opts for all requests to the auth services
          { name: 'apiRequestOpts', type: 'object',
-           defaultValue: { jsonp: 'callback', requestTechnique: 'script' }
+           defaultValue: { jsonp: 'callback', requestTechnique: 'script', handleAs: 'json' }
          },
 
          // auth window popups
-         { name: 'authStartURL', type: 'string',
+         { name: 'authPopupURL', type: 'string',
            description: 'Interactive web page used to start the OAuth2 authentication process.  Opened in a poopup window.',
            defaultValue: 'https://accounts.google.com/o/oauth2/auth'
          },
@@ -60,6 +60,11 @@ return declare( CredentialSlot, {
            defaultValue: function( slot ) {
                return [ slot.getConf('name')+'AuthWindow', 'status=no,toolbar=no,width=460,height=700' ];
            }
+         },
+
+         { name: 'authPopupRedirectURL', type: 'string',
+           description: 'Redirect URL for the end of the auth popup flow.  Can be relative to the JBrowse index.html page.',
+           defaultValue: 'themes/blank.html'
          },
 
          // token validation requests
@@ -97,7 +102,7 @@ return declare( CredentialSlot, {
          },
 
          // opts for customizing how its control looks in the keyring pane
-         { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' },
+         { name: 'keyringLabel', defaultValue: '<a target="_blank" href="{link}">{name}</a>' },
          { name: 'keyringCSSClass',  defaultValue: 'google' },
          { name: 'notReadyStatusLabel',  defaultValue: 'Click to authorize' },
          { name: 'readyStatusLabel', defaultValue: 'Connected' },
@@ -252,7 +257,8 @@ return declare( CredentialSlot, {
 
       // if the existing tokens did not cover our whole scope, get a
       // new token and just return that
-      if( scopeStillNeeded && scopeStillNeeded.length ) {
+      if( scopeStillNeeded && scopeStillNeeded.length
+          || !scope.length && !existingTokens.length ) {
           return this._getNewToken( scope )
                   .then( function( newToken ) {
                              return [ newToken ];
@@ -283,7 +289,7 @@ return declare( CredentialSlot, {
   _getNewToken: function( scope ) {
       var thisB = this;
 
-      var authUrl = this._assembleAuthStartURL( scope );
+      var authUrl = this._assembleAuthPopupURL( scope );
 
       return this._getTokenFromPopupWindow( authUrl )
           .then( function( tokenData ) {
@@ -297,13 +303,17 @@ return declare( CredentialSlot, {
                  });
   },
 
-  _assembleAuthStartURL: function( scope ) {
-      return this.getConf('authStartURL') + '?' + ioQuery.objectToQuery(
+  _assembleAuthPopupRedirectURL: function() {
+      return Util.resolveUrl( ''+window.location, this.getConf('authPopupRedirectURL') );
+  },
+
+  _assembleAuthPopupURL: function( scope ) {
+      return this.getConf('authPopupURL') + '?' + ioQuery.objectToQuery(
           {
               response_type:  'token',
               client_id:      this.getConf('clientID'),
               scope:          scope.join(' '),
-              redirect_uri:   Util.resolveUrl( ''+window.location, 'themes/blank.html' )
+              redirect_uri:   this._assembleAuthPopupRedirectURL()
               //, prompt: 'consent' // force display of consent prompt
 
               // TODO: set login_hint here if credentials are stored
@@ -334,16 +344,18 @@ return declare( CredentialSlot, {
               if( authWindow ) {
 
                   try {
-                      tokenData = tokenData || thisB._parseCredentials( authWindow );
+                      tokenData = tokenData || thisB._parseCredentialsFromPopupWindow( authWindow );
                   } catch(e) {}
 
                   if( tokenData )
                       authWindow.close();
+
                   if( authWindow.closed ) {
                       if( tokenData ) {
-                          if( tokenData.error )
+                          if( tokenData.error ) {
+                              console.error( tokenData );
                               d.reject( tokenData.error );
-                          else
+                          } else
                               d.resolve( tokenData );
                       }
                       else
@@ -364,9 +376,11 @@ return declare( CredentialSlot, {
               authWindow.close();
               authWindow = undefined;
 
-              if( tokenData.error )
+              if( tokenData.error ) {
+                  console.error( tokenData );
+
                   d.reject( tokenData.error );
-              else
+              } else
                   d.resolve( tokenData );
           } catch(e) {
               d.reject(e);
@@ -411,12 +425,16 @@ return declare( CredentialSlot, {
   },
 
   _assembleAPIRequest: function( reqTypeName, fetchOpts ) {
+      var url = this.getConf( reqTypeName+'URL' );
+      if( ! url )
+          return undefined;
+
       return lang.mixin(
           {},
           this.getConf('apiRequestOpts'),
           this.getConf( reqTypeName+'RequestOpts'),
           fetchOpts,
-          { url: this.getConf( reqTypeName+'URL' ) }
+          { url: url }
       );
   },
 
@@ -476,12 +494,12 @@ return declare( CredentialSlot, {
   },
 
   _parseCredentialsFromPopupWindow: function( authWindow ) {
-      if( ! /access_token=/.test( authWindow.location.hash ) )
-          return null;
-
-      // the credentials are in the #fragment of the authWindow's URL
-      var fragment = authWindow.location.hash.replace(/^#/,'');
-      return ioQuery.queryToObject( fragment );
+      var fragment = ( authWindow.location.hash || '' ).replace(/^#/,'');
+      if( fragment && fragment.indexOf( this._assembleAuthPopupRedirectURL() ) != 0 ) {
+          // the credentials are in the #fragment of the authWindow's URL
+          return ioQuery.queryToObject( fragment );
+      }
+      return undefined;
   },
 
   _tokensForRequest: function( req ) {

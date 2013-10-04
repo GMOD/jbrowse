@@ -136,7 +136,7 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
         }
 
         if( isReady ) {
-            credential.getLabel()
+            credential.getKeyringLabel()
                 .then( function(label) {
                            thisB.labelNode.innerHTML = label;
                        });
