@@ -36,9 +36,9 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
                 thisB.features.push(f);
             },
             endCallback : function(){
+                thisB._compensateForPotentiallyStupidAcen();
                 thisB._deferred.features.resolve( features );
                 thisB._deferred.stats.resolve();
-
             }
         });
 
@@ -85,6 +85,13 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
                 type: data.type
             }
         });
+    },
+    _compensateForPotentiallyStupidAcen: function(){
+        for (var f in this.features){
+            if (this.features[f].gieStain === 'acen'){
+                console.log("acen!");
+            }
+        }
     }
 });
 });
