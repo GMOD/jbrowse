@@ -121,10 +121,12 @@ return Util.fastDeclare({
             max: max,
             range: max - min,
             origin: origin,
-            scoreMean: stats.scoreMean,
-            scoreStdDev: stats.scoreStdDev,
             _statsFingerprint: Digest.objectFingerprint( stats )
         });
+        if( needStats ) {
+            this.scoreMean = stats.scoreMean;
+            this.scoreStdDev = stats.scoreStdDev;
+        }
 
         // make this.normalize a func that converts wiggle values to a
         // range between 0 and 1, depending on what kind of scale we
