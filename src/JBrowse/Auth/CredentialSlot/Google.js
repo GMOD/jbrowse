@@ -503,8 +503,8 @@ return declare( CredentialSlot, {
   },
 
   _tokensForRequest: function( req ) {
-      var scope = this._scopeForResource( req.url );
-      return scope && scope.length ? this.getTokensForScope( scope ) : [];
+      var scope = this._scopeForResource( req.resource || req.url );
+      return this.getTokensForScope( scope );
   },
 
   _scopeForResource: function( resourceDef ) {
@@ -514,7 +514,7 @@ return declare( CredentialSlot, {
 
       var scopeMap = this.getConf('scopeMap');
 
-      var scope;
+      var scope = [];
       array.some( scopeMap, function( sm ) {
           if( this._urlMatches( url, sm ) ) {
               scope = sm.requires.slice();
