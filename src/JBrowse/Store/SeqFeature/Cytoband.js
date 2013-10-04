@@ -87,11 +87,42 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
         });
     },
     _compensateForPotentiallyStupidAcen: function(){
-        for (var f in this.features){
-            if (this.features[f].gieStain === 'acen'){
-                console.log("acen!");
+        var feature = this.features;
+        for (var f in feature){
+            if (feature[f].gieStain === 'acen' ){
+                
+                // Only one acen. Do nothing.
+                if (feature[f+1].gieStain !== 'acen'){ }
+
+                // 2 acen. Expected, set left and right sides
+                else if (feature[f+2].gieStain !== 'acen'){
+                    
+                }
+                // 3+ acen? Join them all, center in the center, 
+                // Be upset over shitty data.
+                else {
+                    while (feature[f+1].gieStain ==='acen'){
+                        this._mergeAcen(f);
+                        feature[f].center = (feature[f].start + feature[f].end)/2;
+                    }
+                }
             }
         }
+    },
+    _mergeAcen: function(f){
+        var feature = this.features;
+        feature[f] = new SimpleFeature({
+            data:
+            {
+                start: feature[f].start,
+                end: feature[f+1],
+                name: feature[f].name,
+                gieStain: 'acen',
+                type: feature[f].type
+            }
+       
+            });
+        feature.splice(f,1);
     }
 });
 });
