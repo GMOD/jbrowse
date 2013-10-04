@@ -150,6 +150,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                     finishCallback();
                 }),
                 dojo.hitch( this, function(e) {
+                    console.error( e.stack || ''+e, e );
                     this._handleError( e, args );
                 }));
     },
@@ -261,11 +262,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                               callback();
                           },
                           function(e) {
-                              thisB.error = e;
-                              array.forEach( thisB.blocks, function( block, blockIndex ) {
-                                  if( block && block.domNode.parentNode )
-                                      thisB.fillBlockError( blockIndex, block );
-                              });
+                              thisB._handleError( e );
                           });
 
     },

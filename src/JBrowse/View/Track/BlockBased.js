@@ -428,7 +428,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 },this);
         }
         else {
-            console.error( ''+error, error.stack, error );
+            console.error( error.stack || ''+error, error );
             this.fatalError = error;
             this.showFatalError( error );
         }
