@@ -89,7 +89,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     _compensateForPotentiallyStupidAcen: function(){
         var feature = this.features;
         for (var f in feature){
-            if (feature[f].gieStain === 'acen' ){
+            if (feature[f].gieStain === 'acen' && feature[f+1] !== undefined ){
                 
                 // Only one acen. Do nothing.
                 if (feature[f+1].gieStain !== 'acen'){ }
