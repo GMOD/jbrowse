@@ -190,6 +190,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
 
     hide: function() {
+        delete this.fatalError;
         if (this.shown) {
             this.div.style.display = "none";
             this.shown = false;
