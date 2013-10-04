@@ -83,7 +83,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var originY = toY( dataScale.origin );
 
         var disableClipMarkers = this.config.disable_clip_markers;
-        console.log( originY, canvasHeight, JSON.stringify(dataScale) );
 
         dojo.forEach( pixels, function(p,i) {
             if (!p)
