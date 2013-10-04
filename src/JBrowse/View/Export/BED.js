@@ -59,7 +59,7 @@ return declare( ExportBase,
      */
     formatFeature: function( feature ) {
         var fields = array.map(
-                [ feature.get('seq_id') || this.refSeq.name ]
+                [ feature.get('seq_id') || this.refSeq.get('seq_id') ]
                 .concat( dojo.map( this.bed_field_names.slice(1,11), function(field) {
                                        return feature.get( field );
                                    },this)

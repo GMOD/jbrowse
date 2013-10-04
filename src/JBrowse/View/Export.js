@@ -20,15 +20,13 @@ return declare( null,
     },
 
     // will need to override this if you're not exporting regular features
-    exportRegion: function( region, callback ) {
-        var output = '';
-        this.store.getFeatures( region,
-            dojo.hitch( this, 'writeFeature' ),
-            dojo.hitch(this,function () {
-                callback( this.output );
-            }),
-            dojo.hitch( this, function( error ) { console.error(error); } )
-           );
+    exportRegion: function( region ) {
+        var thisB = this;
+        return this.store.getFeatures({ ref: region.get('seq_id'), start: region.get('start'), end: region.get('end') })
+            .forEach(
+                lang.hitch( this, 'writeFeature' ),
+                function () { return thisB.output; }
+            );
     },
 
     print: function( l ) {

@@ -20,7 +20,7 @@ return declare( ExportBase,
 
         this.print( "##gff-version 3\n");
         if( this.refSeq )
-            this.print( "##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n" );
+            this.print( "##sequence-region "+this.refSeq.get('seq_id')+" "+(this.refSeq.get('start')+1)+" "+this.refSeq.get('end')+"\n" );
 
         this.lastSync = 0;
     },
@@ -92,7 +92,7 @@ return declare( ExportBase,
      */
     formatFeature: function( feature, parentID ) {
         var fields = dojo.map(
-                [ feature.get('seq_id') || this.refSeq.name ]
+                [ feature.get('seq_id') || this.refSeq.get('seq_id') ]
                 .concat( dojo.map( this.gff3_field_names.slice(1,8), function(field) {
                                        return feature.get( field );
                                    },this)

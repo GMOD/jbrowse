@@ -347,7 +347,6 @@ var BamFile = declare( null,
                                );
                            });
             });
-        return d;
     },
 
     _fetchChunkFeatures: function( d, chunks, chrId, min, max ) {

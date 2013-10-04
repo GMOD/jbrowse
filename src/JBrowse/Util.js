@@ -1,11 +1,27 @@
-// MISC
-define( [ 'dojo/_base/array',
-          'dojo/Deferred',
-          'dojox/lang/functional/object',
-          'dojox/lang/functional/fold'
-        ], function( array, Deferred ) {
-var Util;
-Util = {
+/**
+ * Miscellaneous utility functions.
+ */
+define( [
+            'dojo/_base/array',
+            'dojo/_base/lang',
+            'dojo/Deferred',
+
+            'JBrowse/Model/SimpleFeature',
+
+            'dojox/lang/functional/object',
+            'dojox/lang/functional/fold'
+
+        ],
+        function(
+            array,
+            lang,
+            Deferred,
+
+            SimpleFeature
+
+        ) {
+
+var Util = {
     dojof: dojox.lang.functional,
     is_ie: navigator.appVersion.indexOf('MSIE') >= 0,
     is_ie6: navigator.appVersion.indexOf('MSIE 6') >= 0,
@@ -87,7 +103,7 @@ Util = {
         var fastDeclareClass = function() {
             constructor.apply( this, arguments );
         };
-        dojo.mixin( fastDeclareClass.prototype, members );
+        lang.mixin( fastDeclareClass.prototype, members );
         return fastDeclareClass;
     },
 
@@ -208,7 +224,7 @@ Util = {
         if( typeof locstring != 'string' )
             return null;
 
-        locstring = dojo.trim( locstring );
+        locstring = lang.trim( locstring );
 
         // any extra stuff in parens?
         var extra = (locstring.match(/\(([^\)]+)\)$/)||[])[1];
@@ -226,7 +242,7 @@ Util = {
 
         if( locstring.indexOf(':') != -1 ) {
             tokens = locstring.split(':',2);
-            location.seq_id = dojo.trim( tokens[0] );
+            location.seq_id = lang.trim( tokens[0] );
             locstring = tokens[1];
         }
 
@@ -278,7 +294,7 @@ Util = {
             return null;
 
         var s = '',
-        types = { start: 'number', end: 'number', ref: 'string', strand: 'number' },
+        types = { start: 'number', end: 'number', seq_id: 'string', ref: 'string', strand: 'number' },
         location = {}
         ;
 
@@ -303,11 +319,17 @@ Util = {
         }
 
         //finally assemble our string
-        if( 'ref' in location ) {
+        if( 'seq_id' in location ) {
+            s += location.seq_id;
+            if( location.start || location.end )
+                s += ':';
+        }
+        else if( 'ref' in location ) {
             s += location.ref;
             if( location.start || location.end )
                 s += ':';
         }
+
         if( 'start' in location ) {
             s += Util.addCommas( (Math.round(location.start)+1).toFixed(0).toLocaleString() );
             if( 'end' in location )

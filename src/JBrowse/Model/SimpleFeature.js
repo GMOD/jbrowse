@@ -2,13 +2,24 @@
  * Simple implementation of a feature object.
  */
 define([
-        'JBrowse/Util'
+           'dojo/_base/lang',
+           'JBrowse/Util'
        ],
-       function( Util ) {
+       function( lang, Util ) {
+
+
+function fastDeclare( members ) {
+    var constructor = members.constructor;
+    var fastDeclareClass = function() {
+        constructor.apply( this, arguments );
+    };
+    lang.mixin( fastDeclareClass.prototype, members );
+    return fastDeclareClass;
+};
 
 var counter = 0;
 
-var SimpleFeature = Util.fastDeclare({
+var SimpleFeature = fastDeclare({
 
     /**
      * @param args.data {Object} key-value data, must include 'start' and 'end'

@@ -103,10 +103,9 @@ var ExportMixin = declare( null, {
         var possibleRegions = this.track._possibleExportRegions();
 
         // for each region, calculate its length and determine whether we can export it
-        array.forEach( possibleRegions, function( region ) {
-            region.length = Math.round( region.get('end') - region.get('start') + 1 );
-            region.canExport = this._canExportRegion( region );
-        },this.track);
+        array.forEach( possibleRegions, function( r ) {
+            r.canExport = this.track._canExportRegion( r.region );
+        }, this );
 
         var setFilenameValue = dojo.hitch(this.track, function() {
             var region = this._readRadio(form.elements.region);
@@ -119,16 +118,18 @@ var ExportMixin = declare( null, {
         dom.create('legend', {innerHTML: "Region to save"}, regionFieldset);
 
         var checked = 0;
-        array.forEach( possibleRegions, function(r) {
+        array.forEach( possibleRegions, function(rec) {
+                var r = rec.region;
+                var length = r.get('end') - r.get('start');
                 var locstring = Util.assembleLocString(r);
                 var regionButton = new dijitRadioButton(
-                    { name: "region", id: "region_"+r.name,
-                      value: locstring, checked: r.canExport && !(checked++) ? "checked" : ""
+                    { name: "region",
+                      value: locstring, checked: rec.canExport && !(checked++) ? "checked" : ""
                     });
                 regionFieldset.appendChild(regionButton.domNode);
-                var regionButtonLabel = dom.create("label", {"for": regionButton.id, innerHTML: r.description+' - <span class="locString">'
-                                   +         locstring+'</span> ('+Util.humanReadableNumber(r.length)+(r.canExport ? 'b' : 'b, too large')+')'}, regionFieldset);
-                if(!r.canExport) {
+                var regionButtonLabel = dom.create("label", {"for": regionButton.id, innerHTML: rec.description+' - <span class="locString">'
+                                   +         locstring+'</span> ('+Util.humanReadableNumber(length)+(rec.canExport ? 'b' : 'b, too large')+')'}, regionFieldset);
+                if(!rec.canExport) {
                     regionButton.domNode.disabled = "disabled";
                     regionButtonLabel.className = "ghosted";
                 }
@@ -152,9 +153,10 @@ var ExportMixin = declare( null, {
                 fmt.fileExt = fmt.name || fmt;
             }
             nameToExtension[fmt.name] = fmt.fileExt;
-            var formatButton = new dijitRadioButton({ name: "format", id: "format"+fmt.name, value: fmt.name, checked: checked++?"":"checked"});
-            formatFieldset.appendChild(formatButton.domNode);
-            var formatButtonLabel = dom.create("label", {"for": formatButton.id, innerHTML: fmt.label}, formatFieldset);
+            var formatButtonLabel = dom.create("label", { innerHTML: fmt.label }, formatFieldset);
+
+            var formatButton = new dijitRadioButton({ name: "format", value: fmt.name, checked: checked++?"":"checked"});
+            formatButtonLabel.insertBefore( formatButton.domNode, formatButtonLabel.firstChild );
 
             on(formatButton, "click", setFilenameValue);
             dom.create( "br", {}, formatFieldset );
@@ -195,10 +197,12 @@ var ExportMixin = declare( null, {
                                 var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
                                 dlButton.set('disabled',true);
                                 dlButton.set('iconClass','jbrowseIconBusy');
-                                this.exportRegion( region, format, dojo.hitch( this, function( output ) {
-                                    dialog.hide();
-                                    this._fileDownload({ format: format, data: output, filename: filename });
-                                }));
+                                var thisB = this;
+                                this.exportRegion( region, format )
+                                    .then( function( output ) {
+                                               dialog.hide();
+                                               thisB._fileDownload({ format: format, data: output, filename: filename });
+                                           });
                               })})
                 .placeAt( actionBar );
         }
@@ -215,58 +219,62 @@ var ExportMixin = declare( null, {
                             var region = track._readRadio( form.elements.region );
                             var format = track._readRadio( form.elements.format );
                             var filename = form.elements.filename.value.replace(/[^ .a-zA-Z0-9_-]/g,'-');
-                            track.exportRegion( region, format, function(output) {
+                            track.exportRegion( region, format )
+                                .then( function(output) {
+                                    dialog.hide();
+                                    var text = dom.create('textarea', {
+                                                               rows: Math.round( dojoWindow.getBox().h / 12 * 0.5 ),
+                                                               wrap: 'off',
+                                                               cols: 80,
+                                                               style: "maxWidth: 90em; overflow: scroll; overflow-y: scroll; overflow-x: scroll; overflow:-moz-scrollbars-vertical;",
+                                                               readonly: true
+                                                           });
+                                    text.value = output;
+                                    var actionBar = dom.create( 'div', {
+                                        className: 'dijitDialogPaneActionBar'
+                                    });
+                                    var exportView = new dijitDialog({
+                                        className: 'export-view-dialog',
+                                        title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'bytes)',
+                                        content: [ text, actionBar ]
+                                    });
+                                    new dijitButton({ iconClass: 'dijitIconDelete',
+                                                      label: 'Close', onClick: dojo.hitch( exportView, 'hide' )
+                                                    })
+                                         .placeAt(actionBar);
+
+                                    // only show a button if the browser can save files
+                                    if( track._canSaveFiles() ) {
+                                        var saveDiv = dom.create( "div", { className: "save" }, actionBar );
+
+                                        var saveButton = new dijitButton(
+                                            {
+                                                iconClass: 'dijitIconSave',
+                                                label: 'Save',
+                                                onClick: function() {
+                                                    var filename = fileNameText.get('value').replace(/[^ .a-zA-Z0-9_-]/g,'-');
+                                                    exportView.hide();
+                                                    track._fileDownload({ format: format, data: output, filename: filename });
+                                                }
+                                            }).placeAt(saveDiv);
+                                        var fileNameText = new dijitTextBox({
+                                                value: filename,
+                                                style: "width: 24em"
+                                            }).placeAt( saveDiv );
+                                    }
+
+                                    aspect.after( exportView, 'hide', function() {
+                                        // manually unhook and free the (possibly huge) text area
+                                        text.parentNode.removeChild( text );
+                                        text = null;
+                                        setTimeout( function() {
+                                            exportView.destroyRecursive();
+                                        }, 500 );
+                                    });
+                                    exportView.show();
+                            }, function(e) {
+                                console.error( e.stack || ''+e );
                                 dialog.hide();
-                                var text = dom.create('textarea', {
-                                                           rows: Math.round( dojoWindow.getBox().h / 12 * 0.5 ),
-                                                           wrap: 'off',
-                                                           cols: 80,
-                                                           style: "maxWidth: 90em; overflow: scroll; overflow-y: scroll; overflow-x: scroll; overflow:-moz-scrollbars-vertical;",
-                                                           readonly: true
-                                                       });
-                                text.value = output;
-                                var actionBar = dom.create( 'div', {
-                                    className: 'dijitDialogPaneActionBar'
-                                });
-                                var exportView = new dijitDialog({
-                                    className: 'export-view-dialog',
-                                    title: format + ' export - <span class="locString">'+ region+'</span> ('+Util.humanReadableNumber(output.length)+'bytes)',
-                                    content: [ text, actionBar ]
-                                });
-                                new dijitButton({ iconClass: 'dijitIconDelete',
-                                                  label: 'Close', onClick: dojo.hitch( exportView, 'hide' )
-                                                })
-                                     .placeAt(actionBar);
-
-                                // only show a button if the browser can save files
-                                if( track._canSaveFiles() ) {
-                                    var saveDiv = dom.create( "div", { className: "save" }, actionBar );
-
-                                    var saveButton = new dijitButton(
-                                        {
-                                            iconClass: 'dijitIconSave',
-                                            label: 'Save',
-                                            onClick: function() {
-                                                var filename = fileNameText.get('value').replace(/[^ .a-zA-Z0-9_-]/g,'-');
-                                                exportView.hide();
-                                                track._fileDownload({ format: format, data: output, filename: filename });
-                                            }
-                                        }).placeAt(saveDiv);
-                                    var fileNameText = new dijitTextBox({
-                                            value: filename,
-                                            style: "width: 24em"
-                                        }).placeAt( saveDiv );
-                                }
-
-                                aspect.after( exportView, 'hide', function() {
-                                    // manually unhook and free the (possibly huge) text area
-                                    text.parentNode.removeChild( text );
-                                    text = null;
-                                    setTimeout( function() {
-                                        exportView.destroyRecursive();
-                                    }, 500 );
-                                });
-                                exportView.show();
                             });
                           },
 
@@ -286,27 +294,29 @@ var ExportMixin = declare( null, {
         return r.value;
     },
 
-    exportRegion: function( region, format, callback ) {
+    exportRegion: function( region, format ) {
         // parse the locstring if necessary
         if( typeof region == 'string' )
             region = Util.parseLocString( region );
 
         // we can only export from the currently-visible reference
         // sequence right now
-        if( region.ref != this.refSeq.name ) {
-            console.error("cannot export data for ref seq "+region.ref+", "
-                          + "exporting is currently only supported for the "
-                          + "currently-visible reference sequence" );
-            return;
+        if( region.get('seq_id') != this.refSeq.get('seq_id') ) {
+            throw new Error("cannot export data for ref seq "+region.get('seq_id')+", "
+                            + "exporting is currently only supported for the "
+                            + "currently-visible reference sequence" );
         }
 
-        require( ['JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
-            new exportDriver({
-                refSeq: this.refSeq,
-                track: this,
-                store: this.store
-            }).exportRegion( region, callback );
-        }));
+        var thisB = this;
+        return Util.loadJSClass( 'JBrowse/View/Export/'+format )
+            .then(function( exportDriver ) {
+                      return new exportDriver({
+                                           refSeq: thisB.refSeq,
+                                           track: thisB,
+                                           store: thisB.store
+                                       })
+                          .exportRegion( region );
+                  });
     },
 
     _trackMenuOptions: function() {
@@ -319,7 +329,7 @@ var ExportMixin = declare( null, {
                         disabled: ! this._canExport(),
                         action: 'bareDialog',
                         content: this._exportDialogContent,
-                        dialog: { id: 'exportDialog', className: 'export-dialog' }
+                        dialog: { className: 'export-dialog' }
                       });
 
         return opts;
