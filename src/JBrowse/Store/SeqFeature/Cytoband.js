@@ -81,7 +81,8 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
                 start: data.chromStart,
                 end: data.chromEnd,
                 name: data.name,
-                gieStain: data.gieStain                
+                gieStain: data.gieStain,
+                type: data.type
             }
         });
     }

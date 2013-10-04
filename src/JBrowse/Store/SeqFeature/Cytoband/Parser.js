@@ -31,7 +31,7 @@ return declare( null, {
                 "chromEnd" : parseInt(match[3]),
                 "name" : match[4],
                 "gieStain" : match[5],
-                "type": match[5] == 'acen' ? 'centromere' : 'chromosome_band'
+                "type": match[5] === 'acen' ? 'centromere' : 'chromosome_band'
             };
         this.featureCallback(tmpCytoband)
         } 

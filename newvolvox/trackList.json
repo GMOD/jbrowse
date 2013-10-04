@@ -59,7 +59,6 @@
             "store": "Cytoband",
             "label": "Cytoband test file",
             "type": "JBrowse/View/Track/Cytoband",
-            "glyph": "JBrowse/View/FeatureGlyph/ChromosomeBand"
         },
         {
             "style" : { "className" : "feature2" },
