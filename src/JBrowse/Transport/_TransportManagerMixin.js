@@ -1,12 +1,14 @@
 define([
            'dojo/_base/declare',
            'JBrowse/Transport/HTTP',
-           'JBrowse/Transport/GoogleDrive'
+           'JBrowse/Transport/GoogleDrive',
+           'JBrowse/Transport/Dropbox'
        ],
        function(
            declare,
            HTTPTransport,
-           GoogleDrive
+           GoogleDrive,
+           Dropbox
        ) {
 return declare( null, {
 
@@ -18,7 +20,8 @@ return declare( null, {
       // instantiate the default transport drivers
       this._transportDrivers = [
           new HTTPTransport({ transportManager: this, authManager: this }),
-          new GoogleDrive({ transportManager: this, authManager: this })
+          new GoogleDrive({ transportManager: this, authManager: this }),
+          new Dropbox({ transportManager: this, authManager: this })
       ];
   },
 

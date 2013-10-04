@@ -67,8 +67,7 @@ return declare( GoogleOAuth2, {
       inputToken.setValidated();
 
       return inputToken;
-  },
-
+  }
 
 });
 });

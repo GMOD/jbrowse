@@ -38,7 +38,7 @@ return declare( _RequestBased, {
 
   _parseURL: function( url ) {
       url = new URL( url );
-      return lang.mixin( { scheme: url.scheme }, ioQuery.queryToObject( url.query ) );
+      return lang.mixin( { scheme: url.scheme }, ioQuery.queryToObject( url.query || '' ) );
   },
 
   canHandle: function( url ) {
