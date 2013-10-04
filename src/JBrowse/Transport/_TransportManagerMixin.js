@@ -43,6 +43,16 @@ return declare( null, {
       return undefined;
   },
 
+  request: function( resource, requestOpts ) {
+      var transport = this.browser.getTransportForResource( resource );
+      if( ! transport )
+          throw new Error( 'no transport driver found for resource '+resourceDef );
+      if( ! transport.request )
+          throw new Error( 'error requesting '+resource+', transport driver '+transport.name+' does not support request()');
+
+      return transport.request( resource, requestOpts );
+  },
+
   openResource: function( resourceClass, resourceDef, transportOpts) {
       var transport = this.getTransportForResource( resourceDef );
       if( ! transport )
