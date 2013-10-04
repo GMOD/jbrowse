@@ -44,16 +44,44 @@ return declare( CredentialSlot, {
   configSchema: {
      slots: [
          { name: 'name', defaultValue: 'Google' },
-         { name: 'urlRegExp', defaultValue: 'https?://[^/]*.?google.com/' },
 
+         // default request opts for all requests to the auth services
+         { name: 'apiRequestOpts', type: 'object',
+           defaultValue: { jsonp: 'callback', requestTechnique: 'script' }
+         },
+
+         // auth window popups
          { name: 'authStartURL', type: 'string',
            description: 'Interactive web page used to start the OAuth2 authentication process.  Opened in a poopup window.',
            defaultValue: 'https://accounts.google.com/o/oauth2/auth'
          },
+         { name: 'authPopupWindowOpts', type: 'multi-string',
+           description: 'array of [name,optionsString] to use when instantiating an authentication popup window',
+           defaultValue: function( slot ) {
+               return [ slot.getConf('name')+'AuthWindow', 'status=no,toolbar=no,width=460,height=700' ];
+           }
+         },
+
+         // token validation requests
          { name: 'tokenValidateURL', type: 'string',
            description: 'REST service URL used to validate auth tokens',
            defaultValue: 'https://www.googleapis.com/oauth2/v1/tokeninfo'
          },
+         { name: 'tokenValidateRequestOpts', type: 'object',
+           description: 'Additional request options for token validation requests',
+           defaultValue: {}
+         },
+
+         // configure user info requests
+         { name: 'userInfoURL', type: 'string',
+           description: 'REST service URL used to fetch basic information about a user',
+           defaultValue: 'https://www.googleapis.com/oauth2/v1/userinfo'
+         },
+         { name: 'userInfoRequestOpts', type: 'object',
+           description: 'Additional request options for user info requests',
+           defaultValue: {}
+         },
+
          { name: 'clientID', type: 'string',
            description: 'OAuth2 client ID for this JBrowse installation',
            required: true,
@@ -63,32 +91,24 @@ return declare( CredentialSlot, {
            description: 'array of authentication scope tokens to ask for by default',
            defaultValue: [ knownScopes.userinfoProfile, knownScopes.driveRead, knownScopes.driveFiles ]
          },
-         { name: 'authPopupWindowOpts', type: 'multi-string',
-           description: 'array of [name,optionsString] to use when instantiating an authentication popup window',
-           defaultValue: function( slot ) {
-               return [ slot.getConf('name')+'AuthWindow', 'status=no,toolbar=no,width=460,height=700' ];
-           }
-         },
-         { name: 'userInfoURL', type: 'string',
-           description: 'REST service URL used to fetch basic information about a user',
-           defaultValue: 'https://www.googleapis.com/oauth2/v1/userinfo'
-         },
          { name: 'userIDField', type: 'string',
            description: 'Token metadata field name that contains the unique ID of the user it was issued to.',
            defaultValue: 'user_id'
          },
 
+         // opts for customizing how its control looks in the keyring pane
          { name: 'label', defaultValue: '<a target="_blank" href="{link}">{name}</a>' },
          { name: 'keyringCSSClass',  defaultValue: 'google' },
          { name: 'notReadyStatusLabel',  defaultValue: 'Click to authorize' },
          { name: 'readyStatusLabel', defaultValue: 'Connected' },
 
          { name: 'accessTokenQueryVar', type: 'string',
-           description: 'URL query string variable to use for putting access tokens in JSONP or other requests',
+           description: 'URL query string variable to use for putting access tokens in the URL query string for JSONP or other requests',
            defaultValue: 'access_token'
          },
 
          { name: 'scopeMap', type: 'multi-object',
+           description: 'map used to match URL patterns to the auth scopes that we know we need for them',
            defaultValue: [
                { urlPrefix: 'https://www.googleapis.com/drive/v2/files',
                  requires: [ knownScopes.driveFiles, knownScopes.driveRead ]
@@ -163,17 +183,21 @@ return declare( CredentialSlot, {
       var scope = request.scope;
       if( ! scope ) {
           // see if we can figure out from the opts what scope we really need
-          scope = this._scopeForResource( request.resource ) || [];
-          // if all the scope we need for this request are in the
-          // defaultScope, just go ahead and ask for the default set
-          var defaultScope = this.getConf('defaultScope');
-          if( array.every( scope, function(scope) { return array.indexOf( defaultScope, scope ) >= 0; } ) )
-              scope = defaultScope;
+          if( request.resource ) {
+              scope = this._scopeForResource( request.resource ) || [];
+              // if all the scope we need for this request are in the
+              // defaultScope, just go ahead and ask for the default set
+              var defaultScope = this.getConf('defaultScope');
+              if( array.every( scope, function(scope) { return array.indexOf( defaultScope, scope ) >= 0; } ) )
+                  scope = defaultScope;
+          } else {
+              scope = this.getConf('defaultScope');
+          }
       }
       else if( typeof scope == 'string' )
           scope = scope.split(/\s+/);
 
-      return this.getTokensForScope( scope );
+      return this._watchDeferred( this.getTokensForScope( scope ) );
   },
 
   getUserInfo: function(opts) {
@@ -259,16 +283,7 @@ return declare( CredentialSlot, {
   _getNewToken: function( scope ) {
       var thisB = this;
 
-      var authUrl = this.getConf('authStartURL') + '?' + ioQuery.objectToQuery(
-          {
-              response_type:  'token',
-              client_id:      this.getConf('clientID'),
-              scope:          scope.join(' '),
-              redirect_uri:   Util.resolveUrl( ''+window.location, 'themes/blank.html' )
-              //, prompt: 'consent' // force display of consent prompt
-
-              // TODO: set login_hint here if credentials are stored
-          });
+      var authUrl = this._assembleAuthStartURL( scope );
 
       return this._getTokenFromPopupWindow( authUrl )
           .then( function( tokenData ) {
@@ -282,9 +297,23 @@ return declare( CredentialSlot, {
                  });
   },
 
+  _assembleAuthStartURL: function( scope ) {
+      return this.getConf('authStartURL') + '?' + ioQuery.objectToQuery(
+          {
+              response_type:  'token',
+              client_id:      this.getConf('clientID'),
+              scope:          scope.join(' '),
+              redirect_uri:   Util.resolveUrl( ''+window.location, 'themes/blank.html' )
+              //, prompt: 'consent' // force display of consent prompt
+
+              // TODO: set login_hint here if credentials are stored
+          });
+  },
+
   /**
-   * open the auth window and get the token from its URL when it's ready.
-   * returns deferred plain object of token data
+   * open a popup window to start the OAuth2 flow, and get the token
+   * from its URL when it's ready.  returns deferred plain object of
+   * token data
    */
   _getTokenFromPopupWindow: function( authUrl ) {
       var thisB = this;
@@ -329,7 +358,7 @@ return declare( CredentialSlot, {
       // to our redirect URL and should have a token for us in its URL
       on.once( authWindow, 'load', function() {
           try {
-              tokenData = thisB._parseCredentials( authWindow );
+              tokenData = thisB._parseCredentialsFromPopupWindow( authWindow );
               if( ! tokenData )
                   return;
               authWindow.close();
@@ -348,20 +377,18 @@ return declare( CredentialSlot, {
   },
 
   _fetchUserInfo: function( token ) {
-      var fetchOpts = {
-          query: { access_token: token.tokenString },
-          jsonp: 'callback',
-          requestTechnique: 'script'
-      };
-      var url = this.getConf('userInfoURL');
-      var fetch = this.browser.getTransportForResource( url )
-          .request( url, fetchOpts )
+      var req = this._assembleAPIRequest(
+          'userInfo',
+          { query: { access_token: ''+token } }
+      );
+
+      var fetch = this.browser.request( req.url, req )
           .then( function( response ) {
                      if( response.error )
                          throw new Error( response.error );
-
                      return response;
                  });
+
       this._watchDeferred( fetch );
       return fetch;
   },
@@ -383,6 +410,43 @@ return declare( CredentialSlot, {
                  });
   },
 
+  _assembleAPIRequest: function( reqTypeName, fetchOpts ) {
+      return lang.mixin(
+          {},
+          this.getConf('apiRequestOpts'),
+          this.getConf( reqTypeName+'RequestOpts'),
+          fetchOpts,
+          { url: this.getConf( reqTypeName+'URL' ) }
+      );
+  },
+
+
+  /**
+   * Given a token and the response from the token validation service,
+   * throw if the token is invalid, and otherwise return a valid
+   * token.  Might be the same token, or a different token object.
+   */
+  _validateTokenFromResponse: function( inputToken, response ) {
+      if( response.error )
+          throw response.error;
+
+      // check `audience`; critical for security
+      var audience = response.audience || response.issued_to;
+      if( audience != this.getConf('clientID') ) {
+          console.warn( 'Authentication token is for the wrong Client ID.' );
+          throw 'invalid_token';
+      }
+
+      if( typeof response.scope == 'string' )
+          response.scope = response.scope.split(/\s+/);
+
+      var newTokenMeta = lang.mixin( {}, inputToken.getMeta(), response );
+
+      var validatedToken = new Token( inputToken.tokenString, newTokenMeta );
+      validatedToken.setValidated();
+      return validatedToken;
+  },
+
   /**
    * Takes a Token, returns a Deferred with either a new validated
    * Token with the same data, or undefined if the Token could not be
@@ -391,39 +455,17 @@ return declare( CredentialSlot, {
   validateToken: function( inputToken ) {
       var thisB = this;
 
-      // CORS isn't working on googleapis.com, apparently, so we have to use JSONP  >:={
-      var requestOpts = {
-          query: { access_token: inputToken.tokenString },
-          jsonp: 'callback',
-          requestTechnique: 'script'
-      };
-      var url = this.getConf('tokenValidateURL');
+      var req = this._assembleAPIRequest( 'tokenValidate', {query:{ access_token: ''+inputToken }} )
+                || this._assembleAPIRequest( 'userInfo', {query:{ access_token: ''+inputToken }} );
 
-      return this.browser.getTransportForResource( url )
-          .request( url, requestOpts )
+      return this.browser.request( req.url, req )
           .then( function( response ) {
-                  if( response.error )
-                      throw response.error;
-
-                  // check `audience`; critical for security
-                  var audience = response.audience || response.issued_to;
-                  if( audience != thisB.getConf('clientID') ) {
-                      console.warn( 'Authentication token is for the wrong Client ID.' );
-                      throw 'invalid_token';
-                  }
-
-                  if( typeof response.scope == 'string' )
-                      response.scope = response.scope.split(/\s+/);
-
-                  var newTokenMeta = lang.mixin( {}, inputToken.getMeta(), response );
-
-                  var validatedToken = new Token( inputToken.tokenString, newTokenMeta );
-                  validatedToken.setValidated();
+                  var validatedToken = thisB._validateTokenFromResponse( inputToken, response );
                   thisB._tokenStore.replaceAccessToken( inputToken, validatedToken );
 
                   return validatedToken;
-                 })
-           .then( null, function( error ) {
+                 },
+                 function( error ) {
                      if( error == 'invalid_token' ) {
                          // if the token was invalid, remove it from the token store
                          thisB._tokenStore.removeAccessTokens([inputToken]);
@@ -433,7 +475,7 @@ return declare( CredentialSlot, {
                  });
   },
 
-  _parseCredentials: function( authWindow ) {
+  _parseCredentialsFromPopupWindow: function( authWindow ) {
       if( ! /access_token=/.test( authWindow.location.hash ) )
           return null;
 
@@ -448,9 +490,9 @@ return declare( CredentialSlot, {
   },
 
   _scopeForResource: function( resourceDef ) {
+      if( ! resourceDef ) return undefined;
       var url = typeof resourceDef == 'string' ? resourceDef : resourceDef.url;
-      if( ! url )
-          return undefined;
+      if( ! url ) return undefined;
 
       var scopeMap = this.getConf('scopeMap');
 
