@@ -23,7 +23,7 @@ return declare( null, {
             var newName = 'GFF3_'+basename+'_'+uniqCounter++;
             configs[newName] = {
                 type: this.storeType,
-                blob: this._makeBlob( resource ),
+                blob: resource.file || resource.url,
                 name: newName
             };
             return true;
@@ -34,16 +34,6 @@ return declare( null, {
 
     // try to merge any singleton BAM and BAI stores.  currently can only do this if there is one of each
     finalizeConfiguration: function( configs ) {
-    },
-
-    _makeBlob: function( resource ) {
-        var r = resource.file ? new FileBlob( resource.file ) :
-                resource.url  ? new XHRBlob( resource.url )   :
-                                null;
-        if( ! r )
-            throw 'unknown resource type';
-        return r;
-
     },
 
     confIsValid: function( conf ) {

@@ -1,14 +1,16 @@
 define([
            'dojo/_base/declare',
-           'JBrowse/Util',
-           'JBrowse/Model/FileBlob',
-           'JBrowse/Model/XHRBlob'
+           'JBrowse/Util'
        ],
-       function( declare, Util, FileBlob, XHRBlob ) {
+       function( declare, Util ) {
 var uniqCounter = 0;
 return declare( null, {
 
     tryResource: function( configs, resource ) {
+        function getname( resource ) {
+            return resource && resource.name || resource || '';
+        }
+
         if( resource.type == this.fileExtension ) {
             var basename = Util.basename(
                 resource.file ? resource.file.name :
@@ -21,9 +23,9 @@ return declare( null, {
             // go through the configs and see if there is one for an index that seems to match
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[ this.indexConfKey ] ? c[ this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
+                if( Util.basename( getname(c[ this.indexConfKey ]), '.'+this.indexExtension ) == basename ) {
                     // it's a match, put it in
-                    c[this.fileConfKey] = this._makeBlob( resource );
+                    c[this.fileConfKey] = this._makeResource( resource );
                     return true;
                 }
             }
@@ -31,9 +33,9 @@ return declare( null, {
             basename = Util.basename( basename, '.'+this.fileExtension );
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[this.indexConfKey] ? c[this.indexConfKey].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
+                if( Util.basename( getname(c[this.indexConfKey]), '.'+this.indexExtension ) == basename ) {
                     // it's a match, put it in
-                    c[this.fileConfKey] = this._makeBlob( resource );
+                    c[this.fileConfKey] = this._makeResource( resource );
                     return true;
                 }
             }
@@ -44,10 +46,12 @@ return declare( null, {
                 type: this.storeType,
                 name: newName
             };
-            configs[newName][this.fileConfKey] = this._makeBlob( resource );
+            configs[newName][this.fileConfKey] = this._makeResource( resource );
 
             return true;
+
         } else if( resource.type == this.indexExtension ) {
+
             var basename = Util.basename(
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
@@ -60,18 +64,18 @@ return declare( null, {
             // go through the configs and look for data files that match like zee.bam -> zee.bam.bai
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey] ) == basename ) {
+                if( Util.basename( getname( c[this.fileConfKey] ) ) == basename ) {
                     // it's a match, put it in
-                    c[this.indexConfKey] = this._makeBlob( resource );
+                    c[this.indexConfKey] = this._makeResource( resource );
                     return true;
                 }
             }
             // go through again and look for data files that match like zee.bam -> zee.bai
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], '.'+this.fileExtension ) == basename ) {
+                if( Util.basename( getname( c[this.fileConfKey]), '.'+this.fileExtension ) == basename ) {
                     // it's a match, put it in
-                    c[this.indexConfKey] = this._makeBlob( resource );
+                    c[this.indexConfKey] = this._makeResource( resource );
                     return true;
                 }
             }
@@ -83,7 +87,7 @@ return declare( null, {
                 type: this.storeType
             };
 
-            configs[newName][this.indexConfKey] = this._makeBlob( resource );
+            configs[newName][this.indexConfKey] = this._makeResource( resource );
             return true;
         }
         else
@@ -138,9 +142,9 @@ return declare( null, {
         }
     },
 
-    _makeBlob: function( resource ) {
-        var r = resource.file ? new FileBlob( resource.file ) :
-                resource.url  ? new XHRBlob( resource.url )   :
+    _makeResource: function( resource ) {
+        var r = resource.file ? resource.file :
+                resource.url  ? resource.url  :
                                 null;
         if( ! r )
             throw 'unknown resource type';
