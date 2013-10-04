@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed a bad bug that prevented fixed-scale Wiggle and SNPCoverage
+   tracks from displaying.  Thanks to Jean-Jack Riethoven and Michael
+   Axtell for pointing this out.
+
 # Release 1.10.5     2013-10-03 10:21:37 EST5EDT
 
 ## Minor improvements
