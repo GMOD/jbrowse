@@ -3,6 +3,7 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/dom-construct',
+           'dojo/window',
            'dojo/on',
 
            'dijit/Dialog',
@@ -19,6 +20,7 @@ define([
            array,
            lang,
            domConstruct,
+           dojoWindow,
            on,
 
            Dialog,
@@ -33,11 +35,23 @@ define([
 
 return declare( Dialog, {
 
-  title: 'Export track data',
+  title: 'Save track data',
 
   show: function() {
       this.set( 'content', this._exportDialogContent() );
       this.inherited(arguments);
+  },
+
+  _update: function() {
+      // update the default filename
+      var region = this._readRadio( this.form.elements.region);
+      var format = this._nameToExtension[ this._readRadio( this.form.elements.format) ];
+      this.form.elements.filename.value =
+          ((this.track.key || this.track.label) + "-" + region)
+          .replace(/[^ .a-zA-Z0-9_-]/g,'-')
+          + "." + format;
+
+      this._fillPreview();
   },
 
   _exportDialogContent: function() {
@@ -51,16 +65,8 @@ return declare( Dialog, {
                          r.canExport = track._canExportRegion( r.region );
                      }, this );
 
-      function setFilenameValue() {
-          var region = thisB._readRadio(form.elements.region);
-          var format = nameToExtension[ thisB._readRadio(form.elements.format) ];
-          form.elements.filename.value =
-              ((track.key || track.label) + "-" + region)
-              .replace(/[^ .a-zA-Z0-9_-]/g,'-')
-              + "." + format;
-      };
 
-      var form = domConstruct.create('form', { onSubmit: function() { return false; } });
+      var form = this.form = domConstruct.create('form', { onSubmit: function() { return false; } });
       var regionFieldset = domConstruct.create('fieldset', {className: "region"}, form );
       domConstruct.create('legend', {innerHTML: "Region to save"}, regionFieldset);
 
@@ -91,7 +97,7 @@ return declare( Dialog, {
                              regionButtonLabel.className = "ghosted";
                          }
 
-                         on(regionButton, "click", setFilenameValue);
+                         on(regionButton, "click", lang.hitch( thisB, '_update' ) );
 
                          domConstruct.create('br',{},regionFieldset);
                      });
@@ -101,7 +107,7 @@ return declare( Dialog, {
       domConstruct.create("legend", {innerHTML: "Format"}, formatFieldset);
 
       checked = 0;
-      var nameToExtension = {};
+      var nameToExtension = this._nameToExtension = {};
       array.forEach( track._exportFormats(), function(fmt) {
                          if( ! fmt.name ) {
                              fmt = { name: fmt, label: fmt };
@@ -120,16 +126,28 @@ return declare( Dialog, {
 
                          formatButtonLabel.insertBefore( formatButton.domNode, formatButtonLabel.firstChild );
 
-                         on( formatButton, "click", setFilenameValue );
+                         on( formatButton, "click", lang.hitch( thisB, '_update' ) );
                          domConstruct.create( "br", {}, formatFieldset );
                      },this);
 
+      var previewFieldset = domConstruct.create("fieldset", {className: "preview"}, form);
+      this.previewTitle = domConstruct.create("legend", {innerHTML: "Preview"}, previewFieldset );
+      this.previewText = domConstruct.create(
+          'textarea', {
+              rows: Math.round( dojoWindow.getBox().h / 12 * 0.25 ),
+              wrap: 'off',
+              cols: 80,
+              style: "maxWidth: 90em; overflow: scroll;"
+                  + " overflow-y: scroll; overflow-x: scroll;"
+                  + " overflow:-moz-scrollbars-vertical;",
+              readonly: true
+          }, previewFieldset );
 
       var filenameFieldset = domConstruct.create("fieldset", {className: "filename"}, form);
       domConstruct.create("legend", {innerHTML: "Filename"}, filenameFieldset);
       domConstruct.create("input", {type: "text", name: "filename", style: {width: "100%"}}, filenameFieldset);
 
-      setFilenameValue();
+      this._update();
 
       this.destinationChooser = {
           browser: this.browser,
@@ -172,6 +190,35 @@ return declare( Dialog, {
       }
 
       return [ form, actionBar ];
+  },
+
+  _fillPreview: function() {
+      var region = Util.parseLocString( this._readRadio( this.form.elements.region ) );
+      var format = this._readRadio( this.form.elements.format);
+
+      var exportStream = this.track.exportRegion( region, format );
+      var output = '';
+      var text = this.previewText;
+      var title = this.previewTitle;
+      var sizeLimit = 10000;
+      exportStream
+          .forEach( function( chunk ) {
+                        output += chunk;
+                        if( output.length >= sizeLimit )
+                            exportStream.cancel( 'preview size limit reached' );
+                    },
+                    function() {
+                        text.value = output;
+                        title.innerHTML = 'Preview';
+                    },
+                    function(error) {
+                        if( error != 'preview size limit reached' )
+                            console.error( error.stack || ''+error );
+                        else {
+                            title.innerHTML = 'Preview (first '+Util.humanReadableNumber(output.length)+'b)';
+                            text.value = output;
+                        }
+                    });
   },
 
   // cross-platform function for (portably) reading the value of a
