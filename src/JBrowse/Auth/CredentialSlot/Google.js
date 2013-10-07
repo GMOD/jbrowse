@@ -331,7 +331,7 @@ return declare( CredentialSlot, {
 
       var authWindow = window.open.apply( window, [authUrl].concat( this.getConf('authPopupWindowOpts') ) );
       if( ! authWindow )
-          throw new Error( "Could not open popup window to do "+this.getConf('name')+' authentication.  Is a popup blocker active?' );
+          throw new Error( "Could not open popup window to start "+this.getConf('name')+' authentication.  Is a popup blocker active?' );
 
       var tokenData;
 
