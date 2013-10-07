@@ -91,38 +91,28 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     _compensateForPotentiallyStupidAcen: function(){
         var ft = this.features;
         for (var f=0; f < ft.length; f++){
-            if (ft[f].gieStain === 'acen' && typeof ft[f+1] !== 'undefined' ){
+            if (ft[f].gieStain !== 'acen' ) continue;
                 
-                // Only one acen. Do nothing.
-                if (ft[f+1].gieStain !== 'acen'){ }
+            // Only one acen. Do nothing.
+            if (ft[f+1].gieStain !== 'acen'){ }
 
-                // 2 acen. Expected, set left and right sides
-                else if (ft[f+2] === undefined || ft[f+2].gieStain !== 'acen'){
-                    ft[f].pos ='left';
-                    ft[f+1].pos = 'right';
-                }
-                // 3+ acen? Join them all, center in the center, 
-                // Be upset over shitty data.
-                else {
-                    while (ft[f+1].gieStain ==='acen'){
-                        this._mergeAcen(f);
-                    }
+            // 2 acen. Expected, set left and right sides
+            else if ( !ft[f+2] || ft[f+2].gieStain !== 'acen'){
+                ft[f].pos ='left';
+                ft[f+1].pos = 'right';
+            }
+            // 3+ acen? Join them all, center in the center, 
+            // Be upset over shitty data.
+            else {
+                while (ft[f+1].gieStain ==='acen'){
+                    this._mergeAcen(f);
                 }
             }
         }
     },
     _mergeAcen: function(f){
-        var feature = this.features;
-        feature[f] = {
-                chrom: feature[f].chrom,
-                chromStart: feature[f].chromStart,
-                chromEnd: feature[f+1].chromEnd,
-                name: feature[f].name,
-                gieStain: 'acen',
-                type: feature[f].type,
-                pos: 'none'
-            };
-        feature.splice(f+1,1);
+        this.features[f].chromEnd = this.features[f+1].chromEnd;
+        this.features.splice(f+1,1);
     }
 });
 });
