@@ -60,7 +60,7 @@ describe( 'Cytoband store', function() {
 
                waitsFor( function() { return done; } );
                runs( function() {
-                         expect( features.length ).toEqual( 8 );
+                         expect( features.length ).toEqual( 9 );
                          expect( features[2].get('gieStain')).toEqual( 'gpos75' );
                      });
            }).call();

@@ -1,15 +1,16 @@
-{ "features" :
-    [
-        { "chrom" : "ctgA", "chromStart" : 5, "chromEnd" : 3400, "name" : "p34.3", "gieStain" : "gneg" },
-        { "chrom" : "ctgA", "chromStart" : 3400, "chromEnd" : 12070, "name" : "p34.2", "gieStain" : "gpos25" },
-        { "chrom" : "ctgA", "chromStart" : 12070, "chromEnd" : 20005, "name" : "p33", "gieStain" : "gpos75" },
-        { "chrom" : "ctgA", "chromStart" : 20005, "chromEnd" : 25500, "name" : "p32.2", "gieStain" : "gpos50" },
-        { "chrom" : "ctgA", "chromStart" : 25500, "chromEnd" : 30500, "name" : "p31.1", "gieStain" : "gpos100" },
-        { "chrom" : "ctgA", "chromStart" : 30500, "chromEnd" : 31500, "name" : "p11.1", "gieStain" : "acen" },
-        { "chrom" : "ctgA", "chromStart" : 31500, "chromEnd" : 42800, "name" : "q12", "gieStain" : "gvar" },
-        { "chrom" : "ctgA", "chromStart" : 42800, "chromEnd" : 49500, "name" : "q21.1", "gieStain" : "stalk" },
-        { "chrom" : "ctgB", "chromStart" : 3500, "chromEnd" : 7700, "name" : "p12", "gieStain" : "stalk" },
-        { "chrom" : "ctgB", "chromStart" : 7700, "chromEnd" : 12600, "name" : "p11.2", "gieStain" : "gvar" },
-        { "chrom" : "someChrom", "chromStart" : 145800, "chromEnd" : 153691, "name" : "q28", "gieStain" : "gneg" }
-    ]
+{ "features" : 
+    [ 
+        { "chrom" : "ctgA", "chromStart" : 5, "chromEnd" : 3400, "name" : "p34.3", "gieStain" : "gneg", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgA", "chromStart" : 3400, "chromEnd" : 12070, "name" : "p34.2", "gieStain" : "gpos25", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgA", "chromStart" : 12070, "chromEnd" : 20005, "name" : "p33", "gieStain" : "gpos75", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgA", "chromStart" : 20005, "chromEnd" : 25500, "name" : "p32.2", "gieStain" : "gpos50", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgA", "chromStart" : 25500, "chromEnd" : 30500, "name" : "p31.1", "gieStain" : "gpos100", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgA", "chromStart" : 30500, "chromEnd" : 30850, "name" : "p11.1", "gieStain" : "acen", "type" : "centromere" }, 
+        { "chrom" : "ctgA", "chromStart" : 30850, "chromEnd" : 31500, "name" : "p11", "gieStain" : "acen", "type" : "centromere" }, 
+        { "chrom" : "ctgA", "chromStart" : 31500, "chromEnd" : 42800, "name" : "q12", "gieStain" : "gvar", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgA", "chromStart" : 42800, "chromEnd" : 49500, "name" : "q21.1", "gieStain" : "stalk", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgB", "chromStart" : 3500, "chromEnd" : 7700, "name" : "p12", "gieStain" : "stalk", "type" : "chromosome_band" }, 
+        { "chrom" : "ctgB", "chromStart" : 7700, "chromEnd" : 12600, "name" : "p11.2", "gieStain" : "gvar", "type" : "chromosome_band" }, 
+        { "chrom" : "someChrom", "chromStart" : 145800, "chromEnd" : 153691, "name" : "q28", "gieStain" : "gneg", "type" : "chromosome_band" } 
+    ] 
 }

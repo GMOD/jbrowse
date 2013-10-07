@@ -37,7 +37,6 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
             },
             endCallback : function(){
                 thisB._compensateForPotentiallyStupidAcen();
-                console.log(JSON.stringify(thisB.features));
                 thisB._deferred.features.resolve( features );
                 thisB._deferred.stats.resolve();
             }
