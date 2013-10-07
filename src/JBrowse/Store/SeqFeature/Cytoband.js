@@ -37,6 +37,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
             },
             endCallback : function(){
                 thisB._compensateForPotentiallyStupidAcen();
+                console.log(JSON.stringify(thisB.features));
                 thisB._deferred.features.resolve( features );
                 thisB._deferred.stats.resolve();
             }
@@ -62,19 +63,19 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     _search: function( query, featureCallback, finishCallback, errorCallback ) {
         var refName = this.browser.regularizeReferenceName( query.ref );
         var converted = [];
-        for(var band in this.features){
+        for(var band = 0; band < this.features.length; band++){
             var b = this.features[band];
             var bandRef = this.browser.regularizeReferenceName( b.chrom );
             if ( bandRef === refName && !(b.chromStart > query.end || b.chromEnd < query.start))
             {
-                var f = this._formatFeature( b );
+                var f = this._formatFeature( b, 'none' );
                 featureCallback(f);
             }
         }
         finishCallback();
     },
 
-    _formatFeature: function(data){
+    _formatFeature: function(data, pos){
         return new SimpleFeature({
             data:
             {
@@ -82,28 +83,29 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
                 end: data.chromEnd,
                 name: data.name,
                 gieStain: data.gieStain,
-                type: data.type
+                type: data.type,
+                pos: data.pos
             }
         });
     },
     _compensateForPotentiallyStupidAcen: function(){
-        var feature = this.features;
-        for (var f in feature){
-            if (feature[f].gieStain === 'acen' && feature[f+1] !== undefined ){
+        var ft = this.features;
+        for (var f=0; f < ft.length; f++){
+            if (ft[f].gieStain === 'acen' && typeof ft[f+1] !== 'undefined' ){
                 
                 // Only one acen. Do nothing.
-                if (feature[f+1].gieStain !== 'acen'){ }
+                if (ft[f+1].gieStain !== 'acen'){ }
 
                 // 2 acen. Expected, set left and right sides
-                else if (feature[f+2].gieStain !== 'acen'){
-                    
+                else if (ft[f+2] === undefined || ft[f+2].gieStain !== 'acen'){
+                    ft[f].pos ='left';
+                    ft[f+1].pos = 'right';
                 }
                 // 3+ acen? Join them all, center in the center, 
                 // Be upset over shitty data.
                 else {
-                    while (feature[f+1].gieStain ==='acen'){
+                    while (ft[f+1].gieStain ==='acen'){
                         this._mergeAcen(f);
-                        feature[f].center = (feature[f].start + feature[f].end)/2;
                     }
                 }
             }

@@ -13,9 +13,9 @@ return declare([ BoxGlyph ], {
     configSchema: {
         slots: [
             { name: 'color', defaultValue: '#8B2323', type: 'Color'},
-            { name: 'height', defaultValue: 30, type: 'float' },
-            { name: 'borderColor', defaultValue: 'black', type: 'Color' },
-            { name: 'borderWidth', defaultValue: 1, type: 'float' }
+            { name: 'height', defaultValue: 30, type: 'float' }//,
+//            { name: 'borderColor', defaultValue: 'black', type: 'Color' },
+//            { name: 'borderWidth', defaultValue: 1, type: 'float' }
         ]
     },
 
@@ -36,15 +36,20 @@ return declare([ BoxGlyph ], {
         if( bgcolor ) {
             context.fillStyle = bgcolor.toString();
             context.beginPath();
-            context.moveTo(left, top);
-            context.lineTo(left, top+height);
-            context.lineTo(left+width/2, (top+height)*0.5);
-            context.fill();
-
-            context.beginPath();
-            context.moveTo(left+width, top);
-            context.lineTo(left+width, top+height);
-            context.lineTo(left+width/2, (top+height)*0.5);
+            if (feature.data.pos === 'left'){
+                context.moveTo( left, top );
+                context.lineTo( left, top+height );
+                context.lineTo( left+width, top+height*0.5 );
+            }else if(feature.data.pos ==='right'){
+                context.moveTo( left+width, top );
+                context.lineTo( left+width, top+height );
+                context.lineTo( left, top+height*0.5 );
+            } else {
+                context.moveTo( left, top );
+                context.lineTo( left, top+height );
+                context.lineTo( left+width, top );
+                context.lineTo( left+width, top+height );
+            }
             context.fill();
         }
         else {
