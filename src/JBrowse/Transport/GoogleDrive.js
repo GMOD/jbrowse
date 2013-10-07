@@ -18,9 +18,13 @@ define([
        ) {
 
 
-return declare( _RequestBased, {
+return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
 
-  name: 'Google Drive',
+  configSchema: {
+      slots: [
+          { name: 'name', defaultValue: 'Google Drive' }
+      ]
+  },
 
   constructor: function() {
       this._fileMetaCache = new LRUCache({

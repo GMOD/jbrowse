@@ -30,13 +30,17 @@ return declare( null, {
             Dropbox,
             LocalFile
           ], function( class_ ) {
-              return new class_({ transportManager: this, authManager: this });
+              return new class_({ browser: this, transportManager: this, authManager: this });
           }, this );
+  },
+
+  getTransportDrivers: function() {
+      return ( this._transportDrivers || [] ).slice();
   },
 
   getTransport: function( name ) {
       for( var i = 0; i<this._transportDrivers.length; i++ ) {
-          if( this._transportDrivers[i].name == name )
+          if( this._transportDrivers[i].getConf('name') == name )
               return this._transportDrivers[i];
       }
       return undefined;
@@ -60,7 +64,7 @@ return declare( null, {
       if( ! transport )
           throw new Error( 'no transport driver found for resource '+resourceDef );
       if( ! transport.request )
-          throw new Error( 'error requesting '+resource+', transport driver '+transport.name+' does not support request()');
+          throw new Error( 'error requesting '+resource+', transport driver '+transport.getConf('name')+' does not support request()');
 
       return transport.request( resource, requestOpts );
   },

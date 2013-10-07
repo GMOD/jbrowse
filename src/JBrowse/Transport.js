@@ -1,13 +1,28 @@
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+
+           'JBrowse/Component'
        ],
        function(
-           declare
+           declare,
+
+           Component
        ) {
 
-return declare( null, {
+return declare( Component, {
+
+  configSchema: {
+      slots: [
+          { name: 'name', type: 'string',
+            description: 'unique name of this transport method.  should be human-readable.',
+            required: true
+          },
+          { name: 'sendFileControlClass', type: 'string', defaultValue: 'JBrowse/View/SendTo/Default' }
+      ]
+  },
 
   constructor: function( args ) {
+
       this.transportManager = args.transportManager;
       if( ! this.transportManager )
           throw new Error("transportManager object required");
@@ -15,7 +30,6 @@ return declare( null, {
       this.authManager = args.authManager;
       if( ! this.authManager )
           throw new Error("authManager object required");
-
   },
 
   /**
@@ -23,9 +37,8 @@ return declare( null, {
    * DeferredGenerator.  Returns a Deferred that resolves when the
    * write is finished and successful.
    */
-  sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
-      throw new Error('abstract');
-  },
+  // sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
+  // },
 
   /**
    * Return true if this transport driver knows how to communicate

@@ -28,6 +28,7 @@ var Component = declare( [ MessagingMixin, ConfigurationMixin ], {
         args = args || {};
         this.serialNumber = ++serialNumber;
         this.browser = args.browser;
+        if( ! args.browser ) throw 'browser argument required';
     },
 
     /**

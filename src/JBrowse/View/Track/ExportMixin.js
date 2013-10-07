@@ -131,6 +131,7 @@ var ExportMixin = declare( null, {
                         action: function() {
                            var d = new ExportDialog(
                                 { track: thisB,
+                                  browser: thisB.browser,
                                   className: 'export-dialog',
                                   browser: thisB.browser
                                 });

@@ -16,9 +16,13 @@ define([
            has,
            _RequestBased
        ) {
-return declare( _RequestBased, {
+return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
 
-  name: 'File',
+  configSchema: {
+      slots: [
+          { name: 'name', defaultValue: 'Local file' }
+      ]
+  },
 
   canHandle: function( def ) {
       return has('save-generated-files') && /^file:\/\//.test( def )

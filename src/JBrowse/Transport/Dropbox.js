@@ -17,7 +17,11 @@ define([
 
 return declare( _RequestBased, {
 
-  name: 'Dropbox',
+  configSchema: {
+      slots: [
+          { name: 'name', defaultValue: 'Dropbox' }
+      ]
+  },
 
   _http: function() {
       return this.__http || ( this.__http = this.transportManager.getTransport('HTTP') );

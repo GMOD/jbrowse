@@ -30,9 +30,13 @@ define([
 jbrowse_jsonp_callbacks = {};
 var serialNumber = 0;
 
-return declare( RequestBasedTransport, {
+return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
 
-  name: 'HTTP',
+  configSchema: {
+      slots: [
+          { name: 'name', defaultValue: 'HTTP' }
+      ]
+  },
 
   constructor: function() {
   },

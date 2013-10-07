@@ -10,10 +10,11 @@ define([
            'dijit/form/TextBox',
            'dijit/form/Button',
            'dijit/form/RadioButton',
+           'dijit/form/Select',
 
            'JBrowse/Util',
            'JBrowse/Model/Resource',
-           './TrackExportPreview'
+           'JBrowse/View/SendTo'
        ],
        function(
            declare,
@@ -27,10 +28,11 @@ define([
            dijitTextBox,
            dijitButton,
            dijitRadioButton,
+           dijitSelect,
 
            Util,
            ResourceBase,
-           ExportPreviewDialog
+           SendTo
        ){
 
 return declare( Dialog, {
@@ -43,14 +45,6 @@ return declare( Dialog, {
   },
 
   _update: function() {
-      // update the default filename
-      var region = this._readRadio( this.form.elements.region);
-      var format = this._nameToExtension[ this._readRadio( this.form.elements.format) ];
-      this.form.elements.filename.value =
-          ((this.track.key || this.track.label) + "-" + region)
-          .replace(/[^ .a-zA-Z0-9_-]/g,'-')
-          + "." + format;
-
       this._fillPreview();
   },
 
@@ -143,21 +137,15 @@ return declare( Dialog, {
               readonly: true
           }, previewFieldset );
 
-      var filenameFieldset = domConstruct.create("fieldset", {className: "filename"}, form);
-      domConstruct.create("legend", {innerHTML: "Filename"}, filenameFieldset);
-      domConstruct.create("input", {type: "text", name: "filename", style: {width: "100%"}}, filenameFieldset);
-
       this._update();
 
-      this.destinationChooser = {
-          browser: this.browser,
-          getResource: function() {
-              return new ResourceBase(
-                  { transport: this.browser.getTransport('File'),
-                    resource: 'file://'+form.elements.filename.value
-                  });
-          }
-      };
+      var sendToFieldset = domConstruct.create('fieldset', { className: 'send-to'}, form );
+      domConstruct.create("legend", {innerHTML: "Send To"}, sendToFieldset );
+      var sendTo = this.sendTo = new SendTo({
+                                  browser: this.browser,
+                                  form: this,
+                                  name: 'sendTo'
+                              }).placeAt( sendToFieldset );
 
       var actionBar = domConstruct.create( 'div', {
                                       className: 'dijitDialogPaneActionBar'
@@ -180,7 +168,7 @@ return declare( Dialog, {
                     dlButton.set( 'disabled', true );
                     dlButton.set( 'iconClass', 'jbrowseIconBusy' );
 
-                    var destinationResource = thisB.destinationChooser.getResource();
+                    var destinationResource = thisB.sendTo.getResource();
                     destinationResource.writeAll(
                         track.exportRegion( region, format )
                     ).then( lang.hitch( thisB, 'hide' ) );
