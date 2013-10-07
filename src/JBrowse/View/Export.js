@@ -14,22 +14,20 @@ return declare( null,
         args = args || {};
         this.printFunc = args.print || function( line ) { this.output += line; };
         this.refSeq = args.refSeq;
-        this.output = '';
         this.track = args.track;
         this.store = args.store;
     },
 
     // will need to override this if you're not exporting regular features
-    exportRegion: function( region ) {
+    exportRegion: function( query ) {
         var thisB = this;
-        return this.store.getFeatures({ ref: region.get('seq_id'), start: region.get('start'), end: region.get('end') })
-            .forEach(
-                lang.hitch( this, 'writeFeature' ),
-                function () { return thisB.output; }
+        return this.store.getFeatures( query )
+            .each(
+                lang.hitch( this, 'formatFeature' )
             );
     },
 
-    print: function( l ) {
+    emit: function( l ) {
         if( lang.isArray( l ) ) {
             array.forEach( l, this.printFunc, this );
         } else {

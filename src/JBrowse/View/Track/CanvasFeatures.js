@@ -798,7 +798,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     heightUpdate: function( height, blockIndex ) {
         this.inherited( arguments );
-        this.staticCanvas.height = this.staticCanvas.offsetHeight;
+        if( this.staticCanvas )
+            this.staticCanvas.height = this.staticCanvas.offsetHeight;
     },
 
     destroy: function() {

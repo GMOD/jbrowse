@@ -82,11 +82,19 @@ return declare( RequestBasedTransport, {
   },
 
   _dojoRequest: function( req, credentialSlots ) {
-      // handle `range` arg
+      var isXHR = !( req.jsonp || req.requestTechnique == 'script' ) || req.requestTechnique == 'iframe';
+
+      // handle `range` arg.  put it in the query stringx if we are not
+      // using an XHR for the request
       var range;
       if(( range = req.range )) {
           delete req.range;
-          req.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
+          if( isXHR )
+              req.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
+          else {
+              if( ! req.query ) req.query = {};
+              req.query['content-range'] = 'bytes='+range[0]+'-'+range[1];
+          }
       }
 
       if( req.requestTechnique == 'iframe' )

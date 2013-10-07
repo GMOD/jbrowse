@@ -19,6 +19,15 @@ return declare( null, {
   },
 
   /**
+   * Overwrite the resource with the data that comes from the given
+   * DeferredGenerator.  Returns a Deferred that resolves when the
+   * write is finished and successful.
+   */
+  sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
+      throw new Error('abstract');
+  },
+
+  /**
    * Return true if this transport driver knows how to communicate
    * with the given resource.  Override this in subclasses.
    * @returns boolean

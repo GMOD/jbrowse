@@ -20,7 +20,7 @@ define([
 
 return declare( _RequestBased, {
 
-  name: 'GoogleDrive',
+  name: 'Google Drive',
 
   constructor: function() {
       this._fileMetaCache = new LRUCache({

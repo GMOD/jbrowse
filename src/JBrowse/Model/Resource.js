@@ -26,6 +26,10 @@ var Resource = declare( null, {
         return { interactive: true };
     },
 
+    writeAll: function( dataGenerator, opts ) {
+        return this.transport.sendFile( dataGenerator, this.resourceDef, opts );
+    },
+
     readAll: function( opts ) {
         return this._read( lang.mixin( {}, this.defaultOpts, opts || {} ) );
     },
