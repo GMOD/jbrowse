@@ -68,14 +68,14 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
             var bandRef = this.browser.regularizeReferenceName( b.chrom );
             if ( bandRef === refName && !(b.chromStart > query.end || b.chromEnd < query.start))
             {
-                var f = this._formatFeature( b, 'none' );
+                var f = this._formatFeature( b );
                 featureCallback(f);
             }
         }
         finishCallback();
     },
 
-    _formatFeature: function(data, pos){
+    _formatFeature: function(data){
         return new SimpleFeature({
             data:
             {
@@ -113,18 +113,16 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
     },
     _mergeAcen: function(f){
         var feature = this.features;
-        feature[f] = new SimpleFeature({
-            data:
-            {
-                start: feature[f].start,
-                end: feature[f+1],
+        feature[f] = {
+                chrom: feature[f].chrom,
+                chromStart: feature[f].chromStart,
+                chromEnd: feature[f+1].chromEnd,
                 name: feature[f].name,
                 gieStain: 'acen',
-                type: feature[f].type
-            }
-       
-            });
-        feature.splice(f,1);
+                type: feature[f].type,
+                pos: 'none'
+            };
+        feature.splice(f+1,1);
     }
 });
 });
