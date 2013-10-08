@@ -13,9 +13,9 @@ return declare([ BoxGlyph ], {
     configSchema: {
         slots: [
             { name: 'color', defaultValue: '#8B2323', type: 'Color'},
-            { name: 'height', defaultValue: 30, type: 'float' }//,
-//            { name: 'borderColor', defaultValue: 'black', type: 'Color' },
-//            { name: 'borderWidth', defaultValue: 1, type: 'float' }
+            { name: 'height', defaultValue: 30, type: 'float' },
+            { name: 'borderColor', defaultValue: 'black', type: 'Color' },
+            { name: 'borderWidth', defaultValue: 1, type: 'float' }
         ]
     },
 
@@ -35,21 +35,7 @@ return declare([ BoxGlyph ], {
         var bgcolor = style( feature, 'color' );
         if( bgcolor ) {
             context.fillStyle = bgcolor.toString();
-            context.beginPath();
-            if (feature.data.pos === 'left'){
-                context.moveTo( left, top );
-                context.lineTo( left, top+height );
-                context.lineTo( left+width, top+height*0.5 );
-            }else if(feature.data.pos ==='right'){
-                context.moveTo( left+width, top );
-                context.lineTo( left+width, top+height );
-                context.lineTo( left, top+height*0.5 );
-            } else {
-                context.moveTo( left, top );
-                context.lineTo( left, top+height );
-                context.lineTo( left+width, top );
-                context.lineTo( left+width, top+height );
-            }
+            this._doPoints(left, top, width, height, feature.data.pos, context);
             context.fill();
         }
         else {
@@ -62,20 +48,39 @@ return declare([ BoxGlyph ], {
             if( width > 3 ) {
                 context.lineWidth = lineWidth;
                 context.strokeStyle = borderColor.toString();
-
-                // need to stroke a smaller rectangle to remain within
-                // the bounds of the feature's overall height and
-                // width, because of the way stroking is done in
-                // canvas.  thus the +0.5 and -1 business.
-                context.strokeRect( left+lineWidth/2, top+lineWidth/2, width-lineWidth, height-lineWidth );
+                this._doPoints(left, top, width, height, feature.data.pos, context);
+                context.stroke();
             }
             else {
                 context.globalAlpha = lineWidth*2/width;
                 context.fillStyle = borderColor.toString();
-                context.fillRect( left, top, Math.max(1,width), height );
+                this._doPoints(left, top, width, height, feature.data.pos, context);
+                context.stroke();
                 context.globalAlpha = 1;
             }
         }
     },
+    
+    // Generic function to go between points of triangle(s). 
+    // stroke() or fill() still needs to be called after this
+    _doPoints: function(left, top, width, height, direction, context){
+
+        context.beginPath();
+        if (direction === 'left'){
+            context.moveTo( left, top );
+            context.lineTo( left, top+height );
+            context.lineTo( left+width, top+height*0.5 );
+        }else if(direction === 'right'){
+            context.moveTo( left+width, top );
+            context.lineTo( left+width, top+height );
+            context.lineTo( left, top+height*0.5 );
+        } else {
+            context.moveTo( left, top );
+            context.lineTo( left, top+height );
+            context.lineTo( left+width, top );
+            context.lineTo( left+width, top+height );
+        }
+        context.closePath();
+    }
 });
 });
