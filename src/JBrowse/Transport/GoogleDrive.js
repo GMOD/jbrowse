@@ -1,22 +1,31 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
+           'dojo/_base/array',
            'dojo/_base/url',
            'dojo/io-query',
+           'dojo/json',
+           'dojo/Deferred',
+           'dojo/promise/all',
 
+           'JBrowse/Util',
            'JBrowse/Store/LRUCache',
            './_RequestBased'
        ],
        function(
            declare,
            lang,
+           array,
            URL,
            ioQuery,
+           JSON,
+           Deferred,
+           all,
 
+           Util,
            LRUCache,
            _RequestBased
        ) {
-
 
 return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
 
@@ -41,8 +50,15 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
   },
 
   _parseURL: function( url ) {
-      url = new URL( url );
-      return lang.mixin( { scheme: url.scheme }, ioQuery.queryToObject( url.query || '' ) );
+      try {
+          var u = new URL( url );
+          return lang.mixin( { scheme: u.scheme }, ioQuery.queryToObject( u.query || '' ) );
+      } catch( e ) {
+          var m = url.match( /^(file|google-drive):\/+(.+)/i );
+          if( ! m )
+              throw 'invalid google drive url '+url;
+          return { scheme: m[1], title: m[2] };
+      }
   },
 
   canHandle: function( url ) {
@@ -51,6 +67,93 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
 
       url = this._parseURL( url );
       return url.scheme == 'google-drive' && ( url.fileId || url.title );
+  },
+
+  sendFile_gapi: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
+      var thisB = this;
+      var resource = this._parseURL( destinationResourceDefinition );
+
+      var headers = {};
+      if( sendOpts.mediaType )
+          headers["Content-Type"] = sendOpts.mediaType;
+
+      var data = '';
+      return dataGenerator
+          .forEach( function(chunk) { data += chunk; },
+                    function() { return thisB._loadGAPI(); } )
+          .then( function( gapi ) {
+                     return thisB.authManager.getCredentialsForRequest(
+                         lang.mixin({ resource: 'https://www.googleapis.com/upload/drive/v2/files' },
+                                     sendOpts
+                                   )
+                     );
+                 })
+          .then( function( credentialSlots ) {
+                     var request = thisB._formatGAPISendFileRequest( data, sendOpts );
+                     return all( array.map( credentialSlots, function( slot ) {
+                                                if( slot.decorateGAPIRequest )
+                                                    return slot.decorateGAPIRequest( request );
+                                                return undefined;
+                                            }))
+                         .then( function() { return request; } );
+                 })
+          .then( function( request ) {
+                     var d = new Deferred();
+                     gapi.client.request( request )
+                         .execute( function( response, rawResponse ) {
+                                       if( ! response )
+                                           d.reject( rawResponse );
+                                       else if( response.error )
+                                           d.reject( response );
+                                       else
+                                           d.resolve( response );
+                                   });
+                     return d;
+                 });
+  },
+
+  // damn you Google for not supporting CORS for everything.
+  _loadGAPI: function() {
+      return this._gapi || ( this._gapi = function() {
+          // if some GAPI is already loaded, just use it
+          if( window.gapi )
+              return Util.resolved( window.gapi );
+
+          return this._http()
+                     .request( 'https://apis.google.com/js/client.js', { requestTechnique: 'script' } )
+                     .then( function() {
+                                return window.gapi;
+                            });
+      }.call( this ) );
+  },
+
+  _formatGAPISendFileRequest: function( data, sendOpts ) {
+      // based on Erik Derohanian's prototype
+      var boundary = '-------jbrowse_likes_pigeons_and_turkeys_very_much';
+      var delimiter = "\r\n--" + boundary + "\r\n";
+      var close_delim = "\r\n--" + boundary + "--";
+
+      var metadata = {};
+      if( sendOpts.filename )
+          metadata.title = sendOpts.filename;
+      if( sendOpts.mediaType )
+          metadata.mimeType = sendOpts.mediaType;
+
+      return {
+          path: '/upload/drive/v2/files',
+          method: 'POST',
+          params: { uploadType: 'multipart'},
+          headers: { 'Content-Type': 'multipart/mixed; boundary="' + boundary + '"' },
+          body: delimiter +
+              'Content-Type: application/json\r\n\r\n' +
+              JSON.stringify( metadata ) +
+              delimiter +
+              ( metadata.mimeType ? 'Content-Type: ' + metadata.mimeType + '\r\n' : '' ) +
+              'Content-Transfer-Encoding: base64\r\n' +
+              '\r\n' +
+              btoa(data) +
+              close_delim
+      };
   },
 
   _request: function( url, requestOptions, credentialSlots ) {

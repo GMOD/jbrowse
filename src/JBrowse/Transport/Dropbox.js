@@ -45,7 +45,7 @@ return declare( _RequestBased, {
       } catch(e) {
           return false;
       }
-      return url.scheme == 'dropbox';
+      return url && url.scheme == 'dropbox';
   },
 
   sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {

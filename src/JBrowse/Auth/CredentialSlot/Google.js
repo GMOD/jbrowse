@@ -118,6 +118,9 @@ return declare( CredentialSlot, {
                { urlPrefix: 'https://www.googleapis.com/drive/v2/files',
                  requires: [ knownScopes.driveFiles, knownScopes.driveRead ]
                },
+               { urlPrefix: 'https://www.googleapis.com/upload/drive/v2',
+                 requires: [ knownScopes.driveFiles ]
+               },
                { urlRegExp: 'docs\.googleusercontent\.com',
                  requires: [ knownScopes.driveFiles, knownScopes.driveRead ]
                }
@@ -168,6 +171,16 @@ return declare( CredentialSlot, {
                      return req;
                  });
  },
+
+  decorateGAPIRequest: function( req ) {
+      var httpReq = lang.mixin({ resource: 'https://www.googleapis.com'+req.path, query: req.params ||{} }, req );
+      return this.decorateHTTPRequest( httpReq )
+         .then( function( newreq ) {
+                    req.headers = newreq.headers;
+                    req.params = newreq.query;
+                    return req;
+                });
+  },
 
   // true if we have some existing, valid tokens.
   isReady: function() {
