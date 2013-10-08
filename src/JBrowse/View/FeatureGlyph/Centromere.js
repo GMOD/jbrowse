@@ -30,37 +30,78 @@ return declare([ BoxGlyph ], {
             return;
         if( height != overallHeight )
             top += Math.round( (overallHeight - height)/2 );
+        
+        if (width < 500){
+            this._drawTriangle(left, top, width, height, feature.data.pos, context, style, feature);
+            this._drawBorder(left, top, width, height, feature.data.pos, context, style, feature);
+        }
+        else {
+            this._drawRepeatingArrows(left, top, width, height, feature.data.pos, context, style, feature);
+        }
 
-        // background
-        var bgcolor = style( feature, 'color' );
-        if( bgcolor ) {
+    },
+    // background
+    _drawTriangle: function(left, top, width, height, direction, context, style, feature){ 
+        if( bgcolor = style( feature, 'color' )) {
             context.fillStyle = bgcolor.toString();
-            this._doPoints(left, top, width, height, feature.data.pos, context);
+            this._doPoints(left, top, width, height, direction, context);
             context.fill();
         }
         else {
             context.clearRect( left, top, Math.max(1,width), height );
         }
+    },
 
-        // foreground border
+    // foreground border
+    _drawBorder: function(left, top, width, height, direction, context, style, feature){
         var borderColor, lineWidth;
         if( (borderColor = style( feature, 'borderColor' )) && ( lineWidth = style( feature, 'borderWidth')) ) {
             if( width > 3 ) {
                 context.lineWidth = lineWidth;
                 context.strokeStyle = borderColor.toString();
-                this._doPoints(left, top, width, height, feature.data.pos, context);
+                this._doPoints(left, top, width, height, direction, context);
                 context.stroke();
             }
             else {
                 context.globalAlpha = lineWidth*2/width;
                 context.fillStyle = borderColor.toString();
-                this._doPoints(left, top, width, height, feature.data.pos, context);
+                this._doPoints(left, top, width, height, direction, context);
                 context.stroke();
                 context.globalAlpha = 1;
             }
         }
     },
+
+    _drawRepeatingArrows: function(left, top, width, height, direction, context, style, feature){
+        var numofArrows = (4*(Math.ceil(width*0.01)));
+        var arrowWidth = width/numofArrows;
+        for (var i=0; i <= numofArrows; i++){
+            context.fillStyle = (i%2===0) ? '#B3B3B3' : '#A90008';
+            this._drawArrow(left, top, width, height, direction, context, arrowWidth, i);
+        }
+    },
     
+    _drawArrow: function (left, top, width, height, direction, context, arrowWidth, i){
+        context.beginPath();
+        if (direction === 'left'){
+            context.moveTo(left+width-i*arrowWidth, top+height/2);
+            context.lineTo(left+width-(i+1)*arrowWidth, top);
+            context.lineTo(left+width-(i+2)*arrowWidth, top);
+            context.lineTo(left+width-(i+2)*arrowWidth, top+height);
+            context.lineTo(left+width-(i+1)*arrowWidth, top+height);
+        }else if(direction === 'right'){
+            context.moveTo(left+i*arrowWidth, top+height/2);
+            context.lineTo(left+(i+1)*arrowWidth, top);
+            context.lineTo(left+(i+2)*arrowWidth, top);
+            context.lineTo(left+(i+2)*arrowWidth, top+height);
+            context.lineTo(left+(i+1)*arrowWidth, top+height);
+        } else {
+
+        }
+        context.closePath();
+        context.fill();
+    },
+
     // Generic function to go between points of triangle(s). 
     // stroke() or fill() still needs to be called after this
     _doPoints: function(left, top, width, height, direction, context){
