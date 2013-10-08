@@ -68,11 +68,39 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
                           return undefined;
                       }) )
           .then( function() {
+
+                     var isXHR = req.handleAs == 'arraybuffer'
+                         || !( req.jsonp || req.requestTechnique == 'script'
+                               || req.requestTechnique == 'iframe'
+                             );
+
+                     // handle `range` arg.  put it in the query string if we are not
+                     // using an XHR for the request
+                     var range;
+                     if(( range = req.range )) {
+                         delete req.range;
+                         range = 'bytes='+range[0]+'-'+range[1];
+
+                         if( isXHR )
+                             req.headers['Range'] = range;
+
+                         // note: Safari browsers cache XHRs to a
+                         // single resource, regardless
+                         // of the byte range.  So, requesting the first 32K, then
+                         // requesting second 32K, can result in getting the first 32K
+                         // twice.  Seen first-hand on Safari 6, and @dasmoth reports
+                         // the same thing on mobile Safari on IOS.  So, if running
+                         // Safari, put the byte range in a query param at the end of
+                         // the URL to force Safari to pay attention to it.
+                         if( ! isXHR || has('safari') )
+                             lang.setObj( 'query.content-range', range, req );
+                     }
+
                      if( req.handleAs == 'arraybuffer' ) {
                          if( req.range ) {
                              return thisB._byteCache.get( req, req.range[0], req.range[1],
                                                          function(req,start,end) {
-                                                             req = lang.mixin( {}, req, { range: [start,end] } );
+                                                             lang.setObj( 'headers.Range', 'bytes='+start+'-'+end, req );
                                                              return thisB._binaryFetch( req, credentialSlots );
                                                          });
                          } else {
@@ -86,21 +114,6 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
   },
 
   _dojoRequest: function( req, credentialSlots ) {
-      var isXHR = !( req.jsonp || req.requestTechnique == 'script' ) || req.requestTechnique == 'iframe';
-
-      // handle `range` arg.  put it in the query stringx if we are not
-      // using an XHR for the request
-      var range;
-      if(( range = req.range )) {
-          delete req.range;
-          if( isXHR )
-              req.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
-          else {
-              if( ! req.query ) req.query = {};
-              req.query['content-range'] = 'bytes='+range[0]+'-'+range[1];
-          }
-      }
-
       if( req.requestTechnique == 'iframe' )
           return iframeReq( req.url, req );
       else if( req.jsonp || req.requestTechnique == 'script' ) {
@@ -137,27 +150,16 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
   _binaryFetch: function( request, credentialSlots ) {
       request = lang.mixin( {}, request );
 
-      // handle `range` arg
-      var range;
-      if(( range = request.range )) {
-          delete request.range;
-          request.headers['Range'] = 'bytes='+range[0]+'-'+range[1];
-      }
-
       var d = new Deferred();
-
       var req = new XMLHttpRequest();
+
       var url = request.url;
 
-      // Safari browsers cache XHRs to a single resource, regardless
-      // of the byte range.  So, requesting the first 32K, then
-      // requesting second 32K, can result in getting the first 32K
-      // twice.  Seen first-hand on Safari 6, and @dasmoth reports
-      // the same thing on mobile Safari on IOS.  So, if running
-      // Safari, put the byte range in a query param at the end of
-      // the URL to force Safari to pay attention to it.
-      if( has('safari') && request.range ) {
-          url = url + ( url.indexOf('?') > -1 ? '&' : '?' ) + 'safari_range=' + request.range[0] +'-'+request.range[1];
+      // process request.query
+      if( request.query ) {
+          url = new URL( url );
+          lang.mixin( url.query, request.query );
+          url = url.toString();
       }
 
       req.open('GET', url, true );
