@@ -10,6 +10,7 @@ define([
            'dijit/form/RadioButton',
 
            'JBrowse/View/Dialog',
+           'JBrowse/View/Dialog/Error',
            'JBrowse/Util',
            'JBrowse/MediaTypes',
            'JBrowse/View/SendTo'
@@ -26,6 +27,7 @@ define([
            dijitRadioButton,
 
            Dialog,
+           ErrorDialog,
            Util,
            MediaTypes,
            SendTo
@@ -169,7 +171,12 @@ return declare( Dialog, {
                     var destinationResource = thisB.sendTo.getResource();
                     destinationResource.writeAll(
                         track.exportRegion( region, format )
-                    ).then( lang.hitch( thisB, 'hide' ) );
+                    ).then( lang.hitch( thisB, 'hide' ),
+                            function(e) {
+                                new ErrorDialog({ browser: thisB.browser, error: e }).show();
+                                thisB.hide();
+                            }
+                          );
                 }
               }
           ).placeAt( actionBar );
