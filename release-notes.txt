@@ -2,6 +2,10 @@
 
 ## Bug fixes
 
+ * Fixed bug in which the mouseover value displays for Wiggle and
+   SNPCoverage tracks would not always be hidden when the mouse leaves
+   the track.
+
  * Fixed a bad bug that prevented fixed-scale Wiggle and SNPCoverage
    tracks from displaying.  Thanks to Jean-Jack Riethoven and Michael
    Axtell for pointing this out.

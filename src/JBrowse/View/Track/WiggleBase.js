@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/_base/lang',
+            'dojo/_base/event',
             'dojo/dom-construct',
             'dojo/on',
             'dojo/mouse',
@@ -15,6 +16,7 @@ define( [
             declare,
             array,
             lang,
+            domEvent,
             dom,
             on,
             mouse,
@@ -199,6 +201,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             block.domNode
         );
         c.startBase = block.startBase;
+        block.canvas = c;
 
         //Calculate the score for each pixel in the block
         var pixels = this._calculatePixelScores( c.width, features, featureRects );
@@ -208,8 +211,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                     c,              features,
                     featureRects,   dataScale,
                     pixels,         block.maskingSpans ); // note: spans may be undefined.
-
-        this._makeScoreDisplay( args.scale, args.leftBase, args.rightBase, block, c, features, featureRects, pixels );
 
         this.heightUpdate( c.height, args.blockIndex );
         if( !( c.parentNode && c.parentNode.parentNode )) {
@@ -348,7 +349,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                     pixelValues[j]['lastUsedStore'] = store;
                 }
                 else {
-                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f }
+                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
                 }
             }
         },this);
@@ -361,69 +362,93 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         return pixelValues;
     },
 
-    _makeScoreDisplay: function( scale, leftBase, rightBase, block, canvas, features, featureRects, pixels ) {
+    setViewInfo: function() {
+        this.inherited(arguments);
+        this._makeScoreDisplay();
+    },
 
-        var pixelValues = pixels;
+    _makeScoreDisplay: function() {
+        var gv = this.browser.view;
+        var thisB = this;
+
+        if( ! this._mouseoverEvent )
+            this._mouseoverEvent = this.own(
+                on( this.div, 'mousemove', function( evt ) {
+                        evt = domEvent.fix( evt );
+                        var bpX = gv.absXtoBp( evt.clientX );
+                        thisB.mouseover( bpX, evt );
+
+                    }))[0];
+        if( ! this._mouseoutEvent )
+            this._mouseoutEvent = this.own( on( this.div, 'mouseleave', function( evt) {
+                                                    thisB.mouseover( undefined );
+                                                }))[0];
 
         // make elements and events to display it
-        var scoreDisplay = dojo.create(
-            'div', {
-                className: 'wiggleValueDisplay',
-                style: {
-                    position: 'fixed',
-                    display: 'none',
-                    zIndex: 15
-                }
-            }, this.browser.container );
-        var verticalLine = dojo.create( 'div', {
-                className: 'wigglePositionIndicator',
-                style: {
-                    position: 'fixed',
-                    display: 'none',
-                    height: canvas.height+'px',
-                    zIndex: 15
-                }
-        }, block.domNode );
-        dojo.forEach( [canvas,verticalLine,scoreDisplay], function(element) {
-            this.own( on( element, 'mousemove', dojo.hitch(this,function(evt) {
-                    var cPos = dojo.position(canvas);
-                    var x = evt.pageX;
-                    var cx = evt.pageX - cPos.x;
-
-                    verticalLine.style.display = 'block';
-                    verticalLine.style.left = x+'px';
-                    verticalLine.style.top = cPos.y+'px';
-                    if( this._showPixelValue( scoreDisplay, pixelValues[Math.round(cx)] ) ) {
-                        scoreDisplay.style.left = x+'px';
-                        scoreDisplay.style.top = cPos.y+'px';
-                        scoreDisplay.style.display = 'block';
-                    } else {
-                        scoreDisplay.style.display = 'none';
-                    }
-            })));
-        },this);
-        /*
-        this.own( on( block.domNode, 'mouseout', function(evt) {
-                var target = evt.srcElement || evt.target;
-                var evtParent = evt.relatedTarget || evt.toElement;
-                if( !target || !evtParent || target.parentNode != evtParent.parentNode) {
-                    scoreDisplay.style.display = 'none';
-                    verticalLine.style.display = 'none';
-                }
-        }));
-        this.own( on(this.browser.view.trackContainer, 'mousemove', function(evt) {
-                var cPos = dojo.position(canvas);
-                var y = evt.pageY - cPos.y;
-                if ( y < 0 || y > cPos.Height) {
-                    scoreDisplay.style.display = 'none';
-                    verticalLine.style.display = 'none';
-                }
-        */
-        this.own( on( block.domNode, mouse.leave, function(evt) {
-                          scoreDisplay.style.display = 'none';
-                          verticalLine.style.display = 'none';
-        }));
+        if( ! this.scoreDisplay )
+            this.scoreDisplay = {
+                flag: dojo.create(
+                    'div', {
+                        className: 'wiggleValueDisplay',
+                        style: {
+                            position: 'fixed',
+                            display: 'none',
+                            zIndex: 15
+                        }
+                    }, this.div),
+                pole: dojo.create( 'div', {
+                                       className: 'wigglePositionIndicator',
+                                       style: {
+                                           position: 'fixed',
+                                           display: 'none',
+                                           zIndex: 15
+                                       }
+                                   }, this.div )
+            };
     },
+
+    mouseover: function( bpX, evt ) {
+        // if( this._scoreDisplayHideTimeout )
+        //     window.clearTimeout( this._scoreDisplayHideTimeout );
+        if( bpX === undefined ) {
+            var thisB = this;
+            //this._scoreDisplayHideTimeout = window.setTimeout( function() {
+                thisB.scoreDisplay.flag.style.display = 'none';
+                thisB.scoreDisplay.pole.style.display = 'none';
+            //}, 1000 );
+        }
+        else {
+            var block;
+            array.some(this.blocks, function(b) {
+                           if( b && b.startBase <= bpX && b.endBase >= bpX ) {
+                               block = b;
+                               return true;
+                           }
+                           return false;
+                       });
+
+            if( !( block && block.canvas && block.pixelScores && evt ) )
+                return;
+
+            var pixelValues = block.pixelScores;
+            var canvas = block.canvas;
+            var cPos = dojo.position( canvas );
+            var x = evt.pageX;
+            var cx = evt.pageX - cPos.x;
+
+            if( this._showPixelValue( this.scoreDisplay.flag, pixelValues[ Math.round( cx ) ] ) ) {
+                this.scoreDisplay.flag.style.display = 'block';
+                this.scoreDisplay.pole.style.display = 'block';
+
+                this.scoreDisplay.flag.style.left = evt.clientX+'px';
+                this.scoreDisplay.flag.style.top  = cPos.y+'px';
+                this.scoreDisplay.pole.style.left = evt.clientX+'px';
+                this.scoreDisplay.pole.style.height = cPos.h+'px';
+            }
+        }
+    },
+
+
 
     _showPixelValue: function( scoreDisplay, score ) {
         if( typeof score == 'number' ) {
