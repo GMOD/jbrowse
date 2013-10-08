@@ -1,0 +1,33 @@
+.jbrowse .send-to {
+    .select {
+        .dijitSelect {
+            min-height: 2em;
+            width: 100%;
+
+            .dijitButtonContents {
+                padding: 0 0.6em;
+            }
+            td.dijitArrowButton {
+                width: 16px;
+            }
+        }
+    }
+    .controls {
+        padding: 0.5em;
+        border: 1px solid #e2e2e2;
+
+        .default {
+            label span.text {
+                font-weight: bold;
+            }
+
+            .dijitTextBox {
+                width: 60%;
+            }
+        }
+
+    }
+
+
+
+}

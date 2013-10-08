@@ -12,7 +12,7 @@ define( [
             'dojo/on',
             'dijit/Destroyable',
             'JBrowse/View/Dialog/Info',
-            'dijit/Dialog',
+            'JBrowse/View/Dialog',
             'dijit/Menu',
             'dijit/PopupMenuItem',
             'dijit/MenuItem',
@@ -887,7 +887,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
               title: "delete this track",
               iconClass: 'dijitIconDelete',
               action: function() {
-                  new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
+                  new ConfirmDialog({ browser: this.browser, title: 'Delete track?', message: 'Really delete this track?' })
                      .show( function( confirmed ) {
                           if( confirmed )
                               that.browser.publish( '/jbrowse/v1/v/tracks/delete', [that.config] );
@@ -954,6 +954,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         type = type.replace(/Dialog/,'');
         var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));
         var dialogOpts = {
+            browser: this,
             "class": "popup-dialog popup-dialog-"+type,
             title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
             style: dojo.clone( spec.style || {} )

@@ -6,12 +6,12 @@ define([
            'dojo/window',
            'dojo/on',
 
-           'dijit/Dialog',
            'dijit/form/TextBox',
            'dijit/form/Button',
            'dijit/form/RadioButton',
            'dijit/form/Select',
 
+           'JBrowse/View/Dialog',
            'JBrowse/Util',
            'JBrowse/MediaTypes',
            'JBrowse/Model/Resource',
@@ -25,12 +25,12 @@ define([
            dojoWindow,
            on,
 
-           Dialog,
            dijitTextBox,
            dijitButton,
            dijitRadioButton,
            dijitSelect,
 
+           Dialog,
            Util,
            MediaTypes,
            ResourceBase,

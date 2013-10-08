@@ -2,9 +2,11 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
+           'dojo/dom-construct',
            'dojo/promise/all',
 
            'dijit/_WidgetBase',
+           'dijit/_TemplatedMixin',
            'dijit/_Container',
            'dijit/form/Select',
 
@@ -14,17 +16,21 @@ define([
            declare,
            array,
            lang,
+           domConstruct,
            all,
 
            _WidgetBase,
+           _TemplatedMixin,
            _Container,
            dijitSelect,
 
            Util
        ) {
-return declare( [_WidgetBase, _Container], {
+return declare( [_WidgetBase, _TemplatedMixin, _Container], {
 
-   templateString: "<div data-dojo-attach-point='containerNode,focusNode'>"
+   templateString: "<div class='send-to' data-dojo-attach-point='containerNode,focusNode'>"
+                   + "<div class='select' data-dojo-attach-point='selectNode'></div>"
+                   + "<div class='controls' data-dojo-attach-point='controlsNode'></div>"
                  + "</div>",
 
    constructor: function( args ) {
@@ -66,11 +72,12 @@ return declare( [_WidgetBase, _Container], {
            .then( function(choices) {
                       thisB.destSelector = new dijitSelect(
                           {
+                              width: '100%',
                               options: array.map( choices, function( dest ) {
                                                       return { value: dest, label: dest.label };
                                                   }),
                               onChange: lang.hitch( thisB, '_changeControls' )
-                          }).placeAt( thisB.containerNode );
+                          }).placeAt( thisB.selectNode );
                       thisB._changeControls();
                       return choices;
                   });
@@ -86,11 +93,13 @@ return declare( [_WidgetBase, _Container], {
    },
 
    _changeControls: function() {
-       if( this.currentControl )
+       if( this.currentControl ) {
            this.currentControl.destroyRecursive();
+           domConstruct.empty( this.controlsNode );
+       }
 
        this.currentControl = this.destSelector.get('value').control;
-       this.currentControl.placeAt( this.containerNode );
+       this.currentControl.placeAt( this.controlsNode );
    },
 
    _getValueAttr: function() {

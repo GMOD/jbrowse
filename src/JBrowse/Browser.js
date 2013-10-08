@@ -638,6 +638,7 @@ renderMenuBar: function( menuBar ) {
     var about = this.browserMeta();
     var aboutDialog = new InfoDialog(
         {
+            browser: this,
             title: 'About '+about.title,
             content: about.description,
             className: 'about-dialog'
@@ -1568,6 +1569,7 @@ searchNames: function( /**String*/ loc ) {
 },
 
 _searchNameIndex: function( loc ) {
+    var thisB = this;
     return this.nameStore.query({ name: loc })
         .then(
             function( nameMatches ) {
@@ -1576,6 +1578,7 @@ _searchNameIndex: function( loc ) {
                 if( ! nameMatches.length ) {
                     new InfoDialog(
                         {
+                            browser: thisB,
                             title: 'Not found',
                             content: 'Not found: <span class="locString">'+loc+'</span>',
                             className: 'notfound-dialog'
@@ -1629,6 +1632,7 @@ _searchNameIndex: function( loc ) {
                 console.error( e );
                 new InfoDialog(
                     {
+                        browser: thisB,
                         title: 'Error',
                         content: 'Error reading from name store.'
                     }).show();

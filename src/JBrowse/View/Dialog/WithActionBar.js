@@ -4,7 +4,7 @@
 define([
            'dojo/_base/declare',
            'dojo/dom-geometry',
-           'dijit/Dialog'
+           'JBrowse/View/Dialog'
        ],
        function( declare, domGeom, dijitDialog ) {
 

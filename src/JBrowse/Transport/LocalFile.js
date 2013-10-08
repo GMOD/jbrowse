@@ -33,9 +33,11 @@ return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
       if( resourceDef instanceof window.Blob )
           return resourceDef.name;
 
-      var u = new URL( resourceDef );
-      if( u.scheme != 'file' ) throw 'invalid url';
-      return u.host + u.path;
+      try {
+          return resourceDef.match(/^file:\/\/(.+)/)[1];
+      } catch(e) {
+          throw 'invalid file url';
+      }
   },
 
   sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {

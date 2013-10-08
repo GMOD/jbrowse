@@ -17,7 +17,15 @@ define([
 
 return declare( [_FormValueWidget, _WidgetsInTemplateMixin], {
 
-  templateString: '<label data-dojo-attach-point="focusNode">Filename <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="filenameBox" data-dojo-attach-event="onchange:_setValueAttr,onkeypress:_setUserModified" size="70" name="filename"></label>',
+  templateString: '<div class="default" data-dojo-attach-point="containerNode">'
+                  + '<label class="default "data-dojo-attach-point="focusNode">'
+                  +   '<span class="text">Filename</span> '
+                  +   '<input data-dojo-type="dijit/form/TextBox"'
+                        + ' data-dojo-attach-point="filenameBox"'
+                        + ' data-dojo-attach-event="onchange:_setValueAttr,onkeypress:_setUserModified"'
+                        + ' name="filename" />'
+                  + '</label>'
+                + '</div>',
 
   update: function( args ) {
       this.mediaType = args.mediaType;

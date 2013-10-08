@@ -6,7 +6,7 @@ define( [
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dojo/dom-construct',
-            'dijit/Dialog',
+            'JBrowse/View/Dialog',
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
             'JBrowse/Component',
@@ -86,7 +86,7 @@ return declare( JBComponent, {
 
     show: function( args ) {
         var dialog = this.dialog = new Dialog(
-            { title: "Open files", className: 'fileDialog' }
+            { browser: this.browser, title: "Open files", className: 'fileDialog' }
             );
 
         var localFilesControl   = this._makeLocalFilesControl();

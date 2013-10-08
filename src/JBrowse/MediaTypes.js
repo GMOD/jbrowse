@@ -12,8 +12,7 @@ define([
            array
        ) {
 
-var MediaType = declare(null,{
-
+var MediaType = declare( 'JBrowse.MediaTypes.MediaType', null, {
   constructor: function(args) {
       lang.mixin( this, args );
   },
@@ -23,7 +22,7 @@ var MediaType = declare(null,{
 });
 
 var MediaTypes;
-return MediaTypes = new ( declare(null,{
+return MediaTypes = new ( declare( 'JBrowse.MediaTypes', null,{
 
   constructor: function() {
       this._organizeTypes();
