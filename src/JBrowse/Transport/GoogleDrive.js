@@ -117,11 +117,18 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
   // damn you Google for not supporting CORS for everything.
   _loadGAPI: function() {
       return this._gapi || ( this._gapi = function() {
-          return this._http()
-                     .request( 'https://apis.google.com/js/client.js', { requestTechnique: 'script' } )
-                     .then( function() {
-                                return window.gapi;
-                            });
+          var d = new Deferred();
+          window.jbrowse_gapi_load_callback = function() {
+              d.resolve( window.gapi );
+          };
+          this._http()
+              .request( 'https://apis.google.com/js/client.js',
+                        { requestTechnique: 'script',
+                          query: { onload: 'jbrowse_gapi_load_callback' }
+                        }
+                      )
+              .then( null, lang.hitch( d, 'reject' ) );
+          return d;
       }.call( this ) );
   },
 
