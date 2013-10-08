@@ -19,7 +19,8 @@ return declare( _RequestBased, {
 
   configSchema: {
       slots: [
-          { name: 'name', defaultValue: 'Dropbox' }
+          { name: 'name', defaultValue: 'Dropbox' },
+          { name: 'baseUrl', defaultValue: 'https://api-content.dropbox.com/1/fakebase.html' }
       ]
   },
 
@@ -28,32 +29,51 @@ return declare( _RequestBased, {
   },
 
   _parseURL: function( url ) {
-      return new URL( url );
+      try {
+          var m = url.match( /^(file|dropbox):\/+(.+)/i );
+          return { scheme: m[1], path: '/'+m[2] };
+      } catch(e) {
+          throw 'invalid dropbox url '+url;
+      }
   },
 
   canHandle: function( url ) {
       if( typeof url != 'string' )
           return false;
-
-      url = this._parseURL( url );
+      try {
+          url = this._parseURL( url );
+      } catch(e) {
+          return false;
+      }
       return url.scheme == 'dropbox';
+  },
+
+  sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
+      var thisB = this;
+      var resource = this._parseURL( destinationResourceDefinition );
+      var putURL = this.resolveUrl( 'files_put/dropbox'+resource.path );
+
+      var data = '';
+      return dataGenerator
+          .forEach( function(chunk) { data += chunk; },
+                    function() {
+                        return thisB._http().request(
+                            putURL,
+                            lang.mixin( {},
+                                        sendOpts,
+                                        {
+                                            query: { overwrite: sendOpts.overwrite || false },
+                                            data: data,
+                                            method: 'put'
+                                        }
+                                      )
+                        );
+                    });
   },
 
   _request: function( url, requestOptions, credentialSlots ) {
       var resource = this._parseURL( url );
-      if(! resource.path )
-          throw 'invalid dropbox url '+url;
-
-      // support both proper dropbox:///foo/bar and improper
-      // dropbox://foo/bar, and make sure it has a leading /
-      var path = resource.path;
-      if( resource.host )
-          path = resource.host + path;
-      if( path.indexOf( '/' ) != 0 )
-          path = '/'+path;
-
-      var downloadURL = 'https://api-content.dropbox.com/1/files/dropbox'+path;
-
+      var downloadURL = this.resolveUrl( 'files/dropbox'+resource.path );
       return this._http().request( downloadURL, requestOptions );
   }
 
