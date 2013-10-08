@@ -19,6 +19,9 @@ return declare( InfoDialog, {
                 +'</div>'
               );
 
+      if( msg )
+          console.error( msg );
+
       this.inherited(arguments);
   }
 
