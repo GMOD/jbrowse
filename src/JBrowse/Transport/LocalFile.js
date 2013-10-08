@@ -43,7 +43,7 @@ return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
       if( ! sendOpts ) sendOpts = {};
       var filename = sendOpts.filename || this._filename( destinationResourceDefinition );
       var mimetype = sendOpts.format ? 'application/x-'+sendOpts.format.toLowerCase() : 'text/plain';
-      console.log( 'saving as type '+mimetype+', name '+filename );
+      //console.log( 'saving as type '+mimetype+', name '+filename );
 
       return dataGenerator
           .forEach(

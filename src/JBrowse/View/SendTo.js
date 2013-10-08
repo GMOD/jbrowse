@@ -38,9 +38,13 @@ return declare( [_WidgetBase, _Container], {
                function( transport ) {
                    return Util.loadJSClass( transport.getConf('sendFileControlClass') )
                        .then( function( class_ ) {
-                                  return { label: transport.getConf('name'),
-                                           control: new class_({ transport: transport, exportDialog: thisB })
-                                         };
+                                  return {
+                                      label: transport.getConf('name'),
+                                      control: new class_(
+                                          { transport: transport,
+                                            exportDialog: thisB
+                                          })
+                                  };
                               });
                },
                this
@@ -58,22 +62,32 @@ return declare( [_WidgetBase, _Container], {
        this.inherited(arguments);
 
        var thisB = this;
-       this.destinationChoices
+       this.destinationChoices = this.destinationChoices
            .then( function(choices) {
                       thisB.destSelector = new dijitSelect(
                           {
                               options: array.map( choices, function( dest ) {
                                                       return { value: dest, label: dest.label };
                                                   }),
-                              onChange: lang.hitch( thisB, '_updateControls' )
+                              onChange: lang.hitch( thisB, '_changeControls' )
                           }).placeAt( thisB.containerNode );
-                      thisB._updateControls();
+                      thisB._changeControls();
+                      return choices;
                   });
    },
 
-   _updateControls: function() {
+   updateControls: function( data ) {
+       var thisB = this;
+       this.destinationChoices
+           .then( function(choices) {
+                      if( thisB.currentControl )
+                          thisB.currentControl.update( data );
+                  });
+   },
+
+   _changeControls: function() {
        if( this.currentControl )
-           this.currenControl.destroyRecursive();
+           this.currentControl.destroyRecursive();
 
        this.currentControl = this.destSelector.get('value').control;
        this.currentControl.placeAt( this.containerNode );

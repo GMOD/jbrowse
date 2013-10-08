@@ -9,6 +9,8 @@ define( [
             'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/dom-class',
+
+            'JBrowse/MediaTypes',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
             'JBrowse/CodonTable',
@@ -19,6 +21,8 @@ define( [
             lang,
             dom,
             domClass,
+
+            MediaTypes,
             BlockBased,
             ExportMixin,
             CodonTable,
@@ -41,7 +45,7 @@ return declare( [BlockBased, ExportMixin],
     },
 
     _exportFormats: function() {
-        return [{name: 'FASTA', label: 'FASTA', fileExt: 'fasta'}];
+        return MediaTypes.getTypeRecords('fasta');
     },
 
     endZoom: function(destScale, destBlockBases) {

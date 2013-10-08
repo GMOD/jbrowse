@@ -11,7 +11,9 @@ define( [
             'dojo/dom-construct',
             'dojo/Deferred',
             'dojo/on',
+
             'JBrowse/has',
+            'JBrowse/MediaTypes',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/ExportMixin',
@@ -29,7 +31,9 @@ define( [
             domConstruct,
             Deferred,
             on,
+
             has,
+            MediaTypes,
             Layout,
             BlockBasedTrack,
             ExportMixin,
@@ -761,7 +765,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
     },
 
     _exportFormats: function() {
-        return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
+        return MediaTypes.getTypeRecords( [ 'gff3', 'bed', 'sequin table' ] );
     },
 
     updateStaticElements: function( coords ) {

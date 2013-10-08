@@ -13,6 +13,7 @@ define([
            'dijit/form/Select',
 
            'JBrowse/Util',
+           'JBrowse/MediaTypes',
            'JBrowse/Model/Resource',
            'JBrowse/View/SendTo'
        ],
@@ -31,6 +32,7 @@ define([
            dijitSelect,
 
            Util,
+           MediaTypes,
            ResourceBase,
            SendTo
        ){
@@ -45,6 +47,16 @@ return declare( Dialog, {
   },
 
   _update: function() {
+      var format = this._readRadio( this.form.elements.format );
+      var regionLocString = this._readRadio( this.form.elements.region );
+
+      this.sendTo.updateControls(
+          {
+              mediaType: MediaTypes.getTypeRecords([format])[0],
+              region: regionLocString,
+              basename: this.track.getConf('label') + '-' + regionLocString
+          });
+
       this._fillPreview();
   },
 
@@ -101,17 +113,9 @@ return declare( Dialog, {
       domConstruct.create("legend", {innerHTML: "Format"}, formatFieldset);
 
       checked = 0;
-      var nameToExtension = this._nameToExtension = {};
       array.forEach( track._exportFormats(), function(fmt) {
-                         if( ! fmt.name ) {
-                             fmt = { name: fmt, label: fmt };
-                         }
-                         if( ! fmt.fileExt) {
-                             fmt.fileExt = fmt.name || fmt;
-                         }
-                         nameToExtension[fmt.name] = fmt.fileExt;
                          var formatButtonLabel = domConstruct.create(
-                             "label", { innerHTML: fmt.label }, formatFieldset
+                             "label", { innerHTML: fmt.name }, formatFieldset
                          );
 
                          var formatButton = new dijitRadioButton(
@@ -137,8 +141,6 @@ return declare( Dialog, {
               readonly: true
           }, previewFieldset );
 
-      this._update();
-
       var sendToFieldset = domConstruct.create('fieldset', { className: 'send-to'}, form );
       domConstruct.create("legend", {innerHTML: "Send To"}, sendToFieldset );
       var sendTo = this.sendTo = new SendTo({
@@ -146,6 +148,8 @@ return declare( Dialog, {
                                   form: this,
                                   name: 'sendTo'
                               }).placeAt( sendToFieldset );
+
+      this._update();
 
       var actionBar = domConstruct.create( 'div', {
                                       className: 'dijitDialogPaneActionBar'
