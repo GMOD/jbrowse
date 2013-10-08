@@ -6,15 +6,12 @@ define([
            'dojo/window',
            'dojo/on',
 
-           'dijit/form/TextBox',
            'dijit/form/Button',
            'dijit/form/RadioButton',
-           'dijit/form/Select',
 
            'JBrowse/View/Dialog',
            'JBrowse/Util',
            'JBrowse/MediaTypes',
-           'JBrowse/Model/Resource',
            'JBrowse/View/SendTo'
        ],
        function(
@@ -25,15 +22,12 @@ define([
            dojoWindow,
            on,
 
-           dijitTextBox,
            dijitButton,
            dijitRadioButton,
-           dijitSelect,
 
            Dialog,
            Util,
            MediaTypes,
-           ResourceBase,
            SendTo
        ){
 

@@ -74,9 +74,11 @@ return declare( [_WidgetBase, _TemplatedMixin, _Container], {
                           {
                               width: '100%',
                               options: array.map( choices, function( dest ) {
-                                                      return { value: dest, label: dest.label };
+                                                      return { value: dest.label, label: dest.label };
                                                   }),
-                              onChange: lang.hitch( thisB, '_changeControls' )
+                              onChange: function() {
+                                  thisB._changeControls();
+                              }
                           }).placeAt( thisB.selectNode );
                       thisB._changeControls();
                       return choices;
@@ -85,24 +87,44 @@ return declare( [_WidgetBase, _TemplatedMixin, _Container], {
 
    updateControls: function( data ) {
        var thisB = this;
+       if( data )
+           this._controlData = data;
        this.destinationChoices
            .then( function(choices) {
-                      if( thisB.currentControl )
-                          thisB.currentControl.update( data );
+                      var d = data || thisB._controlData;
+                      if( thisB.currentControl && d )
+                          thisB.currentControl.update( d );
                   });
    },
 
    _changeControls: function() {
-       if( this.currentControl ) {
-           this.currentControl.destroyRecursive();
-           domConstruct.empty( this.controlsNode );
-       }
+       var thisB = this;
+       this._getControl( this.destSelector.get('value') )
+           .then( function( control ) {
 
-       this.currentControl = this.destSelector.get('value').control;
-       this.currentControl.placeAt( this.controlsNode );
+                      domConstruct.empty( thisB.controlsNode );
+
+                      thisB.currentControl = control;
+                      thisB.currentControl.placeAt( thisB.controlsNode );
+
+                      thisB.updateControls();
+                  });
    },
 
-   _getValueAttr: function() {
+   _getControl: function( name ) {
+       return this.destinationChoices
+           .then( function( choices ) {
+                      var ctl;
+                      array.some( choices, function(c) {
+                                      if( c.label == name ) {
+                                          ctl = c.control;
+                                          return true;
+                                      }
+                                      return false;
+                                  });
+                      return ctl;
+                  });
    }
+
 });
 });

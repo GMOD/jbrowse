@@ -16,6 +16,8 @@ var Resource = declare( null, {
         this.transport = args.transport;
         this.resourceDef = args.resource;
         this.defaultOpts = lang.mixin( this._defaultRequestOpts(), args.transportOpts || {} );
+        this.mediaType = args.mediaType;
+        this.filename = args.filename;
     },
 
     getResourceDefinition: function() {
@@ -27,7 +29,15 @@ var Resource = declare( null, {
     },
 
     writeAll: function( dataGenerator, opts ) {
-        return this.transport.sendFile( dataGenerator, this.resourceDef, opts );
+        return this.transport.sendFile(
+            dataGenerator,
+            this.resourceDef,
+            lang.mixin( { mediaType: this.mediaType,
+                          filename: this.filename
+                        },
+                        opts
+                      )
+        );
     },
 
     readAll: function( opts ) {

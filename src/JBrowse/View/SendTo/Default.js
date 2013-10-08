@@ -18,8 +18,8 @@ define([
 return declare( [_FormValueWidget, _WidgetsInTemplateMixin], {
 
   templateString: '<div class="default" data-dojo-attach-point="containerNode">'
-                  + '<label class="default "data-dojo-attach-point="focusNode">'
-                  +   '<span class="text">Filename</span> '
+                  + '<label class="default" data-dojo-attach-point="focusNode">'
+                  +   '<span class="text" data-dojo-attach-point="labelTextNode">Filename</span> '
                   +   '<input data-dojo-type="dijit/form/TextBox"'
                         + ' data-dojo-attach-point="filenameBox"'
                         + ' data-dojo-attach-event="onchange:_setValueAttr,onkeypress:_setUserModified"'

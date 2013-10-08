@@ -44,8 +44,8 @@ return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
       var output = '';
       if( ! sendOpts ) sendOpts = {};
       var filename = sendOpts.filename || this._filename( destinationResourceDefinition );
-      var mimetype = sendOpts.format ? 'application/x-'+sendOpts.format.toLowerCase() : 'text/plain';
-      //console.log( 'saving as type '+mimetype+', name '+filename );
+      var mediaType = sendOpts.mediaType;
+      console.log( 'saving as type '+mediaType+', name '+filename );
 
       return dataGenerator
           .forEach(
@@ -53,7 +53,7 @@ return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
                   output += chunk;
               },
               function() {
-                  saveAs( new Blob( [output], { type: mimetype }), filename );
+                  saveAs( new Blob( [output], { type: mediaType }), filename );
               }
           );
   }
