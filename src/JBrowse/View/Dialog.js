@@ -13,6 +13,11 @@ define([
        ) {
 
 return declare( Dialog, {
+  constructor: function( args ) {
+      if( ! args.browser )
+          throw new Error('browser argument required');
+  },
+
   postCreate: function() {
       this.inherited(arguments);
       this.domNode.className += ' jbrowse '+this.browser.getConf('theme');
