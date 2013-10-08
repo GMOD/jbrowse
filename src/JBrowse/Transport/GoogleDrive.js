@@ -69,7 +69,7 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
       return url.scheme == 'google-drive' && ( url.fileId || url.title );
   },
 
-  sendFile_gapi: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
+  sendFile: function( dataGenerator, destinationResourceDefinition, sendOpts ) {
       var thisB = this;
       var resource = this._parseURL( destinationResourceDefinition );
 
@@ -80,14 +80,13 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
       var data = '';
       return dataGenerator
           .forEach( function(chunk) { data += chunk; },
-                    function() { return thisB._loadGAPI(); } )
-          .then( function( gapi ) {
+                    function() {
                      return thisB.authManager.getCredentialsForRequest(
                          lang.mixin({ resource: 'https://www.googleapis.com/upload/drive/v2/files' },
                                      sendOpts
                                    )
                      );
-                 })
+                    })
           .then( function( credentialSlots ) {
                      var request = thisB._formatGAPISendFileRequest( data, sendOpts );
                      return all( array.map( credentialSlots, function( slot ) {
@@ -98,27 +97,26 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
                          .then( function() { return request; } );
                  })
           .then( function( request ) {
-                     var d = new Deferred();
-                     gapi.client.request( request )
-                         .execute( function( response, rawResponse ) {
-                                       if( ! response )
-                                           d.reject( rawResponse );
-                                       else if( response.error )
-                                           d.reject( response );
-                                       else
-                                           d.resolve( response );
-                                   });
-                     return d;
+                     return thisB._loadGAPI()
+                         .then( function( gapi ) {
+                                    var d = new Deferred();
+                                    gapi.client.request( request )
+                                        .execute( function( response, rawResponse ) {
+                                                      if( ! response )
+                                                          d.reject( rawResponse );
+                                                      else if( response.error )
+                                                      d.reject( response );
+                                                      else
+                                                          d.resolve( response );
+                                                  });
+                                    return d;
+                                });
                  });
   },
 
   // damn you Google for not supporting CORS for everything.
   _loadGAPI: function() {
       return this._gapi || ( this._gapi = function() {
-          // if some GAPI is already loaded, just use it
-          if( window.gapi )
-              return Util.resolved( window.gapi );
-
           return this._http()
                      .request( 'https://apis.google.com/js/client.js', { requestTechnique: 'script' } )
                      .then( function() {
