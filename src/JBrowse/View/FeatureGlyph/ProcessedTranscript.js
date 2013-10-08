@@ -58,6 +58,8 @@ _makeUTRs: function( parent, subparts ) {
 
     var i;
 
+    var haveLeftUTR, haveRightUTR;
+
     // gather exons, find coding start and end, and look for UTRs
     var type, exons = [];
     for( i = 0; i<subparts.length; i++ ) {
@@ -71,8 +73,10 @@ _makeUTRs: function( parent, subparts ) {
         else if( /exon/i.test( type ) ) {
             exons.push( subparts[i] );
         }
-        else if( this._isUTR( subparts[i] ) )
-            return subparts; // if we have UTRs, just bail; we don't need to do anything
+        else if( this._isUTR( subparts[i] ) ) {
+            haveLeftUTR  = subparts[i].get('start') == parent.get('start');
+            haveRightUTR = subparts[i].get('end')   == parent.get('end');
+        }
     }
 
     // bail if we don't have exons and CDS
@@ -86,36 +90,38 @@ _makeUTRs: function( parent, subparts ) {
 
     // make the left-hand UTRs
     var start, end;
-    for (i=0; i<exons.length; i++) {
-        start = exons[i].get('start');
-        if ( start >= codeStart ) break;
-        end = codeStart > exons[i].get('end') ? exons[i].get('end') : codeStart-1;
+    if( ! haveLeftUTR )
+        for (i=0; i<exons.length; i++) {
+            start = exons[i].get('start');
+            if ( start >= codeStart ) break;
+            end = codeStart > exons[i].get('end') ? exons[i].get('end') : codeStart-1;
 
-        subparts.unshift( new SimpleFeature(
-            {   parent: parent,
-                data: {
-                  start: start,
-		  end: end,
-		  strand: strand,
-		  type: strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR'
-              }}));
-    }
+            subparts.unshift( new SimpleFeature(
+                                  {   parent: parent,
+                                      data: {
+                                          start: start,
+		                          end: end,
+		                          strand: strand,
+		                          type: strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR'
+                                      }}));
+        }
 
     // make the right-hand UTRs
-    for (i=exons.length-1; i>=0; i--) {
-        end = exons[i].get('end');
-        if( end <= codeEnd ) break;
+    if( ! haveRightUTR )
+        for (i=exons.length-1; i>=0; i--) {
+            end = exons[i].get('end');
+            if( end <= codeEnd ) break;
 
-        start = codeEnd < exons[i].get('start') ? exons[i].get('start') : codeEnd+1;
-        subparts.push( new SimpleFeature(
-            { parent: parent,
-              data: {
-                  start: start,
-		  end: end,
-		  strand: strand,
-		  type: strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR'
-              }}));
-    }
+            start = codeEnd < exons[i].get('start') ? exons[i].get('start') : codeEnd+1;
+            subparts.push( new SimpleFeature(
+                               { parent: parent,
+                                 data: {
+                                     start: start,
+		                     end: end,
+		                     strand: strand,
+		                     type: strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR'
+                                 }}));
+        }
 
     return subparts;
 },

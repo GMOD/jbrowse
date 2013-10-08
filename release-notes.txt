@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Made the `impliedUTRs` option for ProcessedTranscript and Gene
+   glyph still attempt to create UTRs if only '''one''' of the UTRs is
+   missing from a transcript.  Thanks to Ben Booth for pointing out
+   the need for this.
+
 ## Bug fixes
 
  * Fixed bug in which the mouseover value displays for Wiggle and
