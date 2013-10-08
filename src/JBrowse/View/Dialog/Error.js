@@ -13,8 +13,9 @@ return declare( InfoDialog, {
   title: 'Error',
 
   show: function() {
+      var msg = this.diagnosticMessage || ( this.error && (this.error.stack || ''+this.error) );
       this.set( 'content', '<div class="error"><h2>Oops!</h2><div class="text">There was a problem'+(this.activity? ' '+this.activity : '')+'.</div>'
-                +( this.diagnosticMessage ? '<div class="codecaption">Diagnostic message</div><code>'+this.diagnosticMessage+'</code>' : '' )
+                +( msg ? '<div class="codecaption">Diagnostic message</div><code><pre>'+msg+'</pre></code>' : '' )
                 +'</div>'
               );
 

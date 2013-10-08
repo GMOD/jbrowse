@@ -11,7 +11,8 @@
 @import url("export_dialog.css");
 @import url("keyring.css");
 @import url("prompt_dialog.css");
-@import url("send-to.css");
+@import url("send_to.css");
+@import url("error_dialog.css");
 
 /* CSS styles for the various types of feature glyphs */
 @import url("track_styles.css");
