@@ -76,7 +76,7 @@ return declare([ BoxGlyph ], {
         var numofArrows = (4*(Math.ceil(width*0.01)));
         var arrowWidth = width/numofArrows;
         for (var i=0; i <= numofArrows; i++){
-            context.fillStyle = (i%2===0) ? '#B3B3B3' : '#A90008';
+            context.fillStyle = (i%2===1) ? '#B3B3B3' : '#8B2323';
             this._drawArrow(left, top, width, height, direction, context, arrowWidth, i);
         }
     },
@@ -96,7 +96,8 @@ return declare([ BoxGlyph ], {
             context.lineTo(left+(i+2)*arrowWidth, top+height);
             context.lineTo(left+(i+1)*arrowWidth, top+height);
         } else {
-
+            this._drawArrow(left, top, width*0.5, height, 'left', context, arrowWidth, i);
+            this._drawArrow(left+width*0.5, top, width*0.5, height, 'right', context, arrowWidth, i)
         }
         context.closePath();
         context.fill();
