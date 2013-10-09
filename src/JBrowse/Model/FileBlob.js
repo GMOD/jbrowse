@@ -1,9 +1,10 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
-           'dojo/has'
+           'dojo/has',
+           'JBrowse/Util/TextIterator'
        ],
-       function( declare, array, has ) {
+       function( declare, array, has, TextIterator ) {
 var FileBlob = declare( null,
 /**
  * @lends JBrowse.Model.FileBlob.prototype
@@ -32,60 +33,20 @@ var FileBlob = declare( null,
         );
     },
 
-    _newlineCode: "\n".charCodeAt(0),
-
     fetchLines: function( lineCallback, endCallback, failCallback ) {
         var thisB = this;
         this.fetch( function( data ) {
                         data = new Uint8Array(data);
 
-                        // throw away the first (probably incomplete) line
-                        var parseState = {
-                            data: data,
-                            offset: 0
-                        };
+                        var lineIterator = new TextIterator.FromBytes({ bytes: data });
                         var line;
-                        while( parseState.offset < data.length && ( line = thisB._getline( parseState ) )) {
-                            if( line.charAt( line.length-1 ) == "\n" )
+                        while(( line = lineIterator.getline() )) {
+                            if( line.charAt( line.length-1 ) == "\n" ) //< ignore any incomplete lines
                                 lineCallback( line );
                         }
 
                         endCallback();
              }, failCallback );
-    },
-
-    // get a line of text, properly decoding UTF-8
-    _getline: function( parseState ) {
-        var newline = this._newlineCode;
-
-        var data = parseState.data;
-        var i = parseState.offset;
-
-        var line = [];
-        while( i < data.length ) {
-            var c1 = data[i], c2, c3;
-            if (c1 < 128) {
-                line.push( String.fromCharCode(c1) );
-                i++;
-                if( c1 == newline ) {
-                    parseState.offset = i;
-                    return line.join('');
-                }
-            } else if (c1 > 191 && c1 < 224) {
-                c2 = data[i + 1];
-                line.push( String.fromCharCode(((c1 & 31) << 6) | (c2 & 63)) );
-                i += 2;
-            } else {
-                c2 = data[i + 1];
-                c3 = data[i + 2];
-                line.push( String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63)) );
-                i += 3;
-            }
-        }
-
-        // did not get a full line
-        parseState.offset = i;
-        return null;
     },
 
     readLines: function( offset, length, lineCallback, endCallback, failCallback ) {

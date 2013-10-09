@@ -49,24 +49,33 @@ renderConnector: function( context, fRect ) {
 },
 
 renderSegments: function( context, fRect ) {
-    var subfeatures = fRect.f.children();
-    if( subfeatures ) {
+    var subparts = this._getSubparts( fRect.f );
+    if( ! subparts.length ) return;
 
-        var thisB = this;
-        var parentFeature = fRect.f;
+    var thisB = this;
+    var parentFeature = fRect.f;
+    function style( feature, stylename ) {
+        if( stylename == 'height' )
+            return thisB._getFeatureHeight( fRect.viewInfo, feature );
 
-        function style( feature, stylename ) {
-            if( stylename == 'height' )
-                return thisB.getFeatureHeight( fRect.viewInfo, feature );
-
-            return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
-        }
-
-        for( var i = 0; i < subfeatures.length; ++i ) {
-            if( this._filterSubpart( subfeatures[i] ) )
-                this.renderBox( context, fRect.viewInfo, subfeatures[i], fRect.t, fRect.rect.h, fRect.f, style );
-        }
+        return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
     }
+
+    for( var i = 0; i < subparts.length; ++i ) {
+        this.renderBox( context, fRect.viewInfo, subparts[i], fRect.t, fRect.rect.h, fRect.f, style );
+    }
+},
+
+_getSubparts: function( f ) {
+    var c = f.children();
+    if( ! c ) return [];
+
+    var filtered = [];
+    for( var i = 0; i<c.length; i++ )
+        if( this._filterSubpart( c[i] ) )
+            filtered.push( c[i] );
+
+    return filtered;
 },
 
 _filterSubpart: function( f ) {

@@ -27,9 +27,9 @@ not passed, all tracks are indexed.
 
 Maximum number of distinct locations to store for a single name.  Default 100.
 
-=item --sortMem <bytes>
+=item --mem <bytes>
 
-Number of bytes of RAM we are allowed to use for sorting memory.
+Number of bytes of RAM we are allowed to use for caching memory.
 Default 256000000 (256 MiB).  If you machine has enough RAM,
 increasing this amount can speed up this script's running time
 significantly.
@@ -53,13 +53,6 @@ Default 20.  Set to 0 to disable auto-completion of feature names.
 Note that the name index always contains exact matches for feature
 names; this setting only disables autocompletion based on incomplete
 names.
-
-=item --totalNames <number>
-
-Optional estimate of the total number of names that will go into this
-names index.  Used to choose some parameters for how the name index is
-built.  If not passed, tries to estimate this based on the size of the
-input names files.
 
 =item --verbose
 
@@ -86,6 +79,11 @@ use Getopt::Long;
 use Pod::Usage;
 use List::Util qw/ sum min max /;
 
+use Storable;
+use POSIX;
+use DB_File;
+use File::Temp ();
+
 use PerlIO::gzip;
 
 use JSON 2;
@@ -103,17 +101,18 @@ my $help;
 my $max_completions = 20;
 my $max_locations = 100;
 my $thresh;
-my $sort_mem = 256 * 2**20;
-my $est_total_name_records;
+my $no_sort = 0;
+my $mem = 256 * 2**20;
 my $hash_bits;
 GetOptions("dir|out=s" => \$outDir,
            "completionLimit=i" => \$max_completions,
            "locationLimit=i" => \$max_locations,
            "verbose+" => \$verbose,
+           "noSort" => \$no_sort,
            "thresh=i" => \$thresh,
-           "sortMem=i" => \$sort_mem,
+           "sortMem=i" => \$mem,
+           "mem=i" => \$mem,
            "workdir=s" => \$workDir,
-           "totalNames=i" => \$est_total_name_records,
            'tracks=s' => \@includedTrackNames,
            'hashBits=i' => \$hash_bits,
            "help|h|?" => \$help) or pod2usage();
@@ -146,11 +145,9 @@ unless( @tracks ) {
 }
 
 if( $verbose ) {
-    print STDERR "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
+    print "Tracks:\n".join('', map "    $_->{label}\n", @tracks );
 }
 
-# read the name list for each track that has one
-my $trackNum = 0;
 
 # find the names files we will be working with
 my @names_files = find_names_files();
@@ -160,92 +157,48 @@ if( ! @names_files ) {
 
 #print STDERR "Names files:\n", map "    $_->{fullpath}\n", @names_files;
 
-# estimate the total number of name records we probably have based on the input file sizes
-$est_total_name_records ||= int( (sum( map { -s $_->{fullpath} } @names_files )||0) / 70 );
-if( $verbose ) {
-    print STDERR "Estimated $est_total_name_records total name records to index.\n";
-}
+my %stats = (
+    total_namerec_bytes => 0,
+    namerecs_buffered   => 0,
+    tracksWithNames => [],
+    record_stream_estimated_count => 0,
+    operation_stream_estimated_count => 0,
+    );
+
+# convert the stream of name records into a stream of operations to do
+# on the data in the hash store
+my $operation_stream = make_operation_stream( make_name_record_stream( \@refSeqs, \@names_files ) );
+
+$hash_bits ||= $stats{record_stream_estimated_count}
+  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $stats{record_stream_estimated_count} / 100 )/ 4 / log(2)) )))
+  : 12;
+
+# finally copy the temp store to the namestore
+
+print "Using $hash_bits-bit hashing.\n" if $verbose;
 
 my $nameStore = Bio::JBrowse::HashStore->open(
     dir   => catdir( $outDir, "names" ),
     work_dir => $workDir,
     empty => 1,
-    sort_mem => $sort_mem,
+    mem => $mem,
+    nosync => 1,
 
     # set the hash size to try to get about 50KB per file, at an
     # average of about 500 bytes per name record, for about 100
     # records per file. if the store has existing data in it, this
     # will be ignored
-    hash_bits => $hash_bits || (
-        $est_total_name_records
-            ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( ($est_total_name_records||0) / 100 )/ 4 / log(2)) )))
-            : 12
-    ),
+    hash_bits => $hash_bits,
+
+    verbose => $verbose
 );
 
-if( $verbose ) {
-    print STDERR "Using ".$nameStore->{hash_bits}."-bit hashing.\n";
-}
-
-# insert a name record for all of the reference sequences
-
-my $name_records_iterator = sub {};
-my @namerecord_buffer;
-for my $ref ( @refSeqs ) {
-    push @namerecord_buffer, [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
-}
-
-
-my %trackHash;
-my @tracksWithNames;
-my $record_stream = sub {
-    while( ! @namerecord_buffer ) {
-        my $nameinfo = $name_records_iterator->() || do {
-            my $file = shift @names_files;
-            return unless $file;
-            #print STDERR "Processing $file->{fullpath}\n";
-            $name_records_iterator = make_names_iterator( $file );
-            $name_records_iterator->();
-        } or return;
-        foreach my $alias ( @{$nameinfo->[0]} ) {
-            my $track = $nameinfo->[1];
-            unless ( defined $trackHash{$track} ) {
-                $trackHash{$track} = $trackNum++;
-                push @tracksWithNames, $track;
-            }
-            push @namerecord_buffer, [
-                $alias,
-                $trackHash{$track},
-                @{$nameinfo}[2..$#{$nameinfo}]
-                ];
-        }
-    }
-    return shift @namerecord_buffer;
-};
-
-# convert the stream of name records into a stream of operations to do
-# on the data in the hash store
-my @operation_buffer;
-my $operation_stream = sub {
-    unless( @operation_buffer ) {
-        if( my $name_record = $record_stream->() ) {
-            push @operation_buffer, make_operations( $name_record );
-        }
-    }
-    return shift @operation_buffer;
-};
-
-# sort the stream by hash key to improve cache locality (very
-# important for performance)
-my $entry_stream = $nameStore->sort_stream( $operation_stream );
-
-# now write it to the store
-while( my $entry = $entry_stream->() ) {
-    do_operation( $entry, $entry->data );
-}
+# make a stream of key/value pairs and load them into the HashStore
+my $key_count; #< set as side effect of make_key_value_stream
+$nameStore->stream_set( make_key_value_stream( $workDir || $outDir, $operation_stream ), $key_count );
 
 # store the list of tracks that have names
-$nameStore->{meta}{track_names} = \@tracksWithNames;
+$nameStore->{meta}{track_names} = $stats{tracksWithNames};
 # record the fact that all the keys are lowercased
 $nameStore->{meta}{lowercase_keys} = 1;
 
@@ -260,6 +213,114 @@ $gdb->modifyTrackList( sub {
 exit;
 
 ################ HELPER SUBROUTINES ##############################
+
+sub make_name_record_stream {
+    my ( $refseqs, $names_files ) = @_;
+    my @names_files = @$names_files;
+
+    my $name_records_iterator = sub {};
+    my @namerecord_buffer;
+
+    # insert a name record for all of the reference sequences
+    for my $ref ( @$refseqs ) {
+        $stats{name_input_records}++;
+        $stats{namerecs_buffered}++;
+        my $rec = [ @{$ref}{ qw/ name length name seqDir start end seqChunkSize/ }];
+        $stats{total_namerec_bytes} += length join(",",$rec);
+        push @namerecord_buffer, $rec;
+    }
+
+    my %trackHash;
+
+    my $trackNum = 0;
+
+    return sub {
+        while( ! @namerecord_buffer ) {
+            my $nameinfo = $name_records_iterator->() || do {
+                my $file = shift @names_files;
+                return unless $file;
+                #print STDERR "Processing $file->{fullpath}\n";
+                $name_records_iterator = make_names_iterator( $file );
+                $name_records_iterator->();
+            } or return;
+            my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
+            foreach my $alias ( @aliases ) {
+                    my $track = $nameinfo->[1];
+                    unless ( defined $trackHash{$track} ) {
+                        $trackHash{$track} = $trackNum++;
+                        push @{$stats{tracksWithNames}}, $track;
+                    }
+                    $stats{namerecs_buffered}++;
+                    push @namerecord_buffer, [
+                        $alias,
+                        $trackHash{$track},
+                        @{$nameinfo}[2..$#{$nameinfo}]
+                        ];
+            }
+        }
+        return shift @namerecord_buffer;
+    };
+}
+
+sub make_key_value_stream {
+    my $workdir = shift;
+
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
+    print "Temporary key-value DBM file: $tempfile\n" if $verbose;
+
+    # load a temporary DB_File with the completion data
+    _build_index_temp( shift, $tempfile ); #< use shift to free the $operation_stream after index is built
+
+    # reopen the temp store with default cache size to save memory
+    my $db_conf = DB_File::BTREEINFO->new;
+    tie( my %temp_store, 'DB_File', "$tempfile", O_RDONLY, 0666, DB_File::BTREEINFO->new );
+
+    $key_count = scalar keys %temp_store;
+
+    return sub {
+        my ( $k, $v ) = each %temp_store;
+        return $k ? ( $k, Storable::thaw($v) ) : ();
+    };
+}
+
+sub _build_index_temp {
+    my ( $operation_stream, $tempfile ) = @_;
+
+    my $db_conf = DB_File::BTREEINFO->new;
+    $db_conf->{flags} = 0x1;    #< DB_TXN_NOSYNC
+    $db_conf->{cachesize} = $mem;
+    tie( my %temp_store, 'DB_File', "$tempfile",O_RDWR|O_TRUNC, 0666, $db_conf );
+
+    my $progressbar;
+    my $progress_next_update = 0;
+    if ( $verbose ) {
+        print "Estimating $stats{operation_stream_estimated_count} index operations on $stats{record_stream_estimated_count} completion records.\n";
+        eval {
+            require Term::ProgressBar;
+            $progressbar = Term::ProgressBar->new({name  => 'Gathering locations, generating completions',
+                                                   count => $stats{operation_stream_estimated_count},
+                                                   ETA   => 'linear', });
+            $progressbar->max_update_rate(1);
+        }
+    }
+
+    # now write it to the temp store
+    while ( my $op = $operation_stream->() ) {
+        do_hash_operation( \%temp_store, $op );
+        $stats{operations_processed}++;
+
+        if ( $progressbar && $stats{operations_processed} > $progress_next_update
+             && $stats{operations_processed} < $stats{operation_stream_estimated_count}
+           ) {
+            $progress_next_update = $progressbar->update( $stats{operations_processed} );
+        }
+    }
+
+    if ( $progressbar && $stats{operation_stream_estimated_count} >= $progress_next_update ) {
+        $progressbar->update( $stats{operation_stream_estimated_count} );
+    }
+}
+
 
 sub find_names_files {
     my @files;
@@ -288,6 +349,45 @@ sub find_names_files {
     return @files;
 }
 
+sub make_operation_stream {
+    my ( $record_stream ) = @_;
+
+    $stats{namerecs_converted_to_operations} = 0;
+    my @operation_buffer;
+    # try to fill the operation buffer a bit to estimate the number of operations per name record
+    {
+        while( @operation_buffer < 50000 && ( my $name_record = $record_stream->()) ) {
+            $stats{namerecs_converted_to_operations}++;
+            push @operation_buffer, make_operations( $name_record );
+        }
+    }
+
+    # estimate the total number of name records we probably have based on the input file sizes
+    #print "sizes: $stats{total_namerec_bytes}, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
+    $stats{avg_record_text_bytes} = $stats{total_namerec_bytes}/($stats{namerecs_buffered}||1);
+    $stats{total_input_bytes} = sum( map { -s $_->{fullpath} } @names_files ) || 0;
+    $stats{record_stream_estimated_count} = int( $stats{total_input_bytes} / ($stats{avg_record_text_bytes}||1));;
+    $stats{operation_stream_estimated_count} = $stats{record_stream_estimated_count} * int( @operation_buffer / ($stats{namerecs_converted_to_operations}||1) );
+
+    if( $verbose ) {
+        print "Sampled input stats:\n";
+        while( my ($k,$v) = each %stats ) {
+            $k =~ s/_/ /g;
+            printf( '%40s'." $v\n", $k );
+        }
+    }
+
+    return sub {
+        unless( @operation_buffer ) {
+            if( my $name_record = $record_stream->() ) {
+                #$stats{namerecs_converted_to_operations}++;
+                push @operation_buffer, make_operations( $name_record );
+            }
+        }
+        return shift @operation_buffer;
+    };
+}
+
 use constant OP_ADD_EXACT  => 1;
 use constant OP_ADD_PREFIX => 2;
 
@@ -308,43 +408,49 @@ sub make_operations {
         }
     }
 
+    $stats{operations_made} += scalar @ops;
+
     return @ops;
 }
 
-
-sub do_operation {
-    my ( $store_entry, $op ) = @_;
+my %full_entries;
+sub do_hash_operation {
+    my ( $tempstore, $op ) = @_;
 
     my ( $lc_name, $op_name, $record ) = @$op;
 
-    my $r = $store_entry->get || { exact => [], prefix => [] };
-
     if( $op_name == OP_ADD_EXACT ) {
+        my $r = $tempstore->{$lc_name};
+        $r = $r ? Storable::thaw($r) : { exact => [], prefix => [] };
+
         if( $max_locations && @{ $r->{exact} } < $max_locations ) {
             push @{ $r->{exact} }, $record;
-            $store_entry->set( $r );
+            $tempstore->{$lc_name} = Storable::freeze( $r );
         }
         # elsif( $verbose ) {
         #     print STDERR "Warning: $name has more than --locationLimit ($max_locations) distinct locations, not all of them will be indexed.\n";
         # }
     }
-    elsif( $op_name == OP_ADD_PREFIX ) {
+    elsif( $op_name == OP_ADD_PREFIX && ! exists $full_entries{$lc_name} ) {
+        my $r = $tempstore->{$lc_name};
+        $r = $r ? Storable::thaw($r) : { exact => [], prefix => [] };
+
         my $name = $record;
 
         my $p = $r->{prefix};
         if( @$p < $max_completions ) {
             if( ! grep $name eq $_, @$p ) {
                 push @{ $r->{prefix} }, $name;
-                $store_entry->set( $r );
+                $tempstore->{$lc_name} = Storable::freeze( $r );
             }
         }
         elsif( @{ $r->{prefix} } == $max_completions ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
-            $store_entry->set( $r );
+            $tempstore->{$lc_name} = Storable::freeze( $r );
+            $full_entries{$lc_name} = 1;
         }
     }
 }
-
 
 # each of these takes an input filename and returns a subroutine that
 # returns name records until there are no more, for either names.txt
@@ -358,17 +464,27 @@ sub make_names_iterator {
         # files can be very big.
         return sub {
             my $t = <$input_fh>;
-            return $t ? eval { JSON::from_json( $t ) } : undef;
+            if( $t ) {
+                $stats{name_input_records}++;
+                $stats{total_namerec_bytes} += length $t;
+                return eval { JSON::from_json( $t ) };
+            }
+            return undef;
         };
     }
     elsif( $file_record->{type} eq 'json' ) {
         # read old-style names.json files all from memory
         my $input_fh = open_names_file( $file_record->{fullpath} );
 
+
         my $data = JSON::from_json(do {
             local $/;
-            scalar <$input_fh>
+            my $text = scalar <$input_fh>;
+            $stats{total_namerec_bytes} += length $text;
+            $text;
         });
+
+        $stats{name_input_records} += scalar @$data;
 
         open my $nt, '>', $file_record->{namestxt} or die;
         return sub {

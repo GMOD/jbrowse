@@ -103,7 +103,7 @@ buildRendering: function() {
 
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = 15;
+    this.topSpace = 17;
 
     // keep a reference to the main browser object
     this.setFeatureFilterParentComponent( this.browser );
@@ -1148,9 +1148,6 @@ setLocation: function(refseq, startbp, endbp, showTracks ) {
 
     if( this.zoomSlider )
         this.zoomSlider.set( 'value', this.curZoom );
-
-    if( has('inaccurate-html-layout') )
-        this.pxPerBp = this.zoomLevels[ this.curZoom ];
 
     if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
         //the cookie-saved location is in round bases, so if the saved

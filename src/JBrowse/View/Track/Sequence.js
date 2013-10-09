@@ -7,20 +7,24 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/dom-class',
+            'dojo/query',
 
             'JBrowse/MediaTypes',
             'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/ExportMixin',
+            'JBrowse/View/Track/_ExportMixin',
             'JBrowse/CodonTable',
             'JBrowse/Util'
         ],
         function(
             declare,
             lang,
+            array,
             dom,
             domClass,
+            query,
 
             MediaTypes,
             BlockBased,
@@ -72,12 +76,29 @@ return declare( [BlockBased, ExportMixin],
         var leftExtended = leftBase - 2;
         var rightExtended = rightBase + 2;
 
-        var charSize = this.getCharacterMeasurements('sequence');
+        var thisB = this;
+
+        var blur = dojo.create(
+            'div',
+            { className: 'sequence_blur',
+              innerHTML: '<span class="loading">Loading</span>',
+              style: {
+                  height: ( this.getConf('showTranslation') ? 6*14 : 0 )
+                      + ( this.getConf('showForwardStrand') ? 14 : 0 )
+                      + ( this.getConf('showReverseStrand') ? 14 : 0 ) + 'px'
+              }
+            }, block.domNode );
+        blur.style.lineHeight = blur.style.height;
+
+        this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
 
         // if we are zoomed in far enough to draw bases, then draw them
-        if ( scale >= 1 ) {
+        if ( scale >= 1.3 ) {
             this.store.getReferenceSequence( this.refSeq.get('name'), leftExtended, rightExtended )
-                .then( lang.hitch( this, '_fillSequenceBlock', block, scale ) )
+                .then( function( seq ) {
+                           dom.empty( block.domNode );
+                           thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                       })
                 .then( lang.hitch( this, 'heightUpdate',
                                    this.getConf('showTranslation') ? (charSize.h + 2)*8 : charSize.h*2,
                                    blockIndex
@@ -89,17 +110,11 @@ return declare( [BlockBased, ExportMixin],
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
-            var borderWidth = Math.max(1,Math.round(4*scale/charSize.w));
-            var blur = dom.create( 'div', {
-                             className: 'sequence_blur',
-                             style: { borderStyle: 'solid', borderTopWidth: borderWidth+'px', borderBottomWidth: borderWidth+'px' }
-                         }, block.domNode );
-            this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
-            args.finishCallback();
+            blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
         }
     },
 
-    _fillSequenceBlock: function( block, scale, seq ) {
+    _fillSequenceBlock: function( block, blockIndex, scale, seq ) {
         seq = seq.replace(/\s/g,this.nbsp);
 
         var blockStart = block.startBase;
@@ -126,17 +141,24 @@ return declare( [BlockBased, ExportMixin],
             }
         }
 
-        // make a div to contain the sequences
-        if( this.getConf('showReverseStrand') || this.getConf('showForwardStrand') )
-            var seqNode = dom.create("div", { className: "sequence", style: { width: "100%"} }, block.domNode);
+        // make a table to contain the sequences
+        var charSize = this.getCharacterMeasurements('sequence');
+        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
 
-        // add a div for the forward strand
+        if( this.getConf('showReverseStrand') || this.getConf('showForwardStrand') )
+            var seqNode = dom.create(
+                "table", {
+                    className: "sequence" + (bigTiles ? ' big' : ''),
+                    style: { width: "100%" }
+                }, block.domNode);
+
+        // add a table for the forward strand
         if( this.getConf('showForwardStrand') )
-            seqNode.appendChild( this._renderSeqDiv( blockStart, blockEnd, blockSeq, scale ));
+            seqNode.appendChild( this._renderSeqTr( blockStart, blockEnd, blockSeq, scale ));
 
         // and one for the reverse strand
         if( this.getConf('showReverseStrand') ) {
-            var comp = this._renderSeqDiv( blockStart, blockEnd, Util.complement(blockSeq), scale );
+            var comp = this._renderSeqTr( blockStart, blockEnd, Util.complement(blockSeq), scale );
             comp.className = 'revcom';
             seqNode.appendChild( comp );
 
@@ -154,6 +176,12 @@ return declare( [BlockBased, ExportMixin],
                 }
             }
         }
+
+        var totalHeight = 0;
+        array.forEach( block.domNode.childNodes, function( table ) {
+                           totalHeight += (table.clientHeight || table.offsetHeight);
+                       });
+        this.heightUpdate( totalHeight, blockIndex );
     },
 
     _renderTranslation: function( seq, offset, blockStart, blockEnd, blockLength, scale, reverse ) {
@@ -165,74 +193,76 @@ return declare( [BlockBased, ExportMixin],
         var translated = "";
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
-            var aa = CodonTable[nextCodon] || this.nbsp;
-            translated = translated + aa;
+            var aminoAcid = CodonTable[nextCodon] || this.nbsp;
+            translated = translated + aminoAcid;
         }
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
 
-        var charSize = this.getCharacterMeasurements("aa");
+        var charSize = this.getCharacterMeasurements("aminoAcid");
+        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
 
         var charWidth = 100/(blockLength / 3);
 
-        var container  = dom.create('div',
+        var container = dom.create( 'div',{ className: 'translatedSequence' } );
+        var table  = dom.create('table',
             {
-                className: 'translatedSequence offset'+offset,
+                className: 'translatedSequence offset'+offset+(bigTiles ? ' big' : ''),
                 style:
                 {
                     width: (charWidth * translated.length) + "%"
                 }
-            });
+            }, container );
+        var tr = dom.create('tr', {}, table );
 
-        if( reverse ) {
-            container.style.top = this.getConf('showForwardStrand') ? "32px" : '16px';
-            container.style.left = (100 - charWidth * (translated.length + offset / 3))+ "%";
-        } else {
-            container.style.left = (charWidth * offset / 3) + "%";
-        }
+        table.style.left = (
+            reverse ? 100 - charWidth * (translated.length + offset / 3)
+                    : charWidth*offset/3
+        ) + "%";
 
         charWidth = 100/ translated.length + "%";
 
         var drawChars = scale >= charSize.w;
+        if( drawChars )
+            table.className += ' big';
 
         for( var i=0; i<translated.length; i++ ) {
-            var aaSpan = document.createElement('div');
-            aaSpan.className = 'aa aa_'+translated.charAt([i]).toLowerCase();
-            aaSpan.style.width = charWidth;
+            var aminoAcidSpan = document.createElement('td');
+            aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt(i).toLowerCase();
+            aminoAcidSpan.style.width = charWidth;
             if( drawChars ) {
-                aaSpan.className = aaSpan.className + ' big';
-                aaSpan.innerHTML = translated.charAt([i]);
+                aminoAcidSpan.innerHTML = translated.charAt( i );
             }
-            container.appendChild(aaSpan);
+            tr.appendChild(aminoAcidSpan);
         }
         return container;
     },
 
     /**
      * Given the start and end coordinates, and the sequence bases,
-     * makes a div containing the sequence.
+     * makes a table row containing the sequence.
      * @private
      */
-    _renderSeqDiv: function ( start, end, seq, scale ) {
+    _renderSeqTr: function ( start, end, seq, scale ) {
 
         var charSize = this.getCharacterMeasurements('sequence');
-
-        var container  = document.createElement('div');
+        var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
-        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         for( var i=0; i<seq.length; i++ ) {
-            var base = document.createElement('span');
-            base.className = 'base base_'+seq.charAt([i]).toLowerCase();
+            var base = document.createElement('td');
+            base.className = 'base base_'+seq.charAt(i).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
-                if( bigTiles )
-                    base.className = base.className + ' big';
                 base.innerHTML = seq.charAt(i);
             }
             container.appendChild(base);
         }
         return container;
+    },
+
+    startZoom: function() {
+        query('.base', this.div ).empty();
     },
 
     /**
@@ -250,14 +280,14 @@ return declare( [BlockBased, ExportMixin],
      * and height.
      */
     _measureSequenceCharacterSize: function( containerElement, className ) {
-        var widthTest = document.createElement("div");
+        var widthTest = document.createElement("td");
         widthTest.className = className;
         widthTest.style.visibility = "hidden";
         var widthText = "12345678901234567890123456789012345678901234567890";
         widthTest.appendChild(document.createTextNode(widthText));
         containerElement.appendChild(widthTest);
         var result = {
-            w:  widthTest.clientWidth / widthText.length,
+            w:  (widthTest.clientWidth / widthText.length)+1,
             h: widthTest.clientHeight
         };
         containerElement.removeChild(widthTest);

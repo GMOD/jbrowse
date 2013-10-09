@@ -34,6 +34,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --nclChunk <chunk size for generated NCLs> ]                          \
       [ --compress ]                                                          \
       [ --sortMem <memory in bytes to use for sorting> ]                      \
+      [ --maxLookback <maximum number of features to buffer in gff3 files> ]  \
 
 =head1 ARGUMENTS
 
@@ -134,6 +135,19 @@ additional configuration to serve these correctly.
 =item --sortMem <bytes>
 
 Bytes of RAM to use for sorting features.  Default 512MB.
+
+=back
+
+=head2 GFF3-specific
+
+=over 4
+
+=item --maxLookback <integer>
+
+Maximum number of features to keep in memory when parsing GFF3 files.
+If you are having trouble parsing a GFF3 file that contains few '###'
+directives (which are important for parsing), you can try setting this
+higher if your machine has enough memory.
 
 =back
 

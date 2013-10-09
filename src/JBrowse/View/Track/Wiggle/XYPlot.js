@@ -4,7 +4,7 @@ define( [
             'dojo/_base/Color',
             'dojo/on',
             'JBrowse/View/Track/WiggleBase',
-            'JBrowse/View/Track/YScaleMixin',
+            'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Util',
             './_Scale'
         ],
@@ -81,7 +81,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var toY = dojo.hitch( this, function( val ) {
-           return canvasHeight * ( 1-dataScale.normalize.call(this, val) );
+           return canvasHeight * ( 1-dataScale.normalize(val) );
         });
         var originY = toY( dataScale.origin );
 
@@ -148,7 +148,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                     pixelValues[j]['lastUsedStore'] = store;
                 }
                 else {
-                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f }
+                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
                 }
             }
         },this);
@@ -185,7 +185,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var toY = dojo.hitch( this, function( val ) {
-           return canvasHeight * (1-dataScale.normalize.call(this, val));
+           return canvasHeight * (1-dataScale.normalize(val));
         });
 
         // draw the variance_band if requested

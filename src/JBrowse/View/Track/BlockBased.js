@@ -10,6 +10,7 @@ define( [
             'dojo/dom-style',
             'dojo/query',
             'dojo/on',
+            'dojo/when',
             'dijit/Destroyable',
             'JBrowse/View/Dialog/Info',
             'JBrowse/View/Dialog',
@@ -38,6 +39,7 @@ define( [
                   domStyle,
                   query,
                   on,
+                  when,
                   Destroyable,
                   InfoDialog,
                   Dialog,
@@ -432,7 +434,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 },this);
         }
         else {
-            console.error( ''+error, error.stack, error );
+            console.error( error.stack || ''+error, error );
             this.fatalError = error;
             this.showFatalError( error );
         }
@@ -1079,23 +1081,26 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @private
      */
     makeTrackMenu: function() {
-        var options = this._trackMenuOptions();
-        if( options && options.length && this.label && this.labelMenuButton ) {
+        var thisB = this;
+        when( this._trackMenuOptions() )
+            .then( function( options ) {
+                if( options && options.length && thisB.label && thisB.labelMenuButton ) {
 
-            // remove our old track menu if we have one
-            if( this.trackMenu )
-                this.trackMenu.destroyRecursive();
+                    // remove our old track menu if we have one
+                    if( thisB.trackMenu )
+                        thisB.trackMenu.destroyRecursive();
 
-            // render and bind our track menu
-            var menu = this._renderContextMenu( options, { menuButton: this.labelMenuButton, track: this, browser: this.browser, refSeq: this.refSeq } );
-            menu.startup();
-            menu.set('leftClickToOpen', true );
-            menu.bindDomNode( this.labelMenuButton );
-            menu.set('leftClickToOpen',  false);
-            menu.bindDomNode( this.label );
-            this.trackMenu = menu;
-            this.own( this.trackMenu );
-        }
+                    // render and bind our track menu
+                    var menu = thisB._renderContextMenu( options, { menuButton: thisB.labelMenuButton, track: thisB, browser: thisB.browser, refSeq: thisB.refSeq } );
+                    menu.startup();
+                    menu.set('leftClickToOpen', true );
+                    menu.bindDomNode( thisB.labelMenuButton );
+                    menu.set('leftClickToOpen',  false);
+                    menu.bindDomNode( thisB.label );
+                    thisB.trackMenu = menu;
+                    thisB.own( thisB.trackMenu );
+                }
+              });
     },
 
 

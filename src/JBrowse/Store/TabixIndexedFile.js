@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'JBrowse/Util',
+           'JBrowse/Util/TextIterator',
            'JBrowse/Store/LRUCache',
            'JBrowse/Errors',
            'JBrowse/Model/XHRBlob',
@@ -12,6 +13,7 @@ define([
            declare,
            array,
            Util,
+           TextIterator,
            LRUCache,
            Errors,
            XHRBlob,
@@ -135,11 +137,11 @@ return declare( null, {
 
             // throw away the first (probably incomplete) line
             var parseStart = chunk.minv.block ? array.indexOf( data, thisB._newlineCode, 0 ) + 1 : 0;
+            var lineIterator = new TextIterator.FromBytes({ bytes: data, offset: parseStart });
 
             try {
-                thisB.parseItems(
-                    data,
-                    parseStart,
+                thisB._parseItems(
+                    lineIterator,
                     function(i) { items.push(i); },
                     function() { callback(items); }
                 );
@@ -152,17 +154,15 @@ return declare( null, {
         });
     },
 
-    parseItems: function( data, blockStart, itemCallback, finishCallback ) {
+    _parseItems: function( lineIterator, itemCallback, finishCallback ) {
         var that = this;
         var itemCount = 0;
 
         var maxItemsWithoutYielding = 300;
-        var parseState = { data: data, offset: blockStart };
-
         while ( true ) {
             // if we've read no more than a certain number of items this cycle, read another one
             if( itemCount <= maxItemsWithoutYielding ) {
-                var item = this.parseItem( parseState ); //< increments parseState.offset
+                var item = this.parseItem( lineIterator );
                 if( item ) {
                     itemCallback( item );
                     itemCount++;
@@ -177,35 +177,42 @@ return declare( null, {
             // later, avoiding blocking any UI stuff that needs to be done
             else {
                 window.setTimeout( function() {
-                    that.parseItems( data, parseState.offset, itemCallback, finishCallback );
+                    that._parseItems( lineIterator, itemCallback, finishCallback );
                 }, 1);
                 return;
             }
         }
     },
 
-    // stub method, override in subclasses or instances
-    parseItem: function( parseState ) {
+    parseItem: function( iterator ) {
         var metaChar = this.index.metaChar;
-
-        var line;
+        var line, item;
         do {
-            line = this._getline( parseState );
-        } while( line && line[0] == metaChar );
+            line = iterator.getline();
+        } while( line && (    line.charAt(0) == metaChar // meta line, skip
+                           || line.charAt( line.length - 1 ) != "\n" // no newline at the end, incomplete
+                           || ! ( item = this.tryParseLine( line ) )   // line could not be parsed
+                         )
+               );
 
-        if( !line )
+        if( line && item )
+            return item;
+
+        return null;
+    },
+
+    tryParseLine: function( line ) {
+        try {
+            return this.parseLine( line );
+        } catch(e) {
+            console.warn('parse failed: "'+line+'"');
             return null;
+        }
+    },
 
-        // function extractColumn( colNum ) {
-        //     var skips = '';
-        //     while( colNum-- > 1 )
-        //         skips += '^[^\t]*\t';
-        //     var match = (new Regexp( skips+'([^\t]*)' )).exec( line );
-        //     if( ! match )
-        //         return null;
-        //     return match[1];
-        // }
+    parseLine: function( line ) {
         var fields = line.split( "\t" );
+        fields[fields.length-1] = fields[fields.length-1].replace(/\n$/,''); // trim off the newline
         var item = { // note: index column numbers are 1-based
             ref:   fields[this.index.columnNumbers.ref-1],
             _regularizedRef: this.browser.regularizeReferenceName( fields[this.index.columnNumbers.ref-1] ),
@@ -214,22 +221,7 @@ return declare( null, {
             fields: fields
         };
         return item;
-    },
-
-    _newlineCode: "\n".charCodeAt(0),
-
-    _getline: function( parseState ) {
-        var data = parseState.data;
-        var newlineIndex = array.indexOf( data, this._newlineCode, parseState.offset );
-
-        if( newlineIndex == -1 ) // no more lines
-            return null;
-
-        var line = '';
-        for( var i = parseState.offset; i < newlineIndex; i++ )
-            line += String.fromCharCode( data[i] );
-        parseState.offset = newlineIndex+1;
-        return line;
     }
+
 });
 });

@@ -16,7 +16,7 @@ define([
            'dojo/dnd/Manager',
            'JBrowse/Util',
            'JBrowse/View/TrackConfigEditor',
-           'JBrowse/View/Track/ExportMixin'
+           'JBrowse/View/Track/_ExportMixin'
        ],
        function(
            declare,
@@ -496,7 +496,7 @@ _createStore: function( storeType, storeName ) {
     var d = new Deferred();
     if( !storeName ) {
         var storeConf = this._storeConfig( storeType );
-        storeName = this.browser._addStoreConfig( undefined, storeConf );
+        storeName = this.browser.addStoreConfig( undefined, storeConf );
         storeConf.name = storeName;
     }
 
@@ -738,7 +738,7 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
           if(stores[i] && typeof stores[i].loadRegion == 'function') {
               var start = startBase;
               var end = startBase + (last + 1 - first)*bpPerBlock;
-              var loadedRegion = stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end})
+              var loadedRegion = stores[i].loadRegion({ref: this.refSeq.name, start: start, end: end});
               loadedRegions.push(loadedRegion);
               loadedRegion.then(function(){}, this.errorCallback); // Add error callbacks to all deferred rejections
           }

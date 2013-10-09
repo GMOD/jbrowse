@@ -72,7 +72,7 @@ Optional directory to write to.  Defaults to data/.
 Do not store the actual sequence bases, just the sequence metadata
 (name, length, and so forth).
 
-=item --refs <list of refseq names> | --refids <list of refseq IDs>
+=item --refs <comma-separated list of refseq names> | --refids <comma-separated list of refseq IDs>
 
 Output only sequences with the given names or (database-dependent) IDs.
 

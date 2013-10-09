@@ -1,12 +1,102 @@
 {{$NEXT}}
 
+# Release 1.10.6     2013-10-07 21:06:51 EST5EDT
+
 ## Minor improvements
+
+ * Made the `impliedUTRs` option for ProcessedTranscript and Gene
+   glyph still attempt to create UTRs if only '''one''' of the UTRs is
+   missing from a transcript.  Thanks to Ben Booth for pointing out
+   the need for this.
+
+## Bug fixes
+
+ * Fixed bug in which the mouseover value displays for Wiggle and
+   SNPCoverage tracks would not always be hidden when the mouse leaves
+   the track.
+
+ * Fixed a bad bug that prevented fixed-scale Wiggle and SNPCoverage
+   tracks from displaying.  Thanks to Jean-Jack Riethoven and Michael
+   Axtell for pointing this out.
+
+# Release 1.10.5     2013-10-03 10:21:37 EST5EDT
+
+## Minor improvements
+
+ * Greatly improved the speed and reduced the memory footprint when
+   running `prepare-refseqs.pl` with the --fasta and --gff options.
+
+ * Added an `impliedUTRs` option to the ProcessedTranscript and Gene
+   glyphs for CanvasFeatures tracks.  Thanks to Ben Booth for pointing
+   out the need for this (issue #348).
+
+ * Upgraded flatfile-to-json.pl to use a new version of
+   Bio::GFF3::LowLevel::Parser for GFF3 parser, which has a lookback
+   buffer limit that makes it easier to parse large GFF3 files that do
+   not contain enough '###' directives.
+
+ * Further improved the memory footprint and speed of
+   generate-names.pl. Thanks to Richard Hayes for his continued help
+   with testing improvements and reporting problems.
+
+ * Removed explicit dependency on GD::Image, which is only used by the
+   old tiled-image generation demo code.  This will make dependency
+   installation easier for many people, at a (very) small cost to
+   backward compatibility.
+
+## Bug fixes
+
+ * Fixed a bad bug that prevented combination tracks from working.
+   Thanks to Harry Yoo for pointing this out (issue #351).
+
+ * Fixed a bug in which one of the temporary files used by
+   generate-names.pl was not being created in the correct location.
+   Thanks to Richard Hayes for testing this.
+
+ * Fixed a bug in which `generate-names.pl` could sometimes crash when
+   run with the -v (verbose) switch, or in setup.sh.
+
+ * Fixed odd behavior when entering coordinate ranges in the location
+   box under Safari.  Thanks to Keiran Raine for pointing this out
+   (issue #341).
+
+# Release 1.10.4     2013-09-23 16:16:50 EST5EDT
+
+## Minor improvements
+
+ * Rewrote many parts of generate-names.pl, making heavy use of
+   temporary BerkeleyDB stores (using Perl's DB_File module).  This
+   improves generate-names.pl performance by more than 10x.
 
  * Added a File->Add sequence search track menu item that can make
    tracks that show which regions of the reference sequence contain a
    given (small) sequence, or match a given regular expression.
    Thanks to Daniel Kasenberg for the initial implementation of this
    (issue #315).
+
+ * Added a CanvasVariants track type, similar to HTMLVariants, which
+   utilizes the faster CanvasFeatures rendering backend for displaying
+   variant data.
+
+ * Added checkboxes to HTMLVariants and CanvasVariants track menus
+   that allow filtering displayed features based on the FILTER
+   attribute in a VCF file.  In addition to filtering based on the
+   presence or absence of PASS, users can filter based on the custom
+   filters defined in the VCF header.  Thanks to Keiran Raine and
+   Andrew Uzilov for suggesting this (issue #344).
+
+ * Added "Hide forward strand" and "Hide reverse strand" checkboxes to
+   Alignments and Alignments2 track menus that allow alignments on the
+   forward and/or reverse strands to be hidden.
+
+## Bug fixes
+
+ * Fixed a bug that prevented indexing of feature aliases in the names
+   index when running generate-names.pl.
+
+ * Fixed a bug that prevented proper display of the "ibeam" feature
+   class in HTMLFeatures tracks.  Thanks to Ed Lee for pointing this
+   out.
 
 # Release 1.10.3     2013-09-04 16:22:17 EST5EDT
 

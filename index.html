@@ -20,6 +20,7 @@
   </body>
 
   <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: true"></script>
+  <script type="text/javascript" src="src/JBrowse/init.js"></script>
   <script type="text/javascript">
       window.onerror = function(msg){
           if( document.body )
@@ -27,18 +28,9 @@
       }
 
       var JBrowse;
-      require( { baseUrl: 'src',
-                 packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
-                             { name: 'lazyload', main: 'lazyload' },
-                             'dgrid', 'xstyle', 'put-selector',
-                             { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
-                             'JBrowse', 'FileSaver'
-                           ]
-               },
-          [ 'JBrowse/Browser' ],
-          function( Browser ) {
-                 // create a JBrowse global variable holding the JBrowse instance
-                 JBrowse = new Browser({ container: 'JBrowse', queryString: window.location.search });
+      require([ 'JBrowse/Browser' ], function( Browser ) {
+          // create a JBrowse global variable holding the JBrowse instance
+          JBrowse = new Browser({ container: 'JBrowse', queryString: window.location.search });
       });
   </script>
 </html>

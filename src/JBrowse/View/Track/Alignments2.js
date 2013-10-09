@@ -1,11 +1,19 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/promise/all',
             'JBrowse/Util',
             'JBrowse/View/Track/CanvasFeatures',
             'JBrowse/View/Track/_AlignmentsMixin'
         ],
-        function( declare, array, Util, CanvasFeatureTrack, AlignmentsMixin ) {
+        function(
+            declare,
+            array,
+            all,
+            Util,
+            CanvasFeatureTrack,
+            AlignmentsMixin
+        ) {
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
@@ -13,15 +21,25 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         slots: [
             { name: 'glyph', type: 'string', defaultValue: 'JBrowse/View/FeatureGlyph/Alignment' },
             { name: 'maxFeatureGlyphExpansion', type: 'integer', defaultValue: 0 },
-            { name: 'showLabels', type: 'boolean', defaultValue: false }
+            { name: 'showLabels', type: 'boolean', defaultValue: false },
+
+            { name: 'hideDuplicateReads', defaultValue: true, type: 'boolean' },
+            { name: 'hideQCFailingReads', defaultValue: true, type: 'boolean' },
+            { name: 'hideSecondary', defaultValue: true, type: 'boolean' },
+            { name: 'hideSupplementary', defaultValue: true, type: 'boolean' },
+            { name: 'hideMissingMatepairs', defaultValue: false, type: 'boolean' },
+            { name: 'hideForwardStrand', defaultValue: false, type: 'boolean' },
+            { name: 'hideReverseStrand', defaultValue: false, type: 'boolean' }
         ]
     },
 
     _trackMenuOptions: function() {
-        var o = this.inherited(arguments);
-        o.push( { type: 'dijit/MenuSeparator' } );
-        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
-        return o;
+        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+            .then( function( options ) {
+                       var o = options.shift();
+                       options.unshift({ type: 'dijit/MenuSeparator' } );
+                       return o.concat.apply( o, options );
+                   });
     }
 
 });
