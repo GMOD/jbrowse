@@ -103,7 +103,7 @@ buildRendering: function() {
 
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = 15;
+    this.topSpace = 17;
 
     // keep a reference to the main browser object
     this.setFeatureFilterParentComponent( this.browser );
