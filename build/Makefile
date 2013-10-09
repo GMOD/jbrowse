@@ -1,6 +1,7 @@
 BASEDIR = $(PWD)
 
 JSDIR = $(BASEDIR)/src/JBrowse
+PLUGINDIR = $(BASEDIR)/plugins
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
@@ -11,18 +12,23 @@ RELEASE_MIN  = $(RELEASE_NAME)
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
 ZIP=zip -q --symlinks -r
+UNZIP=unzip -q
 
 all: docs
 
 release: release-normal release-min release-normal-test release-min-test release-notes.html
+	ls -lh *.zip
 	sha1sum *.zip
 
 release-notes.html: release-notes.txt
-	perl -MText::Markdown=markdown -e 'local $$/; print markdown(scalar <>)' $< > $@
+	build/format_release_notes.pl $< > $@
 
 release-normal: superclean $(JS_SRCFILES)
-	mkdir $(RELEASE_FULL_DIR);  cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
+	mkdir $(RELEASE_FULL_DIR);
+	cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
+
+	mv $(RELEASE_FULL_DIR)/src/dojo/nls $(RELEASE_FULL_DIR)/src/nls;
 
         # version-stamp Browser.js
 	perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
@@ -32,18 +38,36 @@ release-normal: superclean $(JS_SRCFILES)
 	cp $(RELEASE_FULL_DIR)/release-notes.txt .;
 	perl -i -pE 'say "{{\$$NEXT}}\n" unless $$x++' release-notes.txt;
 
-	# zip up the dev release
+        # zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
 release-normal-test: release-normal
+        # unzip to make sure we are looking at what's really in the releases
+	rm -rf $(RELEASE_FULL_DIR);
+	$(UNZIP) $(RELEASE_FULL).zip
 	cd $(RELEASE_FULL_DIR) \
 	  && ./setup.sh \
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
-release-min: release-normal
+PLUGINS = $(wildcard $(PLUGINDIR)/*)
 
-	# run the dojo build in the full dir to minify
-	( cd $(BASEDIR)/src/util/buildscripts && node ../../dojo/dojo.js load=build --require "$(BASEDIR)/build/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src"; )
+plugins-min: release-normal
+#	( for pdir in $(PLUGINS); do pname=`basename $$pdir`; node $(BASEDIR)/src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$$pdir/js/$$pname" --releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname $(RELEASE_FULL_DIR)/plugins/$$pname/js"; rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; done )
+	for pdir in $(PLUGINS); do  \
+		pname=`basename $$pdir`; \
+		node $(BASEDIR)/src/dojo/dojo.js load=build \
+			--require "$(JSDIR)/init.js" \
+			--profile "$$pdir/js/$$pname" \
+			--releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
+		mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname" "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
+		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+	done
+
+release-min: release-normal plugins-min
+
+        # run the dojo build in the full dir to minify
+	node src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src";
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
@@ -73,9 +97,18 @@ release-min: release-normal
 		    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	    fi;\
 	done
+
+	mv $(RELEASE_MIN_DIR)/src/dojo/nls $(RELEASE_MIN_DIR)/src/nls;
+
+	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
+
+        # zip it up
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
 release-min-test: release-min
+        # unzip to make sure we are looking at what's really in the releases
+	rm -rf $(RELEASE_MIN_DIR);
+	$(UNZIP) $(RELEASE_MIN).zip
 	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
@@ -93,4 +126,4 @@ superclean: clean
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
-.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test
+.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test plugins-min

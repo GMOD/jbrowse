@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/json',
+           'JBrowse/Util/TextIterator',
            'JBrowse/Digest/Crc32',
            './LazyFeature'
        ],
@@ -9,6 +10,7 @@ define([
            declare,
            array,
            JSON,
+           TextIterator,
            Digest,
            LazyFeature
        ) {
@@ -23,9 +25,9 @@ return declare( null, {
 
         // parse the header lines
         var headData = {};
-        var parseState = { data: headerBytes, offset: 0 };
+        var lineIterator = new TextIterator.FromBytes({ bytes: headerBytes });
         var line;
-        while(( line = this._getlineFromBytes( parseState ))) {
+        while(( line = lineIterator.getline() )) {
             // only interested in meta and header lines
             if( line[0] != '#' )
                 continue;
@@ -98,8 +100,15 @@ return declare( null, {
 
         if( fields[5] !== null )
             featureData.score = parseFloat( fields[5] );
-        if( fields[6] !== null )
-            featureData.filter = fields[6];
+        if( fields[6] !== null ) {
+            featureData.filter = {
+                meta: {
+                    description: 'List of filters that this site has not passed, or PASS if it has passed all filters',
+                    filters: this.header.filter
+                },
+                values: fields[6].split(';')
+            };
+        }
 
         if( alt && alt[0] != '<' )
             featureData.alternative_alleles = {
@@ -121,28 +130,6 @@ return declare( null, {
 
         return f;
     },
-
-    _newlineCode: "\n".charCodeAt(0),
-
-    /**
-     *  helper method that parses the next line from a Uint8Array or similar.
-     *  @param parseState.data the byte array
-     *  @param parseState.offset the offset to start parsing.  <MODIFIED AS A SIDE EFFECT OF THI SMETHOD
-     */
-    _getlineFromBytes: function( parseState ) {
-        if( ! parseState.offset )
-            parseState.offset = 0;
-
-        var newlineIndex = array.indexOf( parseState.data, this._newlineCode, parseState.offset );
-
-        if( newlineIndex == -1 ) // no more lines
-            return null;
-
-        var line = String.fromCharCode.apply( String, Array.prototype.slice.call( parseState.data, parseState.offset, newlineIndex ));
-        parseState.offset = newlineIndex+1;
-        return line;
-    },
-
 
     _parseGenericHeaderLine: function( metaData ) {
         metaData = metaData.replace(/^<|>$/g,'');
@@ -262,7 +249,7 @@ return declare( null, {
                         values: info[field],
                         toString: function() { return (this.values || []).join(','); }
                     };
-                    var meta = this._getInfoMeta( field );
+                    var meta = this.getVCFMetaData( 'INFO', field );
                     if( meta )
                         i.meta = meta;
             }
@@ -271,14 +258,14 @@ return declare( null, {
         dojo.mixin( featureData, info );
     },
 
-    _getAltMeta: function( alt ) {
-        return (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
-    },
-    _getInfoMeta: function( id ) {
-        return (this.header.info||{})[id] || this._vcfReservedInfoFields[id];
-    },
-    _getFormatMeta: function( fieldname ) {
-        return (this.header.format||{})[fieldname] || this._vcfStandardGenotypeFields[fieldname];
+    getVCFMetaData: function( field, key ) {
+        field = field.toLowerCase();
+        var inHeader = this.header[field] || {};
+        var inFormat = { alt: this._vcfReservedAltTypes,
+                         info: this._vcfReservedInfoFileds,
+                         format: this._vcfStandardGenotypeFields
+                       }[field] || {};
+        return inHeader[key] || inFormat[key];
     },
 
     /**
@@ -392,7 +379,7 @@ return declare( null, {
 
         alt = alt.replace(/^<|>$/g,'');
 
-        var def = this._getAltMeta( alt );
+        var def = this.getVCFMetaData( 'alt', alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
     },
 

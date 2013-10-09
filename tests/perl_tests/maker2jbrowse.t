@@ -1,6 +1,8 @@
 use strict;
 use Test::More;
 
+use JBlibs;
+
 use File::Temp;
 
 use lib 'tests/perl_tests/lib';

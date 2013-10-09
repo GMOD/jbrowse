@@ -6,17 +6,28 @@
 define( [
              'dojo/_base/declare',
              'dojo/promise/all',
-             'JBrowse/View/Track/HTMLFeatures',
+             'JBrowse/Util',
+             'JBrowse/View/Track/CanvasFeatures',
              'JBrowse/View/Track/_VariantDetailMixin'
          ],
 
          function(
              declare,
              all,
-             HTMLFeatures,
+             Util,
+             CanvasFeatures,
              VariantDetailsMixin
          ) {
-return declare( [ HTMLFeatures, VariantDetailsMixin ], {
+return declare( [ CanvasFeatures, VariantDetailsMixin ], {
+
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                style: { color: 'green' }
+            });
+    },
+
     _trackMenuOptions: function() {
         return all([ this.inherited(arguments), this._variantsFilterTrackMenuOptions() ])
             .then( function( options ) {

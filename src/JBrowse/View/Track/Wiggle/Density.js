@@ -41,7 +41,7 @@ return declare( WiggleBase,
         var featureColor = this.confIsSet('color') ? this.getConfFunc('color') :
             (function() { // default color function uses conf variables
                 var disableClipMarkers = thisB.getConf('disableClipMarkers');
-                var normOrigin = normalize( dataScale.origin );
+                var normOrigin = dataScale.normalize( dataScale.origin );
                 return function( pixel ,normScore ) {
                     var feature = pixel.feat;
                     return ( disableClipMarkers || normScore <= 1 && normScore >= 0 )
@@ -64,7 +64,7 @@ return declare( WiggleBase,
                 var f = p.feat;
 
                 // draw the bar for the value
-                var n = normalize( score );
+                var n = dataScale.normalize( score );
                 context.fillStyle = featureColor( p, n ).toString();
                 context.fillRect( i, 0, 1, canvasHeight );
 

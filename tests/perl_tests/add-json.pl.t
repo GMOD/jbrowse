@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use JBlibs;
+
 use JSON 2;
 use Test::More;
 

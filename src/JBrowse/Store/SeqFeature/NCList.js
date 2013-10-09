@@ -135,8 +135,19 @@ return declare( SeqFeatureStore,
         this.getDataRoot( query )
             .then( function( data ) {
                 var numBins = query.numBins || 25;
-                if( ! query.bpPerBin )
-                    throw 'bpPerBin arg required for getRegionFeatureDensities';
+                if( ! query.basesPerBin )
+                    throw 'basesPerBin arg required for getRegionFeatureDensities';
+
+                // pick the relevant entry in our pre-calculated stats
+                var statEntry = (function( basesPerBin, stats ) {
+                    for (var i = 0; i < stats.length; i++) {
+                        if( stats[i].basesPerBin >= basesPerBin ) {
+                            return stats[i];
+                            break;
+                        }
+                    }
+                    return undefined;
+                })( query.basesPerBin, data._histograms.stats || [] );
 
                 if( ! data._histograms ) {
                     successCallback({ bins: [], stats: {} });
@@ -153,17 +164,14 @@ return declare( SeqFeatureStore,
                 // is at 50,000 bases/bin, and we have server histograms at 20,000
                 // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
                 // rather than the 20,000)
-                var histogramMeta;
-                try {
-                    histogramMeta = data._histograms.meta[0];
-                    for (var i = 0; i < data._histograms.meta.length; i++) {
-                        if( query.bpPerBin >= data._histograms.meta[i].basesPerBin )
-                            histogramMeta = data._histograms.meta[i];
-                    }
-                } catch(e) { histogramMeta = {}; };
+                var histogramMeta = data._histograms.meta[0];
+                for (var i = 0; i < data._histograms.meta.length; i++) {
+                    if( query.basesPerBin >= data._histograms.meta[i].basesPerBin )
+                        histogramMeta = data._histograms.meta[i];
+                }
 
                 // number of bins in the server-supplied histogram for each current bin
-                var binCount = query.bpPerBin / histogramMeta.basesPerBin;
+                var binCount = query.basesPerBin / histogramMeta.basesPerBin;
 
                 // if the server-supplied histogram fits neatly into our requested
                 if ( binCount > .9
@@ -187,7 +195,7 @@ return declare( SeqFeatureStore,
                                histogram[ Math.floor( (i - firstServerBin) / binCount ) ] += val;
                            },
                            function() {
-                               successCallback({ bins: histogram, stats: data._histograms.stats });
+                               successCallback({ bins: histogram, stats: statEntry });
                            }
                        );
                    } else {
@@ -199,11 +207,12 @@ return declare( SeqFeatureStore,
                            query.end,
                            numBins,
                            function( hist ) {
-                               successCallback({ bins: hist, stats: data._histograms.stats });
+                               successCallback({ bins: hist, stats: statEntry });
                            });
                    }
                }, errorCallback );
     },
+
 
     getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
         if( this.empty ) {

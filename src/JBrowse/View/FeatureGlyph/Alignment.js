@@ -63,6 +63,8 @@ return declare( [BoxGlyph,MismatchesMixin], {
 
             var mismatches = this._getMismatches( feature );
             var charSize = this.getCharacterMeasurements( context );
+            context.textBaseline = 'middle'; // reset to alphabetic (the default) after loop
+
             array.forEach( mismatches, function( mismatch ) {
                 var start = feature.get('start') + mismatch.start;
                 var end = start + mismatch.length;
@@ -81,7 +83,6 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
                         context.font = this.getConf( 'mismatchFont' );
                         context.fillStyle = mismatch.type == 'deletion' ? 'white' : 'black';
-                        context.textBaseline = 'middle';
                         context.fillText( mismatch.base, mRect.l+(mRect.w-charSize.w)/2+1, mRect.t+mRect.h/2 );
                     }
                 }
@@ -91,8 +92,18 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     context.fillRect( mRect.l-2, mRect.t, 4, 1 );
                     context.fillRect( mRect.l-2, mRect.t+mRect.h-1, 4, 1 );
                     if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
-                        context.font = this.getConf( 'mismatchFont' );
-                        context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h-(mRect.h-charSize.h+4)/2 );
+                        context.font = this.getConf('mismatchFont');
+                        context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h/2 );
+                    }
+                }
+                else if( mismatch.type == 'hardclip' || mismatch.type == 'softclip' ) {
+                    context.fillStyle = mismatch.type == 'hardclip' ? 'red' : 'blue';
+                    context.fillRect( mRect.l-1, mRect.t+1, 2, mRect.h-2 );
+                    context.fillRect( mRect.l-2, mRect.t, 4, 1 );
+                    context.fillRect( mRect.l-2, mRect.t+mRect.h-1, 4, 1 );
+                    if( mRect.w >= charSize.w && mRect.h >= charSize.h-3 ) {
+                        context.font = this.getConf('mismatchFont');
+                        context.fillText( '('+mismatch.base+')', mRect.l+2, mRect.t+mRect.h/2 );
                     }
                 }
                 else if( mismatch.type == 'skip' ) {
@@ -101,6 +112,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     context.fillRect( mRect.l, mRect.t+(mRect.h-2)/2, mRect.w, 2 );
                 }
             },this);
+            context.textBaseline = 'alphabetic';
         }
     },
 

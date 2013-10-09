@@ -54,7 +54,7 @@ return declare( SeqFeatureStore,
         }
 
         var url = this._makeURL( 'stats/region', query );
-        this._get( url, callback, errorCallback );
+        this._get( url, successCallback, errorCallback );
     },
 
     getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
@@ -67,6 +67,20 @@ return declare( SeqFeatureStore,
                    errorCallback
                  );
     },
+
+    // getRegionFeatureDensities: function( query, histDataCallback, errorCallback ) {
+    //     // query like:
+    //     //    { ref: 'ctgA, start: 123, end: 456, basesPerBin: 200 }
+
+    //     // callback like:
+    //     //   histDataCallback({
+    //     //     "bins":  [ 51,50,58,63,57,57,65,66,63,61,56,49,50,47,39,38,54,41,50,71,61,44,64,60,42 ],
+    //     //     "stats": { "basesPerBin":"200","max":88,"mean":57.772 } //< `max` used to set the Y scale
+    //     //   });
+
+    //     // or error like:
+    //     //   errorCallback( 'aieeee i died' );
+    // },
 
     clearCache: function() {
         delete this._cache;

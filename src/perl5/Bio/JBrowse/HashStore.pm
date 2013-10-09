@@ -31,17 +31,18 @@ use warnings;
 
 use Carp;
 
+use Storable;
 use JSON 2;
 
 use File::Spec ();
 use File::Path ();
 
-use Bio::JBrowse::PartialSorter;
+use IO::File ();
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_bits => 16, sort_mem => 256 * 2**20 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16, mem => 256 * 2**20, nosync => 0 )
 
 =cut
 
@@ -49,7 +50,7 @@ sub open {
     my $class = shift;
 
     # source of data: defaults, overridden by open args, overridden by meta.json contents
-    my $self = bless { @_ }, $class;
+    my $self = bless { mem => 256*2**20, @_ }, $class;
 
     $self->{final_dir} = $self->{dir} or croak "dir option required";
     $self->{dir} = $self->{work_dir} || $self->{final_dir};
@@ -57,22 +58,23 @@ sub open {
     $self->empty if $self->{empty};
 
     $self->{meta} = $self->_read_meta;
+    $self->{format} ||= $self->{meta}{format} || 'json';
 
     $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
+    $self->{hash_mask} = 2**($self->{hash_bits}) - 1;
     $self->{meta}{hash_bits} = $self->{hash_bits};
-    $self->{hash_characters} = int( $self->{hash_bits}/4 );
-    $self->{file_extension} = '.json';
+    $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
+    $self->{file_extension} = '.'.$self->{format};
 
-    $self->{bucket_cache} = $self->_make_cache( size => 30 );
-    $self->{bucket_path_cache_by_key} = $self->_make_cache( size => 30 );
+    $self->{cache_size} = int( $self->{mem} / 50000 / 6 );
+    print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
     return $self;
 }
 
 sub _make_cache {
     my ( $self, @args ) = @_;
-    require Cache::Ref::FIFO;
-    return Cache::Ref::FIFO->new( @args );
+    return Bio::JBrowse::HashStore::FIFOCache->new( @args );
 }
 
 # write out meta.json file when the store itself is destroyed
@@ -139,59 +141,122 @@ sub set {
     return $value;
 }
 
-=head2 sort_stream( $data_stream )
+=head2 stream_set( $kv_stream, $key_count )
 
-Given a data stream (sub that returns arrayrefs of [ key, (any amount
-of other data) ] when called repeatedly), returns another stream that
-emits small objects that can be used to get and set the contents of
-the name store at that key ( $entry->get and $entry->set( $value ) )
-and will return the original data you passed (including the key) if
-you call $entry->data.
+Given a stream that returns ( $key, $value ) when called repeatedly,
+set all those values in the hash.
 
-Using this can greatly speed up bulk operations on the hash store,
-because it allows the internal caches of the HashStore to operate at
-maximum efficiency.
-
-This is achieved by doing an external sort of the data items, which
-involves writing all of the data items to temporary files and then
-reading them back in sorted order.
+If $key_count is provided, and C<verbose> is set on this HashStore,
+will attempt to print progress bars of the loading.
 
 =cut
 
-sub sort_stream {
-    my ( $self, $in_stream ) = @_;
+sub stream_set {
+    my $self = shift;
 
-    my $sorted_stream = Bio::JBrowse::PartialSorter
-        ->new(
-            mem => $self->{sort_mem} || 256 * 2**20,
-            compare => sub($$) {
-                $_[0][0] cmp $_[1][0]
-               },
-           )
-        ->sort( $in_stream );
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
+    $tempfile->close;
+    print "Temporary rehashing DBM file: $tempfile\n" if $self->{verbose};
 
-    # sorted entries should have nearly perfect cache locality, so use a
-    # 1-element cache for crc32 computations
-    my $hash_cache = $self->{tiny_hash_cache} ||= { key => '' };
-    return sub {
-        my $d = $sorted_stream->()
-            or return;
 
-        my $key = $d->[0];
-        my $hash = $hash_cache->{key} eq $key
-            ? $hash_cache->{hash}
-            : do {
-                $hash_cache->{key} = $key;
-                $hash_cache->{hash} = $self->_hexHash( $key );
-            };
+    # convert the input key => value stream to a temp hash of
+    # bucket_hex => { key => value, key => value }
+    my $bucket_count = $self->_stream_set_build_buckets( shift, $tempfile, shift );
 
-        return Bio::JBrowse::HashStore::Entry->new(
-            store    => $self,
-            key      => $key,
-            data     => $d,
-            hex_hash => $hash
-        );
-    };
+    # write out the bucket files
+    $self->_stream_set_write_bucket_files( $tempfile, $bucket_count );
+
+    print "Hash store bulk load finished.\n" if $self->{verbose};
+}
+
+sub _stream_set_write_bucket_files {
+    my ( $self, $tempfile, $bucket_count ) = @_;
+
+    # reopen the database, this is better because for iterating we
+    # don't need the big cache memory used in hashing the keys
+    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new;
+
+    my $progressbar = $bucket_count && $self->_make_progressbar('Writing bucket files', $bucket_count );
+    my $progressbar_next_update = 0;
+
+    print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose} && ! $progressbar;
+
+    my $buckets_written = 0;
+    while( my ( $hex, $contents ) = each %buckets ) {
+        my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
+        $bucket->{data} = Storable::thaw( $contents );
+        $bucket->{dirty} = 1;
+        $buckets_written++;
+
+        if ( $progressbar && $buckets_written > $progressbar_next_update ) {
+            $progressbar_next_update = $progressbar->update( $buckets_written );
+        }
+    }
+    if ( $progressbar && $buckets_written >= $progressbar_next_update ) {
+        $progressbar->update( $bucket_count );
+    }
+}
+
+sub _stream_set_build_buckets {
+    my ( $self, $kv_stream, $tempfile, $key_count ) = @_;
+
+    require POSIX;
+    require File::Temp;
+    require Storable;
+    require DB_File;
+
+    #my $db_conf = DB_File::HASHINFO->new;
+    my $db_conf = DB_File::BTREEINFO->new;
+    $db_conf->{flags} = 0x1;    #< DB_TXN_NOSYNC
+    $db_conf->{cachesize} = $self->{mem};
+
+    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
+
+    my $progressbar = $key_count && $self->_make_progressbar( 'Rehashing to final buckets', $key_count );
+    my $progressbar_next_update = 0;
+    my $bucket_count = 0;
+    my $keys_processed = 0;
+
+    print "Rehashing to final HashStore buckets...\n" if $self->{verbose} && ! $progressbar;
+
+    while ( my ( $k, $v ) = $kv_stream->() ) {
+        my $hex = $self->_hex( $self->_hash( $k ) );
+        my $b = $buckets{$hex};
+        if( $b ) {
+            $b = Storable::thaw( $buckets{$hex} );
+        } else {
+            $b = {};
+            $bucket_count++;
+        }
+        $b->{$k} = $v;
+        $b = Storable::freeze( $b );
+        $buckets{$hex} = $b;
+
+        $keys_processed++;
+        if ( $progressbar && $keys_processed > $progressbar_next_update ) {
+            $progressbar_next_update = $progressbar->update( $keys_processed );
+        }
+    }
+    if ( $progressbar && $keys_processed >= $progressbar_next_update ) {
+        $progressbar->update( $key_count );
+    }
+
+    return $bucket_count;
+}
+
+sub _make_progressbar {
+    my ( $self, $description, $total_count ) = @_;
+
+    return unless $self->{verbose};
+
+    eval { require Term::ProgressBar };
+    return if $@;
+
+    my $progressbar = Term::ProgressBar->new({ name  => $description,
+                                               count => $total_count,
+                                               ETA   => 'linear'       });
+    $progressbar->max_update_rate(1);
+    return $progressbar;
 }
 
 
@@ -204,19 +269,23 @@ from the store directory.
 
 sub empty {
     my ( $self ) = @_;
+    print "Removing existing contents of target dir $self->{dir}\n" if $self->{verbose};
     File::Path::rmtree( $self->{dir} );
     File::Path::mkpath( $self->{dir} );
 }
 
 ########## helper methods ###########
 
-sub _hexHash {
+sub _hash {
     my ( $self, $key ) = @_;
     my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
                   ->strcrc32( $key );
-    my $hex = lc sprintf( '%08x', $crc );
-    $hex = substr( $hex, 8-$self->{hash_characters} );
-    return $hex;
+    return $crc & $self->{hash_mask};
+}
+
+sub _hex {
+    my ( $self, $crc ) = @_;
+    return sprintf( $self->{hash_sprintf_pattern}, $crc );
 }
 
 sub _hexToPath {
@@ -224,13 +293,24 @@ sub _hexToPath {
     my @dir = ( $self->{dir}, reverse $hex =~ /(.{1,3})/g );
     my $file = (pop @dir).$self->{file_extension};
     my $dir = File::Spec->catdir(@dir);
+    #warn "crc: $crc, fullpath: ".File::Spec->catfile( $dir, $file )."\n";
     return { dir => $dir, fullpath => File::Spec->catfile( $dir, $file ) };
 }
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    my $pathinfo = $self->{bucket_path_cache_by_key}->compute( $key, sub { $self->_hexToPath( $self->_hexHash( $key ) ); }  );
-    return $self->{bucket_cache}->compute( $pathinfo->{fullpath}, sub { $self->_readBucket( $pathinfo ); } );
+    return $self->_getBucketFromHex( $self->_hex( $self->_hash( $key ) ) );
+}
+
+sub _getBucketFromHex {
+    my ( $self, $hex ) = @_;
+
+    my $bucket_cache = $self->{bucket_cache} ||= $self->_make_cache( size => $self->{cache_size} );
+    return $bucket_cache->compute( $hex, sub {
+        my $path_cache = $self->{bucket_path_cache_by_hex} ||= $self->_make_cache( size => $self->{cache_size} );
+        my $pathinfo = $path_cache->compute( $hex, sub { $self->_hexToPath( $hex ) });
+        return $self->_readBucket( $pathinfo )
+    });
 }
 
 sub _readBucket {
@@ -239,23 +319,25 @@ sub _readBucket {
     my $path = $pathinfo->{fullpath};
     my $dir = $pathinfo->{dir};
 
-    if( -f $path ) {
-        local $/;
-        CORE::open my $in, '<', $path or die "$! reading $path";
-        return $bucket_class->new(
-             dir => $dir,
-             fullpath => $path,
-             data => eval { JSON::from_json( scalar <$in> ) } || {}
-             );
-    }
-    else {
-        return $bucket_class->new(
-            dir => $dir,
-            fullpath => $path,
-            data => {},
-            dirty => 1
-            );
-    }
+    return $bucket_class->new(
+        format => $self->{format},
+        nosync => $self->{nosync},
+        dir => $dir,
+        fullpath => $path,
+        ( -f $path
+            ? (
+                data => eval {
+                    if ( $self->{format} eq 'storable' ) {
+                        Storable::retrieve( $path )
+                      } else {
+                          CORE::open my $in, '<', $path or die "$! reading $path";
+                          local $/;
+                          JSON::from_json( scalar <$in> )
+                        }
+                } || {}
+              )
+            : ( dirty => 1 )
+        ));
 }
 
 
@@ -272,62 +354,44 @@ sub new {
 sub DESTROY {
     my ( $self ) = @_;
 
-    return unless $self->{dirty} && %{$self->{data}};
-
-    File::Path::mkpath( $self->{dir} ) unless -d $self->{dir};
-    CORE::open my $out, '>', $self->{fullpath} or die "$! writing $self->{fullpath}";
-    $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
+    if( $self->{dirty} && %{$self->{data}} ) {
+        File::Path::mkpath( $self->{dir} ) unless -d $self->{dir};
+        if( $self->{format} eq 'storable' ) {
+            Storable::store( $self->{data}, $self->{fullpath} );
+        } else {
+            my $out = IO::File->new( $self->{fullpath}, 'w' )
+                or die "$! writing $self->{fullpath}";
+            $out->blocking( 0 ) if $self->{nosync};
+            $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
+        }
+    }
 }
 
-package Bio::JBrowse::HashStore::Entry;
+
+##### inner cache for FIFO caching ###
+package Bio::JBrowse::HashStore::FIFOCache;
 
 sub new {
     my $class = shift;
-    bless { @_ }, $class;
+    return bless {
+        fifo  => [],
+        bykey => {},
+        size  => 100,
+        @_
+    }, $class;
 }
 
-sub get {
-    my ( $self ) = @_;
-    my $bucket = $self->_getBucket;
-    return $bucket->{data}{ $self->{key} };
+sub compute {
+    my ( $self, $key, $callback ) = @_;
+    return $self->{bykey}{$key} ||= do {
+        my $fifo = $self->{fifo};
+        if( @$fifo >= $self->{size} ) {
+            delete $self->{bykey}{ shift @$fifo };
+        }
+        push @$fifo, $key;
+        return $self->{bykey}{$key} = $callback->($key);
+    };
 }
 
-sub set {
-    my ( $self, $value ) = @_;
-
-    my $bucket = $self->_getBucket;
-    $bucket->{data}{ $self->{key} } = $value;
-    $bucket->{dirty} = 1;
-    $self->{store}{meta}{last_changed_entry} = $self->{key};
-
-    return $value;
-}
-
-sub data {
-    $_[0]->{data};
-}
-
-sub store {
-    $_[0]->{store};
-}
-
-sub _getBucket {
-    my ( $self ) = @_;
-
-    # use a one-element cache for this _getBucket, because Entrys
-    # come from sort_stream, and thus should have perfect cache locality
-    my $tinycache = $self->{store}{tiny_bucket_cache} ||= { hex_hash => '' };
-    if( $tinycache->{hex_hash} eq $self->{hex_hash} ) {
-        return $tinycache->{bucket};
-    }
-    else {
-        my $store = $self->{store};
-        my $pathinfo = $store->_hexToPath( $self->{hex_hash} );
-        my $bucket = $store->_readBucket( $pathinfo );
-        $tinycache->{hex_hash} = $self->{hex_hash};
-        $tinycache->{bucket} = $bucket;
-        return $bucket;
-    }
-}
 
 1;

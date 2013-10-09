@@ -4,27 +4,23 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/_base/lang',
+           'dojo/when',
            'JBrowse/Util',
-           'JBrowse/Store/SeqFeature/_MismatchesMixin'
+           'JBrowse/Store/SeqFeature/_MismatchesMixin',
+           'JBrowse/View/Track/_NamedFeatureFiltersMixin'
         ],
         function(
             declare,
             array,
+            lang,
+            when,
             Util,
-            MismatchesMixin
+            MismatchesMixin,
+            NamedFeatureFiltersMixin
         ) {
 
-return declare( MismatchesMixin ,{
-
-    constructor: function() {
-        // initialize alignments feature filters
-        for( var filtername in this.alignmentsFilters ) {
-            if( this.getConf( filtername ) )
-                this.addFeatureFilter( this.alignmentsFilters[filtername] );
-            else
-                this.removeFeatureFilter( this.alignmentsFilters[filtername] );
-        }
-    },
+return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
     configSchema: {
         slots: [
@@ -144,64 +140,74 @@ return declare( MismatchesMixin ,{
         return this._baseStyles[base] || '#999';
     },
 
-    _setAlignmentsFilter: function( filtername, isActive ) {
-        var previousSetting = this.getConf( filtername );
-        this.setConf( filtername, isActive );
+    // filters for BAM alignments according to some flags
+    _getNamedFeatureFilters: function() {
+        return lang.mixin( {}, this.inherited( arguments ),
+            {
+                hideDuplicateReads: {
+                    desc: 'Hide PCR/Optical duplicate reads',
+                    func: function( f ) {
+                        return ! f.get('duplicate');
+                    }
+                },
+                hideQCFailingReads: {
+                    desc: 'Hide reads failing vendor QC',
+                    func: function( f ) {
+                        return ! f.get('qc_failed');
+                    }
+                },
+                hideSecondary: {
+                    desc: 'Hide secondary alignments',
 
-        // nothing to do if not changed
-        if( previousSetting === this.getConf( filtername ) )
-            return;
-
-        if( isActive )
-            this.addFeatureFilter( this.alignmentsFilters[filtername] );
-        else
-            this.removeFeatureFilter( this.alignmentsFilters[filtername] );
-
-        this.changed();
-    },
-
-    //methods for filtering BAM alignments according to some flags
-    // predefined feature filters
-    alignmentsFilters: {
-        hideDuplicateReads: function( f ) {
-            return ! f.get('duplicate');
-        },
-        hideQCFailingReads: function( f ) {
-            return ! f.get('qc_failed');
-        },
-        hideSecondary: function( f ) {
-            return ! f.get('secondary_alignment');
-        },
-        hideSupplementary: function( f ) {
-            return ! f.get('supplementary_alignment');
-        },
-        hideMissingMatepairs: function( f ) {
-            return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
-        }
+                    func: function( f ) {
+                        return ! f.get('secondary_alignment');
+                    }
+                },
+                hideSupplementary: {
+                    desc: 'Hide supplementary alignments',
+                    func: function( f ) {
+                        return ! f.get('supplementary_alignment');
+                    }
+                },
+                hideMissingMatepairs: {
+                    desc: 'Hide reads with missing mate pairs',
+                    func: function( f ) {
+                        return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
+                    }
+                },
+                hideForwardStrand: {
+                    desc: 'Hide reads aligned to the forward strand',
+                    func: function( f ) {
+                        return f.get('strand') != 1;
+                    }
+                },
+                hideReverseStrand: {
+                    desc: 'Hide reads aligned to the reverse strand',
+                    func: function( f ) {
+                        return f.get('strand') != -1;
+                    }
+                }
+            });
     },
 
     _alignmentsFilterTrackMenuOptions: function() {
         // add toggles for feature filters
         var track = this;
-        return array.map(
-            [
-                { desc: 'Hide PCR/Optical duplicate reads',   fname: 'hideDuplicateReads' },
-                { desc: 'Hide reads failing vendor QC',       fname: 'hideQCFailingReads' },
-                { desc: 'Hide reads with missing mate pairs', fname: 'hideMissingMatepairs' },
-                { desc: 'Hide secondary alignments',          fname: 'hideSecondary' },
-                { desc: 'Hide supplementary alignments',      fname: 'hideSupplementary' }
-            ],
-            function( spec ) {
-                return { label: spec.desc,
-                         type: 'dijit/CheckedMenuItem',
-                         checked: this.getConf( spec.fname ),
-                         onClick: function(event) {
-                             track._setAlignmentsFilter( spec.fname, this.checked );
-                         }
-                       };
-            },
-            this
-        );
+        return when( this._getNamedFeatureFilters() )
+            .then( function( filters ) {
+                       return track._makeFeatureFilterTrackMenuItems(
+                           [
+                               'hideDuplicateReads',
+                               'hideQCFailingReads',
+                               'hideMissingMatepairs',
+                               'hideSecondary',
+                               'hideSupplementary',
+                               'SEPARATOR',
+                               'hideForwardStrand',
+                               'hideReverseStrand'
+                           ],
+                           filters );
+                   });
     }
 
 });

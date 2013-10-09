@@ -14,9 +14,9 @@ define( [
             'JBrowse/has',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/ExportMixin',
+            'JBrowse/View/Track/_ExportMixin',
             'JBrowse/Errors',
-            'JBrowse/View/Track/FeatureDetailMixin',
+            'JBrowse/View/Track/_FeatureDetailMixin',
             'JBrowse/View/Track/_FeatureContextMenusMixin',
             'JBrowse/Model/Location'
         ],

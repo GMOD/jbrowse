@@ -25,7 +25,7 @@ define([
 // files don't actually have an end coordinate, so we have to make it
 // here.  also convert coordinates to interbase.
 var VCFIndexedFile = declare( TabixIndexedFile, {
-    parseItem: function() {
+    parseLine: function() {
         var i = this.inherited( arguments );
         if( i ) {
             i.start--;
@@ -66,10 +66,11 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
     },
 
     /** fetch and parse the VCF header lines */
-    _loadHeader: function() {
+    getVCFHeader: function() {
         var thisB = this;
-        return this._parsedHeader = this._parsedHeader || function() {
+        return this._parsedHeader || ( this._parsedHeader = function() {
             var d = new Deferred();
+            var reject = lang.hitch( d, 'reject' );
 
             thisB.indexedData.indexLoaded.then( function() {
                 var maxFetch = thisB.indexedData.index.firstDataLine
@@ -80,24 +81,22 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
                     0,
                     maxFetch,
                     function( bytes ) {
-
                         thisB.parseHeader( new Uint8Array( bytes ) );
-
-                        d.resolve({ success:true});
+                        d.resolve( thisB.header );
                     },
-                    lang.hitch( d, 'reject' )
+                    reject
                 );
              },
-             lang.hitch( d, 'reject' )
+             reject
             );
 
             return d;
-        }.call();
+        }.call(this));
     },
 
     getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
-        thisB._loadHeader().then( function() {
+        thisB.getVCFHeader().then( function() {
             thisB.indexedData.getLines(
                 query.ref || thisB.refSeq.name,
                 query.start,

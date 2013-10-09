@@ -363,7 +363,7 @@ fatalError: function( error ) {
         .then( function() {
                    try {
                        document.getElementById('volvox_data_placeholder')
-                           .innerHTML = 'Also, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data</a> here.';
+                           .innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data here</a>.';
                    } catch(e) {}
                });
 
@@ -828,7 +828,7 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/NCList'     : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/HTMLVariants',
+                'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'       : 'JBrowse/View/Track/CanvasFeatures'
             },
 
@@ -840,6 +840,7 @@ getTrackTypes: function() {
                 'JBrowse/View/Track/HTMLFeatures',
                 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/View/Track/HTMLVariants',
+                'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/View/Track/Wiggle/Density',
                 'JBrowse/View/Track/Sequence'
@@ -1731,8 +1732,8 @@ makeFullViewLink: function () {
         className: 'topLink',
         href: window.location.href,
         target: '_blank',
-        title: 'View in full browser',
-        innerHTML: 'Full view'
+        title: 'View in full-screen browser',
+        innerHTML: 'Full-screen view'
     });
 
     // update it when the view is moved or tracks are changed
