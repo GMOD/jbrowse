@@ -25,7 +25,7 @@ return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
   },
 
   canHandle: function( def ) {
-      return has('save-generated-files') && /^file:\/\//.test( def )
+      return has('save-generated-files') && /^file:\/\//i.test( def )
           || window.Blob && def instanceof window.Blob;
   },
 
@@ -34,7 +34,7 @@ return declare( 'JBrowse.Transport.LocalFile', _RequestBased, {
           return resourceDef.name;
 
       try {
-          return resourceDef.match(/^file:\/\/(.+)/)[1];
+          return resourceDef.match(/^file:\/\/(.+)/i)[1];
       } catch(e) {
           throw 'invalid file url';
       }
