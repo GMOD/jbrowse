@@ -16,6 +16,10 @@
         padding: 0.5em;
         border: 1px solid #e2e2e2;
 
+        label {
+            display: block;
+        }
+
         .default {
             label span.text {
                 font-weight: bold;

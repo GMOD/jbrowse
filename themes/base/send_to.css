@@ -8,6 +8,8 @@
 .jbrowse .send-to .controls {
   padding: 0.5em;
   border: 1px solid #e2e2e2; }
+  .jbrowse .send-to .controls label {
+    display: block; }
   .jbrowse .send-to .controls .default label span.text {
     font-weight: bold; }
   .jbrowse .send-to .controls .default .dijitTextBox {
