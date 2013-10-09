@@ -5,7 +5,8 @@ define([
            'JBrowse/Transport/HTTP',
            'JBrowse/Transport/GoogleDrive',
            'JBrowse/Transport/Dropbox',
-           'JBrowse/Transport/LocalFile'
+           'JBrowse/Transport/LocalFile',
+           'JBrowse/Transport/LocalMail'
        ],
        function(
            declare,
@@ -14,7 +15,8 @@ define([
            HTTP,
            GoogleDrive,
            Dropbox,
-           LocalFile
+           LocalFile,
+           LocalMail
        ) {
 return declare( null, {
 
@@ -28,7 +30,8 @@ return declare( null, {
           [ HTTP,
             GoogleDrive,
             Dropbox,
-            LocalFile
+            LocalFile,
+            LocalMail
           ], function( class_ ) {
               return new class_({ browser: this, transportManager: this, authManager: this });
           }, this );
