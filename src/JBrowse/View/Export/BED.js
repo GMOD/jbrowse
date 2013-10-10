@@ -1,40 +1,45 @@
+/**
+ * Data export driver for BED format.
+ */
 define([ 'dojo/_base/declare',
          'dojo/_base/array',
+         'dojo/when',
+
          'JBrowse/View/Export'
        ],
-       function( declare, array, ExportBase ) {
+       function(
+           declare,
+           array,
+           when,
+
+           ExportBase
+       ) {
 
 return declare( ExportBase,
-
- /**
-  * @lends JBrowse.View.Export.BED.prototype
-  */
 {
-
-    /**
-     * Data export driver for BED format.
-     * @constructs
-     */
     constructor: function( args ) {
-        this._printHeader();
+        this.track = args.track;
     },
 
     /**
      * print the BED track definition line
      * @private
      */
-    _printHeader: function() {
-        // print the BED header
-        this.print( 'track' );
+    _emitHeader: function( generator ) {
+        var head = 'track';
         if( this.track ) {
             if( this.track.name )
-                this.print(' name="'+this.track.name+'"');
-            var metadata = this.track.getMetadata();
-            if( metadata.key )
-                this.print(' description="'+metadata.key+'"');
+                head += ' name="'+this.track.name+'"';
+            return when( this.track.getMetadata() )
+                .then( function( metadata ) {
+                           if( metadata.description )
+                               head += ' description="'+metadata.description+'"';
+                           generator.emit( head + "\n" );
+                       });
         }
-        this.print(' useScore=0');
-        this.print("\n");
+
+        generator.emit( head + "\n" );
+        return undefined;
     },
 
     bed_field_names: [

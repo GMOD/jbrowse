@@ -102,6 +102,7 @@ var ExportMixin = declare( null, {
                                   {
                                       refSeq: thisB.refSeq,
                                       browser: thisB.browser,
+                                      track: thisB,
                                       store: thisB.store
                                   })
                               .exportRegion(
