@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed bug in which `name` or `seq_id` attributes are required for
+   reference sequence features.  Thanks to Daniel Troesser for
+   pointing this out.
+
 # Release 1.10.6     2013-10-07 21:06:51 EST5EDT
 
 ## Minor improvements
