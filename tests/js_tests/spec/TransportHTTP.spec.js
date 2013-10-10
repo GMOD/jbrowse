@@ -9,14 +9,15 @@ require([
 describe( 'HTTP transport driver', function() {
               var transport;
               beforeEach( function() {
+                              var b = new Browser({ unitTestMode: true });
                   transport = new HTTP({
-                                           browser: new Browser({ unitTestMode: true })
+                                           transportManager: b, browser: b, authManager: b
                                    });
               });
 
               it( 'can fetch text with no credentials', function() {
                       var data;
-                      transport.fetch({ url: '../data/redundant.gff3', handleAs: 'text'})
+                      transport.request('../data/redundant.gff3', { handleAs: 'text'})
                                .then( function(d) { data = d; } );
                       waitsFor( function() { return data; } );
                       runs( function() {
@@ -26,10 +27,10 @@ describe( 'HTTP transport driver', function() {
 
               it( 'can fetch a byte range with no credentials', function() {
                       var data;
-                      transport.fetch({ url: '../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam',
-                                        handleAs: 'arraybuffer',
-                                        range: [20,40]
-                                      })
+                      transport.request('../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam',
+                                        { handleAs: 'arraybuffer',
+                                          range: [20,40]
+                                        })
                                .then( function(d) { data = d; } );
                       waitsFor( function() { return data; } );
                       runs( function() {
@@ -42,10 +43,10 @@ describe( 'HTTP transport driver', function() {
 
                   it( 'can fetch a byte range with HTTP Basic credentials', function() {
                           var data;
-                          transport.fetch({ url: '../data/restricted/httpbasic/empty.bigWig',
-                                            handleAs: 'arraybuffer',
-                                            range: [0,200]
-                                          })
+                          transport.request('../data/restricted/httpbasic/empty.bigWig',
+                                            { handleAs: 'arraybuffer',
+                                              range: [0,200]
+                                            })
                                    .then( function(d) { data = d; } );
                           waitsFor( function() { return data; }, 5000 );
                           runs( function() {
