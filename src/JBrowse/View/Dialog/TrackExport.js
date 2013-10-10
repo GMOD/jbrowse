@@ -90,7 +90,7 @@ return declare( Dialog, {
                                  innerHTML: rec.description+' -'
                                      + ' <span class="locString">'+ locstring+'</span>'
                                      + ' ('+Util.humanReadableNumber(length)
-                                          + ( rec.canExport ? 'b' : 'b, too large' )
+                                          + ( rec.canExport ? 'bp' : 'bp, too large' )
                                        +')'
                              },
                              regionFieldset
@@ -223,7 +223,8 @@ return declare( Dialog, {
               if( r[i].checked )
                   return r[i].value;
           }
-          return undefined;
+
+          return r[0].value;
       }
       return r.value;
   },
