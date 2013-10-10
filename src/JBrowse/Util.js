@@ -200,6 +200,9 @@ var Util = {
         // For example:
         // resolveUrl("http://www.domain.com/path1/path2","../path3") ->"http://www.domain.com/path1/path3"
         //
+        if( typeof relativeUrl != 'string' )
+            return relativeUrl;
+
         if (relativeUrl.match(/\w+:\/\//))
 	    return relativeUrl;
         if (relativeUrl.charAt(0)=='/') {
