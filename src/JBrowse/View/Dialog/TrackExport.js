@@ -110,13 +110,17 @@ return declare( Dialog, {
       domConstruct.create("legend", {innerHTML: "Format"}, formatFieldset);
 
       checked = 0;
-      array.forEach( track._exportFormats(), function(fmt) {
+      array.forEach( track._exportFormats(), function( typeRecord ) {
+
+                         if( ! typeRecord.exportDriverClassName )
+                             throw new Error( 'no known export driver for type '+typeRecord.name );
+
                          var formatButtonLabel = domConstruct.create(
-                             "label", { innerHTML: fmt.name }, formatFieldset
+                             "label", { innerHTML: typeRecord.label }, formatFieldset
                          );
 
                          var formatButton = new dijitRadioButton(
-                             { name: "format", value: fmt.name, checked: checked++?"":"checked"}
+                             { name: "format", value: typeRecord.exportDriverClassName, checked: checked++?"":"checked"}
                          );
 
                          formatButtonLabel.insertBefore( formatButton.domNode, formatButtonLabel.firstChild );

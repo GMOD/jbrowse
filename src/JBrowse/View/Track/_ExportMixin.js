@@ -84,7 +84,7 @@ var ExportMixin = declare( null, {
         return regions;
     },
 
-    exportRegion: function( region, format ) {
+    exportRegion: function( region, driverClassName ) {
 
         // we can only export from the currently-visible reference
         // sequence right now
@@ -96,7 +96,7 @@ var ExportMixin = declare( null, {
 
         var thisB = this;
         return new DeferredGenerator( function( generator ) {
-            return Util.loadJSClass( 'JBrowse/View/Export/'+format )
+            return Util.loadJSClass( driverClassName )
                 .then(function( exportDriver ) {
                           return new exportDriver(
                                   {
