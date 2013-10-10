@@ -44,7 +44,7 @@ return declare( ExportBase,
     },
 
     _formatFASTA: function( region, seq ) {
-        return '>' + this.refSeq.get('seq_id')
+        return '>' + region.get('seq_id')
             +' '+Util.assembleLocString(region) + "\n"
             + this._wrap( seq, 78 );
     },
