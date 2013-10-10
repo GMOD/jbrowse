@@ -88,7 +88,6 @@ return declare( [BlockBased, ExportMixin],
                       + ( this.getConf('showReverseStrand') ? 14 : 0 ) + 'px'
               }
             }, block.domNode );
-        blur.style.lineHeight = blur.style.height;
 
         this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
 
@@ -99,18 +98,13 @@ return declare( [BlockBased, ExportMixin],
                            dom.empty( block.domNode );
                            thisB._fillSequenceBlock( block, blockIndex, scale, seq );
                        })
-                .then( lang.hitch( this, 'heightUpdate',
-                                   this.getConf('showTranslation') ? (charSize.h + 2)*8 : charSize.h*2,
-                                   blockIndex
-                                 ),
-                       function(e) { thisB._handleError( e, args ); }
-                     )
-                .then( args.finishCallback );
+                .then( args.finishCallback, lang.hitch( this, '_handleError' ) );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
+            args.finishCallback();
         }
     },
 
