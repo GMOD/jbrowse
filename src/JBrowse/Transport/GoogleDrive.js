@@ -104,14 +104,27 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
                                         .execute( function( response, rawResponse ) {
                                                       if( ! response )
                                                           d.reject( rawResponse );
-                                                      else if( response.error )
-                                                      d.reject( response );
-                                                      else
+                                                      else if( response.error ) {
+                                                          d.reject( thisB._decorateError( response.error ) );
+                                                      } else
                                                           d.resolve( response );
                                                   });
                                     return d;
                                 });
                  });
+  },
+
+  // decorate Google JSON error responses so that they stringify
+  // better
+  _decorateError: function( error ) {
+      error.toString = function() {
+          if( error.errors )
+              return array.map( error.errors, function(e) { return e.message;} ).join("\n");
+          if( error.message )
+              return error.message;
+          return JSON.stringify( error );
+      };
+      return error;
   },
 
   // damn you Google for not supporting CORS for everything.
@@ -192,7 +205,8 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
               base + '/'+resource.fileId,
               { jsonp: 'callback', handleAs: 'json' }
           ).then( function(data) {
-                      if( data.error ) throw data.error;
+                      if( data.error )
+                          throw new Error( thisB._decorateError( data.error ) );
                       return data;
                   });
       else if( resource.title )
@@ -203,7 +217,8 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
               },
               { handleAs: 'json' }
           ).then( function( fileList ) {
-                      if( fileList.error ) throw fileList.error;
+                      if( fileList.error )
+                          throw new Error( thisB._decorateError( fileList.error ) );
                       return fileList.items[0];
                   });
       else
