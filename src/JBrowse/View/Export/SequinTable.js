@@ -12,22 +12,6 @@ define([ 'dojo/_base/declare',
 return declare( ExportBase,
 
 {
-    /**
-     * Data export driver for BED format.
-     * @constructs
-     */
-    // constructor: function( args ) {
-    // },
-
-    /**
-     * print the BED track definition line
-     * @private
-     */
-    _printHeader: function( feature ) {
-        // print the BED header
-        this.print( '>Feature '+(feature.get('seq_id') || this.refSeq.get('seq_id'))+"\n" );
-        return true;
-    },
 
     /**
      * Format a feature into a string.
@@ -36,8 +20,6 @@ return declare( ExportBase,
      */
     formatFeature: function( feature ) {
         var thisB = this;
-        if( ! this.headerPrinted )
-            this.headerPrinted = this._printHeader( feature );
 
         var featLine = [ feature.get('start')+1,
                          feature.get('end'),
@@ -58,7 +40,14 @@ return declare( ExportBase,
                 return [ tag.toLowerCase(), thisB.stringifyAttributeValue( feature.get(tag) ) ];
             });
 
-        return featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('');
+        var str = featLine.join("\t")+"\n" + array.map( qualifiers, function( q ) { return "\t\t\t"+q.join("\t")+"\n"; } ).join('');
+
+        if( ! this.headerPrinted ) {
+            str = '>Feature '+feature.get('seq_id')+"\n" + str;
+            this.headerPrinted = true;
+        }
+
+        return str;
     },
 
     stringifyAttributeValue: function( val ) {
