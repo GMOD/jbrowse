@@ -9,6 +9,9 @@
  * Fixed a bug that may have prevented some types of VCF files from
    being displayed (error message referring to `inheritedFilters`).
 
+ * Fixed a bug in which "Zoom in to see feature" would wrap
+   downwards below track.
+
 # Release 1.10.6     2013-10-07 21:06:51 EST5EDT
 
 ## Minor improvements
