@@ -79,7 +79,7 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
                      var range;
                      if(( range = req.range )) {
                          delete req.range;
-                         range = 'bytes='+range[0]+'-'+range[1];
+                         range = thisB._fmtRangeSpec( range );
 
                          if( isXHR )
                              req.headers['Range'] = range;
@@ -100,7 +100,9 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
                          if( req.range ) {
                              return thisB._byteCache.get( req, req.range[0], req.range[1],
                                                          function(req,start,end) {
-                                                             lang.setObj( 'headers.Range', 'bytes='+start+'-'+end, req );
+                                                             lang.setObj( 'headers.Range',
+                                                                          thisB._fmtRangeSpec( [start, end] ),
+                                                                          req );
                                                              return thisB._binaryFetch( req, credentialSlots );
                                                          });
                          } else {
@@ -111,6 +113,17 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
                          return thisB._dojoRequest( req, credentialSlots );
                      }
                  });
+  },
+
+  _fmtRangeSpec: function( range ) {
+      if( isNaN( range[0] ) || isNaN( range[1] ) )
+          throw new Error('invalid requested byte range '+range[0]+'-'+range[1] );
+
+      var spec = 'bytes='+range[0]+'-';
+      if( typeof range[1] == 'number' )
+          spec += range[1];
+
+      return spec;
   },
 
   _dojoRequest: function( req, credentialSlots ) {
