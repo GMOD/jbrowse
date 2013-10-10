@@ -11,6 +11,16 @@ div.sequence_blur {
     color: #575757;
     font-size: 12px;
     text-align: center;
+    position: relative;
+}
+.sequence_blur > span {
+    margin-top: 45%;
+    top: 50%;
+    position: absolute;
+    width: 100%;
+    display: block;
+    left: 0;
+    margin-top: -2em;
 }
 
 table.sequence .highlighted {

@@ -85,7 +85,6 @@ return declare( [BlockBased, ExportMixin],
                       + ( this.config.showReverseStrand ? 14 : 0 ) + 'px'
               }
             }, block.domNode );
-        blur.style.lineHeight = blur.style.height;
 
         this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
 
@@ -109,6 +108,7 @@ return declare( [BlockBased, ExportMixin],
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
+            args.finishCallback();
         }
 
         args.finishCallback();
