@@ -206,7 +206,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                        if( arguments[0][0] )
                            return thisB._makeVCFFilters.apply( thisB, arguments[0] );
                        else
-                           return inheritedFilters;
+                           return arguments[0][1];
                    });
     },
 

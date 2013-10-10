@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed bug in which `name` or `seq_id` attributes are required for
+   reference sequence features.  Thanks to Daniel Troesser for
+   pointing this out.
+
+ * Fixed a bug that may have prevented some types of VCF files from
+   being displayed (error message referring to `inheritedFilters`).
+
 # Release 1.10.6     2013-10-07 21:06:51 EST5EDT
 
 ## Minor improvements
