@@ -33,7 +33,7 @@ describe( 'sequence chunk store', function() {
 
               function testfetch( name, start, end, expectSeq ) {
                       var seq;
-                      var d = s.getReferenceSequences({ ref: name } )
+                      var d = s.getReferenceFeatures({ ref: name } )
                           .forEach( function(s) { seq = s; },
                                     function( ) { return seq.getSequence(start,end); },
                                     function(e) { console.error(e); }
