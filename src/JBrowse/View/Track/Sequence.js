@@ -108,7 +108,6 @@ return declare( [BlockBased, ExportMixin],
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
-            args.finishCallback();
         }
 
         args.finishCallback();
