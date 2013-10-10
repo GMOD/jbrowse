@@ -63,7 +63,7 @@ class JBrowseTest (object):
             else:
                 el = self.browser.find_element_by_css_selector( expression )
         except NoSuchElementException:
-            assert 0, ( "can't find %s" % expression )
+            raise AssertionError ("can't find %s" %expression)
         return el
 
     def assert_elements( self, expression ):
@@ -73,7 +73,7 @@ class JBrowseTest (object):
             else:
                 el = self.browser.find_elements_by_css_selector( expression )
         except NoSuchElementException:
-            assert 0, ( "can't find %s" % expression )
+            raise AssertionError ("can't find %s" %expression)
         return el
 
 
@@ -83,7 +83,7 @@ class JBrowseTest (object):
                 el = self.browser.find_element_by_xpath( expression )
             else:
                 el = self.browser.find_element_by_css_selector( expression )
-            assert 0, ( "not supposed to find %s" % expression )
+            raise AssertionError ("not supposed to find %s" %expression)
         except NoSuchElementException:
             pass
 

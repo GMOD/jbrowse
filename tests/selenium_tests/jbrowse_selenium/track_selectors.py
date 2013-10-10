@@ -11,27 +11,21 @@ class SimpleTrackSelector (TrackSelector):
 
         # drag the track label over
         self.test.actionchains() \
-            .click_and_hold( tracklabel ) \
-            .move_by_offset( 400, 10 ) \
+            .move_to_element( tracklabel ) \
+            .double_click() \
             .perform()
 
         time.sleep( 1 );
-
-        self.test.actionchains() \
-            .release( None ) \
-            .perform()
-
-        time.sleep(0.3);
 
         self.test.assert_no_js_errors()
 
     def turn_off_track( self, tracktext ):
         # drag the track back into the track list
-        track_handle = self.test.assert_element( "//div[contains(@class,'track')]//span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
-        track_list = self.test.assert_element( "//div[@id='tracksAvail']" )
+        track_close= self.test.assert_element( "//div[contains(@class,'track-label')][contains(.,'%s')]/div[contains(@class,'track-close-button')]" %tracktext )
 
         self.test.actionchains() \
-            .drag_and_drop( track_handle, track_list ) \
+            .move_to_element( track_close ) \
+            .click() \
             .perform()
 
         self.test.assert_no_js_errors()
