@@ -161,11 +161,24 @@ var DeferredGenerator = declare( null, {
                  .run()
                  .then( end, error, progress );
   },
+  reduce: function( val, operation, end, error, progress ) {
+      return this.forEach(
+          function( i ) {
+              val[operation](each);
+          },
+          function(){
+              return end(val);
+          },
+          error,
+          progress );
+  },
+  collect: function( end, error, progress ) {
+      return this.reduce( [], 'push', end, error, progress );
+  },
 
   then: function( end, error, progress ) {
       return this.each( undefined, end, error, progress );
   },
-
   emit: function( item ) {
       if( ! this._fulfilled )
           this._signalWaitingListeners( this.EMIT, item );
