@@ -24,6 +24,28 @@ var MediaType = declare( 'JBrowse.MediaTypes.MediaType', null, {
 var MediaTypes;
 return MediaTypes = new ( declare( 'JBrowse.MediaTypes', null,{
 
+  _typeRecords: [
+      { name: 'GFF3',
+        description: 'Generic Feature Format version 3',
+        url: 'http://www.sequenceontology.org/gff3.shtml',
+        guessType: { regex: /##gff-version\s+3/ },
+        exportDriverClassName: 'GFF3'
+      },
+      { name: 'BED',
+        exportDriverClassName: 'BED'
+      },
+      { name: 'BAM' },
+      { name: 'BAI' },
+      { name: 'Sequin Table',
+        fileExtensions: ['sqn'],
+        exportDriverClassName: 'SequinTable'
+      },
+      { name: 'FASTA',
+        fileExtensions: [ 'fasta', 'fa', 'fn' ],
+        exportDriverClassName: 'FASTA'
+      }
+  ],
+
   constructor: function() {
       this._organizeTypes();
   },
@@ -34,8 +56,11 @@ return MediaTypes = new ( declare( 'JBrowse.MediaTypes', null,{
       this._typeRecords = array.map(
           this._typeRecords, function( t ) {
               t = lang.mixin( {}, t );
+
               if( ! t.label )
                   t.label = t.name;
+
+              // guess the file extension from the Internet Media Type if not provided
               if( ! t.fileExtensions ) {
                   try {
                       t.fileExtensions = [ t.imType.match(/application\/x-(.+)/)[1].toLowerCase() ];
@@ -44,8 +69,15 @@ return MediaTypes = new ( declare( 'JBrowse.MediaTypes', null,{
                           t.fileExtensions = [ t.name.toLowerCase() ];
                   }
               }
+
+              // guess the Internet Media Type of the file if not provided
               if( ! t.imType && t.fileExtensions )
                   t.imType = 'application/x-'+(t.fileExtensions[0].toLowerCase());
+
+              // namespace short-form export driver class names
+              if( t.exportDriverClassName && t.exportDriverClassName.indexOf('/') == -1 )
+                  t.exportDriverClassName = 'JBrowse/View/Export/'+t.exportDriverClassName;
+
               return new MediaType(t);
           }, this);
 
@@ -77,20 +109,8 @@ return MediaTypes = new ( declare( 'JBrowse.MediaTypes', null,{
       return array.map( types, function( t ) {
                             return this._typesByName[ t.toLowerCase() ];
                         }, this );
-  },
+  }
 
-  _typeRecords: [
-      { name: 'GFF3',
-        description: 'Generic Feature Format version 3',
-        url: 'http://www.sequenceontology.org/gff3.shtml',
-        guessType: { regex: /##gff-version\s+3/ }
-      },
-      { name: 'BED' },
-      { name: 'BAM' },
-      { name: 'BAI' },
-      { name: 'Sequin Table', fileExtensions: ['sqn'] },
-      { name: 'FASTA', fileExtensions: [ 'fasta', 'fa', 'fn' ] }
-  ]
 }))();
 
 });
