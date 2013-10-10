@@ -160,7 +160,7 @@ return declare( Store,
         this.getFeatures( lang.mixin({ reference_sequences_only: true }, query ),
                           function( f ) {
                               var seq, start = f.get('start');
-                              if( ! thisB.browser.compareReferenceNames( f.get('name') || f.get('seq_id'), query.ref ) && ( seq = f.get('residues') || f.get('seq') ) )
+                              if( ! thisB.browser.compareReferenceNames( f.get('seq_id') || f.get('name'), query.ref ) && ( seq = f.get('residues') || f.get('seq') ) )
                                   sequence = replaceAt( sequence, start-query.start, seq );
                           },
                           function() {
