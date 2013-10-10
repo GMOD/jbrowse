@@ -79,7 +79,8 @@ return declare( Dialog, {
                          var locstring = Util.assembleLocString(r);
                          var regionButton = new dijitRadioButton(
                              { name: "region",
-                               value: locstring, checked: rec.canExport && !(checked++) ? "checked" : ""
+                               value: locstring,
+                               checked: rec.canExport && !(checked++)
                              });
                          regionFieldset.appendChild(regionButton.domNode);
                          var regionButtonLabel = domConstruct.create(
@@ -222,6 +223,7 @@ return declare( Dialog, {
               if( r[i].checked )
                   return r[i].value;
           }
+          return undefined;
       }
       return r.value;
   },

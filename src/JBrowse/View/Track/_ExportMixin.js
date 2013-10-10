@@ -95,28 +95,24 @@ var ExportMixin = declare( null, {
         }
 
         var thisB = this;
-        return new DeferredGenerator(
-            function( generator ) {
-                Util.loadJSClass( 'JBrowse/View/Export/'+format )
-                    .then(function( exportDriver ) {
-                              return new exportDriver({
-                                                          refSeq: thisB.refSeq,
-                                                          track: thisB,
-                                                          store: thisB.store
-                                                      })
-                                  .exportRegion({
-                                                    ref: region.get('seq_id'),
-                                                    start: region.get('start'),
-                                                    end: region.get('end')
-                                                })
-                                  .forEach(
-                                      lang.hitch( generator, 'emit' ),
-                                      lang.hitch( generator, 'resolve' ),
-                                      lang.hitch( generator, 'reject' ),
-                                      lang.hitch( generator, 'progress' )
-                                  );
-                  });
-            });
+        return new DeferredGenerator( function( generator ) {
+            return Util.loadJSClass( 'JBrowse/View/Export/'+format )
+                .then(function( exportDriver ) {
+                          return new exportDriver(
+                                  {
+                                      refSeq: thisB.refSeq,
+                                      browser: thisB.browser,
+                                      store: thisB.store
+                                  })
+                              .exportRegion(
+                                  {
+                                      ref: region.get('seq_id'),
+                                      start: region.get('start'),
+                                      end: region.get('end')
+                                  })
+                              .forEach( lang.hitch( generator, 'emit' ) );
+              });
+        });
     },
 
     _trackMenuOptions: function() {

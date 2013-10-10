@@ -1,8 +1,16 @@
 define([ 'dojo/_base/declare',
          'dojo/_base/lang',
-         'dojo/_base/array'
+         'dojo/when',
+
+         'JBrowse/Util/DeferredGenerator'
        ],
-       function( declare, lang, array ) {
+       function(
+           declare,
+           lang,
+           when,
+
+           DeferredGenerator
+       ) {
 
 return declare( null,
 {
@@ -12,35 +20,41 @@ return declare( null,
      */
     constructor: function( args ) {
         args = args || {};
-        this.printFunc = args.print || function( line ) { this.output += line; };
-        this.refSeq = args.refSeq;
-        this.track = args.track;
+        this.browser = args.browser;
+        if( ! this.browser ) throw 'browser arg required';
+
         this.store = args.store;
     },
 
-    // will need to override this if you're not exporting regular features
+    /**
+     * given a query object, return a DeferredGenerator that emits
+     * chunks of the exported data file.
+     */
     exportRegion: function( query ) {
         var thisB = this;
-        return this.store.getFeatures( query )
-            .each(
-                lang.hitch( this, 'formatFeature' )
-            );
+        return new DeferredGenerator( function( generator ) {
+            return when( thisB._emitHeader( generator ) )
+                        .then( function() {
+                            return thisB.store.getFeatures( query )
+                                       .forEach(
+                                           function( f ) {
+                                               var data = thisB.formatFeature( f );
+                                               if( data )
+                                                   if( typeof data.then == 'function' )
+                                                       return data.then( function( data ) { generator.emit( data ); } );
+                                                   else
+                                                       generator.emit( data );
+
+                                               return undefined;
+                                           });
+                               })
+                        .then( lang.hitch( thisB, '_emitFooter', generator ) );
+        });
     },
 
-    emit: function( l ) {
-        if( lang.isArray( l ) ) {
-            array.forEach( l, this.printFunc, this );
-        } else {
-            this.printFunc( l );
-        }
+    _emitHeader: function( generator ) {
     },
-
-    /**
-     * Write the feature to the GFF3 under construction.
-     * @returns nothing
-     */
-    writeFeature: function(feature) {
-        this.print( this.formatFeature(feature) );
+    _emitFooter: function( generator ) {
     }
 }
 );

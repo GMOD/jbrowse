@@ -17,12 +17,12 @@ return declare( ExportBase,
      */
     constructor: function( args ) {
         this._idCounter = 0;
+        this.linesSinceLastSync = 0;
+        this.curRefName = '';
+    },
 
-        this.print( "##gff-version 3\n");
-        if( this.refSeq )
-            this.print( "##sequence-region "+this.refSeq.get('seq_id')+" "+(this.refSeq.get('start')+1)+" "+this.refSeq.get('end')+"\n" );
-
-        this.lastSync = 0;
+    _emitHeader: function( generator ) {
+        generator.emit( "##gff-version 3\n");
     },
 
     gff3_field_names: [
@@ -117,7 +117,7 @@ return declare( ExportBase,
         else
             delete attr.Parent;
 
-        var subfeatures = array.map(
+        var lines = array.map(
             feature.get('subfeatures') || [],
             function(feat) {
                 if( ! attr.ID ) {
@@ -131,25 +131,41 @@ return declare( ExportBase,
         // ID for the parent
         fields[8] = this._gff3_format_attributes( attr );
 
-        var fl = fields.join("\t")+"\n";
-        subfeatures.unshift( fl );
-        return subfeatures.join('');
-    },
+        // add the parent feature to the beginning
+        lines.unshift( fields.join("\t") );
 
-    /**
-     * Write the feature to the GFF3 under construction.
-     * @returns nothing
-     */
-    writeFeature: function(feature) {
-        var fmt = this.formatFeature(feature);
-        this.print( fmt );
-
-        // avoid printing sync marks more than every 10 lines
-        if( this.lastSync >= 9 ) {
-            this.lastSync = 0;
-            this.print( "###\n" );
+        // add a ### if necessary
+        if( this.linesSinceLastSync >= 9 ) {
+            lines.push( "###\n" );
+            this.linesSinceLastSync = 0;
         } else {
-            this.lastSync += fmt.length || 1;
+            lines.push(""); //< for trailing newline
+            this.linesSinceLastSync += lines.length;
+        }
+
+        var exportChunk = lines.join( "\n" );
+        lines = undefined; // free lines
+
+        // add a sequence-region line if necessary, fetching reference sequence information if necessary
+        if( this.curRefName != fields[0] && fields[0] != '.' ) {
+            this.curRefName = fields[0];
+            return this.browser.getReferenceFeature( fields[0] )
+                .then( function( ref ) {
+                           if( ref )
+                               return "##sequence-region "
+                               +( ref.get('seq_id') || ref.get('name'))
+                               + ' '
+                               +( ref.get('start')+1 )
+                               + ' '
+                               + ref.get('end')
+                               + "\n"
+                               + exportChunk;
+                           else
+                               return exportChunk;
+                       });
+        }
+        else {
+            return exportChunk;
         }
     },
 
