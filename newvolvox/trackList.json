@@ -59,25 +59,25 @@
         {
             "style" : { "className" : "feature2" },
             "query": { "set": "ExampleFeatures" },
-            "label" : "HTMLFeatures - Example Features"
+            "label" : "Features - Example Features"
         },
 
         {
             "query": { "set": "bam_simulated" },
-            "label" : "HTMLFeatures - bam_simulated"
+            "label" : "Features - bam_simulated"
         },
 
         {
             "style" : { "className" : "feature2" },
             "query": { "set": "NameTest" },
-            "label" : "HTMLFeatures - Name test",
-            "type": "JBrowse/View/Track/HTMLFeatures"
+            "label" : "Features - Name test",
+            "type": "JBrowse/View/Track/CanvasFeatures"
         },
 
         {
             "style" : { "className" : "triangle hgred" },
             "query": { "set": "snps" },
-            "label" : "HTMLFeatures - SNPs"
+            "label" : "Features - SNPs"
         },
 
         {
