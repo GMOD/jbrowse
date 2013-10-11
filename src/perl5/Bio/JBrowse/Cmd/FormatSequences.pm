@@ -177,6 +177,8 @@ sub exportFASTA {
         my $curr_chunk;
         my $chunk_num;
 
+        my $noseq = $self->opt('noseq');
+
         my $writechunk = sub {
             $self->openChunkFile( $curr_seq, $chunk_num )
                  ->print(
@@ -187,7 +189,7 @@ sub exportFASTA {
         local $_;
         while ( <$fasta_fh> ) {
             if ( /^\s*>\s*(\S+)\s*(.*)/ ) {
-                $writechunk->() if $curr_seq;
+                $writechunk->() if !$noseq && $curr_seq;
 
                 if ( $accept_ref->($1) ) {
                     $chunk_num = 0;
@@ -205,15 +207,17 @@ sub exportFASTA {
             } elsif ( $curr_seq && /\S/ ) {
                 s/[\s\r\n]//g;
                 $curr_seq->{end} += length;
-                $curr_chunk .= $_;
 
-                if ( length $curr_chunk >= $self->{chunkSize} ) {
-                    $writechunk->();
-                    $chunk_num++;
+                unless( $noseq ) {
+                    $curr_chunk .= $_;
+                    if ( length $curr_chunk >= $self->{chunkSize} ) {
+                        $writechunk->();
+                        $chunk_num++;
+                    }
                 }
             }
         }
-        $writechunk->();
+        $writechunk->() unless $noseq;
     }
 
     $self->writeRefSeqsJSON( \%refSeqs );
