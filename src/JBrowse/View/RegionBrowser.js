@@ -117,15 +117,14 @@ buildRendering: function() {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
     }, this.domNode );
 
-    this.zoomContainer = document.createElement("div");
-    this.zoomContainer.style.cssText =
-        "position: absolute; left: 0px; top: 0px; height: 100%;";
-    this.elem.appendChild(this.zoomContainer);
+    this.zoomContainer = domConstruct.create(
+        'div',{ style: "position: absolute; left: 0px; top: 0px; height: 100%;" },
+        this.elem );
 
-    this.containerNode = this.trackContainer = document.createElement("div");
-    this.trackContainer.className = "trackContainer innerTrackContainer draggable";
-    this.trackContainer.style.cssText = "height: 100%;";
-    this.zoomContainer.appendChild( this.trackContainer );
+    this.containerNode = this.trackContainer = domConstruct.create(
+        'div', { className: "trackContainer innerTrackContainer draggable",
+                 style: "height: 100%;" },
+        this.zoomContainer );
 
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = this.stripeWidth;
@@ -144,7 +143,6 @@ buildRendering: function() {
     this.slideTimeMultiple = 0.8;
     this.trackHeights = [];
     this.trackTops = [];
-    this.prevCursors = [];
 
     this.x = this.elem.scrollLeft;
     this.y = 0;
@@ -157,7 +155,7 @@ buildRendering: function() {
     this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
 
-    var initialLoc = this.getConf('initialLocation');
+    var initialLoc    = this.getConf('initialLocation');
     var initialTracks = this.getConf('initialTracks');
 
     // fetch the refseq store and the ref seq before we can continue
@@ -181,18 +179,6 @@ buildRendering: function() {
                         }
                     );
             });
-},
-
- /**
- * Returns object with all that's necessary to reconstruct this view's
- * current state.
- */
-getState: function() {
-    var s = this.inherited(arguments);
-    var height = this.domNode.style.height || '';
-    if( /%/.test( height ) )
-        s.style = { height: this.domNode.style.height };
-    return s;
 },
 
 _finishInitialization: function( refseq ) {
@@ -310,7 +296,7 @@ _finishInitialization: function( refseq ) {
         )
     );
 
-    this.showCoarse();
+    //this.showCoarse();
 
     // initialize the behavior manager used for setting what this view
     // does (i.e. the behavior it has) for mouse and keyboard events
@@ -320,6 +306,17 @@ _finishInitialization: function( refseq ) {
     this.setLocation( this.ref, this.ref.get('start'), this.ref.get('end'), this.getConf('initialTracks') );
 },
 
+ /**
+ * Returns object with all that's necessary to reconstruct this view's
+ * current state.
+ */
+getState: function() {
+    var s = this.inherited(arguments);
+    var height = this.domNode.style.height || '';
+    if( /%/.test( height ) )
+        s.style = { height: this.domNode.style.height };
+    return s;
+},
 
 configSchema: {
     slots: [
