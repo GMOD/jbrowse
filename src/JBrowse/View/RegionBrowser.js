@@ -1455,12 +1455,24 @@ bpToPx: function(bp) {
  * @returns nothing
  */
 sizeInit: function() {
+
+    this.elemBox = {
+        h: this.domNode.offsetHeight - this.elem.offsetTop,
+        w: this.elem.offsetWidth
+    };
+
+
     //scale values, in pixels per bp, for all zoom levels
-    var desiredZoomLevels = [1/500000, 1/200000, 1/100000, 1/50000, 1/20000, 1/10000, 1/5000, 1/2000, 1/1000, 1/500, 1/200, 1/100, 1/50, 1/20, 1/10, 1/5, 1/2, 1, 2, 5, 10, 20 ];
-
-    this.elemBox = { h: this.domNode.offsetHeight - this.elem.offsetTop,
-                     w: this.elem.offsetWidth };
-
+    var desiredZoomLevels = [
+        1/500000,  1/200000,  1/100000,
+        1/50000,   1/20000,   1/10000,
+        1/5000,    1/2000,    1/1000,
+        1/500,     1/200,     1/100,
+        1/50,      1/20,      1/10,
+        1/5,       1/2,       1,
+        2,         5,         10,
+        20
+    ];
     this.zoomLevels = [];
     for( var i = 0; i < desiredZoomLevels.length; i++ )  {
 	var zlevel = desiredZoomLevels[i];
@@ -1476,7 +1488,7 @@ sizeInit: function() {
            < this.getWidth()) {
         this.zoomLevels.shift();
     }
-    this.zoomLevels.unshift(this.getWidth() / (this.ref.get('end') - this.ref.get('start')));
+    this.zoomLevels.unshift( this.getWidth() / (this.ref.get('end') - this.ref.get('start')));
 
     //width, in pixels, of stripes at min zoom (so the view covers
     //the whole ref seq)
