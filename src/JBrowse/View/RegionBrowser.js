@@ -2,12 +2,17 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
+           'dojo/_base/event',
            'dojo/dom-construct',
            'dojo/dom-class',
+           'dojo/dom-geometry',
            'dojo/on',
            'dojo/mouse',
            'dojo/dnd/move',
            'dojo/dnd/Source',
+           'dojo/keys',
+           'dojo/json',
+           'dojo/query',
 
            'dijit/layout/_LayoutWidget',
            'dijit/focus',
@@ -32,12 +37,17 @@ define([
            declare,
            array,
            lang,
+           dojoEvent,
            domConstruct,
            domClass,
+           domGeom,
            on,
            mouse,
            dndMove,
            dndSource,
+           keys,
+           JSON,
+           query,
 
            dijitBase,
            dijitFocus,
@@ -147,13 +157,13 @@ buildRendering: function() {
     this.x = this.elem.scrollLeft;
     this.y = 0;
 
-    this.browser.subscribe( '/jbrowse/v1/c/redrawGenomeRegions', dojo.hitch( this, 'redrawRegions' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', dojo.hitch( this, 'replaceTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  dojo.hitch( this, 'hideTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/redrawGenomeRegions', lang.hitch( this, 'redrawRegions' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    lang.hitch( this, 'showTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    lang.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', lang.hitch( this, 'replaceTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  lang.hitch( this, 'hideTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     lang.hitch( this, 'pinTracks' ));
+    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   lang.hitch( this, 'unpinTracks' ));
 
     var initialLoc    = this.getConf('initialLocation');
     var initialTracks = this.getConf('initialTracks');
@@ -264,12 +274,12 @@ _finishInitialization: function( refseq ) {
                 accept: ["track"], //accepts only tracks into the viewing field
                 withHandles: true,
                 copyOnly: true,
-                creator: dojo.hitch( this, function( trackConfig, hint ) {
+                creator: lang.hitch( this, function( trackConfig, hint ) {
                     return {
                         data: trackConfig,
                         type: ["track"],
                         node: hint == 'avatar'
-                                 ? dojo.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
+                                 ? domConstruct.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
                                  : this.renderTrack( trackConfig )
                     };
                 })
@@ -278,14 +288,14 @@ _finishInitialization: function( refseq ) {
     // subscribe to showTracks commands
     this.browser.subscribe(
         '/dnd/drop',
-        dojo.hitch(
+        lang.hitch(
             this,
             function( source, nodes, copy, target ) {
                 this.updateTrackList();
                 if( target.node === this.trackContainer ) {
                     // if dragging into the trackcontainer, we are showing some tracks
                     // get the configs from the tracks being dragged in
-                    var confs = dojo.filter( dojo.map( nodes, function(n) {
+                    var confs = array.filter( array.map( nodes, function(n) {
                                                            return n.track && n.track.config;
                                                        }),
                                              function(c) {return c;}
@@ -434,7 +444,7 @@ visibleTracks: function() {
  *  @returns {Array[String]} of the names of tracks that are currently visible in this genomeview
  */
 visibleTrackNames: function() {
-    return dojo.map( this.visibleTracks(), function(t){ return t.name; } );
+    return array.map( this.visibleTracks(), function(t){ return t.name; } );
 },
 
 /**
@@ -475,8 +485,8 @@ _behaviors: function() { return {
                 dojo.connect( this.elem,     wheelevent,     this, 'wheelScroll', false ),
 
                 dojo.connect( this.scaleTrackDiv,       "mousedown",
-                              dojo.hitch( this, 'startRubberZoom',
-                                          dojo.hitch( this,'absXtoBp'),
+                              lang.hitch( this, 'startRubberZoom',
+                                          lang.hitch( this,'absXtoBp'),
                                           this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
@@ -492,11 +502,11 @@ _behaviors: function() { return {
                 dojo.connect( this.scaleTrackDiv,       "mousemove",      this,  'scaleMouseMove'    ),
 
                 dojo.connect( document.body, 'onkeyup', this, function(evt) {
-                    if( evt.keyCode == dojo.keys.SHIFT ) // shift
+                    if( evt.keyCode == keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
                 }),
                 dojo.connect( document.body, 'onkeydown', this, function(evt) {
-                    if( evt.keyCode == dojo.keys.SHIFT ) // shift
+                    if( evt.keyCode == keys.SHIFT ) // shift
                         this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
                 }),
 
@@ -509,20 +519,20 @@ _behaviors: function() { return {
                         return;
 
                     var that = this;
-                    if( evt.keyCode == dojo.keys.LEFT_ARROW || evt.keyCode == dojo.keys.RIGHT_ARROW ) {
-                        var offset = evt.keyCode == dojo.keys.LEFT_ARROW ? -40 : 40;
+                    if( evt.keyCode == keys.LEFT_ARROW || evt.keyCode == keys.RIGHT_ARROW ) {
+                        var offset = evt.keyCode == keys.LEFT_ARROW ? -40 : 40;
                         if( evt.shiftKey )
                             offset *= 5;
                         this.keySlideX( offset );
                     }
-                    else if( evt.keyCode == dojo.keys.DOWN_ARROW || evt.keyCode == dojo.keys.UP_ARROW ) {
+                    else if( evt.keyCode == keys.DOWN_ARROW || evt.keyCode == keys.UP_ARROW ) {
                         // shift-up/down zooms in and out
                         if( evt.shiftKey ) {
-                            this[ evt.keyCode == dojo.keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
+                            this[ evt.keyCode == keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
                         }
                         // without shift, scrolls up and down
                         else {
-                            var offset = evt.keyCode == dojo.keys.UP_ARROW ? -40 : 40;
+                            var offset = evt.keyCode == keys.UP_ARROW ? -40 : 40;
                             this.setY( this.getY() + offset );
                         }
                     }
@@ -554,11 +564,11 @@ _behaviors: function() { return {
     highlightingMouse: {
         apply: function() {
             dojo.removeClass(this.trackContainer,'draggable');
-            dojo.addClass(this.trackContainer,'highlightingAvailable');
+            domClass.add(this.trackContainer,'highlightingAvailable');
             return [
                 dojo.connect( this.zoomContainer, "mousedown",
-                              dojo.hitch( this, 'startMouseHighlight',
-                                          dojo.hitch(this,'absXtoBp'),
+                              lang.hitch( this, 'startMouseHighlight',
+                                          lang.hitch(this,'absXtoBp'),
                                           this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
@@ -568,9 +578,9 @@ _behaviors: function() { return {
             ];
         },
         remove: function( mgr, handles ) {
-            dojo.forEach( handles, dojo.disconnect, dojo );
+            array.forEach( handles, dojo.disconnect, dojo );
             dojo.removeClass(this.trackContainer,'highlightingAvailable');
-            dojo.addClass(this.trackContainer,'draggable');
+            domClass.add(this.trackContainer,'draggable');
         }
     },
 
@@ -578,11 +588,11 @@ _behaviors: function() { return {
     shiftMouse: {
         apply: function() {
             dojo.removeClass(this.trackContainer,'draggable');
-            dojo.addClass(this.trackContainer,'rubberBandAvailable');
+            domClass.add(this.trackContainer,'rubberBandAvailable');
             return [
                 dojo.connect( this.zoomContainer, "mousedown",
-                              dojo.hitch( this, 'startRubberZoom',
-                                          dojo.hitch(this,'absXtoBp'),
+                              lang.hitch( this, 'startRubberZoom',
+                                          lang.hitch(this,'absXtoBp'),
                                           this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
@@ -595,9 +605,9 @@ _behaviors: function() { return {
         remove: function( mgr, handles ) {
             this.clearBasePairLabels();
             this.clearVerticalPositionLine();
-            dojo.forEach( handles, dojo.disconnect, dojo );
+            array.forEach( handles, dojo.disconnect, dojo );
             dojo.removeClass(this.trackContainer,'rubberBandAvailable');
-            dojo.addClass(this.trackContainer,'draggable');
+            domClass.add(this.trackContainer,'draggable');
         }
     },
 
@@ -634,7 +644,7 @@ _behaviors: function() { return {
                 dojo.connect(document.body, "mousemove",  this, 'rubberMove'    ),
                 dojo.connect(document.body, "mouseout",   this, 'rubberCancel'  ),
                 dojo.connect(window,        "onkeydown",  this, function(e){
-                                 if( e.keyCode !== dojo.keys.SHIFT )
+                                 if( e.keyCode !== keys.SHIFT )
                                      this.rubberCancel(e);
                              })
             ];
@@ -686,12 +696,12 @@ wheelScroll: function( event ) {
     // 100 milliseconds since the last scroll event is an arbitrary
     // cutoff for deciding when the user is done scrolling
     // (set by a bit of experimentation)
-    this.wheelScrollTimeout = window.setTimeout( dojo.hitch( this, function() {
+    this.wheelScrollTimeout = window.setTimeout( lang.hitch( this, function() {
         this.showVisibleBlocks();
         this.wheelScrollTimeout = null;
     }, 100));
 
-    dojo.stopEvent(event);
+    dojoEvent.stop(event);
 },
 
 getX: function() {
@@ -817,20 +827,20 @@ doubleClickZoom: function(event) {
     // double-clicked
     if( this.scaleClickedTimeout ) window.clearTimeout( this.scaleClickedTimeout );
 
-    var zoomLoc = (event.pageX - dojo.position(this.elem, true).x) / this.getWidth();
+    var zoomLoc = (event.pageX - domGeom.position(this.elem, true).x) / this.getWidth();
     if (event.shiftKey) {
     this.zoomOut(event, zoomLoc, 2);
     } else {
     this.zoomIn(event, zoomLoc, 2);
     }
-    dojo.stopEvent(event);
+    dojoEvent.stop(event);
 },
 
 /** @private */
 _beforeMouseDrag: function( event ) {
     if ( this.animation ) {
         if (this.animation instanceof Zoomer) {
-            dojo.stopEvent(event);
+            dojoEvent.stop(event);
             return 0;
 
         } else {
@@ -838,7 +848,7 @@ _beforeMouseDrag: function( event ) {
         }
     }
     if (Util.isRightButton(event)) return 0;
-    dojo.stopEvent(event);
+    dojoEvent.stop(event);
     return 1;
 },
 
@@ -927,7 +937,7 @@ _rubberStop: function(event) {
     this.hideRubberHighlight();
     this.clearBasePairLabels();
     if( event )
-        dojo.stopEvent(event);
+        dojoEvent.stop(event);
     delete this.rubberbanding;
 },
 
@@ -968,7 +978,7 @@ rubberExecute: function( event) {
 // draws the rubber-banding highlight region from start.x to end.x
 setRubberHighlight: function( start, end ) {
     var container = this.rubberbanding.container,
-        container_coords = dojo.position(container,true);
+        container_coords = domGeom.position(container,true);
 
     var h = this.rubberHighlight || (function(){
         var main = this.rubberHighlight = document.createElement("div");
@@ -1014,7 +1024,7 @@ setRubberHighlight: function( start, end ) {
 dragEnd: function(event) {
     this.behaviorManager.removeBehaviors('mouseDragScrolling', 'verticalMouseDragScrolling');
 
-    dojo.stopEvent(event);
+    dojoEvent.stop(event);
     this.showCoarse();
 
     this.scrollUpdate();
@@ -1023,7 +1033,7 @@ dragEnd: function(event) {
     // wait 100 ms before releasing our drag indication, since onclick
     // events from during the drag might fire after the dragEnd event
     window.setTimeout(
-        dojo.hitch(this,function() {this.dragging = false;}),
+        lang.hitch(this,function() {this.dragging = false;}),
         100 );
 },
 
@@ -1046,7 +1056,7 @@ dragMove: function(event) {
         x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
         y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
         });
-    dojo.stopEvent(event);
+    dojoEvent.stop(event);
 },
 
 // Similar to "dragMove". Consider merging.
@@ -1058,7 +1068,7 @@ verticalDragMove: function(event) {
          x: this.winStartPos.x,
          y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)*(trackContainerHeight/containerHeight)
          });
-    dojo.stopEvent(event);
+    dojoEvent.stop(event);
 },
 
 hideRubberHighlight: function( start, end ) {
@@ -1100,7 +1110,7 @@ setLocation: function(refseq, startbp, endbp, showTracks ) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
         };
-        dojo.forEach(this.tracks, removeTrack);
+        array.forEach(this.tracks, removeTrack);
 
         this.tracks = [];
         this.trackIndices = {};
@@ -1108,7 +1118,7 @@ setLocation: function(refseq, startbp, endbp, showTracks ) {
         this.trackTops = [];
 
         var thisB = this;
-        dojo.forEach(this.uiTracks, function(track) {
+        array.forEach(this.uiTracks, function(track) {
                          track.refSeq = thisB.ref;
                          track.clear();
                      });
@@ -1306,11 +1316,11 @@ maybeDrawVerticalPositionLine: function( evt ) {
 drawVerticalPositionLine: function( evt){
     var parent = this.domNode;
     var numX = evt.pageX + 2;
-    var ppos = dojo.position(parent);
+    var ppos = domGeom.position(parent);
 
     if( ! this.verticalPositionLine ){
         // if line does not exist, create it
-        this.verticalPositionLine = dojo.create( 'div', {
+        this.verticalPositionLine = domConstruct.create( 'div', {
             className: 'trackVerticalPositionIndicatorMain'
         }, parent );
     }
@@ -1337,8 +1347,8 @@ drawBasePairLabel: function ( args ){
     this.basePairLabels = this.basePairLabels || {};
 
     if( ! this.basePairLabels[name] ) {
-        var scaleTrackPos = dojo.position( args.scaleDiv || this.scaleTrackDiv );
-        this.basePairLabels[name] = dojo.create( 'div', {
+        var scaleTrackPos = domGeom.position( args.scaleDiv || this.scaleTrackDiv );
+        this.basePairLabels[name] = domConstruct.create( 'div', {
             className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
             style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
         }, document.body );
@@ -1351,7 +1361,7 @@ drawBasePairLabel: function ( args ){
     }
 
     label.style.display = 'block';      //make label visible
-    var absfunc = args.xToBp || dojo.hitch(this,'absXtoBp');
+    var absfunc = args.xToBp || lang.hitch(this,'absXtoBp');
     //set text to BP location (adding 1 to convert from interbase)
     label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )+1);
 
@@ -1392,7 +1402,7 @@ clearBasePairLabels: function(){
 scaleClicked: function( evt ) {
     var bp = this.absXtoBp(evt.clientX);
 
-    this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
+    this.scaleClickedTimeout = window.setTimeout( lang.hitch( this, function() {
         this.centerAtBase( bp );
     },100));
 },
@@ -1438,7 +1448,7 @@ pxToBp: function(pixels) {
  * @returns {Number}
  */
 absXtoBp: function( /**Number*/ pixels) {
-    return this.pxToBp( this.getPosition().x + this.offset - dojo.position(this.elem, true).x + pixels )-1;
+    return this.pxToBp( this.getPosition().x + this.offset - domGeom.position(this.elem, true).x + pixels )-1;
 },
 
 /**
@@ -1612,7 +1622,7 @@ _updateZoomControls: function() {
                 }
             }, 400 );
         }
-    }, dojo.create('input',{},this.zoomSliderContainer) );
+    }, domConstruct.create('input',{},this.zoomSliderContainer) );
 
     // update the zoom slider text
     this.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.pxPerBp )+'bp';
@@ -1837,7 +1847,7 @@ zoomUpdate: function(zoomLoc, fixedBp) {
     this.zoomContainer.style.left = "0px";
     this.setX((centerPx - this.offset) - (eWidth / 2));
 
-    dojo.forEach(this.uiTracks, function(track) { track.clear(); });
+    array.forEach(this.uiTracks, function(track) { track.clear(); });
 
     this.trackIterate( function(track) {
         track.endZoom( this.pxPerBp,Math.round(this.stripeWidth / this.pxPerBp));
@@ -2046,7 +2056,7 @@ hideTracks: function( tracks ) {
 
     // remove the track configs from the trackDndWidget ( the widget
     // will call create() on the confs to render them )
-    dojo.forEach( displayed, function( label ) {
+    array.forEach( displayed, function( label ) {
         this.trackDndWidget.forInItems(function(obj, id, map) {
             if( label === obj.data.label ) {
                 this.trackDndWidget.delItem( id );
@@ -2094,8 +2104,8 @@ unpinTracks: function( /**Array[String]*/ trackNames ) {
 _getTracks: function( /**Array[String]*/ trackNames ) {
     var tracks = [],
         tn = { count: trackNames.length };
-    dojo.forEach( trackNames, function(n) { tn[n] = 1;} );
-    dojo.some( this.tracks, function(t) {
+    array.forEach( trackNames, function(n) { tn[n] = 1;} );
+    array.some( this.tracks, function(t) {
         if( tn[t.name] ) {
             tracks.push(t);
             tn.count--;
@@ -2231,7 +2241,7 @@ createSearchControls: function( parent ) {
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
-    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, this.searchControlsContainer );
+    var refSeqSelectBoxPlaceHolder = domConstruct.create('span', {}, this.searchControlsContainer );
 
     // make the location box
     this.locationBox = new dijitComboBox(
@@ -2242,19 +2252,19 @@ createSearchControls: function( parent ) {
         },
         domConstruct.create('div',{},this.searchControlsContainer) );
 
-    this.browser.afterMilestone( 'loadNames', dojo.hitch(this, function() {
+    this.browser.afterMilestone( 'loadNames', lang.hitch(this, function() {
         if( this.browser.nameStore )
             this.locationBox.set( 'store', this.browser.nameStore );
     }));
 
     this.locationBox.focusNode.spellcheck = false;
-    dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
+    query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
     dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
-                      if (event.keyCode == dojo.keys.ENTER) {
+                      if (event.keyCode == keys.ENTER) {
                           this.locationBox.closeDropDown(false);
                           this.navigateTo( this.locationBox.get('value') );
                           this.goButton.set('disabled',true);
-                          dojo.stopEvent(event);
+                          dojoEvent.stop(event);
                       } else {
                           this.goButton.set('disabled', false);
                       }
@@ -2269,7 +2279,7 @@ createSearchControls: function( parent ) {
          dropDownProto._createOption = function( item ) {
              var option = oldCreateOption.apply( this, arguments );
              if( item.hitLimit )
-                 dojo.addClass( option, 'moreMatches');
+                 domClass.add( option, 'moreMatches');
              return option;
          };
 
@@ -2285,12 +2295,12 @@ createSearchControls: function( parent ) {
     // make the 'Go' button'
     this.goButton = new dijitButton(
         {
-            onClick: dojo.hitch( this, function(event) {
+            onClick: lang.hitch( this, function(event) {
                 this.navigateTo(this.locationBox.get('value'));
                 this.goButton.set('disabled',true);
-                dojo.stopEvent(event);
+                dojoEvent.stop(event);
             })
-        }, dojo.create('button',{},this.searchControlsContainer));
+        }, domConstruct.create('button',{},this.searchControlsContainer));
 
     // make the refseq selection dropdown
     this.browser.getStore('refseqs', function( store ) {
@@ -2315,7 +2325,7 @@ createSearchControls: function( parent ) {
                                    name: 'refseq',
                                    value: thisB.ref ? thisB.ref.get('name') : null,
                                    options: options,
-                                   onChange: dojo.hitch(thisB, function( newRefName ) {
+                                   onChange: lang.hitch(thisB, function( newRefName ) {
                                                             // don't trigger nav if it's the too-many message
                                                             if( newRefName == tooManyMessage ) {
                                                                 this.refSeqSelectBox.set('value', this.refSeq.name );
@@ -2377,17 +2387,17 @@ createSearchControls: function( parent ) {
                                       }, zoomControlsContainer );
     this.own( on( zoomOut, "click",
                   function(event) {
-                      dojo.stopEvent(event);
+                      dojoEvent.stop(event);
                       if( thisB.zoomSlider )
                           thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
                       thisB.zoomOut(undefined,undefined, 1);
                   }));
     this.zoomSliderContainer =
-        dojo.create('span', {
+        domConstruct.create('span', {
                         className: 'nav zoomSliderContainer'
                     }, zoomControlsContainer );
     this.zoomSliderText =
-        dojo.create('div', {
+        domConstruct.create('div', {
                         className: 'zoomSliderText'
                     }, this.zoomSliderContainer );
     var zoomIn = domConstruct.create('span', {
@@ -2395,7 +2405,7 @@ createSearchControls: function( parent ) {
                                       }, zoomControlsContainer );
     this.own( on( zoomIn, "click",
                   function(event) {
-                      dojo.stopEvent(event);
+                      dojoEvent.stop(event);
                       if( thisB.zoomSlider )
                           thisB.zoomSlider.set( 'value', Math.min( thisB.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
                       thisB.zoomIn(undefined,undefined,1);
@@ -2412,7 +2422,7 @@ createSearchControls: function( parent ) {
                                       }, panControlsContainer );
     this.own( on( panLeft, "click",
                   function(event) {
-                      dojo.stopEvent(event);
+                      dojoEvent.stop(event);
                       thisB.slide(0.9);
                   }));
 
@@ -2425,7 +2435,7 @@ createSearchControls: function( parent ) {
                                       }, panControlsContainer );
     this.own( on( panRight, "click",
                   function(event) {
-                      dojo.stopEvent(event);
+                      dojoEvent.stop(event);
                       thisB.slide(-0.9);
                   }));
 
@@ -2446,7 +2456,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
     // just return its div if this track is already on
     var existingTrack;
-    if( dojo.some( this.tracks, function(t) {
+    if( array.some( this.tracks, function(t) {
             if( t.name == trackConfig.label ) {
                 existingTrack = t;
                 return true;
@@ -2462,24 +2472,24 @@ renderTrack: function( /**Object*/ trackConfig ) {
     };
 
     var trackName = trackConfig.label;
-    var trackDiv = dojo.create('div', {
+    var trackDiv = domConstruct.create('div', {
         className: ['track', cssName('track_'+trackConfig.type), cssName('track_'+trackName)].join(' ')
     });
     trackDiv.trackName = trackName;
 
     var trackClass, store;
 
-    var makeTrack = dojo.hitch(this, function() {
+    var makeTrack = lang.hitch(this, function() {
         var track = new trackClass(
             {
                 refSeq: this.ref,
                 config: trackConfig,
-                changeCallback: dojo.hitch( this, 'showVisibleBlocks' ),
+                changeCallback: lang.hitch( this, 'showVisibleBlocks' ),
                 trackPadding: this.trackPadding,
                 store: store,
                 genomeView: this,
                 browser: this.browser,
-                heightUpdateCallback: dojo.hitch( this, 'trackHeightUpdate', trackName ),
+                heightUpdateCallback: lang.hitch( this, 'trackHeightUpdate', trackName ),
                 numBlocks: this.stripeCount,
                 trackDiv: trackDiv,
                 widthPct: this.stripePercent,
@@ -2543,7 +2553,7 @@ trackIterate: function(callback) {
  */
 updateTrackList: function() {
     var tracks = [],
-        oldtracks = dojo.toJson( this.trackIndices || {} );
+        oldtracks = JSON.stringify( this.trackIndices || {} );
 
     // after a track has been dragged, the DOM is the only place
     // that knows the new ordering
@@ -2639,7 +2649,7 @@ updateTrackList: function() {
     this.updateScroll();
 
     // publish a message if the visible tracks or their ordering has changed
-    if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
+    if( oldtracks != JSON.stringify( this.trackIndices || {} ) ) {
         this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
