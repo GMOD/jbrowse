@@ -78,17 +78,8 @@ sub run {
             $gzip = ':gzip';
         }
         open my $fh, "<$gzip", $gff or die "$! reading GFF file $gff";
-        my %refSeqs;
         while ( <$fh> ) {
-            if ( /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i ) { # header line
-                $refSeqs{$1} = {
-                    name => $1,
-                    start => $2 - 1,
-                    end => int($3),
-                    length => ($3 - $2 + 1)
-                    };
-            }
-            elsif( /^##FASTA\s*$/ ) {
+            if( /^##FASTA\s*$/i ) {
                 # start of the sequence block, pass the filehandle to our fasta database
                 $self->exportFASTA( $refs, [$fh] );
                 last;
