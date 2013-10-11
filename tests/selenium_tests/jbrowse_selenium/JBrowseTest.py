@@ -120,9 +120,7 @@ class JBrowseTest (object):
         if( modkey ):
             c = c.key_up( modkey )
 
-        c \
-            .release( None ) \
-            .perform()
+        c.perform()
 
         self.assert_no_js_errors()
 
