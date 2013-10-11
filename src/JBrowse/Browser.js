@@ -166,6 +166,7 @@ configSchema: {
             { name: 'names', type: 'object', defaultValue: {} },
             { name: 'nameUrl', type: 'string', defaultValue: function(b) { return b.getConf('dataRoot')+'/names/root.json'; } },
             { name: 'unitTestMode', type: 'boolean', defaultValue: false },
+            { name: 'devMode', type: 'boolean', defaultValue: false },
             { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
             { name: 'dijitTheme', type: 'string', defaultValue: 'tundra' },
             { name: 'theme', type: 'string', defaultValue: 'metro' },
@@ -237,6 +238,12 @@ _parseQueryString: function( constructorArgs ) {
             } catch( error ) {
                 console.error( 'Error parsing JSON in URL '+varName+': '+error );
             }
+        }
+        else if( queryConfig[varName] == 'true' ) {
+            queryConfig[varName] = true;
+        }
+        else if( queryConfig[varName] == 'false' ) {
+            queryConfig[varName] = false;
         }
     }
 
@@ -1072,7 +1079,7 @@ _initEventRouting: function() {
  * sequences and their average length.
  */
 reportUsageStats: function() {
-    if( this.getConf('suppressUsageStatistics') )
+    if( this.getConf('suppressUsageStatistics') || this.getConf('devMode') )
         return;
 
     var stats = this._calculateClientStats();
