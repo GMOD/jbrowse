@@ -248,36 +248,6 @@ a.feature-label {
     padding: 0 2px;
 }
 
-.rubber-highlight {
-    border: 1px solid black;
-    height: 100%;
-    border-color: rgba( 0, 0, 0, 0.6 );
-    background-color: #8087ff;
-    background-color: rgba( 128, 136, 255, 0.6 );
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-    cursor: crosshair;
-}
-.rubber-highlight div {
-    color: white;
-    padding: 0;
-    margin-top: 30px;
-    font-size: 160%;
-    text-align: center;
-    font-weight: bold;
-    text-shadow: #6374AB 1px 1px 0;
-}
-div.overview .rubber-highlight {
-    font-size: 0;
-    height: 100%;
-    border-top: none;
-    border-bottom: none;
-}
-div.overview .rubber-highlight * {
-    display: none;
-}
-
 .help_dialog ul {
     padding-left: 0;
 }

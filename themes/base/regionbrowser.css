@@ -327,3 +327,27 @@ div.vertical_scrollbar .vertical_position_marker {
     width: 100%;
     border-right: 1px solid #ccc;
 }
+
+
+.rubber-highlight {
+    position: absolute;
+    top: 0;
+    border: 1px solid black;
+    height: 100%;
+    border-color: rgba( 0, 0, 0, 0.6 );
+    background-color: #8087ff;
+    background-color: rgba( 128, 136, 255, 0.6 );
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    cursor: crosshair;
+}
+.rubber-highlight div {
+    color: white;
+    padding: 0;
+    margin-top: 30px;
+    font-size: 160%;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: #6374AB 1px 1px 0;
+}

@@ -20,7 +20,7 @@ function Zoomer(scale, toScroll, callback, time, zoomLoc) {
     //this.zoomLoc = zoomLoc;
     this.center =
         (toScroll.getX() + (toScroll.elem.clientWidth * zoomLoc))
-        / toScroll.scrollContainer.clientWidth;
+        / toScroll.zoomContainer.clientWidth;
 
     // initialX and initialLeft can differ when we're scrolling
     // using scrollTop and scrollLeft

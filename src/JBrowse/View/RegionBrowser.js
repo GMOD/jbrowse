@@ -117,31 +117,15 @@ buildRendering: function() {
         className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
     }, this.domNode );
 
-    // the scrollContainer is the element that changes position
-    // when the user scrolls
-    this.scrollContainer = dojo.create(
-        'div', {
-            style: { position: 'relative' }
-        }, this.elem
-    );
-
-    // we have a separate zoomContainer as a child of the scrollContainer.
-    // they used to be the same element, but making zoomContainer separate
-    // enables it to be narrower than this.elem.
     this.zoomContainer = document.createElement("div");
     this.zoomContainer.style.cssText =
         "position: absolute; left: 0px; top: 0px; height: 100%;";
-    this.scrollContainer.appendChild(this.zoomContainer);
-
-    this.outerTrackContainer = document.createElement("div");
-    this.outerTrackContainer.className = "trackContainer outerTrackContainer";
-    this.outerTrackContainer.style.cssText = "height: 100%;";
-    this.zoomContainer.appendChild( this.outerTrackContainer );
+    this.elem.appendChild(this.zoomContainer);
 
     this.containerNode = this.trackContainer = document.createElement("div");
     this.trackContainer.className = "trackContainer innerTrackContainer draggable";
     this.trackContainer.style.cssText = "height: 100%;";
-    this.outerTrackContainer.appendChild( this.trackContainer );
+    this.zoomContainer.appendChild( this.trackContainer );
 
     //width, in pixels of the "regular" (not min or max zoom) stripe
     this.regularStripe = this.stripeWidth;
@@ -491,17 +475,17 @@ _behaviors: function() { return {
                                     document.onmousewheel !== undefined ? "mousewheel" :
                                                                           "DOMMouseScroll";
             handles.push(
-                dojo.connect( this.scrollContainer,     wheelevent,     this, 'wheelScroll', false ),
+                dojo.connect( this.elem,     wheelevent,     this, 'wheelScroll', false ),
 
                 dojo.connect( this.scaleTrackDiv,       "mousedown",
                               dojo.hitch( this, 'startRubberZoom',
                                           dojo.hitch( this,'absXtoBp'),
-                                          this.scrollContainer,
+                                          this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
                             ),
 
-                dojo.connect( this.outerTrackContainer, "dblclick",       this, 'doubleClickZoom'    ),
+                dojo.connect( this.zoomContainer, "dblclick",       this, 'doubleClickZoom'    ),
 
 
 
@@ -549,7 +533,7 @@ _behaviors: function() { return {
 
                 // when the track pane is clicked, unfocus any dijit
                 // widgets that would otherwise not give up the focus
-                dojo.connect( this.scrollContainer, 'onclick', this, function(evt) {
+                dojo.connect( this.elem, 'onclick', this, function(evt) {
                     dijitFocus.curNode && dijitFocus.curNode.blur();
                 })
             );
@@ -562,7 +546,7 @@ _behaviors: function() { return {
         apply_on_init: true,
         apply: function() {
             return [
-                dojo.connect( this.outerTrackContainer,         "mousedown", this, 'startMouseDragScroll'        ),
+                dojo.connect( this.zoomContainer,         "mousedown", this, 'startMouseDragScroll'        ),
                 dojo.connect( this.verticalScrollBar.container, "mousedown", this, 'startVerticalMouseDragScroll')
             ];
         }
@@ -575,15 +559,15 @@ _behaviors: function() { return {
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'highlightingAvailable');
             return [
-                dojo.connect( this.outerTrackContainer, "mousedown",
+                dojo.connect( this.zoomContainer, "mousedown",
                               dojo.hitch( this, 'startMouseHighlight',
                                           dojo.hitch(this,'absXtoBp'),
-                                          this.scrollContainer,
+                                          this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
                             ),
-                dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+                dojo.connect( this.zoomContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
+                dojo.connect( this.zoomContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
             ];
         },
         remove: function( mgr, handles ) {
@@ -599,16 +583,16 @@ _behaviors: function() { return {
             dojo.removeClass(this.trackContainer,'draggable');
             dojo.addClass(this.trackContainer,'rubberBandAvailable');
             return [
-                dojo.connect( this.outerTrackContainer, "mousedown",
+                dojo.connect( this.zoomContainer, "mousedown",
                               dojo.hitch( this, 'startRubberZoom',
                                           dojo.hitch(this,'absXtoBp'),
-                                          this.scrollContainer,
+                                          this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
                             ),
-                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'                  ),
-                dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+                dojo.connect( this.zoomContainer, "onclick",   this, 'scaleClicked'                  ),
+                dojo.connect( this.zoomContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
+                dojo.connect( this.zoomContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
             ];
         },
         remove: function( mgr, handles ) {
@@ -1179,8 +1163,6 @@ stripeWidthForZoom: function(zoomLevel) {
 },
 
 instantZoomUpdate: function() {
-    this.scrollContainer.style.width =
-        (this.stripeCount * this.stripeWidth) + "px";
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
     this.maxOffset =
@@ -1318,7 +1300,7 @@ scaleMouseOut: function( evt ) {
 maybeDrawVerticalPositionLine: function( evt ) {
     if( this.rubberbanding )
         return;
-    this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+    this.drawVerticalPositionLine( this.zoomContainer, evt );
 },
 
 /**
@@ -1546,8 +1528,6 @@ sizeInit: function() {
     if (oldStripeCount) oldX = this.getX();
     this.stripeCount = Math.round(100 / this.stripePercent);
 
-    this.scrollContainer.style.width =
-        (this.stripeCount * this.stripeWidth) + "px";
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
 
@@ -1578,7 +1558,7 @@ sizeInit: function() {
               this.getHeight()
             )
           : this.getHeight();
-    this.scrollContainer.style.height = newHeight + "px";
+    this.zoomContainer.style.height = newHeight + "px";
     this.containerHeight = newHeight;
 
     this.updateScroll();
@@ -1837,8 +1817,6 @@ zoomUpdate: function(zoomLoc, fixedBp) {
     var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
     // stripeWidth: pixels per block
     this.stripeWidth = this.stripeWidthForZoom(this.curZoom);
-    this.scrollContainer.style.width =
-        (this.stripeCount * this.stripeWidth) + "px";
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
     var centerStripe = Math.round(centerPx / this.stripeWidth);
@@ -2585,7 +2563,7 @@ updateTrackList: function() {
             this.pinUnderlay = domConstruct.create('div', {
                                                        className: 'pin_underlay',
                                                        style: 'top: '+this.topSpace
-                                                   }, this.scrollContainer );
+                                                   }, this.zoomContainer );
         if( ! this.pinGridlinesTrack ) {
             var gridTrackDiv = domConstruct.create(
                 "div",
@@ -2693,7 +2671,7 @@ layoutTracks: function() {
     }
 
     this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
-    this.scrollContainer.style.height = this.containerHeight + "px";
+    this.zoomContainer.style.height = this.containerHeight + "px";
 }
 });
 });
