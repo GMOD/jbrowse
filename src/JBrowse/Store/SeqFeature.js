@@ -39,7 +39,7 @@ return declare( Store,
     },
 
     openResource: function( class_, resource, opts ) {
-        return this.browser.openResource( class_, this.resolveUrl( resource ) );
+        return this.browser.openResource( class_, this.resolveUrl( resource, (opts||{}).templateVars ) );
     },
 
     /**

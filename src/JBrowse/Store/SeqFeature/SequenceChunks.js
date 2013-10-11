@@ -38,32 +38,12 @@ return declare( SeqFeatureStore,
         slots: [
             { name: 'refSeqs', type: 'string', defaultValue: 'seq/refSeqs.json' },
             { name: 'chunkSize', type: 'integer', defaultValue: 20000 },
-            { name: 'urlTemplate', type: 'string', defaultValue: "seq/{refseq_dirpath}/{refseq}-" },
+            { name: 'chunks', type: 'string', defaultValue: "seq/{refseq_dirpath}/{refseq}-{chunkNum}.txt{compressed}" },
             { name: 'compress', type: 'boolean', defaultValue: false }
         ]
     },
 
-    _makeChunkURLBase: function( refname ) {
-        return this.resolveUrl(
-            this.getConf('urlTemplate'),
-            {
-                'refseq': refname,
-                'refseq_dirpath': function() {
-                    var hex = Crc32.crc32( refname )
-                        .toString(16)
-                        .toLowerCase()
-                        .replace('-','n');
-                    // zero-pad the hex string to be 8 chars if necessary
-                    while( hex.length < 8 )
-                        hex = '0'+hex;
-                    var dirpath = [];
-                    for( var i = 0; i < hex.length; i += 3 ) {
-                        dirpath.push( hex.substring( i, i+3 ) );
-                    }
-                    return dirpath.join('/');
-                }
-            }
-        );
+    _chunkURLTemplateVars: function( refname ) {
     },
 
     getSequenceFragments: function( query ) {
@@ -94,15 +74,13 @@ return declare( SeqFeatureStore,
                                   return null;
                               }
 
-                              var urlbase = thisB._makeChunkURLBase( refname );
-
                               // fetch all the relevant chunk text files
                               var firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
                               var lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
                               var fetches = [];
                               for( var chunkNum = firstChunk; chunkNum <= lastChunk; chunkNum++ ) {
                                   fetches.push(
-                                      thisB._fetchChunkSequence( urlbase, chunkNum )
+                                      thisB._fetchChunkSequence( refname, chunkNum )
                                           .then( lang.hitch(
                                                      thisB,
                                                      function( chunkNum, seqString ) {
@@ -120,21 +98,46 @@ return declare( SeqFeatureStore,
         });
     },
 
-    _fetchChunkSequence: function( urlbase, chunkNum ) {
-        var url = urlbase + chunkNum + ".txt" + ( this.getConf('compress') ? 'z' : '' );
-        var resource = this.openResource( TextResource, url );
 
-        var d = new Deferred(); // need to have our own deferred that is resolved to '' on 404
-        resource.readAll()
-            .then( lang.hitch( d, 'resolve' ),
+    _chunkURLVars: function( refname, chunkNum ) {
+        return {
+            ref: refname,
+            chunkNum: chunkNum,
+            refseq: refname,
+            compressed: this.getConf('compress') ? 'z' : '',
+            refseq_dirpath: function() {
+                var hex = Crc32.crc32( refname )
+                    .toString(16)
+                    .toLowerCase()
+                    .replace('-','n');
+                // zero-pad the hex string to be 8 chars if necessary
+                while( hex.length < 8 )
+                    hex = '0'+hex;
+                var dirpath = [];
+                for( var i = 0; i < hex.length; i += 3 ) {
+                    dirpath.push( hex.substring( i, i+3 ) );
+                }
+                return dirpath.join('/');
+            }
+        };
+    },
+
+    _fetchChunkSequence: function( refname, chunkNum ) {
+
+        var resource = this.openResource(
+            TextResource,
+            this.getConf('chunks'),
+            { templateVars: this._chunkURLVars( refname, chunkNum ) }
+        );
+
+        return resource.readAll()
+            .then( undefined,
                    function( e ) {
                        if( e.response.status == 404 )
-                           d.resolve( '' );
-                       else
-                           d.reject( e );
+                           return '';
+                       throw e;
                    }
                  );
-        return d;
     },
 
     _makeFeature: function( refname, chunkNum, chunkSize, sequenceString ) {
@@ -152,7 +155,7 @@ return declare( SeqFeatureStore,
     _fetchRefSeqsJson: function() {
         return this._refSeqsInfo || function() {
             var thisB = this;
-            var resource = this.openResource( JSONResource, this.resolveUrl( this.getConf('refSeqs') ) );
+            var resource = this.openResource( JSONResource, this.getConf('refSeqs') );
             return this._refSeqsInfo = resource.readAll()
                 .then( function( refseqs ) {
                            var refsByName = {};
