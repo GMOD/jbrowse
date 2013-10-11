@@ -163,18 +163,47 @@ var DeferredGenerator = declare( null, {
   },
   reduce: function( val, operation, end, error, progress ) {
       return this.forEach(
-          function( i ) {
-              val[operation](each);
-          },
-          function(){
-              return end(val);
-          },
-          error,
-          progress );
+                 function( i ) { val[operation](i); },
+                 end ? function() { return end( val ); }
+                     : function() { return val;        },
+                 error,
+                 progress
+      );
   },
   collect: function( end, error, progress ) {
       return this.reduce( [], 'push', end, error, progress );
   },
+
+  limit: function( limit, end, error, progress ) {
+      var thisB = this;
+      return new DeferredGenerator(
+          function( generator ) {
+              thisB.forEach(
+                  function(item) {
+                      if( limit-- > 0 ) {
+                          generator.emit( item );
+                      }
+                      else if( limit == 0 ) {
+                          generator.resolve();
+                      }
+                  },
+                  function(v) {
+                      generator.resolve(v);
+                  },
+                  function(error) {
+                      generator.reject( error );
+                  },
+                  function(p) {
+                      return generator.progress(p);
+                  }
+              );
+          },
+          function() {
+              return thisB.cancel.apply( thisB, arguments );
+          }
+      );
+  },
+
 
   then: function( end, error, progress ) {
       return this.each( undefined, end, error, progress );
@@ -199,28 +228,34 @@ var DeferredGenerator = declare( null, {
       return d;
   },
 
+  listenTo: function( deferred ) {
+      if( ! deferred )
+          return deferred;
+
+      if( typeof deferred.each === 'function' ) {
+          return deferred.each(
+              this._makeDeferredSignaler( this, this.EMIT ),
+              this._makeDeferredSignaler( this, this.RESOLVED ),
+              this._makeDeferredSignaler( this, this.REJECTED ),
+              this._makeDeferredSignaler( this, this.PROGRESS )
+          );
+      } else if ( typeof deferred.then === 'function' ) {
+          deferred.then(
+              this._makeDeferredSignaler( this, this.RESOLVED ),
+              this._makeDeferredSignaler( this, this.REJECTED ),
+              this._makeDeferredSignaler( this, this.PROGRESS )
+          );
+          return this;
+      }
+
+      return deferred;
+  },
+
   _start: function() {
       if( this._starter ) {
           var val = this._starter( this ); // will recur up to the root of the tree
           delete this._starter;
-          if( val ) {
-              if( typeof val.each === 'function' ) {
-                  val.each(
-                      this._makeDeferredSignaler( this, this.EMIT ),
-                      this._makeDeferredSignaler( this, this.RESOLVED ),
-                      this._makeDeferredSignaler( this, this.REJECTED ),
-                      this._makeDeferredSignaler( this, this.PROGRESS )
-                  );
-                  return;
-              } else if ( typeof val.then === 'function' ) {
-                  val.then(
-                      this._makeDeferredSignaler( this, this.RESOLVED ),
-                      this._makeDeferredSignaler( this, this.REJECTED ),
-                      this._makeDeferredSignaler( this, this.PROGRESS )
-                  );
-                  return;
-              }
-          }
+          this.listenTo( val );
       }
       else {
           throw new Error('DeferredGenerator already started');

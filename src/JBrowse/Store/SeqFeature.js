@@ -31,13 +31,15 @@ return declare( Store,
     configSchema: {
         slots: [
             { name: 'name', type: 'string',
-              defaultValue: function(store) { return 'Store '+store.serialNumber; }
+              defaultValue: function(store) {
+                  return 'Store '+store.serialNumber;
+              }
             }
         ]
     },
 
-    openResource: function() {
-        return this.browser.openResource.apply( this.browser, arguments );
+    openResource: function( class_, resource, opts ) {
+        return this.browser.openResource( class_, this.resolveUrl( resource ) );
     },
 
     /**

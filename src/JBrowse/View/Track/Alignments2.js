@@ -23,13 +23,16 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             { name: 'maxFeatureGlyphExpansion', type: 'integer', defaultValue: 0 },
             { name: 'showLabels', type: 'boolean', defaultValue: false },
 
-            { name: 'hideDuplicateReads', defaultValue: true, type: 'boolean' },
-            { name: 'hideQCFailingReads', defaultValue: true, type: 'boolean' },
-            { name: 'hideSecondary', defaultValue: true, type: 'boolean' },
-            { name: 'hideSupplementary', defaultValue: true, type: 'boolean' },
-            { name: 'hideMissingMatepairs', defaultValue: false, type: 'boolean' },
-            { name: 'hideForwardStrand', defaultValue: false, type: 'boolean' },
-            { name: 'hideReverseStrand', defaultValue: false, type: 'boolean' }
+            { name: 'namedFeatureFilters', defaultValue: {
+                  'hideDuplicateReads':   true,
+                  'hideQCFailingReads':   true,
+                  'hideSecondary':        true,
+                  'hideSupplementary':    true,
+                  'hideMissingMatepairs': false,
+                  'hideForwardStrand':    false,
+                  'hideReverseStrand':    false
+              }
+            }
         ]
     },
 

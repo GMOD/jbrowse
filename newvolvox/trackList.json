@@ -11,7 +11,7 @@
         },
         "volvox-sorted BAM": {
             "type" : "JBrowse/Store/SeqFeature/BAM",
-            "urlTemplate" : "../sample_data/raw/volvox/volvox-sorted.bam"
+            "bam" : "../sample_data/raw/volvox/volvox-sorted.bam"
         },
         "google drive BAM": {
             "type" : "JBrowse/Store/SeqFeature/BAM",
@@ -20,11 +20,11 @@
         },
         "test vcf": {
             "type": "JBrowse/Store/SeqFeature/VCFTabix",
-            "urlTemplate" : "../sample_data/raw/volvox/volvox.test.vcf.gz"
+            "vcf" : "../sample_data/raw/volvox/volvox.test.vcf.gz"
         },
         "volvox vcf": {
             "type": "JBrowse/Store/SeqFeature/VCFTabix",
-            "urlTemplate" : "../sample_data/raw/volvox/volvox.filtered.vcf.gz"
+            "vcf" : "../sample_data/raw/volvox/volvox.filtered.vcf.gz"
         },
         "volvox_microarray bigwig": {
             "type": "JBrowse/Store/SeqFeature/BigWig",
@@ -100,7 +100,7 @@
         },
 
         {
-            "type" : "JBrowse/View/Track/HTMLVariants",
+            "type" : "JBrowse/View/Track/CanvasVariants",
             "store": "volvox vcf",
             "metadata" : {
                 "Description" : "Variants called from volvox-sorted.bam using samtools and bcftools"

@@ -32,6 +32,15 @@ define([
 
 return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
+    configSchema: {
+        slots: [
+            { name: 'namedFeatureFilters', defaultValue: {
+                  'hideFilterPass':    false,
+                  'hideNotFilterPass': false
+              }
+            }
+        ]
+    },
 
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );

@@ -20,14 +20,6 @@ define( [
          ) {
 return declare( [ CanvasFeatures, VariantDetailsMixin ], {
 
-    _defaultConfig: function() {
-        return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
-            {
-                style: { color: 'green' }
-            });
-    },
-
     _trackMenuOptions: function() {
         return all([ this.inherited(arguments), this._variantsFilterTrackMenuOptions() ])
             .then( function( options ) {

@@ -1,23 +1,27 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/_base/lang',
+           'dojo/promise/all',
+
            'JBrowse/Util',
+           'JBrowse/Util/DeferredGenerator',
            'JBrowse/Util/TextIterator',
            'JBrowse/Store/LRUCache',
            'JBrowse/Errors',
-           'JBrowse/Model/XHRBlob',
-           'JBrowse/Model/BGZip/BGZBlob',
            'JBrowse/Model/TabixIndex'
        ],
        function(
            declare,
            array,
+           lang,
+           all,
+
            Util,
+           DeferredGenerator,
            TextIterator,
            LRUCache,
            Errors,
-           XHRBlob,
-           BGZBlob,
            TabixIndex
        ) {
 
@@ -25,29 +29,32 @@ return declare( null, {
 
     constructor: function( args ) {
         this.browser = args.browser;
-        this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
-        this.data  = new BGZBlob( args.file );
+        this.index = new TabixIndex(
+            { blob: args.tbi,
+              browser: this.browser
+            });
+        this.data  = args.file;
         this.indexLoaded = this.index.load();
 
         this.chunkSizeLimit = args.chunkSizeLimit || 15000000;
     },
 
-    getLines: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
+    getLines: function( ref, min, max ) {
         var thisB = this;
         var args = Array.prototype.slice.call(arguments);
-        this.indexLoaded.then(function() {
-            thisB._fetch.apply( thisB, args );
-        }, errorCallback);
+        return new DeferredGenerator( function( generator ) {
+            return thisB.indexLoaded
+                       .then( function() {
+                            return thisB._fetch.apply( thisB, args )
+                                 .forEach( lang.hitch( generator, 'emit' ) );
+                        });
+        });
     },
 
-    _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
-        errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
-
+    _fetch: function( ref, min, max ) {
         var chunks = this.index.blocksForRange( ref, min, max);
-        if ( ! chunks ) {
-            errorCallback('Error in index fetch ('+[ref,min,max].join(',')+')');
-            return;
-        }
+        if ( ! chunks )
+            throw new Error('Error in index fetch ('+[ref,min,max].join(',')+')');
 
         // toString function is used by the cache for making cache keys
         chunks.toString = chunks.toUniqueString = function() {
@@ -59,41 +66,33 @@ return declare( null, {
         for( var i = 0; i<chunks.length; i++ ) {
             var size = chunks[i].fetchedSize();
             if( size > this.chunkSizeLimit ) {
-                errorCallback( new Errors.DataOverflow('Too much data. Chunk size '+Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '+Util.commifyNumber(this.chunkSizeLimit)+'.' ) );
-                return;
+                throw new Errors.DataOverflow(
+                    'Too much data. Chunk size '
+                    +Util.commifyNumber(size)+' bytes exceeds chunkSizeLimit of '
+                    +Util.commifyNumber(this.chunkSizeLimit)+'.'
+                );
             }
         }
 
-        var fetchError;
-        try {
-            this._fetchChunkData(
+        return this._fetchChunkData(
                 chunks,
                 ref,
                 min,
-                max,
-                itemCallback,
-                finishCallback,
-                errorCallback
+                max
             );
-        } catch( e ) {
-            errorCallback( e );
-        }
     },
 
-    _fetchChunkData: function( chunks, ref, min, max, itemCallback, endCallback, errorCallback ) {
+    _fetchChunkData: function( chunks, ref, min, max ) {
         var thisB = this;
 
-        if( ! chunks.length ) {
-            endCallback();
-            return;
-        }
+        if( ! chunks.length )
+            return Util.resolved();
 
         var allItems = [];
         var chunksProcessed = 0;
 
         var cache = this.chunkCache = this.chunkCache || new LRUCache({
             name: 'TabixIndexedFileChunkedCache',
-            fillCallback: dojo.hitch( this, '_readChunkItems' ),
             sizeFunction: function( chunkItems ) {
                 return chunkItems.length;
             },
@@ -102,73 +101,62 @@ return declare( null, {
 
         var regRef = this.browser.regularizeReferenceName( ref );
 
-        var haveError;
-        array.forEach( chunks, function( c ) {
-            cache.get( c, function( chunkItems, e ) {
-                if( e && !haveError )
-                    errorCallback( e );
-                if(( haveError = haveError || e )) {
-                    return;
-                }
-
-                for( var i = 0; i< chunkItems.length; i++ ) {
-                    var item = chunkItems[i];
-                    if( item._regularizedRef == regRef ) {
-                        // on the right ref seq
-                        if( item.start > max ) // past end of range, can stop iterating
-                            break;
-                        else if( item.end >= min ) // must be in range
-                            itemCallback( item );
-                    }
-                }
-                if( ++chunksProcessed == chunks.length ) {
-                    endCallback();
-                }
-            });
+        return new DeferredGenerator( function( generator ) {
+            return all( array.map( chunks, function( c ) {
+                   return cache.getD( c, lang.hitch( thisB, '_readChunkItems' ) )
+                        .then( function( chunkItems ) {
+                                   for( var i = 0; i< chunkItems.length; i++ ) {
+                                       var item = chunkItems[i];
+                                       if( item._regularizedRef == regRef ) {
+                                           // on the right ref seq
+                                           // past end of range, can stop iterating
+                                           if( item.start > max )
+                                               break;
+                                           else if( item.end >= min ) // must be in range
+                                           generator.emit( item );
+                                       }
+                                   }
+                               });
+                }));
         });
     },
 
-    _readChunkItems: function( chunk, callback ) {
+    _readChunkItems: function( chunk ) {
         var thisB = this;
-        var items = [];
 
-        thisB.data.read(chunk.minv.block, chunk.maxv.block - chunk.minv.block + 1, function( data ) {
-            data = new Uint8Array(data);
+        return thisB.data.readRange(
+            chunk.minv.block,
+            chunk.maxv.block - chunk.minv.block + 1
+        ).then( function( data ) {
+                    // throw away the first (probably incomplete) line
+                    var parseStart = chunk.minv.block
+                        ? array.indexOf( data, thisB._newlineCode, 0 ) + 1
+                        : 0;
+                    var lineIterator = new TextIterator.FromBytes(
+                        { bytes: data, offset: parseStart });
 
-            // throw away the first (probably incomplete) line
-            var parseStart = chunk.minv.block ? array.indexOf( data, thisB._newlineCode, 0 ) + 1 : 0;
-            var lineIterator = new TextIterator.FromBytes({ bytes: data, offset: parseStart });
-
-            try {
-                thisB._parseItems(
-                    lineIterator,
-                    function(i) { items.push(i); },
-                    function() { callback(items); }
-                );
-            } catch( e ) {
-                callback( null, e );
-            }
-        },
-        function(e) {
-            callback( null, e );
-        });
+                    return new DeferredGenerator(
+                        lang.hitch( thisB, '_parseItems', lineIterator )
+                    ).collect();
+                });
     },
 
-    _parseItems: function( lineIterator, itemCallback, finishCallback ) {
-        var that = this;
+    _parseItems: function( lineIterator, generator ) {
+        var thisB = this;
         var itemCount = 0;
 
         var maxItemsWithoutYielding = 300;
         while ( true ) {
-            // if we've read no more than a certain number of items this cycle, read another one
+            // if we've read no more than a certain number of
+            // items this cycle, read another one
             if( itemCount <= maxItemsWithoutYielding ) {
-                var item = this.parseItem( lineIterator );
+                var item = thisB.parseItem( lineIterator );
                 if( item ) {
-                    itemCallback( item );
+                    generator.emit( item );
                     itemCount++;
                 }
                 else {
-                    finishCallback();
+                    generator.resolve();
                     return;
                 }
             }
@@ -176,9 +164,10 @@ return declare( null, {
             // items, schedule the rest of our work in a timeout to continue
             // later, avoiding blocking any UI stuff that needs to be done
             else {
-                window.setTimeout( function() {
-                    that._parseItems( lineIterator, itemCallback, finishCallback );
-                }, 1);
+                window.setTimeout(
+                    function() {
+                        thisB._parseItems( lineIterator, generator );
+                    }, 1);
                 return;
             }
         }

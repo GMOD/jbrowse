@@ -1,21 +1,25 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
-           'dojo/Deferred',
+
            'JBrowse/Store/SeqFeature',
+           'JBrowse/Util/DeferredGenerator',
            'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
-           'JBrowse/Model/XHRBlob',
+           'JBrowse/Model/Resource/Bytes',
+           'JBrowse/Model/Resource/BGZBytes',
            './VCFTabix/Parser'
        ],
        function(
            declare,
            lang,
-           Deferred,
+
            SeqFeatureStore,
+           DeferredGenerator,
            TabixIndexedFile,
            GlobalStatsEstimationMixin,
-           XHRBlob,
+           Bytes,
+           BGZBytes,
            VCFParser
        ) {
 
@@ -41,27 +45,23 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
     constructor: function( args ) {
         var thisB = this;
 
-        var tbiBlob = args.tbi ||
-            new XHRBlob( this.resolveUrl( this.getConf('tbiUrlTemplate')));
-
-        var fileBlob = args.file ||
-            new XHRBlob( this.resolveUrl( this.getConf('urlTemplate')));
-
         this.indexedData = new VCFIndexedFile(
             {
-                tbi: tbiBlob,
-                file: fileBlob,
+                tbi:  this.openResource( BGZBytes, this.getConf('tbi') ),
+                file: this.openResource( BGZBytes, this.getConf('vcf')),
                 browser: this.browser,
                 chunkSizeLimit: args.chunkSizeLimit
             });
-
-        this._loadHeader();
     },
 
     configSchema: {
         slots: [
-            { name: 'urlTemplate', type: 'string' },
-            { name: 'tbiUrlTemplate', type: 'string', defaultValue: function(store) { return store.getConf('urlTemplate')+'.tbi'; } }
+            { name: 'vcf', type: 'string', require: true },
+            { name: 'tbi', type: 'string',
+              defaultValue: function(store) {
+                  return store.getConf('vcf')+'.tbi';
+              }
+            }
         ]
     },
 
@@ -69,57 +69,42 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
     getVCFHeader: function() {
         var thisB = this;
         return this._parsedHeader || ( this._parsedHeader = function() {
-            var d = new Deferred();
-            var reject = lang.hitch( d, 'reject' );
-
-            thisB.indexedData.indexLoaded.then( function() {
-                var maxFetch = thisB.indexedData.index.firstDataLine
-                    ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1
+            return thisB.indexedData.indexLoaded.then( function( index ) {
+                var fetchLength = index.firstDataLine
+                    ? index.firstDataLine.block + index.firstDataLine.offset - 1
                     : null;
 
-                thisB.indexedData.data.read(
-                    0,
-                    maxFetch,
-                    function( bytes ) {
-                        thisB.parseHeader( new Uint8Array( bytes ) );
-                        d.resolve( thisB.header );
-                    },
-                    reject
-                );
-             },
-             reject
-            );
-
-            return d;
+                return thisB.indexedData.data.readRange( 0, fetchLength )
+                            .then( function( bytes ) {
+                                       return thisB.parseHeader( new Uint8Array( bytes ) );
+                                   });
+             });
         }.call(this));
     },
 
-    getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
+    getFeatures: function( query, featureCallback ) {
+        if( featureCallback ) throw 'no callback args anymore!';
+
         var thisB = this;
-        thisB.getVCFHeader().then( function() {
-            thisB.indexedData.getLines(
-                query.ref || thisB.refSeq.name,
-                query.start,
-                query.end,
-                function( line ) {
-                    var f = thisB.lineToFeature( line );
-                    //console.log(f);
-                    featureCallback( f );
-                    //return f;
-                },
-                finishedCallback,
-                errorCallback
-            );
-        }, errorCallback );
+        return new DeferredGenerator( function( generator ) {
+            return thisB.getVCFHeader()
+                 .then( function() {
+                            return thisB.indexedData.getLines(
+                                query.ref,
+                                query.start,
+                                query.end
+                            ).forEach(
+                                function( line ) {
+                                    generator.emit( thisB.lineToFeature( line ) );
+                                }
+                            );
+                        }
+                      );
+        });
     },
 
-    getRegionStats: function( query, statsCallback, errorCallback ) {
-        var thisB = this;
-        this.browser.findRefSeq( query.ref )
-            .then( function( refseq ) {
-                 return thisB._estimateGlobalStats(refseq)
-                            .then( statsCallback, errorCallback );
-             });
+    getRegionStats: function( query ) {
+        return this._estimateGlobalStats( query.ref );
     },
 
     /**

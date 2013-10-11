@@ -1,20 +1,22 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/array',
-           'dojo/_base/Deferred',
+           'dojo/_base/lang',
+
            'JBrowse/has',
-           'jDataView',
            'JBrowse/Util',
-           'JBrowse/Model/BGZip/VirtualOffset'
+           'JBrowse/Model/BGZip/VirtualOffset',
+
+           'jDataView'
        ],
        function(
            declare,
-           array,
-           Deferred,
+           lang,
+
            has,
-           jDataView,
            Util,
-           VirtualOffset
+           VirtualOffset,
+
+           jDataView
        ) {
 
 // inner class representing a chunk
@@ -50,21 +52,19 @@ return declare( null, {
    },
 
    load: function() {
-       var thisB = this;
-       return this._loaded = this._loaded || function() {
-           var d = new Deferred();
+       return this._loaded || ( this._loaded = function() {
+
            if( ! has('typed-arrays') )
-               d.reject( 'This web browser lacks support for JavaScript typed arrays.' );
-           else
-               this.blob.fetch( function( data) {
-                                    thisB._parseIndex( data, d );
-                                }, dojo.hitch( d, 'reject' ) );
-           return d;
-       }.call(this);
+               throw new Error( 'This web browser lacks support for JavaScript typed arrays.' );
+
+           return this.blob.readAll()
+               .then( lang.hitch( this, '_parseIndex' ) );
+
+       }.call(this) );
    },
 
    // fetch and parse the index
-   _parseIndex: function( bytes, deferred ) {
+   _parseIndex: function( bytes ) {
 
        this._littleEndian = true;
        var data = new jDataView( bytes, 0, undefined, this._littleEndian );
@@ -74,11 +74,8 @@ return declare( null, {
            // try the other endianness if no magic
            this._littleEndian = false;
            data = new jDataView( bytes, 0, undefined, this._littleEndian );
-           if( data.getInt32() != 21578324 /* "TBI\1" */) {
-               console.error('Not a TBI file');
-               deferred.reject('Not a TBI file');
-               return;
-           }
+           if( data.getInt32() != 21578324 /* "TBI\1" */)
+               throw new Error('Not a TBI file');
        }
 
        // number of reference sequences in the index
@@ -125,7 +122,8 @@ return declare( null, {
                this._findFirstData( linear[k] );
            }
        }
-       deferred.resolve({ success: true });
+
+       return this;
    },
 
    _findFirstData: function( virtualOffset ) {

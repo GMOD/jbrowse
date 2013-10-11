@@ -6,8 +6,11 @@ define( [
             'dojo/_base/array',
             'dojo/_base/Deferred',
             'dojo/_base/lang',
+
             'JBrowse/has',
             'JBrowse/Util',
+            'JBrowse/Model/SimpleFeature',
+            'JBrowse/Util/DeferredGenerator',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Model/Resource/Bytes',
             'JBrowse/Model/Resource/BGZBytes',
@@ -19,8 +22,11 @@ define( [
             array,
             Deferred,
             lang,
+
             has,
             Util,
+            SimpleFeature,
+            DeferredGenerator,
             SeqFeatureStore,
             Bytes,
             BGZBytes,
@@ -34,50 +40,83 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
     configSchema: {
         slots: [
             { name: 'createSubfeatures', type: 'boolean', defaultValue: false },
-            { name: 'bam', type: 'object|string', defaultValue: function( store ) {
-                  var urlT = store.getConf('urlTemplate' );
-                  if( ! urlT )
-                      throw "Must provide either `bam` or config `urlTemplate`";
-                  return store.resolveUrl( urlT );
-              }
+            { name: 'bam', type: 'string', required: true },
+            { name: 'bai', type: 'string',
+              defaultValue: function( store ) {
+                  return store.getConf('bam')+'.bai'; }
             },
-            { name: 'bai', type: 'object|string', defaultValue: function( store ) {
-                  return store.resolveUrl( store.getConf('baiUrlTemplate') );
-              }
-            },
-            { name: 'urlTemplate', type: 'string' },
-            { name: 'baiUrlTemplate', type: 'string', defaultValue: function( store ) { return store.getConf('urlTemplate')+'.bai'; } },
             { name: 'chunkSizeLimit', type: 'integer', defaultValue: 5000000 }
         ]
     },
 
     constructor: function( args ) {
-        var bamResource = this.openResource( BGZBytes, this.getConf('bam') );
-        var baiResource = this.openResource( Bytes,    this.getConf('bai') );
-
         this.bam = new BAMFile({
                 store: this,
-                data: bamResource,
-                bai: baiResource,
+                data:  this.openResource( BGZBytes, this.getConf('bam')),
+                bai:   this.openResource( Bytes,    this.getConf('bai')),
                 chunkSizeLimit: this.getConf('chunkSizeLimit')
         });
 
-        this.source = ( bamResource.url  ? bamResource.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
-                        bamResource.blob ? bamResource.blob.name : undefined )
-                        || undefined;
+        var bamDef = this.getConf('bam');
+        this.source = this.name;
+        if( ! this.source ) {
+            try {
+                this.source = typeof bamDef == 'string'
+                    ? bamDef.match( /\/([^/\#\?]+)($|[\#\?])/ )[1]
+                    : bamDef.name;
+            } catch( e ){}
+        }
     },
 
-    getRegionStats: function( query, callback ) {
-        if( callback ) throw 'getRegionStats no longer takes callback arguments';
+    getReferenceFeatures: function( query ) {
+        var thisB = this;
+        return new DeferredGenerator( function( generator ) {
+            return thisB.bam.init()
+                .then( function() {
+                           var chrs = thisB.bam.indexToChr;
+                           var lim = query.limit || Infinity;
+                           if( ! lim )
+                               return;
+
+                           var name = query.name || query.ref;
+                           if( name ) {
+                               var ref = thisB.bam.indexToChr[
+                                   thisB.bam.chrToIndex[ thisB.browser.regularizeReferenceName( name ) ]
+                               ];
+                               if( ref ) {
+                                   generator.emit( new SimpleFeature({
+                                           data: { start: 0, end: ref.length,
+                                                   name: ref.name, seq_id: ref.name
+                                                 }})
+                                       );
+                               }
+                           }
+                           else {
+                               for( var i = 0; i<chrs.length && i<lim; i++ ) {
+                                   generator.emit( new SimpleFeature({
+                                           data: { start: 0, end: chrs[i].length,
+                                                   name: chrs[i].name, seq_id: chrs[i].name
+                                                 }})
+                                       );
+                               }
+                           }
+                       });
+        });
+    },
+
+    getRegionStats: function( query, oldcallback ) {
+        if( oldcallback ) throw 'getRegionStats no longer takes callback arguments';
 
         var thisB = this;
         return thisB.bam.init()
             .then( function() {
-                       var i = thisB.bam.chrToIndex[ thisB.browser.regularizeReferenceName(query.ref) ];
+                       var i = thisB.bam.chrToIndex[
+                           thisB.browser.regularizeReferenceName(query.ref)
+                       ];
                        if( i === undefined )
                            return { featureDensity: 0, featureCount: 0 };
 
-                       return thisB._estimateGlobalStats( { name: query.ref, start: 0, end: thisB.bam.indexToChr[ i ].length } );
+                       return thisB._estimateGlobalStats( query.ref );
                    });
     },
 

@@ -9,6 +9,8 @@ define([
 
 var FromBytes = function(args) {
     this.bytes = args.bytes;
+    if( this.bytes instanceof ArrayBuffer )
+        this.bytes = new Uint8Array( this.bytes );
     this.offset = args.offset || 0;
     this.length = args.length || this.bytes.length;
     this._recordSeparator = (args.inputRecordSeparator || "\n").charCodeAt(0);

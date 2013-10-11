@@ -13,13 +13,23 @@ return declare( null, {
         this._initializeConfiguredFeatureFilters();
     },
 
+    configSchema: {
+        slots: [
+            { name: 'namedFeatureFilters', type: 'object',
+              description: 'object holding names of predefined filters with boolean values indicating whether they are active',
+              defaultValue: {}
+            }
+        ]
+    },
+
     _initializeConfiguredFeatureFilters: function() {
         // initialize toggling feature filters
         var thisB = this;
         return when( this._getNamedFeatureFilters() )
             .then( function( filters ) {
+                       var filterconf = thisB.getConf('namedFeatureFilters');
                        for( var filtername in filters ) {
-                           if( thisB.getConf(filtername) )
+                           if( filterconf[filtername] )
                                thisB.addFeatureFilter( filters[filtername].func, filtername );
                            else
                                thisB.removeFeatureFilter( filtername );
@@ -28,15 +38,17 @@ return declare( null, {
     },
 
     _toggleFeatureFilter: function( filtername, setActive ) {
-        // if no setActive, we will toggle it
+        var filterconf = this.getConf('namedFeatureFilters');
+       // if no setActive, we will toggle it
         if( setActive === undefined )
-            setActive = ! this.getConf(filtername);
+            setActive = ! filterconf[filtername];
 
         // nothing to do if not changed
-        if( !!setActive === !!this.getConf(filtername) )
+        if( !!setActive === !!filterconf[filtername] )
             return;
 
-        this.setConf( filtername,setActive );
+        filterconf[filtername] = setActive;
+        this.setConf( 'namedFeatureFilters', filterconf );
 
         var thisB = this;
         when( this._getNamedFeatureFilters(),
@@ -64,12 +76,12 @@ return declare( null, {
         var thisB = this;
         return when( filters || this._getNamedFeatureFilters() )
             .then( function( filters ) {
-                       return array.map(
-                           names,
-                           function( name ) {
-                               return thisB._makeFeatureFilterTrackMenuItem( name, filters[name] );
-                           }
-                       );
+                       var items = [];
+                       array.forEach( names, function( name ) {
+                           if( filters[name] )
+                               items.push( thisB._makeFeatureFilterTrackMenuItem( name, filters[name] ));
+                       });
+                       return items;
                    });
     },
 
@@ -79,7 +91,7 @@ return declare( null, {
             return { type: 'dijit/MenuSeparator' };
         return { label: filterspec.desc,
                  type: 'dijit/CheckedMenuItem',
-                 checked: !! thisB.getConf(filtername),
+                 checked: !! thisB.getConf('namedFeatureFilters')[filtername],
                  onClick: function(event) {
                      thisB._toggleFeatureFilter( filtername, this.checked );
                  }

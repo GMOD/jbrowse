@@ -19,43 +19,55 @@ return declare( null, {
      * Deferred for the stats.
      * @private
      */
-    _estimateGlobalStats: function( refseq ) {
+    _estimateGlobalStats: function( refname ) {
         return this._globalStatsEstimate || ( this._globalStatsEstimate = function() {
             var thisB = this;
-            if( ! refseq )
-                throw new Error('sample refseq parameter required');
+            if( ! refname )
+                throw new Error('refname parameter required');
 
-            function statsFromInterval( length ) {
-                var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
-                var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
-                var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
-                var features = [];
-                return thisB.getFeatures( { ref: refseq.name, start: start, end: end} )
-                    .forEach( function( f ) {
-                                  if( f.get('start') >= start && f.get('end') <= end )
-                                      features.push(f);
-                              },
-                              function() {
-                                  return {
-                                      featureDensity: features.length / length,
-                                      _statsSampleFeatures: features.length,
-                                      _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
-                                  };
-                              });
-            };
+           // use this store's own getReferenceFeatures if we can.  otherwise, use the reference store from the browser.
+            return ( thisB.getReferenceFeatures ? thisB.getReferenceFeatures( { name: refname, limit: 1 } ).first()
+                                                : thisB.browser.getReferenceFeature( refname )
+                   )
+                   .then( function( refseq ) {
 
-            function maybeRecordStats( stats ) {
-                var refLen = refseq.end - refseq.start;
-                var interval = stats._statsSampleInterval.length;
-                if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen ) {
-                    console.log( 'Store statistics: '+(thisB.source||thisB.name), stats );
-                    return stats;
-                } else {
-                    return statsFromInterval( interval * 2 ).then( maybeRecordStats );
-                }
-            };
+                        function estimateStatsFromInterval( length ) {
+                            var sampleCenter = refseq.get('start')*0.75 + refseq.get('end')*0.25;
+                            var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
+                            var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.get('end') );
+                            var features = [];
+                            return thisB.getFeatures( { ref: refseq.get('name'), start: start, end: end} )
+                                .forEach( function( f ) {
+                                              if( f.get('start') >= start && f.get('end') <= end )
+                                                  features.push(f);
+                                          },
+                                          function() {
+                                              return {
+                                                  featureDensity: features.length / length,
+                                                  sample: {
+                                                      featureCount: features.length,
+                                                      ref: refseq.get('name'),
+                                                      start: start,
+                                                      end: end,
+                                                      length: length
+                                                  }
+                                              };
+                                          });
+                        };
 
-            return this._globalStatsEstimate = statsFromInterval( 100  ).then( maybeRecordStats );
+                        function maybeRecordStats( stats ) {
+                            var refLen = refseq.get('end') - refseq.get('start');
+                            var interval = stats.sample.length;
+                            if( stats.sample.featureCount >= 300 || interval * 2 > refLen ) {
+                                console.log( 'Store statistics: '+(thisB.source||thisB.name), stats );
+                                return stats;
+                            } else {
+                                return estimateStatsFromInterval( interval * 2 ).then( maybeRecordStats );
+                            }
+                        };
+
+                        return estimateStatsFromInterval( 100 ).then( maybeRecordStats );
+                   });
         }.call(this));
     }
 });
