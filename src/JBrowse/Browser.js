@@ -1489,7 +1489,8 @@ addRefseqs: function( refSeqs ) {
             else {
                 order = refSeqs.slice(0);
                 order.sort(
-                    this.config.refSeqOrder == 'length'            ? function( a, b ) { return a.length - b.length;  }  :
+                    this.config.refSeqOrder == 'length' || this.config.refSeqOrder == 'length ascending'
+                                                                   ? function( a, b ) { return a.length - b.length;  }  :
                     this.config.refSeqOrder == 'length descending' ? function( a, b ) { return b.length - a.length;  }  :
                     this.config.refSeqOrder == 'name descending'   ? function( a, b ) { return b.name.localeCompare( a.name ); } :
                                                                      function( a, b ) { return a.name.localeCompare( b.name ); }
