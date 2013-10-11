@@ -2,12 +2,12 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
-           'dojo/request/xhr',
+
            'JBrowse/Store/SeqFeature',
-           'JBrowse/Store/DeferredFeaturesMixin',
-           'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Util',
+           'JBrowse/Util/DeferredGenerator',
            'JBrowse/Model/ArrayRepr',
+           'JBrowse/Model/Resource/JSON',
            'JBrowse/Store/NCList',
            'JBrowse/Store/LazyArray'
        ],
@@ -15,12 +15,12 @@ define([
            declare,
            lang,
            Deferred,
-           xhr,
+
            SeqFeatureStore,
-           DeferredFeaturesMixin,
-           DeferredStatsMixin,
            Util,
+           DeferredGenerator,
            ArrayRepr,
+           JSONResource,
            GenericNCList,
            LazyArray
        ) {
@@ -40,17 +40,21 @@ var childrenfunc = function() { return this.get('subfeatures'); };
 
 return declare( SeqFeatureStore,
 {
+    configSchema: {
+        slots: [
+            { name: 'url', type: 'string',
+              description: 'url of the NCList directory',
+              required: true
+            }
+        ]
+    },
+
     constructor: function(args) {
-        this.args = args;
-
-        this.baseUrl = args.baseUrl;
-        this.urlTemplates = { root: args.urlTemplate };
-
         this._roots = {};
     },
 
     makeNCList: function() {
-        return new GenericNCList();
+        return new GenericNCList({ transportManager: this.browser });
     },
 
     loadNCList: function( refData, trackInfo, url ) {
@@ -63,47 +67,45 @@ return declare( SeqFeatureStore,
     },
 
     getDataRoot: function( query ) {
-        var url = this.resolveUrl(
-            this.urlTemplates.root,
+        var url = this.getConf('url');
+        if( url.charAt( url.length-1 ) !== '/' )
+            url += '/';
+        url = this.resolveUrl(
+            url+'{refseq}/trackData.json',
             lang.mixin( { refseq: query.ref }, query )
         );
 
+        var thisB = this;
         return this._roots[url] || ( this._roots[url] = function() {
-            var d = new Deferred();
-
-            var refData = {
-                nclist: this.makeNCList()
-            };
-
-            // fetch the trackdata
-            var thisB = this;
-            xhr.get( url, { handleAs: 'json', failOk: true })
-               .then( function( trackInfo, request ) {
-                          //trackInfo = JSON.parse( trackInfo );
-                          d.resolve( thisB._handleTrackInfo( refData, trackInfo, url ) );
-                      },
+            return thisB.openResource( JSONResource, url )
+                       .readAll()
+                       .then( function( trackInfo, request ) {
+                                  return thisB._parseTrackInfo( trackInfo, url );
+                              },
                       function(error) {
-                          if( error.response.status == 404 ) {
-                              d.resolve( thisB._handleTrackInfo( refData, {}, url ) );
-                          } else if( error.response.status != 200) {
-                              d.reject( "Server returned an HTTP " + error.response.status + " error" );
-                          }
+                          if( error.response.status == 404 )
+                              return thisB._handleTrackInfo( {}, url );
+                          else if( error.response.status != 200)
+                              throw "Server returned an HTTP " + error.response.status + " error";
                           else
-                              d.reject( error );
+                              throw error;
                       }
                     );
-            return d;
-        }.call(this) );
+        }.call() );
     },
 
-    _handleTrackInfo: function( refData, trackInfo, url ) {
+    _parseTrackInfo: function( trackInfo, url ) {
+        var refData = {
+            nclist: this.makeNCList()
+        };
+
         refData.stats = {
             featureCount: trackInfo.featureCount || 0
         };
         if( 'featureDensity' in trackInfo )
              refData.stats.featureDensity = trackInfo.featureDensity;
 
-        this.empty = !trackInfo.featureCount;
+        refData.empty = !trackInfo.featureCount;
 
         if( trackInfo.intervals ) {
             refData.attrs = new ArrayRepr( trackInfo.intervals.classes );
@@ -122,17 +124,15 @@ return declare( SeqFeatureStore,
         return refData;
     },
 
-    getRegionStats: function( query, successCallback, errorCallback ) {
-        this.getDataRoot( query )
+    getRegionStats: function( query ) {
+        return this.getDataRoot( query )
             .then( function( data ) {
-                       successCallback( data.stats );
-                   },
-                   errorCallback
-                 );
+                       return data.stats;
+                   });
     },
 
-    getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
-        this.getDataRoot( query )
+    getRegionFeatureDensities: function( query ) {
+        return this.getDataRoot( query )
             .then( function( data ) {
                 var numBins = query.numBins || 25;
                 if( ! query.basesPerBin )
@@ -150,8 +150,7 @@ return declare( SeqFeatureStore,
                 })( query.basesPerBin, data._histograms.stats || [] );
 
                 if( ! data._histograms ) {
-                    successCallback({ bins: [], stats: {} });
-                    return;
+                    return { bins: [], stats: {} };
                 }
 
                 // The histogramMeta array describes multiple levels of histogram detail,
@@ -174,6 +173,7 @@ return declare( SeqFeatureStore,
                 var binCount = query.basesPerBin / histogramMeta.basesPerBin;
 
                 // if the server-supplied histogram fits neatly into our requested
+                var d = new Deferred();
                 if ( binCount > .9
                      &&
                      Math.abs(binCount - Math.round(binCount)) < .0001
@@ -195,7 +195,7 @@ return declare( SeqFeatureStore,
                                histogram[ Math.floor( (i - firstServerBin) / binCount ) ] += val;
                            },
                            function() {
-                               successCallback({ bins: histogram, stats: statEntry });
+                               d.resolve( { bins: histogram, stats: statEntry } );
                            }
                        );
                    } else {
@@ -207,47 +207,48 @@ return declare( SeqFeatureStore,
                            query.end,
                            numBins,
                            function( hist ) {
-                               successCallback({ bins: hist, stats: statEntry });
+                               d.resolve( { bins: hist, stats: statEntry } );
                            });
                    }
-               }, errorCallback );
+                   return d;
+               });
     },
 
 
-    getFeatures: function( query, origFeatCallback, finishCallback, errorCallback ) {
-        if( this.empty ) {
-            finishCallback();
-            return;
-        }
-
+    getFeatures: function( query ) {
         var thisB = this;
-        this.getDataRoot( query )
-            .then( function( data ) {
-                thisB._getFeatures( data, query, origFeatCallback, finishCallback, errorCallback );
-            }, errorCallback);
-    },
+        return new DeferredGenerator( function( generator ) {
+            thisB.getDataRoot( query )
+                 .then( function( data ) {
+                            if( data.empty ) {
+                                generator.resolve();
+                                return;
+                            }
 
-    _getFeatures: function( data, query,  origFeatCallback, finishCallback, errorCallback ) {
-        var thisB = this;
-        var startBase  = query.start;
-        var endBase    = query.end;
-        var accessors  = data.attrs.accessors(),
-        /** @inner */
-        featCallBack = function( feature, path ) {
-            // the unique ID is a stringification of the path in the
-            // NCList where the feature lives; it's unique across the
-            // top-level NCList (the top-level NCList covers a
-            // track/chromosome combination)
+                            var startBase  = query.start;
+                            var endBase    = query.end;
+                            var accessors  = data.attrs.accessors();
 
-            // only need to decorate a feature once
-            if (! feature.decorated)  {
-                var uniqueID = path.join(",");
-                thisB._decorate_feature( accessors, feature, uniqueID );
-            }
-            return origFeatCallback( feature );
-        };
+                            data.nclist.iterate(
+                                startBase, endBase,
+                                function( feature, path ) {
+                                    // the unique ID is a stringification of the path in the
+                                    // NCList where the feature lives; it's unique across the
+                                    // top-level NCList (the top-level NCList covers a
+                                    // track/chromosome combination)
 
-        data.nclist.iterate.call( data.nclist, startBase, endBase, featCallBack, finishCallback, errorCallback );
+                                    // only need to decorate a feature once
+                                    if (! feature.decorated)  {
+                                        var uniqueID = path.join(",");
+                                        thisB._decorate_feature( accessors, feature, uniqueID );
+                                    }
+                                    return  generator.emit( feature );
+                                },
+                                lang.hitch( generator, 'resolve' ),
+                                lang.hitch( generator, 'reject' )
+                            );
+                        });
+        });
     },
 
     // helper method to recursively add .get and .tags methods to a feature and its

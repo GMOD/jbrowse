@@ -2,7 +2,7 @@
     "stores": {
         "default": {
             "type": "JBrowse/Store/SeqFeature/NCList",
-            "urlTemplate" : "tracks/{set}/{refseq}/trackData.json"
+            "url" : "tracks/{set}"
         },
         "refseqs": {
             "type": "JBrowse/Store/Sequence/StaticChunked",
@@ -60,6 +60,11 @@
             "style" : { "className" : "feature2" },
             "query": { "set": "ExampleFeatures" },
             "label" : "HTMLFeatures - Example Features"
+        },
+
+        {
+            "query": { "set": "bam_simulated" },
+            "label" : "HTMLFeatures - bam_simulated"
         },
 
         {

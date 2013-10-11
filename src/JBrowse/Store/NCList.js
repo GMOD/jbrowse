@@ -1,14 +1,16 @@
 define([
-           'dojo/request',
            'dojo/promise/all',
            'dojo/Deferred',
-           'JBrowse/Util'
+
+           'JBrowse/Util',
+           'JBrowse/Model/Resource/JSON'
        ],
       function(
-          request,
           all,
           Deferred,
-          Util
+
+          Util,
+          JSONResource
       ) {
 
 /**
@@ -29,8 +31,13 @@ After
 
  */
 
-function NCList() {
+function NCList( args ) {
     this.topList = [];
+
+    this.transportManager = args.transportManager;
+    if( ! this.transportManager )
+        throw 'transportManager arg required';
+
 }
 
 NCList.prototype.importExisting = function(nclist, attrs, baseURL,
@@ -153,37 +160,35 @@ NCList.prototype.iterHelper = function(arr, from, to, fun,
                     this.lazyChunks[chunkNum] = {};
                 }
 
-                var getDone = new Deferred();
-                promises.push( getDone.promise );
-
-                request.get(
-                    Util.resolveUrl(
+                var url = Util.resolveUrl(
                     this.baseURL,
-                        this.lazyUrlTemplate.replace(
-                                /\{Chunk\}/ig, chunkNum
+                    this.lazyUrlTemplate.replace(
+                            /\{Chunk\}/ig, chunkNum
+                    )
+                );
+
+                promises.push(
+                    this.transportManager.openResource( JSONResource, url )
+                        .readAll()
+                        .then(
+                            function( sublist ) {
+                                return thisB.iterHelper(
+                                    sublist, from, to, fun,
+                                    inc, searchGet, testGet,
+                                    [chunkNum]
+                                );
+                            },
+                            function( error ) {
+                                if( error.response.status == 404 )
+                                    return;
+                                throw error;
+                            }
                         )
-                    ),
-                    { handleAs: 'json' }
-                ).then(
-                    function( sublist ) {
-                        return thisB.iterHelper(
-                            sublist, from, to, fun,
-                            inc, searchGet, testGet,
-                            [chunkNum]
-                        ).then( function() { getDone.resolve(); } );
-                    },
-                    function( error ) {
-                        if( error.response.status != 404 )
-                            throw new Error( error );
-                        else
-                            getDone.resolve();
-                    }
                 );
             }).call(this);
 
         } else {
             // this is just a regular feature
-
             fun(arr[i], path.concat(i));
         }
 
