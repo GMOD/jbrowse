@@ -16,6 +16,10 @@
  * Fixed a bug introduced in 1.10.6 in which prepare-refseqs.pl would
    not respect the --noseq command-line option when using --fasta.
 
+ * Fixed a bad bug introduced in 1.10.6 in which FASTA files with line
+   lengths longer than the configured chunk size were not correctly
+   formatted.
+
 # Release 1.10.6     2013-10-07 21:06:51 EST5EDT
 
 ## Minor improvements
