@@ -6,17 +6,18 @@ define([
            'dojo/dom-class',
            'dojo/on',
            'dojo/mouse',
-           'dojo/Deferred',
-           'JBrowse/Util',
-           'JBrowse/has',
            'dojo/dnd/move',
            'dojo/dnd/Source',
+
            'dijit/layout/_LayoutWidget',
            'dijit/focus',
            'dijit/form/ComboBox',
            'dijit/form/Button',
            'dijit/form/Select',
            'dijit/form/HorizontalSlider',
+
+           'JBrowse/Util',
+           'JBrowse/has',
            'JBrowse/Component',
            'JBrowse/FeatureFiltererMixin',
            'JBrowse/View/Track/LocationScale',
@@ -35,17 +36,18 @@ define([
            domClass,
            on,
            mouse,
-           Deferred,
-           Util,
-           has,
            dndMove,
            dndSource,
+
            dijitBase,
            dijitFocus,
            dijitComboBox,
            dijitButton,
            dijitSelectBox,
            dijitSlider,
+
+           Util,
+           has,
            Component,
            FeatureFiltererMixin,
            LocationScaleTrack,
@@ -171,40 +173,29 @@ buildRendering: function() {
     this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     dojo.hitch( this, 'pinTracks' ));
     this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   dojo.hitch( this, 'unpinTracks' ));
 
-    // render our UI tracks (horizontal scale tracks, grid lines, and so forth)
-    // dojo.forEach(this.uiTracks, function(track) {
-    //     track.showRange(0, this.stripeCount - 1,
-    //                     Math.round(this.pxToBp(this.offset)),
-    //                     Math.round(this.stripeWidth / this.pxPerBp),
-    //                     this.pxPerBp);
-    // }, this);
-
-    this.zoomContainer.style.paddingTop = this.topSpace + "px";
-
     var initialLoc = this.getConf('initialLocation');
     var initialTracks = this.getConf('initialTracks');
-
-    this.initialized = new Deferred();
 
     // fetch the refseq store and the ref seq before we can continue
     // initializing our view, because we need its length.
     var thisB = this;
-    this.browser.getStoreDeferred( 'refseqs' )
+    this.initialized = this.browser.getStoreDeferred( 'refseqs' )
         .then(
             function( refStore ) {
                 var q = { limit: 1 };
                 if( initialLoc )
                     q.name = initialLoc.ref;
                 return refStore.getReferenceFeatures(q)
-                    .forEach( function(ref) {
-                                  // convert the feature to a bare object
-                                  thisB._finishInitialization( ref );
-                                  thisB.setLocation( ref, ref.get('start'), ref.get('end'), thisB.getConf('initialTracks') );
-                                  thisB.initialized.resolve();
-                              },
-                              function() {},
-                              function(e) { console.error( e.stack || ''+e ); }
-                            );
+                    .first(
+                        function(ref) {
+                            // convert the feature to a bare object
+                            return thisB._finishInitialization( ref );
+                        },
+                        function(e) {
+                            console.error( e.stack || ''+e );
+                            throw e;
+                        }
+                    );
             });
 },
 
@@ -221,7 +212,6 @@ getState: function() {
 },
 
 _finishInitialization: function( refseq ) {
-
     //the reference sequence
     this.ref = refseq;
 
@@ -336,13 +326,14 @@ _finishInitialization: function( refseq ) {
         )
     );
 
-
     this.showCoarse();
 
     // initialize the behavior manager used for setting what this view
     // does (i.e. the behavior it has) for mouse and keyboard events
     this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
     this.behaviorManager.initialize();
+
+    this.setLocation( this.ref, this.ref.get('start'), this.ref.get('end'), this.getConf('initialTracks') );
 },
 
 
