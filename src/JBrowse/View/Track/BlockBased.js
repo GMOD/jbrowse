@@ -329,6 +329,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         }, this);
         delete this.blocks;
         delete this.div;
+        delete this.fatalError;
 
         this.inherited( arguments );
     },
@@ -410,7 +411,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.blocks = [];
         this.blockHeights = [];
 
-        this.fatalErrorMessageElement = this._renderErrorMessage( error || this.fatalError, this.div );
+        error = error || this.fatalError;
+        this.fatalErrorMessageElement = this._renderErrorMessage( error.stack || ''+error , this.div );
         this.heightUpdate( domGeom.position( this.fatalErrorMessageElement ).h );
         this.updateStaticElements( this.genomeView.getPosition() );
     },
@@ -445,7 +447,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         error = error || this.fatalError || this.error;
 
         domConstruct.empty( block.domNode );
-        var msgDiv = this._renderErrorMessage( error, block.domNode );
+        var msgDiv = this._renderErrorMessage( error.stack || ''+error, block.domNode );
         this.heightUpdate( dojo.position(msgDiv).h, blockIndex );
     },
 
