@@ -66,6 +66,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
  */
 {
 
+    stripeWidth: 250,
+
     /**
      * Base class for all JBrowse tracks.
      * @constructs
@@ -84,11 +86,52 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.browser = args.browser;
         this.genomeView = args.genomeView;
 
+        //width, in pixels of the "regular" (not min or max zoom) stripe
+        this.regularStripe = this.stripeWidth;
+
         // set up feature filtering
         this.setFeatureFilterParentComponent( this.genomeView );
 
         this.store = args.store;
+
+        this.genomeView = args.genomeView;
+        this.heightUpdateCallback = args.heightUpdateCallback || function() {},
+        this.div = args.trackDiv;
+        this.widthPct = args.widthPct;
+        this.widthPx = args.widthPx;
+        this.scale = args.scale;
+
+        this.leftBlank = document.createElement("div");
+        this.leftBlank.className = "blank-block";
+        this.rightBlank = document.createElement("div");
+        this.rightBlank.className = "blank-block";
+        this.div.appendChild(this.rightBlank);
+        this.div.appendChild(this.leftBlank);
+
+        this.sizeInit( args.numBlocks, args.widthPct );
+        this.labelHTML = "";
+        this.labelHeight = 0;
+
+        if( this.getConf('pinned') )
+            this.setPinned( true );
+
+        if( ! this.label )
+            this.makeTrackLabel();
+
+        this.setLabel( this.key );
+
+        // called here for backcompat
+        this.setViewInfo( this.genomeView,
+                          this.heightUpdateCallback,
+                          args.numBlocks,
+                          this.div,
+                          this.widthPct,
+                          this.widthPx,
+                          this.scale
+                        );
     },
+
+    setViewInfo: function() {}, //< stub.  delete when all subclasses have folded this into constructor
 
     configSchema: {
         slots: [
@@ -122,35 +165,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             query( '.height_overflow_message', this.div )
                 .style( 'top', this.height - 16 + 'px' );
         }
-    },
-
-    setViewInfo: function( genomeView, heightUpdate, numBlocks,
-                           trackDiv,
-                           widthPct, widthPx, scale) {
-        this.genomeView = genomeView;
-        this.heightUpdateCallback = heightUpdate;
-        this.div = trackDiv;
-        this.widthPct = widthPct;
-        this.widthPx = widthPx;
-
-        this.leftBlank = document.createElement("div");
-        this.leftBlank.className = "blank-block";
-        this.rightBlank = document.createElement("div");
-        this.rightBlank.className = "blank-block";
-        this.div.appendChild(this.rightBlank);
-        this.div.appendChild(this.leftBlank);
-
-        this.sizeInit(numBlocks, widthPct);
-        this.labelHTML = "";
-        this.labelHeight = 0;
-
-        if( this.getConf('pinned') )
-            this.setPinned( true );
-
-        if( ! this.label ) {
-            this.makeTrackLabel();
-        }
-        this.setLabel( this.key );
     },
 
     makeTrackLabel: function() {

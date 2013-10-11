@@ -101,8 +101,7 @@ buildRendering: function() {
 
     domClass.add( this.domNode, this.className );
 
-    // Add an arbitrary 50% padding between the position labels and the
-    // topmost track
+    // space between controls and topmost track.  scale bar goes in here also.
     this.topSpace = 17;
 
     // keep a reference to the main browser object
@@ -209,7 +208,7 @@ buildRendering: function() {
             });
 },
 
-/**
+ /**
  * Returns object with all that's necessary to reconstruct this view's
  * current state.
  */
@@ -248,12 +247,16 @@ _finishInitialization: function( refseq ) {
         label: "static_track",
         labelClass: "pos-label",
         browser: this.browser,
-        refSeq: this.ref
+        refSeq: this.ref,
+
+        genomeView: this,
+        numBlocks: this.stripeCount,
+        trackDiv: this.scaleTrackDiv,
+        widthPct: this.stripePercent,
+        widthPx: this.stripeWidth,
+        scale: this.pxPerBp
     });
-    this.staticTrack.setViewInfo( this, function(height) {}, this.stripeCount,
-                                 this.scaleTrackDiv, this.stripePercent,
-                                 this.stripeWidth, this.pxPerBp,
-                                 this.trackPadding);
+
     this.zoomContainer.appendChild(this.scaleTrackDiv);
 
     this.uiTracks = [ this.staticTrack ];
@@ -262,15 +265,17 @@ _finishInitialization: function( refseq ) {
         var gridTrackDiv = document.createElement("div");
         gridTrackDiv.className = "track";
         gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
-        var gridTrack = new GridLinesTrack({
-                                               browser: this.browser,
-                                               genomeView: this,
-                                               refSeq: this.ref
-                                           });
-        gridTrack.setViewInfo( this, function(height) {}, this.stripeCount,
-                               gridTrackDiv, this.stripePercent,
-                               this.stripeWidth, this.pxPerBp,
-                               this.trackPadding);
+        var gridTrack = new GridLinesTrack(
+            {
+                browser: this.browser,
+                genomeView: this,
+                refSeq: this.ref,
+                numBlocks: this.stripeCount,
+                trackDiv: gridTrackDiv,
+                widthPct: this.stripePercent,
+                widthPx: this.stripeWidth,
+                scale: this.pxPerBp
+            });
         this.trackContainer.appendChild(gridTrackDiv);
         this.uiTracks.push( gridTrack );
     }
@@ -279,15 +284,14 @@ _finishInitialization: function( refseq ) {
         {
             browser: this.browser,
             genomeView: this,
-            refSeq: this.ref
+            refSeq: this.ref,
+            numBlocks: this.stripeCount,
+            trackDiv: domConstruct.create( 'div', { className: 'track', style: "top: 0px; height: 100%" },
+                                           this.trackContainer ),
+            widthPct: this.stripePercent,
+            widthPx: this.stripeWidth,
+            scale: this.pxPerBp
         });
-    highlightsTrack.setViewInfo(
-        this, function(height) {}, this.stripeCount,
-        domConstruct.create( 'div', { className: 'track', style: "top: 0px; height: 100%" },
-                             this.trackContainer ),
-        this.stripePercent,
-        this.stripeWidth, this.pxPerBp,
-        this.trackPadding);
     this.uiTracks.push( highlightsTrack );
 
     this._renderVerticalScrollBar();
@@ -2488,24 +2492,29 @@ renderTrack: function( /**Object*/ trackConfig ) {
     var trackClass, store;
 
     var makeTrack = dojo.hitch(this, function() {
-        var track = new trackClass({
+        var track = new trackClass(
+            {
                 refSeq: this.ref,
                 config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks' ),
                 trackPadding: this.trackPadding,
                 store: store,
                 genomeView: this,
-                browser: this.browser
+                browser: this.browser,
+                heightUpdateCallback: dojo.hitch( this, 'trackHeightUpdate', trackName ),
+                numBlocks: this.stripeCount,
+                trackDiv: trackDiv,
+                widthPct: this.stripePercent,
+                widthPx: this.stripeWidth,
+                scale: this.pxPerBp
             });
+
+
         if( typeof store.setTrack == 'function' )
             store.setTrack( track );
 
         trackDiv.track = track;
 
-        var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
-        track.setViewInfo( this, heightUpdate, this.stripeCount, trackDiv,
-                           this.stripePercent, this.stripeWidth,
-                           this.pxPerBp, this.trackPadding);
 
         track.updateStaticElements({
             x: this.getX(),
@@ -2593,14 +2602,17 @@ updateTrackList: function() {
                   style: "top: 0px; height: 100%"
                 },
                 this.pinUnderlay );
-            this.pinGridlinesTrack = new GridLinesTrack({
-                                                            browser: this.browser,
-                                                            refSeq: this.ref
-                                                        });
-            this.pinGridlinesTrack.setViewInfo( this, function() {}, this.stripeCount,
-                                                gridTrackDiv, this.stripePercent,
-                                                this.stripeWidth, this.pxPerBp,
-                                                this.trackPadding);
+            this.pinGridlinesTrack = new GridLinesTrack(
+                {
+                    browser: this.browser,
+                    refSeq: this.ref,
+                    genomeView: this,
+                    numBlocks: this.stripeCount,
+                    trackDiv: gridTrackDiv,
+                    widthPct: this.stripePercent,
+                    widthPx: this.stripeWidth,
+                    scale: this.pxPerBp
+                });
             this.uiTracks.push( this.pinGridlinesTrack );
         }
     }
