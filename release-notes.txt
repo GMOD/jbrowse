@@ -14,7 +14,7 @@
    widths.
 
  * Fixed a bug introduced in 1.10.6 in which prepare-refseqs.pl would
-   not respect the --noseq command-line opion when using --fasta.
+   not respect the --noseq command-line option when using --fasta.
 
 # Release 1.10.6     2013-10-07 21:06:51 EST5EDT
 
