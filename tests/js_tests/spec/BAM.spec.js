@@ -18,8 +18,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                   b = new BAMStore({
                                        browser: new Browser({ unitTestMode: true }),
                                        config: {
-                                           urlTemplate: '../../../sample_data/raw/volvox/volvox-sorted.bam',
-                                           baiUrlTemplate: '../../../sample_data/raw/volvox/volvox-sorted.bam.bai'
+                                           bam: '../../../sample_data/raw/volvox/volvox-sorted.bam'
                                        }
                                    });
               });
@@ -54,8 +53,7 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
                       config: {
-                          urlTemplate: '../../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam',
-                          baiUrlTemplate: '../../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam.bai'
+                          bam: '../../data/test_deletion_2_0.snps.bwa_align.sorted.grouped.bam'
                       }
                   });
               });
@@ -91,8 +89,7 @@ describe( 'empty BAM', function() {
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
                       config: {
-                          urlTemplate: '../../data/empty.bam',
-                          baiUrlTemplate: '../../data/empty.bam.bai'
+                          bam: '../../data/empty.bam'
                       }
                   });
               });
@@ -128,8 +125,7 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                   b = new BAMStore({
                       browser: new Browser({ unitTestMode: true }),
                       config: {
-                          urlTemplate: '../../data/final.merged.sorted.rgid.mkdup.realign.recal.bam',
-                          baiUrlTemplate: '../../data/final.merged.sorted.rgid.mkdup.realign.recal.bam.bai'
+                          bam: '../../data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                       }
                   });
               });
@@ -167,8 +163,7 @@ if( document.location.href.indexOf('extended_tests=1') > -1 ) {
                       b = new BAMStore({
                           browser: new Browser({ unitTestMode: true }),
                           config: {
-                              urlTemplate: '../../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam',
-                              baiUrlTemplate: '../../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam.bai'
+                              bam: '../../../../data/carbone_test_2/RIB40_278_k51_cd_hit_est_sorted.bam'
                           }
                       });
                   });

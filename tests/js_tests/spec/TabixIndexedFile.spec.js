@@ -4,8 +4,8 @@ require(
             'dojo/_base/array',
             'JBrowse/Browser',
             'JBrowse/Store/TabixIndexedFile',
-            'JBrowse/Model/XHRBlob'
-        ],function( declare, array, Browser, TabixIndexedFile, XHRBlob ) {
+            'JBrowse/Model/Resource/BGZBytes'
+        ],function( declare, array, Browser, TabixIndexedFile, BGZBytes) {
 
 describe( "tabix-indexed file", function() {
 
@@ -22,16 +22,18 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
 
     var f;
     beforeEach( function() {
+        var browser = new Browser({ unitTestMode: true });
         f = new VCFIndexedFile({
-                browser: new Browser({ unitTestMode: true }),
-                tbi:  new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ),
-                file: new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz' )
+                browser: browser,
+                tbi:  browser.openResource( BGZBytes, '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ),
+                file: browser.openResource( BGZBytes, '../../sample_data/raw/volvox/volvox.test.vcf.gz' )
             });
     });
 
     it( 'can read ctgA:1000..4000', function() {
             var items = [];
-            f.getLines( 'ctgA', 1000, 4000,
+            f.getLines( 'ctgA', 1000, 4000 )
+                .forEach(
                      function(i) {
                          items.push(i);
                      },

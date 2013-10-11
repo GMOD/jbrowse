@@ -1,17 +1,17 @@
 require([
             'JBrowse/Browser',
             'JBrowse/Model/TabixIndex',
-            'JBrowse/Model/XHRBlob',
-            'JBrowse/Model/BGZip/BGZBlob'
-        ],function( Browser, TabixIndex, XHRBlob, BGZBlob ) {
+            'JBrowse/Model/Resource/BGZBytes'
+        ],function( Browser, TabixIndex, BGZBytes ) {
 
 describe( "TabixIndex", function() {
 
               var ti;
               beforeEach(function() {
+                  var browser = new Browser({ unitTestMode: true });
                   ti = new TabixIndex({
-                                          blob: new BGZBlob( new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ) ),
-                                          browser: new Browser({ unitTestMode: true })
+                                          blob: browser.openResource( BGZBytes, '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ),
+                                          browser: browser
                                      });
               });
 
