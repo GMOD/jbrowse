@@ -53,6 +53,8 @@ var Resource = declare( null, {
     },
 
     readRange: function( offset, length, opts ) {
+        if( ! length ) throw new Error('invalid length '+length);
+
         return this._read( lang.mixin( { range: [ offset, offset+length-1 ] }, this.defaultOpts, opts || {} ) );
     },
 
