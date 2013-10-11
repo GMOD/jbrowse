@@ -93,6 +93,13 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
         this.regionStats = {};
 
         this._setupEventHandlers();
+
+        this.staticCanvas = domConstruct.create(
+            'canvas', { style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }},
+            this.div );
+        this.staticCanvas.height = this.staticCanvas.offsetHeight;
+
+        this._makeLabelTooltip( );
     },
 
     configSchema: {
@@ -163,14 +170,6 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                   ]
                 }
             ]
-    },
-
-    setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
-        this.inherited( arguments );
-        this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }}, trackDiv);
-        this.staticCanvas.height = this.staticCanvas.offsetHeight;
-
-        this._makeLabelTooltip( );
     },
 
     guessGlyphType: function(feature) {

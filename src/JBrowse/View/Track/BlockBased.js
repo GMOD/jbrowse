@@ -98,7 +98,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.heightUpdateCallback = args.heightUpdateCallback || function() {},
         this.div = args.trackDiv;
         this.widthPct = args.widthPct;
-        this.widthPx = args.widthPx;
         this.scale = args.scale;
 
         this.leftBlank = document.createElement("div");
@@ -120,18 +119,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         this.setLabel( this.key );
 
-        // called here for backcompat
-        this.setViewInfo( this.genomeView,
-                          this.heightUpdateCallback,
-                          args.numBlocks,
-                          this.div,
-                          this.widthPct,
-                          this.widthPx,
-                          this.scale
-                        );
     },
-
-    setViewInfo: function() {}, //< stub.  delete when all subclasses have folded this into constructor
 
     configSchema: {
         slots: [
@@ -276,8 +264,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         if ( this.blocks === undefined || ! this.blocks.length )
             return;
 
-        // this might make more sense in setViewInfo, but the label element
-        // isn't in the DOM tree yet at that point
         if ((this.labelHeight == 0) && this.label)
             this.labelHeight = this.label.offsetHeight;
 
@@ -533,17 +519,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.blocks[blockIndex] = block;
         this.div.appendChild( block.domNode );
 
-        var args = [blockIndex,
-                    block,
-                    this.blocks[blockIndex - 1],
-                    this.blocks[blockIndex + 1],
-                    startBase,
-                    endBase,
-                    scale,
-                    this.widthPx,
-                    containerStart,
-                    containerEnd];
-
         if( this.fatalError ) {
             this.fillBlockError( blockIndex, block );
             return;
@@ -567,7 +542,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 leftBase:   startBase,
                 rightBase:  endBase,
                 scale:      scale,
-                stripeWidth:    this.widthPx,
                 containerStart: containerStart,
                 containerEnd:   containerEnd,
                 finishCallback: finish

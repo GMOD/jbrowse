@@ -32,6 +32,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     constructor: function( args ) {
         this.trackPadding = args.trackPadding || 0;
         this.store = args.store;
+
+        this._makeScoreDisplay();
     },
 
     configSchema: {
@@ -357,11 +359,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             }
         }
         return pixelValues;
-    },
-
-    setViewInfo: function() {
-        this.inherited(arguments);
-        this._makeScoreDisplay();
     },
 
     _makeScoreDisplay: function() {

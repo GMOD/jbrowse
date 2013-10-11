@@ -185,39 +185,32 @@ constructor: function( args ) {
     // The dialogs for each one don't render all at once.
     this.lastDialogDone = [true];
 
-},
-
-setViewInfo: function( genomeView, heightUpdate, numBlocks,
-                       trackDiv,
-                       widthPct, widthPx, scale) {
-
-    this.inherited( arguments );
     domClass.add( this.div, 'combination_track empty' );
 
-    this.scale = scale;
-
     // This track has a dnd source (to support dragging tracks into and out of it).
-    this.dnd = new dndSource( this.div,
-                              {
-                                  accept: ["track"], //Accepts only tracks
-                                  isSource: false,
-                                  withHandles: true,
-                                  creator: dojo.hitch( this, function( trackConfig, hint ) {
-                                                           // Renders the results track div (or avatar, depending).
-                                                           // Code for ensuring that we don't have several results tracks
-                                                           // is handled later in the file.
-                                                           var data = trackConfig;
-                                                           if(trackConfig.resultsTrack) {
-                                                              data = trackConfig.resultsTrack;
-                                                              data.storeToKey = trackConfig.storeToKey;
-                                                           }
-                                                           return {
-                                                               data: data,
-                                                               type: ["track"],
-                                                               node: this.addTrack(data)
-                                                           };
-                                                       })
-                              });
+    var thisB = this;
+    this.dnd = new dndSource(
+        this.div,
+        {
+            accept: ["track"], //Accepts only tracks
+            isSource: false,
+            withHandles: true,
+            creator: function( trackConfig, hint ) {
+                                     // Renders the results track div (or avatar, depending).
+                                     // Code for ensuring that we don't have several results tracks
+                                     // is handled later in the file.
+                                     var data = trackConfig;
+                                     if( trackConfig.resultsTrack ) {
+                                         data = trackConfig.resultsTrack;
+                                         data.storeToKey = trackConfig.storeToKey;
+                                     }
+                                     return {
+                                         data: data,
+                                         type: ["track"],
+                                         node: thisB.addTrack( data )
+                                     };
+            }
+        });
 
     // Attach dnd events
     this._attachDndEvents();
@@ -227,6 +220,7 @@ setViewInfo: function( genomeView, heightUpdate, numBlocks,
         this.reloadStoreNames = true;
         this.dnd.insertNodes(false, [this.config.resultsTrack]);
     }
+
 },
 
 // This function ensure that the combination track's drag-and-drop interface works correctly.
@@ -569,13 +563,21 @@ renderResultsTrack: function() {
         // Once we have the object for the type of track we're creating, call this.
         var makeTrack = function(){
             // Construct a track with the relevant parameters
-            thisB.resultsTrack = new trackClass({
-                                                    config: config,
-                                                    browser: thisB.browser,
-                                                    changeCallback: thisB._changedCallback,
-                                                    refSeq: thisB.refSeq,
-                                                    store: thisB._visible().store,
-                                                    trackPadding: 0});
+            thisB.resultsTrack = new trackClass(
+                {
+                    config: config,
+                    browser: thisB.browser,
+                    changeCallback: thisB._changedCallback,
+                    refSeq: thisB.refSeq,
+                    store: thisB._visible().store,
+                    trackPadding: 0,
+                    genomeView: thisB.genomeView,
+                    heightUpdateCallback: resultsHeightUpdate,
+                    numBlocks: thisB.numBlocks,
+                    trackDiv: thisB.resultsDiv,
+                    widthPct: thisB.widthPct,
+                    scale: thisB.scale
+                });
 
             // Removes all options from the results track's context menu.
             thisB.resultsTrackMenuOptions = thisB.resultsTrack._trackMenuOptions;
@@ -599,9 +601,6 @@ renderResultsTrack: function() {
 
             thisB.resultsTrack.makeTrackLabel = function() {};
 
-            // setViewInfo on results track
-            thisB.resultsTrack.setViewInfo (thisB.genomeView, resultsHeightUpdate,
-                                            thisB.numBlocks, thisB.resultsDiv, thisB.widthPct, thisB.widthPx, thisB.scale);
 
             // Only do this when the masked data is selected
             // (we don't want editing the config to suddenly remove the data or the mask)

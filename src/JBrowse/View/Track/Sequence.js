@@ -37,6 +37,7 @@ return declare( [BlockBased, ExportMixin],
 {
     constructor: function( args ) {
         this._charMeasurements = {};
+        this.show();
     },
 
     configSchema: {
@@ -54,13 +55,6 @@ return declare( [BlockBased, ExportMixin],
 
     endZoom: function(destScale, destBlockBases) {
         this.clear();
-    },
-
-    setViewInfo:function(genomeView, heightUpdate, numBlocks,
-                         trackDiv,
-                         widthPct, widthPx, scale) {
-        this.inherited( arguments );
-        this.show();
     },
 
     nbsp: String.fromCharCode(160),
