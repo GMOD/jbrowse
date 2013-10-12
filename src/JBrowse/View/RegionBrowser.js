@@ -470,7 +470,7 @@ keySlideX: function( offset ) {
  * @private
  * @returns {Object} description of behaviors
  */
-_behaviors: function() { return {
+_behaviors: function() { var thisB = this; return {
 
     // behaviors that don't change
     always: {
@@ -478,13 +478,13 @@ _behaviors: function() { return {
         apply: function() {
             var handles = [];
 
-            var wheelevent = "onwheel" in document.createElement("div") ? "wheel"      :
+            var wheelevent = "wheel" in document.createElement("div") ? "wheel"      :
                                     document.onmousewheel !== undefined ? "mousewheel" :
                                                                           "DOMMouseScroll";
             handles.push(
-                dojo.connect( this.elem,     wheelevent,     this, 'wheelScroll', false ),
+                on( this.elem,     wheelevent, lang.hitch( this, 'wheelScroll' )),
 
-                dojo.connect( this.scaleTrackDiv,       "mousedown",
+                on( this.scaleTrackDiv,       "mousedown",
                               lang.hitch( this, 'startRubberZoom',
                                           lang.hitch( this,'absXtoBp'),
                                           this.zoomContainer,
@@ -492,55 +492,53 @@ _behaviors: function() { return {
                                         )
                             ),
 
-                dojo.connect( this.zoomContainer, "dblclick",       this, 'doubleClickZoom'    ),
+                on( this.zoomContainer, "dblclick",  lang.hitch( this, 'doubleClickZoom' )),
 
 
 
-                dojo.connect( this.scaleTrackDiv,       "onclick",        this,  'scaleClicked'      ),
-                dojo.connect( this.scaleTrackDiv,       "mouseover",      this,  'scaleMouseOver'    ),
-                dojo.connect( this.scaleTrackDiv,       "mouseout",       this,  'scaleMouseOut'     ),
-                dojo.connect( this.scaleTrackDiv,       "mousemove",      this,  'scaleMouseMove'    ),
+                on( this.scaleTrackDiv,       "click",        lang.hitch( this,  'scaleClicked'   )),
+                on( this.scaleTrackDiv,       "mouseover",      lang.hitch( this,  'scaleMouseOver' )),
+                on( this.scaleTrackDiv,       "mouseout",       lang.hitch( this,  'scaleMouseOut'  )),
+                on( this.scaleTrackDiv,       "mousemove",      lang.hitch( this,  'scaleMouseMove' )),
 
-                dojo.connect( document.body, 'onkeyup', this, function(evt) {
+                on( document.body, 'keyup', function(evt) {
                     if( evt.keyCode == keys.SHIFT ) // shift
-                        this.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
+                        thisB.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
                 }),
-                dojo.connect( document.body, 'onkeydown', this, function(evt) {
-                    if( evt.keyCode == keys.SHIFT ) // shift
-                        this.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
-                }),
-
-                // scroll the view around in response to keyboard arrow keys
-                dojo.connect( document.body, 'onkeypress', this, function(evt) {
-
+                on( document.body, 'keydown', function(evt) {
                     // if some digit widget is focused, don't move the
                     // genome view with arrow keys
                     if( dijitFocus.curNode )
                         return;
 
-                    var that = this;
+                    if( evt.keyCode == keys.SHIFT ) { // shift
+                        thisB.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
+                        return;
+                    }
+
+                    // scroll the view around in response to keyboard arrow keys
                     if( evt.keyCode == keys.LEFT_ARROW || evt.keyCode == keys.RIGHT_ARROW ) {
                         var offset = evt.keyCode == keys.LEFT_ARROW ? -40 : 40;
                         if( evt.shiftKey )
                             offset *= 5;
-                        this.keySlideX( offset );
+                        thisB.keySlideX( offset );
                     }
                     else if( evt.keyCode == keys.DOWN_ARROW || evt.keyCode == keys.UP_ARROW ) {
                         // shift-up/down zooms in and out
                         if( evt.shiftKey ) {
-                            this[ evt.keyCode == keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
+                            thisB[ evt.keyCode == keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
                         }
                         // without shift, scrolls up and down
                         else {
                             var offset = evt.keyCode == keys.UP_ARROW ? -40 : 40;
-                            this.setY( this.getY() + offset );
+                            thisB.setY( thisB.getY() + offset );
                         }
                     }
                 }),
 
                 // when the track pane is clicked, unfocus any dijit
                 // widgets that would otherwise not give up the focus
-                dojo.connect( this.elem, 'onclick', this, function(evt) {
+                on( this.elem, 'click', function(evt) {
                     dijitFocus.curNode && dijitFocus.curNode.blur();
                 })
             );
@@ -553,8 +551,8 @@ _behaviors: function() { return {
         apply_on_init: true,
         apply: function() {
             return [
-                dojo.connect( this.zoomContainer,         "mousedown", this, 'startMouseDragScroll'        ),
-                dojo.connect( this.verticalScrollBar.container, "mousedown", this, 'startVerticalMouseDragScroll')
+                on( this.zoomContainer,  "mousedown", lang.hitch( this, 'startMouseDragScroll' )),
+                on( this.verticalScrollBar.container, "mousedown", lang.hitch( this, 'startVerticalMouseDragScroll'))
             ];
         }
     },
@@ -566,15 +564,15 @@ _behaviors: function() { return {
             dojo.removeClass(this.trackContainer,'draggable');
             domClass.add(this.trackContainer,'highlightingAvailable');
             return [
-                dojo.connect( this.zoomContainer, "mousedown",
+                on( this.zoomContainer, "mousedown",
                               lang.hitch( this, 'startMouseHighlight',
                                           lang.hitch(this,'absXtoBp'),
                                           this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
                             ),
-                dojo.connect( this.zoomContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
-                dojo.connect( this.zoomContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+                on( this.zoomContainer, "mouseover", lang.hitch( this, 'maybeDrawVerticalPositionLine' )),
+                on( this.zoomContainer, "mousemove", lang.hitch( this, 'maybeDrawVerticalPositionLine' ))
             ];
         },
         remove: function( mgr, handles ) {
@@ -590,16 +588,16 @@ _behaviors: function() { return {
             dojo.removeClass(this.trackContainer,'draggable');
             domClass.add(this.trackContainer,'rubberBandAvailable');
             return [
-                dojo.connect( this.zoomContainer, "mousedown",
+                on( this.zoomContainer, "mousedown",
                               lang.hitch( this, 'startRubberZoom',
                                           lang.hitch(this,'absXtoBp'),
                                           this.zoomContainer,
                                           this.scaleTrackDiv
                                         )
                             ),
-                dojo.connect( this.zoomContainer, "onclick",   this, 'scaleClicked'                  ),
-                dojo.connect( this.zoomContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
-                dojo.connect( this.zoomContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+                on( this.zoomContainer, "click",   lang.hitch( this, 'scaleClicked'                  )),
+                on( this.zoomContainer, "mouseover", lang.hitch( this, 'maybeDrawVerticalPositionLine' )),
+                on( this.zoomContainer, "mousemove", lang.hitch( this, 'maybeDrawVerticalPositionLine' ))
             ];
         },
         remove: function( mgr, handles ) {
@@ -616,9 +614,9 @@ _behaviors: function() { return {
     mouseDragScrolling: {
         apply: function() {
             return [
-                dojo.connect(document.body, "mouseup",   this, 'dragEnd'      ),
-                dojo.connect(document.body, "mousemove", this, 'dragMove'     ),
-                dojo.connect(document.body, "mouseout",  this, 'checkDragOut' )
+                on(document.body, "mouseup",   lang.hitch( this, 'dragEnd'      )),
+                on(document.body, "mousemove", lang.hitch( this, 'dragMove'     )),
+                on(document.body, "mouseout",  lang.hitch( this, 'checkDragOut' ))
             ];
         }
     },
@@ -628,9 +626,9 @@ _behaviors: function() { return {
     verticalMouseDragScrolling: {
         apply: function() {
             return [
-                dojo.connect(document.body, "mouseup",   this, 'dragEnd'         ),
-                dojo.connect(document.body, "mousemove", this, 'verticalDragMove'),
-                dojo.connect(document.body, "mouseout",  this, 'checkDragOut'    )
+                on(document.body, "mouseup",   lang.hitch( this, 'dragEnd'         )),
+                on(document.body, "mousemove", lang.hitch( this, 'verticalDragMove')),
+                on(document.body, "mouseout",  lang.hitch( this, 'checkDragOut' ))
             ];
         }
     },
@@ -640,12 +638,12 @@ _behaviors: function() { return {
     mouseRubberBanding: {
         apply: function() {
             return [
-                dojo.connect(document.body, "mouseup",    this, 'rubberExecute' ),
-                dojo.connect(document.body, "mousemove",  this, 'rubberMove'    ),
-                dojo.connect(document.body, "mouseout",   this, 'rubberCancel'  ),
-                dojo.connect(window,        "onkeydown",  this, function(e){
+                on(document.body, "mouseup",    lang.hitch( this, 'rubberExecute' )),
+                on(document.body, "mousemove",  lang.hitch( this, 'rubberMove'    )),
+                on(document.body, "mouseout",   lang.hitch( this, 'rubberCancel'  )),
+                on(window,        "keydown",  function(e){
                                  if( e.keyCode !== keys.SHIFT )
-                                     this.rubberCancel(e);
+                                     thisB.rubberCancel(e);
                              })
             ];
         }
@@ -2259,17 +2257,17 @@ createSearchControls: function( parent ) {
 
     this.locationBox.focusNode.spellcheck = false;
     query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
-    dojo.connect( this.locationBox.focusNode, "keydown", this, function(event) {
+    on( this.locationBox.focusNode, "keydown", function(event) {
                       if (event.keyCode == keys.ENTER) {
-                          this.locationBox.closeDropDown(false);
-                          this.navigateTo( this.locationBox.get('value') );
-                          this.goButton.set('disabled',true);
+                          thisB.locationBox.closeDropDown(false);
+                          thisB.navigateTo( thisB.locationBox.get('value') );
+                          thisB.goButton.set('disabled',true);
                           dojoEvent.stop(event);
                       } else {
-                          this.goButton.set('disabled', false);
+                          thisB.goButton.set('disabled', false);
                       }
                   });
-    dojo.connect( this.locationBox.domNode, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+    on( this.locationBox.domNode, 'selectstart', function(evt) { evt.stopPropagation(); return true; });
     // monkey-patch the combobox code to make a few modifications
     (function(){
 

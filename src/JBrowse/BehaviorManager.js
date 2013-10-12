@@ -1,5 +1,9 @@
-define([],
-       function() {
+define([
+           'dojo/_base/array'
+       ],
+       function(
+           array
+       ) {
  /**
  * Stores, applies, and removes a named set of behaviors.  A behavior
  * is a set of event handlers that need to be connected and then
@@ -14,13 +18,13 @@ define([],
  *          apply: function( manager_object, handles_array ) {
  *            // required function that returns an array of dojo event handles.  for example:
  *            return [
- *                dojo.connect(document.body, "mouseup",   this, 'rubberExecute'  ),
- *                dojo.connect(document.body, "mousemove", this, 'rubberMove'     )
+ *                on(document.body, "mouseup",   this, 'rubberExecute'  ),
+ *                on(document.body, "mousemove", this, 'rubberMove'     )
  *            ];
  *          },
  *          remove: function( manager_object, handles_array ) {
  *              // optional function that removes the behavior.  by
- *              // default dojo.disconnect() is just called on each
+ *              // default remove() is just called on each
  *              // of the event handles that were returned by the
  *              // apply function
  *          }
@@ -57,7 +61,7 @@ BehaviorManager.prototype.initialize = function() {
  * @param {String} [...] Zero or more string behavior names to apply.
  */
 BehaviorManager.prototype.applyBehaviors = function() {
-    dojo.forEach( arguments, function(name) {
+    array.forEach( arguments, function(name) {
         var b = this._get(name);
         if( !b.applied ) {
             b.handles = b.handles || [];
@@ -92,11 +96,11 @@ BehaviorManager.prototype.swapBehaviors = function( off, on ) {
  * @param {String} [...] Zero or more string behavior names to remove.
  */
 BehaviorManager.prototype.removeBehaviors = function( ) {
-    dojo.forEach( arguments, function(name) {
+    array.forEach( arguments, function(name) {
         var b = this._get(name);
         if( b.applied ) {
             var remove = b.remove || function( m, h ) {
-                dojo.forEach( h, dojo.disconnect, dojo );
+                array.forEach( h, function(h) { h.remove(); } );
             };
             remove.call( this.context || this, this, b.handles );
             b.applied = false;
