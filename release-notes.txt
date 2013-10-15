@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added an optional `stats/regionFeatureDensities` endpoint to the
+   REST API that makes it possible to provide binned feature counts
+   that HTMLFeatures tracks can use to display feature histograms.
+   Thanks to Stuart Watt and Daniel Troesser for pointing out the need
+   for this (issue #365).
+
 ## Bug fixes
 
  * Fixed a bad bug introduced in 1.10.6 in which FASTA files with line
@@ -20,6 +28,10 @@
  * Fixed a bug in which "Zoom in to see feature" in Sequence tracks
    would wrap downwards below track at some zoom levels and window
    widths.
+
+ * Fixed an off-by-one error in UTR attributes manufactured by the
+   `impliedUTRs` mechanism of the ProcessedTranscript glyph.  Thanks
+   to Ben Booth for pointing this out (issue #362).
 
  * Fixed a bug in which `score` attributes of features were not being
    recorded by `biodb-to-json.pl`.  Thanks to HongKee Moon for
