@@ -87,6 +87,33 @@ function testWithConfig(config) {
                                 expect( stats.scoreMax ).toEqual( 4 );
                             });
              });
+
+             it( 'supports feature histograms if implemented', function() {
+                     expect( store.getRegionFeatureDensities ).toBeFalsy();
+
+                     var withHist = new RESTStore(
+                         {
+                             browser: {},
+                             baseUrl: '../data/rest_store_test',
+                             refSeq: { name: 'ctgA', start: 1, end: 200 },
+                             config: lang.mixin( { region_feature_densities: true }, config || {} )
+                         });
+
+
+                      var hist;
+                      var done;
+                      withHist.getRegionFeatureDensities({ start: 0, end: 50000 },
+                                 function(s) {
+                                     hist = s;
+                                 }
+                               );
+                      waitsFor( function() { return hist; }, 2000 );
+                      runs( function() {
+                                expect( hist.bins.length ).toEqual( 25 );
+                                expect( hist.stats.basesPerBin ).toEqual( 200 );
+                                expect( hist.stats.mean ).toEqual( 57.772 );
+                            });
+             });
     };
 };
 

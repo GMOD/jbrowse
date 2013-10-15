@@ -36,6 +36,10 @@ return declare( SeqFeatureStore,
         if( this.baseUrl.charAt( this.baseUrl.length-1 ) != '/' )
             this.baseUrl = this.baseUrl + '/';
 
+        // enable feature density bin fetching if turned on
+        if( this.config.region_feature_densities && ! this.getRegionFeatureDensities ) {
+            this.getRegionFeatureDensities = this._getRegionFeatureDensities;
+        }
     },
 
     _defaultConfig: function() {
@@ -71,19 +75,22 @@ return declare( SeqFeatureStore,
                  );
     },
 
-    // getRegionFeatureDensities: function( query, histDataCallback, errorCallback ) {
-    //     // query like:
-    //     //    { ref: 'ctgA, start: 123, end: 456, basesPerBin: 200 }
+    _getRegionFeatureDensities: function( query, histDataCallback, errorCallback ) {
+        var url = this._makeURL( 'stats/regionFeatureDensities', query );
+        this._get( url, histDataCallback, errorCallback );
 
-    //     // callback like:
-    //     //   histDataCallback({
-    //     //     "bins":  [ 51,50,58,63,57,57,65,66,63,61,56,49,50,47,39,38,54,41,50,71,61,44,64,60,42 ],
-    //     //     "stats": { "basesPerBin":"200","max":88,"mean":57.772 } //< `max` used to set the Y scale
-    //     //   });
+        // query like:
+        //    { ref: 'ctgA, start: 123, end: 456, basesPerBin: 200 }
 
-    //     // or error like:
-    //     //   errorCallback( 'aieeee i died' );
-    // },
+        // callback like:
+        //   histDataCallback({
+        //     "bins":  [ 51,50,58,63,57,57,65,66,63,61,56,49,50,47,39,38,54,41,50,71,61,44,64,60,42 ],
+        //     "stats": { "basesPerBin":"200","max":88,"mean":57.772 } //< `max` used to set the Y scale
+        //   });
+
+        // or error like:
+        //   errorCallback( 'aieeee i died' );
+    },
 
     clearCache: function() {
         delete this._cache;
