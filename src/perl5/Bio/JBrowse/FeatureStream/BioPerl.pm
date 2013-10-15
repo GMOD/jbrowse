@@ -33,6 +33,9 @@ sub _bp_to_hashref {
           {0=>0,1=>1,2=>2}->{$f->phase},
           $f->primary_tag || undef,
         );
+    if( $f->can('score') ) {
+        $h{score} = $f->score;
+    }
     for(qw( seq_id start end strand source type )) {
         if( $h{$_} eq '.' ) {
             delete $h{$_};

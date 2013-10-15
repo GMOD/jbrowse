@@ -21,6 +21,10 @@
    would wrap downwards below track at some zoom levels and window
    widths.
 
+ * Fixed a bug in which `score` attributes of features were not being
+   recorded by `biodb-to-json.pl`.  Thanks to HongKee Moon for
+   pointing this out (issue #364).
+
  * Removed a stray use of Carp::Always in GFF3-processing Perl code
    that may have caused problems in some installations.
 
