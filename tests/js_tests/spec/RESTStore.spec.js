@@ -63,6 +63,30 @@ function testWithConfig(config) {
                                 expect( stats.featureDensity ).toEqual( 0.00012 );
                             });
                   });
+
+             it( 'supports region stats if implemented', function() {
+                     var store = new RESTStore(
+                         {
+                             browser: {},
+                             baseUrl: '../data/rest_store_test',
+                             refSeq: { name: 'ctgC', start: 1, end: 200 },
+                             config: lang.mixin( { region_stats: true }, config || {} )
+                         });
+                      var stats;
+                      var done;
+                      store.getRegionStats({ start: 0, end: 50000 },
+                                 function(s) {
+                                     stats = s;
+                                 }
+                               );
+                      waitsFor( function() { return stats; }, 2000 );
+                      runs( function() {
+                                expect( stats.featureDensity ).toEqual( 123 );
+                                expect( stats.featureCount ).toEqual( 456 );
+                                expect( stats.scoreMin ).toEqual( -1 );
+                                expect( stats.scoreMax ).toEqual( 4 );
+                            });
+             });
     };
 };
 

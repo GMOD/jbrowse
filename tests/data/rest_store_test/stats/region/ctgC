@@ -1,0 +1,8 @@
+{
+      "featureDensity": 123,
+      "featureCount": 456,
+      "scoreMin": -1,
+      "scoreMax": 4,
+      "scoreMean": 67,
+      "scoreStdDev": 0.01
+}
