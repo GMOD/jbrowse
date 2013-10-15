@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.7     2013-10-15 16:50:00 EST5EDT
+
 ## Minor improvements
 
  * Added an optional `stats/regionFeatureDensities` endpoint to the
