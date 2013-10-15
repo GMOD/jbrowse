@@ -94,7 +94,7 @@ _makeUTRs: function( parent, subparts ) {
         for (i=0; i<exons.length; i++) {
             start = exons[i].get('start');
             if ( start >= codeStart ) break;
-            end = codeStart > exons[i].get('end') ? exons[i].get('end') : codeStart-1;
+            end = codeStart > exons[i].get('end') ? exons[i].get('end') : codeStart;
 
             subparts.unshift( new SimpleFeature(
                                   {   parent: parent,
@@ -112,7 +112,7 @@ _makeUTRs: function( parent, subparts ) {
             end = exons[i].get('end');
             if( end <= codeEnd ) break;
 
-            start = codeEnd < exons[i].get('start') ? exons[i].get('start') : codeEnd+1;
+            start = codeEnd < exons[i].get('start') ? exons[i].get('start') : codeEnd;
             subparts.push( new SimpleFeature(
                                { parent: parent,
                                  data: {
