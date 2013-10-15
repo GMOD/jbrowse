@@ -2,6 +2,14 @@
 
 ## Bug fixes
 
+ * Fixed a bad bug introduced in 1.10.6 in which FASTA files with line
+   lengths longer than the configured chunk size were not correctly
+   formatted.  Thanks to Jean-Jack Riethoven for pointing this out
+   (issue #363).
+
+ * Fixed a bug introduced in 1.10.6 in which prepare-refseqs.pl would
+   not respect the --noseq command-line option when using --fasta.
+
  * Fixed bug in which `name` or `seq_id` attributes are required for
    reference sequence features.  Thanks to Daniel Troesser for
    pointing this out.
@@ -12,14 +20,6 @@
  * Fixed a bug in which "Zoom in to see feature" in Sequence tracks
    would wrap downwards below track at some zoom levels and window
    widths.
-
- * Fixed a bug introduced in 1.10.6 in which prepare-refseqs.pl would
-   not respect the --noseq command-line option when using --fasta.
-
- * Fixed a bad bug introduced in 1.10.6 in which FASTA files with line
-   lengths longer than the configured chunk size were not correctly
-   formatted.  Thanks to Jean-Jack Riethoven for pointing this out
-   (issue #363).
 
  * Removed a stray use of Carp::Always in GFF3-processing Perl code
    that may have caused problems in some installations.
