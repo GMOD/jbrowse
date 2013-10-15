@@ -77,20 +77,22 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_elements("//div[@id='track_CDS']//canvas");
         self.assert_no_js_errors();
 
-
+        self.turn_off_track('CanvasFeatures - mixed')
+        
         # test left-clicking on CanvasFeatures track
-        self.do_typed_query( 'ctgA:1049..9000' );
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]");
-        canvases = self.assert_elements("//div[@id='track_Genes']//canvas[@class='canvas-track']");
-        canvases[3].click();
-        time.sleep(0.5);
-        self.assert_elements("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]");
-        self.close_dialog("EDEN details");
+        self.do_typed_query( 'ctgA:1049..9000' )
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
+        canvas = self.assert_element("//div[@id='track_Genes']/canvas")
+        canvas.click()
+        time.sleep(0.5)
+        self.assert_elements("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
+        time.sleep(0.5)
+        self.close_dialog("EDEN details")
 
         # test Canvas-features context menu functionality
         # right-click one of them
         self.actionchains() \
-            .context_click(canvases[3]) \
+            .context_click(canvas) \
             .perform()
 
         time.sleep(0.7);
@@ -102,7 +104,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # turn off canvasFeatures tracks so they're not cluttering everything up
         self.turn_off_track('CanvasFeatures - Protein-coding genes');
-        self.turn_off_track('CanvasFeatures - mixed')
 
     def vcf( self ):
         self.do_typed_query('ctgA:18918..19070');
@@ -112,6 +113,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_elements("//div[@id='track_volvox_sorted_vcf']//canvas");
         self.assert_elements("//div[@id='track_volvox_vcf_test']//canvas")
 
+        self.turn_off_track('VCF - volvox-sorted');
+        self.turn_off_track('VCF - additional');
 
     def bam( self ):
         self.do_typed_query('ctgA:18918..19070');
@@ -121,6 +124,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_elements("//div[@id='track_volvox_sorted_bam']//canvas");
         self.assert_elements("//div[@id='track_volvox_sorted_bam_coverage']//canvas")
 
+        self.turn_off_track('volvox-sorted.bam');
+        self.turn_off_track('volvox-sorted SNPs/Coverage');
 
     def export( self ):
         self.do_typed_query('ctgA')
@@ -156,6 +161,10 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_js_errors();
         self.close_dialog('export')
         self.assert_no_js_errors();
+
+        self.turn_off_track( 'BigWig XY - volvox_microarray' )
+        self.turn_off_track( 'HTMLFeatures - Example Features' )
+        self.turn_off_track( 'CanvasFeatures - transcripts' )
 
     def bigwig( self ):
         self.turn_on_track('BigWig XY - volvox_microarray')
@@ -214,7 +223,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # check that the dialog closed
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]");
-
+        self.turn_off_track( 'HTMLFeatures - Features with menus' )
 
     def wiggle( self ):
 
