@@ -38,7 +38,7 @@ define( [
             'JBrowse/FeatureFiltererMixin',
             'JBrowse/Auth/_AuthManagerMixin',
             'JBrowse/Transport/_TransportManagerMixin',
-            'JBrowse/View/RegionBrowser',
+            'JBrowse/View/RegionBrowser2',
             'JBrowse/ConfigManager',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/View/Dialog/Info',
@@ -86,7 +86,7 @@ define( [
             FeatureFiltererMixin,
             AuthManagerMixin,
             TransportManagerMixin,
-            RegionBrowserPane,
+            RegionBrowser2,
             ConfigLoader,
             SimpleFeature,
             InfoDialog,
@@ -573,27 +573,27 @@ initView: function() {
 
         // instantiate our views
         this.views = [
-            new RegionBrowserPane(
+            new RegionBrowser2(
                 { browser: this,
                   config: {
                       name: 'View 1',
                       className: 'colorScheme1',
                       region: 'top',
                       style: 'height: 40%',
-                      initialLocation: initialLoc,
-                      initialTracks: initialTracks.split(',')
+                      location: initialLoc,
+                      tracks: initialTracks.split(',')
                   }
                 } )
             ];
          this.views.push(
-             new RegionBrowserPane(
+             new RegionBrowser2(
                  { browser: this,
                    config: {
                        className: 'colorScheme2',
                        region: 'center',
                        parentViewName: 'View 1',
-                       initialLocation: initialLoc,
-                       initialTracks: initialTracks.split(',')
+                       location: initialLoc,
+                       tracks: initialTracks.split(',')
                    }
                  })
          );

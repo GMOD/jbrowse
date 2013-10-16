@@ -2,13 +2,11 @@
     height: 29px;
     color: #333;
 }
-.jbrowse.metro .regionBrowserPane .topBar > table {
+.jbrowse.metro .regionBrowserPane .topBar {
     width: 100%;
 }
-.jbrowse.metro .regionBrowserPane .topBar > table > tr > td  {
+.jbrowse.metro .regionBrowserPane .topBar tr > td  {
     overflow: hidden;
-}
-.jbrowse.metro .regionBrowserPane .topBar > table > tr > td > * {
 }
 
 .jbrowse.metro .regionBrowserPane .dragWindow {
