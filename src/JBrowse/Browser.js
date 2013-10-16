@@ -118,9 +118,8 @@ constructor: function(params) {
     this._constructorArgs = this._parseQueryString( params || {} );
 
     // if we're in the unit tests, stop here and don't do any more initialization
-    this._initTransportDrivers();
-
     if( this._constructorArgs.unitTestMode ) {
+        this._initTransportDrivers();
         this._finalizeConfig( this._constructorArgs || {} );
         return;
     }
