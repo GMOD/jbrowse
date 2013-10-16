@@ -88,6 +88,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_elements("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         time.sleep(0.5)
         self.close_dialog("EDEN details")
+        time.sleep(0.5)
 
         # test Canvas-features context menu functionality
         # right-click one of them
