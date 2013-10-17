@@ -12,7 +12,7 @@ define([
            'JBrowse/has',
            'JBrowse/Component',
            'JBrowse/FeatureFiltererMixin',
-           'JBrowse/Projection/Continuous',
+           'JBrowse/Projection/ContinuousLinear',
 
            './RegionBrowser/Toolbar',
            './RegionBrowser/LocationScale'
