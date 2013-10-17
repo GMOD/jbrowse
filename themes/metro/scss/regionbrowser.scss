@@ -28,37 +28,49 @@
             }
         }
 
+        .viewScale {
+            height: 16px;
+
+            .posLabel {
+                position: absolute;
+                top: -4px;
+                text-align: center;
+                overflow: show;
+                width: 1px;
+                white-space: nowrap;
+                z-index: 100;
+                font-size: 13px;
+            }
+        }
+
         .dragWindow {
             top: 29px;
         }
 
-        &.colorScheme1 .topBar {
-            background: #e6e6e6;
-            border-top: 1px solid #393939;
+        &.colorScheme1 {
+            .topBar, .viewScale {
+                background: #e6e6e6;
+            }
+            .topBar {
+                border-top: 1px solid #393939;
+            }
+            .viewScale {
+                background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
+            }
         }
-        &.colorScheme1 .viewscale {
-            background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
-        }
-        &.colorScheme2 .topBar {
-            background: #4687d4;
-            border-top: 1px solid #315e94;
-        }
-        &.colorScheme2 .viewscale {
-            background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
-            color: white;
+        &.colorScheme2 {
+            .topBar, .viewScale {
+                background: #4687d4;
+            }
+            .topBar {
+                border-top: 1px solid #315e94;
+            }
+            .viewScale {
+                background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
+                color: white;
+            }
         }
 
-        .viewscale {
-            height: 16px;
-        }
-
-        .viewscale .pos-label {
-            position: relative;
-            left: -0.35em;
-            top: -4px;
-            z-index: 100;
-            font-size: 13px;
-        }
 
         .viewLabel {
             font-weight: bold;
