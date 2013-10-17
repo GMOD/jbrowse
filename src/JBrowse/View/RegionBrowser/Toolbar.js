@@ -41,6 +41,7 @@ define([
 return declare([ _WidgetBase, _Container ], {
 
 baseClass: 'topBar',
+region: 'top',
 
 buildRendering: function() {
     var thisB = this;

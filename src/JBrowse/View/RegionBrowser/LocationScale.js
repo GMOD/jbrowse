@@ -49,7 +49,7 @@ _update: function( projection, changeDescription ) {
         var minorPitch = this._choosePitch( projectionBlock.scale, 12  );
 
         for( var b = Math.ceil( leftBase / majorPitch )*majorPitch; b<rightBase; b += majorPitch ) {
-            html += '<div style="position: absolute; left: '+projectionBlock.reverse().projectPoint(b)+'px">'+Util.humanReadableNumber(b)+'</div>';
+            html += '<div class="posLabel" style="left: '+projectionBlock.reverse().projectPoint(b)+'px">'+Util.humanReadableNumber(b)+'</div>';
         }
     },this);
     this.domNode.innerHTML = html;

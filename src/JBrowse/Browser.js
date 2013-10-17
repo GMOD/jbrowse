@@ -160,6 +160,7 @@ configSchema: {
         slots: [
             { name: 'plugins',  type: 'multi-object' },
             { name: 'dataRoot', type: 'string', defaultValue: "data" },
+            { name: 'location', type: 'string', defaultValue: 'ctgA:1000..4000' }, // TODO remove this
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'names', type: 'object', defaultValue: {} },
@@ -174,7 +175,6 @@ configSchema: {
             { name: 'datasets', type: 'object', defaultValue: {} },
             { name: 'dataset_id', type: 'string' },
             { name: 'quickHelp', type: 'object', defaultValue: {} },
-            { name: 'location', type: 'string' },
             { name: 'highlight', type: 'string' },
             { name: 'aboutThisBrowser', type: 'object', defaultValue: {} },
             { name: 'suppressUsageStatistics', type: 'boolean', defaultValue: false },
@@ -561,9 +561,6 @@ initView: function() {
         var contentWidget =
             new dijitContentPane({region: "top"}, menuBar );
 
-        var initialLocString = this._initialLocation();
-        var initialLoc = Util.parseLocString( initialLocString ) || undefined;
-
         // figure out what initial track list we will use:
         //    from a param passed to our instance, or from a cookie, or
         //    the passed defaults, or the last-resort default of "DNA"?
@@ -580,7 +577,7 @@ initView: function() {
                       className: 'colorScheme1',
                       region: 'top',
                       style: 'height: 40%',
-                      location: initialLoc,
+                      location: Util.parseLocString( this.getConf('location') ), // todo remove this
                       tracks: initialTracks.split(',')
                   }
                 } )
@@ -592,8 +589,8 @@ initView: function() {
                        className: 'colorScheme2',
                        region: 'center',
                        parentViewName: 'View 1',
-                       location: initialLoc,
-                       tracks: initialTracks.split(',')
+                       tracks: initialTracks.split(','),
+                       location: Util.parseLocString( this.getConf('location') ), // todo remove this
                    }
                  })
          );
@@ -745,17 +742,6 @@ renderMenuBar: function( menuBar ) {
                           );
 
     this.renderGlobalMenu( 'help', {}, menuBar );
-},
-
-_initialLocation: function() {
-    var oldLoc = dojo.fromJson( this.cookie('location') ) || '';
-    if( this.getConf('location') ) {
-        return this.getConf('location');
-    } else if( oldLoc ) {
-        return oldLoc;
-    } else {
-        return null;
-    }
 },
 
 createCombinationTrack: function() {
