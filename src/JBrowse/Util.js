@@ -134,14 +134,16 @@ var Util = {
         return minIndex;
     },
 
-    requestAnimationFrame:
-      window.requestAnimationFrame         ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame    ||
-        window.oRequestAnimationFrame      ||
-        function( callback ){
-            window.setTimeout( callback, 1000 / 30 );
-        },
+    requestAnimationFrame: (function() {
+      var raf = window.requestAnimationFrame
+                                    || window.webkitRequestAnimationFrame
+                                    || window.mozRequestAnimationFrame
+                                    || window.oRequestAnimationFrame
+                                    || function( callback ){
+                                        window.setTimeout( callback, 1000 / 30 );
+                                    };
+      return lang.hitch( window, raf );
+    }.call() ),
 
     /**
      * replace variables in a template string with values

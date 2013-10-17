@@ -38,18 +38,19 @@ var Configuration = declare( null, {
     },
 
     set: function( key, val ) {
+        var oldval = this.get( key );
         val = this._local[ key ] = this._schema.normalizeSetting( key, val );
         delete this._compilationCache[ key ];
-        this._notify( key, val );
+        this._notify( key, oldval, val );
         return val;
     },
 
-    _notify: function( path, val ) {
+    _notify: function( path, oldval, newval ) {
         var listeners = this._listeners[path];
         if( listeners )
             array.forEach( listeners, function( l ) {
                                if( l && l.callback )
-                                   l.callback( val );
+                                   l.callback( path, oldval, newval );
                            });
     },
 

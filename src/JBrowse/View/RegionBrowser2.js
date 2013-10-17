@@ -62,8 +62,12 @@ constructor: function( args ) {
     this.inherited( arguments );
     FeatureFiltererMixin.prototype.constructor.call( this, args );
 
-
     this.visibleTracks = [];
+
+    var thisB = this;
+    this.watchConf( 'location', function( path, oldloc, newloc ) {
+        thisB._updateProjection({ location: newloc });
+    });
 },
 
 configSchema: {
@@ -99,50 +103,63 @@ buildRendering: function() {
     //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
 },
 
-_initialLayout: function() {
-    if( this.getConf('location') ) {
-        this.setLocation( this.getConf('location') );
-    }
-    if( this.getConf('visibleTracks' ).length ) {
-        this.showTracks( this.getConf('visibleTracks') );
-    }
-},
-
 // from dijit
 layout: function() {
     this.inherited(arguments);
-
-    if( ! this._ranInitialLayout ) {
-        this._ranInitialLayout = true;
-        this._initialLayout();
-    }
 },
 
-setLocation: function( location ) {
-    if( typeof location == 'string' )
-        location = Util.parseLocString( location );
+setLocation: function( locstring ) {
+    this.setConf( 'location', Util.parseLocString( locstring ) );
+},
 
-    var thisB     = this;
+resize: function() {
+    this.inherited(arguments);
+    this._updateProjection({ fixedScale: true, animate: false });
+},
+
+/**
+ *
+ * location: feature object containing the requested location to display
+ *
+ * fixedScale: if true, keep the zoom scale fixed when updating the
+ * projection.  equivalent to recentering the display at the center of
+ * the given location.  default false.
+ *
+ * animate: if true, animate the projection update.  default true.
+ */
+_updateProjection: function( args ) {
+    args = lang.mixin(
+        {
+            location: this.getConf('location'),
+            animate: true,
+            fixedScale: false
+        },
+        args || {}
+    );
+
+    var location = args.location;
+    if( ! location ) return;
+
+    var existingProjection = this.get('projection');
 
     // calculate the new scale and offset for our projection from screen coordinates to genome coordinates
-    var locationCenter    = (location.get('end') + location.get('start'))/2;
-    var newScale  = this._canonicalizeScale( (location.get('end') - location.get('start')) / this._contentBox.w );
-    var newOffset = Math.round( locationCenter - ( this._contentBox.l + this._contentBox.w/2 ) * newScale );
+    var locationCenter = ( location.get('end') + location.get('start') )/2;
+    var newScale       = args.fixedScale && existingProjection
+        ? existingProjection.scale
+        : this._canonicalizeScale( (location.get('end') - location.get('start')) / this._contentBox.w );
+    var newOffset      = Math.round( locationCenter - ( this._contentBox.l + this._contentBox.w/2 ) * newScale );
 
     // if we are already on the same ref seq as the location, animate to it
-    if( this.get('projection') && ! this.browser.compareReferenceNames( location.get('seq_id'), this._referenceName ) ) {
-        this.get('projection').animateTo( newScale, newOffset, 400 )
-            .then( function() {
-                       thisB.setConf( 'location', location );
-                   });
+    if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), this._referenceName ) ) {
+        var thisB = this;
+        existingProjection[ args.animate ? 'animateTo' : 'setTo' ]( newScale, newOffset, 400 );
     }
     else {
-        // make a new projection and hand it to all the tracks
+        // make a new projection (tracks will be watching this)
         this._referenceName = location.get('seq_id');
         this.set( 'projection', new ContinuousProjection(
             { scale: newScale, offset: newOffset }
         ));
-        this.setConf( 'location', location );
     }
 },
 

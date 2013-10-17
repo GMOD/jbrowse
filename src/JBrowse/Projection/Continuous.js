@@ -2,13 +2,15 @@ define([
            'dojo/_base/declare',
            'dojo/Deferred',
 
-           '../Projection'
+           '../Projection',
+           'JBrowse/Util'
        ],
        function(
            declare,
            Deferred,
 
-           Projection
+           Projection,
+           Util
        ) {
 
 var Continuous = declare( Projection,  {
@@ -85,18 +87,28 @@ var Continuous = declare( Projection,  {
       this._notifyChangedAll({ scale: this.scale, offset: this.bOffset });
   },
 
+  toString: function() {
+      return this.scale+','+this.bOffset;
+  },
+
+  setTo: function( endScale, endOffset ) {
+      this.scale   = endScale;
+      this.bOffset = endOffset;
+      this._notifyChangedAll({ scale: this.scale, offset: this.bOffset });
+  },
+
   // return a Deferred that has progress events each time the
   // projection is updated to an intermediate configuration, and
   // resolves when the projection finishes animating
-  animateTo: function( endScale, offset, milliseconds ) {
+  animateTo: function( endScale, endOffset, milliseconds ) {
+      //console.log( 'animating from '+this+' to '+endScale+','+endOffset);
       if( this._currentAnimation )
           this._currentAnimation.cancel('new animation requested');
 
       var thisB = this;
-      var startTime   = (new Date()).getTime();
+      var startTime   = new Date().getTime();
       var startScale  = this.scale;
       var startOffset = this.bOffset;
-      var endOffset   = this.bOffset + offset;
 
       var canceled = false;
       var a = this._currentAnimation = new Deferred( function() { canceled = true; });
@@ -110,16 +122,14 @@ var Continuous = declare( Projection,  {
           function animate() {
               if( canceled ) return;
 
-              var proportionDone = ((new Date()).getTime() - startTime)/milliseconds;
+              var proportionDone = (new Date().getTime() - startTime)/milliseconds;
               if( proportionDone >= 1 ) {
-                  thisB.scale   = endScale;
-                  thisB.bOffset = endOffset;
-                  thisB._notifyChangedAll({ scale: thisB.scale, offset: thisB.bOffset });
+                  thisB.setTo( endScale, endOffset );
                   a.resolve();
               } else {
                   thisB.scale   = startScale  + (endScale-startScale  )*proportionDone;
                   thisB.bOffset = startOffset + (endOffset-startOffset)*proportionDone;
-                  thisB._notifyChangedAll({ scale: thisB.scale, offset: thisb.bOffset });
+                  thisB._notifyChangedAll({ scale: thisB.scale, offset: thisB.bOffset });
                   a.progress( proportionDone );
                   Util.requestAnimationFrame( animate );
               }

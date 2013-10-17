@@ -590,7 +590,7 @@ initView: function() {
                        region: 'center',
                        parentViewName: 'View 1',
                        tracks: initialTracks.split(','),
-                       location: Util.parseLocString( this.getConf('location') ), // todo remove this
+                       location: Util.parseLocString( this.getConf('location') ) // todo remove this
                    }
                  })
          );
