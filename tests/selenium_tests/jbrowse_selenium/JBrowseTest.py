@@ -96,12 +96,9 @@ class JBrowseTest (object):
         # Find the query box and put f15 into it and hit enter
         qbox = self.browser.find_element_by_id("location")
         qbox.send_keys( Keys.BACK_SPACE * 40 )
-        time.sleep( 0.05 )
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
-            time.sleep( 0.13 )
         qbox.send_keys( Keys.RETURN );
-        time.sleep( 0.3 )
 
     def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
         el = self.assert_element( el_xpath )
@@ -126,7 +123,6 @@ class JBrowseTest (object):
         self.assert_no_js_errors()
 
     def export_track( self, track_name, region, format, button ):
-        time.sleep(2);
 
         track_name = re.sub( '\W', '_', track_name.lower() )
 
@@ -144,13 +140,16 @@ class JBrowseTest (object):
 
 
     def track_menu_click( self, track_name, item_name ):
-        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
+        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
+            % re.sub( '\W', '_', track_name ) ) \
             .click()
 
-        time.sleep(1)
+        menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
+            % re.sub( '\W', '_', track_name ) 
 
-        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
-            .click()
+        self.waitsForElement(menuButton)
+
+        self.assert_element(menuButton).click()
 
         time.sleep(1)
 
@@ -185,11 +184,17 @@ class JBrowseTest (object):
     def actionchains( self ):
         return ActionChains( self.browser )
 
-    def waitsForTrack( self, tracktext ):
+    def waitsForElement( self, trackPath ):
         driver = self.browser
-        trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
         WebDriverWait(driver, 5).until(lambda driver: driver.find_element_by_xpath(trackPath))
 
+    def waitsForTrack( self, tracktext ):
+        self.waitsForElement("//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext)
+
+    def waitsForMenuItem( self, text ):
+        self.waitsForElement("//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
+            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" %text )
+    
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 

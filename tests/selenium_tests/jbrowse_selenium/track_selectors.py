@@ -16,18 +16,14 @@ class SimpleTrackSelector (TrackSelector):
             .perform()
 
         self.test.waitsForTrack(tracktext)
-
         self.test.assert_no_js_errors()
 
     def turn_off_track( self, tracktext ):
         # drag the track back into the track list
-        track_close= self.test.assert_element( "//div[contains(@class,'track-label')][contains(.,'%s')]/div[contains(@class,'track-close-button')]" %tracktext )
-
-        self.test.actionchains() \
-            .move_to_element( track_close ) \
-            .click() \
-            .perform()
-
+        self.test.assert_element( \
+            "//div[contains(@class,'track-label')][contains(.,'%s')]/div[contains(@class,'track-close-button')]"%tracktext) \
+            .click()
+        
         self.test.assert_no_js_errors()
 
 class FacetedTrackSelector (TrackSelector):

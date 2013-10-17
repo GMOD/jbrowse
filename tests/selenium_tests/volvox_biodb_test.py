@@ -70,11 +70,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def canvasfeatures( self ):
 
         # turn on CanvasFeatures tracks and make sure they are created
-        self.do_typed_query( 'Apple1' );
-        self.turn_on_track('CanvasFeatures - Protein-coding genes');
+        self.do_typed_query( 'Apple1' )
+        self.turn_on_track('CanvasFeatures - Protein-coding genes')
 
-        self.assert_elements("//div[@id='track_Genes']//canvas");
-        self.assert_elements("//div[@id='track_CDS']//canvas");
+        self.assert_elements("//div[@id='track_Genes']//canvas")
+        self.assert_elements("//div[@id='track_CDS']//canvas")
         self.assert_no_js_errors();
 
         self.turn_off_track('CanvasFeatures - mixed')
@@ -84,11 +84,10 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         canvas = self.assert_element("//div[@id='track_Genes']/canvas")
         canvas.click()
-        time.sleep(0.5)
-        self.assert_elements("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
-        time.sleep(0.5)
+        self.waitsForElement("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
+        time.sleep(0.5) #leave so it's visible for a bit
         self.close_dialog("EDEN details")
-        time.sleep(0.5)
+        self.waitsForTrack('CanvasFeatures - Protein-coding genes')
 
         # test Canvas-features context menu functionality
         # right-click one of them
@@ -96,12 +95,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .context_click(canvas) \
             .perform()
 
-        time.sleep(0.7);
+        self.waitsForMenuItem ("Popup with content snippet from string (feature EDEN)")
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
         self.menu_item_click("Popup with content snippet from string (feature EDEN)");
         self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
         self.close_dialog('snippet');
-        time.sleep(0.4);
 
         # turn off canvasFeatures tracks so they're not cluttering everything up
         self.turn_off_track('CanvasFeatures - Protein-coding genes');
