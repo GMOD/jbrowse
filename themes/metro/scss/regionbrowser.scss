@@ -1,233 +1,237 @@
-.jbrowse.metro .regionBrowserPane .topBar {
-    height: 29px;
-    color: #333;
-}
-.jbrowse.metro .regionBrowserPane .topBar {
-    width: 100%;
-}
-.jbrowse.metro .regionBrowserPane .topBar tr > td  {
-    overflow: hidden;
-}
+.jbrowse.metro {
+    .regionBrowserPane, .regionBrowserPaneNoGutter {
+        .topBar {
+            height: 29px;
+            color: #333;
+            width: 100%;
 
-.jbrowse.metro .regionBrowserPane .dragWindow {
-    top: 29px;
-}
-.jbrowse.metro .regionBrowserPane.colorScheme1 .topBar {
-    background: #e6e6e6;
-    border-top: 1px solid #393939;
-}
-.jbrowse.metro .regionBrowserPane.colorScheme1 .viewscale {
-    background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
-}
-.jbrowse.metro .regionBrowserPane.colorScheme2 .topBar {
-    background: #4687d4;
-    border-top: 1px solid #315e94;
-}
-.jbrowse.metro .regionBrowserPane.colorScheme2 .viewscale {
-    background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
-    color: white;
-}
+            .dijitButton {
+                background: #d5d5d5;
+                margin: 0;
+                width: 22px;
+                height: 20px;
+                position: relative;
+            }
 
-.jbrowse.metro .regionBrowserPane .viewscale {
-    height: 16px;
-}
+            .dijitButtonNode {
+                background: #d5d5d5;
+                height: 19px;
+                border: 0;
+            }
 
-.jbrowse.metro .regionBrowserPane .viewscale .pos-label {
-    position: relative;
-    left: -0.35em;
-    top: -4px;
-    z-index: 100;
-    font-size: 13px;
-}
+            .dijitDownArrowButton {
+                position: relative;
+            }
 
-/* .jbrowse.metro .regionBrowserPane .viewLabelContainer { */
-/* } */
-.jbrowse.metro .regionBrowserPane .viewLabel {
-    font-weight: bold;
-    font-size: 16px;
-    padding: 0 2em 0 5px;
-    white-space: nowrap;
-}
+            tr > td  {
+                overflow: hidden;
+            }
+        }
 
-/** search box and location controls */
-.jbrowse.metro .searchControls {
-    width: 213px;
-    /* border: 1px solid #979797; */
+        .dragWindow {
+            top: 29px;
+        }
 
-    /* -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
-    /* -moz-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
-    /* box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
-}
+        &.colorScheme1 .topBar {
+            background: #e6e6e6;
+            border-top: 1px solid #393939;
+        }
+        &.colorScheme1 .viewscale {
+            background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
+        }
+        &.colorScheme2 .topBar {
+            background: #4687d4;
+            border-top: 1px solid #315e94;
+        }
+        &.colorScheme2 .viewscale {
+            background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
+            color: white;
+        }
 
-.jbrowse.metro .searchControls .dijitButtonNode {
-    padding: 0;
-}
+        .viewscale {
+            height: 16px;
+        }
 
-.jbrowse.metro .searchControls .dijitInputField {
-    padding: 0 0.25em;
-}
+        .viewscale .pos-label {
+            position: relative;
+            left: -0.35em;
+            top: -4px;
+            z-index: 100;
+            font-size: 13px;
+        }
 
-.jbrowse.metro .searchControls .dijitSelect,
-.jbrowse.metro .searchControls .dijitTextBox,
-.jbrowse.metro .searchControls .dijitButton
- {
-    border: 0;
-}
-.jbrowse.metro .searchControls .dijitTextBox {
-}
-.jbrowse.metro .topBar .dijitButton {
-   background: #d5d5d5;
-   margin: 0;
-   width: 22px;
-   height: 20px;
-   position: relative;
-}
+        .viewLabel {
+            font-weight: bold;
+            font-size: 16px;
+            padding: 0 2em 0 5px;
+            white-space: nowrap;
+        }
 
-.jbrowse.metro .topBar .dijitButtonNode {
-   background: #d5d5d5;
-   height: 19px;
-   border: 0;
-}
-.jbrowse.metro .topBar .dijitDownArrowButton {
-    position: relative;
-}
-.jbrowse.metro .searchControls .dijitButton  {
-}
-.jbrowse.metro .searchControls .dijitButton .dijitButtonNode {
-    background: url("../img/search.png") #d5d5d5 no-repeat 0 -2px;
-    width: 22px;
-}
+        .controlGroup {
+            position: relative;
 
+            display: block;
+            height: 20px;
+            background: #fafafa;
+            /* border: 1px solid #979797; */
+            border: 1px solid rgba( 20, 20, 20, 0.6 );
 
+            font-size: 13px;
+            line-height: 10px;
 
-.jbrowse.metro .regionBrowserPane .controlGroup {
-    position: relative;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -ms-box-sizing: border-box;
 
-    display: block;
-    height: 20px;
-    background: #fafafa;
-    /* border: 1px solid #979797; */
-    border: 1px solid rgba( 20, 20, 20, 0.6 );
+            overflow: hidden;
+        }
 
-    font-size: 13px;
-    line-height: 10px;
-
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
-    overflow: hidden;
-}
-
-.jbrowse.metro .regionBrowserPane .panControls {
-    width: 79px;
-}
-.jbrowse.metro .regionBrowserPane .panControls .panSeparator {
-    background: #e4e4e4;
-    position: absolute;
-    height: 12px;
-    width: 1px;
-    left: 39px;
-    margin-top: -6px;
-    top: 50%;
-}
-.jbrowse.metro .regionBrowserPane .panControls .panLeft {
-    height: 100%;
-    width: 35px;
-    position: absolute;
-    left: 0;
-    background-image: url("../img/pan-left.png");
-    background-repeat: no-repeat;
-    background-position: 8px 0;
-}
-.jbrowse.metro .regionBrowserPane .panControls .panRight {
-    height: 100%;
-    width: 35px;
-    position: absolute;
-    right: 0;
-    background-image: url("../img/pan-right.png");
-    background-repeat: no-repeat;
-    background-position: 8px 0;
-}
+        .panControls {
+            width: 79px;
+        }
+        .panControls .panSeparator {
+            background: #e4e4e4;
+            position: absolute;
+            height: 12px;
+            width: 1px;
+            left: 39px;
+            margin-top: -6px;
+            top: 50%;
+        }
+        .panControls .panLeft {
+            height: 100%;
+            width: 35px;
+            position: absolute;
+            left: 0;
+            background-image: url("../img/pan-left.png");
+            background-repeat: no-repeat;
+            background-position: 8px 0;
+        }
+        .panControls .panRight {
+            height: 100%;
+            width: 35px;
+            position: absolute;
+            right: 0;
+            background-image: url("../img/pan-right.png");
+            background-repeat: no-repeat;
+            background-position: 8px 0;
+        }
 
 
-.jbrowse.metro .regionBrowserPane .zoomControls {
-    width: 198px;
-}
+        .zoomControls {
+            width: 198px;
+        }
 
-.jbrowse.metro .regionBrowserPane .zoomControls .zoomIn {
-    height: 24px;
-    width: 35px;
-    position: absolute;
-    right: 0;
-    background-image: url("../img/zoom-in-1.png");
-    background-repeat: no-repeat;
-    background-position: 8px 0;
-}
-.jbrowse.metro .regionBrowserPane .zoomControls .zoomOut {
-    height: 24px;
-    width: 35px;
-    position: absolute;
-    left: 0;
-    background-image: url("../img/zoom-out-1.png");
-    background-repeat: no-repeat;
-    background-position: 8px 1px;
+        .zoomControls .zoomIn {
+            height: 24px;
+            width: 35px;
+            position: absolute;
+            right: 0;
+            background-image: url("../img/zoom-in-1.png");
+            background-repeat: no-repeat;
+            background-position: 8px 0;
+        }
+        .zoomControls .zoomOut {
+            height: 24px;
+            width: 35px;
+            position: absolute;
+            left: 0;
+            background-image: url("../img/zoom-out-1.png");
+            background-repeat: no-repeat;
+            background-position: 8px 1px;
 
-}
-.jbrowse.metro .regionBrowserPane .zoomControls .zoomSliderContainer {
-    height: 0;
-}
-.jbrowse.metro .regionBrowserPane .zoomControls .zoomSliderText {
-    display: none;
-}
+        }
+        .zoomControls .zoomSliderContainer {
+            height: 0;
+        }
+        .zoomControls .zoomSliderText {
+            display: none;
+        }
 
-.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderH {
-    border-color: #cecece;
-    background: #3f3f3f;
-    width: 100px;
-}
-.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderRemainingBarH,
-.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderProgressBarH,
-.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderLeftBumper,
-.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderRightBumper
-{
-    border-color: transparent;
-    background: transparent;
-}
+        .zoomControls .dijitSliderH {
+            border-color: #cecece;
+            background: #3f3f3f;
+            width: 100px;
+        }
+        .zoomControls .dijitSliderRemainingBarH,
+        .zoomControls .dijitSliderProgressBarH,
+        .zoomControls .dijitSliderLeftBumper,
+        .zoomControls .dijitSliderRightBumper
+        {
+            border-color: transparent;
+            background: transparent;
+        }
 
-.jbrowse.metro .regionBrowserPane .zoomControls .dijitSliderImageHandleH {
-    width: 5px;
-    height: 14px;
-    background: #3f3f3f;
-    border: 1px solid #cecece;
-    top: -6px;
-}
+        .zoomControls .dijitSliderImageHandleH {
+            width: 5px;
+            height: 14px;
+            background: #3f3f3f;
+            border: 1px solid #cecece;
+            top: -6px;
+        }
 
 
-.jbrowse.metro .regionBrowserPane .trackSelect {
-    width: 21em;
-}
-.jbrowse.metro .regionBrowserPane .trackSelect > * {
-    width: 100%;
-    position: relative;
-    border: 0;
+        .trackSelect {
+            width: 21em;
+        }
+        .trackSelect > * {
+            width: 100%;
+            position: relative;
+            border: 0;
 
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-/* make the combobox button be on the left instead of the right */
-.jbrowse.metro .regionBrowserPane .trackSelect .dijitArrowButtonContainer {
-    float: left;
-    white-space: nowrap;
-}
-.jbrowse.metro .regionBrowserPane .trackSelect .dijitArrowButtonContainer input {
-    float: none;
-    vertical-align: top;
-}
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+        }
+        /* make the combobox button be on the left instead of the right */
+        .trackSelect .dijitArrowButtonContainer {
+            float: left;
+            white-space: nowrap;
+        }
+        .trackSelect .dijitArrowButtonContainer input {
+            float: none;
+            vertical-align: top;
+        }
 
-.jbrowse.metro .regionBrowserPane .trackSelect .dijitPlaceHolder {
-    margin-left: 0.4em;
+        .trackSelect .dijitPlaceHolder {
+            margin-left: 0.4em;
+        }
+    }
+
+    .searchControls {
+        /** search box and location controls */
+            width: 213px;
+        /* border: 1px solid #979797; */
+
+        /* -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
+        /* -moz-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
+        /* box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.35); */
+
+
+            .dijitButtonNode {
+                padding: 0;
+            }
+
+            .dijitInputField {
+                padding: 0 0.25em;
+            }
+
+            .dijitSelect,
+            .dijitTextBox,
+            .dijitButton
+            {
+                border: 0;
+            }
+            .dijitTextBox {
+            }
+
+           .dijitButton  {
+            }
+            .dijitButton .dijitButtonNode {
+                background: url("../img/search.png") #d5d5d5 no-repeat 0 -2px;
+                width: 22px;
+            }
+    }
 }

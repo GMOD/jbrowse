@@ -224,7 +224,7 @@ div.track-label .feature-density {
     position: absolute;
     left: 8px;
     top: 7px;
-    background: url("../../img/spriteArrows.png") no-repeat -28px 0;
+    background: url("../img/spriteArrows.png") no-repeat -28px 0;
 }
 
 .tundra div.track-label:hover .track-menu-button:hover {
@@ -269,11 +269,6 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     background-color: #b2c3d6;
 }
 
-.regionBrowserPane .topBar {
-    height: 45px;
-    overflow: hidden;
-}
-
 div.viewscale {
     top: 0px;
     height: 14px;
@@ -282,44 +277,52 @@ div.viewscale {
     z-index: 20;
 }
 
-.regionBrowserPane .controlGroup {
-    position: relative;
-    text-align: center;
-}
-.regionBrowserPane .zoomControls .zoomSliderContainer {
-    display: inline-block;
-}
-.regionBrowserPane .zoomControls .zoomSliderText {
-    position: absolute;
-    left: 0;
-    top: 14px;
-    width: 100%;
-    text-align: center;
+.regionBrowserPane, .regionBrowserPaneNoGutter {
+    .topBar {
+        height: 45px;
+        overflow: hidden;
+    }
+
+    .controlGroup {
+        position: relative;
+        text-align: center;
+    }
+    .zoomControls .zoomSliderContainer {
+        display: inline-block;
+    }
+    .zoomControls .zoomSliderText {
+        position: absolute;
+        left: 0;
+        top: 14px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .panControls {
+        position: relative;
+        text-align: center;
+    }
+
+    .dragWindow {
+        position:absolute;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    div.vertical_scrollbar {
+        position: absolute;
+        overflow: hidden;
+
+        width: 10px;
+        height: 100%;
+        right: 0;
+        background: #eee;
+        background: rgba(235, 235, 235, 0.62);
+        border-left: 1px solid #DDD9D9;
+        z-index: 1000;
+    }
 }
 
-.regionBrowserPane .panControls {
-    position: relative;
-    text-align: center;
-}
-
-.regionBrowserPane .dragWindow {
-    position:absolute;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.regionBrowserPane div.vertical_scrollbar {
-    position: absolute;
-    overflow: hidden;
-
-    width: 10px;
-    height: 100%;
-    right: 0;
-    background: #eee;
-    background: rgba(235, 235, 235, 0.62);
-    border-left: 1px solid #DDD9D9;
-    z-index: 1000;
-}
 div.vertical_scrollbar .vertical_position_marker {
     background: #555;
     opacity: 0.8;
