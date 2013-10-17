@@ -51,6 +51,13 @@ var SimpleFeature = fastDeclare({
         }
     },
 
+    toString: function() {
+        return ( this.get('seq_id') ? this.get('seq_id')+':' : '' )
+            + ( this.get('start') + 1 )
+            + '..' +this.get('end')
+            + ( this.get('name') ? ' ('+this.get('name')+')' : '' );
+    },
+
     /**
      * Get a piece of data about the feature.  All features must have
      * 'start' and 'end', but everything else is optional.
