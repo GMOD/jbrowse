@@ -189,7 +189,9 @@ var Util = {
     },
 
     humanReadableNumber: function( num ) {
-        num = parseInt(num);
+        num = parseFloat(num);
+        var neg = num < 0;
+        num = Math.abs( num );
         var suffix = '';
         if( num >= 1e12 ) {
             num /= 1e12;
@@ -205,7 +207,7 @@ var Util = {
             suffix = 'K';
         }
 
-        return (num.toFixed(2)+' '+suffix).replace(/0+ /,' ').replace(/\. /,' ');
+        return ( neg ? '-' : '' )+ (num.toFixed(2)+' '+suffix).replace(/0+ /,' ').replace(/\. /,' ');
     },
 
     // from http://bugs.dojotoolkit.org/ticket/5794
