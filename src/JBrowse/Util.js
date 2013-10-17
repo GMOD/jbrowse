@@ -118,6 +118,10 @@ var Util = {
             return false;
     },
 
+    /**
+     * Given an array of numbers and a single number, find the index
+     * of the number in the array that is closest to that number.
+     */
     findNearest: function(numArray, num) {
         var minIndex = 0;
         var min = Math.abs(num - numArray[0]);
@@ -129,6 +133,15 @@ var Util = {
         }
         return minIndex;
     },
+
+    requestAnimationFrame:
+      window.requestAnimationFrame         ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame    ||
+        window.oRequestAnimationFrame      ||
+        function( callback ){
+            window.setTimeout( callback, 1000 / 30 );
+        },
 
     /**
      * replace variables in a template string with values
