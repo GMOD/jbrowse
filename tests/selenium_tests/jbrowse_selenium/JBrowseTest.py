@@ -185,8 +185,10 @@ class JBrowseTest (object):
     def actionchains( self ):
         return ActionChains( self.browser )
 
-    def waitsFor( self, func ):
-        WebDriverWait(self.browser, 5).until(func)
+    def waitsForTrack( self, tracktext ):
+        driver = self.browser
+        trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
+        WebDriverWait(driver, 5).until(lambda driver: driver.find_element_by_xpath(trackPath))
 
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )

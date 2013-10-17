@@ -15,9 +15,7 @@ class SimpleTrackSelector (TrackSelector):
             .double_click() \
             .perform()
 
-        driver = self.test
-        trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
-        self.test.waitsFor(lambda driver: driver.find_element_by_xpath(trackPath))
+        self.test.waitsForTrack(tracktext)
 
         self.test.assert_no_js_errors()
 
