@@ -31,7 +31,7 @@ define([
            has,
            Component,
            FeatureFiltererMixin,
-           ContinuousProjection,
+           ContinuousLinearProjection,
 
            RegionBrowserToolbar,
            ScaleBar
@@ -144,21 +144,22 @@ _updateProjection: function( args ) {
 
     // calculate the new scale and offset for our projection from screen coordinates to genome coordinates
     var locationCenter = ( location.get('end') + location.get('start') )/2;
+    // scale units in this case are bp/px
     var newScale       = args.fixedScale && existingProjection
         ? existingProjection.scale
         : this._canonicalizeScale( (location.get('end') - location.get('start')) / this._contentBox.w );
     var newOffset      = Math.round( locationCenter - ( this._contentBox.l + this._contentBox.w/2 ) * newScale );
 
     // if we are already on the same ref seq as the location, animate to it
-    if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), this._referenceName ) ) {
-        var thisB = this;
+    if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), existingProjection.bName ) ) {
         existingProjection[ args.animate ? 'animateTo' : 'setTo' ]( newScale, newOffset, 400 );
     }
     else {
         // make a new projection (tracks will be watching this)
-        this._referenceName = location.get('seq_id');
-        this.set( 'projection', new ContinuousProjection(
-            { scale: newScale, offset: newOffset }
+        this.set( 'projection', new ContinuousLinearProjection(
+            { scale: newScale, offset: newOffset,
+              aName: 'screen', bName: location.get('seq_id')
+            }
         ));
     }
 },
@@ -167,9 +168,9 @@ _updateProjection: function( args ) {
 // (nice gridlines, etc).  they are 5, 2, and 1, multiplied by various
 // powers of 10.
 _canonicalScales: (function x( pxPerBp ) {
-                       var s = [ 20, 10 ];
-                       for( var pow = 1; pow > 10e-10; pow /=10 ) {
-                           s.push.apply( s, [ 5*pow, 2*pow, pow ] );
+                       var s = [ 0.02, 0.05 ];
+                       for( var pow = 1/10; pow < 10e20; pow *=10 ) {
+                           s.push.apply( s, [ pow, 2*pow, 5*pow ] );
                        }
                        return s;
                    })(),

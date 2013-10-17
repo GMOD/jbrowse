@@ -63,6 +63,8 @@ var Continuous = declare( Projection,  {
       return this._cachedReverse || ( this._cachedReverse = function() {
           return new Continuous(
               {
+                  aName: this.bName,
+                  bName: this.aName,
                   offset: -this.bOffset/this.scale,
                   scale:  1/this.scale,
                   start:  this.projectPoint( this.aStart ),

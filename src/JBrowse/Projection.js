@@ -1,6 +1,6 @@
 /**
- * Base class for a one-to-one discontinuous projection from one
- * coordinate space to another.
+ * Base class for a one-to-one, possibly discontinuous projection from
+ * one coordinate system (A) to another (B).
  */
 define([
            'dojo/_base/declare'
@@ -12,6 +12,11 @@ return declare( null,
 {
     constructor: function( args ) {
         this.listeners = [];
+
+        if( ! args.bName ) throw new Error('bName required');
+        if( ! args.aName ) throw new Error('aName required');
+        this.bName = args.bName;
+        this.aName = args.aName;
     },
 
     // calls the given callback with the relevant projection blocks for

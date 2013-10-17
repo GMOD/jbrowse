@@ -45,11 +45,14 @@ _update: function( projection, changeDescription ) {
         var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, dims.x ) );
         var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, dims.x+dims.w ));
 
-        var majorPitch = this._choosePitch( projectionBlock.scale, 200 );
-        var minorPitch = this._choosePitch( projectionBlock.scale, 12  );
+        var labelPitch = this._choosePitch( projectionBlock.scale, 200 );
 
-        for( var b = Math.ceil( leftBase / majorPitch )*majorPitch; b<rightBase; b += majorPitch ) {
-            html += '<div class="posLabel" style="left: '+projectionBlock.reverse().projectPoint(b)+'px">'+Util.humanReadableNumber(b)+'</div>';
+        var prevlabel;
+        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b<rightBase; b += labelPitch ) {
+            var label = Util.humanReadableNumber(b);
+            if( label != prevlabel )
+                html += '<div class="posLabel" style="left: '+projectionBlock.reverse().projectPoint(b)+'px" title="'+b+'">'+label+'</div>';
+            prevlabel = label;
         }
     },this);
     this.domNode.innerHTML = html;
@@ -58,9 +61,9 @@ _update: function( projection, changeDescription ) {
 _choosePitch: function( scale, maxPxSpacing ) {
 
     // labels should be between 25 and 200 pixels apart
-    var maxMajorPitch = maxPxSpacing * scale; // in bp
+    var maxPitch = maxPxSpacing * scale; // in bp
     var magnitude = parseInt(
-         new Number(maxMajorPitch).toExponential().match(/\d+$/)[0]
+         new Number(maxPitch).toExponential().match(/\d+$/)[0]
     );
 
     return Math.pow( 10, magnitude );
