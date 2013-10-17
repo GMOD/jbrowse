@@ -4,11 +4,12 @@ import re
 
 import unittest
 
-from selenium                       import webdriver
-from selenium.webdriver             import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions     import NoSuchElementException
-from selenium.webdriver.support.ui  import Select
+from selenium                          import webdriver
+from selenium.webdriver                import ActionChains
+from selenium.webdriver.common.keys    import Keys
+from selenium.webdriver.support.wait   import WebDriverWait
+from selenium.common.exceptions        import NoSuchElementException
+from selenium.webdriver.support.ui     import Select
 
 import track_selectors
 
@@ -183,6 +184,9 @@ class JBrowseTest (object):
 
     def actionchains( self ):
         return ActionChains( self.browser )
+
+    def waitsFor( self, func ):
+        WebDriverWait(self.browser, 5).until(func)
 
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
