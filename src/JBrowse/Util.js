@@ -250,7 +250,7 @@ var Util = {
         // parses a number from a locstring that's a coordinate, and
         // converts it from 1-based to interbase coordinates
         var parseCoord = function( coord ) {
-            coord = (coord+'').replace(/\D/g,'');
+            coord = (coord+'').replace(/[^\d\-]/g,'');
             var num = parseInt( coord, 10 );
             return typeof num == 'number' && !isNaN(num) ? num : null;
         };
@@ -264,7 +264,7 @@ var Util = {
             locstring = tokens[1];
         }
 
-        tokens = locstring.match( /^\s*([\d,]+)\s*\.\.+\s*([\d,]+)/ );
+        tokens = locstring.match( /^\s*(-?[\d,]+)\s*\.\.+\s*(-?[\d,]+)/ );
         if( tokens ) { // range of two numbers?
             location.start = parseCoord( tokens[1] )-1;
             location.end = parseCoord( tokens[2] );
@@ -277,7 +277,7 @@ var Util = {
             }
         }
         else { // one number?
-            tokens = locstring.match( /^\s*([\d,]+)\b/ );
+            tokens = locstring.match( /^\s*(-?[\d,]+)\b/ );
             if( tokens ) {
                 location.end = location.start = parseCoord( tokens[1] )-1;
             }
