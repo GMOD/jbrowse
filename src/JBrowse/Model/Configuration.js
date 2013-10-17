@@ -26,6 +26,7 @@ var Configuration = declare( null, {
         this._base  = {};
         this._local = {};
         this._compilationCache = {};
+        this._listeners = {};
 
         if( ! schema )
             throw new Error('must provide a schema to Configuration constructor');
@@ -37,9 +38,37 @@ var Configuration = declare( null, {
     },
 
     set: function( key, val ) {
-        this._local[ key ] = this._schema.normalizeSetting( key, val );
+        val = this._local[ key ] = this._schema.normalizeSetting( key, val );
         delete this._compilationCache[ key ];
-        return this._local[key];
+        this._notify( key, val );
+        return val;
+    },
+
+    _notify: function( path, val ) {
+        var listeners = this._listeners[path];
+        if( listeners )
+            array.forEach( listeners, function( l ) {
+                               if( l && l.callback )
+                                   l.callback( val );
+                           });
+    },
+
+    watch: function( path, callback ) {
+        var listeners = this._listeners[path]
+            || ( this._listeners[path] = [] );
+
+        var l = {
+            callback: callback,
+            remove: function() {
+                array.forEach( listeners, function( other, i ) {
+                                   if( other === l )
+                                       listeners[i] = undefined;
+                               });
+                this.remove = function() {};
+            }
+        };
+
+        listeners.push( l );
     },
 
     /**

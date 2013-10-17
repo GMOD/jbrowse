@@ -127,6 +127,10 @@ return declare( null, {
 
     setConf: function( path, value ) {
         return this._config.set( path, value );
+    },
+
+    watchConf: function( path, callback ) {
+        return this._config.watch( path, callback );
     }
 });
 });
