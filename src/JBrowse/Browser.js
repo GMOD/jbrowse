@@ -440,7 +440,7 @@ onRefSeqsLoaded: function() {
 loadCSS: function() {
     return this._milestoneFunction( 'loadCSS', function( deferred ) {
         var css = this.getConf('css');
-        css.unshift( this.resolveThemeUrl( 'main.css' ) );
+        css.unshift( this.resolveThemeUrl( 'css/main.css' ) );
 
         var thisB = this;
         var cssDeferreds = array.map( css, function( css ) {

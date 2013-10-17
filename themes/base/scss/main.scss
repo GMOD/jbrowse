@@ -1,0 +1,23 @@
+/* main application CSS styles */
+@import "../../../src/dijit/themes/tundra/tundra.css";
+@import "../../../src/dojo/resources/dojo.css";
+@import "browser.scss";
+@import "regionbrowser.scss";
+@import "sequence.scss";
+@import "menubar.scss";
+@import "icons.scss";
+@import "file_dialog.scss";
+@import "combination_tracks.scss";
+@import "export_dialog.scss";
+@import "keyring.scss";
+@import "prompt_dialog.scss";
+@import "send_to.scss";
+@import "error_dialog.scss";
+
+/* CSS styles for the various types of feature glyphs */
+@import "track_styles.scss";
+@import "faceted_track_selector.scss";
+
+
+/* CSS styles specifically for MAKER output */
+@import "maker.scss";

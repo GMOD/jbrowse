@@ -1,6 +1,6 @@
-@import url('../base/main.css');
-@import url('regionbrowser.css');
-@import url('menubar.css');
+@import "../../base/scss/main.scss";
+@import "regionbrowser.scss";
+@import "menubar.scss";
 
 .jbrowse.metro {
     font-family: Open Sans, sans-serif;

@@ -17,14 +17,14 @@
     border-top: 1px solid #393939;
 }
 .jbrowse.metro .regionBrowserPane.colorScheme1 .viewscale {
-    background: url("img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
+    background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
 }
 .jbrowse.metro .regionBrowserPane.colorScheme2 .topBar {
     background: #4687d4;
     border-top: 1px solid #315e94;
 }
 .jbrowse.metro .regionBrowserPane.colorScheme2 .viewscale {
-    background: url("img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
+    background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
     color: white;
 }
 
@@ -94,7 +94,7 @@
 .jbrowse.metro .searchControls .dijitButton  {
 }
 .jbrowse.metro .searchControls .dijitButton .dijitButtonNode {
-    background: url("img/search.png") #d5d5d5 no-repeat 0 -2px;
+    background: url("../img/search.png") #d5d5d5 no-repeat 0 -2px;
     width: 22px;
 }
 
@@ -137,7 +137,7 @@
     width: 35px;
     position: absolute;
     left: 0;
-    background-image: url("img/pan-left.png");
+    background-image: url("../img/pan-left.png");
     background-repeat: no-repeat;
     background-position: 8px 0;
 }
@@ -146,7 +146,7 @@
     width: 35px;
     position: absolute;
     right: 0;
-    background-image: url("img/pan-right.png");
+    background-image: url("../img/pan-right.png");
     background-repeat: no-repeat;
     background-position: 8px 0;
 }
@@ -161,7 +161,7 @@
     width: 35px;
     position: absolute;
     right: 0;
-    background-image: url("img/zoom-in-1.png");
+    background-image: url("../img/zoom-in-1.png");
     background-repeat: no-repeat;
     background-position: 8px 0;
 }
@@ -170,7 +170,7 @@
     width: 35px;
     position: absolute;
     left: 0;
-    background-image: url("img/zoom-out-1.png");
+    background-image: url("../img/zoom-out-1.png");
     background-repeat: no-repeat;
     background-position: 8px 1px;
 
