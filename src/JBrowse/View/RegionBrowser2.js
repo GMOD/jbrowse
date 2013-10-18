@@ -13,6 +13,7 @@ define([
            'JBrowse/Component',
            'JBrowse/FeatureFiltererMixin',
            'JBrowse/Projection/ContinuousLinear',
+           'JBrowse/Projection/Circular',
 
            './RegionBrowser/Toolbar',
            './RegionBrowser/LocationScale'
@@ -32,6 +33,7 @@ define([
            Component,
            FeatureFiltererMixin,
            ContinuousLinearProjection,
+           CircularProjection,
 
            RegionBrowserToolbar,
            ScaleBar
@@ -156,8 +158,8 @@ _updateProjection: function( args ) {
     }
     else {
         // make a new projection (tracks will be watching this)
-        this.set( 'projection', new ContinuousLinearProjection(
-            { scale: newScale, offset: newOffset,
+        this.set( 'projection', new CircularProjection(
+            { scale: newScale, offset: newOffset, bLength: 45000,
               aName: 'screen', bName: location.get('seq_id')
             }
         ));

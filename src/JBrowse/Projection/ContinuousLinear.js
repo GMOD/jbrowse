@@ -13,7 +13,7 @@ define([
            Util
        ) {
 
-var Continuous = declare( Projection,  {
+var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
 
   constructor: function( args ) {
       if( args.from && args.to ) {
@@ -35,12 +35,11 @@ var Continuous = declare( Projection,  {
   },
 
   projectPoint: function( a ) {
-      var b = a * this.scale + this.bOffset;
-      if( b > this.aEnd )
+      if( a > this.aEnd )
           return null;
-      if( b < this.aStart )
+      if( a < this.aStart )
           return null;
-      return b;
+      return a * this.scale + this.bOffset;
   },
 
   projectRange: function( a1, a2 ) {
@@ -129,9 +128,10 @@ var Continuous = declare( Projection,  {
                   thisB.setTo( endScale, endOffset );
                   a.resolve();
               } else {
-                  thisB.scale   = startScale  + (endScale-startScale  )*proportionDone;
-                  thisB.bOffset = startOffset + (endOffset-startOffset)*proportionDone;
-                  thisB._notifyChangedAll({ scale: thisB.scale, offset: thisB.bOffset });
+                  thisB.setTo(
+                      startScale  + (endScale-startScale  )*proportionDone,
+                      startOffset + (endOffset-startOffset)*proportionDone
+                  );
                   a.progress( proportionDone );
                   Util.requestAnimationFrame( animate );
               }

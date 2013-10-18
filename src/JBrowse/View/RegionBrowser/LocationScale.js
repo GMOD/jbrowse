@@ -39,23 +39,33 @@ _setGenomeViewAttr: function( genomeView ) {
 
 _update: function( projection, changeDescription ) {
     var dims = domGeom.position( this.domNode );
+    dims.r = dims.x+dims.w;
     var projectionBlocks = projection.getBlocksForRange( dims.x, dims.x+dims.w );
-    var html = '';
+    var html = [];
     array.forEach( projectionBlocks, function( projectionBlock ) {
         var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, dims.x ) );
-        var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, dims.x+dims.w ));
+        var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, dims.r ));
+
+        // draw left-end block border
+        if( projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ) {
+            html.push('<div style="position: absolute; left: '+projectionBlock.aStart+'px; background: red; width: 1px; height: 100%; top: 0"></div>');
+        }
+        // draw right-end block border
+        if( projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ) {
+            html.push('<div style="position: absolute; left: '+projectionBlock.aEnd+'px; background: green; width: 1px; height: 100%; top: 0"></div>');
+        }
 
         var labelPitch = this._choosePitch( projectionBlock.scale, 200 );
 
         var prevlabel;
-        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b<rightBase; b += labelPitch ) {
+        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
-            if( label != prevlabel )
-                html += '<div class="posLabel" style="left: '+projectionBlock.reverse().projectPoint(b)+'px" title="'+b+'">'+label+'</div>';
+            if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
+                html.push( '<div class="posLabel" style="left: '+projectionBlock.reverse().projectPoint(b)+'px" title="'+b+'"><span style="left: -'+(label.length*2)+'px">'+label+'</span></div>');
             prevlabel = label;
         }
     },this);
-    this.domNode.innerHTML = html;
+    this.domNode.innerHTML = html.join('');
 },
 
 _choosePitch: function( scale, maxPxSpacing ) {
