@@ -15,7 +15,7 @@ class SimpleTrackSelector (TrackSelector):
             .double_click() \
             .perform()
 
-        self.test.waitsForTrack(tracktext)
+        self.test.waits_for_track(tracktext)
         self.test.assert_no_js_errors()
 
     def turn_off_track( self, tracktext ):

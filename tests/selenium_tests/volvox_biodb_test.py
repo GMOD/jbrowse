@@ -84,10 +84,10 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         canvas = self.assert_element("//div[@id='track_Genes']/canvas")
         canvas.click()
-        self.waitsForElement("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
+        self.waits_for_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         time.sleep(0.5) #leave so it's visible for a bit
         self.close_dialog("EDEN details")
-        self.waitsForTrack('CanvasFeatures - Protein-coding genes')
+        self.waits_for_track('CanvasFeatures - Protein-coding genes')
 
         # test Canvas-features context menu functionality
         # right-click one of them
@@ -95,7 +95,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .context_click(canvas) \
             .perform()
 
-        self.waitsForMenuItem ("Popup with content snippet from string (feature EDEN)")
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
         self.menu_item_click("Popup with content snippet from string (feature EDEN)");
         self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");

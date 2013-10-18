@@ -147,7 +147,7 @@ class JBrowseTest (object):
         menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
             % re.sub( '\W', '_', track_name ) 
 
-        self.waitsForElement(menuButton)
+        self.waits_for_element(menuButton)
 
         self.assert_element(menuButton).click()
 
@@ -184,17 +184,22 @@ class JBrowseTest (object):
     def actionchains( self ):
         return ActionChains( self.browser )
 
-    def waitsForElement( self, trackPath ):
-        driver = self.browser
-        WebDriverWait(driver, 5).until(lambda driver: driver.find_element_by_xpath(trackPath))
+    def does_element_exist (self, Path):
+        try:
+            self.browser.find_element_by_xpath(Path)
+            return True
+        except NoSuchElementException:
+            return False
 
-    def waitsForTrack( self, tracktext ):
-        self.waitsForElement("//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext)
+    def waits_for_element( self, Path ):
+        WebDriverWait(self, 5).until(lambda self: self.does_element_exist(Path))
 
-    def waitsForMenuItem( self, text ):
-        self.waitsForElement("//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
-            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" %text )
-    
+    def waits_for_no_element( self, Path ):
+        WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(Path))
+
+    def waits_for_track( self, tracktext ):
+        self.waits_for_element("//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext)
+
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
