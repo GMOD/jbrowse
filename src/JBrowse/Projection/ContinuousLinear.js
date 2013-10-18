@@ -72,12 +72,10 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       }.call(this));
   },
 
-  offset: function( deltaA ) {
-      if( deltaA == 0 ) return;
-      this.bOffset += deltaA*this.scale;
-      this.aStart  += deltaA;
-      this.aEnd    += deltaA;
-      this._notifyChangedAll({ offset: this.bOffset, aStart: this.aStart, aEnd: this.aEnd });
+  offset: function( deltaA, animationMilliseconds ) {
+      if( ! deltaA ) return;
+      var newOffset = this.bOffset + deltaA * this.scale;
+      this[ animationMilliseconds ? 'animateTo' : 'setTo' ]( undefined, newOffset, animationMilliseconds );
   },
 
   // scale the projection in A by the given factor, and offset in A by
@@ -93,8 +91,10 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   },
 
   setTo: function( endScale, endOffset ) {
-      this.scale   = endScale;
-      this.bOffset = endOffset;
+      if( endScale !== undefined )
+          this.scale   = endScale;
+      if( endOffset !== undefined )
+          this.bOffset = endOffset;
       this._notifyChangedAll({ scale: this.scale, offset: this.bOffset });
   },
 
@@ -102,6 +102,11 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   // projection is updated to an intermediate configuration, and
   // resolves when the projection finishes animating
   animateTo: function( endScale, endOffset, milliseconds ) {
+      if( endScale === undefined )
+          endScale = this.scale;
+      if( endOffset === undefined )
+          endOffset = this.bOffset;
+
       //console.log( 'animating from '+this+' to '+endScale+','+endOffset);
       if( this._currentAnimation )
           this._currentAnimation.cancel('new animation requested');

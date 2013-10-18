@@ -272,7 +272,7 @@ buildRendering: function() {
     this.own( on( panLeft, "click",
                   function(event) {
                       dojoEvent.stop(event);
-                      thisB.genomeView.slide(0.9);
+                      thisB.genomeView.slide(0.6);
                   }));
 
     domConstruct.create('span', {
@@ -285,7 +285,7 @@ buildRendering: function() {
     this.own( on( panRight, "click",
                   function(event) {
                       dojoEvent.stop(event);
-                      thisB.genomeView.slide(-0.9);
+                      thisB.genomeView.slide(-0.6);
                   }));
 
 },

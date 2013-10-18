@@ -159,10 +159,18 @@ _updateProjection: function( args ) {
     else {
         // make a new projection (tracks will be watching this)
         this.set( 'projection', new CircularProjection(
-            { scale: newScale, offset: newOffset, bLength: 45000,
+            { scale: newScale, offset: newOffset, bLength: 10000,
               aName: 'screen', bName: location.get('seq_id')
             }
         ));
+    }
+},
+
+slide: function( factor ) {
+    var projection = this.get('projection');
+    if( projection ) {
+        var slidepx = Math.round( this._contentBox.w * factor );
+        projection.offset( slidepx, 900 );
     }
 },
 
