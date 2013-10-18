@@ -87,7 +87,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.waits_for_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         time.sleep(0.5) #leave so it's visible for a bit
         self.close_dialog("EDEN details")
-        self.waits_for_track('CanvasFeatures - Protein-coding genes')
+        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
 
         # test Canvas-features context menu functionality
         # right-click one of them
@@ -95,7 +95,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .context_click(canvas) \
             .perform()
 
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
         self.menu_item_click("Popup with content snippet from string (feature EDEN)");
         self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
         self.close_dialog('snippet');
@@ -204,9 +203,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .context_click(feature_elements[40]) \
             .perform()
 
-        # wait for the context menu to generate
-        time.sleep(0.7)
-
         self.menu_item_click( 'XHR HTML' )
 
         # wait for the dialog to finish fading in
@@ -217,10 +213,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.close_dialog('Random XHR')
 
-        time.sleep(0.5) # wait for it to finish fading out
 
         # check that the dialog closed
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]");
+        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]");
         self.turn_off_track( 'HTMLFeatures - Features with menus' )
 
     def wiggle( self ):

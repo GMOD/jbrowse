@@ -156,8 +156,10 @@ class JBrowseTest (object):
         self.menu_item_click( item_name )
 
     def menu_item_click( self, text ):
-        self.assert_element( "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))]//td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text ) \
-            .click()
+        menuItem = "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
+            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text 
+        self.waits_for_element(menuItem)
+        self.assert_element(menuItem).click()
 
     def overview_rubberband( self, start_pct, end_pct ):
         """Executes a rubberband gesture from start_pct to end_pct on the overview bar"""
@@ -173,7 +175,8 @@ class JBrowseTest (object):
 
     def is_track_on( self, tracktext ):
         # find the track label in the track pane
-        return not not self.maybe_find_element_by_xpath( "//div[contains(@class,'track-label')]/span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
+        return self.does_element_exist( \
+            "//div[contains(@class,'track-label')]/span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
 
     def turn_on_track( self, tracktext ):
         return self.track_selector.turn_on_track( tracktext )
