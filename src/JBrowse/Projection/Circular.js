@@ -26,7 +26,10 @@ return declare( 'JBrowse.Projection.Circular', LinearProjection, {
    },
 
    _modB: function( b ) {
-       return ( b - this.bOrigin ) % this.bLength + this.bOrigin;
+       if( b >= this.bOrigin )
+           return ( b - this.bOrigin ) % this.bLength + this.bOrigin;
+       else
+           return this.bLength + this.bOrigin - ( this.bOrigin - b ) % this.bLength;
    },
 
    projectPoint: function( a ) {
