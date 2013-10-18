@@ -55,7 +55,7 @@ _update: function( projection, changeDescription ) {
             html.push('<div style="position: absolute; left: '+projectionBlock.aEnd+'px; background: green; width: 1px; height: 100%; top: 0"></div>');
         }
 
-        var labelPitch = this._choosePitch( projectionBlock.scale, 200 );
+        var labelPitch = this._choosePitch( projectionBlock.scale, 100, 300 );
 
         var prevlabel;
         for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
@@ -68,15 +68,26 @@ _update: function( projection, changeDescription ) {
     this.domNode.innerHTML = html.join('');
 },
 
-_choosePitch: function( scale, maxPxSpacing ) {
+_choosePitch: function( scale, minPxSpacing, maxPxSpacing ) {
 
-    // labels should be between 25 and 200 pixels apart
     var maxPitch = maxPxSpacing * scale; // in bp
+    var minPitch = minPxSpacing * scale;
     var magnitude = parseInt(
          new Number(maxPitch).toExponential().match(/\d+$/)[0]
     );
 
-    return Math.pow( 10, magnitude );
+    var pitch = Math.pow( 10, magnitude );
+    if( pitch > minPitch )
+        return pitch;
+    else if( pitch * 2 > minPitch )
+        return pitch * 2;
+    else if( pitch * 5 > minPitch )
+        return pitch * 5;
+
+    while( pitch < minPitch )
+        pitch *= 2;
+
+    return pitch;
 },
 
 _chooseLabels: function( projectionBlock ) {
