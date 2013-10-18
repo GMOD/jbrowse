@@ -123,12 +123,20 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
                                 delete thisB._currentAnimation;
                         });
 
+      function ease( elapsedTime, totalTime ) {
+          // linear
+          //return elapsedTime/totalTime;
+
+          // sinusoidal
+          return Math.sin( elapsedTime/totalTime*3.14159/2 )+0.04;
+      }
 
       Util.requestAnimationFrame(
           function animate() {
               if( canceled ) return;
 
-              var proportionDone = (new Date().getTime() - startTime)/milliseconds;
+              var proportionDone = ease( (new Date().getTime() - startTime),  milliseconds );
+
               if( proportionDone >= 1 ) {
                   thisB.setTo( endScale, endOffset );
                   a.resolve();
