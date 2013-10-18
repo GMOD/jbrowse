@@ -33,13 +33,18 @@
 
             .posLabel {
                 position: absolute;
-                top: -4px;
+                bottom: 3px;
                 text-align: center;
                 overflow: show;
                 width: 1px;
                 white-space: nowrap;
                 z-index: 100;
                 font-size: 13px;
+                height: 3px;
+                span {
+                    position: absolute;
+                    bottom: 0;
+                }
             }
         }
 
@@ -56,6 +61,9 @@
             }
             .viewScale {
                 background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
+                .posLabel {
+                    background: black;
+                }
             }
         }
         &.colorScheme2 {
@@ -68,6 +76,9 @@
             .viewScale {
                 background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
                 color: white;
+                .posLabel {
+                    background: white;
+                }
             }
         }
 
