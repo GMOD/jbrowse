@@ -18,19 +18,6 @@ return declare( 'JBrowse.Projection.Circular', [ LinearProjection,_CanonicalZoom
        if( ! this.bLength ) throw new Error('bLength arg required');
    },
 
-   // _normalize: function( args, isAnimating ) {
-   //     args = this.inherited(arguments);
-
-   //     if( 'bOffset' in args )
-   //         args.bOffset = this._modB(
-   //             args.bOffset,
-   //             'bLength' in args ? args.bLength : this.bLength,
-   //             args.bOrigin || 0
-   //         );
-
-   //     return args;
-   // },
-
    _modB: function( b, length, origin ) {
        if( b >= origin )
            return ( b - origin ) % length + origin;
@@ -47,14 +34,12 @@ return declare( 'JBrowse.Projection.Circular', [ LinearProjection,_CanonicalZoom
        var b1 = this.projectPoint( a1 );
        var b2 = this.projectPoint( a2 );
 
-       //var bEnd = this.bOrigin + this.bLength;
        var aRange = a2 - a1;
        var bRange = aRange*this.scale;
        var modBOffset = this._modB( this.bOffset, this.bLength, this.bOrigin );
 
        // wraps one or more times
        if( bRange > this.bLength || b1 > b2 ) {
-           //var aLength = this.bLength / this.scale;
            var blocks = [];
            for( var aStart = Math.max( this.aStart, a1 - b1/this.scale );
                 aStart < a2 && aStart < this.aEnd;

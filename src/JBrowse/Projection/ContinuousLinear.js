@@ -140,8 +140,6 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
 
       var startValues = lang.mixin( {}, this );
 
-      //console.log( 'animate', startValues, endValues );
-
       var canceled = false;
       var a = this._currentAnimation = new Deferred( function() { canceled = true; });
       a.promise.always( function() {

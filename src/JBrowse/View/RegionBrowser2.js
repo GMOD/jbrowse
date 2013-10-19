@@ -114,7 +114,6 @@ startup: function() {
 // from dijit
 layout: function() {
     this.inherited(arguments);
-    //console.log('layout '+this.getConf('name') );
 },
 
 setLocation: function( locstring ) {
