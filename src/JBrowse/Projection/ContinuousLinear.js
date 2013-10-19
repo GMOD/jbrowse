@@ -21,9 +21,9 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       this.aStart = Number.NEGATIVE_INFINITY;
       this.aEnd   = Number.POSITIVE_INFINITY;
 
-      if( args.from && args.to ) {
-          var scale = ( args.from.length || (args.from.end-args.from.start) ) / ( args.to.length || (args.to.end-args.to.start) );
-          this._set({ scale: scale, bOffset: args.to.start - args.from.start/scale });
+      if( args.aRange && args.bRange ) {
+          var scale = args.aRange.length / args.bRange.length;
+          this._set( lang.mixin( {}, args, { scale: scale, bOffset: args.bRange.start - args.aRange.start/scale } ) );
       }
       else {
           this._set( args );
@@ -32,6 +32,27 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       // delete the cached reverse of ourselves when we change
       var thisB = this;
       this.watch( function() { delete thisB._cachedReverse; } );
+  },
+
+  matchRanges: function( aRange, bRange, animationMilliseconds ) {
+      var scale = aRange.length / bRange.length;
+      this._goTo({ scale: scale, bOffset: bRange.start - aRange.start/scale }, animationMilliseconds );
+  },
+
+  offset: function( aDelta, animationMilliseconds ) {
+      if( ! aDelta )
+          return;
+      this._goTo({ bOffset: this.bOffset + aDelta * this.scale }, animationMilliseconds );
+  },
+
+  zoom: function( factor, aStatic, animationMilliseconds ) {
+      var newScale = this._normalize({ scale: this.scale * factor }).scale;
+
+      var newOffset;
+      if( aStatic !== undefined )
+          newOffset = aStatic * ( this.scale - newScale ) + this.bOffset;
+
+      this._goTo({ scale: newScale, bOffset: newOffset}, animationMilliseconds );
   },
 
   _normalize: function( args ) {
@@ -90,29 +111,61 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       }.call(this));
   },
 
-  offset: function( deltaA, animationMilliseconds ) {
-      var newOffset;
-      if( deltaA ) newOffset = this.bOffset + deltaA * this.scale;
-      this[ animationMilliseconds ? 'animateTo' : 'setTo' ]( { bOffset: newOffset }, animationMilliseconds );
-  },
-
-  zoom: function( factor, aStatic, animationMilliseconds ) {
-      var newScale = this._normalize({ scale: this.scale * factor }).scale;
-
-      var newOffset;
-      if( aStatic !== undefined )
-          newOffset = aStatic * ( this.scale - newScale ) + this.bOffset;
-
-      this[ animationMilliseconds ? 'animateTo' : 'setTo' ]({ scale: newScale, bOffset: newOffset}, animationMilliseconds );
-  },
-
   toString: function() {
       return this.scale+'+'+this.bOffset;
   },
 
-  setTo: function( args ) {
-      var changed = this._set( args );
-      this._notifyChanged( changed );
+  // mutate to the given settings.  if animationMilliseconds is
+  // passed, animate the transition over the given number of
+  // milliseconds
+  _goTo: function( args, animationMilliseconds ) {
+      if( ! animationMilliseconds ) {
+          this._notifyChanged( this._set( args ) );
+      } else {
+          this._animateTo( args, animationMilliseconds );
+      }
+  },
+
+  // return a Deferred that has progress events each time the
+  // projection is updated to an intermediate configuration, and
+  // resolves when the projection finishes animating
+  _animateTo: function( endValues, milliseconds ) {
+      if( this._currentAnimation )
+          this._currentAnimation.cancel('new animation requested');
+
+      endValues = this._normalize( endValues );
+
+      var thisB = this;
+      var startTime   = new Date().getTime();
+
+      var startValues = lang.mixin( {}, this );
+
+      //console.log( 'animate', startValues, endValues );
+
+      var canceled = false;
+      var a = this._currentAnimation = new Deferred( function() { canceled = true; });
+      a.promise.always( function() {
+                            if( thisB._currentAnimation === a )
+                                delete thisB._currentAnimation;
+                        });
+
+      Util.requestAnimationFrame(
+          function animate() {
+              if( canceled ) return;
+
+              var proportionDone = thisB._animationEase( (new Date().getTime() - startTime),  milliseconds );
+
+              if( proportionDone >= 1 ) {
+                  thisB._notifyChanged( thisB._set( endValues ) );
+                  a.resolve();
+              } else {
+                  thisB._animationStep( startValues, endValues, proportionDone );
+                  a.progress( proportionDone );
+                  Util.requestAnimationFrame( animate );
+              }
+          });
+
+      return this._currentAnimation;
   },
 
   _animationStep: function( startValues, endValues, proportionDone ) {
@@ -130,48 +183,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
 
       // sinusoidal
       return Math.sin( elapsedTime / totalTime * 3.14159/2 ) + 0.04;
-  },
-
-  // return a Deferred that has progress events each time the
-  // projection is updated to an intermediate configuration, and
-  // resolves when the projection finishes animating
-  animateTo: function( endValues, milliseconds ) {
-      if( this._currentAnimation )
-          this._currentAnimation.cancel('new animation requested');
-
-      endValues = this._normalize( endValues );
-
-      var thisB = this;
-      var startTime   = new Date().getTime();
-
-      var startValues = lang.mixin( {}, this );
-
-      var canceled = false;
-      var a = this._currentAnimation = new Deferred( function() { canceled = true; });
-      a.promise.always( function() {
-                            if( thisB._currentAnimation === a )
-                                delete thisB._currentAnimation;
-                        });
-
-      Util.requestAnimationFrame(
-          function animate() {
-              if( canceled ) return;
-
-              var proportionDone = thisB._animationEase( (new Date().getTime() - startTime),  milliseconds );
-
-              if( proportionDone >= 1 ) {
-                  thisB.setTo( endValues );
-                  a.resolve();
-              } else {
-                  thisB._animationStep( startValues, endValues, proportionDone );
-                  a.progress( proportionDone );
-                  Util.requestAnimationFrame( animate );
-              }
-          });
-
-      return this._currentAnimation;
   }
-
 });
 return Continuous;
 });

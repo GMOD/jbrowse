@@ -105,9 +105,16 @@ buildRendering: function() {
     //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
 },
 
+startup: function() {
+    //console.log('pre startup '+this.getConf('name') );
+    this.inherited(arguments);
+    //console.log('post startup '+this.getConf('name') );
+},
+
 // from dijit
 layout: function() {
     this.inherited(arguments);
+    //console.log('layout '+this.getConf('name') );
 },
 
 setLocation: function( locstring ) {
@@ -115,17 +122,22 @@ setLocation: function( locstring ) {
 },
 
 resize: function() {
+    var oldContentBox = lang.mixin( {}, this._contentBox );
     this.inherited(arguments);
-    this._updateProjection({ fixedScale: true, animate: false });
+
+    var projection = this.get('projection');
+    if( projection ) {
+        var deltaW = this._contentBox.w - oldContentBox.w;
+        // TODO: offset the projection to keep the same B center
+        //console.log( arguments );
+    } else {
+        this._updateProjection();
+    }
 },
 
 /**
  *
  * location: feature object containing the requested location to display
- *
- * fixedScale: if true, keep the zoom scale fixed when updating the
- * projection.  equivalent to recentering the display at the center of
- * the given location.  default false.
  *
  * animate: if true, animate the projection update.  default true.
  */
@@ -133,8 +145,7 @@ _updateProjection: function( args ) {
     args = lang.mixin(
         {
             location: this.getConf('location'),
-            animate: true,
-            fixedScale: false
+            animate: true
         },
         args || {}
     );
@@ -142,26 +153,27 @@ _updateProjection: function( args ) {
     var location = args.location;
     if( ! location ) return;
 
+    if( ! this._contentBox ) {
+        console.warn('_updateProjection called before _contentBox is available');
+        return;
+    }
+
     var existingProjection = this.get('projection');
 
     // calculate the new scale and offset for our projection from screen coordinates to genome coordinates
     var locationCenter = this._locationCenter( location );
 
-    // scale units in this case are bp/px
-    var newScale = args.fixedScale && existingProjection
-        ? undefined
-        : ( location.get('end') - location.get('start') ) / this._contentBox.w;
-    var newOffset = Math.round( locationCenter - ( this._contentBox.l + this._contentBox.w/2 ) * newScale );
+    var aRange = { start: this._contentBox.l, length: this._contentBox.w };
+    var bRange = { start: location.get('start'), length: location.get('end') - location.get('start') };
 
     // if we are already on the same ref seq as the location, animate to it
     if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), existingProjection.bName ) ) {
-        existingProjection[ args.animate ? 'animateTo' : 'setTo' ]( {scale: newScale, bOffset: newOffset}, 400 );
+        existingProjection.matchRanges( aRange, bRange, args.animate ? 500 : undefined );
     }
     else {
-        // make a new projection (tracks will be watching this)
-        //this.set( 'projection', new CircularProjection(
-        this.set( 'projection', new CanonicalLinearProjection(
-            { scale: newScale, bOffset: newOffset, bLength: 10000,
+        this.set( 'projection', new CircularProjection(
+        //this.set( 'projection', new CanonicalLinearProjection(
+            { aRange: aRange, bRange: bRange, bLength: 10000,
               aName: 'screen', bName: location.get('seq_id')
             }
         ));
@@ -176,15 +188,13 @@ _locationCenter: function( location ) {
 },
 
 slide: function( factor ) {
-    var projection = this.get('projection');
-    if( projection && this._contentBox )
-        projection.offset( this._contentBox.w * -factor, 700 );
+    if( this._contentBox && this.get('projection') )
+        this.get('projection').offset( this._contentBox.w * -factor, 700 );
 },
 
 zoom: function( factor ) {
-    var projection = this.get('projection');
-    if( projection && this._contentBox )
-        projection.zoom( factor, this._contentBox.l+this._contentBox.w/2, 700 );
+    if( this._contentBox && this.get('projection') )
+        this.get('projection').zoom( factor, this._contentBox.l+this._contentBox.w/2, 700 );
 }
 
 
