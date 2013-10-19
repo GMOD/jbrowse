@@ -128,8 +128,7 @@ resize: function() {
     var projection = this.get('projection');
     if( projection ) {
         var deltaW = this._contentBox.w - oldContentBox.w;
-        // TODO: offset the projection to keep the same B center
-        //console.log( arguments );
+        projection.offset( -deltaW/2 );
     } else {
         this._updateProjection();
     }
