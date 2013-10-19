@@ -178,7 +178,7 @@ _locationCenter: function( location ) {
 slide: function( factor ) {
     var projection = this.get('projection');
     if( projection && this._contentBox )
-        projection.offset( this._contentBox.w * factor, 700 );
+        projection.offset( this._contentBox.w * -factor, 700 );
 },
 
 zoom: function( factor ) {
