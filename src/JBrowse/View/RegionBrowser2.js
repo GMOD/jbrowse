@@ -12,7 +12,7 @@ define([
            'JBrowse/has',
            'JBrowse/Component',
            'JBrowse/FeatureFiltererMixin',
-           'JBrowse/Projection/ContinuousLinear',
+           'JBrowse/Projection/CanonicalContinuousLinear',
            'JBrowse/Projection/Circular',
 
            './RegionBrowser/Toolbar',
@@ -32,7 +32,7 @@ define([
            has,
            Component,
            FeatureFiltererMixin,
-           ContinuousLinearProjection,
+           CanonicalLinearProjection,
            CircularProjection,
 
            RegionBrowserToolbar,
@@ -145,51 +145,48 @@ _updateProjection: function( args ) {
     var existingProjection = this.get('projection');
 
     // calculate the new scale and offset for our projection from screen coordinates to genome coordinates
-    var locationCenter = ( location.get('end') + location.get('start') )/2;
+    var locationCenter = this._locationCenter( location );
+
     // scale units in this case are bp/px
-    var newScale       = args.fixedScale && existingProjection
-        ? existingProjection.scale
-        : this._canonicalizeScale( (location.get('end') - location.get('start')) / this._contentBox.w );
-    var newOffset      = Math.round( locationCenter - ( this._contentBox.l + this._contentBox.w/2 ) * newScale );
+    var newScale = args.fixedScale && existingProjection
+        ? undefined
+        : ( location.get('end') - location.get('start') ) / this._contentBox.w;
+    var newOffset = Math.round( locationCenter - ( this._contentBox.l + this._contentBox.w/2 ) * newScale );
 
     // if we are already on the same ref seq as the location, animate to it
     if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), existingProjection.bName ) ) {
-        existingProjection[ args.animate ? 'animateTo' : 'setTo' ]( newScale, newOffset, 400 );
+        existingProjection[ args.animate ? 'animateTo' : 'setTo' ]( {scale: newScale, bOffset: newOffset}, 400 );
     }
     else {
         // make a new projection (tracks will be watching this)
-        this.set( 'projection', new CircularProjection(
-            { scale: newScale, offset: newOffset, bLength: 10000,
+        //this.set( 'projection', new CircularProjection(
+        this.set( 'projection', new CanonicalLinearProjection(
+            { scale: newScale, bOffset: newOffset, bLength: 10000,
               aName: 'screen', bName: location.get('seq_id')
             }
         ));
     }
 },
 
-slide: function( factor ) {
-    var projection = this.get('projection');
-    if( projection ) {
-        var slidepx = Math.round( this._contentBox.w * factor );
-        projection.offset( slidepx, 900 );
-    }
+// get the center coordinate, in basepairs, of the currently displayed view
+_locationCenter: function( location ) {
+    if( ! location ) location = this.getConf('location');
+    if( ! location ) return undefined;
+    return ( location.get('end') + location.get('start') )/2;
 },
 
-// array of canonical scale numbers that work out well for display
-// (nice gridlines, etc).  they are 5, 2, and 1, multiplied by various
-// powers of 10.
-_canonicalScales: (function x( pxPerBp ) {
-                       var s = [ 0.02, 0.05 ];
-                       for( var pow = 1/10; pow < 10e20; pow *=10 ) {
-                           s.push.apply( s, [ pow, 2*pow, 5*pow ] );
-                       }
-                       return s;
-                   })(),
-/**
- * Given an input scale (px/bp), find the canonical scale that is nearest to it.
- */
-_canonicalizeScale: function( scale ) {
-    return this._canonicalScales[ Util.findNearest(this._canonicalScales,scale) ];
+slide: function( factor ) {
+    var projection = this.get('projection');
+    if( projection && this._contentBox )
+        projection.offset( this._contentBox.w * factor, 700 );
+},
+
+zoom: function( factor ) {
+    var projection = this.get('projection');
+    if( projection && this._contentBox )
+        projection.zoom( factor, this._contentBox.l+this._contentBox.w/2, 700 );
 }
+
 
 });
 });

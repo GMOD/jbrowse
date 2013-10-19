@@ -239,7 +239,7 @@ buildRendering: function() {
                       dojoEvent.stop(event);
                       if( thisB.zoomSlider )
                           thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
-                      thisB.genomeView.zoomOut(undefined,undefined, 1);
+                      thisB.genomeView.zoom(2);
                   }));
     this.zoomSliderContainer =
         domConstruct.create('span', {
@@ -257,7 +257,7 @@ buildRendering: function() {
                       dojoEvent.stop(event);
                       if( thisB.zoomSlider )
                           thisB.zoomSlider.set( 'value', Math.min( thisB.genomeView.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
-                      thisB.genomeView.zoomIn(undefined,undefined,1);
+                      thisB.genomeView.zoom(0.5);
                   }));
 
     // pan controls
@@ -320,11 +320,10 @@ _updateZoomControls: function() {
             if( sliderTimeout )
                 window.clearTimeout( sliderTimeout );
             sliderTimeout = window.setTimeout( function() {
-                var steps = newLevel - thisB.curZoom;
                 if( steps > 0 ) {
-                    thisB.zoomIn(undefined,undefined,steps);
+                    thisB.zoom(undefined,undefined,steps);
                 } else if( steps < 0 ) {
-                    thisB.zoomOut(undefined,undefined,-steps);
+                    thisB.zoom(undefined,undefined,-steps);
                 }
             }, 400 );
         }

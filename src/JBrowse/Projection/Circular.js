@@ -1,40 +1,46 @@
 define([
            'dojo/_base/declare',
-           'dojo/Deferred',
 
            './ContinuousLinear',
-           'JBrowse/Util'
+           './_CanonicalZoomLevelsMixin'
        ],
        function(
            declare,
-           Deferred,
 
            LinearProjection,
-           Util
+           _CanonicalZoomLevelsMixin
        ) {
 
-return declare( 'JBrowse.Projection.Circular', LinearProjection, {
+return declare( 'JBrowse.Projection.Circular', [ LinearProjection,_CanonicalZoomLevelsMixin ], {
 
    constructor: function(args) {
-
-       this.bOrigin = args.bOrigin || 0;
-
-       if( ! args.bLength ) throw new Error('bLength arg required');
-       this.bLength = args.bLength;
-
-       this.bOffset = this._modB( this.bOffset );
+       if( ! this.bOrigin ) this.bOrigin = 0;
+       if( ! this.bLength ) throw new Error('bLength arg required');
    },
 
-   _modB: function( b ) {
-       if( b >= this.bOrigin )
-           return ( b - this.bOrigin ) % this.bLength + this.bOrigin;
+   _normalize: function( args, isAnimating ) {
+       args = this.inherited(arguments);
+
+       if( 'bOffset' in args )
+           args.bOffset = this._modB(
+               args.bOffset,
+               'bLength' in args ? args.bLength : this.bLength,
+               args.bOrigin || 0
+           );
+
+       return args;
+   },
+
+   _modB: function( b, length, origin ) {
+       if( b >= origin )
+           return ( b - origin ) % length + origin;
        else
-           return this.bLength + this.bOrigin - ( this.bOrigin - b ) % this.bLength;
+           return length + origin - ( origin - b ) % length;
    },
 
    projectPoint: function( a ) {
        var b = this.inherited(arguments);
-       return this._modB( b );
+       return this._modB( b, this.bLength, this.bOrigin );
    },
 
    getBlocksForRange: function( a1, a2 ) {
@@ -58,12 +64,12 @@ return declare( 'JBrowse.Projection.Circular', LinearProjection, {
                    new LinearProjection(
                        {
                            scale:  this.scale,
-                           offset: bOffset,
+                           bOffset: bOffset,
                            aName:  this.aName,
                            bName:  this.bName,
 
-                           start:  aStart,
-                           end:    aEnd
+                           aStart:  aStart,
+                           aEnd:    aEnd
                        })
                );
            }
@@ -75,22 +81,16 @@ return declare( 'JBrowse.Projection.Circular', LinearProjection, {
                new LinearProjection(
                    {
                        scale: this.scale,
-                       offset: this.bOffset,
+                       bOffset: this.bOffset,
 
                        aName: this.aName,
                        bName: this.bName,
 
-                       start: this.aStart,
-                       end: this.aEnd
+                       aStart: this.aStart,
+                       aEnd: this.aEnd
                    })
            ];
        }
-   },
-
-   setTo: function( endScale, endOffset ) {
-      this.scale   = endScale;
-      this.bOffset = this._modB( endOffset );
-      this._notifyChangedAll({ scale: this.scale, offset: this.bOffset });
    }
 
 });

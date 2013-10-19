@@ -51,21 +51,17 @@ return declare( null,
         return l;
     },
 
-    _notifyChangedAll: function( description ) {
+    _notifyChanged: function( changedFields, isAnimating ) {
         var l = this.listeners;
         for( var i = 0; i<l.length; i++ )
             if( l[i] )
-                l[i].cb( description, this );
+                l[i].cb( changedFields, this, isAnimating );
     },
 
-    // look up relevant blocks by A coordinates. a block is a simple
-    // linear projection region.
+    // look up relevant blocks by A coordinates. a block is a region
+    // where the projection is continuous.  returns an array of
+    // continuous projections.
     getBlocksForRange: function( a1, a2 ) {
-        throw new Error('Abstract!');
-    },
-
-    // return a new projection with A and B coordinates reversed
-    reverse: function() {
         throw new Error('Abstract!');
     },
 
@@ -74,9 +70,10 @@ return declare( null,
         throw new Error('Abstract!');
     },
 
-    // scale the projection in A by the given factor, and offset in A by
-    // the given offset.
-    scaleOffset: function( factor, offset ) {
+    // multiply projection's scale by the given factor, and, if
+    // aStatic is passed, also alter the projection's offset to maintain
+    // the same B projection point for aStatic
+    zoom: function( factor, aStatic, animationMilliseconds ) {
         throw new Error('Abstract!');
     },
 
