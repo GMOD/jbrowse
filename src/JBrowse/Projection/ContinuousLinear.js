@@ -35,8 +35,10 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   },
 
   matchRanges: function( aRange, bRange, animationMilliseconds ) {
-      var scale = aRange.length / bRange.length;
-      this._goTo({ scale: scale, bOffset: bRange.start - aRange.start/scale }, animationMilliseconds );
+      var aCenter = aRange.start + aRange.length/2;
+      var bCenter = bRange.start + bRange.length/2;
+      var scale = this._normalize({scale: bRange.length / aRange.length}).scale;
+      this._goTo({ scale: scale, bOffset: bCenter-scale*aCenter }, animationMilliseconds );
   },
 
   offset: function( aDelta, animationMilliseconds ) {
