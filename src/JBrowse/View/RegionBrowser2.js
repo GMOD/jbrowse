@@ -161,16 +161,22 @@ _updateProjection: function( args ) {
     // calculate the new scale and offset for our projection from screen coordinates to genome coordinates
     var locationCenter = this._locationCenter( location );
 
-    var aRange = { start: this._contentBox.l, length: this._contentBox.w };
-    var bRange = { start: location.get('start'), length: location.get('end') - location.get('start') };
+    var aRange = { start: this._contentBox.l,    end: this._contentBox.l + this._contentBox.w };
+    var bRange = { start: location.get('start'), end: location.get('end') };
+    if( true || location.get('strand') == -1 )
+        (function() {
+            var tmp = bRange.start;
+            bRange.start = bRange.end;
+            bRange.end = tmp;
+        })();
 
     // if we are already on the same ref seq as the location, animate to it
     if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), existingProjection.bName ) ) {
         existingProjection.matchRanges( aRange, bRange, args.animate ? 500 : undefined );
     }
     else {
-        this.set( 'projection', new CircularProjection(
-        //this.set( 'projection', new CanonicalLinearProjection(
+        //this.set( 'projection', new CircularProjection(
+        this.set( 'projection', new CanonicalLinearProjection(
             { aRange: aRange, bRange: bRange, bLength: 10000,
               aName: 'screen', bName: location.get('seq_id')
             }

@@ -45,6 +45,11 @@ _update: function( projection, changeDescription ) {
     array.forEach( projectionBlocks, function( projectionBlock ) {
         var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, dims.x ) );
         var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, dims.r ));
+        if( leftBase > rightBase ) { // swap if negative
+            var tmp = leftBase;
+            leftBase = rightBase;
+            rightBase = tmp;
+        }
 
         // draw left-end block border
         if( projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ) {
@@ -69,6 +74,7 @@ _update: function( projection, changeDescription ) {
 },
 
 _choosePitch: function( scale, minPxSpacing, maxPxSpacing ) {
+    scale = Math.abs(scale);
 
     var maxPitch = maxPxSpacing * scale; // in bp
     var minPitch = minPxSpacing * scale;

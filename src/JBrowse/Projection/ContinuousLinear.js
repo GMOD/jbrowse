@@ -22,7 +22,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       this.aEnd   = Number.POSITIVE_INFINITY;
 
       if( args.aRange && args.bRange ) {
-          var scale = args.aRange.length / args.bRange.length;
+          var scale = (args.aRange.end - args.aRange.start) / ( args.bRange.end - args.bRange.start );
           this._set( lang.mixin( {}, args, { scale: scale, bOffset: args.bRange.start - args.aRange.start/scale } ) );
       }
       else {
@@ -58,7 +58,16 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   },
 
   _normalize: function( args ) {
-      return lang.mixin({},args);
+      args = lang.mixin({},args);
+
+      //enforce aStart <= aEnd
+      if( args.aStart > args.aEnd ) {
+          var tmp = args.aStart;
+          args.aStart = args.aEnd;
+          args.aEnd = tmp;
+      }
+
+      return args;
   },
 
   // normalize and set the given values, return array list of what values changed
@@ -103,10 +112,10 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       return this._cachedReverse || ( this._cachedReverse = function() {
           return new Continuous(
               {
-                  aName:  this.bName,
-                  bName:  this.aName,
+                  aName:   this.bName,
+                  bName:   this.aName,
                   bOffset: -this.bOffset/this.scale,
-                  scale:  1/this.scale,
+                  scale:   1/this.scale,
                   aStart:  this.projectPoint( this.aStart ),
                   aEnd:    this.projectPoint( this.aEnd )
               });

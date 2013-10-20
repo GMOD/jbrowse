@@ -31,16 +31,23 @@ _canonicalizeScale: function( scale ) {
 
     // find the nearest {1,2,5}*10^x greater than min
     var min = 0.01;
-    if( scale <= min )
-        return min;
+    if( Math.abs(scale) <= min )
+        return scale < 0 ? -min : min;
 
     var exponential = new Number( scale ).toExponential().split( /e/i );
     var significand = parseFloat( exponential[0] );
     var exponent    =   parseInt( exponential[1] );
 
-    significand = significand > 3.5
-        ? ( significand > 7.5 ? 10 : 5 )
-        : ( significand > 1.5 ?  2 : 1 );
+    if( significand > 0 ) {
+        significand = significand > 3.5
+            ? ( significand > 7.5 ? 10 : 5 )
+            : ( significand > 1.5 ?  2 : 1 );
+    }
+    else {
+        significand = significand < -3.5
+            ? ( significand < -7.5 ? -10 : -5 )
+            : ( significand < -1.5 ?  -2 : -1 );
+    }
     return significand * Math.pow( 10, exponent );
 }
 
