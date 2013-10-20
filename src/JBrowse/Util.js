@@ -189,25 +189,37 @@ var Util = {
     },
 
     humanReadableNumber: function( num ) {
+        var inputNum = num;
         num = parseFloat(num);
         var neg = num < 0;
         num = Math.abs( num );
-        var suffix = '';
-        if( num >= 1e12 ) {
-            num /= 1e12;
-            suffix = 'T';
-        } else if( num >= 1e9 ) {
-            num /= 1e9;
-            suffix = 'G';
-        } else if( num >= 1e6 ) {
-            num /= 1e6;
-            suffix = 'M';
+
+        var suffix;
+        if( num >= 1e9 ) {
+            if( num >= 1e12 ) {
+                num /= 1e12;
+                suffix = 'T';
+            } else {
+                num /= 1e9;
+                suffix = 'G';
+            }
         } else if( num >= 1000 ) {
-            num /= 1000;
-            suffix = 'K';
+            if( num >= 1e6 ) {
+                num /= 1e6;
+                suffix = 'M';
+            } else {
+                num /= 1000;
+                suffix = 'K';
+            }
         }
 
-        return ( neg ? '-' : '' )+ (num.toFixed(2)+' '+suffix).replace(/0+ /,' ').replace(/\. /,' ');
+        if( suffix ) {
+            var hrNum = ( neg ? '-' : '' )+ (num.toString()+( suffix ? ' '+suffix : '')).replace(/0+ |\. /,' ');
+            return hrNum.length < inputNum.toString().length ? hrNum : Util.commifyNumber(inputNum);
+        }
+        else {
+            return inputNum;
+        }
     },
 
     // from http://bugs.dojotoolkit.org/ticket/5794
