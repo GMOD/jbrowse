@@ -55,17 +55,18 @@ _update: function( projection, changeDescription ) {
         var blockWidth = projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ? projectionBlock.aEnd-blockLeft+'px' : '102%';
         html.push( '<div class="projectionBlock" style="left: ', blockLeft-2, 'px; width: ', blockWidth, '">' );
 
-        var labelPitch = this._choosePitch( projectionBlock.scale, 100, 300 );
+        var labelPitch = this._choosePitch( projectionBlock.scale, 60 );
 
         var prevlabel;
-        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
+        var blockReverse = projectionBlock.reverse();
+        for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
                 html.push(
                     '<div class="posLabel" style="left: ',
-                    projectionBlock.reverse().projectPoint(b)-blockLeft,
+                    blockReverse.projectPoint(b)-blockLeft,
                     'px" title="',
-                    b,
+                    Util.commifyNumber(b),
                     '"><span style="left: -',
                     (label.length*2),
                     'px">'
@@ -79,25 +80,19 @@ _update: function( projection, changeDescription ) {
     this.domNode.innerHTML = html.join('');
 },
 
-_choosePitch: function( scale, minPxSpacing, maxPxSpacing ) {
-    scale = Math.abs(scale);
-
-    var maxPitch = maxPxSpacing * scale; // in bp
-    var minPitch = minPxSpacing * scale;
+_choosePitch: function( scale, minPxSpacing ) {
+    var minPitch = minPxSpacing * Math.abs( scale );
     var magnitude = parseInt(
-         new Number(maxPitch).toExponential().match(/\d+$/)[0]
+         new Number(minPitch).toExponential().split(/e/i)[1]
     );
 
     var pitch = Math.pow( 10, magnitude );
-    if( pitch > minPitch )
-        return pitch;
-    else if( pitch * 2 > minPitch )
-        return pitch * 2;
-    else if( pitch * 5 > minPitch )
-        return pitch * 5;
-
-    while( pitch < minPitch )
+    while( pitch < minPitch ) {
         pitch *= 2;
+        if( pitch >= minPitch )
+            return pitch;
+        pitch *= 2.5;
+    }
 
     return pitch;
 },
