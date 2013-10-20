@@ -35,52 +35,33 @@ return declare( 'JBrowse.Projection.Circular', [ LinearProjection,_CanonicalZoom
        var b2 = this.projectPoint( a2 );
 
        var aRange = a2 - a1;
-       var bRange = aRange*this.scale;
+       var bRange = Math.abs( aRange * this.scale );
        var modBOffset = this._modB( this.bOffset, this.bLength, this.bOrigin );
 
-       // wraps one or more times
-       if( bRange > this.bLength || b1 > b2 ) {
-           var blocks = [];
-           for( var aStart = Math.max( this.aStart, a1 - b1/this.scale );
-                aStart < a2 && aStart < this.aEnd;
-                aStart = aEnd+1
-              ) {
-                  var bOffset = modBOffset-this.bLength*blocks.length;
-                  var aEnd = Math.min(
-                      this.aEnd,
-                      (this.bLength-bOffset)/this.scale
-                  );
-                  blocks.push(
-                      new LinearProjection(
-                          {
-                              scale:  this.scale,
-                              bOffset: bOffset,
-                              aName:  this.aName,
-                              bName:  this.bName,
+       var blocks = [];
+       for( var aStart = Math.max( this.aStart, a1 - b1/this.scale );
+            aStart < a2 && aStart < this.aEnd;
+            aStart = aEnd+1
+          ) {
+              var bOffset = modBOffset-this.bLength*blocks.length;
+              var aEnd = Math.min(
+                  this.aEnd,
+                  (this.bLength-bOffset)/this.scale
+              );
+              blocks.push(
+                  new LinearProjection(
+                      {
+                          scale:  this.scale,
+                          bOffset: bOffset,
+                          aName:  this.aName,
+                          bName:  this.bName,
 
-                              aStart:  aStart,
-                              aEnd:    aEnd
-                          })
-                  );
-           }
-           return blocks;
-       }
-       // does not wrap
-       else {
-           return [
-               new LinearProjection(
-                   {
-                       scale: this.scale,
-                       bOffset: modBOffset,
-
-                       aName: this.aName,
-                       bName: this.bName,
-
-                       aStart: this.aStart,
-                       aEnd: this.aEnd
-                   })
-           ];
-       }
+                          aStart:  aStart,
+                          aEnd:    aEnd
+                      })
+              );
+          }
+       return blocks;
    }
 
 });
