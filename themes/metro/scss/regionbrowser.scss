@@ -30,21 +30,18 @@
 
         .viewScale {
             height: 16px;
-
-            .posLabel {
-                position: absolute;
+            .projectionBlock {
+                height: 13px;
                 bottom: 3px;
+                border-color: rgba( 0, 0, 0, 0.3 );
+            }
+            .posLabel {
+                bottom: 0;
                 text-align: center;
                 overflow: show;
                 width: 1px;
-                white-space: nowrap;
-                z-index: 100;
                 font-size: 13px;
                 height: 3px;
-                span {
-                    position: absolute;
-                    bottom: 0;
-                }
             }
         }
 
@@ -53,28 +50,31 @@
         }
 
         &.colorScheme1 {
-            .topBar, .viewScale {
+            .topBar, .viewScale .projectionBlock {
                 background: #e6e6e6;
             }
             .topBar {
                 border-top: 1px solid #393939;
             }
             .viewScale {
-                background: url("../img/view_top_bg_1.gif") #e6e6e6 repeat-x 0 100%;
+                background: url("../img/view_top_bg_1.gif") #AAAAAA repeat-x 0 100%;
+                .projectionBlock {
+                    background: #e6e6e6;
+                }
                 .posLabel {
                     background: black;
                 }
             }
         }
         &.colorScheme2 {
-            .topBar, .viewScale {
+            .topBar, .viewScale .projectionBlock {
                 background: #4687d4;
             }
             .topBar {
                 border-top: 1px solid #315e94;
             }
             .viewScale {
-                background: url("../img/view_top_bg_2.gif") #4687d4 repeat-x 0 100%;
+                background: url("../img/view_top_bg_2.gif") #325E91 repeat-x 0 100%;
                 color: white;
                 .posLabel {
                     background: white;

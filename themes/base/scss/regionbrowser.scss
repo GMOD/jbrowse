@@ -269,14 +269,6 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     background-color: #b2c3d6;
 }
 
-div.viewscale {
-    top: 0px;
-    height: 14px;
-    position: absolute;
-    border-bottom: 1px solid rgba #979797;
-    z-index: 20;
-}
-
 .regionBrowserPane, .regionBrowserPaneNoGutter {
     .topBar {
         height: 45px;
@@ -301,6 +293,31 @@ div.viewscale {
     .panControls {
         position: relative;
         text-align: center;
+    }
+
+    .viewScale {
+        .projectionBlock {
+            position: absolute;
+            background: #333;
+
+            border-left: 1px solid transparent;
+            border-right: 1px solid transparent;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+
+            height: 100%;
+            .posLabel {
+                position: absolute;
+                white-space: nowrap;
+                z-index: 100;
+                span {
+                    position: absolute;
+                    bottom: 0;
+                }
+            }
+        }
     }
 
     .dragWindow {

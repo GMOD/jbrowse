@@ -40,9 +40,9 @@ _setGenomeViewAttr: function( genomeView ) {
 _update: function( projection, changeDescription ) {
     var dims = domGeom.position( this.domNode );
     dims.r = dims.x+dims.w;
-    var projectionBlocks = projection.getBlocksForRange( dims.x, dims.x+dims.w );
+    var projectionBlocks = projection.getBlocksForRange( dims.x, dims.r );
     var html = [];
-    array.forEach( projectionBlocks, function( projectionBlock ) {
+    array.forEach( projectionBlocks, function( projectionBlock, i ) {
         var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, dims.x ) );
         var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, dims.r ));
         if( leftBase > rightBase ) { // swap if negative
@@ -51,14 +51,9 @@ _update: function( projection, changeDescription ) {
             rightBase = tmp;
         }
 
-        // draw left-end block border
-        if( projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ) {
-            html.push('<div style="position: absolute; left: '+projectionBlock.aStart+'px; background: red; width: 1px; height: 100%; top: 0"></div>');
-        }
-        // draw right-end block border
-        if( projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ) {
-            html.push('<div style="position: absolute; left: '+projectionBlock.aEnd+'px; background: green; width: 1px; height: 100%; top: 0"></div>');
-        }
+        var blockLeft = projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ? projectionBlock.aStart : 0;
+        var blockWidth = projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ? projectionBlock.aEnd-blockLeft+'px' : '102%';
+        html.push( '<div class="projectionBlock" style="left: ', blockLeft-2, 'px; width: ', blockWidth, '">' );
 
         var labelPitch = this._choosePitch( projectionBlock.scale, 100, 300 );
 
@@ -66,9 +61,20 @@ _update: function( projection, changeDescription ) {
         for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
-                html.push( '<div class="posLabel" style="left: '+projectionBlock.reverse().projectPoint(b)+'px" title="'+b+'"><span style="left: -'+(label.length*2)+'px">'+label+'</span></div>');
+                html.push(
+                    '<div class="posLabel" style="left: ',
+                    projectionBlock.reverse().projectPoint(b)-blockLeft,
+                    'px" title="',
+                    b,
+                    '"><span style="left: -',
+                    (label.length*2),
+                    'px">'
+                    ,label,
+                    '</span></div>'
+                );
             prevlabel = label;
         }
+        html.push('</div>');
     },this);
     this.domNode.innerHTML = html.join('');
 },
