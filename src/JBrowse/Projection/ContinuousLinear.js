@@ -23,7 +23,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
 
       if( args.aRange && args.bRange ) {
           var scale = (args.aRange.end - args.aRange.start) / ( args.bRange.end - args.bRange.start );
-          this._set( lang.mixin( {}, args, { scale: scale, bOffset: args.bRange.start - args.aRange.start/scale } ) );
+          this._set( lang.mixin( {}, args, this._fromRanges( args.aRange, args.bRange ) ) );
       }
       else {
           this._set( args );
@@ -34,11 +34,15 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       this.watch( function() { delete thisB._cachedReverse; } );
   },
 
+  _fromRanges: function( aRange, bRange ) {
+      var scale = this._normalize({ scale: ( bRange.end - bRange.start )/( aRange.end - aRange.start ) }).scale;
+      var bCenter = ( bRange.end + bRange.start )/2;
+      var aCenter = ( aRange.end + aRange.start )/2;
+      return { scale: scale, bOffset: bCenter - aCenter*scale };
+  },
+
   matchRanges: function( aRange, bRange, animationMilliseconds ) {
-      var aCenter = aRange.start + aRange.length/2;
-      var bCenter = bRange.start + bRange.length/2;
-      var scale = this._normalize({scale: bRange.length / aRange.length}).scale;
-      this._goTo({ scale: scale, bOffset: bCenter-scale*aCenter }, animationMilliseconds );
+      this._goTo( this._fromRanges( aRange, bRange ), animationMilliseconds );
   },
 
   offset: function( aDelta, animationMilliseconds ) {

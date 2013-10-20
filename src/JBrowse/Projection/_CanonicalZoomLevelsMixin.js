@@ -10,12 +10,15 @@ define([
 return declare( null, {
 
 
-
 _normalize: function( vals, isAnimating ) {
     vals = this.inherited( arguments );
 
-    if( ! isAnimating && 'scale' in vals )
-        return lang.mixin( {}, vals, { scale: this._canonicalizeScale( vals.scale ) } );
+    if( ! isAnimating && 'scale' in vals ) {
+        var newScale = this._canonicalizeScale( vals.scale );
+        if( newScale != vals.scale ) {
+            vals = lang.mixin( {}, vals, { scale: newScale } );
+        }
+    }
 
     return vals;
 },
