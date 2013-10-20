@@ -31,22 +31,23 @@ return declare( 'JBrowse.Projection.Circular', [ LinearProjection,_CanonicalZoom
    },
 
    getBlocksForRange: function( a1, a2 ) {
+       if( a1 > a2 ) {  // ensure a1 <= a2
+           var tmp = a2;
+           a2 = a1;
+           a1 = tmp;
+       }
+
        var b1 = this.projectPoint( a1 );
-       var b2 = this.projectPoint( a2 );
-
-       var aRange = a2 - a1;
-       var bRange = Math.abs( aRange * this.scale );
        var modBOffset = this._modB( this.bOffset, this.bLength, this.bOrigin );
-
        var blocks = [];
-       for( var aStart = Math.max( this.aStart, a1 - b1/this.scale );
+       for( var aStart = Math.max( this.aStart, a1 - ( this.scale > 0 ? b1 : b1-this.bLength )/this.scale );
             aStart < a2 && aStart < this.aEnd;
             aStart = aEnd+1
           ) {
-              var bOffset = modBOffset-this.bLength*blocks.length;
+              var bOffset = modBOffset + ( this.scale > 0 ? -1 : 1 )*this.bLength*blocks.length;
               var aEnd = Math.min(
                   this.aEnd,
-                  (this.bLength-bOffset)/this.scale
+                  ( ( this.scale > 0 ? this.bLength : 0 ) - bOffset ) / this.scale
               );
               blocks.push(
                   new LinearProjection(
