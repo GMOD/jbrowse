@@ -30,7 +30,7 @@ _canonicalizeScale: function( scale ) {
         return undefined;
 
     // find the nearest {1,2,5}*10^x greater than min
-    var min = 0.01;
+    var min = 0.02;
     if( Math.abs(scale) <= min )
         return scale < 0 ? -min : min;
 
