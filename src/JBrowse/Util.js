@@ -215,10 +215,10 @@ var Util = {
 
         if( suffix ) {
             var hrNum = ( neg ? '-' : '' )+ (num.toString()+( suffix ? ' '+suffix : '')).replace(/0+ |\. /,' ');
-            return hrNum.length < inputNum.toString().length ? hrNum : Util.commifyNumber(inputNum);
+            return hrNum.length < inputNum.toString().length ? hrNum : Util.commifyNumber( inputNum );
         }
         else {
-            return inputNum;
+            return inputNum.toString();
         }
     },
 

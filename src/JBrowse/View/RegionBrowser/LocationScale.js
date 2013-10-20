@@ -51,9 +51,9 @@ _update: function( projection, changeDescription ) {
             rightBase = tmp;
         }
 
-        var blockLeft = projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ? projectionBlock.aStart : 0;
-        var blockWidth = projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ? projectionBlock.aEnd-blockLeft+'px' : '102%';
-        html.push( '<div class="projectionBlock" style="left: ', blockLeft-2, 'px; width: ', blockWidth, '">' );
+        var blockLeft = projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ? projectionBlock.aStart : -4;
+        var blockWidth = projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ? projectionBlock.aEnd-blockLeft+'px' : '104%';
+        html.push( '<div class="projectionBlock" style="left: ', blockLeft, 'px; width: ', blockWidth, '">' );
 
         var labelPitch = this._choosePitch( projectionBlock.scale, 60 );
 
@@ -68,7 +68,7 @@ _update: function( projection, changeDescription ) {
                     'px" title="',
                     Util.commifyNumber(b),
                     '"><span style="left: -',
-                    (label.length*2),
+                    (label.length*3),
                     'px">'
                     ,label,
                     '</span></div>'
@@ -95,24 +95,7 @@ _choosePitch: function( scale, minPxSpacing ) {
     }
 
     return pitch;
-},
-
-_chooseLabels: function( projectionBlock ) {
-
-    var majorPitch = this._choosePitch( projectionBlock.scale, 200 );
-    var minorPitch = this._choosePitch( projectionBlock.scale, 12  );
-    // the number with the most zeroes behind it that satisfies the minDistance and maxDistance
-
-    var left = viewArgs.leftBase + 1;
-    var width = viewArgs.rightBase - left + 1;
-    var scale = viewArgs.scale;
-    for( var mod = 1000000; mod > 0; mod /= 10 ) {
-        if( left % mod * scale <= 3 )
-                return left - left%mod;
-    }
-    return left;
 }
-
 
 });
 });
