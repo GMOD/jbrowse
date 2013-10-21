@@ -130,30 +130,23 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.turn_on_track( 'BigWig XY - volvox_microarray' )
         trackname = 'volvox_microarray.bw_xyplot'
         self.export_track( trackname, 'Visible region','GFF3','View')
-        time.sleep(0.4);
         self.close_dialog('export')
         self.export_track( trackname, 'Whole', 'bedGraph', 'Save' )
-        time.sleep(0.5);
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
 
         self.turn_on_track( 'HTMLFeatures - Example Features' )
         trackname = 'ExampleFeatures'
-        time.sleep(0.5);
         self.export_track( trackname, 'Visible region','GFF3','View')
-        time.sleep(0.4)
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Save')
 
         self.turn_on_track( 'CanvasFeatures - transcripts' )
         trackname = 'Transcript'
-        time.sleep(0.5)
         self.export_track( trackname, 'Visible region', 'GFF3', 'View')
-        time.sleep(0.4)
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region', 'BED', 'Save')
 
         self.do_typed_query('ctgA:8379..31627');
-        time.sleep(0.5);
         self.export_track( 'DNA', 'Visible region','FASTA','View')
         self.assert_no_js_errors();
         self.close_dialog('export')
@@ -205,11 +198,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.menu_item_click( 'XHR HTML' )
 
-        # wait for the dialog to finish fading in
-        time.sleep(1.0)
-
         # check that the proper HTML snippet popped up in the dialog
-        self.assert_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
+        self.waits_for_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
 
         self.close_dialog('Random XHR')
 

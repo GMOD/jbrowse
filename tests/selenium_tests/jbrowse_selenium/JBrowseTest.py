@@ -140,18 +140,12 @@ class JBrowseTest (object):
 
 
     def track_menu_click( self, track_name, item_name ):
-        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
-            % re.sub( '\W', '_', track_name ) ) \
-            .click()
-
+        
         menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
-            % re.sub( '\W', '_', track_name ) 
+            % re.sub( '\W', '_', track_name.lower() ) 
 
         self.waits_for_element(menuButton)
-
         self.assert_element(menuButton).click()
-
-        time.sleep(1)
 
         self.menu_item_click( item_name )
 
