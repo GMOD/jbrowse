@@ -31,9 +31,8 @@ return declare( null, {
        if( typeof metaData.scope == 'string' ) {
            metaData.scope = metaData.scope.split(/\s+/);
        }
-
        if( ! metaData.scope )
-           throw new Error('scope required');
+           metaData.scope = [];
 
        this.tokenString = tokenString;
        this._meta = metaData;
