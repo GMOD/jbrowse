@@ -168,18 +168,17 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def sequence( self ):
         self.do_typed_query( '0..80' );
-        time.sleep(0.2);
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG';
-        self.assert_element( sequence_div_xpath_1)
+        self.waits_for_element( sequence_div_xpath_1)
         self.turn_off_track( 'Reference sequence' );
-        self.assert_no_element( sequence_div_xpath_1 )
+        self.waits_for_no_element( sequence_div_xpath_1 )
         self.turn_on_track( 'Reference sequence' );
-        self.assert_element( sequence_div_xpath_1 )
+        self.waits_for_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000');
-        self.assert_no_element( sequence_div_xpath_1 )
+        self.waits_for_no_element( sequence_div_xpath_1 )
         self.do_typed_query( 'ctgA:19961..20047');
-        self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
+        self.waits_for_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
         self.turn_on_track( 'HTMLFeatures - Features with menus' )
@@ -229,13 +228,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element( xpath )
 
         self.do_typed_query( "f15" );
-        time.sleep(0.2);
 
         # test that f15 appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding
         # genes track is now selected
-        label = self.assert_element( xpath )
-        assert label.text == 'f15';
+        self.waits_for_element(xpath)
+        assert self.assert_element(xpath).text =='f15'
 
         self.turn_off_track('HTMLFeatures - Example Features')
 
