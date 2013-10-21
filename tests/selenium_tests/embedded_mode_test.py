@@ -9,6 +9,7 @@ class EmbeddedModeTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
         return self.base_url
 
     def test_volvox( self ):
-        time.sleep(0.5)
+        self.waits_for_track("BigWig Density")
+        self.waits_for_track("BigWig XY")
         self.assert_no_js_errors()
         self.browser.close()
