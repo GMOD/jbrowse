@@ -59,6 +59,8 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
           { url: resourceDef }
       );
 
+      req.headers['X-Requested-With'] = false;
+
       // give each credential an opportunity to decorate the HTTP
       // request
       var thisB = this;
