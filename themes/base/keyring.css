@@ -100,6 +100,9 @@
       margin-top: 0.5em; }
     .credentialStatus.credentialNotReady:hover .status {
       color: #333333; }
+  .credentialStatus.google .picture img {
+    height: 49px;
+    width: 49px; }
   .credentialStatus.google .slotIcon {
     background: url("img/sprites.png") rgba(0, 0, 0, 0) no-repeat -175px -73px; }
   .credentialStatus.dropbox .slotIcon {
