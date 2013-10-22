@@ -19,7 +19,12 @@ return declare( null, {
 
   configSchema: {
       slots: [
-          { name: 'credentials', type: 'multi-object' }
+          { name: 'credentials', type: 'multi-object',
+            defaultValue: [
+                {type:'Google'},
+                {type:'Dropbox'}
+            ]
+          }
       ]
   },
 
