@@ -153,8 +153,8 @@ return declare( [_WidgetBase, _TemplatedMixin, _Contained, _CssStateMixin],  {
                            domConstruct.create(
                                'img', {
                                    src: pictureUrl,
-                                   style: 'width: 100%; height: 100%; display: block'
-                               }, thisB.pictureNode );
+                                   style: 'display: block'
+                               }, domConstruct.create('div', { style: 'width: 100%; height: 100%; overflow: hidden;' }, thisB.pictureNode ));
                    });
         } else {
             domConstruct.empty( this.pictureNode );

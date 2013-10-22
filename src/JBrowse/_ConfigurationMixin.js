@@ -126,6 +126,9 @@ return declare( null, {
     },
 
     setConf: function( path, value ) {
+        if( ! this._config )
+            throw new Error('setConf attempted with no component configuration');
+
         return this._config.set( path, value );
     },
 

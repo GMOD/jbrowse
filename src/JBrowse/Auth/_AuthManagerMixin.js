@@ -19,7 +19,12 @@ return declare( null, {
 
   configSchema: {
       slots: [
-          { name: 'credentials', type: 'multi-object' }
+          { name: 'credentials', type: 'multi-object',
+            defaultValue: [
+                {type:'Google'},
+                {type:'Dropbox'}
+            ]
+          }
       ]
   },
 
@@ -59,7 +64,7 @@ return declare( null, {
                         if( ! existing[i].compare( slot ) )
                             return;
                     }
-                    this._credentialSlots.push( slot );
+                    existing.push( slot );
                 });
   },
 

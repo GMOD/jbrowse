@@ -227,6 +227,8 @@ _parseQueryString: function( constructorArgs ) {
         return constructorArgs;
 
     var queryConfig = ioQuery.queryToObject( constructorArgs.queryString.replace(/^\?/,'') );
+    this.urlQuery = queryConfig;
+    // this.setConf('urlQuery', queryConfig );
 
     // parse any JSON strings in the configuration
     for( var varName in queryConfig ) {
