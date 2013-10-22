@@ -197,20 +197,29 @@ class JBrowseTest (object):
     def waits_for_track( self, tracktext ):
         self.waits_for_element("//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext)
 
+    def waits_for_scroll ( self, location ):
+        WebDriverWait(self, 5).until(lambda self: self.is_scroll_done(location))
+
+    def is_scroll_done ( self, location ):
+        return location != self.get_current_location()
+
+    def get_current_location(self):
+        location = self.browser.title
+        return location
+
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
     def select_refseq( self, name ):
-        self.do_typed_query( name );
+        self.do_typed_query( name )
 
     def scroll( self ):
         move_right_button = self.browser.find_element_by_id('moveRight')
         move_right_button.click()
-        time.sleep(0.5)
+        self.waits_for_scroll(self.get_current_location())
         move_left_button = self.browser.find_element_by_id('moveLeft')
         move_left_button.click()
-        # TODO: check the outcome of this
-        time.sleep(0.5)
+        self.waits_for_scroll(self.get_current_location())
 
         self.assert_no_js_errors()
 

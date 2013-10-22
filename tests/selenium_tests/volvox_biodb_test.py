@@ -85,7 +85,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         canvas = self.assert_element("//div[@id='track_Genes']/canvas")
         canvas.click()
         self.waits_for_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
-        time.sleep(0.5) #leave so it's visible for a bit
         self.close_dialog("EDEN details")
         self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
 
@@ -136,6 +135,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.turn_on_track( 'HTMLFeatures - Example Features' )
         trackname = 'ExampleFeatures'
+        self.waits_for_track('HTMLFeatures - Example Features')
         self.export_track( trackname, 'Visible region','GFF3','View')
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Save')
