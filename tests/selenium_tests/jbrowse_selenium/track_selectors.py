@@ -37,7 +37,6 @@ class FacetedTrackSelector (TrackSelector):
         checkbox.click()
 
         self._close_selector()
-        self.test.waits_for_track(tracktext)
 
     def turn_off_track( self, tracktext ):
         track_row = self._find_track_by_text( tracktext )
