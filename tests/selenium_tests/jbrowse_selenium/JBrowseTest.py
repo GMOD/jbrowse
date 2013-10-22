@@ -122,20 +122,25 @@ class JBrowseTest (object):
 
         self.assert_no_js_errors()
 
-    def export_track( self, track_name, region, format, button ):
-
-        track_name = re.sub( '\W', '_', track_name.lower() )
+    def export_track( self, track_name, region, file_format, button ):
 
         self.track_menu_click( track_name, 'Save')
 
         # test view export
+        self.waits_for_element("//label[contains(.,'%s')]" % region )
         self.assert_element("//label[contains(.,'%s')]" % region ).click()
-        self.assert_element("//label[contains(.,'%s')]" % format ).click()
+        self.waits_for_element("//label[contains(.,'%s')]" % file_format )
+        self.assert_element("//label[contains(.,'%s')]" % file_format ).click()
+        self.waits_for_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button )
         self.assert_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button ).click()
         self.assert_no_js_errors()
 
     def close_dialog( self, title ):
-        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title ).click()
+        dialog = "//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title 
+
+        self.waits_for_element(dialog)
+        self.assert_element(dialog).click()
+        self.waits_for_no_element(dialog)
         self.assert_no_js_errors()
 
 
