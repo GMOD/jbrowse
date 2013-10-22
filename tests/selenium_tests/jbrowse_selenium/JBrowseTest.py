@@ -98,11 +98,11 @@ class JBrowseTest (object):
         qbox.send_keys( Keys.BACK_SPACE * 40 )
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
-        qbox.send_keys( Keys.RETURN );
+        qbox.send_keys( Keys.RETURN )
 
     def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
         el = self.assert_element( el_xpath )
-        start_offset = el.size['width'] * start_pct - el.size['width']/2;
+        start_offset = el.size['width'] * start_pct - el.size['width']/2
         c = self.actionchains() \
             .move_to_element( el ) \
             .move_by_offset( start_offset, 0 )

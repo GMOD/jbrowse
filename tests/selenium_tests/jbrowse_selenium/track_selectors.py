@@ -33,33 +33,33 @@ class FacetedTrackSelector (TrackSelector):
         track_row = self._find_track_by_text( tracktext )
 
         # click the box to turn on the first matching track
-        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector');
-        checkbox.click();
+        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector')
+        checkbox.click()
 
-        self._close_selector();
+        self._close_selector()
         self.test.waits_for_track(tracktext)
 
     def turn_off_track( self, tracktext ):
         track_row = self._find_track_by_text( tracktext )
         # click the box to turn on the first matching track
-        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector');
-        checkbox.click();
+        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector')
+        checkbox.click()
 
         # check that the track is not on
-        assert not self.test.is_track_on( tracktext ), 'track should be off now';
+        assert not self.test.is_track_on( tracktext ), 'track should be off now'
 
-        self._close_selector();
+        self._close_selector()
 
     def _find_track_by_text( self, tracktext ):
         # turn on the track selector tab
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
-        time.sleep(0.4);
+        time.sleep(0.4)
 
         # type the track's text in the text filter box
         textfilter = self.test.assert_element("//div[@id='faceted_tracksel']//label[@class='textFilterControl']//input[@type='text']")
         textfilter.send_keys( tracktext )
-        time.sleep(1);
+        time.sleep(1)
 
         # check that the number of matching tracks is 1
         matching_track_rows = self.test.assert_elements("div.dojoxGridRow")
@@ -71,5 +71,5 @@ class FacetedTrackSelector (TrackSelector):
         # turn off the track selector tab
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
-        time.sleep(0.4);
+        time.sleep(0.4)
 

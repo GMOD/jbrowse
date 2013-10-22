@@ -1,9 +1,8 @@
-import time
 import subprocess
-from subprocess import check_call as call, PIPE;
+from subprocess import check_call as call, PIPE
 import unittest
 
-from jbrowse_selenium import JBrowseTest;
+from jbrowse_selenium import JBrowseTest
 
 class AbstractVolvoxBiodbTest( JBrowseTest ):
 
@@ -75,7 +74,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.assert_elements("//div[@id='track_Genes']//canvas")
         self.assert_elements("//div[@id='track_CDS']//canvas")
-        self.assert_no_js_errors();
+        self.assert_no_js_errors()
 
         self.turn_off_track('CanvasFeatures - mixed')
         
@@ -86,7 +85,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         canvas.click()
         self.waits_for_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         self.close_dialog("EDEN details")
-        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
+        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]")
 
         # test Canvas-features context menu functionality
         # right-click one of them
@@ -94,34 +93,34 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .context_click(canvas) \
             .perform()
 
-        self.menu_item_click("Popup with content snippet from string (feature EDEN)");
-        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]");
-        self.close_dialog('snippet');
+        self.menu_item_click("Popup with content snippet from string (feature EDEN)")
+        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]")
+        self.close_dialog('snippet')
 
         # turn off canvasFeatures tracks so they're not cluttering everything up
-        self.turn_off_track('CanvasFeatures - Protein-coding genes');
+        self.turn_off_track('CanvasFeatures - Protein-coding genes')
 
     def vcf( self ):
-        self.do_typed_query('ctgA:18918..19070');
-        self.turn_on_track('VCF - volvox-sorted');
-        self.turn_on_track('VCF - additional');
+        self.do_typed_query('ctgA:18918..19070')
+        self.turn_on_track('VCF - volvox-sorted')
+        self.turn_on_track('VCF - additional')
 
-        self.assert_elements("//div[@id='track_volvox_sorted_vcf']//canvas");
+        self.assert_elements("//div[@id='track_volvox_sorted_vcf']//canvas")
         self.assert_elements("//div[@id='track_volvox_vcf_test']//canvas")
 
-        self.turn_off_track('VCF - volvox-sorted');
-        self.turn_off_track('VCF - additional');
+        self.turn_off_track('VCF - volvox-sorted')
+        self.turn_off_track('VCF - additional')
 
     def bam( self ):
-        self.do_typed_query('ctgA:18918..19070');
-        self.turn_on_track('volvox-sorted.bam');
-        self.turn_on_track('volvox-sorted SNPs/Coverage');
+        self.do_typed_query('ctgA:18918..19070')
+        self.turn_on_track('volvox-sorted.bam')
+        self.turn_on_track('volvox-sorted SNPs/Coverage')
 
-        self.assert_elements("//div[@id='track_volvox_sorted_bam']//canvas");
+        self.assert_elements("//div[@id='track_volvox_sorted_bam']//canvas")
         self.assert_elements("//div[@id='track_volvox_sorted_bam_coverage']//canvas")
 
-        self.turn_off_track('volvox-sorted.bam');
-        self.turn_off_track('volvox-sorted SNPs/Coverage');
+        self.turn_off_track('volvox-sorted.bam')
+        self.turn_off_track('volvox-sorted SNPs/Coverage')
 
     def export( self ):
         self.do_typed_query('ctgA')
@@ -146,11 +145,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region', 'BED', 'Save')
 
-        self.do_typed_query('ctgA:8379..31627');
+        self.do_typed_query('ctgA:8379..31627')
         self.export_track( 'DNA', 'Visible region','FASTA','View')
-        self.assert_no_js_errors();
+        self.assert_no_js_errors()
         self.close_dialog('export')
-        self.assert_no_js_errors();
+        self.assert_no_js_errors()
 
         self.turn_off_track( 'BigWig XY - volvox_microarray' )
         self.turn_off_track( 'HTMLFeatures - Example Features' )
@@ -167,25 +166,25 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.turn_off_track('BigWig Density - volvox_microarray')
 
     def sequence( self ):
-        self.do_typed_query( '0..80' );
+        self.do_typed_query( '0..80' )
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
-        sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG';
+        sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG'
         self.waits_for_element( sequence_div_xpath_1)
-        self.turn_off_track( 'Reference sequence' );
+        self.turn_off_track( 'Reference sequence' )
         self.waits_for_no_element( sequence_div_xpath_1 )
-        self.turn_on_track( 'Reference sequence' );
+        self.turn_on_track( 'Reference sequence' )
         self.waits_for_element( sequence_div_xpath_1 )
-        self.do_typed_query( '1..20000');
+        self.do_typed_query( '1..20000')
         self.waits_for_no_element( sequence_div_xpath_1 )
-        self.do_typed_query( 'ctgA:19961..20047');
+        self.do_typed_query( 'ctgA:19961..20047')
         self.waits_for_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
         self.turn_on_track( 'HTMLFeatures - Features with menus' )
-        self.do_typed_query( '20147..35574' );
+        self.do_typed_query( '20147..35574' )
 
         # check that there is no dialog open
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]");
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]")
 
         # get the example alignments features
         feature_elements = self.assert_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
@@ -204,7 +203,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
 
         # check that the dialog closed
-        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]");
+        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]")
         self.turn_off_track( 'HTMLFeatures - Features with menus' )
 
     def wiggle( self ):
@@ -212,7 +211,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.turn_on_track( 'microarray' )
 
         # see that we have an image track png in the DOM now
-        imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']";
+        imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']"
         imagetrack_png = self.assert_element( imagetrack_xpath )
 
         self.turn_off_track( 'microarray' )
@@ -227,7 +226,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # check that f15 is not already in the DOM at load time
         self.assert_no_element( xpath )
 
-        self.do_typed_query( "f15" );
+        self.do_typed_query( "f15" )
 
         # test that f15 appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding

@@ -1,5 +1,4 @@
 import unittest
-import time
 from volvox_biodb_test import AbstractVolvoxBiodbTest
 
 class EmbeddedModeTest( AbstractVolvoxBiodbTest, unittest.TestCase ):

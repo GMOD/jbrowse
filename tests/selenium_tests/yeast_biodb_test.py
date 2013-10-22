@@ -29,12 +29,12 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         self.assert_no_js_errors()
 
         # do a rubberband zoom in the overview
-        self.overview_rubberband( 0.2, 0.5 );
+        self.overview_rubberband( 0.2, 0.5 )
         # should be no feature labels zoomed out this far
         self.assert_no_element("//div[contains(@class,'feature-label')]")
-        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']");
-        self.overview_rubberband( 0.1, 0.11 );
-        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']");
+        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']")
+        self.overview_rubberband( 0.1, 0.11 )
+        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']")
         self.assert_elements("//div[contains(@class,'feature-label')]")
 
         # do some more rubberbanding and check that the title (which
@@ -52,24 +52,24 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         self.scroll()
 
         # test sequence fetching
-        self.sequence();
+        self.sequence()
 
         self.browser.close()
 
     def sequence( self ):
-        self.do_typed_query( 'chrII:296318..296400' );
+        self.do_typed_query( 'chrII:296318..296400' )
         if not self.is_track_on('Reference sequence'):
-            self.turn_on_track( 'Reference sequence' );
+            self.turn_on_track( 'Reference sequence' )
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
-        sequence_div_xpath_1 = sequence_div_xpath_templ % 'TATATGGTCTT';
+        sequence_div_xpath_1 = sequence_div_xpath_templ % 'TATATGGTCTT'
         self.assert_element( sequence_div_xpath_1)
-        self.turn_off_track( 'Reference sequence' );
+        self.turn_off_track( 'Reference sequence' )
         self.assert_no_element( sequence_div_xpath_1 )
-        self.turn_on_track( 'Reference sequence' );
+        self.turn_on_track( 'Reference sequence' )
         self.assert_element( sequence_div_xpath_1 )
-        self.do_typed_query( '1..20000');
+        self.do_typed_query( '1..20000')
         self.assert_no_element( sequence_div_xpath_1 )
-        self.do_typed_query( 'chrI:19961..20047');
+        self.do_typed_query( 'chrI:19961..20047')
         self.assert_element( sequence_div_xpath_templ % 'AATTATAATCCTCGG' )
 
     def search_yal024c( self ):
@@ -93,7 +93,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         assert len(track_labels) == 1, '%d tracks displayed with that name' % len(track_labels)
 
         # test that the features in the track have the right classes
-        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']");
+        self.assert_elements("//div[@class='track']//div[@class='minus-feature5']")
 
         # do the search again, and make sure that again, only one track is displayed
         # Find the query box and put YAL024C into it and hit enter
