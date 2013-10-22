@@ -214,7 +214,7 @@ var Util = {
         }
 
         if( suffix ) {
-            var hrNum = ( neg ? '-' : '' )+ (num.toString()+( suffix ? ' '+suffix : '')).replace(/0+ |\. /,' ');
+            var hrNum = ( neg ? '-' : '' )+(num.toString()+' '+suffix).replace(/\.0+ /,' ');
             return hrNum.length < inputNum.toString().length ? hrNum : Util.commifyNumber( inputNum );
         }
         else {
