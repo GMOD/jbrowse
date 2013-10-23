@@ -56,7 +56,7 @@ return declare( Destroyable, {
         }
 
         var deltaRight = rightBlockNewRightPx - this.right;
-        console.log( 'merge '+this.left+' , '+this.right+'->'+rightBlockNewRightPx );
+        //console.log( 'merge '+this.left+' , '+this.right+'->'+rightBlockNewRightPx );
         this.right = rightBlockNewRightPx;
         this.onProjectionBlockRightEdge = rightBlock.onProjectionBlockRightEdge;
 
@@ -68,13 +68,6 @@ return declare( Destroyable, {
             this.mergeCallback( rightBlock, changeDescription );
         else
             this.updateCallback( 0, deltaRight );
-
-        // update linked list
-        if(( this._llNext = rightBlock._llNext )) {
-            this._llNext._llPrev = this;
-        }
-        // destroy the old block
-        rightBlock.destroy();
 
         // var rightNodeChildren = rightBlock.domNode && rightBlock.domNode.childNodes;
         // if( rightNodeChildren ) {

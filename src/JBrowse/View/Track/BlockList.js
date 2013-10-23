@@ -26,6 +26,7 @@ return declare( LinkedList, {
 
       this.idealSize = 400; // approximate width, in pixels, that we try to make blocks
 
+      this.viewportDims = domGeom.position( this.viewportNode );
       this._ensureBlocks();
       this.projectionWatch = this.projection.watch( lang.hitch( this, '_update' ) );
   },
@@ -34,26 +35,34 @@ return declare( LinkedList, {
       var aUpdateProjection = changeDescription.aUpdate;
       if( aUpdateProjection ) {
           this.forEach( function( block ) {
-                  var l    = aUpdateProjection.projectPoint( block.left  ),
+                  var
+                      //l    = !block.onProjectionBlockLeftEdge && block.prev()  ? block.prev().right+1 : aUpdateProjection.projectPoint( block.left  ),
+                      //r    = aUpdateProjection.projectPoint( !block.onProjectionBlockRightEdge && block.next() ? block.next().left-1 : block.right ),
+                      l    = aUpdateProjection.projectPoint( block.left  ),
                       r    = aUpdateProjection.projectPoint( block.right ),
                       w    = r-l+1,
                       prev = block.prev();
 
                   // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
                   if( prev                                  //< there is a previous block
-                      && ! changeDescription.animating
+                      //&& ! changeDescription.animating
                       && !block.onProjectionBlockLeftEdge   //< they are both in the same projection block
-                      //&& Math.abs( prev.right - l ) < 1     //< they are actually abutting eachother, or close enough (implied by being in same projection block)
-                      && (prev.width() < this.idealSize/2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
+                      && (prev.width() < this.idealSize/5 || w < this.idealSize/5) //< at least one of the blocks is pretty small
                       && ( prev.width() + w <= this.idealSize*2 )  //< the merged block would not be bigger than 2x ideal size
                     ) {
-                      prev.mergeRight( block, l, r, changeDescription );
+                        prev.mergeRight( block, l, r, changeDescription );
+                        this._remove( block );
+                        block.destroy();
                   } else {
                       // otherwise just resize it
                       block.updatePosition( l, r, changeDescription );
                   }
               });
       }
+
+      //if( ! changeDescription.animating )
+          this.viewportDims = domGeom.position( this.viewportNode );
+
       this._ensureBlocks();
   },
 
@@ -67,11 +76,8 @@ return declare( LinkedList, {
   },
 
   _ensureBlocks: function() {
-      var dims = domGeom.position( this.viewportNode );
-      var xMin = dims.x-this.idealSize,
-          xMax = dims.x+dims.w-1+this.idealSize;
-
-      // TODO: merge blocks when zooming out?
+      var xMin = this.viewportDims.x-this.idealSize,
+          xMax = this.viewportDims.x+this.viewportDims.w-1+this.idealSize;
 
       // make blocks on the left
       if( this._leftPx() > xMin ) {

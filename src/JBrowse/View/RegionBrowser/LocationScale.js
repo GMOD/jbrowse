@@ -100,7 +100,7 @@ fillBlock: function( block, projection, isAnimating ) {
         var labelPitch = this._choosePitch( projectionBlock.scale, 60 );
         var prevlabel;
         var blockReverse = projectionBlock.reverse();
-        for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
+        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
                 html.push(
