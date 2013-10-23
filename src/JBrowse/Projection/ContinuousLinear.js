@@ -191,7 +191,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
               var elapsedTime = (new Date().getTime() - startTime);
               var proportionDone = thisB._animationEase( elapsedTime ,  milliseconds );
 
-              if( elapsedTime >= milliseconds || proportionDone >= 0.97 ) {
+              if( elapsedTime >= milliseconds || proportionDone >= 1 ) {
                   thisB._notifyChanged( thisB._update( endValues ) );
                   a.resolve();
               } else {
@@ -217,7 +217,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       //return elapsedTime/totalTime;
 
       // sinusoidal
-      return Math.sin( elapsedTime / totalTime * 3.14159/2 );
+      return Math.sin( elapsedTime / totalTime * 3.14159/2 )+0.04;
   }
 });
 return Continuous;

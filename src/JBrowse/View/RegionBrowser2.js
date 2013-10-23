@@ -172,7 +172,7 @@ _updateProjection: function( args ) {
 
     // if we are already on the same ref seq as the location, animate to it
     if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), existingProjection.bName ) ) {
-        existingProjection.matchRanges( aRange, bRange, args.animate ? 500 : undefined );
+        existingProjection.matchRanges( aRange, bRange, args.animate ? 800 : undefined );
     }
     else {
         //this.set( 'projection', new CircularProjection(
@@ -193,12 +193,12 @@ _locationCenter: function( location ) {
 
 slide: function( factor ) {
     if( this._contentBox && this.get('projection') )
-        this.get('projection').offset( this._contentBox.w * -factor, 700 );
+        this.get('projection').offset( this._contentBox.w * -factor, 1100 );
 },
 
 zoom: function( factor ) {
     if( this._contentBox && this.get('projection') )
-        this.get('projection').zoom( factor, this._contentBox.l+this._contentBox.w/2, 700 );
+        this.get('projection').zoom( factor, this._contentBox.l+this._contentBox.w/2, 500 );
 }
 
 
