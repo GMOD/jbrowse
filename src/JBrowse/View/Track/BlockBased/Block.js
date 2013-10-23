@@ -1,45 +1,60 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
+           'dojo/dom-construct',
+
            'dijit/Destroyable',
            'JBrowse/Util'
        ],
        function(
            declare,
+           lang,
+           domConstruct,
+
            Destroyable,
            Util
        ) {
 return declare( Destroyable, {
 
     constructor: function( args ) {
-        dojo.mixin( this, args );
-        var nodeArgs = this.node || {};
-        delete this.node;
-        this.domNode = dojo.create( 'div', nodeArgs );
-
-        if( /[^\d-]/.test( this.startBase ) )
-            throw 'invalid startBase '+this.startBase;
-        if( /[^\d-]/.test( this.endBase ) )
-            throw 'invalid endBase '+this.endBase;
-
-        this.domNode.block = this;
+        lang.mixin( this, args );
+        this.updatePosition( args.left, args.right );
     },
 
-    containsBp: function( bp ) {
-        return this.startBase <= bp && this.endBase >= bp;
+    next: function() {
+        return this._llNext;
+    },
+    prev: function() {
+        return this._llPrev;
     },
 
-    bpToX: function( coord ) {
-        return (coord-this.startBase)*this.scale;
-    },
-
-    toString: function() {
-        return this.startBase+'..'+this.endBase;
+    updatePosition: function( newLeft, newRight, changeDescription ) {
+        var deltaLeft = newLeft - this.left;
+        var deltaRight = newRight - this.right;
+        this.left = newLeft;
+        this.right = newRight;
+        if( this.domNode ) {
+            this.domNode.style.left = newLeft+'px';
+            this.domNode.style.width = (newRight-newLeft+1)+'px';
+        }
+        if( this.updatePositionCallback ) {
+            this.updatePositionCallback( deltaLeft, deltaRight, changeDescription );
+        }
+        return this.left;
     },
 
     destroy: function() {
-        if( this.domNode )
-            Util.removeAttribute( this.domNode, 'block' );
+        //console.log('destroy');
+        this._llNext = this._llPrev = undefined;
+
+        if( this.domNode ) {
+            domConstruct.destroy( this.domNode );
+            delete this.domNode;
+        }
+
+        delete this.updatePositionCallback;
         this.inherited( arguments );
     }
+
 });
 });

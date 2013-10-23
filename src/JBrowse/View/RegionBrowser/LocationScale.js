@@ -3,10 +3,12 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/dom-geometry',
-
+           'dojo/dom-construct',
 
 	   "dijit/_WidgetBase",
 
+           'JBrowse/View/Track/BlockList',
+           'JBrowse/View/Track/BlockBased/Block',
            'JBrowse/Util'
 
        ], function(
@@ -14,9 +16,12 @@ define([
            lang,
            array,
            domGeom,
+           domConstruct,
 
            _WidgetBase,
 
+           BlockList,
+           Block,
            Util
        ) {
 
@@ -29,34 +34,51 @@ constructor: function(args) {
 
 _setGenomeViewAttr: function( genomeView ) {
     var thisB = this;
-    genomeView.watch( 'projection', function( name, oldProjection, newProjection ) {
-                          newProjection.watch( lang.hitch( thisB, '_update', newProjection ) );
-                          thisB._update( newProjection );
-                      });
+
+    genomeView.watch(
+        'projection',
+        function( name, oldProjection, newProjection ) {
+            if( thisB.blockList )
+                thisB.blockList.destroy();
+            thisB.blockList = new BlockList(
+                {
+                    projection: newProjection,
+                    viewportNode: thisB.domNode,
+                    newBlock: function( args ) {
+                        return new Block( lang.mixin( args, {
+                          domNode: domConstruct.create('div', { className: 'block' }, thisB.domNode ),
+                          updatePositionCallback: function( deltaLeft, deltaRight, projectionChange ) {
+                              // if the block has changed size, need to refill it
+                              if( Math.abs(deltaLeft-deltaRight)>1 )
+                                  this.filled = false;
+                              //if( ! this.filled && !( projectionChange && projectionChange.animating )) {
+                              if( ! this.filled ) {
+                                  thisB.fillBlock( this, newProjection );
+                                  this.filled = true;
+                              }
+                          }
+                        }));
+                    }
+                });
+        });
+
     if( genomeView.get('projection') )
         this._update( genomeView.get('projection') );
 },
 
-_update: function( projection, changeDescription ) {
-    var dims = domGeom.position( this.domNode );
-    dims.r = dims.x+dims.w;
-    var projectionBlocks = projection.getBlocksForRange( dims.x, dims.r );
+fillBlock: function( block, projection, isAnimating ) {
+    //console.log('fill');
+    var projectionBlocks = projection.getBlocksForRange( block.left, block.right );
     var html = [];
     array.forEach( projectionBlocks, function( projectionBlock, i ) {
-        var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, dims.x ) );
-        var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, dims.r ));
+        var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, block.left ) );
+        var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, block.right ));
         if( leftBase > rightBase ) { // swap if negative
             var tmp = leftBase;
             leftBase = rightBase;
             rightBase = tmp;
         }
-
-        var blockLeft = projectionBlock.aStart >= dims.x && projectionBlock.aStart <= dims.r ? projectionBlock.aStart : -4;
-        var blockWidth = projectionBlock.aEnd >= dims.x && projectionBlock.aEnd <= dims.r ? projectionBlock.aEnd-blockLeft+'px' : '104%';
-        html.push( '<div class="projectionBlock" style="left: ', blockLeft, 'px; width: ', blockWidth, '">' );
-
         var labelPitch = this._choosePitch( projectionBlock.scale, 60 );
-
         var prevlabel;
         var blockReverse = projectionBlock.reverse();
         for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
@@ -64,7 +86,7 @@ _update: function( projection, changeDescription ) {
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
                 html.push(
                     '<div class="posLabel" style="left: ',
-                    blockReverse.projectPoint(b)-blockLeft,
+                    blockReverse.projectPoint(b)-block.left,
                     'px" title="',
                     Util.commifyNumber(b),
                     '"><span style="left: -',
@@ -75,9 +97,8 @@ _update: function( projection, changeDescription ) {
                 );
             prevlabel = label;
         }
-        html.push('</div>');
     },this);
-    this.domNode.innerHTML = html.join('');
+    block.domNode.innerHTML = html.join('');
 },
 
 _choosePitch: function( scale, minPxSpacing ) {

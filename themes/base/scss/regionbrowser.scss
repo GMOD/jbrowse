@@ -296,16 +296,9 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     }
 
     .viewScale {
-        .projectionBlock {
+        .block {
             position: absolute;
             background: #333;
-
-            border-left: 1px solid transparent;
-            border-right: 1px solid transparent;
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            -webkit-box-sizing: border-box;
-            -ms-box-sizing: border-box;
 
             height: 100%;
             .posLabel {

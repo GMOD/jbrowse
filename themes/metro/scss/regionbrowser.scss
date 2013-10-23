@@ -30,7 +30,7 @@
 
         .viewScale {
             height: 16px;
-            .projectionBlock {
+            .block {
                 height: 13px;
                 bottom: 3px;
                 border-color: rgba( 0, 0, 0, 0.3 );
@@ -50,7 +50,7 @@
         }
 
         &.colorScheme1 {
-            .topBar, .viewScale .projectionBlock {
+            .topBar, .viewScale .block {
                 background: #e6e6e6;
             }
             .topBar {
@@ -58,7 +58,7 @@
             }
             .viewScale {
                 background: url("../img/view_top_bg_1.gif") #AAAAAA repeat-x 0 100%;
-                .projectionBlock {
+                .block {
                     background: #e6e6e6;
                 }
                 .posLabel {
@@ -67,7 +67,7 @@
             }
         }
         &.colorScheme2 {
-            .topBar, .viewScale .projectionBlock {
+            .topBar, .viewScale .block {
                 background: #4687d4;
             }
             .topBar {
