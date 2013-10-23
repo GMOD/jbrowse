@@ -175,6 +175,10 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
 
       var canceled = false;
       var a = this._currentAnimation = new Deferred( function() { canceled = true; });
+      a.then( null, function(e) {
+                  if( e != 'new animation requested' )
+                      console.error( e.stack || ''+e );
+              } );
       a.promise.always( function() {
                             if( thisB._currentAnimation === a )
                                 delete thisB._currentAnimation;
