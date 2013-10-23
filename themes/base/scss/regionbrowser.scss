@@ -3,6 +3,19 @@
     overflow: visible;
     top: 0px;
     height: 100%;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+
+    &.projectionLeftBorder {
+        border-left: 1px solid transparent;
+    }
+    &.projectionRightBorder {
+        border-right: 1px solid transparent;
+    }
+
 }
 .renderingBlock.height_overflow .height_overflow_message {
     position: absolute;

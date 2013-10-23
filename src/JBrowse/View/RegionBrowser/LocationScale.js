@@ -45,38 +45,42 @@ _setGenomeViewAttr: function( genomeView ) {
                     projection: newProjection,
                     viewportNode: thisB.domNode,
                     newBlock: function( args ) {
-                        return new Block(
-                            lang.mixin( args,
-                                {
-                                    domNode: domConstruct.create('div', { className: 'renderingBlock' }, thisB.domNode ),
-
-                                    // callback when block changes
-                                    // screen coordinates and/or size,
-                                    // but is guaranteed to correspond
-                                    // to the same genomic region as
-                                    // before
-                                    updatePositionCallback: function( deltaLeft, deltaRight, projectionChange ) {
-                                        // if the block has changed size, need to refill it
-                                        if( Math.abs(deltaLeft-deltaRight)>1 )
-                                            this.filled = false;
-                                        //if( ! this.filled && !( projectionChange && projectionChange.animating )) {
-                                        if( ! this.filled ) {
-                                            thisB.fillBlock( this, newProjection );
-                                            this.filled = true;
-                                        }
-                                    },
-
-                                    // callback when block changes
-                                    // screen coordinates and/or size,
-                                    // and is *not* guaranteed to
-                                    // correspond to the same genomic
-                                    // region
-                                    updateCallback: function( deltaLeft, deltaRight, projectionChange ) {
+                        args = lang.mixin(
+                            args,
+                            {
+                                // callback when block changes
+                                // screen coordinates and/or size,
+                                // but is guaranteed to correspond
+                                // to the same genomic region as
+                                // before
+                                updatePositionCallback: function( deltaLeft, deltaRight, projectionChange ) {
+                                    // if the block has changed size, need to refill it
+                                    if( Math.abs(deltaLeft-deltaRight)>1 )
                                         this.filled = false;
+                                    //if( ! this.filled && !( projectionChange && projectionChange.animating )) {
+                                    if( ! this.filled ) {
                                         thisB.fillBlock( this, newProjection );
                                         this.filled = true;
                                     }
-                                }));
+                                },
+
+                                // callback when block changes
+                                // screen coordinates and/or size,
+                                // and is *not* guaranteed to
+                                // correspond to the same genomic
+                                // region
+                                updateCallback: function( deltaLeft, deltaRight, projectionChange ) {
+                                    this.filled = false;
+                                    thisB.fillBlock( this, newProjection );
+                                    this.filled = true;
+                                }
+                            });
+                        var className = 'renderingBlock'
+                            +( args.onProjectionBlockLeftEdge ? ' projectionLeftBorder' : '' )
+                            +( args.onProjectionBlockRightEdge ? ' projectionRightBorder' : '' );
+
+                        args.domNode = domConstruct.create('div', { className: className }, thisB.domNode );
+                        return new Block( args );
                     }
                 });
         });
