@@ -36,12 +36,14 @@ return declare( LinkedList, {
       if( aUpdateProjection ) {
           this.forEach( function( block ) {
                   var
-                      //l    = !block.onProjectionBlockLeftEdge && block.prev()  ? block.prev().right+1 : aUpdateProjection.projectPoint( block.left  ),
-                      //r    = aUpdateProjection.projectPoint( !block.onProjectionBlockRightEdge && block.next() ? block.next().left-1 : block.right ),
                       l    = aUpdateProjection.projectPoint( block.left  ),
                       r    = aUpdateProjection.projectPoint( block.right ),
                       w    = r-l+1,
                       prev = block.prev();
+
+                  if( ! block.onProjectionBlockLeftEdge && prev && (l-prev.right) > 1 ) {
+                      l = prev.right+1;
+                  }
 
                   // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
                   if( prev                                  //< there is a previous block
