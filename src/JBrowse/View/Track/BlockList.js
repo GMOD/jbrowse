@@ -24,7 +24,7 @@ return declare( LinkedList, {
       this._newBlock = args.newBlock;
       this.viewportNode = args.viewportNode;
 
-      this.overRender = 400; // additional pixels on each side of the v
+      this.idealSize = 400; // approximate width, in pixels, that we try to make blocks
 
       this._ensureBlocks();
       this.projectionWatch = this.projection.watch( lang.hitch( this, '_update' ) );
@@ -34,11 +34,24 @@ return declare( LinkedList, {
       var aUpdateProjection = changeDescription.aUpdate;
       if( aUpdateProjection ) {
           this.forEach( function( block ) {
-                  block.updatePosition(
-                      aUpdateProjection.projectPoint( block.left ),
-                      aUpdateProjection.projectPoint( block.right ),
-                      changeDescription
-                  );
+                  var l    = aUpdateProjection.projectPoint( block.left  ),
+                      r    = aUpdateProjection.projectPoint( block.right ),
+                      w    = r-l+1,
+                      prev = block.prev();
+
+                  // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
+                  if( prev                                  //< there is a previous block
+                      && ! changeDescription.animating
+                      && !block.onProjectionBlockLeftEdge   //< they are both in the same projection block
+                      //&& Math.abs( prev.right - l ) < 1     //< they are actually abutting eachother, or close enough (implied by being in same projection block)
+                      && (prev.width() < this.idealSize/2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
+                      && ( prev.width() + w <= this.idealSize*2 )  //< the merged block would not be bigger than 2x ideal size
+                    ) {
+                      prev.mergeRight( block, l, r, changeDescription );
+                  } else {
+                      // otherwise just resize it
+                      block.updatePosition( l, r, changeDescription );
+                  }
               });
       }
       this._ensureBlocks();
@@ -55,8 +68,10 @@ return declare( LinkedList, {
 
   _ensureBlocks: function() {
       var dims = domGeom.position( this.viewportNode );
-      var xMin = dims.x-this.overRender,
-          xMax = dims.x+dims.w-1+this.overRender;
+      var xMin = dims.x-this.idealSize,
+          xMax = dims.x+dims.w-1+this.idealSize;
+
+      // TODO: merge blocks when zooming out?
 
       // make blocks on the left
       if( this._leftPx() > xMin ) {
@@ -66,11 +81,14 @@ return declare( LinkedList, {
               for( var left = this._leftPx(); left > xMin && left > projectionBlock.aStart; left = this._leftPx() ) {
                   if( projectionBlock.aStart >= left )
                       return;
-                  this.unshift( this._newBlock(
-                                    { left: Math.max( projectionBlock.aStart, xMin-this.overRender ),
-                                      right: Math.min( projectionBlock.aEnd, left, xMax+this.overRender )
-                                    }
-                                ));
+                  var blockdata = {
+                      left:  Math.max( projectionBlock.aStart, xMin-this.idealSize ),
+                      right: Math.min( projectionBlock.aEnd, left, xMax+this.idealSize )
+                  };
+                  blockdata.onProjectionBlockLeftEdge  = blockdata.left  == projectionBlock.aStart;
+                  blockdata.onProjectionBlockRightEdge = blockdata.right == projectionBlock.aEnd;
+
+                 this.unshift( this._newBlock( blockdata ) );
               }
           },this);
       }
@@ -88,11 +106,13 @@ return declare( LinkedList, {
               for( var right = this._rightPx(); right < xMax && right < projectionBlock.aEnd; right = this._rightPx() ) {
                   if( projectionBlock.aEnd <= right )
                       return;
-                  this.push( this._newBlock(
-                                 { left:  Math.max( projectionBlock.aStart, xMin-this.overRender, right ),
-                                   right: Math.min( projectionBlock.aEnd,   xMax+this.overRender )
-                                 }
-                             ));
+                  var blockdata = {
+                      left:  Math.max( projectionBlock.aStart, xMin-this.idealSize, right ),
+                      right: Math.min( projectionBlock.aEnd,   xMax+this.idealSize )
+                  };
+                  blockdata.onProjectionBlockLeftEdge  = blockdata.left  == projectionBlock.aStart;
+                  blockdata.onProjectionBlockRightEdge = blockdata.right == projectionBlock.aEnd;
+                  this.push( this._newBlock( blockdata ) );
               }
           },this);
       }
