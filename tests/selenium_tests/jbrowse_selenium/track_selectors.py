@@ -51,6 +51,7 @@ class FacetedTrackSelector (TrackSelector):
 
     def _find_track_by_text( self, tracktext ):
         # turn on the track selector tab
+        self.test.waits_for_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
         time.sleep(0.4)

@@ -88,9 +88,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         canvas = self.assert_element("//div[@id='track_Genes']/canvas")
         canvas.click()
-        self.waits_for_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
+        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
         self.close_dialog("EDEN details")
-        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]")
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]")
 
         # test Canvas-features context menu functionality
         # right-click one of them
@@ -140,7 +140,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.turn_on_track( 'HTMLFeatures - Example Features' )
         trackname = 'ExampleFeatures'
-        self.waits_for_track('HTMLFeatures - Example Features')
         self.export_track( trackname, 'Visible region','GFF3','View')
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Save')
@@ -174,25 +173,24 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.do_typed_query( '0..80' )
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG'
-        self.waits_for_element( sequence_div_xpath_1)
+        self.assert_element( sequence_div_xpath_1)
         self.turn_off_track( 'Reference sequence' )
-        self.waits_for_no_element( sequence_div_xpath_1 )
+        self.assert_no_element( sequence_div_xpath_1 )
         self.turn_on_track( 'Reference sequence' )
-        self.waits_for_element( sequence_div_xpath_1 )
+        self.assert_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000')
-        self.waits_for_no_element( sequence_div_xpath_1 )
+        self.assert_no_element( sequence_div_xpath_1 )
         self.do_typed_query( 'ctgA:19961..20047')
-        self.waits_for_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
+        self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
         self.turn_on_track( 'HTMLFeatures - Features with menus' )
         self.do_typed_query( '20147..35574' )
 
         # check that there is no dialog open
-        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]")
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]")
 
         # get the example alignments features
-        self.waits_for_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
         feature_elements = self.assert_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
 
         # right-click one of them
@@ -203,13 +201,13 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.menu_item_click( 'Open popup' )
 
         # check that the proper HTML snippet popped up in the dialog
-        self.waits_for_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
+        self.assert_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
 
         self.close_dialog('Random XHR')
 
 
         # check that the dialog closed
-        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]")
+        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]")
         self.turn_off_track( 'HTMLFeatures - Features with menus' )
 
     def wiggle( self ):
@@ -237,7 +235,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test that f15 appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding
         # genes track is now selected
-        self.waits_for_element(xpath)
         assert self.assert_element(xpath).text =='f15'
 
         self.turn_off_track('HTMLFeatures - Example Features')

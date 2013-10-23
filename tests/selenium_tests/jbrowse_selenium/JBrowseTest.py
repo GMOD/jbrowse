@@ -40,7 +40,7 @@ class JBrowseTest (object):
             base + ( '&' if base.find('?') >= 0 else '?' )
             + ( "data="+self.data_dir if self.data_dir else "" )
         )
-        time.sleep(0.5)  # give selenium some time to get its head on straight
+        self.waits_for_scroll(self.get_current_location())
 
     def baseURL( self ):
         if not self.base_url:
@@ -50,14 +50,8 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
-    def maybe_find_element_by_xpath( self, xpathExpression ):
-        try:
-            el = self.browser.find_element_by_xpath( xpathExpression )
-        except NoSuchElementException:
-            return None
-        return el
-
     def assert_element( self, expression ):
+        self.waits_for_element( expression )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_element_by_xpath( expression )
@@ -68,6 +62,7 @@ class JBrowseTest (object):
         return el
 
     def assert_elements( self, expression ):
+        self.waits_for_elements( expression )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_elements_by_xpath( expression )
@@ -77,16 +72,8 @@ class JBrowseTest (object):
             raise AssertionError ("can't find %s" %expression)
         return el
 
-
     def assert_no_element( self, expression ):
-        try:
-            if expression.find('/') >= 0:
-                el = self.browser.find_element_by_xpath( expression )
-            else:
-                el = self.browser.find_element_by_css_selector( expression )
-            raise AssertionError ("not supposed to find %s" %expression)
-        except NoSuchElementException:
-            pass
+        self.waits_for_no_element( expression )
 
     def assert_no_js_errors( self ):
         assert self.browser.find_element_by_xpath('/html/body') \
@@ -186,45 +173,44 @@ class JBrowseTest (object):
     def actionchains( self ):
         return ActionChains( self.browser )
 
-    def do_elements_exist (self, Path):
-        try:
-            self.browser.find_elements_by_xpath(Path)
-            return True
-        except NoSuchElementException:
-            return False
-
-    def waits_for_elements( self, Path ):
-        WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(Path))
-
-    def does_element_exist (self, Path):
-        try:
-            self.browser.find_element_by_xpath(Path)
-            return True
-        except NoSuchElementException:
-            return False
-
-    def waits_for_element( self, Path ):
-        WebDriverWait(self, 5).until(lambda self: self.does_element_exist(Path))
-
-    def waits_for_no_element( self, Path ):
-        WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(Path))
+    def get_track_labels_containing( self, string ):
+        return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
     def waits_for_track( self, tracktext ):
         self.waits_for_element("//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext)
 
-    def waits_for_scroll ( self, location ):
-        WebDriverWait(self, 5).until(lambda self: self.is_scroll_done(location))
+    def waits_for_elements( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(expression))
 
-    def is_scroll_done ( self, location ):
-        return location != self.get_current_location()
+    def waits_for_element( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: self.does_element_exist(expression))
 
-    def get_current_location(self):
-        location = self.browser.title
-        return location
+    def waits_for_no_element( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
 
-    def get_track_labels_containing( self, string ):
-        return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
+    def waits_for_no_elements( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: not self.do_elements_exist(expression))
 
+    def does_element_exist (self, expression):
+        try:
+            if expression.find('/') >= 0:
+                self.browser.find_element_by_xpath( expression )
+            else:
+                self.browser.find_element_by_css_selector( expression )
+            return True
+        except NoSuchElementException:
+            return False
+   
+    def do_elements_exist (self, expression):
+        try:
+            if expression.find('/') >= 0:
+                self.browser.find_elements_by_xpath( expression )
+            else:
+                self.browser.find_elements_by_css_selector( expression )
+            return True
+        except NoSuchElementException:
+            return False
+   
     def select_refseq( self, name ):
         self.do_typed_query( name )
 
@@ -252,4 +238,13 @@ class JBrowseTest (object):
            .perform()
 
         self.assert_no_js_errors()
+
+    def waits_for_scroll ( self, location ):
+        WebDriverWait(self, 5).until(lambda self: self.is_scroll_done(location))
+
+    def is_scroll_done ( self, location ):
+        return location != self.get_current_location()
+
+    def get_current_location(self):
+        return self.browser.title
 
