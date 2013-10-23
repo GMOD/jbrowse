@@ -50,7 +50,7 @@ return declare( LinkedList, {
                   // if the new size of this block is much bigger than
                   // the ideal size, we need to split it
                   if( w > this.idealSize*5 ) {
-                      var newBlocks = block.splitLeft( this._newBlock, this.idealSize, l, r );
+                      var newBlocks = block.splitLeft( this._newBlock, this.idealSize, l, r, changeDescription );
                       this.insertBefore( newBlocks, block );
                   }
                   // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it

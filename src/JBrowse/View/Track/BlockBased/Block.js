@@ -62,11 +62,12 @@ return declare( Destroyable, {
     // split this block into several smaller blocks, modifying the
     // current block in-place to be the last block in the new blocks,
     // and returning an array containing the other blocks.
-    splitLeft: function( newCallback, idealSize, newLeft, newRight ) {
+    splitLeft: function( newCallback, idealSize, newLeft, newRight, changeDescription ) {
         var w = newRight-newLeft+1;
         var numBlocks = Math.round(w/idealSize);
         var size = w/numBlocks;
 
+        var deltaLeft = newRight-size-this.left;
         this.left = newRight-size;
         if( this.domNode ) {
             this.domNode.style.left = this.left+'px';
@@ -81,6 +82,7 @@ return declare( Destroyable, {
             newBlocks[0].onProjectionBlockLeftEdge = this.onProjectionBlockLeftEdge;
             this.onProjectionBlockLeftEdge = false;
         }
+        this.updateCallback( this, deltaLeft, 0, changeDescription );
 
         this._log( 'split', newBlocks, this );
 
