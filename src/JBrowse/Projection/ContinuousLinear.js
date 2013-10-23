@@ -77,12 +77,30 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   // normalize and set the given values, return array list of what values changed
   _set: function( args, isAnimating ) {
       args = this._normalize( args, isAnimating );
-      var changed = [];
+      var changed = { animating: isAnimating || false };
       for( var k in args ) {
           if( args.hasOwnProperty(k) && args[k] !== undefined && args[k] != this[k] ) {
+              changed[k] = [ this[k], args[k] ];
               this[k] = args[k];
-              changed.push(k);
           }
+      }
+      return changed;
+  },
+
+  _update: function( args, isAnimating ) {
+      var changed = this._set( args, isAnimating );
+
+      // make aUpdate and bUpdate projections that will convert old A
+      // coordinates to new A coordinates, and old B coordinates to new B coordinates
+      if( changed.bOffset || changed.scale ) {
+          var oldScale   = changed.scale   ? changed.scale[0]   : this.scale;
+          var oldBOffset = changed.bOffset ? changed.bOffset[0] : this.bOffset;
+          changed.aUpdate = new Continuous({ scale: oldScale/this.scale, bOffset: (oldBOffset-this.bOffset)/this.scale,
+                                             aName: 'old '+this.aName, bName: this.aName
+                                           });
+          changed.bUpdate = new Continuous({ scale: this.scale/oldScale, bOffset: this.bOffset - this.scale/oldScale*oldBOffset,
+                                             aName: 'old '+this.bName, bName: this.bName
+                                           });
       }
 
       return changed;
@@ -135,7 +153,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   // milliseconds
   _goTo: function( args, animationMilliseconds ) {
       if( ! animationMilliseconds ) {
-          this._notifyChanged( this._set( args ) );
+          this._notifyChanged( this._update( args ) );
       } else {
           this._animateTo( args, animationMilliseconds );
       }
@@ -169,7 +187,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
               var proportionDone = thisB._animationEase( (new Date().getTime() - startTime),  milliseconds );
 
               if( proportionDone >= 1 ) {
-                  thisB._notifyChanged( thisB._set( endValues ) );
+                  thisB._notifyChanged( thisB._update( endValues ) );
                   a.resolve();
               } else {
                   thisB._animationStep( startValues, endValues, proportionDone );
@@ -186,8 +204,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       for( var k in endValues ) {
           settings[k] = startValues[k] + ( endValues[k] - startValues[k] ) * proportionDone;
       }
-      var changed = this._set( settings, true );
-      this._notifyChanged( changed, true );
+      this._notifyChanged( this._set( settings, true ) );
   },
 
   _animationEase: function( elapsedTime, totalTime ) {

@@ -51,11 +51,11 @@ return declare( null,
         return l;
     },
 
-    _notifyChanged: function( changedFields, isAnimating ) {
+    _notifyChanged: function( changeDescription ) {
         var l = this.listeners;
         for( var i = 0; i<l.length; i++ )
             if( l[i] )
-                l[i].cb( changedFields, this, isAnimating );
+                l[i].cb( changeDescription, this );
     },
 
     // look up relevant blocks by A coordinates. a block is a region
