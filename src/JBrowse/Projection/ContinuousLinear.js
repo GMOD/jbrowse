@@ -209,7 +209,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       for( var k in endValues ) {
           settings[k] = startValues[k] + ( endValues[k] - startValues[k] ) * proportionDone;
       }
-      this._notifyChanged( this._set( settings, true ) );
+      this._notifyChanged( this._update( settings, true ) );
   },
 
   _animationEase: function( elapsedTime, totalTime ) {
