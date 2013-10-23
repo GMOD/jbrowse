@@ -188,9 +188,10 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
           function animate() {
               if( canceled ) return;
 
-              var proportionDone = thisB._animationEase( (new Date().getTime() - startTime),  milliseconds );
+              var elapsedTime = (new Date().getTime() - startTime);
+              var proportionDone = thisB._animationEase( elapsedTime ,  milliseconds );
 
-              if( proportionDone >= 1 ) {
+              if( elapsedTime >= milliseconds || proportionDone >= 1 ) {
                   thisB._notifyChanged( thisB._update( endValues ) );
                   a.resolve();
               } else {
