@@ -21,12 +21,16 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):
+ 
         # select "ctgA from the dropdown
         self.select_refseq( 'ctgA' )
 
         # check a good browser title
         assert "ctgA" in self.browser.title, "browser title is actually %s" % self.browser.title
 
+        self.browser.execute_script('window.resizeTo(1000,600)')
+        self.browser.execute_script('window.moveTo(0,0)')
+ 
         # do a test where we search for a certain gene using the search box
         self.search_f15()
 
@@ -48,6 +52,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.turn_on_track( 'HTMLFeatures - mRNAs' )
         self.do_typed_query('ctgA:2,381..21,220')
         self.assert_element("//div[@title='search at NCBI']")
+        self.turn_off_track( 'HTMLFeatures - mRNAs' )
 
         # test bigwig
         self.bigwig()
@@ -131,6 +136,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.close_dialog('export')
         self.export_track( trackname, 'Whole', 'bedGraph', 'Save' )
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
+        self.turn_off_track( 'BigWig XY - volvox_microarray' )
 
         self.turn_on_track( 'HTMLFeatures - Example Features' )
         trackname = 'ExampleFeatures'
@@ -138,12 +144,14 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.export_track( trackname, 'Visible region','GFF3','View')
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region','BED','Save')
+        self.turn_off_track( 'HTMLFeatures - Example Features' )
 
         self.turn_on_track( 'CanvasFeatures - transcripts' )
         trackname = 'Transcript'
         self.export_track( trackname, 'Visible region', 'GFF3', 'View')
         self.close_dialog('export')
         self.export_track( trackname, 'Visible region', 'BED', 'Save')
+        self.turn_off_track( 'CanvasFeatures - transcripts' )
 
         self.do_typed_query('ctgA:8379..31627')
         self.export_track( 'DNA', 'Visible region','FASTA','View')
@@ -151,9 +159,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.close_dialog('export')
         self.assert_no_js_errors()
 
-        self.turn_off_track( 'BigWig XY - volvox_microarray' )
-        self.turn_off_track( 'HTMLFeatures - Example Features' )
-        self.turn_off_track( 'CanvasFeatures - transcripts' )
 
     def bigwig( self ):
         self.turn_on_track('BigWig XY - volvox_microarray')
@@ -192,10 +197,10 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # right-click one of them
         self.actionchains() \
-            .context_click(feature_elements[40]) \
+            .context_click(feature_elements[int(len(feature_elements)/2)]) \
             .perform()
 
-        self.menu_item_click( 'XHR HTML' )
+        self.menu_item_click( 'Open popup' )
 
         # check that the proper HTML snippet popped up in the dialog
         self.waits_for_element("//div[contains(@class,'dijitDialog')]//span[@class='amazingTestSnippet']")
