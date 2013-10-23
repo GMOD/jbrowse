@@ -14,13 +14,18 @@ define([
            Destroyable,
            Util
        ) {
+var serialNumber = 0;
+
 return declare( Destroyable, {
 
     constructor: function( args ) {
         lang.mixin( this, args );
+        this.serialNumber = ++serialNumber;
         this.updatePosition( args.left, args.right );
         if( ! this.updateCallback )
             throw new Error('updateCallback required');
+
+        this._log( 'new', this.width() );
     },
 
     width: function() {
@@ -34,6 +39,10 @@ return declare( Destroyable, {
         return this._llPrev;
     },
 
+    _log: function() {
+        console.log.apply( console, [ this.serialNumber+' '+arguments[0]].concat(Array.prototype.slice.call( arguments, 1 )) );
+    },
+
     updatePosition: function( newLeft, newRight, changeDescription ) {
         if( this._destroyed ) return;
 
@@ -42,11 +51,40 @@ return declare( Destroyable, {
         this.left = newLeft;
         this.right = newRight;
         if( this.domNode ) {
-            this.domNode.style.left = newLeft+'px';
+            this.domNode.style.left = this.left+'px';
+            this.domNode.style.width = this.width()+'px';
+        }
+        //this._log( 'update '+this.width() );
+
+        ( this.updatePositionCallback || this.updateCallback ).call( this, deltaLeft, deltaRight, changeDescription );
+    },
+
+    // split this block into several smaller blocks, modifying the
+    // current block in-place to be the last block in the new blocks,
+    // and returning an array containing the other blocks.
+    splitLeft: function( newCallback, idealSize, newLeft, newRight ) {
+        var w = newRight-newLeft+1;
+        var numBlocks = Math.round(w/idealSize);
+        var size = w/numBlocks;
+
+        this.left = newRight-size;
+        if( this.domNode ) {
+            this.domNode.style.left = this.left+'px';
             this.domNode.style.width = this.width()+'px';
         }
 
-        ( this.updatePositionCallback || this.updateCallback ).call( this, deltaLeft, deltaRight, changeDescription );
+        var newBlocks = [];
+        for( var l = newLeft; l<this.left; l += size ) {
+            newBlocks.push( newCallback({ left: l, right: Math.min(this.left-1,l+size-1) }) );
+        }
+        if( newBlocks[0] ) {
+            newBlocks[0].onProjectionBlockLeftEdge = this.onProjectionBlockLeftEdge;
+            this.onProjectionBlockLeftEdge = false;
+        }
+
+        this._log( 'split', newBlocks, this );
+
+        return newBlocks;
     },
 
     mergeRight: function( rightBlock, rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription ) {
@@ -82,7 +120,7 @@ return declare( Destroyable, {
     },
 
     destroy: function() {
-        //console.log('destroy');
+        this._log('destroy');
         this._llNext = this._llPrev = undefined;
 
         if( this.domNode ) {

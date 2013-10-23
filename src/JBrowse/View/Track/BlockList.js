@@ -35,23 +35,32 @@ return declare( LinkedList, {
       var aUpdateProjection = changeDescription.aUpdate;
       if( aUpdateProjection ) {
           this.forEach( function( block ) {
-                  var
-                      l    = aUpdateProjection.projectPoint( block.left  ),
+                  var l    = aUpdateProjection.projectPoint( block.left  ),
                       r    = aUpdateProjection.projectPoint( block.right ),
-                      w    = r-l+1,
                       prev = block.prev();
 
+                  // close gaps between adjacent blocks that were
+                  // caused by math inaccuracies
                   if( ! block.onProjectionBlockLeftEdge && prev && (l-prev.right) > 1 ) {
                       l = prev.right+1;
                   }
 
+                  var w = r-l+1;
+
+                  // if the new size of this block is much bigger than
+                  // the ideal size, we need to split it
+                  if( w > this.idealSize*5 ) {
+                      var newBlocks = block.splitLeft( this._newBlock, this.idealSize, l, r );
+                      this.insertBefore( newBlocks, block );
+                  }
                   // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
-                  if( prev                                  //< there is a previous block
+                  else if( prev                                  //< there is a previous block
                       //&& ! changeDescription.animating
                       && !block.onProjectionBlockLeftEdge   //< they are both in the same projection block
                       && (prev.width() < this.idealSize/5 || w < this.idealSize/5) //< at least one of the blocks is pretty small
                       && ( prev.width() + w <= this.idealSize*2 )  //< the merged block would not be bigger than 2x ideal size
                     ) {
+                        prev._log( 'merge', prev.width(), block.width(), w );
                         prev.mergeRight( block, l, r, changeDescription );
                         this._remove( block );
                         block.destroy();
@@ -62,7 +71,7 @@ return declare( LinkedList, {
               });
       }
 
-      //if( ! changeDescription.animating )
+      if( ! changeDescription.animating )
           this.viewportDims = domGeom.position( this.viewportNode );
 
       this._ensureBlocks();
