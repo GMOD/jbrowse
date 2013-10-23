@@ -55,19 +55,15 @@ return declare( null, {
 
   pop: function() {
       var last = this._llLast;
-      if( last ) {
-          this._llLast = last._llPrev;
-          last._llPrev = last._llNext = undefined;
-      }
+      if( last )
+          this._remove( last );
       return last;
   },
 
   shift: function() {
       var first = this._llFirst;
-      if( first ) {
-          this._llFirst = first._llNext;
-          first._llPrev = first._llNext = undefined;
-      }
+      if( first )
+          this._remove( first );
       return first;
   },
 
