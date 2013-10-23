@@ -39,9 +39,9 @@ return declare( null, {
           var el = arguments[i];
 
           if( el._llPrev )
-              el._llPrev.next = el._llNext;
+              el._llPrev._llNext = el._llNext;
           if( el._llNext )
-              el._llNext.prev = el._llPrev;
+              el._llNext._llPrev = el._llPrev;
 
           if( this._llLast === el )
               this._llLast = el._llPrev;
