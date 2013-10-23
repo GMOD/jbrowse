@@ -80,6 +80,47 @@ return declare( null, {
       return this._llFirst;
   },
 
+  replace: function( outEl, inEls ) {
+      var prev = outEl._llPrev;
+      this._remove( outEl );
+      if( prev )
+          this.insert( inEls, prev );
+      else
+          this.unshift( inEls );
+  },
+
+  insertAfter: function( elements, after ) {
+      if( ! elements || ! elements.length )
+          return undefined;
+
+      if( ! after || after === this._llLast )
+          return this.push.apply( this, elements );
+
+      elements = this._linkElements( elements );
+
+      var next = after._llNext;
+      (after._llNext = elements[0])._llPrev = after;
+      (next._llPrev = elements[elements.length-1])._llNext = next;
+
+      return elements[0];
+  },
+
+  insertBefore: function( elements, before ) {
+      if( ! elements || ! elements.length )
+          return undefined;
+
+      if( ! before || before === this._llFirst )
+          return this.unshift.apply( this, elements );
+
+      elements = this._linkElements( elements );
+
+      var prev = before._llPrev;
+      (prev._llNext = elements[0])._llPrev = prev;
+      (before._llPrev = elements[elements.length-1])._llNext = before;
+
+      return elements[0];
+  },
+
   first: function() {
       return this._llFirst;
   },
