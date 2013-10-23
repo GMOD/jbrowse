@@ -46,7 +46,7 @@ _setGenomeViewAttr: function( genomeView ) {
                     viewportNode: thisB.domNode,
                     newBlock: function( args ) {
                         return new Block( lang.mixin( args, {
-                          domNode: domConstruct.create('div', { className: 'block' }, thisB.domNode ),
+                          domNode: domConstruct.create('div', { className: 'renderingBlock' }, thisB.domNode ),
                           updatePositionCallback: function( deltaLeft, deltaRight, projectionChange ) {
                               // if the block has changed size, need to refill it
                               if( Math.abs(deltaLeft-deltaRight)>1 )

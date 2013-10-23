@@ -1,10 +1,10 @@
-div.block {
+.renderingBlock {
     position: absolute;
     overflow: visible;
     top: 0px;
     height: 100%;
 }
-div.block.height_overflow .height_overflow_message {
+.renderingBlock.height_overflow .height_overflow_message {
     position: absolute;
     color: rgb(77,77,77);
     border-bottom: 2px solid rgb(77,77,77);
@@ -20,7 +20,7 @@ div.block.height_overflow .height_overflow_message {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-div.block.timed_out {
+.renderingBlock.timed_out {
     background: #ddd;
     background: rgba( 0,0,0, 0.1 );
 }
@@ -296,7 +296,7 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     }
 
     .viewScale {
-        .block {
+        .renderingBlock {
             position: absolute;
             background: #333;
 
