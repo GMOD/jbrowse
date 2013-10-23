@@ -184,9 +184,10 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.do_typed_query( '20147..35574' )
 
         # check that there is no dialog open
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]")
+        self.waits_for_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]")
 
         # get the example alignments features
+        self.waits_for_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
         feature_elements = self.assert_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
 
         # right-click one of them

@@ -147,7 +147,7 @@ class JBrowseTest (object):
     def track_menu_click( self, track_name, item_name ):
         
         menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
-            % re.sub( '\W', '_', track_name.lower() ) 
+            % re.sub( '\W', '_', track_name.lower()) 
 
         self.waits_for_element(menuButton)
         self.assert_element(menuButton).click()
@@ -185,6 +185,16 @@ class JBrowseTest (object):
 
     def actionchains( self ):
         return ActionChains( self.browser )
+
+    def do_elements_exist (self, Path):
+        try:
+            self.browser.find_elements_by_xpath(Path)
+            return True
+        except NoSuchElementException:
+            return False
+
+    def waits_for_elements( self, Path ):
+        WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(Path))
 
     def does_element_exist (self, Path):
         try:
