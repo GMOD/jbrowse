@@ -76,11 +76,6 @@ class JBrowseTest (object):
     def assert_track( self, tracktext ):
         trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
         self._waits_for_element( trackPath )
-        try:
-            el = self.browser.find_elements_by_xpath( trackPath )
-            return el
-        except NoSuchElementException:
-            raise AssertionError ("can't find %s" %tracktext)
     
     def assert_no_element( self, expression ):
         self._waits_for_no_element( expression )
