@@ -28,9 +28,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # check a good browser title
         assert "ctgA" in self.browser.title, "browser title is actually %s" % self.browser.title
 
-        self.browser.execute_script('window.resizeTo(1000,600)')
-        self.browser.execute_script('window.moveTo(0,0)')
- 
         # do a test where we search for a certain gene using the search box
         self.search_f15()
 
