@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 use base 'Exporter';
-our @EXPORT_OK = qw( slurp_tree slurp );
+our @EXPORT_OK = qw( slurp_tree slurp md5sum_tree );
 
 use File::Spec;
 
@@ -48,6 +48,36 @@ sub slurp_tree {
     }
 
     return \%data;
+}
+
+=head2 md5sum_tree
+
+Return a hashref like { "path/to/file" => "123abc" } with md5sums of all
+the files in the given directory.
+
+=cut
+
+sub md5sum_tree {
+    my ( $dir ) = @_;
+
+    my $md5 = _find_md5_implementation();
+
+    my %sums;
+    my $output_files_iter = File::Next::files( $dir );
+    while( my $file = $output_files_iter->() ) {
+        next if $file =~ /\.htaccess$/;
+        my $rel = File::Spec->abs2rel( $file, $dir );
+        $sums{$rel} = $md5->( $file );
+    }
+    return \%sums;
+}
+
+use Digest::MD5;
+sub _find_md5_implementation {
+    return sub {
+        open my $f, '<', shift or die;
+        return Digest::MD5->new->addfile( $f )->hexdigest;
+    };
 }
 
 =head2 slurp
