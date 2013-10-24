@@ -7,6 +7,12 @@
    turn this off.  Thanks to Josie Reinhardt for making me notice this
    was missing.
 
+ * Tweaked `generate-names.pl` default indexing parameters to
+   emphasize indexing speed more.  Now defaults to a smaller average
+   file size for the on-disk JSON files it produces, which is much
+   faster to generate and write (up to 8 or 10x faster).  However, the
+   on-disk index is about 2-2.5x larger overall.
+
 ## Bug fixes
 
  * Fixed generate-names.pl making incorrect name indexes when using 16

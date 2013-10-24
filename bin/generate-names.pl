@@ -170,7 +170,7 @@ my %stats = (
 my $operation_stream = make_operation_stream( make_name_record_stream( \@refSeqs, \@names_files ) );
 
 $hash_bits ||= $stats{record_stream_estimated_count}
-  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $stats{record_stream_estimated_count} / 100 )/ 4 / log(2)) )))
+  ? sprintf('%0.0f',max( 4, min( 32, 4*int( log( $stats{record_stream_estimated_count} / 10 )/ 4 / log(2)) )))
   : 12;
 
 # finally copy the temp store to the namestore
