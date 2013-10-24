@@ -18,6 +18,7 @@ my $temp2 = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
 system $^X, 'bin/generate-names.pl', (
     '--out'   => "$tempdir",
     '--workdir' => $temp2,
+    '--hashBits' => 16,
     '--completionLimit' => 15
     );
 ok( ! $?, 'generate-names.pl also ran ok on volvox test data' );
