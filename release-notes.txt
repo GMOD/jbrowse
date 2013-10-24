@@ -2,6 +2,10 @@
 
 ## Minor improvements
 
+ * Added a new `navigateTo` action usable for customizing feature
+   left-clicks and right-click menus.  Thanks to Scott Cain for
+   requesting this.
+
  * `maker2jbrowse` now, by default, runs `generate-names.pl` to
    generate names indexes.  Also added a `--no_names_index` option to
    turn this off.  Thanks to Josie Reinhardt for making me notice this

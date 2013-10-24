@@ -777,11 +777,15 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                     xhrdialog:      'xhrDialog',
                     xhr:            'xhrDialog',
                     newwindow:      'newWindow',
-                    "_blank":       'newWindow'
+                    "_blank":       'newWindow',
+                    thiswindow:     'navigateTo',
+                    navigateto:     'navigateTo'
                 }[(''+spec.action).toLowerCase()];
 
                 if( spec.action == 'newWindow' )
                     window.open( url, '_blank' );
+                else if( spec.action == 'navigateTo' )
+                    window.location = url;
                 else if( spec.action in { iframeDialog:1, contentDialog:1, xhrDialog:1, bareDialog: 1} )
                     track._openDialog( spec, evt, ctx );
             }
