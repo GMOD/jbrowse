@@ -215,10 +215,10 @@ class JBrowseTest (object):
     def scroll( self ):
         move_right_button = self.browser.find_element_by_id('moveRight')
         move_right_button.click()
-        self._waits_for_scroll(self.get_current_location())
+        self._waits_for_scroll(self.browser.title)
         move_left_button = self.browser.find_element_by_id('moveLeft')
         move_left_button.click()
-        self._waits_for_scroll(self.get_current_location())
+        self._waits_for_scroll(self.browser.title)
 
         self.assert_no_js_errors()
 
@@ -240,13 +240,7 @@ class JBrowseTest (object):
     # waits for the title of the page to change, since it 
     # gets updated after the scroll animation
     def _waits_for_scroll ( self, location ):
-        WebDriverWait(self, 5).until(lambda self: self.is_scroll_done(location))
-
-    def is_scroll_done ( self, location ):
-        return location != self.get_current_location()
-
-    def get_current_location(self):
-        return self.browser.title
+        WebDriverWait(self, 5).until(lambda self: self.browser.title != location)
 
     def _waits_for_JBrowse_to_load(self):
         WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0)
