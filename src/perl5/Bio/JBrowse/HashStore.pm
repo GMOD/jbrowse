@@ -290,7 +290,7 @@ sub _hex {
 
 sub _hexToPath {
     my ( $self, $hex ) = @_;
-    my @dir = ( $self->{dir}, reverse $hex =~ /(.{1,3})/g );
+    my @dir = ( $self->{dir}, $hex =~ /(.{1,3})/g );
     my $file = (pop @dir).$self->{file_extension};
     my $dir = File::Spec->catdir(@dir);
     #warn "crc: $crc, fullpath: ".File::Spec->catfile( $dir, $file )."\n";
