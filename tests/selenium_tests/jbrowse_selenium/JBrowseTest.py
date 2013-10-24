@@ -40,6 +40,9 @@ class JBrowseTest (object):
             base + ( '&' if base.find('?') >= 0 else '?' )
             + ( "data="+self.data_dir if self.data_dir else "" )
         )
+        
+        # check for change in scroll (which waits for change in title),
+        # means JBrowse is loaded
         self.waits_for_scroll(self.get_current_location())
 
     def baseURL( self ):
@@ -72,6 +75,15 @@ class JBrowseTest (object):
             raise AssertionError ("can't find %s" %expression)
         return el
 
+    def assert_track( self, tracktext ):
+        trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
+        self.waits_for_element( trackPath )
+        try:
+            el = self.browser.find_elements_by_xpath( trackPath )
+            return el
+        except NoSuchElementException:
+            raise AssertionError ("can't find %s" %tracktext)
+    
     def assert_no_element( self, expression ):
         self.waits_for_no_element( expression )
 
