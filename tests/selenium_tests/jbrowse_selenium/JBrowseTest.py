@@ -41,9 +41,7 @@ class JBrowseTest (object):
             + ( "data="+self.data_dir if self.data_dir else "" )
         )
         
-        # check for change in scroll (which waits for change in title),
-        # means JBrowse is loaded
-        self.waits_for_scroll(self.get_current_location())
+        self._waits_for_JBrowse_to_load()
 
     def baseURL( self ):
         if not self.base_url:
@@ -54,7 +52,7 @@ class JBrowseTest (object):
     ## convenience methods for us
 
     def assert_element( self, expression ):
-        self.waits_for_element( expression )
+        self._waits_for_element( expression )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_element_by_xpath( expression )
@@ -65,7 +63,7 @@ class JBrowseTest (object):
         return el
 
     def assert_elements( self, expression ):
-        self.waits_for_elements( expression )
+        self._waits_for_elements( expression )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_elements_by_xpath( expression )
@@ -77,7 +75,7 @@ class JBrowseTest (object):
 
     def assert_track( self, tracktext ):
         trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
-        self.waits_for_element( trackPath )
+        self._waits_for_element( trackPath )
         try:
             el = self.browser.find_elements_by_xpath( trackPath )
             return el
@@ -85,7 +83,7 @@ class JBrowseTest (object):
             raise AssertionError ("can't find %s" %tracktext)
     
     def assert_no_element( self, expression ):
-        self.waits_for_no_element( expression )
+        self._waits_for_no_element( expression )
 
     def assert_no_js_errors( self ):
         assert self.browser.find_element_by_xpath('/html/body') \
@@ -126,20 +124,16 @@ class JBrowseTest (object):
         self.track_menu_click( track_name, 'Save')
 
         # test view export
-        self.waits_for_element("//label[contains(.,'%s')]" % region )
         self.assert_element("//label[contains(.,'%s')]" % region ).click()
-        self.waits_for_element("//label[contains(.,'%s')]" % file_format )
         self.assert_element("//label[contains(.,'%s')]" % file_format ).click()
-        self.waits_for_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button )
         self.assert_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button ).click()
         self.assert_no_js_errors()
 
     def close_dialog( self, title ):
         dialog = "//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title 
 
-        self.waits_for_element(dialog)
         self.assert_element(dialog).click()
-        self.waits_for_no_element(dialog)
+        self.assert_no_element(dialog)
         self.assert_no_js_errors()
 
 
@@ -148,7 +142,6 @@ class JBrowseTest (object):
         menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
             % re.sub( '\W', '_', track_name.lower()) 
 
-        self.waits_for_element(menuButton)
         self.assert_element(menuButton).click()
 
         self.menu_item_click( item_name )
@@ -156,7 +149,6 @@ class JBrowseTest (object):
     def menu_item_click( self, text ):
         menuItem = "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
             //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text 
-        self.waits_for_element(menuItem)
         self.assert_element(menuItem).click()
 
     def overview_rubberband( self, start_pct, end_pct ):
@@ -188,20 +180,14 @@ class JBrowseTest (object):
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
-    def waits_for_track( self, tracktext ):
-        self.waits_for_element("//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext)
-
-    def waits_for_elements( self, expression ):
+    def _waits_for_elements( self, expression ):
         WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(expression))
 
-    def waits_for_element( self, expression ):
+    def _waits_for_element( self, expression ):
         WebDriverWait(self, 5).until(lambda self: self.does_element_exist(expression))
 
-    def waits_for_no_element( self, expression ):
+    def _waits_for_no_element( self, expression ):
         WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
-
-    def waits_for_no_elements( self, expression ):
-        WebDriverWait(self, 5).until(lambda self: not self.do_elements_exist(expression))
 
     def does_element_exist (self, expression):
         try:
@@ -229,10 +215,10 @@ class JBrowseTest (object):
     def scroll( self ):
         move_right_button = self.browser.find_element_by_id('moveRight')
         move_right_button.click()
-        self.waits_for_scroll(self.get_current_location())
+        self._waits_for_scroll(self.get_current_location())
         move_left_button = self.browser.find_element_by_id('moveLeft')
         move_left_button.click()
-        self.waits_for_scroll(self.get_current_location())
+        self._waits_for_scroll(self.get_current_location())
 
         self.assert_no_js_errors()
 
@@ -251,7 +237,9 @@ class JBrowseTest (object):
 
         self.assert_no_js_errors()
 
-    def waits_for_scroll ( self, location ):
+    # waits for the title of the page to change, since it 
+    # gets updated after the scroll animation
+    def _waits_for_scroll ( self, location ):
         WebDriverWait(self, 5).until(lambda self: self.is_scroll_done(location))
 
     def is_scroll_done ( self, location ):
@@ -259,4 +247,13 @@ class JBrowseTest (object):
 
     def get_current_location(self):
         return self.browser.title
+
+    def _waits_for_JBrowse_to_load(self):
+        WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0)
+        if self.browser.current_url.find("data=nonexistent"):
+            pass
+        else:
+            # Page title is initially "JBrowse",
+            # so wait for it to change
+            self._waits_for_scroll("JBrowse")
 

@@ -62,6 +62,7 @@ class FacetedTrackSelector (TrackSelector):
         time.sleep(1)
 
         # check that the number of matching tracks is 1
+        
         matching_track_rows = self.test.assert_elements("div.dojoxGridRow")
         assert len( matching_track_rows ) == 1, ('actually %d matching track rows: ' % len(matching_track_rows))+repr(map(lambda x: x.text, matching_track_rows))
         track_row = matching_track_rows[0]
