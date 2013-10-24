@@ -35,6 +35,10 @@ Output dir for formatted data.  Defaults to './data'.
 Take filenames from a MAKER master datastore index file
 (e.g. my_genome_master_datastore_index.log).
 
+=item --no_names_index
+
+Do not call generate-names.pl at the end of the run to generate the names index.
+
 =item --help, -h, -?
 
 Displays full help information.
@@ -44,8 +48,10 @@ Displays full help information.
 my $dstore;
 my $help;
 my $outdir = 'data';
+my $skip_generate_names;
 GetOptions(
     "ds_index|d=s" => \$dstore,
+    "no_names_index" => \$skip_generate_names,
     "help|?" => \$help,
     "out|o=s" => \$outdir
    )
@@ -225,6 +231,9 @@ my %commands = (
                        ],
 );
 
+
+my @outdir = ( '--out' => $outdir );
+
 for my $gff3_file (@files){
     my @tracks_to_make = do {
         my %t;
@@ -238,8 +247,6 @@ for my $gff3_file (@files){
         }
         keys %t
     };
-
-    my @outdir = ( '--out' => $outdir );
 
     system 'bin/prepare-refseqs.pl', '--gff' => $gff3_file, @outdir,
         and die "prepare-refseqs.pl failed with exit status $?";
@@ -267,4 +274,8 @@ for my $gff3_file (@files){
         #print join(" ",@command)."\n";
         system @command and die "flatfile-to-json.pl failed with exit status $?";
     }
+}
+
+unless( $skip_generate_names ) {
+    system 'bin/generate-names.pl', @outdir;
 }

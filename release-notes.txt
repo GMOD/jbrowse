@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * `maker2jbrowse` now, by default, runs `generate-names.pl` to
+   generate names indexes.  Also added a `--no_names_index` option to
+   turn this off.  Thanks to Josie Reinhardt for making me notice this
+   was missing.
+
 ## Bug fixes
 
  * Fixed generate-names.pl making incorrect name indexes when using 16
