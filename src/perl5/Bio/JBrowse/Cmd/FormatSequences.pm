@@ -234,23 +234,25 @@ sub exportDB {
 
     my @queries;
 
-    if ( defined $self->opt('refids') ) {
-        for my $refid (split ",", $self->opt('refids')) {
-            push @queries, [ -db_id => $refid ];
+    if( my $reftypes = $self->opt('reftypes') ) {
+        if( $db->isa( 'Bio::DB::Das::Chado' ) ) {
+            die "--reftypes argument not supported when using the Bio::DB::Das::Chado adaptor\n";
         }
+        push @queries, [ -type => [ split /[\s,]+/, $reftypes ] ];
+    }
+
+    if( ! @queries && ! defined $refs && $db->can('seq_ids') ) {
+        $refs = join ',', $db->seq_ids;
     }
     if ( defined $refs ) {
         for my $ref (split ",", $refs) {
             push @queries, [ -name => $ref ];
         }
     }
-    if( my $reftypes = $self->opt('reftypes') ) {
-        push @queries, [ -type => [ split /[\s,]+/, $reftypes ] ];
-    }
 
     my $refCount = 0;
     for my $query ( @queries ) {
-        my @segments = $db->features( @$query );
+        my @segments = $db->isa('Bio::DB::Das::Chado') ? $db->segment( @$query ) : $db->features( @$query );
 
         unless( @segments ) {
             warn "WARNING: Reference sequence with @$query not found in input.\n";

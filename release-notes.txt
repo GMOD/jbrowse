@@ -25,6 +25,10 @@
  * Removed support for the `--refids` command-line argument to
    `prepare-refseqs.pl`, which has probably never really worked.
 
+ * Improved `prepare-refseqs.pl` support for Bio::DB::Das::Chado
+   database backends.  Thanks to Gwendoline Andres for helping
+   troubleshoot this.
+
 ## Bug fixes
 
  * Fixed generate-names.pl making incorrect name indexes when using 16
