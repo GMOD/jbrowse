@@ -92,15 +92,31 @@ return declare( SeqFeatureStore,
     // start/end region, and match other params).  return an array
     // like [ {features: [...], start: 123, end: 456 }, ... ]
     _getCachedFeatureRegions: function( query ) {
+        var cache = this._getCache();
+
         function tilingIsComplete( regions, start, end ) {
             regions.sort( function(a,b) { return a.start - b.start; });
             var coverStart = regions[0].start,
                   coverEnd;
-            for( var i = 0; i<regions.length; i++ ) {
-                if( coverEnd === undefined || regions[i].start <= coverEnd && regions[i].end > coverEnd )
+            var i;
+            var tilingComplete;
+            for( i = 0; !tilingComplete && i < regions.length; i++ ) {
+                if( coverEnd === undefined || regions[i].start <= coverEnd && regions[i].end > coverEnd ) {
                     coverEnd = regions[i].end;
+                    tilingComplete = coverStart <= start && coverEnd >= end;
+                }
             }
-            return coverStart <= start && coverEnd >= end;
+
+            if( tilingComplete ) {
+                // touch all of the regions we processed in the cache,
+                // cause we are going to use them
+                for( i--; i >= 0; i-- )
+                    cache.touchRecord( regions[i].cacheRecord );
+
+                return true;
+            }
+
+            return false;
         }
 
         function queriesMatch( q1, q2 ) {
@@ -119,7 +135,7 @@ return declare( SeqFeatureStore,
         }
 
         var relevantRegions = [];
-        if( this._getCache().some(
+        if( cache.some(
                 function( cacheRecord ) {
                     var cachedRequest = cacheRecord.value.request;
                     var cachedResponse = cacheRecord.value.response;
@@ -129,9 +145,10 @@ return declare( SeqFeatureStore,
                         return false;
                     if( ! ( cachedRequest.query.end < query.start || cachedRequest.query.start > query.end ) ) {
                         relevantRegions.push(
-                            { features: cachedResponse.features,
-                              start:    cachedRequest.query.start,
-                              end:      cachedRequest.query.end
+                            { features:    cachedResponse.features,
+                              start:       cachedRequest.query.start,
+                              end:         cachedRequest.query.end,
+                              cacheRecord: cacheRecord
                             });
                         if( tilingIsComplete( relevantRegions, query.start, query.end ) )
                             return true;
