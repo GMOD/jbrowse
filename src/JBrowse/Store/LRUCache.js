@@ -104,6 +104,23 @@ return declare( null,
         return results;
     },
 
+    forEach: function( func, context ) {
+        if( ! context ) context = this;
+        var i = 0;
+        for( var record = this._cacheNewest; record; record = record.next ) {
+            func.call( context, record, i++ );
+        }
+    },
+    some: function( func, context ) {
+        if( ! context ) context = this;
+        var i = 0;
+        for( var record = this._cacheNewest; record; record = record.next ) {
+            if( func.call( context, record, i++ ) )
+                return true;
+        }
+        return false;
+    },
+
     touch: function( inKey ) {
         this._touch( this._cacheByKey[ this._keyString( inKey ) ] );
     },
