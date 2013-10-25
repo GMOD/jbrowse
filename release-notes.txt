@@ -6,6 +6,11 @@
    left-clicks and right-click menus.  Thanks to Scott Cain for
    requesting this.
 
+ * Added a new `feature_range_cache` option for the REST data backend.
+   If set to true, the REST backend will more aggressively cache
+   ranges of feature data.  Thanks to Daniel Troesser for pointing out
+   the need for this (issue #369).
+
  * `maker2jbrowse` now, by default, runs `generate-names.pl` to
    generate names indexes.  Also added a `--no_names_index` option to
    turn this off.  Thanks to Josie Reinhardt for making me notice this
