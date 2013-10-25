@@ -16,7 +16,7 @@ define([
            lang,
            array,
            ioquery,
-           request,
+           dojoRequest,
            LRUCache,
            SeqFeatureStore,
            DeferredFeaturesMixin,
@@ -25,11 +25,11 @@ define([
            SimpleFeature
        ) {
 
-
 return declare( SeqFeatureStore,
 {
 
     constructor: function( args ) {
+        this.region_cache_hits = 0; //< stats mostly for unit tests
 
         // make sure the baseUrl has a trailing slash
         this.baseUrl = args.baseUrl || this.config.baseUrl;
@@ -50,7 +50,7 @@ return declare( SeqFeatureStore,
 
     getGlobalStats: function( callback, errorCallback ) {
         var url = this._makeURL( 'stats/global' );
-        this._get( url, callback, errorCallback );
+        this._get({ url: url, type: 'globalStats' }, callback, errorCallback );
     },
 
     getRegionStats: function( query, successCallback, errorCallback ) {
@@ -60,24 +60,110 @@ return declare( SeqFeatureStore,
             return;
         }
 
+        query = this._assembleQuery( query );
         var url = this._makeURL( 'stats/region', query );
-        this._get( url, successCallback, errorCallback );
+        this._get( { url: url, query: query, type: 'regionStats' }, successCallback, errorCallback );
     },
 
     getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
         var thisB = this;
+        query = this._assembleQuery( query );
         var url = this._makeURL( 'features', query );
-        this._get( url,
-                   dojo.hitch( this, '_makeFeatures',
-                               featureCallback, endCallback, errorCallback
-                             ),
-                   errorCallback
-                 );
+        var cachedFeatureRegions;
+        if( this.config.feature_range_cache
+            && ! this.config.noCache
+            && ( cachedFeatureRegions = this._getCachedFeatureRegions( query ) ) ) {
+            this.region_cache_hits++;
+            this._getFeaturesFromCachedRegions( cachedFeatureRegions, query, featureCallback, endCallback, errorCallback );
+        }
+        else {
+            this._get( { url: url, query: query, type: 'features' },
+                       dojo.hitch( this, '_makeFeatures',
+                                   featureCallback, endCallback, errorCallback
+                                 ),
+                       errorCallback
+                     );
+        }
+    },
+
+    _getCachedFeatureRegions: function( query ) {
+        function tilingIsComplete( regions, start, end ) {
+            regions.sort( function(a,b) { return a.start - b.start; });
+            var coverStart = regions[0].start,
+                  coverEnd;
+            for( var i = 0; i<regions.length; i++ ) {
+                if( coverEnd === undefined || regions[i].start <= coverEnd && regions[i].end > coverEnd )
+                    coverEnd = regions[i].end;
+            }
+            return coverStart <= start && coverEnd >= end;
+        }
+
+        function queriesMatch( q1, q2 ) {
+            var keys = Util.dojof.keys( q1 ).concat( Util.dojof.keys( q2 ) );
+            for( var k in q1 ) {
+                if( k == 'start' || k == 'end' ) continue;
+                if( q1[k] != q2[k] )
+                    return false;
+            }
+            for( var k in q2 ) {
+                if( k == 'start' || k == 'end' ) continue;
+                if( q1[k] != q2[k] )
+                    return false;
+            }
+            return true;
+        }
+
+        var relevantRegions = [];
+        if( this._getCache().some(
+                function( cacheRecord ) {
+                    var cachedRequest = cacheRecord.value.request;
+                    var cachedResponse = cacheRecord.value.response;
+                    if( cachedRequest.type != 'features' || ! cachedResponse )
+                        return false;
+                    if( ! queriesMatch( cachedRequest.query, query ) )
+                        return false;
+
+                    // if( cacheRecord.query.start <= query.start && cacheRecord.query.end >= query.end ) {
+                    //     relevantRegions = [cacheRecord];
+                    //     return true;
+                    // }
+                    if( ! ( cachedRequest.query.end < query.start || cachedRequest.query.start > query.end ) ) {
+                        relevantRegions.push( { features: cachedResponse.features, start: cachedRequest.query.start, end: cachedRequest.query.end });
+                        if( tilingIsComplete( relevantRegions, query.start, query.end ) )
+                            return true;
+                    }
+                    return false;
+                },
+                this )
+          ) {
+              return relevantRegions;
+          }
+        return null;
+    },
+
+    _getFeaturesFromCachedRegions: function( cachedFeatureRegions, query, featureCallback, endCallback, errorCallback ) {
+        // gather and uniqify all the relevant feature data objects from the cached regions
+        var seen = {};
+        var featureData = [];
+        array.forEach( cachedFeatureRegions, function( region ) {
+            if( region && region.features ) {
+                array.forEach( region.features, function( feature ) {
+                    if( ! seen[ feature.uniqueID ] ) {
+                        seen[feature.uniqueID] = true;
+                        if( !( feature.start > query.end || feature.end < query.start ) )
+                            featureData.push( feature );
+                    }
+                });
+            }
+        });
+
+        // iterate over them and make feature objects from them
+        this._makeFeatures( featureCallback, endCallback, errorCallback, { features: featureData } );
     },
 
     _getRegionFeatureDensities: function( query, histDataCallback, errorCallback ) {
-        var url = this._makeURL( 'stats/regionFeatureDensities', query );
-        this._get( url, histDataCallback, errorCallback );
+        var url = this._makeURL( 'stats/regionFeatureDensities', this._assembleQuery( query ) );
+        this._get( { url: url}, histDataCallback, errorCallback );
 
         // query like:
         //    { ref: 'ctgA, start: 123, end: 456, basesPerBin: 200 }
@@ -97,10 +183,10 @@ return declare( SeqFeatureStore,
     },
 
     // HELPER METHODS
-    _get: function( url, callback, errorCallback ) {
-
+    _get: function( request, callback, errorCallback ) {
+        var thisB = this;
         if( this.config.noCache )
-            request( url, {
+            dojoRequest( request.url, {
                          method: 'GET',
                          handleAs: 'json'
                      }).then(
@@ -108,41 +194,37 @@ return declare( SeqFeatureStore,
                          this._errorHandler( errorCallback )
                      );
         else
-            this._cachedGet( url, callback, errorCallback );
+            this._getCache().get( request, function( record, error ) {
+                                      if( error )
+                                          thisB._errorHandler(errorCallback)(error);
+                                      else
+                                          callback( record.response );
+                                  });
 
     },
 
-    // get JSON from a URL, and cache the results
-    _cachedGet: function( url, callback, errorCallback ) {
+    _getCache: function() {
         var thisB = this;
-        if( ! this._cache ) {
+        return this._cache || (
             this._cache = new LRUCache(
                 {
                     name: 'REST data cache '+this.name,
                     maxSize: 25000, // cache up to about 5MB of data (assuming about 200B per feature)
                     sizeFunction: function( data ) { return data.length || 1; },
-                    fillCallback: function( url, callback ) {
-                        var get = request( url, { method: 'GET', handleAs: 'json' },
-                                           true // work around dojo/request bug
-                                         );
+                    fillCallback: function( request, callback ) {
+                        var get = dojoRequest( request.url, { method: 'GET', handleAs: 'json' },
+                                               true // work around dojo/request bug
+                                             );
                         get.then(
-                                function(data) {
-                                    var nocacheResponse = /no-cache/.test(get.response.getHeader('Cache-Control'))
-                                        || /no-cache/.test(get.response.getHeader('Pragma'));
-                                    callback(data,null,{nocache: nocacheResponse});
-                                },
-                                thisB._errorHandler( lang.partial( callback, null ) )
-                            );
+                            function(data) {
+                                var nocacheResponse = /no-cache/.test(get.response.getHeader('Cache-Control'))
+                                    || /no-cache/.test(get.response.getHeader('Pragma'));
+                                callback({ response: data, request: request }, null, {nocache: nocacheResponse});
+                            },
+                            thisB._errorHandler( lang.partial( callback, null ) )
+                        );
                     }
-                });
-        }
-
-        this._cache.get( url, function( data, error ) {
-                             if( error )
-                                 thisB._errorHandler(errorCallback)(error);
-                             else
-                                 callback( data );
-                         });
+                }));
     },
 
     _errorHandler: function( handler ) {
@@ -161,18 +243,29 @@ return declare( SeqFeatureStore,
         });
     },
 
+    _assembleQuery: function( query ) {
+            return lang.mixin(
+                { ref: (this.refSeq||{}).name },
+                this.config.query || {},
+                query || {}
+            );
+    },
+
     _makeURL: function( subpath, query ) {
         var url = this.baseUrl + subpath;
+
         if( query ) {
-            query = dojo.mixin( {}, query );
-            if( this.config.query )
-                query = dojo.mixin( dojo.mixin( {}, this.config.query ),
-                                    query
-                                  );
-            var ref = query.ref || (this.refSeq||{}).name;
-            delete query.ref;
-            url += (ref ? '/' + ref : '' ) + '?' + ioquery.objectToQuery( query );
+            if( query.ref ) {
+                url += '/' + query.ref;
+                query = lang.mixin({}, query );
+                delete query.ref;
+            }
+
+            query = ioquery.objectToQuery( query );
+            if( query )
+                url += '?' + query;
         }
+
         return url;
     },
 

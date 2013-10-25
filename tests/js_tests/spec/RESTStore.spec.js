@@ -88,6 +88,57 @@ function testWithConfig(config) {
                             });
              });
 
+             if( ! config.noCache ) // this test does not work under noCache because the backend is not dynamic
+                 it( 'supports feature_range_cache', function() {
+                     var withRangeCache = new RESTStore(
+                         {
+                             browser: {},
+                             baseUrl: '../data/rest_store_test',
+                             refSeq: { name: 'ctgA', start: 0, end: 50000 },
+                             config: lang.mixin( { feature_range_cache: true }, config || {} )
+                         });
+
+                     expect( withRangeCache.region_cache_hits ).toEqual( 0 );
+
+                     var features = [];
+                     var done1, done2;
+                     withRangeCache.getFeatures({ start: 0, end: 50000 },
+                                                function( feature ) {
+                                                    features.push( feature );
+                                                },
+                                                function() {
+                                                    done1 = true;
+                                                }
+                                               );
+                     waitsFor( function() { return done1; }, 2000 );
+                     runs( function() {
+                               expect( withRangeCache.region_cache_hits ).toEqual( 0 );
+                               expect(features.length).toEqual(6);
+                               expect( features[0].get('start') ).toEqual( 1 );
+                               expect( features[4].children().length ).toEqual( 2 );
+                               expect( features[4].children()[1].children()[0].get('type') ).toEqual( 'SNV' );
+
+                               features = [];
+                               withRangeCache.getFeatures({ start: 100, end: 400 },
+                                                          function( feature ) {
+                                                              features.push( feature );
+                                                          },
+                                                          function() {
+                                                              done2 = true;
+                                                          }
+                                                         );
+                           });
+                     waitsFor( function() { return done2; }, 2000 );
+                     runs( function() {
+                               expect( withRangeCache.region_cache_hits ).toEqual( 1 );
+                               expect(features.length).toEqual(4);
+                               expect( features[0].get('start') ).toEqual( 300 );
+                               expect( features[3].children().length ).toEqual( 2 );
+                               expect( features[3].children()[1].children()[0].get('type') ).toEqual( 'SNV' );
+                           });
+
+                 });
+
              it( 'supports feature histograms if implemented', function() {
                      expect( store.getRegionFeatureDensities ).toBeFalsy();
 
