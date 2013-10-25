@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.8     2013-10-25 11:13:30 EST5EDT
+
 ## Minor improvements
 
  * Added a new `navigateTo` action usable for customizing feature
