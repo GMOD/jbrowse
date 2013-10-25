@@ -322,10 +322,12 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
     renderGrid: function() {
 
-        var displayColumns = dojo.filter(
-            this.displayColumns || this.trackDataStore.getFacetNames(),
-            lang.hitch(this, '_isDisplayableColumn')
-        );
+        var displayColumns = this.displayColumns
+            || dojo.filter(
+                this.trackDataStore.getFacetNames(),
+                lang.hitch(this, '_isDisplayableColumn')
+            );
+
         var colWidth = 90/displayColumns.length;
 
         var grid = new EnhancedGrid({
