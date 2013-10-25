@@ -197,12 +197,23 @@ var Meta = declare( null,
         }));
 
         // sort the facet indexes by ident, so that we can do our
-        // kind-of-efficient N-way merging when querying
+        // kind-of-efficient N-way merging when querying.  also,
+        // uniqify them by identity.
         var itemSortFunction = dojo.hitch( this, '_itemSortFunc' );
         dojo.forEach( dojof.values( this.facetIndexes.byName ), function( facetIndex ) {
-            dojo.forEach( dojof.keys( facetIndex.byValue ), function( value ) {
-                facetIndex.byValue[value].items = facetIndex.byValue[value].items.sort( itemSortFunction );
-            });
+            dojo.forEach( dojof.values( facetIndex.byValue ), function( valueIndex ) {
+                var uniqueItems = [];
+                var seen =  {};
+                //NOTE: the first record loaded with a given identity always wins
+                array.forEach( valueIndex.items, function( item ) {
+                                   var id = this.getIdentity( item );
+                                   if( ! seen[id] ) {
+                                       seen[id] = true;
+                                       uniqueItems.push( item );
+                                   }
+                               },this);
+                valueIndex.items = uniqueItems.sort( itemSortFunction );
+            },this);
         },this);
 
         this.ready = true;
