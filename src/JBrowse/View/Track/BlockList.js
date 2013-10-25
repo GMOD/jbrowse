@@ -56,6 +56,7 @@ return declare( LinkedList, {
                   // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
                   else if( prev                                  //< there is a previous block
                       //&& ! changeDescription.animating
+                      && !prev.onProjectionBlockRightEdge   //< they are both in the same projection block
                       && !block.onProjectionBlockLeftEdge   //< they are both in the same projection block
                       && (prev.width() < this.idealSize/5 || w < this.idealSize/5) //< at least one of the blocks is pretty small
                       && ( prev.width() + w <= this.idealSize*2 )  //< the merged block would not be bigger than 2x ideal size
@@ -99,6 +100,7 @@ return declare( LinkedList, {
                   if( projectionBlock.aStart >= left )
                       return;
                   var blockdata = {
+                      projectionBlock: projectionBlock,
                       left:  Math.max( projectionBlock.aStart, xMin-this.idealSize ),
                       right: Math.min( projectionBlock.aEnd, left, xMax+this.idealSize )
                   };

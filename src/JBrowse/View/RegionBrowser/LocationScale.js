@@ -96,6 +96,9 @@ fillBlock: function( block, projection, isAnimating ) {
     array.forEach( projectionBlocks, function( projectionBlock, i ) {
         var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, block.left ) );
         var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, block.right ));
+        if( leftBase === null || rightBase === null )
+            return;
+
         if( leftBase > rightBase ) { // swap if negative
             var tmp = leftBase;
             leftBase = rightBase;
@@ -104,7 +107,7 @@ fillBlock: function( block, projection, isAnimating ) {
         var labelPitch = this._choosePitch( projectionBlock.scale, 60 );
         var prevlabel;
         var blockReverse = projectionBlock.reverse();
-        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
+        for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
                 html.push(

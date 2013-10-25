@@ -1,3 +1,10 @@
+/**
+ * Rendering block.  Represents the screen area that renders all or
+ * part of a single projection block.  Depending on the zoom level,
+ * there can be betwee one and many of these for a single projection
+ * block.
+ */
+
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
@@ -29,7 +36,7 @@ return declare( Destroyable, {
     },
 
     width: function() {
-        return this.right - this.left + 1;
+        return this.right - this.left;
     },
 
     next: function() {
@@ -63,7 +70,7 @@ return declare( Destroyable, {
     // current block in-place to be the last block in the new blocks,
     // and returning an array containing the other blocks.
     splitLeft: function( newCallback, idealSize, newLeft, newRight, changeDescription ) {
-        var w = newRight-newLeft+1;
+        var w = newRight-newLeft;
         var numBlocks = Math.round(w/idealSize);
         var size = w/numBlocks;
 
@@ -76,12 +83,15 @@ return declare( Destroyable, {
 
         var newBlocks = [];
         for( var l = newLeft; l<this.left; l += size ) {
-            newBlocks.push( newCallback({ left: l, right: Math.min(this.left-1,l+size-1) }) );
+            newBlocks.push( { projectionBlock: this.projectionBlock, left: l, right: Math.min(this.left,l+size) } );
         }
         if( newBlocks[0] ) {
             newBlocks[0].onProjectionBlockLeftEdge = this.onProjectionBlockLeftEdge;
             this.onProjectionBlockLeftEdge = false;
         }
+        // instantiate the blocks
+        newBlocks = array.map( newBlocks, newCallback );
+
         this.updateCallback( this, deltaLeft, 0, changeDescription );
 
         this._log( 'split', newBlocks, this );
