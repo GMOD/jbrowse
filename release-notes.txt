@@ -22,6 +22,9 @@
    faster to generate and write (up to 8 or 10x faster).  However, the
    on-disk index is about 2-2.5x larger overall.
 
+ * Removed support for the `--refids` command-line argument to
+   `prepare-refseqs.pl`, which has probably never really worked.
+
 ## Bug fixes
 
  * Fixed generate-names.pl making incorrect name indexes when using 16

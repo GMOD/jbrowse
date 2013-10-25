@@ -36,7 +36,6 @@ sub option_definitions {(
     "fasta=s@",
     "sizes=s@",
     "refs=s",
-    "refids=s",
     "reftypes=s",
     "compress",
     "trackLabel=s",
