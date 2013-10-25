@@ -18695,13 +18695,17 @@
          "key" : "volvox-sorted.bam"
       }
    ],
+
    "trackSelector" : {
       "renameFacets" : {
          "submission" : "Submission ID",
          "developmental-stage" : "Conditions",
-         "cell-line" : "Cell Line"
+         "cell-line" : "Cell Line",
+         "key": "Dataset",
+         "label": "Track"
       },
       "displayColumns" : [
+         "label",
          "key",
          "organism",
          "technique",
@@ -18714,7 +18718,7 @@
       "type" : "Faceted",
       "escapeHTMLInData" : false
    },
-   "formatVersion" : 1,
+
    "trackMetadata" : {
       "sources" : [
          {
@@ -18736,5 +18740,7 @@
          "compound",
          "temperature"
       ]
-   }
+   },
+
+   "formatVersion" : 1,
 }

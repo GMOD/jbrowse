@@ -2,6 +2,35 @@
 
 ## Bug fixes
 
+ * Fixed generate-names.pl making incorrect name indexes when using 16
+   or more bits of hashing (when the number of index entries exceeds
+   about 4 million).  Thanks to Josie Reinhardt for helping
+   troubleshoot this (issue #370).
+
+ * The faceted track selector no longer refuses to display track
+   unique labels even if they are explicitly included in the
+   `displayColumns` setting.
+
+# Release 1.10.7     2013-10-15 16:50:00 EST5EDT
+
+## Minor improvements
+
+ * Added an optional `stats/regionFeatureDensities` endpoint to the
+   REST API that makes it possible to provide binned feature counts
+   that HTMLFeatures tracks can use to display feature histograms.
+   Thanks to Stuart Watt and Daniel Troesser for pointing out the need
+   for this (issue #365).
+
+## Bug fixes
+
+ * Fixed a bad bug introduced in 1.10.6 in which FASTA files with line
+   lengths longer than the configured chunk size were not correctly
+   formatted.  Thanks to Jean-Jack Riethoven for pointing this out
+   (issue #363).
+
+ * Fixed a bug introduced in 1.10.6 in which prepare-refseqs.pl would
+   not respect the --noseq command-line option when using --fasta.
+
  * Fixed bug in which `name` or `seq_id` attributes are required for
    reference sequence features.  Thanks to Daniel Troesser for
    pointing this out.
