@@ -1,3 +1,7 @@
+/**
+ * Store that gets data from any set of web services that implement
+ * the JBrowse REST API.
+ */
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
@@ -69,13 +73,17 @@ return declare( SeqFeatureStore,
         var thisB = this;
         query = this._assembleQuery( query );
         var url = this._makeURL( 'features', query );
+
+        // look for cached feature regions if configured to do so
         var cachedFeatureRegions;
         if( this.config.feature_range_cache
             && ! this.config.noCache
-            && ( cachedFeatureRegions = this._getCachedFeatureRegions( query ) ) ) {
+            && ( cachedFeatureRegions = this._getCachedFeatureRegions( query ) )
+          ) {
             this.region_cache_hits++;
-            this._getFeaturesFromCachedRegions( cachedFeatureRegions, query, featureCallback, endCallback, errorCallback );
+            this._makeFeaturesFromCachedRegions( cachedFeatureRegions, query, featureCallback, endCallback, errorCallback );
         }
+        // otherwise just fetch and cache like all the other requests
         else {
             this._get( { url: url, query: query, type: 'features' },
                        dojo.hitch( this, '_makeFeatures',
@@ -86,6 +94,10 @@ return declare( SeqFeatureStore,
         }
     },
 
+    // look in the REST backend's cache for cached feature requests
+    // that are relevant to the given query params (overlap the
+    // start/end region, and match other params).  return an array
+    // like [ {features: [...], start: 123, end: 456 }, ... ]
     _getCachedFeatureRegions: function( query ) {
         function tilingIsComplete( regions, start, end ) {
             regions.sort( function(a,b) { return a.start - b.start; });
@@ -122,13 +134,12 @@ return declare( SeqFeatureStore,
                         return false;
                     if( ! queriesMatch( cachedRequest.query, query ) )
                         return false;
-
-                    // if( cacheRecord.query.start <= query.start && cacheRecord.query.end >= query.end ) {
-                    //     relevantRegions = [cacheRecord];
-                    //     return true;
-                    // }
                     if( ! ( cachedRequest.query.end < query.start || cachedRequest.query.start > query.end ) ) {
-                        relevantRegions.push( { features: cachedResponse.features, start: cachedRequest.query.start, end: cachedRequest.query.end });
+                        relevantRegions.push(
+                            { features: cachedResponse.features,
+                              start:    cachedRequest.query.start,
+                              end:      cachedRequest.query.end
+                            });
                         if( tilingIsComplete( relevantRegions, query.start, query.end ) )
                             return true;
                     }
@@ -141,7 +152,10 @@ return declare( SeqFeatureStore,
         return null;
     },
 
-    _getFeaturesFromCachedRegions: function( cachedFeatureRegions, query, featureCallback, endCallback, errorCallback ) {
+    // given an array of records of cached feature data like that
+    // returned by _getCachedFeatureRegions, make feature objects from
+    // them and emit them via the callbacks
+    _makeFeaturesFromCachedRegions: function( cachedFeatureRegions, query, featureCallback, endCallback, errorCallback ) {
         // gather and uniqify all the relevant feature data objects from the cached regions
         var seen = {};
         var featureData = [];
@@ -161,6 +175,8 @@ return declare( SeqFeatureStore,
         this._makeFeatures( featureCallback, endCallback, errorCallback, { features: featureData } );
     },
 
+    // this method is copied to getRegionFeatureDensities in the
+    // constructor if config.region_feature_densities is true
     _getRegionFeatureDensities: function( query, histDataCallback, errorCallback ) {
         var url = this._makeURL( 'stats/regionFeatureDensities', this._assembleQuery( query ) );
         this._get( { url: url}, histDataCallback, errorCallback );
