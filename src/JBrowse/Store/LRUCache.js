@@ -62,7 +62,7 @@ return declare( null,
 
         } else {
             this._log( 'hit', keyString );
-            this._touch( record );
+            this.touchRecord( record );
             window.setTimeout( function() {
                 callback( record.value );
             }, 1 );
@@ -97,9 +97,10 @@ return declare( null,
     },
 
     touch: function( inKey ) {
-        this._touch( this._cacheByKey[ this._keyString( inKey ) ] );
+        this.touchRecord( this._cacheByKey[ this._keyString( inKey ) ] );
     },
-    _touch: function( record ) {
+
+    touchRecord: function( record ) {
         if( ! record )
             return;
 
