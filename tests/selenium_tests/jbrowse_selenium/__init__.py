@@ -1,1 +1,1 @@
-from JBrowseTest import JBrowseTest;
+from JBrowseTest import JBrowseTest

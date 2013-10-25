@@ -11,29 +11,19 @@ class SimpleTrackSelector (TrackSelector):
 
         # drag the track label over
         self.test.actionchains() \
-            .click_and_hold( tracklabel ) \
-            .move_by_offset( 400, 10 ) \
+            .move_to_element( tracklabel ) \
+            .double_click() \
             .perform()
 
-        time.sleep( 1 );
-
-        self.test.actionchains() \
-            .release( None ) \
-            .perform()
-
-        time.sleep(0.3);
-
+        self.test.assert_track(tracktext)
         self.test.assert_no_js_errors()
 
     def turn_off_track( self, tracktext ):
         # drag the track back into the track list
-        track_handle = self.test.assert_element( "//div[contains(@class,'track')]//span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
-        track_list = self.test.assert_element( "//div[@id='tracksAvail']" )
-
-        self.test.actionchains() \
-            .drag_and_drop( track_handle, track_list ) \
-            .perform()
-
+        self.test.assert_element( \
+            "//div[contains(@class,'track-label')][contains(.,'%s')]/div[contains(@class,'track-close-button')]"%tracktext) \
+            .click()
+        
         self.test.assert_no_js_errors()
 
 class FacetedTrackSelector (TrackSelector):
@@ -43,34 +33,36 @@ class FacetedTrackSelector (TrackSelector):
         track_row = self._find_track_by_text( tracktext )
 
         # click the box to turn on the first matching track
-        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector');
-        checkbox.click();
+        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector')
+        checkbox.click()
 
-        self._close_selector();
+        self._close_selector()
 
     def turn_off_track( self, tracktext ):
         track_row = self._find_track_by_text( tracktext )
         # click the box to turn on the first matching track
-        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector');
-        checkbox.click();
+        checkbox = track_row.find_element_by_css_selector('.dojoxGridRowSelector')
+        checkbox.click()
 
         # check that the track is not on
-        assert not self.test.is_track_on( tracktext ), 'track should be off now';
+        assert not self.test.is_track_on( tracktext ), 'track should be off now'
 
-        self._close_selector();
+        self._close_selector()
 
     def _find_track_by_text( self, tracktext ):
         # turn on the track selector tab
+        self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
-        time.sleep(0.4);
+        time.sleep(0.4)
 
         # type the track's text in the text filter box
         textfilter = self.test.assert_element("//div[@id='faceted_tracksel']//label[@class='textFilterControl']//input[@type='text']")
         textfilter.send_keys( tracktext )
-        time.sleep(1);
+        time.sleep(1)
 
         # check that the number of matching tracks is 1
+        
         matching_track_rows = self.test.assert_elements("div.dojoxGridRow")
         assert len( matching_track_rows ) == 1, ('actually %d matching track rows: ' % len(matching_track_rows))+repr(map(lambda x: x.text, matching_track_rows))
         track_row = matching_track_rows[0]
@@ -80,5 +72,5 @@ class FacetedTrackSelector (TrackSelector):
         # turn off the track selector tab
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
-        time.sleep(0.4);
+        time.sleep(0.4)
 

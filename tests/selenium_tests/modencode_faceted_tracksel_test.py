@@ -10,13 +10,11 @@ class AbstractModEncodeFacetedTest ( JBrowseTest ):
     data_dir = 'sample_data/json/modencode'
 
     def test_faceted( self ):
-        time.sleep(1.0)
-
-        self.turn_on_track( 'fly/Dm_CAGE_HYB' );
-
+        self.turn_on_track( 'fly/Dm_CAGE_HYB' )
+        
         assert self.is_track_on( '5-prime-UTR;Y cn bw sp;Mixed Embryos 0-24 hr;CAGE'  ), 'track should be on now'
 
-        self.browser.close();
+        self.browser.close()
 
 class ModEncodeFacetedTest ( AbstractModEncodeFacetedTest, unittest.TestCase  ):
     pass

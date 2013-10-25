@@ -4,11 +4,12 @@ import re
 
 import unittest
 
-from selenium                       import webdriver
-from selenium.webdriver             import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions     import NoSuchElementException
-from selenium.webdriver.support.ui  import Select
+from selenium                          import webdriver
+from selenium.webdriver                import ActionChains
+from selenium.webdriver.common.keys    import Keys
+from selenium.webdriver.support.wait   import WebDriverWait
+from selenium.common.exceptions        import NoSuchElementException
+from selenium.webdriver.support.ui     import Select
 
 import track_selectors
 
@@ -39,7 +40,8 @@ class JBrowseTest (object):
             base + ( '&' if base.find('?') >= 0 else '?' )
             + ( "data="+self.data_dir if self.data_dir else "" )
         )
-        time.sleep(0.5)  # give selenium some time to get its head on straight
+        
+        self._waits_for_JBrowse_to_load()
 
     def baseURL( self ):
         if not self.base_url:
@@ -49,43 +51,34 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
-    def maybe_find_element_by_xpath( self, xpathExpression ):
-        try:
-            el = self.browser.find_element_by_xpath( xpathExpression )
-        except NoSuchElementException:
-            return None
-        return el
-
     def assert_element( self, expression ):
+        self._waits_for_element( expression )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_element_by_xpath( expression )
             else:
                 el = self.browser.find_element_by_css_selector( expression )
         except NoSuchElementException:
-            assert 0, ( "can't find %s" % expression )
+            raise AssertionError ("can't find %s" %expression)
         return el
 
     def assert_elements( self, expression ):
+        self._waits_for_elements( expression )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_elements_by_xpath( expression )
             else:
                 el = self.browser.find_elements_by_css_selector( expression )
         except NoSuchElementException:
-            assert 0, ( "can't find %s" % expression )
+            raise AssertionError ("can't find %s" %expression)
         return el
 
-
+    def assert_track( self, tracktext ):
+        trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
+        self._waits_for_element( trackPath )
+    
     def assert_no_element( self, expression ):
-        try:
-            if expression.find('/') >= 0:
-                el = self.browser.find_element_by_xpath( expression )
-            else:
-                el = self.browser.find_element_by_css_selector( expression )
-            assert 0, ( "not supposed to find %s" % expression )
-        except NoSuchElementException:
-            pass
+        self._waits_for_no_element( expression )
 
     def assert_no_js_errors( self ):
         assert self.browser.find_element_by_xpath('/html/body') \
@@ -95,16 +88,13 @@ class JBrowseTest (object):
         # Find the query box and put f15 into it and hit enter
         qbox = self.browser.find_element_by_id("location")
         qbox.send_keys( Keys.BACK_SPACE * 40 )
-        time.sleep( 0.05 )
         for i in range( len(text) ):
             qbox.send_keys( text[i] )
-            time.sleep( 0.13 )
-        qbox.send_keys( Keys.RETURN );
-        time.sleep( 0.3 )
+        qbox.send_keys( Keys.RETURN )
 
     def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
         el = self.assert_element( el_xpath )
-        start_offset = el.size['width'] * start_pct - el.size['width']/2;
+        start_offset = el.size['width'] * start_pct - el.size['width']/2
         c = self.actionchains() \
             .move_to_element( el ) \
             .move_by_offset( start_offset, 0 )
@@ -120,46 +110,41 @@ class JBrowseTest (object):
         if( modkey ):
             c = c.key_up( modkey )
 
-        c \
-            .release( None ) \
-            .perform()
+        c.perform()
 
         self.assert_no_js_errors()
 
-    def export_track( self, track_name, region, format, button ):
-        time.sleep(2);
-
-        track_name = re.sub( '\W', '_', track_name.lower() )
+    def export_track( self, track_name, region, file_format, button ):
 
         self.track_menu_click( track_name, 'Save')
 
         # test view export
         self.assert_element("//label[contains(.,'%s')]" % region ).click()
-        self.assert_element("//label[contains(.,'%s')]" % format ).click()
+        self.assert_element("//label[contains(.,'%s')]" % file_format ).click()
         self.assert_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button ).click()
         self.assert_no_js_errors()
 
     def close_dialog( self, title ):
-        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title ).click()
+        dialog = "//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title 
+
+        self.assert_element(dialog).click()
+        self.assert_no_element(dialog)
         self.assert_no_js_errors()
 
 
     def track_menu_click( self, track_name, item_name ):
-        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
-            .click()
+        
+        menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
+            % re.sub( '\W', '_', track_name.lower()) 
 
-        time.sleep(1)
-
-        self.assert_element( "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" % re.sub( '\W', '_', track_name ) ) \
-            .click()
-
-        time.sleep(1)
+        self.assert_element(menuButton).click()
 
         self.menu_item_click( item_name )
 
     def menu_item_click( self, text ):
-        self.assert_element( "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))]//td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text ) \
-            .click()
+        menuItem = "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
+            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text 
+        self.assert_element(menuItem).click()
 
     def overview_rubberband( self, start_pct, end_pct ):
         """Executes a rubberband gesture from start_pct to end_pct on the overview bar"""
@@ -175,7 +160,8 @@ class JBrowseTest (object):
 
     def is_track_on( self, tracktext ):
         # find the track label in the track pane
-        return not not self.maybe_find_element_by_xpath( "//div[contains(@class,'track-label')]/span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
+        return self.does_element_exist( \
+            "//div[contains(@class,'track-label')]/span[contains(@class,'track-label-text')][contains(.,'%s')]" % tracktext )
 
     def turn_on_track( self, tracktext ):
         return self.track_selector.turn_on_track( tracktext )
@@ -189,17 +175,45 @@ class JBrowseTest (object):
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
+    def _waits_for_elements( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(expression))
+
+    def _waits_for_element( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: self.does_element_exist(expression))
+
+    def _waits_for_no_element( self, expression ):
+        WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
+
+    def does_element_exist (self, expression):
+        try:
+            if expression.find('/') >= 0:
+                self.browser.find_element_by_xpath( expression )
+            else:
+                self.browser.find_element_by_css_selector( expression )
+            return True
+        except NoSuchElementException:
+            return False
+   
+    def do_elements_exist (self, expression):
+        try:
+            if expression.find('/') >= 0:
+                self.browser.find_elements_by_xpath( expression )
+            else:
+                self.browser.find_elements_by_css_selector( expression )
+            return True
+        except NoSuchElementException:
+            return False
+   
     def select_refseq( self, name ):
-        self.do_typed_query( name );
+        self.do_typed_query( name )
 
     def scroll( self ):
         move_right_button = self.browser.find_element_by_id('moveRight')
         move_right_button.click()
-        time.sleep(0.5)
+        self._waits_for_scroll(self.browser.title)
         move_left_button = self.browser.find_element_by_id('moveLeft')
         move_left_button.click()
-        # TODO: check the outcome of this
-        time.sleep(0.5)
+        self._waits_for_scroll(self.browser.title)
 
         self.assert_no_js_errors()
 
@@ -217,4 +231,18 @@ class JBrowseTest (object):
            .perform()
 
         self.assert_no_js_errors()
+
+    # waits for the title of the page to change, since it 
+    # gets updated after the scroll animation
+    def _waits_for_scroll ( self, location ):
+        WebDriverWait(self, 5).until(lambda self: self.browser.title != location)
+
+    def _waits_for_JBrowse_to_load(self):
+        WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0)
+        if self.browser.current_url.find("data=nonexistent"):
+            pass
+        else:
+            # Page title is initially "JBrowse",
+            # so wait for it to change
+            self._waits_for_scroll("JBrowse")
 

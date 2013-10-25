@@ -1,5 +1,4 @@
 import unittest
-import time
 from volvox_biodb_test import AbstractVolvoxBiodbTest
 
 class EmbeddedModeTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
@@ -9,6 +8,7 @@ class EmbeddedModeTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
         return self.base_url
 
     def test_volvox( self ):
-        time.sleep(0.5)
+        self.assert_track("BigWig Density")
+        self.assert_track("BigWig XY")
         self.assert_no_js_errors()
         self.browser.close()
