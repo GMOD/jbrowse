@@ -94,8 +94,8 @@ return declare( Destroyable, {
                  //&& ! changeDescription.animating
                  && !prev.onProjectionBlockRightEdge   //< they are both in the same projection block
                  && !this.onProjectionBlockLeftEdge   //< they are both in the same projection block
-                 && (prev.width() < this.idealSize/5 || w < this.idealSize/5) //< at least one of the blocks is pretty small
-                 && ( prev.width() + w <= this.idealSize*2 )  //< the merged block would not be bigger than 2x ideal size
+                 && (prev.width() < this.idealSize2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
+                 && ( prev.width() + w <= this.idealSize*3 )  //< the merged block would not be bigger than 2x ideal size
                ) {
                    prev._log( 'merge', prev.width(), this.width(), w );
                    prev.mergeRight( this, l, r, changeDescription );
