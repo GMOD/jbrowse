@@ -92,14 +92,14 @@ return declare( 'JBrowse.Projection.Circular', [ LinearProjection,_CanonicalZoom
            return [];
 
        var bMin = ( this.scale > 0 ? a1 : a2 ) * this.scale + this.bOffset;
-       var bMinM = this._modB( bMin, this.bLength );
-       var numBlocks = Math.ceil( Math.abs( (a2-a1)*this.scale ) / this.bLength ); //correct
-       var childOffset = bMinM-bMin;
+       var bMax = ( this.scale > 0 ? a2 : a1 ) * this.scale + this.bOffset;
+       var childOffset = this._modB( bMin, this.bLength ) - bMin;
+       var minOffset = this._modB( bMax,this.bLength ) - bMax;
        var blocks = [];
-       for( var i = 0; i<numBlocks; i++ ) {
+       for( ; childOffset >= minOffset; childOffset -= this.bLength ) {
            blocks.push(
                new ChildBlock({ parent: this,
-                                childOffset: childOffset-i*this.bLength,
+                                childOffset: childOffset,
                                 aName: this.aName,
                                 bName: this.bName
                               })
