@@ -43,11 +43,6 @@ return declare( Destroyable, {
         if( ! this.updateCallback )
             throw new Error('updateCallback required');
 
-        var thisB = this;
-        this.blockWatch = this.projectionBlock.watch(
-            function(c) { thisB._update(c); }
-        );
-
         this._log( 'new', this.width() );
     },
 
@@ -67,7 +62,7 @@ return declare( Destroyable, {
         console.log.apply( console, [ this.serialNumber+' '+arguments[0]].concat(Array.prototype.slice.call( arguments, 1 )) );
     },
 
-    _update: function( changeDescription ) {
+    update: function( changeDescription ) {
 
         var projectionRangePx = this.projectionBlock.getValidRangeA();
         var prev = this.prev(),
@@ -191,8 +186,6 @@ return declare( Destroyable, {
             domConstruct.destroy( this.domNode );
             delete this.domNode;
         }
-
-        this.blockWatch.remove();
 
         delete this.updatePositionCallback;
         this.inherited( arguments );
