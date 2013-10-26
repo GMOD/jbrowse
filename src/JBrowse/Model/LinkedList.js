@@ -5,9 +5,7 @@ define([
            declare
        ){
 return declare( null, {
-  constructor: function( elements ) {
-      if( elements )
-          this.push.apply( this, elements );
+  constructor: function() {
   },
 
   push: function() {
@@ -34,7 +32,11 @@ return declare( null, {
       return elements;
   },
 
-  _remove: function() {
+  empty: function() {
+      this._llFirst = this._llLast = undefined;
+  },
+
+  remove: function() {
       for( var i = 0; i<arguments.length; i++ ) {
           var el = arguments[i];
 
@@ -56,14 +58,14 @@ return declare( null, {
   pop: function() {
       var last = this._llLast;
       if( last )
-          this._remove( last );
+          this.remove( last );
       return last;
   },
 
   shift: function() {
       var first = this._llFirst;
       if( first )
-          this._remove( first );
+          this.remove( first );
       return first;
   },
 
@@ -82,7 +84,7 @@ return declare( null, {
 
   replace: function( outEl, inEls ) {
       var prev = outEl._llPrev;
-      this._remove( outEl );
+      this.remove( outEl );
       if( prev )
           this.insert( inEls, prev );
       else
@@ -157,7 +159,7 @@ return declare( null, {
   },
 
   destroy: function() {
-      this._llLast = this._llFirst = undefined;
+      this.empty();
   }
 
 });

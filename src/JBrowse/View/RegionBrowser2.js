@@ -163,7 +163,7 @@ _updateProjection: function( args ) {
 
     var aRange = { start: this._contentBox.l,    end: this._contentBox.l + this._contentBox.w };
     var bRange = { start: location.get('start'), end: location.get('end') };
-    if( true || location.get('strand') == -1 )
+    if( location.get('strand') == -1 )
         (function() {
             var tmp = bRange.start;
             bRange.start = bRange.end;
@@ -175,8 +175,8 @@ _updateProjection: function( args ) {
         existingProjection.matchRanges( aRange, bRange, args.animate ? 800 : undefined );
     }
     else {
-        //this.set( 'projection', new CircularProjection(
-        this.set( 'projection', new CanonicalLinearProjection(
+        this.set( 'projection', new CircularProjection(
+        //this.set( 'projection', new CanonicalLinearProjection(
             { aRange: aRange, bRange: bRange, bLength: 10000,
               aName: 'screen', bName: location.get('seq_id')
             }

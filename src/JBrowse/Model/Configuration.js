@@ -48,7 +48,7 @@ var Configuration = declare( null, {
     _notify: function( path, oldval, newval ) {
         var listeners = this._listeners[path];
         if( listeners )
-            array.forEach( listeners, function( l ) {
+            array.forEach( listeners.slice(), function( l ) {
                                if( l && l.callback )
                                    l.callback( path, oldval, newval );
                            });

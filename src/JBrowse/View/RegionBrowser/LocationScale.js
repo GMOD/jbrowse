@@ -94,8 +94,9 @@ fillBlock: function( block, projection, isAnimating ) {
     var projectionBlocks = projection.getBlocksForRange( block.left, block.right );
     var html = [];
     array.forEach( projectionBlocks, function( projectionBlock, i ) {
-        var leftBase  = projectionBlock.projectPoint( Math.max( projectionBlock.aStart, block.left ) );
-        var rightBase = projectionBlock.projectPoint( Math.min( projectionBlock.aEnd, block.right ));
+        var aRange = projectionBlock.getValidRangeA();
+        var leftBase  = projectionBlock.projectPoint( Math.max( aRange.l, block.left ) );
+        var rightBase = projectionBlock.projectPoint( Math.min( aRange.r, block.right ));
         if( leftBase === null || rightBase === null )
             return;
 
@@ -104,15 +105,17 @@ fillBlock: function( block, projection, isAnimating ) {
             leftBase = rightBase;
             rightBase = tmp;
         }
-        var labelPitch = this._choosePitch( projectionBlock.scale, 60 );
+        var labelPitch = this._choosePitch( projectionBlock.getScale(), 60 );
         var prevlabel;
-        var blockReverse = projectionBlock.reverse();
         for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
+            var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
+            if( leftpx < 0 || leftpx > block.width() )
+                debugger;
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
                 html.push(
                     '<div class="posLabel" style="left: ',
-                    blockReverse.projectPoint(b)-block.left,
+                    leftpx,
                     'px" title="',
                     Util.commifyNumber(b),
                     '"><span style="left: -',

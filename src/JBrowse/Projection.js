@@ -42,9 +42,7 @@ return declare( null,
 
         var thisB = this;
         l.remove = function() {
-            for( var i = 0; i<thisB.listeners.length; i++ )
-                if( thisB.listeners[i] === l )
-                    thisB.listeners[i] = undefined;
+            l.cb = function() {};
             thisB = l = undefined;
         };
 
@@ -52,7 +50,9 @@ return declare( null,
     },
 
     _notifyChanged: function( changeDescription ) {
-        var l = this.listeners;
+        // copy the listeners array so that we are not affected by
+        // modifications to it that might happen in the listeners
+        var l = this.listeners.slice();
         for( var i = 0; i<l.length; i++ )
             if( l[i] )
                 l[i].cb( changeDescription, this );
@@ -82,6 +82,10 @@ return declare( null,
     // resolves when the projection finishes animating
     animateTo: function( factor, offset, milliseconds ) {
         throw new Error('Abstract!');
+    },
+
+    destroy: function() {
+        delete this.listeners;
     }
 });
 });

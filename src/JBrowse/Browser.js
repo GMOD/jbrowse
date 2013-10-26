@@ -160,7 +160,7 @@ configSchema: {
         slots: [
             { name: 'plugins',  type: 'multi-object' },
             { name: 'dataRoot', type: 'string', defaultValue: "data" },
-            { name: 'location', type: 'string', defaultValue: 'ctgA:1000..4000' }, // TODO remove this
+            { name: 'location', type: 'string', defaultValue: 'ctgA:40000000..40000400' }, // TODO remove this
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'names', type: 'object', defaultValue: {} },
@@ -571,24 +571,25 @@ initView: function() {
             || "DNA";
 
         // instantiate our views
-        this.views = [
-            new RegionBrowser2(
-                { browser: this,
-                  config: {
-                      name: 'View 1',
-                      className: 'colorScheme1',
-                      region: 'top',
-                      style: 'height: 40%',
-                      location: Util.parseLocString( this.getConf('location') ), // todo remove this
-                      tracks: initialTracks.split(',')
-                  }
-                } )
-            ];
+        this.views = [];
+        // this.views.push(
+        //     new RegionBrowser2(
+        //         { browser: this,
+        //           config: {
+        //               name: 'View 1',
+        //               className: 'colorScheme1',
+        //               region: 'top',
+        //               style: 'height: 40%',
+        //               location: Util.parseLocString( this.getConf('location') ), // todo remove this
+        //               tracks: initialTracks.split(',')
+        //           }
+        //         } )
+        //  );
          this.views.push(
              new RegionBrowser2(
                  { browser: this,
                    config: {
-                       className: 'colorScheme2',
+                       className: 'colorScheme1',
                        region: 'center',
                        parentViewName: 'View 1',
                        tracks: initialTracks.split(','),

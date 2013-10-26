@@ -28,10 +28,14 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       else {
           this._set( args );
       }
+  },
 
-      // delete the cached reverse of ourselves when we change
-      var thisB = this;
-      this.watch( function() { delete thisB._cachedReverse; } );
+  getScale: function() {
+      return this.scale;
+  },
+
+  getValidRangeA: function() {
+      return { l: this.aStart, r: this.aEnd };
   },
 
   _fromRanges: function( aRange, bRange ) {
@@ -114,6 +118,15 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       return a * this.scale + this.bOffset;
   },
 
+  reverseProjectPoint: function( b ) {
+      var a = (b-this.bOffset)/this.scale;
+      if( a > this.aEnd )
+          return null;
+      if( a < this.aStart )
+          return null;
+      return a;
+  },
+
   projectRange: function( a1, a2 ) {
       if( a2 < this.aStart || a1 > this.aEnd )
           return null;
@@ -125,23 +138,8 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
 
   getBlocksForRange: function( a1, a2 ) {
       if( a2 < this.aStart || a1 > this.aEnd )
-          return null;
+          return [];
       return [ this ];
-  },
-
-  reverse: function() {
-      // cache the reverse of our projection
-      return this._cachedReverse || ( this._cachedReverse = function() {
-          return new Continuous(
-              {
-                  aName:   this.bName,
-                  bName:   this.aName,
-                  bOffset: -this.bOffset/this.scale,
-                  scale:   1/this.scale,
-                  aStart:  this.projectPoint( this.aStart ),
-                  aEnd:    this.projectPoint( this.aEnd )
-              });
-      }.call(this));
   },
 
   toString: function() {
@@ -219,6 +217,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       // sinusoidal
       return Math.sin( elapsedTime / totalTime * 3.14159/2 )+0.04;
   }
+
 });
 return Continuous;
 });
