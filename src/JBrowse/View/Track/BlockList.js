@@ -51,7 +51,12 @@ return declare( LinkedList, {
       // make blocks on the left
       if( this._leftPx() > xMin ) {
           var projectionBlocks = this.projection.getBlocksForRange( xMin, Math.min( xMax, this._leftPx() ) );
-          array.forEach( projectionBlocks.reverse(), function( projectionBlock ) {
+          projectionBlocks.sort(
+              function(a,b) {
+                  var ar = a.getValidRangeA(), br = b.getValidRangeA();
+                  return br.l - ar.l;
+              });
+          array.forEach( projectionBlocks, function( projectionBlock ) {
               var aRange = projectionBlock.getValidRangeA();
               // make one or more rendering blocks for this projection block
               for( var left = this._leftPx();
@@ -81,6 +86,11 @@ return declare( LinkedList, {
       // make blocks on the right
       if( this._rightPx() < xMax ) {
           var projectionBlocks = this.projection.getBlocksForRange( Math.max( xMin, this._rightPx() ), xMax );
+          projectionBlocks.sort(
+              function(a,b) {
+                  var ar = a.getValidRangeA(), br = b.getValidRangeA();
+                  return ar.l - br.l;
+              });
           array.forEach( projectionBlocks, function( projectionBlock ) {
               var aRange = projectionBlock.getValidRangeA();
 
