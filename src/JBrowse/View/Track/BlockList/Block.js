@@ -9,7 +9,6 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
-           'dojo/dom-construct',
 
            'dijit/Destroyable',
            'JBrowse/Util'
@@ -18,7 +17,6 @@ define([
            declare,
            lang,
            array,
-           domConstruct,
 
            Destroyable,
            Util
@@ -40,8 +38,8 @@ return declare( Destroyable, {
             throw new Error('projectionBlock required');
         if( ! this.blockList )
             throw new Error('blockList required');
-        if( ! this.updateCallback )
-            throw new Error('updateCallback required');
+        if( ! this.callbacks || ! this.callbacks['default'] )
+            throw new Error('default update callback required');
 
         this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
     },
@@ -117,13 +115,19 @@ return declare( Destroyable, {
         this.left = newLeft;
         this.right = newRight;
 
-        if( this.domNode ) {
-            this.domNode.style.left = this.left-1+'px';
-            this.domNode.style.width = this.width()+'px';
-        }
         //this._log( 'update '+this.width() );
 
-        ( this.updatePositionCallback || this.updateCallback ).call( this, deltaLeft, deltaRight, changeDescription );
+        this._notifyChanged({
+            operation: deltaLeft != deltaRight ? 'resize' : 'move',
+            deltaLeft: deltaLeft,
+            deltaRight: deltaRight,
+            projectionChange: changeDescription
+         });
+    },
+
+    _notifyChanged: function( data ) {
+        var callback = this.callbacks[ data.operation ] || this.callbacks['default'];
+        callback.call( this, data );
     },
 
     // split this block into several smaller blocks, modifying the
@@ -139,23 +143,35 @@ return declare( Destroyable, {
 
         var newBlocks = [];
         for( var l = newLeft; l<this.left; l += size ) {
-            newBlocks.push( { projectionBlock: this.projectionBlock, blockList: this.blockList, left: l, right: Math.min(this.left,l+size) } );
+            newBlocks.push({
+                projectionBlock: this.projectionBlock,
+                blockList: this.blockList,
+                left: l,
+                right: Math.min(this.left,l+size)
+            });
         }
-        if( newBlocks[0] ) {
-            newBlocks[0].onProjectionBlockLeftEdge = this.onProjectionBlockLeftEdge;
-            this.onProjectionBlockLeftEdge = false;
-        }
-        // instantiate the blocks
-        newBlocks = array.map( newBlocks, this.blockList.newBlock );
 
-        if( this.domNode ) {
-            this.domNode.style.left = this.left-1+'px';
-            this.domNode.style.width = this.width()+'px';
+        var changeInfo = {
+            operation: 'split',
+            deltaLeft: deltaLeft,
+            deltaRight: 0,
+            projectionChange: changeDescription
+        };
+
+        if( newBlocks.length ) {
+            if( this.onProjectionBlockLeftEdge ) {
+                newBlocks[0].onProjectionBlockLeftEdge = this.onProjectionBlockLeftEdge;
+                this.onProjectionBlockLeftEdge = false;
+                changeInfo.edges = { left: false };
+            }
+            // instantiate the blocks
+            newBlocks = array.map( newBlocks, this.blockList.newBlock );
+            changeInfo.newBlocks = newBlocks;
         }
-        this.updateCallback( this, deltaLeft, 0, changeDescription );
 
         this._log( 'split', newBlocks, this );
 
+        this._notifyChanged( changeInfo );
         return newBlocks;
     },
 
@@ -166,31 +182,30 @@ return declare( Destroyable, {
             // return;
         }
 
-        var deltaRight = rightBlockNewRightPx - this.right;
-        //console.log( 'merge '+this.left+' , '+this.right+'->'+rightBlockNewRightPx );
-        this.right = rightBlockNewRightPx;
-        this.onProjectionBlockRightEdge = rightBlock.onProjectionBlockRightEdge;
+        var changeInfo = {
+            operation: 'merge',
+            deltaRight: rightBlockNewRightPx - this.right,
+            deltaLeft: 0,
+            projectionChange: changeDescription
+        };
 
-        if( this.domNode ) {
-            this.domNode.style.width = this.width()+'px';
+        this.right = rightBlockNewRightPx;
+
+        if( rightBlock.onProjectionBlockRightEdge ) {
+            this.onProjectionBlockRightEdge = true;
+            changeInfo.edges = { right: true };
         }
 
-        if( this.mergeCallback )
-            this.mergeCallback( rightBlock, changeDescription );
-        else
-            this.updateCallback( 0, deltaRight );
+        this._notifyChanged( changeInfo );
     },
 
     destroy: function() {
         this._log('destroy');
+        this._notifyChanged({ operation: 'destroy' });
+
         this._llNext = this._llPrev = undefined;
 
-        if( this.domNode ) {
-            domConstruct.destroy( this.domNode );
-            delete this.domNode;
-        }
-
-        delete this.updatePositionCallback;
+        delete this.callbacks;
         this.inherited( arguments );
     }
 

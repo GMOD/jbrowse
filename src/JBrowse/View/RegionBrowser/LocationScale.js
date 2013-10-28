@@ -8,7 +8,7 @@ define([
 	   "dijit/_WidgetBase",
 
            'JBrowse/View/Track/BlockList',
-           'JBrowse/View/Track/BlockBased/Block',
+           'JBrowse/View/Track/BlockList/BlockWithDOM',
            'JBrowse/Util'
 
        ], function(
@@ -45,46 +45,34 @@ _setGenomeViewAttr: function( genomeView ) {
                     projection: newProjection,
                     viewportNode: thisB.domNode,
                     newBlock: function( args ) {
-                        args = lang.mixin(
-                            args,
-                            {
-                                // callback when block changes
-                                // screen coordinates and/or size,
-                                // but is guaranteed to correspond
-                                // to the same genomic region as
-                                // before
-                                updatePositionCallback: function( deltaLeft, deltaRight, projectionChange ) {
-                                    // if the block has changed size, need to refill it
-                                    if( Math.abs(deltaLeft-deltaRight)>1 )
-                                        this.filled = false;
-                                    //if( ! this.filled && !( projectionChange && projectionChange.animating )) {
-                                    if( ! this.filled ) {
-                                        thisB.fillBlock( this, newProjection );
-                                        this.filled = true;
-                                    }
-                                },
+                        args.parentNode = thisB.domNode;
+                        args.callbacks = {
+                            // callback when block changes
+                            // screen coordinates, but not size
+                            // but is guaranteed to correspond
+                            // to the same genomic region as
+                            // before
+                            move: function( deltaLeft, deltaRight, projectionChange ) {
+                                // don't need to do anything when blocks just move
+                            },
 
-                                // callback when block changes
-                                // screen coordinates and/or size,
-                                // and is *not* guaranteed to
-                                // correspond to the same genomic
-                                // region
-                                updateCallback: function( deltaLeft, deltaRight, projectionChange ) {
-                                    this.filled = false;
-                                    this.domNode.className = 'renderingBlock'
-                                        +( this.onProjectionBlockLeftEdge ? ' projectionLeftBorder' : '' )
-                                        +( this.onProjectionBlockRightEdge ? ' projectionRightBorder' : '' );
+                            // callback when block changes
+                            // screen coordinates and/or size,
+                            // and is *not* guaranteed to
+                            // correspond to the same genomic
+                            // region
+                            "default": function( changeInfo ) {
+                                if( changeInfo.operation == 'destroy' )
+                                    return;
 
-                                    thisB.fillBlock( this, newProjection );
-                                    this.filled = true;
-                                }
-                            });
-                        var className = 'renderingBlock'
-                            +( args.onProjectionBlockLeftEdge ? ' projectionLeftBorder' : '' )
-                            +( args.onProjectionBlockRightEdge ? ' projectionRightBorder' : '' );
-
-                        args.domNode = domConstruct.create('div', { className: className }, thisB.domNode );
-                        return new Block( args );
+                                this.filled = false;
+                                thisB.fillBlock( this, newProjection );
+                                this.filled = true;
+                            }
+                        };
+                        var block = new Block( args );
+                        thisB.fillBlock( block, newProjection );
+                        return block;
                     }
                 });
         });
@@ -131,6 +119,7 @@ fillBlock: function( block, projection, isAnimating ) {
             prevlabel = label;
         }
     },this);
+
     block.domNode.innerHTML = html.join('');
 },
 
