@@ -334,4 +334,44 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
 
 }
 
+QUANTGFF3:
+{
+    # test quantitative gff3
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => catfile('tests','data','quantitative.gff3'),
+        '--compress',
+        '--key' => 'Quantitative GFF3 test',
+        '--trackLabel' => 'quantgff3',
+        );
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks quantgff3 ctgA )));
+    is( scalar( grep @{$trackdata->{$_}} == 0,
+                grep /^lf/,
+                keys %$trackdata
+               ),
+        0,
+        'no empty chunks in trackdata'
+      ) or diag explain $trackdata;
+
+    is_deeply( $trackdata->{'trackData.jsonz'}{intervals}{classes}[0],
+               {
+                   'attributes' => [
+                       'Start',
+                       'End',
+                       'Strand',
+                       'Source',
+                       'Seq_id',
+                       'Name',
+                       'Type',
+                       'Score',
+                       ],
+                   'isArrayAttr' => {
+                       }
+                   }
+               ) or diag explain $trackdata->{'trackData.jsonz'};
+
+}
+
 done_testing;

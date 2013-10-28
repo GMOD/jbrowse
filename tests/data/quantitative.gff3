@@ -1,0 +1,8 @@
+##gff-version	3
+ctgA	zonk	micro_array_oligo	793	842	41.32	.	.	Name=FakeName
+ctgA	zonk	micro_array_oligo	853	902	21.2	.	.	Name=FakeName
+ctgA	zonk	micro_array_oligo	913	962	20.8	.	.	Name=FakeName
+ctgA	zonk	micro_array_oligo	1033	1082	17.08	.	.	Name=FakeName
+ctgA	zonk	micro_array_oligo	1093	1142	9.76	.	.	Name=FakeName
+ctgA	zonk	micro_array_oligo	1153	1202	3.81	.	.	Name=FakeName
+ctgA	zonk	micro_array_oligo	1213	1262	3.3	.	.	Name=FakeName
