@@ -71,6 +71,10 @@ _setGenomeViewAttr: function( genomeView ) {
                                 // region
                                 updateCallback: function( deltaLeft, deltaRight, projectionChange ) {
                                     this.filled = false;
+                                    this.domNode.className = 'renderingBlock'
+                                        +( this.onProjectionBlockLeftEdge ? ' projectionLeftBorder' : '' )
+                                        +( this.onProjectionBlockRightEdge ? ' projectionRightBorder' : '' );
+
                                     thisB.fillBlock( this, newProjection );
                                     this.filled = true;
                                 }
@@ -110,7 +114,7 @@ fillBlock: function( block, projection, isAnimating ) {
         for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
-            if( leftpx < 0 || leftpx > block.width() )
+            if( leftpx < 0 || leftpx > block.width()+1 )
                 debugger;
             if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
                 html.push(

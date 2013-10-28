@@ -94,7 +94,7 @@ return declare( Destroyable, {
                  //&& ! changeDescription.animating
                  && !prev.onProjectionBlockRightEdge   //< they are both in the same projection block
                  && !this.onProjectionBlockLeftEdge   //< they are both in the same projection block
-                 && (prev.width() < this.idealSize2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
+                 && (prev.width() < this.idealSize/2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
                  && ( prev.width() + w <= this.idealSize*3 )  //< the merged block would not be bigger than 2x ideal size
                ) {
                    prev._log( 'merge', prev.width(), this.width(), w );
@@ -115,8 +115,9 @@ return declare( Destroyable, {
         var deltaRight = newRight - this.right;
         this.left = newLeft;
         this.right = newRight;
+
         if( this.domNode ) {
-            this.domNode.style.left = this.left+'px';
+            this.domNode.style.left = this.left-1+'px';
             this.domNode.style.width = this.width()+'px';
         }
         //this._log( 'update '+this.width() );
@@ -134,10 +135,6 @@ return declare( Destroyable, {
 
         var deltaLeft = newRight-size-this.left;
         this.left = newRight-size;
-        if( this.domNode ) {
-            this.domNode.style.left = this.left+'px';
-            this.domNode.style.width = this.width()+'px';
-        }
 
         var newBlocks = [];
         for( var l = newLeft; l<this.left; l += size ) {
@@ -150,6 +147,10 @@ return declare( Destroyable, {
         // instantiate the blocks
         newBlocks = array.map( newBlocks, this.blockList.newBlock );
 
+        if( this.domNode ) {
+            this.domNode.style.left = this.left-1+'px';
+            this.domNode.style.width = this.width()+'px';
+        }
         this.updateCallback( this, deltaLeft, 0, changeDescription );
 
         this._log( 'split', newBlocks, this );
