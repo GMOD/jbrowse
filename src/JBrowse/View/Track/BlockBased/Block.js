@@ -58,15 +58,14 @@ return declare( Destroyable, {
     },
 
     _log: function() {
-        //return;
+        return;
         console.log.apply( console, [ this.serialNumber+' '+arguments[0]].concat(Array.prototype.slice.call( arguments, 1 )) );
     },
 
     update: function( changeDescription ) {
 
         var projectionRangePx = this.projectionBlock.getValidRangeA();
-        var prev = this.prev(),
-            next = this.next();
+        var prev = this.prev();
 
         var l = this.onProjectionBlockLeftEdge ? projectionRangePx.l :
                                           prev ? prev.right          :
@@ -74,14 +73,16 @@ return declare( Destroyable, {
                                                  this.left;
 
         var r = this.onProjectionBlockRightEdge ? projectionRangePx.r :
-
                       changeDescription.aUpdate ? changeDescription.aUpdate.projectPoint( this.right ) :
                                                   this.right;
 
 
         var w = r-l;
-        if( w < 0 )
-            debugger;
+        if( w < 0 ) {
+            console.warn('block width less than 0');
+            r = l+1;
+            w = 1;
+        }
 
         // if the new size of this block is much bigger than
         // the ideal size, we need to split it
@@ -97,7 +98,7 @@ return declare( Destroyable, {
                  && (prev.width() < this.idealSize/2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
                  && ( prev.width() + w <= this.idealSize*3 )  //< the merged block would not be bigger than 2x ideal size
                ) {
-                   prev._log( 'merge', prev.width(), this.width(), w );
+                   prev._log( 'merge', this.serialNumber );
                    prev.mergeRight( this, l, r, changeDescription );
                    this.blockList.remove( this );
                    this.destroy();
@@ -109,7 +110,7 @@ return declare( Destroyable, {
 
     updatePosition: function( newLeft, newRight, changeDescription ) {
         if( this._destroyed ) return;
-        this._log( 'update', newLeft, newRight );
+        //this._log( 'update', newLeft, newRight );
 
         var deltaLeft = newLeft - this.left;
         var deltaRight = newRight - this.right;
@@ -160,8 +161,9 @@ return declare( Destroyable, {
 
     mergeRight: function( rightBlock, rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription ) {
         if( this._destroyed ) {
-            rightBlock.updatePosition( rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription );
-            return;
+            debugger;
+            // rightBlock.updatePosition( rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription );
+            // return;
         }
 
         var deltaRight = rightBlockNewRightPx - this.right;
