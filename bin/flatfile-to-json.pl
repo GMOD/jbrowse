@@ -145,9 +145,9 @@ Bytes of RAM to use for sorting features.  Default 512MB.
 =item --maxLookback <integer>
 
 Maximum number of features to keep in memory when parsing GFF3 files.
-If you are having trouble parsing a GFF3 file that contains few '###'
-directives (which are important for parsing), you can try setting this
-higher if your machine has enough memory.
+If you receive "orphan features" errors when parsing a GFF3 file that
+contains few '###' directives (which are important for parsing), you
+can try setting this higher if your machine has enough memory.
 
 =back
 
