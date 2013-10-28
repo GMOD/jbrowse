@@ -87,7 +87,7 @@ fillBlock: function( block, projection, isAnimating ) {
 
         if( block.left <= aRange.l )
             leftBase += Math.abs( 10*scale );
-        if( rightBase >= aRange.r )
+        if( block.right >= aRange.r )
             rightBase -= Math.abs( 10*scale );
 
         var labelPitch = this._choosePitch( scale, 60 );
