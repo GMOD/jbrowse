@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * flatfile-to-json.pl dow depends on the latest
+   Bio::GFF3::LowLevel::Parser 1.8, which fixes a bug in which
+   features with no ID, Parent, or Derives_from attributes were not
+   being included in parsed data.  Thanks to Gwendoline Andres for
+   pointing this out.
+
 # Release 1.10.8     2013-10-25 11:13:30 EST5EDT
 
 ## Minor improvements
