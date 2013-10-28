@@ -70,8 +70,10 @@ fillBlock: function( block, projection, isAnimating ) {
     //console.log('fill');
     var projectionBlocks = projection.getBlocksForRange( block.left, block.right );
     var html = [];
-    array.forEach( projectionBlocks, function( projectionBlock, i ) {
+    array.forEach( projectionBlocks, function( projectionBlock ) {
         var aRange = projectionBlock.getValidRangeA();
+        var scale = projectionBlock.getScale();
+
         var leftBase  = projectionBlock.projectPoint( Math.max( aRange.l, block.left ) );
         var rightBase = projectionBlock.projectPoint( Math.min( aRange.r, block.right ));
         if( leftBase === null || rightBase === null )
@@ -82,9 +84,14 @@ fillBlock: function( block, projection, isAnimating ) {
             leftBase = rightBase;
             rightBase = tmp;
         }
-        var labelPitch = this._choosePitch( projectionBlock.getScale(), 60 );
-        var prevlabel;
-        for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
+
+        if( block.left <= aRange.l )
+            leftBase += Math.abs( 10*scale );
+        if( rightBase >= aRange.r )
+            rightBase -= Math.abs( 10*scale );
+
+        var labelPitch = this._choosePitch( scale, 60 );
+        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
             html.push(
