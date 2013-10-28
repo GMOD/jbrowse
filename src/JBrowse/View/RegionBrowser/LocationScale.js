@@ -21,7 +21,7 @@ define([
            _WidgetBase,
 
            BlockList,
-           Block,
+           DOMBlock,
            Util
        ) {
 
@@ -35,50 +35,35 @@ constructor: function(args) {
 _setGenomeViewAttr: function( genomeView ) {
     var thisB = this;
 
-    genomeView.watch(
-        'projection',
+    genomeView.watch( 'projection',
         function( name, oldProjection, newProjection ) {
-            if( thisB.blockList )
-                thisB.blockList.destroy();
-            thisB.blockList = new BlockList(
-                {
-                    projection: newProjection,
-                    viewportNode: thisB.domNode,
-                    newBlock: function( args ) {
-                        args.parentNode = thisB.domNode;
-                        args.callbacks = {
-                            // callback when block changes
-                            // screen coordinates, but not size
-                            // but is guaranteed to correspond
-                            // to the same genomic region as
-                            // before
-                            move: function( deltaLeft, deltaRight, projectionChange ) {
-                                // don't need to do anything when blocks just move
-                            },
-
-                            // callback when block changes
-                            // screen coordinates and/or size,
-                            // and is *not* guaranteed to
-                            // correspond to the same genomic
-                            // region
-                            "default": function( changeInfo ) {
-                                if( changeInfo.operation == 'destroy' )
-                                    return;
-
-                                this.filled = false;
-                                thisB.fillBlock( this, newProjection );
-                                this.filled = true;
-                            }
-                        };
-                        var block = new Block( args );
-                        thisB.fillBlock( block, newProjection );
-                        return block;
-                    }
-                });
+            thisB._makeBlockList( newProjection );
         });
+},
 
-    if( genomeView.get('projection') )
-        this._update( genomeView.get('projection') );
+_makeBlockList: function( projection ) {
+    var thisB = this;
+    if( this.blockList )
+        this.blockList.destroy();
+    this.blockList = new BlockList(
+        {
+            projection: projection,
+            viewportNode: this.domNode,
+            newBlock: function( args ) {
+                args.parentNode = thisB.domNode;
+                args.changeCallbacks = {
+                    move: function() {}, //< don't need to do anything when blocks move
+                    "default": function( changeInfo ) {
+                        if( changeInfo.operation == 'destroy' )
+                            return;
+                        thisB.fillBlock( this, projection );
+                    }
+                };
+                var block = new DOMBlock( args );
+                thisB.fillBlock( block, projection );
+                return block;
+            }
+        });
 },
 
 fillBlock: function( block, projection, isAnimating ) {
@@ -102,11 +87,8 @@ fillBlock: function( block, projection, isAnimating ) {
         for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
-            if( leftpx < 0 || leftpx > block.width()+1 )
-                debugger;
-            if( label != prevlabel ) //< prevent runs of the same label, which can happen for big numbers
-                html.push(
-                    '<div class="posLabel" style="left: ',
+            html.push(
+                '<div class="posLabel" style="left: ',
                     leftpx,
                     'px" title="',
                     Util.commifyNumber(b),
@@ -116,7 +98,6 @@ fillBlock: function( block, projection, isAnimating ) {
                     ,label,
                     '</span></div>'
                 );
-            prevlabel = label;
         }
     },this);
 

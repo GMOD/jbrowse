@@ -38,8 +38,8 @@ return declare( Destroyable, {
             throw new Error('projectionBlock required');
         if( ! this.blockList )
             throw new Error('blockList required');
-        if( ! this.callbacks || ! this.callbacks['default'] )
-            throw new Error('default update callback required');
+        if( ! this.changeCallbacks || ! this.changeCallbacks['default'] )
+            throw new Error('"default" changeCallback required');
 
         this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
     },
@@ -107,7 +107,6 @@ return declare( Destroyable, {
     },
 
     updatePosition: function( newLeft, newRight, changeDescription ) {
-        if( this._destroyed ) return;
         //this._log( 'update', newLeft, newRight );
 
         var deltaLeft = newLeft - this.left;
@@ -126,7 +125,7 @@ return declare( Destroyable, {
     },
 
     _notifyChanged: function( data ) {
-        var callback = this.callbacks[ data.operation ] || this.callbacks['default'];
+        var callback = this.changeCallbacks[ data.operation ] || this.changeCallbacks['default'];
         callback.call( this, data );
     },
 
@@ -176,12 +175,6 @@ return declare( Destroyable, {
     },
 
     mergeRight: function( rightBlock, rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription ) {
-        if( this._destroyed ) {
-            debugger;
-            // rightBlock.updatePosition( rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription );
-            // return;
-        }
-
         var changeInfo = {
             operation: 'merge',
             deltaRight: rightBlockNewRightPx - this.right,
@@ -205,7 +198,7 @@ return declare( Destroyable, {
 
         this._llNext = this._llPrev = undefined;
 
-        delete this.callbacks;
+        delete this.changeCallbacks;
         this.inherited( arguments );
     }
 
