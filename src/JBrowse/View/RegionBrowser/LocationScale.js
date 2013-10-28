@@ -84,7 +84,7 @@ fillBlock: function( block, projection, isAnimating ) {
         }
         var labelPitch = this._choosePitch( projectionBlock.getScale(), 60 );
         var prevlabel;
-        for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b <= rightBase; b += labelPitch ) {
+        for( var b = Math.ceil( (leftBase+0.001) / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
             html.push(
