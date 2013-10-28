@@ -43,7 +43,7 @@ return declare( Destroyable, {
         if( ! this.updateCallback )
             throw new Error('updateCallback required');
 
-        this._log( 'new', this.width() );
+        this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
     },
 
     width: function() {
