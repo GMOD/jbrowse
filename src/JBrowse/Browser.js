@@ -562,6 +562,8 @@ initView: function() {
                                         })
                                   );
 
+            this.fileDialog = new FileDialog({ browser: this });
+
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
                 {
                     id: 'menubar_combotrack', 
@@ -871,7 +873,7 @@ getTrackTypes: function() {
 
 
 openFileDialog: function() {
-    new FileDialog({ browser: this })
+    this.fileDialog
         .show({
             openCallback: dojo.hitch( this, function( results ) {
                 var confs = results.trackConfs || [];

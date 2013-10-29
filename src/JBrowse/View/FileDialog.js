@@ -7,8 +7,15 @@ define( [
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'dijit/Dialog',
+
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
+
+            './FileDialog/TrackList/BAMDriver',
+            './FileDialog/TrackList/BigWigDriver',
+            './FileDialog/TrackList/GFF3Driver',
+            './FileDialog/TrackList/VCFTabixDriver',
+
             './FileDialog/ResourceList',
             './FileDialog/TrackList'
         ],
@@ -21,8 +28,15 @@ define( [
             RadioButton,
             dom,
             Dialog,
+
             Uploaded,
-            ignore,
+            IFramePlugin,
+
+            BAMDriver,
+            BigWigDriver,
+            GFF3Driver,
+            VCFTabixDriver,
+
             ResourceList,
             TrackList
         ) {
@@ -35,6 +49,15 @@ return declare( null, {
         this.browserSupports = {
             dnd: 'draggable' in document.createElement('span')
         };
+
+        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new VCFTabixDriver() ];
+    },
+
+    addFileTypeDriver: function( d ) {
+        this._fileTypeDrivers.unshift( d );
+    },
+    getFileTypeDrivers: function() {
+        return this._fileTypeDrivers.slice();
     },
 
     _makeActionBar: function( openCallback, cancelCallback ) {
@@ -221,7 +244,7 @@ return declare( null, {
         return rl;
     },
     _makeTrackListControl: function() {
-        var tl = new TrackList({ browser: this.browser });
+        var tl = new TrackList({ browser: this.browser, fileDialog: this });
         this.trackList = tl;
         return tl;
     }
