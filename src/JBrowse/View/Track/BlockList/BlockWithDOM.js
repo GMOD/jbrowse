@@ -13,21 +13,22 @@ define([
 return declare( BlockBase, {
 
   constructor: function( args ) {
-      if( ! this.domNode )
+      if( ! this.domNode ) {
           this.domNode = domConstruct.create( 'div', {
               className: this._domClass(),
-              style: 'left:'+(this.left-1)+'px; width:'+this.width()+'px'
-          }, this.parentNode );
+              style: 'left:'+(this._left-1)+'px; width:'+(this._right-this._left)+'px'
+          }, this._parentNode );
+      }
   },
 
   _notifyChanged: function( changeInfo ) {
       // update our DOM node when things change
       if( this.domNode ) {
           if( changeInfo.deltaLeft )
-              this.domNode.style.left = this.left-1+'px';
+              this.domNode.style.left = this._left-1+'px';
           if( ( changeInfo.deltaLeft || changeInfo.deltaRight )
               && changeInfo.deltaLeft != changeInfo.deltaRight )
-              this.domNode.style.width = this.width()+'px';
+              this.domNode.style.width = this.getWidth()+'px';
 
           if( changeInfo.edges )
               this.domNode.className = this._domClass();
@@ -38,8 +39,8 @@ return declare( BlockBase, {
 
   _domClass: function() {
       return 'renderingBlock'
-          +( this.onProjectionBlockLeftEdge ? ' projectionLeftBorder' : '' )
-          +( this.onProjectionBlockRightEdge ? ' projectionRightBorder' : '' );
+          +( this._onProjectionBlockLeftEdge ? ' projectionLeftBorder' : '' )
+          +( this._onProjectionBlockRightEdge ? ' projectionRightBorder' : '' );
   },
 
   destroy: function() {

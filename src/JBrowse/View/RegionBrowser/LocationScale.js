@@ -42,71 +42,82 @@ _setGenomeViewAttr: function( genomeView ) {
 },
 
 _makeBlockList: function( projection ) {
-    var thisB = this;
     if( this.blockList )
         this.blockList.destroy();
     this.blockList = new BlockList(
         {
             projection: projection,
             viewportNode: this.domNode,
-            newBlock: function( args ) {
-                args.parentNode = thisB.domNode;
-                args.changeCallbacks = {
-                    move: function() {}, //< don't need to do anything when blocks move
-                    "default": function( changeInfo ) {
-                        if( changeInfo.operation == 'destroy' )
-                            return;
-                        thisB.fillBlock( this, projection );
-                    }
-                };
-                var block = new DOMBlock( args );
-                thisB.fillBlock( block, projection );
-                return block;
-            }
+            newBlock: lang.hitch( this, '_newBlock' )
         });
 },
 
-fillBlock: function( block, projection, isAnimating ) {
-    //console.log('fill');
-    var projectionBlocks = projection.getBlocksForRange( block.left, block.right );
+_newBlock: function( args ) {
+    var thisB = this;
+    args.parentNode = this.domNode;
+    args.changeCallbacks = {
+        move: function() {}, //< don't need to do anything when blocks move
+        "default": function( changeInfo, block ) {
+            if( changeInfo.operation == 'destroy' )
+                return;
+            thisB.fillBlock( block );
+        }
+    };
+    var block = new DOMBlock( args );
+    this.fillBlock( block );
+    return block;
+},
+
+fillBlock: function( block ) {
     var html = [];
-    array.forEach( projectionBlocks, function( projectionBlock ) {
-        var aRange = projectionBlock.getValidRangeA();
-        var scale = projectionBlock.getScale();
 
-        var minBase = projectionBlock.projectPoint( Math.max( aRange.l, block.left ) );
-        var maxBase = projectionBlock.projectPoint( Math.min( aRange.r, block.right ));
-        if( minBase === null || maxBase === null )
-            return;
+    var projectionBlock = block.getProjectionBlock();
 
-        if( scale < 0 ) { // swap if negative
-            var tmp = minBase;
-            minBase = maxBase;
-            maxBase = tmp;
-        }
+    var aRange = projectionBlock.getValidRangeA();
+    var scale = projectionBlock.getScale();
+    var blockDims = block.getDims();
 
-        if( scale > 0 && block.left <= aRange.l || scale < 0 && block.right >= aRange.r )
+    var minBase = projectionBlock.projectPoint( blockDims.l );
+    var maxBase = projectionBlock.projectPoint( blockDims.r );
+    if( minBase === null || maxBase === null )
+        return;
+
+    if( scale < 0 ) { // swap if negative
+        var tmp = minBase;
+        minBase = maxBase;
+        maxBase = tmp;
+    }
+
+    // apply left and right margins
+    if( scale > 0 ) {
+        if( blockDims.leftEdge )
             minBase += Math.abs( 10*scale );
-        if( scale > 0 && block.right >= aRange.r || scale < 0 && block.left <= aRange.l )
+        if( blockDims.rightEdge )
             maxBase -= Math.abs( 10*scale );
+    }
+    else {
+        if( blockDims.rightEdge )
+            minBase += Math.abs( 10*scale );
+        if( blockDims.leftEdge )
+            maxBase -= Math.abs( 10*scale );
+    }
 
-        var labelPitch = this._choosePitch( scale, 60 );
-        for( var b = Math.ceil( minBase / labelPitch )*labelPitch; b < maxBase; b += labelPitch ) {
-            var label = Util.humanReadableNumber(b);
-            var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
-            html.push(
-                '<div class="posLabel" style="left: ',
-                    leftpx,
-                    'px" title="',
-                    Util.commifyNumber(b),
-                    '"><span style="left: -',
-                    (label.length*3),
-                    'px">'
-                    ,label,
-                    '</span></div>'
-                );
-        }
-    },this);
+    var labelPitch = this._choosePitch( scale, 60 );
+    for( var b = Math.ceil( minBase / labelPitch )*labelPitch; b < maxBase; b += labelPitch ) {
+        var label = Util.humanReadableNumber(b);
+        var leftpx = projectionBlock.reverseProjectPoint(b)-blockDims.l;
+        html.push(
+            '<div class="posLabel" style="left: ',
+                leftpx,
+                'px" title="',
+                Util.commifyNumber(b),
+                '"><span style="left: -',
+                (label.length*3),
+                'px">'
+                ,label,
+                '</span></div>'
+            );
+    }
 
     block.domNode.innerHTML = html.join('');
 },

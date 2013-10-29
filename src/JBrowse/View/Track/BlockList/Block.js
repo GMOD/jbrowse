@@ -26,26 +26,40 @@ var serialNumber = 0;
 return declare( Destroyable, {
 
     constructor: function( args ) {
-        lang.mixin( this, args );
+        Util.privateMixin( this, args );
 
-        if( ! this.idealSize )
-            this.idealSize = 400;
+        if( ! this._idealSize )
+            this._idealSize = 400;
 
-        this.serialNumber = ++serialNumber;
+        this._serialNumber = ++serialNumber;
         this.updatePosition( args.left, args.right );
 
-        if( ! this.projectionBlock )
+        if( ! this._projectionBlock )
             throw new Error('projectionBlock required');
-        if( ! this.blockList )
+        if( ! this._blockList )
             throw new Error('blockList required');
-        if( ! this.changeCallbacks || ! this.changeCallbacks['default'] )
+        if( ! this._changeCallbacks || ! this._changeCallbacks['default'] )
             throw new Error('"default" changeCallback required');
 
         this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
     },
 
-    width: function() {
-        return this.right - this.left;
+    getProjectionBlock: function() {
+        return this._projectionBlock;
+    },
+
+    getDims: function() {
+        return {
+            l: this._left,
+            r: this._right,
+            w: this._right-this._left,
+            leftEdge:  this._onProjectionBlockLeftEdge,
+            rightEdge: this._onProjectionBlockRightEdge
+        };
+    },
+
+    getWidth: function() {
+        return this._right - this._left;
     },
 
     next: function() {
@@ -56,23 +70,23 @@ return declare( Destroyable, {
     },
 
     _log: function() {
-        return;
-        console.log.apply( console, [ this.serialNumber+' '+arguments[0]].concat(Array.prototype.slice.call( arguments, 1 )) );
+        //return;
+        console.log.apply( console, [ this._serialNumber+' '+arguments[0]].concat(Array.prototype.slice.call( arguments, 1 )) );
     },
 
     update: function( changeDescription ) {
 
-        var projectionRangePx = this.projectionBlock.getValidRangeA();
+        var projectionRangePx = this._projectionBlock.getValidRangeA();
         var prev = this.prev();
 
-        var l = this.onProjectionBlockLeftEdge ? projectionRangePx.l :
-                                          prev ? prev.right          :
-                     changeDescription.aUpdate ? changeDescription.aUpdate.projectPoint( this.left ) :
-                                                 this.left;
+        var l = this._onProjectionBlockLeftEdge ? projectionRangePx.l :
+                                           prev ? prev._right          :
+                      changeDescription.aUpdate ? changeDescription.aUpdate.projectPoint( this._left ) :
+                                                  this._left;
 
-        var r = this.onProjectionBlockRightEdge ? projectionRangePx.r :
-                      changeDescription.aUpdate ? changeDescription.aUpdate.projectPoint( this.right ) :
-                                                  this.right;
+        var r = this._onProjectionBlockRightEdge ? projectionRangePx.r :
+                       changeDescription.aUpdate ? changeDescription.aUpdate.projectPoint( this._right ) :
+                                                   this._right;
 
 
         var w = r-l;
@@ -84,21 +98,21 @@ return declare( Destroyable, {
 
         // if the new size of this block is much bigger than
         // the ideal size, we need to split it
-        if( w > this.idealSize*5 ) {
-            var newBlocks = this.splitLeft( this.idealSize, l, r, changeDescription );
-            this.blockList.insertBefore( newBlocks, this );
+        if( w > this._idealSize*5 ) {
+            var newBlocks = this.splitLeft( this._idealSize, l, r, changeDescription );
+            this._blockList.insertBefore( newBlocks, this );
         }
         // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
         else if( prev                                  //< there is a previous block
                  //&& ! changeDescription.animating
-                 && !prev.onProjectionBlockRightEdge   //< they are both in the same projection block
-                 && !this.onProjectionBlockLeftEdge   //< they are both in the same projection block
-                 && (prev.width() < this.idealSize/2 || w < this.idealSize/2) //< at least one of the blocks is pretty small
-                 && ( prev.width() + w <= this.idealSize*3 )  //< the merged block would not be bigger than 2x ideal size
+                 && !prev._onProjectionBlockRightEdge   //< they are both in the same projection block
+                 && !this._onProjectionBlockLeftEdge   //< they are both in the same projection block
+                 && (prev.getWidth() < this._idealSize/2 || w < this._idealSize/2) //< at least one of the blocks is pretty small
+                 && ( prev.getWidth() + w <= this._idealSize*3 )  //< the merged block would not be bigger than 2x ideal size
                ) {
-                   prev._log( 'merge', this.serialNumber );
+                   prev._log( 'merge', this._serialNumber );
                    prev.mergeRight( this, l, r, changeDescription );
-                   this.blockList.remove( this );
+                   this._blockList.remove( this );
                    this.destroy();
                } else {
                    // otherwise just resize it
@@ -109,12 +123,12 @@ return declare( Destroyable, {
     updatePosition: function( newLeft, newRight, changeDescription ) {
         //this._log( 'update', newLeft, newRight );
 
-        var deltaLeft = newLeft - this.left;
-        var deltaRight = newRight - this.right;
-        this.left = newLeft;
-        this.right = newRight;
+        var deltaLeft = newLeft - this._left;
+        var deltaRight = newRight - this._right;
+        this._left = newLeft;
+        this._right = newRight;
 
-        //this._log( 'update '+this.width() );
+        //this._log( 'update '+this.getWidth() );
 
         this._notifyChanged({
             operation: deltaLeft != deltaRight ? 'resize' : 'move',
@@ -125,8 +139,8 @@ return declare( Destroyable, {
     },
 
     _notifyChanged: function( data ) {
-        var callback = this.changeCallbacks[ data.operation ] || this.changeCallbacks['default'];
-        callback.call( this, data );
+        var callback = this._changeCallbacks[ data.operation ] || this._changeCallbacks['default'];
+        callback.call( this, data, this );
     },
 
     // split this block into several smaller blocks, modifying the
@@ -137,16 +151,16 @@ return declare( Destroyable, {
         var numBlocks = Math.round(w/idealSize);
         var size = w/numBlocks;
 
-        var deltaLeft = newRight-size-this.left;
-        this.left = newRight-size;
+        var deltaLeft = newRight-size-this._left;
+        this._left = newRight-size;
 
         var newBlocks = [];
-        for( var l = newLeft; l<this.left; l += size ) {
+        for( var l = newLeft; l<this._left; l += size ) {
             newBlocks.push({
-                projectionBlock: this.projectionBlock,
-                blockList: this.blockList,
+                projectionBlock: this._projectionBlock,
+                blockList: this._blockList,
                 left: l,
-                right: Math.min(this.left,l+size)
+                right: Math.min(this._left,l+size)
             });
         }
 
@@ -158,13 +172,13 @@ return declare( Destroyable, {
         };
 
         if( newBlocks.length ) {
-            if( this.onProjectionBlockLeftEdge ) {
-                newBlocks[0].onProjectionBlockLeftEdge = this.onProjectionBlockLeftEdge;
-                this.onProjectionBlockLeftEdge = false;
+            if( this._onProjectionBlockLeftEdge ) {
+                newBlocks[0].onProjectionBlockLeftEdge = this._onProjectionBlockLeftEdge;
+                this._onProjectionBlockLeftEdge = false;
                 changeInfo.edges = { left: false };
             }
             // instantiate the blocks
-            newBlocks = array.map( newBlocks, this.blockList.newBlock );
+            newBlocks = array.map( newBlocks, this._blockList._newBlock );
             changeInfo.newBlocks = newBlocks;
         }
 
@@ -177,15 +191,15 @@ return declare( Destroyable, {
     mergeRight: function( rightBlock, rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription ) {
         var changeInfo = {
             operation: 'merge',
-            deltaRight: rightBlockNewRightPx - this.right,
+            deltaRight: rightBlockNewRightPx - this._right,
             deltaLeft: 0,
             projectionChange: changeDescription
         };
 
-        this.right = rightBlockNewRightPx;
+        this._right = rightBlockNewRightPx;
 
-        if( rightBlock.onProjectionBlockRightEdge ) {
-            this.onProjectionBlockRightEdge = true;
+        if( rightBlock._onProjectionBlockRightEdge ) {
+            this._onProjectionBlockRightEdge = true;
             changeInfo.edges = { right: true };
         }
 
@@ -198,7 +212,7 @@ return declare( Destroyable, {
 
         this._llNext = this._llPrev = undefined;
 
-        delete this.changeCallbacks;
+        delete this._changeCallbacks;
         this.inherited( arguments );
     }
 

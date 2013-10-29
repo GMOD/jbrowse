@@ -119,6 +119,21 @@ var Util = {
     },
 
     /**
+     * Like dojo mixin, except variables are mixed into the target
+     * with a leading "_" prepended to their key names.
+     */
+    privateMixin: function( target ) {
+        var sources = Array.prototype.slice.call( arguments, 1 );
+        for( var si = 0; si<sources.length; si++ ) {
+            var src = sources[si];
+            for( var k in src )
+                if( src.hasOwnProperty(k) )
+                    target['_'+k] = src[k];
+        }
+        return target;
+    },
+
+    /**
      * Given an array of numbers and a single number, find the index
      * of the number in the array that is closest to that number.
      */
