@@ -74,24 +74,24 @@ fillBlock: function( block, projection, isAnimating ) {
         var aRange = projectionBlock.getValidRangeA();
         var scale = projectionBlock.getScale();
 
-        var leftBase  = projectionBlock.projectPoint( Math.max( aRange.l, block.left ) );
-        var rightBase = projectionBlock.projectPoint( Math.min( aRange.r, block.right ));
-        if( leftBase === null || rightBase === null )
+        var minBase = projectionBlock.projectPoint( Math.max( aRange.l, block.left ) );
+        var maxBase = projectionBlock.projectPoint( Math.min( aRange.r, block.right ));
+        if( minBase === null || maxBase === null )
             return;
 
-        if( leftBase > rightBase ) { // swap if negative
-            var tmp = leftBase;
-            leftBase = rightBase;
-            rightBase = tmp;
+        if( scale < 0 ) { // swap if negative
+            var tmp = minBase;
+            minBase = maxBase;
+            maxBase = tmp;
         }
 
-        if( block.left <= aRange.l )
-            leftBase += Math.abs( 10*scale );
-        if( block.right >= aRange.r )
-            rightBase -= Math.abs( 10*scale );
+        if( scale > 0 && block.left <= aRange.l || scale < 0 && block.right >= aRange.r )
+            minBase += Math.abs( 10*scale );
+        if( scale > 0 && block.right >= aRange.r || scale < 0 && block.left <= aRange.l )
+            maxBase -= Math.abs( 10*scale );
 
         var labelPitch = this._choosePitch( scale, 60 );
-        for( var b = Math.ceil( leftBase / labelPitch )*labelPitch; b < rightBase; b += labelPitch ) {
+        for( var b = Math.ceil( minBase / labelPitch )*labelPitch; b < maxBase; b += labelPitch ) {
             var label = Util.humanReadableNumber(b);
             var leftpx = projectionBlock.reverseProjectPoint(b)-block.left;
             html.push(
