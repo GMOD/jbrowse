@@ -102,26 +102,28 @@ return declare( Destroyable, {
             var newBlocks = this.splitLeft( this._idealSize, l, r, changeDescription );
             this._blockList.insertBefore( newBlocks, this );
         }
-        // if we know how to merge blocks, and it would be a good idea to merge this block with the previous one, do it
-        else if( prev                                  //< there is a previous block
-                 //&& ! changeDescription.animating
-                 && !prev._onProjectionBlockRightEdge   //< they are both in the same projection block
-                 && !this._onProjectionBlockLeftEdge   //< they are both in the same projection block
-                 && (prev.getWidth() < this._idealSize/2 || w < this._idealSize/2) //< at least one of the blocks is pretty small
-                 && ( prev.getWidth() + w <= this._idealSize*3 )  //< the merged block would not be bigger than 2x ideal size
+        // if it would be a good idea to merge this block with the previous one, do it
+        else if( prev  //< there is a previous block
+                 // they are both in the same projection block
+                 && !prev._onProjectionBlockRightEdge && !this._onProjectionBlockLeftEdge
+                 // at least one of the blocks is pretty small
+                 && (prev.getWidth() < this._idealSize/2 || w < this._idealSize/2)
+                 // the merged block would not be bigger than 2x ideal size
+                 && ( (prev.getWidth() + w) <= this._idealSize*3 )
                ) {
                    prev._log( 'merge', this._serialNumber );
                    prev.mergeRight( this, l, r, changeDescription );
                    this._blockList.remove( this );
                    this.destroy();
-               } else {
-                   // otherwise just resize it
-                   this.updatePosition( l, r, changeDescription );
-               }
+        }
+        // otherwise just resize it
+        else {
+            this.updatePosition( l, r, changeDescription );
+        }
     },
 
     updatePosition: function( newLeft, newRight, changeDescription ) {
-        //this._log( 'update', newLeft, newRight );
+        this._log( 'update', newLeft, newRight );
 
         var deltaLeft = newLeft - this._left;
         var deltaRight = newRight - this._right;

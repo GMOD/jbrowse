@@ -43,7 +43,9 @@ return declare( LinkedList, {
       if( !( changeDescription && changeDescription.animating ))
           this._viewportDims = domGeom.position( this._viewportNode );
 
+      // update all the existing blocks
       this.forEach( function( block ) { block.update( changeDescription ); } );
+
 
       var xMin = this._viewportDims.x-this._idealBlockSize,
           xMax = this._viewportDims.x+this._viewportDims.w-1+this._idealBlockSize;
