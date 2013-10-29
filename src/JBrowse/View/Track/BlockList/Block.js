@@ -210,8 +210,6 @@ return declare( Destroyable, {
         this._log('destroy');
         this._notifyChanged({ operation: 'destroy' });
 
-        this._llNext = this._llPrev = undefined;
-
         delete this._changeCallbacks;
         this.inherited( arguments );
     }

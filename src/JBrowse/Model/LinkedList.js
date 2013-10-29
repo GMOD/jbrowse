@@ -51,7 +51,6 @@ return declare( null, {
           if( this._llFirst === el )
               this._llFirst = el._llNext;
 
-          el._llPrev = el._llNext = undefined;
       }
   },
 
