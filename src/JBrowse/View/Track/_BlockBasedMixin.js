@@ -1,20 +1,15 @@
 define([
            'dojo/_base/declare',
            'dojo/dom-construct',
-           'dojo/dom-class',
+           'dojo/dom-class'
 
-	   "dijit/_WidgetBase"
        ], function(
            declare,
            domConstruct,
-           domClass,
-
-           _WidgetBase
+           domClass
        ) {
 
-return declare( _WidgetBase, {
-
-baseClass: 'track',
+return declare( null, {
 
 _setGenomeViewAttr: function( genomeView ) {
     if( this._blockWatch )
@@ -32,9 +27,15 @@ _setGenomeViewAttr: function( genomeView ) {
     );
 },
 
+// for compatibility with dojo/Stateful
+_genomeViewSetter: function( genomeview ) {
+    this.genomeView = genomeview;
+    return this._setGenomeViewAttr.apply( this, arguments );
+},
+
 newBlock: function( renderingBlock ) {
     var thisB = this,
-    blockNode = domConstruct.create( 'div', { className: 'renderingBlock' }, this.domNode ),
+    blockNode = this.createBlockNode( renderingBlock ),
     blockChangeWatch = renderingBlock.watch(
         function( changeInfo, block ) {
             if( changeInfo.operation == 'destroy' )
@@ -46,6 +47,13 @@ newBlock: function( renderingBlock ) {
     this.blockChange( blockNode, { operation: 'new' }, renderingBlock );
 },
 
+createBlockNode: function( renderingBlock ) {
+    var d = document.createElement('div');
+    d.className = 'renderingBlock';
+    this.domNode.appendChild(d);
+    return d;
+},
+
 _positionBlockNode: function( block, blockNode, changeInfo ) {
     var dims = block.getDimensions();
     var isNew = changeInfo.operation == 'new';
@@ -53,12 +61,12 @@ _positionBlockNode: function( block, blockNode, changeInfo ) {
 
     // update the basic dimensions and css classes of the block
     if( isNew || changeInfo.deltaLeft )
-        blockNode.style.left = dims.l+1+'px';
+        blockNode.style.left = Math.round(dims.l)+'px';
     if( isNew
         || ( changeInfo.deltaLeft || changeInfo.deltaRight )
            && changeInfo.deltaLeft != changeInfo.deltaRight
       )
-        blockNode.style.width = dims.w+'px';
+        blockNode.style.width = Math.round(dims.w)+'px';
 
     if( isNew ) {
         if( dims.leftEdge )
@@ -66,10 +74,10 @@ _positionBlockNode: function( block, blockNode, changeInfo ) {
         if( dims.rightEdge )
             domClass.add( blockNode, 'projectionRightBorder' );
     } else if(( edgeChanges = changeInfo.edges )) {
-        if( 'leftEdge' in edgeChanges )
-            domClass[ edgeChanges.leftEdge ? 'add' : 'remove' ]( 'projectionLeftBorder' );
-        if( 'rightEdge' in edgeChanges )
-            domClass[ edgeChanges.rightEdge ? 'add' : 'remove' ]( 'projectionRightBorder' );
+        if( 'left' in edgeChanges )
+            domClass[ edgeChanges.left ? 'add' : 'remove' ]( blockNode, 'projectionLeftBorder' );
+        if( 'right' in edgeChanges )
+            domClass[ edgeChanges.right ? 'add' : 'remove' ]( blockNode, 'projectionRightBorder' );
     }
 },
 

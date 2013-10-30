@@ -19,7 +19,8 @@ define([
            'JBrowse/View/Track/BlockList',
            'JBrowse/View/Track/BlockList/Block',
            './RegionBrowser/Toolbar',
-           './RegionBrowser/LocationScale'
+           './RegionBrowser/LocationScale',
+           './RegionBrowser/Gridlines'
        ],
        function(
            declare,
@@ -42,7 +43,8 @@ define([
            BlockList,
            Block,
            RegionBrowserToolbar,
-           ScaleBar
+           ScaleBar,
+           Gridlines
        ) {
 
 var serialNumber = 0;
@@ -137,6 +139,9 @@ buildRendering: function() {
 
     this.addChild( this.toolbar  = new RegionBrowserToolbar({ region: 'top', browser: this.browser, genomeView: this }) );
     this.addChild( this.scalebar = new ScaleBar({ region: 'top', browser: this.browser, genomeView: this }) );
+    this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
+    this.domNode.appendChild( this.gridlines.domNode );
+
     //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
     //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
 },

@@ -3,20 +3,14 @@
     overflow: visible;
     top: 0px;
     height: 100%;
-
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
-    &.projectionLeftBorder {
-        border-left: 1px solid transparent;
-    }
-    &.projectionRightBorder {
-        border-right: 1px solid transparent;
-    }
-
 }
+.gridlines {
+    z-index: -1;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
 .renderingBlock.height_overflow .height_overflow_message {
     position: absolute;
     color: rgb(77,77,77);
