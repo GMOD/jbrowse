@@ -43,9 +43,10 @@ return declare( null, {
                 maxBase -= Math.abs( 10*scale );
         }
 
-        for( var b = Math.ceil( minBase / gridPitch.minorPitch ) * gridPitch.minorPitch;
+        var iterPitch = gridPitch.minorPitch || gridPitch.majorPitch;
+        for( var b = Math.ceil( minBase / iterPitch ) * iterPitch;
              b < maxBase;
-             b += gridPitch.minorPitch
+             b += iterPitch
            ) {
                if( b % gridPitch.majorPitch )
                    minorCallback( b );
