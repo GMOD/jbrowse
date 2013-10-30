@@ -42,6 +42,7 @@ createBlockNode: function( block ) {
 _positionBlockNode: function( block, canvasNode, changeInfo ) {
     this.inherited(arguments);
 
+    // need to update the canvas's natural pixel width also
     if( changeInfo.operation === 'new'
         || ( changeInfo.deltaLeft || changeInfo.deltaRight )
            && changeInfo.deltaLeft != changeInfo.deltaRight
