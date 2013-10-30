@@ -211,13 +211,9 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   },
 
   _animationEase: function( elapsedTime, totalTime ) {
-      // linear
-      //return elapsedTime/totalTime;
-
-      // sinusoidal
-      return Math.sin( elapsedTime / totalTime * 3.14159/2 )+0.04;
+	elapsedTime /= totalTime;
+	return -elapsedTime*(elapsedTime-2);
   }
-
 });
 return Continuous;
 });
