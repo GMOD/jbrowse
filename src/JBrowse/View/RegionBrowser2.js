@@ -9,12 +9,15 @@ define([
            'dijit/layout/BorderContainer',
 
            'JBrowse/Util',
+           'JBrowse/Util/ListenerSet',
            'JBrowse/has',
            'JBrowse/Component',
            'JBrowse/FeatureFiltererMixin',
            'JBrowse/Projection/CanonicalContinuousLinear',
            'JBrowse/Projection/Circular',
 
+           'JBrowse/View/Track/BlockList',
+           'JBrowse/View/Track/BlockList/Block',
            './RegionBrowser/Toolbar',
            './RegionBrowser/LocationScale'
        ],
@@ -29,12 +32,15 @@ define([
            dijitBase,
 
            Util,
+           ListenerSet,
            has,
            Component,
            FeatureFiltererMixin,
            CanonicalLinearProjection,
            CircularProjection,
 
+           BlockList,
+           Block,
            RegionBrowserToolbar,
            ScaleBar
        ) {
@@ -66,10 +72,40 @@ constructor: function( args ) {
 
     this.visibleTracks = [];
 
+    this._blockListeners = new ListenerSet();
+
     var thisB = this;
     this.watchConf( 'location', function( path, oldloc, newloc ) {
         thisB._updateProjection({ location: newloc });
     });
+
+    this.watch( 'projection',
+        function( name, oldProjection, newProjection ) {
+            thisB._makeBlockList( newProjection );
+        });
+},
+
+_makeBlockList: function( projection ) {
+    if( this.get('blockList') )
+        this.get('blockList').destroy();
+    this.set( 'blockList', new BlockList(
+        {
+            projection: projection,
+            viewportNode: this.domNode,
+            newBlock: lang.hitch( this, '_newBlock' )
+        }));
+},
+
+// make a new rendering block for the our rendering blocklist
+_newBlock: function( args ) {
+    var block = new Block( args );
+    this._blockListeners.notify( { operation: 'new' }, block );
+    return block;
+},
+
+// register a callback to be notified of changes to rendering blocks
+watchRenderingBlocks: function( callback ) {
+    return this._blockListeners.add( callback );
 },
 
 configSchema: {

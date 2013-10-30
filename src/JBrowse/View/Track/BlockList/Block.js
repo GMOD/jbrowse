@@ -11,7 +11,9 @@ define([
            'dojo/_base/array',
 
            'dijit/Destroyable',
-           'JBrowse/Util'
+
+           'JBrowse/Util',
+           'JBrowse/Util/ListenerSet'
        ],
        function(
            declare,
@@ -19,7 +21,8 @@ define([
            array,
 
            Destroyable,
-           Util
+           Util,
+           ListenerSet
        ) {
 var serialNumber = 0;
 
@@ -31,6 +34,7 @@ return declare( Destroyable, {
         if( ! this._idealSize )
             this._idealSize = 400;
 
+        this._changeListeners = new ListenerSet();
         this._serialNumber = ++serialNumber;
         this.updatePosition( args.left, args.right );
 
@@ -38,8 +42,6 @@ return declare( Destroyable, {
             throw new Error('projectionBlock required');
         if( ! this._blockList )
             throw new Error('blockList required');
-        if( ! this._changeCallbacks || ! this._changeCallbacks['default'] )
-            throw new Error('"default" changeCallback required');
 
         this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
     },
@@ -48,7 +50,7 @@ return declare( Destroyable, {
         return this._projectionBlock;
     },
 
-    getDims: function() {
+    getDimensions: function() {
         return {
             l: this._left,
             r: this._right,
@@ -56,6 +58,9 @@ return declare( Destroyable, {
             leftEdge:  this._onProjectionBlockLeftEdge,
             rightEdge: this._onProjectionBlockRightEdge
         };
+    },
+    getDims: function() {
+        return this.getDimensions();
     },
 
     getWidth: function() {
@@ -70,8 +75,12 @@ return declare( Destroyable, {
     },
 
     _log: function() {
-        //return;
-        console.log.apply( console, [ this._serialNumber+' '+arguments[0]].concat(Array.prototype.slice.call( arguments, 1 )) );
+        return;
+        console.log.apply(
+            console,
+            [ this._serialNumber+' '+arguments[0]]
+                .concat(Array.prototype.slice.call( arguments, 1 ))
+        );
     },
 
     update: function( changeDescription ) {
@@ -133,16 +142,18 @@ return declare( Destroyable, {
         //this._log( 'update '+this.getWidth() );
 
         this._notifyChanged({
-            operation: deltaLeft != deltaRight ? 'resize' : 'move',
-            deltaLeft: deltaLeft,
+            operation:  deltaLeft != deltaRight ? 'resize' : 'move',
+            deltaLeft:  deltaLeft,
             deltaRight: deltaRight,
             projectionChange: changeDescription
          });
     },
 
     _notifyChanged: function( data ) {
-        var callback = this._changeCallbacks[ data.operation ] || this._changeCallbacks['default'];
-        callback.call( this, data, this );
+        this._changeListeners.notify( data, this );
+    },
+    watch: function( callback ) {
+        return this._changeListeners.add( callback );
     },
 
     // split this block into several smaller blocks, modifying the

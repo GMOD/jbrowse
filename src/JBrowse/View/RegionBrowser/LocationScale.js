@@ -7,8 +7,6 @@ define([
 
 	   "dijit/_WidgetBase",
 
-           'JBrowse/View/Track/BlockList',
-           'JBrowse/View/Track/BlockList/BlockWithDOM',
            'JBrowse/Util'
 
        ], function(
@@ -20,8 +18,6 @@ define([
 
            _WidgetBase,
 
-           BlockList,
-           DOMBlock,
            Util
        ) {
 
@@ -33,42 +29,62 @@ constructor: function(args) {
 },
 
 _setGenomeViewAttr: function( genomeView ) {
-    var thisB = this;
+    if( this._blockWatch )
+        this._blockWatch.remove();
 
-    genomeView.watch( 'projection',
-        function( name, oldProjection, newProjection ) {
-            thisB._makeBlockList( newProjection );
+    var thisB = this;
+    this.own(
+        this._blockWatch = genomeView.watchRenderingBlocks(
+            function( data, block ) {
+                if( data.operation == 'new' ) {
+                    thisB.newBlock( block );
+                }
+            }
+        )
+    );
+},
+
+newBlock: function( renderingBlock ) {
+    var dims = renderingBlock.getDimensions();
+    var blockNode = domConstruct.create(
+        'div', {
+            className: this._blockDomClass( dims ),
+            style: 'left:'+(dims.l+1)+'px; width:'+dims.w+'px'
+        }, this.domNode );
+    this.fillBlock( renderingBlock, blockNode );
+
+    var thisB = this;
+    var blockChangeWatch = renderingBlock.watch(
+        function( changeInfo, block ) {
+            if( changeInfo.operation == 'destroy' ) {
+                blockChangeWatch.remove();
+                domConstruct.destroy( blockNode );
+            }
+            else {
+                var dims = block.getDimensions();
+                if( changeInfo.deltaLeft )
+                    blockNode.style.left = dims.l+1+'px';
+                if( ( changeInfo.deltaLeft || changeInfo.deltaRight )
+                    && changeInfo.deltaLeft != changeInfo.deltaRight ) {
+                    blockNode.style.width = dims.w+'px';
+                }
+
+                if( changeInfo.projectionChange.scale )
+                    thisB.fillBlock( block, blockNode );
+
+                if( changeInfo.edges )
+                    blockNode.className = thisB._blockDomClass( dims );
+            }
         });
 },
 
-_makeBlockList: function( projection ) {
-    if( this.blockList )
-        this.blockList.destroy();
-    this.blockList = new BlockList(
-        {
-            projection: projection,
-            viewportNode: this.domNode,
-            newBlock: lang.hitch( this, '_newBlock' )
-        });
+_blockDomClass: function( blockdims ) {
+      return 'renderingBlock'
+          +( blockdims.leftEdge  ? ' projectionLeftBorder' : '' )
+          +( blockdims.rightEdge ? ' projectionRightBorder' : '' );
 },
 
-_newBlock: function( args ) {
-    var thisB = this;
-    args.parentNode = this.domNode;
-    args.changeCallbacks = {
-        move: function() {}, //< don't need to do anything when blocks move
-        "default": function( changeInfo, block ) {
-            if( changeInfo.operation == 'destroy' )
-                return;
-            thisB.fillBlock( block );
-        }
-    };
-    var block = new DOMBlock( args );
-    this.fillBlock( block );
-    return block;
-},
-
-fillBlock: function( block ) {
+fillBlock: function( block, blockNode ) {
     var html = [];
 
     var projectionBlock = block.getProjectionBlock();
@@ -119,7 +135,7 @@ fillBlock: function( block ) {
             );
     }
 
-    block.domNode.innerHTML = html.join('');
+    blockNode.innerHTML = html.join('');
 },
 
 _choosePitch: function( scale, minPxSpacing ) {
