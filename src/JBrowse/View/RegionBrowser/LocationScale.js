@@ -62,6 +62,8 @@ newBlock: function( renderingBlock ) {
             }
             else {
                 var dims = block.getDimensions();
+
+                // update the basic dimensions and css classes of the block
                 if( changeInfo.deltaLeft )
                     blockNode.style.left = dims.l+1+'px';
                 var widthChange =
@@ -70,13 +72,11 @@ newBlock: function( renderingBlock ) {
                 if( widthChange ) {
                     blockNode.style.width = dims.w+'px';
                 }
-
-                if( changeInfo.projectionChange.scale || widthChange )
-                    thisB.fillBlock( block, blockNode );
-
                 if( changeInfo.edges )
                     blockNode.className = thisB._blockDomClass( dims );
             }
+
+            thisB.blockChange( block, blockNode, changeInfo );
         });
 },
 
@@ -86,7 +86,13 @@ _blockDomClass: function( blockdims ) {
           +( blockdims.rightEdge ? ' projectionRightBorder' : '' );
 },
 
+blockChange: function( block, blockNode, changeInfo ) {
+    if( ! {move:1,destroy:1}[changeInfo.operation] )
+        this.fillBlock( block, blockNode );
+},
+
 fillBlock: function( block, blockNode ) {
+
     var html = [];
 
     var projectionBlock = block.getProjectionBlock();

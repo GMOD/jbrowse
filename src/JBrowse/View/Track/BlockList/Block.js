@@ -178,7 +178,7 @@ return declare( Destroyable, {
         }
 
         var changeInfo = {
-            operation: 'split',
+            operation: 'splitLeft',
             deltaLeft: deltaLeft,
             deltaRight: 0,
             projectionChange: changeDescription
@@ -203,7 +203,12 @@ return declare( Destroyable, {
 
     mergeRight: function( rightBlock, rightBlockNewLeftPx, rightBlockNewRightPx, changeDescription ) {
         var changeInfo = {
-            operation: 'merge',
+            operation: 'mergeRight',
+            mergeWith: {
+                block: rightBlock,
+                deltaRight: rightBlockNewRightPx - rightBlock._right,
+                deltaLeft: rightBlockNewLeftPx - rightBlock._left
+            },
             deltaRight: rightBlockNewRightPx - this._right,
             deltaLeft: 0,
             projectionChange: changeDescription
