@@ -16,7 +16,7 @@ return declare( null, {
         var scale = projectionBlock.getScale();
         var blockDims = block.getDims();
 
-        var gridPitch = this.get('genomeView').chooseGridPitch( scale, 60, 15 );
+        var gridPitch = this.chooseGridPitch( scale, 60, 15 );
 
         var minBase = projectionBlock.projectPoint( blockDims.l );
         var maxBase = projectionBlock.projectPoint( blockDims.r );
@@ -52,6 +52,37 @@ return declare( null, {
                else
                    majorCallback( b );
         }
+    },
+
+    /**
+     * Given a scale ( bp/px ) and minimum distances (px) between major
+     * and minor gridlines, return an object like { majorPitch: bp,
+     * minorPitch: bp } giving the gridline pitches to use.
+     */
+    chooseGridPitch: function( scale, minMajorPitchPx, minMinorPitchPx ) {
+        scale = Math.abs(scale);
+        var minMajorPitchBp = minMajorPitchPx * scale;
+        var majorMagnitude = parseInt(
+             new Number( minMajorPitchBp ).toExponential().split(/e/i)[1]
+        );
+
+        var majorPitch = Math.pow( 10, majorMagnitude );
+        while( majorPitch < minMajorPitchBp ) {
+            majorPitch *= 2;
+            if( majorPitch >= minMajorPitchBp )
+                break;
+            majorPitch *= 2.5;
+        }
+
+        var majorPitchPx = majorPitch/scale;
+
+        var minorPitch = !( majorPitch % 10 ) && majorPitchPx/10 > minMinorPitchPx ? majorPitch/10 :
+                         !( majorPitch % 5  ) && majorPitchPx/5  > minMinorPitchPx ? majorPitch/5  :
+                         !( majorPitch % 2  ) && majorPitchPx/2  > minMinorPitchPx ? majorPitch/2  :
+                          0;
+
+        return { majorPitch: majorPitch, minorPitch: minorPitch };
     }
+
 });
 });
