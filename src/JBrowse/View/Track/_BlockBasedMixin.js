@@ -61,12 +61,12 @@ _positionBlockNode: function( block, blockNode, changeInfo ) {
 
     // update the basic dimensions and css classes of the block
     if( isNew || changeInfo.deltaLeft )
-        blockNode.style.left = Math.round(dims.l)+'px';
+        blockNode.style.left = dims.l+'px';
     if( isNew
         || ( changeInfo.deltaLeft || changeInfo.deltaRight )
            && changeInfo.deltaLeft != changeInfo.deltaRight
       )
-        blockNode.style.width = Math.round(dims.w)+'px';
+        blockNode.style.width = dims.w+'px';
 
     if( isNew ) {
         if( dims.leftEdge )
