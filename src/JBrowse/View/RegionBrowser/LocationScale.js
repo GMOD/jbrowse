@@ -64,12 +64,14 @@ newBlock: function( renderingBlock ) {
                 var dims = block.getDimensions();
                 if( changeInfo.deltaLeft )
                     blockNode.style.left = dims.l+1+'px';
-                if( ( changeInfo.deltaLeft || changeInfo.deltaRight )
-                    && changeInfo.deltaLeft != changeInfo.deltaRight ) {
+                var widthChange =
+                    ( changeInfo.deltaLeft || changeInfo.deltaRight )
+                    && changeInfo.deltaLeft != changeInfo.deltaRight;
+                if( widthChange ) {
                     blockNode.style.width = dims.w+'px';
                 }
 
-                if( changeInfo.projectionChange.scale )
+                if( changeInfo.projectionChange.scale || widthChange )
                     thisB.fillBlock( block, blockNode );
 
                 if( changeInfo.edges )
