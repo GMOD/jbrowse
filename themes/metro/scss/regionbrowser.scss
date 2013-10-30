@@ -57,12 +57,12 @@
                 border-top: 1px solid #393939;
             }
             .viewScale {
-                background: url("../img/view_top_bg_1.gif") #AAAAAA repeat-x 0 100%;
+                background: url("../img/view_top_bg_1.png") transparent repeat-x 0 100%;
                 .renderingBlock {
                     background: #e6e6e6;
                 }
                 .posLabel {
-                    background: black;
+                    background: #6f6f6f;
                 }
             }
         }
@@ -74,10 +74,10 @@
                 border-top: 1px solid #315e94;
             }
             .viewScale {
-                background: url("../img/view_top_bg_2.gif") #325E91 repeat-x 0 100%;
+                background: url("../img/view_top_bg_2.png") transparent repeat-x 0 100%;
                 color: white;
                 .posLabel {
-                    background: white;
+                    background: #2c5b86;
                 }
             }
         }

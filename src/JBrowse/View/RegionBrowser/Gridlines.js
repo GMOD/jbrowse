@@ -46,8 +46,7 @@ _positionBlockNode: function( block, canvasNode, changeInfo ) {
         || ( changeInfo.deltaLeft || changeInfo.deltaRight )
            && changeInfo.deltaLeft != changeInfo.deltaRight
       ) {
-          var dims = block.getDimensions();
-          canvasNode.width = Math.round( dims.w );
+          canvasNode.width = Math.round( block.getDimensions().w );
       }
 },
 
@@ -60,6 +59,7 @@ fillBlock: function( block, blockNode ) {
 
     ctx.clearRect( 0, 0, blockNode.width, blockNode.height );
 
+    // draw borders on the edge of the projection block if needed
     if( blockDims.leftEdge ) {
         ctx.fillStyle = 'black';
         ctx.fillRect( 0, 0, 1, height );
@@ -69,12 +69,13 @@ fillBlock: function( block, blockNode ) {
         ctx.fillRect( blockNode.width-1, 0, 1, height );
     }
 
+    // draw the major and minor grid lines
     this._horizontalScaleIterate(
         block,
         //major
         function( bp ) {
             var leftpx = Math.round( projectionBlock.reverseProjectPoint(bp)-blockDims.l );
-            ctx.fillStyle = '#666';
+            ctx.fillStyle = '#b3b3b3';
             ctx.fillRect( leftpx, 0, 1, height );
         },
         //minor
