@@ -4,6 +4,7 @@ define([
            'dojo/_base/array',
            'dojo/dom-geometry',
            'dojo/dom-construct',
+           'dojo/dom-class',
 
 	   "dijit/_WidgetBase",
 
@@ -15,6 +16,7 @@ define([
            array,
            domGeom,
            domConstruct,
+           domClass,
 
            _WidgetBase,
 
@@ -24,9 +26,6 @@ define([
 return declare( _WidgetBase, {
 
 baseClass: 'viewScale',
-
-constructor: function(args) {
-},
 
 _setGenomeViewAttr: function( genomeView ) {
     if( this._blockWatch )
@@ -45,54 +44,60 @@ _setGenomeViewAttr: function( genomeView ) {
 },
 
 newBlock: function( renderingBlock ) {
-    var dims = renderingBlock.getDimensions();
-    var blockNode = domConstruct.create(
-        'div', {
-            className: this._blockDomClass( dims ),
-            style: 'left:'+(dims.l+1)+'px; width:'+dims.w+'px'
-        }, this.domNode );
-    this.fillBlock( renderingBlock, blockNode );
-
-    var thisB = this;
-    var blockChangeWatch = renderingBlock.watch(
+    var thisB = this,
+    blockNode = domConstruct.create( 'div', { className: 'renderingBlock' }, this.domNode ),
+    blockChangeWatch = renderingBlock.watch(
         function( changeInfo, block ) {
-            if( changeInfo.operation == 'destroy' ) {
+            if( changeInfo.operation == 'destroy' )
                 blockChangeWatch.remove();
-                domConstruct.destroy( blockNode );
-            }
-            else {
-                var dims = block.getDimensions();
 
-                // update the basic dimensions and css classes of the block
-                if( changeInfo.deltaLeft )
-                    blockNode.style.left = dims.l+1+'px';
-                var widthChange =
-                    ( changeInfo.deltaLeft || changeInfo.deltaRight )
-                    && changeInfo.deltaLeft != changeInfo.deltaRight;
-                if( widthChange ) {
-                    blockNode.style.width = dims.w+'px';
-                }
-                if( changeInfo.edges )
-                    blockNode.className = thisB._blockDomClass( dims );
-            }
-
-            thisB.blockChange( block, blockNode, changeInfo );
+            thisB.blockChange( blockNode, changeInfo, block );
         });
+
+    this.blockChange( blockNode, { operation: 'new' }, renderingBlock );
 },
 
-_blockDomClass: function( blockdims ) {
-      return 'renderingBlock'
-          +( blockdims.leftEdge  ? ' projectionLeftBorder' : '' )
-          +( blockdims.rightEdge ? ' projectionRightBorder' : '' );
+_positionBlockNode: function( block, blockNode, changeInfo ) {
+    var dims = block.getDimensions();
+    var isNew = changeInfo.operation == 'new';
+    var edgeChanges;
+
+    // update the basic dimensions and css classes of the block
+    if( isNew || changeInfo.deltaLeft )
+        blockNode.style.left = dims.l+1+'px';
+    if( isNew
+        || ( changeInfo.deltaLeft || changeInfo.deltaRight )
+           && changeInfo.deltaLeft != changeInfo.deltaRight
+      )
+        blockNode.style.width = dims.w+'px';
+
+    if( isNew ) {
+        if( dims.leftEdge )
+            domClass.add( blockNode, 'projectionLeftBorder' );
+        if( dims.rightEdge )
+            domClass.add( blockNode, 'projectionRightBorder' );
+    } else if(( edgeChanges = changeInfo.edges )) {
+        if( 'leftEdge' in edgeChanges )
+            domClass[ edgeChanges.leftEdge ? 'add' : 'remove' ]( 'projectionLeftBorder' );
+        if( 'rightEdge' in edgeChanges )
+            domClass[ edgeChanges.rightEdge ? 'add' : 'remove' ]( 'projectionRightBorder' );
+    }
 },
 
-blockChange: function( block, blockNode, changeInfo ) {
-    if( ! {move:1,destroy:1}[changeInfo.operation] )
-        this.fillBlock( block, blockNode );
+blockChange: function( blockNode, changeInfo, block ) {
+    if( changeInfo.operation == 'destroy' ) {
+        domConstruct.destroy( blockNode );
+    }
+    else {
+        this._positionBlockNode( block, blockNode, changeInfo );
+        if( changeInfo.operation != 'move' ) {
+            return this.fillBlock( block, blockNode );
+        }
+    }
+    return undefined;
 },
 
 fillBlock: function( block, blockNode ) {
-
     var html = [];
 
     var projectionBlock = block.getProjectionBlock();
@@ -100,6 +105,8 @@ fillBlock: function( block, blockNode ) {
     var aRange = projectionBlock.getValidRangeA();
     var scale = projectionBlock.getScale();
     var blockDims = block.getDims();
+
+    var gridPitch = this.chooseGridPitch( scale, 60, 15 );
 
     var minBase = projectionBlock.projectPoint( blockDims.l );
     var maxBase = projectionBlock.projectPoint( blockDims.r );
@@ -126,8 +133,10 @@ fillBlock: function( block, blockNode ) {
             maxBase -= Math.abs( 10*scale );
     }
 
-    var labelPitch = this._choosePitch( scale, 60 );
-    for( var b = Math.ceil( minBase / labelPitch )*labelPitch; b < maxBase; b += labelPitch ) {
+    for( var b = Math.ceil( minBase / gridPitch.majorPitch ) * gridPitch.majorPitch;
+         b < maxBase;
+         b += gridPitch.majorPitch
+       ) {
         var label = Util.humanReadableNumber(b);
         var leftpx = projectionBlock.reverseProjectPoint(b)-blockDims.l;
         html.push(
@@ -146,21 +155,29 @@ fillBlock: function( block, blockNode ) {
     blockNode.innerHTML = html.join('');
 },
 
-_choosePitch: function( scale, minPxSpacing ) {
-    var minPitch = minPxSpacing * Math.abs( scale );
-    var magnitude = parseInt(
-         new Number(minPitch).toExponential().split(/e/i)[1]
+chooseGridPitch: function( scale, minMajorPitchPx, minMinorPitchPx ) {
+    scale = Math.abs(scale);
+    var minMajorPitchBp = minMajorPitchPx * scale;
+    var majorMagnitude = parseInt(
+         new Number( minMajorPitchBp ).toExponential().split(/e/i)[1]
     );
 
-    var pitch = Math.pow( 10, magnitude );
-    while( pitch < minPitch ) {
-        pitch *= 2;
-        if( pitch >= minPitch )
-            return pitch;
-        pitch *= 2.5;
+    var majorPitch = Math.pow( 10, majorMagnitude );
+    while( majorPitch < minMajorPitchBp ) {
+        majorPitch *= 2;
+        if( majorPitch >= minMajorPitchBp )
+            break;
+        majorPitch *= 2.5;
     }
 
-    return pitch;
+    var majorPitchPx = majorPitch/scale;
+
+    var minorPitch = !( majorPitch % 10 ) && majorPitchPx/10 > minMinorPitchPx ? majorPitch/10 :
+                     !( majorPitch % 5  ) && majorPitchPx/5  > minMinorPitchPx ? majorPitch/5  :
+                     !( majorPitch % 2  ) && majorPitchPx/2  > minMinorPitchPx ? majorPitch/2  :
+                      0;
+
+    return { majorPitch: majorPitch, minorPitch: minorPitch };
 }
 
 });
