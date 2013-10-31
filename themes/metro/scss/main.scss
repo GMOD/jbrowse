@@ -1,6 +1,19 @@
 @import "../../base/scss/main.scss";
-@import "regionbrowser.scss";
-@import "menubar.scss";
+
+/* Import some Open Sans font faces */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzInF5uFdDttMLvmWuJdhhgs.ttf) format('truetype');
+}
 
 .jbrowse.metro {
     font-family: Open Sans, sans-serif;
@@ -38,3 +51,6 @@
     -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
     box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
 }
+
+@import "regionbrowser.scss";
+@import "menubar.scss";
