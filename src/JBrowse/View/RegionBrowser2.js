@@ -228,7 +228,8 @@ _updateProjection: function( args ) {
                                       //this.set( 'projection', new CanonicalLinearProjection(
                                       { aRange: aRange, bRange: bRange, bLength: 10000,
                                         aName: 'screen', bName: location.get('seq_id'),
-                                        store: store
+                                        store: store,
+                                        stranded: true
                                       }
                                   ));
                    });

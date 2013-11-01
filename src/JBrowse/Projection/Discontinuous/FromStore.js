@@ -82,7 +82,7 @@ return declare( CanonicalLinear, {
       };
       for( var i = 0; i<features.length; i++ ) {
           var f = features[i];
-          var curr = f.get('strand') == -1 ? currMinus : currPlus;
+          var curr = this.stranded && f.get('strand') == -1 ? currMinus : currPlus;
           if( f.get('seq_id') == curr.ref && f.get('start') < curr.end ) {
               // add to the current block
               curr.end = Math.max( f.get('end'), curr.end );
