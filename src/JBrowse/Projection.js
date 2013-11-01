@@ -19,6 +19,10 @@ return declare( null,
         this.aName = args.aName;
     },
 
+    isAnimatable: function() {
+        return true;
+    },
+
     // calls the given callback with the relevant projection blocks for
     // a range once initially, and then again every time the set
     // of  that overlap that range changes

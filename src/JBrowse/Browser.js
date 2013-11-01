@@ -160,7 +160,7 @@ configSchema: {
         slots: [
             { name: 'plugins',  type: 'multi-object' },
             { name: 'dataRoot', type: 'string', defaultValue: "data" },
-            { name: 'location', type: 'string', defaultValue: 'ctgA:40000000..40000400' }, // TODO remove this
+            { name: 'location', type: 'string', defaultValue: 'ctgA:0..10000' }, // TODO remove this
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'names', type: 'object', defaultValue: {} },

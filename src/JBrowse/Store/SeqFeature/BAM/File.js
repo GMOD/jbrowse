@@ -7,6 +7,7 @@ define( [
             'JBrowse/has',
             'JBrowse/Util',
             'JBrowse/Util/DeferredGenerator',
+            'JBrowse/Util/DeferredGenerator/Combine',
             'JBrowse/Errors',
             'JBrowse/Store/LRUCache',
             './Util',
@@ -21,6 +22,7 @@ define( [
             has,
             Util,
             DeferredGenerator,
+            CombineGenerators,
             Errors,
             LRUCache,
             BAMUtil,
@@ -312,41 +314,56 @@ var BamFile = declare( null,
         return mergedChunks;
     },
 
-    fetchFeatures: function( chr, min, max ) {
-        var thisB = this;
-        return new DeferredGenerator(
-            function( d ) {
-                thisB.init()
-                    .then( function( thisB ) {
-                               chr = thisB.store.browser.regularizeReferenceName( chr );
+    fetchFeatures: function( refNames, min, max ) {
+        return CombineGenerators.combine(
+            this.init()
+                .then( function(thisB) {
+                           // coerce query.ref to array, and if no ref specified, fetch all refs
+                           refNames = refNames ? ( lang.isArray( refNames ) ? refNames : [ refNames ] ) :
+                                                 array.map( thisB.indexToChr, function(c) { return c.name; } );
 
-                               var chrId = thisB.chrToIndex && thisB.chrToIndex[chr];
-                               var chunks;
-                               if( !( chrId >= 0 ) ) {
-                                   chunks = [];
-                               } else {
-                                   chunks = thisB._blocksForRange(chrId, min, max);
-                                   if (!chunks) {
-                                       throw new Errors.Fatal('Index fetch failed for '+chrId+':'+min+'..'+max);
-                                   }
-                               }
+                           return array.map(
+                               refNames,
+                               function( chrName ) {
+                                   chrName = thisB.store.browser.regularizeReferenceName( chrName );
+                                   var chrId = thisB.chrToIndex && thisB.chrToIndex[chrName];
+                                   var chrInfo = thisB.indexToChr[chrId];
+                                   var chrMin = min === undefined && chrInfo ? (chrInfo.start || 0) : min;
+                                   var chrMax = max === undefined && chrInfo ? (chrInfo.start || 0) + chrInfo.length : max;
+                                   return new DeferredGenerator(
+                                       function( d ) {
+                                           var chunks;
+                                           if( !( chrId >= 0 ) ) {
+                                               chunks = [];
+                                           } else {
+                                               chunks = thisB._blocksForRange(
+                                                   chrId,
+                                                   chrMin,
+                                                   chrMax
+                                               );
+                                               if (!chunks) {
+                                                   throw new Errors.Fatal('Index fetch failed for '+chrId+':'+min+'..'+max);
+                                               }
+                                           }
 
-                               // toString function is used by the cache for making cache keys
-                               chunks.toString = function() {
-                                   return thisB.join(', ');
-                               };
+                                           // toString function is used by the cache for making cache keys
+                                           chunks.toString = function() {
+                                               return thisB.join(', ');
+                                           };
 
-                               //console.log( chr, min, max, chunks.toString() );
+                                           //console.log( chr, min, max, chunks.toString() );
 
-                               return thisB._fetchChunkFeatures(
-                                   d,
-                                   chunks,
-                                   chrId,
-                                   min,
-                                   max
-                               );
-                           });
-            });
+                                           return thisB._fetchChunkFeatures(
+                                               d,
+                                               chunks,
+                                               chrId,
+                                               chrMin,
+                                               chrMax
+                                           );
+                                       });
+                               });
+                       })
+        );
     },
 
     _fetchChunkFeatures: function( d, chunks, chrId, min, max ) {

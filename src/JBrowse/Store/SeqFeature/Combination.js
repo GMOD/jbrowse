@@ -188,7 +188,7 @@ _computeIntersection: function( span1, span2) {
 
 // Filters span set by strand, inverts the sets represented on each strand, and recombines.
 notSpan: function( spans, query) {
-    return this._rawNotSpan(this._strandFilter(spans, +1), query, +1).concat(this._rawNotSpan(this._strandFilter(spans, -1), query, -1)); 
+    return this._rawNotSpan(this._strandFilter(spans, +1), query, +1).concat(this._rawNotSpan(this._strandFilter(spans, -1), query, -1));
 },
 
 // Converts a set of spans into its complement in the reference sequence.

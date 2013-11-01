@@ -11,6 +11,7 @@ define( [
             'JBrowse/Util',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Util/DeferredGenerator',
+            'JBrowse/Util/DeferredGenerator/Combine',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Model/Resource/Bytes',
             'JBrowse/Model/Resource/BGZBytes',
@@ -27,6 +28,7 @@ define( [
             Util,
             SimpleFeature,
             DeferredGenerator,
+            CombineGenerators,
             SeqFeatureStore,
             Bytes,
             BGZBytes,
@@ -142,7 +144,6 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
 
         return this.bam.fetchFeatures( query.ref, query.start, query.end );
     }
-
 });
 
 return BAMStore;
