@@ -203,7 +203,6 @@ _updateProjection: function( args ) {
 
     var existingProjection = this.get('projection');
 
-    // calculate the new scale and offset for our projection from screen coordinates to genome coordinates
     var locationCenter = this._locationCenter( location );
 
     var aRange = { start: this._contentBox.l,    end: this._contentBox.l + this._contentBox.w };
