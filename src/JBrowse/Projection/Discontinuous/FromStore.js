@@ -137,7 +137,7 @@ return declare( ContinuousLinear, {
       if( !( centerBlock.bMax < b1 || -centerBlock.childOffset > b2 ) ) {
           // this block overlaps
 
-          if( centerBlock.childOffset < b1 || centerIndex == 0 )
+          if( -centerBlock.childOffset < b1 || centerIndex == 0 )
               // this is the first overlapping block
               return centerIndex;
           else
