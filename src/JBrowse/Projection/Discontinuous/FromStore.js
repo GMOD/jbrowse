@@ -54,7 +54,7 @@ return declare( ContinuousLinear, {
       return this.__getBlocks || ( this.__getBlocks = function() {
           var features = [];
           var thisB = this;
-          return this.store.getFeatures({})
+          return this.store.getFeatures( this.storeQuery || {} )
                      .forEach(
                          function(f) {
                              features.push(f);
