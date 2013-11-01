@@ -2,13 +2,13 @@ define([
            'dojo/_base/declare',
 
            '../_ChildBlock',
-           '../ContinuousLinear'
+           '../CanonicalContinuousLinear'
        ],
        function(
            declare,
 
            ChildBlock,
-           ContinuousLinear
+           CanonicalLinear
        ) {
 
 var FeatureBlock = declare( ChildBlock, {
@@ -35,7 +35,7 @@ var FeatureBlock = declare( ChildBlock, {
   }
 });
 
-return declare( ContinuousLinear, {
+return declare( CanonicalLinear, {
 
   isAnimatable: function() {
       return true;
