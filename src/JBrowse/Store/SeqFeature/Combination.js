@@ -196,7 +196,7 @@ _rawNotSpan: function( spans, query, strand ) {
     var invSpan = [];
     invSpan[0] = { start: query.start };
     var i = 0;
-    for (span in spans) {
+    for (var span in spans) {
         if (spans.hasOwnProperty(span)) {
             span = spans[span];
             invSpan[i].strand = strand;

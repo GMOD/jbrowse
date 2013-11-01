@@ -109,12 +109,15 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
         return;
     }
 
-    if(this.regionLoaded) {
-        var spans = array.filter(this.regionLoaded.spans, function(span) {
-            return span.start <= query.end && span.end >= query.start;
-        });
-        var features = this.createFeatures(spans);
-        this.finish(features, spans, featCallback, doneCallback);
+    if( this.regionLoaded ) {
+        var filterFunc =
+            ('end' in query) && ('start' in query) ? function(s) { return s.start <= query.end && s.end >= query.start; } :
+                                  ('end' in query) ? function(s) { return s.start <= query.end; }                         :
+                                ('start' in query) ? function(s) { return s.end >= query.start; }                         :
+                                                     null;
+        var spans = filterFunc ? array.filter( this.regionLoaded.spans, filterFunc ) : this.regionLoaded.spans;
+        var features = this.createFeatures( spans );
+        this.finish( features, spans, featCallback, doneCallback );
         return;
     }
 

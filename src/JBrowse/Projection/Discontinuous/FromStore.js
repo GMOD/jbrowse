@@ -14,11 +14,12 @@ define([
 var FeatureBlock = declare( ChildBlock, {
   constructor: function(args) {
       this.bMax = args.bMax;
+      this.bOffset = args.bOffset;
   },
 
   getValidRangeA: function() {
       var parent = this.parent;
-      var aStart = parent.reverseProjectPoint( this.childOffset );
+      var aStart = parent.reverseProjectPoint( -this.childOffset );
       var aEnd = parent.reverseProjectPoint( this.bMax );
 
       if( aStart > aEnd ) {
@@ -37,7 +38,7 @@ var FeatureBlock = declare( ChildBlock, {
 return declare( ContinuousLinear, {
 
   isAnimatable: function() {
-      return false;
+      return true;
   },
 
   getValidRangeA: function() {
@@ -77,7 +78,7 @@ return declare( ContinuousLinear, {
       function pushRec(curr) {
           curr.childOffset = childOffset;
           blocks.push( curr );
-          childOffset += curr.end - curr.start;
+          childOffset -= curr.end - curr.start;
       };
       for( var i = 0; i<features.length; i++ ) {
           var f = features[i];
@@ -111,7 +112,8 @@ return declare( ContinuousLinear, {
               {
                   parent: this,
                   childOffset: curr.childOffset,
-                  bMax: curr.childOffset + curr.end - curr.start,
+                  bOffset: curr.start,
+                  bMax: curr.end - curr.start - curr.childOffset,
                   aName: this.aName,
                   bName: curr.ref
               });
@@ -132,7 +134,7 @@ return declare( ContinuousLinear, {
       if( ! centerBlock ) // not found
           return undefined;
 
-      if( !( centerBlock.bMax < b1 || centerBlock.childOffset > b2 ) ) {
+      if( !( centerBlock.bMax < b1 || -centerBlock.childOffset > b2 ) ) {
           // this block overlaps
 
           if( centerBlock.childOffset < b1 || centerIndex == 0 )
@@ -168,7 +170,7 @@ return declare( ContinuousLinear, {
           .then( function( blocks ) {
                      var relevantBlocks = [];
                      var i = thisB._findIndexOfFirstBlockInRange( b1, b2, blocks, 0, blocks.length );
-                     for( ; i < blocks.length && blocks[i].childOffset < b2; i++ )
+                     for( ; i < blocks.length && -blocks[i].childOffset < b2; i++ )
                          relevantBlocks.push( blocks[i] );
                      return relevantBlocks;
                  });

@@ -14,6 +14,7 @@ var ChildBlock = declare( ProjectionBase, {
   constructor: function( args ) {
       this.childOffset = args.childOffset;
       this.parent = args.parent;
+      this.bOffset = 0;
 
       var thisB = this;
       this._parentWatch = this.parent.watch( function( change ) {
@@ -25,7 +26,7 @@ var ChildBlock = declare( ProjectionBase, {
 
   getValidRangeA: function() {
       var parent = this.parent;
-      var offset = parent.bOffset + this.childOffset;
+      var offset = parent.bOffset + this.childOffset + this.bOffset;
       var aStart = -offset/parent.scale;
       var aEnd   = ( parent.bLength - offset )/parent.scale;
 
@@ -42,11 +43,11 @@ var ChildBlock = declare( ProjectionBase, {
   },
 
   projectPoint: function(a) {
-      return this.parent.scale * a + this.childOffset + this.parent.bOffset;
+      return this.parent.scale * a + this.childOffset + this.parent.bOffset + this.bOffset;
   },
 
   reverseProjectPoint: function(b) {
-      return (b - this.childOffset - this.parent.bOffset)/this.parent.scale;
+      return (b - this.childOffset - this.parent.bOffset - this.bOffset)/this.parent.scale;
   },
 
   destroy: function() {
