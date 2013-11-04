@@ -46,7 +46,6 @@
                 height: 3px;
             }
             .referenceLabel {
-                background: #bbb;
                 padding: 0 4px 2px 2px;
                 font-weight: bold;
                 span {
@@ -72,8 +71,8 @@
             }
             .viewScale {
                 background: url("../img/view_top_bg_1.png") transparent repeat-x 0 100%;
-                .renderingBlock {
-                    background: #e6e6e6;
+                .referenceLabel {
+                    background: #bbb;
                 }
                 .posLabel {
                     background: #6f6f6f;
@@ -90,6 +89,9 @@
             .viewScale {
                 background: url("../img/view_top_bg_2.png") transparent repeat-x 0 100%;
                 color: white;
+                .referenceLabel {
+                    background: #002f69;
+                }
                 .posLabel {
                     background: #2c5b86;
                 }
