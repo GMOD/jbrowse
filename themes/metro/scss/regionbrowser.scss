@@ -1,5 +1,11 @@
 .jbrowse.metro {
     .regionBrowserPane, .regionBrowserPaneNoGutter {
+        background: #353535;;
+
+        .gridlines .renderingBlock {
+            background: white;
+        }
+
         .topBar {
             height: 29px;
             color: #333;
