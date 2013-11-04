@@ -54,8 +54,6 @@ return declare( [ SeqFeatureStore, GlobalStatsEstimationMixin, VCFParser ],
                 browser: this.browser,
                 chunkSizeLimit: args.chunkSizeLimit
             });
-
-        this._loadHeader();
     },
 
     configSchema: {
