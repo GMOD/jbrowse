@@ -124,7 +124,10 @@ configSchema: {
         { name: 'region', type: 'string', defaultValue: 'center' },
         { name: 'style', type: 'string|object' },
         { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
-        { name: 'gridlines', type: 'boolean', defaultValue: true },
+
+        { name: 'gridlines', type: 'boolean', defaultValue: true,
+          description: 'if true, draw grid lines'
+        },
 
         { name: 'visibleTracks', type: 'multi-string' },
         { name: 'location', type: 'object' }

@@ -29,19 +29,33 @@
         }
 
         .viewScale {
-            height: 16px;
+            height: 17px;
             .renderingBlock {
-                height: 13px;
+                height: 14px;
                 bottom: 3px;
                 border-color: rgba( 0, 0, 0, 0.3 );
             }
-            .posLabel {
+            .posLabel, .referenceLabel {
                 bottom: 0;
-                text-align: center;
-                overflow: show;
-                width: 1px;
                 font-size: 13px;
+            }
+            .posLabel {
+                text-align: center;
+                overflow: visible;
+                width: 1px;
                 height: 3px;
+            }
+            .referenceLabel {
+                background: #bbb;
+                padding: 0 4px 2px 2px;
+                font-weight: bold;
+                span {
+                    margin-top: -8px;
+                    height: 13px;
+                    top: 50%;
+                    display: block;
+                    position: relative;
+                }
             }
         }
 

@@ -69,6 +69,14 @@ return declare( null,
         throw new Error('Abstract!');
     },
 
+    getAName: function() {
+        return this.aName;
+    },
+
+    getBName: function() {
+        return this.bName;
+    },
+
     // offset the projection in A by the given delta
     offset: function( delta ) {
         throw new Error('Abstract!');

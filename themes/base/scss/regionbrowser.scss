@@ -1,9 +1,8 @@
 .renderingBlock {
     position: absolute;
-    overflow: visible;
-    top: 0px;
     height: 100%;
 }
+
 .gridlines {
     z-index: -1;
     position: relative;
@@ -306,16 +305,31 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
         .renderingBlock {
             position: absolute;
             background: #333;
-
             height: 100%;
-            .posLabel {
+
+            .posLabel, .referenceLabel, .referenceRightBorder {
                 position: absolute;
                 white-space: nowrap;
-                z-index: 100;
+            }
+
+            .posLabel {
+                z-index: 0;
                 span {
                     position: absolute;
                     bottom: 0;
                 }
+            }
+            .referenceRightBorder {
+                background: black;
+                height: 100%;
+                width: 1px;
+            }
+            .referenceLabel {
+                bottom: 0;
+                height: 100%;
+                z-index: 1;
+                background: #ccc;
+                border-left: 1px solid black;
             }
         }
     }
