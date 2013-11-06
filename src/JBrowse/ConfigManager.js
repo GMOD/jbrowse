@@ -1,18 +1,24 @@
 define(
     [
         'dojo/_base/declare',
+        'dojo/_base/lang',
+        'dojo/Deferred',
+
         'JBrowse/Util'
     ],
     function(
         declare,
+        lang,
+        Deferred,
+
         Util
     ) {
 
 return declare(null, {
 
 constructor: function( args ) {
-    this.config = dojo.clone( args.config || {} );
-    this.defaults = dojo.clone( args.defaults || {} );
+    this.config = lang.clone( args.config || {} );
+    this.defaults = lang.clone( args.defaults || {} );
     this.browser = args.browser;
     this.skipValidation = args.skipValidation;
     this.topLevelIncludes = this.config.include || this.defaults.include;
@@ -24,16 +30,17 @@ constructor: function( args ) {
  * @param callback {Function} callback, receives a single arguments,
  * which is the final processed configuration object
  */
-getFinalConfig: function( callback ) {
-    this._loadIncludes({ include: this.topLevelIncludes }, dojo.hitch( this, function( includedConfig ) {
+getFinalConfig: function() {
+    var thisB = this;
+    return this._loadIncludes({ include: this.topLevelIncludes })
+        .then( function( includedConfig ) {
+                   // merge the root config *into* the included config last, so
+                   // that values in the root config override the others
+                   thisB.config = thisB._mergeConfigs( includedConfig, thisB.config );
+                   thisB.config = thisB._applyDefaults( thisB.config, thisB.defaults );
 
-        // merge the root config *into* the included config last, so
-        // that values in the root config override the others
-        this.config = this._mergeConfigs( includedConfig, this.config );
-        this.config = this._applyDefaults( this.config, this.defaults );
-
-        callback( this.config );
-    }));
+                   return thisB.config;
+               });
 },
 
 /**
@@ -61,9 +68,12 @@ _getConfigAdaptor: function( config_def, callback ) {
  * when finished.
  * @private
  */
-_loadIncludes: function( inputConfig, callback ) {
+_loadIncludes: function( inputConfig ) {
     var thisB = this;
-    inputConfig = dojo.clone( inputConfig );
+    inputConfig = lang.clone( inputConfig );
+
+    var deferred = new Deferred();
+    var callback = deferred.resolve;
 
     var includes = inputConfig.include || [];
     delete inputConfig.include;
@@ -100,7 +110,7 @@ _loadIncludes: function( inputConfig, callback ) {
         }
 
         // instantiate the adaptor and load the config
-        this._getConfigAdaptor( include, dojo.hitch(this, function(adaptor) {
+        this._getConfigAdaptor( include, lang.hitch(this, function(adaptor) {
             if( !adaptor ) {
                 loadingResult.error = "Could not load config "+include.url+", no configuration adaptor found for config format "+include.format+' version '+include.version;
                 return;
@@ -109,15 +119,16 @@ _loadIncludes: function( inputConfig, callback ) {
             adaptor.load({
                 config: include,
                 baseUrl: inputConfig.baseUrl,
-                onSuccess: dojo.hitch( this, function( config_data ) {
-                    this._loadIncludes( config_data, dojo.hitch(this, function( config_data_with_includes_resolved ) {
-                        loadingResult.loaded = true;
-                        loadingResult.data = config_data_with_includes_resolved;
-                        if( ! --configs_remaining )
-                            callback( this._mergeIncludes( inputConfig, included_configs ) );
-                     }));
+                onSuccess: lang.hitch( this, function( config_data ) {
+                    this._loadIncludes( config_data )
+                        .then( lang.hitch( this, function( config_data_with_includes_resolved ) {
+                                               loadingResult.loaded = true;
+                                               loadingResult.data = config_data_with_includes_resolved;
+                                               if( ! --configs_remaining )
+                                                   callback( this._mergeIncludes( inputConfig, included_configs ) );
+                                           }));
                 }),
-                onFailure: dojo.hitch( this, function( error ) {
+                onFailure: lang.hitch( this, function( error ) {
                     loadingResult.error = error;
                     if( error.status != 404 ) // if it's a missing file, browser will have logged it
                         this._fatalError( error );
@@ -133,6 +144,8 @@ _loadIncludes: function( inputConfig, callback ) {
     if( ! included_configs.length ) {
         callback( inputConfig );
     }
+
+    return deferred;
 },
 
 /**
@@ -151,7 +164,7 @@ _mergeIncludes: function( inputConfig, config_includes ) {
  * @private
  */
 _applyDefaults: function( config, defaults ) {
-    return Util.deepUpdate( dojo.clone(defaults), config );
+    return Util.deepUpdate( lang.clone(defaults), config );
 },
 
 /**

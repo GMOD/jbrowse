@@ -8,13 +8,21 @@
 
 define( [
             'dojo/_base/declare',
+            'dojo/_base/lang',
             'dojo/_base/array',
+
+            'JBrowse/Util',
+            'JBrowse/Util/DeferredGenerator',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
+            lang,
             array,
+
+            Util,
+            DeferredGenerator,
             SeqFeatureStore,
             SimpleFeature
         ) {
@@ -36,15 +44,12 @@ return declare( SeqFeatureStore,
         for( var i=0; i<fdata.length; i++ ) {
             var f = this._makeFeature( fdata[i] );
             var refName = this.browser.regularizeReferenceName( f.get('seq_id') );
-            var refFeatures = features[ refName ] || function() {
-                return features[ refName ] = [];
-            }.call();
-            refFeatures.push( f );
+            ( features[refName] || ( features[refName] = [] )).push( f );
         }
         return features;
     },
 
-    _parseInt: function( data ) {
+    _parseNumbers: function( data ) {
         array.forEach(['start','end','strand'], function( field ) {
             if( field in data )
                 data[field] = parseInt( data[field] );
@@ -53,29 +58,33 @@ return declare( SeqFeatureStore,
             data.score = parseFloat( data.score );
         if( 'subfeatures' in data )
             for( var i=0; i<data.subfeatures.length; i++ )
-                this._parseInt( data.subfeatures[i] );
+                this._parseNumbers( data.subfeatures[i] );
     },
 
     _makeFeature: function( data, parent ) {
-        this._parseInt( data );
+        this._parseNumbers( data );
         return new SimpleFeature( { data: data, parent: parent } );
     },
 
-    getGlobalStats: function( cb, errorCb ) {
-        this.getRegionStats( { ref: this.refSeq.name, start: this.refSeq.start, end: this.refSeq.end }, cb, errorCb );
-    },
-
-    getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+    getFeatures: function( query ) {
         var start = query.start;
         var end = query.end;
-        var features = this.features[ this.browser.regularizeReferenceName( query.ref ) ] || {};
-        for( var id in features ) {
-            var f = features[id];
-            if(! ( f.get('end') < start  || f.get('start') > end ) ) {
-                featCallback( f );
-            }
-        }
-        endCallback();
+        var thisB = this;
+        return new DeferredGenerator( function( generator ) {
+            var refs = query.ref ? ( lang.isArray( query.ref ) ? query.ref : [query.ref] )
+                                 : Util.dojof.keys( thisB.features );
+            array.forEach( refs, function( ref ) {
+                var features = thisB.features[ thisB.browser.regularizeReferenceName( ref ) ];
+                if( ! features ) return;
+                for( var id in features ) {
+                    var f = features[id];
+                    if(! ( f.get('end') < start || f.get('start') > end ) )
+                        generator.emit( f );
+                }
+            });
+            generator.resolve();
+        });
+
     }
 });
 });

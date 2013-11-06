@@ -14,6 +14,7 @@ define( [
             'dojo/aspect',
             'dojo/request',
             'dojo/store/DataStore',
+            'dojo/Stateful',
 
             'dojo/_base/array',
             'dijit/layout/ContentPane',
@@ -34,9 +35,9 @@ define( [
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
-            'JBrowse/Store/Names/Hash',
             'JBrowse/FeatureFiltererMixin',
             'JBrowse/Auth/_AuthManagerMixin',
+            'JBrowse/DataHub/_DataHubManagerMixin',
             'JBrowse/Transport/_TransportManagerMixin',
             'JBrowse/View/RegionBrowser2',
             'JBrowse/ConfigManager',
@@ -62,6 +63,7 @@ define( [
             aspect,
             request,
             DojoDataStore,
+            Stateful,
 
             array,
             dijitContentPane,
@@ -82,9 +84,9 @@ define( [
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
-            NamesHashStore,
             FeatureFiltererMixin,
             AuthManagerMixin,
+            DataHubManagerMixin,
             TransportManagerMixin,
             RegionBrowser2,
             ConfigLoader,
@@ -105,7 +107,14 @@ var dojof = Util.dojof;
  * @constructor
  * @param params an object with initial configuration
  */
-return declare( [JBrowseComponent,FeatureFiltererMixin,AuthManagerMixin,TransportManagerMixin], {
+return declare(
+    [ Stateful,
+      JBrowseComponent,
+      FeatureFiltererMixin,
+      AuthManagerMixin,
+      DataHubManagerMixin,
+      TransportManagerMixin
+    ], {
 
 // set constructor method chaining to manual, we need to do some special things
 "-chains-": { constructor: "manual" },
@@ -129,8 +138,6 @@ constructor: function(params) {
     this.container = dom.byId( params.container );
     this.container.onselectstart = function() { return false; };
 
-    this.trackConfigsByName = {};
-
     // start the initialization process
     var thisB = this;
     thisB.loadConfig().then( function() {
@@ -140,11 +147,10 @@ constructor: function(params) {
         if( thisB.getConf('highlight') )
             thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
 
-        thisB.loadNames();
         thisB.initPlugins().then( function() {
             thisB.loadCSS().then( function() {
 
-                thisB.initTrackMetadata();
+                thisB._initDataHubs();
 
                 thisB.initView().then( function() {
                        thisB.passMilestone( 'completely initialized', { success: true } );
@@ -163,27 +169,18 @@ configSchema: {
             { name: 'location', type: 'string', defaultValue: 'ctgA:0..10000' }, // TODO remove this
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
-            { name: 'names', type: 'object', defaultValue: {} },
-            { name: 'nameUrl', type: 'string', defaultValue: function(b) { return b.getConf('dataRoot')+'/names/root.json'; } },
             { name: 'unitTestMode', type: 'boolean', defaultValue: false },
             { name: 'devMode', type: 'boolean', defaultValue: false },
             { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
             { name: 'dijitTheme', type: 'string', defaultValue: 'tundra' },
             { name: 'theme', type: 'string', defaultValue: 'metro' },
-            { name: 'showTracks', type: 'string', defaultValue: '' },
             { name: 'updateBrowserURL', type: 'boolean', defaultValue: true },
-            { name: 'datasets', type: 'object', defaultValue: {} },
-            { name: 'dataset_id', type: 'string' },
             { name: 'quickHelp', type: 'object', defaultValue: {} },
             { name: 'highlight', type: 'string' },
             { name: 'aboutThisBrowser', type: 'object', defaultValue: {} },
             { name: 'suppressUsageStatistics', type: 'boolean', defaultValue: false },
-            { name: 'stores', type: 'object', defaultValue: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } } },
-            { name: 'tracks', type: 'multi-object' },
             { name: 'logMessages', type: 'boolean', defaultValue: false },
             { name: 'maxRecentTracks', type: 'integer', defaultValue: 10 },
-            { name: 'trackMetadata', type: 'object', defaultValue: { sources: [] } },
-            { name: 'trackSelector', type: 'object', defaultValue: {} },
             { name: 'share_link', type: 'boolean', defaultValue: true },
             { name: 'shareURL', type: 'string',
               defaultValue: function( browser, overrides ) {
@@ -205,8 +202,7 @@ configSchema: {
                       )
                   );
               }},
-            { name: 'cookieSizeLimit', type: 'integer', defaultValue: 1200 },
-            { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 }
+            { name: 'cookieSizeLimit', type: 'integer', defaultValue: 1200 }
         ]
 },
 
@@ -250,8 +246,7 @@ _parseQueryString: function( constructorArgs ) {
 
     if( !( 'include' in queryConfig ) ) {
         queryConfig.include = [
-            'jbrowse_conf.json',
-            '{dataRoot}/trackList.json'
+            'jbrowse_conf.json'
         ];
     }
 
@@ -473,36 +468,6 @@ _loadCSS: function( css ) {
     return deferred;
 },
 
-/**
- * Load our name index.
- */
-loadNames: function() {
-    return this._milestoneFunction( 'loadNames', function( deferred ) {
-        var conf = lang.mixin( {}, this.getConf('names') );
-        if( ! conf.url )
-            conf.url = this.getConf('nameUrl');
-
-        if( conf.baseUrl )
-            conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
-
-        if( conf.type == 'Hash' )
-            this.nameStore = new NamesHashStore( dojo.mixin({ browser: this }, conf) );
-        else
-            // wrap the older LazyTrieDojoDataStore with
-            // dojo.store.DataStore to conform with the dojo/store API
-            this.nameStore = new DojoDataStore({
-                store: new NamesLazyTrieDojoDataStore({
-                    browser: this,
-                    namesTrie: new LazyTrie( conf.url, "lazy-{Chunk}.json"),
-                    stopPrefixes: conf.stopPrefixes,
-                    resultLimit:  conf.resultLimit || 15,
-                    tooManyMatchesMessage: conf.tooManyMatchesMessage
-                })
-            });
-
-        deferred.resolve({success: true});
-    });
-},
 
 /**
  * Compare two reference sequence names, returning -1, 0, or 1
@@ -572,24 +537,24 @@ initView: function() {
 
         // instantiate our views
         this.views = [];
-        // this.views.push(
-        //     new RegionBrowser2(
-        //         { browser: this,
-        //           config: {
-        //               name: 'View 1',
-        //               className: 'colorScheme1',
-        //               region: 'top',
-        //               style: 'height: 40%',
-        //               location: Util.parseLocString( this.getConf('location') ), // todo remove this
-        //               tracks: initialTracks.split(',')
-        //           }
-        //         } )
-        //  );
+        this.views.push(
+            new RegionBrowser2(
+                { browser: this,
+                  config: {
+                      name: 'View 1',
+                      className: 'colorScheme1',
+                      region: 'top',
+                      style: 'height: 40%',
+                      location: Util.parseLocString( this.getConf('location') ), // todo remove this
+                      tracks: initialTracks.split(',')
+                  }
+                } )
+         );
          this.views.push(
              new RegionBrowser2(
                  { browser: this,
                    config: {
-                       className: 'colorScheme1',
+                       className: 'colorScheme2',
                        region: 'center',
                        parentViewName: 'View 1',
                        tracks: initialTracks.split(','),
@@ -610,23 +575,13 @@ initView: function() {
             document.title = thisB.browserMeta().title;
         };
 
-        this.subscribe( '/jbrowse/v1/n/navigate',  updateLocationBar );
-        this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
-        this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', updateLocationBar );
+        this.containerWidget.startup();
 
-        //set initial location
-        //this.createTrackList().then( dojo.hitch( this, function() {
-            this.containerWidget.startup();
+        // make our global keyboard shortcut handler
+        on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
 
-            // make our global keyboard shortcut handler
-            on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
-
-            // configure our event routing
-            this._initEventRouting();
-
-            // done with initView
-            deferred.resolve({ success: true });
-//      }));
+        // done with initView
+        deferred.resolve({ success: true });
     });
 },
 
@@ -650,10 +605,6 @@ renderMenuBar: function( menuBar ) {
             className: 'about-dialog'
         });
 
-    if( this.getConf('datasets').length && ! this.getConf('dataset_id') ) {
-        console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
-    }
-
     this.poweredByLink = dojo.create('a', {
                                          className: 'powered_by',
                                          innerHTML: '<img src="'+this.resolveThemeUrl('img/menubar_logo.png')+'">',
@@ -661,9 +612,6 @@ renderMenuBar: function( menuBar ) {
                                          title: 'powered by JBrowse'
                                      }, menuBar );
 
-    if( this.getConf('datasets') && this.getConf('dataset_id') ) {
-        this.renderDatasetSelect( menuBar );
-    }
 
     // make the file menu
     this.addGlobalMenuItem( 'file',
@@ -777,32 +725,6 @@ createCombinationTrack: function() {
     });
 },
 
-renderDatasetSelect: function( parent ) {
-    var dsconfig = this.getConf('datasets');
-    var datasetChoices = [];
-    for( var id in dsconfig ) {
-        datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
-    }
-
-    new dijitSelectBox(
-        {
-            name: 'dataset',
-            className: 'dataset_select',
-            value: this.getConf('dataset_id'),
-            options: array.map(
-                datasetChoices,
-                function( dataset ) {
-                    return { label: dataset.name, value: dataset.id };
-                }),
-            onChange: dojo.hitch(this, function( dsID ) {
-                                     var ds = (this.getConf('datasets'))[dsID];
-                                     if( ds )
-                                         window.location = ds.url;
-                                     return false;
-                                 })
-        }).placeAt( parent );
-},
-
 /**
  * Get object like { title: "title", description: "description", ... }
  * that contains metadata describing this browser.
@@ -903,8 +825,6 @@ getTrackTypes: function() {
     return this._knownTrackTypes;
 },
 
-
-
 openFileDialog: function() {
     new FileDialog({ browser: this })
         .show({
@@ -933,19 +853,6 @@ openFileDialog: function() {
                 }
             })
         });
-},
-
-addTracks: function( confs ) {
-    // just register the track configurations right now
-    this._addTrackConfigs( confs );
-},
-replaceTracks: function( confs ) {
-    // just add-or-replace the track configurations
-    this._replaceTrackConfigs( confs );
-},
-deleteTracks: function( confs ) {
-    // de-register the track configurations
-    this._deleteTrackConfigs( confs );
 },
 
 renderGlobalMenu: function( menuName, args, parent ) {
@@ -990,74 +897,6 @@ addGlobalMenuItem: function( menuName, item ) {
     if( ! this._globalMenuItems[ menuName ] )
         this._globalMenuItems[ menuName ] = [];
     this._globalMenuItems[ menuName ].push( item );
-},
-
-/**
- * Initialize our message routing, subscribing to messages, forwarding
- * them around, and so forth.
- *
- * "v" (view)
- *   Requests from the user.  These go only to the browser, which is
- *   the central point forx deciding what to do about them.  This is
- *   usually just forwarding the command as one or more "c" messages.
- *
- * "c" (command)
- *   Commands from authority, like the Browser object.  These cause
- *   things to actually happen in the UI: things to be shown or
- *   hidden, actions taken, and so forth.
- *
- * "n" (notification)
- *   Notification that something just happened.
- *
- * @private
- */
-_initEventRouting: function() {
-    var that = this;
-
-    that.subscribe('/jbrowse/v1/v/store/new', function( storeConfigs ) {
-        array.forEach( storeConfigs, function( storeConfig ) {
-                           storeConfig = lang.mixin( {}, storeConfig );
-                           var name = storeConfig.name;
-                           delete storeConfig.name;
-                           that.addStoreConfig( name, storeConfig );
-                       });
-    });
-
-
-
-    that.subscribe('/jbrowse/v1/v/tracks/hide', function( trackConfigs ) {
-        that.publish( '/jbrowse/v1/c/tracks/hide', trackConfigs );
-    });
-    that.subscribe('/jbrowse/v1/v/tracks/show', function( trackConfigs ) {
-        that.addRecentlyUsedTracks( dojo.map(trackConfigs, function(c){ return c.label;}) );
-        that.publish( '/jbrowse/v1/c/tracks/show', trackConfigs );
-    });
-
-    that.subscribe('/jbrowse/v1/v/tracks/new', function( trackConfigs ) {
-        that.addTracks( trackConfigs );
-        that.publish( '/jbrowse/v1/c/tracks/new', trackConfigs );
-        that.publish( '/jbrowse/v1/n/tracks/new', trackConfigs );
-    });
-    that.subscribe('/jbrowse/v1/v/tracks/replace', function( trackConfigs ) {
-        that.replaceTracks( trackConfigs );
-        that.publish( '/jbrowse/v1/c/tracks/replace', trackConfigs );
-        that.publish( '/jbrowse/v1/n/tracks/replace', trackConfigs );
-    });
-    that.subscribe('/jbrowse/v1/v/tracks/delete', function( trackConfigs ) {
-        that.deleteTracks( trackConfigs );
-        that.publish( '/jbrowse/v1/c/tracks/delete', trackConfigs );
-        that.publish( '/jbrowse/v1/n/tracks/delete', trackConfigs );
-    });
-
-    that.subscribe('/jbrowse/v1/v/tracks/pin', function( trackNames ) {
-        that.publish( '/jbrowse/v1/c/tracks/pin', trackNames );
-        that.publish( '/jbrowse/v1/n/tracks/pin', trackNames );
-    });
-
-    that.subscribe('/jbrowse/v1/v/tracks/unpin', function( trackNames ) {
-        that.publish( '/jbrowse/v1/c/tracks/unpin', trackNames );
-        that.publish( '/jbrowse/v1/n/tracks/unpin', trackNames );
-    });
 },
 
 /**
@@ -1114,79 +953,6 @@ _reportCustomUsageStats: function(stats) {
     );
 },
 
-
-/**
- * Get a store object from the store registry, loading its code and
- * instantiating it if necessary.
- */
-getStoreDeferred: function( storeName ) {
-    this._storeCache   = this._storeCache || {};
-    this._storeClasses = this._storeClasses || {};
-
-    return this._storeCache[ storeName ] || ( this._storeCache[ storeName ] = function() {
-        var getStore = new Deferred();
-
-        var conf = this.getConf('stores')[storeName];
-        if( ! conf ) {
-            getStore.reject( "store '"+storeName+"' not found" );
-            return getStore;
-        }
-
-        var storeClassName = conf.type;
-        if( ! storeClassName ) {
-            getStore.reject( "store "+storeName+" has no type defined" );
-            return getStore;
-        }
-
-        var getStoreClass = this._storeClasses[storeClassName] ||
-            ( this._storeClasses[storeClassName] = Util.loadJSClass(storeClassName));
-
-        var thisB = this;
-        getStoreClass.then(
-            function( storeClass ) {
-                var store = new storeClass({ browser: thisB, config: conf });
-                getStore.resolve( store );
-            },
-            lang.hitch( getStore, 'reject' )
-        );
-        return getStore;
-
-    }.call(this));
-},
-
-getStore: function( storeName, callback ) {
-    if( !callback ) throw 'invalid arguments';
-
-
-    this.getStoreDeferred( storeName )
-        .then( callback,
-               function(e) {
-                   console.error(e);
-                   callback( null );
-               }
-             );
-},
-
-/**
- * Add a store configuration to the browser.  If name is falsy, will
- * autogenerate one.
- * @private
- */
-uniqCounter: 0,
-addStoreConfig: function( /**String*/ name, /**Object*/ storeConfig ) {
-    name = name || 'addStore'+this.uniqCounter++;
-
-    if( ! this._storeCache )
-        this._storeCache = {};
-
-    if( this.getConf('stores')[name] || this._storeCache[name] ) {
-        throw "store "+name+" already exists!";
-    }
-
-    this.getConf('stores')[name] = storeConfig;
-    return name;
-},
-
 _calculateClientStats: function() {
 
     var scn = screen || window.screen;
@@ -1196,7 +962,7 @@ _calculateClientStats: function() {
     var date = new Date();
     var stats = {
         ver: this.version || 'dev',
-        'tracks-count': this.getConf('tracks').length,
+        //'tracks-count': this.getConf('tracks').length,
         'plugins': dojof.keys( this.plugins ).sort().join(','),
 
         // screen geometry
@@ -1344,198 +1110,17 @@ loadConfig:function () {
     return this._milestoneFunction( 'loadConfig', function( deferred ) {
         var c = new ConfigLoader({ config: this._constructorArgs, defaults: {}, browser: this });
         this._finalizeConfig( this._constructorArgs || {} );
-        c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
-                // pass the tracks configurations through
-                // addTrackConfigs so that it will be indexed and such
-                var tracks = finishedConfig.tracks || [];
-                delete finishedConfig.tracks;
-
-                this._finalizeConfig( finishedConfig, this._getLocalConfig() );
-
-                this._addTrackConfigs( tracks );
-
-                deferred.resolve({success:true});
-        }));
+        c.getFinalConfig()
+         .then( lang.hitch(this, function( finishedConfig ) {
+                               this._finalizeConfig( finishedConfig, this._getLocalConfig() );
+                               deferred.resolve({success:true});
+                           }));
     });
 },
 
 // override component getconf to pass browser object by default
 getConf: function( key, args ) {
     return this.inherited( arguments, [ key, args || [this] ] );
-},
-
-getTrackConfig: function( trackname ) {
-    var d = new Deferred();
-    d.resolve( this.trackConfigsByName[ trackname ] );
-    return d;
-},
-
-/**
- * Add new track configurations.
- * @private
- */
-_addTrackConfigs: function( /**Array*/ configs ) {
-
-    array.forEach( configs, function(conf){
-
-        // if( this.trackConfigsByName[ conf.label ] ) {
-        //     console.warn("track with label "+conf.label+" already exists, skipping");
-        //     return;
-        // }
-
-        this.trackConfigsByName[conf.label] = conf;
-        this.getConf('tracks').push( conf );
-    },this);
-
-    return configs;
-},
-/**
- * Replace existing track configurations.
- * @private
- */
-_replaceTrackConfigs: function( /**Array*/ newConfigs ) {
-    if( ! this.trackConfigsByName )
-        this.trackConfigsByName = {};
-
-    array.forEach( newConfigs, function( conf ) {
-        if( ! this.trackConfigsByName[ conf.label ] ) {
-            console.warn("track with label "+conf.label+" does not exist yet.  creating a new one.");
-        }
-
-        this.trackConfigsByName[conf.label] =
-                           dojo.mixin( this.trackConfigsByName[ conf.label ] || {}, conf );
-   },this);
-},
-/**
- * Delete existing track configs.
- * @private
- */
-_deleteTrackConfigs: function( configsToDelete ) {
-    // remove from this.config.tracks
-    this.config.tracks = array.filter( this.config.tracks || [], function( conf ) {
-        return ! array.some( configsToDelete, function( toDelete ) {
-            return toDelete.label == conf.label;
-        });
-    });
-
-    // remove from trackConfigsByName
-    array.forEach( configsToDelete, function( toDelete ) {
-        if( ! this.trackConfigsByName[ toDelete.label ] ) {
-            console.warn( "track "+toDelete.label+" does not exist, cannot delete" );
-            return;
-        }
-
-        delete this.trackConfigsByName[ toDelete.label ];
-    },this);
-},
-
-
-/**
- * Asynchronously initialize our track metadata.
- */
-initTrackMetadata: function( callback ) {
-    return this._milestoneFunction( 'initTrackMetadata', function( deferred ) {
-        var metaDataSourceClasses = dojo.map(
-                                    this.getConf('trackMetadata').sources,
-                                    function( sourceDef ) {
-                                        var url  = sourceDef.url || 'trackMeta.csv';
-                                        var type = sourceDef.type || (
-                                                /\.csv$/i.test(url)     ? 'csv'  :
-                                                /\.js(on)?$/i.test(url) ? 'json' :
-                                                'csv'
-                                        );
-                                        var storeClass = sourceDef['class']
-                                            || { csv: 'dojox/data/CsvStore', json: 'dojox/data/JsonRestStore' }[type];
-                                        if( !storeClass ) {
-                                            console.error( "No store class found for type '"
-                                                           +type+"', cannot load track metadata from URL "+url);
-                                            return null;
-                                        }
-                                        return { class_: storeClass, url: url };
-                                    });
-
-
-        require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
-                                               dojo.map( metaDataSourceClasses, function(c) { return c.class_; } ) ),
-                 dojo.hitch(this,function( MetaDataStore ) {
-                     var mdStores = [];
-                     for( var i = 1; i<arguments.length; i++ ) {
-                         mdStores.push( new (arguments[i])({url: metaDataSourceClasses[i-1].url}) );
-                     }
-
-                     this.trackMetaDataStore =  new MetaDataStore(
-                         dojo.mixin( lang.clone( this.getConf('trackMetadata') ), {
-                                         trackConfigs: this.getConf('tracks'),
-                                         browser: this,
-                                         metadataStores: mdStores
-                                     })
-                     );
-
-                     deferred.resolve({success:true});
-        }));
-    });
-},
-
-/**
- * Asynchronously create the track list.
- * @private
- */
-createTrackList: function() {
-    return this._milestoneFunction('createTrack', function( deferred ) {
-        // find the tracklist class to use
-        var tl_class = this.getConf('trackSelector').type  ? this.getConf('trackSelector').type :
-                                                             'Simple';
-        if( ! /\//.test( tl_class ) )
-            tl_class = 'JBrowse/View/TrackList/'+tl_class;
-
-        // load all the classes we need
-        require( [ tl_class ],
-                 dojo.hitch( this, function( trackListClass ) {
-                     // instantiate the tracklist and the track metadata object
-                     this.trackListView = new trackListClass(
-                         dojo.mixin(
-                             lang.clone( this.getConf('trackSelector') ),
-                             {
-                                 trackConfigs: this.getConf('tracks'),
-                                 browser: this,
-                                 trackMetaData: this.trackMetaDataStore
-                             }
-                         )
-                     );
-
-                     // bind the 't' key as a global keyboard shortcut
-                     this.setGlobalKeyboardShortcut( 't', this.trackListView, 'toggle' );
-
-                     deferred.resolve({ success: true });
-        }));
-    });
-},
-
-/**
- * @private
- */
-
-onVisibleTracksChanged: function() {
-},
-
-
-/**
- * Like <code>navigateToLocation()</code>, except it attempts to display the given
- * location with a little bit of flanking sequence to each side, if
- * possible.
- */
-showRegion: function( location ) {
-    var flank   = Math.round( ( location.end - location.start ) * 0.2 );
-    //go to location, with some flanking region
-    this.navigateToLocation({ ref: location.ref,
-                               start: location.start - flank,
-                               end: location.end + flank
-                             });
-
-    // if the location has a track associated with it, show it
-    if( location.tracks ) {
-        this.showTracks( array.map( location.tracks, function( t ) { return t && (t.label || t.name) || t; } ));
-    }
 },
 
 getReferenceFeature: function( refname ) {
@@ -1868,10 +1453,6 @@ _updateHighlightClearButton: function() {
         this._highlightClearButton.set( 'disabled', !!! this._highlight );
         //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
     }
-},
-
-getRefSeqSelectorMaxSize: function() {
-    return this.getConf('refSeqSelectorMaxSize');
 },
 
 clearHighlight: function() {

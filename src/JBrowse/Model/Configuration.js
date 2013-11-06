@@ -38,7 +38,8 @@ var Configuration = declare( null, {
     },
 
     set: function( key, val ) {
-        var oldval = this.get( key );
+        var oldval;
+        try { oldval = this.get( key ); } catch(e) {}
         val = this._local[ key ] = this._schema.normalizeSetting( key, val );
         delete this._compilationCache[ key ];
         this._notify( key, oldval, val );

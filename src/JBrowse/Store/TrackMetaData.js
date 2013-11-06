@@ -124,12 +124,9 @@ var Meta = declare( null,
      */
     _trackConfigToItem: function( conf ) {
         var metarecord = dojo.clone( conf.metadata || {} );
-        metarecord.label = conf.label;
-        metarecord.key = conf.key;
-        metarecord.conf = conf;
+        metarecord.name = conf.name;
+        metarecord.config = conf;
         metarecord['track type'] = conf.type;
-        if( conf.category )
-            metarecord.category = conf.category;
         return metarecord;
     },
 
@@ -147,7 +144,7 @@ var Meta = declare( null,
                 items: [ this._trackConfigToItem( conf ) ]
             });
 
-            var name = conf.label;
+            var name = conf.name;
             var item = this.fetchItemByIdentity( name );
             if( ! item )
                 console.error( 'failed to add '+name+' track to track metadata store', conf );
@@ -166,7 +163,7 @@ var Meta = declare( null,
         // we don't actually delete things, we just mark them as
         // deleted and filter out deleted ones when returning results.
         array.forEach( trackConfigs, function( conf ) {
-            var name = conf.label;
+            var name = conf.name;
             var item = this.fetchItemByIdentity( name );
             if( item ) {
                 item.DELETED = true;
@@ -435,7 +432,7 @@ var Meta = declare( null,
     },
 
     isItem: function(item) {
-        return typeof item == 'object' && typeof item.label == 'string';
+        return typeof item == 'object' && typeof item.name == 'string';
     },
 
     isItemLoaded: function() {
@@ -445,9 +442,9 @@ var Meta = declare( null,
     loadItem: function( args ) {
     },
 
-    getItem: function( label ) {
+    getItem: function( name ) {
         if( this.ready )
-            return this.identIndex[label];
+            return this.identIndex[name];
         else
             return null;
     },
@@ -501,7 +498,7 @@ var Meta = declare( null,
         //          - if all the facets *but one* have the same track first:
         //                 this track will need to be counted in the
         //                 'leave-out' counts for the odd facet out.  count it.
-        //          - shift the lowest-labeled track off of whatever facets have it at the front
+        //          - shift the lowest-named track off of whatever facets have it at the front
 
         var results = []; // array of items that completely match the query
 
@@ -608,7 +605,7 @@ var Meta = declare( null,
                     if( uniqueIdents.length == 2
                         && setsByTopIdent[ ident ].length == filteredSets.length - 1 ) {
                         // all of the matched sets except one has the same
-                        // item on top, and it is the lowest-labeled item
+                        // item on top, and it is the lowest-named item
 
                         var leftOutSet = setsByTopIdent[ uniqueIdents[ leftOutIndex ] ][0];
                         this._countItem( facetMatchCounts, setsByTopIdent[ident][0].topItem(), leftOutSet.facetName );
@@ -762,18 +759,18 @@ var Meta = declare( null,
     close: function() {},
 
     getLabel: function(i) {
-        return this.getValue(i,'key',undefined);
+        return this.getValue(i,'name',undefined);
     },
     getLabelAttributes: function(i) {
-        return ['key'];
+        return ['name'];
     },
 
     // dojo.data.api.Identity support
     getIdentityAttributes: function() {
-        return ['label'];
+        return ['name'];
     },
     getIdentity: function(i) {
-        return this.getValue(i, 'label', undefined);
+        return this.getValue(i, 'name', undefined);
     },
     fetchItemByIdentity: function(id) {
         return this.identIndex[id];

@@ -26,6 +26,9 @@ return declare( Store,
 
     constructor: function( args ) {
         this.globalStats = {};
+        this._dataHub = args.dataHub;
+        if( ! this._dataHub ) throw new Error('dataHub arg required');
+
     },
 
     configSchema: {

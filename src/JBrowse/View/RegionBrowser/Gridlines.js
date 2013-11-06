@@ -47,7 +47,7 @@ _positionBlockNode: function( block, canvasNode, changeInfo ) {
         || ( changeInfo.deltaLeft || changeInfo.deltaRight )
            && changeInfo.deltaLeft != changeInfo.deltaRight
       ) {
-          canvasNode.width = Math.round( block.getDimensions().w );
+          canvasNode.width = Math.ceil( block.getDimensions().w );
       }
 },
 

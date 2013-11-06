@@ -1,8 +1,35 @@
 {
+
+    "referenceSets": [
+
+        { "name": "D. melanogaster FlyBase 5.52",
+          "metadata": {
+              "description": "Drosophila melanogaster genome from FlyBase release 5.52"
+          },
+          "regions":
+          [{"seq_id":"2L","seqChunkSize":80000,"end":23011546,"start":0},{"length":368874,"seq_id":"2LHet","seqChunkSize":80000,"end":368874,"start":0},{"length":21146710,"seq_id":"2R","seqChunkSize":80000,"end":21146710,"start":0},{"length":3288763,"seq_id":"2RHet","seqChunkSize":80000,"end":3288763,"start":0},{"length":24543559,"seq_id":"3L","seqChunkSize":80000,"end":24543559,"start":0},{"length":2555493,"seq_id":"3LHet","seqChunkSize":80000,"end":2555493,"start":0},{"length":27905055,"seq_id":"3R","seqChunkSize":80000,"end":27905055,"start":0},{"length":2517509,"seq_id":"3RHet","seqChunkSize":80000,"end":2517509,"start":0},{"length":1351859,"seq_id":"4","seqChunkSize":80000,"end":1351859,"start":0},{"length":10049039,"seq_id":"U","seqChunkSize":80000,"end":10049039,"start":0},{"length":29004658,"seq_id":"Uextra","seqChunkSize":80000,"end":29004658,"start":0},{"length":22422829,"seq_id":"X","seqChunkSize":80000,"end":22422829,"start":0},{"length":204113,"seq_id":"XHet","seqChunkSize":80000,"end":204113,"start":0},{"length":347040,"seq_id":"YHet","seqChunkSize":80000,"end":347040,"start":0},{"length":19519,"seq_id":"dmel_mitochondrion_genome","seqChunkSize":80000,"end":19519,"start":0}]
+        },
+
+        { "name": "H. sapiens GRCh37/hg19",
+          "metadata": {
+              "description": "Homo sapiens GRCh37/hg19",
+              "species": "Homo sapiens"
+          },
+          "regions":
+          [{"length":135534747,"seq_id":"chr10","start":0,"end":135534747,"seqChunkSize":20000},{"length":135006516,"seq_id":"chr11","seqChunkSize":20000,"end":135006516,"start":0},{"length":133851895,"seq_id":"chr12","start":0,"end":133851895,"seqChunkSize":20000},{"length":115169878,"seq_id":"chr13","seqChunkSize":20000,"end":115169878,"start":0},{"length":107349540,"seq_id":"chr14","start":0,"end":107349540,"seqChunkSize":20000},{"length":102531392,"seq_id":"chr15","seqChunkSize":20000,"end":102531392,"start":0},{"length":90354753,"seq_id":"chr16","start":0,"end":90354753,"seqChunkSize":20000},{"length":81195210,"seq_id":"chr17","seqChunkSize":20000,"end":81195210,"start":0},{"length":78077248,"seq_id":"chr18","start":0,"end":78077248,"seqChunkSize":20000},{"length":59128983,"seq_id":"chr19","seqChunkSize":20000,"end":59128983,"start":0},{"length":249250621,"seq_id":"chr1","start":0,"end":249250621,"seqChunkSize":20000},{"length":63025520,"seq_id":"chr20","seqChunkSize":20000,"end":63025520,"start":0},{"length":48129895,"seq_id":"chr21","start":0,"end":48129895,"seqChunkSize":20000},{"length":51304566,"seq_id":"chr22","seqChunkSize":20000,"end":51304566,"start":0},{"length":243199373,"seq_id":"chr2","start":0,"end":243199373,"seqChunkSize":20000},{"length":198022430,"seq_id":"chr3","seqChunkSize":20000,"end":198022430,"start":0},{"length":191154276,"seq_id":"chr4","start":0,"end":191154276,"seqChunkSize":20000},{"length":180915260,"seq_id":"chr5","seqChunkSize":20000,"end":180915260,"start":0},{"length":171115067,"seq_id":"chr6","start":0,"end":171115067,"seqChunkSize":20000},{"length":159138663,"seq_id":"chr7","seqChunkSize":20000,"end":159138663,"start":0},{"length":146364022,"seq_id":"chr8","start":0,"end":146364022,"seqChunkSize":20000},{"length":141213431,"seq_id":"chr9","seqChunkSize":20000,"end":141213431,"start":0},{"length":155270560,"seq_id":"chrX","start":0,"end":155270560,"seqChunkSize":20000},{"length":59373566,"seq_id":"chrY","seqChunkSize":20000,"end":59373566,"start":0}]
+        },
+
+        { "name": "Volvox", "regions": [ { "seq_id": "ctgA", "start": 0, "end": 50000, "name": "ctgA" } ] },
+    ],
+
+
     "stores": {
         "default": {
             "type": "JBrowse/Store/SeqFeature/NCList",
-            "url" : "tracks/{set}"
+            "url" : "tracks/{set}",
+            "names" : {
+                "url" : "names/"
+            }
         },
         "refseqs": {
             "type": "JBrowse/Store/Sequence/StaticChunked",
@@ -51,38 +78,50 @@
 
     "tracks" : [
         {
-            "store": "refseqs",
-            "type" : "JBrowse/View/Track/Sequence",
-            "label" : "Reference sequence",
+            "name" : "Reference sequence",
+            "views": {
+                "default": {
+                    "store": "refseqs",
+                    "type" : "JBrowse/View/Track/Sequence",
+                }
+            }
         },
 
         {
-            "style" : { "className" : "feature2" },
-            "query": { "set": "ExampleFeatures" },
-            "label" : "Features - Example Features"
+            "views": {
+                "default": {
+                    "style" : { "className" : "feature2" },
+                    "query": { "set": "ExampleFeatures" },
+                    "name" : "Features - Example Features"
+                }
+            }
         },
 
         {
-            "query": { "set": "bam_simulated" },
-            "label" : "Features - bam_simulated"
+            "views": {
+                "default": {
+                    "query": { "set": "bam_simulated" },
+                    "name" : "Features - bam_simulated"
+                }
+            }
         },
 
         {
             "style" : { "className" : "feature2" },
             "query": { "set": "NameTest" },
-            "label" : "Features - Name test",
+            "name" : "Features - Name test",
             "type": "JBrowse/View/Track/CanvasFeatures"
         },
 
         {
             "style" : { "className" : "triangle hgred" },
             "query": { "set": "snps" },
-            "label" : "Features - SNPs"
+            "name" : "Features - SNPs"
         },
 
         {
             "store": "volvox-sorted BAM",
-            "label" : "BAM - volvox-sorted.bam",
+            "name" : "BAM - volvox-sorted.bam",
             "type" : "JBrowse/View/Track/Alignments2",
             "glyphConfig": {
                 "default": { "height": 4 }
@@ -94,7 +133,7 @@
 
         {
             "store": "google drive BAM",
-            "label" : "BAM - Google Drive volvox-sorted",
+            "name" : "BAM - Google Drive volvox-sorted",
             "type" : "JBrowse/View/Track/Alignments2",
             "glyphConfig": {
                 "default": { "height": 4 }
@@ -110,14 +149,14 @@
             "metadata" : {
                 "Description" : "Variants called from volvox-sorted.bam using samtools and bcftools"
             },
-            "label" : "VCF - volvox-sorted variants"
+            "name" : "VCF - volvox-sorted variants"
         },
 
       {
           "negColor" : "function(feature) { return feature.get('score') < 150 ? 'green' : 'red'; }",
           "store": "volvox_microarray bigwig",
           "bicolorPivot" : "mean",
-          "label" : "BigWig Density - volvox_microarray",
+          "name" : "BigWig Density - volvox_microarray",
           "type" : "JBrowse/View/Track/Wiggle/Density",
           "metadata" : {
               "Description" : "Wiggle/Density view of volvox_microarray.bw.  Also demonstrates use of a user-configurable callback to set the value of neg_color to green when the score is below 150."
@@ -127,14 +166,14 @@
             "posColor" : "function(feature) { return feature.get('score') > 300 ? 'red' : 'blue'; }",
             "showVarianceBands" : true,
             "store": "volvox_microarray bigwig",
-            "label" : "BigWig XY - volvox_microarray",
+            "name" : "BigWig XY - volvox_microarray",
             "type" : "JBrowse/View/Track/Wiggle/XYPlot",
             "metadata" : {
                 "description" : "Wiggle/XYPlot view of volvox_microarray.bw.  Demonstrates use of a user-configured callback to set the bar color to red when the score is above 300."
             }
         },
 
-       { "label": "Features from config",
+       { "name": "Features from config",
          "store": "fromconfig test",
          "type": "JBrowse/View/Track/CanvasFeatures"
        },
@@ -154,57 +193,57 @@
                            "iconClass" : "dijitIconBookmark",
                            "url" : "http://wiki.trin.org.au/{name}-{start}-{end}",
                            "action" : "newWindow",
-                           "label" : "Query trin for {name}"
+                           "name" : "Query trin for {name}"
                         },
                         {
                            "iconClass" : "dijitIconSearch",
                            "url" : "http://example.com/{name}-{start}-{end}",
-                           "label" : "Query example.com for {name}"
+                           "name" : "Query example.com for {name}"
                         }
                      ],
-                     "label" : "Check gene on databases"
+                     "name" : "Check gene on databases"
                   },
                   {
-                     "label" : "2nd child of demo"
+                     "name" : "2nd child of demo"
                   },
                   {
-                     "label" : "3rd child: this is a track"
+                     "name" : "3rd child: this is a track"
                   }
                ],
-               "label" : "Item with submenu"
+               "name" : "Item with submenu"
             },
             {
                "iconClass" : "dijitIconDatabase",
                "url" : "http://www.example.com?featurename={name}",
                "action" : "iframeDialog",
                "title" : "The magnificent example.com (feature {name})",
-               "label" : "Open example.com in an iframe popup"
+               "name" : "Open example.com in an iframe popup"
             },
             {
                "iconClass" : "dijitIconDatabase",
                "url" : "sample_data/test_snippet.html?featurename={name}:{start}-{end}",
                "action" : "xhrDialog",
                "title" : "function(track,feature,div) { return 'Random XHR HTML '+Math.random()+' title!'; }",
-               "label" : "Open popup with XHR HTML snippet (btw this is feature {name})"
+               "name" : "Open popup with XHR HTML snippet (btw this is feature {name})"
             },
             {
                "iconClass" : "dijitIconDatabase",
                "content" : "function(track,feature,div) { return '<h2>'+feature.get('name')+'</h2><p>This is some test content!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>';} ",
                "action" : "contentDialog",
                "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
-               "label" : "Popup with content snippet from a function (feature {name})"
+               "name" : "Popup with content snippet from a function (feature {name})"
             },
             {
                "iconClass" : "dijitIconDatabase",
                "content" : "<h2>{name}</h2><p>This is some test content about {name}, which goes from {start} to {end} on the {strand} strand.</p>",
                "action" : "contentDialog",
                "title" : "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
-               "label" : "Popup with content snippet from string (feature {name})"
+               "name" : "Popup with content snippet from string (feature {name})"
             },
             {
                "iconClass" : "dijitIconDatabase",
                "action" : "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }",
-               "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }"
+               "name" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }"
             }
          ],
          "hooks" : {
@@ -215,21 +254,18 @@
             "Description" : "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback."
          },
          "type" : "JBrowse/View/Track/CanvasFeatures",
-         "label" : "HTMLFeature - test features with menus"
+         "name" : "HTMLFeature - test features with menus"
       },
 
       {
          "style" : { "className" : "image" },
          "type" : "JBrowse/View/Track/FixedImage/Wiggle",
-         "label" : "Image - volvox_microarray.wig",
+         "name" : "Image - volvox_microarray.wig",
          "store": "wiggle images"
       }
 
     ],
-    "names" : {
-        "url" : "names/",
-        "type" : "Hash"
-    },
-    "dataset_id" : "volvox",
+
+    "name" : "Volvox Example",
     "formatVersion" : 2
 }

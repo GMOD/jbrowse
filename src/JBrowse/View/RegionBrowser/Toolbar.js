@@ -59,12 +59,13 @@ buildRendering: function() {
     );
     this.trackFindBox = new dijitComboBox(
         {
-            labelAttr: "label",
+            labelAttr: "name",
             maxLength: 400,
             placeHolder: 'Search tracks',
-            searchAttr: "label",
+            searchAttr: "name",
+            store: this.browser.get('trackMetaDataStore'),
             onChange: function( val ) {
-                thisB.browser.getTrackConfig( val )
+                thisB.browser.getTrack( val )
                     .then( function( t ) {
                                if( t )
                                    thisB.genomeView.showTracks([t]);
@@ -75,8 +76,8 @@ buildRendering: function() {
         domConstruct.create('div',{},trackSelectContainer) );
     this.trackFindBox.focusNode.spellcheck = false;
 
-    this.browser.afterMilestone('initTrackMetadata', function() {
-        thisB.trackFindBox.set( 'store', thisB.browser.trackMetaDataStore );
+    this.browser.watch( 'trackMetadataStore', function( name, oldstore, newstore ) {
+        thisB.trackFindBox.set( 'store', newstore );
     });
 
     this.trackFindBox._buttonNode.innerHTML = 'Tracks'+this.trackFindBox._buttonNode.innerHTML;
@@ -152,78 +153,44 @@ buildRendering: function() {
         }, domConstruct.create('button',{},this.searchControlsContainer));
 
     // make the refseq selection dropdown
-    this.browser.getStore('refseqs', function( store ) {
-        var max = thisB.browser.getConf('refSeqSelectorMaxSize');
-        var refSeqOrder = [];
-        store.getReferenceFeatures({ limit: max+1 })
-             .forEach( function( refseq ) {
-                           refSeqOrder.push( refseq );
-                       },
-                       function() {
-                           var numrefs = Math.min( max, refSeqOrder.length);
-                           var options = [];
-                           for ( var i = 0; i < numrefs; i++ ) {
-                               options.push( { label: refSeqOrder[i].get('name'), value: refSeqOrder[i].get('name') } );
-                           }
-                           var tooManyMessage = '(first '+numrefs+' ref seqs)';
-                           if( refSeqOrder.length > max ) {
-                               options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
-                           }
-                           thisB.refSeqSelectBox = new dijitSelectBox(
-                               {
-                                   name: 'refseq',
-                                   value: thisB.genomeView.ref ? thisB.genomeView.ref.get('name') : null,
-                                   options: options,
-                                   onChange: lang.hitch(thisB, function( newRefName ) {
-                                                            // don't trigger nav if it's the too-many message
-                                                            if( newRefName == tooManyMessage ) {
-                                                                this.refSeqSelectBox.set('value', this.refSeq.name );
-                                                                return;
-                                                            }
+    this.genomeView.watchConf('referenceSetPath', function(name,oldPath,newPath) {
+        thisB.genomeView.getReferenceSet(newPath)
+             .then( function( refset ) {
+                        var max = thisB.genomeView.getConf('refSeqSelectorMaxSize');
+                        var refSeqOrder = [];
+                        refset.getReferenceSequences({ limit: max+1 })
+                            .forEach( function( refseq ) {
+                                          refSeqOrder.push( refseq );
+                                      },
+                                      function() {
+                                          var numrefs = Math.min( max, refSeqOrder.length);
+                                          var options = [];
+                                          for ( var i = 0; i < numrefs; i++ ) {
+                                              var ref = refSeqOrder[i];
+                                              options.push({ label: ref.get('name') || ref.id(), value: ref.toString() } );
+                                          }
+                                          var tooManyMessage = '(first '+numrefs+' ref seqs)';
+                                          if( refSeqOrder.length > max ) {
+                                              options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
+                                          }
 
-                                                            // only trigger navigation if actually switching sequences
-                                                            if( newRefName != this.ref.get('name') ) {
-                                                                this.genomeView.navigateTo(newRefName);
-                                                            }
-                                                        })
-                               }).placeAt( refSeqSelectBoxPlaceHolder );
-                       });
+                                          if( thisB.refSeqSelectBox )
+                                              thisB.refSeqSelectBox.destroyRecursive();
 
-            // calculate how big to make the location box:  make it big enough to hold the
-            var locLength = thisB.genomeView.getConf('locationBoxLength') || function() {
-                // if we have no refseqs, just use 20 chars
-                if( ! refSeqOrder.length )
-                    return 20;
-
-                // if there are not tons of refseqs, pick the longest-named
-                // one.  otherwise just pick the last one
-                var ref = refSeqOrder.length < 1000
-                    && function() {
-                           var longestNamedRef;
-                           array.forEach( refSeqOrder, function(ref) {
-                               if( ! longestNamedRef
-                                   || (longestNamedRef.get('end') - longestNamedRef.get('start')) < (ref.get('end') - ref.get('start')) )
-                                   longestNamedRef = ref;
-                           });
-                           return longestNamedRef;
-                       }.call()
-                    || refSeqOrder.length && refSeqOrder[ refSeqOrder.length - 1 ].get('name').length
-                    || 20;
-
-                var locstring = Util.assembleLocStringWithLength(
-                    { ref: ref.get('name'),
-                      start: ref.get('end')-1,
-                      end: ref.get('end'),
-                      length: ref.get('end') - ref.get('start')
+                                          thisB.refSeqSelectBox = new dijitSelectBox(
+                                              {
+                                                  name: 'refseq',
+                                                  value: thisB.genomeView.ref ? thisB.genomeView.ref.get('name') : null,
+                                                  options: options,
+                                                  onChange: function( newRefName ) {
+                                                      thisB.genomeView.setConf( 'location', newRefName );
+                                                  }
+                                              }).placeAt( refSeqSelectBoxPlaceHolder );
+                                      });
                     });
+    });
 
-                //console.log( locstring, locstring.length );
-                return locstring.length;
-            }.call(thisB) || 20;
-
-            thisB.locationBox.domNode.style.width = locLength+'ex';
-
-        });
+    thisB.locationBox.domNode.style.width = '20ex';
 
     // zoom controls
     var zoomControlsContainer = domConstruct.create(

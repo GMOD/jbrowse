@@ -5,6 +5,7 @@ define([
            'dojo/_base/event',
            'dojo/dom-construct',
            'dojo/dom-class',
+           'dojo/promise/all',
 
            'dijit/layout/BorderContainer',
 
@@ -30,6 +31,7 @@ define([
            dojoEvent,
            domConstruct,
            domClass,
+           all,
 
            dijitBase,
 
@@ -79,15 +81,27 @@ constructor: function( args ) {
     this._blockListeners = new ListenerSet();
 
     var thisB = this;
+    // when our "location" conf var is set, go to that location
     this.watchConf( 'location', function( path, oldloc, newloc ) {
         thisB._updateProjection({ location: newloc });
     });
 
+    // when our reference sequence set changes, update the projection
+    this.watchConf( 'referenceSetPath', function( path, oldref, newref ) {
+        thisB._updateProjection({ referenceSetPath: newref });
+    });
+
+    // when we get a new projection, make a new blocklist for it
     this.watch( 'projection',
         function( name, oldProjection, newProjection ) {
             thisB._makeBlockList( newProjection );
         });
 },
+
+// layout: function() {
+//     this.inherited(arguments);
+//     this._updateProjection();
+// },
 
 _makeBlockList: function( projection ) {
     if( this.get('blockList') )
@@ -98,6 +112,37 @@ _makeBlockList: function( projection ) {
             viewportNode: this.domNode,
             newBlock: lang.hitch( this, '_newBlock' )
         }));
+},
+
+// get the displayed track widget in this region view for
+// a certain track hub and track, if present
+_getTrackWidgetByName: function( hubName, trackName ) {
+    var widget;
+    array.some( this.getChildren(), function(child) {
+                    try {
+                        var track = child.getTrack();
+                        if( track.getTrackHub().getConf('name') == hubName
+                            && track.getConf('name') == trackName
+                          )
+                            return widget = child;
+                    } catch(e) {}
+                    return false;
+                });
+    return widget;
+},
+
+// get the displayed track widget in this region view for
+// a certain track hub and track, if present
+_getTrackWidgetForTrack: function( trackObject ) {
+    var widget;
+    array.some( this.getChildren(), function(child) {
+                    try {
+                        if( child.getTrack() === trackObject )
+                            return widget = child;
+                    } catch(e) {}
+                    return false;
+                });
+    return widget;
 },
 
 // make a new rendering block for the our rendering blocklist
@@ -119,6 +164,8 @@ configSchema: {
               return 'View '+view.serialNumber;
           }
         },
+
+        { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 },
         { name: 'parentViewName', type: 'string', defaultValue: '' },
         { name: 'className', type: 'string', defaultValue: 'colorScheme1' },
         { name: 'region', type: 'string', defaultValue: 'center' },
@@ -127,6 +174,13 @@ configSchema: {
 
         { name: 'gridlines', type: 'boolean', defaultValue: true,
           description: 'if true, draw grid lines'
+        },
+
+        { name: 'referenceSetPath', type: 'string',
+          defaultValue: function(regionbrowser) {
+              return regionbrowser.browser.getConf('defaultDataHubName')+'/default';
+          },
+          description: 'data hub path to reference sequence set to display: hubname/setname'
         },
 
         { name: 'visibleTracks', type: 'multi-string' },
@@ -151,19 +205,62 @@ buildRendering: function() {
     //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
 },
 
-startup: function() {
-    //console.log('pre startup '+this.getConf('name') );
-    this.inherited(arguments);
-    //console.log('post startup '+this.getConf('name') );
+_drawAttentionToTrackWidget: function( trackWidget ) {
+    // TODO
+    // scroll the display if necessary to show the given track
+    // widget, then do some kind of animation on it to draw the user's
+    // attention to it.
 },
 
-// from dijit
-layout: function() {
-    this.inherited(arguments);
+// display the given track objects in this region view.  if a widget
+// already exists in this view for a track, returns it.  otherwise,
+// makes and returns a new widget.  returns a Deferred array of the track widgets
+showTracks: function( trackObjects ) {
+    var thisB = this;
+    return all( array.map( trackObjects, function( trackObject ) {
+        var existingWidget;
+        if(( existingWidget = this._getTrackWidgetForTrack( trackObject ) )) {
+            this._drawAttentionToTrackWidget( existingWidget );
+            return Util.resolved( existingWidget );
+        }
+
+        return trackObject.newWidget()
+            .then( function( trackWidget ) {
+                       thisB.addChild( trackWidget );
+                       return trackWidget;
+                   });
+    }));
 },
+
+// destroy any displayed widgets for the given track object.  returns
+// nothing.
+hideTracks: function( trackObjects ) {
+    array.forEach( trackObjects, function( trackObject ) {
+        var widget = this._getTrackWidgetForTrack( trackObject );
+        if( widget ) {
+           thisB.removeChild( widget );
+           widget.destroyRecursive();
+        }
+    });
+},
+
+// startup: function() {
+//     //console.log('pre startup '+this.getConf('name') );
+//     this.inherited(arguments);
+//     //console.log('post startup '+this.getConf('name') );
+// },
+
+// // from dijit
+// layout: function() {
+//     this.inherited(arguments);
+// },
 
 setLocation: function( locstring ) {
     this.setConf( 'location', Util.parseLocString( locstring ) );
+},
+
+getContentBox: function() {
+    return lang.mixin( {}, this._contentBox );
 },
 
 resize: function() {
@@ -180,10 +277,10 @@ resize: function() {
 },
 
 /**
- *
- * location: feature object containing the requested location to display
- *
- * animate: if true, animate the projection update.  default true.
+ * Args:
+ *   location: feature object containing the requested location to display
+ *   animate: if true, animate the projection update if possible.  default true.
+ *   referenceSetPath: new path to the reference sequence set to use
  */
 _updateProjection: function( args ) {
     var thisB = this;
@@ -191,6 +288,7 @@ _updateProjection: function( args ) {
     args = lang.mixin(
         {
             location: this.getConf('location'),
+            referenceSetPath: this.getConf('referenceSetPath'),
             animate: true
         },
         args || {}
@@ -210,7 +308,7 @@ _updateProjection: function( args ) {
 
     var aRange = { start: this._contentBox.l,    end: this._contentBox.l + this._contentBox.w };
     var bRange = { start: location.get('start'), end: location.get('end') };
-    if( true || location.get('strand') == -1 )
+    if( location.get('strand') == -1 )
         (function() {
             var tmp = bRange.start;
             bRange.start = bRange.end;
@@ -222,21 +320,29 @@ _updateProjection: function( args ) {
         existingProjection.matchRanges( aRange, bRange, args.animate ? 800 : undefined );
     }
     else {
-        this.browser.getStoreDeferred( 'volvox-sorted BAM' )
-            .then( function( store ) {
-                       if( ! store )
-                           throw 'no store!';
-                       thisB.set( 'projection', new RegionsProjection(
-                                      //this.set( 'projection', new CircularProjection(
-                                      //this.set( 'projection', new CanonicalLinearProjection(
-                                      { aRange: aRange, bRange: bRange, bLength: 10000,
-                                        aName: 'screen', bName: location.get('seq_id'),
-                                        store: store,
-                                        stranded: true
-                                      }
-                                  ));
+        this.getReferenceSet()
+            .then( function( refset ) {
+                       if( refset )
+                           thisB.set( 'projection', new RegionsProjection(
+                                          //this.set( 'projection', new CircularProjection(
+                                          //this.set( 'projection', new CanonicalLinearProjection(
+                                          { aRange: aRange, bRange: bRange, bLength: 10000,
+                                            aName: 'screen', bName: refset.getName(),
+                                            store: refset,
+                                            stranded: false
+                                          }
+                                      ));
                    });
     }
+},
+
+getReferenceSet: function( pathStr ) {
+    var path = ( pathStr || this.getConf('referenceSetPath') );
+    if( ! path )
+        return Util.resolved();
+
+    path = path.split('/',2);
+    return this.browser.getReferenceSet( path[0], path[1] );
 },
 
 // get the center coordinate, in basepairs, of the currently displayed view

@@ -4,6 +4,7 @@ define([
            'dojo/Deferred',
 
            'JBrowse/Store/SeqFeature',
+           'JBrowse/Store/Names/Hash',
            'JBrowse/Util',
            'JBrowse/Util/DeferredGenerator',
            'JBrowse/Model/ArrayRepr',
@@ -17,6 +18,7 @@ define([
            Deferred,
 
            SeqFeatureStore,
+           NamesHashStore,
            Util,
            DeferredGenerator,
            ArrayRepr,
@@ -45,7 +47,13 @@ return declare( SeqFeatureStore,
             { name: 'url', type: 'string',
               description: 'url of the NCList directory',
               required: true
-            }
+            },
+            { name: 'nameUrl', type: 'string',
+              defaultValue: function(b) {
+                  return b.getConf('dataRoot')+'/names/root.json';
+              }
+            },
+            { name: 'names', type: 'object', defaultValue: {} }
         ]
     },
 
@@ -122,6 +130,20 @@ return declare( SeqFeatureStore,
         }
 
         return refData;
+    },
+
+    /**
+     * Load our name index.
+     */
+    _loadNames: function() {
+        var conf = lang.mixin( {}, this.getConf('names') );
+        if( ! conf.url )
+            conf.url = this.getConf('nameUrl');
+
+        if( conf.baseUrl )
+            conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
+
+        this.nameStore = new NamesHashStore( dojo.mixin({ browser: this }, conf) );
     },
 
     getRegionStats: function( query ) {

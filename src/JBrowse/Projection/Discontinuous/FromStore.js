@@ -54,7 +54,7 @@ return declare( CanonicalLinear, {
       return this.__getBlocks || ( this.__getBlocks = function() {
           var features = [];
           var thisB = this;
-          return this.store.getFeatures( this.storeQuery || {} )
+          return this._getFeatures( this.storeQuery || {} )
                      .forEach(
                          function(f) {
                              features.push(f);
@@ -64,6 +64,10 @@ return declare( CanonicalLinear, {
                          }
                      );
       }.call(this));
+  },
+
+  _getFeatures: function( query ) {
+      return this.store.getFeatures( query );
   },
 
   _makeBlocks: function( features ) {

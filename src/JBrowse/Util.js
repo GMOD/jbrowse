@@ -68,6 +68,12 @@ var Util = {
         return undefined;
     },
 
+    /**
+     * Lazily-construct a 
+     */
+    lazy: function( obj, key, callback, args ) {
+        return obj[key] || ( obj[key] = callback.apply( obj, args ) );
+    },
 
     loadJS: function( paths ) {
         var d = new Deferred();
@@ -92,6 +98,31 @@ var Util = {
             .then( function( modules ) {
                        return modules[0];
                    });
+    },
+
+    /**
+     * Load a class and instantiate an object of it with the given
+     * params.  Deferred.
+     */
+    instantiate: function( classname, args ) {
+        return Util.loadJSClass( classname )
+            .then( function( Class ) {
+                       return new Class( args );
+             });
+    },
+
+    /**
+     * Load a class and instantiate a standard JBrowse component that
+     * accepts a "config" attribute.
+     */
+    instantiateComponent: function( args, config, defaultType ) {
+        var type = config.type || defaultType;
+        if( type.indexOf('/') == -1 )
+            type = defaultType+'/'+type;
+        return Util.instantiate(
+            type,
+            lang.mixin({ config: config }, args )
+        );
     },
 
     /**
