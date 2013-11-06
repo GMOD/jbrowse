@@ -46,6 +46,24 @@ return declare( DataHub, {
       ]
   },
 
+  getReferenceSet: function() {
+      var args = arguments;
+      var thisB = this;
+      return this._loadConf()
+          .then( function() {
+                     return thisB.inherited(args);
+                 });
+  },
+
+  openStore: function() {
+      var args = arguments;
+      var thisB = this;
+      return this._loadConf()
+          .then( function() {
+                     return thisB.inherited(args);
+                 });
+  },
+
    // initialize our track metadata
   _loadMetaStore: function( callback ) {
       var thisB = this;
