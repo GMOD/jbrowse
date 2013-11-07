@@ -90,7 +90,7 @@ sub run {
 
     # convert the stream of name records into a stream of operations to do
     # on the data in the hash store
-    my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $refSeqs, $names_files ) );
+    my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $refSeqs, $names_files ), $names_files );
 
     # finally copy the temp store to the namestore
     $self->vprint( "Using ".$self->hash_bits."-bit hashing.\n" );
@@ -137,10 +137,6 @@ sub name_store {
         mem => $self->opt('mem'),
         nosync => 1,
 
-        # set the hash size to try to get about 50KB per file, at an
-        # average of about 500 bytes per name record, for about 100
-        # records per file. if the store has existing data in it, this
-        # will be ignored
         hash_bits => $self->hash_bits,
 
         verbose => $self->opt('verbose')
@@ -149,9 +145,13 @@ sub name_store {
 
 sub hash_bits {
     my $self = shift;
+    # set the hash size to try to get about 5-10KB per file, at an
+    # average of about 500 bytes per name record, for about 10 records
+    # per file. if the store has existing data in it, this will be
+    # ignored
     return $self->{hash_bits} ||= $self->opt('hashBits')
                  || ( $self->{stats}{record_stream_estimated_count}
-                         ? sprintf( '%0.0f', max( 4, min( 32, 4*int( log( $self->{stats}{record_stream_estimated_count} / 10 )/ 4 / log(2)) )))
+                         ? sprintf( '%0.0f', List::Util::max( 4, List::Util::min( 32, 4*int( log( $self->{stats}{record_stream_estimated_count} / 10 )/ 4 / log(2)) )))
                       : 12
                     );
 }
