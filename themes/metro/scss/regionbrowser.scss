@@ -62,6 +62,11 @@
                     position: relative;
                 }
             }
+            .floatingReferenceLabel {
+                bottom: 3px;
+                height: 14px;
+                border: none;
+            }
         }
 
         .dragWindow {

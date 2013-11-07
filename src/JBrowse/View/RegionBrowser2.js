@@ -146,9 +146,9 @@ _getTrackWidgetForTrack: function( trackObject ) {
 },
 
 // make a new rendering block for the our rendering blocklist
-_newBlock: function( args ) {
+_newBlock: function( args, projectionChange ) {
     var block = new Block( args );
-    this._blockListeners.notify( { operation: 'new' }, block );
+    this._blockListeners.notify( { operation: 'new', projectionChange: projectionChange  }, block );
     return block;
 },
 

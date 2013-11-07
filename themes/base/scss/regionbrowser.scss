@@ -306,31 +306,34 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
             position: absolute;
             background: #333;
             height: 100%;
+        }
+        .posLabel, .referenceLabel, .referenceRightBorder {
+            position: absolute;
+            white-space: nowrap;
+        }
 
-            .posLabel, .referenceLabel, .referenceRightBorder {
+        .posLabel {
+            z-index: 1;
+            span {
                 position: absolute;
-                white-space: nowrap;
-            }
-
-            .posLabel {
-                z-index: 0;
-                span {
-                    position: absolute;
-                    bottom: 0;
-                }
-            }
-            .referenceRightBorder {
-                background: black;
-                height: 100%;
-                width: 1px;
-            }
-            .referenceLabel {
                 bottom: 0;
-                height: 100%;
-                z-index: 1;
-                background: #ccc;
-                border-left: 1px solid black;
             }
+        }
+        .referenceRightBorder {
+            background: black;
+            height: 100%;
+            width: 1px;
+        }
+        .referenceLabel {
+            bottom: 0;
+            height: 100%;
+            z-index: 1;
+            background: #ccc;
+            border-left: 1px solid black;
+        }
+        .floatingReferenceLabel {
+            z-index: 2;
+            left: 0;
         }
     }
 

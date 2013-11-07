@@ -20,16 +20,44 @@ return declare( [ _WidgetBase, _BlockBasedMixin, _HorizScaleMixin ], {
 
 baseClass: 'viewScale',
 
+blockChange: function( blockNode, changeInfo, block ) {
+    this.inherited(arguments);
+
+    var blockDims = block.getDimensions();
+    if( changeInfo.operation != 'destroy' ) {
+        // possibly draw a label on the left side of the block if the
+        // block is overlapping the left edge of the screen
+        if( blockDims.l < 0 && blockDims.r > 0 ) {
+            if( ! this.floatingLabel ) {
+                var floater = this.floatingLabel = document.createElement('div');
+                floater.className = 'referenceLabel floatingReferenceLabel';
+                this.domNode.appendChild( floater );
+            }
+            this.floatingLabel.style.visibility = 'visible';
+            this.floatingLabel.innerHTML = '<span>'+block.getProjectionBlock().getBName()+'</span>';
+        }
+    }
+    if( changeInfo.operation != 'new'
+        && ! block.prev()
+        && blockDims.l > 0
+        && this.floatingLabel
+      )
+        this.floatingLabel.style.visibility = 'hidden';
+
+},
+
+
 fillBlock: function( block, blockNode ) {
     var html = [];
     var blockDims = block.getDimensions();
     var projectionBlock = block.getProjectionBlock();
 
+
     // draw a reference label if this rendering block is on the left
     // edge of the projection block, or if its range in px coordinates
     // (system A in the projection) overlaps the left side of the
     // regionbrowser viewport
-    if( blockDims.leftEdge ) {
+    if( blockDims.leftEdge && blockDims.l > 0 ) {
         html.push( '<div class="referenceLabel"',
                    ' style="left: 0"><span>',
                    projectionBlock.getBName(),
@@ -41,6 +69,7 @@ fillBlock: function( block, blockNode ) {
                    ' style="right: 0"></div>'
                  );
     }
+
 
     // draw the bp labels
     this._horizontalScaleIterate(

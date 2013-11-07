@@ -125,7 +125,7 @@ return declare( LinkedList, {
                              blockdata.onProjectionBlockLeftEdge  = blockdata.left  == aRange.l;
                              blockdata.onProjectionBlockRightEdge = blockdata.right == aRange.r;
 
-                             this.unshift( this._newBlock( blockdata ) );
+                             this.unshift( this._newBlock( blockdata, changeDescription ) );
                          }
                   },thisB);
           };
@@ -166,7 +166,7 @@ return declare( LinkedList, {
                                         };
                                         blockdata.onProjectionBlockLeftEdge  = blockdata.left  == aRange.l;
                                         blockdata.onProjectionBlockRightEdge = blockdata.right == aRange.r;
-                                        this.push( this._newBlock( blockdata ) );
+                                        this.push( this._newBlock( blockdata, changeDescription ) );
                                     }
                              },thisB);
           }

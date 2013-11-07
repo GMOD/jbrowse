@@ -20,7 +20,7 @@ _setGenomeViewAttr: function( genomeView ) {
         this._blockWatch = genomeView.watchRenderingBlocks(
             function( data, block ) {
                 if( data.operation == 'new' ) {
-                    thisB.newBlock( block );
+                    thisB.newBlock( block, data );
                 }
             }
         )
@@ -33,7 +33,7 @@ _genomeViewSetter: function( genomeview ) {
     return this._setGenomeViewAttr.apply( this, arguments );
 },
 
-newBlock: function( renderingBlock ) {
+newBlock: function( renderingBlock, changeInfo ) {
     var thisB = this,
     blockNode = this.createBlockNode( renderingBlock ),
     blockChangeWatch = renderingBlock.watch(
@@ -44,7 +44,7 @@ newBlock: function( renderingBlock ) {
             thisB.blockChange( blockNode, changeInfo, block );
         });
 
-    this.blockChange( blockNode, { operation: 'new' }, renderingBlock );
+    this.blockChange( blockNode, changeInfo, renderingBlock );
 },
 
 createBlockNode: function( renderingBlock ) {
