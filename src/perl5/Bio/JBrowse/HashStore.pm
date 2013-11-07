@@ -179,12 +179,39 @@ sub stream_set {
     print "Hash store bulk load finished.\n" if $self->{verbose};
 }
 
+=head2 db_open( $filename, $flags, $mode, { conf_keys => 12, ... } )
+
+Open a DB_File in BTREE mode, with the given config options, if we are
+on Perl 5.12 or greater.  Otherwise, use a DB_File with default
+options.
+
+Returns a hashref tied to the DB_File.
+
+=cut
+
+sub db_open {
+    my ( $self, $file, $flags, $mode, $conf ) = @_;
+
+    my %store;
+    my ( $perl_minor_ver ) = $^V =~ /^v?5\.(\d+)/;
+    if( $perl_minor_ver >= 12 ) {
+        my $db_conf = DB_File::BTREEINFO->new;
+        $db_conf->{$_} = $conf->{$_} for keys %{ $conf || {} };
+        tie( %store, 'DB_File', "$file", $flags, $mode || 0666, $db_conf);
+    }
+    else {
+        tie( %store, 'DB_File', "$file", $flags, $mode || 0666 );
+    }
+
+    return \%store;
+}
+
 sub _stream_set_write_bucket_files {
     my ( $self, $tempfile, $bucket_count ) = @_;
 
     # reopen the database, this is better because for iterating we
     # don't need the big cache memory used in hashing the keys
-    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new;
+    my $buckets = $self->db_open( $tempfile, &POSIX::O_RDONLY, 0666 );
 
     my $progressbar = $bucket_count && $self->_make_progressbar('Writing/updating index bucket files', $bucket_count );
     my $progressbar_next_update = 0;
@@ -192,7 +219,7 @@ sub _stream_set_write_bucket_files {
     print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose} && ! $progressbar;
 
     my $buckets_written = 0;
-    while( my ( $hex, $contents ) = each %buckets ) {
+    while( my ( $hex, $contents ) = each %$buckets ) {
         my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
         if( $bucket->{data} ) {
             $bucket->{data} = { %{$bucket->{data}}, %{ Storable::thaw( $contents ) } };
@@ -220,12 +247,8 @@ sub _stream_set_build_buckets {
     require Storable;
     require DB_File;
 
-    #my $db_conf = DB_File::HASHINFO->new;
-    my $db_conf = DB_File::BTREEINFO->new;
-    $db_conf->{flags} = 0x1;    #< DB_TXN_NOSYNC
-    $db_conf->{cachesize} = $self->{mem};
-
-    tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_CREAT|&POSIX::O_RDWR, 0666, $db_conf;
+    my $buckets = $self->db_open( $tempfile, &POSIX::O_CREAT|&POSIX::O_RDWR, 0666,
+                                       { flags => 0x1, cachesize => $self->{mem} } );
 
     my $progressbar = $key_count && $self->_make_progressbar( 'Rehashing to final buckets', $key_count );
     my $progressbar_next_update = 0;
@@ -236,16 +259,16 @@ sub _stream_set_build_buckets {
 
     while ( my ( $k, $v ) = $kv_stream->() ) {
         my $hex = $self->_hex( $self->_hash( $k ) );
-        my $b = $buckets{$hex};
+        my $b = $buckets->{$hex};
         if( $b ) {
-            $b = Storable::thaw( $buckets{$hex} );
+            $b = Storable::thaw( $buckets->{$hex} );
         } else {
             $b = {};
             $bucket_count++;
         }
         $b->{$k} = $v;
         $b = Storable::freeze( $b );
-        $buckets{$hex} = $b;
+        $buckets->{$hex} = $b;
 
         $keys_processed++;
         if ( $progressbar && $keys_processed > $progressbar_next_update ) {

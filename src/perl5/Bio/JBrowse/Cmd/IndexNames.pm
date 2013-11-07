@@ -215,13 +215,10 @@ sub make_key_value_stream {
     $self->_build_index_temp( shift, $tempfile ); #< use shift to free the $operation_stream after index is built
 
     # reopen the temp store with default cache size to save memory
-    my $db_conf = DB_File::BTREEINFO->new;
-    tie( my %temp_store, 'DB_File', "$tempfile", POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new );
-
-    $self->{stats}{key_count} = scalar keys %temp_store;
-
+    my $temp_store = $self->name_store->db_open( $tempfile, POSIX::O_RDONLY, 0666 );
+    $self->{stats}{key_count} = scalar keys %$temp_store;
     return sub {
-        my ( $k, $v ) = each %temp_store;
+        my ( $k, $v ) = each %$temp_store;
         return $k ? ( $k, Storable::thaw($v) ) : ();
     };
 }
@@ -229,10 +226,10 @@ sub make_key_value_stream {
 sub _build_index_temp {
     my ( $self, $operation_stream, $tempfile ) = @_;
 
-    my $db_conf = DB_File::BTREEINFO->new;
-    $db_conf->{flags} = 0x1;    #< DB_TXN_NOSYNC
-    $db_conf->{cachesize} = $self->opt('mem');
-    tie( my %temp_store, 'DB_File', "$tempfile",POSIX::O_RDWR|POSIX::O_TRUNC, 0666, $db_conf );
+    my $temp_store = $self->name_store->db_open(
+        $tempfile, POSIX::O_RDWR|POSIX::O_TRUNC, 0666,
+        { flags => 0x1, cachesize => $self->opt('mem') }
+        );
 
     my $progressbar;
     my $progress_next_update = 0;
@@ -249,7 +246,7 @@ sub _build_index_temp {
 
     # now write it to the temp store
     while ( my $op = $operation_stream->() ) {
-        $self->do_hash_operation( \%temp_store, $op );
+        $self->do_hash_operation( $temp_store, $op );
         $self->{stats}{operations_processed}++;
 
         if ( $progressbar && $self->{stats}{operations_processed} > $progress_next_update
