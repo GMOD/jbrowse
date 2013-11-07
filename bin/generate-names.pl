@@ -34,6 +34,11 @@ Data directory to process.  Default 'data/'.
 Comma-separated list of which tracks to include in the names index.  If
 not passed, all tracks are indexed.
 
+=item --incremental | -i
+
+Do not completely rebuild the names index in the given location, only
+insert new names into it.
+
 =item --locationLimit <number>
 
 Maximum number of distinct locations to store for a single name.  Default 100.

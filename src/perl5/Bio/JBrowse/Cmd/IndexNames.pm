@@ -93,7 +93,7 @@ sub run {
     my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $refSeqs, $names_files ), $names_files );
 
     # finally copy the temp store to the namestore
-    $self->vprint( "Using ".$self->hash_bits."-bit hashing.\n" );
+    $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
 
     # make a stream of key/value pairs and load them into the HashStore
     $self->name_store->stream_set(
@@ -237,7 +237,7 @@ sub _build_index_temp {
     my $progressbar;
     my $progress_next_update = 0;
     if ( $self->opt('verbose') ) {
-        print "Estimating $self->{stats}{operation_stream_estimated_count} index operations on $self->{stats}{record_stream_estimated_count} completion records.\n";
+        print "Estimating $self->{stats}{operation_stream_estimated_count} index operations on $self->{stats}{record_stream_estimated_count} completion records\n";
         eval {
             require Term::ProgressBar;
             $progressbar = Term::ProgressBar->new({name  => 'Gathering locations, generating completions',

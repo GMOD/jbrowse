@@ -156,8 +156,8 @@ sub set {
 Given a stream that returns ( $key, $value ) when called repeatedly,
 set all those values in the hash.
 
-If $key_count is provided, and C<verbose> is set on this HashStore,
-will attempt to print progress bars of the loading.
+If $key_count is provided, Term::ProgressBar is installed, and
+C<verbose> is set on this HashStore, will print progress bars.
 
 =cut
 
@@ -186,7 +186,7 @@ sub _stream_set_write_bucket_files {
     # don't need the big cache memory used in hashing the keys
     tie my %buckets, 'DB_File', "$tempfile", &POSIX::O_RDONLY, 0666, DB_File::BTREEINFO->new;
 
-    my $progressbar = $bucket_count && $self->_make_progressbar('Writing bucket files', $bucket_count );
+    my $progressbar = $bucket_count && $self->_make_progressbar('Writing/updating index bucket files', $bucket_count );
     my $progressbar_next_update = 0;
 
     print "Writing buckets to ".$self->{format}."...\n" if $self->{verbose} && ! $progressbar;
@@ -194,7 +194,12 @@ sub _stream_set_write_bucket_files {
     my $buckets_written = 0;
     while( my ( $hex, $contents ) = each %buckets ) {
         my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
-        $bucket->{data} = Storable::thaw( $contents );
+        if( $bucket->{data} ) {
+            $bucket->{data} = { %{$bucket->{data}}, %{ Storable::thaw( $contents ) } };
+        }
+        else {
+            $bucket->{data} = Storable::thaw( $contents );
+        }
         $bucket->{dirty} = 1;
         $buckets_written++;
 
