@@ -17,8 +17,8 @@ This wheel is smaller than the ones on CPAN, but not really rounder.
 
 sub new {
     my $class = shift;
-    my $opts = $class->getopts(@_);
-    my $self = bless { opt => $opts }, $class;
+    my ( $opts, $argv ) = $class->getopts(@_);
+    my $self = bless { opt => $opts, argv => $argv }, $class;
     $self->initialize;
     return $self;
 }
@@ -31,7 +31,11 @@ sub getopts {
     local @ARGV = @_;
     Getopt::Long::GetOptions( $opts, $class->option_definitions );
     Pod::Usage::pod2usage( -verbose => 2 ) if $opts->{help};
-    return $opts;
+    return ( $opts, [ @ARGV ] );
+}
+
+sub argv {
+    return @{ shift->{argv} };
 }
 
 #override me if you want

@@ -84,9 +84,11 @@ sub run {
     $self->vprint( "Tracks:\n".join('', map "    $_->{label}\n", @tracks ) );
 
     # find the names files we will be working with
-    my $names_files = $self->find_names_files( \@tracks, $refSeqs )
-         or warn "WARNING: No feature names found for indexing,"
+    my $names_files = $self->find_names_files( \@tracks, $refSeqs );
+    unless( @$names_files ) {
+        warn "WARNING: No feature names found for indexing,"
              ." only reference sequence names will be indexed.\n";
+    }
 
     # convert the stream of name records into a stream of operations to do
     # on the data in the hash store
@@ -116,6 +118,22 @@ sub run {
                            });
 
 exit;
+}
+
+sub make_file_record {
+    my ( $self, $track, $file ) = @_;
+    -f $file or die "$file not found\n";
+    -r $file or die "$file not readable\n";
+    my $gzipped = $file =~ /\.(txt|json|g)z$/;
+    my $type = $file =~ /\.txtz?$/      ? 'txt'  :
+               $file =~ /\.jsonz?$/     ? 'json' :
+               $file =~ /\.vcf(\.gz)?$/ ? 'vcf'  :
+                                           undef;
+
+    if( $type ) {
+        return { gzipped => $gzipped, fullpath => $file, type => $type, trackName => $track->{label} };
+    }
+    return;
 }
 
 sub track_is_included {
@@ -279,16 +297,29 @@ sub find_names_files {
             my $name_records_iterator;
             my $names_txt  = File::Spec->catfile( $dir, 'names.txt'  );
             if( -f $names_txt ) {
-                push @files, { fullpath => $names_txt, type => 'txt' };
+                push @files, $self->make_file_record( $track, $names_txt );
             }
             else {
                 my $names_json = File::Spec->catfile( $dir, 'names.json' );
                 if( -f $names_json ) {
-                    push @files, { fullpath => $names_json, type => 'json' };
+                    push @files, $self->make_file_record( $track, $names_json );
                 }
             }
         }
+
+        # try to detect VCF tracks and index their VCF files
+        if( $track->{storeClass}
+            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.vcf\.gz/
+             || $track->{storeClass} =~ /VCFTabix$/ )
+            ) {
+            my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
+            if( -f $path ) {
+                push @files, $self->make_file_record( $track, $path );
+            }
+        }
+
     }
+
     return \@files;
 }
 
@@ -401,7 +432,7 @@ sub do_hash_operation {
 sub make_names_iterator {
     my ( $self, $file_record ) = @_;
     if( $file_record->{type} eq 'txt' ) {
-        my $input_fh = $self->open_names_file( $file_record->{fullpath} );
+        my $input_fh = $self->open_names_file( $file_record );
         # read the input json partly with low-level parsing so that we
         # can parse incrementally from the filehandle.  names list
         # files can be very big.
@@ -417,7 +448,7 @@ sub make_names_iterator {
     }
     elsif( $file_record->{type} eq 'json' ) {
         # read old-style names.json files all from memory
-        my $input_fh = $self->open_names_file( $file_record->{fullpath} );
+        my $input_fh = $self->open_names_file( $file_record );
 
         my $data = JSON::from_json(do {
             local $/;
@@ -430,11 +461,28 @@ sub make_names_iterator {
 
         return sub { shift @$data };
     }
+    elsif( $file_record->{type} eq 'vcf' ) {
+        my $input_fh = $self->open_names_file( $file_record );
+        no warnings 'uninitialized';
+        return sub {
+            my $line;
+            while( ($line = <$input_fh>) =~ /^#/ ) {}
+            return unless $line;
+            my ( $ref, $start, $name, $basevar ) = split "\t", $line, 5;
+            $start--;
+            return [[$name],$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
+        };
+    }
+    else {
+        warn "ignoring names file $file_record->{fullpath}.  unknown type $file_record->{type}.\n";
+        return sub {};
+    }
 }
 
 sub open_names_file {
-    my ( $self, $infile ) = @_;
-    my $gzip = $infile =~ /\.(txt|json)z$/ ? ':gzip' : '';
+    my ( $self, $filerec ) = @_;
+    my $infile = $filerec->{fullpath};
+    my $gzip = $filerec->{gzipped} ? ':gzip' : '';
     open my $fh, "<$gzip", $infile or die "$! reading $infile";
     return $fh;
 }
