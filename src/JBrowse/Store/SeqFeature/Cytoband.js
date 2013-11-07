@@ -104,14 +104,11 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
             // Be upset over shitty data.
             else {
                 while (ft[f+1].gieStain ==='acen'){
-                    this._mergeAcen(f);
+                    this.features[f].chromEnd = this.features[f+1].chromEnd;
+                    this.features.splice(f+1,1);
                 }
             }
         }
     },
-    _mergeAcen: function(f){
-        this.features[f].chromEnd = this.features[f+1].chromEnd;
-        this.features.splice(f+1,1);
-    }
 });
 });
