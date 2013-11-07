@@ -115,6 +115,16 @@ sub _read_meta {
     return $d || {};
 }
 
+=head2 meta
+
+return a hashref of metadata about this hash store
+
+=cut
+
+sub meta {
+    ( shift->{meta} ||= {} )
+}
+
 =head2 get( $key )
 
 =cut

@@ -18,7 +18,9 @@ This wheel is smaller than the ones on CPAN, but not really rounder.
 sub new {
     my $class = shift;
     my $opts = $class->getopts(@_);
-    return bless { opt => $opts }, $class;
+    my $self = bless { opt => $opts }, $class;
+    $self->initialize;
+    return $self;
 }
 
 sub getopts {
@@ -32,12 +34,21 @@ sub getopts {
     return $opts;
 }
 
+#override me if you want
+sub initialize {
+}
+
 sub opt {
     if( @_ > 2 ) {
         return $_[0]->{opt}{$_[1]} = $_[2];
     } else {
         return $_[0]->{opt}{$_[1]}
     }
+}
+
+sub vprint {
+    return unless shift->opt('verbose');
+    print @_;
 }
 
 #override me
