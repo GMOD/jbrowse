@@ -483,6 +483,16 @@ compareReferenceNames: function( a, b ) {
     return this.regularizeReferenceName(a).localeCompare( this.regularizeReferenceName( b ) );
 },
 
+/**
+ * Regularize the reference sequence name in a location.
+ */
+regularizeLocation: function( location ) {
+    var ref = this.findReferenceSequence( location.ref );
+    if( ref )
+        location.ref = ref.name;
+    return location;
+},
+
 regularizeReferenceName: function( refname ) {
 
     if( this.config.exactReferenceSequenceNames )
@@ -1711,7 +1721,7 @@ navigateToLocation: function( location ) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
 
         // regularize the ref seq name we were passed
-        var ref = location.ref ? this.findReferenceSequence( location.ref, this.allRefs )
+        var ref = location.ref ? this.findReferenceSequence( location.ref.name || location.ref )
                                : this.refSeq;
         if( !ref ) return;
         location.ref = ref.name;
@@ -1814,10 +1824,9 @@ searchNames: function( /**String*/ loc ) {
 
                 // if it has one location, go to it
                 if( goingTo.location ) {
-
                         //go to location, with some flanking region
                         thisB.showRegionWithHighlight( goingTo.location );
-                    }
+                }
                 // otherwise, pop up a dialog with a list of the locations to choose from
                 else if( goingTo.multipleLocations ) {
                     new LocationChoiceDialog(
@@ -2474,6 +2483,8 @@ clearHighlight: function() {
 },
 
 setHighlightAndRedraw: function( location ) {
+    location = this.regularizeLocation( location );
+
     var oldHighlight = this.getHighlight();
     if( oldHighlight )
         this.view.hideRegion( oldHighlight );
@@ -2487,6 +2498,8 @@ setHighlightAndRedraw: function( location ) {
  * highlight, and updates the display to show the highlighted location.
  */
 showRegionWithHighlight: function( location ) {
+    location = this.regularizeLocation( location );
+
     var oldHighlight = this.getHighlight();
     if( oldHighlight )
         this.view.hideRegion( oldHighlight );
