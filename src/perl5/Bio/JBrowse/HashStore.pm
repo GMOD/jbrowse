@@ -275,7 +275,7 @@ sub _stream_set_build_buckets {
             $progressbar_next_update = $progressbar->update( $keys_processed );
         }
     }
-    if ( $progressbar && $keys_processed >= $progressbar_next_update ) {
+    if ( $progressbar && $key_count > $progressbar_next_update ) {
         $progressbar->update( $key_count );
     }
 
