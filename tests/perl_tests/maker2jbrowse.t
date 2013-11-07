@@ -23,7 +23,7 @@ is( $?, 0, 'maker2jbrowse ran ok' );
 
 my $output = slurp_tree( "$tempdir" );
 is( scalar @{ $output->{'trackList.json'}{tracks} }, 8, 'got right number of tracks' );
-my @names_files = grep m!^names/!, keys $output;
+my @names_files = grep m!^names/!, keys %$output;
 cmp_ok( scalar @names_files, '>=', 10, 'got some names files' ) or diag explain \@names_files;
 
 done_testing;
