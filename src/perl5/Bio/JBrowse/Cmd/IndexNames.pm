@@ -108,9 +108,13 @@ sub run {
               : ()
         )
     );
-
     # store the list of tracks that have names
-    $self->name_store->meta->{track_names} = $self->{stats}{tracksWithNames};
+    $self->name_store->meta->{track_names} = [
+        $self->_uniq(
+            @{$self->name_store->meta->{track_names}||[]},
+            @{$self->{stats}{tracksWithNames}}
+            )
+    ];
 
     # record the fact that all the keys are lowercased
     $self->name_store->meta->{lowercase_keys} = 1;
@@ -125,6 +129,13 @@ sub run {
 
     return;
 }
+
+sub _uniq {
+    my $self = shift;
+    my %seen;
+    return grep !($seen{$_}++), @_;
+}
+
 sub _mergeIndexEntries {
     my ( $self, $a, $b ) = @_;
 
