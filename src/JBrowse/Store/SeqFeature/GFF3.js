@@ -1,4 +1,4 @@
-define( [
+hdefine( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
@@ -28,7 +28,11 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats ],
   */
 {
     constructor: function( args ) {
-        this.data = args.blob;
+        this.data = args.blob ||
+            new XHRBlob( this.resolveUrl(
+                             args.urlTemplate
+                         )
+                       );
         this.features = [];
         this._loadFeatures();
     },
