@@ -184,6 +184,12 @@ class JBrowseTest (object):
     def _waits_for_no_element( self, expression ):
         WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
 
+    def wait_until_one_track(self):
+        WebDriverWait(self, 5).until(lambda self: self.is_one_row())
+
+    def is_one_row(self):
+        return self.assert_elements("div.dojoxGridRow").__len__() == 1
+
     def does_element_exist (self, expression):
         try:
             if expression.find('/') >= 0:
