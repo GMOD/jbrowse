@@ -6,11 +6,15 @@
    that adds names to an existing index.  Thanks to Richard Hayes for
    reminding me that this wasn't done yet (issue #373).
 
- * Added a lower-performance, but more backward-compatible loading
-   backend to generate-names.pl for Perl 5.10 and earlier.  The recent
-   performance improvements to generate-names.pl have apparently
-   tickled some Perl 5.10 bugs.  Thanks to Josie Reinhardt and GitHub
-   user raj76 for their help troubleshooting this.
+ * Added a lower-performance, but more backward-compatible indexing
+   backend to generate-names.pl that can be activated by passing the
+   `--safeMode` command-line argument.  The recent performance
+   improvements to generate-names.pl have apparently tickled some bugs
+   that are present in some installations.  Thanks to Josie Reinhardt
+   and GitHub user raj76 for their continued help troubleshooting
+   this.  If you find that name indexing is not working correctly, try
+   running it again with `--safeMode`, and report to the mailing list
+   if it helps.
 
 ## Bug fixes
 

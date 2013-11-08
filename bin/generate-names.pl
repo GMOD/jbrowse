@@ -4,17 +4,13 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
 use JBlibs;
 
-my ( $perl_minor_version ) = ( $^V =~ /^v?5\.(\d+)/ );
-# undocumented --backcompat command line arg forces use of BackCompat loader, for testing.
-if( $perl_minor_version >= 11 && ! ( grep $_ eq '--backcompat', @ARGV ) ) {
-    require Bio::JBrowse::Cmd::IndexNames;
-    exit Bio::JBrowse::Cmd::IndexNames->new(@ARGV)->run;
-}
-else {
-    warn "WARNING: Using Perl $^V, falling back to generate-names.pl backward-compatible loader.  Performance will be very slow.  For faster performance, please consider running on a more recent version of Perl.\n\n";
-
+if( grep $_ eq '--safeMode', @ARGV ) {
     require Bio::JBrowse::Cmd::IndexNames::BackCompat;
     exit Bio::JBrowse::Cmd::IndexNames::BackCompat->new(@ARGV)->run;
+}
+else {
+    require Bio::JBrowse::Cmd::IndexNames;
+    exit Bio::JBrowse::Cmd::IndexNames->new(@ARGV)->run;
 }
 
 
@@ -79,6 +75,15 @@ Default 20.  Set to 0 to disable auto-completion of feature names.
 Note that the name index always contains exact matches for feature
 names; this setting only disables autocompletion based on incomplete
 names.
+
+=item --safeMode
+
+Run the indexer in "safe" mode, not using any performance
+optimizations.  Beware, the indexer is much slower when running in
+safe mode.  If the indexer runs incorrectly for you without this
+option, please email the the gmod-ajax mailing list.  We are still
+trying to characterize exactly which installations are problems
+having.
 
 =item --verbose
 

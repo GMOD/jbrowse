@@ -54,7 +54,7 @@ system $^X, 'bin/generate-names.pl', (
     '--workdir' => $temp2,
     '--hashBits' => 16,
     '--incremental',
-    '--backcompat',
+    '--safeMode',
     '--tracks' => 'ExampleFeatures,NameTest',
     '--completionLimit' => 15
     );
@@ -62,7 +62,7 @@ ok( ! $?, 'generate-names.pl ran ok with incremental' );
 {
     my $got = read_names($tempdir);
     my $expected = read_names('tests/data/volvox_formatted_names');
-    is_deeply( $got, $expected, 'same data after incremental run with --backcompat' );# or diag explain read_names($tempdir);
+    is_deeply( $got, $expected, 'same data after incremental run with --safeMode' );# or diag explain read_names($tempdir);
 }
 
 $tempdir = new_volvox_sandbox();

@@ -45,7 +45,7 @@ sub option_definitions {(
 'hashBits=i',
 'incremental|i',
 "help|h|?",
-'backcompat'
+'safeMode'
 )}
 
 sub initialize {
