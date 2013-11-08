@@ -29,10 +29,11 @@ system $^X, 'bin/generate-names.pl', (
     '--workdir' => $temp2,
     '--hashBits' => 16,
     '--incremental',
+    '--tracks' => 'ExampleFeatures,NameTest',
     '--completionLimit' => 15
     );
 ok( ! $?, 'generate-names.pl ran ok with incremental' );
-is_deeply( read_names($tempdir), read_names('tests/data/volvox_formatted_names'), 'no duplicate data after incremental run' ) or diag explain read_names($tempdir);
+is_deeply( read_names($tempdir), read_names('tests/data/volvox_formatted_names'), 'same data after incremental run' ) or diag explain read_names($tempdir);
 
 $tempdir = new_volvox_sandbox();
 system $^X, 'bin/generate-names.pl', (
