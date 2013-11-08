@@ -90,24 +90,8 @@ sub run {
              ." only reference sequence names will be indexed.\n";
     }
 
-    # convert the stream of name records into a stream of operations to do
-    # on the data in the hash store
-    my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $refSeqs, $names_files ), $names_files );
+    $self->load( $refSeqs, $names_files );
 
-    # finally copy the temp store to the namestore
-    $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
-
-    # make a stream of key/value pairs and load them into the HashStore
-    $self->name_store->stream_set(
-        $self->make_key_value_stream( $operation_stream ),
-        $self->{stats}{key_count},
-        ( $self->opt('incremental')
-              ? sub {
-                  return $self->_mergeIndexEntries( @_ );
-                }
-              : ()
-        )
-    );
     # store the list of tracks that have names
     $self->name_store->meta->{track_names} = [
         $self->_uniq(
@@ -128,6 +112,29 @@ sub run {
                            });
 
     return;
+}
+
+sub load {
+    my ( $self, $ref_seqs, $names_files ) = @_;
+
+    # convert the stream of name records into a stream of operations to do
+    # on the data in the hash store
+    my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $ref_seqs, $names_files ), $names_files );
+
+    # finally copy the temp store to the namestore
+    $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
+
+    # make a stream of key/value pairs and load them into the HashStore
+    $self->name_store->stream_set(
+        $self->make_key_value_stream( $operation_stream ),
+        $self->{stats}{key_count},
+        ( $self->opt('incremental')
+              ? sub {
+                  return $self->_mergeIndexEntries( @_ );
+                }
+              : ()
+        )
+    );
 }
 
 sub _uniq {
@@ -438,25 +445,25 @@ sub make_operations {
 
 my %full_entries;
 sub do_hash_operation {
-    my ( $self, $tempstore, $op ) = @_;
+    my ( $self, $store, $op ) = @_;
 
     my ( $lc_name, $op_name, $record ) = @$op;
 
     if( $op_name == $OP_ADD_EXACT ) {
-        my $r = $tempstore->{$lc_name};
-        $r = $r ? Storable::thaw($r) : { exact => [], prefix => [] };
+        my $r = $store->{$lc_name};
+        $r = $r ? $self->_thaw($r) : { exact => [], prefix => [] };
 
         if( @{ $r->{exact} } < $self->{max_locations} ) {
             push @{ $r->{exact} }, $record;
-            $tempstore->{$lc_name} = Storable::freeze( $r );
+            $store->{$lc_name} = $self->_freeze( $r );
         }
         # elsif( $verbose ) {
         #     print STDERR "Warning: $name has more than --locationLimit ($self->{max_locations}) distinct locations, not all of them will be indexed.\n";
         # }
     }
     elsif( $op_name == $OP_ADD_PREFIX && ! exists $full_entries{$lc_name} ) {
-        my $r = $tempstore->{$lc_name};
-        $r = $r ? Storable::thaw($r) : { exact => [], prefix => [] };
+        my $r = $store->{$lc_name};
+        $r = $r ? $self->_thaw($r) : { exact => [], prefix => [] };
 
         my $name = $record;
 
@@ -464,16 +471,21 @@ sub do_hash_operation {
         if( @$p < $self->{max_completions} ) {
             if( ! grep $name eq $_, @$p ) {
                 push @{ $r->{prefix} }, $name;
-                $tempstore->{$lc_name} = Storable::freeze( $r );
+                $store->{$lc_name} = $self->_freeze( $r );
             }
         }
         elsif( @{ $r->{prefix} } == $self->{max_completions} ) {
             push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
-            $tempstore->{$lc_name} = Storable::freeze( $r );
+            $store->{$lc_name} = $self->_freeze( $r );
             $full_entries{$lc_name} = 1;
         }
     }
 }
+
+sub _freeze {  Storable::freeze( $_[1] ) }
+sub _thaw   {    Storable::thaw( $_[1] ) }
+
+
 
 # each of these takes an input filename and returns a subroutine that
 # returns name records until there are no more, for either names.txt
