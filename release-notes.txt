@@ -6,6 +6,12 @@
    that adds names to an existing index.  Thanks to Richard Hayes for
    reminding me that this wasn't done yet (issue #373).
 
+ * Added a lower-performance, but more backward-compatible loading
+   backend to generate-names.pl for Perl 5.10 and earlier.  The recent
+   performance improvements to generate-names.pl have apparently
+   tickled some Perl 5.10 bugs.  Thanks to Josie Reinhardt and GitHub
+   user raj76 for their help troubleshooting this.
+
 ## Bug fixes
 
  * `flatfile-to-json.pl` now depends on the latest
