@@ -52,8 +52,7 @@ sub open {
     # source of data: defaults, overridden by open args, overridden by meta.json contents
     my $self = bless { mem => 256*2**20, @_ }, $class;
 
-    $self->{final_dir} = $self->{dir} or croak "dir option required";
-    $self->{dir} = $self->{work_dir} || $self->{final_dir};
+    $self->{dir} or croak "dir option required";
 
     $self->empty if $self->{empty};
 
@@ -89,17 +88,8 @@ sub DESTROY {
             or die "$! writing $meta_path";
     }
 
-    my $final_dir = $self->{final_dir};
-    my $work_dir = $self->{dir};
-
     # free everything to flush buckets
     %$self = ();
-
-    unless( $final_dir eq $work_dir ) {
-        require File::Copy::Recursive;
-        File::Copy::Recursive::dircopy( $work_dir, $final_dir );
-    }
-
 }
 sub _meta_path {
     File::Spec->catfile( shift->{dir}, 'meta.json' );
@@ -169,10 +159,15 @@ If not provided, the values will just be overwritten.
 sub stream_set {
     my $self = shift;
 
-    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1, DIR => $self->{dir} );
+    my ( $perl_minor_ver ) = $^V =~ /^v?5\.(\d+)/;
+    if( $perl_minor_ver <= 10 ) {
+        die "HashStore stream_set() does not work on Perl 5.10 or older.\n";
+    }
+
+    my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1,
+                                    DIR => $self->{work_dir} || $self->{dir} );
     $tempfile->close;
     print "Temporary rehashing DBM file: $tempfile\n" if $self->{verbose};
-
 
     # convert the input key => value stream to a temp hash of
     # bucket_hex => { key => value, key => value }
@@ -185,30 +180,18 @@ sub stream_set {
     print "Hash store bulk load finished.\n" if $self->{verbose};
 }
 
-=head2 db_open( $filename, $flags, $mode, { conf_keys => 12, ... } )
+=head2 db_open( $filename, $flags, $mode, { cachesize => 2**24, ... } )
 
-Open a DB_File in BTREE mode, with the given config options, if we are
-on Perl 5.12 or greater.  Otherwise, use a DB_File with default
-options.
-
+Open and tie a DB_File in BTREE mode, with the given config options.
 Returns a hashref tied to the DB_File.
 
 =cut
 
 sub db_open {
     my ( $self, $file, $flags, $mode, $conf ) = @_;
-
-    my %store;
-    my ( $perl_minor_ver ) = $^V =~ /^v?5\.(\d+)/;
-    if( $perl_minor_ver >= 12 ) {
-        my $db_conf = DB_File::BTREEINFO->new;
-        $db_conf->{$_} = $conf->{$_} for keys %{ $conf || {} };
-        tie( %store, 'DB_File', "$file", $flags, $mode || 0666, $db_conf);
-    }
-    else {
-        tie( %store, 'DB_File', "$file", $flags, $mode || 0666 );
-    }
-
+    my $db_conf = DB_File::BTREEINFO->new;
+    $db_conf->{$_} = $conf->{$_} for keys %{ $conf || {} };
+    tie( my %store, 'DB_File', "$file", $flags, $mode || 0666, $db_conf);
     return \%store;
 }
 
@@ -331,6 +314,40 @@ sub empty {
     File::Path::mkpath( $self->{dir} );
 }
 
+
+########## tied-hash support ########
+
+sub TIEHASH {
+    return shift->open( @_ );
+}
+sub FETCH {
+    return shift->get(@_);
+}
+sub STORE {
+    return shift->set(@_);
+}
+sub DELETE {
+    die 'DELETE not implemented';
+}
+sub CLEAR {
+    die 'CLEAR not implemented';
+}
+sub EXISTS {
+    return !! shift->get(@_);
+}
+sub FIRSTKEY {
+    die 'FIRSTKEY not implemented';
+}
+sub NEXTKEY {
+    die 'NEXTKEY not implemented';
+}
+sub SCALAR {
+    die 'SCALAR not implemented';
+}
+sub UNTIE {
+    die 'UNTIE not implemented';
+}
+
 ########## helper methods ###########
 
 sub _hash {
@@ -361,7 +378,6 @@ sub _getBucket {
 
 sub _getBucketFromHex {
     my ( $self, $hex ) = @_;
-
     my $bucket_cache = $self->{bucket_cache} ||= $self->_make_cache( size => $self->{cache_size} );
     return $bucket_cache->compute( $hex, sub {
         my $path_cache = $self->{bucket_path_cache_by_hex} ||= $self->_make_cache( size => $self->{cache_size} );

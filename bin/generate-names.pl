@@ -4,14 +4,19 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
 use JBlibs;
 
-use Bio::JBrowse::Cmd::IndexNames;
+my ( $perl_minor_version ) = ( $^V =~ /^v?5\.(\d+)/ );
+# undocumented --backcompat command line arg forces use of BackCompat loader, for testing.
+if( $perl_minor_version >= 11 && ! ( grep $_ eq '--backcompat', @ARGV ) ) {
+    require Bio::JBrowse::Cmd::IndexNames;
+    exit Bio::JBrowse::Cmd::IndexNames->new(@ARGV)->run;
+}
+else {
+    warn "WARNING: Using Perl $^V, falling back to generate-names.pl backward-compatible loader.  Performance will be very slow.  For faster performance, please consider running on a more recent version of Perl.\n\n";
 
-my ( $perl_minor_version ) = ($^V =~ /^v?5\.(\d+)/ );
-unless( $perl_minor_version >= 12 ) {
-    die "generate-names.pl requires Perl v5.12 or higher.  This is Perl $^V\n";
+    require Bio::JBrowse::Cmd::IndexNames::BackCompat;
+    exit Bio::JBrowse::Cmd::IndexNames::BackCompat->new(@ARGV)->run;
 }
 
-exit Bio::JBrowse::Cmd::IndexNames->new(@ARGV)->run;
 
 __END__
 

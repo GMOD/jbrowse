@@ -16,6 +16,7 @@ use File::Spec ();
 use POSIX ();
 use DB_File ();
 use Storable ();
+use File::Path ();
 use File::Temp ();
 use List::Util ();
 
@@ -44,6 +45,7 @@ sub option_definitions {(
 'hashBits=i',
 'incremental|i',
 "help|h|?",
+'backcompat'
 )}
 
 sub initialize {
@@ -121,6 +123,8 @@ sub load {
     # on the data in the hash store
     my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $ref_seqs, $names_files ), $names_files );
 
+    $self->name_store->empty unless $self->opt('incremental');
+
     # finally copy the temp store to the namestore
     $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
 
@@ -163,12 +167,15 @@ sub _mergeIndexEntries {
     # merge prefixes
     {
         my $aPrefix = $a->{prefix} ||= [];
-        my $bPrefix = $b->{prefix} || [];
-        my %prefixes = map { $_ => 1 } @$aPrefix; #< keep the prefixes unique
-        while ( @$bPrefix && @$aPrefix < $self->{max_completions} ) {
-            my $p = shift @$bPrefix;
-            if ( ! $prefixes{ $p }++ ) {
-                push @{$aPrefix}, $p;
+        # only merge if the target prefix is not already full
+        if( ref $aPrefix->[-1] ne 'HASH' ) {
+            my $bPrefix = $b->{prefix} || [];
+            my %prefixes = map { $_ => 1 } @$aPrefix; #< keep the prefixes unique
+            while ( @$bPrefix && @$aPrefix < $self->{max_completions} ) {
+                my $p = shift @$bPrefix;
+                if ( ! $prefixes{ $p }++ ) {
+                    push @{$aPrefix}, $p;
+                }
             }
         }
     }
@@ -207,7 +214,6 @@ sub name_store {
     return $self->{name_store} ||= Bio::JBrowse::HashStore->open(
         dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
         work_dir => $self->opt('workdir'),
-        empty => ! $self->opt('incremental'),
         mem => $self->opt('mem'),
         nosync => 1,
 
@@ -215,6 +221,9 @@ sub name_store {
 
         verbose => $self->opt('verbose')
     );
+}
+sub close_name_store {
+    delete shift->{name_store};
 }
 
 sub hash_bits {
@@ -451,11 +460,19 @@ sub do_hash_operation {
 
     if( $op_name == $OP_ADD_EXACT ) {
         my $r = $store->{$lc_name};
-        $r = $r ? $self->_thaw($r) : { exact => [], prefix => [] };
+        $r = $r ? $self->_hash_operation_thaw($r) : { exact => [], prefix => [] };
 
-        if( @{ $r->{exact} } < $self->{max_locations} ) {
-            push @{ $r->{exact} }, $record;
-            $store->{$lc_name} = $self->_freeze( $r );
+        my $exact = $r->{exact};
+        if( @$exact < $self->{max_locations} ) {
+            # don't insert duplicate locations
+            no warnings 'uninitialized';
+            if( ! grep {
+                      $record->[1] == $_->[1] && $record->[3] eq $_->[3] && $record->[4] == $_->[4] && $record->[5] == $_->[5] 
+                  } @$exact
+              ) {
+                push @$exact, $record;
+                $store->{$lc_name} = $self->_hash_operation_freeze( $r );
+            }
         }
         # elsif( $verbose ) {
         #     print STDERR "Warning: $name has more than --locationLimit ($self->{max_locations}) distinct locations, not all of them will be indexed.\n";
@@ -463,27 +480,27 @@ sub do_hash_operation {
     }
     elsif( $op_name == $OP_ADD_PREFIX && ! exists $full_entries{$lc_name} ) {
         my $r = $store->{$lc_name};
-        $r = $r ? $self->_thaw($r) : { exact => [], prefix => [] };
+        $r = $r ? $self->_hash_operation_thaw($r) : { exact => [], prefix => [] };
 
         my $name = $record;
 
         my $p = $r->{prefix};
         if( @$p < $self->{max_completions} ) {
-            if( ! grep $name eq $_, @$p ) {
-                push @{ $r->{prefix} }, $name;
-                $store->{$lc_name} = $self->_freeze( $r );
+            if( ! grep $name eq $_, @$p ) { #< don't insert duplicate prefixes
+                push @$p, $name;
+                $store->{$lc_name} = $self->_hash_operation_freeze( $r );
             }
         }
-        elsif( @{ $r->{prefix} } == $self->{max_completions} ) {
-            push @{ $r->{prefix} }, { name => 'too many matches', hitLimit => 1 };
-            $store->{$lc_name} = $self->_freeze( $r );
+        elsif( @$p == $self->{max_completions} ) {
+            push @$p, { name => 'too many matches', hitLimit => 1 };
+            $store->{$lc_name} = $self->_hash_operation_freeze( $r );
             $full_entries{$lc_name} = 1;
         }
     }
 }
 
-sub _freeze {  Storable::freeze( $_[1] ) }
-sub _thaw   {    Storable::thaw( $_[1] ) }
+sub _hash_operation_freeze {  Storable::freeze( $_[1] ) }
+sub _hash_operation_thaw   {    Storable::thaw( $_[1] ) }
 
 
 
