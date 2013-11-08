@@ -52,6 +52,7 @@ echo -n "Formatting Volvox example data ...";
     bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json
     bin/add-track-json.pl docs/tutorial/data_files/volvox_fromconfig.conf sample_data/json/volvox/trackList.json
+    bin/add-track-json.pl docs/tutorial/data_files/volvox.gff3.conf sample_data/json/volvox/trackList.json
     bin/add-json.pl '{ "dataset_id": "volvox" }' sample_data/json/volvox/trackList.json
     bin/generate-names.pl -v --out sample_data/json/volvox;
 

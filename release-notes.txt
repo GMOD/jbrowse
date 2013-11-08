@@ -16,6 +16,12 @@
    running it again with `--safeMode`, and report to the mailing list
    if it helps.
 
+ * Added support for using the JBrowse in-memory GFF3 adaptor to
+   display web-accessible GFF3 files directly.  See
+   docs/tutorial/data_files/volvox.gff3.conf for an example
+   configuration.  Thanks to David Goodstein and Richard Hayes for
+   motivating this.
+
 ## Bug fixes
 
  * `flatfile-to-json.pl` now depends on the latest
