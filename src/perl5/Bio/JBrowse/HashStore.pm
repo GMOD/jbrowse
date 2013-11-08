@@ -151,13 +151,18 @@ sub set {
     return $value;
 }
 
-=head2 stream_set( $kv_stream, $key_count )
+=head2 stream_set( $kv_stream, $key_count, \&merge_sub )
 
 Given a stream that returns ( $key, $value ) when called repeatedly,
 set all those values in the hash.
 
 If $key_count is provided, Term::ProgressBar is installed, and
 C<verbose> is set on this HashStore, will print progress bars.
+
+If $merge_sub is provided, it will be used to merge values in the
+input stream with any values for the same key already in the hash
+store like: C<$new_value = $merge_sub-E<gt>( $old_value, $input_value )>.
+If not provided, the values will just be overwritten.
 
 =cut
 
@@ -174,7 +179,8 @@ sub stream_set {
     my $bucket_count = $self->_stream_set_build_buckets( shift, $tempfile, shift );
 
     # write out the bucket files
-    $self->_stream_set_write_bucket_files( $tempfile, $bucket_count );
+    my $mergeSub = shift;
+    $self->_stream_set_write_bucket_files( $tempfile, $bucket_count, $mergeSub );
 
     print "Hash store bulk load finished.\n" if $self->{verbose};
 }
@@ -207,7 +213,7 @@ sub db_open {
 }
 
 sub _stream_set_write_bucket_files {
-    my ( $self, $tempfile, $bucket_count ) = @_;
+    my ( $self, $tempfile, $bucket_count, $mergeSub ) = @_;
 
     # reopen the database, this is better because for iterating we
     # don't need the big cache memory used in hashing the keys
@@ -221,8 +227,21 @@ sub _stream_set_write_bucket_files {
     my $buckets_written = 0;
     while( my ( $hex, $contents ) = each %$buckets ) {
         my $bucket = $self->_readBucket( $self->_hexToPath( $hex ) );
-        if( $bucket->{data} ) {
-            $bucket->{data} = { %{$bucket->{data}}, %{ Storable::thaw( $contents ) } };
+        if( my $bucketData = $bucket->{data} ) {
+            my $d = Storable::thaw( $contents ) || {};
+            if( $mergeSub ) {
+                for my $k ( keys %$d ) {
+                    if( exists $bucketData->{$k} ) {
+                        $bucketData->{$k} = $mergeSub->( $bucketData->{$k}, $d->{$k} );
+                    }
+                    else {
+                        $bucketData->{$k} = $d->{$k};
+                    }
+                }
+            }
+            else {
+                $bucket->{data} = { %{$bucket->{data}}, %$d };
+            }
         }
         else {
             $bucket->{data} = Storable::thaw( $contents );

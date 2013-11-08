@@ -24,6 +24,16 @@ system $^X, 'bin/generate-names.pl', (
 ok( ! $?, 'generate-names.pl also ran ok on volvox test data' );
 is_deeply( read_names($tempdir), read_names('tests/data/volvox_formatted_names') ) or diag explain read_names($tempdir);
 
+system $^X, 'bin/generate-names.pl', (
+    '--out'   => "$tempdir",
+    '--workdir' => $temp2,
+    '--hashBits' => 16,
+    '--incremental',
+    '--completionLimit' => 15
+    );
+ok( ! $?, 'generate-names.pl ran ok with incremental' );
+is_deeply( read_names($tempdir), read_names('tests/data/volvox_formatted_names'), 'no duplicate data after incremental run' ) or diag explain read_names($tempdir);
+
 $tempdir = new_volvox_sandbox();
 system $^X, 'bin/generate-names.pl', (
     '--dir'   => "$tempdir",

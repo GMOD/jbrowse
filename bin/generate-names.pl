@@ -6,6 +6,11 @@ use JBlibs;
 
 use Bio::JBrowse::Cmd::IndexNames;
 
+my ( $perl_minor_version ) = ($^V =~ /^v?5\.(\d+)/ );
+unless( $perl_minor_version >= 12 ) {
+    die "generate-names.pl requires Perl v5.12 or higher.  This is Perl $^V\n";
+}
+
 exit Bio::JBrowse::Cmd::IndexNames->new(@ARGV)->run;
 
 __END__

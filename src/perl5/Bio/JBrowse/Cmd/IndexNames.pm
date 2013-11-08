@@ -66,8 +66,8 @@ sub run {
     my ( $self ) = @_;
 
     my $outDir = $self->opt('dir');
-    -d $outDir or die "Output directory $outDir does not exist.\n";
-    -w $outDir or die "Output directory $outDir is not writable.\n";
+    -d $outDir or die "Output directory '$outDir' does not exist.\n";
+    -w $outDir or die "Output directory '$outDir' is not writable.\n";
 
     my $gdb = GenomeDB->new( $outDir );
 
@@ -100,7 +100,13 @@ sub run {
     # make a stream of key/value pairs and load them into the HashStore
     $self->name_store->stream_set(
         $self->make_key_value_stream( $operation_stream ),
-        $self->{stats}{key_count}
+        $self->{stats}{key_count},
+        ( $self->opt('incremental')
+              ? sub {
+                  return $self->_mergeIndexEntries( @_ );
+                }
+              : ()
+        )
     );
 
     # store the list of tracks that have names
@@ -117,7 +123,39 @@ sub run {
                                return $data;
                            });
 
-exit;
+    return;
+}
+sub _mergeIndexEntries {
+    my ( $self, $a, $b ) = @_;
+
+    # merge exact
+    {
+        my $aExact = $a->{exact} ||= [];
+        my $bExact = $b->{exact} || [];
+        no warnings 'uninitialized';
+        my %exacts = map { join( '|', @$_ ) => 1 } @$aExact;
+        while ( @$bExact &&  @$aExact < $self->{max_locations} ) {
+            my $e = shift @$bExact;
+            if( ! $exacts{ join('|',@$e) }++ ) {
+                push @{$aExact}, $e;
+            }
+        }
+    }
+
+    # merge prefixes
+    {
+        my $aPrefix = $a->{prefix} ||= [];
+        my $bPrefix = $b->{prefix} || [];
+        my %prefixes = map { $_ => 1 } @$aPrefix; #< keep the prefixes unique
+        while ( @$bPrefix && @$aPrefix < $self->{max_completions} ) {
+            my $p = shift @$bPrefix;
+            if ( ! $prefixes{ $p }++ ) {
+                push @{$aPrefix}, $p;
+            }
+        }
+    }
+
+    return $a;
 }
 
 sub make_file_record {
