@@ -23,16 +23,16 @@ sub _bp_to_hashref {
     my ( $self, $f ) = @_;
     no warnings 'uninitialized';
 
-    my %h;
-    @h{qw{ seq_id start end strand source phase type }} =
-        ( $f->seq_id,
-          $f->start,
-          $f->end,
-          $f->strand,
-          $f->source_tag,
-          {0=>0,1=>1,2=>2}->{$f->phase},
-          $f->primary_tag || undef,
-        );
+    my %h = (
+        seq_id => scalar $f->seq_id,
+        start  => scalar $f->start,
+        end    => scalar $f->end,
+        strand => scalar $f->strand,
+        source => scalar $f->source_tag,
+        phase  => {0=>0,1=>1,2=>2}->{$f->phase},
+        type   => ( $f->primary_tag || undef )
+    );
+
     if( $f->can('score') ) {
         $h{score} = $f->score;
     }

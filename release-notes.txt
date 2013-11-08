@@ -24,6 +24,10 @@
    being included in parsed data.  Thanks to Gwendoline Andres for
    pointing this out.
 
+ * Tweak BioPerl-handling code in biodb-to-json.pl to hopefully work
+   better with BioSQL backends. Thanks to Brian Osborne for pointing
+   this out.
+
 # Release 1.10.8     2013-10-25 11:13:30 EST5EDT
 
 ## Minor improvements
