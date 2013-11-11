@@ -1,6 +1,7 @@
 import subprocess
 from subprocess import check_call as call, PIPE
 import unittest
+import time
 
 from jbrowse_selenium import JBrowseTest
 
@@ -35,7 +36,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # test scrolling, make sure we get no js errors
         self.scroll()
-
+        
         # test context menus
         self.context_menus()
 
@@ -50,6 +51,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.do_typed_query('ctgA:2,381..21,220')
         self.assert_element("//div[@title='search at NCBI']")
         self.turn_off_track( 'HTMLFeatures - mRNAs' )
+
+        # test combination tracks
+        self.combination()
+        
+        # test search tracks
+        self.search_track()
 
         # test bigwig
         self.bigwig()
@@ -66,7 +73,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test CanvasFeatures tracks
         self.canvasfeatures()
 
-        self.browser.close()
+        #self.browser.close()
 
     def canvasfeatures( self ):
 
@@ -236,6 +243,26 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.turn_off_track('HTMLFeatures - Example Features')
 
+    def search_track( self ):
+        self.assert_element("#dropdownbutton_file").click()
+        self.assert_element("#dijit_MenuItem_0").click()
+        text = "aaaccc"
+        box = self.assert_element("#dijit_form_TextBox_0")
+        for i in range( len(text) ):
+            box.send_keys( text[i] )
+        self.assert_element("#dijit_form_Button_3_label").click()
+        self.assert_elements("//div[@id='track_search_track_0']//canvas")
+        self.turn_off_track("Search reference sequence for")
+
+    def combination( self ):
+        self.assert_element("#dropdownbutton_file").click()
+        self.assert_element("#menubar_combotrack_text").click()
+
+        self.turn_on_track("HTMLFeatures - mRNAs")
+        mRNA = self.assert_element("#label_ReadingFrame")
+        combo_track = self.assert_element("#track_combination_track0")
+        self.actionchains().move_to_element(mRNA).click_and_hold().move_to_element(combo_track).move_by_offset(4, 60).release().perform()
+        self.turn_off_track("HTMLFeatures - mRNAs")
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
     pass
