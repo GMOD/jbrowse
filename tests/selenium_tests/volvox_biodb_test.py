@@ -52,12 +52,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element("//div[@title='search at NCBI']")
         self.turn_off_track( 'HTMLFeatures - mRNAs' )
 
-        # test combination tracks
-        self.combination()
-        
-        # test search tracks
-        self.search_track()
-
         # test bigwig
         self.bigwig()
 
@@ -73,6 +67,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test CanvasFeatures tracks
         self.canvasfeatures()
 
+        # test search tracks
+        self.search_track()
+
+        # test combination tracks
+        self.combination()
+        
         #self.browser.close()
 
     def canvasfeatures( self ):
@@ -247,10 +247,10 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element("#dropdownbutton_file").click()
         self.assert_element("#dijit_MenuItem_0").click()
         text = "aaaccc"
-        box = self.assert_element("#dijit_form_TextBox_0")
+        box = self.assert_element("#dijit_form_TextBox_4")
         for i in range( len(text) ):
             box.send_keys( text[i] )
-        self.assert_element("#dijit_form_Button_3_label").click()
+        self.assert_element("#dijit_form_Button_36_label").click()
         self.assert_elements("//div[@id='track_search_track_0']//canvas")
         self.turn_off_track("Search reference sequence for")
 
