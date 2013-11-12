@@ -63,7 +63,7 @@ class FacetedTrackSelector (TrackSelector):
         # check that the number of matching tracks is 1
         
         self.test.wait_until_one_track () 
-        return self.test.assert_elements("div.dojoxGridRow")[0]
+        return self.test.assert_element("div.dojoxGridRow")
 
     def _close_selector( self ):
         # turn off the track selector tab

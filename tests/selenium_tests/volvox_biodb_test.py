@@ -262,11 +262,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         combo_track = self.assert_element("#label_combination_track0 > span:nth-child(2)")
         print "\nmRNA is       : " + str(mRNA)
         print "combo track is: " + str(combo_track) + "\n"
-        self.actionchains().move_to_element(mRNA).move_by_offset(3,9).perform()
+        self.actionchains().move_to_element(mRNA).perform()
         time.sleep(1)
         self.actionchains().click_and_hold().perform()
         time.sleep(1)
-        self.actionchains().move_to_element(combo_track).move_by_offset(3,9).perform()
+        self.actionchains().move_to_element(combo_track).perform()
         time.sleep(1)
         self.actionchains().release().perform()
         time.sleep(1)
