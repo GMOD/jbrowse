@@ -199,8 +199,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # right-click one of them
         self.actionchains() \
-            .context_click(feature_elements[int(len(feature_elements)/2)]) \
-            .perform()
+            .move_to_element(feature_elements[int(len(feature_elements)/2)]) \
+            .context_click().perform()
 
         self.menu_item_click( 'Open popup' )
 
@@ -248,25 +248,29 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element("#dijit_MenuItem_0").click()
         text = "aaaccc"
         box = self.assert_element("#dijit_form_TextBox_4")
-        for i in range( len(text) ):
-            box.send_keys( text[i] )
+        box.send_keys( text )
         self.assert_element("#dijit_form_Button_36_label").click()
         self.assert_element("//div[@id='track_search_track_0']//canvas")
         self.turn_off_track("Search reference sequence for")
 
     def combination( self ):
-        print "test0"
         self.assert_element("#dropdownbutton_file").click()
         self.assert_element("#menubar_combotrack_text").click()
 
         self.turn_on_track("HTMLFeatures - mRNAs")
-        mRNA = self.assert_element("#label_ReadingFrame")
-        combo_track = self.assert_element("#track_combination_track0")
-        print mRNA
-        print "test"
-        print combo_track
-        self.actionchains().drag_and_drop(mRNA, combo_track).perform()
-        self.turn_off_track("HTMLFeatures - mRNAs")
+        mRNA = self.assert_element("#label_ReadingFrame > span:nth-child(2)")
+        combo_track = self.assert_element("#label_combination_track0 > span:nth-child(2)")
+        print "\nmRNA is       : " + str(mRNA)
+        print "combo track is: " + str(combo_track) + "\n"
+        self.actionchains().move_to_element(mRNA).move_by_offset(3,9).perform()
+        time.sleep(1)
+        self.actionchains().click_and_hold().perform()
+        time.sleep(1)
+        self.actionchains().move_to_element(combo_track).move_by_offset(3,9).perform()
+        time.sleep(1)
+        self.actionchains().release().perform()
+        time.sleep(1)
+        #self.turn_off_track("HTMLFeatures - mRNAs")
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
     pass

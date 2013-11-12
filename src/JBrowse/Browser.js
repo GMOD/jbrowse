@@ -1032,6 +1032,8 @@ _initEventRouting: function() {
  * sequences and their average length.
  */
 reportUsageStats: function() {
+
+return;
     if( this.config.suppressUsageStatistics )
         return;
 

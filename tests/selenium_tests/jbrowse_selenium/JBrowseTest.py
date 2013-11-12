@@ -88,8 +88,7 @@ class JBrowseTest (object):
         # Find the query box and put f15 into it and hit enter
         qbox = self.browser.find_element_by_id("location")
         qbox.send_keys( Keys.BACK_SPACE * 40 )
-        for i in range( len(text) ):
-            qbox.send_keys( text[i] )
+        qbox.send_keys( text )
         qbox.send_keys( Keys.RETURN )
 
     def _rubberband( self, el_xpath, start_pct, end_pct, modkey = None ):
