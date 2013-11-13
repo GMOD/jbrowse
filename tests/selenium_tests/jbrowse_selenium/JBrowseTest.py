@@ -25,22 +25,19 @@ class JBrowseTest (object):
 
         self.track_selector = getattr( track_selectors, '%sTrackSelector' % self.tracksel_type )( self )
 
-
         fp = webdriver.FirefoxProfile()
 
         fp.set_preference("browser.download.folderList",2)
         fp.set_preference("browser.download.manager.showWhenStarting",False)
         fp.set_preference("browser.download.dir", os.getcwd())
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk","application/x-bedgraph,application/x-wiggle,application/x-bed")
-
         self.browser = webdriver.Firefox( firefox_profile = fp )
-
         base = self.baseURL()
         self.browser.get(
             base + ( '&' if base.find('?') >= 0 else '?' )
             + ( "data="+self.data_dir if self.data_dir else "" )
         )
-        
+        self.addCleanup(self.browser.quit)
         self._waits_for_JBrowse_to_load()
 
     def baseURL( self ):

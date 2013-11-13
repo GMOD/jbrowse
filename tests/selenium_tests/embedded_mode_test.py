@@ -11,4 +11,3 @@ class EmbeddedModeTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
         self.assert_track("BigWig Density")
         self.assert_track("BigWig XY")
         self.assert_no_js_errors()
-        self.browser.close()

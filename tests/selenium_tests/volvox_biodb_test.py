@@ -73,8 +73,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test combination tracks
         self.combination()
         
-        #self.browser.close()
-
     def canvasfeatures( self ):
 
         # turn on CanvasFeatures tracks and make sure they are created
