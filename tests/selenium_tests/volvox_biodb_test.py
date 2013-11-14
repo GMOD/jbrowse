@@ -244,31 +244,16 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     def search_track( self ):
         self.assert_element("#dropdownbutton_file").click()
         self.assert_element("#dijit_MenuItem_0").click()
-        text = "aaaccc"
-        box = self.assert_element("#dijit_form_TextBox_4")
-        box.send_keys( text )
-        self.assert_element("#dijit_form_Button_36_label").click()
-        self.assert_element("//div[@id='track_search_track_0']//canvas")
+        self.assert_element("//div[@class='dijitDialogPaneContent']//input[@type='text'][@class='dijitReset dijitInputInner']").send_keys( "aaaccc" )
+        self.assert_element("//div[@class='dijitDialogPaneContent']//span[@class='dijitReset dijitInline dijitButtonText'][text()='Search']").click()
+        self.assert_element("//div[contains(@id, 'track_search_track')]//canvas")
         self.turn_off_track("Search reference sequence for")
 
     def combination( self ):
         self.assert_element("#dropdownbutton_file").click()
         self.assert_element("#menubar_combotrack_text").click()
-
-        self.turn_on_track("HTMLFeatures - mRNAs")
-        mRNA = self.assert_element("#label_ReadingFrame > span:nth-child(2)")
-        combo_track = self.assert_element("#label_combination_track0 > span:nth-child(2)")
-        print "\nmRNA is       : " + str(mRNA)
-        print "combo track is: " + str(combo_track) + "\n"
-        self.actionchains().move_to_element(mRNA).perform()
-        time.sleep(1)
-        self.actionchains().click_and_hold().perform()
-        time.sleep(1)
-        self.actionchains().move_to_element(combo_track).perform()
-        time.sleep(1)
-        self.actionchains().release().perform()
-        time.sleep(1)
-        #self.turn_off_track("HTMLFeatures - mRNAs")
+        self.assert_element("//div[contains(@id, 'track_combination_track')]")
+        self.turn_off_track("Combination Track")
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
     pass
