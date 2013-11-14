@@ -84,7 +84,7 @@ class JBrowseTest (object):
     def do_typed_query( self, text ):
         # Find the query box and put f15 into it and hit enter
         qbox = self.browser.find_element_by_id("location")
-        qbox.send_keys( Keys.BACK_SPACE * 40 )
+        qbox.clear()
         qbox.send_keys( text )
         qbox.send_keys( Keys.RETURN )
 
@@ -179,13 +179,16 @@ class JBrowseTest (object):
 
     def _waits_for_no_element( self, expression ):
         WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
-
+    
+    # Wait until faceted browser has narrowed results to one track
     def wait_until_one_track(self):
         WebDriverWait(self, 5).until(lambda self: self.is_one_row())
 
+    # Return true/false if faceted browser narrowed down to one track
     def is_one_row(self):
         return self.assert_elements("div.dojoxGridRow").__len__() == 1
 
+    # Return true/false if element exists
     def does_element_exist (self, expression):
         try:
             if expression.find('/') >= 0:
@@ -195,7 +198,8 @@ class JBrowseTest (object):
             return True
         except NoSuchElementException:
             return False
-   
+
+    # Return true/false if elements exist
     def do_elements_exist (self, expression):
         try:
             if expression.find('/') >= 0:
@@ -238,10 +242,12 @@ class JBrowseTest (object):
     # gets updated after the scroll animation
     def _waits_for_scroll ( self, location ):
         WebDriverWait(self, 5).until(lambda self: self.browser.title != location)
+    
 
+    #Exists because onload() get trigered before JBrowse is ready
     def _waits_for_JBrowse_to_load(self):
         WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0)
-        if self.browser.current_url.find("data=nonexistent"):
+        if self.browser.current_url.find("data=nonexistent"): #account for the test for bad data
             pass
         else:
             # Page title is initially "JBrowse",
