@@ -47,6 +47,7 @@ my %WriteMakefileArgs = (
     "Cwd" => 0,
     "DBI" => 0,
     "Data::Dumper" => 0,
+    "DB_File" => 0,
     "Devel::Size" => 0,
     "Digest::Crc32" => 0,
     "Exporter" => 0,
