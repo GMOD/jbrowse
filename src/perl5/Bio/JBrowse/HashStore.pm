@@ -159,11 +159,6 @@ If not provided, the values will just be overwritten.
 sub stream_set {
     my $self = shift;
 
-    my ( $perl_minor_ver ) = $^V =~ /^v?5\.(\d+)/;
-    if( $perl_minor_ver <= 10 ) {
-        die "HashStore stream_set() does not work on Perl 5.10 or older.\n";
-    }
-
     my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1,
                                     DIR => $self->{work_dir} || $self->{dir} );
     $tempfile->close;
