@@ -121,11 +121,13 @@ sub load {
 
     # convert the stream of name records into a stream of operations to do
     # on the data in the hash store
-    my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $ref_seqs, $names_files ), $names_files );
+    my $operation_stream = $self->make_operation_stream(
+        $self->make_name_record_stream( $ref_seqs, $names_files ),
+        $names_files
+    );
 
     $self->name_store->empty unless $self->opt('incremental');
 
-    # finally copy the temp store to the namestore
     $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
 
     # make a stream of key/value pairs and load them into the HashStore
@@ -264,7 +266,6 @@ sub make_name_record_stream {
             my $nameinfo = $name_records_iterator->() || do {
                 my $file = shift @names_files;
                 return unless $file;
-                #print STDERR "Processing $file->{fullpath}\n";
                 $name_records_iterator = $self->make_names_iterator( $file );
                 $name_records_iterator->();
             } or return;
@@ -551,6 +552,10 @@ sub make_names_iterator {
             my $line;
             while( ($line = <$input_fh>) =~ /^#/ ) {}
             return unless $line;
+
+            $self->{stats}{name_input_records}++;
+            $self->{stats}{total_namerec_bytes} += length $line;
+
             my ( $ref, $start, $name, $basevar ) = split "\t", $line, 5;
             $start--;
             return [[$name],$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
