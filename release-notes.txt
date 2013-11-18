@@ -6,6 +6,10 @@
    `view.trackPadding` in the configuration.  Thanks to Chenchen Zhu
    for suggesting this (issue #377).
 
+ * If reference sequences are defined, but no tracks are yet added,
+   JBrowse will start normally instead of going to the
+   "Congratulations, JBrowse is on the web" page.
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements

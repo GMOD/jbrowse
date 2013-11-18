@@ -163,8 +163,8 @@ _applyDefaults: function( config, defaults ) {
  * @returns nothing meaningful
  */
 _validateConfig: function( c ) {
-    if( ! c.tracks || ! c.tracks.length )
-        this._fatalError('No tracks defined in configuration.');
+    if( ! c.tracks )
+        c.tracks = [];
     if( ! c.baseUrl ) {
         this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
     }
