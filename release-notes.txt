@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Spacing between tracks is now configurable by setting
+   `view.trackPadding` in the configuration.  Thanks to Chenchen Zhu
+   for suggesting this (issue #377).
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements
