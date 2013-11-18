@@ -17,6 +17,10 @@
    which only the first few hundred names in a VCF were indexed.
    Thanks to Cris Lawrence for pointing this out (issue #380).
 
+ * Fixed a bug in which `generate-names.pl` would crash if run with
+   `--incremental` and no existing names index.  Thanks to Richard
+   Hayes for pointing this out (issue #379).
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements

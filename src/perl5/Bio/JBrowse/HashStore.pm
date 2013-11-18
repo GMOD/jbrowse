@@ -68,6 +68,8 @@ sub open {
     $self->{cache_size} = int( $self->{mem} / 50000 / 6 );
     print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
+    File::Path::mkpath( $self->{dir} );
+
     return $self;
 }
 
