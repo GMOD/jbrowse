@@ -37,7 +37,7 @@ sub slow_stream_set {
             dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
             work_dir => $self->opt('workdir'),
             mem => $self->opt('mem'),
-            nosync => 1,
+            compress => $self->opt('compress'),
             hash_bits => $self->hash_bits,
             verbose => $self->opt('verbose')
             );
@@ -50,7 +50,7 @@ sub slow_stream_set {
         $self->do_hash_operation( \%name_store, $op );
 
         $ops_processed++;
-        if ( $progressbar && $ops_processed > $progressbar_next_update ) {
+        if ( $progressbar && $ops_processed > $progressbar_next_update && $ops_processed < $ops_count ) {
             $progressbar_next_update = $progressbar->update( $ops_processed );
         }
     }

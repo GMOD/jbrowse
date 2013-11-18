@@ -28,7 +28,7 @@ sub option_defaults {(
     completionLimit => 20,
     locationLimit => 100,
     mem => 256 * 2**20,
-    tracks => []
+    tracks => [],
 )}
 
 sub option_definitions {(
@@ -45,7 +45,8 @@ sub option_definitions {(
 'hashBits=i',
 'incremental|i',
 "help|h|?",
-'safeMode'
+'safeMode',
+'compress'
 )}
 
 sub initialize {
@@ -217,7 +218,7 @@ sub name_store {
         dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
         work_dir => $self->opt('workdir'),
         mem => $self->opt('mem'),
-        nosync => 1,
+        compress => $self->opt('compress'),
 
         hash_bits => $self->hash_bits,
 
@@ -232,13 +233,20 @@ sub hash_bits {
     my $self = shift;
     # set the hash size to try to get about 5-10KB per file, at an
     # average of about 500 bytes per name record, for about 10 records
-    # per file. if the store has existing data in it, this will be
-    # ignored
+    # per file (uncompressed). if the store has existing data in it,
+    # this will be ignored.
     return $self->{hash_bits} ||= $self->opt('hashBits')
-                 || ( $self->{stats}{record_stream_estimated_count}
-                         ? sprintf( '%0.0f', List::Util::max( 4, List::Util::min( 32, 4*int( log( $self->{stats}{record_stream_estimated_count} / 10 )/ 4 / log(2)) )))
-                      : 12
-                    );
+      || do {
+          if( $self->{stats}{record_stream_estimated_count} ) {
+              my $records_per_bucket = $self->opt('compress') ? 40 : 10;
+              my $bits = 4*int( log( $self->{stats}{record_stream_estimated_count} / $records_per_bucket )/ 4 / log(2));
+              # clamp bits between 4 and 32
+              sprintf( '%0.0f', List::Util::max( 4, List::Util::min( 32, $bits ) ));
+          }
+          else {
+              12
+          }
+      };
 }
 
 sub make_name_record_stream {

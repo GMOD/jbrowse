@@ -42,7 +42,7 @@ use IO::File ();
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
 
-=head2 open( dir => "/path/to/dir", hash_bits => 16, mem => 256 * 2**20, nosync => 0 )
+=head2 open( dir => "/path/to/dir", hash_bits => 16, mem => 256 * 2**20 )
 
 =cut
 
@@ -57,7 +57,10 @@ sub open {
     $self->empty if $self->{empty};
 
     $self->{meta} = $self->_read_meta;
-    $self->{format} ||= $self->{meta}{format} || 'json';
+
+    $self->{meta}{compress} = $self->{compress} = defined $self->{meta}{compress} ? $self->{meta}{compress} : $self->{compress} || 0;
+
+    $self->{format} = $self->{meta}{format} || $self->{format} || 'json';
 
     $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
     $self->{hash_mask} = 2**($self->{hash_bits}) - 1;
@@ -102,9 +105,10 @@ sub _read_meta {
     return {} unless -r $meta_path;
     CORE::open my $meta, '<', $meta_path or die "$! reading $meta_path";
     local $/;
-    my $d = eval { JSON->new->relaxed->decode( scalar <$meta> ) };
+    my $d = eval { JSON->new->relaxed->decode( scalar <$meta> ) } || {};
     warn $@ if $@;
-    return $d || {};
+    $d->{compress} = 0 unless defined $d->{compress};
+    return $d;
 }
 
 =head2 meta
@@ -386,12 +390,13 @@ sub _getBucketFromHex {
 sub _readBucket {
     my ( $self, $pathinfo ) = @_;
 
-    my $path = $pathinfo->{fullpath};
+    my $path = $pathinfo->{fullpath}.( $self->{compress} ? 'z' : '' );
     my $dir = $pathinfo->{dir};
+    my $gzip = $self->{compress} ? ':gzip' : '';
 
     return $bucket_class->new(
         format => $self->{format},
-        nosync => $self->{nosync},
+        compress => $self->{compress},
         dir => $dir,
         fullpath => $path,
         ( -f $path
@@ -400,7 +405,7 @@ sub _readBucket {
                     if ( $self->{format} eq 'storable' ) {
                         Storable::retrieve( $path )
                       } else {
-                          CORE::open my $in, '<', $path or die "$! reading $path";
+                          CORE::open my $in, "<$gzip", $path or die "$! reading $path";
                           local $/;
                           JSON::from_json( scalar <$in> )
                         }
@@ -429,9 +434,9 @@ sub DESTROY {
         if( $self->{format} eq 'storable' ) {
             Storable::store( $self->{data}, $self->{fullpath} );
         } else {
-            my $out = IO::File->new( $self->{fullpath}, 'w' )
+            my $gzip = $self->{compress} ? ':gzip' : '';
+            my $out = IO::File->new( $self->{fullpath}, ">$gzip" )
                 or die "$! writing $self->{fullpath}";
-            $out->blocking( 0 ) if $self->{nosync};
             $out->print( JSON::to_json( $self->{data} ) ) or die "$! writing to $self->{fullpath}";
         }
     }

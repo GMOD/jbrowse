@@ -10,6 +10,10 @@
    JBrowse will start normally instead of going to the
    "Congratulations, JBrowse is on the web" page.
 
+ * `generate-names.pl` now supports a `--compress` option that
+   compresses the name index files to save server disk space.  Thanks
+   to Richard Hayes for pointing out the need for this (issue #378).
+
 ## Bug fixes
 
  * `generate-names.pl` now uses IO::Uncompress::Gunzip instead of

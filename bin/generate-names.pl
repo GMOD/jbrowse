@@ -40,6 +40,15 @@ Data directory to process.  Default 'data/'.
 Comma-separated list of which tracks to include in the names index.  If
 not passed, all tracks are indexed.
 
+=item --compress
+
+If passed, gzip the JSON files in the index, naming them *.jsonz
+instead of *.json.  Like the --compress option for flatfile-to-json.pl
+and prepare-refseqs.pl, if you use this option you must configure your
+web server to serve these files with the correct Content-Encoding HTTP
+header.  See the JBrowse Configuration Guide on the GMOD wiki for help
+with this.
+
 =item --incremental | -i
 
 Do not completely rebuild the names index in the given location, only
