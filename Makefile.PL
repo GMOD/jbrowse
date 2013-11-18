@@ -64,6 +64,7 @@ my %WriteMakefileArgs = (
     "Heap::Simple" => 0,
     "Heap::Simple::XS" => 0,
     "IO::File" => 0,
+    "IO::Uncompress::Gunzip" => 0,
     "JSON" => 2,
     "JSON::XS" => 0,
     "List::Util" => 0,

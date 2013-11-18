@@ -10,6 +10,13 @@
    JBrowse will start normally instead of going to the
    "Congratulations, JBrowse is on the web" page.
 
+## Bug fixes
+
+ * `generate-names.pl` now uses IO::Uncompress::Gunzip instead of
+   PerlIO::gzip to read compressed VCF files.  This fixes a bug in
+   which only the first few hundred names in a VCF were indexed.
+   Thanks to Cris Lawrence for pointing this out (issue #380).
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements

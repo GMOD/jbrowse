@@ -570,9 +570,32 @@ sub make_names_iterator {
 sub open_names_file {
     my ( $self, $filerec ) = @_;
     my $infile = $filerec->{fullpath};
-    my $gzip = $filerec->{gzipped} ? ':gzip' : '';
-    open my $fh, "<$gzip", $infile or die "$! reading $infile";
-    return $fh;
+    if( $filerec->{gzipped} ) {
+        # can't use PerlIO::gzip, it truncates bgzipped files
+        my $z;
+        eval {
+            require IO::Uncompress::Gunzip;
+            $z = IO::Uncompress::Gunzip->new( $filerec->{fullpath }, -MultiStream => 1 )
+                or die "IO::Uncompress::Gunzip failed: $IO::Uncompress::Gunzip::GunzipError\n";
+        };
+        if( $@ ) {
+            # fall back to use gzip command if available
+            if( `which gunzip` ) {
+                open my $fh, '-|', 'gzip', '-dc', $filerec->{fullpath}
+                   or die "$! running gunzip";
+                return $fh;
+            } else {
+                die "cannot uncompress $filerec->{fullpath}, could not use either IO::Uncompress::Gunzip nor gzip";
+            }
+        }
+        else {
+            return $z;
+        }
+    }
+    else {
+        open my $fh, '<', $infile or die "$! reading $infile";
+        return $fh;
+    }
 }
 
 
