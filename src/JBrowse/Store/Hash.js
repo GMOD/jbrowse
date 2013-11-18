@@ -77,7 +77,7 @@ return declare( null, {
         for( var i = 0; i < hex.length; i += 3 ) {
             dirpath.push( hex.substring( i, i+3 ) );
         }
-        return dirpath.join('/') + '.json';
+        return dirpath.join('/') + '.json' + ( this.meta.compress ? 'z' : '' );
     },
 
     _hash: function( data ) {
