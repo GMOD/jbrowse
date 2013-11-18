@@ -434,6 +434,11 @@ sub make_operations {
     my ( $self, $record ) = @_;
 
     my $lc_name = lc $record->[0];
+    unless( $lc_name ) {
+        warn "WARNING: some blank name records found, skipping.\n"
+           unless $self->{already_warned_about_blank_name_records}++;
+        return;
+    }
 
     my @ops = ( [ $lc_name, $OP_ADD_EXACT, $record ] );
 
