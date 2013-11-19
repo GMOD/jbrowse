@@ -311,6 +311,7 @@ div.track {
     width: 100%;
     padding: 0;
     margin: 0;
+    z-index: 0;
 }
 div.pin_underlay {
     width: 100%;

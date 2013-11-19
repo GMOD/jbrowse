@@ -30,6 +30,10 @@
    leading to the old data being lost.  Thanks to Richard Hayes for
    lots of help troubleshooting this.
 
+ * Fixed bug where other tracks are visible underneath pinned tracks
+   when the display is scrolled down.  Thanks to Ed Lee for pointing
+   this out.
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements

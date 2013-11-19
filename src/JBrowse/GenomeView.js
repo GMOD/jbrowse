@@ -2284,7 +2284,7 @@ updateTrackList: function() {
             this.pinUnderlay = domConstruct.create('div', {
                                                        className: 'pin_underlay',
                                                        style: 'top: '+this.topSpace
-                                                   }, this.scrollContainer );
+                                                   }, this.trackContainer );
         if( ! this.pinGridlinesTrack ) {
             var gridTrackDiv = domConstruct.create(
                 "div",
