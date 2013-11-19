@@ -58,13 +58,19 @@ sub open {
 
     $self->{meta} = $self->_read_meta;
 
-    $self->{meta}{compress} = $self->{compress} = defined $self->{meta}{compress} ? $self->{meta}{compress} : $self->{compress} || 0;
+    # compress, format, and hash_bits all use the value in the
+    # meta.json if present, or the value passed in by the constructor,
+    # or the default, in order of priority
+    my %defaults = ( compress => 0, format => 'json', hash_bits => 16 );
+    for (qw( compress format hash_bits )) {
+        $self->{$_} = $self->{meta}{$_} = (
+            defined $self->{meta}{$_}  ?  $self->{meta}{$_}  :
+            defined $self->{$_}        ?  $self->{$_}        :
+                                          $defaults{$_}
+        );
+    }
 
-    $self->{format} = $self->{meta}{format} || $self->{format} || 'json';
-
-    $self->{hash_bits} ||= $self->{meta}{hash_bits} || 16;
     $self->{hash_mask} = 2**($self->{hash_bits}) - 1;
-    $self->{meta}{hash_bits} = $self->{hash_bits};
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 

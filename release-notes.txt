@@ -25,6 +25,11 @@
    `--incremental` and no existing names index.  Thanks to Richard
    Hayes for pointing this out (issue #379).
 
+ * Fixed a bug in which `generate-names.pl` would sometimes choose the
+   wrong number of hash bits when performing incremental updates,
+   leading to the old data being lost.  Thanks to Richard Hayes for
+   lots of help troubleshooting this.
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements
