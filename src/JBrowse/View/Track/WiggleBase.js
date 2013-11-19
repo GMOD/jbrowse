@@ -380,7 +380,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
                     }))[0];
         if( ! this._mouseoutEvent )
-            this._mouseoutEvent = this.own( on( this.div, 'mouseleave', function( evt) {
+            this._mouseoutEvent = this.own( on( this.div, mouse.leave, function( evt) {
                                                     thisB.mouseover( undefined );
                                                 }))[0];
 

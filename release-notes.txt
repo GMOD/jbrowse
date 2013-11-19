@@ -34,6 +34,10 @@
    when the display is scrolled down.  Thanks to Ed Lee for pointing
    this out.
 
+ * Fixed a bug in which tooltip does not hide after the mouse leaves a
+   Wiggle track in Safari 5 and 6. Thanks to Charles Girardot for
+   pointing this out.
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements
