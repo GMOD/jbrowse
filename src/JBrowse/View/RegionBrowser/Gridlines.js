@@ -31,6 +31,8 @@ constructor: function( args ) {
     this.set('genomeView', args.genomeView );
 },
 
+// the Gridlines widget uses bare canvas elements as rendering blocks
+// instead of divs
 createBlockNode: function( block ) {
     var d = document.createElement('canvas');
     d.className = 'renderingBlock';

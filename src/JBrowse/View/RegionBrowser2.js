@@ -205,11 +205,11 @@ buildRendering: function() {
     //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
 },
 
+// scroll the display if necessary to show the given track
+// widget, then do some kind of animation on it to draw the user's
+// attention to it.
 _drawAttentionToTrackWidget: function( trackWidget ) {
     // TODO
-    // scroll the display if necessary to show the given track
-    // widget, then do some kind of animation on it to draw the user's
-    // attention to it.
 },
 
 // display the given track objects in this region view.  if a widget
