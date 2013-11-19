@@ -184,7 +184,14 @@ configSchema: {
         },
 
         { name: 'visibleTracks', type: 'multi-string' },
-        { name: 'location', type: 'object' }
+        { name: 'location', type: 'object' },
+
+        { name: 'slideAnimationDuration', type: 'integer', defaultValue: 1100,
+          description: 'duration in milliseconds of "slide" animations, where the view scrolls a set amount left or right'
+        },
+        { name: 'zoomAnimationDuration', type: 'integer', defaultValue: 500,
+          description: 'duration in milliseconds of "zoom" animations, where the view zooms in or out'
+        }
     ]
 },
 
@@ -354,12 +361,12 @@ _locationCenter: function( location ) {
 
 slide: function( factor ) {
     if( this._contentBox && this.get('projection') )
-        this.get('projection').offset( this._contentBox.w * -factor, 1100 );
+        this.get('projection').offset( this._contentBox.w * -factor, this.getConf('slideAnimationDuration') );
 },
 
 zoom: function( factor ) {
     if( this._contentBox && this.get('projection') )
-        this.get('projection').zoom( factor, this._contentBox.l+this._contentBox.w/2, 500 );
+        this.get('projection').zoom( factor, this._contentBox.l+this._contentBox.w/2, this.getConf('zoomAnimationDuration') );
 }
 
 
