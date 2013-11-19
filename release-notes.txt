@@ -38,6 +38,10 @@
    Wiggle track in Safari 5 and 6. Thanks to Charles Girardot for
    pointing this out.
 
+ * Fixed a bug in which the `main.css` file for plugins was not being
+   correctly loaded in some installations.  Thanks to Matt Bomhoff for
+   pointing this out.
+
 # Release 1.10.9     2013-11-08 15:22:50 EST5EDT
 
 ## Minor improvements
