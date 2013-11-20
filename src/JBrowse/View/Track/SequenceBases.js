@@ -71,7 +71,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
               style: {
                   height: ( this.getConf('showTranslation') ? 6*14 : 0 )
                       + ( this.getConf('showForwardStrand') ? 14 : 0 )
-                      + ( this.getConf('showReverseStrand') ? 14 : 0 ) + 'px'
+                      + ( this.getConf('showReverseStrand') ? 14 : 0 ) + 4 + 'px'
               }
             }, blockNode );
 
