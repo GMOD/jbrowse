@@ -1,4 +1,9 @@
 .jbrowse.metro {
+
+    & > .dijitSplitterH.dijitSplitterHover {
+        background: #444;
+    }
+
     .regionBrowserPane, .regionBrowserPaneNoGutter {
         background: #353535;;
 
