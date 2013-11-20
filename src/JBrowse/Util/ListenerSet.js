@@ -22,7 +22,7 @@ return declare( null, {
    * Notify registered listeners with the given data.
    */
   notify: function() {
-      var listeners = this._listeners;
+      var listeners = this._listeners.slice();
       for( var i = 0; i<listeners.length; i++ )
           listeners[i]._callback.apply( this, arguments );
   },
@@ -35,9 +35,9 @@ return declare( null, {
       var listener = { _callback: callback };
       listeners.push( listener );
       listener.remove = function() {
-          var i = array.indexOf( listener );
+          var i = array.indexOf( listeners, listener );
           if( i > -1 )
-              listeners.splice( index, 1 );
+              listeners.splice( i, 1 );
       };
       return listener;
   }
