@@ -34,9 +34,10 @@ return declare( [ ContentPane, Component ], {
   },
 
   heightUpdate: function(h) {
-      if(! ( this.h > h ) ) {
-          this.domNode.style.height = ( this.h = h ) +'px';
-          //this.getParent().resize();
+      if(! ( this.h >= h ) ) {
+              this.getParent().heightUpdate( this, h );
+              this.h = h;
+              this.domNode.style.height = h+'px';
       }
   },
 

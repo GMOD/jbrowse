@@ -75,7 +75,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
               }
             }, blockNode );
 
-        this.heightUpdate( parseFloat( blur.style.height )+2 );
+        this.heightUpdate( parseFloat( blur.style.height )+1 );
 
         var scale = projectionBlock.getScale();
 

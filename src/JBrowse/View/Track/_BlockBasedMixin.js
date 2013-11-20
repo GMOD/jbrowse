@@ -22,15 +22,6 @@ _setGenomeViewAttr: function( genomeView ) {
     }
 
     var thisB = this;
-
-    // make new blocks for any existing rendering blocks
-    var blockList = genomeView.get('blockList');
-    if( blockList ) {
-        blockList.forEach( function( renderingBlock ) {
-            thisB.newBlock( renderingBlock, { operation: 'new' } );
-        });
-    }
-
     // watch for new projection blocks
     this.own(
         this._blockWatch = genomeView.watchRenderingBlocks(
@@ -41,6 +32,20 @@ _setGenomeViewAttr: function( genomeView ) {
         )
     );
 },
+
+startup: function() {
+    this.inherited(arguments);
+
+    var thisB = this;
+    var genomeView, blockList;
+    // if this is a dijit widget, at startup, make new blocks for any existing rendering blocks
+    if( (genomeView = this.get('genomeView')) && ( blockList = genomeView.get('blockList') ) ) {
+        blockList.forEach( function( renderingBlock ) {
+            thisB.newBlock( renderingBlock, { operation: 'new' } );
+        });
+    }
+},
+
 // for compatibility with dojo/Stateful
 _genomeViewSetter: function( genomeview ) {
     this.genomeView = genomeview;
