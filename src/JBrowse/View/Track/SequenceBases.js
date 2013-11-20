@@ -53,7 +53,12 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
     nbsp: String.fromCharCode(160),
 
-    fillBlock:function( block, blockNode ) {
+    animateBlock: function( block, blockNode, changeInfo ) {
+        //console.log('animate');
+    },
+
+    fillBlock:function( block, blockNode, changeInfo ) {
+        //console.log('fill');
         var blockDims = block.getDimensions();
         var projectionBlock = block.getProjectionBlock();
 
@@ -70,7 +75,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
               }
             }, blockNode );
 
-        this.heightUpdate( parseFloat( blur.style.height ) );
+        this.heightUpdate( parseFloat( blur.style.height )+2 );
 
         var scale = projectionBlock.getScale();
 
@@ -86,9 +91,10 @@ return declare( [ TrackView, _BlockBasedMixin ],
             return this.get('store')
                 .getReferenceSequence( baseSpan.refName, leftExtended, rightExtended )
                 .then( function( seq ) {
-                           if( seq )
+                           if( seq ) {
+                               dom.empty( blockNode );
                                thisB._fillSequenceBlock( block, blockNode, scale, seq );
-                           else
+                           } else
                                blur.innerHTML = '<span class="message">No sequence available</span>';
                        },
                        lang.hitch( this, '_handleError' )
@@ -134,7 +140,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
         // make a table to contain the sequences
         var charSize = this.getCharacterMeasurements('sequence');
-        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
+        var bigTiles = 1/scale > charSize.w + 4; // whether to add .big styles to the base tiles
 
         if( this.getConf('showReverseStrand') || this.getConf('showForwardStrand') )
             var seqNode = dom.create(
@@ -191,7 +197,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
 
         var charSize = this.getCharacterMeasurements("aminoAcid");
-        var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
+        var bigTiles = 1/scale > charSize.w + 4; // whether to add .big styles to the base tiles
 
         var charWidth = 100/(blockLength / 3);
 
@@ -213,7 +219,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
         charWidth = 100/ translated.length + "%";
 
-        var drawChars = scale >= charSize.w;
+        var drawChars = 1/scale >= charSize.w;
         if( drawChars )
             table.className += ' big';
 
@@ -239,7 +245,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
         var charSize = this.getCharacterMeasurements('sequence');
         var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
-        var drawChars = scale >= charSize.w;
+        var drawChars = 1/scale >= charSize.w;
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('td');
             base.className = 'base base_'+seq.charAt(i).toLowerCase();
@@ -253,7 +259,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     startZoom: function() {
-        query('.base', this.div ).empty();
+        query('.base', this.domNode ).empty();
     },
 
     /**
@@ -262,7 +268,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
      */
     getCharacterMeasurements: function( className ) {
         return this._charMeasurements[className] || (
-            this._charMeasurements[className] = this._measureSequenceCharacterSize( this.div, className )
+            this._charMeasurements[className] = this._measureSequenceCharacterSize( this.domNode, className )
         );
     },
 

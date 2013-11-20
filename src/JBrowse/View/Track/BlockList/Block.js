@@ -154,6 +154,7 @@ return declare( Destroyable, {
             operation:  deltaLeft != deltaRight ? 'resize' : 'move',
             deltaLeft:  deltaLeft,
             deltaRight: deltaRight,
+            animating: changeDescription && changeDescription.animating,
             projectionChange: changeDescription
          });
     },

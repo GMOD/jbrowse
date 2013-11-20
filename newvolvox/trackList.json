@@ -1,6 +1,12 @@
 {
 
     "referenceSets": [
+        { "name": "Volvox",
+          "regions": [
+              { "seq_id": "ctgA", "start": 0, "end": 50000, "name": "ctgA" },
+              { "seq_id": "ctgB", "start": 0, "end": 6097, "name": "ctgB" }
+          ]
+        },
 
         { "name": "D. melanogaster FlyBase 5.52",
           "metadata": {
@@ -17,9 +23,7 @@
           },
           "regions":
           [{"length":135534747,"seq_id":"chr10","start":0,"end":135534747,"seqChunkSize":20000},{"length":135006516,"seq_id":"chr11","seqChunkSize":20000,"end":135006516,"start":0},{"length":133851895,"seq_id":"chr12","start":0,"end":133851895,"seqChunkSize":20000},{"length":115169878,"seq_id":"chr13","seqChunkSize":20000,"end":115169878,"start":0},{"length":107349540,"seq_id":"chr14","start":0,"end":107349540,"seqChunkSize":20000},{"length":102531392,"seq_id":"chr15","seqChunkSize":20000,"end":102531392,"start":0},{"length":90354753,"seq_id":"chr16","start":0,"end":90354753,"seqChunkSize":20000},{"length":81195210,"seq_id":"chr17","seqChunkSize":20000,"end":81195210,"start":0},{"length":78077248,"seq_id":"chr18","start":0,"end":78077248,"seqChunkSize":20000},{"length":59128983,"seq_id":"chr19","seqChunkSize":20000,"end":59128983,"start":0},{"length":249250621,"seq_id":"chr1","start":0,"end":249250621,"seqChunkSize":20000},{"length":63025520,"seq_id":"chr20","seqChunkSize":20000,"end":63025520,"start":0},{"length":48129895,"seq_id":"chr21","start":0,"end":48129895,"seqChunkSize":20000},{"length":51304566,"seq_id":"chr22","seqChunkSize":20000,"end":51304566,"start":0},{"length":243199373,"seq_id":"chr2","start":0,"end":243199373,"seqChunkSize":20000},{"length":198022430,"seq_id":"chr3","seqChunkSize":20000,"end":198022430,"start":0},{"length":191154276,"seq_id":"chr4","start":0,"end":191154276,"seqChunkSize":20000},{"length":180915260,"seq_id":"chr5","seqChunkSize":20000,"end":180915260,"start":0},{"length":171115067,"seq_id":"chr6","start":0,"end":171115067,"seqChunkSize":20000},{"length":159138663,"seq_id":"chr7","seqChunkSize":20000,"end":159138663,"start":0},{"length":146364022,"seq_id":"chr8","start":0,"end":146364022,"seqChunkSize":20000},{"length":141213431,"seq_id":"chr9","seqChunkSize":20000,"end":141213431,"start":0},{"length":155270560,"seq_id":"chrX","start":0,"end":155270560,"seqChunkSize":20000},{"length":59373566,"seq_id":"chrY","seqChunkSize":20000,"end":59373566,"start":0}]
-        },
-
-        { "name": "Volvox", "regions": [ { "seq_id": "ctgA", "start": 0, "end": 50000, "name": "ctgA" } ] },
+        }
     ],
 
 

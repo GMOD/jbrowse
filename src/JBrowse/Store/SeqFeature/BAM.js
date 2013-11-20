@@ -80,7 +80,7 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
                            if( ! lim )
                                return;
 
-                           var name = query.name || query.ref;
+                           var name = query.name || query.seq_id;
                            if( name ) {
                                var ref = thisB.bam.indexToChr[
                                    thisB.bam.chrToIndex[ thisB.browser.regularizeReferenceName( name ) ]
@@ -113,12 +113,12 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
         return thisB.bam.init()
             .then( function() {
                        var i = thisB.bam.chrToIndex[
-                           thisB.browser.regularizeReferenceName(query.ref)
+                           thisB.browser.regularizeReferenceName(query.seq_id)
                        ];
                        if( i === undefined )
                            return { featureDensity: 0, featureCount: 0 };
 
-                       return thisB._estimateGlobalStats( query.ref );
+                       return thisB._estimateGlobalStats( query.seq_id );
                    });
     },
 
@@ -142,7 +142,7 @@ var BAMStore = declare( [ SeqFeatureStore, GlobalStatsEstimationMixin ],
     getFeatures: function( query, callback ) {
         if( callback ) throw 'getFeatures no longer takes callback arguments';
 
-        return this.bam.fetchFeatures( query.ref, query.start, query.end );
+        return this.bam.fetchFeatures( query.seq_id, query.start, query.end );
     }
 });
 

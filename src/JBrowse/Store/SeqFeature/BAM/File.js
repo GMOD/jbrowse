@@ -318,7 +318,7 @@ var BamFile = declare( null,
         return CombineGenerators.combine(
             this.init()
                 .then( function(thisB) {
-                           // coerce query.ref to array, and if no ref specified, fetch all refs
+                           // coerce query.seq_id to array, and if no ref specified, fetch all refs
                            refNames = refNames ? ( lang.isArray( refNames ) ? refNames : [ refNames ] ) :
                                                  array.map( thisB.indexToChr, function(c) { return c.name; } );
 

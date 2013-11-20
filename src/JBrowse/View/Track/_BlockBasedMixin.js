@@ -115,10 +115,14 @@ blockChange: function( blockNode, changeInfo, block ) {
     else {
         this._positionBlockNode( block, blockNode, changeInfo );
         if( changeInfo.operation != 'move' ) {
-            return this.fillBlock( block, blockNode );
+            return this[ changeInfo.animating && changeInfo.operation != 'new' ? 'animateBlock' : 'fillBlock' ]( block, blockNode, changeInfo );
         }
     }
     return undefined;
+},
+
+animateBlock: function() {
+    return this.fillBlock.apply( this, arguments );
 },
 
 // override this in a subclass

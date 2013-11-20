@@ -52,7 +52,7 @@ return declare( SeqFeatureStore,
 
     getReferenceSequence: function( name, start, end ) {
         var seq;
-        return this.getReferenceFeatures({ ref: name })
+        return this.getReferenceFeatures({ seq_id: name })
                    .forEach( function(s) { seq = s; },
                              function() { return seq && seq.getSequence(start,end); }
                            );
@@ -63,7 +63,7 @@ return declare( SeqFeatureStore,
         var refname;
         var chunkSize  = query.seqChunkSize || thisB.getConf('chunkSize');
         return new DeferredGenerator( function( generator ) {
-            return thisB.getReferenceFeatures({ name: query.ref, limit: 1 })
+            return thisB.getReferenceFeatures({ name: query.seq_id, limit: 1 })
                 .forEach( function(r) {
                               refname = r.get('name');
                           },
@@ -102,6 +102,7 @@ return declare( SeqFeatureStore,
     _chunkURLVars: function( refname, chunkNum ) {
         return {
             ref: refname,
+            seq_id: refname,
             chunkNum: chunkNum,
             refseq: refname,
             compressed: this.getConf('compress') ? 'z' : '',
@@ -188,7 +189,7 @@ return declare( SeqFeatureStore,
         return new DeferredGenerator( function( generator ) {
             return thisB._fetchRefSeqsJson()
                         .then( function( refSeqs ) {
-                                   var name = query.name || query.ref;
+                                   var name = query.name || query.seq_id;
                                    if( name ) {
                                        name = thisB.browser.regularizeReferenceName( name);
                                        generator.emit( refSeqs[ name ] = thisB._makeReferenceFeature( refSeqs[name] ) );
