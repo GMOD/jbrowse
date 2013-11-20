@@ -22,7 +22,8 @@ define([
            'JBrowse/View/Track/BlockList/Block',
            './RegionBrowser/Toolbar',
            './RegionBrowser/LocationScale',
-           './RegionBrowser/Gridlines'
+           './RegionBrowser/Gridlines',
+           './RegionBrowser/TrackPane'
        ],
        function(
            declare,
@@ -33,7 +34,7 @@ define([
            domClass,
            all,
 
-           dijitBase,
+           BorderContainer,
 
            Util,
            ListenerSet,
@@ -44,16 +45,17 @@ define([
            CircularProjection,
            RegionsProjection,
 
-           BlockList,
-           Block,
+           RenderingBlockList,
+           RenderingBlock,
            RegionBrowserToolbar,
            ScaleBar,
-           Gridlines
+           Gridlines,
+           TrackPane
        ) {
 
 var serialNumber = 0;
 
-return declare( [dijitBase,Component,FeatureFiltererMixin], {
+return declare( [BorderContainer,Component,FeatureFiltererMixin], {
 
 splitter: true,
 gutters: false,
@@ -92,7 +94,7 @@ constructor: function( args ) {
     // when we get a new projection, make a new blocklist for it
     this.watch( 'projection',
         function( name, oldProjection, newProjection ) {
-            thisB._makeBlockList( newProjection );
+            thisB._makeRenderingBlockList( newProjection );
         });
 },
 
@@ -101,22 +103,34 @@ constructor: function( args ) {
 //     this._updateProjection();
 // },
 
-_makeBlockList: function( projection ) {
+_makeRenderingBlockList: function( projection ) {
     if( this.get('blockList') )
         this.get('blockList').destroy();
-    this.set( 'blockList', new BlockList(
+    this.set( 'blockList', new RenderingBlockList(
         {
             projection: projection,
             viewportNode: this.domNode,
-            newBlock: lang.hitch( this, '_newBlock' )
+            newBlock: lang.hitch( this, '_makeRenderingBlock' )
         }));
 },
+
+// makes a new projection block for the our projection blocklist
+_makeRenderingBlock: function( args, projectionChange ) {
+    var block = new RenderingBlock( args );
+    this._blockListeners.notify( { operation: 'new', projectionChange: projectionChange  }, block );
+    return block;
+},
+// register a callback to be notified of changes to rendering blocks
+watchRenderingBlocks: function( callback ) {
+    return this._blockListeners.add( callback );
+},
+
 
 // get the displayed track widget in this region view for
 // a certain track hub and track, if present
 _getTrackWidgetByName: function( hubName, trackName ) {
     var widget;
-    array.some( this.getChildren(), function( childWidget ) {
+    array.some( this.trackPane.getChildren(), function( childWidget ) {
                     try {
                         var track = childWidget.getTrack();
                         if( track.getDataHub().getConf('name') == hubName
@@ -133,7 +147,7 @@ _getTrackWidgetByName: function( hubName, trackName ) {
 // a certain track hub and track, if present
 _getTrackWidgetForTrack: function( trackObject ) {
     var widget;
-    array.some( this.getChildren(), function(child) {
+    array.some( this.trackPane.getChildren(), function(child) {
                     try {
                         if( child.getTrack() === trackObject )
                             return widget = child;
@@ -141,13 +155,6 @@ _getTrackWidgetForTrack: function( trackObject ) {
                     return false;
                 });
     return widget;
-},
-
-// make a new rendering block for the our rendering blocklist
-_newBlock: function( args, projectionChange ) {
-    var block = new Block( args );
-    this._blockListeners.notify( { operation: 'new', projectionChange: projectionChange  }, block );
-    return block;
 },
 
 // register a callback to be notified of changes to rendering blocks
@@ -182,8 +189,11 @@ configSchema: {
         },
 
         { name: 'visibleTracks', type: 'multi-array',
-          //defaultValue: [['default','Reference sequence']]
-          defaultValue: []
+          defaultValue: [
+              ['default','Reference sequence'],
+              ['default','Reference sequence']
+          ]
+          //defaultValue: []
         },
 
         { name: 'location', type: 'object' },
@@ -207,6 +217,7 @@ buildRendering: function() {
 
     this.addChild( this.toolbar  = new RegionBrowserToolbar({ region: 'top', browser: this.browser, genomeView: this }) );
     this.addChild( this.scalebar = new ScaleBar({ region: 'top', browser: this.browser, genomeView: this }) );
+
     this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
     this.domNode.appendChild( this.gridlines.domNode );
 
@@ -220,7 +231,7 @@ buildRendering: function() {
       .then( undefined, function(e) { console.error( e.stack || ''+e ); });
 
     //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
-    //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
+    this.addChild( this.trackPane = new TrackPane({ region: 'center', browser: this.browser, genomeView: this }) );
 },
 
 // scroll the display if necessary to show the given track
@@ -248,7 +259,7 @@ showTracks: function( trackObjects ) {
 
         return trackObject.newWidget({ genomeView: thisB })
             .then( function( trackWidget ) {
-                       thisB.addChild( trackWidget );
+                       thisB.trackPane.addChild( trackWidget );
                        return trackWidget;
                    });
     }));

@@ -140,26 +140,29 @@ constructor: function(params) {
 
     // start the initialization process
     var thisB = this;
-    thisB.loadConfig().then( function() {
-        thisB._initTransportDrivers();
+    thisB.loadConfig()
+        .then(
+            function() {
+                thisB._initTransportDrivers();
 
-        // initialize our highlight if one was set in the config
-        if( thisB.getConf('highlight') )
-            thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
+                // initialize our highlight if one was set in the config
+                if( thisB.getConf('highlight') )
+                    thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
 
-        thisB.initPlugins().then( function() {
-            thisB.loadCSS().then( function() {
-
+                return thisB.initPlugins();
+            })
+        .then( function() {
+                   return thisB.loadCSS();
+               })
+        .then( function() {
                 thisB._initDataHubs();
-
-                thisB.initView().then( function() {
-                       thisB.passMilestone( 'completely initialized', { success: true } );
-                });
-
                 thisB.reportUsageStats();
-            });
-        });
-    });
+                return thisB.initViews();
+            })
+        .then( function() {
+                   thisB.passMilestone( 'completely initialized', { success: true } );
+               });
+
  },
 
 configSchema: {
@@ -500,9 +503,9 @@ getState: function() {
     return s;
 },
 
-initView: function() {
+initViews: function() {
     var thisB = this;
-    return this._milestoneFunction('initView', function( deferred ) {
+    return this._milestoneFunction('initViews', function( deferred ) {
 
         dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
         dojo.addClass( document.body, this.getConf('dijitTheme') );
@@ -847,7 +850,7 @@ openFileDialog: function() {
 },
 
 renderGlobalMenu: function( menuName, args, parent ) {
-    this.afterMilestone( 'initView', function() {
+    this.afterMilestone( 'initViews', function() {
         var menu = this.makeGlobalMenu( menuName );
         if( menu ) {
             args = dojo.mixin(
@@ -967,7 +970,7 @@ _calculateClientStats: function() {
         'el-w': this.container.offsetWidth,
 
         // time param to prevent caching
-        t: date.getTime()/1000,
+        t: date.getTime(),
 
         // also get local time zone offset
         tzoffset: date.getTimezoneOffset(),
@@ -1112,14 +1115,6 @@ loadConfig:function () {
 // override component getconf to pass browser object by default
 getConf: function( key, args ) {
     return this.inherited( arguments, [ key, args || [this] ] );
-},
-
-getReferenceFeature: function( refname ) {
-    return this.getStoreDeferred( 'refseqs' )
-         .then( function( store ) {
-                    return store.getReferenceFeatures({ name: refname, limit: 1 })
-                        .first();
-             });
 },
 
 /**

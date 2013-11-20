@@ -31,12 +31,16 @@
     background: rgba( 0,0,0, 0.1 );
 }
 
-div.track {
-    position: absolute;
-    left: 0px;
+.trackPane, .trackPaneNoGutter, .trackView, .trackViewNoGutter {
+    overflow-y: auto;
+}
+
+.track,.trackNoGutter {
     width: 100%;
     padding: 0;
     margin: 0;
+
+    overflow-y: auto;
 
     box-sizing: border-box;
     -moz-box-sizing: border-box;

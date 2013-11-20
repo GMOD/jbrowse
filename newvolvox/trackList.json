@@ -82,7 +82,7 @@
             "views": {
                 "default": {
                     "store": "refseqs",
-                    "type" : "JBrowse/View/Track/Sequence",
+                    "type" : "JBrowse/View/Track/SequenceBases",
                 }
             }
         },

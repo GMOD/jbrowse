@@ -1,16 +1,20 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/array',
            'dojo/dom-construct',
            'dojo/dom-class'
 
        ], function(
            declare,
+           array,
            domConstruct,
            domClass
        ) {
 
 return declare( null, {
 
+// when a the genomeview attr is set on this object, make blocks for
+// existing blocks, and watch its rendering blocks for changes
 _setGenomeViewAttr: function( genomeView ) {
     if( this._blockWatch ) {
         this._blockWatch.remove();
@@ -18,22 +22,32 @@ _setGenomeViewAttr: function( genomeView ) {
     }
 
     var thisB = this;
+
+    // make new blocks for any existing rendering blocks
+    var blockList = genomeView.get('blockList');
+    if( blockList ) {
+        blockList.forEach( function( renderingBlock ) {
+            thisB.newBlock( renderingBlock, { operation: 'new' } );
+        });
+    }
+
+    // watch for new projection blocks
     this.own(
         this._blockWatch = genomeView.watchRenderingBlocks(
-            function( data, block ) {
-                if( data.operation == 'new' ) {
-                    thisB.newBlock( block, data );
-                }
+            function( changeInfo, block ) {
+                if( changeInfo.operation == 'new' )
+                    thisB.newBlock( block, changeInfo );
             }
         )
     );
 },
-
 // for compatibility with dojo/Stateful
 _genomeViewSetter: function( genomeview ) {
     this.genomeView = genomeview;
     return this._setGenomeViewAttr.apply( this, arguments );
 },
+
+
 
 destroyAllBlocks: function() {
     array.forEach( this.domNode.children, function(n) {
@@ -79,7 +93,7 @@ _positionBlockNode: function( block, blockNode, changeInfo ) {
         || ( changeInfo.deltaLeft || changeInfo.deltaRight )
            && changeInfo.deltaLeft != changeInfo.deltaRight
       )
-        blockNode.style.width = Math.ceil(dims.w)+'px';
+        blockNode.style.width = Math.ceil( dims.w )+'px';
 
     if( isNew ) {
         if( dims.leftEdge )

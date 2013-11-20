@@ -32,7 +32,7 @@ define( [
 
 return declare( [ TrackView, _BlockBasedMixin ],
 {
-    baseClass: 'sequence-track',
+    trackClass: 'sequenceBases',
 
     constructor: function( args ) {
         this._charMeasurements = {};
@@ -40,10 +40,10 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
     configSchema: {
         slots: [
-            { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
+            { name: 'maxExportSpan',     type: 'integer', defaultValue: 500000 },
             { name: 'showReverseStrand', type: 'boolean', defaultValue: true },
             { name: 'showForwardStrand', type: 'boolean', defaultValue: true },
-            { name: 'showTranslation', type: 'boolean', defaultValue: true }
+            { name: 'showTranslation',   type: 'boolean', defaultValue: true }
         ]
     },
 
@@ -70,7 +70,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
               }
             }, blockNode );
 
-        this.heightUpdate( blur.offsetHeight+2*blur.offsetTop );
+        this.heightUpdate( parseFloat( blur.style.height ) );
 
         var scale = projectionBlock.getScale();
 
@@ -94,8 +94,8 @@ return declare( [ TrackView, _BlockBasedMixin ],
                        lang.hitch( this, '_handleError' )
                      );
         }
-        // otherwise, just draw a sort of line (possibly dotted) that
-        // suggests there are bases there if you zoom in far enough
+        // otherwise, just draw something that suggests there are
+        // bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
             return undefined;
@@ -168,11 +168,11 @@ return declare( [ TrackView, _BlockBasedMixin ],
             }
         }
 
-        var totalHeight = 0;
-        array.forEach( blockNode.childNodes, function( table ) {
-                           totalHeight += (table.clientHeight || table.offsetHeight);
-                       });
-        this.heightUpdate( totalHeight );
+        // var totalHeight = 0;
+        // array.forEach( blockNode.childNodes, function( table ) {
+        //                    totalHeight += (table.clientHeight || table.offsetHeight);
+        //                });
+        // this.heightUpdate( totalHeight );
     },
 
     _renderTranslation: function( seq, offset, blockStart, blockEnd, blockLength, scale, reverse ) {

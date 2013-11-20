@@ -5,6 +5,7 @@ define([
            'dojo/when',
            'dojo/promise/all',
 
+           'dijit/_WidgetBase',
            'dijit/layout/BorderContainer',
 
            'JBrowse/Component',
@@ -17,6 +18,7 @@ define([
            when,
            all,
 
+           _WidgetBase,
            BorderContainer,
 
            Component,
@@ -27,16 +29,22 @@ return declare( [ BorderContainer ], {
 
     baseClass: 'track',
     region: 'top',
+    gutters: false,
+    splitter: true,
+    style: { height: '200px' },
 
-    constructor: function( args ) {
-    },
+    _initiallySized: false,
 
     getTrack: function() {
         return this.get('track');
     },
 
-    startup: function() {
-        this.inherited( arguments );
+    postCreate: function() {
+        this.inherited(arguments);
+
+        // make a dummy widget that sits in the 'center' position to
+        // take up that space
+        this.addChild( new _WidgetBase({ region: 'center'} ) );
 
         var thisB = this;
 
@@ -59,7 +67,7 @@ return declare( [ BorderContainer ], {
         this.subtracks = this._makeSubtracks();
         this.subtracks
             .then( function( subtracks ) {
-                       when(madeView).then( function() {
+                       return when(madeView).then( function() {
                            array.forEach( subtracks, lang.hitch( thisB, 'addChild' ) );
                        });
                    },

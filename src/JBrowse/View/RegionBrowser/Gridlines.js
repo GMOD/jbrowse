@@ -43,22 +43,6 @@ createBlockNode: function( block ) {
     return d;
 },
 
-
-newBlock: function( renderingBlock, changeInfo ) {
-    var thisB = this,
-    blockNode = this.createBlockNode( renderingBlock ),
-    blockChangeWatch = renderingBlock.watch(
-        function( changeInfo, block ) {
-            console.log( changeInfo.operation, blockNode );
-            if( changeInfo.operation == 'destroy' )
-                blockChangeWatch.remove();
-
-            thisB.blockChange( blockNode, changeInfo, block );
-        });
-
-    this.blockChange( blockNode, changeInfo, renderingBlock );
-},
-
 _positionBlockNode: function( block, canvasNode, changeInfo ) {
     this.inherited(arguments);
 

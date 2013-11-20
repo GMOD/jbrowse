@@ -36,13 +36,13 @@ return declare( [Component,Stateful], {
               description: "track-specific query variables to pass to the store"
             },
 
-            { name: 'widgetClass', type: 'string', defaultValue: 'JBrowse/Track/Widget',
+            { name: 'widgetClass', type: 'string',
+              defaultValue: 'JBrowse/Track/Widget',
               description: "the JavaScript class of this track's top-level widget"
             },
 
             { name: 'defaultViewType', type: 'string',
-              //TODO defaultValue: 'JBrowse/View/Track/CanvasFeatures'
-              defaultValue: 'JBrowse/View/Track'
+              defaultValue: 'JBrowse/View/Track/CanvasFeatures'
             },
 
             { name: 'defaultSubtrackType', type: 'string',
@@ -76,7 +76,10 @@ return declare( [Component,Stateful], {
     },
 
     newWidget: function( args ) {
-        return Util.instantiate( this.getConf('widgetClass'), lang.mixin( {}, args || {}, { track: this, browser: this.browser } ) );
+        return Util.instantiate(
+            this.getConf('widgetClass'),
+            lang.mixin( {}, args || {}, { track: this, browser: this.browser } )
+        );
     },
 
     getViewName: function( widget ) {
