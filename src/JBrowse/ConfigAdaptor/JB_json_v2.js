@@ -116,30 +116,23 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
         },
 
         _regularizeTrackConfigs: function( conf ) {
-            conf.stores = conf.stores || {};
+            // conf.stores = conf.stores || {};
 
-            array.forEach( conf.tracks || [], function( trackConfig ) {
+            // array.forEach( conf.tracks || [], function( trackConfig ) {
 
-                // if there is a `config` subpart,
-                // just copy its keys in to the
-                // top-level config
-                if( trackConfig.config ) {
-                    var c = trackConfig.config;
-                    delete trackConfig.config;
-                    for( var prop in c ) {
-                        if( !(prop in trackConfig) && c.hasOwnProperty(prop) ) {
-                            trackConfig[prop] = c[prop];
-                        }
-                    }
-                }
-
-                if( ! trackConfig.store )
-                    trackConfig.store = 'default';
-
-                if( ! trackConfig.type )
-                    trackConfig.type = 'JBrowse/View/Track/CanvasFeatures';
-
-            }, this);
+            //     // if there is a `config` subpart,
+            //     // just copy its keys in to the
+            //     // top-level config
+            //     if( trackConfig.config ) {
+            //         var c = trackConfig.config;
+            //         delete trackConfig.config;
+            //         for( var prop in c ) {
+            //             if( !(prop in trackConfig) && c.hasOwnProperty(prop) ) {
+            //                 trackConfig[prop] = c[prop];
+            //             }
+            //         }
+            //     }
+            // }, this);
 
             return conf;
         }

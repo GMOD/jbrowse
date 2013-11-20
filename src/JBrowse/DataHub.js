@@ -20,6 +20,7 @@ define([
        ) {
 return declare( Component, {
   constructor: function(args) {
+      this._trackCache = {};
   },
 
   configSchema: {
@@ -46,21 +47,29 @@ return declare( Component, {
 
   // a data hub is track configuration, reference sequences, and data
   _instantiateTrack: function( trackConf ) {
-      return Util.instantiateComponent(
-          { browser: this.browser, dataHub: this},
-          trackConf,
-          'JBrowse/Track'
-      );
+      var thisB = this;
+      return this.openStore( trackConf.store )
+          .then( function( store ) {
+                     return Util.instantiateComponent(
+                         { browser: thisB.browser,
+                           dataHub: thisB,
+                           store: store
+                         },
+                         trackConf,
+                         'JBrowse/Track'
+                     );
+                 });
   },
 
   getTrackMetadataStore: function() {
-      return this.metaDataStore;
+      return this.metadataStore;
   },
 
   getTrack: function( trackName ) {
       return this._trackCache[ trackName ] || ( this._trackCache[trackName] = function() {
+          var thisB = this;
           // get the track's record out of the metadata store, then instantiate the track object
-          return this.getMetaStore()
+          return this.getTrackMetadataStore()
                      .then( function( metaStore ) {
                                 return when( metaStore.fetchItemByIdentity( trackName ) )
                                     .then( function( trackmeta ) {
@@ -94,7 +103,7 @@ return declare( Component, {
                   .then( function( store ) {
                         return Util.instantiate(
                             conf.type || thisB.getConf('defaultReferenceSetClass'),
-                            conf
+                            lang.mixin({},conf,{store:store})
                         );
                    });
           else
@@ -114,7 +123,10 @@ return declare( Component, {
       this._storeClasses = this._storeClasses || {};
 
       var conf, storeName;
-      if( typeof storeNameOrConf !== 'string' ) {
+      if( ! storeNameOrConf ) {
+          return Util.resolved(undefined);
+      }
+      else if( typeof storeNameOrConf !== 'string' ) {
           conf = storeNameOrConf;
           storeName = 'store'+Digest.objectFingerprint( conf );
       }
@@ -137,7 +149,7 @@ return declare( Component, {
               this._storeClasses[storeClassName]
                   || ( this._storeClasses[storeClassName] = Util.loadJSClass(storeClassName) )
           ).then(function( storeClass ) {
-                     return new storeClass({ browser: thisB, config: conf });
+                     return new storeClass({ browser: thisB.browser, config: conf, dataHub: thisB });
                  });
       }.call(this));
   },

@@ -12,8 +12,10 @@ define([
 return declare( null, {
 
 _setGenomeViewAttr: function( genomeView ) {
-    if( this._blockWatch )
+    if( this._blockWatch ) {
         this._blockWatch.remove();
+        this.destroyAllBlocks();
+    }
 
     var thisB = this;
     this.own(
@@ -33,13 +35,24 @@ _genomeViewSetter: function( genomeview ) {
     return this._setGenomeViewAttr.apply( this, arguments );
 },
 
+destroyAllBlocks: function() {
+    array.forEach( this.domNode.children, function(n) {
+                       if( this.isBlockNode( n ) )
+                           this.domNode.removeChild( n );
+                   },this);
+},
+
+isBlockNode: function( node ) {
+    return node.tagName == 'DIV' && /\brenderingBlock\b/.test( node.className );
+},
+
 newBlock: function( renderingBlock, changeInfo ) {
     var thisB = this,
     blockNode = this.createBlockNode( renderingBlock ),
     blockChangeWatch = renderingBlock.watch(
         function( changeInfo, block ) {
             if( changeInfo.operation == 'destroy' )
-                blockChangeWatch.remove();
+               blockChangeWatch.remove();
 
             thisB.blockChange( blockNode, changeInfo, block );
         });

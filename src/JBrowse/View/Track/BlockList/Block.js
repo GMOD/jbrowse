@@ -50,6 +50,15 @@ return declare( Destroyable, {
         return this._projectionBlock;
     },
 
+    getBaseSpan: function() {
+        var dims = this.getDimensions();
+        return {
+            l: this._projectionBlock.projectPoint( dims.l ),
+            r: this._projectionBlock.projectPoint( dims.r ),
+            refName: this._projectionBlock.getBName()
+        };
+    },
+
     getDimensions: function() {
         return {
             l: this._left,

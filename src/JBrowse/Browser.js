@@ -528,28 +528,20 @@ initView: function() {
         var contentWidget =
             new dijitContentPane({region: "top"}, menuBar );
 
-        // figure out what initial track list we will use:
-        //    from a param passed to our instance, or from a cookie, or
-        //    the passed defaults, or the last-resort default of "DNA"?
-        var initialTracks =
-               thisB.getConf('showTracks')
-            || "DNA";
-
         // instantiate our views
         this.views = [];
-        this.views.push(
-            new RegionBrowser2(
-                { browser: this,
-                  config: {
-                      name: 'View 1',
-                      className: 'colorScheme1',
-                      region: 'top',
-                      style: 'height: 40%',
-                      location: Util.parseLocString( this.getConf('location') ), // todo remove this
-                      tracks: initialTracks.split(',')
-                  }
-                } )
-         );
+        // this.views.push(
+        //     new RegionBrowser2(
+        //         { browser: this,
+        //           config: {
+        //               name: 'View 1',
+        //               className: 'colorScheme1',
+        //               region: 'top',
+        //               style: 'height: 40%',
+        //               location: Util.parseLocString( this.getConf('location') ) // todo remove this
+        //           }
+        //         } )
+        //  );
          this.views.push(
              new RegionBrowser2(
                  { browser: this,
@@ -557,7 +549,6 @@ initView: function() {
                        className: 'colorScheme2',
                        region: 'center',
                        parentViewName: 'View 1',
-                       tracks: initialTracks.split(','),
                        location: Util.parseLocString( this.getConf('location') ) // todo remove this
                    }
                  })

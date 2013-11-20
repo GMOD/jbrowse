@@ -111,12 +111,16 @@ return declare( null, {
 
   getTrack: function( hubName, trackName ) {
       return this.getDataHub( hubName )
-          .then(function(hub) { return hub.getTrack( trackName ); } );
+          .then( function(hub) {
+                     return hub.getTrack( trackName );
+                 });
   },
 
   getStore: function( hubName, storeName ) {
       return this.getDataHub( hubName )
-          .then( function(hub) { return hub.getStore( storeName ); });
+          .then( function(hub) {
+                     return hub.getStore( storeName );
+                 });
   }
 
 });

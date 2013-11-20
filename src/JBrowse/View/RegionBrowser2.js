@@ -76,8 +76,6 @@ constructor: function( args ) {
     this.inherited( arguments );
     FeatureFiltererMixin.prototype.constructor.call( this, args );
 
-    this.visibleTracks = [];
-
     this._blockListeners = new ListenerSet();
 
     var thisB = this;
@@ -118,13 +116,13 @@ _makeBlockList: function( projection ) {
 // a certain track hub and track, if present
 _getTrackWidgetByName: function( hubName, trackName ) {
     var widget;
-    array.some( this.getChildren(), function(child) {
+    array.some( this.getChildren(), function( childWidget ) {
                     try {
-                        var track = child.getTrack();
-                        if( track.getTrackHub().getConf('name') == hubName
+                        var track = childWidget.getTrack();
+                        if( track.getDataHub().getConf('name') == hubName
                             && track.getConf('name') == trackName
                           )
-                            return widget = child;
+                            return widget = childWidget;
                     } catch(e) {}
                     return false;
                 });
@@ -183,7 +181,11 @@ configSchema: {
           description: 'data hub path to reference sequence set to display: hubname/setname'
         },
 
-        { name: 'visibleTracks', type: 'multi-string' },
+        { name: 'visibleTracks', type: 'multi-array',
+          //defaultValue: [['default','Reference sequence']]
+          defaultValue: []
+        },
+
         { name: 'location', type: 'object' },
 
         { name: 'slideAnimationDuration', type: 'integer', defaultValue: 1100,
@@ -208,6 +210,15 @@ buildRendering: function() {
     this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
     this.domNode.appendChild( this.gridlines.domNode );
 
+    var thisB = this;
+    all( array.map( this.getConf('visibleTracks'), function( tRec ) {
+                       return thisB.browser.getTrack( tRec[0], tRec[1] );
+                   })
+       ).then( function( trackObjects ) {
+           return thisB.showTracks( array.filter( trackObjects, function(o){return o;}) );
+       })
+      .then( undefined, function(e) { console.error( e.stack || ''+e ); });
+
     //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
     //this.addChild( this.trackPane = new TrackPane({ region: 'top', browser: this.browser, genomeView: this }) );
 },
@@ -219,19 +230,23 @@ _drawAttentionToTrackWidget: function( trackWidget ) {
     // TODO
 },
 
-// display the given track objects in this region view.  if a widget
-// already exists in this view for a track, returns it.  otherwise,
-// makes and returns a new widget.  returns a Deferred array of the track widgets
+// display the given track objects in this region view.  for each
+// track object, if a widget already exists in this view for a track,
+// returns it.  otherwise, makes and returns a new widget.  returns a
+// Deferred array of the track widgets
 showTracks: function( trackObjects ) {
     var thisB = this;
     return all( array.map( trackObjects, function( trackObject ) {
+        if( ! trackObject )
+            return undefined;
+
         var existingWidget;
-        if(( existingWidget = this._getTrackWidgetForTrack( trackObject ) )) {
-            this._drawAttentionToTrackWidget( existingWidget );
+        if(( existingWidget = thisB._getTrackWidgetForTrack( trackObject ) )) {
+            thisB._drawAttentionToTrackWidget( existingWidget );
             return Util.resolved( existingWidget );
         }
 
-        return trackObject.newWidget()
+        return trackObject.newWidget({ genomeView: thisB })
             .then( function( trackWidget ) {
                        thisB.addChild( trackWidget );
                        return trackWidget;
@@ -248,7 +263,7 @@ hideTracks: function( trackObjects ) {
            thisB.removeChild( widget );
            widget.destroyRecursive();
         }
-    });
+    },this);
 },
 
 // startup: function() {
@@ -262,7 +277,7 @@ hideTracks: function( trackObjects ) {
 //     this.inherited(arguments);
 // },
 
-setLocation: function( locstring ) {
+showLocation: function( locstring ) {
     this.setConf( 'location', Util.parseLocString( locstring ) );
 },
 

@@ -20,6 +20,8 @@ define([
            Util
        ) {
 
+var serialNumber = 0;
+
 return declare( [ Stateful, Destroyable, _BlockBasedMixin, _HorizScaleMixin ] , {
 
 constructor: function( args ) {
@@ -28,7 +30,6 @@ constructor: function( args ) {
         'div',
         { className: 'gridlines' }
     );
-    this.set('genomeView', args.genomeView );
 },
 
 // the Gridlines widget uses bare canvas elements as rendering blocks
@@ -36,9 +37,26 @@ constructor: function( args ) {
 createBlockNode: function( block ) {
     var d = document.createElement('canvas');
     d.className = 'renderingBlock';
+    d.setAttribute('serialNumber', serialNumber++ );
     d.height = this.height;
     this.domNode.appendChild(d);
     return d;
+},
+
+
+newBlock: function( renderingBlock, changeInfo ) {
+    var thisB = this,
+    blockNode = this.createBlockNode( renderingBlock ),
+    blockChangeWatch = renderingBlock.watch(
+        function( changeInfo, block ) {
+            console.log( changeInfo.operation, blockNode );
+            if( changeInfo.operation == 'destroy' )
+                blockChangeWatch.remove();
+
+            thisB.blockChange( blockNode, changeInfo, block );
+        });
+
+    this.blockChange( blockNode, changeInfo, renderingBlock );
 },
 
 _positionBlockNode: function( block, canvasNode, changeInfo ) {

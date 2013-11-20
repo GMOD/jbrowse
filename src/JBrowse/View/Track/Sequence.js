@@ -1,8 +1,5 @@
 /**
- * Track to display the underlying reference sequence, when zoomed in
- * far enough.
- *
- * @extends JBrowse.View.Track.BlockBased
+ * Track view that displays the underlying reference sequence bases.
  */
 define( [
             'dojo/_base/declare',
@@ -13,8 +10,8 @@ define( [
             'dojo/query',
 
             'JBrowse/MediaTypes',
-            'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/_ExportMixin',
+            '../Track',
+            './_BlockBasedMixin',
             'JBrowse/CodonTable',
             'JBrowse/Util'
         ],
@@ -27,17 +24,18 @@ define( [
             query,
 
             MediaTypes,
-            BlockBased,
-            ExportMixin,
+            TrackView,
+            _BlockBasedMixin,
             CodonTable,
             Util
         ) {
 
-return declare( [BlockBased, ExportMixin],
+return declare( [ TrackView, _BlockBasedMixin ],
 {
+    baseClass: 'sequence-track',
+
     constructor: function( args ) {
         this._charMeasurements = {};
-        this.show();
     },
 
     configSchema: {
@@ -53,24 +51,13 @@ return declare( [BlockBased, ExportMixin],
         return MediaTypes.getTypeRecords('fasta');
     },
 
-    endZoom: function(destScale, destBlockBases) {
-        this.clear();
-    },
-
     nbsp: String.fromCharCode(160),
 
-    fillBlock:function( args ) {
-        var thisB = this;
-        var blockIndex = args.blockIndex;
-        var block = args.block;
-        var leftBase = args.leftBase;
-        var rightBase = args.rightBase;
-        var scale = args.scale;
+    fillBlock:function( block, blockNode ) {
+        var blockDims = block.getDimensions();
+        var projectionBlock = block.getProjectionBlock();
 
-        var leftExtended = leftBase - 2;
-        var rightExtended = rightBase + 2;
-
-        var thisB = this;
+        dom.empty( blockNode );
 
         var blur = dojo.create(
             'div',
@@ -81,33 +68,49 @@ return declare( [BlockBased, ExportMixin],
                       + ( this.getConf('showForwardStrand') ? 14 : 0 )
                       + ( this.getConf('showReverseStrand') ? 14 : 0 ) + 'px'
               }
-            }, block.domNode );
+            }, blockNode );
 
-        this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
+        this.heightUpdate( blur.offsetHeight+2*blur.offsetTop );
+
+        var scale = projectionBlock.getScale();
 
         // if we are zoomed in far enough to draw bases, then draw them
-        if ( scale >= 1.3 ) {
-            this.store.getReferenceSequence( this.refSeq.get('name'), leftExtended, rightExtended )
+        if ( scale < 1/1.3 ) {
+            var thisB = this;
+
+            var baseSpan = block.getBaseSpan();
+
+            var leftExtended  = Math.floor( baseSpan.l - 2 );
+            var rightExtended = Math.ceil(  baseSpan.r + 2 );
+
+            return this.get('store')
+                .getReferenceSequence( baseSpan.refName, leftExtended, rightExtended )
                 .then( function( seq ) {
-                           dom.empty( block.domNode );
-                           thisB._fillSequenceBlock( block, blockIndex, scale, seq );
-                       })
-                .then( args.finishCallback, lang.hitch( this, '_handleError' ) );
+                           if( seq )
+                               thisB._fillSequenceBlock( block, blockNode, scale, seq );
+                           else
+                               blur.innerHTML = '<span class="message">No sequence available</span>';
+                       },
+                       lang.hitch( this, '_handleError' )
+                     );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
-            args.finishCallback();
+            return undefined;
         }
     },
 
-    _fillSequenceBlock: function( block, blockIndex, scale, seq ) {
+    _fillSequenceBlock: function( block, blockNode, scale, seq ) {
         seq = seq.replace(/\s/g,this.nbsp);
 
-        var blockStart = block.startBase;
-        var blockEnd = block.endBase;
-        var blockSeq = seq.substring( 2, seq.length - 2 );
+        var baseSpan = block.getBaseSpan();
+
+        var blockStart = Math.floor( baseSpan.l );
+        var blockEnd   = Math.ceil(  baseSpan.r );
+
+        var blockSeq    = seq.substring( 2, seq.length - 2 );
         var blockLength = blockSeq.length;
 
         var extStart = blockStart-2;
@@ -125,7 +128,7 @@ return declare( [BlockBased, ExportMixin],
                 domClass.add( translatedDiv, "frame" + frame );
             }
             for( var i = 2; i >= 0; i-- ) {
-                block.domNode.appendChild( frameDiv[i] );
+                blockNode.appendChild( frameDiv[i] );
             }
         }
 
@@ -138,7 +141,7 @@ return declare( [BlockBased, ExportMixin],
                 "table", {
                     className: "sequence" + (bigTiles ? ' big' : ''),
                     style: { width: "100%" }
-                }, block.domNode);
+                }, blockNode );
 
         // add a table for the forward strand
         if( this.getConf('showForwardStrand') )
@@ -160,16 +163,16 @@ return declare( [BlockBased, ExportMixin],
                     domClass.add( translatedDiv, "frame" + frame );
                 }
                 for( var i = 0; i < 3; i++ ) {
-                    block.domNode.appendChild( frameDiv[i] );
+                    blockNode.appendChild( frameDiv[i] );
                 }
             }
         }
 
         var totalHeight = 0;
-        array.forEach( block.domNode.childNodes, function( table ) {
+        array.forEach( blockNode.childNodes, function( table ) {
                            totalHeight += (table.clientHeight || table.offsetHeight);
                        });
-        this.heightUpdate( totalHeight, blockIndex );
+        this.heightUpdate( totalHeight );
     },
 
     _renderTranslation: function( seq, offset, blockStart, blockEnd, blockLength, scale, reverse ) {

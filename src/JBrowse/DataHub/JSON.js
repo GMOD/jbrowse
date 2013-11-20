@@ -110,7 +110,7 @@ return declare( DataHub, {
                                             })
                                     );
                                     var d = new Deferred();
-                                    store.onReady( d, 'resolve' );
+                                    store.onReady( d, function() { d.resolve( store ); } );
                                     return d;
                                 });
                  });

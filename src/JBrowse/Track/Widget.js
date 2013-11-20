@@ -1,7 +1,9 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/_base/array',
-           'dojo/dom-geometry',
+           'dojo/when',
+           'dojo/promise/all',
 
            'dijit/layout/BorderContainer',
 
@@ -10,8 +12,10 @@ define([
        ],
        function(
            declare,
+           lang,
            array,
-           domGeom,
+           when,
+           all,
 
            BorderContainer,
 
@@ -19,59 +23,87 @@ define([
            Util
        ) {
 
-return declare( [ BorderContainer, Component], {
+return declare( [ BorderContainer ], {
 
     baseClass: 'track',
+    region: 'top',
 
     constructor: function( args ) {
-        this._track = args.track;
     },
 
     getTrack: function() {
-        return this._track;
+        return this.get('track');
     },
 
-    buildRendering: function() {
+    startup: function() {
         this.inherited( arguments );
 
         var thisB = this;
 
         // instantiate the main track view if we have one
-        var madeView = this._makeView( this._track.getConf('viewName') )
-            .then( function( view ) {
-                thisB.addChild( thisB.view = thisB._makeView( thisB._track.getConf('viewName') ) );
-            });
+        var mainViewName = this.get('track').getViewName( this );
+        var madeView;
+        function logError(e) {
+            console.error(e.stack || ''+e);
+        }
+        if( mainViewName ) {
+            madeView = this._makeView( mainViewName )
+                .then( function( view ) {
+                           thisB.addChild( thisB.mainView = view );
+                       },
+                       logError
+                     );
+        }
 
         // instantiate the subtracks if we have any
         this.subtracks = this._makeSubtracks();
         this.subtracks
             .then( function( subtracks ) {
-                       madeView.then( function() {
-                               array.forEach( subtracks, lang.hitch( thisB, 'addChild' ) );
+                       when(madeView).then( function() {
+                           array.forEach( subtracks, lang.hitch( thisB, 'addChild' ) );
                        });
-                   });
+                   },
+                   logError
+                 );
     },
 
     _makeView: function( viewName, args ) {
-        var viewconf = this._track.getConf('views')[ viewName ];
+        var viewconf = this.get('track').getConf('views')[ viewName ];
         if( ! viewconf )
             throw new Error( 'no configuration found for view named "'
-                             +viewName+'" in track "'+this._track.getConf('name')+'"' );
+                             +viewName+'" in track "'+this.get('track').getConf('name')+'"' );
         var thisB = this;
-        return Util.loadJSClass( viewconf.type || this._track.getConf('defaultViewType') )
+        return Util.loadJSClass( viewconf.type || this.get('track').getConf('defaultViewType') )
             .then( function( TrackViewClass ) {
-                       return new TrackViewClass({ region: 'top', config: viewconf, browser: thisB.browser });
+                       return thisB.get('track')
+                           .get('dataHub')
+                           .openStore( viewconf.store )
+                           .then( function( store ) {
+                                      return new TrackViewClass(
+                                          { region: 'top',
+                                            track: thisB.get('track'),
+                                            genomeView: thisB.get('genomeView'),
+                                            config: viewconf,
+                                            browser: thisB.get('browser'),
+                                            store: store
+                                          });
+                                  });
              });
     },
 
     _makeSubtracks: function() {
         return all(
             array.map(
-                this._track.getConf('subtracks'),
+                this.get('track').getConf('subtracks'),
                 function( subtrackConf ) {
-                    return Util.loadJSClass( subtrackConf.type || this._track.getConf('defaultSubtrackType') )
+                    return Util.loadJSClass( subtrackConf.type || this.get('track').getConf('defaultSubtrackType') )
                     .then( function( TrackClass ) {
-                               return new TrackClass({ region: 'top', config: subtrackConf, browser: thisB.browser })
+                               return new TrackClass(
+                                   { region: 'top',
+                                     genomeView: this.get('genomeView'),
+                                     config: subtrackConf,
+                                     browser: thisB.browser
+                                   });
                            });
                 },this)
         );

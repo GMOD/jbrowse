@@ -5,6 +5,8 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/dom-geometry',
+           'dojo/Stateful',
 
            'JBrowse/Component',
            'JBrowse/Util'
@@ -13,12 +15,14 @@ define([
            declare,
            lang,
            array,
+           domGeom,
+           Stateful,
 
            Component,
            Util
        ) {
 
-return declare( Component, {
+return declare( [Component,Stateful], {
 
     configSchema: {
         slots: [
@@ -32,8 +36,8 @@ return declare( Component, {
               description: "track-specific query variables to pass to the store"
             },
 
-            { name: 'widgetType', type: 'string', defaultValue: 'JBrowse/Track/Widget',
-              description: "the JavaScript type of this track's top-level widget"
+            { name: 'widgetClass', type: 'string', defaultValue: 'JBrowse/Track/Widget',
+              description: "the JavaScript class of this track's top-level widget"
             },
 
             { name: 'defaultViewType', type: 'string',
@@ -56,14 +60,6 @@ return declare( Component, {
             { name: 'viewName', type: 'string',
               description: 'String name of the view to use.  Usually a function.',
               defaultValue: function( track ) {
-                  var zoomViews = track.getConf('zoomViews').sort( function(a,b) { return b[0]-a[0]; } );
-                  var projection = track.get('projection');
-                  var viewportDims = domGeom.position( track.domNode );
-                  var viewportBp = projection.getScale() * viewportDims.w;
-                  for( var i = 0; i<zoomViews.length; i++ )
-                      if( zoomViews[i][0] < viewportBp )
-                          return zoomViews[i][1];
-                  return track.getConf('viewNameDefault');
               }
             },
 
@@ -80,7 +76,22 @@ return declare( Component, {
     },
 
     newWidget: function( args ) {
-        return Util.instantiate( this.getConf('widgetClass'), lang.mixin( {}, args || {}, { track: this } ) );
+        return Util.instantiate( this.getConf('widgetClass'), lang.mixin( {}, args || {}, { track: this, browser: this.browser } ) );
+    },
+
+    getViewName: function( widget ) {
+        var zoomViews = this.getConf('zoomViews').sort( function(a,b) { return b[0]-a[0]; } );
+        var viewportDims = domGeom.position( widget.domNode );
+
+        var projection = widget.get('genomeView').get('projection');
+        if( projection ) {
+            var viewportBp = projection.getScale() * viewportDims.w;
+            for( var i = 0; i<zoomViews.length; i++ )
+                if( zoomViews[i][0] < viewportBp )
+                    return zoomViews[i][1];
+        }
+
+        return this.getConf('viewNameDefault');
     }
 
 });
