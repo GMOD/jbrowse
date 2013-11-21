@@ -39,6 +39,7 @@ define( [
             'JBrowse/Auth/_AuthManagerMixin',
             'JBrowse/DataHub/_DataHubManagerMixin',
             'JBrowse/Transport/_TransportManagerMixin',
+            'JBrowse/Worker/_WorkerManagerMixin',
             'JBrowse/View/RegionBrowser2',
             'JBrowse/ConfigManager',
             'JBrowse/Model/SimpleFeature',
@@ -88,6 +89,7 @@ define( [
             AuthManagerMixin,
             DataHubManagerMixin,
             TransportManagerMixin,
+            WorkerManagerMixin,
             RegionBrowser2,
             ConfigLoader,
             SimpleFeature,
@@ -113,7 +115,8 @@ return declare(
       FeatureFiltererMixin,
       AuthManagerMixin,
       DataHubManagerMixin,
-      TransportManagerMixin
+      TransportManagerMixin,
+      WorkerManagerMixin
     ], {
 
 // set constructor method chaining to manual, we need to do some special things
