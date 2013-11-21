@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fix generate-names.pl crashing on some older versions of Perl with
+   an error like `Bareword "POSIX::O_RDONLY" not allowed while "strict
+   subs" in use`.  Thanks to Chris Childers for pointing this out.
+
 # Release 1.10.10     2013-11-21 09:31:53 EST5EDT
 
 ## Minor improvements

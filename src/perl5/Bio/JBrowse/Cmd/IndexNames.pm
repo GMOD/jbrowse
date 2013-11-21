@@ -307,7 +307,7 @@ sub make_key_value_stream {
     $self->_build_index_temp( shift, $tempfile ); #< use shift to free the $operation_stream after index is built
 
     # reopen the temp store with default cache size to save memory
-    my $temp_store = $self->name_store->db_open( $tempfile, POSIX::O_RDONLY, 0666 );
+    my $temp_store = $self->name_store->db_open( $tempfile, &POSIX::O_RDONLY, 0666 );
     $self->{stats}{key_count} = scalar keys %$temp_store;
     return sub {
         my ( $k, $v ) = each %$temp_store;
@@ -319,7 +319,7 @@ sub _build_index_temp {
     my ( $self, $operation_stream, $tempfile ) = @_;
 
     my $temp_store = $self->name_store->db_open(
-        $tempfile, POSIX::O_RDWR|POSIX::O_TRUNC, 0666,
+        $tempfile, &POSIX::O_RDWR|&POSIX::O_TRUNC, 0666,
         { flags => 0x1, cachesize => $self->opt('mem') }
         );
 
