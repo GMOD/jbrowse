@@ -6,6 +6,9 @@
    an error like `Bareword "POSIX::O_RDONLY" not allowed while "strict
    subs" in use`.  Thanks to Chris Childers for pointing this out.
 
+ * Fix `setup.sh` failing on some older versions of Perl.  It now runs
+   `generate-names.pl` with the `--safeMode` flag.
+
 # Release 1.10.10     2013-11-21 09:31:53 EST5EDT
 
 ## Minor improvements
