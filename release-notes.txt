@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Made the sequence track's "zoom in to see sequence" placeholder
+   take up less vertical space.  Thanks to Scott Cain for pointing out
+   that making it be the same height as it will eventually be when
+   zoomed in to base level is silly.
+
 ## Bug fixes
 
  * Fix generate-names.pl crashing on some older versions of Perl with

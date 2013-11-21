@@ -79,11 +79,6 @@ return declare( [BlockBased, ExportMixin],
             'div',
             { className: 'sequence_blur',
               innerHTML: '<span class="loading">Loading</span>',
-              style: {
-                  height: ( this.config.showTranslation ? 6*14 : 0 )
-                      + ( this.config.showForwardStrand ? 14 : 0 )
-                      + ( this.config.showReverseStrand ? 14 : 0 ) + 'px'
-              }
             }, block.domNode );
 
         this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
