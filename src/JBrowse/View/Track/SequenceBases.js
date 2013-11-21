@@ -126,6 +126,12 @@ return declare( [ TrackView, _BlockBasedMixin ],
             + ( this.getConf('showReverseStrand') ? 14 : 0 ) + 4;
     },
 
+    _getBoxHeight: function() {
+        var fontSize = parseInt( this.getConf('baseFont').match(/(\d+)px/)[1] );
+        var boxHeight = Math.round( fontSize*1.5 );
+        return boxHeight;
+    },
+
     nbsp: String.fromCharCode(160),
 
     _fillSequenceBlock: function( block, blockNode, scale, originBp, baseDims, seq ) {
@@ -142,9 +148,8 @@ return declare( [ TrackView, _BlockBasedMixin ],
         var originPx = block.getProjectionBlock().reverseProjectPoint(originBp)-pxDims.l;
 
         var pxPerBp  = 1/scale;
-        var fontSize = parseInt( (ctx.font = this.getConf('baseFont')).match(/(\d+)px/)[1] );
 
-        var boxHeight = Math.round( fontSize*1.5 );
+        var boxHeight = this._getBoxHeight();
         for( var i = 1; i<seq.length-1; i++ ) {
             var c = seq.charAt(i);
             ctx.fillStyle = colors[c] || colors.n;
@@ -158,18 +163,18 @@ return declare( [ TrackView, _BlockBasedMixin ],
             }
         }
 
-        if( pxPerBp > fontSize ) {
+        if( pxPerBp > boxHeight ) {
             var textOffset = pxPerBp/2;
             ctx.textBaseline = 'top';
             ctx.fillStyle = 'black';
             for( var i = 1; i<seq.length-1; i++ ) {
                 var c = seq.charAt(i);
-                ctx.fillText( c, originPx+textOffset+i*pxPerBp-ctx.measureText(c).width/2, 0 );
+                ctx.fillText( c, originPx+textOffset+i*pxPerBp-ctx.measureText(c).width/2, boxHeight*0.1 );
             }
             if( this.getConf('showReverseStrand') ) {
                 for( var i = 1; i<compSeq.length-1; i++ ) {
                     var c = compSeq.charAt(i);
-                    ctx.fillText( c, originPx+textOffset+i*pxPerBp-ctx.measureText(c).width/2, fontSize*1.5 );
+                    ctx.fillText( c, originPx+textOffset+i*pxPerBp-ctx.measureText(c).width/2, boxHeight*1.1 );
                 }
             }
         }
