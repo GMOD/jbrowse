@@ -14,7 +14,5 @@ class AbstractModEncodeFacetedTest ( JBrowseTest ):
         
         assert self.is_track_on( '5-prime-UTR;Y cn bw sp;Mixed Embryos 0-24 hr;CAGE'  ), 'track should be on now'
 
-        self.browser.close()
-
 class ModEncodeFacetedTest ( AbstractModEncodeFacetedTest, unittest.TestCase  ):
     pass

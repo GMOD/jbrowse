@@ -33,8 +33,6 @@ class VolvoxBiodbTest121 ( AbstractVolvoxBiodbTest, unittest.TestCase ):
         # test sequence track display
         self.sequence()
 
-        self.browser.close()
-
     def baseURL( self ):
         if not self.base_url:
             self.base_url = re.sub('[^/]+$','compat_121.html',super( AbstractVolvoxBiodbTest, self ).baseURL() )

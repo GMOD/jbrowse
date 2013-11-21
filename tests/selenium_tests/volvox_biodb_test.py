@@ -1,6 +1,7 @@
 import subprocess
 from subprocess import check_call as call, PIPE
 import unittest
+import time
 
 from jbrowse_selenium import JBrowseTest
 
@@ -35,7 +36,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # test scrolling, make sure we get no js errors
         self.scroll()
-
+        
         # test context menus
         self.context_menus()
 
@@ -66,8 +67,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test CanvasFeatures tracks
         self.canvasfeatures()
 
-        self.browser.close()
+        # test search tracks
+        self.search_track()
 
+        # test combination tracks
+        self.combination()
+        
     def canvasfeatures( self ):
 
         # turn on CanvasFeatures tracks and make sure they are created
@@ -192,8 +197,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # right-click one of them
         self.actionchains() \
-            .context_click(feature_elements[int(len(feature_elements)/2)]) \
-            .perform()
+            .move_to_element(feature_elements[int(len(feature_elements)/2)]) \
+            .context_click().perform()
 
         self.menu_item_click( 'Open popup' )
 
@@ -236,6 +241,19 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.turn_off_track('HTMLFeatures - Example Features')
 
+    def search_track( self ):
+        self.assert_element("#dropdownbutton_file").click()
+        self.assert_element("#dijit_MenuItem_0").click()
+        self.assert_element("//div[@class='dijitDialogPaneContent']//input[@type='text'][@class='dijitReset dijitInputInner']").send_keys( "aaaccc" )
+        self.assert_element("//div[@class='dijitDialogPaneContent']//span[@class='dijitReset dijitInline dijitButtonText'][text()='Search']").click()
+        self.assert_element("//div[contains(@id, 'track_search_track')]//canvas")
+        self.turn_off_track("Search reference sequence for")
+
+    def combination( self ):
+        self.assert_element("#dropdownbutton_file").click()
+        self.assert_element("#menubar_combotrack_text").click()
+        self.assert_element("//div[contains(@id, 'track_combination_track')]")
+        self.turn_off_track("Combination Track")
 
 class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
     pass

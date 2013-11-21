@@ -7,5 +7,3 @@ class WelcomePageTest( JBrowseTest, unittest.TestCase ):
 
     def test_volvox( self ):
         self.assert_element('//div[contains(@class,"fatal_error")]/h1')
-        self.browser.close()
-

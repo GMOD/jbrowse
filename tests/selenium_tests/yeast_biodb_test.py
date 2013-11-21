@@ -54,8 +54,6 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         # test sequence fetching
         self.sequence()
 
-        self.browser.close()
-
     def sequence( self ):
         self.do_typed_query( 'chrII:296318..296400' )
         if not self.is_track_on('Reference sequence'):
