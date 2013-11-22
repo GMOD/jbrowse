@@ -593,7 +593,7 @@ sub open_names_file {
                    or die "$! running gunzip";
                 return $fh;
             } else {
-                die "cannot uncompress $filerec->{fullpath}, could not use either IO::Uncompress::Gunzip nor gzip";
+                die "cannot uncompress $filerec->{fullpath}, could not use either IO::Uncompress::Gunzip or gzip";
             }
         }
         else {
