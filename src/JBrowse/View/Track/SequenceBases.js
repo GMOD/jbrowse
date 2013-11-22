@@ -47,6 +47,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
               defaultValue: 'normal 12px Open Sans,Univers,Helvetica,Arial,sans-serif'
             },
             { name: 'baseColors',        type: 'object',
+              description: 'object holding CSS color definitions for sequence bases or amino acids',
               defaultValue: {
                   n: '#C6C6C6',
                   a: '#14d100',
@@ -82,7 +83,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
                   height: this._getHeight() + 'px'
               }
             });
-        var blurTimeout = window.setTimeout( function() {
+        var blurTimeout = setTimeout( function() {
             blockNode.appendChild( blur );
         }, 300 );
 
@@ -92,7 +93,11 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale < 1/1.3 ) {
-            return this._fillSequenceBlock( this.get('store'), block, blockNode, scale, blur, blurTimeout );
+            return this._fillSequenceBlock( this.get('store'), block, blockNode, scale, blur, blurTimeout )
+                .then( function(v) {
+                           clearTimeout( blurTimeout );
+                           return v;
+                       });
         }
         // otherwise, just draw something that suggests there are
         // bases there if you zoom in far enough
@@ -116,7 +121,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
     nbsp: String.fromCharCode(160),
 
-    _fillSequenceBlock: function( store, block, blockNode, scale, blur, blurTimeout ) {
+    _fillSequenceBlock: function( store, block, blockNode, scale, blur ) {
             var thisB = this;
 
             var baseSpan = block.getBaseSpan();
@@ -128,7 +133,6 @@ return declare( [ TrackView, _BlockBasedMixin ],
                 .getReferenceSequence( baseSpan.refName, leftExtended, rightExtended )
                 .then( function( seq ) {
                            if( seq ) {
-                               window.clearTimeout( blurTimeout );
                                dom.empty( blockNode );
                                var canvas = dom.create(
                                    'canvas', {
@@ -157,36 +161,35 @@ return declare( [ TrackView, _BlockBasedMixin ],
         var originPx = block.getProjectionBlock().reverseProjectPoint(originBp)-pxDims.l;
 
         var pxPerBp  = 1/scale;
-
         var boxHeight = this._getBoxHeight();
-        for( var i = 1; i<seq.length-1; i++ ) {
-            var c = seq.charAt(i);
-            ctx.fillStyle = colors[c] || colors.n;
-            ctx.fillRect( originPx+i*pxPerBp, 0, pxPerBp, boxHeight );
-        }
-        if( this.getConf('showReverseStrand') ) {
-            for( var i = 1; i<compSeq.length-1; i++ ) {
-                var c = compSeq.charAt(i);
-                ctx.fillStyle = colors[c] || colors.n;
-                ctx.fillRect( originPx+i*pxPerBp, boxHeight, pxPerBp, boxHeight );
-            }
-        }
 
-        if( pxPerBp > boxHeight ) {
-            var textOffset = pxPerBp/2;
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = 'black';
+        var textOffsetX = pxPerBp/2;
+        var textOffsetY = boxHeight * 0.1;
+        ctx.textBaseline = 'top';
+
+        var currentY = 0;
+
+        function drawNucleotideRow( ctx, seq ) {
             for( var i = 1; i<seq.length-1; i++ ) {
                 var c = seq.charAt(i);
-                ctx.fillText( c, originPx+textOffset+i*pxPerBp-ctx.measureText(c).width/2, boxHeight*0.1 );
+                ctx.fillStyle = colors[c] || colors.n;
+                ctx.fillRect( originPx+i*pxPerBp, currentY, pxPerBp, boxHeight );
             }
-            if( this.getConf('showReverseStrand') ) {
-                for( var i = 1; i<compSeq.length-1; i++ ) {
-                    var c = compSeq.charAt(i);
-                    ctx.fillText( c, originPx+textOffset+i*pxPerBp-ctx.measureText(c).width/2, boxHeight*1.1 );
+            if( pxPerBp > boxHeight ) {
+                ctx.fillStyle = 'black';
+                for( var i = 1; i<seq.length-1; i++ ) {
+                    var c = seq.charAt(i);
+                    ctx.fillText( c, originPx+textOffsetX+i*pxPerBp-ctx.measureText(c).width/2, currentY+textOffsetY );
                 }
             }
+            currentY += boxHeight;
         }
+
+        if( this.getConf('showForwardStrand') )
+            drawNucleotideRow( ctx, seq );
+        if( this.getConf('showReverseStrand') )
+            drawNucleotideRow( ctx, Util.complement( seq )  );
     }
+
 });
 });
