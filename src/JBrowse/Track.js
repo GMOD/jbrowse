@@ -7,6 +7,7 @@ define([
            'dojo/_base/array',
            'dojo/dom-geometry',
            'dojo/Stateful',
+           'dojo/promise/all',
 
            'JBrowse/Component',
            'JBrowse/Util'
@@ -17,6 +18,7 @@ define([
            array,
            domGeom,
            Stateful,
+           all,
 
            Component,
            Util
@@ -53,7 +55,10 @@ return declare( [Component,Stateful], {
               description: 'configurations for subtracks of this track'
             },
 
-            { name: 'views', type: 'object' },
+            { name: 'views', type: 'object',
+              description: 'named view configurations for this track'
+            },
+
             { name: 'viewNameDefault', type: 'string', defaultValue: 'default',
               description: 'name of the default view to use'
             },
@@ -95,7 +100,53 @@ return declare( [Component,Stateful], {
         }
 
         return this.getConf('viewNameDefault');
-    }
+    },
 
+    makeView: function( viewName, args ) {
+        var viewconf = this.getConf('views')[ viewName ];
+        if( ! viewconf )
+            throw new Error( 'no configuration found for view named "'
+                             +viewName+'" in track "'+this.getConf('name')+'"' );
+        var thisB = this;
+        return Util.loadJSClass( viewconf.type || this.getConf('defaultViewType') )
+            .then( function( TrackViewClass ) {
+                       return thisB
+                           .get('dataHub')
+                           .openStore( viewconf.store )
+                           .then( function( store ) {
+                                      return new TrackViewClass(
+                                          lang.mixin(
+                                              { region: 'top',
+                                                track: thisB,
+                                                config: viewconf,
+                                                store: store
+                                              },
+                                              args || {}
+                                          ));
+                                  });
+             });
+
+        this.inherited(arguments);
+    },
+
+    makeSubtracks: function( args ) {
+        return all(
+            array.map(
+                this.getConf('subtracks'),
+                function( subtrackConf ) {
+                    return Util.loadJSClass( subtrackConf.type || this.getConf('defaultSubtrackType') )
+                    .then( function( TrackClass ) {
+                               return new TrackClass(
+                                   lang.mixin(
+                                       { region: 'top',
+                                         config: subtrackConf,
+                                         browser: thisB.browser
+                                       },
+                                       args || {}
+                                   ));
+                           });
+                },this)
+        );
+    }
 });
 });

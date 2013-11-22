@@ -13,6 +13,11 @@ define([
 
 return declare( null, {
 
+constructor: function(args) {
+    if( !( 'genomeView' in args ) )
+        throw new Error( 'genomeView argument required' );
+},
+
 // when a the genomeview attr is set on this object, make blocks for
 // existing blocks, and watch its rendering blocks for changes
 _setGenomeViewAttr: function( genomeView ) {

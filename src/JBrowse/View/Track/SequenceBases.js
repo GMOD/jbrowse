@@ -92,25 +92,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
         // if we are zoomed in far enough to draw bases, then draw them
         if ( scale < 1/1.3 ) {
-            var thisB = this;
-
-            var baseSpan = block.getBaseSpan();
-
-            var leftExtended  = Math.floor( baseSpan.l - 2 );
-            var rightExtended = Math.ceil(  baseSpan.r + 2 );
-
-            return this.get('store')
-                .getReferenceSequence( baseSpan.refName, leftExtended, rightExtended )
-                .then( function( seq ) {
-                           if( seq ) {
-                               window.clearTimeout( blurTimeout );
-                               dom.empty( blockNode );
-                               thisB._fillSequenceBlock( block, blockNode, scale, leftExtended, baseSpan, seq );
-                           } else
-                               blur.innerHTML = '<span class="message">No sequence available</span>';
-                       },
-                       lang.hitch( this, '_handleError' )
-                     );
+            return this._fillSequenceBlock( this.get('store'), block, blockNode, scale, blur, blurTimeout );
         }
         // otherwise, just draw something that suggests there are
         // bases there if you zoom in far enough
@@ -134,11 +116,38 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
     nbsp: String.fromCharCode(160),
 
-    _fillSequenceBlock: function( block, blockNode, scale, originBp, baseDims, seq ) {
-        var pxDims = block.getDimensions();
+    _fillSequenceBlock: function( store, block, blockNode, scale, blur, blurTimeout ) {
+            var thisB = this;
 
-        var canvas = dom.create('canvas', { height: this._getHeight(), width: blockNode.offsetWidth, style: 'width: 100%; height: 100%'}, blockNode );
-        var ctx = canvas.getContext('2d');
+            var baseSpan = block.getBaseSpan();
+
+            var leftExtended  = Math.floor( baseSpan.l - 2 );
+            var rightExtended = Math.ceil(  baseSpan.r + 2 );
+
+            return store
+                .getReferenceSequence( baseSpan.refName, leftExtended, rightExtended )
+                .then( function( seq ) {
+                           if( seq ) {
+                               window.clearTimeout( blurTimeout );
+                               dom.empty( blockNode );
+                               var canvas = dom.create(
+                                   'canvas', {
+                                       height: thisB._getHeight(),
+                                       width: blockNode.offsetWidth,
+                                       style: 'width: 100%; height: 100%'
+                                   }, blockNode
+                               );
+                               var ctx = canvas.getContext('2d');
+                               thisB._drawBases( block, blockNode, scale, leftExtended, baseSpan, seq, ctx );
+                           } else
+                               blur.innerHTML = '<span class="message">No sequence available</span>';
+                       },
+                       lang.hitch( this, '_handleError' )
+                     );
+    },
+
+    _drawBases: function( block, blockNode, scale, originBp, baseDims, seq, ctx ) {
+        var pxDims = block.getDimensions();
 
         seq = seq.replace(/\s/g,this.nbsp);
         var compSeq = Util.complement( seq );

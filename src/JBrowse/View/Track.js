@@ -4,7 +4,7 @@ define([
 
            'dijit/layout/ContentPane',
 
-           'JBrowse/Component'
+           'JBrowse/_ConfigurationMixin'
        ],
        function(
            declare,
@@ -12,10 +12,10 @@ define([
 
            ContentPane,
 
-           Component
+           _ConfigurationMixin
        ) {
 
-return declare( [ ContentPane, Component ], {
+return declare( [ ContentPane, _ConfigurationMixin ], {
   region: 'top',
   baseClass: 'trackView',
   //splitter: true,
