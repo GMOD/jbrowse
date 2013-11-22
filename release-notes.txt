@@ -7,6 +7,12 @@
    that making it be the same height as it will eventually be when
    zoomed in to base level is silly.
 
+ * By default highlighting features after searching for them by name
+   is now turned off.  Set the `highlightSearchedRegions` top-level
+   conf variable to `true` to turn this back on.  Turns out, most
+   people seem not to like this behavior.  Thanks to Gregg Helt and
+   Cris Lawrence for pointing this out.
+
 ## Bug fixes
 
  * Fix generate-names.pl crashing on some older versions of Perl with

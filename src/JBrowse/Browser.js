@@ -1452,7 +1452,9 @@ _configDefaults: function() {
         tracks: [],
         show_tracklist: true,
         show_nav: true,
-        show_overview: true
+        show_overview: true,
+
+        highlightSearchedRegions: false
     };
 },
 
@@ -1826,8 +1828,8 @@ searchNames: function( /**String*/ loc ) {
 
                 // if it has one location, go to it
                 if( goingTo.location ) {
-                        //go to location, with some flanking region
-                        thisB.showRegionWithHighlight( goingTo.location );
+                    //go to location, with some flanking region
+                    thisB.showRegionAfterSearch( goingTo.location );
                 }
                 // otherwise, pop up a dialog with a list of the locations to choose from
                 else if( goingTo.multipleLocations ) {
@@ -2496,19 +2498,26 @@ setHighlightAndRedraw: function( location ) {
 },
 
 /**
- * Clears the old highlight if necessary, sets the given new
- * highlight, and updates the display to show the highlighted location.
+ * Shows a region that has been searched for someplace else in the UI.
+ * Highlights it if this.config.highlightSearchedRegions is true.
  */
-showRegionWithHighlight: function( location ) {
+showRegionAfterSearch: function( location ) {
     location = this.regularizeLocation( location );
 
-    var oldHighlight = this.getHighlight();
-    if( oldHighlight )
-        this.view.hideRegion( oldHighlight );
-    this.view.hideRegion( location );
-    this.setHighlight( location );
+    if( this.config.highlightSearchedRegions ) {
+        var oldHighlight = this.getHighlight();
+        if( oldHighlight )
+            this.view.hideRegion( oldHighlight );
+        this.view.hideRegion( location );
+        this.setHighlight( location );
+    }
     this.showRegion( location );
+},
+showRegionWithHighlight: function() { // backcompat
+    return this.showRegionAfterSearch.apply( this, arguments );
 }
+
+
 });
 });
 
