@@ -113,9 +113,9 @@ var Configuration = declare( null, {
      * values.
      */
     loadBase: function( input ) {
-        this._loadBase( input, this._base, '' );
+        this._load( input, this._base, '' );
     },
-    _loadBase: function( input, targetConf, path ) {
+    _load: function( input, targetConf, path ) {
         for( var k in input ) {
             var fullKey = path+k;
             var v = input[k];
@@ -128,7 +128,7 @@ var Configuration = declare( null, {
                                                                : slot.normalizeValue( v, this );
             }
             else if( typeof v == 'object' && ! lang.isArray(v) ) {
-                this._loadBase( v, targetConf, fullKey+'.' );
+                this._load( v, targetConf, fullKey+'.' );
             }
             else {
                 //throw new Error( 'Unknown configuration key '+fullKey );
@@ -156,7 +156,7 @@ var Configuration = declare( null, {
      * values.
      */
     loadLocal: function( conf, keyBase ) {
-        // TODO: implement this
+        this._load( input, this._local, '' );
     },
 
     /**
