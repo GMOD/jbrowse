@@ -20,7 +20,7 @@ return declare( null, {
     ]
   },
 
-  getWorker: function( groupName, taskIdentifier ) {
+  getWorker: function( taskGroup, taskIdentifier, workerClass ) {
       return this._worker || ( this._worker = function() {
           var thisB = this;
           var d = new Deferred();
@@ -42,12 +42,13 @@ return declare( null, {
               }
           };
           worker.postMessage( JSON.stringify(
-                                  { load: [
+                                  { preload: [
                                         '../../dojo/dojo.js'
                                         , '../init.js'
                                     ],
+                                    delay: 5000,
                                     require: { baseUrl: '../..' },
-                                    workerClass: 'JBrowse/Worker/Dedicated'
+                                    workerClass: workerClass || 'JBrowse/Worker/Dedicated'
                                   }));
 
           return d.then(
