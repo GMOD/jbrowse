@@ -24,19 +24,23 @@ var SerializationUtils = {
 
     // given a thing (maybe an object, maybe not), convert it to bare
     // data in preparation for serialization
-    deflate: function deflate( thing ) {
+    deflate: function deflate( thing, seen ) {
+        if( array.indexOf( seen, thing ) > -1 )
+            throw new Error( 'cycle encountered when deflating '+seen[0]+': '+seen.concat(thing).join(',') );
+
         if( thing ) {
             if( typeof thing.deflate == 'function' )
                 return thing.deflate();
-            else if( lang.isArray( thing ) )
+            else if( lang.isArray( thing ) ) {
                 return array.map( thing, function( subthing ) {
-                    return deflate( subthing );
+                    return deflate( subthing, seen );
                 });
-            else if( typeof thing == 'object' ) {
+            } else if( typeof thing == 'object' ) {
+                seen = (seen||[]).concat(thing);
                 var deflated = {};
                 for( var n in thing ) {
-                    if( thing.hasOwnProperty( n ) && typeof thing[n] != 'function' ) {
-                        deflated[n] = deflate( thing[n] );
+                    if( thing.hasOwnProperty( n ) && n.charAt(0) != '_' && typeof thing[n] != 'function' ) {
+                        deflated[n] = deflate( thing[n], seen );
                     }
                 }
                 return deflated;
@@ -84,10 +88,12 @@ var SerializationUtils = {
         return Util.resolved( data );
     },
 
+    // parse and inflate
     deserialize: function( string ) {
         return SerializationUtils.inflate( JSON.parse( string ) );
     },
 
+    // deflate and encode as JSON
     serialize: function( thing ) {
         return JSON.stringify( SerializationUtils.deflate( thing ) );
     }
