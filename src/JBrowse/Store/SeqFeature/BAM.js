@@ -40,9 +40,6 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
      * @constructs
      */
     constructor: function( args ) {
-
-        this.createSubfeatures = args.subfeatures;
-
         var bamBlob = args.bam ||
             new XHRBlob( this.resolveUrl(
                              args.urlTemplate || 'data.bam'

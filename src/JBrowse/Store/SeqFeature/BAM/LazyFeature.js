@@ -15,7 +15,6 @@ var readFloat = BAMUtil.readFloat;
 var Feature = Util.fastDeclare(
 {
     constructor: function( args ) {
-        this.store = args.store;
         this.file  = args.file;
         this.data  = {
             type: 'match',
@@ -204,9 +203,6 @@ var Feature = Util.fastDeclare(
             return undefined;
     },
     subfeatures: function() {
-        if( ! this.store.createSubfeatures )
-            return undefined;
-
         var cigar = this._get('cigar');
         if( cigar )
             return this._cigarToSubfeats( cigar );
@@ -406,17 +402,19 @@ var Feature = Util.fastDeclare(
                 // other possible cases
             }
             if( op !== 'N' ) {
-                var subfeat = new SimpleFeature({
-                    data: {
-                    type: op,
-                        start: min,
-                        end: max,
-                        strand: this._get('strand'),
-                        cigar_op: lop+op
-                    },
-                    parent: this
-                });
-                subfeats.push(subfeat);
+                subfeats.push(
+                    new SimpleFeature(
+                        {
+                            data: {
+                                type: op,
+                                start: min,
+                                end: max,
+                                strand: this._get('strand'),
+                                cigar_op: lop+op
+                            },
+                            parent: this
+                        })
+                );
             }
             min = max;
         }
