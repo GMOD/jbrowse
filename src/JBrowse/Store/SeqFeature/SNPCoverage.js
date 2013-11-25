@@ -49,37 +49,46 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
             }
         }();
 
-        var binNumber = function( bp ) {
+        function binNumber( bp ) {
             return Math.floor( (bp-leftBase) / binWidth );
         };
 
         // init coverage bins
-        var maxBin = binNumber( rightBase );
-        var coverageBins = new Array( maxBin+1 );
-        for( var i = 0; i <= maxBin; i++ ) {
+        var binMax = Math.ceil( (rightBase-leftBase)/binWidth );
+        var coverageBins = new Array( binMax );
+        for( var i = 0; i < binMax; i++ ) {
             coverageBins[i] = new NestedFrequencyTable();
+            if( binWidth == 1 )
+                coverageBins[i].snpsCounted = true;
         }
-        var binOverlap = function( bp, isRightEnd ) {
-            var binCoord  = (bp-leftBase) / binWidth;
-            var binNumber = Math.floor( binCoord );
 
-            // only calculate the overlap if this lies in this block
-            if( binNumber >= 0 && binNumber <= maxBin ) {
-                var overlap =
-                    isRightEnd ? 1 - ( binCoord - binNumber )
-                               : binCoord - binNumber;
-                return {
-                    bin: binNumber,
-                    overlap: overlap // between 0 and 1: proportion of this bin that the feature overlaps
-                };
+        function forEachBin( feature, callback ) {
+            var s = (feature.get('start') - leftBase)/binWidth;
+            var e = (feature.get('end')-1 - leftBase)/binWidth;
+            var sb = Math.floor(s),
+                eb = Math.floor(e);
+
+            if( sb >= binMax || eb < 0 )
+                return; // does not overlap this block
+
+            // enforce 0 <= bin < binMax
+            if( sb < 0 )
+                s = sb = 0;
+            if( eb >= binMax ) {
+                eb = binMax-1;
+                e  = binMax;
             }
-            // otherwise null, this feature goes outside the block
-            else {
-                return isRightEnd ? { bin: maxBin, overlap: 1 }
-                                  : { bin: 0,      overlap: 1 };
+
+            // now iterate
+            if( sb == eb ) // if in the same bin, just one call
+                callback( sb, e-s );
+            else { // if in different bins, two or more calls
+                callback( sb, sb+1-s );
+                for( var i = sb+1; i < eb; i++ )
+                    callback( i, 1 );
+                callback( eb, e-eb );
             }
         };
-
 
         thisB.store.getFeatures(
             query,
@@ -87,47 +96,37 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                 if( ! thisB.filter( feature ) )
                     return;
 
+                // if the bin width is smallish, calculate coverage using subfeatures
+                var coverageFeatures = binWidth == 1 && feature.children();
+                if( !( coverageFeatures && coverageFeatures.length ))
+                    coverageFeatures = [ feature ];
+
                 // calculate total coverage
-                var startBO = binOverlap( feature.get('start'), false );
-                var endBO   = binOverlap( feature.get('end')-1  , true  );
-
-                // increment start and end partial-overlap bins by proportion of overlap
-                if( startBO.bin == endBO.bin ) {
-                    coverageBins[startBO.bin].increment( 'reference', endBO.overlap + startBO.overlap - 1 );
-                }
-                else {
-                    coverageBins[startBO.bin].increment( 'reference', startBO.overlap );
-                    coverageBins[endBO.bin].increment(   'reference', endBO.overlap   );
-                }
-
-                // increment completely overlapped interior bins by 1
-                for( var i = startBO.bin+1; i <= endBO.bin-1; i++ ) {
-                    coverageBins[i].increment( 'reference', 1 );
-                }
-
+                array.forEach( coverageFeatures, function( feature ) {
+                    // increment start and end partial-overlap bins by proportion of overlap
+                    forEachBin( feature, function( bin, overlap ) {
+                        coverageBins[bin].increment( 'reference', overlap );
+                    });
+                });
 
                 // Calculate SNP coverage
                 if( binWidth == 1 ) {
-
-                    // mark each bin as having its snps counted
-                    for( var i = startBO.bin; i <= endBO.bin; i++ ) {
-                        coverageBins[i].snpsCounted = 1;
-                    }
-
                     var mismatches = thisB._getMismatches( feature );
                     // loops through mismatches and updates coverage variables accordingly.
                     for (var i = 0; i < mismatches.length; i++) {
                         var mismatch = mismatches[i];
-                        var pos = binNumber( feature.get('start') + mismatch.start );
-                        var bin = coverageBins[pos];
+                        if( ! { mismatch:true, insertion:true, deletion: true }[mismatch.type] )
+                            return;
+
+                        var bin = coverageBins[ binNumber( feature.get('start') + mismatch.start ) ];
                         if( bin ) {
                             var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
                             // Note: we decrement 'reference' so that total of the score is the total coverage
-                            bin.decrement('reference', 1/binWidth );
+                            bin.decrement( 'reference', 1 );
                             var base = mismatch.base;
                             if( mismatch.type == 'insertion' )
                                 base = 'ins '+base;
-                            bin.getNested(base).increment(strand, 1/binWidth);
+                            bin.getNested( base ).increment( strand, 1 );
                         }
                     }
                 }
@@ -135,13 +134,13 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
             function ( args ) {
                 var makeFeatures = function() {
                     // make fake features from the coverage
-                    for( var i = 0; i <= maxBin; i++ ) {
+                    for( var i = 0; i < coverageBins.length; i++ ) {
                         var bpOffset = leftBase+binWidth*i;
                         featureCallback( new CoverageFeature({
-                            start: bpOffset,
-                            end:   bpOffset+binWidth,
-                            score: coverageBins[i]
-                         }));
+                                                                 start: bpOffset,
+                                                                 end:   bpOffset+binWidth,
+                                                                 score: coverageBins[i]
+                                                             }));
                     }
                     finishCallback( args ); // optional arguments may change callback behaviour (e.g. add masking)
                 };
@@ -151,33 +150,36 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                 // of the bases in the coverage bins
                 if( binWidth == 1 ) {
                     var sequence;
-                    thisB.browser.getStore( 'refseqs', function( refSeqStore ) {
-                        if( refSeqStore ) {
-                            refSeqStore.getFeatures( query,
-                                                     function(f) {
-                                                         sequence = f.get('seq');
-                                                     },
-                                                     function() {
-                                                         if( sequence ) {
-                                                             for( var base = leftBase; base <= rightBase; base++ ) {
-                                                                 var bin = binNumber( base );
-                                                                 coverageBins[bin].refBase = sequence[bin];
-                                                             }
-                                                         }
-                                                         makeFeatures();
-                                                     },
-                                                     makeFeatures
-                                                   );
-                        } else {
-                            makeFeatures();
-                        }
-                    });
-                } else {
+                    thisB.browser.getStore(
+                        'refseqs', function( refSeqStore ) {
+                            if( refSeqStore ) {
+                                refSeqStore.getFeatures(
+                                    query,
+                                    function(f) {
+                                        sequence = f.get('seq');
+                                    },
+                                    function() {
+                                        if( sequence ) {
+                                            for( var base = leftBase; base <= rightBase; base++ ) {
+                                                var bin = binNumber( base );
+                                                coverageBins[bin].refBase = sequence[bin];
+                                            }
+                                        }
+                                        makeFeatures();
+                                    },
+                                    makeFeatures
+                                );
+                            } else {
+                                makeFeatures();
+                            }
+                        });
+                }
+                else {
                     makeFeatures();
                 }
             }
-        , errorCallback );
+            , errorCallback
+        );
     }
-
 });
 });

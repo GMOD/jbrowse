@@ -15,6 +15,10 @@
 
 ## Bug fixes
 
+ * `SNPCoverage` tracks now correctly exclude "skipped" regions from
+   coverage counts.  Thanks to Josh Orvis, Gustavo Cerquiera, and
+   others for reminders that this was still an issue.
+
  * Fix generate-names.pl crashing on some older versions of Perl with
    an error like `Bareword "POSIX::O_RDONLY" not allowed while "strict
    subs" in use`.  Thanks to Chris Childers for pointing this out.
