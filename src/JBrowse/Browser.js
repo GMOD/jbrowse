@@ -451,16 +451,19 @@ loadNames: function() {
 
         if( conf.baseUrl )
             conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
-
+        
+        var thisB = this;
         if ( conf.type == 'Hash' ){
             console.log("Hash");
             require (['JBrowse/Store/Names/Hash'], function (Hash){
-                this.nameStore = new Hash( dojo.mixin({ browser: this }, conf) );
+                thisB.nameStore = new Hash( dojo.mixin({ browser: thisB }, conf) );
+                deferred.resolve({success: true});
             });
         } else if( conf.type == 'REST' ) {
             console.log ('REST');
             require (['JBrowse/Store/Names/REST'], function (REST){
-                this.nameStore = new REST( dojo.mixin({ browser: this }, conf) );
+                thisB.nameStore = new REST( dojo.mixin({ browser: thisB }, conf) );
+                deferred.resolve({success: true});
             });
         } else {
             // wrap the older LazyTrieDojoDataStore with
@@ -474,8 +477,6 @@ loadNames: function() {
                     tooManyMatchesMessage: conf.tooManyMatchesMessage
                 })
             });
-
-            deferred.resolve({success: true});
         }
     });
 },

@@ -19,11 +19,11 @@ define( [
 return declare( HashStore,
 {
     constructor: function( args ) {
-        console.log("loading REST")
+        console.log("loading REST");
     },
 
     query: function( query, options ) {
-
+        console.log("Query");
     },
 
     get: function( id ) {
