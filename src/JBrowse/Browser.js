@@ -26,7 +26,6 @@ define( [
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
             'dojo/store/DataStore',
-            'JBrowse/Store/Names/Hash',
             'JBrowse/FeatureFiltererMixin',
             'JBrowse/GenomeView',
             'JBrowse/TouchScreenSupport',
@@ -67,7 +66,6 @@ define( [
             LazyTrie,
             NamesLazyTrieDojoDataStore,
             DojoDataStore,
-            NamesHashStore,
             FeatureFiltererMixin,
             GenomeView,
             Touch,
@@ -295,7 +293,7 @@ initPlugins: function() {
 
                                  // load its css
                                  var cssLoaded = this._loadCSS(
-                                     { url: plugin.css+'/main.css' }
+                                     {url: this.resolveUrl( plugin.css+'/main.css' ) }
                                  );
                                  cssLoaded.then( function() {
                                      thisPluginDone.resolve({success:true});
@@ -454,9 +452,17 @@ loadNames: function() {
         if( conf.baseUrl )
             conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
 
-        if( conf.type == 'Hash' )
-            this.nameStore = new NamesHashStore( dojo.mixin({ browser: this }, conf) );
-        else
+        if ( conf.type == 'Hash' ){
+            console.log("Hash");
+            require (['JBrowse/Store/Names/Hash'], function (Hash){
+                this.nameStore = new Hash( dojo.mixin({ browser: this }, conf) );
+            });
+        } else if( conf.type == 'REST' ) {
+            console.log ('REST');
+            require (['JBrowse/Store/Names/REST'], function (REST){
+                this.nameStore = new REST( dojo.mixin({ browser: this }, conf) );
+            });
+        } else {
             // wrap the older LazyTrieDojoDataStore with
             // dojo.store.DataStore to conform with the dojo/store API
             this.nameStore = new DojoDataStore({
@@ -469,7 +475,8 @@ loadNames: function() {
                 })
             });
 
-        deferred.resolve({success: true});
+            deferred.resolve({success: true});
+        }
     });
 },
 
@@ -1044,8 +1051,6 @@ _initEventRouting: function() {
  * sequences and their average length.
  */
 reportUsageStats: function() {
-
-return;
     if( this.config.suppressUsageStatistics )
         return;
 
