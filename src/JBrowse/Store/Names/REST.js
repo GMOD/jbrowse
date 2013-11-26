@@ -24,6 +24,18 @@ return declare( HashStore,
 
     query: function( query, options ) {
         console.log("Query");
+        require(["dojo/request/xhr"], function(xhr){
+            xhr(("names?equals="+query.name).replace( /\*$/, '' ), {
+            handleAs: "json"
+            }).then(function(data){
+                console.log(JSON.stringify(data))
+            }, function(err){
+                // Handle the error condition
+            }, function(evt){
+                // Handle a progress event from the request if the
+                // browser supports XHR2
+            });
+        });
     },
 
     get: function( id ) {
