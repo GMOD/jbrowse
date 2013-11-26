@@ -75,9 +75,9 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                 coverageBins[i].snpsCounted = true;
         }
 
-        function forEachBin( feature, callback ) {
-            var s = (feature.get('start') - leftBase)/binWidth;
-            var e = (feature.get('end')-1 - leftBase)/binWidth;
+        function forEachBin( start, end, callback ) {
+            var s = (start     - leftBase)/binWidth;
+            var e = (end   - 1 - leftBase)/binWidth;
             var sb = Math.floor(s),
                 eb = Math.floor(e);
 
@@ -109,17 +109,11 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                 if( ! thisB.filter( feature ) )
                     return;
 
-                // if the bin width is smallish, calculate coverage using subfeatures
-                var coverageFeatures = binWidth == 1 && feature.children();
-                if( !( coverageFeatures && coverageFeatures.length ))
-                    coverageFeatures = [ feature ];
+                var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
 
-                // calculate total coverage
-                array.forEach( coverageFeatures, function( feature ) {
-                    // increment start and end partial-overlap bins by proportion of overlap
-                    forEachBin( feature, function( bin, overlap ) {
-                        coverageBins[bin].increment( 'reference', overlap );
-                    });
+                // increment start and end partial-overlap bins by proportion of overlap
+                forEachBin( feature.get('start'), feature.get('end'), function( bin, overlap ) {
+                    coverageBins[bin].getNested('reference').increment( strand, overlap );
                 });
 
                 // Calculate SNP coverage
@@ -128,19 +122,19 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                     // loops through mismatches and updates coverage variables accordingly.
                     for (var i = 0; i < mismatches.length; i++) {
                         var mismatch = mismatches[i];
-                        if( ! { mismatch:true, insertion:true, deletion: true }[mismatch.type] )
-                            return;
-
-                        var bin = coverageBins[ binNumber( feature.get('start') + mismatch.start ) ];
-                        if( bin ) {
-                            var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
-                            // Note: we decrement 'reference' so that total of the score is the total coverage
-                            bin.decrement( 'reference', 1 );
-                            var base = mismatch.base;
-                            if( mismatch.type == 'insertion' )
-                                base = 'ins '+base;
-                            bin.getNested( base ).increment( strand, 1 );
-                        }
+                        forEachBin( feature.get('start')+mismatch.start,
+                                    feature.get('start')+mismatch.start+mismatch.length,
+                                    function( binNumber, overlap ) {
+                                        // Note: we decrement 'reference' so that total of the score is the total coverage
+                                        var bin = coverageBins[binNumber];
+                                        bin.getNested('reference').decrement( strand, overlap );
+                                        var base = mismatch.base;
+                                        if( mismatch.type == 'insertion' )
+                                            base = 'ins '+base;
+                                        else if( mismatch.type == 'skip' )
+                                             base = 'skip';
+                                        bin.getNested( base ).increment( strand, overlap );
+                                    });
                     }
                 }
             },

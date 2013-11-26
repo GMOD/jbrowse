@@ -13,6 +13,11 @@
    people seem not to like this behavior.  Thanks to Gregg Helt and
    Cris Lawrence for pointing this out.
 
+ * `SNPCoverage` tracks now correctly display "skipped" regions in
+   alignments, such as those produced by TopHat.  Thanks to Josh
+   Orvis, Gustavo Cerquiera, and others for reminders that this was
+   still an issue.
+
  * `SNPCoverage` tracks now accept a `mismatchScale` configuration
    variable that sets the viewing scale (i.e. zoom level, pixels per
    bp) above which base-level mismatches will be drawn.  Defaults to
@@ -21,10 +26,6 @@
    mismatches.
 
 ## Bug fixes
-
- * `SNPCoverage` tracks now correctly exclude "skipped" regions from
-   coverage counts.  Thanks to Josh Orvis, Gustavo Cerquiera, and
-   others for reminders that this was still an issue.
 
  * Fix generate-names.pl crashing on some older versions of Perl with
    an error like `Bareword "POSIX::O_RDONLY" not allowed while "strict
