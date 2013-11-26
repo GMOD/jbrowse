@@ -263,7 +263,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                               callback();
                           },
                           function(e) {
-                              thisB._handleError( e );
+                              thisB._handleError( e, viewArgs );
                           });
 
     },
