@@ -1,41 +1,23 @@
 define([
            'dojo/_base/declare',
 
-           '../_ChildBlock',
+           './FromStore/FeatureBlock',
            '../CanonicalContinuousLinear'
        ],
        function(
            declare,
 
-           ChildBlock,
+           FeatureBlock,
            CanonicalLinear
        ) {
 
-var FeatureBlock = declare( ChildBlock, {
-  constructor: function(args) {
-      this.bMax = args.bMax;
-      this.bOffset = args.bOffset;
-  },
-
-  getValidRangeA: function() {
-      var parent = this.parent;
-      var aStart = parent.reverseProjectPoint( -this.childOffset );
-      var aEnd = parent.reverseProjectPoint( this.bMax );
-
-      if( aStart > aEnd ) {
-          var tmp = aStart;
-          aStart = aEnd;
-          aEnd = tmp;
-      }
-
-      return {
-          l: Math.max( aStart, parent.aStart ),
-          r: Math.min( aEnd, parent.aEnd )
-      };
-  }
-});
-
 return declare( CanonicalLinear, {
+
+  // deflate: function() {
+  //     var d = this.inherited(arguments);
+  //     d.scale = this.scale;
+  //     return d;
+  // },
 
   isAnimatable: function() {
       return true;

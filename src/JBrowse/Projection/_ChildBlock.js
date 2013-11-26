@@ -13,16 +13,28 @@ var ChildBlock = declare( ProjectionBase, {
 
   constructor: function( args ) {
       this.childOffset = args.childOffset;
-      this.parent = args.parent;
       this.bOffset = 0;
 
+      this.parent = args.parent;
       var thisB = this;
-      this._parentWatch = this.parent.watch( function( change ) {
-          thisB._notifyChanged( change );
-      });
+      this._parentWatch = this.parent.watch(
+          function( change ) {
+              thisB._notifyChanged( change );
+          });
   },
 
-  getScale: function() { return this.parent.scale; },
+  deflate: function() {
+      return {
+          $class: 'JBrowse/Projection/ContinuousLinear',
+          parent: this.parent.deflate(),
+          bOffset: this.bOffset,
+          childOffset: this.childOffset,
+          bName: this.getBName(),
+          aName: this.getAName()
+      };
+  },
+
+  getScale: function() { return this.scale || this.parent.scale; },
 
   getValidRangeA: function() {
       var parent = this.parent;

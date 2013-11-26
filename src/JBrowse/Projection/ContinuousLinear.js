@@ -30,6 +30,16 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       }
   },
 
+  deflate: function() {
+      return {
+          $class: 'JBrowse/Projection/ContinuousLinear',
+          scale: this.getScale(),
+          bOffset: this.bOffset,
+          bName: this.getBName(),
+          aName: this.getAName()
+      };
+  },
+
   getScale: function() {
       return this.scale;
   },
