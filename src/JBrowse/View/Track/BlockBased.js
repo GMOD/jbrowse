@@ -454,10 +454,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     fillTooManyFeaturesMessage: function( blockIndex, block, scale, error ) {
+        var message = (error && error.message || 'Too much data to show').replace(/\.$/,'');
+
         this.fillMessage(
             blockIndex,
             block,
-            (error && error.message || 'Too much data to show')
+            message
                 + (scale >= this.browser.view.maxPxPerBp ? '': '; zoom in to see detail')
                 + '.'
         );
