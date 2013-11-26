@@ -7,6 +7,8 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+
+           'JBrowse/Util',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Model/NestedFrequencyTable',
            'JBrowse/Model/CoverageFeature',
@@ -15,6 +17,8 @@ define([
        function(
            declare,
            array,
+
+           Util,
            SeqFeatureStore,
            NestedFrequencyTable,
            CoverageFeature,
@@ -32,6 +36,15 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
         callback( {} );
     },
 
+    _defaultConfig: function() {
+        return Util.deepUpdate(
+            dojo.clone( this.inherited(arguments) ),
+            {
+                mismatchScale: 1/10
+            }
+        );
+    },
+
     getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
         var thisB = this;
         var leftBase  = query.start;
@@ -42,7 +55,7 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
 
         var binWidth = function() {
             var bpPerPixel = 1/scale;
-            if( bpPerPixel <= 30 ) {
+            if( bpPerPixel <= 1/thisB.config.mismatchScale ) {
                 return 1;
             } else {
                 return Math.ceil( bpPerPixel );

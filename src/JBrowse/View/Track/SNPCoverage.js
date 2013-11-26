@@ -20,6 +20,9 @@ return declare( [WiggleXY, AlignmentsMixin],
         var thisB = this;
         this.store = new SNPCoverageStore(
             { store: this.store,
+              config: {
+                  mismatchScale: this.config.mismatchScale
+              },
               browser: this.browser,
               filter: function( f ) {
                   return thisB.filterFeature( f );
@@ -33,6 +36,8 @@ return declare( [WiggleXY, AlignmentsMixin],
             {
                 autoscale: 'local',
                 min_score: 0,
+
+                mismatchScale: 1/10,
 
                 hideDuplicateReads: true,
                 hideQCFailingReads: true,

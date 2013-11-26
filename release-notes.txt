@@ -13,6 +13,13 @@
    people seem not to like this behavior.  Thanks to Gregg Helt and
    Cris Lawrence for pointing this out.
 
+ * `SNPCoverage` tracks now accept a `mismatchScale` configuration
+   variable that sets the viewing scale (i.e. zoom level, pixels per
+   bp) above which base-level mismatches will be drawn.  Defaults to
+   1/10.  Making this value larger can speed up SNPCoverage tracks for
+   high-coverage data at the cost of needing to zoom in further to see
+   mismatches.
+
 ## Bug fixes
 
  * `SNPCoverage` tracks now correctly exclude "skipped" regions from
