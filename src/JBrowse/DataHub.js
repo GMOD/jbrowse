@@ -38,7 +38,8 @@ return declare( Component, {
             description: "default reference sequence set to display"
           },
 
-          { name: 'defaultReferenceSetClass', type: 'string', defaultValue: 'JBrowse/Model/ReferenceSet',
+          { name: 'defaultReferenceSetClass', type: 'string',
+            defaultValue: 'JBrowse/Model/ReferenceSet',
             description: "default JS class to use for instantiating reference"
                          + " set objects, if they don't have a class specified"
           }
@@ -51,7 +52,7 @@ return declare( Component, {
       return this.openStore( trackConf.store )
           .then( function( store ) {
                      return Util.instantiateComponent(
-                         { browser: thisB.browser,
+                         { app: thisB.app,
                            dataHub: thisB,
                            store: store
                          },

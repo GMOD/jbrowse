@@ -25,9 +25,9 @@ return declare( null, {
           var thisB = this;
           var d = new Deferred();
           var worker = new Worker( require.toUrl('JBrowse/Worker/boot_dedicated.js') );
-          var timeout = setTimeout( function() {
-              d.reject( new Error( 'worker was not ready within '+thisB.getConf('workerStartTimeout')+' seconds' ) );
-          }, thisB.getConf('workerStartTimeout')*1000 );
+          var timeout;//  =setTimeout( function() {
+          //     d.reject( new Error( 'worker was not ready within '+thisB.getConf('workerStartTimeout')+' seconds' ) );
+          // }, thisB.getConf('workerStartTimeout')*1000 );
           worker.onerror = function(e) { console.error(e); d.reject(e); };
           worker.onmessage = function( event ) {
               if( event.data == 'starting' ) {
@@ -46,8 +46,9 @@ return declare( null, {
                                         '../../dojo/dojo.js'
                                         , '../init.js'
                                     ],
-                                    delay: 5000,
+                                    //delay: 3000,
                                     require: { baseUrl: '../..' },
+                                    config: this.exportMergedConfig(),
                                     workerClass: workerClass || 'JBrowse/Worker/Dedicated'
                                   }));
 

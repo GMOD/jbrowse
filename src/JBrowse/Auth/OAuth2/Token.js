@@ -9,10 +9,8 @@ define([
        function(
            declare,
            lang,
-           djson
+           JSON
        ) {
-
-var JSON = window.JSON || djson;
 
 return declare( null, {
 

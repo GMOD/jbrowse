@@ -28,7 +28,14 @@ return declare( Store,
         this.globalStats = {};
         this._dataHub = args.dataHub;
         if( ! this._dataHub ) throw new Error('dataHub arg required');
+    },
 
+    deflate: function() {
+        return {
+            dataHub: 'FAKE',
+            config: this.exportMergedConfig(),
+            app: '$context.app'
+        };
     },
 
     configSchema: {

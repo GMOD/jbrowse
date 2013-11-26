@@ -5,7 +5,7 @@ define([
            'JBrowse/Transport/HTTP',
            'JBrowse/Transport/GoogleDrive',
            'JBrowse/Transport/Dropbox',
-           'JBrowse/Transport/LocalFile',
+           'JBrowse/has!jbrowse-main-process?JBrowse/Transport/LocalFile',
            'JBrowse/Transport/LocalMail'
        ],
        function(
@@ -27,14 +27,19 @@ return declare( null, {
   _initTransportDrivers: function() {
       // instantiate the default transport drivers
       this._transportDrivers = array.map(
-          [ HTTP,
-            GoogleDrive,
-            Dropbox,
-            LocalFile,
-            LocalMail
-          ], function( class_ ) {
+          array.filter(
+              [ HTTP,
+                GoogleDrive,
+                Dropbox,
+                LocalFile,
+                LocalMail
+              ],
+              function(c){ return c; }
+          ),
+          function( class_ ) {
               return new class_({ browser: this, transportManager: this, authManager: this });
-          }, this );
+          },
+          this );
   },
 
   getTransportDrivers: function() {

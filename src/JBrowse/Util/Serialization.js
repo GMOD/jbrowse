@@ -52,19 +52,20 @@ var SerializationUtils = {
     // given bare data, deep-inflate it using any $class members,
     // return a Deferred for the inflated structure.  loads classes on
     // the fly as necessary.
-    inflate: function inflate( data ) {
+    inflate: function inflate( data, context ) {
         data = lang.clone( data );
+        var match;
 
         if( lang.isArray( data ) ) {
             return all( array.map( data, function( d ) {
-                return inflate( d );
+                return inflate( d, context );
             }));
         }
         else if( typeof data == 'object' ) {
             var class_ = data.$class;
             delete data.$class;
             if( class_ ) {
-                return inflate( data )
+                return inflate( data, context )
                          .then( function(d) {
                                     return Util.instantiate( class_, d );
                                 });
@@ -76,12 +77,20 @@ var SerializationUtils = {
                     if( data.hasOwnProperty( a ) )
                         (function( attr ) {
                              inflations.push(
-                                 inflate( data[attr] )
+                                 inflate( data[attr], context )
                                      .then( function(d) { data[attr] = d; } )
                              );
                          })( a );
                 }
                 return all( inflations ).then( function() { return data; } );
+            }
+        }
+
+        // inflate special vars like $context.foo using the given context
+        if( typeof data == 'string' && (match = data.match(/^\$context\.(\w+)$/)) ) {
+            if( context && context[match[1]] ) {
+                console.log( 'inflating '+data+' to', context[match[1]] );
+                data = context[match[1]];
             }
         }
 

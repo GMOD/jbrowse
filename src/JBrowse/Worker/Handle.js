@@ -6,17 +6,20 @@ define([
            'dojo/_base/lang',
            'dojo/Deferred',
 
-           'JBrowse/Util/Serialization'
+           'JBrowse/Util/Serialization',
+           './Job'
        ],
        function(
            declare,
            lang,
            Deferred,
 
-           Serialization
+           Serialization,
+           Job
        ) {
 
-var serialNumber = 0;
+var requestCounter = 0;
+var jobCounter = 0;
 
 return declare( null, {
   constructor: function( args ) {
@@ -52,22 +55,45 @@ return declare( null, {
       return this._worker;
   },
 
-  apply: function( obj, methodName, args ) {
-      if( typeof methodName != 'string' )
-          throw new Error('must pass a string method name');
-
-      var requestNumber = ++serialNumber;
+  request: function( operation, args ) {
+      var requestNumber = ++requestCounter;
 
       this._worker.postMessage( Serialization.deflate(
           { requestNumber: requestNumber,
-            operation: 'apply',
-            args: [ obj, methodName, args ]
+            operation: operation,
+            args: args
           }));
+
       var deferred = new Deferred();
       this._requests[ requestNumber ] = {
           deferred: deferred
       };
       return deferred;
+  },
+
+  postMessage: function( message ) {
+      return this._worker.postMessage( Serialization.deflate( message ) );
+  },
+
+  remoteApply: function( obj, methodName, args ) {
+      if( typeof methodName != 'string' )
+          throw new Error('must pass a string method name');
+
+      return this.request( 'apply', arguments );
+  },
+
+  newJob: function( localHandler, className, args ) {
+      var jobNumber = ++jobCounter;
+      var thisB = this;
+      return this.request( 'newJob', [ jobNumber, className, args ] )
+          .then( function(){
+                     return new Job(
+                         { handlerObject: localHandler,
+                           worker: thisB,
+                           jobNumber: jobNumber
+                         });
+                 });
   }
+
 });
 });

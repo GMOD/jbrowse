@@ -167,7 +167,7 @@ div.tracklist-label.collapsed {
     z-index: 15;
     position: absolute;
 }
-.track .loading .text {
+.track .loading > .text {
     display: inline;
     line-height: 40px;
     margin: 1em;

@@ -76,8 +76,7 @@ return declare( [Component,Stateful], {
     },
 
     constructor: function( args ) {
-        this._dataHub = args.dataHub;
-        if( ! this._dataHub ) throw new Error('dataHub arg required');
+        Util.validate( args, { dataHub: 'object', app: 'object' });
     },
 
     newWidget: function( args ) {

@@ -510,6 +510,35 @@ var Util = {
         return result;
     },
 
+    // given a specification like { browser: 'object', foo: true },
+    // validate the given args against it.  if any of the tests fail,
+    // throws an Error.
+    validate: function( object, spec ) {
+        var errors = [];
+        for( var name in spec ) {
+            var test = spec[name];
+            var testType = typeof test;
+            if( testType == 'string' ) {
+                if( test == 'any' ) {
+                    if( ! ( name in object ) )
+                        errors.push( name+' attribute missing' );
+                }
+                else {
+                    if( typeof object[name] !== test )
+                        errors.push( name + ' ' + test + ' must be provided' );
+                }
+            }
+            else if( testType == 'function' ) {
+                var errormessage;
+                if(( errormessage = test( object[name] )))
+                    errors.push( errormessage );
+            }
+        }
+
+        if( errors.length )
+            throw new Error( errors.join('; ') );
+    },
+
     // back-compatible way to remove properties/attributes from DOM
     // nodes.  IE 7 and older do not support the `delete` operator on
     // DOM nodes.

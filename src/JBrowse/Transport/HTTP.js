@@ -4,8 +4,8 @@ define([
            'dojo/_base/array',
            'dojo/_base/url',
            'dojo/request/xhr',
-           'dojo/request/iframe',
-           'dojo/request/script',
+           'JBrowse/has!jbrowse-main-process?dojo/request/iframe',
+           'JBrowse/has!jbrowse-main-process?dojo/request/script',
            'dojo/Deferred',
            'dojo/promise/all',
 
@@ -129,9 +129,15 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
   },
 
   _dojoRequest: function( req, credentialSlots ) {
-      if( req.requestTechnique == 'iframe' )
+      if( req.requestTechnique == 'iframe' ) {
+          if( ! iframeReq )
+              throw new Error('iframe reqs not supported in this process' );
           return iframeReq( req.url, req );
+      }
       else if( req.jsonp || req.requestTechnique == 'script' ) {
+          if( ! scriptReq )
+              throw new Error('script reqs not supported in this process' );
+
           // TODO: delete this JSONP re-implementation when upgrading
           // to dojo 1.9.1
           var jsonpCallbackVarName = req.jsonp;

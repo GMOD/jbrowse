@@ -38,6 +38,8 @@ define([ 'dojo/has', 'dojo/sniff' ],
                         return canSave;
            },true);
 
+           has.add( 'jbrowse-main-process', ! has('jbrowse-worker-process'), true );
+
            return has;
        }
 );

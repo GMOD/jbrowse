@@ -16,14 +16,11 @@ define([
            lang,
            array,
            Deferred,
-           djson,
+           JSON,
 
            Util,
            Token
        ) {
-
-// use native JSON if possible
-var JSON = window.JSON || djson;
 
 return declare( null, {
 

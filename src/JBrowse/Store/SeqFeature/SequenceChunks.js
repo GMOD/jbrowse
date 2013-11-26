@@ -43,6 +43,12 @@ return declare( SeqFeatureStore,
         ]
     },
 
+    deflate: function() {
+        var d = this.inherited(arguments);
+        d.$class = 'JBrowse/Store/SeqFeature/SequenceChunks';
+        return d;
+    },
+
     _chunkURLTemplateVars: function( refname ) {
     },
 

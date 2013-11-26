@@ -14,6 +14,7 @@
       //console.log( 'loading '+url);
       var req = new XMLHttpRequest();
       req.open('GET', url, false );
+      //console.log('loading '+url );
       req.onreadystatechange = function() {
           //console.log( 'req status '+req.status );
           if( req.readyState == 4 ) {
@@ -36,7 +37,10 @@
           'dojo-test-sniff': false,
           'dojo-timeout-api': false,
           'dom': false,
-          'host-browser': false
+          'host-browser': false,
+
+          // flag saying that we are in a worker process
+          'jbrowse-worker-process': true
       }
   };
 
@@ -49,7 +53,7 @@
           // load our worker class and instantiate it
           require([ config.workerClass ], function( WorkerObject ) {
               delete self.window; // delete our loader-fixing HACK1
-              new WorkerObject({ self: self });
+              new WorkerObject({ app: '$self', self: self, config: config.config });
           });
       };
 

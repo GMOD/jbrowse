@@ -1,17 +1,17 @@
 define([
            'dojo/_base/declare',
            'dojo/Deferred',
+
            'JBrowse/Util',
            'JBrowse/Component',
-           'JBrowse/View/Dialog/Prompt',
            'JBrowse/Errors'
        ],
        function(
            declare,
            Deferred,
+
            Util,
            Component,
-           PromptDialog,
            Errors
        ) {
 
@@ -196,8 +196,10 @@ return declare( Component, {
   },
 
   _promptForData: function( title, data ) {
-      return new PromptDialog({ title: title || this.getConf('name') })
-          .promptForPlaceHolders( data );
+      return Util.instantiate( 'JBrowse/View/Dialog/Prompt', { title: title || this.getConf('name') })
+          .then( function( dialog ) {
+                     return dialog.promptForPlaceHolders( data );
+                 });
   },
 
   /**

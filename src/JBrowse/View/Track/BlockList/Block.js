@@ -13,6 +13,7 @@ define([
            'dijit/Destroyable',
 
            'JBrowse/Util',
+           'JBrowse/Util/Serialization',
            'JBrowse/Util/ListenerSet'
        ],
        function(
@@ -21,7 +22,9 @@ define([
            array,
 
            Destroyable,
+
            Util,
+           Serialization,
            ListenerSet
        ) {
 var serialNumber = 0;
@@ -44,6 +47,18 @@ return declare( Destroyable, {
             throw new Error('blockList required');
 
         this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
+    },
+
+    deflate: function() {
+        return {
+            $class: 'JBrowse/View/Track/BlockList/Block',
+            projectionBlock: this._projectionBlock.deflate(),
+            blockList: 'FAKE',
+            left: this._left,
+            right: this._right,
+            onProjectionBlockLeftEdge:  this._onProjectionBlockLeftEdge,
+            onProjectionBlockRightEdge: this._onProjectionBlockRightEdge
+        };
     },
 
     getProjectionBlock: function() {
