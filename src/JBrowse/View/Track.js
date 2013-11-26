@@ -23,8 +23,8 @@ return declare( [ ContentPane, _ConfigurationMixin ], {
 
   buildRendering: function() {
       this.inherited(arguments);
-      if( this.trackClass )
-          domClass.add( this.domNode, this.baseClass+'-'+this.trackClass );
+      if( this.trackCSSClass )
+          domClass.add( this.domNode, this.baseClass+'-'+this.trackCSSClass );
   },
 
   // a track view can have its own store, or it can use the store

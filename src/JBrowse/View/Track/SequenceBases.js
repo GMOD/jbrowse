@@ -32,7 +32,7 @@ define( [
 
 return declare( [ TrackView, _BlockBasedMixin ],
 {
-    trackClass: 'sequenceBases',
+    trackCSSClass: 'sequenceBases',
 
     constructor: function( args ) {
     },
