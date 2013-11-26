@@ -40,6 +40,7 @@ define( [
             'JBrowse/DataHub/_DataHubManagerMixin',
             'JBrowse/Transport/_TransportManagerMixin',
             'JBrowse/Worker/_WorkerManagerMixin',
+            'JBrowse/Plugin/_PluginManagerMixin',
             'JBrowse/View/RegionBrowser2',
             'JBrowse/ConfigManager',
             'JBrowse/Model/SimpleFeature',
@@ -90,6 +91,7 @@ define( [
             DataHubManagerMixin,
             TransportManagerMixin,
             WorkerManagerMixin,
+            PluginManagerMixin,
             RegionBrowser2,
             ConfigLoader,
             SimpleFeature,
@@ -116,7 +118,8 @@ return declare(
       AuthManagerMixin,
       DataHubManagerMixin,
       TransportManagerMixin,
-      WorkerManagerMixin
+      WorkerManagerMixin,
+      PluginManagerMixin
     ], {
 
 // set constructor method chaining to manual, we need to do some special things
@@ -152,7 +155,7 @@ constructor: function(params) {
                 if( thisB.getConf('highlight') )
                     thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
 
-                return thisB.initPlugins();
+                return thisB.loadPlugins();
             })
         .then( function() {
                    return thisB.loadCSS();
@@ -170,7 +173,6 @@ constructor: function(params) {
 
 configSchema: {
         slots: [
-            { name: 'plugins',  type: 'multi-object' },
             { name: 'dataRoot', type: 'string', defaultValue: "data" },
             { name: 'location', type: 'string', defaultValue: 'ctgA:0..100' }, // TODO remove this
             { name: 'browserRoot', type: 'string', defaultValue: "" },
@@ -259,115 +261,6 @@ _parseQueryString: function( constructorArgs ) {
     var newargs = lang.mixin( {}, constructorArgs, queryConfig );
     delete newargs.queryString;
     return newargs;
-},
-
-/**
- * Get a plugin, if it is present.  Note that, if plugin
- * initialization is not yet complete, it may be a while before the
- * callback is called.
- *
- * Callback is called with one parameter, the desired plugin object,
- * or undefined if it does not exist.
- */
-getPlugin: function( name, callback ) {
-    this.afterMilestone( 'initPlugins', dojo.hitch( this, function() {
-        callback( this.plugins[name] );
-    }));
-},
-
-_corePlugins: function() {
-    return ['RegexSequenceSearch'];
-},
-
-/**
- * Load and instantiate any plugins defined in the configuration.
- */
-initPlugins: function() {
-    return this._milestoneFunction( 'initPlugins', function( deferred ) {
-        this.plugins = {};
-
-        var plugins = this._corePlugins();
-        plugins.push.apply( plugins, this.getConf('plugins') );
-
-        if( ! plugins ) {
-            deferred.resolve({success: true});
-            return;
-        }
-
-        // coerce plugins to array of objects
-        plugins = array.map( lang.isArray( plugins ) ? plugins : [plugins], function( p ) {
-            return typeof p == 'object' ? p : { 'name': p };
-        });
-
-        // set default locations for each plugin
-        array.forEach( plugins, function(p) {
-            if( !( 'location' in p ))
-                p.location = 'plugins/'+p.name;
-
-            var resolved = this.resolveUrl( p.location );
-
-            // figure out js path
-            if( !( 'js' in p ))
-                p.js = p.location+"/js"; //URL resolution for this is taken care of by the JS loader
-            if( p.js.charAt(0) != '/' && ! /^https?:/i.test( p.js ) )
-                p.js = '../'+p.js;
-
-            // figure out css path
-            if( !( 'css' in p ))
-                p.css = resolved+"/css";
-        },this);
-
-        var pluginDeferreds = array.map( plugins, function(p) {
-            return new Deferred();
-        });
-
-        // fire the "all plugins done" deferred when all of the plugins are done loading
-        all( pluginDeferreds )
-            .then( function() { deferred.resolve({success: true}); });
-
-        require( {
-                     packages: array.map( plugins, function(p) {
-                                              return {
-                                                  name: p.name,
-                                                  location: p.js
-                                              };
-                                          }, this )
-                 },
-                 array.map( plugins, function(p) { return p.name; } ),
-                 dojo.hitch( this, function() {
-                     array.forEach( arguments, function( pluginClass, i ) {
-                             var plugin = plugins[i];
-                             var thisPluginDone = pluginDeferreds[i];
-                             if( typeof pluginClass == 'string' ) {
-                                 console.error("could not load plugin "+plugin.name+": "+pluginClass);
-                             } else {
-                                 // make the plugin's arguments out of
-                                 // its little obj in 'plugins', and
-                                 // also anything in the top-level
-                                 // conf under its plugin name
-                                 var args = lang.mixin( {}, plugins[i], { config: plugin.config || {} });
-                                 args.browser = this;
-                                 args = dojo.mixin( args, { browser: this } );
-
-                                 // load its css
-                                 var cssLoaded = this._loadCSS(
-                                     {url: this.resolveUrl( plugin.css+'/main.css' ) }
-                                 );
-                                 cssLoaded.then( function() {
-                                     thisPluginDone.resolve({success:true});
-                                 });
-
-                                 // give the plugin access to the CSS
-                                 // promise so it can know when its
-                                 // CSS is ready
-                                 args.cssLoaded = cssLoaded;
-
-                                 // instantiate the plugin
-                                 this.plugins[ plugin.name ] = new pluginClass( args );
-                             }
-                         }, this );
-                  }));
-    });
 },
 
 /**
