@@ -28,8 +28,6 @@ release-normal: superclean $(JS_SRCFILES)
 	cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
 
-	mv $(RELEASE_FULL_DIR)/src/dojo/nls $(RELEASE_FULL_DIR)/src/nls;
-
         # version-stamp Browser.js
 	perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
 

@@ -42,6 +42,10 @@
    sometimes report "NaN%" for the reference when no reads cover a
    region.
 
+ * Fixed the location of the dojo/nls directory in release zipfiles.
+   Was erroneously in src/nls, supposed to be src/dojo/nls.  Thanks to
+   Matt Bomhoff for pointing this out.
+
 # Release 1.10.10     2013-11-21 09:31:53 EST5EDT
 
 ## Minor improvements
