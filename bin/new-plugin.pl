@@ -14,6 +14,12 @@ use strict;
 use warnings;
 use File::Spec::Functions;
 use File::Path 2 qw( make_path );
+use Pod::Usage;
+use Getopt::Long;
+
+my $help;
+GetOptions( "help|h|?" => \$help );
+pod2usage( -verbose => 2 ) if $help;
 
 @ARGV or die "Must provide a plugin name.\n";
 
