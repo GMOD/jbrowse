@@ -31,16 +31,12 @@ define( [
             'lazyload', // for dynamic CSS loading
 
             'JBrowse/has',
-            'JBrowse/Component',
+            'JBrowse/App',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
-            'JBrowse/FeatureFiltererMixin',
-            'JBrowse/Auth/_AuthManagerMixin',
             'JBrowse/DataHub/_DataHubManagerMixin',
-            'JBrowse/Transport/_TransportManagerMixin',
             'JBrowse/Worker/_WorkerManagerMixin',
-            'JBrowse/Plugin/_PluginManagerMixin',
             'JBrowse/View/RegionBrowser2',
             'JBrowse/ConfigManager',
             'JBrowse/Model/SimpleFeature',
@@ -82,16 +78,12 @@ define( [
             LazyLoad,
 
             has,
-            JBrowseComponent,
+            App,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
-            FeatureFiltererMixin,
-            AuthManagerMixin,
             DataHubManagerMixin,
-            TransportManagerMixin,
             WorkerManagerMixin,
-            PluginManagerMixin,
             RegionBrowser2,
             ConfigLoader,
             SimpleFeature,
@@ -112,14 +104,9 @@ var dojof = Util.dojof;
  * @param params an object with initial configuration
  */
 return declare(
-    [ Stateful,
-      JBrowseComponent,
-      FeatureFiltererMixin,
-      AuthManagerMixin,
+    [ App,
       DataHubManagerMixin,
-      TransportManagerMixin,
-      WorkerManagerMixin,
-      PluginManagerMixin
+      WorkerManagerMixin
     ], {
 
 // set constructor method chaining to manual, we need to do some special things
@@ -145,26 +132,25 @@ constructor: function(params) {
     this.container.onselectstart = function() { return false; };
 
     // start the initialization process
-    var thisB = this;
-    thisB.loadConfig()
-        .then(
-            function() {
-                thisB._initTransportDrivers();
+    this.init();
+ },
 
-                // initialize our highlight if one was set in the config
-                if( thisB.getConf('highlight') )
-                    thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
-
-                return thisB.loadPlugins();
-            })
+ init: function() {
+     var thisB = this;
+     return this.inherited( arguments )
         .then( function() {
                    return thisB.loadCSS();
                })
         .then( function() {
-                thisB._initDataHubs();
-                thisB.reportUsageStats();
-                return thisB.initViews();
-            })
+                   thisB._initDataHubs();
+                   thisB.reportUsageStats();
+
+                   // initialize our highlight if one was set in the config
+                   if( thisB.getConf('highlight') )
+                       thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
+
+                   return thisB.initViews();
+               })
         .then( function() {
                    thisB.passMilestone( 'completely initialized', { success: true } );
                });
@@ -173,13 +159,12 @@ constructor: function(params) {
 
 configSchema: {
         slots: [
-            { name: 'dataRoot', type: 'string', defaultValue: "data" },
             { name: 'location', type: 'string', defaultValue: 'ctgA:0..100' }, // TODO remove this
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'unitTestMode', type: 'boolean', defaultValue: false },
             { name: 'devMode', type: 'boolean', defaultValue: false },
-            { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
+
             { name: 'dijitTheme', type: 'string', defaultValue: 'tundra' },
             { name: 'theme', type: 'string', defaultValue: 'metro' },
             { name: 'updateBrowserURL', type: 'boolean', defaultValue: true },
@@ -187,7 +172,6 @@ configSchema: {
             { name: 'highlight', type: 'string' },
             { name: 'aboutThisBrowser', type: 'object', defaultValue: {} },
             { name: 'suppressUsageStatistics', type: 'boolean', defaultValue: false },
-            { name: 'logMessages', type: 'boolean', defaultValue: false },
             { name: 'maxRecentTracks', type: 'integer', defaultValue: 10 },
             { name: 'share_link', type: 'boolean', defaultValue: true },
             { name: 'shareURL', type: 'string',
