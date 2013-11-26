@@ -78,7 +78,7 @@ return declare( [BlockBased, ExportMixin],
         var blur = dojo.create(
             'div',
             { className: 'sequence_blur',
-              innerHTML: '<span class="loading">Loading</span>',
+              innerHTML: '<span class="loading">Loading</span>'
             }, block.domNode );
 
         this.heightUpdate( blur.offsetHeight+2*blur.offsetTop, blockIndex );
