@@ -49,22 +49,10 @@ var Component = declare( [ MessagingMixin, ConfigurationMixin ], {
         if( typeof str != 'string' || str.indexOf('{') == -1 )
             return str;
 
-        // fill in a bunch of args for this.refSeq or this.ref
         var thisB = this;
         var templateFillArgs = {
-            'refseq': (this.refSeq||{}).name || (this.ref||{}).name || this.ref || '',
             callback: function(varname) { return thisB.getConf(varname); }
         };
-        templateFillArgs.refSeq = templateFillArgs.refseq;
-
-        if( templateFillArgs.refSeq ) {
-            templateFillArgs.refSeqNum = ( /\d+/.exec( templateFillArgs.refSeq ) || [] )[0] || '';
-        }
-        // make refseqNumNoLeadingZeroes
-        if( templateFillArgs.refSeqNum ) {
-            templateFillArgs.refSeqNumNoLeadingZeroes = ( /^0*(\d+)/.exec( templateFillArgs.refSeqNum ) || [] )[1] || '';
-        }
-
         if( values )
             lang.mixin( templateFillArgs, values );
 
