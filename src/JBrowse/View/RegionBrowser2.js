@@ -365,7 +365,11 @@ _updateProjection: function( args ) {
                                             stranded: false
                                           }
                                       ));
-                   });
+                   },
+                   function(e) {
+                       console.error( e.stack || ''+e );
+                   }
+                 );
     }
 },
 
