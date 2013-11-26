@@ -210,7 +210,10 @@ return declare( [WiggleXY, AlignmentsMixin],
             var total = score.total();
             var scoreSummary = '<table>';
             function pctString( count ) {
-                return Math.round(count/total*100)+'%';
+                count = Math.round(count/total*100);
+                if( typeof count == 'number' && ! isNaN(count) )
+                    return count+'%';
+                return '';
             }
             scoreSummary +=
                   '<tr class="ref"><td>'
