@@ -18,6 +18,10 @@
    Orvis, Gustavo Cerquiera, and others for reminders that this was
    still an issue.
 
+ * `SNPCoverage` tracks now provide per-strand counts of "reference"
+   reads at each position, like they already were providing for
+   reads with mismatches.
+
  * `SNPCoverage` tracks now accept a `mismatchScale` configuration
    variable that sets the viewing scale (i.e. zoom level, pixels per
    bp) above which base-level mismatches will be drawn.  Defaults to
