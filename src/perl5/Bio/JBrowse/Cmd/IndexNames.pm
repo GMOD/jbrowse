@@ -127,9 +127,7 @@ sub load {
         $names_files
     );
 
-    $self->name_store->empty unless $self->opt('incremental');
-
-    $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
+    $self->vprint( "Using ".$self->name_store->meta->{hash_bits}."-bit hashing (".$self->requested_hash_bits." requested)\n" );
 
     # make a stream of key/value pairs and load them into the HashStore
     $self->name_store->stream_set(
@@ -214,22 +212,36 @@ sub track_is_included {
 
 sub name_store {
     my ( $self ) = @_;
-    return $self->{name_store} ||= Bio::JBrowse::HashStore->open(
-        dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
-        work_dir => $self->opt('workdir'),
-        mem => $self->opt('mem'),
-        compress => $self->opt('compress'),
+    unless( $self->{name_store} ) {
+        $self->{name_store} = tie my %tied_hash, 'Bio::JBrowse::HashStore', (
+                dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
+                work_dir => $self->opt('workdir'),
+                mem => $self->opt('mem'),
+                empty => ! $self->opt('incremental'),
+                compress => $self->opt('compress'),
 
-        hash_bits => $self->hash_bits,
+                hash_bits => $self->requested_hash_bits,
 
-        verbose => $self->opt('verbose')
-    );
+                verbose => $self->opt('verbose')
+        );
+        $self->{name_store_tied_hash} = \%tied_hash;
+    }
+    return $self->{name_store};
 }
+sub name_store_tied_hash {
+    my ( $self ) = @_;
+    $self->name_store;
+    return $self->{name_store_tied_hash};
+}
+
+
 sub close_name_store {
-    delete shift->{name_store};
+    my ( $self ) = @_;
+    delete $self->{name_store};
+    delete $self->{name_store_tied_hash};
 }
 
-sub hash_bits {
+sub requested_hash_bits {
     my $self = shift;
     # set the hash size to try to get about 5-10KB per file, at an
     # average of about 500 bytes per name record, for about 10 records

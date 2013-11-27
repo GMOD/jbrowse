@@ -31,7 +31,13 @@
 
 ## Bug fixes
 
- * Fix generate-names.pl crashing on some older versions of Perl with
+ * Fixed a bug in which `generate-names.pl` would sometimes report the
+   incorrect number of hashing bits in verbose output, and would
+   sometimes use the number of hashing bits for an existing index even
+   if that index was being regenerated.  Thanks to Richard Hayes for
+   pointing out the incorrect log output.
+
+ * Fix `generate-names.pl` crashing on some older versions of Perl with
    an error like `Bareword "POSIX::O_RDONLY" not allowed while "strict
    subs" in use`.  Thanks to Chris Childers for pointing this out.
 

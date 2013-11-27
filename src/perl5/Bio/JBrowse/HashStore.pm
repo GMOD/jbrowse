@@ -70,6 +70,11 @@ sub open {
         );
     }
 
+    # check that hash_bits is a multiple of 4
+    if( $self->{hash_bits} % 4 ) {
+        die "Invalid hash bits value $self->{hash_bits}, must be a multiple of 4.\n";
+    }
+
     $self->{hash_mask} = 2**($self->{hash_bits}) - 1;
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
