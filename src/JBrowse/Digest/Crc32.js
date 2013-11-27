@@ -24,7 +24,8 @@ var Crc32 = {
 
     crc32: function( str, crc ) {
         var bytes = Crc32.stringToBytes(str);
-        if( crc == window.undefined ) crc = 0;
+        if( crc === undefined )
+            crc = 0;
         var n = 0; //a number between 0 and 255
         var x = 0; //a hex number
         var table = Crc32.crc32Table;
