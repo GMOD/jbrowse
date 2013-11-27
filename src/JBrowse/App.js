@@ -47,6 +47,31 @@ init: function() {
                     return thisB.loadPlugins();
                 });
     }.call(this));
+},
+
+/**
+ * Compare two reference sequence names, returning -1, 0, or 1
+ * depending on the result.  Case insensitive, insensitive to the
+ * presence or absence of prefixes like 'chr', 'chrom', 'ctg',
+ * 'contig', 'scaffold', etc
+ */
+compareReferenceNames: function( a, b ) {
+    return this.regularizeReferenceName(a).localeCompare( this.regularizeReferenceName( b ) );
+},
+
+regularizeReferenceName: function( refname ) {
+
+    if( this.getConf('exactReferenceSequenceNames') )
+        return refname;
+
+    refname = refname.toLowerCase()
+                     .replace(/^chro?m?(osome)?/,'chr')
+                     .replace(/^co?n?ti?g/,'ctg')
+                     .replace(/^scaff?o?l?d?/,'scaffold')
+                     .replace(/^([a-z]*)0+/,'$1')
+                     .replace(/^(\d+)$/, 'chr$1' );
+
+    return refname;
 }
 
 });
