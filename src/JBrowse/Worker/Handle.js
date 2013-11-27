@@ -22,7 +22,6 @@ define([
            ,Job
        ) {
 
-var requestCounter = 0;
 var jobCounter = 0;
 
 return declare( [_RequestMixin], {
@@ -54,6 +53,7 @@ return declare( [_RequestMixin], {
   },
 
   postMessage: function( message ) {
+      //console.log( 'main says', message );
       return this._worker.postMessage( message );
   },
 

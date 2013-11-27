@@ -22,17 +22,18 @@ define([
            ,Serialization
        ) {
 
+var requestCounter = 0;
+var outstandingRequests = {};
+
 return declare( null, {
 
 constructor: function() {
-    this._requests = {};
-    this._requestCounter = 0;
 },
 
 request: function( operation ) {
     var args = Array.prototype.slice.call( arguments, 1 );
 
-    var requestNumber = ++this._requestCounter;
+    var requestNumber = ++requestCounter;
     this.postMessage(
         { requestNumber: requestNumber,
           operation: operation,
@@ -40,7 +41,7 @@ request: function( operation ) {
         });
 
     var deferred = new Deferred();
-    this._requests[ requestNumber ] = {
+    outstandingRequests[ requestNumber ] = {
         deferred: deferred
     };
     return deferred;
@@ -67,25 +68,23 @@ _handleRequest: function( req ) {
                    var methodName = '_handleRequest_'+operation;
                    if( ! thisB[methodName] )
                        throw new Error('cannot handle request "'+operation+'", there is no '+methodName+' handler method' );
-                   return when( thisB[methodName].apply( thisB, args ) )
-                       .then( function( result ) {
-                                  thisB.postMessage(
-                                      { requestNumber: requestNumber,
-                                        result: Serialization.deflate( result )
-                                      });
-                              });
-               },
-               function(e) {
-                   console.error( e.stack || ''+e );
+                   return when( thisB[methodName].apply( thisB, args ) );
+               })
+        .then( function( result ) {
+                   return thisB.postMessage(
+                       { requestNumber: requestNumber,
+                         result: Serialization.deflate( result )
+                       });
                });
+
 },
 
 _handleResponse: function( data ) {
-    var requestRecord = this._requests[ data.requestNumber ];
+    var requestRecord = outstandingRequests[ data.requestNumber ];
     if( ! requestRecord )
         throw new Error( "received response for unrecorded request "+data.requestNumber+": "+data );
 
-    delete this._requests[ data.requestNumber ];
+    delete outstandingRequests[ data.requestNumber ];
     if( data.error ) {
         requestRecord.deferred.reject( data.error );
     }
