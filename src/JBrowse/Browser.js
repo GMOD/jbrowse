@@ -36,6 +36,7 @@ define( [
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
             'JBrowse/DataHub/_DataHubManagerMixin',
+            'JBrowse/Auth/_AuthManagerMixin',
             'JBrowse/Worker/_WorkerManagerMixin',
             'JBrowse/View/RegionBrowser2',
             'JBrowse/ConfigManager',
@@ -83,6 +84,7 @@ define( [
             LazyTrie,
             NamesLazyTrieDojoDataStore,
             DataHubManagerMixin,
+            AuthManagerMixin,
             WorkerManagerMixin,
             RegionBrowser2,
             ConfigLoader,
@@ -106,6 +108,7 @@ var dojof = Util.dojof;
 return declare(
     [ App,
       DataHubManagerMixin,
+      AuthManagerMixin,
       WorkerManagerMixin
     ], {
 

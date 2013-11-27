@@ -2,27 +2,33 @@
  * Wrapper object for a Worker.  Lives in the main process.
  */
 define([
-           'dojo/_base/declare',
-           'dojo/_base/lang',
-           'dojo/Deferred',
+           'dojo/_base/declare'
+           ,'dojo/_base/lang'
+           ,'dojo/Deferred'
 
-           'JBrowse/Util/Serialization',
-           './Job'
+           ,'./_RequestMixin'
+           ,'JBrowse/Util'
+           ,'JBrowse/Util/Serialization'
+           ,'./Job'
        ],
        function(
-           declare,
-           lang,
-           Deferred,
+           declare
+           ,lang
+           ,Deferred
 
-           Serialization,
-           Job
+           ,_RequestMixin
+           ,Util
+           ,Serialization
+           ,Job
        ) {
 
 var requestCounter = 0;
 var jobCounter = 0;
 
-return declare( null, {
+return declare( [_RequestMixin], {
   constructor: function( args ) {
+      Util.validate( args, { authManager: 'object' } );
+      this._authManager = args.authManager;
       this._worker = args.worker;
       this._worker.onmessage = lang.hitch( this, '_handleMessage' );
       this._worker.onerror   = lang.hitch( this, '_handleError' );
@@ -35,16 +41,8 @@ return declare( null, {
 
   _handleMessage: function( event ) {
       var data = event.data;
-      var requestRecord;
-      if( data && data.requestNumber && (requestRecord = this._requests[ data.requestNumber ] )) {
-          delete this._requests[ data.requestNumber ];
-          if( data.error ) {
-              requestRecord.deferred.reject( data.error );
-          }
-          else if( data.result ) {
-              Serialization.inflate( data.result )
-                  .then( requestRecord.deferred.resolve, requestRecord.deferred.reject );
-          }
+      if( data && data.requestNumber ) {
+          this._handleRequestMessage( data );
       }
       else {
           console.warn( "unknown message from worker", event );
@@ -55,24 +53,8 @@ return declare( null, {
       return this._worker;
   },
 
-  request: function( operation, args ) {
-      var requestNumber = ++requestCounter;
-
-      this._worker.postMessage( Serialization.deflate(
-          { requestNumber: requestNumber,
-            operation: operation,
-            args: args
-          }));
-
-      var deferred = new Deferred();
-      this._requests[ requestNumber ] = {
-          deferred: deferred
-      };
-      return deferred;
-  },
-
   postMessage: function( message ) {
-      return this._worker.postMessage( Serialization.deflate( message ) );
+      return this._worker.postMessage( message );
   },
 
   remoteApply: function( obj, methodName, args ) {
@@ -85,7 +67,7 @@ return declare( null, {
   newJob: function( localHandler, className, args ) {
       var jobNumber = ++jobCounter;
       var thisB = this;
-      return this.request( 'newJob', [ jobNumber, className, args ] )
+      return this.request( 'newJob', jobNumber, className, args )
           .then( function(){
                      return new Job(
                          { handlerObject: localHandler,
@@ -93,6 +75,10 @@ return declare( null, {
                            jobNumber: jobNumber
                          });
                  });
+  },
+
+  _handleRequest_getCredentialsForRequest: function( request ) {
+      return this._authManager.getCredentialsForRequest( request );
   }
 
 });

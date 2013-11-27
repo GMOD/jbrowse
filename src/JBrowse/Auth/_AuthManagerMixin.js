@@ -35,25 +35,20 @@ return declare( null, {
   getCredentialSlots: function() {
       return this._credentialSlots || ( this._credentialSlots = function() {
           var conf = this.getConf('credentials');
-          return all( array.map( conf, lang.hitch( this, '_inflateSlotDefinition' )));
+          return all( array.map( conf, lang.hitch( this, '_instantiateSlot' )));
       }.call(this) );
   },
 
   /**
    * Instantiate a config slot object from a config definition.
    */
-  _inflateSlotDefinition: function( def ) {
+  _instantiateSlot: function( def ) {
       var classname = def.type;
       if( ! classname )
           throw new Error( "credentials definition has no `type`: "+JSON.stringify( def ) );
       if( classname.indexOf('/') == -1 )
           classname = "JBrowse/Auth/CredentialSlot/"+classname.replace(/\./g,'/');
-
-      var thisB = this;
-      return Util.loadJSClass( classname )
-          .then( function( slotClass ) {
-                     return new slotClass({ browser: thisB.browser, config: def });
-                 });
+      return Util.instantiate( classname, {browser: this.browser, config: def } );
   },
 
   // deferred

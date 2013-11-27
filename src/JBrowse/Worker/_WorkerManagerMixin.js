@@ -35,7 +35,7 @@ return declare( null, {
               }
               else if( event.data == 'ready' ) {
                   if( timeout ) { clearTimeout( timeout ); timeout = undefined; }
-                  d.resolve( new WorkerHandle({ worker: worker }) );
+                  d.resolve( new WorkerHandle({ worker: worker, authManager: thisB }) );
               }
               else {
                   d.reject( new Error( event ) );

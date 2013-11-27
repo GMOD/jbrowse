@@ -57,8 +57,10 @@ return declare( [_ConfigurationMixin], {
     nbsp: String.fromCharCode(160),
 
     fillBlock: function( block, remoteBlockNode ) {
-        this.fillSequenceBlock.apply( this, arguments );
-        return blockNode;
+        return this.fillSequenceBlock.apply( this, arguments )
+            .then( function() {
+                       return remoteBlockNode;
+                   });
     },
 
     _getBoxHeight: function() {
@@ -102,8 +104,7 @@ return declare( [_ConfigurationMixin], {
                                { className: 'sequence_blur',
                                  innerHTML: '<span class="message">No sequence available</span>'
                                });
-                   },
-                   lang.hitch( this, '_handleError' )
+                   }
                  );
     },
 

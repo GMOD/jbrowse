@@ -108,7 +108,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
         var thisB = this;
         return this._getRenderJob()
             .then( function( renderJob ) {
-                       return renderJob.remoteApply( 'fillBlock', [block, new RemoteDOMNode(), changeInfo ]);
+                       return renderJob.remoteApply( 'fillBlock', [ block, new RemoteDOMNode(), changeInfo ]);
                   })
             .then( function( remoteDOMNode) {
                        remoteDOMNode.replayOnto( blockNode );

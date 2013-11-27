@@ -12,6 +12,7 @@ define([
            ,'JBrowse/has'
            ,'JBrowse/Util'
            ,'JBrowse/Util/Serialization'
+           ,'./_RequestMixin'
        ],
        function(
            declare
@@ -22,8 +23,9 @@ define([
            ,has
            ,Util
            ,Serialization
+           ,_RequestMixin
        ) {
-return declare( Destroyable, {
+return declare( [_RequestMixin, Destroyable], {
 
   constructor: function( args ) {
       Util.validate(
@@ -38,17 +40,14 @@ return declare( Destroyable, {
   },
 
   postMessage: function( message ) {
-      this._worker.postMessage({ jobNumber: this._jobNumber, message: message });
+      this._worker.postMessage( lang.mixin( { jobNumber: this._jobNumber }, message ) );
   },
 
   handleMessage: function( message ) {
-      if( message.operation == 'apply' ) {
-          var thisB = this;
-          return Serialization.inflate( message.args || [], { app: this._worker } )
-                     .then( function( args ) {
-                                return thisB._handlerObject[message.methodName].apply( thisB._handlerObject, args );
-                            });
-      }
+      if( message.requestNumber )
+          return this._handleRequestMessage( message );
+
+      console.warn( "unknown message received by job "+this._jobNumber, message );
       return undefined;
   },
 
@@ -57,12 +56,11 @@ return declare( Destroyable, {
   },
 
   remoteApply: function( methodName, args ) {
-      return this._worker.postMessage(
-          { jobNumber: this._jobNumber,
-            operation: 'apply',
-            methodName: methodName,
-            args: args
-          });
+      return this.request( 'apply', methodName, args );
+  },
+
+  _handleRequest_apply: function( methodName, args ) {
+      return this._handlerObject[ methodName ].apply( this._handlerObject, args );
   },
 
   destroy: function() {

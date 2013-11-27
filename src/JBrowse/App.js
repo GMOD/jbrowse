@@ -4,7 +4,6 @@ define([
 
            ,'JBrowse/Component'
            ,'JBrowse/FeatureFiltererMixin'
-           ,'JBrowse/Auth/_AuthManagerMixin'
            ,'JBrowse/Transport/_TransportManagerMixin'
            ,'JBrowse/Plugin/_PluginManagerMixin'
        ],
@@ -14,7 +13,6 @@ define([
 
            ,JBrowseComponent
            ,FeatureFiltererMixin
-           ,AuthManagerMixin
            ,TransportManagerMixin
            ,PluginManagerMixin
        ) {
@@ -24,7 +22,6 @@ return declare(
         Stateful,
         JBrowseComponent,
         FeatureFiltererMixin,
-        AuthManagerMixin,
         TransportManagerMixin,
         PluginManagerMixin
     ],
