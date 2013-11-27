@@ -19,16 +19,19 @@ define( [
 return declare( HashStore,
 {
     constructor: function( args ) {
-        console.log("loading REST");
+        console.log("loading REST");//dbg
+        var data;
     },
 
     query: function( query, options ) {
-        console.log("Query");
+        console.log("Query called");//dbg
+        var thisB = this;
         require(["dojo/request/xhr"], function(xhr){
-            xhr(("names?equals="+query.name).replace( /\*$/, '' ), {
+            xhr(("names?starts="+query.name).replace( /\*$/, '' ), {
             handleAs: "json"
             }).then(function(data){
-                console.log(JSON.stringify(data))
+                console.log(JSON.stringify(data));//dbg
+                thisB.data = data;
             }, function(err){
                 // Handle the error condition
             }, function(evt){
@@ -36,10 +39,24 @@ return declare( HashStore,
                 // browser supports XHR2
             });
         });
+        return this.data;
     },
 
     get: function( id ) {
-
+        console.log ("GET called"); //dbg
+        var thisB = this;
+        require(["dojo/request/xhr"], function(xhr){
+            xhr(("names?equals="+query.name), {
+            handleAs: "json"
+            }).then(function(data){
+                console.log(JSON.stringify(data));//dbg
+                thisB.data = data;
+            }, function(err){
+            
+            }, function(evt){
+            
+            });
+        });
     }
 });
 });
