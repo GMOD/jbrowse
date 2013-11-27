@@ -5,6 +5,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
+           'dojo/when',
 
            'JBrowse/App',
            'JBrowse/Util',
@@ -16,6 +17,7 @@ define([
            declare,
            lang,
            Deferred,
+           when,
 
            App,
            Util,
@@ -36,24 +38,40 @@ constructor: function(args) {
 },
 
 _handleMessage: function( event ) {
-    var data = event.data;
-    if( data ) {
-        if( data.jobNumber ) {
-            return this._jobs[ data.jobNumber ]
-                .then( function(j) {
-                           return j.handleMessage( data );
-                       });
+    try {
+        var data = event.data;
+        if( data ) {
+            var errorHandler = lang.hitch( this, '_handleError' );
+            if( data.jobNumber ) {
+                var thisB = this;
+                return this._jobs[ data.jobNumber ]
+                    .then( function(j) {
+                               return j.handleMessage( data )
+                                   .then( null, errorHandler );
+                           },
+                           errorHandler
+                         );
+            }
+            else if( data.requestNumber ) {
+                return when( this._handleRequestMessage( data ) )
+                    .then( null, errorHandler );
+            }
         }
-        else if( data.requestNumber ) {
-            return this._handleRequestMessage( data );
-        }
-    }
 
-    console.warn( "unknown message received by worker", event );
-    return undefined;
+        console.warn( "unknown message received by worker", event );
+        return undefined;
+    } catch( error ) {
+        this._handleError( error );
+    }
+},
+
+_handleError: function( error ) {
+    console.error( error.stack || ''+error );
+    throw error;
 },
 
 postMessage: function( message ) {
+    //console.log( 'worker says', message );
     return this.get('self').postMessage( message );
 },
 

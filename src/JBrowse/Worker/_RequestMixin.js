@@ -50,11 +50,12 @@ _handleRequestMessage: function( data ) {
     // if( ! data )
     //     debugger;
     if( data.result || data.error )
-        this._handleResponse( data );
+        return this._handleResponse( data );
     else if( data.operation )
-        this._handleRequest( data );
+        return this._handleRequest( data );
     else
         console.warn( 'unknown request/response message', event );
+    return undefined;
 },
 
 _handleRequest: function( req ) {

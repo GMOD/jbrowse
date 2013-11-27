@@ -40,7 +40,7 @@ return declare( [_RequestMixin, Destroyable], {
   },
 
   postMessage: function( message ) {
-      this._worker.postMessage( lang.mixin( { jobNumber: this._jobNumber }, message ) );
+      return this._worker.postMessage( lang.mixin( { jobNumber: this._jobNumber }, message ) );
   },
 
   handleMessage: function( message ) {
