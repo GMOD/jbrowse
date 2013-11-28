@@ -53,48 +53,79 @@ var SerializationUtils = {
     // return a Deferred for the inflated structure.  loads classes on
     // the fly as necessary.
     inflate: function inflate( data, context ) {
-        data = lang.clone( data );
-        var match;
 
-        if( lang.isArray( data ) ) {
-            return all( array.map( data, function( d ) {
-                return inflate( d, context );
-            }));
-        }
-        else if( typeof data == 'object' ) {
-            var class_ = data.$class;
-            delete data.$class;
-            if( class_ ) {
-                return inflate( data, context )
-                         .then( function(d) {
-                                    return Util.instantiate( class_, d );
-                                });
+        function _instantiate( data, context, classesByName ) {
+            if( lang.isArray( data ) ) {
+                for( var i = 0; i < data.length; i++ )
+                    data[i] = _instantiate( data[i], context, classesByName );
             }
-            else {
-                // inflate all the members
-                var inflations = [];
-                for( var a in data ) {
-                    if( data.hasOwnProperty( a ) )
-                        (function( attr ) {
-                             inflations.push(
-                                 inflate( data[attr], context )
-                                     .then( function(d) { data[attr] = d; } )
-                             );
-                         })( a );
+            else if( typeof data == 'object' ) {
+                var className = data.$class;
+                delete data.$class;
+                if( className ) {
+                    data = _instantiate( data, context, classesByName );
+                    var Class = classesByName[ className ];
+                    if( ! Class ) throw new Error( 'class '+className+' not found' );
+                    return new Class(data);
                 }
-                return all( inflations ).then( function() { return data; } );
+                else {
+                    // inflate all the members
+                    var inflations = [];
+                    for( var a in data ) {
+                        if( data.hasOwnProperty( a ) )
+                            data[a] = _instantiate( data[a], context, classesByName );
+                    }
+                    return data;
+                }
             }
-        }
-
-        // inflate special vars like $context.foo using the given context
-        if( typeof data == 'string' && (match = data.match(/^\$context\.(\w+)$/)) ) {
-            if( context && context[match[1]] ) {
-                console.log( 'inflating '+data+' to', context[match[1]] );
-                data = context[match[1]];
+            else if( typeof data == 'string' && (match = data.match(/^\$context\.(\w+)$/)) ) {
+                if( context && context[match[1]] ) {
+                    //console.log( 'inflating '+data+' to', context[match[1]] );
+                    data = context[match[1]];
+                }
             }
-        }
 
-        return Util.resolved( data );
+            return data;
+        };
+
+        data = lang.clone( data ); // clone so we can modify in-place
+
+        // gather a list of all the class names
+        var classNames = [];
+        (function gatherClassNames( classlist, data ) {
+            if( lang.isArray( data ) ) {
+                for( var i = 0; i<data.length; i++ )
+                    gatherClassNames( classlist, data[i] );
+            }
+            else if( typeof data == 'object' ) {
+                if( data.$class )
+                    classlist.push( data.$class );
+
+                for( var a in data ) {
+                    if( data.hasOwnProperty(a) )
+                        gatherClassNames( classlist, data[a] );
+                }
+            }
+         })( classNames, data );
+
+        // uniqify the class name list
+        classNames = Util.uniq( classNames );
+
+        // load the classes if necessary, then traverse the data
+        // structure and instantiate them
+        return Util.loadJS( classNames )
+            .then( function( classes ) {
+                       // index the classes by name
+                       var classesByName = {};
+                       for( var i = 0; i<classNames.length; i++ ) {
+                           classesByName[ classNames[i] ] = classes[i];
+                       }
+
+                       // traverse the data structure again, instantiating classes
+                       _instantiate( data, context, classesByName );
+
+                       return data;
+                   });
     },
 
     // parse and inflate
