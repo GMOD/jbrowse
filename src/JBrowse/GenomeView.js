@@ -624,7 +624,7 @@ wheelScroll: function( event ) {
         delta.y = event.wheelDeltaY/2;
     }
     else if( 'deltaX' in event ) {
-        delta.x = Math.abs(event.deltaY) > Math.abs(2*event.deltaX) ? 0 : event.deltaX*-40;
+        delta.x = Math.abs(event.deltaY) > Math.abs(2*event.deltaX) ? 0 : event.deltaX*-10;
         delta.y = event.deltaY*-10;
     }
     else if( event.wheelDelta ) {
