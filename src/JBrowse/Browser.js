@@ -145,6 +145,7 @@ constructor: function(params) {
                    return thisB.loadCSS();
                })
         .then( function() {
+                   thisB.getWorker(); // boot a worker
                    thisB._initDataHubs();
                    thisB.reportUsageStats();
 
