@@ -51,7 +51,7 @@ var SerializationUtils = {
 
     // given bare data, deep-inflate it using any $class members,
     // return a Deferred for the inflated structure.  loads classes on
-    // the fly as necessary.
+    // the fly as necessary.  modifies the passed data object in-place.
     inflate: function inflate( data, context ) {
 
         function _instantiate( data, context, classesByName ) {
@@ -88,8 +88,6 @@ var SerializationUtils = {
             return data;
         };
 
-        data = lang.clone( data ); // clone so we can modify in-place
-
         // gather a list of all the class names
         var classNames = [];
         (function gatherClassNames( classlist, data ) {
@@ -111,6 +109,9 @@ var SerializationUtils = {
         // uniqify the class name list
         classNames = Util.uniq( classNames );
 
+        if( classNames.length == 0 )
+            return Util.resolved( data );
+
         // load the classes if necessary, then traverse the data
         // structure and instantiate them
         return Util.loadJS( classNames )
@@ -122,9 +123,7 @@ var SerializationUtils = {
                        }
 
                        // traverse the data structure again, instantiating classes
-                       _instantiate( data, context, classesByName );
-
-                       return data;
+                       return _instantiate( data, context, classesByName );
                    });
     },
 
