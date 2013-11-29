@@ -133,7 +133,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
         // otherwise, just draw something that suggests there are
         // bases there if you zoom in far enough
         else {
-            blockNode.setAttribute('innerHTML','<div class="sequence_blur"><span class="zoom">Zoom in to see sequence</span></div>');
+            blockNode.innerHTML = '<div class="sequence_blur"><span class="zoom">Zoom in to see sequence</span></div>';
             return blockNode;
         }
     }
