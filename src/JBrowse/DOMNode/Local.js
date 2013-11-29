@@ -12,14 +12,13 @@ var Local = declare( null, {
       this.root = node;
   },
 
-  createChild: function( args ) {
-      var tagname = args.tagName;
-      delete args.tagName;
-      return dom.create( tagName, args, this.root );
+  createChild: function( tagName, attrs ) {
+      return dom.create( tagName, attrs, this.root );
   },
-  addChild: function( child ) {
+
+  appendChild: function( child ) {
       if( typeof child.replayOnto != 'function' )
-          throw new Error( "addChild only supported with Remote nodes right now" );
+          throw new Error( "appendChild only supported with Remote nodes right now" );
       // it's a remote node, need to create a child and replay onto it
 
       var node = this.createChild( child.tagName, child.attrs );

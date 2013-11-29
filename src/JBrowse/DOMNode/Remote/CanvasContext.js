@@ -11,6 +11,7 @@ define([
 return declare( null, {
 
 constructor: function( args ) {
+    if( ! args ) args = {};
     this.operations = args.operations || [];
 
     array.forEach(
@@ -21,13 +22,19 @@ constructor: function( args ) {
             'getAttribute'
         ],
         function( op ) {
-            var thisB = this;
             this[op] = function() {
-                thisB._record( op, Array.prototype.slice.apply( arguments ) );
+                this._record( op, Array.prototype.slice.apply( arguments ) );
             };
         },
         this
     );
+},
+
+deflate: function() {
+    return {
+        $class: 'JBrowse/DOMNode/Remote/CanvasContext',
+        operations: this.operations
+    };
 },
 
 _record: function( op, args ) {
@@ -36,8 +43,13 @@ _record: function( op, args ) {
 
 replayOnto: function( ctx ) {
     var o = this.operations;
-    for( var i=0; i<o.length; i++)
-        ctx[o[i][0]].apply( ctx, o[i][1] );
+    for( var i=0; i<o.length; i++) {
+        if( o[i][0] == 'setAttribute' ) {
+            ctx[o[i][1][0]] = o[i][1][1];
+        } else {
+            ctx[o[i][0]].apply( ctx, o[i][1] );
+        }
+    }
 }
 
 });

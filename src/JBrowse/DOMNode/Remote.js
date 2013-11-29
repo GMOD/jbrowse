@@ -3,26 +3,44 @@ define([
            'dojo/_base/array',
            'dojo/dom-construct',
 
-           './Remote/CanvasContext'
+           'JBrowse/Util/Serialization',
+           './Remote/CanvasContext',
+           './Local'
        ],
        function(
            declare,
            array,
-           dom
+           dom,
+
+           Serialization,
+           RemoteCanvasContext,
+           Local
        ) {
 
 var RemoteNode = declare( null, {
   constructor: function( args ) {
       args = args || {};
       this.tagName = args.tagName;
-      this.attrs = args.attrs;
+      this.attrs = args.attrs || {};
       this.childNodes = args.childNodes || [];
       this.operations = args.operations || [];
+      this.context2d = args.context2d;
   },
 
-  createChild: function( args ) {
+  // Serialization support
+  deflate: function() {
+      return {
+          $class: 'JBrowse/DOMNode/Remote',
+          tagName: this.tagName,
+          attrs: this.attrs,
+          operations: Serialization.deflate( this.operations ),
+          context2d: this.context2d && this.context2d.deflate()
+      };
+  },
+
+  createChild: function( tagName, attrs ) {
       var c;
-      this._record( 'addChild', [ c = new RemoteNode(args) ] );
+      this._record( 'appendChild', [ c = new RemoteNode({ tagName: tagName, attrs: attrs }) ] );
       this.childNodes.push( c );
       return c;
   },
@@ -53,14 +71,14 @@ var RemoteNode = declare( null, {
       if( type != '2d' )
           throw new Error( 'only 2d contexts are supported' );
 
-      return this.context2d || ( this.context2d = new RemoteCanvasContext( this ) );
+      return this.context2d || ( this.context2d = new RemoteCanvasContext() );
   },
 
   replayOnto: function( node ) {
       var local = new Local(node);
-      array.forEach( this.operations, function( op ) {
-          local[op[0]].apply( local, op[1] );
-      });
+      var operations = this.operations;
+      for( var i = 0; i<operations.length; i++ )
+          local[operations[i][0]].apply( local, operations[i][1] );
 
       if( this.context2d )
           this.context2d.replayOnto( node.getContext('2d') );
