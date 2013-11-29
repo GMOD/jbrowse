@@ -7,6 +7,7 @@ define( [
             'dojo/_base/array',
             'dojo/promise/all',
             'dojo/when',
+            'dojo/dom-construct',
 
             'JBrowse/MediaTypes',
             '../Track',
@@ -21,6 +22,7 @@ define( [
             array,
             all,
             when,
+            domConstruct,
 
             MediaTypes,
             TrackView,
@@ -58,15 +60,14 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
     fillBlock:function( block, blockNode, changeInfo ) {
         blockNode.innerHTML = '';
-        var loading = dojo.create(
-            'div',
-            { className: 'loading',
-              innerHTML: '<span class="text">Loading</span>',
-              style: 'height: 40px'
-            });
         var thisB = this;
         var loadingTimeout = setTimeout( function() {
-            blockNode.appendChild( loading );
+            var loading = domConstruct.create(
+                'div',
+                { className: 'loading',
+                  innerHTML: '<span class="text">Loading</span>',
+                  style: 'height: 40px'
+                }, blockNode );
             thisB.heightUpdate( 40 );
         }, 300 );
 
@@ -112,6 +113,13 @@ return declare( [ TrackView, _BlockBasedMixin ],
                   })
             .then( function( remoteDOMNode) {
                        remoteDOMNode.replayOnto( blockNode );
+                       array.some( blockNode.childNodes, function(n) {
+                                       if( n.tagName == 'CANVAS' ) {
+                                           thisB.heightUpdate( n.height );
+                                           return true;
+                                       }
+                                       return false;
+                                   });
                    });
     },
 

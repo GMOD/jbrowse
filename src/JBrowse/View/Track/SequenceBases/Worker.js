@@ -137,7 +137,10 @@ return declare( [_ConfigurationMixin], {
                 ctx.setAttribute( 'fillStyle', 'black' );
                 for( var i = 1; i<seq.length-1; i++ ) {
                     var c = seq.charAt(i);
-                    ctx.fillText( c, originPx+textOffsetX+i*pxPerBp-ctx.measureText(c).width/2, currentY+textOffsetY );
+                    ctx.fillText( c,
+                                  originPx + textOffsetX + i*pxPerBp - 3,//ctx.measureText(c).width/2,
+                                  currentY + textOffsetY
+                                );
                 }
             }
             currentY += boxHeight;
