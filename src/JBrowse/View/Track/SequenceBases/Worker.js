@@ -31,10 +31,16 @@ return declare( [_ConfigurationMixin], {
          slots: [
              { name: 'type',              type: 'string' },
 
-             { name: 'maxExportSpan',     type: 'integer', defaultValue: 500000 },
-             { name: 'showReverseStrand', type: 'boolean', defaultValue: true },
-             { name: 'showForwardStrand', type: 'boolean', defaultValue: true },
-             { name: 'showTranslation',   type: 'boolean', defaultValue: true },
+             { name: 'maxExportSpan',             type: 'integer', defaultValue: 500000 },
+             { name: 'showReverseStrand',         type: 'boolean', defaultValue: true },
+             { name: 'showForwardStrand',         type: 'boolean', defaultValue: true },
+             { name: 'showTranslation',           type: 'boolean', defaultValue: true },
+
+             { name: 'highlightSpliceDonorSites',    type: 'multi-string', defaultValue: ['gt'] },
+             { name: 'highlightSpliceAcceptorSites', type: 'multi-string', defaultValue: ['ag'] },
+             { name: 'spliceDonorColor', type: 'string', defaultValue: 'green' },
+             { name: 'spliceAcceptorColor', type: 'string', defaultValue: 'purple' },
+
              { name: 'baseFont',          type: 'string',
                defaultValue: 'normal 12px Open Sans,Univers,Helvetica,Arial,sans-serif'
              },
@@ -196,6 +202,23 @@ return declare( [_ConfigurationMixin], {
             currentY += boxHeight;
         }
 
+        function highlightDonorsAcceptors( ctx, seq, reverse, y ) {
+            for( var i = 0; i<seq.length; i++ ) {
+                var di = seq.substr( i, 2 );
+                if( reverse ) di = di.charAt(1)+di.charAt(0);
+                if( spliceDonorRegexp && spliceDonorRegexp.test( di ) ) {
+                    ctx.set('strokeStyle', spliceDonorColor );
+                    ctx.set('lineWidth', 2 );
+                    ctx.strokeRect( originPx+i*pxPerBp+1, y+1, pxPerBp*2-2, boxHeight-2 );
+                }
+                if( spliceAcceptorRegexp && spliceAcceptorRegexp.test( di ) ) {
+                    ctx.set('strokeStyle', spliceAcceptorColor );
+                    ctx.set('lineWidth', 2 );
+                    ctx.strokeRect( originPx+i*pxPerBp+1, y+1, pxPerBp*2-2, boxHeight-2 );
+                }
+            }
+        }
+
         var translationOffsets = this.getConf('showTranslation') && function() {
             var mod = (originBp+2)%3;
             var a = [];
@@ -211,15 +234,34 @@ return declare( [_ConfigurationMixin], {
                 drawTranslationRow( ctx, seq, translationOffsets[1] );
                 drawTranslationRow( ctx, seq, translationOffsets[0] );
             }
+
+            var forwardNucY = currentY; //< save for highlighting donor/acceptors
             drawNucleotideRow( ctx, seq );
         }
         if( this.getConf('showReverseStrand') ) {
+            var reverseNucY = currentY; //< save for highlighting donor/acceptors
             var compseq = Util.complement(seq);
             drawNucleotideRow( ctx, compseq  );
             if( this.getConf('showTranslation') ) {
                 drawTranslationRow( ctx, compseq, translationOffsets[0], 'reverse' );
                 drawTranslationRow( ctx, compseq, translationOffsets[1], 'reverse' );
                 drawTranslationRow( ctx, compseq, translationOffsets[2], 'reverse' );
+            }
+        }
+
+        // highlight donor/acceptor sites if configured and zoomed in far enough
+        if( pxPerBp > 3 ) {
+            var spliceDonorRegexp    = this.getConf('highlightSpliceDonorSites')
+                && new RegExp( '^('+this.getConf('highlightSpliceDonorSites').join('|')+')$', 'i');
+            var spliceAcceptorRegexp = this.getConf('highlightSpliceAcceptorSites')
+                && new RegExp( '^('+this.getConf('highlightSpliceAcceptorSites').join('|')+')$', 'i');
+            var spliceDonorColor = this.getConf('spliceDonorColor');
+            var spliceAcceptorColor = this.getConf('spliceAcceptorColor');
+            if( spliceDonorRegexp || spliceAcceptorRegexp ) {
+                if( this.getConf('showForwardStrand') )
+                    highlightDonorsAcceptors( ctx, seq, false,    forwardNucY );
+                if( this.getConf('showReverseStrand') )
+                    highlightDonorsAcceptors( ctx, compseq, true, reverseNucY );
             }
         }
     }

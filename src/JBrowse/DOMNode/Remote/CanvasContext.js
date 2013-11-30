@@ -18,6 +18,7 @@ constructor: function( args ) {
         [
             'fillText',
             'fillRect',
+            'strokeRect',
             'set',
             'get'
         ],
