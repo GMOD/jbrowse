@@ -12,7 +12,6 @@ define( [
             'JBrowse/MediaTypes',
             '../Track',
             './_BlockBasedMixin',
-            'JBrowse/CodonTable',
             'JBrowse/Util',
             'JBrowse/DOMNode/Remote'
         ],
@@ -27,7 +26,6 @@ define( [
             MediaTypes,
             TrackView,
             _BlockBasedMixin,
-            CodonTable,
             Util,
             RemoteDOMNode
         ) {

@@ -101,5 +101,5 @@ for (var codon in CodonTable) {
     }
 }
 
-return tempCodonTable;
+return { default: tempCodonTable };
 });

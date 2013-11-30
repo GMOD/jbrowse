@@ -18,8 +18,8 @@ constructor: function( args ) {
         [
             'fillText',
             'fillRect',
-            'setAttribute',
-            'getAttribute'
+            'set',
+            'get'
         ],
         function( op ) {
             this[op] = function() {
@@ -44,7 +44,7 @@ _record: function( op, args ) {
 replayOnto: function( ctx ) {
     var o = this.operations;
     for( var i=0; i<o.length; i++) {
-        if( o[i][0] == 'setAttribute' ) {
+        if( o[i][0] == 'set' ) {
             ctx[o[i][1][0]] = o[i][1][1];
         } else {
             ctx[o[i][0]].apply( ctx, o[i][1] );
