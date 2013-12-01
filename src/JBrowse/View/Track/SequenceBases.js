@@ -57,9 +57,9 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     fillBlock:function( block, blockNode, changeInfo ) {
-        blockNode.innerHTML = '';
         var thisB = this;
         var loadingTimeout = setTimeout( function() {
+            blockNode.innerHTML = '';
             var loading = domConstruct.create(
                 'div',
                 { className: 'loading',

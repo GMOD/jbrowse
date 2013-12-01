@@ -31,10 +31,13 @@ blockChange: function( blockNode, changeInfo, block ) {
             if( ! this.floatingLabel ) {
                 var floater = this.floatingLabel = document.createElement('div');
                 floater.className = 'referenceLabel floatingReferenceLabel';
+                floater.appendChild( document.createElement('span') );
                 this.domNode.appendChild( floater );
             }
             this.floatingLabel.style.visibility = 'visible';
-            this.floatingLabel.innerHTML = '<span>'+block.getProjectionBlock().getBName()+'</span>';
+            var bName = block.getProjectionBlock().getBName();
+            if( this.floatingLabel.firstChild.innerHTML != bName )
+                this.floatingLabel.firstChild.innerHTML = bName;
         }
     }
     if( changeInfo.operation != 'new'
