@@ -38,8 +38,8 @@ return declare( [_ConfigurationMixin], {
 
              { name: 'highlightSpliceDonorSites',    type: 'multi-string', defaultValue: ['gt'] },
              { name: 'highlightSpliceAcceptorSites', type: 'multi-string', defaultValue: ['ag'] },
-             { name: 'spliceDonorColor', type: 'string', defaultValue: 'green' },
-             { name: 'spliceAcceptorColor', type: 'string', defaultValue: 'purple' },
+             { name: 'spliceDonorColor', type: 'string', defaultValue: 'black' },
+             { name: 'spliceAcceptorColor', type: 'string', defaultValue: 'white' },
 
              { name: 'baseFont',          type: 'string',
                defaultValue: 'normal 12px Open Sans,Univers,Helvetica,Arial,sans-serif'
@@ -207,14 +207,12 @@ return declare( [_ConfigurationMixin], {
                 var di = seq.substr( i, 2 );
                 if( reverse ) di = di.charAt(1)+di.charAt(0);
                 if( spliceDonorRegexp && spliceDonorRegexp.test( di ) ) {
-                    ctx.set('strokeStyle', spliceDonorColor );
-                    ctx.set('lineWidth', 2 );
-                    ctx.strokeRect( originPx+i*pxPerBp+1, y+1, pxPerBp*2-2, boxHeight-2 );
+                    ctx.set('fillStyle', spliceDonorColor );
+                    ctx.fillRect( Math.round( originPx-1+(reverse ? i+2 : i )*pxPerBp ), y-2, 2, boxHeight+4 );
                 }
                 if( spliceAcceptorRegexp && spliceAcceptorRegexp.test( di ) ) {
-                    ctx.set('strokeStyle', spliceAcceptorColor );
-                    ctx.set('lineWidth', 2 );
-                    ctx.strokeRect( originPx+i*pxPerBp+1, y+1, pxPerBp*2-2, boxHeight-2 );
+                    ctx.set('fillStyle', spliceAcceptorColor );
+                    ctx.fillRect( Math.round( originPx-1+(reverse ? i : i+2 )*pxPerBp ), y-2, 2, boxHeight+4 );
                 }
             }
         }
