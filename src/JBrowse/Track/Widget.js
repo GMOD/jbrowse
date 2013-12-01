@@ -3,6 +3,8 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/when',
+           'dojo/dom-construct',
+           'dojo/on',
 
            'dijit/_WidgetBase',
            'dijit/layout/BorderContainer',
@@ -15,6 +17,8 @@ define([
            lang,
            array,
            when,
+           dom,
+           on,
 
            _WidgetBase,
            BorderContainer,
@@ -49,6 +53,30 @@ return declare( [ BorderContainer ], {
                        },this );
 
         this.getParent()._layoutChildren( this.id, totalHeight );
+    },
+
+    buildRendering: function() {
+        this.inherited(arguments);
+
+        this.handleNode =
+            dom.create( 'div', {
+                            className: 'trackHandle'
+                        }, this.domNode );
+        this.closeButton = dom.create(
+            'div', {
+                className: 'closeButton'
+            }, this.handleNode );
+
+        this.own( on( this.closeButton, 'click', function() {
+                          alert('TODO: close track');
+        }));
+        dom.create('div', { className: 'jbrowseIconClose' }, this.closeButton );
+
+        this.nameNode =
+            dom.create( 'span', {
+                            className: 'name',
+                            innerHTML: this.get('track').getConf('name')
+                        }, this.handleNode );
     },
 
     startup: function() {

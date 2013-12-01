@@ -2,22 +2,16 @@
 .jbrowseIconBusy,
 .jbrowseIconLink,
 .jbrowseIconCancel,
-.jbrowseIconHighlight
+.jbrowseIconHighlight,
+.jbrowseIconClose
 {
-    background-image: url('../../img/commonIconsEnabled.png');
+    background-image: url('../../base/img/sprites.png');
     width: 16px;
     height: 16px;
-}
 
-.dijitDisabled .jbrowseIconHelp,
-.dijitDisabled .jbrowseIconBusy,
-.dijitDisabled .jbrowseIconLink,
-.dijitDisabled .jbrowseIconCancel,
-.dijitDisabled .jbrowseIconHighlight
-{
-    background-image: url('../../img/commonIconsDisabled.png');
-    width: 16px;
-    height: 16px;
+    .dijitDisabled & {
+      background-image: url('../../base/img/sprites_disabled.png');
+    }
 }
 
 .jbrowseIconHelp {
@@ -35,3 +29,7 @@
 .jbrowseIconHighlight {
     background-position: -186px;
 }
+.jbrowseIconClose {
+    background-position: -178px -96px;
+}
+

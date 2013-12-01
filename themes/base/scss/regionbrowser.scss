@@ -42,7 +42,41 @@
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
+
+    & > .trackHandle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+
+      padding: 0 8px 0 20px;
+      line-height: 28px;
+      white-space: nowrap;
+
+      font-size: 14px;
+      background: rgba( 255, 255, 255, 0.8 );
+
+      & > .closeButton {
+          cursor: pointer;
+
+          height: 28px;
+          width:  20px;
+          display: inline-block;
+
+          position: absolute;
+          top: 0;
+          left: 0;
+
+          & > div {
+              position: relative;
+              top: 50%;
+              margin-top: -8px;
+              left: 1px;
+          }
+      }
+    }
 }
+
 div.pin_underlay {
     width: 100%;
     position: absolute;
@@ -76,57 +110,6 @@ div.track.pinned {
 .track.dojoDndItemAfter {
     border-bottom: 3px solid #999;
     margin-bottom: -3px;
-}
-
-
-div.gridline {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    width: 0px;
-    height: 100%;
-    border-style: none none none solid;
-    border-width: 1px;
-    border-color: red;
-    z-index: 0;
-}
-div.gridline_major {
-    border-color: #bbb;
-}
-div.gridline_minor {
-    border-color: #eee;
-}
-
-div.pos-label {
-    position: relative;
-    left: -0.35em;
-    top: -1px;
-    z-index: 100;
-}
-
-
-div.blank-block {
-    position: absolute;
-    overflow: visible;
-    top: 0px;
-    height: 100%;
-    background-color: white;
-    z-index: 19;
-}
-
-div.track-label, div.tracklist-label {
-    z-index: 20;
-
-    padding: 1px 6px;
-    overflow: hidden;
-    cursor: pointer;
-
-    border-width: 1px;
-    border-style: solid;
-    border-color: #999;
-
-    color: #111;
-    font-weight: bold;
 }
 
 div.tracklist-label {
@@ -220,42 +203,6 @@ div.track-label .track-menu-button {
     border-left: 1px inset transparent;
 
 }
-div.track-label .feature-density {
-    font-size: 90%;
-    font-weight: normal;
-}
-.tundra div.track-label:hover .track-menu-button div {
-    height: 8px;
-    width: 8px;
-    position: absolute;
-    left: 8px;
-    top: 7px;
-    background: url("../img/spriteArrows.png") no-repeat -28px 0;
-}
-
-.tundra div.track-label:hover .track-menu-button:hover {
-    background-color: rgba( 0, 0, 100, 0.05 );
-    border-left-color: #ccc;
-}
-.tundra div.track-label .track-close-button {
-    background: url("../../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
-}
-.tundra div.track-label .track-close-button:hover {
-    background-image: url("../../src/dijit/themes/tundra/images/tabCloseHover.png");
-}
-.tundra div.track-label:hover .track-menu-button:hover div {
-    background-position-x: 0px;
-}
-div.track-label:hover {
-    background: #FAFAFA url(../../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
-
-    border-width: 1px;
-    border-color: #666;
-    border-color: rgba( 0,0,0, 1);
-
-    background-color: #ddd;
-    opacity: 1.0;
-}
 
 div.tracklist-label {
     padding: 3px;
@@ -302,6 +249,8 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     }
 
     .viewScale {
+        z-index: 2;
+
         .renderingBlock {
             position: absolute;
             background: #333;
