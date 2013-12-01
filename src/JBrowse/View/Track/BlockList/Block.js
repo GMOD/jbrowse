@@ -169,12 +169,13 @@ return declare( Destroyable, {
             operation:  deltaLeft != deltaRight ? 'resize' : 'move',
             deltaLeft:  deltaLeft,
             deltaRight: deltaRight,
-            animating: changeDescription && changeDescription.animating,
             projectionChange: changeDescription
          });
     },
 
     _notifyChanged: function( data ) {
+        if( data.projectionChange )
+            data.animating = data.projectionChange.animating;
         this._changeListeners.notify( data, this );
     },
     watch: function( callback ) {
@@ -206,6 +207,7 @@ return declare( Destroyable, {
             operation: 'splitLeft',
             deltaLeft: deltaLeft,
             deltaRight: 0,
+
             projectionChange: changeDescription
         };
 

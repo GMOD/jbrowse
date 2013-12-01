@@ -163,10 +163,13 @@ return declare( [_ConfigurationMixin], {
                 return aminoAcid;
             }
 
+            ctx.set('fillStyle', aaColors.n );
+            ctx.fillRect( originPx, currentY, seq.length*pxPerBp, boxHeight );
+
             for( var i = offset; i<seq.length-1; i+=3 ) {
-                if(( aminoAcid = getAA(i) )) {
-                    ctx.set('fillStyle', aaColors[aminoAcid] || aaColors.n );
-                    ctx.fillRect( originPx+i*pxPerBp, currentY, pxPerBp*3, boxHeight );
+                if(( aminoAcid = getAA(i) ) && aaColors[aminoAcid]) {
+                        ctx.set('fillStyle', aaColors[aminoAcid] );
+                        ctx.fillRect( originPx+i*pxPerBp, currentY, pxPerBp*3, boxHeight );
                 }
             }
             if( pxPerBp*3 > boxHeight ) {
@@ -181,7 +184,7 @@ return declare( [_ConfigurationMixin], {
                 }
             }
             currentY += boxHeight;
-        }
+        };
 
         function drawNucleotideRow( ctx, seq ) {
             for( var i = 1; i<seq.length-1; i++ ) {
@@ -225,6 +228,8 @@ return declare( [_ConfigurationMixin], {
             a[ (mod+2)%3 ] = 1;
             return a;
         }.call(this);
+
+        //console.log( originBp+' '+JSON.stringify( translationOffsets ) );
 
         if( this.getConf('showForwardStrand') ) {
             if( this.getConf('showTranslation') ) {

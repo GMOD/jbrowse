@@ -53,19 +53,18 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     animateBlock: function( block, blockNode, changeInfo ) {
-        //console.log('animate');
+        if( changeInfo.operation == 'mergeRight' || changeInfo.operation == 'splitLeft' ) {
+            if( blockNode.firstChild ) {
+                var w = block.getDimensions().w;
+                blockNode.firstChild.style.width = 100*(w-changeInfo.deltaRight)/w+'%';
+            }
+        }
     },
 
     fillBlock:function( block, blockNode, changeInfo ) {
         var thisB = this;
         var loadingTimeout = setTimeout( function() {
-            blockNode.innerHTML = '';
-            var loading = domConstruct.create(
-                'div',
-                { className: 'loading',
-                  innerHTML: '<span class="text">Loading</span>',
-                  style: 'height: 40px'
-                }, blockNode );
+            blockNode.innerHTML = '<div style="height: 40px" class="loading"><span class="text">Loading</span></div>';
             thisB.heightUpdate( 40 );
         }, 300 );
 
@@ -86,7 +85,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
         return this._worker || ( this._worker = function() {
             var thisB = this;
             return this.get('track').get('app')
-                       .getWorker('renderBlocks-'+this.get('track').getConf('name') )
+                       .getWorker('render-'+this.get('track').getConf('name') )
                        .then( function( worker ) {
                                   return worker.newJob(
                                       thisB,
