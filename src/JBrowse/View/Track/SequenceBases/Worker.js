@@ -164,7 +164,7 @@ return declare( [_ConfigurationMixin], {
             }
 
             ctx.set('fillStyle', aaColors.n );
-            ctx.fillRect( originPx, currentY, seq.length*pxPerBp, boxHeight );
+            ctx.fillRect( originPx+offset*pxPerBp, currentY, seq.length*pxPerBp, boxHeight );
 
             for( var i = offset; i<seq.length-1; i+=3 ) {
                 if(( aminoAcid = getAA(i) ) && aaColors[aminoAcid]) {
