@@ -528,20 +528,22 @@ _behaviors: function() { return {
     // mouse events connected when the shift button is being held down
     shiftMouse: {
         apply: function() {
-            dojo.removeClass(this.trackContainer,'draggable');
-            dojo.addClass(this.trackContainer,'rubberBandAvailable');
-            return [
-                dojo.connect( this.outerTrackContainer, "mousedown",
-                              dojo.hitch( this, 'startRubberZoom',
-                                          dojo.hitch(this,'absXtoBp'),
-                                          this.scrollContainer,
-                                          this.scaleTrackDiv
-                                        )
-                            ),
-                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'                  ),
-                dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
-            ];
+            if ( !dojo.hasClass(this.trackContainer, 'highlightingAvailable') ){
+                dojo.removeClass(this.trackContainer,'draggable');
+                dojo.addClass(this.trackContainer,'rubberBandAvailable');
+                return [
+                    dojo.connect( this.outerTrackContainer, "mousedown",
+                                  dojo.hitch( this, 'startRubberZoom',
+                                              dojo.hitch(this,'absXtoBp'),
+                                              this.scrollContainer,
+                                              this.scaleTrackDiv
+                                            )
+                                ),
+                    dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'                  ),
+                    dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
+                    dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+                ];
+            }
         },
         remove: function( mgr, handles ) {
             this.clearBasePairLabels();
