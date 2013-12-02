@@ -276,14 +276,13 @@ sub _stream_set_build_buckets {
         my $hex = $self->_hex( $self->_hash( $k ) );
         my $b = $buckets->{$hex};
         if( $b ) {
-            $b = Storable::thaw( $buckets->{$hex} );
+            $b = Storable::thaw( $b );
         } else {
             $b = {};
             $bucket_count++;
         }
         $b->{$k} = $v;
-        $b = Storable::freeze( $b );
-        $buckets->{$hex} = $b;
+        $buckets->{$hex} = Storable::freeze( $b );
 
         $keys_processed++;
         if ( $progressbar && $keys_processed > $progressbar_next_update ) {
