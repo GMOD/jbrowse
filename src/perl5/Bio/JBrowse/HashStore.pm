@@ -37,6 +37,7 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
+use DB_File ();
 use IO::File ();
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
