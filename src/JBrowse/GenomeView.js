@@ -624,7 +624,7 @@ wheelScroll: function( event ) {
         delta.y = event.wheelDeltaY/2;
     }
     else if( 'deltaX' in event ) {
-        var multiplier = navigator.userAgent.indexOf("Macintosh")!==-1 ? -5 : -40;
+        var multiplier = navigator.userAgent.indexOf("OS X 10.9")!==-1 ? -5 : -40;
         delta.x = Math.abs(event.deltaY) > Math.abs(2*event.deltaX) ? 0 : event.deltaX*multiplier;
         delta.y = event.deltaY*-10;
     }
