@@ -48,6 +48,11 @@
    sometimes report "NaN%" for the reference when no reads cover a
    region.
 
+ * Fixed a bug in which activating rubberband zooming using the SHIFT
+   key while in highlighting mode would cause all the tracks to be
+   dragged when attempting to highlight a region afterward.  Thanks to
+   Erik Derohanian for pointing out and fixing this (issue #387).
+
  * Fixed the location of the dojo/nls directory in release zipfiles.
    Was erroneously in src/nls, supposed to be src/dojo/nls.  Thanks to
    Matt Bomhoff for pointing this out.
