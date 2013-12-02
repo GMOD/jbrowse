@@ -58,6 +58,8 @@ return declare( [ BorderContainer ], {
     buildRendering: function() {
         this.inherited(arguments);
 
+        var thisB = this;
+
         this.handleNode =
             dom.create( 'div', {
                             className: 'trackHandle'
@@ -68,7 +70,13 @@ return declare( [ BorderContainer ], {
             }, this.handleNode );
 
         this.own( on( this.closeButton, 'click', function() {
-                          alert('TODO: close track');
+            var parent;
+            try {
+                parent = thisB.getParent().getParent();
+            } catch(e) {}
+
+            if( parent )
+                parent.hideTracks( [ thisB.get('track') ] );
         }));
         dom.create('div', { className: 'jbrowseIconClose' }, this.closeButton );
 

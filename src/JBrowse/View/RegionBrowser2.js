@@ -271,7 +271,7 @@ hideTracks: function( trackObjects ) {
     array.forEach( trackObjects, function( trackObject ) {
         var widget = this._getTrackWidgetForTrack( trackObject );
         if( widget ) {
-           thisB.removeChild( widget );
+           this.removeChild( widget );
            widget.destroyRecursive();
         }
     },this);
