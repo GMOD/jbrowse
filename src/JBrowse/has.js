@@ -40,6 +40,14 @@ define([ 'dojo/has', 'dojo/sniff' ],
 
            has.add( 'jbrowse-main-process', ! has('jbrowse-worker-process'), true );
 
+           has.add( 'web-workers-dedicated', function() {
+                        var gotworkers = false;
+                        try {
+                            gotworkers = Worker && typeof Worker == 'function';
+                        } catch(e) {}
+                        return gotworkers;
+                    }, true );
+
            return has;
        }
 );
