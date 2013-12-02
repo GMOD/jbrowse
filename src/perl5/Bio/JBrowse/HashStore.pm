@@ -39,6 +39,7 @@ use File::Path ();
 
 use DB_File ();
 use IO::File ();
+use POSIX ();
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
@@ -177,6 +178,7 @@ If not provided, the values will just be overwritten.
 sub stream_set {
     my $self = shift;
 
+    require File::Temp;
     my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1,
                                     DIR => $self->{work_dir} || $self->{dir} );
     $tempfile->close;
@@ -257,10 +259,7 @@ sub _stream_set_write_bucket_files {
 sub _stream_set_build_buckets {
     my ( $self, $kv_stream, $tempfile, $key_count ) = @_;
 
-    require POSIX;
-    require File::Temp;
     require Storable;
-    require DB_File;
 
     my $buckets = $self->db_open( $tempfile, &POSIX::O_CREAT|&POSIX::O_RDWR, 0666,
                                        { flags => 0x1, cachesize => $self->{mem} } );
