@@ -29,6 +29,10 @@
    high-coverage data at the cost of needing to zoom in further to see
    mismatches.
 
+ * setup.sh now uses `curl` for downloading things instead of `wget`,
+   since `curl` is more widely available.  Thanks to Keiran Raine for
+   suggesting and implementing this (issue #393).
+
 ## Bug fixes
 
  * Fixed a bug in which `generate-names.pl` would sometimes report the

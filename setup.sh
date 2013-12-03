@@ -114,7 +114,7 @@ echo -n "Building and installing legacy bam-to-json.pl support (superseded by di
             set -x;
 
             if [ ! -e samtools-master ]; then
-                wget -O samtools-master.zip https://github.com/samtools/samtools/archive/master.zip;
+                curl -L https://github.com/samtools/samtools/archive/master.zip -o samtools-master.zip;
                 unzip -o samtools-master.zip;
                 rm samtools-master.zip;
                 perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools-master/Makefile;
