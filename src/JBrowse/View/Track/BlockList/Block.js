@@ -67,11 +67,13 @@ return declare( Destroyable, {
 
     getBaseSpan: function() {
         var dims = this.getDimensions();
-        return {
+        var span = {
             l: this._projectionBlock.projectPoint( dims.l ),
             r: this._projectionBlock.projectPoint( dims.r ),
             refName: this._projectionBlock.getBName()
         };
+        span.w = Math.abs( span.r - span.l );
+        return span;
     },
 
     id: function() {

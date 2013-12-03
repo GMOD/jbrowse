@@ -60,7 +60,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     _getScaling: function() {
         var thisB = this;
-        return this._getRenderedRegionStats()
+        return this._getScalingStats()
             .then( function( stats ) {
                        //calculate the scaling if necessary
                        if( ! thisB.lastScaling || ! thisB.lastScaling.sameStats(stats) ) {
@@ -75,22 +75,29 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
     // get the statistics to use for scaling, if necessary, either
     // from the global stats for the store, or from the local region
     // if config.autoscale is 'local'
-    _getRenderedRegionStats: function() {
+    _getScalingStats: function() {
         if( ! Scale.prototype.needStats( this.exportMergedConfig() ) ) {
             return Util.resolved( null );
         }
         else if( this.getConf('autoscale') == 'local' ) {
+            // aggregate the stats in the blocks that have data
             var stats = { scoreSum: 0, scoreSumSquares: 0, featureCount: 0, scoreMax: -Infinity, scoreMin: Infinity };
+            var blockStats;
             for( var blockID in this.blockStash ) {
-                var blockStats = this.blockStash[blockID].stats;
-                stats.featureCount += blockStats.featureCount || 0;
-                stats.scoreSum += blockStats.scoreSum || 0;
-                stats.scoreSumSquares += blockStats.scoreSumSquares || 0;
-                stats.scoreMin = Math.min( stats.scoreMin, blockStats.scoreMin );
-                stats.scoreMax = Math.max( stats.scoreMax, blockStats.scoreMax );
+                if(( blockStats = this.blockStash[blockID].stats )) {
+                    stats.featureCount += blockStats.featureCount || 0;
+                    stats.scoreSum += blockStats.scoreSum || 0;
+                    stats.scoreSumSquares += blockStats.scoreSumSquares || 0;
+                    if( 'scoreMin' in blockStats )
+                        stats.scoreMin = Math.min( stats.scoreMin, blockStats.scoreMin );
+                    if( 'scoreMax' in blockStats )
+                        stats.scoreMax = Math.max( stats.scoreMax, blockStats.scoreMax );
+                }
             }
-            stats.scoreMean = stats.scoreSum / stats.featureCount;
-            stats.scoreStdDev = Util.calcStdDevFromSums( stats.scoreSum, stats.scoreSumSquares, stats.featureCount );
+            if( stats.featureCount ) {
+                stats.scoreMean = stats.scoreSum / stats.featureCount;
+                stats.scoreStdDev = Util.calcStdDevFromSums( stats.scoreSum, stats.scoreSumSquares, stats.featureCount );
+            }
             return Util.resolved( stats );
         }
         else {
@@ -147,20 +154,24 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                         features.push(f);
                 },
                 function(args) {
+                    var blockData = thisB.blockStash[ block.id() ];
+
                     // if the block has been freed in the meantime,
                     // don't try to render
-                    if( ! (blockNode && blockNode.parentNode ))
+                    if( ! blockData )
                         return;
 
                     var featureRects = array.map( features, function(f) {
                         return this._featureRect( 1/scale, baseSpan.l, canvasWidth, f );
                     }, thisB );
 
-                    var blockData = thisB.blockStash[ block.id() ];
 
                     blockData.features = features; //< TODO: remove this
                     blockData.featureRects = featureRects;
-                    blockData.pixelScores = thisB._calculatePixelScores( thisB._canvasWidth(block), features, featureRects );
+
+                    blockData.pixelScores = thisB._calculatePixelScores(
+                        thisB._canvasWidth(block), features, featureRects );
+
                     blockData.stats = thisB._calculateBlockStats( block, features );
 
                     if (args && args.maskingSpans)
@@ -217,6 +228,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         var featureRects = blockdata.featureRects;
         var dataScale = this.scaling;
         var canvasHeight = this._canvasHeight();
+        var basespan = block.getBaseSpan();
 
         var c = dom.create(
             'canvas',
@@ -232,33 +244,20 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             },
             blockNode
         );
-        c.startBase = blockdata.startBase;
-        block.canvas = c;
+        blockdata.canvas = c;
 
         //Calculate the score for each pixel in the block
-        var pixels = this._calculatePixelScores( c.width, features, featureRects );
-
-        this._draw( blockdata.scale,    blockdata.startBase,
-                    blockdata.endBase,  block,
+        this._draw( blockdata.scale,    basespan.l,
+                    basespan.r,     block,
                     c,              features,
                     featureRects,   dataScale,
-                    pixels,         blockdata.maskingSpans ); // note: spans may be undefined.
+                    blockdata.pixelScores,  blockdata.maskingSpans ); // note: spans may be undefined.
 
         this.heightUpdate( c.height );
         if( !( c.parentNode && c.parentNode.parentNode )) {
-            var blockWidth = block.endBase - blockdata.startBase;
-
             c.style.position = "absolute";
-            c.style.left = (100 * ((c.startBase - blockdata.startBase) / blockWidth)) + "%";
-            switch (this.config.align) {
-            case "top":
-                c.style.top = "0px";
-                break;
-            case "bottom":
-            default:
-                c.style.bottom = this.trackPadding + "px";
-                break;
-            }
+            c.style.left = 0;//(100 * ((c.startBase - basespan.l) / basespan.w)) + "%";
+            c.style.top = 0;
         }
     },
 
@@ -425,7 +424,6 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     mouseover: function( bpX, blockdata, evt ) {
         if( bpX && blockdata && evt && blockdata.canvas && blockdata.pixelScores ) {
-
             var pixelValues = blockdata.pixelScores;
             var canvas = blockdata.canvas;
             var cPos = domGeom.position( canvas );
@@ -440,12 +438,12 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                 this.scoreDisplay.flag.style.top  = cPos.y+'px';
                 this.scoreDisplay.pole.style.left = evt.clientX+'px';
                 this.scoreDisplay.pole.style.height = cPos.h+'px';
+                return;
             }
         }
-        else {
-            this.scoreDisplay.flag.style.display = 'none';
-            this.scoreDisplay.pole.style.display = 'none';
-        }
+
+        this.scoreDisplay.flag.style.display = 'none';
+        this.scoreDisplay.pole.style.display = 'none';
     },
 
     _showPixelValue: function( scoreDisplay, score ) {

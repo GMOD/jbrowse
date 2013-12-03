@@ -178,6 +178,8 @@ return Util.fastDeclare({
           || ( a.min - b.min )
           || ( a.max - b.max )
           || ( a.range - b.range )
+          || ( a.scoreMean - b.scoreMean )
+          || ( a.scoreStdDev - b.scoreStdDev )
           || ( a.origin - b.origin );
     },
 

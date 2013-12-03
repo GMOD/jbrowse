@@ -76,17 +76,26 @@ return declare( [ TrackView, _BlockBasedMixin ],
     // get deferred array of stashed block records for the given
     // screen pixel range.
     getBlockStashForRange: function( px1, px2 ) {
+        if( px1 > px2 ) {
+            var tmp = px2;
+            px2 = px1;
+            px1 = tmp;
+        }
+
         var thisB = this;
         try {
             return this.getProjection()
                 .getBlocksForRange( px1, px2 )
-                .then( function( blocks ) {
+                .then( function( projectionBlocks ) {
                            var stash = thisB.blockStash;
                            var stashEntries = [];
-                           array.forEach( blocks, function( pblock ) {
+                           array.forEach( projectionBlocks, function( pblock ) {
                                for( var id in stash ) {
-                                   if( stash[id].projectionBlock === pblock )
-                                       stashEntries.push( stash[id] );
+                                   if( stash[id].projectionBlock === pblock ) {
+                                       var dims = stash[id].block.getDimensions();
+                                       if( ! ( px1 > dims.r || px2 < dims.l ) )
+                                           stashEntries.push( stash[id] );
+                                   }
                                }
                             });
                            return stashEntries;

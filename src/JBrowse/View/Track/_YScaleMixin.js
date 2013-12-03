@@ -14,6 +14,15 @@ define( [
  */
 
 return declare( null, {
+
+    configSchema: {
+        slots: [
+            { name: 'yScalePosition', type: 'string', defaultValue: 'center',
+              description: 'position at which to draw the Y-axis scale.  Either "left", "right", or "center".'
+            }
+        ]
+    },
+
     /**
      * @param {Number} [min] Optional minimum value for the scale.
      * Defaults to value of <code>this.minDisplayed</code>.

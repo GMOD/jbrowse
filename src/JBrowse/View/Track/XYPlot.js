@@ -55,7 +55,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
 
     _getScaling: function() {
         var thisB = this;
-        return this._getRenderedRegionStats()
+        return this._getScalingStats()
             .then( function( stats ) {
                        //calculate the scaling if necessary
                        if( ! thisB.lastScaling || ! thisB.lastScaling.sameStats( stats ) ) {
@@ -207,13 +207,13 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
         // draw the variance_band if requested
         if( this.getConf('showVarianceBands') ) {
             var bandPositions = this.getConf('varianceBandPositions').sort().reverse();
-            this._getRenderedRegionStats()
-                .then( lang.hitch( this, function( stats ) {
-                                    if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
+            this._getScaling()
+                .then( lang.hitch( this, function( scaling ) {
+                                    if( ( 'scoreMean' in scaling ) && ('scoreStdDev' in scaling ) ) {
                                         var drawVarianceBand = function( plusminus, fill, label ) {
                                             context.fillStyle = fill.toString();
-                                            var varTop = toY( stats.scoreMean + plusminus );
-                                            var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
+                                            var varTop = toY( scaling.scoreMean + plusminus );
+                                            var varHeight = toY( scaling.scoreMean - plusminus ) - varTop;
                                             varHeight = Math.max( 1, varHeight );
                                             context.fillRect( 0, varTop, canvas.width, varHeight );
                                             context.font = '12px sans-serif';
@@ -234,7 +234,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                                         var minOpacity = bandOpacityStep;
 
                                         array.forEach( bandPositions, function( pos,i ) {
-                                                           drawVarianceBand( pos*stats.scoreStdDev,
+                                                           drawVarianceBand( pos*scaling.scoreStdDev,
                                                                              Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
                                                                              pos+'σ');
                                                        });
