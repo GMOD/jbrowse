@@ -38,10 +38,15 @@ var FileBlob = declare( null,
         this.fetch( function( data ) {
                         data = new Uint8Array(data);
 
-                        var lineIterator = new TextIterator.FromBytes({ bytes: data });
+                        var lineIterator = new TextIterator.FromBytes(
+                            { bytes: data,
+                              // only return a partial line at the end
+                              // if we are not operating on a slice of
+                              // the file
+                              returnPartialRecord: !this.end
+                            });
                         var line;
                         while(( line = lineIterator.getline() )) {
-                            if( line.charAt( line.length-1 ) == "\n" ) //< ignore any incomplete lines
                                 lineCallback( line );
                         }
 

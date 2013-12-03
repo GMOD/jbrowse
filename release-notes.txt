@@ -61,6 +61,11 @@
    Was erroneously in src/nls, supposed to be src/dojo/nls.  Thanks to
    Matt Bomhoff for pointing this out.
 
+ * The in-memory GFF3 parser now copes with a missing newline at the
+   end of a GFF3 file.  Previously, the last line was ignored if it
+   did not end with a newline character.  Thanks to Colin Davenport
+   for pointing this out (issue #394).
+
 # Release 1.10.10     2013-11-21 09:31:53 EST5EDT
 
 ## Minor improvements

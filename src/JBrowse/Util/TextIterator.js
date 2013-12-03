@@ -12,6 +12,7 @@ var FromBytes = function(args) {
     this.offset = args.offset || 0;
     this.length = args.length || this.bytes.length;
     this._recordSeparator = (args.inputRecordSeparator || "\n").charCodeAt(0);
+    this.returnPartialRecord = args.returnPartialRecord;
 };
 
 FromBytes.prototype.getOffset = function() {
@@ -47,7 +48,8 @@ FromBytes.prototype.getline = function() {
 
         // did not get a full line
         this.offset = i;
-        return null;
+        // return our partial line if we are set to return partial records
+        return this.returnPartialRecord ? line.join('') : null;
 };
 
 return {
