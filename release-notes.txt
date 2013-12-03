@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.11     2013-12-03 17:21:20 EST5EDT
+
 ## Minor improvements
 
  * Made the sequence track's "zoom in to see sequence" placeholder
