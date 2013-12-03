@@ -80,7 +80,8 @@ var RequestWorker = declare( null,
         var length = fr.max() - fr.min();
         // dlog('fetching ' + fr.min() + '-' + fr.max() + ' (' + Util.humanReadableNumber(length) + ')');
         //console.log('cirfobstartfetch');
-        this.window.bwg._read( fr.min(), length, dlang.hitch( this,function(resultBuffer) {
+        this.window.bwg._read( fr.min(), length )
+            .then( dlang.hitch( this,function(resultBuffer) {
                 for (var i = 0; i < offset.length; ++i) {
                         if (fr.contains(offset[i])) {
                             this.cirFobRecur2(resultBuffer, offset[i] - fr.min(), level);
@@ -365,10 +366,11 @@ var RequestWorker = declare( null,
         var blockFetches = array.map( thisB.blockGroupsToFetch, function( blockGroup ) {
             //console.log( 'fetching blockgroup with '+blockGroup.blocks.length+' blocks: '+blockGroup );
             var d = new RejectableFastPromise();
-            thisB.window.bwg._read( blockGroup.offset, blockGroup.size, function( data ) {
-                            blockGroup.data = data;
-                            d.resolve( blockGroup );
-                        }, dlang.hitch( d, 'reject' ) );
+            thisB.window.bwg._read( blockGroup.offset, blockGroup.size)
+                                              .then( function( data ) {
+                                                         blockGroup.data = data;
+                                                         d.resolve( blockGroup );
+                                                     }, dlang.hitch( d, 'reject' ) );
             return d;
         }, thisB );
 

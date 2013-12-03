@@ -4,7 +4,8 @@ define([
 
            'dijit/layout/ContentPane',
 
-           'JBrowse/_ConfigurationMixin'
+           'JBrowse/_ConfigurationMixin',
+           'JBrowse/_FeatureFiltererMixin'
        ],
        function(
            declare,
@@ -12,10 +13,11 @@ define([
 
            ContentPane,
 
-           _ConfigurationMixin
+           _ConfigurationMixin,
+           _FeatureFiltererMixin
        ) {
 
-return declare( [ ContentPane, _ConfigurationMixin ], {
+return declare( [ ContentPane, _ConfigurationMixin, _FeatureFiltererMixin ], {
   region: 'top',
   baseClass: 'trackView',
   //splitter: true,
@@ -38,6 +40,23 @@ return declare( [ ContentPane, _ConfigurationMixin ], {
               this.getParent().heightUpdate( this, h );
               this.h = h;
               this.domNode.style.height = h+'px';
+      }
+  },
+
+  /**
+   * Like getConf, but get a conf value that explicitly can vary
+   * feature by feature.  Provides a uniform function signature for
+   * user-defined callbacks.
+   */
+  getConfForFeature: function( path, feature ) {
+      return this.getConf( path, [feature, path, null, this ] );
+  },
+
+  getProjection: function() {
+      try {
+          return this.getParent().getParent().getParent().get('projection');
+      } catch(e) {
+          return undefined;
       }
   },
 

@@ -142,10 +142,18 @@ return declare( CanonicalLinear, {
      }
   },
 
+  projectPoint: function( a ) {
+      throw new Error('direct projectPoint not supported by FromStore projection');
+  },
+
+  _linearProjectPoint: function() {
+      return CanonicalLinear.prototype.projectPoint.apply( this, arguments );
+  },
+
   getBlocksForRange: function( a1, a2 ) {
       var thisB = this;
-      var b1 = this.projectPoint(a1);
-      var b2 = this.projectPoint(a2);
+      var b1 = this._linearProjectPoint(a1);
+      var b2 = this._linearProjectPoint(a2);
       if( b1 > b2 ) {
           var tmp = b2;
           b2 = b1;

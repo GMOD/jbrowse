@@ -3,6 +3,8 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
+
+            'JBrowse/Util/DeferredGenerator',
             'JBrowse/Model/DataView',
             'JBrowse/has',
             'JBrowse/Errors',
@@ -11,13 +13,15 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             './BigWig/Window',
             'JBrowse/Util',
-            'JBrowse/Model/XHRBlob'
+            'JBrowse/Model/Resource/Bytes'
         ],
         function(
             declare,
             lang,
             array,
             urlObj,
+
+            DeferredGenerator,
             jDataView,
             has,
             JBrowseErrors,
@@ -26,13 +30,10 @@ define( [
             DeferredStatsMixin,
             Window,
             Util,
-            XHRBlob
+            Bytes
         ) {
-return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
- /**
-  * @lends JBrowse.Store.BigWig
-  */
+return declare([ SeqFeatureStore ],
 {
 
     BIG_WIG_MAGIC: -2003829722,
@@ -52,20 +53,13 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      * @constructs
      */
     constructor: function( args ) {
-
-        this.data = args.blob ||
-            new XHRBlob( this.resolveUrl(
-                             args.urlTemplate || 'data.bigwig'
-                         )
-                       );
-
-        this.name = args.name || ( this.data.url && new urlObj( this.data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
-
+        this.data = this.openResource( Bytes, this.getConf('bigwig' ) );
         this._load();
     },
 
     configSchema: {
         slots: [
+            { name: 'bigwig', type: 'string', required: true },
             { name: 'chunkSizeLimit', type: 'integer', defaultValue: 30000000 /* 30mb */ }
         ]
     },
@@ -73,103 +67,90 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      /**
       * Read from the bbi file, respecting the configured chunkSizeLimit.
       */
-    _read: function( start, size, callback, errorcallback ) {
+    _read: function( start, size ) {
         if( size > this.getConf('chunkSizeLimit') )
-            errorcallback( new JBrowseErrors.DataOverflow(
-                               'Too much data. Chunk size '
-                                   + Util.commifyNumber(size)
-                                   + ' bytes exceeds chunkSizeLimit of '
-                                   + Util.commifyNumber(this.getConf('chunkSizeLimit'))+'.'
-                           )
-                         );
-        else
-            this.data.read.apply( this.data, arguments );
+            throw new JBrowseErrors.DataOverflow(
+                'Too much data. Chunk size '
+                    + Util.commifyNumber(size)
+                    + ' bytes exceeds chunkSizeLimit of '
+                    + Util.commifyNumber(this.getConf('chunkSizeLimit'))+'.'
+            )
+
+        return this.data.readRange.apply( this.data, arguments );
     },
 
     _load: function() {
-        this._read( 0, 512, lang.hitch( this, function( bytes ) {
-            if( ! bytes ) {
-                this._failAllDeferred( 'BBI header not readable' );
-                return;
-            }
+        return this._loaded || (
+            this._loaded = this._read( 0, 512 )
+             .then( lang.hitch( this, function( bytes ) {
+                        if( ! bytes )
+                            throw new Error( 'BBI header not readable' );
 
-            var data = this.newDataView( bytes );
+                        var data = this.newDataView( bytes );
 
-            // check magic numbers
-            var magic = data.getInt32();
-            if( magic != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC ) {
-                // try the other endianness if no magic
-                this._littleEndian = false;
-                data = this.newDataView( bytes );
-                if( data.getInt32() != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC) {
-                    console.error('Not a BigWig or BigBed file');
-                    deferred.reject('Not a BigWig or BigBed file');
-                    return;
-                }
-            }
-            this.type = magic == this.BIG_BED_MAGIC ? 'bigbed' : 'bigwig';
+                        // check magic numbers
+                        var magic = data.getInt32();
+                        if( magic != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC ) {
+                            // try the other endianness if no magic
+                            this._littleEndian = false;
+                            data = this.newDataView( bytes );
+                            if( data.getInt32() != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC)
+                                throw new Error( 'Not a BigWig or BigBed file' );
+                        }
+                        this.type = magic == this.BIG_BED_MAGIC ? 'bigbed' : 'bigwig';
 
-            this.fileSize = bytes.fileSize;
-            if( ! this.fileSize )
-                console.warn("cannot get size of BigWig/BigBed file, widest zoom level not available");
+                        this.fileSize = bytes.fileSize;
+                        if( ! this.fileSize )
+                            console.warn("cannot get size of BigWig/BigBed file, widest zoom level not available");
 
-            this.version = data.getUint16();
-            this.numZoomLevels = data.getUint16();
-            this.chromTreeOffset = data.getUint64();
-            this.unzoomedDataOffset = data.getUint64();
-            this.unzoomedIndexOffset = data.getUint64();
-            this.fieldCount = data.getUint16();
-            this.definedFieldCount = data.getUint16();
-            this.asOffset = data.getUint64();
-            this.totalSummaryOffset = data.getUint64();
-            this.uncompressBufSize = data.getUint32();
+                        this.version = data.getUint16();
+                        this.numZoomLevels = data.getUint16();
+                        this.chromTreeOffset = data.getUint64();
+                        this.unzoomedDataOffset = data.getUint64();
+                        this.unzoomedIndexOffset = data.getUint64();
+                        this.fieldCount = data.getUint16();
+                        this.definedFieldCount = data.getUint16();
+                        this.asOffset = data.getUint64();
+                        this.totalSummaryOffset = data.getUint64();
+                        this.uncompressBufSize = data.getUint32();
 
-            // dlog('bigType: ' + this.type);
-            // dlog('chromTree at: ' + this.chromTreeOffset);
-            // dlog('uncompress: ' + this.uncompressBufSize);
-            // dlog('data at: ' + this.unzoomedDataOffset);
-            // dlog('index at: ' + this.unzoomedIndexOffset);
-            // dlog('field count: ' + this.fieldCount);
-            // dlog('defined count: ' + this.definedFieldCount);
+                        // dlog('bigType: ' + this.type);
+                        // dlog('chromTree at: ' + this.chromTreeOffset);
+                        // dlog('uncompress: ' + this.uncompressBufSize);
+                        // dlog('data at: ' + this.unzoomedDataOffset);
+                        // dlog('index at: ' + this.unzoomedIndexOffset);
+                        // dlog('field count: ' + this.fieldCount);
+                        // dlog('defined count: ' + this.definedFieldCount);
 
-            this.zoomLevels = [];
-            for (var zl = 0; zl < this.numZoomLevels; ++zl) {
-                var zlReduction = data.getUint32( 4*(zl*6 + 16) );
-                var zlData = data.getUint64( 4*(zl*6 + 18) );
-                var zlIndex = data.getUint64( 4*(zl*6 + 20) );
+                        this.zoomLevels = [];
+                        for (var zl = 0; zl < this.numZoomLevels; ++zl) {
+                            var zlReduction = data.getUint32( 4*(zl*6 + 16) );
+                            var zlData = data.getUint64( 4*(zl*6 + 18) );
+                            var zlIndex = data.getUint64( 4*(zl*6 + 20) );
 
-                //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
-                this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
-            }
+                            //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
+                            this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
+                        }
 
-            // parse the totalSummary if present (summary of all data in the file)
-            if( this.totalSummaryOffset ) {
-                (function() {
-                     var d = this.newDataView( bytes, this.totalSummaryOffset );
-                     var s = {
-                         basesCovered: d.getUint64(),
-                         scoreMin: d.getFloat64(),
-                         scoreMax: d.getFloat64(),
-                         scoreSum: d.getFloat64(),
-                         scoreSumSquares: d.getFloat64()
-                     };
-                     this._globalStats = s;
-                     // rest of stats will be calculated on demand in getGlobalStats
-                 }).call(this);
-            } else {
-                    console.warn("BigWig "+this.data.url+ " has no total summary data.");
-            }
+                        // parse the totalSummary if present (summary of all data in the file)
+                        if( this.totalSummaryOffset ) {
+                            (function() {
+                                 var d = this.newDataView( bytes, this.totalSummaryOffset );
+                                 this._globalStats = {
+                                     basesCovered: d.getUint64(),
+                                     scoreMin: d.getFloat64(),
+                                     scoreMax: d.getFloat64(),
+                                     scoreSum: d.getFloat64(),
+                                     scoreSumSquares: d.getFloat64()
+                                 };
+                                 // rest of stats will be calculated on demand in getGlobalStats
+                             }).call(this);
+                        } else {
+                            console.warn("BigWig "+this.data.url+ " has no total summary data.");
+                        }
 
-            this._readChromTree(
-                function() {
-                    this._deferred.features.resolve({success: true});
-                    this._deferred.stats.resolve({success: true});
-                },
-                lang.hitch( this, '_failAllDeferred' )
-            );
-        }),
-        lang.hitch( this, '_failAllDeferred' )
-       );
+                        return this._readChromTree();
+                    })));
     },
 
     newDataView: function( bytes, offset, length ) {
@@ -179,7 +160,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     /**
      * @private
      */
-    _readChromTree: function( callback, errorCallback ) {
+    _readChromTree: function() {
         var thisB = this;
         this.refsByNumber = {};
         this.refsByName = {};
@@ -189,21 +170,18 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             ++udo;
         }
 
-        this._read( this.chromTreeOffset, udo - this.chromTreeOffset, function(bpt) {
-                       if( ! has('typed-arrays') ) {
-                           thisB._failAllDeferred( 'Web browser does not support typed arrays' );
-                           return;
-                       }
+        return this._read( this.chromTreeOffset, udo - this.chromTreeOffset )
+            .then( function(bpt) {
                        var data = thisB.newDataView( bpt );
 
                        if( data.getUint32() !== 2026540177 )
                            throw "parse error: not a Kent bPlusTree";
+
                        var blockSize = data.getUint32();
                        var keySize = data.getUint32();
                        var valSize = data.getUint32();
                        var itemCount = data.getUint64();
                        var rootNodeOffset = 32;
-
                        //dlog('blockSize=' + blockSize + '    keySize=' + keySize + '   valSize=' + valSize + '    itemCount=' + itemCount);
 
                        var bptReadNode = function(offset) {
@@ -242,10 +220,9 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                }
                            }
                        };
-                       bptReadNode(rootNodeOffset);
 
-                       callback.call( thisB, thisB );
-            }, errorCallback );
+                       bptReadNode( rootNodeOffset );
+            });
     },
 
     /**
@@ -264,28 +241,34 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         }, errorCallback );
     },
 
-    _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
+    getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
+        var thisB = this;
+        return new DeferredGenerator(
+            function( generator ) {
+                return thisB._load()
+                    .then( function() {
+                               var chrName = thisB.browser.regularizeReferenceName( query.ref );
+                               var min = query.start;
+                               var max = query.end;
 
-        var chrName = this.browser.regularizeReferenceName( query.ref );
-        var min = query.start;
-        var max = query.end;
+                               var v = query.basesPerSpan ? thisB.getView( 1/query.basesPerSpan ) :
+                                              query.scale ? thisB.getView( query.scale )          :
+                                                            thisB.getView( 1 );
 
-        var v = query.basesPerSpan ? this.getView( 1/query.basesPerSpan ) :
-                       query.scale ? this.getView( query.scale )          :
-                                     this.getView( 1 );
+                               if( !v ) {
+                                   generator.resolve();
+                                   return undefined;
+                               }
 
-        if( !v ) {
-            endCallback();
-            return;
-        }
-
-        v.readWigData( chrName, min, max, dojo.hitch( this, function( features ) {
-            array.forEach( features || [], featureCallback );
-            endCallback();
-        }), errorCallback );
+                               return v.readWigData( chrName, min, max )
+                                   .then( function( features ) {
+                                              array.forEach( features || [], generator.emit, generator );
+                                          });
+                           });
+            });
     },
 
-    getUnzoomedView: function() {
+    _getUnzoomedView: function() {
         if (!this.unzoomedView) {
             var cirLen = 4000;
             var nzl = this.zoomLevels[0];
@@ -327,7 +310,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             }
         }
         //console.log( 'using unzoomed level');
-        return this.getUnzoomedView();
+        return this._getUnzoomedView();
     }
 });
 

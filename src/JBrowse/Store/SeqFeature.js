@@ -65,9 +65,9 @@ return declare( Store,
         return this._getRegionStats.apply( this, arguments );
     },
 
-    _getRegionStats: function( query, successCallback, errorCallback ) {
+    _getRegionStats: function( query ) {
         var thisB = this;
-        var cache = thisB._regionStatsCache = thisB._regionStatsCache || new LRUCache({
+        var cache = thisB._regionStatsCache || ( thisB._regionStatsCache = new LRUCache({
             name: 'regionStatsCache',
             maxSize: 1000, // cache stats for up to 1000 different regions
             sizeFunction: function( stats ) { return 1; },
@@ -81,56 +81,28 @@ return declare( Store,
                     basesCovered: query.end - query.start,
                     featureCount: 0
                 };
-                thisB.getFeatures( query,
-                                  function( feature ) {
-                                      var score = feature.get('score') || 0;
-                                      s.scoreMax = Math.max( score, s.scoreMax );
-                                      s.scoreMin = Math.min( score, s.scoreMin );
-                                      s.scoreSum += score;
-                                      s.scoreSumSquares += score*score;
-                                      s.featureCount++;
-                                  },
-                                  function() {
-                                      s.scoreMean = s.featureCount ? s.scoreSum / s.featureCount : 0;
-                                      s.scoreStdDev = thisB._calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.featureCount );
-                                      s.featureDensity = s.featureCount / s.basesCovered;
-                                      //console.log( '_getRegionStats done', s );
-                                      callback( s );
-                                  },
-                                  function(error) {
-                                      callback( null, error );
-                                  }
-                                );
+                return thisB.getFeatures( query )
+                    .forEach(
+                        function( feature ) {
+                            var score = feature.get('score') || 0;
+                            s.scoreMax = Math.max( score, s.scoreMax );
+                            s.scoreMin = Math.min( score, s.scoreMin );
+                            s.scoreSum += score;
+                            s.scoreSumSquares += score*score;
+                            s.featureCount++;
+                        },
+                        function() {
+                            s.scoreMean = s.featureCount ? s.scoreSum / s.featureCount : 0;
+                            s.scoreStdDev = Util.calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.featureCount );
+                            s.featureDensity = s.featureCount / s.basesCovered;
+                            //console.log( '_getRegionStats done', s );
+                            return s;
+                        }
+                    );
             }
-         });
+         }));
 
-         cache.get( query,
-                    function( stats, error ) {
-                        if( error )
-                            errorCallback( error );
-                        else
-                            successCallback( stats );
-                    });
-
-    },
-
-    // most stores can't store sequences, override this if you can.
-    getSequenceFragments: function() {
-        var d = new DeferredGenerator();
-        d.resolve( undefined );
-        return d;
-    },
-
-    // utility method that calculates standard deviation from sum and sum of squares
-    _calcStdFromSums: function( sum, sumSquares, n ) {
-        if( n == 0 )
-            return 0;
-
-        var variance = sumSquares - sum*sum/n;
-        if (n > 1) {
-	    variance /= n-1;
-        }
-        return variance < 0 ? 0 : Math.sqrt(variance);
+         return cache.getD( query );
     },
 
     /**

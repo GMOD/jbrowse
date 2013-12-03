@@ -548,6 +548,18 @@ var Util = {
             if( domNode.removeAttribute )
                 domNode.removeAttribute( attrName );
         }
+    },
+
+    // utility method that calculates standard deviation from sum and sum of squares
+    calcStdDevFromSums: function( sum, sumSquares, n ) {
+        if( n == 0 )
+            return 0;
+
+        var variance = sumSquares - sum*sum/n;
+        if (n > 1) {
+	    variance /= n-1;
+        }
+        return variance < 0 ? 0 : Math.sqrt(variance);
     }
 };
 

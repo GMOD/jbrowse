@@ -203,6 +203,7 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
               response.req = req;
               response.url = url;
               response.req.url = url;
+              response.fileSize = parseInt( req.getResponseHeader('Content-Range').match(/\/(\d+)$/)[1] ) || undefined;
           } catch(e) {}
           d.resolve( response );
       };

@@ -4,8 +4,11 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/event',
             'dojo/dom-construct',
+            'dojo/dom-geometry',
             'dojo/on',
             'dojo/mouse',
+
+            'JBrowse/has',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_ExportMixin',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
@@ -18,8 +21,11 @@ define( [
             lang,
             domEvent,
             dom,
+            domGeom,
             on,
             mouse,
+
+            has,
             BlockBasedTrack,
             ExportMixin,
             DetailStatsMixin,
@@ -27,17 +33,20 @@ define( [
             Scale
         ) {
 
-return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
+return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
-        this.trackPadding = args.trackPadding || 0;
-        this.store = args.store;
+        window.qtrack = this;
+    },
 
+    startup: function() {
+        this.inherited(arguments);
         this._makeScoreDisplay();
     },
 
     configSchema: {
         slots: [
+
             { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
             { name: 'autoscale', type: 'string', defaultValue:  'local' },
             { name: 'bicolorPivot', type: 'string' },
@@ -49,54 +58,64 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         ]
     },
 
-    _getScaling: function( viewArgs, successCallback, errorCallback ) {
-        this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
+    _getScaling: function() {
+        var thisB = this;
+        return this._getRenderedRegionStats()
+            .then( function( stats ) {
+                       //calculate the scaling if necessary
+                       if( ! thisB.lastScaling || ! thisB.lastScaling.sameStats(stats) ) {
+                           return thisB.lastScaling = new Scale( thisB.exportMergedConfig(), stats );
+                       } else {
+                           return thisB.lastScaling;
+                       }
 
-            //calculate the scaling if necessary
-            if( ! this.lastScaling || ! this.lastScaling.sameStats(stats) ) {
-                try {
-                    this.lastScaling = new Scale( this.exportMergedConfig(), stats );
-                    successCallback( this.lastScaling );
-                } catch( e ) {
-                    errorCallback(e);
-                }
-            } else {
-                successCallback( this.lastScaling );
-            }
-
-        }), errorCallback );
+                   });
     },
 
     // get the statistics to use for scaling, if necessary, either
     // from the global stats for the store, or from the local region
     // if config.autoscale is 'local'
-    _getScalingStats: function( viewArgs, callback, errorCallback ) {
+    _getRenderedRegionStats: function() {
         if( ! Scale.prototype.needStats( this.exportMergedConfig() ) ) {
-            callback( null );
-            return null;
+            return Util.resolved( null );
         }
         else if( this.getConf('autoscale') == 'local' ) {
-            var region = lang.mixin( { scale: viewArgs.scale }, this.genomeView.visibleRegion() );
-            region.start = Math.ceil( region.start );
-            region.end = Math.floor( region.end );
-            return this.getRegionStats.call( this, region, callback, errorCallback );
+            var stats = { scoreSum: 0, scoreSumSquares: 0, featureCount: 0, scoreMax: -Infinity, scoreMin: Infinity };
+            for( var blockID in this.blockStash ) {
+                var blockStats = this.blockStash[blockID].stats;
+                stats.featureCount += blockStats.featureCount || 0;
+                stats.scoreSum += blockStats.scoreSum || 0;
+                stats.scoreSumSquares += blockStats.scoreSumSquares || 0;
+                stats.scoreMin = Math.min( stats.scoreMin, blockStats.scoreMin );
+                stats.scoreMax = Math.max( stats.scoreMax, blockStats.scoreMax );
+            }
+            stats.scoreMean = stats.scoreSum / stats.featureCount;
+            stats.scoreStdDev = Util.calcStdDevFromSums( stats.scoreSum, stats.scoreSumSquares, stats.featureCount );
+            return Util.resolved( stats );
         }
         else {
-            return this.getRegionStats.call( this, { scale: 1000/(this.refSeq.get('end') - this.refSeq.get('start')), ref: this.refSeq.get('name'), start: this.refSeq.get('start'), end: this.refSeq.get('end') }, callback, errorCallback );
+            return this.getRegionStats.call(
+                this,
+                {
+                    scale: 1000/(this.refSeq.get('end') - this.refSeq.get('start')),
+                    ref: this.refSeq.get('name'),
+                    start: this.refSeq.get('start'),
+                    end: this.refSeq.get('end')
+                });
         }
     },
 
-    getFeatures: function( query, callback, errorCallback ) {
-        this.store.getFeatures.apply( this.store, arguments );
+    getFeatures: function( query  ) {
+        return this.store.getFeatures.apply( this.store, arguments );
     },
 
-    getRegionStats: function( region, successCallback, errorCallback ) {
-        this.store.getRegionStats( region, successCallback, errorCallback );
+    getRegionStats: function( region ) {
+        return this.store.getRegionStats( region );
     },
 
     // the canvas width in pixels for a block
     _canvasWidth: function( block ) {
-        return Math.ceil(( block.endBase - block.startBase ) * block.scale);
+        return Math.ceil( block.getDimensions().w );
     },
 
     // the canvas height in pixels for a block
@@ -104,88 +123,102 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         return this.getConf('height');
     },
 
-    _getBlockFeatures: function( args ) {
-            var thisB = this;
-            var blockIndex = args.blockIndex;
-            var block = args.block;
+    _getBlockData: function( block, blockNode ) {
+        var thisB = this;
 
-            var leftBase = args.leftBase;
-            var rightBase = args.rightBase;
+        var baseSpan = block.getBaseSpan();
+        var projectionBlock = block.getProjectionBlock();
 
-            var scale = args.scale;
-            var finishCallback = args.finishCallback || function() {};
+        var scale = projectionBlock.getScale();
 
-            var canvasWidth = this._canvasWidth( args.block );
+        var canvasWidth = this._canvasWidth( block );
 
-            var features = [];
-            this.getFeatures(
-                { ref: this.refSeq.get('name'),
-                  basesPerSpan: 1/scale,
-                  scale: scale,
-                  start: leftBase,
-                  end: rightBase+1
-                },
-
+        var features = [];
+        return this.getFeatures(
+            { ref: projectionBlock.getBName(),
+              basesPerSpan: scale,
+              scale: 1/scale,
+              start: baseSpan.l,
+              end: baseSpan.r
+            })
+        .forEach(
                 function(f) {
                     if( thisB.filterFeature(f) )
                         features.push(f);
                 },
-                dojo.hitch( this, function(args) {
-
+                function(args) {
                     // if the block has been freed in the meantime,
                     // don't try to render
-                    if( ! (block.domNode && block.domNode.parentNode ))
+                    if( ! (blockNode && blockNode.parentNode ))
                         return;
 
                     var featureRects = array.map( features, function(f) {
-                        return this._featureRect( scale, leftBase, canvasWidth, f );
-                    }, this );
+                        return this._featureRect( 1/scale, baseSpan.l, canvasWidth, f );
+                    }, thisB );
 
-                    block.features = features; //< TODO: remove this
-                    block.featureRects = featureRects;
-                    block.pixelScores = this._calculatePixelScores( this._canvasWidth(block), features, featureRects );
+                    var blockData = thisB.blockStash[ block.id() ];
+
+                    blockData.features = features; //< TODO: remove this
+                    blockData.featureRects = featureRects;
+                    blockData.pixelScores = thisB._calculatePixelScores( thisB._canvasWidth(block), features, featureRects );
+                    blockData.stats = thisB._calculateBlockStats( block, features );
 
                     if (args && args.maskingSpans)
-                        block.maskingSpans = args.maskingSpans; // used for masking
+                        blockData.maskingSpans = args.maskingSpans; // used for masking
+                });
+    },
 
-                    finishCallback();
-                }),
-                dojo.hitch( this, function(e) {
-                    console.error( e.stack || ''+e, e );
-                    this._handleError( e, args );
-                }));
+    _calculateBlockStats: function( block, features ) {
+        var stats = {
+            featureCount: features.length,
+            scoreMin: Infinity,
+            scoreMax: -Infinity,
+            scoreSum: 0,
+            scoreSumSquares: 0
+        };
+
+        var score;
+
+        for( var i = 0; i<features.length; i++ ) {
+            if(( score = features[i].get('score') )) {
+                stats.scoreSum += score;
+                stats.scoreSumSquares += score*score;
+                stats.scoreMin = Math.min( stats.scoreMin, score );
+                stats.scoreMax = Math.max( stats.scoreMax, score );
+            }
+        }
+
+        if( stats.scoreMin == Infinity )
+            delete stats.scoreMin;
+        if( stats.scoreMax == -Infinity )
+            delete stats.scoreMax;
+
+        return stats;
     },
 
     // render the actual graph display for the block.  should be called only after a scaling
     // has been decided upon and stored in this.scaling
-    renderBlock: function( args ) {
-        var block = args.block;
+    renderBlock: function( block, blockNode ) {
+        var blockdata = this.blockStash[block.id()];
 
         // don't render this block again if we have already rendered
         // it with this scaling scheme
-        if( ! this.scaling.compare( block.scaling ) || ! block.pixelScores )
+        if( ! this.scaling.compare( blockdata.scaling ) || ! blockdata.pixelScores )
            return;
 
+        blockdata.scaling = this.scaling;
 
+        dom.empty( blockNode );
 
-        block.scaling = this.scaling;
+        if( ! has('canvas') )
+            throw new Error( 'This browser does not support HTML canvas elements.' );
 
-        dom.empty( block.domNode );
-
-        try {
-            dojo.create('canvas').getContext('2d').fillStyle = 'red';
-        } catch( e ) {
-            this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.fillBlockError( blockIndex, block, this.fatalError );
-            return;
-        }
-
-        var features = block.features;
-        var featureRects = block.featureRects;
+        var features = blockdata.features;
+        var featureRects = blockdata.featureRects;
         var dataScale = this.scaling;
         var canvasHeight = this._canvasHeight();
 
-        var c = dojo.create(
+        var c = dom.create(
             'canvas',
             { height: canvasHeight,
               width:  this._canvasWidth(block),
@@ -197,26 +230,26 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
             },
-            block.domNode
+            blockNode
         );
-        c.startBase = block.startBase;
+        c.startBase = blockdata.startBase;
         block.canvas = c;
 
         //Calculate the score for each pixel in the block
         var pixels = this._calculatePixelScores( c.width, features, featureRects );
 
-        this._draw( block.scale,    block.startBase,
-                    block.endBase,  block,
+        this._draw( blockdata.scale,    blockdata.startBase,
+                    blockdata.endBase,  block,
                     c,              features,
                     featureRects,   dataScale,
-                    pixels,         block.maskingSpans ); // note: spans may be undefined.
+                    pixels,         blockdata.maskingSpans ); // note: spans may be undefined.
 
-        this.heightUpdate( c.height, args.blockIndex );
+        this.heightUpdate( c.height );
         if( !( c.parentNode && c.parentNode.parentNode )) {
-            var blockWidth = block.endBase - block.startBase;
+            var blockWidth = block.endBase - blockdata.startBase;
 
             c.style.position = "absolute";
-            c.style.left = (100 * ((c.startBase - block.startBase) / blockWidth)) + "%";
+            c.style.left = (100 * ((c.startBase - blockdata.startBase) / blockWidth)) + "%";
             switch (this.config.align) {
             case "top":
                 c.style.top = "0px";
@@ -229,42 +262,32 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         }
     },
 
-    fillBlock: function( args ) {
+    _fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
-        this.heightUpdate( this._canvasHeight(), args.blockIndex );
-
-        // hook updateGraphs onto the end of the block feature fetch
-        var oldFinish = args.finishCallback || function() {};
-        args.finishCallback = function() {
-            thisB.updateGraphs( args, oldFinish );
-        };
+        this.heightUpdate( this._canvasHeight() );
 
         // get the features for this block, and then set in motion the
         // updating of the graphs
-        this._getBlockFeatures( args );
+        return this._getBlockData( block, blockNode, changeInfo )
+            .then( function() {
+                       return thisB.updateGraphs( block, blockNode );
+                   });
     },
 
-    updateGraphs: function( viewArgs, callback ) {
+    updateGraphs: function( block, blockNode ) {
         var thisB = this;
 
         // update the global scaling
-        this._getScaling( viewArgs,
-                          function( scaling ) {
-                              thisB.scaling = scaling;
-                              // render all of the blocks that need it
-                              array.forEach( thisB.blocks, function( block, blockIndex ) {
-                                  if( block && block.domNode.parentNode )
-                                      thisB.renderBlock({
-                                                            block: block,
-                                                            blockIndex: blockIndex
-                                                        });
-                              });
-                              callback();
-                          },
-                          function(e) {
-                              thisB._handleError( e );
-                          });
-
+        return this._getScaling()
+            .then( function( scaling ) {
+                       thisB.scaling = scaling;
+                       // render all of the blocks that need it
+                       for( var blockid in thisB.blockStash ) {
+                           var blockData = thisB.blockStash[blockid];
+                           if( blockData.node.parentNode )
+                               thisB.renderBlock( blockData.block, blockData.node );
+                       }
+                   });
     },
 
     // Draw features
@@ -275,13 +298,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             this._maskBySpans( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans );
         }
         this._postDraw(     scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale );
-    },
-
-    startZoom: function(destScale, destStart, destEnd) {
-    },
-
-    endZoom: function(destScale, destBlockBases) {
-        this.clear();
     },
 
     /**
@@ -332,7 +348,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         // make an array of the max score at each pixel on the canvas
         var pixelValues = new Array( canvasWidth );
-        dojo.forEach( features, function( f, i ) {
+        array.forEach( features, function( f, i ) {
             var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
@@ -362,26 +378,31 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     },
 
     _makeScoreDisplay: function() {
-        var gv = this.genomeView;
         var thisB = this;
 
         if( ! this._mouseoverEvent )
             this._mouseoverEvent = this.own(
-                on( this.div, 'mousemove', function( evt ) {
+                on( this.domNode, 'mousemove', function( evt ) {
                         evt = domEvent.fix( evt );
-                        var bpX = gv.absXtoBp( evt.clientX );
-                        thisB.mouseover( bpX, evt );
-
+                        thisB.getBlockStashForRange( evt.clientX, evt.clientX )
+                            .then( function( stashEntries ) {
+                                       if( ! stashEntries.length )
+                                           return;
+                                       var bp = stashEntries[0].projectionBlock.projectPoint( evt.clientX );
+                                       thisB.mouseover( bp, stashEntries[0], evt );
+                                   });
                     }))[0];
+
         if( ! this._mouseoutEvent )
-            this._mouseoutEvent = this.own( on( this.div, 'mouseleave', function( evt) {
-                                                    thisB.mouseover( undefined );
-                                                }))[0];
+            this._mouseoutEvent = this.own(
+                on( this.domNode, mouse.leave, function( evt) {
+                        thisB.mouseover( undefined );
+                    }))[0];
 
         // make elements and events to display it
         if( ! this.scoreDisplay )
             this.scoreDisplay = {
-                flag: dojo.create(
+                flag: dom.create(
                     'div', {
                         className: 'wiggleValueDisplay',
                         style: {
@@ -389,44 +410,25 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                             display: 'none',
                             zIndex: 15
                         }
-                    }, this.div),
-                pole: dojo.create( 'div', {
-                                       className: 'wigglePositionIndicator',
-                                       style: {
-                                           position: 'fixed',
-                                           display: 'none',
-                                           zIndex: 15
-                                       }
-                                   }, this.div )
+                    }, this.domNode),
+                pole: dom.create(
+                    'div', {
+                        className: 'wigglePositionIndicator',
+                        style: {
+                            position: 'fixed',
+                            display: 'none',
+                            zIndex: 15
+                        }
+                    }, this.domNode )
             };
     },
 
-    mouseover: function( bpX, evt ) {
-        // if( this._scoreDisplayHideTimeout )
-        //     window.clearTimeout( this._scoreDisplayHideTimeout );
-        if( bpX === undefined ) {
-            var thisB = this;
-            //this._scoreDisplayHideTimeout = window.setTimeout( function() {
-                thisB.scoreDisplay.flag.style.display = 'none';
-                thisB.scoreDisplay.pole.style.display = 'none';
-            //}, 1000 );
-        }
-        else {
-            var block;
-            array.some(this.blocks, function(b) {
-                           if( b && b.startBase <= bpX && b.endBase >= bpX ) {
-                               block = b;
-                               return true;
-                           }
-                           return false;
-                       });
+    mouseover: function( bpX, blockdata, evt ) {
+        if( bpX && blockdata && evt && blockdata.canvas && blockdata.pixelScores ) {
 
-            if( !( block && block.canvas && block.pixelScores && evt ) )
-                return;
-
-            var pixelValues = block.pixelScores;
-            var canvas = block.canvas;
-            var cPos = dojo.position( canvas );
+            var pixelValues = blockdata.pixelScores;
+            var canvas = blockdata.canvas;
+            var cPos = domGeom.position( canvas );
             var x = evt.pageX;
             var cx = evt.pageX - cPos.x;
 
@@ -440,9 +442,11 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 this.scoreDisplay.pole.style.height = cPos.h+'px';
             }
         }
+        else {
+            this.scoreDisplay.flag.style.display = 'none';
+            this.scoreDisplay.pole.style.display = 'none';
+        }
     },
-
-
 
     _showPixelValue: function( scoreDisplay, score ) {
         if( typeof score == 'number' ) {
@@ -463,10 +467,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         else {
             return false;
         }
-    },
-
-    _exportFormats: function() {
-        return [{name: 'bedGraph', label: 'bedGraph', fileExt: 'bedgraph'}, {name: 'Wiggle', label: 'Wiggle', fileExt: 'wig'}, {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'} ];
     }
+
 });
 });

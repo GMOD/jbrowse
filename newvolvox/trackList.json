@@ -59,7 +59,7 @@
         },
         "volvox_microarray bigwig": {
             "type": "JBrowse/Store/SeqFeature/BigWig",
-            "urlTemplate" : "../sample_data/raw/volvox/volvox_microarray.bw"
+            "bigwig" : "../sample_data/raw/volvox/volvox_microarray.bw"
         },
         "wiggle images": {
             "urlTemplate" : "tracks/volvox_microarray.wig/{refseq}/trackData.json",
@@ -167,13 +167,17 @@
           }
       },
         {
-            "posColor" : "function(feature) { return feature.get('score') > 300 ? 'red' : 'blue'; }",
-            "showVarianceBands" : true,
-            "store": "volvox_microarray bigwig",
             "name" : "BigWig XY - volvox_microarray",
-            "type" : "JBrowse/View/Track/Wiggle/XYPlot",
-            "metadata" : {
-                "description" : "Wiggle/XYPlot view of volvox_microarray.bw.  Demonstrates use of a user-configured callback to set the bar color to red when the score is above 300."
+            "views": {
+                "default": {
+                    "posColor" : "function(feature) { return feature.get('score') > 300 ? 'red' : 'blue'; }",
+                    "showVarianceBands" : true,
+                    "store": "volvox_microarray bigwig",
+                    "type" : "JBrowse/View/Track/XYPlot",
+                    "metadata" : {
+                        "description" : "Wiggle/XYPlot view of volvox_microarray.bw.  Demonstrates use of a user-configured callback to set the bar color to red when the score is above 300."
+                    }
+                }
             }
         },
 

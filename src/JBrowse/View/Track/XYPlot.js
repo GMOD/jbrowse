@@ -1,16 +1,29 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/_base/Color',
             'dojo/on',
-            'JBrowse/View/Track/WiggleBase',
+
+            'JBrowse/View/Track/_Quantitative',
             'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Util',
-            './_Scale'
+            'JBrowse/View/Track/Wiggle/_Scale'
         ],
-        function( declare, array, Color, on, WiggleBase, YScaleMixin, Util, Scale ) {
+        function(
+            declare,
+            array,
+            lang,
+            Color,
+            on,
 
-var XYPlot = declare( [WiggleBase, YScaleMixin],
+            _QuantitativeBase,
+            _YScaleMixin,
+            Util,
+            Scale
+        ) {
+
+var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
 
 /**
  * Wiggle track that shows data with an X-Y plot along the reference.
@@ -21,6 +34,10 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
 {
     configSchema: {
         slots: [
+            { name: 'renderer', type: 'object', defaultValue: {
+                  type: 'JBrowse/View/Track/Renderer/XYPlot'
+              }},
+
             { name: 'height', defaultValue: 100 },
             { name: 'posColor', type: 'Color', defaultValue: 'blue' },
             { name: 'negColor', type: 'Color', defaultValue: 'red' },
@@ -36,36 +53,35 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         ]
     },
 
-    _getScaling: function( viewArgs, successCallback, errorCallback ) {
+    _getScaling: function() {
+        var thisB = this;
+        return this._getRenderedRegionStats()
+            .then( function( stats ) {
+                       //calculate the scaling if necessary
+                       if( ! thisB.lastScaling || ! thisB.lastScaling.sameStats( stats ) ) {
 
-        this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
+                           var scaling = new Scale( thisB.exportMergedConfig(), stats );
 
-            //calculate the scaling if necessary
-            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
+                           // bump minDisplayed to 0 if it is within 0.5% of it
+                           if( Math.abs( scaling.min / scaling.max ) < 0.005 )
+                               scaling.min = 0;
 
-                var scaling = new Scale( this.exportMergedConfig(), stats );
+                           // update our track y-scale to reflect it
+                           thisB.makeYScale({
+                                                fixBounds: true,
+                                                min: scaling.min,
+                                                max: scaling.max
+                                            });
 
-                // bump minDisplayed to 0 if it is within 0.5% of it
-                if( Math.abs( scaling.min / scaling.max ) < 0.005 )
-                    scaling.min = 0;
+                           // and finally adjust the scaling to match the ruler's scale rounding
+                           scaling.min = thisB.ruler.scaler.bounds.lower;
+                           scaling.max = thisB.ruler.scaler.bounds.upper;
+                           scaling.range = scaling.max - scaling.min;
+                           thisB.lastScaling = scaling;
+                       }
 
-                // update our track y-scale to reflect it
-                this.makeYScale({
-                    fixBounds: true,
-                    min: scaling.min,
-                    max: scaling.max
-                });
-
-                // and finally adjust the scaling to match the ruler's scale rounding
-                scaling.min = this.ruler.scaler.bounds.lower;
-                scaling.max = this.ruler.scaler.bounds.upper;
-                scaling.range = scaling.max - scaling.min;
-
-                this.lastScaling = scaling;
-            }
-
-            successCallback( this.lastScaling );
-        }), errorCallback );
+                       return thisB.lastScaling;
+                   });
     },
 
     updateStaticElements: function( coords ) {
@@ -80,14 +96,14 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var toY = dojo.hitch( this, function( val ) {
+        var toY = lang.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) );
         });
         var originY = toY( dataScale.origin );
 
         var disableClipMarkers = this.getConf('disableClipMarkers');
 
-        dojo.forEach( pixels, function(p,i) {
+        array.forEach( pixels, function(p,i) {
             if (!p)
                 return;
             var score = toY(p['score']);
@@ -132,7 +148,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         /* A variant of calculatePixelScores that stores the feature used at each pixel. 
          * If there are multiple features, use the first one */
         var pixelValues = new Array( canvasWidth );
-        dojo.forEach( features, function( f, i ) {
+        array.forEach( features, function( f, i ) {
             var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
@@ -184,48 +200,47 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _postDraw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var toY = dojo.hitch( this, function( val ) {
+        var toY = lang.hitch( this, function( val ) {
            return canvasHeight * (1-dataScale.normalize(val));
         });
 
         // draw the variance_band if requested
         if( this.getConf('showVarianceBands') ) {
             var bandPositions = this.getConf('varianceBandPositions').sort().reverse();
-            this.getRegionStats(
-                this.makeStoreQuery({ ref: this.refSeq.get('name'), start: this.refSeq.get('start'), end: this.refSeq.get('end') }),
-                dojo.hitch( this, function( stats ) {
-                                if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
-                                    var drawVarianceBand = function( plusminus, fill, label ) {
-                                        context.fillStyle = fill.toString();
-                                        var varTop = toY( stats.scoreMean + plusminus );
-                                        var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
-                                        varHeight = Math.max( 1, varHeight );
-                                        context.fillRect( 0, varTop, canvas.width, varHeight );
-                                        context.font = '12px sans-serif';
-                                        if( plusminus > 0 ) {
-                                            context.fillText( '+'+label, 2, varTop );
-                                            context.fillText( '-'+label, 2, varTop+varHeight );
-                                        }
-                                        else {
-                                            context.fillText( label, 2, varTop );
-                                        }
-                                    };
+            this._getRenderedRegionStats()
+                .then( lang.hitch( this, function( stats ) {
+                                    if( ('scoreMean' in stats) && ('scoreStdDev' in stats) ) {
+                                        var drawVarianceBand = function( plusminus, fill, label ) {
+                                            context.fillStyle = fill.toString();
+                                            var varTop = toY( stats.scoreMean + plusminus );
+                                            var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
+                                            varHeight = Math.max( 1, varHeight );
+                                            context.fillRect( 0, varTop, canvas.width, varHeight );
+                                            context.font = '12px sans-serif';
+                                            if( plusminus > 0 ) {
+                                                context.fillText( '+'+label, 2, varTop );
+                                                context.fillText( '-'+label, 2, varTop+varHeight );
+                                            }
+                                            else {
+                                                context.fillText( label, 2, varTop );
+                                            }
+                                        };
 
-                                    var maxColor = new Color( this.getConf('varianceBandColor') );
-                                    var minColor = new Color( this.getConf('varianceBandColor') );
-                                    minColor.a /= bandPositions.length;
+                                        var maxColor = new Color( this.getConf('varianceBandColor') );
+                                        var minColor = new Color( this.getConf('varianceBandColor') );
+                                        minColor.a /= bandPositions.length;
 
-                                    var bandOpacityStep = 1/bandPositions.length;
-                                    var minOpacity = bandOpacityStep;
+                                        var bandOpacityStep = 1/bandPositions.length;
+                                        var minOpacity = bandOpacityStep;
 
-                                    array.forEach( bandPositions, function( pos,i ) {
-                                                       drawVarianceBand( pos*stats.scoreStdDev,
-                                                                         Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
-                                                                         pos+'σ');
-                                                   });
-                                    drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
-                                }
-                            }));
+                                        array.forEach( bandPositions, function( pos,i ) {
+                                                           drawVarianceBand( pos*stats.scoreStdDev,
+                                                                             Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
+                                                                             pos+'σ');
+                                                       });
+                                        drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
+                                    }
+                                }));
         }
 
         // draw the origin line if it is not disabled
@@ -235,7 +250,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             context.fillStyle = originColor;
             context.fillRect( 0, originY, canvas.width, 1 );
         }
-
     }
 
 });

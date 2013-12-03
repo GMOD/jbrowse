@@ -57,8 +57,6 @@ _genomeViewSetter: function( genomeview ) {
     return this._setGenomeViewAttr.apply( this, arguments );
 },
 
-
-
 destroyAllBlocks: function() {
     array.forEach( this.domNode.children, function(n) {
                        if( this.isBlockNode( n ) )

@@ -74,6 +74,10 @@ return declare( Destroyable, {
         };
     },
 
+    id: function() {
+        return this._serialNumber;
+    },
+
     getDimensions: function() {
         return {
             l: this._left,

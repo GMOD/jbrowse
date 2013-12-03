@@ -2,9 +2,20 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/Deferred',
+
+            'JBrowse/Util',
             './RequestWorker'
         ],
-        function( declare, lang, array, RequestWorker ) {
+        function(
+            declare,
+            lang,
+            array,
+            Deferred,
+
+            Util,
+            RequestWorker
+        ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
@@ -35,7 +46,7 @@ return declare( null,
 
     BED_COLOR_REGEXP: /^[0-9]+,[0-9]+,[0-9]+/,
 
-    readWigData: function(chrName, min, max, callback, errorCallback ) {
+    readWigData: function( chrName, min, max ) {
         // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
         var chr = this.bwg.refsByName[chrName];
         if ( ! chr ) {
@@ -43,36 +54,35 @@ return declare( null,
 
             // dlog("Couldn't find chr " + chrName);
             // dlog('Chroms=' + miniJSONify(this.bwg.refsByName));
-            callback([]);
+            return Util.resolved( [] );
         } else {
-            this.readWigDataById( chr.id, min, max, callback, errorCallback );
+            return this.readWigDataById( chr.id, min, max );
         }
     },
 
-    readWigDataById: function(chr, min, max, callback, errorCallback ) {
-        if( !this.cirHeader ) {
-            var readCallback = lang.hitch( this, 'readWigDataById', chr, min, max, callback, errorCallback );
-            if( this.cirHeaderLoading ) {
-                this.cirHeaderLoading.push( readCallback );
-            }
-            else {
-                this.cirHeaderLoading = [ readCallback ];
-                // dlog('No CIR yet, fetching');
-                this.bwg.data
-                    .read( this.cirTreeOffset, 48, lang.hitch( this, function(result) {
-                                this.cirHeader = result;
-                                this.cirBlockSize = this.bwg.newDataView( result, 4, 4 ).getUint32();
-                                array.forEach( this.cirHeaderLoading, function(c) { c(); });
-                                delete this.cirHeaderLoading;
-                            }), errorCallback );
-            }
-            return;
-        }
+    _loadCirHeader: function() {
+        return this.cirHeader || (
+            this.cirHeader = function() {
+                var thisB = this;
+                return this.bwg.data
+                    .readRange( this.cirTreeOffset, 48 )
+                    .then( function( result ) {
+                               thisB.cirBlockSize = thisB.bwg.newDataView( result, 4, 4 ).getUint32();
+                               return result;
+                           });
+            }.call(this)
+        );
+    },
 
-        //dlog('_readWigDataById', chr, min, max, callback);
-
-        var worker = new RequestWorker( this, chr, min, max, callback, errorCallback );
-        worker.cirFobRecur([this.cirTreeOffset + 48], 1);
+    readWigDataById: function( chr, min, max ) {
+        var thisB = this;
+        return this._loadCirHeader()
+            .then( function() {
+                       var d = new Deferred;
+                       var worker = new RequestWorker( thisB, chr, min, max, d.resolve, d.reject );
+                       worker.cirFobRecur([thisB.cirTreeOffset + 48], 1);
+                       return d;
+                   });
     }
 });
 

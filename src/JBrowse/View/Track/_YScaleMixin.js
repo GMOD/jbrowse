@@ -38,7 +38,7 @@ return declare( null, {
                                 position: 'absolute',
                                 zIndex: 17
                             }
-                        }, this.div );
+                        }, this.domNode );
         this.yscale = rulerdiv;
 
         if( this.window_info && 'x' in this.window_info ) {

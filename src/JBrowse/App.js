@@ -3,7 +3,7 @@ define([
            ,'dojo/Stateful'
 
            ,'JBrowse/Component'
-           ,'JBrowse/FeatureFiltererMixin'
+           ,'JBrowse/_FeatureFiltererMixin'
            ,'JBrowse/Transport/_TransportManagerMixin'
            ,'JBrowse/Plugin/_PluginManagerMixin'
        ],
