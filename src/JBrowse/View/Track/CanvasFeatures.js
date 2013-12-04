@@ -619,17 +619,26 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                         }
                         this.ignoreTooltipTimeout = true;
                         this.labelTooltip.style.display = 'block';
+                        var labelSpan = this.labelTooltip.childNodes[0],
+                            descriptionSpan = this.labelTooltip.childNodes[1];
                         if( label ) {
-                            var labelSpan = this.labelTooltip.childNodes[0];
+                            labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;
                             labelSpan.style.color = label.fill;
                             labelSpan.innerHTML = label.text;
+                        } else {
+                            labelSpan.style.display = 'none';
+                            labelSpan.innerHTML = '(no label)';
                         }
                         if( description ) {
-                            var descriptionSpan = this.labelTooltip.childNodes[1];
+                            descriptionSpan.style.display = 'block';
                             descriptionSpan.style.font = description.font;
                             descriptionSpan.style.color = description.fill;
                             descriptionSpan.innerHTML = description.text;
+                        }
+                        else {
+                            descriptionSpan.style.display = 'none';
+                            descriptionSpan.innerHTML = '(no description)';
                         }
                     });
                     if( this.ignoreTooltipTimeout )

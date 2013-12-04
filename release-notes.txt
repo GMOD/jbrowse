@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed a bug in which the tooltip in canvas-based feature tracks
+   would sometimes display incorrect label or description text.
+
 # Release 1.10.11     2013-12-03 17:21:20 EST5EDT
 
 ## Minor improvements
