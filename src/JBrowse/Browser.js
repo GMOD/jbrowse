@@ -332,6 +332,7 @@ resolveUrl: function( url ) {
  */
 fatalError: function( error ) {
     if( error ) {
+        console.error( error.stack || ''+error );
         error = error+'';
         if( ! /\.$/.exec(error) )
             error = error + '.';
