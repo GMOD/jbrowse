@@ -1,9 +1,13 @@
 define( [
-          'dojo/_base/declare',
-           'JBrowse/View/Ruler'
+            'dojo/_base/declare',
+            'dojo/query',
+
+            'JBrowse/View/Ruler'
         ],
         function(
             declare,
+            query,
+
             Ruler
         ) {
 /**
@@ -75,6 +79,22 @@ return declare( null, {
         ruler.render_to( rulerdiv );
 
         this.ruler = ruler;
+    },
+
+    /**
+     * Delete the Y-axis scale if present.
+     * @private
+     */
+    removeYScale: function() {
+        if( !this.yscale ) {
+            query( '.ruler', this.div ).orphan();
+            return;
+        }
+        if( this.yscale ) {
+            this.yscale.parentNode.removeChild( this.yscale );
+            delete this.yscale;
+        }
+        delete this.yscale_params;
     },
 
     updateYScaleFromViewDimensions: function( coords ) {

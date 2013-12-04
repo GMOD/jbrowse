@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+## Major improvements
+
+ * Introduced histogram support for CanvasFeatures, CanvasVariants,
+   and Alignments2 tracks.  These track types now support a
+   `histograms` configuration subsection that can contain a definition
+   for a second datastore that holds quantitative data (usually either
+   coverage depth or feature density) that will be displayed when
+   zoomed further out than `featureScale` (or if `featureScale` is not
+   set, the scale determined by the store's feature density divided by
+   `maxFeatureScreenDensity`).  Thanks to Richard Hayes for pushing
+   hard for this feature.
+
 ## Bug fixes
 
  * Fixed a bug in which the tooltip in canvas-based feature tracks

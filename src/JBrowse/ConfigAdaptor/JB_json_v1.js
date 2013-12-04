@@ -52,6 +52,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                                         o = that.regularize_conf( o, args );
                                         args.onSuccess.call( args.context || that, o );
                                     } catch(e) {
+                                        console.error( e.stack || ''+e );
                                         handleError(e);
                                     }
                                 },
@@ -144,6 +145,19 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 );
                 trackConfig.type = trackClassName;
 
+                this._synthesizeTrackStoreConfig( conf, trackConfig );
+
+                if( trackConfig.histograms ) {
+                    if( ! trackConfig.histograms.baseUrl )
+                        trackConfig.histograms.baseUrl = trackConfig.baseUrl;
+                    this._synthesizeTrackStoreConfig( conf, trackConfig.histograms );
+                }
+            }, this);
+
+            return conf;
+        },
+
+        _synthesizeTrackStoreConfig: function( mainconf, trackConfig ) {
                 // figure out what data store class to use with the track,
                 // applying some defaults if it is not explicit in the
                 // configuration
@@ -151,11 +165,11 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 var storeClass = this._regularizeClass(
                     'JBrowse/Store',
                     trackConfig.storeClass                    ? trackConfig.storeClass :
-                        /\/FixedImage/.test( trackClassName ) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
-                        /\.jsonz?$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\/FixedImage/.test(trackConfig.type) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
+                        /\.jsonz?$/i.test( urlTemplate )      ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
                         /\.bam$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BAM'                                                      :
                         /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
-                        /\/Sequence$/.test( trackClassName )  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
+                        /\/Sequence$/.test(trackConfig.type)  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
                                                                  null
                 );
 
@@ -174,20 +188,16 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 // if this is the first sequence store we see, and we
                 // have no refseqs store defined explicitly, make this the refseqs store.
-                if( storeClass == 'JBrowse/Store/Sequence/StaticChunked' && !conf.stores['refseqs'] )
+                if( storeClass == 'JBrowse/Store/Sequence/StaticChunked' && !mainconf.stores['refseqs'] )
                     storeConf.name = 'refseqs';
                 else
                     storeConf.name = 'store'+digest.objectFingerprint( storeConf );
 
                 // record it
-                conf.stores[storeConf.name] = storeConf;
+                mainconf.stores[storeConf.name] = storeConf;
 
                 // connect it to the track conf
                 trackConfig.store = storeConf.name;
-
-            }, this);
-
-            return conf;
         },
 
         _regularizeClass: function( root, class_ ) {

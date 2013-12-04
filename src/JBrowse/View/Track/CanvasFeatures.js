@@ -11,6 +11,7 @@ define( [
             'dojo/dom-construct',
             'dojo/Deferred',
             'dojo/on',
+
             'JBrowse/has',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
@@ -18,7 +19,9 @@ define( [
             'JBrowse/Errors',
             'JBrowse/View/Track/_FeatureDetailMixin',
             'JBrowse/View/Track/_FeatureContextMenusMixin',
-            'JBrowse/Model/Location'
+            'JBrowse/View/Track/_YScaleMixin',
+            'JBrowse/Model/Location',
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
@@ -29,6 +32,7 @@ define( [
             domConstruct,
             Deferred,
             on,
+
             has,
             Layout,
             BlockBasedTrack,
@@ -36,7 +40,9 @@ define( [
             Errors,
             FeatureDetailMixin,
             FeatureContextMenuMixin,
-            Location
+            YScaleMixin,
+            Location,
+            SimpleFeature
         ) {
 
 /**
@@ -81,7 +87,13 @@ var FRectIndex = declare( null,  {
     }
 });
 
-return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMenuMixin], {
+return declare(
+    [ BlockBasedTrack,
+      FeatureDetailMixin,
+      ExportMixin,
+      FeatureContextMenuMixin,
+      YScaleMixin
+    ], {
 
     constructor: function( args ) {
         this.glyphsLoaded = {};
@@ -96,7 +108,7 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     _defaultConfig: function() {
         return {
-            maxFeatureScreenDensity: 400,
+            maxFeatureScreenDensity: 300,
 
             // default glyph class to use
             glyph: lang.hitch( this, 'guessGlyphType' ),
@@ -108,6 +120,11 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
             // maximum height of the track, in pixels
             maxHeight: 600,
+
+            histograms: {
+                description: 'feature density',
+                min: 0
+            },
 
             style: {
                 // not configured by users
@@ -178,12 +195,12 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
             return;
         }
 
-        var fill = dojo.hitch( this, function( stats ) {
+        var fill = lang.hitch( this, function( stats ) {
 
                 // calculate some additional view parameters that
                 // might depend on the feature stats and add them to
                 // the view args we pass down
-                var renderHints = dojo.mixin(
+                var renderArgs = lang.mixin(
                     {
                         stats: stats,
                         displayMode: this.displayMode,
@@ -199,10 +216,27 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
                     args
                 );
 
-                if( renderHints.showFeatures ) {
-                    this.fillFeatures( dojo.mixin( renderHints, args ) );
+                if( renderArgs.showFeatures ) {
+                    this.setLabel( this.key );
+                    this.removeYScale();
+                    this.fillFeatures( renderArgs );
+                }
+                else if( this.config.histograms.store || this.store.getRegionFeatureDensities ) {
+                    if( this.config.histograms.description ) {
+                        this.setLabel(
+                            this.key + ' <span class="feature-density">('
+                                + this.config.histograms.description
+                                + ')</span>'
+                        );
+                    }
+                    else {
+                        this.setLabel( this.key );
+                    }
+
+                    this.fillHistograms( renderArgs );
                 }
                 else {
+                    this.setLabel( this.key );
                     this.fillTooManyFeaturesMessage(
                         blockIndex,
                         block,
@@ -273,6 +307,134 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
                      });
         }
+    },
+
+    fillHistograms: function( args ) {
+        var numBins = this.config.histograms.binsPerBlock || 25;
+        var blockSizeBp = Math.abs( args.rightBase - args.leftBase );
+        var basesPerBin = blockSizeBp / numBins;
+        var query = {
+            ref:   this.refSeq.name,
+            start: args.leftBase,
+            end:   args.rightBase,
+            basesPerBin: basesPerBin
+        };
+
+        if( this.store.getRegionFeatureDensities ) {
+            this.store.getRegionFeatureDensities(
+                query,
+                lang.hitch( this, '_drawHistograms', args )
+            );
+        } else {
+            var thisB = this;
+            var histData = { features: [], stats: {} };
+            var handleError = lang.hitch( this, '_handleError' );
+            this.browser.getStore(
+                this.config.histograms.store,
+                function( histStore ) {
+                    histStore.getGlobalStats(
+                        function( stats ) {
+                            histData.stats.max = stats.scoreMax;
+                            histStore.getFeatures(
+                                query,
+                                function( feature ) {
+                                    histData.features.push( feature );
+                                },
+                                function() {
+                                    thisB._drawHistograms( args, histData );
+                                    args.finishCallback();
+                                },
+                                handleError
+                            );
+                        },
+                        handleError
+                    );
+                });
+        }
+    },
+
+    _drawHistograms: function( viewArgs, histData ) {
+
+        // don't do anything if we don't know the score max
+        if( ! histData.stats.max ) {
+            console.warn( 'no stats.max in hist data, not drawing histogram for block '+viewArgs.blockIndex );
+            return;
+        }
+
+        // don't do anything if we have no hist features
+        var features;
+        if(!( ( features = histData.features )
+              || histData.bins && ( features = this._histBinsToFeatures( viewArgs, histData ) )
+            ))
+            return;
+
+        var block = viewArgs.block;
+        var height = this.config.histograms.height || 100;
+        var scale = viewArgs.scale;
+        var leftBase = viewArgs.leftBase;
+        var minVal = this.config.histograms.min || 0;
+
+        domConstruct.empty( block.domNode );
+        var c = block.featureCanvas =
+            domConstruct.create(
+                'canvas',
+                { height: height,
+                  width:  block.domNode.offsetWidth+1,
+                  style: {
+                      cursor: 'default',
+                      height: height+'px',
+                      position: 'absolute'
+                  },
+                  innerHTML: 'Your web browser cannot display this type of track.',
+                  className: 'canvas-track canvas-track-histograms'
+                },
+                block.domNode
+            );
+        this.heightUpdate( height, viewArgs.blockIndex );
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = this.config.histograms.color || 'goldenrod';
+        for( var i = 0; i<features.length; i++ ) {
+            var feature = features[i];
+            var barHeight = Math.round( feature.get('score')/histData.stats.max * height );
+            ctx.fillRect(
+                Math.round(( feature.get('start') - leftBase )*scale ),
+                height-barHeight,
+                Math.ceil( ( feature.get('end')-feature.get('start') )*scale ),
+                barHeight
+            );
+        }
+
+        // make the y-axis scale for our histograms
+        this.makeHistogramYScale( height, minVal, histData.stats.max );
+    },
+
+    _histBinsToFeatures: function( viewArgs, histData ) {
+        var bpPerBin = histData.stats.basesPerBin;
+        var leftBase = viewArgs.leftBase;
+
+        return array.map(
+            histData.bins,
+            function( bin, i ) {
+                return new SimpleFeature(
+                    { data: {
+                          start: leftBase + i*bpPerBin,
+                          end: leftBase + (i+1)*bpPerBin,
+                          score: bin
+                      }});
+            });
+    },
+
+
+    makeHistogramYScale: function( height, minVal, maxVal ) {
+        if( this.yscale_params
+            && this.yscale_params.height == height
+            && this.yscale_params.max == maxVal
+            && this.yscale_params.min == minVal
+          )
+            return;
+
+        this.yscale_params = { height: height, min: minVal, max: maxVal };
+        this.makeYScale({ min: minVal, max: maxVal });
     },
 
     fillFeatures: function( args ) {
@@ -727,6 +889,8 @@ return declare( [BlockBasedTrack,FeatureDetailMixin,ExportMixin,FeatureContextMe
 
     updateStaticElements: function( coords ) {
         this.inherited( arguments );
+
+        this.updateYScaleFromViewDimensions( coords );
 
         if( coords.hasOwnProperty("x") ) {
             var context = this.staticCanvas.getContext('2d');
