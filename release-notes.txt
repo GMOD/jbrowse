@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * `bam-to-json.pl` now supports a `--metadata` argument that can add
+   a `metadata` stanza to legacy BAM track configurations it
+   generates.
+
 ## Bug fixes
 
  * Re-enabled usage analytics reporting, which had been disabled by a
