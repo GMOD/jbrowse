@@ -1,0 +1,27 @@
+.jbrowseHierarchicalTrackSelector {
+    background: #fafafa;
+    overflow: auto;
+}
+.jbrowseHierarchicalTrackSelector > h2.title {
+    margin: 7px 0 0.8em 6px;
+}
+.jbrowseHierarchicalTrackSelector .trackCount {
+    display: inline-block;
+    float: right;
+}
+
+.jbrowseHierarchicalTrackSelector label.track:hover {
+    background: #D2E1F1;
+}
+
+.jbrowseHierarchicalTrackSelector label.track input.check {
+    position: relative;
+    top: 2px;
+    margin: 0 4px;
+}
+
+#JBrowse_View_TrackList_Hierarchical_0_splitter {
+    background: #fafafa;
+    width: 5px;
+    border-right: 1px solid #555;
+}

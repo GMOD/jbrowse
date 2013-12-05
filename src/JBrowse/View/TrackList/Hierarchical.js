@@ -29,6 +29,8 @@ return declare(
     splitter: true,
     style: 'width: 25%',
 
+    baseClass: 'jbrowseHierarchicalTrackSelector',
+
     categoryFacet: 'category',
 
     constructor: function( args ) {
@@ -48,6 +50,12 @@ return declare(
                                 lang.hitch( this, 'replaceTracks' ));
         this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',
                                 lang.hitch( this, 'deleteTracks' ));
+    },
+
+    buildRendering: function() {
+        this.inherited(arguments);
+
+        dom.create( 'h2',{ className: 'title', innerHTML: 'Available Tracks' }, this.containerNode );
     },
 
     startup: function() {
@@ -87,7 +95,7 @@ return declare(
             function _findCategory( obj, names ) {
                 var categoryName = names.shift();
                 var cat = obj.categories[categoryName] || ( obj.categories[categoryName] = function() {
-                    var c = new TitlePane({ title: categoryName + ' <span class="trackCount">0</span>' });
+                    var c = new TitlePane({ title: '<span class="categoryName">'+categoryName+'</span> <span class="trackCount">0</span>'  });
                     obj.pane.addChild(c, inStartup ? undefined : 0 );
                     return { parent: obj, pane: c, categories: {}, tracks: {} };
                 }.call(this));
@@ -95,7 +103,7 @@ return declare(
                 return names.length ? _findCategory( cat, names ) : cat;
             };
 
-            var labelNode = dom.create( 'label', { style: 'display: block'}, category.pane.containerNode );
+            var labelNode = dom.create( 'label', { className: 'track', style: 'display: block'}, category.pane.containerNode );
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
             var trackLabel = trackConf.label;
             var checkListener;
