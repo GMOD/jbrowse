@@ -137,8 +137,8 @@ var Meta = declare( null,
     comparatorMap: {
         // for category metadata, split on "/" and compare
         "category": function(a,b) {
-            var acs = (a||'').split(/\s*\/\s*/);
-            var bcs = (b||'').split(/\s*\/\s*/);
+            var acs = (a||'Uncategorized').split(/\s*\/\s*/);
+            var bcs = (b||'Uncategorized').split(/\s*\/\s*/);
             var ac, bc, compresult;
             while( (ac=acs.shift()) && (bc=bcs.shift()) ) {
                 if(( compresult = ac.localeCompare( bc ) ))
