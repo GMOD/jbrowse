@@ -12,6 +12,21 @@
    `maxFeatureScreenDensity`).  Thanks to Richard Hayes for pushing
    hard for this feature.
 
+ * Added a new "Hierarchical" track selector that shows tracks in a
+   hierarchy of collapsible categories.  To activate it, set something
+   like:
+
+   ```
+       "trackSelector" : {
+           "type": "Hierarchical"
+       }
+   ```
+
+   in your `jbrowse_conf.json` or `trackList.json` file, and set
+   `category` or `metadata.category` attributes on each of your
+   configured tracks.  Thanks to the many users who have requested
+   this at one time or another.
+
 ## Bug fixes
 
  * Fixed a bug in which the tooltip in canvas-based feature tracks
