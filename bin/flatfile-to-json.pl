@@ -115,6 +115,12 @@ Extra configuration for the client, in JSON syntax.  Example:
 
   --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
 
+=item --metadata '{ JSON metadata }'
+
+Metadata about this track.  Example:
+
+  --metadata '{"description": "Genes from XYZ pipeline.", "category": "Transcripts" }'
+
 =item --type <feature types to process>
 
 Only process features of the given type.  Can take either single type

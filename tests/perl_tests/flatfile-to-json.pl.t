@@ -46,6 +46,7 @@ sub tempdir {
         '--key' => 'Example Features',
         '--autocomplete' => 'all',
         '--cssClass' => 'feature2',
+        '--metadata' => '{"description": "toasted barrel head"}',
         '--clientConfig' =>  '{"featureCss": "height: 8px;", "histScale": 2}',
         '--urltemplate' => 'http://example.com/{name}/{start}/{end}',
         );
@@ -59,6 +60,7 @@ sub tempdir {
         '--trackLabel' => 'CDS',
         '--key' => 'Predicted genes',
         '--type' => 'CDS:predicted,mRNA:exonerate,mRNA:predicted',
+        '--metadata' => '{"fall_reason": "strain"}',
         '--autocomplete' => 'all',
         '--cssClass' => 'cds',
         '--compress',
@@ -96,6 +98,7 @@ sub tempdir {
 
     my $tracklist = $read_json->('trackList.json');
     is( $tracklist->{tracks}[1]{storeClass}, 'JBrowse/Store/SeqFeature/NCList' );
+    is_deeply( $tracklist->{tracks}[2]{metadata}, { fall_reason => 'strain' } );
     is_deeply( $tracklist->{tracks}[1]{style},
                { featureCss   => 'height: 8px;',
                  histScale    => 2,
