@@ -105,7 +105,6 @@ return declare( null, {
                 .removeClass('collapsed')
                 .addClass('shown');
         }
-    },
-
+    }
 });
 });
