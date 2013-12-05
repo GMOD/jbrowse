@@ -584,6 +584,7 @@ div.textfilter {
 div.textfilter input {
     line-height: 16px;
     padding: 2px 0;
+    width: 80%;
 }
 
 #trackPane_splitter {
