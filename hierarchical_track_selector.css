@@ -44,6 +44,9 @@
     top: 2px;
     margin: 0 4px;
 }
+.dj_safari .jbrowseHierarchicalTrackSelector label.tracklist-label input.check {
+    top: 0;
+}
 
 #hierarchicalTrackPane_splitter {
     background: #fafafa;
