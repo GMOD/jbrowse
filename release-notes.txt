@@ -19,6 +19,12 @@
    tracks in your `trackList.json`.  Thanks to the many users who have
    requested this at one time or another.
 
+## Minor improvements
+
+ * `bam-to-json.pl` now supports a `--metadata` argument that can add
+   a `metadata` stanza to legacy BAM track configurations it
+   generates.
+
 ## Bug fixes
 
  * Fixed a bug in which the tooltip in canvas-based feature tracks
