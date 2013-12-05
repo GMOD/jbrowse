@@ -126,6 +126,7 @@ return declare( 'JBrowse.View.TrackList.Simple', _TextFilterMixin,
         var leftPane = dojo.create(
             'div',
             { id: 'trackPane',
+              className: 'jbrowseSimpleTrackSelector',
               style: { width: '12em' }
             },
             renderTo

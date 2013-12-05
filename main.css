@@ -568,19 +568,20 @@ div.tracklist-container.dojoDndItemSelected .tracklist-label {
     background-color: #b2c3d6;
 }
 
-#trackPane {
+.jbrowseSimpleTrackSelector {
     background: #f2f2f2;
     background-image: url('img/tracklist_bg.png');
     background-repeat: repeat-y;
     background-position: right;
 }
-#trackPane h2 {
+.jbrowseSimpleTrackSelector h2 {
     margin: 0.5em 0 0 0.5em;
 }
-#trackPane div.textfilter {
+
+div.textfilter {
     margin: 0.5em 0 1em 0.3em;
 }
-#trackPane div.textfilter input {
+div.textfilter input {
     line-height: 16px;
     padding: 2px 0;
 }

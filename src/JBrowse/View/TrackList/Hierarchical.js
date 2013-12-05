@@ -35,7 +35,7 @@ return declare(
     splitter: true,
     style: 'width: 25%',
 
-    id: 'trackPane',
+    id: 'hierarchicalTrackPane',
     baseClass: 'jbrowseHierarchicalTrackSelector',
 
     categoryFacet: 'category',
@@ -70,7 +70,11 @@ return declare(
             },
             this.containerNode );
 
-        this._makeTextFilterNodes( this.containerNode );
+        this._makeTextFilterNodes(
+            dom.create('div',
+                       { className: 'textfilterContainer' },
+                       this.containerNode )
+        );
         this._updateTextFilterControl();
     },
 

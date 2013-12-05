@@ -33,8 +33,7 @@ return declare( null, {
             { type: 'text',
               style: {
                   paddingLeft: '18px',
-                  height: '16px',
-                  width: '80%'
+                  height: '16px'
               },
               placeholder: 'filter by text',
               onkeypress: lang.hitch( this, function( evt ) {

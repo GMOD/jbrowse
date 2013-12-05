@@ -3,11 +3,30 @@
     overflow: auto;
 }
 .jbrowseHierarchicalTrackSelector > h2.title {
-    margin: 7px 0 0.8em 6px;
+    padding: 7px 0 0.5em 6px;
+    margin: 0;
 }
 .jbrowseHierarchicalTrackSelector .trackCount {
     display: inline-block;
     float: right;
+}
+
+.jbrowseHierarchicalTrackSelector > .textfilterContainer {
+    padding: 0 5px 5px 5px;
+}
+.jbrowseHierarchicalTrackSelector > .textfilterContainer > .textfilter {
+    margin: 0;
+}
+.jbrowseHierarchicalTrackSelector > .textfilterContainer > .textfilter > input {
+    width: 100%;
+}
+
+.jbrowseHierarchicalTrackSelector .dijitTitlePaneTitle {
+    padding: 0 4px;
+}
+
+.jbrowseHierarchicalTrackSelector .dijitTitlePaneTitleFocus:focus {
+    outline: none;
 }
 
 .jbrowseHierarchicalTrackSelector label.tracklist-label {
@@ -26,7 +45,7 @@
     margin: 0 4px;
 }
 
-#JBrowse_View_TrackList_Hierarchical_0_splitter {
+#hierarchicalTrackPane_splitter {
     background: #fafafa;
     width: 5px;
     border-right: 1px solid #555;
