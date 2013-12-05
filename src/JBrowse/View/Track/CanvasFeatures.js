@@ -310,7 +310,7 @@ return declare(
     },
 
     fillHistograms: function( args ) {
-        var numBins = this.config.histograms.binsPerBlock || 150;
+        var numBins = this.config.histograms.binsPerBlock || 200;
         var blockSizeBp = Math.abs( args.rightBase - args.leftBase );
         var basesPerBin = blockSizeBp / numBins;
         var query = {
@@ -761,7 +761,7 @@ return declare(
                 window.clearTimeout( block.tooltipTimeout );
 
             if( feature ) {
-                var fRect = block.fRectIndex.getByID( feature.id() );
+                var fRect = block.fRectIndex && block.fRectIndex.getByID( feature.id() );
                 if( ! fRect )
                     return;
 
