@@ -395,7 +395,7 @@ return declare(
         ctx.fillStyle = this.config.histograms.color || 'goldenrod';
         for( var i = 0; i<features.length; i++ ) {
             var feature = features[i];
-            var barHeight = Math.round( feature.get('score')/histData.stats.max * height );
+            var barHeight = feature.get('score')/histData.stats.max * height;
             ctx.fillRect(
                 Math.round(( feature.get('start') - leftBase )*scale ),
                 height-barHeight,
