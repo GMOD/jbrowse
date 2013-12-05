@@ -355,6 +355,7 @@ sub writeTrackEntry {
                                            'label' => $seqTrackName,
                                            'key' => $self->opt('key') || 'Reference sequence',
                                            'type' => "SequenceTrack",
+                                           'category' => "Reference sequence",
                                            'storeClass' => 'JBrowse/Store/Sequence/StaticChunked',
                                            'chunkSize' => $self->{chunkSize},
                                            'urlTemplate' => $self->seqUrlTemplate,
