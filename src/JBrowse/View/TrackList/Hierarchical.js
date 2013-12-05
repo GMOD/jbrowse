@@ -6,7 +6,9 @@ define(['dojo/_base/declare',
         'dojo/on',
 
         'dijit/TitlePane',
-        'dijit/layout/ContentPane'
+        'dijit/layout/ContentPane',
+
+        './_TextFilterMixin'
        ],
        function(
            declare,
@@ -17,18 +19,21 @@ define(['dojo/_base/declare',
            on,
 
            TitlePane,
-           ContentPane
+           ContentPane,
+
+           _TextFilterMixin
        ) {
 
 return declare(
     'JBrowse.View.TrackList.Hierarchical',
-    ContentPane,
+    [ ContentPane, _TextFilterMixin ],
     {
 
     region: 'left',
     splitter: true,
     style: 'width: 25%',
 
+    id: 'trackPane',
     baseClass: 'jbrowseHierarchicalTrackSelector',
 
     categoryFacet: 'category',
@@ -55,7 +60,15 @@ return declare(
     buildRendering: function() {
         this.inherited(arguments);
 
-        dom.create( 'h2',{ className: 'title', innerHTML: 'Available Tracks' }, this.containerNode );
+        dom.create(
+            'h2',
+            { className: 'title',
+              innerHTML: 'Available Tracks'
+            },
+            this.containerNode );
+
+        this._makeTextFilterNodes( this.containerNode );
+        this._updateTextFilterControl();
     },
 
     startup: function() {
@@ -103,7 +116,7 @@ return declare(
                 return names.length ? _findCategory( cat, names ) : cat;
             };
 
-            var labelNode = dom.create( 'label', { className: 'track', style: 'display: block'}, category.pane.containerNode );
+            var labelNode = dom.create( 'label', { className: 'tracklist-label shown' }, category.pane.containerNode );
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
             var trackLabel = trackConf.label;
             var checkListener;
@@ -118,13 +131,26 @@ return declare(
         }, this );
     },
 
-    // update the titles of the given category and its parents
-    _updateTitles: function _updateTitles( category ) {
+    // depth-first traverse and update the titles of all the categories
+    _updateAllTitles: function(r) {
+        var root = r || this;
+        for( var c in root.categories ) {
+            this._updateTitle( root.categories[c] );
+            this._updateAllTitles( root.categories[c] );
+        }
+    },
+
+    _updateTitle: function( category ) {
         category.pane.set( 'title', category.pane.get('title')
-                           .replace( />\s*\d+\s*\</, '>'+query('label', category.pane.containerNode ).length+'<' )
+                           .replace( />\s*\d+\s*\</, '>'+query('label.shown', category.pane.containerNode ).length+'<' )
                          );
+    },
+
+    // update the titles of the given category and its parents
+    _updateTitles: function( category ) {
+        this._updateTitle( category );
         if( category.parent )
-            _updateTitles( category.parent );
+            this._updateTitles( category.parent );
     },
 
     _findTrack: function _findTrack( trackLabel, callback, r ) {
@@ -178,6 +204,12 @@ return declare(
                 trackRecord.checkbox.checked = false;
             });
         },this);
+    },
+
+
+    _textFilter: function() {
+        this.inherited(arguments);
+        this._updateAllTitles();
     },
 
     /**

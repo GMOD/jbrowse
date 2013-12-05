@@ -10,11 +10,17 @@
     float: right;
 }
 
-.jbrowseHierarchicalTrackSelector label.track:hover {
+.jbrowseHierarchicalTrackSelector label.tracklist-label {
+    display: block;
+}
+.jbrowseHierarchicalTrackSelector label.tracklist-label:hover {
     background: #D2E1F1;
 }
+.jbrowseHierarchicalTrackSelector label.tracklist-label.collapsed {
+    display: none;
+}
 
-.jbrowseHierarchicalTrackSelector label.track input.check {
+.jbrowseHierarchicalTrackSelector label.tracklist-label input.check {
     position: relative;
     top: 2px;
     margin: 0 4px;
