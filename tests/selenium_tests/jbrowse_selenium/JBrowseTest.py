@@ -18,7 +18,7 @@ class JBrowseTest (object):
     data_dir = None
     base_url = None
 
-    tracksel_type = 'Simple'
+    tracksel_type = 'Hierarchical'
 
     ## TestCase override - use instead of constructor
     def setUp( self ):

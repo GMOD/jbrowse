@@ -79,6 +79,6 @@ trackInfo =
       "url" : "tracks/{refseq}/volvox_microarray.wig.json",
       "type" : "ImageTrack",
       "label" : "volvox_microarray.wig",
-      "key" : "volvox_microarray.wig"
+      "key" : "Image - volvox_microarray.wig"
    }
 ]

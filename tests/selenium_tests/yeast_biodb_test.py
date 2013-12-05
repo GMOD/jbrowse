@@ -20,7 +20,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         assert "chrI" in self.browser.title
 
         # check that we have the appropriate tracks
-        genes_tracks = self.assert_elements( '//div[@class="tracklist-label"][contains(.,"coding")]' )
+        genes_tracks = self.assert_elements( '//label[contains(@class,"tracklist-label")]/span[contains(.,"coding")]' )
         assert len(genes_tracks) == 1, 'actually found %d genes tracks' % len(genes_tracks)
         assert genes_tracks[0].text == 'Protein-coding genes', "first track was called %s instead of %s" % (genes_tracks[0].text, 'Protein-coding genes')
 
@@ -55,7 +55,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         self.sequence()
 
     def sequence( self ):
-        self.do_typed_query( 'chrII:296318..296400' )
+        self.do_typed_query( 'chrII:296318..296380' )
         if not self.is_track_on('Reference sequence'):
             self.turn_on_track( 'Reference sequence' )
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')][contains(.,'%s')]"
@@ -67,7 +67,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
         self.assert_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000')
         self.assert_no_element( sequence_div_xpath_1 )
-        self.do_typed_query( 'chrI:19961..20047')
+        self.do_typed_query( 'chrI:19961..20038')
         self.assert_element( sequence_div_xpath_templ % 'AATTATAATCCTCGG' )
 
     def search_yal024c( self ):
