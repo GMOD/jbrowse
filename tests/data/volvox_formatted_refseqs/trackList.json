@@ -2,6 +2,7 @@
    "tracks" : [
       {
          "chunkSize" : 20000,
+         "category": "Reference sequence",
          "urlTemplate" : "seq/{refseq}/",
          "type" : "SequenceTrack",
          "label" : "DNA",

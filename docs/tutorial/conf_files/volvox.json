@@ -114,7 +114,7 @@
          "feature" : [
             "gene"
          ],
-         "track" : "Transcripts",
+         "track" : "Genes",
          "class" : "feature5",
          "category": "Transcripts",
          "key" : "CanvasFeatures - Protein-coding genes",
