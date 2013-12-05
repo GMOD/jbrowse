@@ -4,6 +4,7 @@ define(['dojo/_base/declare',
         'dojo/dom-construct',
         'dojo/query',
         'dojo/on',
+        'dojo/json',
 
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
@@ -17,6 +18,7 @@ define(['dojo/_base/declare',
            dom,
            query,
            on,
+           JSON,
 
            TitlePane,
            ContentPane,
@@ -40,6 +42,7 @@ return declare(
 
     constructor: function( args ) {
         this.categories = {};
+        this._loadState();
     },
     postCreate: function() {
         this.placeAt( this.browser.container );
@@ -103,17 +106,30 @@ return declare(
                     || 'Uncategorized'
             ).split(/\s*\/\s*/);
 
-            var category = _findCategory( this, categoryNames );
+            var category = _findCategory( this, categoryNames, [] );
 
-            function _findCategory( obj, names ) {
+            function _findCategory( obj, names, path ) {
                 var categoryName = names.shift();
+                path = path.concat(categoryName);
+                var categoryPath = path.join('/');
+
                 var cat = obj.categories[categoryName] || ( obj.categories[categoryName] = function() {
-                    var c = new TitlePane({ title: '<span class="categoryName">'+categoryName+'</span> <span class="trackCount">0</span>'  });
+                    var isCollapsed = lang.getObject( 'collapsed.'+categoryPath, false, thisB.state );
+                    var c = new TitlePane(
+                        { title: '<span class="categoryName">'+categoryName+'</span>'
+                          + ' <span class="trackCount">0</span>',
+                          open: ! isCollapsed
+                        });
+                    // save our open/collapsed state in local storage
+                    c.watch( 'open', function( attr, oldval, newval ) {
+                                 lang.setObject( 'collapsed.'+categoryPath, !newval, thisB.state );
+                                 thisB._saveState();
+                             });
                     obj.pane.addChild(c, inStartup ? undefined : 0 );
                     return { parent: obj, pane: c, categories: {}, tracks: {} };
-                }.call(this));
+                }.call(thisB));
 
-                return names.length ? _findCategory( cat, names ) : cat;
+                return names.length ? _findCategory( cat, names, path ) : cat;
             };
 
             var labelNode = dom.create( 'label', { className: 'tracklist-label shown' }, category.pane.containerNode );
@@ -129,6 +145,19 @@ return declare(
 
             this._updateTitles( category );
         }, this );
+    },
+
+    _loadState: function() {
+        this.state = {};
+        try {
+            this.state = JSON.parse( localStorage.getItem( 'JBrowse-Hierarchical-Track-Selector' ) || '{}' );
+        } catch(e) {}
+        return this.state;
+    },
+    _saveState: function( state ) {
+        try {
+            localStorage.setItem( 'JBrowse-Hierarchical-Track-Selector', JSON.stringify( this.state ) );
+        } catch(e) {}
     },
 
     // depth-first traverse and update the titles of all the categories
