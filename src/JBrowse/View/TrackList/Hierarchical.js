@@ -42,6 +42,7 @@ return declare(
 
     constructor: function( args ) {
         this.categories = {};
+
         this._loadState();
     },
     postCreate: function() {
@@ -63,17 +64,19 @@ return declare(
     buildRendering: function() {
         this.inherited(arguments);
 
+        var topPane = new ContentPane({ className: 'header' });
+        this.addChild( topPane );
         dom.create(
             'h2',
             { className: 'title',
               innerHTML: 'Available Tracks'
             },
-            this.containerNode );
+            topPane.containerNode );
 
         this._makeTextFilterNodes(
             dom.create('div',
                        { className: 'textfilterContainer' },
-                       this.containerNode )
+                       topPane.containerNode )
         );
         this._updateTextFilterControl();
     },
@@ -89,7 +92,21 @@ return declare(
                   if( i.conf )
                       tracks.push( i.conf );
               },
-              onComplete: lang.hitch( this, 'addTracks', tracks, true ),
+              onComplete: function() {
+                  // make a pane at the top to hold uncategorized tracks
+                  thisB.categories.Uncategorized =
+                      { pane: new ContentPane({ className: 'uncategorized' }).placeAt( thisB.containerNode ),
+                        tracks: {},
+                        categories: {}
+                      };
+
+                  thisB.addTracks( tracks, true );
+
+                  // remove the uncategorized pane if it is empty
+                  if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
+                      thisB.removeChild( thisB.categories.Uncategorized.pane );
+                  }
+              },
               sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
                       { attribute: 'key' },
                       { attribute: 'label' }
@@ -129,7 +146,7 @@ return declare(
                                  lang.setObject( 'collapsed.'+categoryPath, !newval, thisB.state );
                                  thisB._saveState();
                              });
-                    obj.pane.addChild(c, inStartup ? undefined : 0 );
+                    obj.pane.addChild(c, inStartup ? undefined : 1 );
                     return { parent: obj, pane: c, categories: {}, tracks: {} };
                 }.call(thisB));
 
@@ -222,7 +239,7 @@ return declare(
             this._findTrack( conf.label, function( trackRecord, category ) {
                 trackRecord.labelNode.parentNode.removeChild( trackRecord.labelNode );
                 trackRecord.checkListener.remove();
-                delete this.categories[c].tracks[conf.label];
+                delete category.tracks[conf.label];
             });
         },this);
     },

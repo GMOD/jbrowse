@@ -2,7 +2,7 @@
     background: #fafafa;
     overflow: auto;
 }
-.jbrowseHierarchicalTrackSelector > h2.title {
+.jbrowseHierarchicalTrackSelector > .header > h2.title {
     padding: 7px 0 0.5em 6px;
     margin: 0;
 }
@@ -11,10 +11,10 @@
     float: right;
 }
 
-.jbrowseHierarchicalTrackSelector > .textfilterContainer {
+.jbrowseHierarchicalTrackSelector > .header > .textfilterContainer {
     padding: 0 5px 5px 5px;
 }
-.jbrowseHierarchicalTrackSelector > .textfilterContainer > .textfilter {
+.jbrowseHierarchicalTrackSelector > .header > .textfilterContainer > .textfilter {
     margin: 0;
 }
 
@@ -28,6 +28,10 @@
 
 .jbrowseHierarchicalTrackSelector label.tracklist-label {
     display: block;
+}
+.jbrowseHierarchicalTrackSelector > .uncategorized {
+    background: white;
+    padding: 10px;
 }
 .jbrowseHierarchicalTrackSelector label.tracklist-label:hover {
     background: #D2E1F1;
