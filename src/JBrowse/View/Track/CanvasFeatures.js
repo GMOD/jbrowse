@@ -310,14 +310,14 @@ return declare(
     },
 
     fillHistograms: function( args ) {
-        var numBins = this.config.histograms.binsPerBlock || 25;
+        var numBins = this.config.histograms.binsPerBlock || 150;
         var blockSizeBp = Math.abs( args.rightBase - args.leftBase );
         var basesPerBin = blockSizeBp / numBins;
         var query = {
             ref:   this.refSeq.name,
             start: args.leftBase,
             end:   args.rightBase,
-            basesPerBin: basesPerBin
+            basesPerSpan: basesPerBin
         };
 
         if( this.store.getRegionFeatureDensities ) {
