@@ -2,9 +2,9 @@
 
 ## Minor improvements
 
- * `bam-to-json.pl` now supports a `--metadata` argument that can add
-   a `metadata` stanza to legacy BAM track configurations it
-   generates.
+ * `bam-to-json.pl` and `flatfile-to-json.pl` now support a
+   `--metadata` argument that can add a `metadata` stanza to track
+   configurations they generate.
 
 ## Bug fixes
 
