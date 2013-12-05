@@ -104,7 +104,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
     replaceTracks: function( trackConfigs ) {
         // for each one
         array.forEach( trackConfigs, function( conf ) {
-            // figure out its position in the genome view and delete it
             var oldNode = this.inactiveTrackNodes[ conf.label ];
             if( ! oldNode )
                 return;
@@ -114,7 +113,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             if( oldNode.parentNode )
                 oldNode.parentNode.removeChild( oldNode );
 
-           // insert the new track config into the trackListWidget after the 'before'
            this.trackListWidget.insertNodes( false, [conf], false, oldNode.previousSibling );
        },this);
     },
