@@ -9,9 +9,12 @@ def application(environ, start_response):
     
     starts = escape(d.get('starts', [''])[0])
     equals = escape(d.get('equals', [''])[0])
-    
+   
     if starts:
-        starts_obj = {"startswith": starts , "names":[starts+"_1",starts+"_123"]}
+        if starts == "EDEN": 
+            starts_obj = #add things here
+        else:
+            starts_obj =
         json_text = json.dumps(starts_obj)
     elif equals:
         equals_obj = {"equals": equals, "location": "chr3L:20000-30000"} 

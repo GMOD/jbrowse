@@ -1,9 +1,7 @@
-
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/store/util/QueryResults',
-            'JBrowse/Util',
             'JBrowse/Store/Hash',
             'JBrowse/Model/Location'
         ],
@@ -11,7 +9,6 @@ define( [
             declare,
             array,
             QueryResults,
-            Util,
             HashStore,
             Location
         ) {
@@ -39,7 +36,7 @@ return declare( HashStore,
                 // browser supports XHR2
             });
         });
-        return this.data;
+        return QueryResults( this.data );
     },
 
     get: function( id ) {
