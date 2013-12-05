@@ -1609,7 +1609,7 @@ createTrackList: function() {
         // find the tracklist class to use
         var tl_class = !this.config.show_tracklist           ? 'Null'                         :
                        (this.config.trackSelector||{}).type  ? this.config.trackSelector.type :
-                                                               'Simple';
+                                                               'Hierarchical';
         if( ! /\//.test( tl_class ) )
             tl_class = 'JBrowse/View/TrackList/'+tl_class;
 
