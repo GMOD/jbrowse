@@ -17,9 +17,6 @@
 .jbrowseHierarchicalTrackSelector > .textfilterContainer > .textfilter {
     margin: 0;
 }
-.jbrowseHierarchicalTrackSelector > .textfilterContainer > .textfilter > input {
-    width: 90%;
-}
 
 .jbrowseHierarchicalTrackSelector .dijitTitlePaneTitle {
     padding: 0 4px;
