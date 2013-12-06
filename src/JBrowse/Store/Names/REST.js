@@ -40,19 +40,7 @@ return declare( HashStore,
 
     get: function( id ) {
         console.log ("GET called"); //dbg
-        var thisB = this;
-        require(["dojo/request/xhr"], function(xhr){
-            xhr(("names?equals="+query.name), {
-            handleAs: "json"
-            }).then(function(data){
-                console.log(JSON.stringify(data));//dbg
-                thisB.data = data;
-            }, function(err){
-            
-            }, function(evt){
-            
-            });
-        });
+        return this.query(id);
     }
 });
 });
