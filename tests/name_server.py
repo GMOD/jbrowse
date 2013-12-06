@@ -12,9 +12,9 @@ def application(environ, start_response):
    
     if starts:
         if starts == "EDEN": 
-            starts_obj = #add things here
+            starts_obj = [{"name":"EDEN","location":{"ref":"ctgA","start":1049,"end":9000,"tracks":["Genes"],"objectName":"EDEN"},"label":"EDEN <span class=\"locString\">ctgA:1050..9000 (EDEN)</span>"}]
         else:
-            starts_obj =
+            starts_obj = [{"name":"EDEN","location":{"ref":"ctgA","start":1049,"end":9000,"tracks":["Genes"],"objectName":"EDEN"},"label":"EDEN <span class=\"locString\">ctgA:1050..9000 (EDEN)</span>"}]
         json_text = json.dumps(starts_obj)
     elif equals:
         equals_obj = {"equals": equals, "location": "chr3L:20000-30000"} 

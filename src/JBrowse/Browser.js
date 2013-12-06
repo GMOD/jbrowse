@@ -2508,7 +2508,9 @@ setHighlightAndRedraw: function( location ) {
  * Highlights it if this.config.highlightSearchedRegions is true.
  */
 showRegionAfterSearch: function( location ) {
+    console.log("location1: " + JSON.stringify(location));
     location = this.regularizeLocation( location );
+    console.log("location2: " + JSON.stringify(location));
 
     if( this.config.highlightSearchedRegions ) {
         var oldHighlight = this.getHighlight();

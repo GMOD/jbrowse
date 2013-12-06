@@ -3,14 +3,16 @@ define( [
             'dojo/_base/array',
             'dojo/store/util/QueryResults',
             'JBrowse/Store/Hash',
-            'JBrowse/Model/Location'
+            'JBrowse/Model/Location',
+            'dojo/request/xhr'
         ],
         function(
             declare,
             array,
             QueryResults,
             HashStore,
-            Location
+            Location,
+            xhr
         ) {
 
 return declare( HashStore,
@@ -23,20 +25,17 @@ return declare( HashStore,
     query: function( query, options ) {
         console.log("Query called");//dbg
         var thisB = this;
-        require(["dojo/request/xhr"], function(xhr){
-            xhr(("names?starts="+query.name).replace( /\*$/, '' ), {
+        return xhr(("names?starts="+query.name).replace( /\*$/, '' ), {
             handleAs: "json"
-            }).then(function(data){
-                console.log(JSON.stringify(data));//dbg
-                thisB.data = data;
-            }, function(err){
-                // Handle the error condition
-            }, function(evt){
-                // Handle a progress event from the request if the
-                // browser supports XHR2
-            });
+        }).then(function(data){
+            console.log(JSON.stringify(data));//dbg
+            return QueryResults( data );
+        }, function(err){
+            // Handle the error condition
+        }, function(evt){
+            // Handle a progress event from the request if the
+            // browser supports XHR2
         });
-        return QueryResults( this.data );
     },
 
     get: function( id ) {
