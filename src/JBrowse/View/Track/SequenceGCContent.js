@@ -25,23 +25,24 @@ var SequenceGCStore = declare( SeqFeatureStore, {
   },
   getFeatures: function( query ) {
       var thisB = this;
+      var binSize = query.basesPerSpan  ?  query.basesPerSpan :
+                            query.scale ?  1/query.scale      :
+                                           500;
+      var windowSize = thisB.windowSize || 5*binSize;
+      var seqStart = Math.floor(query.start-windowSize/2), seqEnd = Math.ceil(query.end+windowSize/2);
+      var seqOffset = query.start-seqStart;
       return new DeferredGenerator( function( generator ) {
-          return thisB.seqStore.getReferenceSequence( query.ref, query.start, query.end )
+          return thisB.seqStore.getReferenceSequence( query.ref, seqStart, seqEnd )
                      .then( function( seq ) {
-                        var binSize = query.basesPerSpan  ?  query.basesPerSpan :
-                                              query.scale ?  1/query.scale      :
-                                                             1;
 
-                        var windowSize = thisB.windowSize || ( 5*binSize );
-
-                        var binCount = Math.ceil( seq.length / binSize );
+                        var binCount = Math.ceil( (query.end-query.start) / binSize );
 
                         for( var i = 0; i<binCount; i++ ) {
                             generator.emit( new SimpleFeature(
                                                 { data: {
-                                                      start: query.start+i*binSize,
-                                                      end: query.start+(i+1)*binSize,
-                                                      score: thisB._calcGC( seq, i*binSize, windowSize )
+                                                      start: query.start +     i*binSize,
+                                                      end:   query.start + (i+1)*binSize,
+                                                      score: thisB._calcGC( seq, i*binSize+seqOffset, windowSize )
                                                   }
                                                 }));
                         }
@@ -52,14 +53,14 @@ var SequenceGCStore = declare( SeqFeatureStore, {
   _calcGC: function( seq, offset, windowSize ) {
       var halfWin = Math.ceil( windowSize/2 );
       var start = Math.max( 0, offset-halfWin );
-      var end   = Math.max( offset+halfWin, seq.length-1 );
-      var winSize = end - start + 1;
-      var subseq = seq.substring( start, end );
+      var end   = Math.min( offset+halfWin, seq.length-1 );
+      var subseq = seq.substring( start, end ).replace(/\s+/g,'');
       var gcCount = 0;
       for( var i = 0; i<subseq.length; i++ )
           if( isGC[subseq.charAt(i)] )
               gcCount++;
-      return gcCount/winSize;
+      var gc = gcCount/subseq.length;
+      return gc;
   }
 });
 

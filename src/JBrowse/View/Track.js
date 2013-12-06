@@ -5,7 +5,8 @@ define([
            'dijit/layout/ContentPane',
 
            'JBrowse/_ConfigurationMixin',
-           'JBrowse/_FeatureFiltererMixin'
+           'JBrowse/_FeatureFiltererMixin',
+           'JBrowse/Util/_PromiseOwnerMixin'
        ],
        function(
            declare,
@@ -14,10 +15,16 @@ define([
            ContentPane,
 
            _ConfigurationMixin,
-           _FeatureFiltererMixin
+           _FeatureFiltererMixin,
+           _PromiseOwnerMixin
        ) {
 
-return declare( [ ContentPane, _ConfigurationMixin, _FeatureFiltererMixin ], {
+return declare(
+    [ ContentPane,
+      _ConfigurationMixin,
+      _FeatureFiltererMixin,
+      _PromiseOwnerMixin
+    ], {
   region: 'top',
   baseClass: 'trackView',
   //splitter: true,
@@ -66,6 +73,7 @@ return declare( [ ContentPane, _ConfigurationMixin, _FeatureFiltererMixin ], {
 
   destroy: function() {
       console.log( 'destroying track view '+this.get('name') );
+      this.cancelPromises('owner object destroyed');
       this.inherited(arguments);
   }
 

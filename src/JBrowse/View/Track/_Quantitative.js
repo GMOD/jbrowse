@@ -175,8 +175,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
                     if (args && args.maskingSpans)
                         blockData.maskingSpans = args.maskingSpans; // used for masking
-                },
-                Util.cancelOK
+                }
         );
     },
 
