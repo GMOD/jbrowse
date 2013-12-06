@@ -4,10 +4,14 @@
  * about.
  */
 define( [
-            'dojo/_base/declare'
+            'dojo/_base/declare',
+
+            'dojo/errors/CancelError'
         ],
         function(
-            declare
+            declare,
+
+            CancelError
         ) {
 
 var Base = declare( Error, {
@@ -48,7 +52,11 @@ Errors.DataOverflow = declare( Base, {
     _defaultMessage: 'Too much data to show.'
 });
 
-Errors.UserCancel = declare( Base, {
+Errors.Cancel = declare( 'JBrowse.Errors.Cancel', [ CancelError, Base ], {
+    _defaultMessage: 'Action canceled normally.'
+});
+
+Errors.UserCancel = declare( Errors.Cancel, {
     _defaultMessage: 'Action canceled by the user.'
 });
 

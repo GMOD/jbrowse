@@ -117,10 +117,10 @@ var DeferredGenerator = declare( null, {
       var listener = [ each, end, error, progress ];
       listener.deferred = new DeferredGenerator(
           lang.hitch( this, '_start' ),
-          function() {
+          function( reason ) {
               if( listener.cancel )
-                  listener.cancel();
-              thisB.cancel();
+                  listener.cancel( reason );
+              thisB.cancel( reason );
           }
       );
 

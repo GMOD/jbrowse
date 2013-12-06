@@ -5,7 +5,9 @@ define( [
             'dojo/_base/array',
             'dojo/_base/lang',
             'dojo/Deferred',
-
+            'dojo/errors/CancelError',
+            
+            'JBrowse/Errors',
             'JBrowse/Model/SimpleFeature',
 
             'dojox/lang/functional/object',
@@ -16,9 +18,10 @@ define( [
             array,
             lang,
             Deferred,
+            DojoCancelError,
 
+            Errors,
             SimpleFeature
-
         ) {
 
 var Util = {
@@ -91,6 +94,14 @@ var Util = {
             d.resolve( modules );
         });
         return d;
+    },
+
+    // given an error object, throw it unless it's an instance of a
+    // JBrowse cancel error (which is a subclass of the dojo cancel
+    // error)
+    cancelOK: function( error ) {
+        if(!(  error instanceof Errors.Cancel ) )
+            throw error;
     },
 
     loadJSClass: function( classname ) {
@@ -178,6 +189,19 @@ var Util = {
             }
         }
         return minIndex;
+    },
+
+    // make a timeout that has a remove() method that can be called on
+    // it, for compatibility with dijit/Destroyable this.own
+    timeout: function( duration, callback ) {
+        var active = true;
+        var t = setTimeout( function() { active = false; callback(); }, duration );
+        return { remove: function() {
+                     if( active )
+                         clearTimeout( t );
+                     this.remove = function() {};
+                 }
+               };
     },
 
     requestAnimationFrame: (function() {
