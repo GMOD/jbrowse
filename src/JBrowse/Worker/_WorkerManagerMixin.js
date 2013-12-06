@@ -63,7 +63,7 @@ return declare( null, {
           undefined,
           function(e) {
               if( timeout ) { clearTimeout( timeout ); timeout = undefined; }
-              if( ! e instanceof Errors.Cancel ) {
+              if( !( e instanceof Errors.Cancel )) {
                   worker.terminate();
                   delete thisB._worker;
               }

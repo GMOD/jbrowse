@@ -89,18 +89,20 @@ return declare( [Component,Stateful], {
     // get the correct main view name to be using for the current
     // state of the genome view
     getViewName: function( widget ) {
-        var zoomViews = this.getConf('zoomViews').sort( function(a,b) { return b[0]-a[0]; } );
-        var viewportDims = domGeom.position( widget.domNode );
-
         var projection = widget.get('genomeView').get('projection');
         if( projection ) {
+            var zoomViews = this.getConf('zoomViews').sort( function(a,b) { return b[0]-a[0]; } );
+            var viewportDims = domGeom.position( widget.domNode );
             var viewportBp = projection.getScale() * viewportDims.w;
+
             for( var i = 0; i<zoomViews.length; i++ )
                 if( zoomViews[i][0] < viewportBp )
                     return zoomViews[i][1];
-        }
 
-        return this.getConf('viewNameDefault');
+            return this.getConf('viewNameDefault');
+        } else {
+            return undefined;
+        }
     },
 
     makeView: function( viewName, args ) {
@@ -119,6 +121,7 @@ return declare( [Component,Stateful], {
                                           lang.mixin(
                                               { region: 'top',
                                                 track: thisB,
+                                                app: thisB.app,
                                                 config: viewconf,
                                                 store: store,
                                                 name: viewName
@@ -127,8 +130,6 @@ return declare( [Component,Stateful], {
                                           ));
                                   });
              });
-
-        this.inherited(arguments);
     },
 
     makeSubtracks: function( args ) {

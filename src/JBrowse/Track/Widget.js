@@ -94,16 +94,13 @@ return declare( [ BorderContainer ], {
 
         var thisB = this;
 
-        // instantiate the main track view if we have one
-        function logError(e) { console.error(e.stack || ''+e); throw e; }
-
         this.get('genomeView').watch('projection', function( attr, old, newProjection ) {
             thisB._updateProjection( newProjection );
             thisB._updateViews();
         });
 
         this._updateProjection( this.get('genomeView').get('projection') );
-        when( this._updateViews() ).then( null, logError );
+        when( this._updateViews() ).then( null, Util.logErrorAndThrow );
 
 
         this.inherited(arguments);
@@ -114,7 +111,7 @@ return declare( [ BorderContainer ], {
             var thisB = this;
             this.own( newprojection.watch( function( change ) {
                 if( ! change.animating )
-                    thisB._updateViews();
+                    when( thisB._updateViews() ).then( null, Util.logErrorAndThrow );
             }));
         }
     },
@@ -137,25 +134,28 @@ return declare( [ BorderContainer ], {
                                thisB.set( 'mainView', view );
                                thisB.addChild( view );
                                return view;
-                           }
+                           },
+                           Util.logErrorAndThrow
                          );
             }
             else {
                 if( thisB.get('mainView') ) {
                     thisB.removeChild( thisB.get('mainView') );
                     thisB.get('mainView').destroyRecursive();
+                    thisB.set( 'mainView', undefined );
                 }
             }
         }
 
         // instantiate the subtracks if we have any
         this.subtracks = this.get('track').makeSubtracks({ genomeView: this.get('genomeView') });
-        return this.subtracks
-            .then( function( subtracks ) {
-                       return when( mainView ).then( function() {
-                           array.forEach( subtracks, lang.hitch( thisB, 'addChild' ) );
-                       });
-                   });
+        return when( mainView )
+               .then( function( subtracks ) {
+                          return thisB.subtracks
+                              .then( function(subtracks) {
+                                         array.forEach( subtracks, lang.hitch( thisB, 'addChild' ) );
+                                     });
+                      });
     }
 
 });

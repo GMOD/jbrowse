@@ -111,12 +111,12 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         }
     },
 
-    getFeatures: function( query  ) {
-        return this.store.getFeatures.apply( this.store, arguments );
+    getFeatures: function() {
+        return this.get('store').getFeatures.apply( this.get('store'), arguments );
     },
 
     getRegionStats: function( region ) {
-        return this.store.getRegionStats( region );
+        return this.get('store').getRegionStats( region );
     },
 
     // the canvas width in pixels for a block
@@ -144,8 +144,8 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             { ref: projectionBlock.getBName(),
               basesPerSpan: scale,
               scale: 1/scale,
-              start: baseSpan.l,
-              end: baseSpan.r
+              start: Math.floor( baseSpan.l ),
+              end: Math.ceil( baseSpan.r )
             })
         .forEach(
                 function(f) {

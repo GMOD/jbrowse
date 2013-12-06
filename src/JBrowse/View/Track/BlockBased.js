@@ -134,14 +134,14 @@ return declare( [ TrackView, _BlockBasedMixin ],
             thisB.heightUpdate( 40 );
         }));
 
-        return this.own( when( this._fillBlock( block, blockNode, changeInfo ) ) )[0]
+        return this.own( when(this._fillBlock( block, blockNode, changeInfo )) )[0]
                 .then( function(v) {
                            loadingTimeout.remove();
                            return v;
                        },
                        function(error) {
                            loadingTimeout.remove();
-                           if( ! error instanceof Errors.Cancel ) {
+                           if( !( error instanceof Errors.Cancel )) {
                                console.error( error.stack || ''+error );
                                blockNode.innerHTML = '<div class="error">'+(error.stack || ''+error)+'</div>';
                            }

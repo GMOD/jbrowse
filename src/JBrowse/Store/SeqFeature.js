@@ -26,7 +26,7 @@ return declare( Store,
 
     constructor: function( args ) {
         this.globalStats = {};
-        this._dataHub = args.dataHub;
+        this._dataHub = args.dataHub || args.store && args.store._dataHub;
         if( ! this._dataHub ) throw new Error('dataHub arg required');
     },
 

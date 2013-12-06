@@ -83,10 +83,15 @@
     "tracks" : [
         {
             "name" : "Reference sequence",
+            "zoomViews": [ [1000,"gc"], [0,"default"] ],
             "views": {
                 "default": {
                     "store": "refseqs",
-                    "type" : "JBrowse/View/Track/SequenceBases",
+                    "type" : "JBrowse/View/Track/SequenceBases"
+                },
+                "gc": {
+                    "store": "refseqs",
+                    "type": "JBrowse/View/Track/SequenceGCContent"
                 }
             }
         },

@@ -62,6 +62,11 @@ return declare( [ ContentPane, _ConfigurationMixin, _FeatureFiltererMixin ], {
 
   _handleError: function(e) {
       console.error( e.stack || ''+e );
+  },
+
+  destroy: function() {
+      console.log( 'destroying track view '+this.get('name') );
+      this.inherited(arguments);
   }
 
 });

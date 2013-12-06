@@ -96,12 +96,22 @@ var Util = {
         return d;
     },
 
+    logError: function( error ) {
+        console.error( error.stack || ''+error );
+    },
+    logErrorAndThrow: function( error ) {
+        console.error( error.stack || ''+error );
+        throw error;
+    },
+
     // given an error object, throw it unless it's an instance of a
     // JBrowse cancel error (which is a subclass of the dojo cancel
     // error)
     cancelOK: function( error ) {
-        if(!(  error instanceof Errors.Cancel ) )
+        if(!(  error instanceof Errors.Cancel ) ) {
+            //Util.logError( error );
             throw error;
+        }
     },
 
     loadJSClass: function( classname ) {
@@ -546,6 +556,10 @@ var Util = {
                 if( test == 'any' ) {
                     if( ! ( name in object ) )
                         errors.push( name+' attribute missing' );
+                }
+                else if( test == 'integer' ) {
+                    if( !(name in object) || Math.floor( object[name] ) !== object[name] )
+                        errors.push( name + ' ' + 'must be an integer' );
                 }
                 else {
                     if( typeof object[name] !== test )
