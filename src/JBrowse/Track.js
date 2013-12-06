@@ -68,7 +68,7 @@ return declare( [Component,Stateful], {
               }
             },
 
-            { name: 'zoomViews', type: 'multi-object',
+            { name: 'zoomViews', type: 'multi-array',
               description: 'array of arrays like: [ [12345,"viewname"] ] to choose'
                          + ' views based on zoom level, for GBrowse-style semantic zooming'
             }
@@ -86,6 +86,8 @@ return declare( [Component,Stateful], {
         );
     },
 
+    // get the correct main view name to be using for the current
+    // state of the genome view
     getViewName: function( widget ) {
         var zoomViews = this.getConf('zoomViews').sort( function(a,b) { return b[0]-a[0]; } );
         var viewportDims = domGeom.position( widget.domNode );
@@ -118,7 +120,8 @@ return declare( [Component,Stateful], {
                                               { region: 'top',
                                                 track: thisB,
                                                 config: viewconf,
-                                                store: store
+                                                store: store,
+                                                name: viewName
                                               },
                                               args || {}
                                           ));

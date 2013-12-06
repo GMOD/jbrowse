@@ -2,12 +2,14 @@ define([
            'dojo/_base/declare',
            'dojo/Deferred',
 
+           'JBrowse/Errors',
            'JBrowse/Worker/Handle'
        ],
        function(
            declare,
            Deferred,
 
+           Errors,
            WorkerHandle
        ) {
 return declare( null, {
@@ -61,7 +63,11 @@ return declare( null, {
           undefined,
           function(e) {
               if( timeout ) { clearTimeout( timeout ); timeout = undefined; }
-              worker.terminate();
+              if( ! e instanceof Errors.Cancel ) {
+                  worker.terminate();
+                  delete thisB._worker;
+              }
+
               throw e;
           });
   }

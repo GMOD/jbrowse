@@ -36,7 +36,6 @@ define( [
 return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
-        window.qtrack = this;
     },
 
     startup: function() {
@@ -176,7 +175,9 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
                     if (args && args.maskingSpans)
                         blockData.maskingSpans = args.maskingSpans; // used for masking
-                });
+                },
+                Util.cancelOK
+        );
     },
 
     _calculateBlockStats: function( block, features ) {

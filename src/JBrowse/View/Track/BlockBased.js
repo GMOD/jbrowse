@@ -13,6 +13,7 @@ define( [
             '../Track',
             './_BlockBasedMixin',
             'JBrowse/Util',
+            'JBrowse/Errors',
             'JBrowse/DOMNode/Remote'
         ],
         function(
@@ -27,6 +28,7 @@ define( [
             TrackView,
             _BlockBasedMixin,
             Util,
+            Errors,
             RemoteDOMNode
         ) {
 
@@ -105,24 +107,46 @@ return declare( [ TrackView, _BlockBasedMixin ],
         }
     },
 
+    // override own() from dijit/Destroyable to be able to handle Deferreds/promises also
+    own: function() {
+        // wrap any promises so that calling remove() will cancel them
+        var args = array.map( arguments, function( a ) {
+            if( typeof a.then == 'function' && ! a.remove )
+                return { remove: function() {
+                             console.log('canceling');
+                             a.cancel( new Errors.Cancel( 'owning object destroyed' ));
+                         }
+                       };
+            else
+                return a;
+        });
+        this.inherited( arguments, args );
+        return arguments;
+    },
+
     fillBlock:function( block, blockNode, changeInfo ) {
         var thisB = this;
-        var loadingTimeout = setTimeout( function() {
+        if( ! this.domNode )
+            debugger;
+        var loadingTimeout;
+        this.own( loadingTimeout = Util.timeout( 300, function() {
             blockNode.innerHTML = '<div style="height: 40px" class="loading"><span class="text">Loading</span></div>';
             thisB.heightUpdate( 40 );
-        }, 300 );
+        }));
 
-        return when( this._fillBlock( block, blockNode, changeInfo ) )
-            .then( function(v) {
-                       clearTimeout( loadingTimeout );
-                       return v;
-                   },
-                   function(error) {
-                       clearTimeout( loadingTimeout );
-                       console.error( error.stack || ''+error );
-                       blockNode.innerHTML = '<div class="error">'+(error.stack || ''+error)+'</div>';
-                   }
-                 );
+        return this.own( when( this._fillBlock( block, blockNode, changeInfo ) ) )[0]
+                .then( function(v) {
+                           loadingTimeout.remove();
+                           return v;
+                       },
+                       function(error) {
+                           loadingTimeout.remove();
+                           if( ! error instanceof Errors.Cancel ) {
+                               console.error( error.stack || ''+error );
+                               blockNode.innerHTML = '<div class="error">'+(error.stack || ''+error)+'</div>';
+                           }
+                       }
+                     );
     },
 
     _getRenderJob: function() {

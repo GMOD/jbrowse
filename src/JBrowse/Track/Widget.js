@@ -95,34 +95,68 @@ return declare( [ BorderContainer ], {
         var thisB = this;
 
         // instantiate the main track view if we have one
-        var mainViewName = this.get('track').getViewName( this );
-        var madeView;
-        function logError(e) {
-            console.error(e.stack || ''+e);
+        function logError(e) { console.error(e.stack || ''+e); throw e; }
+
+        this.get('genomeView').watch('projection', function( attr, old, newProjection ) {
+            thisB._updateProjection( newProjection );
+            thisB._updateViews();
+        });
+
+        this._updateProjection( this.get('genomeView').get('projection') );
+        when( this._updateViews() ).then( null, logError );
+
+
+        this.inherited(arguments);
+    },
+
+    _updateProjection: function( newprojection ) {
+        if( newprojection ) {
+            var thisB = this;
+            this.own( newprojection.watch( function( change ) {
+                if( ! change.animating )
+                    thisB._updateViews();
+            }));
         }
-        if( mainViewName ) {
-            madeView = this.get('track').makeView( mainViewName, { genomeView: this.get('genomeView') } )
-                .then( function( view ) {
-                           thisB.addChild( thisB.mainView = view );
-                       },
-                       logError
-                     );
+    },
+
+    _updateViews: function() {
+        var thisB = this;
+        var mainViewName = this.get('track').getViewName( this );
+        console.log( 'use main view '+mainViewName );
+        var mainView;
+
+        if( this.mainViewName != mainViewName ) {
+            if( mainViewName ) {
+                this.mainViewName = mainViewName;
+                mainView = this.get('track').makeView( mainViewName, { genomeView: this.get('genomeView') } )
+                    .then( function( view ) {
+                               if( thisB.get('mainView') ) {
+                                   thisB.removeChild( thisB.get('mainView') );
+                                   thisB.get('mainView').destroyRecursive();
+                               }
+                               thisB.set( 'mainView', view );
+                               thisB.addChild( view );
+                               return view;
+                           }
+                         );
+            }
+            else {
+                if( thisB.get('mainView') ) {
+                    thisB.removeChild( thisB.get('mainView') );
+                    thisB.get('mainView').destroyRecursive();
+                }
+            }
         }
 
         // instantiate the subtracks if we have any
         this.subtracks = this.get('track').makeSubtracks({ genomeView: this.get('genomeView') });
-        this.subtracks
+        return this.subtracks
             .then( function( subtracks ) {
-                       return when(madeView).then( function() {
+                       return when( mainView ).then( function() {
                            array.forEach( subtracks, lang.hitch( thisB, 'addChild' ) );
                        });
-                   },
-                   logError
-                 );
-
-        this.inherited(arguments);
+                   });
     }
-
 
 });
 });

@@ -55,6 +55,7 @@ return declare( [_RequestMixin, Destroyable], {
       this._handlerObject = obj;
   },
 
+  // run a method on the handler object in the remote thread
   remoteApply: function( methodName, args ) {
       return this.request( 'apply', methodName, args );
   },

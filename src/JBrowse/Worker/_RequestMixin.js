@@ -23,7 +23,8 @@ define([
        ) {
 
 var requestCounter = 0;
-var outstandingRequests = {};
+var sentRequests     = {};
+var receivedRequests = {};
 
 return declare( null, {
 
@@ -31,6 +32,7 @@ constructor: function() {
 },
 
 request: function( operation ) {
+    var thisB = this;
     var args = Array.prototype.slice.call( arguments, 1 );
 
     var requestNumber = ++requestCounter;
@@ -40,8 +42,14 @@ request: function( operation ) {
           args: Serialization.deflate( args )
         });
 
-    var deferred = new Deferred();
-    outstandingRequests[ requestNumber ] = {
+    var deferred = new Deferred( function( reason ) {
+        console.log( 'owner canceling request '+requestNumber );
+        thisB.postMessage({ requestNumber: requestNumber,
+                            operation: 'cancel',
+                            reason: reason
+                          });
+    });
+    sentRequests[ requestNumber ] = {
         deferred: deferred
     };
     return deferred;
@@ -63,28 +71,47 @@ _handleRequest: function( req ) {
     var thisB = this;
     var requestNumber = req.requestNumber;
     var operation = req.operation;
-    return Serialization.inflate( req.args || [], { app: this } )
-        .then( function( args ) {
-                   var methodName = '_handleRequest_'+operation;
-                   if( ! thisB[methodName] )
-                       throw new Error('cannot handle request "'+operation+'", there is no '+methodName+' handler method' );
-                   return when( thisB[methodName].apply( thisB, args ) );
-               })
-        .then( function( result ) {
-                   return thisB.postMessage(
-                       { requestNumber: requestNumber,
-                         result: Serialization.deflate( result )
-                       });
-               });
-
+    if( req.operation == 'cancel' ) {
+        if( receivedRequests[requestNumber] ) {
+            console.log('worker canceling request requestNumber');
+            receivedRequests[requestNumber].cancel( req.reason );
+            delete receivedRequests[requestNumber];
+        }
+    }
+    else {
+        return Serialization.inflate( req.args || [], { app: this } )
+            .then( function( args ) {
+                       var methodName = '_handleRequest_'+operation;
+                       if( ! thisB[methodName] )
+                           throw new Error('cannot handle request "'+operation+'", there is no '+methodName+' handler method' );
+                       var deferred = when( thisB[methodName].apply( thisB, args ) );
+                       receivedRequests[ requestNumber ] = {
+                           deferred: deferred
+                       };
+                       return deferred;
+                   }
+                 )
+            .then( function( result ) {
+                       delete receivedRequests[requestNumber];
+                       return thisB.postMessage(
+                           { requestNumber: requestNumber,
+                             result: Serialization.deflate( result )
+                           });
+                   },
+                   function( error ) {
+                       delete receivedRequests[requestNumber];
+                       throw error;
+                   }
+                 );
+    }
 },
 
 _handleResponse: function( data ) {
-    var requestRecord = outstandingRequests[ data.requestNumber ];
+    var requestRecord = sentRequests[ data.requestNumber ];
     if( ! requestRecord )
         throw new Error( "received response for unrecorded request "+data.requestNumber+": "+data );
 
-    delete outstandingRequests[ data.requestNumber ];
+    delete sentRequests[ data.requestNumber ];
     if( data.error ) {
         requestRecord.deferred.reject( data.error );
     }

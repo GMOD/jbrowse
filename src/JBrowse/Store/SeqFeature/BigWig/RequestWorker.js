@@ -2,6 +2,8 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/Deferred',
+
             'JBrowse/Util',
             'JBrowse/Util/RejectableFastPromise',
             'dojo/promise/all',
@@ -14,6 +16,8 @@ define( [
             declare,
             dlang,
             array,
+            Deferred,
+
             Util,
             RejectableFastPromise,
             all,
