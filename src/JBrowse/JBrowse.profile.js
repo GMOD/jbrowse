@@ -65,6 +65,11 @@ var profile = {
             exclude: ['JBrowse']
         },
 
+        'JBrowse/View/TrackList/Simple': {
+            include: [ 'JBrowse/View/TrackList/Simple' ],
+            exclude: ['JBrowse']
+        },
+
         'JBrowse/Store/SeqFeature/BigWig': {
             include: [ 'JBrowse/Store/SeqFeature/BigWig' ],
             exclude: ['JBrowse']
