@@ -78,6 +78,7 @@ newBlock: function( renderingBlock, changeInfo ) {
 
             thisB.blockChange( blockNode, changeInfo, block );
         });
+    this.own( blockChangeWatch );
 
     this.blockChange( blockNode, changeInfo, renderingBlock );
 },

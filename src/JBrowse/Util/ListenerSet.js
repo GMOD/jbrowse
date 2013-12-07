@@ -38,6 +38,8 @@ return declare( null, {
           var i = array.indexOf( listeners, listener );
           if( i > -1 )
               listeners.splice( i, 1 );
+          delete listener._callback;
+          listener.remove = function() {};
       };
       return listener;
   }
