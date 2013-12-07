@@ -5,6 +5,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'dojo/dom-construct',
             'dojo/promise/all',
             'dojo/when',
             'dojo/dom-construct',
@@ -20,6 +21,7 @@ define( [
             declare,
             lang,
             array,
+            dom,
             all,
             when,
             domConstruct,
@@ -112,14 +114,20 @@ return declare( [ TrackView, _BlockBasedMixin ],
         if( ! this.domNode )
             debugger;
         var loadingTimeout;
+        var loadingIndicator;
         this.own( loadingTimeout = Util.timeout( 300, function() {
-            blockNode.innerHTML = '<div style="height: 40px" class="loading"><span class="text">Loading</span></div>';
+            dom.create(
+                'span', {className: 'text', innerText: 'Loading' },
+                loadingIndicator = dom.create( 'div', { className: 'loading' }, blockNode )
+            );
             thisB.heightUpdate( 40 );
         }));
 
         return this.ownPromise( when(this._fillBlock( block, blockNode, changeInfo )) )
                 .then( function(v) {
                            loadingTimeout.remove();
+                           if( loadingIndicator )
+                               dom.destroy( loadingIndicator );
                            return v;
                        },
                        function(error) {
