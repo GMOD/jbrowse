@@ -117,7 +117,13 @@ _makeRenderingBlockList: function( projection ) {
 // makes a new projection block for the our projection blocklist
 _makeRenderingBlock: function( args, projectionChange ) {
     var block = new RenderingBlock( args );
-    this._blockListeners.notify( { operation: 'new', projectionChange: projectionChange  }, block );
+    this._blockListeners.notify(
+        { operation: 'new',
+          projectionChange: projectionChange,
+          animating: projectionChange && projectionChange.animating
+        },
+        block
+    );
     return block;
 },
 // register a callback to be notified of changes to rendering blocks
