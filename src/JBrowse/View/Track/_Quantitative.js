@@ -275,18 +275,22 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     updateGraphs: function( block, blockNode ) {
         var thisB = this;
-
-        // update the global scaling
-        return this._getScaling()
-            .then( function( scaling ) {
-                       thisB.scaling = scaling;
-                       // render all of the blocks that need it
-                       for( var blockid in thisB.blockStash ) {
-                           var blockData = thisB.blockStash[blockid];
-                           if( blockData.node.parentNode )
-                               thisB.renderBlock( blockData.block, blockData.node );
-                       }
-                   });
+        return ( ! this._graphUpdating || this._graphUpdating.isFulfilled() )
+            ? ( this._graphUpdating =
+                this.ownPromise(
+                    this._getScaling()
+                        .then( function( scaling ) {
+                                   thisB.scaling = scaling;
+                                   // render all of the blocks that need it
+                                   for( var blockid in thisB.blockStash ) {
+                                       var blockData = thisB.blockStash[blockid];
+                                       if( blockData.node.parentNode )
+                                           thisB.renderBlock( blockData.block, blockData.node );
+                                   }
+                               })
+                )
+              )
+            : this._graphUpdating;
     },
 
     // Draw features
