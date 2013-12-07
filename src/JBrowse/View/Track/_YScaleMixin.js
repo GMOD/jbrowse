@@ -1,9 +1,13 @@
 define( [
           'dojo/_base/declare',
+          'dojo/dom-construct',
+
            'JBrowse/View/Ruler'
         ],
         function(
             declare,
+            dom,
+
             Ruler
         ) {
 /**
@@ -39,20 +43,18 @@ return declare( null, {
             this.yscale.parentNode.removeChild( this.yscale );
         }
         var rulerdiv =
-            dojo.create('div', {
+            dom.create('div', {
                             className: 'ruler vertical_ruler',
                             style: {
-                                height: this.height+'px',
-                                width: '10px',
                                 position: 'absolute',
+                                width: '26px',
+                                height: this.h+'px',
                                 zIndex: 17
                             }
                         }, this.domNode );
         this.yscale = rulerdiv;
 
-        if( this.window_info && 'x' in this.window_info ) {
-            this._setScaleLeft();
-        }
+        this._setScaleLeft();
 
         rulerdiv.style.top = 0;
 
@@ -64,7 +66,17 @@ return declare( null, {
             leftBottom: this.getConf('yScalePosition') != 'left',
             fixBounds: args.fixBounds || false
         });
-        ruler.render_to( rulerdiv );
+        ruler.render_to(
+            dom.create( 'div',
+                        { style: {
+                              height: '100%',
+                              width: '10px',
+                              position: 'absolute',
+                              left: '100%'
+                          }
+                        },
+                        rulerdiv )
+        );
 
         this.ruler = ruler;
     },
@@ -72,11 +84,12 @@ return declare( null, {
     _setScaleLeft: function() {
         if( this.yscale ) {
             var ypos = this.getConf('yScalePosition');
-            this.yscale.style.left = (
-                ypos == 'right' ? this.window_info.x + (this.window_info.width-1||0) :
-                ypos == 'left'  ? this.window_info.x + 10 + 1                        :
-                                  this.window_info.x + (this.window_info.width||0)/2
-            )+"px";
+            if( ypos == 'right' )
+                this.yscale.style.right = 0;
+            else if( ypos == 'left' )
+                this.yscale.style.left = 0;
+            else
+                this.yscale.style.left = '50%';
         }
     },
 

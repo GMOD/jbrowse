@@ -119,7 +119,7 @@ return declare( [ BorderContainer ], {
     _updateViews: function() {
         var thisB = this;
         var mainViewName = this.get('track').getViewName( this );
-        console.log( 'use main view '+mainViewName );
+        //console.log( 'use main view '+mainViewName );
         var mainView;
 
         if( this.mainViewName != mainViewName ) {

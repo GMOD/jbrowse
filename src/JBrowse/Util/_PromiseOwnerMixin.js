@@ -36,7 +36,6 @@ return declare( null, {
     },
 
     cancelPromises: function( reason ) {
-        console.log('canceling '+this._unresolvedPromises.length+' promises');
         var reasonObj = ( reason instanceof Errors.Cancel ) ? reason : Errors.Cancel( reason );
         var p = this._unresolvedPromises;
         for( var i = 0; i<p.length; i++ )

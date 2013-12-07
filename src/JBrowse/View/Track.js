@@ -72,7 +72,7 @@ return declare(
   },
 
   destroy: function() {
-      console.log( 'destroying track view '+this.get('name') );
+      //console.log( 'destroying track view '+this.get('name') );
       this.cancelPromises('owner object destroyed');
       this.inherited(arguments);
   }

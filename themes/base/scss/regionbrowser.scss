@@ -43,6 +43,10 @@
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 
+    .ruler {
+        text-shadow: white 0 0 4px;
+    }
+
     & > .trackHandle {
       position: absolute;
       top: 0;
