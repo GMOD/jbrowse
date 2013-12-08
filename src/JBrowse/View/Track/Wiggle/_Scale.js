@@ -21,17 +21,17 @@ return Util.fastDeclare({
     //
     // This is invokable either on the class (prototype) or on
     // the object itself, so does not use `this` in its implementation.
-    needStats: function( config ) {
+    needStats: function( trackView ) {
         return !(
-                 ( 'minScore' in config )
-              && ( 'maxScore' in config )
-              && ( config.bicolorPivot != 'zScore' && config.bicolorPivot != 'mean' )
-              && ( config.scale != 'zScore' )
+                  trackView.getConf('minScore') !== undefined
+              &&  trackView.getConf('maxScore') !== undefined
+              &&  !{zScore:true,mean:true}[trackView.getConf('bicolorPivot')]
+              &&  trackView.getConf('scale') != 'zScore'
             );
     },
 
-    constructor: function( config, stats ) {
-        var needStats = this.needStats( config );
+    constructor: function( trackView, stats ) {
+        var needStats = this.needStats( trackView );
         if( needStats && !stats )
             throw 'No stats object provided, cannot calculate scale';
 
@@ -44,17 +44,17 @@ return Util.fastDeclare({
         }
 
         // if either autoscale or scale is set to zScore, the other one should default to zScore
-        if( config.autoscale == 'zScore' && ! config.scale
-            || config.scale == 'zScore'  && !config.autoscale
+        if( trackView.getConf('autoscale') == 'zScore' && ! trackView.getConf('scale')
+            || trackView.getConf('scale') == 'zScore'  && ! trackView.getConf('autoscale')
           ) {
-              config.scale = 'zScore';
-              config.autoscale = 'zScore';
+              trackView.setConf('scale','zScore');
+              trackView.setConf('autoscale','zScore');
           }
 
-        var zScoreBound = parseFloat( config.zScoreBound ) || 4;
-        var min = 'minScore' in config ? parseFloat( config.minScore ) :
+        var zScoreBound = parseFloat( trackView.getConf('zScoreBound') ) || 4;
+        var min = trackView.getConf('minScore') !== undefined ? parseFloat( trackView.getConf('minScore') ) :
             (function() {
-                 switch( config.autoscale ) {
+                 switch( trackView.getConf('autoscale') ) {
                      case 'zScore':
                          return Math.max( -zScoreBound, (stats.scoreMin-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
@@ -65,9 +65,9 @@ return Util.fastDeclare({
                          return Math.max( stats.scoreMin, stats.scoreMean - zScoreBound * stats.scoreStdDev );
                  }
              })();
-        var max = 'maxScore' in config ? parseFloat( config.maxScore ) :
+        var max = trackView.getConf('maxScore') !== undefined ? parseFloat( trackView.getConf('maxScore') ) :
             (function() {
-                 switch( config.autoscale ) {
+                 switch( trackView.getConf('autoscale') ) {
                      case 'zScore':
                          return Math.min( zScoreBound, (stats.scoreMax-stats.scoreMean) / stats.scoreStdDev );
                      case 'global':
@@ -86,9 +86,9 @@ return Util.fastDeclare({
             max = min + 10;
         }
 
-        var offset = config.dataOffset || 0;
+        var offset = trackView.getConf('dataOffset') || 0;
 
-        if( config.scale == 'log' ) {
+        if( trackView.getConf('scale') == 'log' ) {
             max = this.log( max + offset );
             min = this.log( min + offset );
         }
@@ -98,17 +98,17 @@ return Util.fastDeclare({
         }
 
         var origin = (function() {
-          if ( 'bicolorPivot' in config ) {
-            if ( config.bicolorPivot == 'mean' ) {
+          if ( trackView.getConf('bicolorPivot') ) {
+            if ( trackView.getConf('bicolorPivot') == 'mean' ) {
               return stats.scoreMean || 0;
-            } else if ( config.bicolorPivot == 'zero' ) {
+            } else if ( trackView.getConf('bicolorPivot') == 'zero' ) {
               return 0;
             } else {
-              return parseFloat( config.bicolorPivot );
+              return parseFloat( trackView.getConf('bicolorPivot') );
             }
-          } else if ( config.scale == 'zScore' ) {
+          } else if ( trackView.getConf('scale') == 'zScore' ) {
             return stats.scoreMean || 0;
-          } else if ( config.scale == 'log' ) {
+          } else if ( trackView.getConf('scale') == 'log' ) {
             return 1;
           } else {
             return 0;
@@ -143,8 +143,8 @@ return Util.fastDeclare({
         // make this.normalize a func that converts wiggle values to a
         // range between 0 and 1, depending on what kind of scale we
         // are using
-        this.normalize = (function(config) {
-            switch( config.scale ) {
+        this.normalize = (function(trackView) {
+            switch( trackView.getConf('scale') ) {
             case 'zScore':
                 return function( value ) {
                     return (value+this.offset-this.scoreMean) / this.scoreStdDev-this.min / this.range;
@@ -159,7 +159,7 @@ return Util.fastDeclare({
                     return ( value + this.offset - this.min ) / this.range;
                 };
             }
-        })(config);
+        })(trackView);
     },
 
     log: function( value ) {

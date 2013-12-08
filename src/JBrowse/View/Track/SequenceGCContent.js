@@ -65,6 +65,15 @@ var SequenceGCStore = declare( SeqFeatureStore, {
 });
 
 return declare( XYPlot,  {
+
+  configSchema: {
+      slots: [
+          { name: 'minScore', defaultValue: 0 },
+          { name: 'maxScore', defaultValue: 1 },
+          { name: 'autoscale', defaultValue: 'global' }
+      ]
+  },
+
   postCreate: function() {
       this.set('store', new SequenceGCStore(
           { store: this.get('store'),

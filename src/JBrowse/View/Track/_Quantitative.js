@@ -63,7 +63,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             .then( function( stats ) {
                        //calculate the scaling if necessary
                        if( ! thisB.lastScaling || ! thisB.lastScaling.sameStats(stats) ) {
-                           return thisB.lastScaling = new Scale( thisB.exportMergedConfig(), stats );
+                           return thisB.lastScaling = new Scale( thisB, stats );
                        } else {
                            return thisB.lastScaling;
                        }
@@ -75,7 +75,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
     // from the global stats for the store, or from the local region
     // if config.autoscale is 'local'
     _getScalingStats: function() {
-        if( ! Scale.prototype.needStats( this.exportMergedConfig() ) ) {
+        if( ! Scale.prototype.needStats( this ) ) {
             return Util.resolved( null );
         }
         else if( this.getConf('autoscale') == 'local' ) {
