@@ -147,12 +147,14 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     renderLoadingMessage: function( node ) {
-        var loadingIndicator;
-        dom.create(
-            'span', {className: 'text', innerHTML: 'Loading' },
-            loadingIndicator = dom.create( 'div', { className: 'loading' }, node )
-        );
-        return loadingIndicator;
+        // var loadingIndicator;
+        // dom.create(
+        //     'span', {className: 'text', innerHTML: 'Loading' },
+        //     loadingIndicator = dom.create( 'div', { className: 'loading' }, node )
+        // );
+        // return loadingIndicator;
+        node.innerHTML = this.loadingMessage;
+        return node.firstChild;
     },
 
     fillBlockWithLoadingMessage: function( block, blockNode, changeInfo ) {
