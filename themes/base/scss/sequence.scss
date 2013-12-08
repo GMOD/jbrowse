@@ -6,7 +6,7 @@ div.sequence_blur {
     /* background: url('../img/sequence_blur.png') #eee repeat-x; */
     background: #f5f5f5;
     background: rgba( 50, 50, 50, 0.16 );
-    height: 112px;
+    height: 100%;
     border: 0;
     color: #575757;
     font-size: 12px;
@@ -14,13 +14,14 @@ div.sequence_blur {
     position: relative;
 }
 .sequence_blur > span {
-    margin-top: 45%;
+    height: 2em;
+    line-height: 2em;
+    margin-top: -1em;
     top: 50%;
     position: absolute;
     width: 100%;
     display: block;
     left: 0;
-    margin-top: -2em;
 }
 
 table.sequence .highlighted {

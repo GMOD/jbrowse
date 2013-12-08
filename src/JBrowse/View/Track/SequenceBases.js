@@ -33,13 +33,14 @@ return declare( BlockBased,
         var scale = block.getProjectionBlock().getScale();
 
         // if we are zoomed in far enough to draw bases, then draw them
-        if( scale < 1/1.3 ) {
+        if( scale <= 1 ) {
             return this._fillBlockWithWorker( block, blockNode, changeInfo );
         }
         // otherwise, just draw something that suggests there are
         // bases there if you zoom in far enough
         else {
             blockNode.innerHTML = '<div class="sequence_blur"><span class="zoom">Zoom in to see sequence</span></div>';
+            this.heightUpdate( 30 );
             return blockNode;
         }
     }
