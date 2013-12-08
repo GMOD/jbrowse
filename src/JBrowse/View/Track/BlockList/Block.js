@@ -153,7 +153,7 @@ return declare( Destroyable, {
                    prev._log( 'merge', this._serialNumber );
                    prev.mergeRight( this, l, r, changeDescription );
                    this._blockList.remove( this );
-                   this.destroy();
+                   this.destroy( changeDescription );
         }
         // otherwise just resize it
         else {
@@ -257,9 +257,9 @@ return declare( Destroyable, {
         this._notifyChanged( changeInfo );
     },
 
-    destroy: function() {
+    destroy: function( projectionChange ) {
         this._log('destroy');
-        this._notifyChanged({ operation: 'destroy' });
+        this._notifyChanged({ operation: 'destroy', projectionChange: projectionChange });
 
         delete this._changeCallbacks;
         this.inherited( arguments );

@@ -55,7 +55,13 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     animateBlock: function( block, blockNode, changeInfo ) {
-        if( changeInfo.operation == 'mergeRight' || changeInfo.operation == 'splitLeft' ) {
+        if( changeInfo.operation == 'new' ) {
+            // if we get a new block made, but we're animating,
+            // schedule it to be filled later, at the next
+            // non-animating change
+            this.blockStash[ block.id() ].fillLater = changeInfo;
+        }
+        else if( changeInfo.operation == 'mergeRight' || changeInfo.operation == 'splitLeft' ) {
             if( blockNode.firstChild ) {
                 var w = block.getDimensions().w;
                 blockNode.firstChild.style.width = 100*(w-changeInfo.deltaRight)/w+'%';
@@ -64,16 +70,37 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     blockChange: function( blockNode, changeInfo, block ) {
-        this.inherited(arguments);
-
         // keep a this.blockStash object that remembers the dom nodes and
         // blocklist blocks by their ID, and cleans them all up
         // properly.  subclasses can stash whatever they want in here.
         if( changeInfo.operation == 'new' ) {
-            this.blockStash[ block.id() ] = { node: blockNode, block: block, projectionBlock: block.getProjectionBlock() };
+            this.blockStash[ block.id() ] = {
+                node: blockNode,
+                block: block,
+                projectionBlock: block.getProjectionBlock()
+            };
         }
         else if( changeInfo.operation == 'destroy' ) {
             delete this.blockStash[ block.id() ];
+        }
+
+        this.inherited(arguments);
+
+        // if not animating, also fill any blocks that are marked in
+        // the stash as needing to be filled later
+        if( ! changeInfo.animating ) {
+            if( changeInfo.operation != 'destroy' && changeInfo.operation != 'move' ) {
+                // in this case, the block will have already been filled, so don't fill later
+                delete this.blockStash[ block.id() ].fillLater;
+            }
+
+            for( var id in this.blockStash ) {
+                var b = this.blockStash[id];
+                if( b.fillLater && block.id() != id ) {
+                    this.fillBlock( b.block, b.node, b.fillLater );
+                    delete b.fillLater;
+                }
+            }
         }
     },
 

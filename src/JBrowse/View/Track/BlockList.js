@@ -139,7 +139,7 @@ return declare( LinkedList, {
       // prune blocks on the left
       else {
           while( this.first() && this.first().getDims().r < xMin )
-              this.shift().destroy();
+              this.shift().destroy( changeDescription );
       }
 
       // make blocks on the right
@@ -181,7 +181,7 @@ return declare( LinkedList, {
       // prune blocks on the right
       else {
            while( this.last() && this.last().getDims().l > xMax )
-               this.pop().destroy();
+               this.pop().destroy( changeDescription );
       }
   },
 

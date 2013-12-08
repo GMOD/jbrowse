@@ -123,9 +123,7 @@ blockChange: function( blockNode, changeInfo, block ) {
     }
     else {
         this._positionBlockNode( block, blockNode, changeInfo );
-        if( changeInfo.operation != 'move' ) {
-            return this[ changeInfo.animating ? 'animateBlock' : 'fillBlock' ]( block, blockNode, changeInfo );
-        }
+        return this[ changeInfo.animating || changeInfo.operation == 'move' ? 'animateBlock' : 'fillBlock' ]( block, blockNode, changeInfo );
     }
     return undefined;
 },
