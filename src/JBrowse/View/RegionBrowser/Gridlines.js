@@ -20,8 +20,6 @@ define([
            Util
        ) {
 
-var serialNumber = 0;
-
 return declare( [ Stateful, Destroyable, _BlockBasedMixin, _HorizScaleMixin ] , {
 
 constructor: function( args ) {
@@ -37,7 +35,6 @@ constructor: function( args ) {
 createBlockNode: function( block ) {
     var d = document.createElement('canvas');
     d.className = 'renderingBlock';
-    d.setAttribute('serialNumber', serialNumber++ );
     d.height = this.height;
     this.domNode.appendChild(d);
     return d;
