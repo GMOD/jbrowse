@@ -93,10 +93,10 @@ return declare( [Component,Stateful], {
         if( projection ) {
             var zoomViews = this.getConf('zoomViews').sort( function(a,b) { return b[0]-a[0]; } );
             var viewportDims = domGeom.position( widget.domNode );
-            var viewportBp = projection.getScale() * viewportDims.w;
+            var scale = projection.getScale();
 
             for( var i = 0; i<zoomViews.length; i++ )
-                if( zoomViews[i][0] < viewportBp )
+                if( zoomViews[i][0] < scale )
                     return zoomViews[i][1];
 
             return this.getConf('viewNameDefault');

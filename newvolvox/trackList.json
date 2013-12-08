@@ -83,7 +83,7 @@
     "tracks" : [
         {
             "name" : "Reference sequence",
-            "zoomViews": [ [1000,"gc"], [0,"default"] ],
+            "zoomViews": [ [1,"gc"], [0,"default"] ],
             "views": {
                 "default": {
                     "store": "refseqs",
