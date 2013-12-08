@@ -25,10 +25,6 @@ return declare( BlockBased,
         ]
     },
 
-    animatableFill: function() {
-        return true;
-    },
-
     _fillBlock: function( block, blockNode, changeInfo ) {
         var scale = block.getProjectionBlock().getScale();
 

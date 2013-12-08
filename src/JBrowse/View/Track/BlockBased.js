@@ -55,7 +55,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     animatableFill: function() {
-        return false;
+        return true;
     },
 
     animateBlock: function( block, blockNode, changeInfo ) {

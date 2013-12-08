@@ -261,6 +261,8 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         }
     },
 
+    animatableFill: function() { return false; },
+
     _fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
         this.heightUpdate( this._canvasHeight() );
