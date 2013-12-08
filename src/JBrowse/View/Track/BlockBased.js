@@ -54,12 +54,22 @@ return declare( [ TrackView, _BlockBasedMixin ],
         );
     },
 
+    animatableFill: function() {
+        return false;
+    },
+
     animateBlock: function( block, blockNode, changeInfo ) {
         if( changeInfo.operation == 'new' ) {
-            // if we get a new block made, but we're animating,
-            // schedule it to be filled later, at the next
-            // non-animating change
-            this.blockStash[ block.id() ].fillLater = changeInfo;
+            if( this.animatableFill() ) {
+                this.fillBlock( block, blockNode, changeInfo );
+            }
+            else {
+                // if we get a new block made, but we're animating,
+                // schedule it to be filled later, at the next
+                // non-animating change
+                this.blockStash[ block.id() ].fillLater = changeInfo;
+                this.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
+            }
         }
         else if( changeInfo.operation == 'mergeRight' || changeInfo.operation == 'splitLeft' ) {
             if( blockNode.firstChild ) {
@@ -136,6 +146,21 @@ return declare( [ TrackView, _BlockBasedMixin ],
         }
     },
 
+    renderLoadingMessage: function( node ) {
+        var loadingIndicator;
+        dom.create(
+            'span', {className: 'text', innerHTML: 'Loading' },
+            loadingIndicator = dom.create( 'div', { className: 'loading' }, node )
+        );
+        return loadingIndicator;
+    },
+
+    fillBlockWithLoadingMessage: function( block, blockNode, changeInfo ) {
+        var indicator = this.renderLoadingMessage( blockNode );
+        this.heightUpdate( 40 );
+        return indicator;
+    },
+
     fillBlock:function( block, blockNode, changeInfo ) {
         var thisB = this;
         if( ! this.domNode )
@@ -143,11 +168,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
         var loadingTimeout;
         var loadingIndicator;
         this.own( loadingTimeout = Util.timeout( 300, function() {
-            dom.create(
-                'span', {className: 'text', innerText: 'Loading' },
-                loadingIndicator = dom.create( 'div', { className: 'loading' }, blockNode )
-            );
-            thisB.heightUpdate( 40 );
+            loadingIndicator = thisB.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
         }));
 
         return this.ownPromise( when(this._fillBlock( block, blockNode, changeInfo )) )

@@ -1,343 +1,301 @@
-.renderingBlock {
-    position: absolute;
-    height: 100%;
-}
-
-.gridlines {
-    z-index: -1;
-    position: relative;
-    height: 100%;
-    width: 100%;
-}
-
-.renderingBlock.height_overflow .height_overflow_message {
-    position: absolute;
-    color: rgb(77,77,77);
-    border-bottom: 2px solid rgb(77,77,77);
-    text-shadow: white 0px 0px 1px;
-    white-space: nowrap;
-    width: 100%;
-    font-weight: bold;
-    text-align: center;
-    z-index: 2000;
-
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-.renderingBlock.timed_out {
-    background: #ddd;
-    background: rgba( 0,0,0, 0.1 );
-}
-
-.track,.trackNoGutter {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-
-    overflow-y: auto;
-
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-
-    .ruler {
-        text-shadow: white 0 0 4px;
-    }
-
-    & > .trackHandle {
+.jbrowse {
+  .renderingBlock {
       position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
+      height: 100%;
+  }
 
-      padding: 0 8px 0 20px;
-      line-height: 28px;
+  .gridlines {
+      z-index: -1;
+      position: relative;
+      height: 100%;
+      width: 100%;
+  }
+
+  .renderingBlock.height_overflow .height_overflow_message {
+      position: absolute;
+      color: rgb(77,77,77);
+      border-bottom: 2px solid rgb(77,77,77);
+      text-shadow: white 0px 0px 1px;
       white-space: nowrap;
+      width: 100%;
+      font-weight: bold;
+      text-align: center;
+      z-index: 2000;
 
-      font-size: 14px;
-      background: rgba( 255, 255, 255, 0.8 );
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+  }
+  .renderingBlock.timed_out {
+      background: #ddd;
+      background: rgba( 0,0,0, 0.1 );
+  }
 
-      & > .closeButton {
-          cursor: pointer;
+  .track,.trackNoGutter {
+      width: 100%;
+      padding: 0;
+      margin: 0;
 
-          height: 28px;
-          width:  20px;
-          display: inline-block;
+      overflow-y: auto;
 
-          position: absolute;
-          top: 0;
-          left: 0;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -ms-box-sizing: border-box;
 
-          & > div {
-              position: relative;
-              top: 50%;
-              margin-top: -8px;
-              left: 1px;
-          }
+      .ruler {
+          text-shadow: white 0 0 4px;
       }
-    }
-}
 
-div.pin_underlay {
-    width: 100%;
-    position: absolute;
-    background: white;
-    z-index: 6;
-
-    -moz-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
-    -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
-    box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
-}
-div.track.pinned {
-    z-index: 20;
-}
-
-.track.dojoDndItemOver {
-    cursor: inherit;
-    background: inherit;
-}
-.track.dojoDndItemAnchor {
-    background: inherit;
-}
-.track.dojoDndItemSelected {
-    background: inherit;
-}
-
-.track.dojoDndItemBefore {
-    border-top: 3px solid #999;
-    margin-top: -3px;
-}
-
-.track.dojoDndItemAfter {
-    border-bottom: 3px solid #999;
-    margin-bottom: -3px;
-}
-
-div.tracklist-label {
-    white-space: nowrap;
-    overflow: hidden;
-    margin-top: -1px;
-}
-
-div.tracklist-label.collapsed {
-    height: 3px;
-    padding: 0;
-
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-
-/* NOTE: browsers that don't support rgba colors will fall back to all
-   track labels being #bcbcbc */
-
-.notfound-dialog .message {
-    margin: 1em;
-    text-align: center;
-}
-
-.track .loading {
-    background: #fafafa;
-    color: #777;
-    margin: 0;
-    font-weight: bold;
-    height: 100%;
-    width: 100%;
-    z-index: 15;
-    position: absolute;
-}
-.track .loading > .text {
-    display: inline;
-    line-height: 40px;
-    margin: 1em;
-}
-
-div.track-label {
-    color: black;
-    margin: 3px 0 0 3px;
-    overflow: show;
-    background: white;
-    padding: 0 5px;
-
-    height: 23px;
-    line-height: 23px;
-
-    z-index: 20;
-    border-color: #eee;
-    opacity: 0.7;
-
-    /* setting white-space to "nowrap" prevents Chrome-specific bug with
-       label text sometimes disappearing after zoom in Chrome was
-       wrapping track-label text to next line, which falls outside of
-       track-label fixed height and therefore not seen. see chromium
-       bug report for more details on underlying issue:
-       http://code.google.com/p/chromium/issues/detail?id=138918
-    */
-    white-space: nowrap;
-}
-
-div.track-label .track-label-text {
-    display: inline-block;
-    white-space: nowrap;
-}
-div.track-label .track-close-button {
-    display: inline-block;
-    vertical-align: top;
-    position: relative;
-    top: 50%;
-    height: 20px;
-    width: 25px;
-    margin: -10px -3px -4px -6px;
-}
-div.track-label .track-menu-button {
-    display: inline-block;
-    position: relative;
-    vertical-align: top;
-    right: -5px;
-    top: 0px;
-
-    width: 24px;
-    height: 100%;
-
-    border-radius: 0 6px 6px 0;
-    border-left: 1px inset transparent;
-
-}
-
-div.tracklist-label {
-    padding: 3px;
-    background-color: #ddd;
-    background-color: rgba( 220, 220, 220, 0.9 );
-}
-div.tracklist-label:hover {
-    background-color:  #396494;
-    border: 1px solid black;
-}
-
-div.tracklist-container.dojoDndItemSelected {
-    background-color:  #396494;
-    background-color: rgb(110, 132, 156)
-}
-div.tracklist-container.dojoDndItemSelected .tracklist-label {
-    background-color: #b2c3d6;
-}
-
-.regionBrowserPane, .regionBrowserPaneNoGutter {
-    .topBar {
-        height: 45px;
-        overflow: hidden;
-    }
-
-    .controlGroup {
-        position: relative;
-        text-align: center;
-    }
-    .zoomControls .zoomSliderContainer {
-        display: inline-block;
-    }
-    .zoomControls .zoomSliderText {
+      & > .trackHandle {
         position: absolute;
+        top: 0;
         left: 0;
-        top: 14px;
-        width: 100%;
-        text-align: center;
-    }
+        z-index: 1;
 
-    .panControls {
-        position: relative;
-        text-align: center;
-    }
+        padding: 0 8px 0 20px;
+        line-height: 28px;
+        white-space: nowrap;
 
-    .viewScale {
-        z-index: 2;
+        font-size: 14px;
+        background: rgba( 255, 255, 255, 0.8 );
 
-        .renderingBlock {
+        & > .closeButton {
+            cursor: pointer;
+
+            height: 28px;
+            width:  20px;
+            display: inline-block;
+
             position: absolute;
-            background: #333;
-            height: 100%;
-        }
-        .posLabel, .referenceLabel, .referenceRightBorder {
-            position: absolute;
-            white-space: nowrap;
-        }
+            top: 0;
+            left: 0;
 
-        .posLabel {
-            z-index: 1;
-            span {
-                position: absolute;
-                bottom: 0;
+            & > div {
+                position: relative;
+                top: 50%;
+                margin-top: -8px;
+                left: 1px;
             }
         }
-        .referenceRightBorder {
-            background: black;
-            height: 100%;
-            width: 1px;
-        }
-        .referenceLabel {
-            bottom: 0;
-            height: 100%;
-            z-index: 1;
-            background: #ccc;
-            border-left: 1px solid black;
-        }
-        .floatingReferenceLabel {
-            z-index: 2;
-            left: 0;
-        }
-    }
+      }
+  }
 
-    .dragWindow {
-        position:absolute;
-        overflow: hidden;
-        z-index: 1;
-    }
+  div.pin_underlay {
+      width: 100%;
+      position: absolute;
+      background: white;
+      z-index: 6;
 
-    div.vertical_scrollbar {
-        position: absolute;
-        overflow: hidden;
+      -moz-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+      -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+      box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
+  }
+  .notfound-dialog .message {
+      margin: 1em;
+      text-align: center;
+  }
 
-        width: 10px;
-        height: 100%;
-        right: 0;
-        background: #eee;
-        background: rgba(235, 235, 235, 0.62);
-        border-left: 1px solid #DDD9D9;
-        z-index: 1000;
-    }
-}
+  .trackView .loading {
+      background: #fafafa;
+      color: #777;
+      margin: 0;
+      font-weight: bold;
+      height: 100%;
+      width: 100%;
+      z-index: 15;
+      position: absolute;
+  }
+  .trackView .loading > .text {
+      display: inline;
+      line-height: 40px;
+      margin: 1em;
+  }
 
-div.vertical_scrollbar .vertical_position_marker {
-    background: #555;
-    opacity: 0.8;
-    border-radius: 5px;
-    width: 100%;
-    border-right: 1px solid #ccc;
-}
+  div.track-label {
+      color: black;
+      margin: 3px 0 0 3px;
+      overflow: show;
+      background: white;
+      padding: 0 5px;
+
+      height: 23px;
+      line-height: 23px;
+
+      z-index: 20;
+      border-color: #eee;
+      opacity: 0.7;
+
+      /* setting white-space to "nowrap" prevents Chrome-specific bug with
+         label text sometimes disappearing after zoom in Chrome was
+         wrapping track-label text to next line, which falls outside of
+         track-label fixed height and therefore not seen. see chromium
+         bug report for more details on underlying issue:
+         http://code.google.com/p/chromium/issues/detail?id=138918
+      */
+      white-space: nowrap;
+  }
+
+  div.track-label .track-label-text {
+      display: inline-block;
+      white-space: nowrap;
+  }
+  div.track-label .track-close-button {
+      display: inline-block;
+      vertical-align: top;
+      position: relative;
+      top: 50%;
+      height: 20px;
+      width: 25px;
+      margin: -10px -3px -4px -6px;
+  }
+  div.track-label .track-menu-button {
+      display: inline-block;
+      position: relative;
+      vertical-align: top;
+      right: -5px;
+      top: 0px;
+
+      width: 24px;
+      height: 100%;
+
+      border-radius: 0 6px 6px 0;
+      border-left: 1px inset transparent;
+
+  }
+
+  div.tracklist-label {
+      padding: 3px;
+      background-color: #ddd;
+      background-color: rgba( 220, 220, 220, 0.9 );
+  }
+  div.tracklist-label:hover {
+      background-color:  #396494;
+      border: 1px solid black;
+  }
+
+  div.tracklist-container.dojoDndItemSelected {
+      background-color:  #396494;
+      background-color: rgb(110, 132, 156)
+  }
+  div.tracklist-container.dojoDndItemSelected .tracklist-label {
+      background-color: #b2c3d6;
+  }
+
+  .regionBrowserPane, .regionBrowserPaneNoGutter {
+      .topBar {
+          height: 45px;
+          overflow: hidden;
+      }
+
+      .controlGroup {
+          position: relative;
+          text-align: center;
+      }
+      .zoomControls .zoomSliderContainer {
+          display: inline-block;
+      }
+      .zoomControls .zoomSliderText {
+          position: absolute;
+          left: 0;
+          top: 14px;
+          width: 100%;
+          text-align: center;
+      }
+
+      .panControls {
+          position: relative;
+          text-align: center;
+      }
+
+      .viewScale {
+          z-index: 2;
+
+          .renderingBlock {
+              position: absolute;
+              background: #333;
+              height: 100%;
+          }
+          .posLabel, .referenceLabel, .referenceRightBorder {
+              position: absolute;
+              white-space: nowrap;
+          }
+
+          .posLabel {
+              z-index: 1;
+              span {
+                  position: absolute;
+                  bottom: 0;
+              }
+          }
+          .referenceRightBorder {
+              background: black;
+              height: 100%;
+              width: 1px;
+          }
+          .referenceLabel {
+              bottom: 0;
+              height: 100%;
+              z-index: 1;
+              background: #ccc;
+              border-left: 1px solid black;
+          }
+          .floatingReferenceLabel {
+              z-index: 2;
+              left: 0;
+          }
+      }
+
+      .dragWindow {
+          position:absolute;
+          overflow: hidden;
+          z-index: 1;
+      }
+
+      div.vertical_scrollbar {
+          position: absolute;
+          overflow: hidden;
+
+          width: 10px;
+          height: 100%;
+          right: 0;
+          background: #eee;
+          background: rgba(235, 235, 235, 0.62);
+          border-left: 1px solid #DDD9D9;
+          z-index: 1000;
+      }
+  }
+
+  div.vertical_scrollbar .vertical_position_marker {
+      background: #555;
+      opacity: 0.8;
+      border-radius: 5px;
+      width: 100%;
+      border-right: 1px solid #ccc;
+  }
 
 
-.rubber-highlight {
-    position: absolute;
-    top: 0;
-    border: 1px solid black;
-    height: 100%;
-    border-color: rgba( 0, 0, 0, 0.6 );
-    background-color: #8087ff;
-    background-color: rgba( 128, 136, 255, 0.6 );
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-    cursor: crosshair;
-}
-.rubber-highlight div {
-    color: white;
-    padding: 0;
-    margin-top: 30px;
-    font-size: 160%;
-    text-align: center;
-    font-weight: bold;
-    text-shadow: #6374AB 1px 1px 0;
+  .rubber-highlight {
+      position: absolute;
+      top: 0;
+      border: 1px solid black;
+      height: 100%;
+      border-color: rgba( 0, 0, 0, 0.6 );
+      background-color: #8087ff;
+      background-color: rgba( 128, 136, 255, 0.6 );
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      cursor: crosshair;
+  }
+  .rubber-highlight div {
+      color: white;
+      padding: 0;
+      margin-top: 30px;
+      font-size: 160%;
+      text-align: center;
+      font-weight: bold;
+      text-shadow: #6374AB 1px 1px 0;
+  }
 }
