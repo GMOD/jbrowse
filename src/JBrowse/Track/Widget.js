@@ -51,6 +51,8 @@ return declare( [ BorderContainer ], {
                                totalHeight += child.h;
                            }
                        },this );
+        if( this.handleNode )
+            totalHeight = Math.max( this.handleNode.offsetHeight, totalHeight );
 
         this.getParent()._layoutChildren( this.id, totalHeight );
     },
