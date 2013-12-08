@@ -100,8 +100,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             return Util.resolved( stats );
         }
         else {
-            return this.getRegionStats.call(
-                this,
+            return this.getRegionStats(
                 {
                     scale: 1000/(this.refSeq.get('end') - this.refSeq.get('start')),
                     ref: this.refSeq.get('name'),
@@ -211,13 +210,6 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
     // has been decided upon and stored in this.scaling
     renderBlock: function( block, blockNode ) {
         var blockdata = this.blockStash[block.id()];
-
-        // don't render this block again if we have already rendered
-        // it with this scaling scheme
-        if( ! this.scaling.compare( blockdata.scaling ) || ! blockdata.pixelScores )
-           return;
-
-        blockdata.scaling = this.scaling;
 
         dom.empty( blockNode );
 
