@@ -23,7 +23,7 @@ return declare( HashStore,
 
     query: function( query, options ) {
         var thisB = this;
-        return xhr(("names?starts="+query.name).replace( /\*$/, '' ), {
+        return xhr(("names?starts="+query.name), {
             handleAs: "json"
         }).then(function(data){
             return QueryResults( data );
@@ -36,7 +36,7 @@ return declare( HashStore,
     },
 
     get: function( id ) {
-        return this.query(id);
+        return this.query(id, undefined);
     }
 });
 });
