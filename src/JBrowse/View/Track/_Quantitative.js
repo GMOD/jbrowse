@@ -72,7 +72,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                            return thisB.lastScaling;
                        }
 
-                   }, Util.cancelOK );
+                   });
     },
 
     // get the statistics to use for scaling, if necessary, either
@@ -178,7 +178,8 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
                     if (args && args.maskingSpans)
                         blockData.maskingSpans = args.maskingSpans; // used for masking
-                }
+                },
+                Util.cancelOK
         );
     },
 
@@ -280,8 +281,8 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         if( this._graphUpdating && ! this._graphUpdating.isFulfilled() )
             return this._graphUpdating;
 
-        return this._graphUpdating = Util.wait( this.getConf('graphUpdateInterval') )
-            .then( function() { return thisB._getScaling(); })
+        return this._graphUpdating = Util.wait({ duration: this.getConf('graphUpdateInterval'), cancelOK: true })
+            .then( function() { return thisB._getScaling(); } )
             .then( function( scaling ) {
                        thisB.scaling = scaling;
                        // render all of the blocks that need it
@@ -292,8 +293,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                                thisB.renderBlock( blockData.block, blockData.node );
                            }
                        }
-                   },
-                   Util.cancelOK
+                   }
                  );
     },
 

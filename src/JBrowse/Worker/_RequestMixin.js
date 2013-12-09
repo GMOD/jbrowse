@@ -74,7 +74,7 @@ _handleRequest: function( req ) {
     if( req.operation == 'cancel' ) {
         if( receivedRequests[requestNumber] ) {
             console.log('worker canceling request requestNumber');
-            receivedRequests[requestNumber].cancel( req.reason );
+            receivedRequests[requestNumber].deferred.cancel( req.reason );
             delete receivedRequests[requestNumber];
         }
     }

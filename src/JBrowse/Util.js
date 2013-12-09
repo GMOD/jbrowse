@@ -203,21 +203,24 @@ var Util = {
 
     // make a timeout that has a remove() method that can be called on
     // it, for compatibility with dijit/Destroyable this.own
-    wait: function( duration ) {
+    wait: function( args ) {
         var d = new Deferred( function(r) {
             if( t )
                clearTimeout(t);
         });
-        d.then( null,
+        var t = setTimeout( d.resolve, args.duration );
+        var cancelOK = args.cancelOK;
+
+        return d.then( null,
                 function( e ) {
                     if( t ) {
                         clearTimeout(t);
                         t = undefined;
                     }
-                });
 
-        var t = setTimeout( d.resolve, duration );
-        return d;
+                    if( cancelOK )
+                        Util.cancelOK( e );
+                });
     },
 
     requestAnimationFrame: (function() {

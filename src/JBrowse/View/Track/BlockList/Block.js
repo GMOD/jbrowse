@@ -224,7 +224,11 @@ return declare( Destroyable, {
                 changeInfo.edges = { left: false };
             }
             // instantiate the blocks
-            newBlocks = array.map( newBlocks, this._blockList._newBlock );
+            newBlocks = array.map(
+                newBlocks,
+                function( args ) {
+                    return this._blockList._newBlock( args, changeDescription );
+                }, this);
             changeInfo.newBlocks = newBlocks;
         }
 

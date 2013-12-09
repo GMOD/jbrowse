@@ -169,16 +169,17 @@ return declare( [ TrackView, _BlockBasedMixin ],
             debugger;
         var loadingIndicator;
         var loadingTimeout = this.ownPromise (
-            Util.wait( 300 )
+            Util.wait({ duration: 300, cancelOK: true })
                 // .then( function() {
                 //            loadingIndicator = thisB.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
                 //        }, Util.cancelOK )
         );
 
-        if( this._fillBlockInProgress )
-            this._fillBlockInProgress.cancel( new Errors.Cancel('block changed') );
+        var inprogress = this.blockStash[block.id()].fillInProgress;
+        if( inprogress && ! inprogress.isFulfilled() )
+            inprogress.cancel( new Errors.Cancel('block changed') );
 
-        return this.ownPromise( this._fillBlockInProgress = when(this._fillBlock( block, blockNode, changeInfo )) )
+        return this.ownPromise( this.blockStash[block.id()].fillInProgress = when(this._fillBlock( block, blockNode, changeInfo )) )
                 .then( function(v) {
                            loadingTimeout.cancel();
                            if( loadingIndicator )
