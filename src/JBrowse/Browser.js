@@ -1805,6 +1805,7 @@ searchNames: function( /**String*/ loc ) {
             function( nameMatches ) {
                 // if we have no matches, pop up a dialog saying so, and
                 // do nothing more
+                console.log(JSON.stringify(nameMatches));
                 if( ! nameMatches.length ) {
                     new InfoDialog(
                         {
