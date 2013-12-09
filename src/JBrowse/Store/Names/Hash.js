@@ -82,7 +82,6 @@ return declare( HashStore,
     },
 
     _makeResults: function( nameRecords ) {
-        console.log("nameRecords: " + JSON.stringify(nameRecords));//dbg
         // convert the name records into dojo.store-compliant data
         // items, sort them by name and location
         var results = array.map( nameRecords, dojo.hitch(this,'_nameRecordToItem') )
@@ -149,9 +148,7 @@ return declare( HashStore,
         else {
             return this._getEntry( name )
                        .then( function( value ) {
-                           console.log("value: " + JSON.stringify(value));//dbg
                            var x = thisB._makeResults( (value||{}).exact || [] );
-                           console.log("valueAfter: " + JSON.stringify(x));//dbg
                            return x;
                        });
         }

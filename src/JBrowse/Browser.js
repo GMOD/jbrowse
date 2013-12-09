@@ -454,13 +454,11 @@ loadNames: function() {
         
         var thisB = this;
         if ( conf.type == 'Hash' ){
-            console.log("Hash");//dbg
             require (['JBrowse/Store/Names/Hash'], function (Hash){
                 thisB.nameStore = new Hash( dojo.mixin({ browser: thisB }, conf) );
                 deferred.resolve({success: true});
             });
         } else if( conf.type == 'REST' ) {
-            console.log ('REST');//dbg
             require (['JBrowse/Store/Names/REST'], function (REST){
                 thisB.nameStore = new REST( dojo.mixin({ browser: thisB }, conf) );
                 deferred.resolve({success: true});
