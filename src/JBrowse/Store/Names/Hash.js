@@ -148,8 +148,7 @@ return declare( HashStore,
         else {
             return this._getEntry( name )
                        .then( function( value ) {
-                           var x = thisB._makeResults( (value||{}).exact || [] );
-                           return x;
+                           return thisB._makeResults( (value||{}).exact || [] );
                        });
         }
     },
