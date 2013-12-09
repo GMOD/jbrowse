@@ -71,13 +71,6 @@ var Util = {
         return undefined;
     },
 
-    /**
-     * Lazily-construct a 
-     */
-    lazy: function( obj, key, callback, args ) {
-        return obj[key] || ( obj[key] = callback.apply( obj, args ) );
-    },
-
     loadJS: function( paths ) {
         var d = new Deferred();
         require( paths, function() {
@@ -85,7 +78,7 @@ var Util = {
 
             // check the loaded modules for success
             for( var i = 0; i<modules.length; i++ ) {
-                if( typeof modules[i] != 'function' ) {
+                if( !{object:true, function:true}[typeof modules[i]] ) {
                     d.reject("could not load "+paths[i]+": "+modules[i]);
                     return;
                 }

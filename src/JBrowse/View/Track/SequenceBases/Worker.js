@@ -128,7 +128,8 @@ return declare( [_ConfigurationMixin], {
                                  innerHTML: '<span class="message">No sequence available</span>'
                                });
                        }
-                   }
+                   },
+                   Util.cancelOK
                  );
     },
 

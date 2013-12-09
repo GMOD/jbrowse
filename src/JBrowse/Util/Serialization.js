@@ -63,9 +63,12 @@ var SerializationUtils = {
                 var className = data.$class;
                 delete data.$class;
                 if( className ) {
+                    className = className.split('.',2);
                     data = _instantiate( data, context, classesByName );
-                    var Class = classesByName[ className ];
-                    if( ! Class ) throw new Error( 'class '+className+' not found' );
+                    var Class = classesByName[ className[0] ];
+                    if( ! Class ) throw new Error( 'class '+className[0]+' not found' );
+                    if( className[1] )
+                        Class = Class[className[1]];
                     return new Class(data);
                 }
                 else {
@@ -97,7 +100,7 @@ var SerializationUtils = {
             }
             else if( typeof data == 'object' ) {
                 if( data.$class )
-                    classlist.push( data.$class );
+                    classlist.push( data.$class.replace(/\.[^\.]+$/,'') );
 
                 for( var a in data ) {
                     if( data.hasOwnProperty(a) )

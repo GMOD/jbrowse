@@ -55,7 +55,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             { name: 'height', type: 'integer', defaultValue: 100 },
             { name: 'dataOffset', type: 'float', defaultValue: 0 },
 
-            { name: 'graphUpdateInterval', type: 'integer', defaultValue: 500,
+            { name: 'graphUpdateInterval', type: 'integer', defaultValue: 200,
               description: 'time in milliseconds to wait for additional block modifications before redrawing all the graphs'
             }
         ]

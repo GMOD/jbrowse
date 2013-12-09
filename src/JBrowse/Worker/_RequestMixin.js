@@ -31,14 +31,17 @@ return declare( null, {
 constructor: function() {
 },
 
-request: function( operation ) {
+request: function( desc ) {
     var thisB = this;
+    if( typeof operation != 'object' )
+        desc = { operation: desc };
     var args = Array.prototype.slice.call( arguments, 1 );
 
     var requestNumber = ++requestCounter;
     this.postMessage(
         { requestNumber: requestNumber,
-          operation: operation,
+          operation: desc.operation,
+          cancelOK: ( 'cancelOK' in desc ) ? desc.cancelOK : true,
           args: Serialization.deflate( args )
         });
 
@@ -46,7 +49,7 @@ request: function( operation ) {
         console.log( 'owner canceling request '+requestNumber );
         thisB.postMessage({ requestNumber: requestNumber,
                             operation: 'cancel',
-                            reason: reason
+                            reason: Serialization.deflate( reason )
                           });
     });
     sentRequests[ requestNumber ] = {
@@ -73,9 +76,13 @@ _handleRequest: function( req ) {
     var operation = req.operation;
     if( req.operation == 'cancel' ) {
         if( receivedRequests[requestNumber] ) {
-            console.log('worker canceling request requestNumber');
-            receivedRequests[requestNumber].deferred.cancel( req.reason );
-            delete receivedRequests[requestNumber];
+            console.log( 'worker asked to cancel request '+requestNumber, receivedRequests[requestNumber] );
+            Serialization.inflate( req.reason )
+                .then( function( reason ) {
+                           reason.requestNumber = requestNumber;
+                           receivedRequests[requestNumber].deferred.cancel( reason );
+                           delete receivedRequests[requestNumber];
+                      });
         }
     }
     else {
@@ -85,8 +92,11 @@ _handleRequest: function( req ) {
                        if( ! thisB[methodName] )
                            throw new Error('cannot handle request "'+operation+'", there is no '+methodName+' handler method' );
                        var deferred = when( thisB[methodName].apply( thisB, args ) );
+                       if( req.cancelOK )
+                           deferred = deferred.then( null, Util.cancelOK );
                        receivedRequests[ requestNumber ] = {
-                           deferred: deferred
+                           deferred: deferred,
+                           req: req
                        };
                        return deferred;
                    }

@@ -46,7 +46,7 @@ _handleMessage: function( event ) {
                 var thisB = this;
                 return this._jobs[ data.jobNumber ]
                     .then( function(j) {
-                               return j.handleMessage( data )
+                               return when( j.handleMessage( data ) )
                                    .then( null, errorHandler );
                            },
                            errorHandler

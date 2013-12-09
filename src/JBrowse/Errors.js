@@ -29,12 +29,19 @@ var Base = declare( Error, {
 
         if( ! this.message )
             this.message = this._defaultMessage;
+    },
+
+    deflate: function() {
+        return { message: this.message,
+                 $class: 'JBrowse/Errors.'+this._class
+               };
     }
 });
 
 var Errors = {};
 
 Errors.Fatal = declare( Base, {
+    _class: 'Fatal',
     _defaultMessage: 'Unknown fatal error.'
 });
 
@@ -42,6 +49,7 @@ Errors.Fatal = declare( Base, {
  * Took too long to handle data.
  */
 Errors.TimeOut = declare( Base, {
+    _class: 'TimeOut',
     _defaultMessage: 'Data took too long to fetch.'
 });
 
@@ -49,14 +57,17 @@ Errors.TimeOut = declare( Base, {
  * Too much data to handle.
  */
 Errors.DataOverflow = declare( Base, {
+    _class: 'DataOverflow',
     _defaultMessage: 'Too much data to show.'
 });
 
 Errors.Cancel = declare( 'JBrowse.Errors.Cancel', [ CancelError, Base ], {
+    _class: 'Cancel',
     _defaultMessage: 'Action canceled normally.'
 });
 
 Errors.UserCancel = declare( Errors.Cancel, {
+    _class: 'UserCancel',
     _defaultMessage: 'Action canceled by the user.'
 });
 
