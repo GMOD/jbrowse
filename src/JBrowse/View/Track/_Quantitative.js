@@ -53,7 +53,11 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             { name: 'minScore', type: 'float' },
             { name: 'scale', type: 'string' },
             { name: 'height', type: 'integer', defaultValue: 100 },
-            { name: 'dataOffset', type: 'float', defaultValue: 0 }
+            { name: 'dataOffset', type: 'float', defaultValue: 0 },
+
+            { name: 'graphUpdateInterval', type: 'integer', defaultValue: 500,
+              description: 'time in milliseconds to wait for additional block modifications before redrawing all the graphs'
+            }
         ]
     },
 
@@ -68,7 +72,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                            return thisB.lastScaling;
                        }
 
-                   });
+                   }, Util.cancelOK );
     },
 
     // get the statistics to use for scaling, if necessary, either
@@ -128,7 +132,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         return this.getConf('height');
     },
 
-    _getBlockData: function( block, blockNode ) {
+    _getBlockData: function( block, blockNode, changeInfo ) {
         var thisB = this;
 
         var baseSpan = block.getBaseSpan();
@@ -253,7 +257,9 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         }
     },
 
-    animatableFill: function() { return false; },
+    animatableFill: function() {
+        return false;
+    },
 
     _fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
@@ -269,22 +275,26 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     updateGraphs: function( block, blockNode ) {
         var thisB = this;
-        return ( ! this._graphUpdating || this._graphUpdating.isFulfilled() )
-            ? ( this._graphUpdating =
-                this.ownPromise(
-                    this._getScaling()
-                        .then( function( scaling ) {
-                                   thisB.scaling = scaling;
-                                   // render all of the blocks that need it
-                                   for( var blockid in thisB.blockStash ) {
-                                       var blockData = thisB.blockStash[blockid];
-                                       if( blockData.node.parentNode )
-                                           thisB.renderBlock( blockData.block, blockData.node );
-                                   }
-                               })
-                )
-              )
-            : this._graphUpdating;
+
+        // limit the rate at which graphs update to twice a second
+        if( this._graphUpdating && ! this._graphUpdating.isFulfilled() )
+            return this._graphUpdating;
+
+        return this._graphUpdating = Util.wait( this.getConf('graphUpdateInterval') )
+            .then( function() { return thisB._getScaling(); })
+            .then( function( scaling ) {
+                       thisB.scaling = scaling;
+                       // render all of the blocks that need it
+                       for( var blockid in thisB.blockStash ) {
+                           var blockData = thisB.blockStash[blockid];
+                           if( blockData.node.parentNode ) {
+                               //console.log( thisB.get('name')+' update '+blockData.block.id() );
+                               thisB.renderBlock( blockData.block, blockData.node );
+                           }
+                       }
+                   },
+                   Util.cancelOK
+                 );
     },
 
     // Draw features

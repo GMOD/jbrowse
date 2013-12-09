@@ -81,7 +81,8 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                        }
 
                        return thisB.lastScaling;
-                   });
+                   },
+                   Util.cancelOK );
     },
 
     updateStaticElements: function( coords ) {

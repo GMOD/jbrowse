@@ -167,21 +167,26 @@ return declare( [ TrackView, _BlockBasedMixin ],
         var thisB = this;
         if( ! this.domNode )
             debugger;
-        var loadingTimeout;
         var loadingIndicator;
-        this.own( loadingTimeout = Util.timeout( 300, function() {
-            loadingIndicator = thisB.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
-        }));
+        var loadingTimeout = this.ownPromise (
+            Util.wait( 300 )
+                // .then( function() {
+                //            loadingIndicator = thisB.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
+                //        }, Util.cancelOK )
+        );
 
-        return this.ownPromise( when(this._fillBlock( block, blockNode, changeInfo )) )
+        if( this._fillBlockInProgress )
+            this._fillBlockInProgress.cancel( new Errors.Cancel('block changed') );
+
+        return this.ownPromise( this._fillBlockInProgress = when(this._fillBlock( block, blockNode, changeInfo )) )
                 .then( function(v) {
-                           loadingTimeout.remove();
+                           loadingTimeout.cancel();
                            if( loadingIndicator )
                                dom.destroy( loadingIndicator );
                            return v;
                        },
                        function(error) {
-                           loadingTimeout.remove();
+                           loadingTimeout.cancel();
                            if( !( error instanceof Errors.Cancel )) {
                                console.error( error.stack || ''+error );
                                blockNode.innerHTML = '<div class="error">'+(error.stack || ''+error)+'</div>';
