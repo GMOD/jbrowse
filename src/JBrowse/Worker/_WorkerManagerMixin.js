@@ -3,14 +3,16 @@ define([
            'dojo/Deferred',
 
            'JBrowse/Errors',
-           'JBrowse/Worker/Handle'
+           'JBrowse/Worker/Handle',
+           'JBrowse/Util'
        ],
        function(
            declare,
            Deferred,
 
            Errors,
-           WorkerHandle
+           WorkerHandle,
+           Util
        ) {
 return declare( null, {
 
@@ -24,14 +26,17 @@ return declare( null, {
 
   getWorker: function( taskGroup, taskIdentifier, workerClass ) {
       return this._worker || ( this._worker = function() {
-          return this._makeRealWorker( workerClass );
+          return Util.uncancellable( this._makeRealWorker( workerClass ) );
       }.call(this));
   },
 
   _makeRealWorker: function( workerClass ) {
-      var d = new Deferred();
-      var thisB = this;
-      var worker = new Worker( require.toUrl('JBrowse/Worker/boot_dedicated.js') );
+      var worker, thisB = this;
+      var d = new Deferred( function() {
+          worker.terminate();
+          delete thisB._worker;
+      });
+      worker = new Worker( require.toUrl('JBrowse/Worker/boot_dedicated.js') );
       var timeout;//  =setTimeout( function() {
       //     d.reject( new Error( 'worker was not ready within '+thisB.getConf('workerStartTimeout')+' seconds' ) );
       // }, thisB.getConf('workerStartTimeout')*1000 );

@@ -107,6 +107,12 @@ var Util = {
         }
     },
 
+    uncancellable: function( deferred ) {
+        var d = new Deferred();
+        deferred.then( d.resolve, d.reject, d.progress );
+        return d;
+    },
+
     loadJSClass: function( classname ) {
         return Util.loadJS( [ classname ] )
             .then( function( modules ) {

@@ -72,7 +72,7 @@ var DeferredGenerator = declare( null, {
       this._signal( value, this.PROGRESS );
   },
 
-  cancel: function( reason ) {
+  cancel: function( reason, strict ) {
       if( ! this._fulfilled ){
           // Cancel can be called even after the deferred is fulfilled
           if( this._canceler ){
