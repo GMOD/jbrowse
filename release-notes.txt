@@ -19,6 +19,17 @@
    tracks in your `trackList.json`.  Thanks to the many users who have
    requested this at one time or another.
 
+ * Variables in configuration files can now be based on the contents
+   of other variables.  For example, setting
+
+       "myCustomVariable": "/some/custom/path",
+       "include": "{myCustomVariable}/conf.json"
+
+   will try to include a configuration file located at
+   "/some/custom/path/conf.json".  Interpolation is done as the final
+   step in configuration loading, so variables can come from anywhere
+   in the configuration.
+
 ## Minor improvements
 
  * `bam-to-json.pl` and `flatfile-to-json.pl` now support a

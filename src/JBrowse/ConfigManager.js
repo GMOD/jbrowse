@@ -1,9 +1,12 @@
 define(
     [
         'dojo/_base/declare',
+        'dojo/_base/lang',
         'JBrowse/Util'
     ],
-function( declare, Util ) { return declare(null,
+    function( declare, lang, Util ) {
+
+return declare(null,
 
 /**
  * @lends JBrowse.ConfigManager.prototype
@@ -14,11 +17,11 @@ function( declare, Util ) { return declare(null,
  * @constructs
  */
 constructor: function( args ) {
-    this.config = dojo.clone( args.config || {} );
-    this.defaults = dojo.clone( args.defaults || {} );
+    this.config = lang.clone( args.config || {} );
+    this.defaults = lang.clone( args.defaults || {} );
     this.browser = args.browser;
     this.skipValidation = args.skipValidation;
-    this.topLevelIncludes = this.config.include || this.defaults.include;
+    this.topLevelIncludes = this._fillTemplates( lang.clone( this.config.include || this.defaults.include ), this.config );
     delete this.defaults.include;
     delete this.config.include;
 },
@@ -37,6 +40,9 @@ getFinalConfig: function( callback ) {
         // now validate the final merged config, and finally give it
         // to the callback
         this.config = this._applyDefaults( this.config, this.defaults );
+
+        this._fillTemplates( this.config, this.config );
+
         if( ! this.skipValidation )
             this._validateConfig( this.config );
         callback( this.config );
@@ -62,6 +68,29 @@ _getConfigAdaptor: function( config_def, callback ) {
     });
 },
 
+_fillTemplates: function( subconfig, config ) {
+    // skip "menuTemplate" keys to prevent messing
+    // up their feature-based {} interpolation
+    var skip = { menuTemplate: true };
+
+    var type = typeof subconfig;
+    if( lang.isArray( subconfig ) ) {
+        for( var i = 0; i<subconfig.length; i++ )
+            subconfig[i] = this._fillTemplates( subconfig[i], config );
+    }
+    else if( type == 'object' ) {
+        for( var name in subconfig ) {
+            if( subconfig.hasOwnProperty( name ) && !skip[name] )
+                subconfig[name] = this._fillTemplates( subconfig[name], config );
+        }
+    }
+    else if( type == 'string' ) {
+        return Util.fillTemplate( subconfig, config );
+    }
+
+    return subconfig;
+},
+
 /**
  * Recursively fetch, parse, and merge all the includes in the given
  * config object.  Calls the callback with the resulting configuration
@@ -71,7 +100,7 @@ _getConfigAdaptor: function( config_def, callback ) {
 _loadIncludes: function( inputConfig, callback ) {
     inputConfig = dojo.clone( inputConfig );
 
-    var includes = inputConfig.include || [];
+    var includes = this._fillTemplates( inputConfig.include || [], inputConfig );
     delete inputConfig.include;
 
     // coerce include to an array

@@ -1451,9 +1451,18 @@ _deleteTrackConfigs: function( configsToDelete ) {
 _configDefaults: function() {
     return {
         tracks: [],
+
+        dataRoot: 'data',
         show_tracklist: true,
         show_nav: true,
         show_overview: true,
+
+        refSeqs: "{dataRoot}/seq/refSeqs.json",
+        baseUrl: '{dataRoot}/',
+        include: [
+            '{dataRoot}/trackList.json'
+        ],
+        nameUrl: "{dataRoot}/names/root.json",
 
         highlightSearchedRegions: false
     };
