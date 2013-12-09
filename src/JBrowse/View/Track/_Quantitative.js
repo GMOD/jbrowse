@@ -47,7 +47,15 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         slots: [
 
             { name: 'maxExportSpan', type: 'integer', defaultValue: 500000 },
-            { name: 'autoscale', type: 'string', defaultValue:  'local' },
+            { name: 'autoscale', type: 'string', defaultValue:  'local',
+              description: 'Auto-scaling method to use.'
+                           + ' Local: adjust scale based on the data in the visible region.'
+                           + ' Global: set scale base on the statistics for the whole reference sequence.'
+                           + ' zScore: set scale to +/- a certain number of standard deviations (set by zScoreBound)'
+            },
+            { name: 'zScoreBound', type: 'float', defaultValue: 4,
+              description: 'Number of standard deviations to show on the scale when autoscale is set to "zScore".'
+            },
             { name: 'bicolorPivot', type: 'string' },
             { name: 'maxScore', type: 'float' },
             { name: 'minScore', type: 'float' },
