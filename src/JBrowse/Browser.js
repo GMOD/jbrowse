@@ -475,6 +475,7 @@ loadNames: function() {
                     tooManyMatchesMessage: conf.tooManyMatchesMessage
                 })
             });
+            deferred.resolve({success: true});
         }
     });
 },
