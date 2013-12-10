@@ -2,6 +2,9 @@
 
 ## Bug fixes
 
+ * Re-enabled usage analytics reporting, which had been disabled by a
+   stray piece of debugging code since the 1.10.7 release.
+
  * Fixed a bug in which the tooltip in canvas-based feature tracks
    would sometimes display incorrect label or description text.
 
