@@ -28,8 +28,9 @@ return declare( HashStore,
         }).then(function(data){
             for (var i = 0; i < data.length; i++){
                 var dat = data[i];
-                var loc = data[i].location;
-                dat.label = dat.name+"<span class=\"locString\">"+loc.ref+":"+loc.start+".."+loc.end+"("+dat.name+")</span>";
+                dat.label = dat.name + (dat.location ? 
+                    '<span class="locString">'+dat.location.ref+":"+dat.location.start+".."+dat.location.end+"("+dat.name+")</span>"
+                    : "");
             }
             return QueryResults( data );
         }, function(err){
