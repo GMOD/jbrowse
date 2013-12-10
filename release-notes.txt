@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.10.12     2013-12-10 16:09:42 EST5EDT
+
 ## Minor improvements
 
  * `bam-to-json.pl` and `flatfile-to-json.pl` now support a
