@@ -42,7 +42,7 @@ def application(environ, start_response):
     
     starts_obj = []
     if re.match('.+\*$', starts):
-        search = re.compile("^" + re.sub('\*$', '', starts))
+        search = re.compile("^" + re.escape(re.sub('\*$', '', starts)))
         if search.match("EDEN"):   starts_obj.append(EDEN)
         if search.match("Apple1"): starts_obj.append(Apple1)
         if search.match("Apple2"): starts_obj.append(Apple2)
