@@ -1303,7 +1303,7 @@ _milestoneFunction: function( /**String*/ name, func ) {
         func.apply( thisB, args ) ;
     } catch(e) {
         console.error( e, e.stack );
-        d.resolve({ success:false, error: e });
+        d.reject(e);
     }
 
     return d;
@@ -1315,7 +1315,11 @@ _milestoneFunction: function( /**String*/ name, func ) {
 _getDeferred: function( name ) {
     if( ! this._deferred )
         this._deferred = {};
-    return this._deferred[name] = this._deferred[name] || new Deferred();
+    return this._deferred[name] || ( this._deferred[name] = function() {
+        var d = new Deferred();
+        d.then( null, lang.hitch( this, 'fatalError' ));
+        return d;
+    }.call(this));
 },
 /**
  * Attach a callback to a milestone.
