@@ -840,6 +840,14 @@ a.dialog-new-window {
     margin-top: 0.3em;
 }
 
+.detail .value_container.multi_value .value {
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
 .detail .value {
     display: inline-block;
     vertical-align: top;
