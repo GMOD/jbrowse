@@ -1,6 +1,4 @@
-require({
-            packages: [{ name: 'jDataView', main: 'jdataview', location: '../jDataView/src' }]
-        },
+require(
         [
             'JBrowse/Browser',
             'JBrowse/Model/TabixIndex',
@@ -11,11 +9,11 @@ require({
 describe( "TabixIndex", function() {
 
               var ti;
-              beforeEach(function() {
-                  ti = new TabixIndex({
-                                          blob: new BGZBlob( new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ) ),
-                                          browser: new Browser({ unitTestMode: true })
-                                     });
+              beforeEach( function() {
+                  ti = new TabixIndex(
+                      { blob: new BGZBlob( new XHRBlob( '../../sample_data/raw/volvox/volvox.test.vcf.gz.tbi' ) ),
+                        browser: new Browser({ unitTestMode: true })
+                      });
               });
 
               it('constructs', function() {
