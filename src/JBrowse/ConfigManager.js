@@ -2,9 +2,19 @@ define(
     [
         'dojo/_base/declare',
         'dojo/_base/lang',
+        'dojo/_base/array',
+        'dojo/Deferred',
+
         'JBrowse/Util'
     ],
-    function( declare, lang, Util ) {
+    function(
+        declare,
+        lang,
+        array,
+        Deferred,
+
+        Util
+    ) {
 
 return declare(null,
 
@@ -17,36 +27,41 @@ return declare(null,
  * @constructs
  */
 constructor: function( args ) {
-    this.config = lang.clone( args.config || {} );
+    this.bootConfig = lang.clone( args.bootConfig || {} );
     this.defaults = lang.clone( args.defaults || {} );
     this.browser = args.browser;
     this.skipValidation = args.skipValidation;
-    this.topLevelIncludes = this._fillTemplates( lang.clone( this.config.include || this.defaults.include ), this.config );
-    delete this.defaults.include;
-    delete this.config.include;
+    // this.topLevelIncludes = this._fillTemplates(
+    //     lang.clone( this.config.include || this.defaults.include ),
+    //     this._applyDefaults( lang.clone( this.config ), this.defaults )
+    // );
+    // delete this.defaults.include;
+    // delete this.config.include;
 },
 
 /**
  * @param callback {Function} callback, receives a single arguments,
  * which is the final processed configuration object
  */
-getFinalConfig: function( callback ) {
-    this._loadIncludes({ include: this.topLevelIncludes }, dojo.hitch( this, function( includedConfig ) {
+getFinalConfig: function() {
+    return this.finalConfig || ( this.finalConfig = function() {
+        var thisB = this;
+        var bootstrapConf = this._applyDefaults( lang.clone( this.bootConfig ), this.defaults );
+        return this._loadIncludes( this._fillTemplates( bootstrapConf, bootstrapConf ) )
+            .then( function( includedConfig ) {
 
-        // merge the root config *into* the included config last, so
-        // that values in the root config override the others
-        this.config = this._mergeConfigs( includedConfig, this.config );
+                       // merge the boot config *into* the included config last, so
+                       // that values in the boot config override the others
+                       var finalConf = thisB._mergeConfigs( includedConfig, thisB.bootConfig );
 
-        // now validate the final merged config, and finally give it
-        // to the callback
-        this.config = this._applyDefaults( this.config, this.defaults );
+                       thisB._fillTemplates( finalConf, finalConf );
 
-        this._fillTemplates( this.config, this.config );
+                       if( ! thisB.skipValidation )
+                           thisB._validateConfig( finalConf );
 
-        if( ! this.skipValidation )
-            this._validateConfig( this.config );
-        callback( this.config );
-    }));
+                       return finalConf;
+                   });
+    }.call(this) );
 },
 
 /**
@@ -63,9 +78,10 @@ _getConfigAdaptor: function( config_def, callback ) {
     if( 'version' in config_def )
         adaptor_name += '_v'+config_def.version;
     adaptor_name.replace( /\W/g,'' );
-    return require([adaptor_name], function(adaptor_class) {
-        callback( new adaptor_class( config_def ) );
-    });
+    return Util.loadJS( [adaptor_name] )
+        .then( function( modules ) {
+                   return new (modules[0])( config_def );
+               });
 },
 
 _fillTemplates: function( subconfig, config ) {
@@ -97,30 +113,73 @@ _fillTemplates: function( subconfig, config ) {
  * when finished.
  * @private
  */
-_loadIncludes: function( inputConfig, callback ) {
-    inputConfig = dojo.clone( inputConfig );
+_loadIncludes: function( inputConfig ) {
+    var thisB = this;
+    inputConfig = lang.clone( inputConfig );
 
-    var includes = this._fillTemplates( inputConfig.include || [], inputConfig );
-    delete inputConfig.include;
+    function _loadRecur( config ) {
+        var includes = thisB._fillTemplates(
+            thisB._regularizeIncludes( config.include || [] ),
+            config
+        );
+        delete config.include;
+
+        var current = Util.resolved( config );
+        array.forEach(
+            includes,
+            function( include ) {
+                current = current
+                    .then( function() {
+                               return thisB._loadInclude( include, config.baseUrl );
+                           })
+                    .then( function( includedData ) {
+                               return _loadRecur( thisB._mergeConfigs( config, includedData ) );
+                           });
+            });
+
+        return current;
+    }
+
+    return _loadRecur( inputConfig );
+},
+
+_loadInclude: function( include, baseUrl ) {
+    var thisB = this;
+    // instantiate the adaptor and load the config
+    return this._getConfigAdaptor( include )
+        .then( function( adaptor ) {
+                   if( !adaptor )
+                       throw new Error(
+                           "Could not load config "+include.url+", "
+                               + "no configuration adaptor found for config format "
+                               +include.format+' version '+include.version
+                       );
+
+                   return adaptor.load(
+                       { config: include,
+                         baseUrl: baseUrl
+                       });
+               });
+},
+
+
+_regularizeIncludes: function( includes ) {
+    if( ! includes )
+        return [];
 
     // coerce include to an array
     if( typeof includes != 'object' )
         includes = [ includes ];
-    // coerce bare strings in the includes to URLs
-    for (var i = 0; i < includes.length; i++) {
-        if( typeof includes[i] == 'string' )
-            includes[i] = { url: includes[i] };
-    }
 
-    var configs_remaining = includes.length;
-    var included_configs = dojo.map( includes, function( include ) {
-        var loadingResult = {};
+    // include array might have undefined elements in it if
+    // somebody left a trailing comma in and we are running under
+    // IE
+    includes = array.filter( includes, function(r) { return r; } );
 
-        // include array might have undefined elements in it if
-        // somebody left a trailing comma in and we are running under
-        // IE
-        if( !include )
-            return loadingResult;
+    return array.map( includes, function( include ) {
+        // coerce bare strings in the includes to URLs
+        if( typeof include == 'string' )
+            include = { url: include };
 
         // set defaults for format and version
         if( ! ('format' in include) ) {
@@ -129,41 +188,8 @@ _loadIncludes: function( inputConfig, callback ) {
         if( include.format == 'JB_json' && ! ('version' in include) ) {
             include.version = 1;
         }
-
-        // instantiate the adaptor and load the config
-        this._getConfigAdaptor( include, dojo.hitch(this, function(adaptor) {
-            if( !adaptor ) {
-                loadingResult.error = "Could not load config "+include.url+", no configuration adaptor found for config format "+include.format+' version '+include.version;
-                return;
-            }
-
-            adaptor.load({
-                config: include,
-                baseUrl: inputConfig.baseUrl,
-                onSuccess: dojo.hitch( this, function( config_data ) {
-                    this._loadIncludes( config_data, dojo.hitch(this, function( config_data_with_includes_resolved ) {
-                        loadingResult.loaded = true;
-                        loadingResult.data = config_data_with_includes_resolved;
-                        if( ! --configs_remaining )
-                            callback( this._mergeIncludes( inputConfig, included_configs ) );
-                     }));
-                }),
-                onFailure: dojo.hitch( this, function( error ) {
-                    loadingResult.error = error;
-                    if( error.status != 404 ) // if it's a missing file, browser will have logged it
-                        this._fatalError( error );
-                    if( ! --configs_remaining )
-                        callback( this._mergeIncludes( inputConfig, included_configs ) );
-                })
-            });
-        }));
-        return loadingResult;
-    }, this);
-
-    // if there were not actually any includes, just call our callback
-    if( ! included_configs.length ) {
-        callback( inputConfig );
-    }
+        return include;
+   });
 },
 
 /**
@@ -206,8 +232,8 @@ _validateConfig: function( c ) {
  */
 _fatalError: function( error ) {
     this.hasFatalErrors = true;
-    if( error.url )
-        error = error + ' when loading '+error.url;
+    // if( error.url )
+    //     error = error + ' when loading '+error.url;
     this.browser.fatalError( error );
 },
 

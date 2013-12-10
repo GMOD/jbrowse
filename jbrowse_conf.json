@@ -16,6 +16,9 @@
     //   ]
     // },
 
+    include: [
+       '{dataRoot}/trackList.json'
+    ],
 
     // uncomment and edit the example below to enable one or more
     // JBrowse plugins

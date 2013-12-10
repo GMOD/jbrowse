@@ -2,10 +2,22 @@ define( [ 'dojo/_base/declare',
           'dojo/_base/lang',
           'dojo/_base/array',
           'dojo/_base/json',
+          'dojo/request',
+
           'JBrowse/Util',
           'JBrowse/Digest/Crc32',
           'JBrowse/ConfigAdaptor/AdaptorUtil'
-        ], function( declare, lang, array, json, Util, digest, AdaptorUtil ) {
+        ], function(
+            declare,
+            lang,
+            array,
+            json,
+            request,
+
+            Util,
+            digest,
+            AdaptorUtil
+        ) {
 
 var dojof = Util.dojof;
 
@@ -27,41 +39,21 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * Load the configuration file from a URL.
          *
          * @param args.config.url {String} URL for fetching the config file.
-         * @param args.onSuccess {Function} callback for a successful config fetch
-         * @param args.onFailure {Function} optional callback for a
-         *   config fetch failure
-         * @param args.context {Object} optional context in which to
-         *   call the callbacks, defaults to the config object itself
          */
         load: function( /**Object*/ args ) {
             var that = this;
             if( args.config.url ) {
                 var url = Util.resolveUrl( args.baseUrl || window.location.href, args.config.url );
-                var handleError = function(e) {
-                    e.url = url;
-                    if( args.onFailure )
-                        args.onFailure.call( args.context || this, e );
-                };
-                dojo.xhrGet({
-                                url: url,
-                                handleAs: 'text',
-                                load: function( o ) {
-                                    try {
-                                        o = that.parse_conf( o, args ) || {};
-                                        o.sourceUrl = url;
-                                        o = that.regularize_conf( o, args );
-                                        args.onSuccess.call( args.context || that, o );
-                                    } catch(e) {
-                                        console.error( e.stack || ''+e );
-                                        handleError(e);
-                                    }
-                                },
-                                error: handleError
-                            });
+                return request( url, { handleAs: 'text' })
+                    .then( function( o ) {
+                               o = that.parse_conf( o, args ) || {};
+                               o.sourceUrl = url;
+                               o = that.regularize_conf( o, args );
+                               return o;
+                           });
             }
             else if( args.config.data ) {
-                var conf = this.regularize_conf( args.config.data, args );
-                args.onSuccess.call( args.context || this, conf );
+                return Util.resolved( this.regularize_conf( args.config.data, args ) );
             }
         },
 
@@ -174,7 +166,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 );
 
                 if( ! storeClass ) {
-                    console.error( "Unable to determine an appropriate data store to use with track '"
+                    console.warn( "Unable to determine an appropriate data store to use with track '"
                                    + trackConfig.label + "', please explicitly specify a "
                                    + "storeClass in the configuration." );
                     return;

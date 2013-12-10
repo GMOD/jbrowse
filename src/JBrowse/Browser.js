@@ -116,9 +116,6 @@ constructor: function(params) {
     if( this.config.unitTestMode )
         return;
 
-    if( ! this.config.baseUrl )
-        this.config.baseUrl = Util.resolveUrl( window.location.href, '.' ) + '/data/';
-
     this.startTime = new Date();
 
     this.container = dojo.byId( this.config.containerID );
@@ -1359,27 +1356,30 @@ reachedMilestone: function( name ) {
  */
 loadConfig: function () {
     return this._milestoneFunction( 'loadConfig', function( deferred ) {
-        var c = new ConfigManager({ config: this.config, defaults: this._configDefaults(), browser: this });
-        c.getFinalConfig( dojo.hitch(this, function( finishedConfig ) {
-                this.config = finishedConfig;
+        var c = new ConfigManager({ bootConfig: this.config, defaults: this._configDefaults(), browser: this });
+        c.getFinalConfig()
+         .then( dojo.hitch(this, function( finishedConfig ) {
+                               this.config = finishedConfig;
 
-                // pass the tracks configurations through
-                // addTrackConfigs so that it will be indexed and such
-                var tracks = finishedConfig.tracks || [];
-                delete finishedConfig.tracks;
-                this._addTrackConfigs( tracks );
+                               // pass the tracks configurations through
+                               // addTrackConfigs so that it will be indexed and such
+                               var tracks = finishedConfig.tracks || [];
+                               delete finishedConfig.tracks;
+                               this._addTrackConfigs( tracks );
 
-                // coerce some config keys to boolean
-                dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
-                                  this.config[v] = this._coerceBoolean( this.config[v] );
-                              },this);
+                               // coerce some config keys to boolean
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
+                                                 this.config[v] = this._coerceBoolean( this.config[v] );
+                                             },this);
 
-               // set empty tracks array if we have none
-               if( ! this.config.tracks )
-                   this.config.tracks = [];
+                               // set empty tracks array if we have none
+                               if( ! this.config.tracks )
+                                   this.config.tracks = [];
 
-                deferred.resolve({success:true});
-        }));
+                               deferred.resolve({success:true});
+                           }),
+                deferred.reject
+              );
     });
 },
 
@@ -1458,9 +1458,9 @@ _configDefaults: function() {
         show_overview: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
-        baseUrl: '{dataRoot}/',
+        baseUrl: './',
         include: [
-            '{dataRoot}/trackList.json'
+            'jbrowse_conf.json'
         ],
         nameUrl: "{dataRoot}/names/root.json",
 
