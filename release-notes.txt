@@ -6,6 +6,11 @@
    `--metadata` argument that can add a `metadata` stanza to track
    configurations they generate.
 
+ * Multi-valued attributes in default feature detail popups are
+   displayed as a string of boxes, each containing a value, to avoid
+   misinterpretation.  Thanks to Cris Lawrence for pointing out the
+   need for this.
+
 ## Bug fixes
 
  * Re-enabled usage analytics reporting, which had been disabled by a
