@@ -241,7 +241,7 @@ _fatalError: function( error ) {
  * Merges config object b into a.  a <- b
  * @private
  */
-_mergeConfigs: function( a, b, spaces ) {
+_mergeConfigs: function( a, b ) {
     if( b === null )
         return null;
 
@@ -255,7 +255,7 @@ _mergeConfigs: function( a, b, spaces ) {
         else if ( (prop in a)
               && ("object" == typeof b[prop])
               && ("object" == typeof a[prop]) ) {
-            a[prop] = this._mergeConfigs(a[prop], b[prop]);
+            a[prop] = Util.deepUpdate( a[prop], b[prop] );
         } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
             a[prop] = b[prop];
         }
