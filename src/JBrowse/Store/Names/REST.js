@@ -26,6 +26,11 @@ return declare( HashStore,
         return xhr(("names?starts="+query.name), {
             handleAs: "json"
         }).then(function(data){
+            for (var i = 0; i < data.length; i++){
+                var dat = data[i];
+                var loc = data[i].location;
+                dat.label = dat.name+"<span class=\"locString\">"+loc.ref+":"+loc.start+".."+loc.end+"("+dat.name+")</span>";
+            }
             return QueryResults( data );
         }, function(err){
             // Handle the error condition

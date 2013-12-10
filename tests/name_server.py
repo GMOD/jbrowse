@@ -14,8 +14,7 @@ def application(environ, start_response):
             "end":9000,
             "tracks":["Genes"],
             "objectName":"EDEN"
-        },
-        "label":"EDEN <span class=\"locString\">ctgA:1050..9000 (EDEN)</span>"
+        }
     }
     Apple1 = {
         "name":"Apple1",
@@ -25,8 +24,7 @@ def application(environ, start_response):
             "end":11500,
             "tracks":["CDS"],
             "objectName":"Apple1"
-        },
-        "label":"Apple1 <span class=\"locString\">ctgA:10000..11500 (Apple1)</span>"
+        }
     }
     Apple2 = {
         "name":"Apple2",
@@ -36,8 +34,7 @@ def application(environ, start_response):
             "end":17200,
             "tracks":["CDS"],
             "objectName":"Apple2"
-        },
-        "label":"Apple2 <span class=\"locString\">ctgA:10000..11500 (Apple2)</span>"
+        }
     } 
    
     d = parse_qs(environ['QUERY_STRING'])
