@@ -7,6 +7,7 @@
     <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1"></script>
     <script type="text/javascript" src="src/JBrowse/init.js"></script>
 
+
     <script type="text/javascript">
         window.onerror=function(msg){
             if( document.body )
@@ -15,57 +16,99 @@
 
         var JBrowse;
         require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
-             function (Browser,ioQuery,JSON) {
-                   var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
+            function (Browser,ioQuery,JSON) {
+                var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
+                var dataRoot = queryParams.data || 'data';
 
-                   // the initial configuration of this JBrowse instance
-                   var config = {
-                       containerID: "GenomeBrowser",
+                // the initial configuration of this JBrowse instance
+                var config = {
+                    containerID: "GenomeBrowser",
+                    refSeqs: dataRoot + "/seq/refSeqs.json",
+                    baseUrl: dataRoot+'/',
+                    include: [
+                        'jbrowse_conf.json',
+                        dataRoot + "/trackList.json"
+                    ],
+                    nameUrl: dataRoot + "/names/root.json",
+                    queryParams: queryParams,
+                    location: queryParams.loc,
+                    forceTracks: queryParams.tracks,
+                    initialHighlight: queryParams.highlight,
+                    show_nav: queryParams.nav,
+                    show_tracklist: queryParams.tracklist,
+                    show_overview: queryParams.overview,
+                    stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
+                    makeFullViewURL: function( browser ) {
 
-                       dataRoot: queryParams.data,
-                       queryParams: queryParams,
-                       location: queryParams.loc,
-                       forceTracks: queryParams.tracks,
-                       initialHighlight: queryParams.highlight,
-                       show_nav: queryParams.nav,
-                       show_tracklist: queryParams.tracklist,
-                       show_overview: queryParams.overview,
-                       stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
-                       makeFullViewURL: function( browser ) {
+                        // the URL for the 'Full view' link
+                        // in embedded mode should be the current
+                        // view URL, except with 'nav', 'tracklist',
+                        // and 'overview' parameters forced to 1.
 
-                           // the URL for the 'Full view' link
-                           // in embedded mode should be the current
-                           // view URL, except with 'nav', 'tracklist',
-                           // and 'overview' parameters forced to 1.
+                        return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
+                    },
+                    updateBrowserURL: true
+                };
 
-                           return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
-                       },
-                       updateBrowserURL: true
-                   };
+                //if there is ?addFeatures in the query params,
+                //define a store for data from the URL
+                if( queryParams.addFeatures ) {
+                    config.stores.url.features = JSON.parse( queryParams.addFeatures );
+                }
 
-                   //if there is ?addFeatures in the query params,
-                   //define a store for data from the URL
-                   if( queryParams.addFeatures ) {
-                       config.stores.url.features = JSON.parse( queryParams.addFeatures );
-                   }
 
-                   // if there is ?addTracks in the query params, add
-                   // those track configurations to our initial
-                   // configuration
-                   if( queryParams.addTracks ) {
-                       config.tracks = JSON.parse( queryParams.addTracks );
-                   }
+                // if there is ?addTracks in the query params, add
+                // those track configurations to our initial
+                // configuration
+                if( queryParams.addTracks ) {
+                    config.tracks = JSON.parse( queryParams.addTracks );
+                }
 
-                   // if there is ?addStores in the query params, add
-                   // those store configurations to our initial
-                   // configuration
-                   if( queryParams.addStores ) {
-                       config.stores = JSON.parse( queryParams.addStores );
-                   }
+                // if there is ?addStores in the query params, add
+                // those store configurations to our initial
+                // configuration
+                if( queryParams.addStores ) {
+                    config.stores = JSON.parse( queryParams.addStores );
+                }
 
-                   // create a JBrowse global variable holding the JBrowse instance
-                   JBrowse = new Browser( config );
+                // create a JBrowse global variable holding the JBrowse instance
+                console.log( 'getting data');
+                var trackJson = dataRoot + "/trackList.json";
+                dojo.xhrGet({
+                    url: trackJson,
+                    load: function(data) { JBrowse = new Browser( config ); },
+                    error: loadDefault
+                });
         });
+
+        function loadDefault() {
+            dojo.xhrGet({
+                url: "jbrowse_conf.json",
+                load: function(data){
+                    data    = data.replace(/\/\*.+?\*\/|\/\/.*([\n\r])/g, '');
+                    data    = data.replace(/(\S+?):(?=\s+?[\{|"|'])/g, function(match, hit, offset, after) { ret = '"' + hit + '":'; return ret; } );
+                    data    = data.replace(/'(.+?)'/g                , function(match, hit, offset, after) { ret = '"' + hit + '"' ; return ret; } );
+                    data    = JSON.parse(data);
+                    console.log('got data %o', data);
+                    var bdy = document.getElementById('GenomeBrowser');
+                    var h1  = bdy.appendChild( document.createElement('h1') );
+                    h1.innerHTML = "JBrowseDefaultMainPage";
+                    var h2  = bdy.appendChild( document.createElement('h2') );
+                    h2.innerHTML = "Available Databases"
+                    var ul  = bdy.appendChild( document.createElement('ul') );
+                    for ( spp in data.datasets ) {
+                        var sppData = data.datasets[spp];
+                        console.log( "spp %s data %o", spp, sppData );
+                        var li      = document.createElement('li');
+                        var a       = document.createElement('a');
+                        a.setAttribute('href', sppData.url );
+                        a.innerHTML = sppData.name;
+                        li.appendChild( a  );
+                        ul.appendChild( li );
+                    }
+                }
+            });
+        }
     </script>
 
   </head>
