@@ -71,7 +71,30 @@ return declare( [ TrackView, _BlockBasedMixin ],
                 this.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
             }
         }
-        else if( changeInfo.operation == 'mergeRight' || changeInfo.operation == 'splitLeft' ) {
+        else if( changeInfo.operation == 'mergeRight' ) {
+            var dims = block.getDimensions();
+            var w = dims.w;
+            var factor = (w-changeInfo.deltaRight)/w;
+            array.forEach( blockNode.children, function( node ) {
+                node.style.width = factor*parseFloat(node.style.width)+'%';
+                node.style.left  = factor*parseFloat(node.style.left||'0')+'%';
+            });
+            try {
+                var rightBlock = changeInfo.mergeWith.block;
+                var rightDims = rightBlock.getDimensions();
+                var rightNode = this.blockStash[rightBlock.id()].node;
+                var mergeTemp = dom.create('div', { className: 'renderingBlock mergeTemporary' }, blockNode );
+                array.forEach( Array.prototype.slice.call( rightNode.children), function(node) {
+                                   rightNode.removeChild( node );
+                                   mergeTemp.appendChild( node );
+                               });
+                mergeTemp.style.left = 100*(rightDims.l-dims.l)/dims.w + '%';
+                mergeTemp.style.width = 100*rightDims.w/dims.w+'%';
+            } catch(e) {
+                console.error(e.stack);
+            }
+        }
+        else if( changeInfo.operation == 'splitLeft' ) {
             if( blockNode.firstChild ) {
                 var w = block.getDimensions().w;
                 blockNode.firstChild.style.width = 100*(w-changeInfo.deltaRight)/w+'%';
@@ -147,14 +170,14 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     renderLoadingMessage: function( node ) {
-        // var loadingIndicator;
-        // dom.create(
-        //     'span', {className: 'text', innerHTML: 'Loading' },
-        //     loadingIndicator = dom.create( 'div', { className: 'loading' }, node )
-        // );
-        // return loadingIndicator;
-        node.innerHTML = this.loadingMessage;
-        return node.firstChild;
+        var loadingIndicator;
+        dom.create(
+            'span', {className: 'text', innerHTML: 'Loading' },
+            loadingIndicator = dom.create( 'div', { className: 'loading' }, node )
+        );
+        return loadingIndicator;
+        // node.innerHTML = this.loadingMessage;
+        // return node.firstChild;
     },
 
     fillBlockWithLoadingMessage: function( block, blockNode, changeInfo ) {

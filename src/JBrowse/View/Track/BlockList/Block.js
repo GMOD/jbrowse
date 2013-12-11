@@ -253,6 +253,11 @@ return declare( Destroyable, {
 
         this._right = rightBlockNewRightPx;
 
+        // also update the left and right of the right block in case
+        // listening code needs it
+        rightBlock._right = rightBlockNewRightPx;
+        rightBlock._left = rightBlockNewLeftPx;
+
         if( rightBlock._onProjectionBlockRightEdge ) {
             this._onProjectionBlockRightEdge = true;
             changeInfo.edges = { right: true };
