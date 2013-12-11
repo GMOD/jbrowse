@@ -32,9 +32,10 @@
     // uncomment to change the default sort order of the reference sequence dropdown
     // refSeqOrder: 'length descending',
 
-    datasets: {
-        volvox:    { url: '?data=sample_data/json/volvox', name: 'Volvox Example' },
-        modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
-        yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example' }
-    }
+    // edit or delete the datasets list below to customize or remove the jbrowse dataset selector
+    //datasets: {
+    //    volvox:    { url: '?data=sample_data/json/volvox',    name: 'Volvox Example'    },
+    //    modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
+    //    yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example'     }
+    //}
 }

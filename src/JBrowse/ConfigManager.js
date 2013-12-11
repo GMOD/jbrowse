@@ -248,6 +248,11 @@ _fatalError: function( error ) {
     this.browser.fatalError( error );
 },
 
+// list of config properties that should not be recursively merged
+_noRecursiveMerge: function( propName ) {
+    return propName == 'datasets';
+},
+
 /**
  * Merges config object b into a.  a <- b
  * @private
@@ -263,9 +268,10 @@ _mergeConfigs: function( a, b ) {
         if( prop == 'tracks' && (prop in a) ) {
             a[prop] = this._mergeTrackConfigs( a[prop] || [], b[prop] || [] );
         }
-        else if ( (prop in a)
-              && ("object" == typeof b[prop])
-              && ("object" == typeof a[prop]) ) {
+        else if ( ! this._noRecursiveMerge( prop )
+                  &&(prop in a)
+                  && ("object" == typeof b[prop])
+                  && ("object" == typeof a[prop]) ) {
             a[prop] = Util.deepUpdate( a[prop], b[prop] );
         } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
             a[prop] = b[prop];

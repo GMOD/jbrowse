@@ -7,6 +7,11 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+.jbrowseStandaloneDatasetSelector {
+    margin-left: 2em;
+    font-size: 120%;
+}
+
 /* styles for the about JBrowse dialog */
 .about-dialog .default_about {
     text-align: center;

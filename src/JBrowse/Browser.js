@@ -37,6 +37,7 @@ define( [
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
             'JBrowse/View/Dialog/QuickHelp',
+            'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -78,6 +79,7 @@ define( [
             LocationChoiceDialog,
             SetHighlightDialog,
             HelpDialog,
+            StandaloneDatasetList,
             dijitFocus,
             LazyLoad
         ) {
@@ -323,52 +325,66 @@ resolveUrl: function( url ) {
 },
 
 /**
- * Displays links to configuration help in the main window.  Called
- * when the main browser cannot run at all, due to configuration
- * errors or whatever.
+ * Main error handler.  Displays links to configuration help or a
+ * dataset selector in the main window.  Called when the main browser
+ * cannot run at all, because of configuration errors or whatever.
  */
 fatalError: function( error ) {
-    if( error ) {
-        console.error( error.stack || ''+error );
-        error = error+'';
-        if( ! /\.$/.exec(error) )
-            error = error + '.';
-    }
-    if( ! this.hasFatalErrors ) {
-        var container =
-            dojo.byId(this.config.containerID || 'GenomeBrowser')
-            || document.body;
-        container.innerHTML = ''
-            + '<div class="fatal_error">'
-            + '  <h1>Congratulations, JBrowse is on the web!</h1>'
-            + "  <p>However, JBrowse could not start, either because it has not yet been configured"
-            + "     and loaded with data, or because of an error.</p>"
-            + "  <p style=\"font-size: 110%; font-weight: bold\">If this is your first time running JBrowse, <a title=\"View the tutorial\" href=\"docs/tutorial/\" target=\"_blank\">click here to follow the Quick-start Tutorial to show your data in JBrowse.</a></p>"
-            + '  <p id="volvox_data_placeholder"></p>'
-            + "  <p>Otherwise, please refer to the following resources for help in setting up JBrowse to show your data.</p>"
-            + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a> - get your data visible quickly with minimum fuss</li>'
-            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse_Configuration_Guide">JBrowse Configuration Guide</a> - a comprehensive reference</li>'
-            + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki main page</a></li>'
-            + '      <li><a target="_blank" href="docs/config.html"><code>biodb-to-json.pl</code> configuration reference</a></li>'
-            + '      <li><a target="_blank" href="docs/featureglyphs.html">HTMLFeatures CSS class reference</a> - prepackaged styles (CSS classes) for HTMLFeatures tracks</li>'
-            + '  </ul>'
-            + '  <div id="fatal_error_list" class="errors"> <h2>Error message(s):</h2>'
-            + ( error ? '<div class="error"> '+error+'</div>' : '' )
-            + '  </div>'
-            + '</div>'
-            ;
-        request( 'sample_data/json/volvox/successfully_run' )
-        .then( function() {
-                   try {
-                       document.getElementById('volvox_data_placeholder')
-                           .innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data here</a>.';
-                   } catch(e) {}
-               });
 
-        this.hasFatalErrors = true;
+    function formatError(error) {
+        if( error ) {
+            console.error( error.stack || ''+error );
+            error = error+'';
+            if( ! /\.$/.exec(error) )
+                error = error + '.';
+        }
+        return error;
+    }
+
+    if( ! this.renderedFatalErrors ) {
+        // if the error is just that there are no ref seqs defined,
+        // and there are datasets defined in the conf file, then just
+        // show a little HTML list of available datasets
+        if( /^Could not load reference sequence/.test( error )
+            && this.config.datasets
+            && ! this.config.datasets._DEFAULT_EXAMPLES
+          ) {
+            new StandaloneDatasetList({ datasets: this.config.datasets })
+                  .placeAt( this.container );
+        } else {
+            var container = this.container || document.body;
+            container.innerHTML = ''
+                + '<div class="fatal_error">'
+                + '  <h1>Congratulations, JBrowse is on the web!</h1>'
+                + "  <p>However, JBrowse could not start, either because it has not yet been configured"
+                + "     and loaded with data, or because of an error.</p>"
+                + "  <p style=\"font-size: 110%; font-weight: bold\">If this is your first time running JBrowse, <a title=\"View the tutorial\" href=\"docs/tutorial/\" target=\"_blank\">click here to follow the Quick-start Tutorial to show your data in JBrowse.</a></p>"
+                + '  <p id="volvox_data_placeholder"></p>'
+                + "  <p>Otherwise, please refer to the following resources for help in setting up JBrowse to show your data.</p>"
+                + '  <ul><li><a target="_blank" href="docs/tutorial/">Quick-start tutorial</a> - get your data visible quickly with minimum fuss</li>'
+                + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse_Configuration_Guide">JBrowse Configuration Guide</a> - a comprehensive reference</li>'
+                + '      <li><a target="_blank" href="http://gmod.org/wiki/JBrowse">JBrowse wiki main page</a></li>'
+                + '      <li><a target="_blank" href="docs/config.html"><code>biodb-to-json.pl</code> configuration reference</a></li>'
+                + '      <li><a target="_blank" href="docs/featureglyphs.html">HTMLFeatures CSS class reference</a> - prepackaged styles (CSS classes) for HTMLFeatures tracks</li>'
+                + '  </ul>'
+                + '  <div id="fatal_error_list" class="errors"> <h2>Error message(s):</h2>'
+                + ( error ? '<div class="error"> '+formatError(error)+'</div>' : '' )
+                + '  </div>'
+                + '</div>'
+                ;
+            request( 'sample_data/json/volvox/successfully_run' )
+            .then( function() {
+                       try {
+                           document.getElementById('volvox_data_placeholder')
+                               .innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox" target="_blank">Volvox test data here</a>.';
+                       } catch(e) {}
+                   });
+
+            this.renderedFatalErrors = true;
+        }
     } else {
         var errors_div = dojo.byId('fatal_error_list') || document.body;
-        dojo.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
+        dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
     }
 },
 
@@ -747,7 +763,8 @@ renderDatasetSelect: function( parent ) {
     var dsconfig = this.config.datasets || {};
     var datasetChoices = [];
     for( var id in dsconfig ) {
-        datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+        if( ! /^_/.test(id) )
+            datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
     }
 
     new dijitSelectBox(
@@ -1456,6 +1473,13 @@ _configDefaults: function() {
             'jbrowse_conf.json'
         ],
         nameUrl: "{dataRoot}/names/root.json",
+
+        datasets: {
+            _DEFAULT_EXAMPLES: true,
+            volvox:    { url: '?data=sample_data/json/volvox',    name: 'Volvox Example'    },
+            modencode: { url: '?data=sample_data/json/modencode', name: 'MODEncode Example' },
+            yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example'     }
+        },
 
         highlightSearchedRegions: false
     };
