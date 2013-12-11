@@ -16,13 +16,17 @@
     //   ]
     // },
 
+    // to set a default data directory other than 'data', uncomment and edit the line below
+    // dataRoot: 'data',
+
+    // to include more configuration files than what is included here
+    // edit this include statement
     include: [
        '{dataRoot}/trackList.json'
     ],
 
     // uncomment and edit the example below to enable one or more
     // JBrowse plugins
-
     // plugins: [ 'MyPlugin', 'MyOtherPlugin' ],
 
     // uncomment to change the default sort order of the reference sequence dropdown

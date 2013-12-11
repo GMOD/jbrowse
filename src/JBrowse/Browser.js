@@ -377,26 +377,17 @@ loadRefSeqs: function() {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
-        dojo.xhrGet(
-            {
-                url: this.config.refSeqs.url,
-                handleAs: 'json',
-                load: dojo.hitch( this, function(o) {
-                    this.addRefseqs( o );
-                    deferred.resolve({success:true});
-                }),
-                error: dojo.hitch( this, function(e) {
-                    this.fatalError('Failed to load reference sequence info: '+e);
-                    deferred.resolve({ success: false, error: e });
-                })
-            });
+        var thisB = this;
+        request(this.config.refSeqs.url, { handleAs: 'text' } )
+            .then( function(o) {
+                       thisB.addRefseqs( dojo.fromJson(o) );
+                       deferred.resolve({success:true});
+                   },
+                   function( e ) {
+                       deferred.reject( 'Could not load reference sequence definitions. '+e );
+                   }
+                 );
     });
-},
-
-/**
- * Event that fires when the reference sequences have been loaded.
- */
-onRefSeqsLoaded: function() {
 },
 
 loadUserCSS: function() {

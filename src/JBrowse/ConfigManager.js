@@ -118,6 +118,7 @@ _loadIncludes: function( inputConfig ) {
     inputConfig = lang.clone( inputConfig );
 
     function _loadRecur( config ) {
+        var sourceUrl = config.sourceUrl || config.baseUrl;
         var includes = thisB._fillTemplates(
             thisB._regularizeIncludes( config.include || [] ),
             config
@@ -130,7 +131,7 @@ _loadIncludes: function( inputConfig ) {
             function( include ) {
                 current = current
                     .then( function() {
-                               return thisB._loadInclude( include, config.baseUrl );
+                               return thisB._loadInclude( include, sourceUrl );
                            })
                     .then( function( includedData ) {
                                return _loadRecur( thisB._mergeConfigs( config, includedData ) );
@@ -159,7 +160,17 @@ _loadInclude: function( include, baseUrl ) {
                        { config: include,
                          baseUrl: baseUrl
                        });
-               });
+               }
+             )
+    .then( null,
+           function(error) {
+               try {
+                   if( error.response.status == 404 )
+                       return {};
+               } catch(e) {
+                   throw error;
+               };
+           });
 },
 
 
@@ -269,16 +280,17 @@ _mergeConfigs: function( a, b ) {
  * @private
  */
 _mergeTrackConfigs: function( a, b ) {
-    if( ! b.length ) return;
+    if( ! b.length )
+        return a;
 
     // index the tracks in `a` by track label
     var aTracks = {};
-    dojo.forEach( a, function(t,i) {
+    array.forEach( a, function(t,i) {
         t.index = i;
         aTracks[t.label] = t;
     });
 
-    dojo.forEach( b, function(bT) {
+    array.forEach( b, function(bT) {
         var aT = aTracks[bT.label];
         if( aT ) {
             this._mergeConfigs( aT, bT );
