@@ -83,19 +83,26 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
                 o.baseUrl += "/";
 
-            // set a default baseUrl in each of the track and store confs, and the names conf, if needed
             if( o.sourceUrl ) {
+                // set a default baseUrl in each of the track and store
+                // confs, and the names conf, if needed
                 var addBase =
                     []
                     .concat( o.tracks || [] )
                     .concat( dojof.values(o.stores||{}) ) ;
-
                 if( o.names )
                     addBase.push( o.names );
+
                 array.forEach( addBase, function(t) {
                     if( ! t.baseUrl )
                         t.baseUrl = o.baseUrl || '/';
                 },this);
+
+                //resolve the refSeqs and nameUrl if present
+                if( o.refSeqs )
+                    o.refSeqs = Util.resolveUrl( o.sourceUrl, o.refSeqs );
+                if( o.nameUrl )
+                    o.nameUrl = Util.resolveUrl( o.sourceUrl, o.nameUrl );
             }
 
             o = AdaptorUtil.evalHooks( o );
