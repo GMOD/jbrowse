@@ -6,7 +6,7 @@ from jbrowse_selenium import JBrowseTest
 
 class VolvoxRestTest( JBrowseTest ):
 
-    data_dir = 'tests/data/names/rest_test&tracks=DNA,Genes,CDS'
+    data_dir = 'tests/data/names_REST&tracks=Genes,CDS'
 
     def setUp( self ):
         # Does not bother formatting, assumes it's been done through ./setup
@@ -26,22 +26,17 @@ class VolvoxRestTest( JBrowseTest ):
         self.scroll()
         
         # test sequence track display
-        self.sequence()
+        self.scroll_around()
 
         # test autocompletion
         self.autocomplete()
 
         self.assert_no_js_errors()
 
-    def sequence( self ):
+    def scroll_around( self ):
         self.do_typed_query( '0..80' )
-        sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
-        sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG'
-        self.assert_element( sequence_div_xpath_1)
         self.do_typed_query( '1..20000')
-        self.assert_no_element( sequence_div_xpath_1 )
         self.do_typed_query( 'ctgA:19961..20047')
-        self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def autocomplete( self ):
         self._do_typed_query_and_wait("App", 2)
