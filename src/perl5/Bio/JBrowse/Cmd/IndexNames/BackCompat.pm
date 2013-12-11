@@ -12,9 +12,8 @@ sub load {
     my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $ref_seqs, $names_files ), $names_files );
 
     # finally copy the temp store to the namestore
-    $self->vprint( "Using ".$self->hash_bits."-bit hashing\n" );
+    $self->vprint( "Using ".$self->name_store->meta->{hash_bits}."-bit hashing (".$self->requested_hash_bits." requested)\n" );
 
-    $self->name_store->empty unless $self->opt('incremental');
     $self->close_name_store;
 
     # make a stream of key/value pairs and load them into the HashStore
@@ -33,21 +32,13 @@ sub load {
 sub slow_stream_set {
     my ( $self, $op_stream, $ops_count, $mergeSub ) = @_;
 
-    tie my %name_store, 'Bio::JBrowse::HashStore', (
-            dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
-            work_dir => $self->opt('workdir'),
-            mem => $self->opt('mem'),
-            compress => $self->opt('compress'),
-            hash_bits => $self->hash_bits,
-            verbose => $self->opt('verbose')
-            );
-
+    my $name_store = $self->name_store_tied_hash;
     my $progressbar = $ops_count && $self->_make_progressbar('Writing index', $ops_count );
     my $progressbar_next_update = 0;
 
     my $ops_processed = 0;
     while( my $op = $op_stream->() ) {
-        $self->do_hash_operation( \%name_store, $op );
+        $self->do_hash_operation( $name_store, $op );
 
         $ops_processed++;
         if ( $progressbar && $ops_processed > $progressbar_next_update && $ops_processed < $ops_count ) {

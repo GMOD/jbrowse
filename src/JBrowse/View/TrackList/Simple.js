@@ -8,7 +8,9 @@ define(['dojo/_base/declare',
         'dijit/layout/ContentPane',
         'dojo/dnd/Source',
         'dojo/fx/easing',
-        'dijit/form/TextBox'
+        'dijit/form/TextBox',
+
+        './_TextFilterMixin'
        ],
        function(
            declare,
@@ -21,10 +23,12 @@ define(['dojo/_base/declare',
            ContentPane,
            dndSource,
            animationEasing,
-           dijitTextBox
+           dijitTextBox,
+
+           _TextFilterMixin
        ) {
 
-return declare( 'JBrowse.View.TrackList.Simple', null,
+return declare( 'JBrowse.View.TrackList.Simple', _TextFilterMixin,
 
     /** @lends JBrowse.View.TrackList.Simple.prototype */
     {
@@ -104,7 +108,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
     replaceTracks: function( trackConfigs ) {
         // for each one
         array.forEach( trackConfigs, function( conf ) {
-            // figure out its position in the genome view and delete it
             var oldNode = this.inactiveTrackNodes[ conf.label ];
             if( ! oldNode )
                 return;
@@ -114,7 +117,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             if( oldNode.parentNode )
                 oldNode.parentNode.removeChild( oldNode );
 
-           // insert the new track config into the trackListWidget after the 'before'
            this.trackListWidget.insertNodes( false, [conf], false, oldNode.previousSibling );
        },this);
     },
@@ -124,6 +126,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         var leftPane = dojo.create(
             'div',
             { id: 'trackPane',
+              className: 'jbrowseSimpleTrackSelector',
               style: { width: '12em' }
             },
             renderTo
@@ -132,7 +135,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         //splitter on left side
         var leftWidget = new ContentPane({region: "left", splitter: true}, leftPane);
 
-        var trackListDiv = this.div = dojo.create(
+        var trackListDiv = this.div = this.containerNode = dojo.create(
             'div',
             { id: 'tracksAvail',
               className: 'container handles',
@@ -142,59 +145,7 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
             leftPane
         );
 
-       this.textFilterDiv = dom.create( 'div', {
-                                            className: 'textfilter',
-                                            style: {
-                                                width: '100%',
-                                                position: 'relative',
-                                                overflow: 'hidden'
-                                            }
-                                        }, trackListDiv );
-       this.textFilterInput = dom.create(
-            'input',
-            { type: 'text',
-              style: {
-                  paddingLeft: '18px',
-                  height: '16px',
-                  width: '80%'
-              },
-              placeholder: 'filter by text',
-              onkeypress: dojo.hitch( this, function( evt ) {
-                  if( evt.keyCode == keys.ESCAPE ) {
-                      this.textFilterInput.value = '';
-                  }
-
-                  if( this.textFilterTimeout )
-                      window.clearTimeout( this.textFilterTimeout );
-                  this.textFilterTimeout = window.setTimeout(
-                      dojo.hitch( this, function() {
-                                      this._updateTextFilterControl();
-                                      this._textFilter( this.textFilterInput.value );
-                                  }),
-                      500
-                  );
-                  this._updateTextFilterControl();
-
-                  evt.stopPropagation();
-              })
-            },
-            dom.create('div',{ style: 'overflow: show;' }, this.textFilterDiv )
-        );
-
-        // make a "clear" button for the text filtering input
-        this.textFilterClearButton = dom.create('div', {
-            className: 'jbrowseIconCancel',
-            onclick: dojo.hitch( this, function() {
-                this._clearTextFilterControl();
-                this._textFilter( this.textFilterInput.value );
-            }),
-            style: {
-                position: 'absolute',
-                left: '4px',
-                top: '6px'
-            }
-        }, this.textFilterDiv );
-
+        this._makeTextFilterNodes( trackListDiv );
         this._updateTextFilterControl();
 
         this.trackListWidget = new dndSource(
@@ -326,45 +277,6 @@ return declare( 'JBrowse.View.TrackList.Simple', null,
         } else {
           this._select(node);
         }
-    },
-
-    _textFilter: function( text ) {
-        if( text && /\S/.test(text) ) {
-
-            text = text.toLowerCase();
-
-            dojo.query( '.tracklist-label', this.div )
-                .forEach( function( labelNode, i ) {
-                    if( labelNode.innerHTML.toLowerCase().indexOf( text ) != -1 ) {
-                        dojo.removeClass( labelNode, 'collapsed');
-                    } else {
-                        dojo.addClass( labelNode, 'collapsed');
-                    }
-                 });
-        } else {
-            dojo.query( '.tracklist-label', this.div )
-                .removeClass('collapsed');
-        }
-    },
-
-   /**
-    * Clear the text filter control input.
-    * @private
-    */
-    _clearTextFilterControl: function() {
-        this.textFilterInput.value = '';
-        this._updateTextFilterControl();
-    },
-    /**
-     * Update the display of the text filter control based on whether
-     * it has any text in it.
-     * @private
-     */
-    _updateTextFilterControl: function() {
-        if( this.textFilterInput.value.length )
-            dojo.removeClass( this.textFilterDiv, 'dijitDisabled' );
-        else
-            dojo.addClass( this.textFilterDiv, 'dijitDisabled' );
     },
 
     /**

@@ -32,6 +32,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideForwardStrand: false,
                 hideReverseStrand: false,
 
+                histograms: {
+                    description: 'coverage depth'
+                },
+
                 style: {
                     showLabels: false
                 }

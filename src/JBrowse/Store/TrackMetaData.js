@@ -133,6 +133,21 @@ var Meta = declare( null,
         return metarecord;
     },
 
+    // map of special comparator functions for certain metadata items
+    comparatorMap: {
+        // for category metadata, split on "/" and compare
+        "category": function(a,b) {
+            var acs = (a||'Uncategorized').split(/\s*\/\s*/);
+            var bcs = (b||'Uncategorized').split(/\s*\/\s*/);
+            var ac, bc, compresult;
+            while( (ac=acs.shift()) && (bc=bcs.shift()) ) {
+                if(( compresult = ac.localeCompare( bc ) ))
+                    return compresult;
+            }
+            return 0;
+        }
+    },
+
     addTracks: function( trackConfigs, suppressEvents ) {
         if( trackConfigs.length ) {
             // clear the query cache

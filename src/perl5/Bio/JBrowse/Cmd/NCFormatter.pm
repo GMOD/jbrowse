@@ -2,6 +2,8 @@ package Bio::JBrowse::Cmd::NCFormatter;
 
 use base 'Bio::JBrowse::Cmd';
 
+use Storable ();
+
 use GenomeDB;
 use Bio::JBrowse::ExternalSorter;
 
@@ -62,7 +64,6 @@ sub _format {
     my $totalMatches = 0;
     while( my $feat = $sorter->get ) {
 
-        use Storable ();
         unless( $curChrom eq $feat->[0] ) {
             $curChrom = $feat->[0];
             $track->finishLoad; #< does nothing if no load happening

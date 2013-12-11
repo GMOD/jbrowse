@@ -1,8 +1,9 @@
 // MISC
 define( [ 'dojo/_base/array',
+          'dojo/Deferred',
           'dojox/lang/functional/object',
           'dojox/lang/functional/fold'
-        ], function( array ) {
+        ], function( array, Deferred ) {
 var Util;
 Util = {
     dojof: dojox.lang.functional,
@@ -190,6 +191,12 @@ Util = {
         return (num.toFixed(2)+' '+suffix).replace(/0+ /,' ').replace(/\. /,' ');
     },
 
+    resolved: function( val ) {
+        var d = new Deferred();
+        d.resolve( val );
+        return d;
+    },
+
     // from http://bugs.dojotoolkit.org/ticket/5794
     resolveUrl: function(baseUrl, relativeUrl) {
         // summary:
@@ -214,6 +221,24 @@ Util = {
 	    relativeUrl = relativeUrl.substring(3);
         }
         return baseUrl + relativeUrl;
+    },
+
+    loadJS: function( paths ) {
+        var d = new Deferred();
+        require( paths, function() {
+            var modules = Array.prototype.slice.call( arguments );
+
+            // check the loaded modules for success
+            for( var i = 0; i<modules.length; i++ ) {
+                if( !{object:true, function:true}[typeof modules[i]] ) {
+                    d.reject("could not load "+paths[i]+": "+modules[i]);
+                    return;
+                }
+            }
+
+            d.resolve( modules );
+        });
+        return d;
     },
 
     parseLocString: function( locstring ) {

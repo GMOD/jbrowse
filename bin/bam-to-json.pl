@@ -46,6 +46,12 @@ Extra configuration for the client, in JSON syntax.  Example:
 
   --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 5}'
 
+=item --metadata '{ JSON metadata }'
+
+Metadata about this track.  Example:
+
+  --metadata '{"description": "Alignments generated from XYZ pipeline.", "category": "NGS" }'
+
 =item --nclChunk <bytes>
 
 Size of the individual Nested Containment List chunks.  Default
@@ -77,7 +83,7 @@ use GenomeDB;
 use NCLSorter;
 
 my ($tracks, $cssClass, $arrowheadClass, $subfeatureClasses, $clientConfig,
-    $bamFile, $trackLabel, $key, $nclChunk, $compress);
+    $bamFile, $trackLabel, $key, $nclChunk, $compress, $metadata );
 my $defaultClass = "basic";
 $cssClass = $defaultClass;
 my $outdir = "data";
@@ -88,6 +94,7 @@ GetOptions("out=s" => \$outdir,
            "bam=s" => \$bamFile,
            "cssClass=s", \$cssClass,
            "clientConfig=s", \$clientConfig,
+           "metadata=s", \$metadata,
            "nclChunk=i" => \$nclChunk,
            "compress" => \$compress,
            "help|h|?" => \$help,
@@ -121,6 +128,9 @@ if( $cssClass eq $defaultClass ) {
     $config{style}->{histCss} = "background-color: #88F";
     $config{style}->{histScale} = 2;
 }
+
+$config{metadata} = Bio::JBrowse::JSON->new->decode($metadata) || {}
+    if defined $metadata;
 
 $config{style} = { %{ $config{style} || {} }, %{ Bio::JBrowse::JSON->new->decode($clientConfig) || {} } }
     if defined $clientConfig;

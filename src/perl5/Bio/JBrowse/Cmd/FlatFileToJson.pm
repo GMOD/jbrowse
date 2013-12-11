@@ -51,6 +51,7 @@ sub option_definitions {
         "subfeatureClasses=s",
         "maxLookback=i",
         "clientConfig=s",
+        "metadata=s",
         "thinType=s",
         "thickType=s",
         "type=s@",
@@ -84,7 +85,7 @@ sub run {
         $self->opt( nclChunk => $nclChunk );
     }
 
-    for my $optname ( qw( clientConfig subfeatureClasses ) ) {
+    for my $optname ( qw( clientConfig subfeatureClasses metadata ) ) {
         if( my $o = $self->opt($optname) ) {
             $self->opt( $optname => Bio::JBrowse::JSON->new->decode( $o ));
         }
@@ -100,7 +101,8 @@ sub run {
             ( $self->opt('arrowheadClass')    ? ( arrowheadClass    => $self->opt('arrowheadClass')    ) : () ),
             ( $self->opt('subfeatureClasses') ? ( subfeatureClasses => $self->opt('subfeatureClasses') ) : () ),
         },
-        ( $self->opt('menuTemplate') ? ( menuTemplate => $self->opt('menuTemplate') ) : () ),
+        ( $self->opt('metadata') ? ( metadata => $self->opt('metadata') ) : () ),
+        ( $self->opt('category') ? ( category => $self->opt('menuTemplate') ) : () ),
         key          => defined( $self->opt('key') ) ? $self->opt('key') : $self->opt('trackLabel'),
         compress     => $self->opt('compress'),
      );

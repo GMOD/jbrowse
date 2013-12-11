@@ -528,20 +528,22 @@ _behaviors: function() { return {
     // mouse events connected when the shift button is being held down
     shiftMouse: {
         apply: function() {
-            dojo.removeClass(this.trackContainer,'draggable');
-            dojo.addClass(this.trackContainer,'rubberBandAvailable');
-            return [
-                dojo.connect( this.outerTrackContainer, "mousedown",
-                              dojo.hitch( this, 'startRubberZoom',
-                                          dojo.hitch(this,'absXtoBp'),
-                                          this.scrollContainer,
-                                          this.scaleTrackDiv
-                                        )
-                            ),
-                dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'                  ),
-                dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
-                dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
-            ];
+            if ( !dojo.hasClass(this.trackContainer, 'highlightingAvailable') ){
+                dojo.removeClass(this.trackContainer,'draggable');
+                dojo.addClass(this.trackContainer,'rubberBandAvailable');
+                return [
+                    dojo.connect( this.outerTrackContainer, "mousedown",
+                                  dojo.hitch( this, 'startRubberZoom',
+                                              dojo.hitch(this,'absXtoBp'),
+                                              this.scrollContainer,
+                                              this.scaleTrackDiv
+                                            )
+                                ),
+                    dojo.connect( this.outerTrackContainer, "onclick",   this, 'scaleClicked'                  ),
+                    dojo.connect( this.outerTrackContainer, "mouseover", this, 'maybeDrawVerticalPositionLine' ),
+                    dojo.connect( this.outerTrackContainer, "mousemove", this, 'maybeDrawVerticalPositionLine' )
+                ];
+            }
         },
         remove: function( mgr, handles ) {
             this.clearBasePairLabels();
@@ -624,7 +626,8 @@ wheelScroll: function( event ) {
         delta.y = event.wheelDeltaY/2;
     }
     else if( 'deltaX' in event ) {
-        delta.x = event.deltaX*-40;
+        var multiplier = navigator.userAgent.indexOf("OS X 10.9")!==-1 ? -5 : -40;
+        delta.x = Math.abs(event.deltaY) > Math.abs(2*event.deltaX) ? 0 : event.deltaX*multiplier;
         delta.y = event.deltaY*-10;
     }
     else if( event.wheelDelta ) {

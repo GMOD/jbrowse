@@ -90,7 +90,7 @@ _makeTrackConfs: function() {
             label: n,
             key: n.replace(/_\d+$/,'').replace(/_/g,' '),
             type: trackType,
-
+            category: "Local tracks",
             autoscale: "local" // make locally-opened BigWig tracks default to local autoscaling
         };
     }

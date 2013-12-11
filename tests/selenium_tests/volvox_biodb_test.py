@@ -13,7 +13,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         call( "rm -rf sample_data/json/volvox/", shell=True )
         call( "bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox/", shell=True )
         call( "bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox/", shell=True )
-        call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
+        call( "bin/wig-to-json.pl --key 'Image - volvox_microarray' --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json", shell=True )
@@ -21,7 +21,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):
- 
+
         # select "ctgA from the dropdown
         self.select_refseq( 'ctgA' )
 
@@ -35,7 +35,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # test scrolling, make sure we get no js errors
         self.scroll()
-        
+
         # test context menus
         self.context_menus()
 
@@ -172,7 +172,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def sequence( self ):
         self.do_typed_query( '0..80' )
-        sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
+        sequence_div_xpath_templ = "//table[contains(@class,'sequence')]//*[contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG'
         self.assert_element( sequence_div_xpath_1)
         self.turn_off_track( 'Reference sequence' )
@@ -181,7 +181,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000')
         self.assert_no_element( sequence_div_xpath_1 )
-        self.do_typed_query( 'ctgA:19961..20047')
+        self.do_typed_query( 'ctgA:19961..20040')
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
@@ -213,13 +213,13 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def wiggle( self ):
 
-        self.turn_on_track( 'microarray' )
+        self.turn_on_track( 'Image - volvox' )
 
         # see that we have an image track png in the DOM now
         imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']"
         imagetrack_png = self.assert_element( imagetrack_xpath )
 
-        self.turn_off_track( 'microarray' )
+        self.turn_off_track( 'Image - volvox' )
         # check that imagetrack png is not still in the DOM after the
         # track is turned off
         self.assert_no_element( imagetrack_xpath )

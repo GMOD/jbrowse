@@ -37,7 +37,9 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
+use DB_File ();
 use IO::File ();
+use POSIX ();
 
 my $bucket_class = 'Bio::JBrowse::HashStore::Bucket';
 
@@ -68,6 +70,11 @@ sub open {
             defined $self->{$_}        ?  $self->{$_}        :
                                           $defaults{$_}
         );
+    }
+
+    # check that hash_bits is a multiple of 4
+    if( $self->{hash_bits} % 4 ) {
+        die "Invalid hash bits value $self->{hash_bits}, must be a multiple of 4.\n";
     }
 
     $self->{hash_mask} = 2**($self->{hash_bits}) - 1;
@@ -171,6 +178,7 @@ If not provided, the values will just be overwritten.
 sub stream_set {
     my $self = shift;
 
+    require File::Temp;
     my $tempfile = File::Temp->new( TEMPLATE => 'names-hash-tmp-XXXXXXXX', UNLINK => 1,
                                     DIR => $self->{work_dir} || $self->{dir} );
     $tempfile->close;
@@ -251,10 +259,7 @@ sub _stream_set_write_bucket_files {
 sub _stream_set_build_buckets {
     my ( $self, $kv_stream, $tempfile, $key_count ) = @_;
 
-    require POSIX;
-    require File::Temp;
     require Storable;
-    require DB_File;
 
     my $buckets = $self->db_open( $tempfile, &POSIX::O_CREAT|&POSIX::O_RDWR, 0666,
                                        { flags => 0x1, cachesize => $self->{mem} } );
@@ -270,14 +275,13 @@ sub _stream_set_build_buckets {
         my $hex = $self->_hex( $self->_hash( $k ) );
         my $b = $buckets->{$hex};
         if( $b ) {
-            $b = Storable::thaw( $buckets->{$hex} );
+            $b = Storable::thaw( $b );
         } else {
             $b = {};
             $bucket_count++;
         }
         $b->{$k} = $v;
-        $b = Storable::freeze( $b );
-        $buckets->{$hex} = $b;
+        $buckets->{$hex} = Storable::freeze( $b );
 
         $keys_processed++;
         if ( $progressbar && $keys_processed > $progressbar_next_update ) {

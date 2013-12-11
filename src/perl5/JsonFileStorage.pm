@@ -28,7 +28,6 @@ use File::Path qw( mkpath );
 use JSON 2;
 use IO::File;
 use Fcntl ":flock";
-use PerlIO::gzip;
 
 use constant DEFAULT_MAX_JSON_DEPTH => 2048;
 

@@ -100,6 +100,8 @@ return declare( null, {
             var vals = array.map( val, function(v) {
                        return this.renderDetailValue( parent, title, v, class_ );
                    }, this );
+            if( vals.length > 1 )
+                domClass.add( parent, 'multi_value' );
             if( vals.length > 10 )
                 domClass.add( parent, 'big' );
             return vals.length;

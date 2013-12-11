@@ -1,6 +1,6 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/Deferred',
+           'dojo/Deferred',
            'JBrowse/Store/SeqFeature/NCList',
            'JBrowse/Store/NCList_v0',
            'JBrowse/Store/LazyArray'
@@ -25,7 +25,8 @@ return declare( SFNCList,
     },
 
     setTrack: function(t) {
-        this.track.resolve( t );
+        if( ! this.track.isFulfilled() )
+            this.track.resolve( t );
     },
 
     /**

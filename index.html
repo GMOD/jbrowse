@@ -17,18 +17,13 @@
         require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
              function (Browser,ioQuery,JSON) {
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
-                   var dataRoot = queryParams.data || 'data';
 
                    // the initial configuration of this JBrowse instance
                    var config = {
                        containerID: "GenomeBrowser",
-                       refSeqs: dataRoot + "/seq/refSeqs.json",
-                       baseUrl: dataRoot+'/',
-                       include: [
-                           'jbrowse_conf.json',
-                           dataRoot + "/trackList.json"
-                       ],
-                       nameUrl: dataRoot + "/names/root.json",
+
+                       baseUrl: "./",
+                       dataRoot: queryParams.data,
                        queryParams: queryParams,
                        location: queryParams.loc,
                        forceTracks: queryParams.tracks,

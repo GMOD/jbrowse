@@ -23,8 +23,25 @@ class SimpleTrackSelector (TrackSelector):
         self.test.assert_element( \
             "//div[contains(@class,'track-label')][contains(.,'%s')]/div[contains(@class,'track-close-button')]"%tracktext) \
             .click()
-        
+
         self.test.assert_no_js_errors()
+
+class HierarchicalTrackSelector (TrackSelector):
+    def turn_on_track( self, tracktext ):
+        self._click_track( tracktext )
+        self.test.assert_track( tracktext )
+
+    def turn_off_track( self, tracktext ):
+        self._click_track( tracktext )
+
+    def _click_track( self, tracktext ):
+        # find the track in the selector and click it
+        tracklabel = self.test \
+            .assert_element( "//label[contains(@class,'tracklist-label')]/span[contains(.,'%s')]" % tracktext ) \
+            .click()
+
+        self.test.assert_no_js_errors()
+
 
 class FacetedTrackSelector (TrackSelector):
     def turn_on_track( self, tracktext ):

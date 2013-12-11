@@ -50,7 +50,7 @@ http://code.google.com/p/jsdoc-toolkit.
 Running `bin/jbdoc ArrayRepr` will open your browser with
 documentation about ArrayRepr.js.
 
-The [here](http://code.google.com/p/jsdoc-toolkit/w/list) for a
+Go [here](http://code.google.com/p/jsdoc-toolkit/w/list) for a
 comprehensive list of JSDoc tags.
 
 # Cutting a JBrowse release

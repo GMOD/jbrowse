@@ -3,7 +3,6 @@
 require([
             'JBrowse/Browser',
             'JBrowse/ConfigAdaptor/JB_json_v1',
-            'JBrowse/View/TrackList/Simple',
 
             // common stores
             'JBrowse/Store/Sequence/StaticChunked',
@@ -23,7 +22,6 @@ require([
             'JBrowse/View/Track/SNPCoverage',
 
             // track lists
-            'JBrowse/View/TrackList/Simple',
             'JBrowse/Store/TrackMetaData',
 
             'xstyle/load-css',

@@ -7,7 +7,7 @@
          "autocomplete" : "all",
          "track" : "ExampleFeatures",
          "class" : "feature2",
-         "key" : "HTMLFeatures - Example Features",
+         "key" : "HTMLFeatures - Example Features"
       },
       {
          "feature" : [
@@ -116,6 +116,7 @@
          ],
          "track" : "Genes",
          "class" : "feature5",
+         "category": "Transcripts",
          "key" : "CanvasFeatures - Protein-coding genes",
          "onClick": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
          "trackType": "JBrowse/View/Track/CanvasFeatures",
@@ -132,7 +133,7 @@
             "mRNA"
          ],
          "track" : "ReadingFrame",
-         "category" : "Genes",
+         "category" : "Transcripts",
          "class" : "cds",
          "phase": 1,
          "key" : "HTMLFeatures - mRNAs",
@@ -146,9 +147,9 @@
          ],
          "urlTemplate" : "http://www.ncbi.nlm.nih.gov/gquery/?term={name}-{start}-{end}",
          "track" : "CDS",
-         "category" : "Genes",
+         "category" : "Transcripts",
          "class" : "cds",
-         "key" : "CanvasFeatures - mixed",
+         "key" : "CanvasFeatures - mixed mRNAs and CDSs",
          "trackType": "CanvasFeatures"
       },
       {
@@ -160,7 +161,7 @@
          "feature" : [
             "mRNA:exonerate"
          ],
-         "category" : "Genes",
+         "category" : "Transcripts",
          "subfeatures" : true,
          "onClick": "function() { alert('This is an example of a user-provided JavaScript callback!'); };"
       },
