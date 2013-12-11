@@ -81,8 +81,8 @@ class JBrowseTest (object):
         assert self.browser.find_element_by_xpath('/html/body') \
                       .get_attribute('JSError') == None
 
+    # Find the query box and put f15 into it and hit enter
     def do_typed_query( self, text ):
-        # Find the query box and put f15 into it and hit enter
         qbox = self.browser.find_element_by_id("location")
         qbox.clear()
         qbox.send_keys( text )
@@ -216,10 +216,10 @@ class JBrowseTest (object):
     def scroll( self ):
         move_right_button = self.browser.find_element_by_id('moveRight')
         move_right_button.click()
-        self._waits_for_scroll(self.browser.title)
+        self.waits_for_scroll(self.browser.title)
         move_left_button = self.browser.find_element_by_id('moveLeft')
         move_left_button.click()
-        self._waits_for_scroll(self.browser.title)
+        self.waits_for_scroll(self.browser.title)
 
         self.assert_no_js_errors()
 
@@ -240,7 +240,7 @@ class JBrowseTest (object):
 
     # waits for the title of the page to change, since it 
     # gets updated after the scroll animation
-    def _waits_for_scroll ( self, location ):
+    def waits_for_scroll ( self, location ):
         WebDriverWait(self, 5).until(lambda self: self.browser.title != location)
     
 
@@ -252,5 +252,5 @@ class JBrowseTest (object):
         else:
             # Page title is initially "JBrowse",
             # so wait for it to change
-            self._waits_for_scroll("JBrowse")
+            self.waits_for_scroll("JBrowse")
 

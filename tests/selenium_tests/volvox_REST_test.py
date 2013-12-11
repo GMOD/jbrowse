@@ -1,26 +1,17 @@
-import subprocess
-from subprocess import check_call as call, PIPE
+from selenium.webdriver.support.wait   import WebDriverWait
+from selenium.webdriver.common.keys    import Keys
 import unittest
-import time
 
 from jbrowse_selenium import JBrowseTest
 
-class AbstractVolvoxBiodbTest( JBrowseTest ):
+class VolvoxRestTest( JBrowseTest ):
 
-    data_dir = 'tests/data/names/rest_test'
+    data_dir = 'tests/data/names/rest_test&tracks=DNA,Genes,CDS'
 
     def setUp( self ):
-        call( "rm -rf sample_data/json/volvox/", shell=True )
-        call( "bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox/", shell=True )
-        call( "bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox/", shell=True )
-        call( "bin/wig-to-json.pl --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
-        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
-        call( "cat sample_data/json/volvox/trackList.json", shell=True )
-        super( AbstractVolvoxBiodbTest, self ).setUp()
+        # Does not bother formatting, assumes it's been done through ./setup
+        # The volvox_biodb_test.py test can be used to test formatting
+        super( VolvoxRestTest, self ).setUp()
 
     def test_volvox( self ):
  
@@ -37,21 +28,46 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test sequence track display
         self.sequence()
 
+        # test autocompletion
+        self.autocomplete()
+
+        self.assert_no_js_errors()
+
     def sequence( self ):
         self.do_typed_query( '0..80' )
         sequence_div_xpath_templ = "/html//div[contains(@class,'sequence')]//*[contains(.,'%s')]"
         sequence_div_xpath_1 = sequence_div_xpath_templ % 'aacaACGG'
         self.assert_element( sequence_div_xpath_1)
-        self.turn_off_track( 'Reference sequence' )
-        self.assert_no_element( sequence_div_xpath_1 )
-        self.turn_on_track( 'Reference sequence' )
-        self.assert_element( sequence_div_xpath_1 )
         self.do_typed_query( '1..20000')
         self.assert_no_element( sequence_div_xpath_1 )
         self.do_typed_query( 'ctgA:19961..20047')
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
-class VolvoxBiodbTest( AbstractVolvoxBiodbTest, unittest.TestCase ):
+    def autocomplete( self ):
+        self._do_typed_query_and_wait("App", 2)
+        self._do_typed_query_and_wait("EDE", 1)
+        loc = self.browser.title
+        self.browser.find_element_by_id("location").send_keys( Keys.RETURN )
+        self.waits_for_scroll(loc)
+
+        self._do_typed_query_and_wait("Apple1", 1)
+        loc = self.browser.title
+        self.browser.find_element_by_id("location").send_keys( Keys.RETURN )
+        self.waits_for_scroll(loc)
+
+    # Do a search and wait for a specific number of results
+    def _do_typed_query_and_wait( self, text, num_of_results ):
+        qbox = self.browser.find_element_by_id("location")
+        qbox.clear()
+        qbox.send_keys( text )
+        WebDriverWait(self, 5).until(lambda self: self.is_right_num_of_entries (num_of_results))
+
+    # Compares number of returned results against expected results
+    def is_right_num_of_entries( self, num ):
+        return len(self.browser.find_elements_by_css_selector("#location_popup>*"))-2 == num
+
+
+class VolvoxBiodbTest( VolvoxRestTest, unittest.TestCase ):
     pass
 
 

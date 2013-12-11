@@ -1,10 +1,9 @@
 {
-   "refSeqs": "../../sample_data/volvox/seq/refSeqs.json",
    "tracks" : [
       {
          "chunkSize" : 20000,
          "storeClass" : "JBrowse/Store/Sequence/StaticChunked",
-         "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-",
+         "urlTemplate" : "../../../../sample_data/json/volvox/seq/{refseq_dirpath}/{refseq}-",
          "type" : "SequenceTrack",
          "label" : "DNA",
          "key" : "Reference sequence"
