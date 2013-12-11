@@ -18,6 +18,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json", shell=True )
         call( "bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json", shell=True )
+        call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):
