@@ -59,8 +59,7 @@ var SequenceGCStore = declare( SeqFeatureStore, {
       for( var i = 0; i<subseq.length; i++ )
           if( isGC[subseq.charAt(i)] )
               gcCount++;
-      var gc = gcCount/subseq.length;
-      return gc;
+      return 100*gcCount/subseq.length;
   }
 });
 
@@ -68,8 +67,8 @@ return declare( XYPlot,  {
 
   configSchema: {
       slots: [
-          { name: 'minScore', defaultValue: 0 },
-          { name: 'maxScore', defaultValue: 1 },
+          { name: 'minScore', defaultValue: 0   },
+          { name: 'maxScore', defaultValue: 100 },
           { name: 'autoscale', defaultValue: 'global' }
       ]
   },
