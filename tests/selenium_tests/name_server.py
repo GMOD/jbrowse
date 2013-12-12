@@ -4,7 +4,7 @@ from cgi import parse_qs, escape
 import json
 import re
 
-def application(environ, start_response):
+def application( environ, start_response ):
    
     EDEN = {
         "name":"EDEN",
@@ -58,5 +58,6 @@ def application(environ, start_response):
     start_response('200 OK', response_headers)
     return [json_text]
 
-httpd = make_server('localhost', 8051, application)
-httpd.serve_forever()
+def start_server():
+    httpd = make_server('localhost', 8051, application)
+    httpd.serve_forever()

@@ -1,6 +1,8 @@
+import threading
+import unittest
 from selenium.webdriver.support.wait   import WebDriverWait
 from selenium.webdriver.common.keys    import Keys
-import unittest
+import name_server
 
 from jbrowse_selenium import JBrowseTest
 
@@ -11,6 +13,11 @@ class VolvoxRestTest( JBrowseTest ):
     def setUp( self ):
         # Does not bother formatting, assumes it's been done through ./setup
         # The volvox_biodb_test.py test can be used to test formatting
+        
+        t = threading.Thread(target=name_server.start_server, name='Backend')
+        t.daemon = True
+        t.start()
+
         super( VolvoxRestTest, self ).setUp()
 
     def test_volvox( self ):
