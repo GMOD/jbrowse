@@ -31,7 +31,7 @@ var Chunk = Util.fastDeclare({
         return this.toUniqueString();
     },
     compareTo: function( b ) {
-        return this.minv - b.minv || this.maxv - b.maxv || this.bin - b.bin;
+        return this.minv.compareTo(b.minv) || this.maxv.compareTo(b.maxv) || this.bin - b.bin;
     },
     compare: function( b ) {
         return this.compareTo( b );

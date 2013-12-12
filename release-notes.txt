@@ -41,6 +41,11 @@
  * `chunkSizeLimit` for VCF files now defaults to 1 MiB.  It used to
    be 15 MiB, which was really far too big for browsers to handle.
 
+## Bug fixes
+
+ * Fixed a bug in the VCF data backend that caused not all VCF
+   features to be shown in some files at some zoom levels.
+
 # Release 1.10.12     2013-12-10 16:09:42 EST5EDT
 
 ## Minor improvements
