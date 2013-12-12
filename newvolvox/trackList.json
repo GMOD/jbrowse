@@ -87,10 +87,12 @@
             "views": {
                 "default": {
                     "store": "refseqs",
+                    "description": "sequence bases",
                     "type" : "JBrowse/View/Track/SequenceBases"
                 },
                 "gc": {
                     "store": "refseqs",
+                    "description": "GC content (%)",
                     "type": "JBrowse/View/Track/SequenceGCContent"
                 }
             }

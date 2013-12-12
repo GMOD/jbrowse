@@ -19,16 +19,27 @@ define([
            _PromiseOwnerMixin
        ) {
 
-return declare(
-    [ ContentPane,
-      _ConfigurationMixin,
-      _FeatureFiltererMixin,
-      _PromiseOwnerMixin
-    ], {
+return declare( [
+                    ContentPane,
+                    _ConfigurationMixin,
+                    _FeatureFiltererMixin,
+                    _PromiseOwnerMixin
+                ],
+    {
+
   region: 'top',
   baseClass: 'trackView',
   //splitter: true,
   gutters: false,
+
+  configSchema: {
+      slots: [
+          { name: 'description', type: 'string', defaultValue: '',
+            description: 'text displayed next to the track title when this view is active'
+          }
+      ]
+  },
+
 
   buildRendering: function() {
       this.inherited(arguments);

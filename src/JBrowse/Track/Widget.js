@@ -87,6 +87,10 @@ return declare( [ BorderContainer ], {
                             className: 'name',
                             innerHTML: this.get('track').getConf('name')
                         }, this.handleNode );
+        this.descriptionNode = dom.create(
+            'span', {
+                className: 'description'
+            }, this.handleNode );
     },
 
     startup: function() {
@@ -132,7 +136,11 @@ return declare( [ BorderContainer ], {
                                if( thisB.get('mainView') ) {
                                    thisB.removeChild( thisB.get('mainView') );
                                    thisB.get('mainView').destroyRecursive();
+                                   thisB.descriptionNode.innerHTML = '';
                                }
+                               if( view.getConf('description') )
+                                   thisB.descriptionNode.innerHTML = view.getConf('description');
+
                                thisB.set( 'mainView', view );
                                thisB.addChild( view );
                                return view;
@@ -145,6 +153,7 @@ return declare( [ BorderContainer ], {
                     thisB.removeChild( thisB.get('mainView') );
                     thisB.get('mainView').destroyRecursive();
                     thisB.set( 'mainView', undefined );
+                    thisB.descriptionNode.innerHTML = '';
                 }
             }
         }
