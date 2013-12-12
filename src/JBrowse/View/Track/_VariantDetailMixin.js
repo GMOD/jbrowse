@@ -34,7 +34,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
 
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
-        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
+        container = container || domConstruct.create('div', { className: 'detail feature-detail feature-detail-'+track.name, innerHTML: '' } );
 
         this._renderCoreDetails( track, f, featDiv, container );
 
@@ -95,36 +95,35 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                 var value = genotypes[k];
                 var item = { id: k };
                 for( var field in value ) {
-                    item[ field ] = thisB._genotypeValToString( value[field], field, alt );
+                    item[ field ] = thisB._mungeGenotypeVal( value[field], field, alt );
                 }
                 return item;
             },
-            // descriptions object
-            (function() {
-                 if( ! keys.length )
-                     return {};
+            {
+                descriptions: (function() {
+                                   if( ! keys.length )
+                                       return {};
 
-                 var subValue = genotypes[keys[0]];
-                 var descriptions = {};
-                 for( var k in subValue ) {
-                     descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
-                 }
-                 return descriptions;
-             })()
+                                   var subValue = genotypes[keys[0]];
+                                   var descriptions = {};
+                                   for( var k in subValue ) {
+                                       descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
+                                   }
+                                   return descriptions;
+                               })()
+            }
         );
     },
 
-    _genotypeValToString: function( value, fieldname, alt ) {
-        value = this._valToString( value );
-        if( fieldname != 'GT' )
-            return value;
-
-        // handle the GT field specially, translating the genotype indexes into the actual ALT strings
-        var splitter = value.match(/\D/g)[0];
-        return array.map( value.split( splitter ), function( gtIndex ) {
-            gtIndex = parseInt( gtIndex );
-            return gtIndex ? alt ? alt[gtIndex-1] : gtIndex : 'ref';
-        }).join( ' '+splitter+' ' );
+    _mungeGenotypeVal: function( value, fieldname, alt ) {
+        if( fieldname == 'GT' ) {
+            // handle the GT field specially, translating the genotype indexes into the actual ALT strings
+            value = array.map( value.values, function( gtIndex ) {
+                                   gtIndex = parseInt( gtIndex );
+                                   return gtIndex ? alt ? alt[gtIndex-1] : gtIndex : 'ref';
+                               });
+        }
+        return value;
     },
 
     _renderGenotypeSummary: function( parentElement, genotypes, alt ) {

@@ -434,8 +434,9 @@ Util = {
     /**
      * Uniqify an array.
      * @param stuff {Array} array of stuff
-     * @param normalizer {Function} optional function to be called on each
-     * element.  by default, just compares by stringification
+     * @param normalizer {Function} optional function to be called on
+     * each element to convert them to a comparable string.  By
+     * default, just does default stringification.
      */
     uniq: function( stuff, normalizer ) {
         normalizer = normalizer || function(t) {

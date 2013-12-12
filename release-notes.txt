@@ -44,10 +44,11 @@
    `--metadata` argument that can add a `metadata` stanza to track
    configurations they generate.
 
- * Multi-valued attributes in default feature detail popups are
-   displayed as a string of boxes, each containing a value, to avoid
-   misinterpretation.  Thanks to Cris Lawrence for pointing out the
-   need for this.
+ * Multi-valued attributes in feature detail popups are displayed as a
+   string of boxes, each containing a value, to avoid
+   misinterpretation.  Before, each value was just separated from the
+   previous one by whitespace.  Thanks to Cris Lawrence for pointing
+   out the need for this.
 
 ## Bug fixes
 
