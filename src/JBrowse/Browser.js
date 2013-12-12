@@ -1468,7 +1468,6 @@ _configDefaults: function() {
         show_overview: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
-        baseUrl: './',
         include: [
             'jbrowse_conf.json'
         ],
