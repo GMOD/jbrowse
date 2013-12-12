@@ -50,8 +50,8 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
-    def assert_element( self, expression ):
-        self._waits_for_element( expression )
+    def assert_element( self, expression , time=5):
+        self._waits_for_element( expression, time )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_element_by_xpath( expression )
@@ -176,8 +176,8 @@ class JBrowseTest (object):
     def _waits_for_elements( self, expression ):
         WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(expression))
 
-    def _waits_for_element( self, expression ):
-        WebDriverWait(self, 5).until(lambda self: self.does_element_exist(expression))
+    def _waits_for_element( self, expression, time=5 ):
+        WebDriverWait(self, time).until(lambda self: self.does_element_exist(expression))
 
     def _waits_for_no_element( self, expression ):
         WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))

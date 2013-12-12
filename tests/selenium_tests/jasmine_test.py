@@ -10,7 +10,7 @@ class JasmineTest( JBrowseTest ):
 
     def test_jasmine( self ):
         
-        self.assert_element(".duration")
+        self.assert_element(".duration", 30)
         self.assert_no_element(".alert")
 
         self.assert_no_js_errors()
