@@ -5,7 +5,8 @@ define(
         'dojo/_base/array',
         'dojo/Deferred',
 
-        'JBrowse/Util'
+        'JBrowse/Util',
+        'JBrowse/ConfigAdaptor/AdaptorUtil'
     ],
     function(
         declare,
@@ -13,7 +14,8 @@ define(
         array,
         Deferred,
 
-        Util
+        Util,
+        AdaptorUtil
     ) {
 
 return declare(null,
@@ -55,6 +57,8 @@ getFinalConfig: function() {
                        var finalConf = thisB._mergeConfigs( includedConfig, thisB.bootConfig );
 
                        thisB._fillTemplates( finalConf, finalConf );
+
+                       finalConf = AdaptorUtil.evalHooks( finalConf );
 
                        if( ! thisB.skipValidation )
                            thisB._validateConfig( finalConf );

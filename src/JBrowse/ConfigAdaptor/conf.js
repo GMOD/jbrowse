@@ -5,7 +5,13 @@
 // https://github.com/shockie/node-iniparser -> released under the MIT license
 
 
-define(['dojo/_base/declare','JBrowse/Util','JBrowse/ConfigAdaptor/AdaptorUtil'], function(declare,Util,AdaptorUtil) { 
+define([
+           'dojo/_base/declare',
+           'JBrowse/Util'
+       ], function(
+           declare,
+           Util
+       ) {
 return declare('JBrowse.ConfigAdaptor.gbrowse',null,
 
     {
@@ -59,7 +65,7 @@ return declare('JBrowse.ConfigAdaptor.gbrowse',null,
                 }
             };
 
-            return AdaptorUtil.evalHooks(this.value); //Returns the JS object
+            return this.value; //Returns the JS object
         },
 
         //called for:  something = *

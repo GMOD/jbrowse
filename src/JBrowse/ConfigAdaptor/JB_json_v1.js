@@ -5,8 +5,7 @@ define( [ 'dojo/_base/declare',
           'dojo/request',
 
           'JBrowse/Util',
-          'JBrowse/Digest/Crc32',
-          'JBrowse/ConfigAdaptor/AdaptorUtil'
+          'JBrowse/Digest/Crc32'
         ], function(
             declare,
             lang,
@@ -15,8 +14,7 @@ define( [ 'dojo/_base/declare',
             request,
 
             Util,
-            digest,
-            AdaptorUtil
+            digest
         ) {
 
 var dojof = Util.dojof;
@@ -65,7 +63,11 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns {Object} the parsed JSON
          */
         parse_conf: function( conf_text, load_args ) {
-            return json.fromJson( conf_text );
+            return json.fromJson( this._inlineHeredocs( conf_text ) );
+        },
+
+        _inlineHeredocs: function( text ) {
+            return text;
         },
 
         /**
@@ -104,8 +106,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 if( o.nameUrl )
                     o.nameUrl = Util.resolveUrl( o.sourceUrl, o.nameUrl );
             }
-
-            o = AdaptorUtil.evalHooks( o );
 
             o = this._regularizeTrackConfigs( o );
 

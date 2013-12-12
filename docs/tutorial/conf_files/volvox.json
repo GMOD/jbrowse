@@ -98,15 +98,15 @@
              },
              {
                "label" : "Popup with content snippet from string (feature {name})",
-               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "title": "{randomNumberTitle}",
                "iconClass" : "dijitIconDatabase",
                "action": "contentDialog",
                "content" : "<h2>{name}</h2><p>This is some test content about {name}, which goes from {start} to {end} on the {strand} strand.</p>"
              },
              {
-               "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }",
+               "label" : "{randomNumberLabel}",
                "iconClass" : "dijitIconDatabase",
-               "action": "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }"
+               "action": "{exampleFeatureClick}"
              }
          ]
       },
@@ -122,7 +122,7 @@
          "trackType": "JBrowse/View/Track/CanvasFeatures",
          "menuTemplate": [  {
                "label" : "Popup with content snippet from string (feature {name})",
-               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "title": "{randomNumberTitle}",
                "iconClass" : "dijitIconDatabase",
                "action": "contentDialog",
                "content" : "<h2>{name}</h2>This is some test content about {type} {name}, which goes from {start} to {end} on the {strand} strand."
@@ -163,7 +163,7 @@
          ],
          "category" : "Transcripts",
          "subfeatures" : true,
-         "onClick": "function() { alert('This is an example of a user-provided JavaScript callback!'); };"
+         "onClick": "{exampleFeatureClick}"
       },
       {
          "feature" : [
