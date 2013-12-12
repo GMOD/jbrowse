@@ -42,7 +42,7 @@
       }
    ],
    "names" : {
-      "url" : "names",
+      "url" : "http://localhost:8051/names",
       "type" : "REST"
    },
    "formatVersion" : 1

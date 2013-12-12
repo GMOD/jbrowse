@@ -23,8 +23,8 @@ return declare( HashStore,
 
     query: function( query, options ) {
         var thisB = this;
-        return xhr(("names?starts="+query.name), {
-            handleAs: "json"
+        return xhr((thisB.browser.config.names.url+"?starts="+query.name), {
+            handleAs: "json",
         }).then(function(data){
             for (var i = 0; i < data.length; i++){
                 var dat = data[i];

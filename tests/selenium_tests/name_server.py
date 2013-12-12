@@ -54,6 +54,8 @@ def application( environ, start_response ):
     json_text = json.dumps(starts_obj)
 
     response_headers = [('Content-Type', 'application/json'),
+                       ('Access-Control-Allow-Origin', '*'),
+                       ('Access-Control-Allow-Headers', 'X-Requested-With'),
                        ('Content-Length', str(len(json_text)))]
     start_response('200 OK', response_headers)
     return [json_text]
