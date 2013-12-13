@@ -186,7 +186,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
-        self.turn_on_track( 'HTMLFeatures - Features with menus' )
+        self.turn_on_track( 'HTMLFeatures - Features with right-click menus' )
         self.do_typed_query( '20147..35574' )
 
         # check that there is no dialog open
@@ -210,7 +210,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # check that the dialog closed
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]")
-        self.turn_off_track( 'HTMLFeatures - Features with menus' )
+        self.turn_off_track( 'HTMLFeatures - Features with right-click menus' )
 
     def wiggle( self ):
 
