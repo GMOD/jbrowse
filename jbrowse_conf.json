@@ -1,0 +1,9 @@
+// top-level JBrowse configuration file.  Treated the same as
+// jbrowse.conf, but this one is in JSON format.
+//
+// Unless generating configuration from scripts, most users will
+// prefer to add variables to jbrowse.conf instead of this file, since
+// jbrowse.conf is much easier to hand-edit.
+{
+
+}
