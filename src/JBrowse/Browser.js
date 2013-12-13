@@ -112,7 +112,7 @@ return declare( FeatureFiltererMixin, {
 constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
-    this.config = params;
+    this.config = params || {};
 
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
@@ -120,13 +120,13 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-    this.container = dojo.byId( this.config.containerID );
-    this.container.onselectstart = function() { return false; };
-
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
+
+            thisB.container = dojo.byId( thisB.config.containerID );
+            thisB.container.onselectstart = function() { return false; };
 
             // initialize our highlight if one was set in the config
             if( thisB.config.initialHighlight )
@@ -1479,6 +1479,7 @@ _configDefaults: function() {
     return {
         tracks: [],
 
+        containerID: 'GenomeBrowser',
         dataRoot: 'data',
         show_tracklist: true,
         show_nav: true,
