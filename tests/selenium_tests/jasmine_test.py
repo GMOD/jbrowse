@@ -3,8 +3,12 @@ from jbrowse_selenium import JBrowseTest
 
 class JasmineTest( JBrowseTest ):
 
-    data_dir = 'tests/js_tests/index.html'
-    base_url = 'http://localhost/'
+    def baseURL( self ):
+        if not self.base_url:
+            superbase = super( JasmineTest, self ).baseURL()
+            self.base_url = superbase.replace('index.html','tests/js_tests/index.html')
+        return self.base_url
+
     def setUp( self ):
         super( JasmineTest, self ).setUp()
 
