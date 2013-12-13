@@ -218,7 +218,7 @@ getPlugin: function( name, callback ) {
 },
 
 _corePlugins: function() {
-    return { RegexSequenceSearch: {} };
+    return [ 'RegexSequenceSearch' ];
 },
 
 /**
@@ -244,8 +244,13 @@ initPlugins: function() {
                 return newplugins;
             }.call(this);
         }
+        if( ! lang.isArray( plugins ) )
+            plugins = [ plugins ];
+
+        plugins.unshift.apply( plugins, this._corePlugins() );
+
         // coerce string plugin names to {name: 'Name'}
-        plugins = array.map( lang.isArray( plugins ) ? plugins : [plugins], function( p ) {
+        plugins = array.map( plugins, function( p ) {
             return typeof p == 'object' ? p : { 'name': p };
         });
 
@@ -253,9 +258,6 @@ initPlugins: function() {
             deferred.resolve({success: true});
             return;
         }
-
-        lang.mixin( plugins, this._corePlugins() );
-
 
         // set default locations for each plugin
         array.forEach( plugins, function(p) {
