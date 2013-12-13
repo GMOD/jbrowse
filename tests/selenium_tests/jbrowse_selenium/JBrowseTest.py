@@ -39,7 +39,7 @@ class JBrowseTest (object):
                 base + ( '&' if base.find('?') >= 0 else '?' )
                 + ( "data="+self.data_dir if self.data_dir else "" )
             )
-#       self.addCleanup(self.browser.quit)
+        self.addCleanup(self.browser.quit)
         self._waits_for_load()
 
     def baseURL( self ):
