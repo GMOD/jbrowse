@@ -48,7 +48,15 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
                 expect(gbConfig['sub']['section']['giant word']).toBe('Antidisestablishmentarianism');
                 expect(gbConfig['sub']['section']['multiline']).toBe('herp derp');
                 expect(gbConfig['sub']['section']['fancyMultiline']).toBe('Le herp derp');
+                expect(gbConfig.sub.section.array.length).toBe(3);
+                expect(gbConfig.sub.section.array[0]).toBe(1);
+                expect(gbConfig.sub.section.array[1]).toBe(2);
+                expect(gbConfig.sub.section.array[2]).toBe(3);
                 expect(gbConfig.threshold).toBe(-1234221e-02);
+
+                expect( gbConfig.em.bedded.json.myjson.length ).toBe(2);
+                expect( gbConfig.em.bedded.json.myjson[0].zee ).toBe('hallo');
+                expect( gbConfig.em.bedded.json.myjson[1] ).toBe(53);
         });
     });
 });

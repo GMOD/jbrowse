@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+           'dojo/json',
 
            'JBrowse/ConfigAdaptor/JB_json_v1'
        ],
@@ -9,14 +10,39 @@ define([
            declare,
            lang,
            array,
+           JSON,
 
            JB_json
        ) {
 return declare( [JB_json], {
 
 parse_conf: function( text, load_args ) {
-    var section, key, value;
+    var section, key, operation, value;
     var data = {};
+
+    function recordVal() {
+        if( value !== undefined ) {
+
+            var match;
+            // parse json
+            if(( match = value.match(/^json:(.+)/i) )) {
+                value = JSON.parse( match[1] );
+            }
+            // parse numbers if it looks numeric
+            else if( /^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value) )
+                value = parseFloat( value.replace(/,/g,'') );
+
+            var path = section.concat(key).join('.');
+            if( operation == '+=' ) {
+                var existing = lang.getObject( path, false, data );
+                if( ! lang.isArray( existing ) )
+                    existing = [existing];
+                existing.push( value );
+                value = existing;
+            }
+            lang.setObject( path, value, data );
+        }
+    }
 
     array.forEach( text.split("\n"), function( line ) {
         line = line.replace(/#.+/,'');
@@ -24,30 +50,30 @@ parse_conf: function( text, load_args ) {
 
         // new section
         if(( match = line.match( /^\s*\[([^\]]+)/ ))) { // new section
+            recordVal();
             section = match[1].trim().split(/\s*[\/\.]\s*/);
             if( section.length == 1 && section[0].toLowerCase() == 'general' )
                 section = [];
         }
         // new value
-        else if(( match = line.match( value == undefined ? /^([^=]+)=(.*)/ : /^(\S[^=]+)=(.*)/ ))) {
+        else if(( match = line.match( value == undefined ? /^([^\+=]+)(\+?=)(.*)/ : /^(\S[^\+=]+)(\+?=)(.*)/ ))) {
+            recordVal();
             key = match[1].trim();
-            value = match[2].trim();
-            if( /^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value) ) // parseFloat if it looks numeric
-                value = parseFloat( value.replace(/,/g,'') );
-
-            lang.setObject( section.concat(key).join('.'), value, data );
+            operation = match[2];
+            value = match[3].trim();
         }
         // add to existing value
         else if( value !== undefined && (match = line.match( /^\s+(\S.+)/ ))) {
             value += value.length ? ' '+match[1].trim() : match[1].trim();
-
-            lang.setObject( section.concat(key).join('.'), value, data );
         }
         // done with last value
         else {
+            recordVal();
             key = value = undefined;
         }
     },this);
+
+    recordVal();
 
     return data;
 }
