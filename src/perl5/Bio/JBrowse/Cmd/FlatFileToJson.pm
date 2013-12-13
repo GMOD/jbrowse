@@ -59,6 +59,7 @@ sub option_definitions {
         "compress",
         "sortMem=i",
         "help|h|?",
+        "nameAttributes=s",
     )
 }
 
@@ -139,7 +140,8 @@ sub make_gff_stream {
     return Bio::JBrowse::FeatureStream::GFF3_LowLevel->new(
         parser => $p,
         no_subfeatures => $self->opt('noSubfeatures'),
-        track_label => $self->opt('trackLabel')
+        track_label => $self->opt('trackLabel'),
+        name_attrs => $self->_name_attrs
      );
 }
 
@@ -160,6 +162,7 @@ sub make_bed_stream {
         no_subfeatures => $self->opt('noSubfeatures'),
         stream => sub { $io->next_feature },
         track_label => $self->opt('trackLabel'),
+        name_attrs => $self->_name_attrs
     );
 }
 
@@ -174,9 +177,9 @@ sub make_gbk_stream {
 
     return Bio::JBrowse::FeatureStream::Genbank->new(
          parser => $parser,
-         track_label => $self->opt('trackLabel')
+         track_label => $self->opt('trackLabel'),
+         name_attrs => $self->_name_attrs
     );
-
 }
 
 sub make_feature_filter {

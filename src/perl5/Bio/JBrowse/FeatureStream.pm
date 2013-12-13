@@ -16,8 +16,19 @@ sub new {
 
     my $self = bless {
         @_,
-        class_count => 0
+        class_count => 0,
     }, $class;
+
+    if( $self->{name_attrs} ) {
+        if( ! @{$self->{name_attrs}} ) {
+            delete $self->{name_attrs};
+            delete $self->{name_attr_regex};
+        } else {
+            $self->{name_attrs} = [ map lc, @{$self->{name_attrs}} ];
+            my $attrs = join '|', @{$self->{name_attrs}};
+            $self->{name_attr_regex} = qr/^($attrs)\d*$/;
+        }
+    }
 
     return $self;
 }
@@ -78,15 +89,33 @@ sub _get_class {
 
 sub flatten_to_name {
     my ( $self, $f ) = @_;
-    my @nameattrs = grep /^(name|id|alias)\d*$/, keys %$f;
+
+    return unless $self->{name_attrs};
+
+    my %namepositions;
+    my @names;
+    for my $attr ( keys %$f ) {
+        my $lc = lc $attr;
+        if( $lc =~ $self->{name_attr_regex} ) {
+            push @{$namepositions{$1}}, scalar @names;
+            push @names, $f->{$attr};
+        }
+    }
+
+    return unless @names;
+
+    # rearrange the array of names to be in the order of name_attrs
+    @names = @names[ map { exists $namepositions{$_} ? (@{$namepositions{$_}}) : () } @{$self->{name_attrs}} ];
+
     my @namerec = (
-        [ grep defined, @{$f}{@nameattrs} ],
+        \@names,
         $self->{track_label},
-        $f->{name} || $f->{id} || $f->{alias},
+        $names[0],
         $f->{seq_id} || die,
-        (map $_+0, @{$f}{'start','end'})
+        $f->{start}-1, #< to zero-based
+        $f->{end}+0
         );
-    $namerec[4]--; #< to zero-based
+
     return \@namerec;
 }
 sub arrayReprClasses {

@@ -31,7 +31,7 @@ sub option_definitions {(
     "sortMem=i",
     "verbose|v+",
     "quiet|q",
-    "help|?|h",
+    "help|?|h"
 )}
 
 
@@ -106,9 +106,12 @@ sub run {
             my $db_stream = $db->get_seq_stream( -seq_id => $segName,
                                                  -type   => \@feature_types);
 
+            my $nameAttributes = $trackCfg->{nameAttributes}
+                || ( ($trackCfg->{autocomplete}||'') eq 'none' ? [] : [qw[ name alias id ]] );
             my $feature_stream = Bio::JBrowse::FeatureStream::BioPerl->new(
-                stream => sub { $db_stream->next_seq },
-                track_label => $trackLabel
+                stream      => sub { $db_stream->next_seq },
+                track_label => $trackLabel,
+                name_attrs  => $nameAttributes
             );
 
             $self->_format( trackConfig => $mergedTrackCfg,
