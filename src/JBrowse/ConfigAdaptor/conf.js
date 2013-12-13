@@ -16,35 +16,47 @@ define([
        ) {
 return declare( [JB_json], {
 
+_isAlwaysArray: function(varname) {
+    return { include: true }[varname];
+},
+
 parse_conf: function( text, load_args ) {
-    var section, key, operation, value;
+    var section = [], key, operation, value;
     var data = {};
+    var lineNumber;
 
     function recordVal() {
         if( value !== undefined ) {
-
-            var match;
-            // parse json
-            if(( match = value.match(/^json:(.+)/i) )) {
-                value = JSON.parse( match[1] );
-            }
-            // parse numbers if it looks numeric
-            else if( /^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value) )
+            try {
+                var match;
+                // parse json
+                if(( match = value.match(/^json:(.+)/i) )) {
+                    value = JSON.parse( match[1] );
+                }
+                // parse numbers if it looks numeric
+                else if( /^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value) )
                 value = parseFloat( value.replace(/,/g,'') );
 
-            var path = section.concat(key).join('.');
-            if( operation == '+=' ) {
-                var existing = lang.getObject( path, false, data );
-                if( ! lang.isArray( existing ) )
-                    existing = [existing];
-                existing.push( value );
-                value = existing;
+                var path = section.concat(key).join('.');
+                if( operation == '+=' ) {
+                    var existing = lang.getObject( path, false, data );
+                    if( ! lang.isArray( existing ) )
+                        existing = [existing];
+                    existing.push( value );
+                    value = existing;
+                }
+                lang.setObject( path, value, data );
+            } catch(e) {
+                throw new Error( "syntax error"
+                                 + ( (load_args.config||{}).url ? ' in '+load_args.config.url : '' )
+                                 + ( lineNumber? " at line "+lineNumber : '' )
+                               );
             }
-            lang.setObject( path, value, data );
         }
     }
 
-    array.forEach( text.split("\n"), function( line ) {
+    array.forEach( text.split("\n"), function( line, i ) {
+        lineNumber = i+1;
         line = line.replace(/#.+/,'');
         var match;
 
@@ -60,6 +72,9 @@ parse_conf: function( text, load_args ) {
             recordVal();
             key = match[1].trim();
             operation = match[2];
+            if( this._isAlwaysArray( section.concat(key).join('.') ) ) {
+                operation = '+=';
+            }
             value = match[3].trim();
         }
         // add to existing value
