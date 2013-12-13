@@ -39,9 +39,9 @@ return declare('JBrowse.ConfigAdaptor.gbrowse', JB_json,
                     // do nothing, since it's a comment.                           //      // this is also a comment
                 } else if (this.regex.param.test(this.lines[i])) {                 //      param = *
                     i = this.param(i);
-                } else if (this.regex.subsection.test(this.lines[i])) {            //      [section_name]
+                } else if (this.regex.subsection.test(this.lines[i])) {            //      [section/subsection]
                     this.subSection(i);
-                } else if (this.regex.section.test(this.lines[i])){                //      [section/subsection]
+                } else if (this.regex.section.test(this.lines[i])){                //      [section]
                     this.mainSection(i);
                 }
             };
@@ -91,7 +91,11 @@ return declare('JBrowse.ConfigAdaptor.gbrowse', JB_json,
         mainSection: function(i) {
             var match = this.lines[i].match(this.regex.section);
             this.section = match[1].trim();
-            this.value[this.section] = {};
+            if( this.section.toLowerCase() == 'general' )
+                this.section = null;
+            else
+                if( ! this.value[this.section] )
+                    this.value[this.section] = {};
             this.subsection = null;
         },
 
@@ -100,8 +104,10 @@ return declare('JBrowse.ConfigAdaptor.gbrowse', JB_json,
             var match = this.lines[i].match(this.regex.subsection);
             this.section = match[1].trim();
             this.subsection = match[2].trim();
-            this.value[this.section] = {};
-            this.value[this.section][this.subsection] = {};
+             if( ! this.value[this.section] )
+                 this.value[this.section] = {};
+             if( ! this.value[this.section][this.subsection] )
+                 this.value[this.section][this.subsection] = {};
         }
     });
 });

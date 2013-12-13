@@ -172,9 +172,9 @@ _loadInclude: function( include, baseUrl ) {
                try {
                    if( error.response.status == 404 )
                        return {};
-               } catch(e) {
-                   throw error;
-               };
+               } catch(e) {}
+
+               throw error;
            });
 },
 
