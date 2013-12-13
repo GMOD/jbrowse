@@ -7,35 +7,16 @@
 
 define([
            'dojo/_base/declare',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/ConfigAdaptor/JB_json_v1'
        ], function(
            declare,
-           Util
+           Util,
+           JB_json
        ) {
-return declare('JBrowse.ConfigAdaptor.gbrowse',null,
-
+return declare('JBrowse.ConfigAdaptor.gbrowse', JB_json,
     {
-
-        constructor: function() {},
-
-        load: function(args){
-            var that = this;
-            dojo.xhrGet({
-                url: Util.resolveUrl( args.baseUrl || window.location.href, args.config.url ),
-                handleAs: 'text',
-                load: dojo.hitch( that, function(data) {
-                    var gbConfig = this.parse(data);
-                    args.onSuccess.call( that, gbConfig );
-                }),
-                error: function(e) {
-                    console.error( '' + e );
-                    if( args.onFailure )
-                        args.onFailure.call( args.context || this, e );
-                }
-            });
-        },
-
-        parse: function(data){
+        parse_conf: function(data){
             this.regex = {
                 section:    /^\s*\[\s*([^\]\/]*)\s*\]\s*$/,
                 subsection: /^\s*\[\s*([^\]]*)\/([^\]]*)\s*\]\s*$/,

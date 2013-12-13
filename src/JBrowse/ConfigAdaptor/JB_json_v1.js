@@ -63,11 +63,11 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns {Object} the parsed JSON
          */
         parse_conf: function( conf_text, load_args ) {
-            return json.fromJson( this._inlineHeredocs( conf_text ) );
-        },
-
-        _inlineHeredocs: function( text ) {
-            return text;
+            try {
+                return json.fromJson( conf_text );
+            } catch(e) {
+                throw e+" when parsing "+( load_args.config.url || 'configuration' )+".";
+            }
         },
 
         /**

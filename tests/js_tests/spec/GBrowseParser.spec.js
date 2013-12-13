@@ -8,16 +8,15 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
         // config file => ./spec/GBrowseParseTestBasic.conf
 
         it('should return a javascript object', function() {
-            var gbrowseArgs = {
-                config: { url: 'spec/GBrowseParseTestBasic.conf' },
-                onSuccess: function( c ) {
-                        gbConfig = c;
-                },
-                onFailure: function( error ) {
-                    console.error(error);
-                }
-            };
-            gbrowse.load(gbrowseArgs);
+            gbrowse.load({
+                             config: { url: 'spec/GBrowseParseTestBasic.conf' }
+                         })
+                   .then(function( c ) {
+                             gbConfig = c;
+                         },
+                         function( error ) {
+                             console.error(error);
+                         });
 
             waitsFor( function() { return gbConfig; } );
             runs(function() {
@@ -54,10 +53,6 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
             expect(gbConfig['sub']['section']['giant word']).toBe('Antidisestablishmentarianism');
             expect(gbConfig['sub']['section']['multiline']).toBe('herp derp');
             expect(gbConfig['sub']['section']['fancyMultiline']).toBe('Le herp derp');
-            
-            var x = gbConfig.function_testing.meaningOfLife();
-            expect(x).toBe(42);
-
         });
     });
 });

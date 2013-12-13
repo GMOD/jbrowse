@@ -91,7 +91,8 @@ _getConfigAdaptor: function( config_def, callback ) {
 _fillTemplates: function( subconfig, config ) {
     // skip "menuTemplate" keys to prevent messing
     // up their feature-based {} interpolation
-    var skip = { menuTemplate: true };
+    //var skip = { menuTemplate: true };
+    var skip = {};
 
     var type = typeof subconfig;
     if( lang.isArray( subconfig ) ) {
@@ -198,7 +199,7 @@ _regularizeIncludes: function( includes ) {
 
         // set defaults for format and version
         if( ! ('format' in include) ) {
-            include.format = 'JB_json';
+            include.format = /\.conf$/.test( include.url ) ? 'conf' : 'JB_json';
         }
         if( include.format == 'JB_json' && ! ('version' in include) ) {
             include.version = 1;
