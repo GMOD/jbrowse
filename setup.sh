@@ -97,7 +97,7 @@ echo -n "Building and installing legacy wiggle format support (superseded by Big
         cd ../..;
     fi
     set -x;
-    bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;
+    bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --category "Pre-generated images" --out sample_data/json/volvox;
 ) >>setup.log 2>&1
 done_message "" "Make sure libpng development libraries and header files are installed.";
 

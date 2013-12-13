@@ -51,6 +51,9 @@
  * `chunkSizeLimit` for VCF files now defaults to 1 MiB.  It used to
    be 15 MiB, which was really far too big for browsers to handle.
 
+ * Add a `--category` argument to bin/wig-to-json.pl that can be used
+   to set the `metadata.category` of a track.
+
 ## Bug fixes
 
  * Fixed a bug in the VCF data backend that caused not all VCF
