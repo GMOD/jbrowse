@@ -14,7 +14,6 @@ use base 'Bio::JBrowse::Cmd';
 
 use File::Spec ();
 use POSIX ();
-use DB_File ();
 use Storable ();
 use File::Path ();
 use File::Temp ();
@@ -363,6 +362,8 @@ sub _build_index_temp {
     if ( $progressbar && $self->{stats}{operation_stream_estimated_count} >= $progress_next_update ) {
         $progressbar->update( $self->{stats}{operation_stream_estimated_count} );
     }
+
+    $self->vprint( "Actual index operations: ".$self->{stats}{operations_processed}."\n" );
 }
 
 
