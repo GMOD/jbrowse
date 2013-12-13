@@ -218,7 +218,7 @@ getPlugin: function( name, callback ) {
 },
 
 _corePlugins: function() {
-    return ['RegexSequenceSearch'];
+    return { RegexSequenceSearch: {} };
 },
 
 /**
@@ -227,18 +227,35 @@ _corePlugins: function() {
 initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
-        var plugins = this._corePlugins();
-        plugins.push.apply( plugins, this.config.plugins || this.config.Plugins || [] );
+
+        var plugins = this.config.plugins || this.config.Plugins || {};
+
+        // coerce plugins to array of objects
+        if( ! lang.isArray(plugins) && ! plugins.name ) {
+            // plugins like  { Foo: {...}, Bar: {...} }
+            plugins = function() {
+                var newplugins = [];
+                for( var pname in plugins ) {
+                    if( !( 'name' in plugins[pname] ) ) {
+                        plugins[pname].name = pname;
+                    }
+                    newplugins.push( plugins[pname] );
+                }
+                return newplugins;
+            }.call(this);
+        }
+        // coerce string plugin names to {name: 'Name'}
+        plugins = array.map( lang.isArray( plugins ) ? plugins : [plugins], function( p ) {
+            return typeof p == 'object' ? p : { 'name': p };
+        });
 
         if( ! plugins ) {
             deferred.resolve({success: true});
             return;
         }
 
-        // coerce plugins to array of objects
-        plugins = array.map( lang.isArray( plugins ) ? plugins : [plugins], function( p ) {
-            return typeof p == 'object' ? p : { 'name': p };
-        });
+        lang.mixin( plugins, this._corePlugins() );
+
 
         // set default locations for each plugin
         array.forEach( plugins, function(p) {
