@@ -245,7 +245,7 @@ Util = {
 
             // check the loaded modules for success
             for( var i = 0; i<modules.length; i++ ) {
-                if( !{object:true, function:true}[typeof modules[i]] ) {
+                if( !{"object":true, "function":true}[typeof modules[i]] ) {
                     d.reject("could not load "+paths[i]+": "+modules[i]);
                     return;
                 }
