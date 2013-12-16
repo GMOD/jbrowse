@@ -37,6 +37,7 @@ use JSON 2;
 use File::Spec ();
 use File::Path ();
 
+use Digest::Crc32 ();
 use DB_File ();
 use IO::File ();
 use POSIX ();
@@ -60,6 +61,8 @@ sub open {
 
     $self->{meta} = $self->_read_meta;
 
+    $self->{crc} = Digest::Crc32->new;
+
     # compress, format, and hash_bits all use the value in the
     # meta.json if present, or the value passed in by the constructor,
     # or the default, in order of priority
@@ -81,7 +84,7 @@ sub open {
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 
-    $self->{cache_size} = int( $self->{mem} / 50000 / 6 );
+    $self->{cache_size} = int( $self->{mem} / 50000 / 4 );
     print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
     File::Path::mkpath( $self->{dir} );
@@ -168,16 +171,19 @@ sub stream_do {
         while ( my $op = $op_stream->() ) {
             my $key = $op->[0];
             my $hex = $self->_hexHash( $key );
-            my $log_handle = $filehandle_cache->compute( $hex, sub {
-                                                             my $pathinfo = $self->_hexToPath( $hex );
+            my $log_hex = $hex;
+            $log_hex =~ s/^\w{3}/000/ if length($hex) > 3;
+            my $log_handle = $filehandle_cache->compute( $log_hex, sub {
+                                                             my ( $h ) = @_;
+                                                             my $pathinfo = $self->_hexToPath( $h );
                                                              File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
                                                              #warn "writing $pathinfo->{fullpath}.log\n";
                                                              CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
-                                                           or die "$! opening bucket log $pathinfo->{fullpath}.log";
+                                                                 or die "$! opening bucket log $pathinfo->{fullpath}.log";
                                                              return $f;
                                                          });
 
-            Storable::store_fd( $op, $log_handle );
+            Storable::store_fd( [$hex,$op], $log_handle );
 
             $ops_written++;
             if ( $progressbar && $ops_written > $progressbar_next_update ) {
@@ -197,12 +203,12 @@ sub stream_do {
         my $ops_played_back = 0;
         my $log_iterator = $self->_file_iterator( sub { /\.log$/ } );
         while ( my $log_path = $log_iterator->() ) {
-            #unlink $log_path or die "$! unlinking $log_path\n";
-            ( my $bucket_path = $log_path ) =~ s/\.log$//;
-            my $bucket = $self->_readBucket({ fullpath => $bucket_path, dir => File::Basename::dirname( $bucket_path ) });
             CORE::open( my $log_fh, '<', $log_path ) or die "$! reading $log_path";
+            #warn "reading $log_path\n";
             unlink $log_path;
-            while ( my $op = eval { Storable::fd_retrieve( $log_fh ) } ) {
+            while ( my $rec = eval { Storable::fd_retrieve( $log_fh ) } ) {
+                my ( $hex, $op ) = @$rec;
+                my $bucket = $self->_getBucketFromHex( $hex );
                 $bucket->{data}{$op->[0]} = $do_operation->( $op, $bucket->{data}{$op->[0]} );
 
                 if ( $progressbar && ++$ops_played_back > $progressbar_next_update ) {
@@ -450,16 +456,11 @@ sub _hexHash {
 }
 
 sub _hash {
-    my ( $self, $key ) = @_;
-    my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
-                  ->strcrc32( $key );
-    $crc &= $self->{hash_mask};
-    return $crc;
+    $_[0]->{crc}->strcrc32( $_[1] ) & $_[0]->{hash_mask}
 }
 
 sub _hex {
-    my ( $self, $crc ) = @_;
-    return sprintf( $self->{hash_sprintf_pattern}, $crc );
+    sprintf( $_[0]->{hash_sprintf_pattern}, $_[1] );
 }
 
 sub _hexToPath {
