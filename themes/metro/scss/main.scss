@@ -17,36 +17,36 @@
 
 .jbrowse.metro {
     font-family: Open Sans, sans-serif;
-}
 
-.jbrowse.metro .dijitSplitterH {
-    height: 4px;
-    margin-bottom: -3px;
-    background: none;
-}
+    .dijitSplitterH {
+        height: 4px;
+        margin-bottom: -3px;
+        background: none;
+    }
 
-.jbrowse.metro .pane-position, .jbrowse.metro .pane-size {
-    background: #d5d5d5;
-    color: #353535;
-    font-weight: bold;
-}
-.jbrowse.metro .pane-position:hover {
-    background: #4284D3;
-    color: white;
-    border: 1px solid #EEE;
-    border-top: 1px solid #4284D3;
-    height: 16px;
-}
-.jbrowse.metro .nav-controls .zoomSliderText {
-    color: white;
-}
+    .pane-position, .pane-size {
+        background: #d5d5d5;
+        color: #353535;
+        font-weight: bold;
+    }
+    .pane-position:hover {
+        background: #4284D3;
+        color: white;
+        border: 1px solid #EEE;
+        border-top: 1px solid #4284D3;
+        height: 16px;
+    }
+    .nav-controls .zoomSliderText {
+        color: white;
+    }
 
-.jbrowse.metro .gridline_refseq_end {
-    border-width: 2px;
-    border-color: #222;
-    -moz-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
-    -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
-    box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    .gridline_refseq_end {
+        border-width: 2px;
+        border-color: #222;
+        -moz-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+        -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+        box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    }
 }
 
 @import "regionbrowser.scss";
