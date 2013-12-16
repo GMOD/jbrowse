@@ -11,7 +11,6 @@ sub load {
     # on the data in the hash store
     my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $ref_seqs, $names_files ), $names_files );
 
-    # finally copy the temp store to the namestore
     $self->vprint( "Using ".$self->name_store->meta->{hash_bits}."-bit hashing (".$self->requested_hash_bits." requested)\n" );
 
     $self->close_name_store;

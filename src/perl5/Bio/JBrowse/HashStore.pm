@@ -31,7 +31,7 @@ use warnings;
 
 use Carp;
 
-use Storable;
+use Storable ();
 use JSON 2;
 
 use File::Spec ();
@@ -144,6 +144,54 @@ sub get {
     return $bucket->{data}{$key};
 }
 
+=head2 stream_do( $arg_stream, $operation_callback )
+
+=cut
+
+sub stream_do {
+    my ( $self, $op_stream, $do_operation ) = @_;
+
+    my $filehandle_cache = $self->_make_cache( size => 30000 );
+
+    # make log files for each bucket, log the operations that happen
+    # on that bucket, but don't actually do them yet
+    while( my $op = $op_stream->() ) {
+        my $key = $op->[0];
+        my $hex = $self->_hexHash( $key );
+        my $log_handle = $filehandle_cache->compute( $hex, sub {
+                               my $pathinfo = $self->_hexToPath( $hex );
+                               File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
+                               #warn "writing $pathinfo->{fullpath}.log\n";
+                               CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
+                                   or die "$! opening bucket log $pathinfo->{fullpath}.log";
+                               return $f;
+                         });
+
+        Storable::store_fd( $op, $log_handle );
+    }
+
+    undef $filehandle_cache;
+
+    # play back the operations, feeding the $do_operation sub with the
+    # bucket and the operation to be done
+    my $log_iterator = $self->_file_iterator( sub { /\.log$/ } );
+    while( my $log_path = $log_iterator->() ) {
+        #unlink $log_path or die "$! unlinking $log_path\n";
+        ( my $bucket_path = $log_path ) =~ s/\.log$//;
+        my $bucket = $self->_readBucket({ fullpath => $bucket_path, dir => File::Basename::dirname( $bucket_path ) });
+        CORE::open( my $log_fh, '<', $log_path ) or die "$! reading $log_path";
+        unlink $log_path;
+        while( my $op = eval { Storable::fd_retrieve( $log_fh ) } ) {
+            $bucket->{data}{$op->[0]} = $do_operation->( $op, $bucket->{data}{$op->[0]} );
+        }
+    }
+}
+
+use File::Next ();
+sub _file_iterator {
+    my ( $self, $filter ) = @_;
+    return File::Next::files( { file_filter => $filter }, $self->{dir} );
+}
 
 =head2 set( $key, $value )
 
@@ -272,7 +320,7 @@ sub _stream_set_build_buckets {
     print "Rehashing to final HashStore buckets...\n" if $self->{verbose} && ! $progressbar;
 
     while ( my ( $k, $v ) = $kv_stream->() ) {
-        my $hex = $self->_hex( $self->_hash( $k ) );
+        my $hex = $self->_hexHash( $k );
         my $b = $buckets->{$hex};
         if( $b ) {
             $b = Storable::thaw( $b );
@@ -361,11 +409,22 @@ sub UNTIE {
 
 ########## helper methods ###########
 
+# cached combination hash and print as hex
+sub _hexHash {
+    my ( $self, $key ) = @_;
+    my $cache = $self->{hex_hash_cache} ||= $self->_make_cache( size => 300 );
+    return $cache->compute( $key, sub {
+        my ($k) = @_;
+        return $self->_hex( $self->_hash( $key ) );
+    });
+}
+
 sub _hash {
     my ( $self, $key ) = @_;
     my $crc = ( $self->{crc} ||= do { require Digest::Crc32; Digest::Crc32->new } )
                   ->strcrc32( $key );
-    return $crc & $self->{hash_mask};
+    $crc &= $self->{hash_mask};
+    return $crc;
 }
 
 sub _hex {
@@ -384,17 +443,32 @@ sub _hexToPath {
 
 sub _getBucket {
     my ( $self, $key ) = @_;
-    return $self->_getBucketFromHex( $self->_hex( $self->_hash( $key ) ) );
+    return $self->_getBucketFromHex( $self->_hexHash( $key ) );
+}
+
+sub _flushAllCaches {
+    my ( $self ) = @_;
+    delete $self->{$_} for (
+        qw(
+              bucket_cache
+              bucket_log_filehandle_cache
+              hex_hash_cache
+              bucket_path_cache_by_hex
+          ));
 }
 
 sub _getBucketFromHex {
     my ( $self, $hex ) = @_;
     my $bucket_cache = $self->{bucket_cache} ||= $self->_make_cache( size => $self->{cache_size} );
     return $bucket_cache->compute( $hex, sub {
-        my $path_cache = $self->{bucket_path_cache_by_hex} ||= $self->_make_cache( size => $self->{cache_size} );
-        my $pathinfo = $path_cache->compute( $hex, sub { $self->_hexToPath( $hex ) });
-        return $self->_readBucket( $pathinfo )
+        return $self->_readBucket( $self->_getBucketPath( $hex ) )
     });
+}
+
+sub _getBucketPath {
+    my ( $self, $hex ) = @_;
+    my $path_cache = $self->{bucket_path_cache_by_hex} ||= $self->_make_cache( size => $self->{cache_size} );
+    return $path_cache->compute( $hex, sub { $self->_hexToPath( $hex ) });
 }
 
 sub _readBucket {
@@ -421,7 +495,7 @@ sub _readBucket {
                         }
                 } || {}
               )
-            : ( dirty => 1 )
+            : ( data => {}, dirty => 1 )
         ));
 }
 
@@ -468,7 +542,7 @@ sub new {
 
 sub compute {
     my ( $self, $key, $callback ) = @_;
-    return $self->{bykey}{$key} ||= do {
+    return exists $self->{bykey}{$key} ? $self->{bykey}{$key} : do {
         my $fifo = $self->{fifo};
         if( @$fifo >= $self->{size} ) {
             delete $self->{bykey}{ shift @$fifo };

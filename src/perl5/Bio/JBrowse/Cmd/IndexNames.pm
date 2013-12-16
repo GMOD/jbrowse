@@ -461,8 +461,10 @@ sub make_operations {
 
     my $lc_name = lc $record->[0];
     unless( $lc_name ) {
-        warn "WARNING: some blank name records found, skipping.\n"
-           unless $self->{already_warned_about_blank_name_records}++;
+        unless( $self->{already_warned_about_blank_name_records} ) {
+            warn "WARNING: some blank name records found, skipping.\n";
+            $self->{already_warned_about_blank_name_records} = 1;
+        }
         return;
     }
 

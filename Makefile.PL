@@ -55,6 +55,7 @@ my %WriteMakefileArgs = (
     "File::Basename" => 0,
     "File::Copy::Recursive" => 0,
     "File::Path" => 2,
+    "File::Next" => 0,
     "File::Spec" => 0,
     "File::Spec::Functions" => 0,
     "File::Temp" => 0,

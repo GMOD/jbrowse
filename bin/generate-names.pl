@@ -8,6 +8,11 @@ if( grep $_ eq '--safeMode', @ARGV ) {
     require Bio::JBrowse::Cmd::IndexNames::BackCompat;
     exit Bio::JBrowse::Cmd::IndexNames::BackCompat->new(@ARGV)->run;
 }
+
+elsif( 1 ) {
+    require Bio::JBrowse::Cmd::IndexNames2;
+    exit Bio::JBrowse::Cmd::IndexNames2->new(@ARGV)->run;
+}
 else {
     require Bio::JBrowse::Cmd::IndexNames;
     exit Bio::JBrowse::Cmd::IndexNames->new(@ARGV)->run;
