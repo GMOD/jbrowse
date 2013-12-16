@@ -149,40 +149,70 @@ sub get {
 =cut
 
 sub stream_do {
-    my ( $self, $op_stream, $do_operation ) = @_;
+    my ( $self, $op_stream, $do_operation, $estimated_op_count ) = @_;
 
-    my $filehandle_cache = $self->_make_cache( size => 30000 );
+    # clean up any stale log files
+    { my $log_iterator = $self->_file_iterator( sub { /\.log$/ } );
+      while( my $stale_logfile = $log_iterator->() ) {
+          unlink $stale_logfile;
+      }
+    }
 
     # make log files for each bucket, log the operations that happen
     # on that bucket, but don't actually do them yet
-    while( my $op = $op_stream->() ) {
-        my $key = $op->[0];
-        my $hex = $self->_hexHash( $key );
-        my $log_handle = $filehandle_cache->compute( $hex, sub {
-                               my $pathinfo = $self->_hexToPath( $hex );
-                               File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
-                               #warn "writing $pathinfo->{fullpath}.log\n";
-                               CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
-                                   or die "$! opening bucket log $pathinfo->{fullpath}.log";
-                               return $f;
-                         });
+    my $ops_written = 0;
+    {
+        my $filehandle_cache = $self->_make_cache( size => 1000 );
+        my $progressbar = $estimated_op_count && $self->_make_progressbar( 'Sorting operations', $estimated_op_count );
+        my $progressbar_next_update = 0;
+        while ( my $op = $op_stream->() ) {
+            my $key = $op->[0];
+            my $hex = $self->_hexHash( $key );
+            my $log_handle = $filehandle_cache->compute( $hex, sub {
+                                                             my $pathinfo = $self->_hexToPath( $hex );
+                                                             File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
+                                                             #warn "writing $pathinfo->{fullpath}.log\n";
+                                                             CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
+                                                           or die "$! opening bucket log $pathinfo->{fullpath}.log";
+                                                             return $f;
+                                                         });
 
-        Storable::store_fd( $op, $log_handle );
+            Storable::store_fd( $op, $log_handle );
+
+            $ops_written++;
+            if ( $progressbar && $ops_written > $progressbar_next_update ) {
+                $progressbar_next_update = $progressbar->update( $ops_written );
+            }
+        }
+        if ( $progressbar && $ops_written >= $progressbar_next_update ) {
+            $progressbar->update( $estimated_op_count );
+        }
     }
-
-    undef $filehandle_cache;
 
     # play back the operations, feeding the $do_operation sub with the
     # bucket and the operation to be done
-    my $log_iterator = $self->_file_iterator( sub { /\.log$/ } );
-    while( my $log_path = $log_iterator->() ) {
-        #unlink $log_path or die "$! unlinking $log_path\n";
-        ( my $bucket_path = $log_path ) =~ s/\.log$//;
-        my $bucket = $self->_readBucket({ fullpath => $bucket_path, dir => File::Basename::dirname( $bucket_path ) });
-        CORE::open( my $log_fh, '<', $log_path ) or die "$! reading $log_path";
-        unlink $log_path;
-        while( my $op = eval { Storable::fd_retrieve( $log_fh ) } ) {
-            $bucket->{data}{$op->[0]} = $do_operation->( $op, $bucket->{data}{$op->[0]} );
+    {
+        my $progressbar = $ops_written && $self->_make_progressbar( 'Executing operations', $ops_written );
+        my $progressbar_next_update = 0;
+        my $ops_played_back = 0;
+        my $log_iterator = $self->_file_iterator( sub { /\.log$/ } );
+        while ( my $log_path = $log_iterator->() ) {
+            #unlink $log_path or die "$! unlinking $log_path\n";
+            ( my $bucket_path = $log_path ) =~ s/\.log$//;
+            my $bucket = $self->_readBucket({ fullpath => $bucket_path, dir => File::Basename::dirname( $bucket_path ) });
+            CORE::open( my $log_fh, '<', $log_path ) or die "$! reading $log_path";
+            unlink $log_path;
+            while ( my $op = eval { Storable::fd_retrieve( $log_fh ) } ) {
+                $bucket->{data}{$op->[0]} = $do_operation->( $op, $bucket->{data}{$op->[0]} );
+
+                if ( $progressbar && ++$ops_played_back > $progressbar_next_update ) {
+                    $progressbar_next_update = $progressbar->update( $ops_played_back );
+                }
+            }
+        }
+
+        if ( $progressbar && $ops_played_back >= $progressbar_next_update ) {
+            $progressbar->update( $ops_written );
         }
     }
 }
