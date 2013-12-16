@@ -8,7 +8,7 @@ define( [
             'JBrowse/View/Track/_Quantitative',
             'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Util',
-            'JBrowse/View/Track/Wiggle/_Scale'
+            'JBrowse/View/Track/Quantitative/_Scale'
         ],
         function(
             declare,

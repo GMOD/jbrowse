@@ -1,5 +1,5 @@
 /**
- * The scaling used for drawing a Wiggle track, which is the data's
+ * The scaling used for drawing a quantitative track, which is the data's
  * origin.
  *
  * Has numeric attributes range, min, max, origin, and offset.

@@ -13,7 +13,7 @@ define( [
             'JBrowse/View/Track/_ExportMixin',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
-            './Wiggle/_Scale'
+            './Quantitative/_Scale'
         ],
         function(
             declare,
