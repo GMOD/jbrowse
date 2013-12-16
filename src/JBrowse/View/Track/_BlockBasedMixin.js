@@ -58,13 +58,15 @@ _genomeViewSetter: function( genomeview ) {
 },
 
 destroyAllBlocks: function() {
-    array.forEach( this.domNode.children, function(n) {
+    array.forEach( Array.prototype.slice.call(this.domNode.children), function(n) {
                        if( this.isBlockNode( n ) )
                            this.domNode.removeChild( n );
                    },this);
 },
 
 isBlockNode: function( node ) {
+    if( ! node )
+        debugger;
     return node.tagName == 'DIV' && /\brenderingBlock\b/.test( node.className );
 },
 

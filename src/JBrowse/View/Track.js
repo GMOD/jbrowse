@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
            'dojo/dom-class',
+           'dojo/dom-construct',
 
            'dijit/layout/ContentPane',
 
@@ -11,6 +12,7 @@ define([
        function(
            declare,
            domClass,
+           dom,
 
            ContentPane,
 
@@ -53,12 +55,29 @@ return declare( [
       return this.store || this.get('track').get('store');
   },
 
-  heightUpdate: function(h) {
-      if(! ( this.h >= h ) ) {
-              this.getParent().heightUpdate( this, h );
-              this.h = h;
-              this.domNode.style.height = h+'px';
+  heightUpdate: function( h ) {
+      //console.log('heightUpdate %d',h);
+      if( this.h != h ) {
+          this.getParent().heightUpdate( this, h );
+          this.h = h;
+          this.domNode.style.height = h+'px';
       }
+  },
+
+  // show/hide track-wide message
+  removeTrackMessage: function() {
+      if( this.trackMessage )
+          dom.destroy( this.trackMessage.node );
+      delete this.trackMessage;
+  },
+  showTrackMessage: function( message ) {
+      if( this.trackMessage && this.trackMessage.message == message )
+          return;
+      this.removeTrackMessage();
+      this.trackMessage = {
+          message: message,
+          node: dom.create('div', { className: 'message', innerHTML: message }, this.domNode )
+      };
   },
 
   /**

@@ -485,18 +485,6 @@ a.dialog-new-window {
     z-index: 25;
 }
 
-.trackVerticalPositionIndicatorMain {
-    position: absolute;
-    display: none;
-    cursor: crosshair;
-    left: -2px;
-    height: 100%;
-    width: 1px;
-    background-color: #FF0000;
-    z-index: 1000;
-    top: 0;
-}
-
 /* styles for per-base quality table in alignment detail pages */
 .baseQuality {
     font-family: Courier New, monospace;

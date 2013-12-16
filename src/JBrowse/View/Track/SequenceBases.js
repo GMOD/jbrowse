@@ -3,11 +3,13 @@
  */
 define( [
             'dojo/_base/declare',
+            'dojo/dom-construct',
 
             './BlockBased'
         ],
         function(
             declare,
+            dom,
 
             BlockBased
         ) {
@@ -30,13 +32,15 @@ return declare( BlockBased,
 
         // if we are zoomed in far enough to draw bases, then draw them
         if( scale <= 1 ) {
+            this.removeTrackMessage();
             return this._fillBlockWithWorker( block, blockNode, changeInfo );
         }
         // otherwise, just draw something that suggests there are
         // bases there if you zoom in far enough
         else {
-            blockNode.innerHTML = '<div class="sequence_blur"><span class="zoom">Zoom in to see sequence</span></div>';
-            this.heightUpdate( 30 );
+            dom.empty( blockNode );
+            this.showTrackMessage('Zoom in to see sequence');
+            this.heightUpdate( 30, block );
             return blockNode;
         }
     }

@@ -137,6 +137,24 @@ return declare( [ TrackView, _BlockBasedMixin ],
         }
     },
 
+    heightUpdate: function( h, block ) {
+        if( block ) {
+            //console.log('block %d height %d', block.id(), h );
+            this.blockStash[block.id()].requestedHeight = h;
+
+            var maxHeight = 0;
+            for( var id in this.blockStash ) {
+                var blockHeight = this.blockStash[id].requestedHeight;
+                if( blockHeight > maxHeight )
+                    maxHeight = blockHeight;
+            }
+            this.inherited( arguments, [ maxHeight ] );
+        }
+        else {
+            this.inherited( arguments );
+        }
+    },
+
     // get deferred array of stashed block records for the given
     // screen pixel range.
     getBlockStashForRange: function( px1, px2 ) {
@@ -182,7 +200,6 @@ return declare( [ TrackView, _BlockBasedMixin ],
 
     fillBlockWithLoadingMessage: function( block, blockNode, changeInfo ) {
         var indicator = this.renderLoadingMessage( blockNode );
-        this.heightUpdate( 40 );
         return indicator;
     },
 
@@ -250,7 +267,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
                        remoteDOMNode.replayOnto( blockNode );
                        array.some( blockNode.childNodes, function(n) {
                                        if( n.tagName == 'CANVAS' ) {
-                                           thisB.heightUpdate( n.height );
+                                           thisB.heightUpdate( n.height, block );
                                            return true;
                                        }
                                        return false;

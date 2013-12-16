@@ -33,6 +33,18 @@
       background: rgba( 0,0,0, 0.1 );
   }
 
+  .trackVerticalPositionIndicatorMain {
+      position: absolute;
+      display: none;
+      cursor: crosshair;
+      left: -2px;
+      height: 100%;
+      width: 1px;
+      background-color: #FF0000;
+      z-index: 1000;
+      top: 0;
+  }
+
   .track,.trackNoGutter {
       width: 100%;
       padding: 0;
@@ -44,6 +56,13 @@
       -moz-box-sizing: border-box;
       -webkit-box-sizing: border-box;
       -ms-box-sizing: border-box;
+
+      .message {
+        margin: 0;
+        text-align: center;
+        height: 100%;
+        width: 100%;
+      }
 
       .ruler {
           text-shadow: white 0 0 4px;
