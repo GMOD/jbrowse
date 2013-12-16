@@ -92,7 +92,7 @@
                 },
                 "gc": {
                     "store": "refseqs",
-                    "description": "GC content (%)",
+                    "description": "GC (%)",
                     "type": "JBrowse/View/Track/SequenceGCContent"
                 }
             }
