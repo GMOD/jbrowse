@@ -21,7 +21,7 @@ _isAlwaysArray: function(varname) {
 },
 
 parse_conf: function( text, load_args ) {
-    var section = [], key, operation, value;
+    var section = [], keypath, operation, value;
     var data = {};
     var lineNumber;
 
@@ -37,7 +37,7 @@ parse_conf: function( text, load_args ) {
                 else if( /^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value) )
                 value = parseFloat( value.replace(/,/g,'') );
 
-                var path = section.concat(key).join('.');
+                var path = section.concat(keypath).join('.');
                 if( operation == '+=' ) {
                     var existing = lang.getObject( path, false, data );
                     if( ! lang.isArray( existing ) )
@@ -63,16 +63,16 @@ parse_conf: function( text, load_args ) {
         // new section
         if(( match = line.match( /^\s*\[([^\]]+)/ ))) { // new section
             recordVal();
-            section = match[1].trim().split(/\s*[\/\.]\s*/);
+            section = match[1].trim().split(/\s*[\/]\s*/);
             if( section.length == 1 && section[0].toLowerCase() == 'general' )
                 section = [];
         }
         // new value
         else if(( match = line.match( value == undefined ? /^([^\+=]+)(\+?=)(.*)/ : /^(\S[^\+=]+)(\+?=)(.*)/ ))) {
             recordVal();
-            key = match[1].trim();
+            keypath = match[1].trim().split('/');
             operation = match[2];
-            if( this._isAlwaysArray( section.concat(key).join('.') ) ) {
+            if( this._isAlwaysArray( section.concat(keypath).join('.') ) ) {
                 operation = '+=';
             }
             value = match[3].trim();
@@ -84,7 +84,7 @@ parse_conf: function( text, load_args ) {
         // done with last value
         else {
             recordVal();
-            key = value = undefined;
+            keypath = value = undefined;
         }
     },this);
 
