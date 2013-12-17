@@ -78,7 +78,7 @@ parse_conf: function( text, load_args ) {
             value = match[3].trim();
         }
         // add to existing value
-        else if( value !== undefined && (match = line.match( /^\s+(\S.+)/ ))) {
+        else if( value !== undefined && (match = line.match( /^\s+(\S.*)/ ))) {
             value += value.length ? ' '+match[1].trim() : match[1].trim();
         }
         // done with last value

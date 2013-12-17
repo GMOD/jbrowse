@@ -57,6 +57,10 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
                 expect( gbConfig.em.bedded.json.myjson.length ).toBe(2);
                 expect( gbConfig.em.bedded.json.myjson[0].zee ).toBe('hallo');
                 expect( gbConfig.em.bedded.json.myjson[1] ).toBe(53);
+
+                expect( gbConfig.function_testing.randomNumberTitle.charAt( gbConfig.function_testing.randomNumberTitle.length-1 ) )
+                     .toBe('}');
+
         });
     });
 });
