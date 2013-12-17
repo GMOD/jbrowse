@@ -121,25 +121,24 @@ sub load {
 
     # convert the stream of name records into a stream of operations to do
     # on the data in the hash store
-    my $operation_stream = $self->make_operation_stream(
-        $self->make_name_record_stream( $ref_seqs, $names_files ),
-        $names_files
-    );
+    my $operation_stream = $self->make_operation_stream( $self->make_name_record_stream( $ref_seqs, $names_files ), $names_files );
 
-    $self->vprint( "Using ".$self->name_store->meta->{hash_bits}."-bit hashing (".$self->requested_hash_bits." requested)\n" );
+    # hash each operation and write it to a log file
+    $self->name_store->stream_do(
+        $operation_stream,
+        sub {
+            my ( $operation, $data ) = @_;
+            my %fake_store = ( $operation->[0] => $data );
+            $self->do_hash_operation( \%fake_store, $operation );
+            return $fake_store{ $operation->[0] } || {};
+        },
+        $self->{stats}{operation_stream_estimated_count},
+        );
 
-    # make a stream of key/value pairs and load them into the HashStore
-    $self->name_store->stream_set(
-        $self->make_key_value_stream( $operation_stream ),
-        $self->{stats}{key_count},
-        ( $self->opt('incremental')
-              ? sub {
-                  return $self->_mergeIndexEntries( @_ );
-                }
-              : ()
-        )
-    );
 }
+
+sub _hash_operation_freeze { $_[1] }
+sub _hash_operation_thaw   { $_[1] }
 
 sub _uniq {
     my $self = shift;
@@ -307,64 +306,6 @@ sub make_name_record_stream {
     };
 }
 
-sub make_key_value_stream {
-    my $self    = shift;
-    my $workdir = $self->opt('workdir') || $self->opt('dir');
-
-    my $tempfile = File::Temp->new( TEMPLATE => 'names-build-tmp-XXXXXXXX', DIR => $workdir, UNLINK => 1 );
-    $self->vprint( "Temporary key-value DBM file: $tempfile\n" );
-
-    # load a temporary DB_File with the completion data
-    $self->_build_index_temp( shift, $tempfile ); #< use shift to free the $operation_stream after index is built
-
-    # reopen the temp store with default cache size to save memory
-    my $temp_store = $self->name_store->db_open( $tempfile, &POSIX::O_RDONLY, 0666 );
-    $self->{stats}{key_count} = scalar keys %$temp_store;
-    return sub {
-        my ( $k, $v ) = each %$temp_store;
-        return $k ? ( $k, Storable::thaw($v) ) : ();
-    };
-}
-
-sub _build_index_temp {
-    my ( $self, $operation_stream, $tempfile ) = @_;
-
-    my $temp_store = $self->name_store->db_open(
-        $tempfile, &POSIX::O_RDWR|&POSIX::O_TRUNC, 0666,
-        { flags => 0x1, cachesize => $self->opt('mem') }
-        );
-
-    my $progressbar;
-    my $progress_next_update = 0;
-    if ( $self->opt('verbose') ) {
-        print "Estimating $self->{stats}{operation_stream_estimated_count} index operations on $self->{stats}{record_stream_estimated_count} completion records\n";
-        eval {
-            require Term::ProgressBar;
-            $progressbar = Term::ProgressBar->new({name  => 'Gathering locations, generating completions',
-                                                   count => $self->{stats}{operation_stream_estimated_count},
-                                                   ETA   => 'linear', });
-            $progressbar->max_update_rate(1);
-        }
-    }
-
-    # now write it to the temp store
-    while ( my $op = $operation_stream->() ) {
-        $self->do_hash_operation( $temp_store, $op );
-        $self->{stats}{operations_processed}++;
-
-        if ( $progressbar && $self->{stats}{operations_processed} > $progress_next_update
-             && $self->{stats}{operations_processed} < $self->{stats}{operation_stream_estimated_count}
-           ) {
-            $progress_next_update = $progressbar->update( $self->{stats}{operations_processed} );
-        }
-    }
-
-    if ( $progressbar && $self->{stats}{operation_stream_estimated_count} >= $progress_next_update ) {
-        $progressbar->update( $self->{stats}{operation_stream_estimated_count} );
-    }
-
-    $self->vprint( "Actual index operations: ".$self->{stats}{operations_processed}."\n" );
-}
 
 
 sub find_names_files {
@@ -531,11 +472,6 @@ sub do_hash_operation {
         }
     }
 }
-
-sub _hash_operation_freeze {  Storable::freeze( $_[1] ) }
-sub _hash_operation_thaw   {    Storable::thaw( $_[1] ) }
-
-
 
 # each of these takes an input filename and returns a subroutine that
 # returns name records until there are no more, for either names.txt

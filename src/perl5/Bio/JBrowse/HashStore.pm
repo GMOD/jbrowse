@@ -34,8 +34,9 @@ use Carp;
 use Storable ();
 use JSON 2;
 
-use File::Spec ();
+use File::Next ();
 use File::Path ();
+use File::Spec ();
 
 use Digest::Crc32 ();
 use DB_File ();
@@ -165,23 +166,26 @@ sub stream_do {
     # on that bucket, but don't actually do them yet
     my $ops_written = 0;
     {
-        my $filehandle_cache = $self->_make_cache( size => 1000 );
+        my $filehandle_cache = $self->_make_cache( size => 1024 );
         my $progressbar = $estimated_op_count && $self->_make_progressbar( 'Sorting operations', $estimated_op_count );
         my $progressbar_next_update = 0;
         while ( my $op = $op_stream->() ) {
             my $key = $op->[0];
             my $hex = $self->_hexHash( $key );
-            my $log_hex = $hex;
-            $log_hex =~ s/^\w{3}/000/ if length($hex) > 3;
+
+            # make up to 1024 log files, because that's how many
+            # filehandles we can usually have open at once
+            my $log_hex = sprintf( '%x', hex("0x$hex") & 0x3ff );
+
             my $log_handle = $filehandle_cache->compute( $log_hex, sub {
-                                                             my ( $h ) = @_;
-                                                             my $pathinfo = $self->_hexToPath( $h );
-                                                             File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
-                                                             #warn "writing $pathinfo->{fullpath}.log\n";
-                                                             CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
-                                                                 or die "$! opening bucket log $pathinfo->{fullpath}.log";
-                                                             return $f;
-                                                         });
+                my ( $h ) = @_;
+                my $pathinfo = $self->_hexToPath( $h );
+                File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
+                #warn "writing $pathinfo->{fullpath}.log\n";
+                CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
+                    or die "$! opening bucket log $pathinfo->{fullpath}.log";
+                return $f;
+            });
 
             Storable::store_fd( [$hex,$op], $log_handle );
 
@@ -223,7 +227,6 @@ sub stream_do {
     }
 }
 
-use File::Next ();
 sub _file_iterator {
     my ( $self, $filter ) = @_;
     return File::Next::files( { file_filter => $filter }, $self->{dir} );
