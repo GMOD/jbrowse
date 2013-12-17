@@ -32,12 +32,12 @@ DataView.prototype.getUint64Approx = function( byteOffset, littleEndian ) {
 };
 
 /**
- * Get a 53-bit integer from 64 bits and die if it overflows.
+ * Get a 53-bit integer from 64 bits and throw if it overflows.
  */
 DataView.prototype.getUint64 = function( byteOffset, littleEndian ) {
     var result = this.getUint64Approx( byteOffset, littleEndian );
     if( result.overflow )
-        throw 'integer overflow';
+        throw new Error('integer overflow');
     return result;
 };
 
