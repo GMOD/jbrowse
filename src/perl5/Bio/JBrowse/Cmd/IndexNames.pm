@@ -130,7 +130,7 @@ sub load {
             my ( $operation, $data ) = @_;
             my %fake_store = ( $operation->[0] => $data );
             $self->do_hash_operation( \%fake_store, $operation );
-            return $fake_store{ $operation->[0] } || {};
+            return $fake_store{ $operation->[0] } ;
         },
         $self->{stats}{operation_stream_estimated_count},
         );
