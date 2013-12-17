@@ -48,6 +48,10 @@
 
 ## Minor improvements
 
+ * Detail popups for CanvasVariants and HTMLVariants tracks now
+   display the reference sequence itself instead of just "ref" in
+   genotype displays.  Thanks to Cris Lawrence for requesting this.
+
  * `chunkSizeLimit` for VCF files now defaults to 1 MiB.  It used to
    be 15 MiB, which was really far too big for browsers to handle.
 

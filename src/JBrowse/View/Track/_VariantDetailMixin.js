@@ -76,57 +76,77 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             },
             parentElement );
 
-        var summaryElement = this._renderGenotypeSummary( gContainer, genotypes, alt );
 
-        var valueContainer = domConstruct.create(
-            'div',
-            {
-                className: 'value_container genotypes'
-            }, gContainer );
+        function render( underlyingRefSeq ) {
+            var summaryElement = thisB._renderGenotypeSummary( gContainer, genotypes, alt, underlyingRefSeq );
 
-        this.renderDetailValueGrid(
-            valueContainer,
-            'Genotypes',
-            // iterator
-            function() {
-                if( ! keys.length )
-                    return null;
-                var k = keys.shift();
-                var value = genotypes[k];
-                var item = { id: k };
-                for( var field in value ) {
-                    item[ field ] = thisB._mungeGenotypeVal( value[field], field, alt );
+            var valueContainer = domConstruct.create(
+                'div',
+                {
+                    className: 'value_container genotypes'
+                }, gContainer );
+
+            thisB.renderDetailValueGrid(
+                valueContainer,
+                'Genotypes',
+                // iterator
+                function() {
+                    if( ! keys.length )
+                        return null;
+                    var k = keys.shift();
+                    var value = genotypes[k];
+                    var item = { id: k };
+                    for( var field in value ) {
+                        item[ field ] = thisB._mungeGenotypeVal( value[field], field, alt, underlyingRefSeq );
+                    }
+                    return item;
+                },
+                {
+                    descriptions: (function() {
+                                       if( ! keys.length )
+                                           return {};
+
+                                       var subValue = genotypes[keys[0]];
+                                       var descriptions = {};
+                                       for( var k in subValue ) {
+                                           descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
+                                       }
+                                       return descriptions;
+                                   })()
                 }
-                return item;
-            },
-            {
-                descriptions: (function() {
-                                   if( ! keys.length )
-                                       return {};
+            );
+        };
 
-                                   var subValue = genotypes[keys[0]];
-                                   var descriptions = {};
-                                   for( var k in subValue ) {
-                                       descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
-                                   }
-                                   return descriptions;
-                               })()
-            }
-        );
+        track.browser.getStore('refseqs', function( refSeqStore ) {
+                                  if( refSeqStore ) {
+                                      refSeqStore.getReferenceSequence(
+                                          { ref: track.refSeq.name,
+                                            start: f.get('start'),
+                                            end: f.get('end')
+                                          },
+                                          render,
+                                          function() { render(); }
+                                      );
+                                  }
+                                  else {
+                                      render();
+                                  }
+        });
     },
 
-    _mungeGenotypeVal: function( value, fieldname, alt ) {
+    _mungeGenotypeVal: function( value, fieldname, alt, underlyingRefSeq ) {
         if( fieldname == 'GT' ) {
             // handle the GT field specially, translating the genotype indexes into the actual ALT strings
+            var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
             value = array.map( value.values, function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex );
-                                   return gtIndex ? alt ? alt[gtIndex-1] : gtIndex : 'ref';
+                                   return gtIndex ? ( alt ? alt[gtIndex-1] : gtIndex ) : refseq;
                                });
         }
         return value;
     },
 
-    _renderGenotypeSummary: function( parentElement, genotypes, alt ) {
+    _renderGenotypeSummary: function( parentElement, genotypes, alt, underlyingRefSeq ) {
         if( ! genotypes )
             return;
 
