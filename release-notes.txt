@@ -36,15 +36,17 @@
    of the "Congratulations, JBrowse is on the web" page.  Thanks to
    Saulo Aflitos for the idea and its initial implementation.
 
- * JBrowse now supports an alternative plaintext configuration format
-   that users of GBrowse will find very familiar, since it is designed
-   to be mostly compatible with it.  This syntax is particularly
-   useful for hand-written configuration files that are included in
-   machine-writable files like trackList.json via `include`
-   directives.  Thanks to Erik Derohanian for the original
-   implementation of this configuration adaptor, and Richard Hayes and
-   Keiran Raine for motivating the work to polish and more fully
-   integrate it.
+ * JBrowse now supports a new plaintext configuration format that
+   users of GBrowse will find very familiar, since it is designed to
+   be mostly compatible with it.  This syntax is much easier to
+   hand-write than JSON.  For users wishing to convert existing JSON
+   configuration files to the new format, there is a new script,
+   `bin/json2conf.pl`, that does a fair job.  Run `bin/json2conf.pl
+   -?` for details on how to use it.
+
+   Thanks to Erik Derohanian for the original implementation of this
+   configuration adaptor, and Richard Hayes and Keiran Raine for
+   motivating the work to polish and more fully integrate it.
 
 ## Minor improvements
 
