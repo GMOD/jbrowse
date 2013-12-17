@@ -54,7 +54,7 @@ sub open {
     my $class = shift;
 
     # source of data: defaults, overridden by open args, overridden by meta.json contents
-    my $self = bless { mem => 256*2**20, @_ }, $class;
+    my $self = bless { max_filehandles => 1024, mem => 256*2**20, @_ }, $class;
 
     $self->{dir} or croak "dir option required";
 
@@ -166,7 +166,8 @@ sub stream_do {
     # on that bucket, but don't actually do them yet
     my $ops_written = 0;
     {
-        my $filehandle_cache = $self->_make_cache( size => 1024 );
+        my $max_filehandles = $self->{max_filehandles}; #< must be a power of 2
+        my $filehandle_cache = $self->_make_cache( size => $max_filehandles );
         my $progressbar = $estimated_op_count && $self->_make_progressbar( 'Sorting operations', $estimated_op_count );
         my $progressbar_next_update = 0;
         while ( my $op = $op_stream->() ) {
@@ -175,7 +176,7 @@ sub stream_do {
 
             # make up to 1024 log files, because that's how many
             # filehandles we can usually have open at once
-            my $log_hex = sprintf( '%x', hex("0x$hex") & 0x3ff );
+            my $log_hex = sprintf( '%x', hex("0x$hex") & ($max_filehandles-1) );
 
             my $log_handle = $filehandle_cache->compute( $log_hex, sub {
                 my ( $h ) = @_;
