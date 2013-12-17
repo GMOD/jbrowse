@@ -4,6 +4,7 @@ define(
         'dojo/_base/lang',
         'dojo/_base/array',
         'dojo/Deferred',
+        'dojo/promise/all',
 
         'JBrowse/Util',
         'JBrowse/ConfigAdaptor/AdaptorUtil'
@@ -13,6 +14,7 @@ define(
         lang,
         array,
         Deferred,
+        all,
 
         Util,
         AdaptorUtil
@@ -122,31 +124,35 @@ _loadIncludes: function( inputConfig ) {
     var thisB = this;
     inputConfig = lang.clone( inputConfig );
 
-    function _loadRecur( config ) {
+    function _loadRecur( config, upstreamConf ) {
         var sourceUrl = config.sourceUrl || config.baseUrl;
+        var newUpstreamConf = thisB._mergeConfigs( lang.clone( upstreamConf ), config );
         var includes = thisB._fillTemplates(
             thisB._regularizeIncludes( config.include || [] ),
-            config
+            newUpstreamConf
         );
         delete config.include;
 
-        var current = Util.resolved( config );
-        array.forEach(
-            includes,
-            function( include ) {
-                current = current
-                    .then( function() {
-                               return thisB._loadInclude( include, sourceUrl );
-                           })
+        var loads = array.map(
+            includes, function( include ) {
+                return thisB._loadInclude( include, sourceUrl )
                     .then( function( includedData ) {
-                               return _loadRecur( thisB._mergeConfigs( config, includedData ) );
+                               return _loadRecur(
+                                   includedData,
+                                   newUpstreamConf
+                               );
                            });
             });
-
-        return current;
+        return all( loads )
+            .then( function( includedDataObjects ) {
+                       array.forEach( includedDataObjects, function( includedData ) {
+                                          config = thisB._mergeConfigs( config, includedData );
+                                      });
+                       return config;
+                   });
     }
 
-    return _loadRecur( inputConfig );
+    return _loadRecur( inputConfig, {} );
 },
 
 _loadInclude: function( include, baseUrl ) {
@@ -206,18 +212,6 @@ _regularizeIncludes: function( includes ) {
         }
         return include;
    });
-},
-
-/**
- * @private
- */
-_mergeIncludes: function( inputConfig, config_includes ) {
-    // load all the configuration data in order
-    dojo.forEach( config_includes, function( config ) {
-                      if( config.loaded && config.data )
-                              this._mergeConfigs( inputConfig, config.data );
-                  }, this );
-    return inputConfig;
 },
 
 /**
