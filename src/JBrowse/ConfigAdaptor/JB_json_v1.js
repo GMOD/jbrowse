@@ -80,6 +80,25 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns the same object it was passed
          */
         regularize_conf: function( o, load_args ) {
+            // if tracks is not an array, convert it to one
+            if( o.tracks && ! lang.isArray( o.tracks ) ) {
+                // if it's a single track config, wrap it in an arrayref
+                if( o.tracks.label ) {
+                    o.tracks = [ o.tracks ];
+                }
+                // otherwise, coerce it to an array
+                else {
+                    var tracks = [];
+                    for( var label in o.tracks ) {
+                        if( ! ( 'label' in o.tracks[label] ) )
+                            o.tracks[label].label = label;
+                        tracks.push( o.tracks[label] );
+                    }
+                    o.tracks = tracks;
+                }
+            }
+
+
             o.sourceUrl = o.sourceUrl || load_args.config.url;
             o.baseUrl   = o.baseUrl || Util.resolveUrl( o.sourceUrl, '.' );
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
