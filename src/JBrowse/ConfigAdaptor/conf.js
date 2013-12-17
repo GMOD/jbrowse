@@ -70,7 +70,7 @@ parse_conf: function( text, load_args ) {
         // new value
         else if(( match = line.match( value == undefined ? /^([^\+=]+)(\+?=)(.*)/ : /^(\S[^\+=]+)(\+?=)(.*)/ ))) {
             recordVal();
-            keypath = match[1].trim().split('/');
+            keypath = match[1].trim().split(/\s*\/\s*/);
             operation = match[2];
             if( this._isAlwaysArray( section.concat(keypath).join('.') ) ) {
                 operation = '+=';

@@ -53,6 +53,7 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
                 expect(gbConfig.sub.section.array[1]).toBe(2);
                 expect(gbConfig.sub.section.array[2]).toBe(3);
                 expect( gbConfig.sub.section.inline.subsection.deeply ).toBe( 'hihi' );
+                expect( gbConfig.sub.section.inline.con.spaces ).toBe( 'hoho' );
 
                 expect(gbConfig.threshold).toBe(-1234221e-02);
 
