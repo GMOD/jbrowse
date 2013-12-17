@@ -54,7 +54,11 @@ sub open {
     my $class = shift;
 
     # source of data: defaults, overridden by open args, overridden by meta.json contents
-    my $self = bless { max_filehandles => 1024, mem => 256*2**20, @_ }, $class;
+    my $self = bless {
+        max_filehandles => 1000,
+        mem => 256*2**20,
+        @_
+    }, $class;
 
     $self->{dir} or croak "dir option required";
 
@@ -85,7 +89,7 @@ sub open {
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 
-    $self->{cache_size} = int( $self->{mem} / 50000 / 4 );
+    $self->{cache_size} = int( $self->{mem} / 50000 / 6 );
     print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
     File::Path::mkpath( $self->{dir} );
@@ -165,25 +169,32 @@ sub stream_do {
     # make log files for each bucket, log the operations that happen
     # on that bucket, but don't actually do them yet
     my $ops_written = 0;
+    my $gzip = $self->{compress} ? ':gzip' : '';
     {
-        my $max_filehandles = $self->{max_filehandles}; #< must be a power of 2
-        my $filehandle_cache = $self->_make_cache( size => $max_filehandles );
+        my $hash_chars = $self->{hash_bits}/4;
+        my $sort_log_chars = $hash_chars - int( log($self->{cache_size} )/log(16) );
+        my $max_sort_log_chars = int( log( $self->{max_filehandles} )/log(16) );
+        $sort_log_chars = 1 unless $sort_log_chars > 1;
+        $sort_log_chars = $max_sort_log_chars unless $sort_log_chars <= $max_sort_log_chars;
+
+        $hash_chars -= $sort_log_chars;
+        my $zeroes = "0"x$hash_chars;
+
+        print "Using $sort_log_chars chars for sort log names (".(16**$sort_log_chars)." sort logs)\n" if $self->{verbose};
+        my $filehandle_cache = $self->_make_cache( size => $self->{max_filehandles} );
         my $progressbar = $estimated_op_count && $self->_make_progressbar( 'Sorting operations', $estimated_op_count );
         my $progressbar_next_update = 0;
         while ( my $op = $op_stream->() ) {
-            my $key = $op->[0];
-            my $hex = $self->_hexHash( $key );
+            my $hex = $self->_hex( $self->_hash( $op->[0] ) );
 
-            # make up to 1024 log files, because that's how many
-            # filehandles we can usually have open at once
-            my $log_hex = sprintf( '%x', hex("0x$hex") & ($max_filehandles-1) );
+            substr( (my $log_hex = $hex), 0, $hash_chars, $zeroes );
 
             my $log_handle = $filehandle_cache->compute( $log_hex, sub {
                 my ( $h ) = @_;
                 my $pathinfo = $self->_hexToPath( $h );
                 File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
                 #warn "writing $pathinfo->{fullpath}.log\n";
-                CORE::open( my $f, '>>', "$pathinfo->{fullpath}.log" )
+                CORE::open( my $f, ">>$gzip", "$pathinfo->{fullpath}.log" )
                     or die "$! opening bucket log $pathinfo->{fullpath}.log";
                 return $f;
             });
@@ -208,7 +219,7 @@ sub stream_do {
         my $ops_played_back = 0;
         my $log_iterator = $self->_file_iterator( sub { /\.log$/ } );
         while ( my $log_path = $log_iterator->() ) {
-            CORE::open( my $log_fh, '<', $log_path ) or die "$! reading $log_path";
+            CORE::open( my $log_fh, "<$gzip", $log_path ) or die "$! reading $log_path";
             #warn "reading $log_path\n";
             unlink $log_path;
             while ( my $rec = eval { Storable::fd_retrieve( $log_fh ) } ) {
