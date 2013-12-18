@@ -16,7 +16,10 @@ UNZIP=unzip -q
 
 all: docs bin/wig2png
 
-release: release-normal release-min release-normal-test release-min-test release-notes.html
+release-version.txt:
+	echo $(RELEASE_VERSION) > release-version.txt
+
+release: release-version.txt release-normal release-min release-normal-test release-min-test release-notes.html
 	ls -lh *.zip
 	sha1sum *.zip
 

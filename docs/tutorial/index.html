@@ -1,6 +1,22 @@
 <html>
   <head><title>JBrowse Quick-Start Tutorial</title></head>
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
+  <script type="text/javascript" src="../../src/dojo/dojo.js" data-dojo-config="async: 1"></script>
+  <script>
+    require(['dojo/query', 'dojo/request', 'dojo/domReady!'], function( query, request ) {
+        request( '../../release-version.txt' )
+           .then( function( version ) {
+                      return version ? version.trim() : 'x.x.x';
+                  },
+                  function() {
+                      return 'x.x.x';
+                  })
+           .then( function( version ) {
+                query( 'span.current_version' )
+                   .forEach( function( n ) { n.innerHTML = version; } );
+            });
+    });
+  </script>
   <body>
     <div class="container" style="padding-bottom: 3em">
 
@@ -64,21 +80,21 @@ sudo chown `whoami` /var/www/jbrowse;
 cd /var/www/jbrowse;
 
 # fetch a JBrowse release zip file
-curl -O http://jbrowse.org/releases/JBrowse-1.8.0.zip
+curl -O http://jbrowse.org/releases/JBrowse-<span class="current_version">1.8.0</span>.zip
 
 # unzip it and cd into it
-unzip JBrowse-1.8.0.zip
-cd JBrowse-1.8.0
+unzip JBrowse-<span class="current_version">1.8.0</span>.zip
+cd JBrowse-<span class="current_version">1.8.0</span>
 </pre></div>
 
         Once you finish running that, you should try to read this
         tutorial (which is included in the JBrowse zip file) on your
         own web server by navigating to something like
-        http://your.machine.address/jbrowse/JBrowse-1.8.0/docs/tutorial/index.html.
+        http://your.machine.address/jbrowse/JBrowse-<span class="current_version">1.8.0</span>/docs/tutorial/index.html.
       </p>
       <p>
         Also, please note that JBrowse generates files with links that
-        are relative to the main JBrowse-1.x.x directory (where
+        are relative to the main JBrowse-<span class="current_version">1.x.x</span> directory (where
         index.html is located), so you should run all scripts from
         this directory.
       </p>
