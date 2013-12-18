@@ -35,6 +35,9 @@ Util = {
         return this.addCommas.apply( this, arguments );
     },
 
+    escapeHTML: function( str ) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    },
 
     /**
      * Fast, simple class-maker, used for classes that need speed more
@@ -59,6 +62,7 @@ Util = {
         else
             return false;
     },
+
 
     getViewportWidth: function() {
         var width = 0;
