@@ -369,7 +369,7 @@ sub make_operation_stream {
     $self->{stats}{avg_record_text_bytes} = $self->{stats}{total_namerec_bytes}/($self->{stats}{namerecs_buffered}||1);
     $self->{stats}{total_input_bytes} = List::Util::sum(
         map { my $s = -s $_->{fullpath};
-              $s *= 7 if $_->{fullpath} =~ /\.(g|txt|json)z$/;
+              $s *= 8 if $_->{fullpath} =~ /\.(g|txt|json)z$/;
               $s;
           } @$names_files ) || 0;
     $self->{stats}{record_stream_estimated_count} = int( $self->{stats}{total_input_bytes} / ($self->{stats}{avg_record_text_bytes}||1));;
