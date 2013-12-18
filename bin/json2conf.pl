@@ -99,7 +99,7 @@ sub convert_tracks {
     my $out = '';
     for my $track ( @$tracks ) {
         $track->{label} =~ s/\./_/g;
-        $out .= "[ tracks / $track->{label} ]\n";
+        $out .= "[ tracks . $track->{label} ]\n";
         delete $track->{label};
         $out .= to_flat_kv( $track);
     }
@@ -116,7 +116,7 @@ sub to_flat_kv {
         $key =~ s/\./_/g;
         my $ref = ref $val;
         if( $ref eq 'HASH' ) {
-            $out .= to_flat_kv( $val, "$path$key/" );
+            $out .= to_flat_kv( $val, "$path$key." );
         }
         elsif( $ref eq 'ARRAY' ) {
             for my $subv ( @$val ) {

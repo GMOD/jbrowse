@@ -35,7 +35,7 @@ parse_conf: function( text, load_args ) {
                 }
                 // parse numbers if it looks numeric
                 else if( /^[\+\-]?[\d\.,]+([eE][\-\+]?\d+)?$/.test(value) )
-                value = parseFloat( value.replace(/,/g,'') );
+                    value = parseFloat( value.replace(/,/g,'') );
 
                 var path = section.concat(keypath).join('.');
                 if( operation == '+=' ) {
@@ -69,14 +69,14 @@ parse_conf: function( text, load_args ) {
         if(( match = line.match( /^\s*\[([^\]]+)/ ))) { // new section
             recordVal();
             keypath = value = undefined;
-            section = match[1].trim().split(/\s*[\/]\s*/);
+            section = match[1].trim().split(/\s*\.\s*/);
             if( section.length == 1 && section[0].toLowerCase() == 'general' )
                 section = [];
         }
         // new value
         else if(( match = line.match( value == undefined ? /^([^\+=]+)(\+?=)(.*)/ : /^(\S[^\+=]+)(\+?=)(.*)/ ))) {
             recordVal();
-            keypath = match[1].trim().split(/\s*\/\s*/);
+            keypath = match[1].trim().split(/\s*\.\s*/);
             operation = match[2];
             if( this._isAlwaysArray( section.concat(keypath).join('.') ) ) {
                 operation = '+=';
