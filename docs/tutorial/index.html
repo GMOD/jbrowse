@@ -3,18 +3,31 @@
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
   <script type="text/javascript" src="../../src/dojo/dojo.js" data-dojo-config="async: 1"></script>
   <script>
+    // insert the current jbrowse version in all span.current_version tags
     require(['dojo/query', 'dojo/request', 'dojo/domReady!'], function( query, request ) {
         request( '../../release-version.txt' )
            .then( function( version ) {
                       return version ? version.trim() : 'x.x.x';
                   },
-                  function() {
-                      return 'x.x.x';
-                  })
+                  function() { return 'x.x.x'; }
+                )
            .then( function( version ) {
                 query( 'span.current_version' )
                    .forEach( function( n ) { n.innerHTML = version; } );
             });
+
+        // do some syntax highlighting on the conf examples
+        query( '.conf' ).forEach( function(n) {
+            var lines = n.innerHTML.split("\n");
+            for( var i = 0; i<lines.length; i++ ) {
+                lines[i] = lines[i]
+                    .replace(/^(\S[^\+=]*)(\s*=)/,'<span class="conf_key">$1</span>$2') // conf keys
+                    .replace(/\[([^\]]+)]/,'[<span class="conf_section">$1</span>]') // conf sections
+                    .replace(/(#.+)/,'<span class="conf_comment">$1</span>'); // conf comments
+            }
+            n.innerHTML = lines.join("\n");
+        });
+
     });
   </script>
   <body>
@@ -202,18 +215,21 @@ cd JBrowse-<span class="current_version">1.8.0</span>
         JBrowse can display alignments directly from BAM files, with
         no pre-processing necessary.  Simply add a stanza with the
         relative URL of the file to
-        your <span class="code">trackList.json</span> file, of the form:
+        your <span class="code">data/tracks.conf</span> file, of the form:
 
-        <div class="code"><pre>
-{
-   "storeClass" : "JBrowse/Store/SeqFeature/BAM",
-   "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
-   "baiUrlTemplate" : "../../raw/volvox/volvox-sorted.bam.bai",
+        <div class="conf"><pre>
+# make a section for the new track called tracks.(unique name)
+[ tracks.my-bam-track ]
 
-   "type" : "JBrowse/View/Track/Alignments2",
-   "label" : "volvox-sorted.bam",
-   "key" : "BAM alignments from volvox-sorted.bam"
-}
+# settings for what data is shown in the track
+storeClass     = JBrowse/Store/SeqFeature/BAM
+urlTemplate    = ../../raw/volvox/volvox-sorted.bam
+baiUrlTemplate = ../../raw/volvox/volvox-sorted.bam.bai
+
+# settings for how the track looks
+category = NGS   #< category for this track
+type = JBrowse/View/Track/Alignments2
+key  = BAM alignments from sample XYZ
         </pre></div>
 
         <strong>Note:</strong> BAM files are required to be sorted and
@@ -228,9 +244,7 @@ cd JBrowse-<span class="current_version">1.8.0</span>
           base-level mismatches and possible SNPs in the reads.</dd>
         </dl>
 
-        To use them, set <span class="code">"type":
-        "Alignments2"</span> or <span class="code">"type":
-        "SNPCoverage"</span> in the track configuration.
+        To use them, set <span class="code">type = Alignments2</span> or <span class="code"> type = SNPCoverage</span> in the track configuration.
       </p>
 
       <a name="Names" id="Names"></a>
@@ -257,15 +271,15 @@ cd JBrowse-<span class="current_version">1.8.0</span>
         relative URL of the file to
         your <span class="code">trackList.json</span> file, of the form:
 
-        <div class="code"><pre>
-{
-   "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
-   "urlTemplate" : "../../raw/volvox/volvox.bigwig",
+        <div class="conf"><pre>
+[ tracks.my-bigwig-track ]
+storeClass  = JBrowse/Store/SeqFeature/BigWig
+urlTemplate = ../../raw/volvox/volvox.bigwig
 
-   "type" : "JBrowse/View/Track/Wiggle/XYPlot",
-   "label" : "volvox_bigwig",
-   "key" : "Example Volvox BigWig data"
-}
+category = Quantitative  # category for this track in the track selector
+type     = JBrowse/View/Track/Wiggle/XYPlot
+key      = Coverage plot of NGS alignments from XYZ
+
         </pre></div>
 
       <p>
@@ -277,9 +291,8 @@ cd JBrowse-<span class="current_version">1.8.0</span>
           <dd>Shows quantitative data as a "heatmap" plot, which by default draws regions with positive scores as progressively more intense blue, and negative scores as progressively more intense red.  See the <a href="http://gmod.org/wiki/JBrowse_Configuration_Guide#Wiggle_track_configuration_options">JBrowse wiki</a> for configuration options, including how to change the color-change point (<span class="code">bicolor_pivot</span>), and the colors.</dd>
         </dl>
 
-        To use them, set <span class="code">"type":
-        "JBrowse/View/Track/Wiggle/XYPlot"</span> or <span class="code">"type":
-        "JBrowse/View/Track/Wiggle/Density"</span> in the track configuration.
+        To use them, set <span class="conf">type = JBrowse/View/Track/Wiggle/XYPlot</span> or <span class="conf">type =
+        JBrowse/View/Track/Wiggle/Density</span> in the track configuration.
       </p>
 
       <h3>Wiggle files</h3>
