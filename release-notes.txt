@@ -53,6 +53,16 @@
    for details.  Thanks to Erik Derohanian for implementing this, and
    Ben Booth for suggesting an API design (issue #267).
 
+ * More performance and scalability improvements for
+   `generate-names.pl`.  Now uses a different algorithm that is faster
+   and more scalable than before, and no longer relies on BerkeleyDB
+   for temporary storage.  This should also alleviate the need to run
+   generate-names.pl with `--safeMode` in Perl 5.10 and earlier.  In
+   fact, the `--safeMode argument` to generate-names.pl no longer has
+   any effect.  Thanks to Cris Lawrence for pointing out the
+   continuing need for more scalability.
+
+
 ## Minor improvements
 
  * Detail popups for CanvasVariants and HTMLVariants tracks now
