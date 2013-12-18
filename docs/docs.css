@@ -37,7 +37,7 @@ p.done {
     color: green;
     font-weight: bold;
 }
-.conf_comment {
+.code_comment {
     color: blue;
 }
 
@@ -65,7 +65,7 @@ dd > div.code {
     margin-left: 0;
 }
 
-span.code {
+span.code, span.conf {
     background: #f8f8f8;
     padding: 2px;
     border: 1px solid #ddd;

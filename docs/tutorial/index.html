@@ -14,7 +14,7 @@
            .then( function( version ) {
                 query( 'span.current_version' )
                    .forEach( function( n ) { n.innerHTML = version; } );
-            });
+            })
 
         // do some syntax highlighting on the conf examples
         query( '.conf' ).forEach( function(n) {
@@ -23,10 +23,19 @@
                 lines[i] = lines[i]
                     .replace(/^(\S[^\+=]*)(\s*=)/,'<span class="conf_key">$1</span>$2') // conf keys
                     .replace(/\[([^\]]+)]/,'[<span class="conf_section">$1</span>]') // conf sections
-                    .replace(/(#.+)/,'<span class="conf_comment">$1</span>'); // conf comments
+                    .replace(/(#.+)/,'<span class="code_comment">$1</span>'); // conf comments
             }
             n.innerHTML = lines.join("\n");
         });
+        query( '.code' ).forEach( function(n) {
+            var lines = n.innerHTML.split("\n");
+            for( var i = 0; i<lines.length; i++ ) {
+                lines[i] = lines[i]
+                    .replace(/(#.+)/,'<span class="code_comment">$1</span>'); // comments
+            }
+            n.innerHTML = lines.join("\n");
+        });
+
 
     });
   </script>
@@ -127,9 +136,10 @@ cd JBrowse-<span class="current_version">1.8.0</span>
         </div>
 
         which tries to automatically install the Perl prerequisites,
-        format the Volvox example data, and install JBrowse WIG and
-        BAM support (which require additional dependencies and
-        compilation that can be a bit tricky).
+        format the Volvox example data, and install JBrowse legacy WIG
+        and old-style BAM-to-JSON conversion support (which require
+        additional dependencies and compilation that can be a bit
+        tricky, and which most users don't need anyway).
       </p>
       <p>
         If it says the Volvox example data was successfully formatted
@@ -244,7 +254,7 @@ key  = BAM alignments from sample XYZ
           base-level mismatches and possible SNPs in the reads.</dd>
         </dl>
 
-        To use them, set <span class="code">type = Alignments2</span> or <span class="code"> type = SNPCoverage</span> in the track configuration.
+        To use them, set <span class="conf">type = Alignments2</span> or <span class="conf">type = SNPCoverage</span> in the track configuration.
       </p>
 
       <a name="Names" id="Names"></a>
@@ -269,12 +279,12 @@ key  = BAM alignments from sample XYZ
         JBrowse can display alignments directly from BigWig files, with
         no pre-processing necessary.  Simply add a stanza with the
         relative URL of the file to
-        your <span class="code">trackList.json</span> file, of the form:
+        your <span class="code">data/tracks.conf</span> file, of the form:
 
         <div class="conf"><pre>
 [ tracks.my-bigwig-track ]
 storeClass  = JBrowse/Store/SeqFeature/BigWig
-urlTemplate = ../../raw/volvox/volvox.bigwig
+urlTemplate = ../../my-bigwig-file.bw
 
 category = Quantitative  # category for this track in the track selector
 type     = JBrowse/View/Track/Wiggle/XYPlot
