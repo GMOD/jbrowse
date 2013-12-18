@@ -311,7 +311,7 @@ initPlugins: function() {
 
                                  // load its css
                                  var cssLoaded = this._loadCSS(
-                                     {url: this.resolveUrl( plugin.css+'/main.css' ) }
+                                     { url: plugin.css+'/main.css' }
                                  );
                                  cssLoaded.then( function() {
                                      thisPluginDone.resolve({success:true});
