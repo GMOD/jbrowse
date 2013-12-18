@@ -40,8 +40,13 @@ parse_conf: function( text, load_args ) {
                 var path = section.concat(keypath).join('.');
                 if( operation == '+=' ) {
                     var existing = lang.getObject( path, false, data );
-                    if( ! lang.isArray( existing ) )
-                        existing = [existing];
+                    if( existing ) {
+                        if( ! lang.isArray( existing ) )
+                            existing = [existing];
+                    }
+                    else {
+                        existing = [];
+                    }
                     existing.push( value );
                     value = existing;
                 }
