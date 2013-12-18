@@ -63,6 +63,7 @@ parse_conf: function( text, load_args ) {
         // new section
         if(( match = line.match( /^\s*\[([^\]]+)/ ))) { // new section
             recordVal();
+            keypath = value = undefined;
             section = match[1].trim().split(/\s*[\/]\s*/);
             if( section.length == 1 && section[0].toLowerCase() == 'general' )
                 section = [];
