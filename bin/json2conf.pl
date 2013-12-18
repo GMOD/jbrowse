@@ -80,7 +80,10 @@ sub to_conf {
         }
         elsif( $ref eq 'ARRAY' ) {
             for my $subv ( @$val ) {
-                $out .= "$key += $subv";
+                if( ref $subv ) {
+                    $subv = 'json:'.JSON->new->encode( $subv );
+                }
+                $out .= "$key += $subv\n";
             }
         }
         else {
@@ -117,7 +120,10 @@ sub to_flat_kv {
         }
         elsif( $ref eq 'ARRAY' ) {
             for my $subv ( @$val ) {
-                $out .= "$path$key += $subv";
+                if( ref $subv ) {
+                    $subv = 'json:'.JSON->new->encode( $subv );
+                }
+                $out .= "$path$key += $subv\n";
             }
         }
         else {
