@@ -28,6 +28,7 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
                 expect(gbConfig['TRACK DEFAULTS']['fgcolor'         ]).toBe('black');
                 expect(gbConfig['TRACK DEFAULTS']['label density'   ]).toBe(25);
                 expect(gbConfig['TRACK DEFAULTS']['bump density'    ]).toBe(25);
+                expect(gbConfig['TRACK DEFAULTS']['fogbat'    ]).toBe('');
 
                 expect(gbConfig['Markers:region']).toBeTruthy();
                 expect(gbConfig['Markers:region']['feature'         ]).toBe('match:ITAG_sgn_markers');
