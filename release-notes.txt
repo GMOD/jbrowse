@@ -48,6 +48,11 @@
    configuration adaptor, and Richard Hayes and Keiran Raine for
    motivating the work to polish and more fully integrate it.
 
+ * Added a new REST backend for name lookup and autocompletion.  See
+   http://gmod.org/wiki/JBrowse_Configuration_Guide#JBrowse_REST_Names_API
+   for details.  Thanks to Erik Derohanian for implementing this, and
+   Ben Booth for suggesting an API design (issue #267).
+
 ## Minor improvements
 
  * Detail popups for CanvasVariants and HTMLVariants tracks now
