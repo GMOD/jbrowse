@@ -20,7 +20,7 @@ for line in gpl_file:
         R = colour.group(1)
         G = colour.group(2)
         B = colour.group(3)
-        RGB_name = re.sub('[\W]+', '_', colour.group(4))
+        RGB_name = re.sub('[\W]+', '_', re.sub('%','pct',colour.group(4)))
         scss += '$'+RGB_name+': rgb('+R+','+G+','+B+');\n'
 
 f_out = open(out_path, 'w')
