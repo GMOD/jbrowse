@@ -475,19 +475,19 @@ loadNames: function() {
 
         if( conf.baseUrl )
             conf.url = Util.resolveUrl( conf.baseUrl, conf.url );
-        
-        var thisB = this;
-        if ( conf.type == 'Hash' ){
-            require (['JBrowse/Store/Names/Hash'], function (Hash){
-                thisB.nameStore = new Hash( dojo.mixin({ browser: thisB }, conf) );
+
+        var type;
+        if(( type = conf.type )) {
+            var thisB = this;
+            if( type.indexOf('/') == -1 )
+                type = 'JBrowse/Store/Names/'+type;
+            require ([type], function (CLASS){
+                thisB.nameStore = new CLASS( dojo.mixin({ browser: thisB }, conf) );
                 deferred.resolve({success: true});
             });
-        } else if( conf.type == 'REST' ) {
-            require (['JBrowse/Store/Names/REST'], function (REST){
-                thisB.nameStore = new REST( dojo.mixin({ browser: thisB }, conf) );
-                deferred.resolve({success: true});
-            });
-        } else {
+        }
+        // no name type setting, must be the legacy store
+        else {
             // wrap the older LazyTrieDojoDataStore with
             // dojo.store.DataStore to conform with the dojo/store API
             this.nameStore = new DojoDataStore({
