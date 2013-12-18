@@ -53,12 +53,13 @@ return declare( JBrowsePlugin,
                     label: 'search_track_' + (thisB._searchTrackCount++),
                     key: "Search reference sequence for '" + searchParams.expr + "'",
                     metadata: {
+                        category: 'Local tracks',
                         Description: "Contains all matches of the text string/regular expression '" + storeConf.searchExpr + "'"
                     },
                     store: storeName
                 };
 
-                // send out a message about how the user wants to create the new tracks
+                // send out a message about how the user wants to create the new track
                 thisB.browser.publish( '/jbrowse/v1/v/tracks/new', [searchTrackConfig] );
 
                 // Open the track immediately
