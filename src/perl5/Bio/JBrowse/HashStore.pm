@@ -89,7 +89,7 @@ sub open {
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 
-    $self->{cache_size} = int( $self->{mem} / 50000 / 6 );
+    $self->{cache_size} = int( $self->{mem} / 50000 / 3 );
     print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
     File::Path::mkpath( $self->{dir} );
