@@ -816,13 +816,22 @@ a.dialog-new-window {
     padding: 0.6em;
     margin-bottom: 0.8em;
 }
-.feature-detail .fasta {
-    clear: both;
-    padding: 1em 1.5em;
-    margin: 0.2em 0;
+
+.feature-detail .fastaView {
+    padding: 0;
     border: 1px solid #aaa;
-    background: transparent;
 }
+
+.feature-detail .fastaView .dijitToolbar {
+    text-align: right;
+}
+.feature-detail .fastaView textarea {
+    padding: 1em 1.5em;
+    margin: 0;
+    border: none;
+}
+
+
 .feature-detail div.core {
     font-size: 110%;
 }

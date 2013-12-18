@@ -162,7 +162,7 @@ return declare( FeatureDescriptionMixin, {
                              // parser, but this callback may be called either
                              // before or after that happens.  if the fetch by
                              // ID fails, we have come back before the parse.
-                             var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
+                             var textArea = new FASTAView({ track: this, width: 62, htmlMaxRows: 10 })
                                                 .renderHTML(
                                                     { ref:   this.refSeq.name,
                                                       start: f.get('start'),

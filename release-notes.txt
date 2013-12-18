@@ -54,6 +54,10 @@
    display the reference sequence itself instead of just "ref" in
    genotype displays.  Thanks to Cris Lawrence for requesting this.
 
+ * Added a "save as FASTA" button to default feature detail popups
+   that downloads a FASTA file with the displayed piece of reference
+   sequence (issue #299).
+
  * `chunkSizeLimit` for VCF files now defaults to 1 MiB.  It used to
    be 15 MiB, which was really far too big for browsers to handle.
 
