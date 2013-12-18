@@ -72,6 +72,9 @@
 
 ## Bug fixes
 
+ * Fixed a bug in NCList data backed in which feature histograms were
+   often calculated very incorrectly.
+
  * Fixed a bug in the VCF data backend that caused not all VCF
    features to be shown in some files at some zoom levels.
 
