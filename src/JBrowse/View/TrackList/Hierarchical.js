@@ -102,9 +102,10 @@ return declare(
 
                   thisB.addTracks( tracks, true );
 
-                  // remove the uncategorized pane if it is empty
+                  // hide the uncategorized pane if it is empty
                   if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
-                      thisB.removeChild( thisB.categories.Uncategorized.pane );
+                      //thisB.removeChild( thisB.categories.Uncategorized.pane );
+                      thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                   }
               },
               sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
@@ -153,6 +154,7 @@ return declare(
                 return names.length ? _findCategory( cat, names, path ) : cat;
             };
 
+            category.pane.domNode.style.display = 'block';
             var labelNode = dom.create( 'label', { className: 'tracklist-label shown' }, category.pane.containerNode );
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
             var trackLabel = trackConf.label;
