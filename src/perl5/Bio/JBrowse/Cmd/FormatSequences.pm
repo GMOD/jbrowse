@@ -333,6 +333,8 @@ sub writeTrackEntry {
 
     my $seqTrackName = $self->trackLabel;
     unless( $self->opt('noseq') ) {
+        $self->{storage}->touch( 'tracks.conf' );
+
         $self->{storage}->modify( 'trackList.json',
                                        sub {
                                            my $trackList = shift;
