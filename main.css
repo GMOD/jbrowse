@@ -7,6 +7,11 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+
+.tundra .dijitDialogTitleBar {
+    padding-right: 25px;
+}
+
 .jbrowseStandaloneDatasetSelector {
     margin-left: 2em;
     font-size: 120%;
