@@ -7,6 +7,11 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
+
+.tundra .dijitDialogTitleBar {
+    padding-right: 25px;
+}
+
 .jbrowseStandaloneDatasetSelector {
     margin-left: 2em;
     font-size: 120%;
@@ -811,13 +816,22 @@ a.dialog-new-window {
     padding: 0.6em;
     margin-bottom: 0.8em;
 }
-.feature-detail .fasta {
-    clear: both;
-    padding: 1em 1.5em;
-    margin: 0.2em 0;
+
+.feature-detail .fastaView {
+    padding: 0;
     border: 1px solid #aaa;
-    background: transparent;
 }
+
+.feature-detail .fastaView .dijitToolbar {
+    text-align: right;
+}
+.feature-detail .fastaView textarea {
+    padding: 1em 1.5em;
+    margin: 0;
+    border: none;
+}
+
+
 .feature-detail div.core {
     font-size: 110%;
 }
@@ -845,7 +859,7 @@ a.dialog-new-window {
     margin-top: 0.3em;
 }
 
-.detail .value_container.multi_value .value {
+.detail .multi_value .value {
     border: 1px solid #ddd;
     box-sizing: border-box;
     -moz-box-sizing: border-box;

@@ -5,8 +5,7 @@ define( [ 'dojo/_base/declare',
           'dojo/request',
 
           'JBrowse/Util',
-          'JBrowse/Digest/Crc32',
-          'JBrowse/ConfigAdaptor/AdaptorUtil'
+          'JBrowse/Digest/Crc32'
         ], function(
             declare,
             lang,
@@ -15,8 +14,7 @@ define( [ 'dojo/_base/declare',
             request,
 
             Util,
-            digest,
-            AdaptorUtil
+            digest
         ) {
 
 var dojof = Util.dojof;
@@ -65,7 +63,11 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns {Object} the parsed JSON
          */
         parse_conf: function( conf_text, load_args ) {
-            return json.fromJson( conf_text );
+            try {
+                return json.fromJson( conf_text );
+            } catch(e) {
+                throw e+" when parsing "+( load_args.config.url || 'configuration' )+".";
+            }
         },
 
         /**
@@ -78,6 +80,25 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
          * @returns the same object it was passed
          */
         regularize_conf: function( o, load_args ) {
+            // if tracks is not an array, convert it to one
+            if( o.tracks && ! lang.isArray( o.tracks ) ) {
+                // if it's a single track config, wrap it in an arrayref
+                if( o.tracks.label ) {
+                    o.tracks = [ o.tracks ];
+                }
+                // otherwise, coerce it to an array
+                else {
+                    var tracks = [];
+                    for( var label in o.tracks ) {
+                        if( ! ( 'label' in o.tracks[label] ) )
+                            o.tracks[label].label = label;
+                        tracks.push( o.tracks[label] );
+                    }
+                    o.tracks = tracks;
+                }
+            }
+
+
             o.sourceUrl = o.sourceUrl || load_args.config.url;
             o.baseUrl   = o.baseUrl || Util.resolveUrl( o.sourceUrl, '.' );
             if( o.baseUrl.length && ! /\/$/.test( o.baseUrl ) )
@@ -104,8 +125,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 if( o.nameUrl )
                     o.nameUrl = Util.resolveUrl( o.sourceUrl, o.nameUrl );
             }
-
-            o = AdaptorUtil.evalHooks( o );
 
             o = this._regularizeTrackConfigs( o );
 

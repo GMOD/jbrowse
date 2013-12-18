@@ -35,6 +35,7 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --compress ]                                                          \
       [ --sortMem <memory in bytes to use for sorting> ]                      \
       [ --maxLookback <maximum number of features to buffer in gff3 files> ]  \
+      [ --nameAttributes "name,alias,id" ]                                    \
 
 =head1 ARGUMENTS
 
@@ -131,6 +132,12 @@ a source of "exonerate".
 
 Multiple type names can be specified by separating the type names with
 commas, e.g. C<--type mRNA:exonerate,ncRNA>.
+
+=item --nameAttributes "name,alias,id"
+
+Comma-separated list of feature attributes (a.k.a. tags) that should
+be treated as names for this features.  Case insensitive.  Defaults to
+"name,alias,id".
 
 =item --nclChunk <chunk size for generated NCLs>
 

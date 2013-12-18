@@ -1,9 +1,19 @@
-// MISC
-define( [ 'dojo/_base/array',
-          'dojo/Deferred',
-          'dojox/lang/functional/object',
-          'dojox/lang/functional/fold'
-        ], function( array, Deferred ) {
+/**
+ * Miscellaneous utility functions.
+ */
+define( [
+            'dojo/_base/array',
+            'dojo/_base/lang',
+            'dojo/Deferred',
+
+            'dojox/lang/functional/object',
+            'dojox/lang/functional/fold'
+        ],
+        function(
+            array,
+            lang,
+            Deferred
+        ) {
 var Util;
 Util = {
     dojof: dojox.lang.functional,
@@ -25,6 +35,9 @@ Util = {
         return this.addCommas.apply( this, arguments );
     },
 
+    escapeHTML: function( str ) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    },
 
     /**
      * Fast, simple class-maker, used for classes that need speed more
@@ -49,6 +62,7 @@ Util = {
         else
             return false;
     },
+
 
     getViewportWidth: function() {
         var width = 0;
@@ -93,25 +107,30 @@ Util = {
     /**
      * replace variables in a template string with values
      * @param template String with variable names in curly brackets
-     *                 e.g., "http://foo/{bar}?arg={baz}
+     *                 e.g., "http://foo/{bar}?arg={baz.foo}
      * @param fillWith object with attribute-value mappings
-     *                 e.g., {'bar': 'someurl', 'baz': 'valueforbaz'}
+     *                 e.g., { 'bar': 'someurl', 'baz': { 'foo': 42 } }
      * @returns the template string with variables in fillWith replaced
      *                 e.g., 'htp://foo/someurl?arg=valueforbaz'
+     *
      */
-    fillTemplate: function(template, fillWith) {
-        return template.replace(/\{([\w\s]+)\}/g,
-                                function(match, group) {
-                                    var f = fillWith[group];
-                                    if (f !== undefined) {
-                                        if( typeof f == 'function' )
-                                            return f();
-                                        else
-                                            return f;
-                                    } else {
-                                        return "{" + group + "}";
-                                    }
-                                });
+
+    fillTemplate: function( template, fillWith ) {
+        return template.replace( /\{([\w\s\.]+)\}/g,
+                                 function( match, varname ) {
+                                     var fill = lang.getObject( varname, false, fillWith );
+                                     if((fill = fillWith[varname]) !== undefined ) {
+                                         if( typeof fill == 'function' )
+                                             return fill( varname );
+                                         else
+                                             return fill;
+                                     } else if( fillWith.callback ) {
+                                         var v = fillWith.callback.call( this, varname );
+                                         if( v !== undefined )
+                                             return v;
+                                     }
+                                     return match;
+                                 });
     },
 
     /**
@@ -230,7 +249,7 @@ Util = {
 
             // check the loaded modules for success
             for( var i = 0; i<modules.length; i++ ) {
-                if( !{object:true, function:true}[typeof modules[i]] ) {
+                if( !{"object":true, "function":true}[typeof modules[i]] ) {
                     d.reject("could not load "+paths[i]+": "+modules[i]);
                     return;
                 }
@@ -434,8 +453,9 @@ Util = {
     /**
      * Uniqify an array.
      * @param stuff {Array} array of stuff
-     * @param normalizer {Function} optional function to be called on each
-     * element.  by default, just compares by stringification
+     * @param normalizer {Function} optional function to be called on
+     * each element to convert them to a comparable string.  By
+     * default, just does default stringification.
      */
     uniq: function( stuff, normalizer ) {
         normalizer = normalizer || function(t) {

@@ -121,6 +121,7 @@ Modify the trackList.json file with the given subroutine.
 
 sub modifyTrackList {
     my ( $self, $sub ) = @_;
+    $self->{rootStore}->touch( 'tracks.conf' );
     $self->{rootStore}->modify($trackListPath, $sub);
 }
 

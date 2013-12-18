@@ -10,6 +10,7 @@ wig-to-json.pl - format graph images of Wiggle (.wig) data for use by JBrowse
       --wig <wiggle file>                     \
       [ --out <JSON directory> ]              \
       [ --tracklabel <track identifier> ]     \
+      [ --category 'Category in JBrowse' ]    \
       [ --key <human-readable track name> ]   \
       [ --bgcolor <R,G,B> ]                   \
       [ --fgcolor <R,G,B> ]                   \
@@ -34,6 +35,11 @@ Directory where the output will go.  Defaults to "data/".
 =item --trackLabel <label>
 
 Unique label for the track.  Defaults to wiggle filename.
+
+=item --category "Category Name / Subcategory Name"
+
+Sets C<metadata.category> for the track, used by the default
+Hierarchical track selector.
 
 =item --key <key>
 
@@ -104,6 +110,7 @@ my $trackHeight = 100;
 my $min = "";
 my $max = "";
 my $clientConfig;
+my $category;
 
 my $wig2png = "$Bin/wig2png";
 unless( -x $wig2png ) {
@@ -123,6 +130,7 @@ GetOptions("wig=s"                   => \$path,
            "max=f"                   => \$max,
            "help|h|?"                => \$help,
            "clientConfig=s"          => \$clientConfig,
+           "category=s"              => \$category,
 ) or pod2usage();
 
 pod2usage( -verbose => 2 ) if $help;
@@ -143,6 +151,7 @@ my %style = (
         %{ $clientConfig || {} },
         "className"  => $cssClass || 'image',
     },
+    ( $category ? ( metadata => {category => $category} ) : () )
 );
 
 my $track = $gdb->getTrack( $trackLabel, \%style, $style{key}, 'ImageTrack.Wiggle' )

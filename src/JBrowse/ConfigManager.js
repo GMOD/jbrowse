@@ -4,16 +4,20 @@ define(
         'dojo/_base/lang',
         'dojo/_base/array',
         'dojo/Deferred',
+        'dojo/promise/all',
 
-        'JBrowse/Util'
+        'JBrowse/Util',
+        'JBrowse/ConfigAdaptor/AdaptorUtil'
     ],
     function(
         declare,
         lang,
         array,
         Deferred,
+        all,
 
-        Util
+        Util,
+        AdaptorUtil
     ) {
 
 return declare(null,
@@ -56,6 +60,8 @@ getFinalConfig: function() {
 
                        thisB._fillTemplates( finalConf, finalConf );
 
+                       finalConf = AdaptorUtil.evalHooks( finalConf );
+
                        if( ! thisB.skipValidation )
                            thisB._validateConfig( finalConf );
 
@@ -87,7 +93,8 @@ _getConfigAdaptor: function( config_def, callback ) {
 _fillTemplates: function( subconfig, config ) {
     // skip "menuTemplate" keys to prevent messing
     // up their feature-based {} interpolation
-    var skip = { menuTemplate: true };
+    //var skip = { menuTemplate: true };
+    var skip = {};
 
     var type = typeof subconfig;
     if( lang.isArray( subconfig ) ) {
@@ -117,31 +124,35 @@ _loadIncludes: function( inputConfig ) {
     var thisB = this;
     inputConfig = lang.clone( inputConfig );
 
-    function _loadRecur( config ) {
+    function _loadRecur( config, upstreamConf ) {
         var sourceUrl = config.sourceUrl || config.baseUrl;
+        var newUpstreamConf = thisB._mergeConfigs( lang.clone( upstreamConf ), config );
         var includes = thisB._fillTemplates(
             thisB._regularizeIncludes( config.include || [] ),
-            config
+            newUpstreamConf
         );
         delete config.include;
 
-        var current = Util.resolved( config );
-        array.forEach(
-            includes,
-            function( include ) {
-                current = current
-                    .then( function() {
-                               return thisB._loadInclude( include, sourceUrl );
-                           })
+        var loads = array.map(
+            includes, function( include ) {
+                return thisB._loadInclude( include, sourceUrl )
                     .then( function( includedData ) {
-                               return _loadRecur( thisB._mergeConfigs( config, includedData ) );
+                               return _loadRecur(
+                                   includedData,
+                                   newUpstreamConf
+                               );
                            });
             });
-
-        return current;
+        return all( loads )
+            .then( function( includedDataObjects ) {
+                       array.forEach( includedDataObjects, function( includedData ) {
+                                          config = thisB._mergeConfigs( config, includedData );
+                                      });
+                       return config;
+                   });
     }
 
-    return _loadRecur( inputConfig );
+    return _loadRecur( inputConfig, {} );
 },
 
 _loadInclude: function( include, baseUrl ) {
@@ -167,9 +178,9 @@ _loadInclude: function( include, baseUrl ) {
                try {
                    if( error.response.status == 404 )
                        return {};
-               } catch(e) {
-                   throw error;
-               };
+               } catch(e) {}
+
+               throw error;
            });
 },
 
@@ -194,25 +205,13 @@ _regularizeIncludes: function( includes ) {
 
         // set defaults for format and version
         if( ! ('format' in include) ) {
-            include.format = 'JB_json';
+            include.format = /\.conf$/.test( include.url ) ? 'conf' : 'JB_json';
         }
         if( include.format == 'JB_json' && ! ('version' in include) ) {
             include.version = 1;
         }
         return include;
    });
-},
-
-/**
- * @private
- */
-_mergeIncludes: function( inputConfig, config_includes ) {
-    // load all the configuration data in order
-    dojo.forEach( config_includes, function( config ) {
-                      if( config.loaded && config.data )
-                              this._mergeConfigs( inputConfig, config.data );
-                  }, this );
-    return inputConfig;
 },
 
 /**

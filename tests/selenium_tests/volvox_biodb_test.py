@@ -11,14 +11,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def setUp( self ):
         call( "rm -rf sample_data/json/volvox/", shell=True )
-        call( "bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox/", shell=True )
-        call( "bin/biodb-to-json.pl --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox/", shell=True )
-        call( "bin/wig-to-json.pl --key 'Image - volvox_microarray' --out sample_data/json/volvox/ --wig docs/tutorial/data_files/volvox_microarray.wig", shell=True )
-        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/add-track-json.pl sample_data/raw/volvox/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json", shell=True )
-        call( "bin/generate-names.pl --dir sample_data/json/volvox/", shell=True )
+        call( "./setup.sh" )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):
@@ -101,8 +94,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .perform()
 
         self.menu_item_click("Popup with content snippet from string (feature EDEN)")
-        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]")
-        self.close_dialog('snippet')
+        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'from a JS callback')]")
+        self.close_dialog('from a JS callback')
 
         # turn off canvasFeatures tracks so they're not cluttering everything up
         self.turn_off_track('CanvasFeatures - Protein-coding genes')
@@ -186,7 +179,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_element( sequence_div_xpath_templ % 'ccgcgtgtagtc' )
 
     def context_menus( self ):
-        self.turn_on_track( 'HTMLFeatures - Features with menus' )
+        self.turn_on_track( 'HTMLFeatures - Features with right-click menus' )
         self.do_typed_query( '20147..35574' )
 
         # check that there is no dialog open
@@ -210,7 +203,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # check that the dialog closed
         self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]")
-        self.turn_off_track( 'HTMLFeatures - Features with menus' )
+        self.turn_off_track( 'HTMLFeatures - Features with right-click menus' )
 
     def wiggle( self ):
 

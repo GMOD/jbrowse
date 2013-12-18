@@ -200,4 +200,13 @@ sub modify {
       or die "couldn't close $file: $!";
 }
 
+=head2 touch( $file )
+
+=cut
+
+sub touch {
+    my $file = shift->fullPath(@_);
+    open my $f, '>>', $file or die "$! touching $file";
+}
+
 1;

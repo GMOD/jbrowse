@@ -46,14 +46,14 @@ echo -n "Formatting Volvox example data ...";
     rm -rf sample_data/json/volvox;
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
     bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
-    bin/add-track-json.pl docs/tutorial/data_files/volvox_microarray.bw.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox_sine.bw.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox-sorted.bam.coverage.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox.vcf.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox_fromconfig.conf sample_data/json/volvox/trackList.json
-    bin/add-track-json.pl docs/tutorial/data_files/volvox.gff3.conf sample_data/json/volvox/trackList.json
-    bin/add-json.pl '{ "dataset_id": "volvox" }' sample_data/json/volvox/trackList.json
+    cat docs/tutorial/data_files/volvox_microarray.bw.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox_sine.bw.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox-sorted.bam.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox-sorted.bam.coverage.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox.vcf.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox_fromconfig.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox.gff3.conf >> sample_data/json/volvox/tracks.conf
+    bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
@@ -97,7 +97,7 @@ echo -n "Building and installing legacy wiggle format support (superseded by Big
         cd ../..;
     fi
     set -x;
-    bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --out sample_data/json/volvox;
+    bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --category "Pre-generated images" --out sample_data/json/volvox;
 ) >>setup.log 2>&1
 done_message "" "Make sure libpng development libraries and header files are installed.";
 

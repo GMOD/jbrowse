@@ -1,6 +1,44 @@
 <html>
   <head><title>JBrowse Quick-Start Tutorial</title></head>
   <link rel="stylesheet" type="text/css" href="../docs.css"></link>
+  <script type="text/javascript" src="../../src/dojo/dojo.js" data-dojo-config="async: 1"></script>
+  <script>
+    // insert the current jbrowse version in all span.current_version tags
+    require(['dojo/query', 'dojo/request', 'dojo/domReady!'], function( query, request ) {
+        request( '../../release-version.txt' )
+           .then( function( version ) {
+                      return version ? version.trim() : 'x.x.x';
+                  },
+                  function() { return 'x.x.x'; }
+                )
+           .then( function( version ) {
+                query( 'span.current_version' )
+                   .forEach( function( n ) { n.innerHTML = version; } );
+            })
+
+        // do some syntax highlighting on the conf examples
+        query( '.conf' ).forEach( function(n) {
+            var lines = n.innerHTML.split("\n");
+            for( var i = 0; i<lines.length; i++ ) {
+                lines[i] = lines[i]
+                    .replace(/^(\S[^\+=]*)(\s*=)/,'<span class="conf_key">$1</span>$2') // conf keys
+                    .replace(/\[([^\]]+)]/,'[<span class="conf_section">$1</span>]') // conf sections
+                    .replace(/(#.+)/,'<span class="code_comment">$1</span>'); // conf comments
+            }
+            n.innerHTML = lines.join("\n");
+        });
+        query( '.code' ).forEach( function(n) {
+            var lines = n.innerHTML.split("\n");
+            for( var i = 0; i<lines.length; i++ ) {
+                lines[i] = lines[i]
+                    .replace(/(#.+)/,'<span class="code_comment">$1</span>'); // comments
+            }
+            n.innerHTML = lines.join("\n");
+        });
+
+
+    });
+  </script>
   <body>
     <div class="container" style="padding-bottom: 3em">
 
@@ -64,21 +102,21 @@ sudo chown `whoami` /var/www/jbrowse;
 cd /var/www/jbrowse;
 
 # fetch a JBrowse release zip file
-curl -O http://jbrowse.org/releases/JBrowse-1.8.0.zip
+curl -O http://jbrowse.org/releases/JBrowse-<span class="current_version">1.8.0</span>.zip
 
 # unzip it and cd into it
-unzip JBrowse-1.8.0.zip
-cd JBrowse-1.8.0
+unzip JBrowse-<span class="current_version">1.8.0</span>.zip
+cd JBrowse-<span class="current_version">1.8.0</span>
 </pre></div>
 
         Once you finish running that, you should try to read this
         tutorial (which is included in the JBrowse zip file) on your
         own web server by navigating to something like
-        http://your.machine.address/jbrowse/JBrowse-1.8.0/docs/tutorial/index.html.
+        http://your.machine.address/jbrowse/JBrowse-<span class="current_version">1.8.0</span>/docs/tutorial/index.html.
       </p>
       <p>
         Also, please note that JBrowse generates files with links that
-        are relative to the main JBrowse-1.x.x directory (where
+        are relative to the main JBrowse-<span class="current_version">1.x.x</span> directory (where
         index.html is located), so you should run all scripts from
         this directory.
       </p>
@@ -98,9 +136,10 @@ cd JBrowse-1.8.0
         </div>
 
         which tries to automatically install the Perl prerequisites,
-        format the Volvox example data, and install JBrowse WIG and
-        BAM support (which require additional dependencies and
-        compilation that can be a bit tricky).
+        format the Volvox example data, and install JBrowse legacy WIG
+        and old-style BAM-to-JSON conversion support (which require
+        additional dependencies and compilation that can be a bit
+        tricky, and which most users don't need anyway).
       </p>
       <p>
         If it says the Volvox example data was successfully formatted
@@ -186,18 +225,21 @@ cd JBrowse-1.8.0
         JBrowse can display alignments directly from BAM files, with
         no pre-processing necessary.  Simply add a stanza with the
         relative URL of the file to
-        your <span class="code">trackList.json</span> file, of the form:
+        your <span class="code">data/tracks.conf</span> file, of the form:
 
-        <div class="code"><pre>
-{
-   "storeClass" : "JBrowse/Store/SeqFeature/BAM",
-   "urlTemplate" : "../../raw/volvox/volvox-sorted.bam",
-   "baiUrlTemplate" : "../../raw/volvox/volvox-sorted.bam.bai",
+        <div class="conf"><pre>
+# make a section for the new track called tracks.(unique name)
+[ tracks.my-bam-track ]
 
-   "type" : "JBrowse/View/Track/Alignments2",
-   "label" : "volvox-sorted.bam",
-   "key" : "BAM alignments from volvox-sorted.bam"
-}
+# settings for what data is shown in the track
+storeClass     = JBrowse/Store/SeqFeature/BAM
+urlTemplate    = ../../raw/volvox/volvox-sorted.bam
+baiUrlTemplate = ../../raw/volvox/volvox-sorted.bam.bai
+
+# settings for how the track looks
+category = NGS   #< category for this track
+type = JBrowse/View/Track/Alignments2
+key  = BAM alignments from sample XYZ
         </pre></div>
 
         <strong>Note:</strong> BAM files are required to be sorted and
@@ -212,9 +254,7 @@ cd JBrowse-1.8.0
           base-level mismatches and possible SNPs in the reads.</dd>
         </dl>
 
-        To use them, set <span class="code">"type":
-        "Alignments2"</span> or <span class="code">"type":
-        "SNPCoverage"</span> in the track configuration.
+        To use them, set <span class="conf">type = Alignments2</span> or <span class="conf">type = SNPCoverage</span> in the track configuration.
       </p>
 
       <a name="Names" id="Names"></a>
@@ -239,17 +279,17 @@ cd JBrowse-1.8.0
         JBrowse can display alignments directly from BigWig files, with
         no pre-processing necessary.  Simply add a stanza with the
         relative URL of the file to
-        your <span class="code">trackList.json</span> file, of the form:
+        your <span class="code">data/tracks.conf</span> file, of the form:
 
-        <div class="code"><pre>
-{
-   "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
-   "urlTemplate" : "../../raw/volvox/volvox.bigwig",
+        <div class="conf"><pre>
+[ tracks.my-bigwig-track ]
+storeClass  = JBrowse/Store/SeqFeature/BigWig
+urlTemplate = ../../my-bigwig-file.bw
 
-   "type" : "JBrowse/View/Track/Wiggle/XYPlot",
-   "label" : "volvox_bigwig",
-   "key" : "Example Volvox BigWig data"
-}
+category = Quantitative  # category for this track in the track selector
+type     = JBrowse/View/Track/Wiggle/XYPlot
+key      = Coverage plot of NGS alignments from XYZ
+
         </pre></div>
 
       <p>
@@ -261,9 +301,8 @@ cd JBrowse-1.8.0
           <dd>Shows quantitative data as a "heatmap" plot, which by default draws regions with positive scores as progressively more intense blue, and negative scores as progressively more intense red.  See the <a href="http://gmod.org/wiki/JBrowse_Configuration_Guide#Wiggle_track_configuration_options">JBrowse wiki</a> for configuration options, including how to change the color-change point (<span class="code">bicolor_pivot</span>), and the colors.</dd>
         </dl>
 
-        To use them, set <span class="code">"type":
-        "JBrowse/View/Track/Wiggle/XYPlot"</span> or <span class="code">"type":
-        "JBrowse/View/Track/Wiggle/Density"</span> in the track configuration.
+        To use them, set <span class="conf">type = JBrowse/View/Track/Wiggle/XYPlot</span> or <span class="conf">type =
+        JBrowse/View/Track/Wiggle/Density</span> in the track configuration.
       </p>
 
       <h3>Wiggle files</h3>

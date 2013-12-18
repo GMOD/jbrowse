@@ -28,12 +28,14 @@ return declare( SeqFeatureStore,
     _makeFeatures: function( fdata ) {
         var features = {};
         for( var i=0; i<fdata.length; i++ ) {
-            var f = this._makeFeature( fdata[i] );
-            var refName = this.browser.regularizeReferenceName( f.get('seq_id') );
-            var refFeatures = features[ refName ] || function() {
-                return features[ refName ] = [];
-            }.call();
-            refFeatures.push( f );
+            if( fdata[i] ) {
+                var f = this._makeFeature( fdata[i] );
+                var refName = this.browser.regularizeReferenceName( f.get('seq_id') );
+                var refFeatures = features[ refName ] || function() {
+                    return features[ refName ] = [];
+                }.call();
+                refFeatures.push( f );
+            }
         }
         return features;
     },

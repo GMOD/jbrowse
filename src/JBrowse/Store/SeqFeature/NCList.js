@@ -139,9 +139,19 @@ return declare( SeqFeatureStore,
     getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
         this.getDataRoot( query.ref )
             .then( function( data ) {
-                var numBins = query.numBins || 25;
-                if( ! query.basesPerBin )
-                    throw 'basesPerBin arg required for getRegionFeatureDensities';
+
+                var numBins, basesPerBin;
+                if( query.numBins ) {
+                    numBins = query.numBins;
+                    basesPerBin = (query.end - query.start)/numBins;
+                }
+                else if( query.basesPerBin ) {
+                    basesPerBin = query.basesPerBin;
+                    numBins = Math.ceil( (query.end-query.start)/basesPerBin );
+                }
+                else {
+                    throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities');
+                }
 
                 // pick the relevant entry in our pre-calculated stats
                 var statEntry = (function( basesPerBin, stats ) {
@@ -152,7 +162,7 @@ return declare( SeqFeatureStore,
                         }
                     }
                     return undefined;
-                })( query.basesPerBin, data._histograms.stats || [] );
+                })( basesPerBin, data._histograms.stats || [] );
 
                 // The histogramMeta array describes multiple levels of histogram detail,
                 // going from the finest (smallest number of bases per bin) to the
@@ -166,34 +176,34 @@ return declare( SeqFeatureStore,
                 // rather than the 20,000)
                 var histogramMeta = data._histograms.meta[0];
                 for (var i = 0; i < data._histograms.meta.length; i++) {
-                    if( query.basesPerBin >= data._histograms.meta[i].basesPerBin )
+                    if( basesPerBin >= data._histograms.meta[i].basesPerBin )
                         histogramMeta = data._histograms.meta[i];
                 }
 
                 // number of bins in the server-supplied histogram for each current bin
-                var binCount = query.basesPerBin / histogramMeta.basesPerBin;
+                var binRatio = basesPerBin / histogramMeta.basesPerBin;
 
                 // if the server-supplied histogram fits neatly into our requested
-                if ( binCount > .9
+                if ( binRatio > .9
                      &&
-                     Math.abs(binCount - Math.round(binCount)) < .0001
+                     Math.abs(binRatio - Math.round(binRatio)) < .0001
                    ) {
                        //console.log('server-supplied',query);
                        // we can use the server-supplied counts
                        var firstServerBin = Math.floor( query.start / histogramMeta.basesPerBin);
-                       binCount = Math.round(binCount);
+                       binRatio = Math.round(binRatio);
                        var histogram = [];
                        for (var bin = 0; bin < numBins; bin++)
                            histogram[bin] = 0;
 
                        histogramMeta.lazyArray.range(
                            firstServerBin,
-                           firstServerBin + binCount*numBins,
+                           firstServerBin + binRatio*numBins,
                            function(i, val) {
                                // this will count features that span the boundaries of
                                // the original histogram multiple times, so it's not
                                // perfectly quantitative.  Hopefully it's still useful, though.
-                               histogram[ Math.floor( (i - firstServerBin) / binCount ) ] += val;
+                               histogram[ Math.floor( (i - firstServerBin) / binRatio ) ] += val;
                            },
                            function() {
                                successCallback({ bins: histogram, stats: statEntry });

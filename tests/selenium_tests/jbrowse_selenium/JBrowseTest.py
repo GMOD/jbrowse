@@ -32,13 +32,15 @@ class JBrowseTest (object):
         fp.set_preference("browser.download.dir", os.getcwd())
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk","application/x-bedgraph,application/x-wiggle,application/x-bed")
         self.browser = webdriver.Firefox( firefox_profile = fp )
-        base = self.baseURL()
-        self.browser.get(
-            base + ( '&' if base.find('?') >= 0 else '?' )
-            + ( "data="+self.data_dir if self.data_dir else "" )
-        )
+        if self.base_url and self.data_dir: self.browser.get(self.base_url+self.data_dir)
+        else: 
+            base = self.baseURL()
+            self.browser.get(
+                base + ( '&' if base.find('?') >= 0 else '?' )
+                + ( "data="+self.data_dir if self.data_dir else "" )
+            )
         self.addCleanup(self.browser.quit)
-        self._waits_for_JBrowse_to_load()
+        self._waits_for_load()
 
     def baseURL( self ):
         if not self.base_url:
@@ -48,8 +50,8 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
-    def assert_element( self, expression ):
-        self._waits_for_element( expression )
+    def assert_element( self, expression , time=5):
+        self._waits_for_element( expression, time )
         try:
             if expression.find('/') >= 0:
                 el = self.browser.find_element_by_xpath( expression )
@@ -174,8 +176,8 @@ class JBrowseTest (object):
     def _waits_for_elements( self, expression ):
         WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(expression))
 
-    def _waits_for_element( self, expression ):
-        WebDriverWait(self, 5).until(lambda self: self.does_element_exist(expression))
+    def _waits_for_element( self, expression, time=5 ):
+        WebDriverWait(self, time).until(lambda self: self.does_element_exist(expression))
 
     def _waits_for_no_element( self, expression ):
         WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
@@ -245,9 +247,11 @@ class JBrowseTest (object):
     
 
     #Exists because onload() get trigered before JBrowse is ready
-    def _waits_for_JBrowse_to_load(self):
-        WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0)
+    def _waits_for_load(self):
+        WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0 or self.browser.current_url.find("js_tests") >= 0)
         if self.browser.current_url.find("data=nonexistent"): #account for the test for bad data
+            pass
+        elif self.browser.current_url.find("js_tests"): #account for jasmine tests
             pass
         else:
             # Page title is initially "JBrowse",

@@ -7,9 +7,25 @@ use Storable ();
 use GenomeDB;
 use Bio::JBrowse::ExternalSorter;
 
+# lazily make an arrayref of feature attributes that featurestreams
+# should use for making name records (or not making them)
+sub _name_attrs {
+    my ( $self ) = @_;
+    return $self->{name_attrs} || ( $self->{name_attrs} = do {
+        my $attrs = lc ( $self->opt('nameAttributes') || 'name,alias,id' );
+        if( $attrs eq 'none' ) {
+            []
+        }
+        else {
+            [ split /\s*,\s*/, $attrs ]
+        }
+    });
+}
+
 sub _format {
     my ( $self, %args ) = @_;
-    my ( $trackLabel, $trackConfig, $feature_stream, $filter ) = @args{qw{ trackLabel trackConfig featureStream featureFilter }};
+    my ( $trackLabel, $trackConfig, $feature_stream, $filter ) =
+        @args{qw{ trackLabel trackConfig featureStream featureFilter }};
     $filter ||= sub { @_ };
 
     my $types = $self->opt('type');
@@ -44,7 +60,7 @@ sub _format {
             my $row = [ $chrom,
                         $feature_stream->flatten_to_feature( $feat ),
                         $feature_stream->flatten_to_name( $feat ),
-                        ];
+                      ];
             $sorter->add( $row );
         }
     }

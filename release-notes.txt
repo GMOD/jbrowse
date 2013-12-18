@@ -36,6 +36,52 @@
    of the "Congratulations, JBrowse is on the web" page.  Thanks to
    Saulo Aflitos for the idea and its initial implementation.
 
+ * JBrowse now supports a new plaintext configuration format that
+   users of GBrowse will find very familiar, since it is designed to
+   be mostly compatible with it.  This syntax is much easier to
+   hand-write than JSON.  For users wishing to convert existing JSON
+   configuration files to the new format, there is a new script,
+   `bin/json2conf.pl`, that does a fair job.  Run `bin/json2conf.pl
+   -?` for details on how to use it.
+
+   Thanks to Erik Derohanian for the original implementation of this
+   configuration adaptor, and Richard Hayes and Keiran Raine for
+   motivating the work to polish and more fully integrate it.
+
+## Minor improvements
+
+ * Detail popups for CanvasVariants and HTMLVariants tracks now
+   display the reference sequence itself instead of just "ref" in
+   genotype displays.  Thanks to Cris Lawrence for requesting this.
+
+ * Added a "save as FASTA" button to default feature detail popups
+   that downloads a FASTA file with the displayed piece of reference
+   sequence (issue #299).
+
+ * `chunkSizeLimit` for VCF files now defaults to 1 MiB.  It used to
+   be 15 MiB, which was really far too big for browsers to handle.
+
+ * Added support for a `--nameAttributes` argument to
+   `flatfile-to-json.pl` that takes a comma-separated list of feature
+   attributes to index for name searching and completions, or 'none'
+   to not make names searchable.
+
+ * Added support for a `nameAttributes` variable in `biodb-to-json.pl`
+   track configurations that can be set to an array of feature
+   attribute names to to index for name searching and completions, or
+   'none' to not make names searchable.
+
+ * Add a `--category` argument to bin/wig-to-json.pl that can be used
+   to set the `metadata.category` of a track.
+
+## Bug fixes
+
+ * Fixed a bug in NCList data backed in which feature histograms were
+   often calculated very incorrectly.
+
+ * Fixed a bug in the VCF data backend that caused not all VCF
+   features to be shown in some files at some zoom levels.
+
 # Release 1.10.12     2013-12-10 16:09:42 EST5EDT
 
 ## Minor improvements
@@ -44,10 +90,11 @@
    `--metadata` argument that can add a `metadata` stanza to track
    configurations they generate.
 
- * Multi-valued attributes in default feature detail popups are
-   displayed as a string of boxes, each containing a value, to avoid
-   misinterpretation.  Thanks to Cris Lawrence for pointing out the
-   need for this.
+ * Multi-valued attributes in feature detail popups are displayed as a
+   string of boxes, each containing a value, to avoid
+   misinterpretation.  Before, each value was just separated from the
+   previous one by whitespace.  Thanks to Cris Lawrence for pointing
+   out the need for this.
 
 ## Bug fixes
 

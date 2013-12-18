@@ -30,20 +30,31 @@ p.done {
     margin-top: 3em;
 }
 
-code, .code {
+.conf_key {
+    color: firebrick;
+}
+.conf_section {
+    color: green;
+    font-weight: bold;
+}
+.code_comment {
+    color: blue;
+}
+
+code, .code, .conf {
     font-family: monospace;
     color: black;
 }
-code, span.code {
+code, span.code, span.conf {
     font-size: 115%;
     white-space: nowrap;
 }
 
-a[href], a[href] .code, a[href] code {
+a[href], a[href] .code, a[href] .conf, a[href] code {
     color: #33b;
 }
 
-div.code {
+div.code, div.conf {
     background: #eee;
     margin: 1em 1.5em 1em 1.5em;
     padding: 1em 2em;
@@ -54,7 +65,7 @@ dd > div.code {
     margin-left: 0;
 }
 
-span.code {
+span.code, span.conf {
     background: #f8f8f8;
     padding: 2px;
     border: 1px solid #ddd;

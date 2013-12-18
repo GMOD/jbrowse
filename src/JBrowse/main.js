@@ -4,6 +4,9 @@ require([
             'JBrowse/Browser',
             'JBrowse/ConfigAdaptor/JB_json_v1',
 
+            // default tracklist view
+            'JBrowse/View/TrackList/Hierarchical',
+
             // common stores
             'JBrowse/Store/Sequence/StaticChunked',
             'JBrowse/Store/SeqFeature/NCList',

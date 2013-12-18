@@ -108,7 +108,7 @@ return declare(
 
     _defaultConfig: function() {
         return {
-            maxFeatureScreenDensity: 300,
+            maxFeatureScreenDensity: 1,
 
             // default glyph class to use
             glyph: lang.hitch( this, 'guessGlyphType' ),
@@ -317,7 +317,8 @@ return declare(
             ref:   this.refSeq.name,
             start: args.leftBase,
             end:   args.rightBase,
-            basesPerSpan: basesPerBin
+            basesPerSpan: basesPerBin,
+            basesPerBin: basesPerBin
         };
 
         if( this.store.getRegionFeatureDensities ) {
@@ -409,7 +410,7 @@ return declare(
     },
 
     _histBinsToFeatures: function( viewArgs, histData ) {
-        var bpPerBin = histData.stats.basesPerBin;
+        var bpPerBin = parseFloat( histData.stats.basesPerBin );
         var leftBase = viewArgs.leftBase;
 
         return array.map(

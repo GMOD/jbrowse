@@ -14,7 +14,6 @@ use base 'Bio::JBrowse::Cmd';
 
 use File::Spec ();
 use POSIX ();
-use DB_File ();
 use Storable ();
 use File::Path ();
 use File::Temp ();
@@ -363,6 +362,8 @@ sub _build_index_temp {
     if ( $progressbar && $self->{stats}{operation_stream_estimated_count} >= $progress_next_update ) {
         $progressbar->update( $self->{stats}{operation_stream_estimated_count} );
     }
+
+    $self->vprint( "Actual index operations: ".$self->{stats}{operations_processed}."\n" );
 }
 
 
@@ -425,7 +426,11 @@ sub make_operation_stream {
     # estimate the total number of name records we probably have based on the input file sizes
     #print "sizes: $self->{stats}{total_namerec_bytes}, buffered: $namerecs_buffered, b/rec: ".$total_namerec_sizes/$namerecs_buffered."\n";
     $self->{stats}{avg_record_text_bytes} = $self->{stats}{total_namerec_bytes}/($self->{stats}{namerecs_buffered}||1);
-    $self->{stats}{total_input_bytes} = List::Util::sum( map { -s $_->{fullpath} } @$names_files ) || 0;
+    $self->{stats}{total_input_bytes} = List::Util::sum(
+        map { my $s = -s $_->{fullpath};
+              $s *= 7 if $_->{fullpath} =~ /\.(g|txt|json)z$/;
+              $s;
+          } @$names_files ) || 0;
     $self->{stats}{record_stream_estimated_count} = int( $self->{stats}{total_input_bytes} / ($self->{stats}{avg_record_text_bytes}||1));;
     $self->{stats}{operation_stream_estimated_count} = $self->{stats}{record_stream_estimated_count} * int( @operation_buffer / ($self->{stats}{namerecs_converted_to_operations}||1) );
 

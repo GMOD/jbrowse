@@ -62,7 +62,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 tbi: tbiBlob,
                 file: fileBlob,
                 browser: this.browser,
-                chunkSizeLimit: args.chunkSizeLimit
+                chunkSizeLimit: args.chunkSizeLimit || 1000000
             });
 
         this.getVCFHeader()

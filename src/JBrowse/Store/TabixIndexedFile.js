@@ -29,7 +29,7 @@ return declare( null, {
         this.data  = new BGZBlob( args.file );
         this.indexLoaded = this.index.load();
 
-        this.chunkSizeLimit = args.chunkSizeLimit || 15000000;
+        this.chunkSizeLimit = args.chunkSizeLimit || 2000000;
     },
 
     getLines: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
@@ -134,11 +134,8 @@ return declare( null, {
 
         thisB.data.read(chunk.minv.block, chunk.maxv.block - chunk.minv.block + 1, function( data ) {
             data = new Uint8Array(data);
-
-            // throw away the first (probably incomplete) line
-            var parseStart = chunk.minv.block ? array.indexOf( data, thisB._newlineCode, 0 ) + 1 : 0;
-            var lineIterator = new TextIterator.FromBytes({ bytes: data, offset: parseStart });
-
+            //console.log( 'reading chunk %d compressed, %d uncompressed', chunk.maxv.block-chunk.minv.block+65536, data.length );
+            var lineIterator = new TextIterator.FromBytes({ bytes: data, offset: 0 });
             try {
                 thisB._parseItems(
                     lineIterator,
@@ -205,7 +202,7 @@ return declare( null, {
         try {
             return this.parseLine( line );
         } catch(e) {
-            console.warn('parse failed: "'+line+'"');
+            //console.warn('parse failed: "'+line+'"');
             return null;
         }
     },

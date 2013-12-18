@@ -9,6 +9,7 @@ define(['dojo/_base/declare',
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
 
+        'JBrowse/Util',
         './_TextFilterMixin'
        ],
        function(
@@ -23,6 +24,7 @@ define(['dojo/_base/declare',
            TitlePane,
            ContentPane,
 
+           Util,
            _TextFilterMixin
        ) {
 
@@ -90,7 +92,7 @@ return declare(
         this.get('trackMetaData').fetch(
             { onItem: function(i) {
                   if( i.conf )
-                      tracks.push( i.conf );
+                      tracks.push( i );
               },
               onComplete: function() {
                   // make a pane at the top to hold uncategorized tracks
@@ -102,9 +104,10 @@ return declare(
 
                   thisB.addTracks( tracks, true );
 
-                  // remove the uncategorized pane if it is empty
+                  // hide the uncategorized pane if it is empty
                   if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
-                      thisB.removeChild( thisB.categories.Uncategorized.pane );
+                      //thisB.removeChild( thisB.categories.Uncategorized.pane );
+                      thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                   }
               },
               sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
@@ -114,11 +117,12 @@ return declare(
             });
     },
 
-    addTracks: function( trackConfigs, inStartup ) {
+    addTracks: function( tracks, inStartup ) {
         this.pane = this;
         var thisB = this;
 
-        array.forEach( trackConfigs, function( trackConf ) {
+        array.forEach( tracks, function( track ) {
+            var trackConf = track.conf || track;
 
             var categoryFacet = this.get('categoryFacet');
             var categoryNames = (
@@ -153,7 +157,13 @@ return declare(
                 return names.length ? _findCategory( cat, names, path ) : cat;
             };
 
-            var labelNode = dom.create( 'label', { className: 'tracklist-label shown' }, category.pane.containerNode );
+            category.pane.domNode.style.display = 'block';
+            var labelNode = dom.create(
+                'label', {
+                    className: 'tracklist-label shown',
+                    title: Util.escapeHTML( track.shortDescription || track.description || track.Description || track.metadata && ( track.metadata.shortDescription || track.metadata.description || track.metadata.Description ) || track.key || trackConf.key || trackConf.label )
+                }, category.pane.containerNode );
+
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
             var trackLabel = trackConf.label;
             var checkListener;

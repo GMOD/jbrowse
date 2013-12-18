@@ -7,6 +7,7 @@
          "autocomplete" : "all",
          "track" : "ExampleFeatures",
          "class" : "feature2",
+         "category": "Miscellaneous",
          "key" : "HTMLFeatures - Example Features"
       },
       {
@@ -16,6 +17,7 @@
          ],
          "track" : "NameTest",
          "class" : "feature2",
+         "category": "Miscellaneous",
          "key" : "HTMLFeatures - Name test track has a really long track label"
       },
       {
@@ -24,6 +26,7 @@
          ],
          "track" : "snps",
          "class" : "triangle hgred",
+         "category": "Miscellaneous",
          "key" : "HTMLFeatures - SNPs"
       },
       {
@@ -34,6 +37,7 @@
          "class" : "feature3",
          "description" : 1,
          "key" : "HTMLFeatures - Example motifs",
+         "category": "Miscellaneous",
          "style": {
            "label": "function(feature) { return feature.get('Name')+' (via JS callback)' }",
            "description": "function(feature) { return feature.get('Name')+': '+feature.get('Note'); }"
@@ -45,8 +49,11 @@
          ],
          "track" : "malformed_alignments",
          "class" : "feature4",
-         "key" : "HTMLFeatures - Features with menus",
-         "metadata": { "Description": "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback." },
+         "key" : "HTMLFeatures - Features with right-click menus",
+         "metadata": {
+             "category": "Miscellaneous",
+             "Description": "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback."
+         },
          "hooks": {
              "modify": "function( track, feature, div ) { div.style.backgroundColor = ['green','blue','red','orange','purple'][Math.round(Math.random()*5)];}"
          },
@@ -98,15 +105,15 @@
              },
              {
                "label" : "Popup with content snippet from string (feature {name})",
-               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "title": "{randomNumberTitle}",
                "iconClass" : "dijitIconDatabase",
                "action": "contentDialog",
                "content" : "<h2>{name}</h2><p>This is some test content about {name}, which goes from {start} to {end} on the {strand} strand.</p>"
              },
              {
-               "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }",
+               "label" : "{randomNumberLabel}",
                "iconClass" : "dijitIconDatabase",
-               "action": "function( evt ){ alert('Hi there! Ran the callback on feature '+this.feature.get('name')); }"
+               "action": "{exampleFeatureClick}"
              }
          ]
       },
@@ -122,7 +129,7 @@
          "trackType": "JBrowse/View/Track/CanvasFeatures",
          "menuTemplate": [  {
                "label" : "Popup with content snippet from string (feature {name})",
-               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
+               "title": "{randomNumberTitle}",
                "iconClass" : "dijitIconDatabase",
                "action": "contentDialog",
                "content" : "<h2>{name}</h2>This is some test content about {type} {name}, which goes from {start} to {end} on the {strand} strand."
@@ -163,7 +170,7 @@
          ],
          "category" : "Transcripts",
          "subfeatures" : true,
-         "onClick": "function() { alert('This is an example of a user-provided JavaScript callback!'); };"
+         "onClick": "{exampleFeatureClick}"
       },
       {
          "feature" : [
@@ -172,7 +179,8 @@
          "track" : "Clones",
          "class" : "exon",
          "description" : 1,
-         "key" : "HTMLFeatures - Fingerprinted BACs"
+         "key" : "HTMLFeatures - Fingerprinted BACs",
+         "category": "Miscellaneous"
       },
       {
          "feature" : [
@@ -180,7 +188,8 @@
          ],
          "track" : "EST",
          "class" : "est",
-         "key" : "HTMLFeatures - ESTs"
+         "key" : "HTMLFeatures - ESTs",
+         "category": "Miscellaneous"
       }
    ],
    "TRACK DEFAULTS" : {

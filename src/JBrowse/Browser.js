@@ -110,7 +110,7 @@ return declare( FeatureFiltererMixin, {
 constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
-    this.config = params;
+    this.config = params || {};
 
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
@@ -118,13 +118,13 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-    this.container = dojo.byId( this.config.containerID );
-    this.container.onselectstart = function() { return false; };
-
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
+
+            thisB.container = dojo.byId( thisB.config.containerID );
+            thisB.container.onselectstart = function() { return false; };
 
             // initialize our highlight if one was set in the config
             if( thisB.config.initialHighlight )
@@ -216,7 +216,7 @@ getPlugin: function( name, callback ) {
 },
 
 _corePlugins: function() {
-    return ['RegexSequenceSearch'];
+    return [ 'RegexSequenceSearch' ];
 },
 
 /**
@@ -225,18 +225,37 @@ _corePlugins: function() {
 initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
-        var plugins = this._corePlugins();
-        plugins.push.apply( plugins, this.config.plugins || this.config.Plugins || [] );
+
+        var plugins = this.config.plugins || this.config.Plugins || {};
+
+        // coerce plugins to array of objects
+        if( ! lang.isArray(plugins) && ! plugins.name ) {
+            // plugins like  { Foo: {...}, Bar: {...} }
+            plugins = function() {
+                var newplugins = [];
+                for( var pname in plugins ) {
+                    if( !( 'name' in plugins[pname] ) ) {
+                        plugins[pname].name = pname;
+                    }
+                    newplugins.push( plugins[pname] );
+                }
+                return newplugins;
+            }.call(this);
+        }
+        if( ! lang.isArray( plugins ) )
+            plugins = [ plugins ];
+
+        plugins.unshift.apply( plugins, this._corePlugins() );
+
+        // coerce string plugin names to {name: 'Name'}
+        plugins = array.map( plugins, function( p ) {
+            return typeof p == 'object' ? p : { 'name': p };
+        });
 
         if( ! plugins ) {
             deferred.resolve({success: true});
             return;
         }
-
-        // coerce plugins to array of objects
-        plugins = array.map( lang.isArray( plugins ) ? plugins : [plugins], function( p ) {
-            return typeof p == 'object' ? p : { 'name': p };
-        });
 
         // set default locations for each plugin
         array.forEach( plugins, function(p) {
@@ -1469,14 +1488,15 @@ _configDefaults: function() {
     return {
         tracks: [],
 
+        containerID: 'GenomeBrowser',
         dataRoot: 'data',
         show_tracklist: true,
         show_nav: true,
         show_overview: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
-        baseUrl: './',
         include: [
+            'jbrowse.conf',
             'jbrowse_conf.json'
         ],
         nameUrl: "{dataRoot}/names/root.json",

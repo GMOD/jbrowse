@@ -1,7 +1,6 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
-            'dojo/_base/Deferred',
             'dojo/store/JsonRest',
             'dojo/store/util/QueryResults',
             'JBrowse/Digest/Crc32'
@@ -9,7 +8,6 @@ define( [
         function(
             declare,
             array,
-            Deferred,
             dojoJSONRest,
             QueryResults,
             digest
@@ -58,14 +56,12 @@ return declare( null, {
 
     _getBucket: function( key ) {
         var thisB = this;
-        var bucketP = new Deferred();
-        this.ready.then( function() {
-            var bucketIdent = thisB._hash( key );
-            thisB.bucketStore.get( thisB._hexToDirPath( bucketIdent ) )
-                 .then(function(d) { bucketP.resolve(d); } );
-        });
-
-        return bucketP;
+        return this.ready
+            .then( function() {
+                       var bucketIdent = thisB._hash( key );
+                       return thisB.bucketStore
+                           .get( thisB._hexToDirPath( bucketIdent ) );
+                   });
     },
 
     _hexToDirPath: function( hex ) {

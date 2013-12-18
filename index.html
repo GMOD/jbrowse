@@ -13,16 +13,30 @@
                 document.body.setAttribute("JSError",msg);
         }
 
+        // puts the main Browser object in this for convenience.  feel
+        // free to move it into function scope if you want to keep it
+        // out of the global namespace
         var JBrowse;
         require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
              function (Browser,ioQuery,JSON) {
+                   // the initial configuration of this JBrowse
+                   // instance
+
+                   // NOTE: this initial config is the same as any
+                   // other JBrowse config in any other file.  this
+                   // one just sets defaults from URL query params.
+                   // If you are embedding JBrowse in some other app,
+                   // you might as well just set this initial config
+                   // to something like { include: '../my/dynamic/conf.json' },
+                   // or you could put the entire
+                   // dynamically-generated JBrowse config here.
+
+                   // parse the query vars in the page URL
                    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
 
-                   // the initial configuration of this JBrowse instance
                    var config = {
                        containerID: "GenomeBrowser",
 
-                       baseUrl: "./",
                        dataRoot: queryParams.data,
                        queryParams: queryParams,
                        location: queryParams.loc,

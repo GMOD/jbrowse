@@ -82,6 +82,9 @@ return declare( null, {
     renderDetailValue: function( parent, title, val, class_ ) {
         var thisB = this;
 
+        if( val.values )
+            val = val.values;
+
         // if this object has a 'fmtDetailFooValue' function, delegate to that
         var fieldSpecificFormatter;
         if(( fieldSpecificFormatter = this['fmtDetail'+Util.ucFirst(title)+'Value'] ))
@@ -132,18 +135,20 @@ return declare( null, {
 
                         return item;
                     },
-                    // descriptions object
-                    (function() {
-                         if( ! keys.length )
-                             return {};
+                    { descriptions: (function() {
+                                         if( ! keys.length )
+                                             return {};
 
-                         var subValue = val[keys[0]];
-                         var descriptions = {};
-                         for( var k in subValue ) {
-                             descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
-                         }
-                         return descriptions;
-                     })()
+                                         var subValue = val[keys[0]];
+                                         var descriptions = {};
+                                         for( var k in subValue ) {
+                                             descriptions[k] =
+                                                 subValue[k].meta && subValue[k].meta.description
+                                                 || null;
+                                         }
+                                         return descriptions;
+                                     })()
+                    }
                 );
                 return count;
             }
@@ -159,30 +164,37 @@ return declare( null, {
         return 1;
     },
 
-    renderDetailValueGrid: function( parent, title, iterator, descriptions ) {
+    renderDetailValueGrid: function( parent, title, iterator, attrs ) {
         var thisB = this;
         var rows = [];
         var item;
+        var descriptions  = attrs.descriptions || {};
+        var cellRenderers = attrs.renderCell || {};
         while(( item = iterator() ))
             rows.push( item );
 
         if( ! rows.length )
             return document.createElement('span');
 
+        function defaultRenderCell( field, value, node, options ) {
+            thisB.renderDetailValue( node, '', value, '' );
+        }
+
         var columns = [];
         for( var field in rows[0] ) {
             (function(field) {
-                var column = {
-                    label: { id: 'Name'}[field] || Util.ucFirst( field ),
-                    field: field
-                };
-                column.renderHeaderCell = function( contentNode ) {
-                    if( descriptions[field] )
-                        contentNode.title = descriptions[field];
-                    contentNode.appendChild( document.createTextNode( column.label || column.field));
-                };
-                columns.push( column );
-            })(field);
+                 var column = {
+                     label: { id: 'Name'}[field] || Util.ucFirst( field ),
+                     field: field,
+                     renderCell: cellRenderers[field] || defaultRenderCell,
+                     renderHeaderCell: function( contentNode ) {
+                         if( descriptions[field] )
+                             contentNode.title = descriptions[field];
+                         contentNode.appendChild( document.createTextNode( column.label || column.field));
+                     }
+                 };
+                 columns.push( column );
+             })(field);
         }
 
         // create the grid

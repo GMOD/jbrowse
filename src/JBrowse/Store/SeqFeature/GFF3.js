@@ -104,7 +104,12 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
     },
 
     _compareFeatureData: function( a, b ) {
-        return a.seq_id.localeCompare( b.seq_id ) || ( a.start - b.start );
+        if( a.seq_id < b.seq_id )
+            return -1;
+        else if( a.seq_id > b.seq_id )
+            return 1;
+
+        return a.start - b.start;
     },
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
