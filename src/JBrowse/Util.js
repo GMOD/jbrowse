@@ -107,10 +107,29 @@ var Util = {
         }
     },
 
-    uncancellable: function( deferred ) {
-        var d = new Deferred();
-        deferred.then( d.resolve, d.reject, d.progress );
-        return d;
+    // takes a promise, and returns an uncancelable
+    uncancelable: function( deferred ) {
+        return {
+            // cancel is a no-op
+            cancel:      function() {},
+            // then is altered
+            then:        function() {
+                // connects up the resolve/reject/progress, but does
+                // not connect the cancellation
+                var d = new Deferred();
+                deferred.then( d.resolve, d.reject, d.progress );
+                return d.then.apply( d, arguments );
+            },
+
+            // and the rest just delegate
+            resolve:     function() { return deferred.resolve.apply( deferred, arguments );     },
+            reject:      function() { return deferred.reject.apply( deferred, arguments );      },
+            progress:    function() { return deferred.progress.apply( deferred, arguments );    },
+            isResolved:  function() { return deferred.isResolved.apply( deferred, arguments );  },
+            isRejected:  function() { return deferred.isRejected.apply( deferred, arguments );  },
+            isFulfilled: function() { return deferred.isFulfilled.apply( deferred, arguments ); },
+            isCanceled:  function() { return deferred.isCanceled.apply( deferred, arguments );  }
+        };
     },
 
     loadJSClass: function( classname ) {

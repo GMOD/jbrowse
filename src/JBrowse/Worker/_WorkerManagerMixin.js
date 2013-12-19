@@ -26,7 +26,7 @@ return declare( null, {
 
   getWorker: function( taskGroup, taskIdentifier, workerClass ) {
       return this._worker || ( this._worker = function() {
-          return Util.uncancellable( this._makeRealWorker( workerClass ) );
+          return Util.uncancelable( this._makeRealWorker( workerClass ) );
       }.call(this));
   },
 

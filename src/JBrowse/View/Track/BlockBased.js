@@ -246,7 +246,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
     _getRenderJob: function() {
         return this._worker || (this._worker = function() {
             var thisB = this;
-            return Util.uncancellable(
+            return Util.uncancelable(
                 this.get('track').get('app')
                        .getWorker('render-'+this.get('track').getConf('name') )
                        .then( function( worker ) {
