@@ -76,7 +76,8 @@ postMessage: function( message ) {
 },
 
 // job management. jobs are ongoing tasks that the worker does; a Job
-// is a persistent connection to a object in Worker-space
+// is a two-way persistent connection between an object in the web
+// worker and an object in the main thread
 _handleRequest_newJob: function( jobNumber, className, args ) {
     var job = new Job({ worker: this, jobNumber: jobNumber });
     return this._jobs[jobNumber] =
@@ -86,7 +87,6 @@ _handleRequest_newJob: function( jobNumber, className, args ) {
                        return job;
                    });
 },
-
 _handleRequest_destroyJob: function( jobNumber ) {
     this.postMessage({ jobNumber: jobNumber, operation: 'destroy' });
     return this._jobs[jobNumber].destroy();
