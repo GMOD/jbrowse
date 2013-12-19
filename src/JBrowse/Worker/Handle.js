@@ -57,13 +57,6 @@ return declare( [_RequestMixin], {
       return this._worker.postMessage( message );
   },
 
-  remoteApply: function( obj, methodName, args ) {
-      if( typeof methodName != 'string' )
-          throw new Error('must pass a string method name');
-
-      return this.request( 'apply', arguments );
-  },
-
   newJob: function( localHandler, className, args ) {
       var jobNumber = ++jobCounter;
       var thisB = this;

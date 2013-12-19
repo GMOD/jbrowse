@@ -68,7 +68,8 @@ return Util.fastDeclare({
                      },
                      function() {
                          return sequence;
-                     }
+                     },
+                     Util.cancelOK
                    );
    }
 

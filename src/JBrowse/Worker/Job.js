@@ -56,8 +56,8 @@ return declare( [_RequestMixin, Destroyable], {
   },
 
   // run a method on the handler object in the remote thread
-  remoteApply: function( methodName, args ) {
-      return this.request( 'apply', methodName, args );
+  remoteApply: function( methodName, args, options ) {
+      return this.request( lang.mixin( { operation: 'apply' }, options ), methodName, args );
   },
 
   _handleRequest_apply: function( methodName, args ) {

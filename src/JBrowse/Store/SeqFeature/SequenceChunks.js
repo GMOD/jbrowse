@@ -60,7 +60,8 @@ return declare( SeqFeatureStore,
         var seq;
         return this.getReferenceFeatures({ seq_id: name })
                    .forEach( function(s) { seq = s; },
-                             function() { return seq && seq.getSequence(start,end); }
+                             function() { return seq && seq.getSequence(start,end); },
+                             Util.cancelOK
                            );
     },
 

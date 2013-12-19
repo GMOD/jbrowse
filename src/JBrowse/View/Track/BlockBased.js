@@ -114,6 +114,10 @@ return declare( [ TrackView, _BlockBasedMixin ],
             };
         }
         else if( changeInfo.operation == 'destroy' ) {
+            var inprogress;
+            if(( inprogress = this.blockStash[ block.id() ].fillInProgress ) && ! inprogress.isCanceled() )
+                inprogress.cancel( new Errors.Cancel('block destroyed') );
+
             delete this.blockStash[ block.id() ];
         }
 
@@ -140,6 +144,9 @@ return declare( [ TrackView, _BlockBasedMixin ],
     heightUpdate: function( h, block ) {
         if( block ) {
             //console.log('block %d height %d', block.id(), h );
+            if(! this.blockStash[block.id()] )
+                debugger;
+
             this.blockStash[block.id()].requestedHeight = h;
 
             var maxHeight = 0;
@@ -237,9 +244,10 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     _getRenderJob: function() {
-        return this._worker || ( this._worker = function() {
+        return this._worker || (this._worker = function() {
             var thisB = this;
-            return this.get('track').get('app')
+            return Util.uncancellable(
+                this.get('track').get('app')
                        .getWorker('render-'+this.get('track').getConf('name') )
                        .then( function( worker ) {
                                   return worker.newJob(
@@ -253,7 +261,8 @@ return declare( [ TrackView, _BlockBasedMixin ],
                                           thisB.getConf('renderer')
                                       )
                                   );
-                        });
+                        })
+            );
         }.call(this));
     },
 

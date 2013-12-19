@@ -83,7 +83,7 @@ return declare( [_ConfigurationMixin], {
         return this.fillSequenceBlock.apply( this, arguments )
             .then( function() {
                        return remoteBlockNode;
-                   });
+                   }, Util.cancelOK );
     },
 
     _getBoxHeight: function() {

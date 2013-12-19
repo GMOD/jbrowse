@@ -33,7 +33,7 @@ constructor: function() {
 
 request: function( desc ) {
     var thisB = this;
-    if( typeof operation != 'object' )
+    if( typeof desc != 'object' )
         desc = { operation: desc };
     var args = Array.prototype.slice.call( arguments, 1 );
 
@@ -42,11 +42,11 @@ request: function( desc ) {
         { requestNumber: requestNumber,
           operation: desc.operation,
           cancelOK: ( 'cancelOK' in desc ) ? desc.cancelOK : true,
-          args: Serialization.deflate( args )
+          args: Serialization.deflate( desc.args || args )
         });
 
     var deferred = new Deferred( function( reason ) {
-        console.log( 'owner canceling request '+requestNumber );
+        //console.log( 'owner canceling request '+requestNumber );
         thisB.postMessage({ requestNumber: requestNumber,
                             operation: 'cancel',
                             reason: Serialization.deflate( reason )
@@ -76,7 +76,7 @@ _handleRequest: function( req ) {
     var operation = req.operation;
     if( req.operation == 'cancel' ) {
         if( receivedRequests[requestNumber] ) {
-            console.log( 'worker asked to cancel request '+requestNumber, receivedRequests[requestNumber] );
+            //console.log( 'worker asked to cancel request '+requestNumber, receivedRequests[requestNumber] );
             Serialization.inflate( req.reason )
                 .then( function( reason ) {
                            reason.requestNumber = requestNumber;
