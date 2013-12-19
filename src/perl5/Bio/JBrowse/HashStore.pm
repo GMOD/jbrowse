@@ -89,7 +89,7 @@ sub open {
     $self->{hash_sprintf_pattern} = '%0'.int( $self->{hash_bits}/4 ).'x';
     $self->{file_extension} = '.'.$self->{format};
 
-    $self->{cache_size} = int( $self->{mem} / 50000 / 3 );
+    $self->{cache_size} = int( $self->{mem} / 50000 / 2 );
     print "Hash store cache size: $self->{cache_size} buckets\n" if $self->{verbose};
 
     File::Path::mkpath( $self->{dir} );
@@ -221,7 +221,6 @@ sub stream_do {
         while ( my $log_path = $log_iterator->() ) {
             CORE::open( my $log_fh, "<$gzip", $log_path ) or die "$! reading $log_path";
             #warn "reading $log_path\n";
-            unlink $log_path;
             while ( my $rec = eval { Storable::fd_retrieve( $log_fh ) } ) {
                 my ( $hex, $op ) = @$rec;
                 my $bucket = $self->_getBucketFromHex( $hex );
@@ -231,6 +230,7 @@ sub stream_do {
                     $progressbar_next_update = $progressbar->update( $ops_played_back );
                 }
             }
+            unlink $log_path;
         }
 
         if ( $progressbar && $ops_played_back >= $progressbar_next_update ) {
