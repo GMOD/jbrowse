@@ -99,7 +99,7 @@ echo -n "Building and installing legacy wiggle format support (superseded by Big
     set -x;
     bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --category "Pre-generated images" --out sample_data/json/volvox;
 ) >>setup.log 2>&1
-done_message "" "Make sure libpng development libraries and header files are installed.";
+done_message "" "If you really need wig-to-json.pl (most users don't), make sure libpng development libraries and header files are installed and try running setup.sh again.";
 
 echo
 echo -n "Building and installing legacy bam-to-json.pl support (superseded by direct BAM tracks) ...";
@@ -135,4 +135,4 @@ echo -n "Building and installing legacy bam-to-json.pl support (superseded by di
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Legacy BAM - volvox-sorted.bam" --cssClass basic --metadata '{"category": "BAM"}' --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
 ) >>setup.log 2>&1;
-done_message "" "Try reading the Bio-SamTools troubleshooting guide at https://metacpan.org/source/LDS/Bio-SamTools-1.33/README for help getting Bio::DB::Sam installed.";
+done_message "" "If you really need bam-to-json.pl (most users don't), try reading the Bio-SamTools troubleshooting guide at https://metacpan.org/source/LDS/Bio-SamTools-1.33/README for help getting Bio::DB::Sam installed.";
