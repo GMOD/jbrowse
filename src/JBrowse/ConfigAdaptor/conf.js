@@ -62,7 +62,7 @@ parse_conf: function( text, load_args ) {
 
     array.forEach( text.split("\n"), function( line, i ) {
         lineNumber = i+1;
-        line = line.replace(/#.+/,'');
+        line = line.replace(/^\s*#.+/,'');
         var match;
 
         // new section

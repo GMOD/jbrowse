@@ -24,7 +24,7 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
                 expect(gbConfig['TRACK DEFAULTS']).toBeTruthy();
                 expect(gbConfig['TRACK DEFAULTS']['glyph'           ]).toBe('generic');
                 expect(gbConfig['TRACK DEFAULTS']['height'          ]).toBe(8);
-                expect(gbConfig['TRACK DEFAULTS']['bgcolor'         ]).toBe('cyan');
+                expect(gbConfig['TRACK DEFAULTS']['bgcolor'         ]).toBe('#fefefe');
                 expect(gbConfig['TRACK DEFAULTS']['fgcolor'         ]).toBe('black');
                 expect(gbConfig['TRACK DEFAULTS']['label density'   ]).toBe(25);
                 expect(gbConfig['TRACK DEFAULTS']['bump density'    ]).toBe(25);
