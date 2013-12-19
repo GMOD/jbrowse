@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.11.0     2013-12-19 15:51:37 EST5EDT
+
 ## Major improvements
 
  * Introduced density/coverage histogram support for CanvasFeatures,
