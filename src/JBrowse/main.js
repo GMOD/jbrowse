@@ -11,6 +11,8 @@ require([
             'JBrowse/Store/Sequence/StaticChunked',
             'JBrowse/Store/SeqFeature/NCList',
             'JBrowse/Store/TiledImage/Fixed',
+            'JBrowse/Store/Names/Hash',
+            'JBrowse/Store/Names/REST',
 
             // common track views
             'JBrowse/View/Track/Sequence',
