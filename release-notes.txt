@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Improved handling of client-side GFF3 parsing errors.
+
 # Release 1.11.0     2013-12-19 15:51:37 EST5EDT
 
 ## Major improvements

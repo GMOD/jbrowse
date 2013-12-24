@@ -81,14 +81,19 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                     thisB._deferred.features.resolve( features );
                 }
             });
-
+        var fail = lang.hitch( this, '_failAllDeferred' );
         // parse the whole file and store it
         this.data.fetchLines(
             function( line ) {
-                parser.addLine(line);
+                try {
+                    parser.addLine(line);
+                } catch(e) {
+                    fail('Error parsing GFF3.');
+                    throw e;
+                }
             },
             lang.hitch( parser, 'finish' ),
-            lang.hitch( this, '_failAllDeferred' )
+            fail
         );
     },
 
