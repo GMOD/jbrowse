@@ -378,6 +378,7 @@ sub make_operation_stream {
     if( $self->opt('verbose') ) {
         print "Sampled input stats:\n";
         while( my ($k,$v) = each %{$self->{stats}} ) {
+            next if ref $v;
             $k =~ s/_/ /g;
             printf( '%40s'." $v\n", $k );
         }
