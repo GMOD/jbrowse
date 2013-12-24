@@ -13,6 +13,7 @@ define( [
             'dojo/on',
 
             'JBrowse/has',
+            'JBrowse/Util',
             'JBrowse/View/GranularRectLayout',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_ExportMixin',
@@ -34,6 +35,7 @@ define( [
             on,
 
             has,
+            Util,
             Layout,
             BlockBasedTrack,
             ExportMixin,
@@ -107,7 +109,9 @@ return declare(
     },
 
     _defaultConfig: function() {
-        return {
+        return Util.deepUpdate(
+            lang.clone( this.inherited(arguments) ),
+            {
             maxFeatureScreenDensity: 1,
 
             // default glyph class to use
@@ -167,7 +171,7 @@ return declare(
                   iconClass: 'dijitIconFilter'
                 }
             ]
-        };
+        });
     },
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {

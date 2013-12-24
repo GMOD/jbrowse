@@ -1,8 +1,16 @@
 {{$NEXT}}
 
-## Minor improvements
+ * Fixed bug that caused client-side GFF3 tracks to appear as
+   "Loading" forever if the GFF3 is malformed (like malformed GFF3
+   files that are opened with the File->Open tool).
 
- * Improved handling of client-side GFF3 parsing errors.
+## Bug fixes
+
+ * Fixed bug in which no default value for
+   `maxFeatureSizeForUnderlyingRefSeq` was being set, which made
+   default feature detail popups try to fetch and display a feature's
+   underlying reference sequence even if it is way too large, unless
+   the variable was set explicitly in the configuration.
 
 # Release 1.11.0     2013-12-19 15:51:37 EST5EDT
 
