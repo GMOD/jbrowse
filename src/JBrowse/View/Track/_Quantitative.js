@@ -35,8 +35,7 @@ define( [
 
 return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
-    constructor: function( args ) {
-    },
+    trackCSSClass: 'quantitative',
 
     startup: function() {
         this.inherited(arguments);

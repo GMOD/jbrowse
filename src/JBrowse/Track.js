@@ -44,7 +44,7 @@ return declare( [Component,Stateful], {
             },
 
             { name: 'defaultViewType', type: 'string',
-              defaultValue: 'JBrowse/View/Track/CanvasFeatures'
+              defaultValue: 'JBrowse/View/TrackRenderer/CanvasFeatures'
             },
 
             { name: 'defaultSubtrackType', type: 'string',
@@ -111,25 +111,28 @@ return declare( [Component,Stateful], {
             throw new Error( 'no configuration found for view named "'
                              +viewName+'" in track "'+this.getConf('name')+'"' );
         var thisB = this;
-        return Util.loadJSClass( viewconf.type || this.getConf('defaultViewType') )
-            .then( function( TrackViewClass ) {
-                       return thisB
-                           .get('dataHub')
-                           .openStore( viewconf.store )
-                           .then( function( store ) {
-                                      return new TrackViewClass(
-                                          lang.mixin(
-                                              { region: 'top',
-                                                track: thisB,
-                                                app: thisB.app,
-                                                config: viewconf,
-                                                store: store,
-                                                name: viewName
-                                              },
-                                              args || {}
-                                          ));
+        return all( [ Util.loadJSClass( viewconf.type || this.getConf('defaultViewType') ),
+                      thisB.get('dataHub').openStore( viewconf.store )
+                    ])
+            .then( function( stuff ) {
+                       var TrackRendererClass = stuff[0], store = stuff[1];
+                       var renderer = new TrackRendererClass({ track: thisB, app: thisB.app, config: viewconf, store: store });
+                       return Util.loadJSClass( renderer.getWidgetType() )
+                           .then( function( WidgetClass ) {
+                                      var widget = new WidgetClass(
+                                                       lang.mixin(
+                                                           { region: 'top',
+                                                             track: thisB,
+                                                             app: thisB.app,
+                                                             name: viewName,
+                                                             renderer: renderer
+                                                           },
+                                                           args || {}
+                                                       ));
+                                      renderer.set('widget', widget );
+                                      return widget;
                                   });
-             });
+                   });
     },
 
     makeSubtracks: function( args ) {

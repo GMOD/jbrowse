@@ -1,35 +1,26 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
+           'dojo/dom-construct',
 
            'JBrowse/Util',
             'JBrowse/CodonTable',
-           'JBrowse/_ConfigurationMixin'
+           './_Base'
        ],
        function(
            declare,
            lang,
+           dom,
 
            Util,
            CodonTables,
-           _ConfigurationMixin
+           _WorkerBase
        ) {
-return declare( [_ConfigurationMixin], {
-
-    constructor: function( args ) {
-        Util.validate( args, { store: 'object' } );
-        this.store = args.store;
-    },
-
-    deflate: function() {
-        return { $class: 'JBrowse/View/Track/SequenceBases/Worker',
-                 config: this.exportMergedConfig()
-               };
-    },
+return declare( [_WorkerBase], {
 
     configSchema: {
          slots: [
-             { name: 'type',              type: 'string' },
+             { name: 'type', defaultValue: 'JBrowse/View/TrackRenderer/SequenceBases' },
 
              { name: 'maxExportSpan',             type: 'integer', defaultValue: 500000 },
              { name: 'showReverseStrand',         type: 'boolean', defaultValue: true },
@@ -79,12 +70,26 @@ return declare( [_ConfigurationMixin], {
 
     nbsp: String.fromCharCode(160),
 
-    fillBlock: function( block, remoteBlockNode ) {
-        return this.fillSequenceBlock.apply( this, arguments )
-            .then( function() {
-                       return remoteBlockNode;
-                   }, Util.cancelOK );
+    trackCSSClass: 'sequenceBases',
+
+    fillBlock: function( block, blockNode, changeInfo ) {
+        var scale = block.getProjectionBlock().getScale();
+
+        // if we are zoomed in far enough to draw bases, then draw them
+        if( scale <= 1 ) {
+            this.get('widget').removeTrackMessage();
+            return this.inherited( arguments );
+        }
+        // otherwise, just draw something that suggests there are
+        // bases there if you zoom in far enough
+        else {
+            dom.empty( blockNode );
+            this.get('widget').showTrackMessage('Zoom in to see sequence');
+            this.get('widget').heightUpdate( 30, block );
+            return blockNode;
+        }
     },
+
 
     _getBoxHeight: function() {
         var fontSize = parseInt( this.getConf('baseFont').match(/(\d+)px/)[1] );
@@ -99,7 +104,8 @@ return declare( [_ConfigurationMixin], {
             + ( this.getConf('showReverseStrand') ? boxHeight : 0 );
     },
 
-    fillSequenceBlock: function( block, blockNode ) {
+    // to be run in a worker
+    workerFillBlock: function( block, blockNode ) {
         var thisB = this;
 
         var scale = block.getProjectionBlock().getScale();
@@ -128,6 +134,7 @@ return declare( [_ConfigurationMixin], {
                                  innerHTML: '<span class="message">No sequence available</span>'
                                });
                        }
+                       return blockNode;
                    },
                    Util.cancelOK
                  );

@@ -5,6 +5,7 @@ define([
 
            'dijit/layout/ContentPane',
 
+           'JBrowse/Util',
            'JBrowse/_ConfigurationMixin',
            'JBrowse/_FeatureFiltererMixin',
            'JBrowse/Util/_PromiseOwnerMixin'
@@ -16,6 +17,7 @@ define([
 
            ContentPane,
 
+           Util,
            _ConfigurationMixin,
            _FeatureFiltererMixin,
            _PromiseOwnerMixin
@@ -42,6 +44,9 @@ return declare( [
       ]
   },
 
+  constructor: function(args) {
+      Util.validate( args, { renderer: 'object'} );
+  },
 
   buildRendering: function() {
       this.inherited(arguments);

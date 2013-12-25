@@ -131,7 +131,8 @@ return declare( [ BorderContainer ], {
         if( this.mainViewName != mainViewName ) {
             if( mainViewName ) {
                 this.mainViewName = mainViewName;
-                mainView = this.get('track').makeView( mainViewName, { genomeView: this.get('genomeView') } )
+                mainView = this.get('track')
+                    .makeView( mainViewName, { genomeView: this.get('genomeView') } )
                     .then( function( view ) {
                                if( thisB.get('mainView') ) {
                                    thisB.removeChild( thisB.get('mainView') );

@@ -88,12 +88,12 @@
                 "default": {
                     "store": "refseqs",
                     "description": "sequence bases",
-                    "type" : "JBrowse/View/Track/SequenceBases"
+                    "type" : "JBrowse/View/TrackRenderer/SequenceBases"
                 },
                 "gc": {
                     "store": "refseqs",
                     "description": "GC (%)",
-                    "type": "JBrowse/View/Track/SequenceGCContent"
+                    "type": "JBrowse/View/TrackRenderer/SequenceGCContent"
                 }
             }
         },

@@ -14,8 +14,7 @@ define( [
             '../Track',
             './_BlockBasedMixin',
             'JBrowse/Util',
-            'JBrowse/Errors',
-            'JBrowse/DOMNode/Remote'
+            'JBrowse/Errors'
         ],
         function(
             declare,
@@ -30,8 +29,7 @@ define( [
             TrackView,
             _BlockBasedMixin,
             Util,
-            Errors,
-            RemoteDOMNode
+            Errors
         ) {
 
 return declare( [ TrackView, _BlockBasedMixin ],
@@ -42,25 +40,9 @@ return declare( [ TrackView, _BlockBasedMixin ],
         this.blockStash = {};
     },
 
-    configSchema: {
-        slots: [
-            { name: 'renderer', type: 'object', required: true }
-        ]
-    },
-
-    getRenderer: function() {
-        return this._renderer || (
-            this._renderer = Util.instantiate( this.getConf('renderer').type, this.getConf('renderer') )
-        );
-    },
-
-    animatableFill: function() {
-        return true;
-    },
-
     animateBlock: function( block, blockNode, changeInfo ) {
         if( changeInfo.operation == 'new' ) {
-            if( this.animatableFill() ) {
+            if( this.get('renderer').animatableFill() ) {
                 this.fillBlock( block, blockNode, changeInfo );
             }
             else {
@@ -226,7 +208,8 @@ return declare( [ TrackView, _BlockBasedMixin ],
         if( inprogress && ! inprogress.isFulfilled() )
             inprogress.cancel( new Errors.Cancel('block changed') );
 
-        return this.ownPromise( this.blockStash[block.id()].fillInProgress = when(this._fillBlock( block, blockNode, changeInfo )) )
+        return this.ownPromise( this.blockStash[block.id()].fillInProgress =
+            when( this.get('renderer').fillBlock( block, blockNode, changeInfo )))
                 .then( function(v) {
                            loadingTimeout.cancel();
                            if( loadingIndicator )
@@ -241,51 +224,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
                            }
                        }
                      );
-    },
-
-    _getRenderJob: function() {
-        return this._worker || (this._worker = function() {
-            var thisB = this;
-            return Util.uncancelable(
-                this.get('track').get('app')
-                       .getWorker('render-'+this.get('track').getConf('name') )
-                       .then( function( worker ) {
-                                  return worker.newJob(
-                                      thisB,
-                                      thisB.getConf('renderer').type,
-                                      lang.mixin(
-                                          {
-                                              store: thisB.get('store'),
-                                              config: thisB.exportMergedConfig()
-                                          },
-                                          thisB.getConf('renderer')
-                                      )
-                                  );
-                        })
-            );
-        }.call(this));
-    },
-
-    _fillBlockWithWorker: function( block, blockNode, changeInfo ) {
-        var thisB = this;
-        return this._getRenderJob()
-            .then( function( renderJob ) {
-                       return renderJob.remoteApply( 'fillBlock', [ block, new RemoteDOMNode(), changeInfo ]);
-                  })
-            .then( function( remoteDOMNode) {
-                       remoteDOMNode.replayOnto( blockNode );
-                       array.some( blockNode.childNodes, function(n) {
-                                       if( n.tagName == 'CANVAS' ) {
-                                           thisB.heightUpdate( n.height, block );
-                                           return true;
-                                       }
-                                       return false;
-                                   });
-                   });
-    },
-
-    _fillBlock: function( block, blockNode, changeInfo ) {
-        return this._fillBlockWithWorker( block, blockNode, changeInfo );
     }
+
 });
 });
