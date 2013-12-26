@@ -3,14 +3,13 @@ define( [
             'dojo/_base/array',
             'dojo/_base/lang',
             'dojo/_base/event',
-            'dojo/dom-construct',
-            'dojo/dom-geometry',
+            'JBrowse/has!jbrowse-main-process?dojo/dom-construct',
+            'JBrowse/has!jbrowse-main-process?dojo/dom-geometry',
             'dojo/on',
             'dojo/mouse',
 
             'JBrowse/has',
-            'JBrowse/View/Track/BlockBased',
-            'JBrowse/View/Track/_ExportMixin',
+            './_Base',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
             './Quantitative/_Scale'
@@ -26,14 +25,13 @@ define( [
             mouse,
 
             has,
-            BlockBasedTrack,
-            ExportMixin,
+            RendererBase,
             DetailStatsMixin,
             Util,
             Scale
         ) {
 
-return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
+return declare( [RendererBase, DetailStatsMixin ], {
 
     trackCSSClass: 'quantitative',
 
@@ -93,8 +91,9 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
             // aggregate the stats in the blocks that have data
             var stats = { scoreSum: 0, scoreSumSquares: 0, featureCount: 0, scoreMax: -Infinity, scoreMin: Infinity };
             var blockStats;
-            for( var blockID in this.blockStash ) {
-                if(( blockStats = this.blockStash[blockID].stats )) {
+            var s = this.getBlockStash();
+            for( var blockID in s ) {
+                if(( blockStats = s[blockID].stats )) {
                     stats.featureCount += blockStats.featureCount || 0;
                     stats.scoreSum += blockStats.scoreSum || 0;
                     stats.scoreSumSquares += blockStats.scoreSumSquares || 0;
@@ -163,12 +162,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                         features.push(f);
                 },
                 function(args) {
-                    var blockData = thisB.blockStash[ block.id() ];
-
-                    // if the block has been freed in the meantime,
-                    // don't try to render
-                    if( ! blockData )
-                        return;
+                    var blockData = {};
 
                     var featureRects = array.map( features, function(f) {
                         return this._featureRect( 1/scale, baseSpan.l, canvasWidth, f );
@@ -185,6 +179,8 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
                     if (args && args.maskingSpans)
                         blockData.maskingSpans = args.maskingSpans; // used for masking
+
+                    return blockData;
                 },
                 Util.cancelOK
         );
@@ -221,7 +217,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
     // render the actual graph display for the block.  should be called only after a scaling
     // has been decided upon and stored in this.scaling
     renderBlock: function( block, blockNode ) {
-        var blockdata = this.blockStash[block.id()];
+        var blockdata = this.getBlockStash( block );
 
         dom.empty( blockNode );
 
@@ -265,40 +261,36 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
         }
     },
 
-    animatableFill: function() {
-        return false;
-    },
-
-    _fillBlock: function( block, blockNode, changeInfo ) {
+    fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
-        this.heightUpdate( this._canvasHeight() );
-
-        // get the features for this block, and then set in motion the
-        // updating of the graphs
-        return this._getBlockData( block, blockNode, changeInfo )
+        return this.inherited(arguments)
             .then( function() {
-                       return thisB.updateGraphs( block, blockNode );
+                       return thisB.updateGraphs( block, blockNode, changeInfo );
                    });
     },
 
-    updateGraphs: function( block, blockNode ) {
+    workerFillBlock: function( block, blockNode, changeInfo ) {
+        // just fills the block with data
+        return this._getBlockData( block, blockNode, changeInfo );
+    },
+
+    updateGraphs: function( block, blockNode, changeInfo ) {
         var thisB = this;
 
-        // limit the rate at which graphs update to twice a second
         if( this._graphUpdating && ! this._graphUpdating.isFulfilled() )
             return this._graphUpdating;
 
-        return this._graphUpdating = Util.wait({ duration: this.getConf('graphUpdateInterval'), cancelOK: true })
+        // limit the frequency with which the graphs and scaling can update
+        return this._graphUpdating =
+            Util.wait({ duration: this.getConf('graphUpdateInterval'), cancelOK: true })
             .then( function() { return thisB._getScaling(); } )
             .then( function( scaling ) {
                        thisB.scaling = scaling;
                        // render all of the blocks that need it
-                       for( var blockid in thisB.blockStash ) {
-                           var blockData = thisB.blockStash[blockid];
-                           if( blockData.node.parentNode ) {
-                               //console.log( thisB.get('name')+' update '+blockData.block.id() );
-                               thisB.renderBlock( blockData.block, blockData.node );
-                           }
+                       var s = thisB.getBlockStash();
+                       for( var blockid in s ) {
+                           var blockData = s[blockid];
+                           thisB.renderBlock( blockData.block, blockData.node );
                        }
                    }
                  );
@@ -393,12 +385,14 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
 
     _makeScoreDisplay: function() {
         var thisB = this;
+        var widget = this.get('widget');
+        var domNode = widget.domNode;
 
         if( ! this._mouseoverEvent )
-            this._mouseoverEvent = this.own(
-                on( this.domNode, 'mousemove', function( evt ) {
+            this._mouseoverEvent = widget.own(
+                on( domNode, 'mousemove', function( evt ) {
                         evt = domEvent.fix( evt );
-                        thisB.getBlockStashForRange( evt.clientX, evt.clientX )
+                        widget.getBlockStashForRange( evt.clientX, evt.clientX )
                             .then( function( stashEntries ) {
                                        if( ! stashEntries.length )
                                            return;
@@ -408,8 +402,8 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                     }))[0];
 
         if( ! this._mouseoutEvent )
-            this._mouseoutEvent = this.own(
-                on( this.domNode, mouse.leave, function( evt) {
+            this._mouseoutEvent = widget.own(
+                on( domNode, mouse.leave, function( evt) {
                         thisB.mouseover( undefined );
                     }))[0];
 
@@ -424,7 +418,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                             display: 'none',
                             zIndex: 15
                         }
-                    }, this.domNode),
+                    }, domNode ),
                 pole: dom.create(
                     'div', {
                         className: 'wigglePositionIndicator',
@@ -433,7 +427,7 @@ return declare( [BlockBasedTrack, ExportMixin, DetailStatsMixin ], {
                             display: 'none',
                             zIndex: 15
                         }
-                    }, this.domNode )
+                    }, domNode )
             };
     },
 

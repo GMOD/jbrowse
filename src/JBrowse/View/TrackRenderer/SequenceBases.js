@@ -77,15 +77,15 @@ return declare( [_WorkerBase], {
 
         // if we are zoomed in far enough to draw bases, then draw them
         if( scale <= 1 ) {
-            this.get('widget').removeTrackMessage();
+            this.removeTrackMessage();
             return this.inherited( arguments );
         }
         // otherwise, just draw something that suggests there are
         // bases there if you zoom in far enough
         else {
             dom.empty( blockNode );
-            this.get('widget').showTrackMessage('Zoom in to see sequence');
-            this.get('widget').heightUpdate( 30, block );
+            this.showTrackMessage('Zoom in to see sequence');
+            this.heightUpdate( 30, block );
             return blockNode;
         }
     },
@@ -134,7 +134,7 @@ return declare( [_WorkerBase], {
                                  innerHTML: '<span class="message">No sequence available</span>'
                                });
                        }
-                       return blockNode;
+                       return { node: blockNode };
                    },
                    Util.cancelOK
                  );

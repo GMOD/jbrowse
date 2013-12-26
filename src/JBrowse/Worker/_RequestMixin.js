@@ -61,12 +61,13 @@ request: function( desc ) {
 _handleRequestMessage: function( data ) {
     // if( ! data )
     //     debugger;
-    if( data.result || data.error )
+    if( ( 'result' in data ) || ('error' in data) )
         return this._handleResponse( data );
     else if( data.operation )
         return this._handleRequest( data );
-    else
+    else {
         console.warn( 'unknown request/response message', event );
+    }
     return undefined;
 },
 

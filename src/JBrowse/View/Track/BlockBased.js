@@ -123,6 +123,10 @@ return declare( [ TrackView, _BlockBasedMixin ],
         }
     },
 
+    getBlockStash: function( block ) {
+        return block ? this.blockStash[ block.id() ] : this.blockStash;
+    },
+
     heightUpdate: function( h, block ) {
         if( block ) {
             //console.log('block %d height %d', block.id(), h );

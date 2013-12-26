@@ -7,7 +7,6 @@ define([
 
            'JBrowse/Util',
            'JBrowse/_ConfigurationMixin',
-           'JBrowse/_FeatureFiltererMixin',
            'JBrowse/Util/_PromiseOwnerMixin'
        ],
        function(
@@ -19,14 +18,12 @@ define([
 
            Util,
            _ConfigurationMixin,
-           _FeatureFiltererMixin,
            _PromiseOwnerMixin
        ) {
 
 return declare( [
                     ContentPane,
                     _ConfigurationMixin,
-                    _FeatureFiltererMixin,
                     _PromiseOwnerMixin
                 ],
     {
@@ -48,10 +45,19 @@ return declare( [
       Util.validate( args, { renderer: 'object'} );
   },
 
+  startup: function() {
+      this.inherited(arguments);
+      this.get('renderer').startup();
+  },
+  postCreate: function() {
+      this.inherited(arguments);
+      this.get('renderer').postCreate();
+  },
   buildRendering: function() {
       this.inherited(arguments);
       if( this.trackCSSClass )
           domClass.add( this.domNode, this.baseClass+'-'+this.trackCSSClass );
+      this.get('renderer').buildRendering();
   },
 
   // a track view can have its own store, or it can use the store
@@ -83,15 +89,6 @@ return declare( [
           message: message,
           node: dom.create('div', { className: 'message', innerHTML: message }, this.domNode )
       };
-  },
-
-  /**
-   * Like getConf, but get a conf value that explicitly can vary
-   * feature by feature.  Provides a uniform function signature for
-   * user-defined callbacks.
-   */
-  getConfForFeature: function( path, feature ) {
-      return this.getConf( path, [feature, path, null, this ] );
   },
 
   getProjection: function() {

@@ -1,16 +1,21 @@
+/**
+ * Store that encapsulates a reference sequence store and emits
+ * quantitative features for the GC content of the reference sequence.
+ */
 define([
            'dojo/_base/declare'
 
-
            ,'JBrowse/Store/SeqFeature'
+           ,'JBrowse/Util'
            ,'JBrowse/Util/DeferredGenerator'
-           ,'JBrowse/View/Track/XYPlot'
+           ,'JBrowse/View/TrackRenderer/XYPlot'
            ,'JBrowse/Model/SimpleFeature'
        ],
        function(
            declare
 
            ,SeqFeatureStore
+           ,Util
            ,DeferredGenerator
            ,XYPlot
            ,SimpleFeature
@@ -18,11 +23,25 @@ define([
 
 var isGC = {g:true,G:true,c:true,C:true};
 
-var SequenceGCStore = declare( SeqFeatureStore, {
+return declare( SeqFeatureStore, {
   constructor: function(args) {
+      Util.validate( args, { store: 'object' } );
       this.seqStore = args.store;
       this.windowSize = args.windowSize;
   },
+  configSchema: {
+      slots: [
+          { name: 'type', defaultValue: 'JBrowse/Store/SeqFeature/SequenceGCContent' }
+      ]
+  },
+
+  deflate: function() {
+      var d = this.inherited(arguments);
+      d.store = this.seqStore.deflate();
+      d.windowSize = this.windowSize;
+      return d;
+  },
+
   getFeatures: function( query ) {
       var thisB = this;
       var binSize = query.basesPerSpan  ?  query.basesPerSpan :
@@ -60,24 +79,6 @@ var SequenceGCStore = declare( SeqFeatureStore, {
           if( isGC[subseq.charAt(i)] )
               gcCount++;
       return 100*gcCount/subseq.length;
-  }
-});
-
-return declare( XYPlot,  {
-
-  configSchema: {
-      slots: [
-          { name: 'minScore', defaultValue: 0   },
-          { name: 'maxScore', defaultValue: 100 },
-          { name: 'autoscale', defaultValue: 'global' }
-      ]
-  },
-
-  postCreate: function() {
-      this.set('store', new SequenceGCStore(
-          { store: this.get('store'),
-            app: this.get('app')
-          }));
   }
 });
 });

@@ -34,7 +34,8 @@ return declare( Store,
         return {
             dataHub: 'FAKE',
             config: this.exportMergedConfig(),
-            app: '$context.app'
+            app: '$context.app',
+            $class: this.getConf('type')
         };
     },
 
@@ -44,7 +45,8 @@ return declare( Store,
               defaultValue: function(store) {
                   return 'Store '+store.serialNumber;
               }
-            }
+            },
+            { name: 'type', type: 'string', description: "optional JS path of this store's class" }
         ]
     },
 

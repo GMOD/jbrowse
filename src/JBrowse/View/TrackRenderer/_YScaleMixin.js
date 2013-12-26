@@ -1,8 +1,8 @@
 define( [
           'dojo/_base/declare',
-          'dojo/dom-construct',
+          'JBrowse/has!dom?dojo/dom-construct',
 
-           'JBrowse/View/Ruler'
+           'JBrowse/has!dom?JBrowse/View/Ruler'
         ],
         function(
             declare,
@@ -40,6 +40,8 @@ return declare( null, {
 
         // make and style the main container div for the axis
         if( this.yscale ) {
+            if( ! this.yscale.parentNode )
+                debugger;
             this.yscale.parentNode.removeChild( this.yscale );
         }
         var rulerdiv =
@@ -51,7 +53,7 @@ return declare( null, {
                                 height: this.h+'px',
                                 zIndex: 17
                             }
-                        }, this.domNode );
+                        }, this.get('widget').domNode );
         this.yscale = rulerdiv;
 
         this._setScaleLeft();

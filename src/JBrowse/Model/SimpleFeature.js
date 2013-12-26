@@ -51,6 +51,15 @@ var SimpleFeature = fastDeclare({
         }
     },
 
+    deflate: function() {
+        return {
+            $class: 'JBrowse/Model/SimpleFeature',
+            data: this.data,
+            parent: this._parent,
+            id: this._uniqueID
+        };
+    },
+
     toString: function() {
         return ( this.get('seq_id') ? this.get('seq_id')+':' : '' )
             + ( this.get('start') + 1 )

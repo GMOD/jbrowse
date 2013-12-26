@@ -5,10 +5,10 @@ define( [
             'dojo/_base/Color',
             'dojo/on',
 
-            'JBrowse/View/Track/_Quantitative',
-            'JBrowse/View/Track/_YScaleMixin',
+            'JBrowse/View/TrackRenderer/_Quantitative',
+            'JBrowse/View/TrackRenderer/_YScaleMixin',
             'JBrowse/Util',
-            'JBrowse/View/Track/Quantitative/_Scale'
+            'JBrowse/View/TrackRenderer/Quantitative/_Scale'
         ],
         function(
             declare,
