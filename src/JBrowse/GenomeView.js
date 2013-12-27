@@ -1590,6 +1590,9 @@ sizeInit: function() {
     this.containerHeight = newHeight;
 
     var refLength = this.ref.end - this.ref.start;
+    if( refLength < 0 )
+        throw new Error("reference sequence "+this.ref.name+" has an invalid start coordinate, it is greater than its end coordinate.");
+
     var posSize = document.createElement("div");
     posSize.className = "overview-pos";
     posSize.appendChild(document.createTextNode(Util.addCommas(this.ref.end)));
