@@ -360,8 +360,10 @@ return declare(
 
     _drawHistograms: function( viewArgs, histData ) {
 
+        var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : histData.stats.max;
+
         // don't do anything if we don't know the score max
-        if( ! histData.stats.max ) {
+        if( maxScore === undefined ) {
             console.warn( 'no stats.max in hist data, not drawing histogram for block '+viewArgs.blockIndex );
             return;
         }

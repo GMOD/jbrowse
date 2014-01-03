@@ -1,10 +1,17 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added support for a `histograms.max` variable for
+   CanvasFeatures-based tracks that can be used to manually set the
+   max value of a histogram display.  Thanks to Keiran Raine for
+   pointing out the need for this.
+
+## Bug fixes
+
  * Fixed bug that caused client-side GFF3 tracks to appear as
    "Loading" forever if the GFF3 is malformed (like malformed GFF3
    files that are opened with the File->Open tool).
-
-## Bug fixes
 
  * Fixed bug in which no default value for
    `maxFeatureSizeForUnderlyingRefSeq` was being set, which made
