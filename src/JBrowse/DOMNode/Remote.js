@@ -54,11 +54,11 @@ var RemoteNode = declare( null, {
   setAttribute: function( attr, val ) {
      this._record( 'setAttribute', arguments );
 
-     return this.root[attr] = val;
+     return this.attrs[attr] = val;
   },
 
   getAttribute: function( attr ) {
-      return this.root[attr];
+      return this.attrs[attr];
   },
 
   _record: function( op, args ) {

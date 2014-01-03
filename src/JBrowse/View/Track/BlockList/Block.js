@@ -38,7 +38,7 @@ return declare( Destroyable, {
             this._idealSize = 400;
 
         this._changeListeners = new ListenerSet();
-        this._serialNumber = ++serialNumber;
+        this._id = args.id || ++serialNumber;
         this.updatePosition( args.left, args.right );
 
         if( ! this._projectionBlock )
@@ -54,6 +54,7 @@ return declare( Destroyable, {
             $class: 'JBrowse/View/Track/BlockList/Block',
             projectionBlock: this._projectionBlock.deflate(),
             blockList: 'FAKE',
+            id: this._id,
             left: this._left,
             right: this._right,
             onProjectionBlockLeftEdge:  this._onProjectionBlockLeftEdge,
@@ -77,7 +78,7 @@ return declare( Destroyable, {
     },
 
     id: function() {
-        return this._serialNumber;
+        return this._id;
     },
 
     getDimensions: function() {

@@ -40,8 +40,6 @@ return declare( null, {
 
         // make and style the main container div for the axis
         if( this.yscale ) {
-            if( ! this.yscale.parentNode )
-                debugger;
             this.yscale.parentNode.removeChild( this.yscale );
         }
         var rulerdiv =

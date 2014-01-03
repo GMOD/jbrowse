@@ -2,7 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/_base/Color',
-            'JBrowse/View/Track/WiggleBase',
+            './_Quantitative',
             'JBrowse/Util'
         ],
         function( declare, array, Color, WiggleBase, Util ) {
@@ -20,7 +20,7 @@ return declare( WiggleBase,
 
     configSchema: {
         slots: [
-            { name: 'height', defaultValue: 31 },
+            { name: 'height', defaultValue: 28 },
             { name: 'autoscale', defaultValue: 'global' },
             { name: 'posColor', type: 'Color', defaultValue: '#00f' },
             { name: 'negColor', type: 'Color', defaultValue: '#f00' },
@@ -35,7 +35,7 @@ return declare( WiggleBase,
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
         var thisB = this;
         var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
+        var canvasHeight = canvas.getAttribute('height');
         var normalize = dataScale.normalize;
 
         var featureColor = this.confIsSet('color') ? this.getConfFunc('color') :
@@ -65,16 +65,16 @@ return declare( WiggleBase,
 
                 // draw the bar for the value
                 var n = dataScale.normalize( score );
-                context.fillStyle = featureColor( p, n ).toString();
+                context.set('fillStyle', featureColor( p, n ).toString() );
                 context.fillRect( i, 0, 1, canvasHeight );
 
                 // draw clip markers if present
                 if( n > 1 ) { // pos clipped
-                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f).toString();
+                    context.set('fillStyle', thisB.getConfForFeature('clipMarkerColor', f).toString() );
                     context.fillRect( i, 0, 1, 3 );
                 }
                 else if( n < 0 ) { // neg clipped
-                    context.fillStyle = thisB.getConfForFeature('clipMarkerColor', f).toString();
+                    context.set('fillStyle', thisB.getConfForFeature('clipMarkerColor', f).toString() );
                     context.fillRect( i, canvasHeight-3, 1, 3 );
                }
             }
@@ -84,8 +84,8 @@ return declare( WiggleBase,
     /* If boolean track, mask accordingly */
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
         var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
-        context.fillStyle = this.getConf('maskColor').toString();
+        var canvasHeight = canvas.getAttribute('height');
+        context.set('fillStyle', this.getConf('maskColor').toString() );
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {

@@ -8,6 +8,8 @@ define( [
             'dojo/on',
             'dojo/mouse',
 
+
+            'JBrowse/DOMNode/Remote',
             'JBrowse/has',
             './_Base',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
@@ -24,6 +26,7 @@ define( [
             on,
             mouse,
 
+            RemoteDOMNode,
             has,
             RendererBase,
             DetailStatsMixin,
@@ -87,7 +90,10 @@ return declare( [RendererBase, DetailStatsMixin ], {
         if( ! Scale.prototype.needStats( this ) ) {
             return Util.resolved( null );
         }
-        else if( this.getConf('autoscale') == 'local' ) {
+        else if( this.getConf('autoscale') == 'global' && this.get('store').getGlobalStats ) {
+            return this.get('store').getGlobalStats();
+        }
+        else {
             // aggregate the stats in the blocks that have data
             var stats = { scoreSum: 0, scoreSumSquares: 0, featureCount: 0, scoreMax: -Infinity, scoreMin: Infinity };
             var blockStats;
@@ -108,15 +114,6 @@ return declare( [RendererBase, DetailStatsMixin ], {
                 stats.scoreStdDev = Util.calcStdDevFromSums( stats.scoreSum, stats.scoreSumSquares, stats.featureCount );
             }
             return Util.resolved( stats );
-        }
-        else {
-            return this.getRegionStats(
-                {
-                    scale: 1000/(this.refSeq.get('end') - this.refSeq.get('start')),
-                    ref: this.refSeq.get('name'),
-                    start: this.refSeq.get('start'),
-                    end: this.refSeq.get('end')
-                });
         }
     },
 
@@ -180,6 +177,7 @@ return declare( [RendererBase, DetailStatsMixin ], {
                     if (args && args.maskingSpans)
                         blockData.maskingSpans = args.maskingSpans; // used for masking
 
+                    lang.mixin( thisB.getBlockStash( block ), blockData );
                     return blockData;
                 },
                 Util.cancelOK
@@ -219,10 +217,7 @@ return declare( [RendererBase, DetailStatsMixin ], {
     renderBlock: function( block, blockNode ) {
         var blockdata = this.getBlockStash( block );
 
-        dom.empty( blockNode );
-
-        if( ! has('canvas') )
-            throw new Error( 'This browser does not support HTML canvas elements.' );
+        blockNode.empty();
 
         var features = blockdata.features;
         var featureRects = blockdata.featureRects;
@@ -230,21 +225,22 @@ return declare( [RendererBase, DetailStatsMixin ], {
         var canvasHeight = this._canvasHeight();
         var basespan = block.getBaseSpan();
 
-        var c = dom.create(
+        var c = blockNode.createChild(
             'canvas',
             { height: canvasHeight,
               width:  this._canvasWidth(block),
               style: {
                   cursor: 'default',
                   width: "100%",
-                  height: canvasHeight + "px"
+                  height: canvasHeight + "px",
+                  position: 'absolute',
+                  left: 0,
+                  top: 0
               },
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
-            },
-            blockNode
+            }
         );
-        blockdata.canvas = c;
 
         //Calculate the score for each pixel in the block
         this._draw( blockdata.scale,    basespan.l,
@@ -253,20 +249,27 @@ return declare( [RendererBase, DetailStatsMixin ], {
                     featureRects,   dataScale,
                     blockdata.pixelScores,  blockdata.maskingSpans ); // note: spans may be undefined.
 
-        this.heightUpdate( c.height );
-        if( !( c.parentNode && c.parentNode.parentNode )) {
-            c.style.position = "absolute";
-            c.style.left = 0;//(100 * ((c.startBase - basespan.l) / basespan.w)) + "%";
-            c.style.top = 0;
-        }
+
+        return { node: blockNode };
     },
 
     fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
-        return this.inherited(arguments)
-            .then( function() {
-                       return thisB.updateGraphs( block, blockNode, changeInfo );
-                   });
+        var i = this.inherited(arguments);
+        if( changeInfo && changeInfo.animating )
+            return i.then( function() {
+                               return thisB._getRenderJob()
+                                   .then( function( job ) {
+                                              return job.remoteApply( 'renderBlock', [ block, new RemoteDOMNode() ] );
+                                          })
+                                   .then( function( blockdata ) {
+                                              thisB.updateBlockFromWorkerResult( blockdata, block, blockNode );
+                                          });
+                           });
+        else
+            return i.then( function() {
+                               return thisB.updateGraphs( block, blockNode, changeInfo );
+                           }, Util.cancelOK );
     },
 
     workerFillBlock: function( block, blockNode, changeInfo ) {
@@ -275,23 +278,45 @@ return declare( [RendererBase, DetailStatsMixin ], {
     },
 
     updateGraphs: function( block, blockNode, changeInfo ) {
-        var thisB = this;
-
-        if( this._graphUpdating && ! this._graphUpdating.isFulfilled() )
-            return this._graphUpdating;
+        // if( this._graphUpdating && ! this._graphUpdating.isFulfilled() )
+        //     return this._graphUpdating;
 
         // limit the frequency with which the graphs and scaling can update
-        return this._graphUpdating =
-            Util.wait({ duration: this.getConf('graphUpdateInterval'), cancelOK: true })
-            .then( function() { return thisB._getScaling(); } )
+        var thisB = this;
+        return this._getRenderJob()
+            .then( function( renderJob ) {
+                       return renderJob.remoteApply( 'workerUpdateGraphs', [] );
+                   })
+            // Util.wait({ duration: this.getConf('graphUpdateInterval'), cancelOK: true })
+            // .then( function() {
+            //            return thisB._getRenderJob()
+            //                .then( function( renderJob ) {
+            //                           return renderJob.remoteApply( 'workerUpdateGraphs', [] );
+            //                       }, Util.cancelOK );
+            //        })
+            .then( function( blocksToUpdate ) {
+                       for( var blockid in blocksToUpdate ) {
+                           var s = thisB.getBlockStash()[blockid];
+                           if( ! s ) continue;
+                           //console.log('updating block '+blockid);
+                           thisB.updateBlockFromWorkerResult( blocksToUpdate[blockid], s.block, s.node );
+                       }
+                   }, Util.cancelOK );
+
+    },
+    workerUpdateGraphs: function() {
+        var thisB = this;
+        return thisB._getScaling()
             .then( function( scaling ) {
                        thisB.scaling = scaling;
                        // render all of the blocks that need it
                        var s = thisB.getBlockStash();
+                       var ret = {};
                        for( var blockid in s ) {
                            var blockData = s[blockid];
-                           thisB.renderBlock( blockData.block, blockData.node );
+                           ret[blockid] = thisB.renderBlock( blockData.block, blockData.node );
                        }
+                       return ret;
                    }
                  );
     },
@@ -392,11 +417,11 @@ return declare( [RendererBase, DetailStatsMixin ], {
             this._mouseoverEvent = widget.own(
                 on( domNode, 'mousemove', function( evt ) {
                         evt = domEvent.fix( evt );
-                        widget.getBlockStashForRange( evt.clientX, evt.clientX )
+                        thisB.getBlockStashForRange( evt.clientX, evt.clientX )
                             .then( function( stashEntries ) {
                                        if( ! stashEntries.length )
                                            return;
-                                       var bp = stashEntries[0].projectionBlock.projectPoint( evt.clientX );
+                                       var bp = stashEntries[0].block.getProjectionBlock().projectPoint( evt.clientX );
                                        thisB.mouseover( bp, stashEntries[0], evt );
                                    });
                     }))[0];
