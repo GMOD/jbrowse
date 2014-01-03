@@ -61,6 +61,18 @@ var RemoteNode = declare( null, {
       return this.attrs[attr];
   },
 
+  setStyle: function( name, val ) {
+     this._record( 'setStyle', arguments );
+
+      if( ! this.attrs.style )
+          this.attrs.style = {};
+      return this.attrs.style[name] = val;
+  },
+
+  getStyle: function( name ) {
+      return ( this.attrs.style || {} )[name];
+  },
+
   _record: function( op, args ) {
     this.operations.push( [ op, Array.prototype.slice.apply(args) ] );
   },

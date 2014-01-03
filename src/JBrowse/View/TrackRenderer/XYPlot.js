@@ -53,7 +53,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
         ]
     },
 
-    _getScaling: function() {
+    _getScaling: function( args ) {
         var thisB = this;
         return this._getScalingStats()
             .then( function( stats ) {
@@ -70,7 +70,9 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                            thisB.makeYScale({
                                                 fixBounds: true,
                                                 min: scaling.min,
-                                                max: scaling.max
+                                                max: scaling.max,
+                                                domNode: args.widgetNode,
+                                                height: thisB._canvasHeight()
                                             });
 
                            // and finally adjust the scaling to match the ruler's scale rounding
@@ -96,7 +98,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
      */
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
         var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
+        var canvasHeight = canvas.getAttribute('height');
         var toY = lang.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) );
         });
@@ -114,7 +116,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
             if( score >= 0 ) {
                 var bgColor = this.getConfForFeature('backgroundColor', f );
                 if( bgColor ) {
-                    context.fillStyle = bgColor.toString();
+                    context.set('fillStyle', bgColor.toString() );
                     context.fillRect( i, 0, 1, canvasHeight );
                 }
             }
@@ -123,20 +125,20 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
             if( score <= canvasHeight || score > originY) { // if the rectangle is visible at all
                 if( score <= originY ) {
                     // bar goes upward
-                    context.fillStyle = this.getConfForFeature('posColor',f).toString();
+                    context.set( 'fillStyle', this.getConfForFeature('posColor',f).toString() );
                     context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
-                        context.fillStyle = (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f)).toString();
+                        context.set( 'fillStyle', (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f)).toString() );
                         context.fillRect( i, 0, 1, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
-                    context.fillStyle = this.getConfForFeature('negColor',f).toString();
+                    context.set( 'fillStyle', this.getConfForFeature('negColor',f).toString() );
                     context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
-                        context.fillStyle = (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f)).toString();
+                        context.set('fillStyle', (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f)).toString());
                         context.fillRect( i, canvasHeight-3, 1, 3 );
 
                     }
@@ -181,7 +183,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
     /* If it's a boolean track, mask accordingly */
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
         var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
+        var canvasHeight = canvas.getAttribute('height');
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {
@@ -190,9 +192,9 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                 context.clearRect( l, 0, w, canvasHeight );
             }
         }
-        context.globalAlpha = this.getConf('maskAlpha');
+        context.set( 'globalAlpha', this.getConf('maskAlpha') );
         this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
-        context.globalAlpha = 1;
+        context.set( 'globalAlpha', 1 );
     },
 
     /**
@@ -200,7 +202,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
      */
     _postDraw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var context = canvas.getContext('2d');
-        var canvasHeight = canvas.height;
+        var canvasHeight = canvas.getAttribute('height');
         var toY = lang.hitch( this, function( val ) {
            return canvasHeight * (1-dataScale.normalize(val));
         });
@@ -208,16 +210,16 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
         // draw the variance_band if requested
         if( this.getConf('showVarianceBands') ) {
             var bandPositions = this.getConf('varianceBandPositions').sort().reverse();
-            this._getScaling()
+            this._getScaling({ widgetNode: this._widgetNode })
                 .then( lang.hitch( this, function( scaling ) {
                                     if( ( 'scoreMean' in scaling ) && ('scoreStdDev' in scaling ) ) {
                                         var drawVarianceBand = function( plusminus, fill, label ) {
-                                            context.fillStyle = fill.toString();
+                                            context.set( 'fillStyle', fill.toString() );
                                             var varTop = toY( scaling.scoreMean + plusminus );
                                             var varHeight = toY( scaling.scoreMean - plusminus ) - varTop;
                                             varHeight = Math.max( 1, varHeight );
                                             context.fillRect( 0, varTop, canvas.width, varHeight );
-                                            context.font = '12px sans-serif';
+                                            context.set( 'font', '12px sans-serif' );
                                             if( plusminus > 0 ) {
                                                 context.fillText( '+'+label, 2, varTop );
                                                 context.fillText( '-'+label, 2, varTop+varHeight );
@@ -248,7 +250,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
         var originColor = this.getConf('originColor');
         if( typeof originColor == 'string' && !{'none':1,'off':1,'no':1,'zero':1}[originColor] ) {
             var originY = toY( dataScale.origin );
-            context.fillStyle = originColor;
+            context.set( 'fillStyle', originColor );
             context.fillRect( 0, originY, canvas.width, 1 );
         }
     }

@@ -1,12 +1,7 @@
 define( [
-            'dojo/query',
-            'dojox/charting/Chart',
-            'dojox/charting/axis2d/Default',
-            'dojox/charting/plot2d/Bubble',
-            'dojo/NodeList-dom',
-            'dojo/number'
+            'dojox/charting/scaler/linear'
         ],
-        function( query, Chart ) {
+        function( linearScaler ) {
 /**
  * Ruler, with ticks and numbers, drawn with HTML elements. Can be
  * stretched to any length.
@@ -27,57 +22,34 @@ function Ruler(args) {
     dojo.mixin( this, args );
 };
 
-Ruler.prototype.render_to = function( target_div ) {
-    if( typeof target_div == 'string' )
-        target_div = dojo.byId( target_div );
+Ruler.prototype.render_to = function( target_div, height ) {
 
-    var target_dims = dojo.position( target_div );
+    var scaler = linearScaler.buildScaler( this.min, this.max, height, {} );
+    this.scaler = scaler;
 
+    var ruler_div = target_div.createChild( 'div', { className: 'ruler-scale' } );
 
-    // make an inner container that's styled to compensate for the
-    // 12px edge-padding that dojox.charting has builtin that we can't
-    // change, making the tick marks align correctly with the images
-    var label_digits = Math.floor( Math.log(this.max+1)/Math.log(10))+1;
-
-    var container = dojo.create(
-        'div', {
-            style: {
-                   position: 'absolute',
-                   left: "-9px",
-                   bottom: "-9px",
-                   width: '10px',
-                   height: (target_dims.h+18)+"px"
-            }
-        },
-        target_div );
-
-    try {
-        var chart1 = new Chart( container, {fill: 'transparent'} );
-        chart1.addAxis( "y", {
-                            vertical: true,
-                            fill: 'transparent',
-                            min: this.min,
-                            max: this.max,
-                            fixLower: this.fixBounds ? 'major' : 'none',
-                            fixUpper: this.fixBounds ? 'major' : 'none',
-                            leftBottom: this.leftBottom
-                            // minorTickStep: 0.5,
-                            // majorTickStep: 1
-                            //labels: [{value: 1, text: "One"}, {value: 3, text: "Ten"}]
-                        });
-        chart1.addPlot("default", {type: "Bubble", fill: 'transparent'});
-        chart1.render();
-
-        // hack to remove undesirable opaque white rectangles.  do
-        // this a little bit later
-        query('svg rect', chart1.domNode ).orphan();
-
-        this.scaler = chart1.axes.y.scaler;
-    } catch (x) {
-        console.error(x+'');
-        console.error("Failed to draw Ruler with SVG, your browser may not support the necessary technology.");
-        target_div.removeChild( container );
+    var scale = scaler.bounds.scale;
+    var maj_first_y = (scaler.major.start - scaler.bounds.lower)*scale;
+    for( var maj_i = 0; maj_i < scaler.major.count; maj_i++ ) {
+        var maj_y = maj_first_y + maj_i*scaler.major.tick*scale;
+        target_div.createChild( 'div', {
+                                    className: 'tick-label',
+                                    style: {
+                                        bottom: maj_y+'px'
+                                    },
+                                    innerHTML: '<div>'+(scaler.major.start+scaler.major.tick*maj_i)+'</div>'
+                                });
+        ruler_div.createChild( 'div', { className: 'tick major-tick', style: { bottom: maj_y+'px' } });
+        for( var min_i = 1; min_i < scaler.minorPerMajor; min_i++ ) {
+            ruler_div.createChild( 'div', { className: 'tick minor-tick', style: { bottom: maj_y + min_i*scaler.minor.tick*scale+'px' }});
+        }
     }
+    for( var min_y = maj_first_y - scaler.minor.tick*scale; min_y > 0; min_y -= scaler.minor.tick*scale ) {
+            ruler_div.createChild( 'div', { className: 'tick minor-tick', style: { bottom: min_y + 'px' }});
+    }
+
+    //var svg = target_div.createChild( 'svg', { className: 'ruler-scale', width: 20, height: height });
 };
 
 return Ruler;

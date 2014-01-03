@@ -66,6 +66,45 @@
 
       .ruler {
           text-shadow: white 0 0 4px;
+          height: 100%;
+          width: 20px;
+          position: absolute;
+          bottom: 0;
+          z-index: 10;
+
+          .tick-label {
+              position: absolute;
+              right: 5px;
+              font-size: 12px;
+              height: 12px;
+              div {
+                  position: relative;
+                  top: 3px;
+              }
+          }
+
+          .tick {
+              position: absolute;
+              height: 1px;
+              width: 5px;
+              right: 0;
+              border-bottom: 1px solid black;
+              box-sizing: border-box;
+              -moz-box-sizing: border-box;
+              -webkit-box-sizing: border-box;
+              -ms-box-sizing: border-box;
+          }
+
+          .minor-tick {
+              width: 4px;
+              border-color: #555;
+          }
+
+          .ruler-scale {
+              border-right: 1px solid black;
+              text-align: right;
+              height: 100%;
+          }
       }
 
       & > .trackHandle {

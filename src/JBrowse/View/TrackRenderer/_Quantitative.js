@@ -36,11 +36,17 @@ define( [
 
 return declare( [RendererBase, DetailStatsMixin ], {
 
+    constructor: function() {
+
+        this._widgetNode = new RemoteDOMNode();
+    },
+
     trackCSSClass: 'quantitative',
 
     startup: function() {
         this.inherited(arguments);
         this._makeScoreDisplay();
+
     },
 
     configSchema: {
@@ -294,29 +300,36 @@ return declare( [RendererBase, DetailStatsMixin ], {
             //                           return renderJob.remoteApply( 'workerUpdateGraphs', [] );
             //                       }, Util.cancelOK );
             //        })
-            .then( function( blocksToUpdate ) {
+            .then( function( result ) {
+                       var blocksToUpdate = result.blocks;
                        for( var blockid in blocksToUpdate ) {
                            var s = thisB.getBlockStash()[blockid];
                            if( ! s ) continue;
                            //console.log('updating block '+blockid);
                            thisB.updateBlockFromWorkerResult( blocksToUpdate[blockid], s.block, s.node );
                        }
+                       if( result.widgetNode ) {
+                           result.widgetNode.replayOnto( thisB.get('widget').domNode );
+                       }
+                       if( result.yscale && thisB.yscale ) {
+                           result.yscale.replayOnto( thisB.yscale );
+                       }
                    }, Util.cancelOK );
 
     },
     workerUpdateGraphs: function() {
         var thisB = this;
-        return thisB._getScaling()
+        return thisB._getScaling({ widgetNode: this._widgetNode })
             .then( function( scaling ) {
                        thisB.scaling = scaling;
                        // render all of the blocks that need it
                        var s = thisB.getBlockStash();
-                       var ret = {};
+                       var blocks = {};
                        for( var blockid in s ) {
                            var blockData = s[blockid];
-                           ret[blockid] = thisB.renderBlock( blockData.block, blockData.node );
+                           blocks[blockid] = thisB.renderBlock( blockData.block, blockData.node );
                        }
-                       return ret;
+                       return { blocks: blocks, widgetNode: thisB._widgetNode, yscale: thisB.yscale };
                    }
                  );
     },

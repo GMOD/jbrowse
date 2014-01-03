@@ -30,6 +30,13 @@ var Local = declare( null, {
       dom.empty( this.root );
   },
 
+  setStyle: function( name, val ) {
+      return this.root.style[name] = val;
+  },
+  getStyle: function( name ) {
+      return this.root.style[name];
+  },
+
   setAttribute: function( attr, val ) {
      return this.root[attr] = val;
   },
