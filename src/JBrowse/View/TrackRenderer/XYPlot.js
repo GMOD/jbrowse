@@ -203,47 +203,46 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
     _postDraw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.getAttribute('height');
-        var toY = lang.hitch( this, function( val ) {
+        var thisB = this;
+        var toY = function( val ) {
            return canvasHeight * (1-dataScale.normalize(val));
-        });
+        };
 
         // draw the variance_band if requested
         if( this.getConf('showVarianceBands') ) {
             var bandPositions = this.getConf('varianceBandPositions').sort().reverse();
-            this._getScaling({ widgetNode: this._widgetNode })
-                .then( lang.hitch( this, function( scaling ) {
-                                    if( ( 'scoreMean' in scaling ) && ('scoreStdDev' in scaling ) ) {
-                                        var drawVarianceBand = function( plusminus, fill, label ) {
-                                            context.set( 'fillStyle', fill.toString() );
-                                            var varTop = toY( scaling.scoreMean + plusminus );
-                                            var varHeight = toY( scaling.scoreMean - plusminus ) - varTop;
-                                            varHeight = Math.max( 1, varHeight );
-                                            context.fillRect( 0, varTop, canvas.width, varHeight );
-                                            context.set( 'font', '12px sans-serif' );
-                                            if( plusminus > 0 ) {
-                                                context.fillText( '+'+label, 2, varTop );
-                                                context.fillText( '-'+label, 2, varTop+varHeight );
-                                            }
-                                            else {
-                                                context.fillText( label, 2, varTop );
-                                            }
-                                        };
+            var scaling = this.scaling || this.lastScaling;
+            if( scaling && ( 'scoreMean' in scaling ) && ('scoreStdDev' in scaling ) ) {
+                var drawVarianceBand = function( plusminus, fill, label ) {
+                    context.set( 'fillStyle', fill.toString() );
+                    var varTop = toY( scaling.scoreMean + plusminus );
+                    var varHeight = toY( scaling.scoreMean - plusminus ) - varTop;
+                    varHeight = Math.max( 1, varHeight );
+                    context.fillRect( 0, varTop, canvas.getAttribute('width'), varHeight );
+                    context.set( 'font', '12px sans-serif' );
+                    if( plusminus > 0 ) {
+                        context.fillText( '+'+label, 2, varTop );
+                        context.fillText( '-'+label, 2, varTop+varHeight );
+                    }
+                    else {
+                        context.fillText( label, 2, varTop );
+                    }
+                };
 
-                                        var maxColor = new Color( this.getConf('varianceBandColor') );
-                                        var minColor = new Color( this.getConf('varianceBandColor') );
-                                        minColor.a /= bandPositions.length;
+                var maxColor = new Color( thisB.getConf('varianceBandColor') );
+                var minColor = new Color( thisB.getConf('varianceBandColor') );
+                minColor.a /= bandPositions.length;
 
-                                        var bandOpacityStep = 1/bandPositions.length;
-                                        var minOpacity = bandOpacityStep;
+                var bandOpacityStep = 1/bandPositions.length;
+                var minOpacity = bandOpacityStep;
 
-                                        array.forEach( bandPositions, function( pos,i ) {
-                                                           drawVarianceBand( pos*scaling.scoreStdDev,
-                                                                             Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
-                                                                             pos+'σ');
-                                                       });
-                                        drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
-                                    }
-                                }));
+                array.forEach( bandPositions, function( pos,i ) {
+                                   drawVarianceBand( pos*scaling.scoreStdDev,
+                                                     Color.blendColors( minColor, maxColor, (i+1)/bandPositions.length).toCss(true),
+                                                     pos+'σ');
+                               });
+                drawVarianceBand( 0, 'rgba(255,255,0,0.7)', 'mean' );
+            }
         }
 
         // draw the origin line if it is not disabled
@@ -251,7 +250,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
         if( typeof originColor == 'string' && !{'none':1,'off':1,'no':1,'zero':1}[originColor] ) {
             var originY = toY( dataScale.origin );
             context.set( 'fillStyle', originColor );
-            context.fillRect( 0, originY, canvas.width, 1 );
+            context.fillRect( 0, originY, canvas.getAttribute('width'), 1 );
         }
     }
 
