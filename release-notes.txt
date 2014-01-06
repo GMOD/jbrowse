@@ -9,7 +9,8 @@
 
  * Added support for drawing clip markers (with their color set by
    `histograms.clip_marker_color`) in CanvasFeatures-based
-   tracks. Thanks to Keiran Raine for pointing out the need for this.
+   tracks. Thanks to Keiran Raine for pointing out the need for this
+   (issue #402).
 
  * Make it easier to set JS loading baseUrl by moving it into the
    initial dojo configuration.  Thanks to Jillian Rowe for pointing
