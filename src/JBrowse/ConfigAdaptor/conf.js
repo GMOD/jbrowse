@@ -54,7 +54,7 @@ parse_conf: function( text, load_args ) {
             } catch(e) {
                 throw new Error( "syntax error"
                                  + ( (load_args.config||{}).url ? ' in '+load_args.config.url : '' )
-                                 + ( lineNumber? " at line "+lineNumber : '' )
+                                 + ( lineNumber? " at line "+(lineNumber-1) : '' )
                                );
             }
         }
