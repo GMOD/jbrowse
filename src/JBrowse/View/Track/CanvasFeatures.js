@@ -229,17 +229,6 @@ return declare(
                     this.fillFeatures( renderArgs );
                 }
                 else if( this.config.histograms.store || this.store.getRegionFeatureDensities ) {
-                    if( this.config.histograms.description ) {
-                        this.setLabel(
-                            this.key + ' <span class="feature-density">('
-                                + this.config.histograms.description
-                                + ')</span>'
-                        );
-                    }
-                    else {
-                        this.setLabel( this.key );
-                    }
-
                     this.fillHistograms( renderArgs );
                 }
                 else {
@@ -260,6 +249,20 @@ return declare(
                             args.finishCallback(e);
                         })
         );
+    },
+
+    // override the base error handler to try to draw histograms if
+    // it's a data overflow error and we know how to draw histograms
+    _handleError: function( error, viewArgs ) {
+
+        if( typeof error == 'object'
+            && error instanceof Errors.DataOverflow
+            && ( this.config.histograms.store || this.store.getRegionFeatureDensities )
+          ) {
+              this.fillHistograms( viewArgs );
+        }
+        else
+            this.inherited(arguments);
     },
 
     // create the layout if we need to, and if we can
@@ -317,6 +320,18 @@ return declare(
     },
 
     fillHistograms: function( args ) {
+        // set the track label if we have a description
+        if( this.config.histograms.description ) {
+            this.setLabel(
+                this.key + ' <span class="feature-density">('
+                    + this.config.histograms.description
+                    + ')</span>'
+            );
+        }
+        else {
+            this.setLabel( this.key );
+        }
+
         var numBins = this.config.histograms.binsPerBlock || 200;
         var blockSizeBp = Math.abs( args.rightBase - args.leftBase );
         var basesPerBin = blockSizeBp / numBins;

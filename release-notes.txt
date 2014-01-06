@@ -17,6 +17,11 @@
    tracks. Thanks to Keiran Raine for pointing out the need for this
    (issue #402).
 
+ * Canvas-based feature tracks now try to draw histograms, if
+   available, when the data backend throws a data-overflow error (like
+   when the BAM backend exceeds the chunkSizeLimit).  Thanks to Keiran
+   Raine for motivating this (issue #405).
+
  * Make it easier to set JS loading baseUrl by moving it into the
    initial dojo configuration.  Thanks to Jillian Rowe for pointing
    out the need for this.
