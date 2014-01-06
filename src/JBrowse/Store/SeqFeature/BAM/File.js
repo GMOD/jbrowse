@@ -146,18 +146,24 @@ var BamFile = declare( null,
             0,
             thisB.minAlignmentVO ? thisB.minAlignmentVO.block + 65535 : null,
             function(r) {
-                var unc = BAMUtil.unbgzf(r);
-                var uncba = new Uint8Array(unc);
+                try {
+                    var uncba;
+                    try {
+                        uncba = new Uint8Array( BAMUtil.unbgzf(r) );
+                    } catch(e) {
+                        throw new Error( "Could not uncompress BAM data. Is it compressed correctly?" );
+                    }
 
-                if( readInt(uncba, 0) != BAM_MAGIC) {
-                    dlog('Not a BAM file');
-                    failCallback( 'Not a BAM file' );
-                    return;
+                    if( readInt(uncba, 0) != BAM_MAGIC)
+                        throw new Error('Not a BAM file');
+
+                    var headLen = readInt(uncba, 4);
+
+                    thisB._readRefSeqs( headLen+8, 65536*4, successCallback, failCallback );
+                } catch(e) {
+                    dlog( ''+e );
+                    failCallback( ''+e );
                 }
-
-                var headLen = readInt(uncba, 4);
-
-                thisB._readRefSeqs( headLen+8, 65536*4, successCallback, failCallback );
             },
             failCallback
         );

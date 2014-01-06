@@ -27,6 +27,10 @@
    underlying reference sequence even if it is way too large, unless
    the variable was set explicitly in the configuration.
 
+ * JBrowse now shows a more understandable error message when trying
+   to open an uncompressed BAM file.  Thanks to Keiran Raine for
+   pointing this out (issue #404).
+
 # Release 1.11.0     2013-12-19 15:51:37 EST5EDT
 
 ## Major improvements
