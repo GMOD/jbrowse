@@ -17,6 +17,15 @@ return declare( null, {
         this.mdAttributeName    = ( this.config.mdAttribute    || 'md'    ).toLowerCase();
     },
 
+    _getSkipsAndDeletions: function( feature ) {
+        // parse the CIGAR tag if it has one
+        var cigarString = feature.get( this.cigarAttributeName );
+        if( cigarString ) {
+            return this._cigarToSkipsAndDeletions( feature, this._parseCigar( cigarString ) );
+        }
+        return [];
+    },
+
     _getMismatches: function( feature ) {
         var mismatches = [];
 
@@ -47,8 +56,8 @@ return declare( null, {
     },
 
     _parseCigar: function( cigar ) {
-        return array.map( cigar.match(/\d+\D/g), function( op ) {
-           return [ op.match(/\D/)[0].toUpperCase(), parseInt( op ) ];
+        return array.map( cigar.toUpperCase().match(/\d+\D/g), function( op ) {
+           return [ op.match(/\D/)[0], parseInt( op ) ];
         });
     },
 
@@ -56,9 +65,7 @@ return declare( null, {
         var currOffset = 0;
         var mismatches = [];
         array.forEach( ops, function( oprec ) {
-           var op  = oprec[0].toUpperCase();
-           if( !op )
-               return;
+           var op  = oprec[0];
            var len = oprec[1];
            // if( op == 'M' || op == '=' || op == 'E' ) {
            //     // nothing
@@ -76,6 +83,24 @@ return declare( null, {
                mismatches.push( { start: currOffset, type: 'hardclip',  base: 'H'+len, length: 1 });
            else if( op == 'S' )
                mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, length: 1 });
+
+           if( op != 'I' && op != 'S' && op != 'H' )
+               currOffset += len;
+        });
+        return mismatches;
+    },
+
+    // parse just the skips and deletions out of a CIGAR string
+    _cigarToSkipsAndDeletions: function( feature, ops ) {
+        var currOffset = 0;
+        var mismatches = [];
+        array.forEach( ops, function( oprec ) {
+           var op  = oprec[0];
+           var len = oprec[1];
+           if( op == 'D' )
+               mismatches.push( { start: currOffset, type: 'deletion',  base: '*', length: len  });
+           else if( op == 'N' )
+               mismatches.push( { start: currOffset, type: 'skip',      base: 'N', length: len  });
 
            if( op != 'I' && op != 'S' && op != 'H' )
                currOffset += len;
