@@ -127,7 +127,10 @@ return declare(
 
             histograms: {
                 description: 'feature density',
-                min: 0
+                min: 0,
+                height: 100,
+                color: 'goldenrod',
+                clip_marker_color: 'red'
             },
 
             style: {
@@ -376,10 +379,10 @@ return declare(
             return;
 
         var block = viewArgs.block;
-        var height = this.config.histograms.height || 100;
+        var height = this.config.histograms.height;
         var scale = viewArgs.scale;
         var leftBase = viewArgs.leftBase;
-        var minVal = this.config.histograms.min || 0;
+        var minVal = this.config.histograms.min;
 
         domConstruct.empty( block.domNode );
         var c = block.featureCanvas =
@@ -399,20 +402,27 @@ return declare(
             );
         this.heightUpdate( height, viewArgs.blockIndex );
         var ctx = c.getContext('2d');
-        ctx.fillStyle = this.config.histograms.color || 'goldenrod';
+        ctx.fillStyle = this.config.histograms.color;
         for( var i = 0; i<features.length; i++ ) {
             var feature = features[i];
-            var barHeight = feature.get('score')/histData.stats.max * height;
+            var barHeight = feature.get('score')/maxScore * height;
+            var barWidth = Math.ceil( ( feature.get('end')-feature.get('start') )*scale );
+            var barLeft = Math.round(( feature.get('start') - leftBase )*scale );
             ctx.fillRect(
-                Math.round(( feature.get('start') - leftBase )*scale ),
+                barLeft,
                 height-barHeight,
-                Math.ceil( ( feature.get('end')-feature.get('start') )*scale ),
+                barWidth,
                 barHeight
             );
+            if( barHeight > height ) {
+                ctx.fillStyle = this.config.histograms.clip_marker_color;
+                ctx.fillRect( barLeft, 0, barWidth, 3 );
+                ctx.fillStyle = this.config.histograms.color;
+            }
         }
 
         // make the y-axis scale for our histograms
-        this.makeHistogramYScale( height, minVal, histData.stats.max );
+        this.makeHistogramYScale( height, minVal, maxScore );
     },
 
     _histBinsToFeatures: function( viewArgs, histData ) {

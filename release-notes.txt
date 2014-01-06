@@ -7,6 +7,10 @@
    max value of a histogram display.  Thanks to Keiran Raine for
    pointing out the need for this.
 
+ * Added support for drawing clip markers (with their color set by
+   `histograms.clip_marker_color`) in CanvasFeatures-based
+   tracks. Thanks to Keiran Raine for pointing out the need for this.
+
  * Make it easier to set JS loading baseUrl by moving it into the
    initial dojo configuration.  Thanks to Jillian Rowe for pointing
    out the need for this.
