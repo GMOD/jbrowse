@@ -2,6 +2,10 @@
 
 ## Minor improvements
 
+ * Alignments2 tracks now include right-click menu items to view the
+   location of an alignment's mate pair or next segment in a popup or
+   a new tab.  Thanks to Keiran Raine for suggesting this (issue #406).
+
  * Alignments2 tracks now draw gaps and deletions in reads regardless
    of zoom level, as long as the alignment is at least 3 pixels wide
    in the display.  Thanks to Keiran Raine for pointing out the need

@@ -18,7 +18,7 @@ define( [
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
     _defaultConfig: function() {
-        return Util.deepUpdate(
+        var c = Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
             {
                 glyph: 'JBrowse/View/FeatureGlyph/Alignment',
@@ -42,6 +42,62 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 }
             }
         );
+
+        // add menu items for viewing matepair / next segment locations
+        c.menuTemplate.push(
+            {
+                "iconClass": "dijitIconUndo",
+                "url": function( track, feature ) {
+                    return track.browser.makeCurrentViewURL(
+                        { loc: track._nextSegmentViewLoc( feature, 0.8 ),
+                          highlight: feature.get('next_segment_position'),
+                          tracklist: 0
+                        });
+                },
+                "action": "iframeDialog",
+                title: "Open {next_segment_position} in a popup",
+                disabled: function( track, feature ) {
+                    return ! feature.get('next_segment_position');
+                },
+                "label": "Quick-view mate/next location"
+            },
+            {
+                "iconClass": "dijitIconUndo",
+                "url": function( track, feature ) {
+                    return track.browser.makeCurrentViewURL(
+                        { loc: track._nextSegmentViewLoc( feature ),
+                          highlight: feature.get('next_segment_position')
+                        });
+                },
+                "action": "newWindow",
+                title: "Open {next_segment_position} in a new tab",
+                disabled: function( track, feature ) {
+                    return ! feature.get('next_segment_position');
+                },
+                "label": "Open mate/next location in new tab"
+            }
+        );
+        return c;
+    },
+
+    // make a locstring for a view of the given feature's next segment
+    // (in a multi-segment read)
+    _nextSegmentViewLoc: function( feature, factor ) {
+        var nextLocStr = feature.get('next_segment_position');
+        if( ! nextLocStr ) return undefined;
+
+        var s = nextLocStr.split(':');
+        var refName = s[0];
+        var start = parseInt(s[1]);
+
+        var visibleRegion = this.browser.view.visibleRegion();
+        var visibleRegionSize = Math.round( (visibleRegion.end - visibleRegion.start + 1 )*(factor||1) );
+
+        return Util.assembleLocString(
+            { start: Math.round( start - visibleRegionSize/2 ),
+              end: Math.round( start + visibleRegionSize/2 ),
+              ref: refName
+            });
     },
 
     _trackMenuOptions: function() {
