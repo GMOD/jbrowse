@@ -7,6 +7,10 @@
    max value of a histogram display.  Thanks to Keiran Raine for
    pointing out the need for this.
 
+ * Make it easier to set JS loading baseUrl by moving it into the
+   initial dojo configuration.  Thanks to Jillian Rowe for pointing
+   out the need for this.
+
 ## Bug fixes
 
  * Fixed bug that caused client-side GFF3 tracks to appear as

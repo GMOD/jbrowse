@@ -1,5 +1,4 @@
 require( {
-           baseUrl: 'src',
            packages: [
                'dbind',
                'dgrid',
