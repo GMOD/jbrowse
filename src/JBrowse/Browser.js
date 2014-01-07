@@ -518,7 +518,7 @@ compareReferenceNames: function( a, b ) {
  * Regularize the reference sequence name in a location.
  */
 regularizeLocation: function( location ) {
-    var ref = this.findReferenceSequence( location.ref );
+    var ref = this.findReferenceSequence( location.ref || location.objectName );
     if( ref )
         location.ref = ref.name;
     return location;
@@ -1738,29 +1738,42 @@ showRegion: function( location ) {
  */
 
 navigateTo: function(loc) {
-    this.afterMilestone( 'initView', dojo.hitch( this, function() {
-        // if it's a foo:123..456 location, go there
-        var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-        // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
-        if( location && ("start" in location) && ("end" in location)) {
-            this.navigateToLocation( location );
-        }
-        // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
-        else {
-            if( typeof loc != 'string')
-                loc = loc.ref;
+    var thisB = this;
+    this.afterMilestone( 'initView', function() {
+        // lastly, try to search our feature names for it
+        thisB.searchNames( loc )
+           .then( function( found ) {
+                      if( found )
+                          return;
 
-            // is it just the name of one of our ref seqs?
-            var ref = this.findReferenceSequence( loc );
-            if( ref ) {
-                this.navigateToLocation( { ref: ref.name } );
-                return;
-            }
+                      // if it's a foo:123..456 location, go there
+                      var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
+                      // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
+                      if( location && ("start" in location) && ("end" in location)) {
+                          thisB.navigateToLocation( location );
+                          return;
+                      }
+                      // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
+                      else {
+                          if( typeof loc != 'string')
+                              loc = loc.ref;
 
-            // lastly, try to search our feature names for it
-            this.searchNames( loc );
-        }
-    }));
+                          // is it just the name of one of our ref seqs?
+                          var ref = thisB.findReferenceSequence( loc );
+                          if( ref ) {
+                              thisB.navigateToLocation( { ref: ref.name } );
+                              return;
+                          }
+                      }
+
+                      new InfoDialog(
+                          {
+                              title: 'Not found',
+                              content: 'Not found: <span class="locString">'+loc+'</span>',
+                              className: 'notfound-dialog'
+                          }).show();
+                  });
+    });
 },
 
 findReferenceSequence: function( name ) {
@@ -1848,19 +1861,13 @@ navigateToLocation: function( location ) {
  */
 searchNames: function( /**String*/ loc ) {
     var thisB = this;
-    this.nameStore.query({ name: loc })
+    return this.nameStore.query({ name: loc })
         .then(
             function( nameMatches ) {
                 // if we have no matches, pop up a dialog saying so, and
                 // do nothing more
                 if( ! nameMatches.length ) {
-                    new InfoDialog(
-                        {
-                            title: 'Not found',
-                            content: 'Not found: <span class="locString">'+loc+'</span>',
-                            className: 'notfound-dialog'
-                        }).show();
-                    return;
+                    return false;
                 }
 
                 var goingTo;
@@ -1896,6 +1903,7 @@ searchNames: function( /**String*/ loc ) {
                         })
                         .show();
                 }
+                return true;
             },
             function(e) {
                 console.error( e );
@@ -1904,7 +1912,7 @@ searchNames: function( /**String*/ loc ) {
                         title: 'Error',
                         content: 'Error reading from name store.'
                     }).show();
-                return;
+                return false;
             }
    );
 },

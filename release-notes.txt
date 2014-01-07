@@ -40,6 +40,11 @@
 
 ## Bug fixes
 
+ * When a number is typed into the location box, JBrowse first checks
+   if it is the name of a feature in the names index, and only
+   interprets it as a coordinate if it is not found in the names
+   index.  Thanks to Richard Hayes for pointing this out (issue #407).
+
  * Fixed bug that caused client-side GFF3 tracks to appear as
    "Loading" forever if the GFF3 is malformed (like malformed GFF3
    files that are opened with the File->Open tool).
