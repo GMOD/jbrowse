@@ -1214,8 +1214,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var menu = this._renderContextMenu( menuTemplate, featDiv );
         menu.startup();
         menu.bindDomNode( featDiv );
-        if( featDiv.labelDiv )
-            menu.bindDomNode( featDiv.labelDiv );
+        if( featDiv.label )
+            menu.bindDomNode( featDiv.label );
 
         return menu;
     },

@@ -63,6 +63,10 @@
    not working as written.  Thanks to Cris Lawrence for pointing this
    out.
 
+ * Fixed a bug in which right-clicking on feature labels in an
+   HTMLFeatures-based track did not bring up the right-click menu for
+   a feature.  Thanks to Cris Lawrence for pointing this out (issue #408).
+
 # Release 1.11.0     2013-12-19 15:51:37 EST5EDT
 
 ## Major improvements
