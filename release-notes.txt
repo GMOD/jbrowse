@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.11.1     2014-01-07 15:48:39 EST5EDT
+
 ## Minor improvements
 
  * Alignments2 tracks now include right-click menu items to view the
