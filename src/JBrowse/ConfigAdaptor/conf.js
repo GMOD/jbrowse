@@ -83,6 +83,12 @@ parse_conf: function( text, load_args ) {
             }
             value = match[3].trim();
         }
+        // add to existing array value
+        else if( keypath !== undefined && ( match = line.match( /^\s*\+\s*(.+)/ ) ) ) {
+            recordVal();
+            operation = '+=';
+            value = match[1].trim();
+        }
         // add to existing value
         else if( value !== undefined && (match = line.match( /^\s+(\S.*)/ ))) {
             value += value.length ? ' '+match[1].trim() : match[1].trim();

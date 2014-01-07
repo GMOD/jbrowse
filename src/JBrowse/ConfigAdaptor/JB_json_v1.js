@@ -98,6 +98,34 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 }
             }
 
+            // regularize trackMetadata.sources
+            var meta = o.trackMetadata;
+            if( meta && meta.sources ) {
+                // if it's a single source config, wrap it in an arrayref
+                if( meta.sources.url || ( typeof meta.sources == 'string' ) ) {
+                    meta.sources = [ meta.sources ];
+                }
+
+                if( ! lang.isArray( meta.sources ) ) {
+                    var sources = [];
+                    for( var name in meta.sources ) {
+                        if( ! ( 'name' in meta.sources ) )
+                            meta.sources[name].name = name;
+                        sources.push( meta.sources[name] );
+                    }
+                    meta.sources = sources;
+                }
+
+                // coerce any string source defs to be URLs, and try to detect their types
+                array.forEach( meta.sources, function( sourceDef, i ) {
+                                   if( typeof sourceDef == 'string' ) {
+                                       meta.sources[i] = { url: sourceDef };
+                                       var typeMatch = sourceDef.match( /\.(\w+)$/ );
+                                       if( typeMatch )
+                                           meta.sources[i].type = typeMatch[1].toLowerCase();
+                                   }
+                });
+            }
 
             o.sourceUrl = o.sourceUrl || load_args.config.url;
             o.baseUrl   = o.baseUrl || Util.resolveUrl( o.sourceUrl, '.' );

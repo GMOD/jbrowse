@@ -30,6 +30,14 @@
    initial dojo configuration.  Thanks to Jillian Rowe for pointing
    out the need for this.
 
+ * Enhanced new text-based config syntax to support arrays of values
+   in a list like:
+
+     [trackMetadata]
+     sources =
+        + data/mymeta.csv
+        + data/more_meta.csv
+
 ## Bug fixes
 
  * Fixed bug that caused client-side GFF3 tracks to appear as
@@ -45,6 +53,10 @@
  * JBrowse now shows a more understandable error message when trying
    to open an uncompressed BAM file.  Thanks to Keiran Raine for
    pointing this out (issue #404).
+
+ * Fixed jbrowse.conf faceted track selector configuration examples
+   not working as written.  Thanks to Cris Lawrence for pointing this
+   out.
 
 # Release 1.11.0     2013-12-19 15:51:37 EST5EDT
 

@@ -68,6 +68,11 @@ require(['JBrowse/ConfigAdaptor/conf'], function ( gbrowseConfigAdaptor ) {
 
                 expect( gbConfig.array_of_objects.foo[0].nog ).toBe( 1 );
                 expect( gbConfig.array_of_objects.foo[1].egg ).toBe( 2 );
+
+                expect( gbConfig.array_of_objects.bar[0] ).toBe( 'one' );
+                expect( gbConfig.array_of_objects.bar[1] ).toBe( 'two' );
+                expect( gbConfig.array_of_objects.bar[2] ).toBe( 'three and a half' );
+                expect( gbConfig.array_of_objects.bar[3] ).toBe( 'four' );
         });
     });
 });
