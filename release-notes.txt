@@ -33,10 +33,10 @@
  * Enhanced new text-based config syntax to support arrays of values
    in a list like:
 
-     [trackMetadata]
-     sources =
-        + data/mymeta.csv
-        + data/more_meta.csv
+        [trackMetadata]
+        sources =
+          + data/mymeta.csv
+          + data/more_meta.csv
 
 ## Bug fixes
 
