@@ -30,10 +30,13 @@ return declare( null, {
   /**
    * Add a listener callback.
    */
-  add: function(callback) {
+  add: function( callback, phase ) {
+      if( ! phase )
+          phase = 0;
       var listeners = this._listeners;
-      var listener = { _callback: callback };
+      var listener = { _callback: callback, _phase: phase };
       listeners.push( listener );
+      listeners.sort( function( a, b ) { return a._phase - b._phase; } );
       listener.remove = function() {
           var i = array.indexOf( listeners, listener );
           if( i > -1 )

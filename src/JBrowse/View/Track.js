@@ -99,6 +99,49 @@ return declare( [
       }
   },
 
+  _setGenomeViewAttr: function( genomeView ) {
+      if( this._projectionAttrWatch )
+          this._projectionAttrWatch.remove();
+      if( this._projectionWatch )
+          this._projectionWatch.remove();
+
+      var thisB = this;
+      // watch for the genomeview's projection to change
+      this.own(
+          this._projectionAttrWatch = genomeView.watch( 'projection',
+              function( name, oldProjection, newProjection ) {
+                  thisB._watchProjection( newProjection );
+              }
+          )
+      );
+
+      this._watchProjection( genomeView.get('projection') );
+  },
+
+  _watchProjection: function( projection ) {
+      var thisB = this;
+      if( projection ) {
+          if( thisB._projectionWatch )
+              thisB._projectionWatch.remove();
+
+          thisB.own(
+              thisB._projectionWatch =
+                  projection.watch(
+                      function( changeDescription ) {
+                          thisB.projectionChange( changeDescription );
+                      },
+                      1
+                  )
+          );
+          thisB.projectionChange( {} );
+      }
+  },
+
+  projectionChange: function( changeDescription ) {
+      // propagate the projection change to our renderer object
+      return this.get('renderer').projectionChange( changeDescription );
+  },
+
   _handleError: function(e) {
       console.error( e.stack || ''+e );
   },

@@ -3,15 +3,19 @@
  * one coordinate system (A) to another (B).
  */
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+
+           'JBrowse/Util/ListenerSet'
        ],
        function(
-           declare
+           declare,
+
+           ListenerSet
        ) {
 return declare( null,
 {
     constructor: function( args ) {
-        this.listeners = [];
+        this.listeners = new ListenerSet();
 
         if( ! args.bName ) throw new Error('bName required');
         if( ! args.aName ) throw new Error('aName required');
@@ -40,32 +44,30 @@ return declare( null,
     //     return l;
     // },
 
-    watch: function( callback ) {
-        var l = { cb: callback };
-        this.listeners.push( l );
-
-        var thisB = this;
-        l.remove = function() {
-            l.cb = function() {};
-            thisB = l = undefined;
-        };
-
-        return l;
+    watch: function( callback, phase ) {
+        return this.listeners.add( callback, phase );
     },
 
     _notifyChanged: function( changeDescription ) {
-        // copy the listeners array so that we are not affected by
-        // modifications to it that might happen in the listeners
-        var l = this.listeners.slice();
-        for( var i = 0; i<l.length; i++ )
-            if( l[i] )
-                l[i].cb( changeDescription, this );
+        this.listeners.notify( changeDescription );
     },
 
     // look up relevant blocks by A coordinates. a block is a region
     // where the projection is continuous.  returns an array of
     // continuous projections.
     getBlocksForRange: function( a1, a2 ) {
+        throw new Error('Abstract!');
+    },
+
+    getScale: function() {
+        throw new Error('Abstract!');
+    },
+
+    // get the current projection offset in A-space
+    getAOffset: function() {
+        throw new Error('Abstract!');
+    },
+    setAOffset: function(offset) {
         throw new Error('Abstract!');
     },
 

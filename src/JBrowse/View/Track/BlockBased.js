@@ -43,14 +43,14 @@ return declare( [ TrackView, _BlockBasedMixin ],
     animateBlock: function( block, blockNode, changeInfo ) {
         if( changeInfo.operation == 'new' ) {
             if( this.get('renderer').animatableFill() ) {
-                this.fillBlock( block, blockNode, changeInfo );
+                return this.fillBlock( block, blockNode, changeInfo );
             }
             else {
                 // if we get a new block made, but we're animating,
                 // schedule it to be filled later, at the next
                 // non-animating change
                 this.blockStash[ block.id() ].fillLater = changeInfo;
-                this.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
+                return this.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
             }
         }
         else if( changeInfo.operation == 'mergeRight' ) {
@@ -82,6 +82,8 @@ return declare( [ TrackView, _BlockBasedMixin ],
                 blockNode.firstChild.style.width = 100*(w-changeInfo.deltaRight)/w+'%';
             }
         }
+
+        return this.get('renderer').animateBlock( block, blockNode, changeInfo );
     },
 
     blockChange: function( blockNode, changeInfo, block ) {

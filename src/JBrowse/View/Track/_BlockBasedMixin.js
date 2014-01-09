@@ -21,6 +21,8 @@ constructor: function(args) {
 // when a the genomeview attr is set on this object, make blocks for
 // existing blocks, and watch its rendering blocks for changes
 _setGenomeViewAttr: function( genomeView ) {
+    this.inherited(arguments);
+
     if( this._blockWatch ) {
         this._blockWatch.remove();
         this.destroyAllBlocks();

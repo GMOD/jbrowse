@@ -75,7 +75,8 @@ return declare( null, {
                 }
                 // otherwise it's some other kind of real error
                 else {
-                    throw inflateError;
+                    console.error( inflateError.stack || ''+inflateError );
+                    throw new Error('Error uncompressing file. Is it bgzipped correctly?');
                 }
             }
             if( unc.byteLength ) {

@@ -113,6 +113,9 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
         return this.getConf( path, [feature, path, null, this ] );
     },
 
+    animateBlock: function( block, blockNode, changeInfo ) {
+    },
+
     fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
         return this._getRenderJob()
@@ -176,6 +179,10 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
 
     workerFillBlock: function( block, blockNode ) {
         return blockNode;
+    },
+
+    projectionChange: function( changeDescription ) {
+        // does nothing by default
     },
 
     _getRenderJob: function() {

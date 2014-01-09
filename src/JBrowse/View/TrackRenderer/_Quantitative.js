@@ -7,6 +7,7 @@ define( [
             'JBrowse/has!jbrowse-main-process?dojo/dom-geometry',
             'dojo/on',
             'dojo/mouse',
+            'dojo/when',
 
 
             'JBrowse/DOMNode/Remote',
@@ -25,6 +26,7 @@ define( [
             domGeom,
             on,
             mouse,
+            when,
 
             RemoteDOMNode,
             has,
@@ -259,10 +261,26 @@ return declare( [RendererBase, DetailStatsMixin ], {
         return { node: blockNode };
     },
 
+    projectionChange: function( changeInfo ) {
+        var thisB = this;
+        if( !( changeInfo && changeInfo.animating ) ) {
+            // TODO: this is called before all the block fills are called.  figure out what to do about this.
+            return Util.wait( 10 )
+                 .then( function() {
+                           //console.log('update graphs');
+                           return thisB.updateGraphs( changeInfo );
+                       },
+                       Util.cancelOK
+                     );
+        }
+        return undefined;
+    },
+
     fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
         var i = this.inherited(arguments);
-        if( changeInfo && changeInfo.animating )
+        if( changeInfo && changeInfo.animating ) {
+            //console.log('just fill block');
             return i.then( function() {
                                return thisB._getRenderJob()
                                    .then( function( job ) {
@@ -272,10 +290,8 @@ return declare( [RendererBase, DetailStatsMixin ], {
                                               thisB.updateBlockFromWorkerResult( blockdata, block, blockNode );
                                           });
                            });
-        else
-            return i.then( function() {
-                               return thisB.updateGraphs( block, blockNode, changeInfo );
-                           }, Util.cancelOK );
+        }
+        return i;
     },
 
     workerFillBlock: function( block, blockNode, changeInfo ) {
@@ -283,23 +299,12 @@ return declare( [RendererBase, DetailStatsMixin ], {
         return this._getBlockData( block, blockNode, changeInfo );
     },
 
-    updateGraphs: function( block, blockNode, changeInfo ) {
-        // if( this._graphUpdating && ! this._graphUpdating.isFulfilled() )
-        //     return this._graphUpdating;
-
-        // limit the frequency with which the graphs and scaling can update
+    updateGraphs: function( changeInfo ) {
         var thisB = this;
         return this._getRenderJob()
             .then( function( renderJob ) {
                        return renderJob.remoteApply( 'workerUpdateGraphs', [] );
                    })
-            // Util.wait({ duration: this.getConf('graphUpdateInterval'), cancelOK: true })
-            // .then( function() {
-            //            return thisB._getRenderJob()
-            //                .then( function( renderJob ) {
-            //                           return renderJob.remoteApply( 'workerUpdateGraphs', [] );
-            //                       }, Util.cancelOK );
-            //        })
             .then( function( result ) {
                        var blocksToUpdate = result.blocks;
                        for( var blockid in blocksToUpdate ) {

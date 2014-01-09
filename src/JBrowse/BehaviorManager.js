@@ -1,8 +1,10 @@
 define([
-           'dojo/_base/array'
+           'dojo/_base/array',
+           'dojo/_base/lang'
        ],
        function(
-           array
+           array,
+           lang
        ) {
  /**
  * Stores, applies, and removes a named set of behaviors.  A behavior
@@ -39,8 +41,7 @@ define([
  * @lends JBrowse.BehaviorManager
  */
 function BehaviorManager( args ) {
-    this.context   = args.context;
-    this.behaviors = args.behaviors;
+    lang.mixin( this, args );
 };
 
 /**

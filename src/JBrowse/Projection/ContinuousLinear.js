@@ -44,12 +44,23 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       return this.scale;
   },
 
+  getAOffset: function() {
+      return this.bOffset/this.scale;
+  },
+
+  setAOffset: function( newAOffset, isAnimating ) {
+      this._notifyChanged( this._update({ bOffset: this.scale * newAOffset }, !!isAnimating ));
+      return newAOffset;
+  },
+
   getValidRangeA: function() {
       return { l: this.aStart, r: this.aEnd };
   },
 
   _fromRanges: function( aRange, bRange ) {
-      var scale = this._normalize({ scale: ( bRange.end - bRange.start )/( aRange.end - aRange.start ) }).scale;
+      var scale = this._normalize(
+          { scale: ( bRange.end - bRange.start )/( aRange.end - aRange.start )
+      }).scale;
       var bCenter = ( bRange.end + bRange.start )/2;
       var aCenter = ( aRange.end + aRange.start )/2;
       return { scale: scale, bOffset: bCenter - aCenter*scale };

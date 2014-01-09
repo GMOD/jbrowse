@@ -23,7 +23,8 @@ define([
            './RegionBrowser/Toolbar',
            './RegionBrowser/LocationScale',
            './RegionBrowser/Gridlines',
-           './RegionBrowser/TrackPane'
+           './RegionBrowser/TrackPane',
+           './RegionBrowser/BehaviorMixin'
        ],
        function(
            declare,
@@ -50,12 +51,13 @@ define([
            RegionBrowserToolbar,
            ScaleBar,
            Gridlines,
-           TrackPane
+           TrackPane,
+           BehaviorMixin
        ) {
 
 var serialNumber = 0;
 
-return declare( [BorderContainer,Component,FeatureFiltererMixin], {
+return declare( [BorderContainer,Component,BehaviorMixin,FeatureFiltererMixin], {
 
 splitter: true,
 gutters: false,
@@ -126,11 +128,6 @@ _makeRenderingBlock: function( args, projectionChange ) {
     );
     return block;
 },
-// register a callback to be notified of changes to rendering blocks
-watchRenderingBlocks: function( callback ) {
-    return this._blockListeners.add( callback );
-},
-
 
 // get the displayed track widget in this region view for
 // a certain track hub and track, if present
@@ -283,11 +280,12 @@ hideTracks: function( trackObjects ) {
     },this);
 },
 
-// startup: function() {
-//     //console.log('pre startup '+this.getConf('name') );
-//     this.inherited(arguments);
-//     //console.log('post startup '+this.getConf('name') );
-// },
+startup: function() {
+    //console.log('pre startup '+this.getConf('name') );
+    this.inherited(arguments);
+
+    //console.log('post startup '+this.getConf('name') );
+},
 
 // // from dijit
 // layout: function() {
