@@ -8,6 +8,7 @@ define([
 
            'dijit/focus',
 
+           'JBrowse/Util',
            'JBrowse/BehaviorManager'
        ],
        function(
@@ -20,6 +21,7 @@ define([
 
            dijitFocus,
 
+           Util,
            BehaviorManager
        ) {
 return declare( null, {
@@ -239,17 +241,50 @@ mouseDragScrollStart: function(event) {
 
     this.behavior.manager.applyBehaviors('mouseDragScrolling');
 
+    if( this.behavior.mouseDragScrollState && this.behavior.mouseDragScrollState.animation )
+        this.behavior.mouseDragScrollState.animation.cancel();
+
     this.behavior.mouseDragScrollState = {
         mouseStart: { x: event.clientX,
                       y: event.clientY
                     },
+        mousePrev: { x: event.clientX,
+                     y: event.clientY,
+                     t: new Date().getTime()
+                   },
+        velocity: 0,
         projectionStart: { offset: projection.getAOffset() }
     };
+
 },
 mouseDragScrollEnd: function(event) {
-    this.mouseDragScrollMove( event, true );
+    var vx;
+    var state = this.behavior.mouseDragScrollState;
+    if(Math.abs(vx = state.velocity.x ) > 0.05) {
+        if( vx > 3 ) vx = 3;
+        else if( vx < -3 ) vx = -3;
+
+        // if there is some velocity to the release, ease it out
+        var thisB = this;
+        var duration = 1200;
+        var startX = event.clientX;
+        var endX = startX + 2/3*vx*duration; // 2/3 is integral of the quad-out easing
+        state.animation = Util.animate( duration, 'quadOut' )
+            .then(
+                function() {
+                    thisB.mouseDragScrollMove(null, true, endX, event.clientY );
+                    delete thisB.behavior.mouseDragScrollState;
+                },
+                null,
+                function(p) {
+                    thisB.mouseDragScrollMove(null, false, startX + ( endX-startX )*p, event.clientY );
+                });
+    } else {
+        this.mouseDragScrollMove( event, true );
+        delete this.behavior.mouseDragScrollState;
+
+    }
     this.behavior.manager.removeBehaviors('mouseDragScrolling');//, 'verticalMouseDragScrolling');
-    delete this.behavior.mouseDragScrollState;
 },
 mouseDragScrollCancelIfOut: function( event ) {
     if( !(event.relatedTarget || event.toElement)
@@ -259,8 +294,12 @@ mouseDragScrollCancelIfOut: function( event ) {
            this.mouseDragScrollEnd(event);
     }
 },
-mouseDragScrollMove: function( event, finalEvent ) {
-    dojoEvent.stop(event);
+mouseDragScrollMove: function( event, finalEvent, x, y ) {
+    if( event ) {
+        dojoEvent.stop(event);
+        x = event.clientX;
+        y = event.clientY;
+    }
 
     var projection = this.get('projection');
     if( ! projection )
@@ -269,9 +308,21 @@ mouseDragScrollMove: function( event, finalEvent ) {
     var state = this.behavior.mouseDragScrollState;
     projection.setAOffset(
         state.projectionStart.offset
-            - ( event.clientX - state.mouseStart.x ),
+            - ( x - state.mouseStart.x ),
         !finalEvent
     );
+
+    var t = new Date().getTime();
+    var dt = t-state.mousePrev.t;
+    state.velocity = {
+        y: (y-state.mousePrev.y)/dt,
+        x: (x-state.mousePrev.x)/dt
+    };
+
+    state.mousePrev = { x: x,
+                        y: y,
+                        t: t
+                      };
 }
 
 });

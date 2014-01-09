@@ -254,6 +254,9 @@ var Util = {
       return lang.hitch( window, raf );
     }.call() ),
 
+    // return a Deferred that is resolved after the given number of
+    // milliseconds, and receives progress events with the proportion
+    // done
     animate: function( milliseconds, easing ) {
         var thisB = this;
         var startTime = new Date().getTime();
@@ -262,10 +265,6 @@ var Util = {
 
         var canceled = false;
         var a = new Deferred( function() { canceled = true; });
-        a.then( null, function(e) {
-                    if( e != 'new animation requested' )
-                        console.error( e.stack || ''+e );
-                } );
         Util.requestAnimationFrame(
             function animate() {
                 if( canceled ) return;
@@ -281,7 +280,7 @@ var Util = {
                 }
             });
 
-        return a;
+        return a.then( null, Util.cancelOK );
     },
 
     /**
