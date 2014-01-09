@@ -248,19 +248,35 @@ mouseDragScrollStart: function(event) {
         mouseStart: { x: event.clientX,
                       y: event.clientY
                     },
-        mousePrev: { x: event.clientX,
-                     y: event.clientY,
-                     t: new Date().getTime()
-                   },
+        mouseHistory: [
+            { x: event.clientX, y: event.clientY, t: new Date().getTime() }
+        ],
         velocity: 0,
         projectionStart: { offset: projection.getAOffset() }
     };
 
 },
 mouseDragScrollEnd: function(event) {
-    var vx;
     var state = this.behavior.mouseDragScrollState;
-    if(Math.abs(vx = state.velocity.x ) > 0.05) {
+
+    var t = new Date().getTime();
+
+    // calculate the x velocity by smoothing over the recorded mouse history 
+    var vx;
+    if( state.mouseHistory.length ) {
+       state.mouseHistory.push(
+           { x: event.clientX, y: event.clientY, t: t });
+       vx = 0;
+       for( var i = 1; i<state.mouseHistory.length; i++ ) {
+           vx += ( state.mouseHistory[i].x - state.mouseHistory[i-1].x )/ ( state.mouseHistory[i].t - state.mouseHistory[i-1].t );
+       }
+       vx /= state.mouseHistory.length - 1;
+    } else {
+        vx = ( event.clientX - state.mouseHistory[0].x ) / t-state.mouseHistory[0].t;
+    }
+
+    // min velocity of 0.3 px/ms, max of 2 px/ms
+    if( Math.abs(vx) > 0.3) {
         if( vx > 2 ) vx = 2;
         else if( vx < -2 ) vx = -2;
 
@@ -313,16 +329,12 @@ mouseDragScrollMove: function( event, finalEvent, x, y ) {
     );
 
     var t = new Date().getTime();
-    var dt = t-state.mousePrev.t;
-    state.velocity = {
-        y: (y-state.mousePrev.y)/dt,
-        x: (x-state.mousePrev.x)/dt
-    };
+    state.mouseHistory.push(
+        { x: x, y: y, t: t });
 
-    state.mousePrev = { x: x,
-                        y: y,
-                        t: t
-                      };
+    // keep mouse history over 200 milliseconds
+    while( state.mouseHistory[0].t > t + 200 )
+        state.mouseHistory.shift();
 }
 
 });
