@@ -261,19 +261,24 @@ mouseDragScrollEnd: function(event) {
 
     var t = new Date().getTime();
 
-    // calculate the x velocity by smoothing over the recorded mouse history 
-    var vx;
+    // keep mouse history over 200 milliseconds
+    while( state.mouseHistory.length && state.mouseHistory[0].t < t - 200 )
+        state.mouseHistory.shift();
+
+    // calculate the x velocity by smoothing over the recorded mouse
+    // history if available
+    var vx = 0;
     if( state.mouseHistory.length ) {
        state.mouseHistory.push(
            { x: event.clientX, y: event.clientY, t: t });
-       vx = 0;
        for( var i = 1; i<state.mouseHistory.length; i++ ) {
            vx += ( state.mouseHistory[i].x - state.mouseHistory[i-1].x )/ ( state.mouseHistory[i].t - state.mouseHistory[i-1].t );
        }
        vx /= state.mouseHistory.length - 1;
-    } else {
-        vx = ( event.clientX - state.mouseHistory[0].x ) / t-state.mouseHistory[0].t;
     }
+
+    vx *= 0.5; // artificially reduce the velocity a bit, feels
+               // better.  i guess this simulates mechanical losses?
 
     // min velocity of 0.3 px/ms, max of 2 px/ms
     if( Math.abs(vx) > 0.3) {
@@ -331,10 +336,6 @@ mouseDragScrollMove: function( event, finalEvent, x, y ) {
     var t = new Date().getTime();
     state.mouseHistory.push(
         { x: x, y: y, t: t });
-
-    // keep mouse history over 200 milliseconds
-    while( state.mouseHistory[0].t > t + 200 )
-        state.mouseHistory.shift();
 }
 
 });
