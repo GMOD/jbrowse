@@ -6,7 +6,8 @@ define( [
             'dojo/_base/lang',
             'dojo/Deferred',
             'dojo/errors/CancelError',
-            
+            'dojo/fx/easing',
+
             'JBrowse/Errors',
             'JBrowse/Model/SimpleFeature',
 
@@ -19,6 +20,7 @@ define( [
             lang,
             Deferred,
             DojoCancelError,
+            easingFuncs,
 
             Errors,
             SimpleFeature
@@ -251,6 +253,36 @@ var Util = {
                                     };
       return lang.hitch( window, raf );
     }.call() ),
+
+    animate: function( milliseconds, easing ) {
+    var thisB = this;
+    var startTime = new Date().getTime();
+
+    var easeFunc = typeof easing == 'function' ? easing : ( easingFuncs[easing] || easingFuncs.quadOut );
+
+    var canceled = false;
+    var a = new Deferred( function() { canceled = true; });
+    a.then( null, function(e) {
+                if( e != 'new animation requested' )
+                    console.error( e.stack || ''+e );
+            } );
+    Util.requestAnimationFrame(
+        function animate() {
+            if( canceled ) return;
+
+            var elapsedTime = new Date().getTime() - startTime;
+            var proportionDone = easeFunc( elapsedTime / milliseconds );
+
+            if( elapsedTime >= milliseconds || proportionDone >= 1 ) {
+                a.resolve();
+            } else {
+                a.progress( proportionDone );
+                Util.requestAnimationFrame( animate );
+            }
+        });
+
+    return a;
+ },
 
     /**
      * replace variables in a template string with values

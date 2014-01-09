@@ -185,42 +185,24 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       if( this._currentAnimation )
           this._currentAnimation.cancel('new animation requested');
 
+      var startValues = lang.mixin( {}, this );
       endValues = this._normalize( endValues );
 
       var thisB = this;
-      var startTime   = new Date().getTime();
+      var a = this._currentAnimation = Util.animate( milliseconds, 'quadOut' )
+          .then( function() {
+                     thisB._notifyChanged( thisB._update( endValues ) );
+                 },
+                 null,
+                 function( proportionDone ) {
+                     thisB._animationStep( startValues, endValues, proportionDone );
+                 })
+          .always( function() {
+                       if( thisB._currentAnimation === a )
+                           delete thisB._currentAnimation;
+                   });
 
-      var startValues = lang.mixin( {}, this );
-
-      var canceled = false;
-      var a = this._currentAnimation = new Deferred( function() { canceled = true; });
-      a.then( null, function(e) {
-                  if( e != 'new animation requested' )
-                      console.error( e.stack || ''+e );
-              } );
-      a.promise.always( function() {
-                            if( thisB._currentAnimation === a )
-                                delete thisB._currentAnimation;
-                        });
-
-      Util.requestAnimationFrame(
-          function animate() {
-              if( canceled ) return;
-
-              var elapsedTime = (new Date().getTime() - startTime);
-              var proportionDone = thisB._animationEase( elapsedTime ,  milliseconds );
-
-              if( elapsedTime >= milliseconds || proportionDone >= 1 ) {
-                  thisB._notifyChanged( thisB._update( endValues ) );
-                  a.resolve();
-              } else {
-                  thisB._animationStep( startValues, endValues, proportionDone );
-                  a.progress( proportionDone );
-                  Util.requestAnimationFrame( animate );
-              }
-          });
-
-      return this._currentAnimation;
+      return a;
   },
 
   _animationStep: function( startValues, endValues, proportionDone ) {
@@ -229,12 +211,8 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
           settings[k] = startValues[k] + ( endValues[k] - startValues[k] ) * proportionDone;
       }
       this._notifyChanged( this._update( settings, true ) );
-  },
-
-  _animationEase: function( elapsedTime, totalTime ) {
-	elapsedTime /= totalTime;
-	return -elapsedTime*(elapsedTime-2);
   }
+
 });
 return Continuous;
 });
