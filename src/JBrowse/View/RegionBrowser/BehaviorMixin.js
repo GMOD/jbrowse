@@ -261,8 +261,8 @@ mouseDragScrollEnd: function(event) {
     var vx;
     var state = this.behavior.mouseDragScrollState;
     if(Math.abs(vx = state.velocity.x ) > 0.05) {
-        if( vx > 3 ) vx = 3;
-        else if( vx < -3 ) vx = -3;
+        if( vx > 2 ) vx = 2;
+        else if( vx < -2 ) vx = -2;
 
         // if there is some velocity to the release, ease it out
         var thisB = this;
