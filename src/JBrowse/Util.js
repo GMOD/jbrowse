@@ -255,34 +255,34 @@ var Util = {
     }.call() ),
 
     animate: function( milliseconds, easing ) {
-    var thisB = this;
-    var startTime = new Date().getTime();
+        var thisB = this;
+        var startTime = new Date().getTime();
 
-    var easeFunc = typeof easing == 'function' ? easing : ( easingFuncs[easing] || easingFuncs.quadOut );
+        var easeFunc = typeof easing == 'function' ? easing : ( easingFuncs[easing] || easingFuncs.quadOut );
 
-    var canceled = false;
-    var a = new Deferred( function() { canceled = true; });
-    a.then( null, function(e) {
-                if( e != 'new animation requested' )
-                    console.error( e.stack || ''+e );
-            } );
-    Util.requestAnimationFrame(
-        function animate() {
-            if( canceled ) return;
+        var canceled = false;
+        var a = new Deferred( function() { canceled = true; });
+        a.then( null, function(e) {
+                    if( e != 'new animation requested' )
+                        console.error( e.stack || ''+e );
+                } );
+        Util.requestAnimationFrame(
+            function animate() {
+                if( canceled ) return;
 
-            var elapsedTime = new Date().getTime() - startTime;
-            var proportionDone = easeFunc( elapsedTime / milliseconds );
+                var elapsedTime = new Date().getTime() - startTime;
+                var proportionDone = easeFunc( elapsedTime / milliseconds );
 
-            if( elapsedTime >= milliseconds || proportionDone >= 1 ) {
-                a.resolve();
-            } else {
-                a.progress( proportionDone );
-                Util.requestAnimationFrame( animate );
-            }
-        });
+                if( elapsedTime >= milliseconds || proportionDone >= 1 ) {
+                    a.resolve();
+                } else {
+                    a.progress( proportionDone );
+                    Util.requestAnimationFrame( animate );
+                }
+            });
 
-    return a;
- },
+        return a;
+    },
 
     /**
      * replace variables in a template string with values
