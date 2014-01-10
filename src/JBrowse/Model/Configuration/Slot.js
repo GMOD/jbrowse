@@ -38,9 +38,11 @@ var Slot = declare( null, {
 
   normalizeFunction: function( valfunc, config ) {
       var thisB = this;
-      return function() {
+      var wrapper = function() {
           return thisB.normalizeValue( valfunc.apply( this, arguments ) );
       };
+      wrapper.originalFunction = valfunc;
+      return wrapper;
   },
 
   // delegate slot class resolution to the parent (Specification, or

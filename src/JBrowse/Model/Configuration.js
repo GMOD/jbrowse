@@ -186,7 +186,19 @@ var Configuration = declare( null, {
      * Get a new base for this configuration, with the local settings merged in.
      */
     exportMerged: function() {
-        return this._flatToNested( lang.mixin( {}, this._base, this._local ) );
+        return this._flatToNested( this._unwrapFunctions( lang.mixin( {}, this._base, this._local ) ) );
+    },
+
+    // undo the function wrapping that the Schema does for normalizing values
+    _unwrapFunctions: function( inconf ) {
+        var outconf = {};
+        for( var k in inconf ) {
+            if( typeof inconf[k] == 'function' && inconf[k].originalFunction )
+                outconf[k] = inconf[k].originalFunction;
+            else
+                outconf[k] = inconf[k];
+        }
+        return outconf;
     },
 
     // convert a flat config object { 'foo.bar.baz' : 42, ... } to a

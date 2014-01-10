@@ -39,11 +39,14 @@ var SerializationUtils = {
                 seen = (seen||[]).concat(thing);
                 var deflated = {};
                 for( var n in thing ) {
-                    if( thing.hasOwnProperty( n ) && n.charAt(0) != '_' && typeof thing[n] != 'function' ) {
+                    if( thing.hasOwnProperty( n ) && n.charAt(0) != '_' ) {
                         deflated[n] = deflate( thing[n], seen );
                     }
                 }
                 return deflated;
+            }
+            else if( typeof thing == 'function' ) {
+                return thing.toString();
             }
         }
         return thing;
@@ -53,8 +56,22 @@ var SerializationUtils = {
     // return a Deferred for the inflated structure.  loads classes on
     // the fly as necessary.  modifies the passed data object in-place.
     inflate: function inflate( data, context ) {
-
         function _instantiate( data, context, classesByName ) {
+
+            function _inflateFunction() {
+                // can't bind arguments because the closure compiler
+                // renames variables, and we need to assign in the eval
+                if ( "string" != typeof arguments[0])
+                    return arguments[0];
+                try {
+                    eval("arguments[0]="+arguments[0]+";");
+                } catch (e) {
+                    console.error(e+" parsing function '"+arguments[0]+"'");
+                }
+                return arguments[0];
+            }
+
+            var match;
             if( lang.isArray( data ) ) {
                 for( var i = 0; i < data.length; i++ )
                     data[i] = _instantiate( data[i], context, classesByName );
@@ -81,10 +98,15 @@ var SerializationUtils = {
                     return data;
                 }
             }
-            else if( typeof data == 'string' && (match = data.match(/^\$context\.(\w+)$/)) ) {
-                if( context && context[match[1]] ) {
-                    //console.log( 'inflating '+data+' to', context[match[1]] );
-                    data = context[match[1]];
+            else if( typeof data == 'string' ) {
+                    if((match = data.match(/^\$context\.(\w+)$/) )) {
+                        if( context && context[match[1]] ) {
+                            //console.log( 'inflating '+data+' to', context[match[1]] );
+                            data = context[match[1]];
+                        }
+                    }
+                else if( /^\s*function\s*\(/.test( data ) && /\}[\s;]*$/.test( data ) ) {
+                    data = _inflateFunction( data );
                 }
             }
 
