@@ -72,6 +72,9 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
     buildRendering: function() {},
     postCreate: function() {},
 
+    postStartup: function() {}, //< called after startup.  not actually in dijit.
+
+
     // a few methods that delegate to the widget that is displaying us
     heightUpdate: function() {
         var w = this.get('widget');

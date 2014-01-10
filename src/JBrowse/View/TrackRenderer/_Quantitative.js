@@ -8,6 +8,7 @@ define( [
             'dojo/on',
             'dojo/mouse',
             'dojo/when',
+            'dojo/promise/all',
 
 
             'JBrowse/DOMNode/Remote',
@@ -27,6 +28,7 @@ define( [
             on,
             mouse,
             when,
+            all,
 
             RemoteDOMNode,
             has,
@@ -45,10 +47,10 @@ return declare( [RendererBase, DetailStatsMixin ], {
 
     trackCSSClass: 'quantitative',
 
-    startup: function() {
+    postStartup: function() {
         this.inherited(arguments);
         this._makeScoreDisplay();
-
+        this.updateGraphs();
     },
 
     configSchema: {
@@ -266,17 +268,8 @@ return declare( [RendererBase, DetailStatsMixin ], {
     },
 
     projectionChange: function( changeInfo ) {
-        var thisB = this;
-        if( !( changeInfo && changeInfo.animating ) ) {
-            // TODO: this is called before all the block fills are called.  figure out what to do about this.
-            return Util.wait( 10 )
-                 .then( function() {
-                           //console.log('update graphs');
-                           return thisB.updateGraphs( changeInfo );
-                       },
-                       Util.cancelOK
-                     );
-        }
+        if( !( changeInfo && changeInfo.animating ) )
+            return this.updateGraphs();
         return undefined;
     },
 
@@ -286,13 +279,13 @@ return declare( [RendererBase, DetailStatsMixin ], {
         if( changeInfo && changeInfo.animating ) {
             //console.log('just fill block');
             return i.then( function() {
-                               return thisB._getRenderJob()
-                                   .then( function( job ) {
-                                              return job.remoteApply( 'renderBlock', [ block, new RemoteDOMNode() ] );
-                                          })
-                                   .then( function( blockdata ) {
-                                              thisB.updateBlockFromWorkerResult( blockdata, block, blockNode );
-                                          });
+                return thisB._getRenderJob()
+                            .then( function( job ) {
+                                       return job.remoteApply( 'renderBlock', [ block, new RemoteDOMNode() ] );
+                                   })
+                            .then( function( blockdata ) {
+                                       thisB.updateBlockFromWorkerResult( blockdata, block, blockNode );
+                                   });
                            });
         }
         return i;
@@ -305,7 +298,21 @@ return declare( [RendererBase, DetailStatsMixin ], {
 
     updateGraphs: function( changeInfo ) {
         var thisB = this;
-        return this._getRenderJob()
+        //console.log( 'update graphs' );
+
+        // wait for any in-flight block fills before updating
+        var blockFills = [];
+        if( this.get('widget') ) {
+            var stash = this.get('widget').blockStash;
+            for( var blockID in stash ) {
+                if( stash[blockID].fillInProgress && ! stash[blockID].fillInProgress.isFulfilled() )
+                    blockFills.push( stash[blockID].fillInProgress );
+            }
+            //console.log( blockFills.length+' block fills in flight' );
+        }
+
+        return all( blockFills )
+            .then( function() { return thisB._getRenderJob(); })
             .then( function( renderJob ) {
                        return renderJob.remoteApply( 'workerUpdateGraphs', [] );
                    })

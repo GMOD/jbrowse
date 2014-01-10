@@ -8,6 +8,7 @@ define([
            'dojo/dom-geometry',
            'dojo/Stateful',
            'dojo/promise/all',
+           'dojo/aspect',
 
            'JBrowse/Component',
            'JBrowse/Util'
@@ -19,6 +20,7 @@ define([
            domGeom,
            Stateful,
            all,
+           aspect,
 
            Component,
            Util
@@ -130,6 +132,10 @@ return declare( [Component,Stateful], {
                                                            args || {}
                                                        ));
                                       renderer.set('widget', widget );
+                                      aspect.after( widget, 'startup', function() {
+                                                        renderer.postStartup();
+                                                    });
+
                                       return widget;
                                   });
                    });

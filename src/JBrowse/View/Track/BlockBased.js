@@ -192,10 +192,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
                 //        }, Util.cancelOK )
         );
 
-        // var inprogress = this.blockStash[block.id()].fillInProgress;
-        // if( inprogress && ! inprogress.isFulfilled() )
-        //     inprogress.cancel( new Errors.Cancel('block changed') );
-
+        //console.log( 'fill '+block.id() );
         return this.ownPromise( this.blockStash[block.id()].fillInProgress =
             when( this.get('renderer').fillBlock( block, blockNode, changeInfo )))
                 .then( function(v) {
