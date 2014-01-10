@@ -325,11 +325,13 @@ mouseDragScrollMove: function( event, finalEvent, x, y ) {
         return;
 
     var state = this.behavior.mouseDragScrollState;
-    projection.setAOffset(
-        state.projectionStart.offset
-            - ( x - state.mouseStart.x ),
-        !finalEvent
-    );
+    var dx = x - state.mouseStart.x;
+    if( dx ) {
+        projection.setAOffset(
+            state.projectionStart.offset - dx,
+            !finalEvent
+        );
+    }
 
     var t = new Date().getTime();
     state.mouseHistory.push(
