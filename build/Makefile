@@ -4,6 +4,8 @@ JSDIR = $(BASEDIR)/src/JBrowse
 PLUGINDIR = $(BASEDIR)/plugins
 JS_SRCFILES = $(shell find $(JSDIR)/ -type f -and -name '*.js')
 
+CSS_SRCFILES = $(shell find $(BASEDIR)/ -type f -and -name '*.css')
+
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
 RELEASE_FULL = $(RELEASE_NAME)-dev
@@ -14,7 +16,7 @@ RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
 
-css-minified: css-collected
+css-minified: css-concatenated
 	java -jar $(BASEDIR)/yui.jar $(BASEDIR)/css-concatenated.css > $(BASEDIR)/css-concatenated-min.css
 
 
