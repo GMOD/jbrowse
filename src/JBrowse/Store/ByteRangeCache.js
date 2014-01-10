@@ -72,12 +72,10 @@ return declare( null,
 
         // set 'start' and 'end' on any records that don't have them, but should
         array.forEach( fileChunks, function(c) {
-                           if( c.size ) {
-                               if( ! c.key.start )
-                                   c.key.start = 0;
-                               if( ! c.key.end )
-                                   c.key.end = c.key.start + ( c.size || c.value.byteLength );
-                           }
+                           if( ! c.key.start )
+                               c.key.start = 0;
+                           if( ! c.key.end )
+                               c.key.end = c.key.start + c.value.byteLength;
                        });
 
         // sort the records by start coordinate, then by length descending (so that we preferentially use big chunks)

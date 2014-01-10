@@ -54,7 +54,6 @@ return declare([ SeqFeatureStore ],
      */
     constructor: function( args ) {
         this.data = this.openResource( Bytes, this.getConf('bigwig' ) );
-        this._load();
     },
 
     configSchema: {
@@ -74,7 +73,7 @@ return declare([ SeqFeatureStore ],
                     + Util.commifyNumber(size)
                     + ' bytes exceeds chunkSizeLimit of '
                     + Util.commifyNumber(this.getConf('chunkSizeLimit'))+'.'
-            )
+            );
 
         return this.data.readRange.apply( this.data, arguments );
     },

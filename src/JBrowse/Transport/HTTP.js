@@ -79,12 +79,13 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
                      // handle `range` arg.  put it in the query string if we are not
                      // using an XHR for the request
                      var range;
+                     var rangeStr;
                      if(( range = req.range )) {
                          delete req.range;
-                         range = thisB._fmtRangeSpec( range );
+                         rangeStr = thisB._fmtRangeSpec( range );
 
                          if( isXHR )
-                             req.headers['Range'] = range;
+                             req.headers['Range'] = rangeStr;
 
                          // note: Safari browsers cache XHRs to a
                          // single resource, regardless
@@ -95,14 +96,14 @@ return declare( 'JBrowse.Transport.HTTP', RequestBasedTransport, {
                          // Safari, put the byte range in a query param at the end of
                          // the URL to force Safari to pay attention to it.
                          if( ! isXHR || has('safari') )
-                             lang.setObj( 'query.content-range', range, req );
+                             lang.setObject( 'query.content-range', rangeStr, req );
                      }
 
                      if( req.handleAs == 'arraybuffer' ) {
-                         if( req.range ) {
-                             return thisB._byteCache.get( req, req.range[0], req.range[1],
+                         if( range ) {
+                             return thisB._byteCache.get( req, range[0], range[1],
                                                          function(req,start,end) {
-                                                             lang.setObj( 'headers.Range',
+                                                             lang.setObject( 'headers.Range',
                                                                           thisB._fmtRangeSpec( [start, end] ),
                                                                           req );
                                                              return thisB._binaryFetch( req, credentialSlots );
