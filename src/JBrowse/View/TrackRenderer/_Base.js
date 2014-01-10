@@ -166,15 +166,20 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
             delete blockdata.node;
         }
         var stash = this.getBlockStash( block );
-        lang.mixin( stash, blockdata );
-        array.some( blockNode.childNodes, function(n) {
-                        if( n.tagName == 'CANVAS' ) {
-                            thisB.get('widget').heightUpdate( n.height, block );
-                            stash.canvas = n;
-                            return true;
-                        }
-                        return false;
-                    });
+        if( stash ) {
+            lang.mixin( stash, blockdata );
+            array.some( blockNode.childNodes, function(n) {
+                            if( n.tagName == 'CANVAS' ) {
+                                thisB.get('widget').heightUpdate( n.height, block );
+                                stash.canvas = n;
+                                return true;
+                            }
+                            return false;
+                        });
+        }
+        else {
+            console.log( 'wasted block render for '+block.id() );
+        }
     },
 
     workerFillBlock: function( block, blockNode ) {

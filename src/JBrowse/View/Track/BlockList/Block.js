@@ -46,7 +46,7 @@ return declare( Destroyable, {
         if( ! this._blockList )
             throw new Error('blockList required');
 
-        this._log( 'new', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' );
+        this._log( 'new '+[ this._left, this._right, '('+(this._right-this._left)+')', args.onProjectionBlockLeftEdge ? '|' : '-', args.onProjectionBlockRightEdge ? '|' : '-' ].join(' ') );
     },
 
     deflate: function() {
@@ -109,7 +109,7 @@ return declare( Destroyable, {
         return;
         console.log.apply(
             console,
-            [ this._serialNumber+' '+arguments[0]]
+            [ 'block '+this._id+' '+arguments[0]]
                 .concat(Array.prototype.slice.call( arguments, 1 ))
         );
     },
@@ -151,7 +151,7 @@ return declare( Destroyable, {
                  // the merged block would not be bigger than 2x ideal size
                  && ( (prev.getWidth() + w) <= this._idealSize*3 )
                ) {
-                   prev._log( 'merge', this._serialNumber );
+                   prev._log( 'merge', this._id );
                    prev.mergeRight( this, l, r, changeDescription );
                    this._blockList.remove( this );
                    this.destroy( changeDescription );
@@ -163,7 +163,7 @@ return declare( Destroyable, {
     },
 
     updatePosition: function( newLeft, newRight, changeDescription ) {
-        this._log( 'update', newLeft, newRight );
+        this._log( 'update '+[newLeft,newRight,'('+(newRight-newLeft)+')'].join(' ') );
 
         var deltaLeft = newLeft - this._left;
         var deltaRight = newRight - this._right;
@@ -173,7 +173,7 @@ return declare( Destroyable, {
         //this._log( 'update '+this.getWidth() );
 
         this._notifyChanged({
-            operation:  deltaLeft != deltaRight ? 'resize' : 'move',
+            operation:  Math.abs(deltaLeft - deltaRight) > 0.1 ? 'resize' : 'move',
             deltaLeft:  deltaLeft,
             deltaRight: deltaRight,
             projectionChange: changeDescription
@@ -183,6 +183,15 @@ return declare( Destroyable, {
     _notifyChanged: function( data ) {
         if( data.projectionChange )
             data.animating = data.projectionChange.animating;
+
+        // var w = this._right - this._left;
+        // try {
+        //     console.log( 'block '+this._id+' '+w+' '+JSON.stringify(data) );
+        // } catch(e) {
+        //     var c = lang.mixin( {}, data );
+        //     delete c.mergeWith;
+        //     console.log( 'block '+this._id+' '+w+' '+JSON.stringify(c) );
+        // }
         this._changeListeners.notify( data, this );
     },
     watch: function( callback ) {

@@ -285,7 +285,6 @@ mouseDragScrollEnd: function(event) {
         if( vx > 2 ) vx = 2;
         else if( vx < -2 ) vx = -2;
 
-        // if there is some velocity to the release, ease it out
         var thisB = this;
         var duration = 1200;
         var startX = event.clientX;
@@ -303,7 +302,6 @@ mouseDragScrollEnd: function(event) {
     } else {
         this.mouseDragScrollMove( event, true );
         delete this.behavior.mouseDragScrollState;
-
     }
     this.behavior.manager.removeBehaviors('mouseDragScrolling');//, 'verticalMouseDragScrolling');
 },

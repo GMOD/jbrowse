@@ -41,19 +41,7 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     animateBlock: function( block, blockNode, changeInfo ) {
-        if( changeInfo.operation == 'new' ) {
-            if( this.get('renderer').animatableFill() ) {
-                return this.fillBlock( block, blockNode, changeInfo );
-            }
-            else {
-                // if we get a new block made, but we're animating,
-                // schedule it to be filled later, at the next
-                // non-animating change
-                this.blockStash[ block.id() ].fillLater = changeInfo;
-                return this.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
-            }
-        }
-        else if( changeInfo.operation == 'mergeRight' ) {
+        if( changeInfo.operation == 'mergeRight' ) {
             var dims = block.getDimensions();
             var w = dims.w;
             var factor = (w-changeInfo.deltaRight)/w;
@@ -83,7 +71,26 @@ return declare( [ TrackView, _BlockBasedMixin ],
             }
         }
 
-        return this.get('renderer').animateBlock( block, blockNode, changeInfo );
+        this.get('renderer').animateBlock( block, blockNode, changeInfo );
+
+        // if we are not just moving or destroying it, we need to
+        // redraw it, either now or later
+        if( changeInfo.operation != 'move' && changeInfo.operation != 'destroy' ) {
+            if( this.get('renderer').animatableFill() ) {
+                return this.fillBlock( block, blockNode, changeInfo );
+            }
+            else {
+                // if we need to fill the block, but we're animating,
+                // schedule it to be filled later, at the next
+                // non-animating change
+                if( ! this.blockStash[ block.id() ].fillLater ) {
+                    this.blockStash[ block.id() ].fillLater = changeInfo;
+                    return this.fillBlockWithLoadingMessage( block, blockNode, changeInfo );
+                }
+            }
+        }
+
+        return undefined;
     },
 
     blockChange: function( blockNode, changeInfo, block ) {
@@ -97,12 +104,13 @@ return declare( [ TrackView, _BlockBasedMixin ],
                 projectionBlock: block.getProjectionBlock()
             };
         }
-        else if( changeInfo.operation == 'destroy' ) {
-            var inprogress;
-            if(( inprogress = this.blockStash[ block.id() ].fillInProgress ) && ! inprogress.isCanceled() )
-                inprogress.cancel( new Errors.Cancel('block destroyed') );
 
-            delete this.blockStash[ block.id() ];
+        // if we are not just moving the block, we need to cnacel any
+        // in-progress block fill.
+        if( changeInfo.operation != 'move' ) {
+            var inprogress;
+            if(( inprogress = this.blockStash[block.id()] && this.blockStash[ block.id() ].fillInProgress ) && ! inprogress.isCanceled() )
+                inprogress.cancel( new Errors.Cancel( changeInfo.operation == 'destroy' ? 'block destroyed' : 'block changed' ) );
         }
 
         this.inherited(arguments);
@@ -122,6 +130,10 @@ return declare( [ TrackView, _BlockBasedMixin ],
                     delete b.fillLater;
                 }
             }
+        }
+
+        if( changeInfo.operation == 'destroy' ) {
+            delete this.blockStash[ block.id() ];
         }
 
         this.get('renderer').blockChange( blockNode, changeInfo, block );
@@ -180,9 +192,9 @@ return declare( [ TrackView, _BlockBasedMixin ],
                 //        }, Util.cancelOK )
         );
 
-        var inprogress = this.blockStash[block.id()].fillInProgress;
-        if( inprogress && ! inprogress.isFulfilled() )
-            inprogress.cancel( new Errors.Cancel('block changed') );
+        // var inprogress = this.blockStash[block.id()].fillInProgress;
+        // if( inprogress && ! inprogress.isFulfilled() )
+        //     inprogress.cancel( new Errors.Cancel('block changed') );
 
         return this.ownPromise( this.blockStash[block.id()].fillInProgress =
             when( this.get('renderer').fillBlock( block, blockNode, changeInfo )))

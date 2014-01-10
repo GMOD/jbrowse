@@ -178,7 +178,9 @@ return declare( [RendererBase, DetailStatsMixin ], {
                     blockData.featureRects = featureRects;
 
                     blockData.pixelScores = thisB._calculatePixelScores(
-                        thisB._canvasWidth(block), features, featureRects );
+                        canvasWidth, features, featureRects );
+
+                    //console.log( 'block '+block.id()+' has '+blockData.pixelScores.length+' pixelScores for canvas '+canvasWidth+', basespan '+JSON.stringify( baseSpan ));
 
                     blockData.stats = thisB._calculateBlockStats( block, features );
 
@@ -224,6 +226,8 @@ return declare( [RendererBase, DetailStatsMixin ], {
     // has been decided upon and stored in this.scaling
     renderBlock: function( block, blockNode ) {
         var blockdata = this.getBlockStash( block );
+        if( ! blockdata )
+            return { node: blockNode };
 
         blockNode.empty();
 
@@ -480,9 +484,9 @@ return declare( [RendererBase, DetailStatsMixin ], {
             var canvas = blockdata.canvas;
             var cPos = domGeom.position( canvas );
             var x = evt.pageX;
-            var cx = evt.pageX - cPos.x;
+            var cx = Math.round( evt.pageX - cPos.x );
 
-            if( this._showPixelValue( this.scoreDisplay.flag, pixelValues[ Math.round( cx ) ] ) ) {
+            if( this._showPixelValue( this.scoreDisplay.flag, pixelValues[ cx ] ) ) {
                 this.scoreDisplay.flag.style.display = 'block';
                 this.scoreDisplay.pole.style.display = 'block';
 

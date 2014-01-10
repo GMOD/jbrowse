@@ -90,6 +90,7 @@ newBlock: function( renderingBlock, changeInfo ) {
 createBlockNode: function( renderingBlock ) {
     var d = document.createElement('div');
     d.className = 'renderingBlock';
+    d.setAttribute( 'data-rendering-block-id', renderingBlock.id() );
     this.domNode.appendChild(d);
     return d;
 },
