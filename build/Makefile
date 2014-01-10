@@ -14,6 +14,13 @@ RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
 
+css-minified: css-collected
+	java -jar $(BASEDIR)/yui.jar $(BASEDIR)/css-concatenated.css > $(BASEDIR)/css-concatenated-min.css
+
+
+css-concatenated: $(CSS_SRCFILES)
+	cat $(shell find $(BASEDIR) -maxdepth 1 -name "*.css" -type f) > $(BASEDIR)/css-concatenated.css
+
 all: docs bin/wig2png
 
 release-version.txt:
