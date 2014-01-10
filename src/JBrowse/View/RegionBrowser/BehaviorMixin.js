@@ -289,14 +289,19 @@ mouseDragScrollEnd: function(event) {
         var duration = 1200;
         var startX = event.clientX;
         var endX = startX + 2/3*vx*duration; // 2/3 is integral of the quad-out easing
+        var lastP;
         state.animation = Util.animate( duration, 'quadOut' )
             .then(
                 function() {
                     thisB.mouseDragScrollMove(null, true, endX, event.clientY );
                     delete thisB.behavior.mouseDragScrollState;
                 },
-                null,
+                function() {
+                    thisB.mouseDragScrollMove(null, true, startX + ( endX-startX )*(lastP || 0 ), event.clientY );
+                    delete thisB.behavior.mouseDragScrollState;
+                },
                 function(p) {
+                    lastP = p;
                     thisB.mouseDragScrollMove(null, false, startX + ( endX-startX )*p, event.clientY );
                 });
     } else {
