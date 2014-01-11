@@ -52,12 +52,7 @@ var SerializationUtils = {
         return thing;
     },
 
-    // given bare data, deep-inflate it using any $class members,
-    // return a Deferred for the inflated structure.  loads classes on
-    // the fly as necessary.  modifies the passed data object in-place.
-    inflate: function inflate( data, context ) {
-        function _instantiate( data, context, classesByName ) {
-
+    _instantiate: function _instantiate( data, context, classesByName ) {
             function _inflateFunction() {
                 // can't bind arguments because the closure compiler
                 // renames variables, and we need to assign in the eval
@@ -111,7 +106,12 @@ var SerializationUtils = {
             }
 
             return data;
-        };
+        },
+
+    // given bare data, deep-inflate it using any $class members,
+    // return a Deferred for the inflated structure.  loads classes on
+    // the fly as necessary.  modifies the passed data object in-place.
+    inflate: function inflate( data, context ) {
 
         // gather a list of all the class names
         var classNames = [];
@@ -136,6 +136,8 @@ var SerializationUtils = {
 
         if( classNames.length == 0 )
             return Util.resolved( data );
+
+        var _instantiate = this._instantiate;
 
         // load the classes if necessary, then traverse the data
         // structure and instantiate them
