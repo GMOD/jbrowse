@@ -23,7 +23,8 @@ var RemoteNode = declare( null, {
       this.tagName = args.tagName;
       this.attrs = args.attrs || {};
       this.childNodes = args.childNodes || [];
-      this.operations = args.operations || [];
+      this.operations = [];
+      this.replayCode = args.replayCode;
       this.context2d = args.context2d;
   },
 
@@ -33,14 +34,24 @@ var RemoteNode = declare( null, {
           $class: 'JBrowse/DOMNode/Remote',
           tagName: this.tagName,
           attrs: this.attrs,
-          operations: Serialization.deflate( this.operations ),
+          replayCode: this._buildReplayCode(),
           context2d: this.context2d && this.context2d.deflate()
       };
   },
 
+  _buildReplayCode: function() {
+      var ops = this.operations;
+      for( var i = 0; i<ops.length; i++ ) {
+          if( typeof ops[i] != 'string' ) {
+              ops[i] = 'n.'+ops[i][0]+'(new RemoteNode('+JSON.stringify(ops[i][1].deflate())+'))';
+          }
+      }
+      return ops.join(";\n");
+  },
+
   createChild: function( tagName, attrs ) {
-      var c;
-      this._record( 'appendChild', [ c = new RemoteNode({ tagName: tagName, attrs: attrs }) ] );
+      var c = new RemoteNode({ tagName: tagName, attrs: attrs });
+      this.operations.push( [ 'appendChild', c ] );
       this.childNodes.push( c );
       return c;
   },
@@ -74,7 +85,8 @@ var RemoteNode = declare( null, {
   },
 
   _record: function( op, args ) {
-    this.operations.push( [ op, Array.prototype.slice.apply(args) ] );
+      var argStr = typeof args == 'string' ? args : JSON.stringify(Array.prototype.slice.call(args)).replace(/^\[|\]$/g,'');
+      this.operations.push( 'n.'+op+'('+argStr+')' );
   },
 
   getContext: function( type ) {
@@ -87,13 +99,16 @@ var RemoteNode = declare( null, {
   },
 
   replayOnto: function( node ) {
-      var local = new Local(node);
-      var operations = this.operations;
-      for( var i = 0; i<operations.length; i++ )
-          local[operations[i][0]].apply( local, operations[i][1] );
+      var n = new Local(node);
 
-      if( this.context2d )
+      if( this.replayCode )
+          eval( this.replayCode );
+
+      if( this.context2d ) {
+          if( ! this.context2d.replayOnto )
+              this.context2d = new RemoteCanvasContext( this.context2d );
           this.context2d.replayOnto( node.getContext('2d') );
+      }
   }
 
 });
