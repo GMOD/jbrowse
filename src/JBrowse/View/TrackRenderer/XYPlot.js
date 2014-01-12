@@ -71,7 +71,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                                                 fixBounds: true,
                                                 min: scaling.min,
                                                 max: scaling.max,
-                                                domNode: args.widgetNode,
+                                                domNode: thisB.get('widget').domNode,
                                                 height: thisB._canvasHeight()
                                             });
 
@@ -116,7 +116,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
             if( score >= 0 ) {
                 var bgColor = this.getConfForFeature('backgroundColor', f );
                 if( bgColor ) {
-                    context.set('fillStyle', bgColor.toString() );
+                    context.fillStyle = bgColor.toString();
                     context.fillRect( i, 0, 1, canvasHeight );
                 }
             }
@@ -125,20 +125,20 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
             if( score <= canvasHeight || score > originY) { // if the rectangle is visible at all
                 if( score <= originY ) {
                     // bar goes upward
-                    context.set( 'fillStyle', this.getConfForFeature('posColor',f).toString() );
+                    context.fillStyle = this.getConfForFeature('posColor',f).toString();
                     context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
-                        context.set( 'fillStyle', (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f)).toString() );
+                        context.fillStyle = (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('negColor',f)).toString();
                         context.fillRect( i, 0, 1, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
-                    context.set( 'fillStyle', this.getConfForFeature('negColor',f).toString() );
+                    context.fillStyle = this.getConfForFeature('negColor',f).toString();
                     context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
-                        context.set('fillStyle', (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f)).toString());
+                        context.fillStyle = (this.getConfForFeature('clipMarkerColor',f) || this.getConfForFeature('posColor',f)).toString();
                         context.fillRect( i, canvasHeight-3, 1, 3 );
 
                     }
@@ -192,9 +192,9 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                 context.clearRect( l, 0, w, canvasHeight );
             }
         }
-        context.set( 'globalAlpha', this.getConf('maskAlpha') );
+        context.globalAlpha = this.getConf('maskAlpha');
         this._drawFeatures( scale, leftBase, rightBase, block, canvas, pixels, dataScale );
-        context.set( 'globalAlpha', 1 );
+        context.globalAlpha = 1;
     },
 
     /**
@@ -214,12 +214,12 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
             var scaling = this.scaling || this.lastScaling;
             if( scaling && ( 'scoreMean' in scaling ) && ('scoreStdDev' in scaling ) ) {
                 var drawVarianceBand = function( plusminus, fill, label ) {
-                    context.set( 'fillStyle', fill.toString() );
+                    context.fillStyle = fill.toString();
                     var varTop = toY( scaling.scoreMean + plusminus );
                     var varHeight = toY( scaling.scoreMean - plusminus ) - varTop;
                     varHeight = Math.max( 1, varHeight );
                     context.fillRect( 0, varTop, canvas.getAttribute('width'), varHeight );
-                    context.set( 'font', '12px sans-serif' );
+                    context.font = '12px sans-serif';
                     if( plusminus > 0 ) {
                         context.fillText( '+'+label, 2, varTop );
                         context.fillText( '-'+label, 2, varTop+varHeight );
@@ -249,7 +249,7 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
         var originColor = this.getConf('originColor');
         if( typeof originColor == 'string' && !{'none':1,'off':1,'no':1,'zero':1}[originColor] ) {
             var originY = toY( dataScale.origin );
-            context.set( 'fillStyle', originColor );
+            context.fillStyle = originColor;
             context.fillRect( 0, originY, canvas.getAttribute('width'), 1 );
         }
     }

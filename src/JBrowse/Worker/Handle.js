@@ -29,7 +29,10 @@ return declare( [_RequestMixin], {
       Util.validate( args, { authManager: 'object' } );
       this._authManager = args.authManager;
       this._worker = args.worker;
-      this._worker.onmessage = lang.hitch( this, '_handleMessage' );
+      var thisB = this;
+      this._worker.onmessage = function() {
+          return thisB._handleMessage.apply( thisB, arguments );
+      };
       this._worker.onerror   = lang.hitch( this, '_handleError' );
       this._requests = {};
   },

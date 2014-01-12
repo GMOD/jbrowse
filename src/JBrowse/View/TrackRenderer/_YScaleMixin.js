@@ -1,16 +1,16 @@
 define( [
             'dojo/_base/declare',
+            'dojo/dom-construct',
 
             'JBrowse/has',
-            'JBrowse/View/Ruler',
-            'JBrowse/DOMNode/Remote'
+            'JBrowse/View/Ruler'
         ],
         function(
             declare,
+            dom,
 
             has,
-            Ruler,
-            RemoteDOMNode
+            Ruler
         ) {
 /**
  * Mixin for a track that has a Y-axis scale bar on its left side.
@@ -45,9 +45,7 @@ return declare( null, {
         var min = typeof args.min == 'number' ? args.min : this.minDisplayed;
         var max = typeof args.max == 'number' ? args.max : this.maxDisplayed;
 
-
-        this.yscale = new RemoteDOMNode();
-        this.yscale.empty();
+        dom.empty( this.yscale );
 
         this._setScaleLeft();
 
@@ -69,11 +67,11 @@ return declare( null, {
         if( this.yscale ) {
             var ypos = this.getConf('yScalePosition');
             if( ypos == 'right' )
-                this.yscale.setStyle( 'right', 0 );
+                this.yscale.style.right = 0;
             else if( ypos == 'left' )
-                this.yscale.setStyle( 'left', 0 );
+                this.yscale.style.left = 0;
             else
-                this.yscale.setStyle( 'left', '50%' );
+                this.yscale.style.left = '50%';
         }
     }
 });

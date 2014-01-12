@@ -50,7 +50,7 @@ return declare( [RendererBase, DetailStatsMixin ], {
     postStartup: function() {
         this.inherited(arguments);
         this._makeScoreDisplay();
-        this.updateGraphs();
+        this.updateGraphs().then( null, Util.logError );
     },
 
     configSchema: {
@@ -231,7 +231,7 @@ return declare( [RendererBase, DetailStatsMixin ], {
         if( ! blockdata )
             return { node: blockNode };
 
-        blockNode.empty();
+        dom.empty( blockNode );
 
         var features = blockdata.features;
         var featureRects = blockdata.featureRects;
@@ -239,7 +239,7 @@ return declare( [RendererBase, DetailStatsMixin ], {
         var canvasHeight = this._canvasHeight();
         var basespan = block.getBaseSpan();
 
-        var c = blockNode.createChild(
+        var c = dom.create(
             'canvas',
             { height: canvasHeight,
               width:  this._canvasWidth(block),
@@ -253,7 +253,7 @@ return declare( [RendererBase, DetailStatsMixin ], {
               },
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
-            }
+            }, blockNode
         );
 
         //Calculate the score for each pixel in the block
@@ -263,8 +263,8 @@ return declare( [RendererBase, DetailStatsMixin ], {
                     featureRects,   dataScale,
                     blockdata.pixelScores,  blockdata.maskingSpans ); // note: spans may be undefined.
 
-
-        return { node: blockNode };
+        blockdata.canvas = c;
+        return { node: blockNode, canvas: c };
     },
 
     projectionChange: function( changeInfo ) {
@@ -276,18 +276,12 @@ return declare( [RendererBase, DetailStatsMixin ], {
     fillBlock: function( block, blockNode, changeInfo ) {
         var thisB = this;
         var i = this.inherited(arguments);
-        if( changeInfo && changeInfo.animating ) {
-            //console.log('just fill block');
-            return i.then( function() {
-                return thisB._getRenderJob()
-                            .then( function( job ) {
-                                       return job.remoteApply( 'renderBlock', [ block, new RemoteDOMNode() ] );
-                                   })
-                            .then( function( blockdata ) {
-                                       thisB.updateBlockFromWorkerResult( blockdata, block, blockNode );
-                                   });
-                           });
-        }
+        // if( changeInfo && changeInfo.animating ) {
+        //     var stash = this.get('widget').blockStash;
+        //     return i.then( function() {
+        //                        return thisB.renderBlock( block, blockNode );
+        //                    });
+        // }
         return i;
     },
 
@@ -312,42 +306,21 @@ return declare( [RendererBase, DetailStatsMixin ], {
         }
 
         return all( blockFills )
-            .then( function() { return thisB._getRenderJob(); })
-            .then( function( renderJob ) {
-                       return renderJob.remoteApply( 'workerUpdateGraphs', [] );
-                   })
-            .then( function( result ) {
-                       var blocksToUpdate = result.blocks;
-                       for( var blockid in blocksToUpdate ) {
-                           var s = thisB.getBlockStash()[blockid];
-                           if( ! s ) continue;
-                           //console.log('updating block '+blockid);
-                           thisB.updateBlockFromWorkerResult( blocksToUpdate[blockid], s.block, s.node );
-                       }
-                       if( result.widgetNode ) {
-                           result.widgetNode.replayOnto( thisB.get('widget').domNode );
-                       }
-                       if( result.yscale && thisB.yscale ) {
-                           result.yscale.replayOnto( thisB.yscale );
-                       }
-                   }, Util.cancelOK );
+            .then( function() {
+                       return thisB._getScaling()
+                           .then( function( scaling ) {
+                               thisB.scaling = scaling;
 
-    },
-    workerUpdateGraphs: function() {
-        var thisB = this;
-        return thisB._getScaling({ widgetNode: this._widgetNode })
-            .then( function( scaling ) {
-                       thisB.scaling = scaling;
-                       // render all of the blocks that need it
-                       var s = thisB.getBlockStash();
-                       var blocks = {};
-                       for( var blockid in s ) {
-                           var blockData = s[blockid];
-                           blocks[blockid] = thisB.renderBlock( blockData.block, blockData.node );
-                       }
-                       return { blocks: blocks, widgetNode: thisB._widgetNode, yscale: thisB.yscale };
-                   }
-                 );
+                               // render all of the blocks that need it
+                               var s = thisB.getBlockStash();
+                               for( var blockid in s ) {
+                                   var blockData = s[blockid];
+                                   thisB.renderBlock( blockData.block, blockData.node );
+                               }
+
+                               thisB.heightUpdate( thisB._canvasHeight() );
+                           }, Util.cancelOK );
+                   });
     },
 
     // Draw features
@@ -517,12 +490,12 @@ return declare( [RendererBase, DetailStatsMixin ], {
             // approximative properties of
             // IEEE floating point numbers
             // parsed out of BigWig files
-            scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
+            scoreDisplay.innerText = parseFloat( score.toPrecision(6) );
             return true;
         }
         else if( score && score['score'] && typeof score['score'] == 'number' ) {
             // "score" may be an object.
-            scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
+            scoreDisplay.innerText = parseFloat( score['score'].toPrecision(6) );
             return true;
         }
         else {
