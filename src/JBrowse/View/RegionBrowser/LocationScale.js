@@ -36,8 +36,8 @@ blockChange: function( blockNode, changeInfo, block ) {
             }
             this.floatingLabel.style.visibility = 'visible';
             var bName = block.getProjectionBlock().getBName();
-            if( this.floatingLabel.firstChild.innerHTML != bName )
-                this.floatingLabel.firstChild.innerHTML = bName;
+            if( this.floatingLabel.firstChild.innerText != bName )
+                this.floatingLabel.firstChild.innerText = bName;
         }
     }
     if( changeInfo.operation != 'new'

@@ -148,7 +148,7 @@ blockChange: function( blockNode, changeInfo, block ) {
         }
 
         if( changeInfo.operation == 'destroy' ) {
-            domConstruct.destroy( blockNode );
+            blockNode.parentNode.removeChild( blockNode );
         }
         else {
             this._positionBlockNode( block, blockNode, changeInfo );
