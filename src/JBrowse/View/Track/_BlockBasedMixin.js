@@ -2,13 +2,16 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/dom-construct',
-           'dojo/dom-class'
+           'dojo/dom-class',
 
+           'JBrowse/Errors'
        ], function(
            declare,
            array,
            domConstruct,
-           domClass
+           domClass,
+
+           Errors
        ) {
 
 return declare( null, {
@@ -16,6 +19,8 @@ return declare( null, {
 constructor: function(args) {
     if( !( 'genomeView' in args ) )
         throw new Error( 'genomeView argument required' );
+
+    this.blockStash = {};
 },
 
 // when a the genomeview attr is set on this object, make blocks for
@@ -123,14 +128,57 @@ _positionBlockNode: function( block, blockNode, changeInfo ) {
 },
 
 blockChange: function( blockNode, changeInfo, block ) {
-    if( changeInfo.operation == 'destroy' ) {
-        domConstruct.destroy( blockNode );
-    }
-    else {
-        this._positionBlockNode( block, blockNode, changeInfo );
-        return this[ changeInfo.animating || changeInfo.operation == 'move' ? 'animateBlock' : 'fillBlock' ]( block, blockNode, changeInfo );
-    }
-    return undefined;
+        // keep a this.blockStash object that remembers the dom nodes and
+        // blocklist blocks by their ID, and cleans them all up
+        // properly.  subclasses can stash whatever they want in here.
+        if( changeInfo.operation == 'new' ) {
+            this.blockStash[ block.id() ] = {
+                node: blockNode,
+                block: block,
+                projectionBlock: block.getProjectionBlock()
+            };
+        }
+
+        // if we are not just moving the block, we need to cnacel any
+        // in-progress block fill.
+        if( changeInfo.operation != 'move' ) {
+            var inprogress;
+            if(( inprogress = this.blockStash[block.id()] && this.blockStash[ block.id() ].fillInProgress ) && ! inprogress.isCanceled() )
+                inprogress.cancel( new Errors.Cancel( changeInfo.operation == 'destroy' ? 'block destroyed' : 'block changed' ) );
+        }
+
+        if( changeInfo.operation == 'destroy' ) {
+            domConstruct.destroy( blockNode );
+        }
+        else {
+            this._positionBlockNode( block, blockNode, changeInfo );
+            this[ changeInfo.animating || changeInfo.operation == 'move' ? 'animateBlock' : 'fillBlock' ]( block, blockNode, changeInfo );
+        }
+
+        // if not animating, also fill any blocks that are marked in
+        // the stash as needing to be filled later
+        if( ! changeInfo.animating ) {
+            if( changeInfo.operation != 'destroy' && changeInfo.operation != 'move' ) {
+                // in this case, the block will have already been filled, so don't fill later
+                delete this.blockStash[ block.id() ].fillLater;
+            }
+
+            for( var id in this.blockStash ) {
+                var b = this.blockStash[id];
+                if( b.fillLater && block.id() != id ) {
+                    this.fillBlock( b.block, b.node, b.fillLater );
+                    delete b.fillLater;
+                }
+            }
+        }
+
+        if( changeInfo.operation == 'destroy' ) {
+            delete this.blockStash[ block.id() ];
+        }
+},
+
+getBlockStash: function( block ) {
+    return block ? this.blockStash[ block.id() ] : this.blockStash;
 },
 
 animateBlock: function() {

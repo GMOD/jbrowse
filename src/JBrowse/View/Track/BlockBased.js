@@ -36,10 +36,6 @@ return declare( [ TrackView, _BlockBasedMixin ],
 {
     trackCSSClass: 'sequenceBases',
 
-    constructor: function() {
-        this.blockStash = {};
-    },
-
     animateBlock: function( block, blockNode, changeInfo ) {
         if( changeInfo.operation == 'mergeRight' ) {
             var dims = block.getDimensions();
@@ -94,53 +90,8 @@ return declare( [ TrackView, _BlockBasedMixin ],
     },
 
     blockChange: function( blockNode, changeInfo, block ) {
-        // keep a this.blockStash object that remembers the dom nodes and
-        // blocklist blocks by their ID, and cleans them all up
-        // properly.  subclasses can stash whatever they want in here.
-        if( changeInfo.operation == 'new' ) {
-            this.blockStash[ block.id() ] = {
-                node: blockNode,
-                block: block,
-                projectionBlock: block.getProjectionBlock()
-            };
-        }
-
-        // if we are not just moving the block, we need to cnacel any
-        // in-progress block fill.
-        if( changeInfo.operation != 'move' ) {
-            var inprogress;
-            if(( inprogress = this.blockStash[block.id()] && this.blockStash[ block.id() ].fillInProgress ) && ! inprogress.isCanceled() )
-                inprogress.cancel( new Errors.Cancel( changeInfo.operation == 'destroy' ? 'block destroyed' : 'block changed' ) );
-        }
-
         this.inherited(arguments);
-
-        // if not animating, also fill any blocks that are marked in
-        // the stash as needing to be filled later
-        if( ! changeInfo.animating ) {
-            if( changeInfo.operation != 'destroy' && changeInfo.operation != 'move' ) {
-                // in this case, the block will have already been filled, so don't fill later
-                delete this.blockStash[ block.id() ].fillLater;
-            }
-
-            for( var id in this.blockStash ) {
-                var b = this.blockStash[id];
-                if( b.fillLater && block.id() != id ) {
-                    this.fillBlock( b.block, b.node, b.fillLater );
-                    delete b.fillLater;
-                }
-            }
-        }
-
-        if( changeInfo.operation == 'destroy' ) {
-            delete this.blockStash[ block.id() ];
-        }
-
         this.get('renderer').blockChange( blockNode, changeInfo, block );
-    },
-
-    getBlockStash: function( block ) {
-        return block ? this.blockStash[ block.id() ] : this.blockStash;
     },
 
     heightUpdate: function( h, block ) {
