@@ -783,7 +783,7 @@ return declare(
             if( ! context )
                 return;
 
-            if( this.lastMouseover ) {
+            if( this.lastMouseover && block.fRectIndex ) {
                 var r = block.fRectIndex.getByID( this.lastMouseover.id() );
                 if( r )
                     this.renderFeature( context, r );
