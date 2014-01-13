@@ -2270,12 +2270,11 @@ createNavBox: function( parent ) {
     var four_nbsp = String.fromCharCode(160); four_nbsp = four_nbsp + four_nbsp + four_nbsp + four_nbsp;
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    var moveLeft = document.createElement("input");
-    moveLeft.type = "image";
-    moveLeft.src = this.resolveUrl( "img/slide-left.png" );
+    var moveLeft = document.createElement("img");
+    //moveLeft.type = "image";
+    moveLeft.src = this.resolveUrl( "img/Empty.png" );
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
-    moveLeft.style.height = "40px";
     navbox.appendChild(moveLeft);
     dojo.connect( moveLeft, "click", this,
                   function(event) {
@@ -2283,12 +2282,11 @@ createNavBox: function( parent ) {
                       this.view.slide(0.9);
                   });
 
-    var moveRight = document.createElement("input");
-    moveRight.type = "image";
-    moveRight.src = this.resolveUrl( "img/slide-right.png" );
+    var moveRight = document.createElement("img");
+    //moveRight.type = "image";
+    moveRight.src = this.resolveUrl( "img/Empty.png" );
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
-    moveRight.style.height = "40px";
     navbox.appendChild(moveRight);
     dojo.connect( moveRight, "click", this,
                   function(event) {
@@ -2298,12 +2296,11 @@ createNavBox: function( parent ) {
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    var bigZoomOut = document.createElement("input");
-    bigZoomOut.type = "image";
-    bigZoomOut.src = this.resolveUrl( "img/zoom-out-2.png" );
+    var bigZoomOut = document.createElement("img");
+    //bigZoomOut.type = "image";
+    bigZoomOut.src = this.resolveUrl( "img/Empty.png" );
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
-    bigZoomOut.style.height = "40px";
     navbox.appendChild(bigZoomOut);
     dojo.connect( bigZoomOut, "click", this,
                   function(event) {
@@ -2312,12 +2309,11 @@ createNavBox: function( parent ) {
                   });
 
 
-    var zoomOut = document.createElement("input");
-    zoomOut.type = "image";
-    zoomOut.src = this.resolveUrl("img/zoom-out-1.png");
+    var zoomOut = document.createElement("img");
+    //zoomOut.type = "image";
+    zoomOut.src = this.resolveUrl("img/Empty.png");
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
-    zoomOut.style.height = "40px";
     navbox.appendChild(zoomOut);
     dojo.connect( zoomOut, "click", this,
                   function(event) {
@@ -2325,12 +2321,11 @@ createNavBox: function( parent ) {
                      this.view.zoomOut();
                   });
 
-    var zoomIn = document.createElement("input");
-    zoomIn.type = "image";
-    zoomIn.src = this.resolveUrl( "img/zoom-in-1.png" );
+    var zoomIn = document.createElement("img");
+    //zoomIn.type = "image";
+    zoomIn.src = this.resolveUrl( "img/Empty.png" );
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
-    zoomIn.style.height = "40px";
     navbox.appendChild(zoomIn);
     dojo.connect( zoomIn, "click", this,
                   function(event) {
@@ -2338,12 +2333,11 @@ createNavBox: function( parent ) {
                       this.view.zoomIn();
                   });
 
-    var bigZoomIn = document.createElement("input");
-    bigZoomIn.type = "image";
-    bigZoomIn.src = this.resolveUrl( "img/zoom-in-2.png" );
+    var bigZoomIn = document.createElement("img");
+    //bigZoomIn.type = "image";
+    bigZoomIn.src = this.resolveUrl( "img/Empty.png" );
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
-    bigZoomIn.style.height = "40px";
     navbox.appendChild(bigZoomIn);
     dojo.connect( bigZoomIn, "click", this,
                   function(event) {
