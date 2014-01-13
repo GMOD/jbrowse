@@ -71,7 +71,7 @@ return declare( _RequestBased, {
                     });
   },
 
-  _request: function( url, requestOptions, credentialSlots ) {
+  request: function( url, requestOptions ) {
       var resource = this._parseURL( url );
       var downloadURL = this.resolveUrl( 'files/dropbox'+resource.path );
       return this._http().request( downloadURL, requestOptions );

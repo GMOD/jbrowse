@@ -38,7 +38,7 @@ return declare( Transport, {
       this._byteCache = byteRangeCache;
   },
 
-  request: function( resourceDefinition, requestOptions ) {
+  _doRequest: function( resourceDefinition, requestOptions, doRequest ) {
       var thisB = this;
       var deferred = new Deferred();
       var resolve = lang.hitch( deferred, 'resolve' );
@@ -48,7 +48,7 @@ return declare( Transport, {
             lang.mixin( { url: resourceDefinition, resource: resourceDefinition}, requestOptions )
          ).then(
               function( credentialSlots ) {
-                  return thisB._request( resourceDefinition, requestOptions, credentialSlots );
+                  return doRequest( resourceDefinition, requestOptions, credentialSlots );
               })
           .then(
                resolve,
@@ -56,7 +56,7 @@ return declare( Transport, {
                    when( thisB.handleError( error ) )
                        .then( function( retry ) {
                                   if( retry ) {
-                                      thisB.request( resourceDefinition )
+                                      doRequest( resourceDefinition )
                                           .then( resolve, reject );
                                   }
                                   else

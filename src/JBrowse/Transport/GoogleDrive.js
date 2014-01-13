@@ -174,10 +174,10 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
       };
   },
 
-  _request: function( url, requestOptions, credentialSlots ) {
+  request: function( url, requestOptions ) {
       var resource = this._parseURL( url );
       var thisB = this;
-      return this._getFileMeta( resource, requestOptions, credentialSlots )
+      return this._getFileMeta( resource, requestOptions )
           .then( function( fileMeta ) {
                      if( ! fileMeta.downloadUrl )
                          return null;
@@ -189,15 +189,15 @@ return declare( 'JBrowse.Transport.GoogleDrive',  _RequestBased, {
                  });
   },
 
-  _getFileMeta: function( resource, requestOptions, credentialSlots ) {
+  _getFileMeta: function( resource, requestOptions ) {
       var key = resource.fileId || resource.title && 'title = '+resource.title;
       var thisB = this;
       return this._fileMetaCache.getD( key, function() {
-          return thisB._fetchFileMeta( resource, requestOptions, credentialSlots );
+          return thisB._fetchFileMeta( resource, requestOptions );
       });
   },
 
-  _fetchFileMeta: function( resource, requestOptions, credentialSlots ) {
+  _fetchFileMeta: function( resource, requestOptions ) {
       var base = 'https://www.googleapis.com/drive/v2/files';
       var thisB = this;
       if( resource.fileId )
