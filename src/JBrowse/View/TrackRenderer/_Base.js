@@ -99,7 +99,7 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
     },
 
     animatableFill: function() {
-        return true;
+        return false;
     },
 
     getWidgetType: function() {
