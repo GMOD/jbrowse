@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added a `JBrowse/View/FeatureGlyph/Diamond` glyph that draws
+   diamond-shaped features instead of boxes.  Thanks to OICR Co-op
+   student Kevin Mohamed for implementing this!
+
 # Release 1.11.1     2014-01-07 15:48:39 EST5EDT
 
 ## Minor improvements
