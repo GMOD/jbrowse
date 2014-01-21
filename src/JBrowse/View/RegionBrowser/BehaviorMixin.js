@@ -286,7 +286,7 @@ mouseDragScrollEnd: function(event) {
         else if( vx < -2 ) vx = -2;
 
         var thisB = this;
-        var duration = 1200;
+        var duration = 400; // milliseconds over which to draw the momentum
         var startX = event.clientX;
         var endX = startX + 2/3*vx*duration; // 2/3 is integral of the quad-out easing
         var lastP;
