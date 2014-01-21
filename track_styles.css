@@ -251,6 +251,16 @@ div.helix-hist {
     cursor: pointer;
 }
 
+.diamonds, .minus-diamonds, .plus-diamonds {
+
+
+    position:absolute;
+    height: 13px;
+    background-image: url('img/glyph-diamond.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+}
+
 .plus-cds, .minus-cds {
     position:absolute;
     height: 13px;

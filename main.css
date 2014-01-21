@@ -688,6 +688,55 @@ div.overview .rubber-highlight * {
     height: 30px !important;
 }
 
+#moveLeft{
+	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+	background-position: 5px -1px;
+	background-size: 115px 67px;
+	width:55px;
+	cursor: pointer;
+}
+
+#moveRight{
+	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+	background-position: 5px -35px;
+	background-size: 115px 67px;
+	width:55px;
+	cursor: pointer;
+}
+
+#bigZoomOut{
+	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+	background-position: -80px -35px;
+	background-size: 115px 67px;
+	width:35px;	
+	cursor: pointer;
+}
+
+#zoomOut{
+	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+	background-position: -50px -35px;
+	background-size: 115px 67px;
+	width: 30px;
+	cursor: pointer;
+}
+
+#bigZoomIn{
+	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+	background-position: -80px 0px;
+	background-size: 115px 67px;
+	width:35px;
+	cursor: pointer;
+}
+
+#zoomIn{
+	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+	background-position: -50px 0px;
+	background-size: 115px 67px;
+	width: 30px;
+	cursor: pointer;
+}
+
+
 input.nav {
     font-size: 9px !important;
 }
