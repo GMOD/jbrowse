@@ -16,11 +16,6 @@ RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
 
-css-minified: $(CSS_SRCFILES)
-	java -jar $(BASEDIR)/csscompr.jar $(BASEDIR)/config.json
-	mv $(BASEDIR)/genome.css $(BASEDIR)/genome-old.css
-	rm $(BASEDIR)/genome-old.css
-	mv $(BASEDIR)/genome-new.css $(BASEDIR)/genome.css
 
 all: docs bin/wig2png
 
@@ -61,7 +56,6 @@ release-normal-test: release-normal
 PLUGINS = $(wildcard $(PLUGINDIR)/*)
 
 plugins-min: release-normal
-#	( for pdir in $(PLUGINS); do pname=`basename $$pdir`; node $(BASEDIR)/src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$$pdir/js/$$pname" --releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname $(RELEASE_FULL_DIR)/plugins/$$pname/js"; rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; done )
 	for pdir in $(PLUGINS); do  \
 		pname=`basename $$pdir`; \
 		node $(BASEDIR)/src/dojo/dojo.js load=build \
@@ -110,6 +104,9 @@ release-min: release-normal plugins-min
 	mv $(RELEASE_MIN_DIR)/src/dojo/nls $(RELEASE_MIN_DIR)/src/nls;
 
 	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
+
+        # compress the CSS
+	cd $(RELEASE_MIN_DIR) && echo '{"modules":{"concatenated": "genome.css"},"root":"./","output-path": "genome-new.css","output-wrapper":["%output%"],"charset": "UTF-8"}' > csscompr.conf.json && java -jar ../build/csscompr.jar $(RELEASE_MIN_DIR)/csscompr.conf.json && mv genome-new.css genome.css && rm csscompr.conf.json;
 
         # zip it up
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
