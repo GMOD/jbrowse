@@ -688,52 +688,42 @@ div.overview .rubber-highlight * {
     height: 30px !important;
 }
 
+
+#moveLeft, #moveRight, #bigZoomOut, #zoomOut, #bigZoomIn, #zoomIn{
+		background: url(img/scroll_zoom_sprites.png) top left no-repeat;
+		background-size: 50px 200px;
+		cursor: pointer;
+}
+
+
 #moveLeft{
-	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-	background-position: 5px -1px;
-	background-size: 115px 67px;
+	background-position: 5px -35px;
 	width:55px;
-	cursor: pointer;
 }
 
 #moveRight{
-	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-	background-position: 5px -35px;
-	background-size: 115px 67px;
+	background-position: 0px -135px;
 	width:55px;
-	cursor: pointer;
 }
 
 #bigZoomOut{
-	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-	background-position: -80px -35px;
-	background-size: 115px 67px;
-	width:35px;	
-	cursor: pointer;
+	background-position: 0px -168px;
+	width:35px;
 }
 
 #zoomOut{
-	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-	background-position: -50px -35px;
-	background-size: 115px 67px;
+	background-position: 0px -100px;
 	width: 30px;
-	cursor: pointer;
 }
 
 #bigZoomIn{
-	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-	background-position: -80px 0px;
-	background-size: 115px 67px;
+	background-position: 0px -69px;
 	width:35px;
-	cursor: pointer;
 }
 
 #zoomIn{
-	background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-	background-position: -50px 0px;
-	background-size: 115px 67px;
+	background-position: 0px -2.5px;
 	width: 30px;
-	cursor: pointer;
 }
 
 
