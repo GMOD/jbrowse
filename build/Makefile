@@ -105,9 +105,6 @@ release-min: release-normal plugins-min
 
 	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
 
-        # compress the CSS
-	cd $(RELEASE_MIN_DIR) && echo '{"modules":{"concatenated": "genome.css"},"root":"./","output-path": "genome-new.css","output-wrapper":["%output%"],"charset": "UTF-8"}' > csscompr.conf.json && java -jar ../build/csscompr.jar $(RELEASE_MIN_DIR)/csscompr.conf.json && mv genome-new.css genome.css && rm csscompr.conf.json;
-
         # zip it up
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
