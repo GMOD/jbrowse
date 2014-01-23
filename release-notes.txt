@@ -6,6 +6,11 @@
    diamond-shaped features instead of boxes.  Thanks to OICR Co-op
    student Kevin Mohamed for implementing this!
 
+ * Reference sequence tracks now display a "no sequence" message
+   instead of a bunch of blank blocks when the reference sequence
+   basepairs aren't available.  Thanks to Kevin Mohamed for
+   implementing this (issue #422).
+
 # Release 1.11.1     2014-01-07 15:48:39 EST5EDT
 
 ## Minor improvements
