@@ -93,11 +93,12 @@ return declare( [BlockBased, ExportMixin],
                     end: rightExtended
                 },
                 function( seq ) {
-					if(seq.trim() == ""){
-							blur.innerHTML = '<span class="zoom">No sequence</span>';;
-						}else{
-							dom.empty( block.domNode );
-							thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+		    if(seq.trim() == ""){
+			blur.innerHTML = '<span class="zoom">No sequence available</span>';;
+		    }
+                    else {
+			dom.empty( block.domNode );
+			thisB._fillSequenceBlock( block, blockIndex, scale, seq );
                     }
                 },
                 function() {}
