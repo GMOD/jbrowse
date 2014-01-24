@@ -15,6 +15,13 @@ define([
 
 return declare( BoxGlyph, {
 
+configSchema: {
+    slots: [
+        { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/Gene' }
+    ]
+},
+
+
 _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),

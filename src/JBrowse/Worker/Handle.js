@@ -44,6 +44,7 @@ return declare( [_RequestMixin], {
   _handleMessage: function( event ) {
       var data = event.data;
       if( data && data.requestNumber ) {
+          //console.log( 'worker says', data );
           this._handleRequestMessage( data );
       }
       else {

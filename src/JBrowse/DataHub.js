@@ -74,10 +74,12 @@ return declare( Component, {
                      .then( function( metaStore ) {
                                 return when( metaStore.fetchItemByIdentity( trackName ) )
                                     .then( function( trackmeta ) {
-                                               if( trackmeta.config )
+                                               if( trackmeta && trackmeta.config )
                                                    return thisB._instantiateTrack( trackmeta.config );
-                                               else
+                                               else {
+                                                   console.warn( 'track "%s" not found in data hub "%s"', trackName, thisB.getConf('name') );
                                                    return undefined;
+                                               }
                                            });
                             });
       }.call(this));

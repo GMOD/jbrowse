@@ -135,34 +135,16 @@ return declare( [RendererBase, DetailStatsMixin ], {
         return this.get('store').getRegionStats( region );
     },
 
-    // the canvas width in pixels for a block
-    _canvasWidth: function( block ) {
-        return Math.ceil( block.getDimensions().w );
-    },
-
-    // the canvas height in pixels for a block
-    _canvasHeight: function() {
-        return this.getConf('height');
-    },
-
     _getBlockData: function( block, blockNode, changeInfo ) {
         var thisB = this;
 
         var baseSpan = block.getBaseSpan();
         var projectionBlock = block.getProjectionBlock();
-
         var scale = projectionBlock.getScale();
-
         var canvasWidth = this._canvasWidth( block );
 
         var features = [];
-        return this.getFeatures(
-            { ref: projectionBlock.getBName(),
-              basesPerSpan: scale,
-              scale: 1/scale,
-              start: Math.floor( baseSpan.l ),
-              end: Math.ceil( baseSpan.r )
-            })
+        return this.getFeatures( this.makeStoreQueryForBlock( block, blockNode, changeInfo ) )
         .forEach(
                 function(f) {
                     if( thisB.filterFeature(f) )

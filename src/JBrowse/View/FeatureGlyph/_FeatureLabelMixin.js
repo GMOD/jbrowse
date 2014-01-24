@@ -1,11 +1,15 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+
+            'JBrowse/has',
             'JBrowse/View/_FeatureDescriptionMixin'
         ],
         function(
             declare,
             lang,
+
+            has,
             FeatureDescriptionMixin
         ) {
 var fontMeasurementsCache = {};
@@ -96,7 +100,7 @@ return declare( FeatureDescriptionMixin,  {
             font: font,
             w: dims.w * text.length,
             h: dims.h
-        }
+        };
     },
 
     /**
@@ -106,14 +110,19 @@ return declare( FeatureDescriptionMixin,  {
     measureFont: function( font ) {
         return fontMeasurementsCache[ font ]
             || ( fontMeasurementsCache[font] = function() {
-                     var ctx = document.createElement('canvas').getContext('2d');
-                     ctx.font = font;
-                     var testString = "MMMMMMMMMMMMXXXXXXXXXX1234567890-.CGCC12345";
-                     var m = ctx.measureText( testString );
-                     return {
-                         h: m.height || parseInt( font.match(/(\d+)px/)[1] ),
-                         w: m.width / testString.length
-                     };
+                     if( has('dom') ) {
+                         var ctx = document.createElement('canvas').getContext('2d');
+                         ctx.font = font;
+                         var testString = "MMMMMMMMMMMMXXXXXXXXXX1234567890-.CGCC12345";
+                         var m = ctx.measureText( testString );
+                         return {
+                             h: m.height || parseInt( font.match(/(\d+)px/)[1] ),
+                             w: m.width / testString.length
+                         };
+                     } else {
+                         var fpx = parseInt( font.match(/(\d+)px/)[1] );
+                         return { h: fpx*1.05, w: fpx*0.5 };
+                     }
                  }.call( this ));
     }
 });

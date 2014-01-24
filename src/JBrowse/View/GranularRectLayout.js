@@ -156,7 +156,7 @@ return declare( null,
      *  the features.
      */
     discardRange: function( left, right ) {
-        //console.log( 'discard', left, right );
+        console.log( 'discard', left, right );
         var pLeft   = Math.floor( left   / this.pitchX );
         var pRight  = Math.floor( right  / this.pitchX );
         var bitmap = this.bitmap;

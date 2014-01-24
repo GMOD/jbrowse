@@ -35,7 +35,7 @@ var SerializationUtils = {
                 return array.map( thing, function( subthing ) {
                     return deflate( subthing, seen );
                 });
-            } else if( typeof thing == 'object' ) {
+            } else if( typeof thing == 'object' && thing !== null ) {
                 seen = (seen||[]).concat(thing);
                 var deflated = {};
                 for( var n in thing ) {
@@ -71,7 +71,7 @@ var SerializationUtils = {
                 for( var i = 0; i < data.length; i++ )
                     data[i] = _instantiate( data[i], context, classesByName );
             }
-            else if( typeof data == 'object' ) {
+            else if( typeof data == 'object' && data !== null ) {
                 var className = data.$class;
                 delete data.$class;
                 if( className ) {
@@ -120,7 +120,7 @@ var SerializationUtils = {
                 for( var i = 0; i<data.length; i++ )
                     gatherClassNames( classlist, data[i] );
             }
-            else if( typeof data == 'object' ) {
+            else if( typeof data == 'object' && data !== null ) {
                 if( data.$class )
                     classlist.push( data.$class.replace(/\.[^\.]+$/,'') );
 

@@ -66,6 +66,11 @@ return declare( Destroyable, {
         return this._projectionBlock;
     },
 
+    // return the distance, in pixels, from the left side of this block to the given basepair
+    bpToPx: function( bp ) {
+        return this._projectionBlock.reverseProjectPoint( bp ) - this._left;
+    },
+
     getBaseSpan: function() {
         var dims = this.getDimensions();
         var span = {

@@ -16,7 +16,21 @@ define([
 return declare( Slot, {
 
     normalizeValue: function( value )  {
-        return value === undefined || value instanceof Color ? value : new Color( value );
+        if( value === undefined )
+            return value;
+        if(!( value instanceof Color ))
+            value = new Color( value );
+        if( ! value.deflate )
+            value.deflate = function() {
+                return { $class: 'dojo/colors',
+                         a: this.a,
+                         b: this.b,
+                         g: this.g,
+                         r: this.r
+                       };
+            };
+
+        return value;
     }
 
 });

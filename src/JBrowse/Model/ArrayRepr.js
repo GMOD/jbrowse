@@ -1,5 +1,5 @@
-define( [],
-        function() {
+define( ['dojo/_base/array'],
+        function( array ) {
 
 /**
  * @class JBrowse.Model.ArrayRepr
@@ -250,6 +250,19 @@ ArrayRepr.prototype._makeAccessors = function() {
             },
             tags: function() {
                 return tags[ this[0] ] || [];
+            },
+            // these arrayreprs just deflate to be SimpleFeatures
+            deflate: function() {
+                var deflated = {
+                    $class: 'JBrowse/Model/SimpleFeature',
+                    id: this._uniqueID
+                };
+                var classNum = this[0];
+                var data = deflated.data = {};
+                for( var field in indices) {
+                    data[field] = this[ indices[field][classNum] ];
+                }
+                return deflated;
             }
         };
     accessors.get.field_accessors = {};
@@ -258,8 +271,8 @@ ArrayRepr.prototype._makeAccessors = function() {
     // make a data structure as: { attr_name: [offset,offset,offset], }
     // that will be convenient for finding the location of the attr
     // for a given class like: indexForAttr{attrname}[classnum]
-    dojo.forEach( this.classes, function(cdef,classnum) {
-        dojo.forEach( cdef.attributes || [], function(attrname,offset) {
+    array.forEach( this.classes, function(cdef,classnum) {
+        array.forEach( cdef.attributes || [], function(attrname,offset) {
             indices[attrname] = indices[attrname] || [];
             indices[attrname][classnum] = offset + 1;
 
@@ -271,7 +284,7 @@ ArrayRepr.prototype._makeAccessors = function() {
     });
 
     // lowercase all the class attributes
-    tags = dojo.map( this.classes, function(c) {
+    tags = array.map( this.classes, function(c) {
         return c.attributes;
     });
 

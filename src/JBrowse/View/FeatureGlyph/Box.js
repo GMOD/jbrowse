@@ -24,24 +24,26 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
     configSchema: {
         slots: [
-                    { name: 'maxDescriptionLength', defaultValue: 70, type: 'integer' },
-                    { name: 'color', defaultValue: 'goldenrod', type: 'Color' },
-                    { name: 'mouseovercolor', defaultValue: 'rgba(0,0,0,0.3)', type: 'Color' },
-                    { name: 'borderColor', defaultValue: undefined, type: 'Color' },
-                    { name: 'borderWidth', defaultValue: 0.5, type: 'float' },
-                    { name: 'height', defaultValue: 11, type: 'float' },
-                    { name: 'marginBottom', defaultValue: 2, type: 'float' },
+            { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/Box' },
 
-                    { name: 'strandArrow', defaultValue: true, type: 'boolean' },
+            { name: 'maxDescriptionLength', defaultValue: 70, type: 'integer' },
+            { name: 'color', defaultValue: 'goldenrod', type: 'Color' },
+            { name: 'mouseovercolor', defaultValue: 'rgba(0,0,0,0.3)', type: 'Color' },
+            { name: 'borderColor', defaultValue: undefined, type: 'Color' },
+            { name: 'borderWidth', defaultValue: 0.5, type: 'float' },
+            { name: 'height', defaultValue: 11, type: 'float' },
+            { name: 'marginBottom', defaultValue: 2, type: 'float' },
 
-                    { name: 'label', defaultValue: 'name, id', type: 'string' },
-                    { name: 'textFont', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
-                    { name: 'textColor', defaultValue:  'black', type: 'Color' },
-                    { name: 'text2Color', defaultValue: 'blue', type: 'Color' },
-                    { name: 'text2Font', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
+            { name: 'strandArrow', defaultValue: true, type: 'boolean' },
 
-                    { name: 'description', defaultValue: 'note, description', type: 'string' }
-                ]
+            { name: 'label', defaultValue: 'name, id', type: 'string' },
+            { name: 'textFont', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
+            { name: 'textColor', defaultValue:  'black', type: 'Color' },
+            { name: 'text2Color', defaultValue: 'blue', type: 'Color' },
+            { name: 'text2Font', defaultValue: 'normal 12px Univers,Helvetica,Arial,sans-serif', type: 'string' },
+
+            { name: 'description', defaultValue: 'note, description', type: 'string' }
+        ]
     },
 
     getFeatureHeight: function( viewArgs, feature ) {
@@ -64,14 +66,13 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     _getFeatureRectangle: function( viewArgs, feature ) {
         var block = viewArgs.block;
         var fRect = {
-            l: block.bpToX( feature.get('start') ),
+            l: block.bpToPx( feature.get('start') ),
             h: this.getFeatureHeight(viewArgs, feature),
-            viewInfo: viewArgs,
             f: feature,
-            glyph: this
+            glyphType: this.getConf('type')
         };
 
-        fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
+        fRect.w = block.bpToPx( feature.get('end') ) - fRect.l;
 
         // save the original rect in `rect` as the dimensions
         // we'll use for the rectangle itself
@@ -181,26 +182,29 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
                 }.call(this));
     },
 
-    renderFeature: function( context, fRect ) {
+    renderFeature: function( block, context, fRect ) {
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
-        this.renderBox( context, fRect.viewInfo, fRect.f, fRect.t, fRect.rect.h, fRect.f );
+        // context.strokeStyle = 'black';
+        // context.strokeRect( fRect.l, fRect.t, fRect.w, fRect.h );
+
+        this.renderBox( block, context, fRect.f, fRect.t, fRect.rect.h, fRect.f );
         this.renderLabel( context, fRect );
         this.renderDescription( context, fRect );
         this.renderArrowhead( context, fRect );
     },
 
     // top and height are in px
-    renderBox: function( context, viewInfo, feature, top, overallHeight, parentFeature, style ) {
-        var left  = viewInfo.block.bpToX( feature.get('start') );
-        var width = viewInfo.block.bpToX( feature.get('end') ) - left;
+    renderBox: function( block, context, feature, top, overallHeight, parentFeature, style ) {
+        var left  = block.bpToPx( feature.get('start') );
+        var width = block.bpToPx( feature.get('end') ) - left;
         //left = Math.round( left );
         //width = Math.round( width );
 
         style = style || lang.hitch( this, 'getStyle' );
 
-        var height = this.getFeatureHeight( viewInfo, feature );
+        var height = this.getFeatureHeight( block, feature );
         if( ! height )
             return;
         if( height != overallHeight )
@@ -285,10 +289,10 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         }
     },
 
-    updateStaticElements: function( context, fRect, viewArgs ) {
+    updateStaticElements: function( block, context, fRect ) {
+
         var vMin = viewArgs.minVisible;
         var vMax = viewArgs.maxVisible;
-        var block = fRect.viewInfo.block;
 
         if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
             return;

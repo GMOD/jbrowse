@@ -103,8 +103,12 @@ var Util = {
     // JBrowse cancel error (which is a subclass of the dojo cancel
     // error)
     cancelOK: function( error ) {
-        if(!(  error instanceof Errors.Cancel ) ) {
-            //Util.logError( error );
+        var isCancel = false;
+        try {
+            isCancel = (error instanceof Errors.Cancel) || ( error instanceof DojoCancelError );
+        } catch(e) {}
+        if( ! isCancel ) {
+            Util.logError( error );
             throw error;
         }
     },

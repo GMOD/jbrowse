@@ -99,11 +99,12 @@
         },
 
         {
+            "name" : "Features - Example Features",
+            "store": "default",
             "views": {
                 "default": {
-                    "style" : { "className" : "feature2" },
                     "query": { "set": "ExampleFeatures" },
-                    "name" : "Features - Example Features"
+                    "type": "JBrowse/View/TrackRenderer/Glyphs"
                 }
             }
         },

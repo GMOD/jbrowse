@@ -21,6 +21,8 @@ return declare( SegmentsGlyph, {
 
 configSchema: {
     slots: [
+        { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/ProcessedTranscript' },
+
         { name: 'utrColor',
           type: 'Color',
           defaultValue: function( feature, variable, glyph, track ) {

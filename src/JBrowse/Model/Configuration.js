@@ -24,7 +24,6 @@ var Configuration = declare( null, {
 
     constructor: function( schema, base ) {
         this._base  = {};
-        this._local = {};
         this._compilationCache = {};
         this._listeners = {};
 
@@ -35,6 +34,9 @@ var Configuration = declare( null, {
 
         if( base )
             this.loadBase( base );
+
+        // TODO: load the local configuration
+        this._local = {};
     },
 
     set: function( key, val ) {

@@ -116,7 +116,7 @@ _makeRenderingBlockList: function( projection ) {
         }));
 },
 
-// makes a new projection block for the our projection blocklist
+// makes a new projection block for the projection blocklist
 _makeRenderingBlock: function( args, projectionChange ) {
     var block = new RenderingBlock( args );
     this._blockListeners.notify(
@@ -193,8 +193,9 @@ configSchema: {
 
         { name: 'visibleTracks', type: 'multi-array',
           defaultValue: [
-              //['default','Reference sequence'],
-              ['default','BigWig XY - volvox_microarray']
+              ['default','Reference sequence'],
+               ['default','BigWig XY - volvox_microarray'],
+              ['default', "Features - Example Features" ]
           ]
           //defaultValue: []
         },

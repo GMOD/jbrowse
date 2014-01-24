@@ -15,14 +15,16 @@ return declare( BoxGlyph, {
 
 configSchema: {
     slots: [
-            { name: 'connectorColor', defaultValue: '#333', type: 'Color' },
-            { name: 'connectorThickness', defaultValue: 1, type: 'float' },
-            { name: 'borderColor', defaultValue: 'rgba( 0, 0, 0, 0.3 )', type: 'Color' },
-            { name: 'subParts', defaultValue: function() { return true; }, type: 'function' } // accept all subparts by default
+        { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/Segments' },
+
+        { name: 'connectorColor', defaultValue: '#333', type: 'Color' },
+        { name: 'connectorThickness', defaultValue: 1, type: 'float' },
+        { name: 'borderColor', defaultValue: 'rgba( 0, 0, 0, 0.3 )', type: 'Color' },
+        { name: 'subParts', defaultValue: function() { return true; }, type: 'function' } // accept all subparts by default
     ]
 },
 
-renderFeature: function( context, fRect ) {
+renderFeature: function( block, context, fRect ) {
     if( this.track.displayMode != 'collapsed' )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
@@ -48,7 +50,7 @@ renderConnector: function( context, fRect ) {
     }
 },
 
-renderSegments: function( context, fRect ) {
+renderSegments: function( block, context, fRect ) {
     var subparts = this._getSubparts( fRect.f );
     if( ! subparts.length ) return;
 
@@ -56,13 +58,13 @@ renderSegments: function( context, fRect ) {
     var parentFeature = fRect.f;
     function style( feature, stylename ) {
         if( stylename == 'height' )
-            return thisB._getFeatureHeight( fRect.viewInfo, feature );
+            return thisB._getFeatureHeight( block, feature );
 
         return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
     }
 
     for( var i = 0; i < subparts.length; ++i ) {
-        this.renderBox( context, fRect.viewInfo, subparts[i], fRect.t, fRect.rect.h, fRect.f, style );
+        this.renderBox( block, context, subparts[i], fRect.t, fRect.rect.h, fRect.f, style );
     }
 },
 

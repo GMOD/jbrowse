@@ -92,7 +92,7 @@ return declare( SeqFeatureStore,
                               },
                       function(error) {
                           if( error.response.status == 404 )
-                              return thisB._handleTrackInfo( {}, url );
+                              return thisB._parseTrackInfo( {}, url );
                           else if( error.response.status != 200)
                               throw "Server returned an HTTP " + error.response.status + " error";
                           else
@@ -260,8 +260,8 @@ return declare( SeqFeatureStore,
                                     // track/chromosome combination)
 
                                     // only need to decorate a feature once
-                                    if (! feature.decorated)  {
-                                        var uniqueID = path.join(",");
+                                    if( ! feature.decorated )  {
+                                        var uniqueID = data.nclist.baseURL + '&p=' + path.join(",");
                                         thisB._decorate_feature( accessors, feature, uniqueID );
                                     }
                                     return  generator.emit( feature );
@@ -280,6 +280,7 @@ return declare( SeqFeatureStore,
         // possibly include set method in decorations? not currently
         //    feature.set = accessors.set;
         feature.tags = accessors.tags;
+        feature.deflate = accessors.deflate;
         feature._uniqueID = id;
         feature.id = idfunc;
         feature._parent  = parent;

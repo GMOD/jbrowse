@@ -19,6 +19,7 @@ define([
            'JBrowse/has',
            'JBrowse/Util',
             'JBrowse/DOMNode/Remote',
+           './_ErrorsMixin',
            'JBrowse/_FeatureFiltererMixin',
            'JBrowse/_ConfigurationMixin'
        ],
@@ -33,10 +34,23 @@ define([
            has,
            Util,
            RemoteDOMNode,
+           _TrackErrorsMixin,
            _FeatureFiltererMixin,
            _ConfigurationMixin
        ) {
-return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMixin], {
+return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMixin, _TrackErrorsMixin ], {
+
+    configSchema: {
+         slots: [
+             { name: 'type', type: 'string', required: true },
+             { name: 'widgetType', type: 'string', defaultValue: 'JBrowse/View/Track/BlockBased' },
+             { name: 'query',
+               type: 'object',
+               defaultValue: {},
+               description: 'object of additional query variables that this view will always pass to the store(s) in its queries'
+             }
+        ]
+    },
 
     constructor: function( args ) {
         Util.validate( args, { store: 'object' } );
@@ -73,29 +87,33 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
 
     postStartup: function() {}, //< called after startup.  not actually in dijit.
 
+    // expansion is the number of pixels on either side of the block to query for
+    makeStoreQueryForBlock: function( block, blockNode, changeInfo, expansion ) {
+        var baseSpan = block.getBaseSpan();
+        var projectionBlock = block.getProjectionBlock();
+        var scale = projectionBlock.getScale();
+
+        var bpExpansion = Math.round( (expansion||0) * scale );
+
+        return lang.mixin(
+            { ref: projectionBlock.getBName(),
+              basesPerSpan: scale,
+              scale: 1/scale,
+              start: Math.floor( baseSpan.l - bpExpansion ),
+              end: Math.ceil( baseSpan.r + bpExpansion )
+            },
+            this.getConf('query')
+        );
+    },
 
     // a few methods that delegate to the widget that is displaying us
     heightUpdate: function() {
         var w = this.get('widget');
         return w.heightUpdate.apply( w, arguments );
     },
-    removeTrackMessage: function() {
-        var w = this.get('widget');
-        return w.removeTrackMessage.apply( w, arguments );
-    },
-    showTrackMessage: function() {
-        var w = this.get('widget');
-        return w.showTrackMessage.apply( w, arguments );
-    },
+
     getBlockStash: function( block ) {
         return block ? this.blockStash[ block.id() ] : this.blockStash;
-    },
-
-    configSchema: {
-         slots: [
-             { name: 'type', type: 'string', required: true },
-             { name: 'widgetType', type: 'string', defaultValue: 'JBrowse/View/Track/BlockBased' }
-         ]
     },
 
     animatableFill: function() {
@@ -104,6 +122,17 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
 
     getWidgetType: function() {
         return this.getConf('widgetType');
+    },
+
+
+    // the canvas width in pixels for a block
+    _canvasWidth: function( block ) {
+        return Math.ceil( block.getDimensions().w );
+    },
+
+    // the canvas height in pixels for a block
+    _canvasHeight: function() {
+        return this.getConf('height');
     },
 
     /**
@@ -123,7 +152,7 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
         return this._getRenderJob()
             .then( function( renderJob ) {
                        return renderJob.remoteApply( 'workerFillBlock', [ block, new RemoteDOMNode(), changeInfo ]);
-                  })
+                   })
             .then( function( blockdata ) {
                        return thisB.updateBlockFromWorkerResult( blockdata, block, blockNode, changeInfo );
                    });

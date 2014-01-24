@@ -114,7 +114,7 @@ return declare( [Component,Stateful], {
                              +viewName+'" in track "'+this.getConf('name')+'"' );
         var thisB = this;
         return all( [ Util.loadJSClass( viewconf.type || this.getConf('defaultViewType') ),
-                      thisB.get('dataHub').openStore( viewconf.store )
+                      thisB.get('dataHub').openStore( viewconf.store || this.getConf('store') || 'default' )
                     ])
             .then( function( stuff ) {
                        var TrackRendererClass = stuff[0], store = stuff[1];

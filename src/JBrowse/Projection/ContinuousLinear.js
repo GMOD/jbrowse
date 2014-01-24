@@ -3,6 +3,7 @@ define([
            'dojo/_base/lang',
            'dojo/Deferred',
 
+           'JBrowse/Errors',
            '../Projection',
            'JBrowse/Util'
        ],
@@ -11,6 +12,7 @@ define([
            lang,
            Deferred,
 
+           Errors,
            Projection,
            Util
        ) {
@@ -183,7 +185,7 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   // resolves when the projection finishes animating
   _animateTo: function( endValues, milliseconds ) {
       if( this._currentAnimation )
-          this._currentAnimation.cancel('new animation requested');
+          this._currentAnimation.cancel( new Errors.Cancel('new animation requested') );
 
       var startValues = lang.mixin( {}, this );
       endValues = this._normalize( endValues );

@@ -2,19 +2,28 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/aspect',
-           'JBrowse/Component'
+
+           'JBrowse/_ConfigurationMixin'
        ],
        function(
            declare,
            array,
            aspect,
-           Component
+
+           _ConfigurationMixin
        ) {
 
-return declare( Component, {
+return declare( _ConfigurationMixin, {
+
+    configSchema: {
+        slots: [
+            { name: 'type', type: 'string', required: true, description: 'the JS class name of this glyph' }
+        ]
+    },
+
     constructor: function( args ) {
         this.track = args.track;
-        this.booleanAlpha = 0.17;
+        var booleanAlpha = this.booleanAlpha = 0.17;
 
 
         // This allows any features that are completely masked to have their transparency set before being rendered,
@@ -36,7 +45,7 @@ return declare( Component, {
                                     end = m.l + m.w;
                                 }
                                 if(end >= l + w) {
-                                    context.globalAlpha = this.booleanAlpha;
+                                    context.globalAlpha = booleanAlpha;
                                     fRect.noMask = true;
                                 }
                             }
@@ -79,25 +88,22 @@ return declare( Component, {
     /**
      * Get the dimensions of the rendered feature in pixels.
      */
-    _getFeatureRectangle: function( viewInfo, feature ) {
-        var block = viewInfo.block;
+    _getFeatureRectangle: function( viewArgs, feature ) {
         var fRect = {
-            l: block.bpToX( feature.get('start') ),
+            l: block.bpToPx( feature.get('start') ),
             h: this.getFeatureHeight( viewArgs, feature ),
-            viewInfo: viewInfo,
             f: feature,
-            glyph: this
+            glyphType: this.getConf('type')
         };
+        console.log( feature.get('start')+' -> '+fRect.l );
 
-        fRect.w = block.bpToX( feature.get('end') ) - fRect.l;
+        fRect.w = block.bpToPx( feature.get('end') ) - fRect.l;
 
-        this._addMasksToRect( viewInfo, feature, fRect );
+        this._addMasksToRect( block, feature, fRect );
     },
 
-    _addMasksToRect: function( viewArgs, feature, fRect ) {
+    _addMasksToRect: function( block, feature, fRect ) {
         // if the feature has masks, add them to the fRect.
-        var block = viewArgs.block;
-
         if( feature.masks ) {
             fRect.m = [];
             array.forEach( feature.masks, function(m) {
@@ -111,12 +117,21 @@ return declare( Component, {
     },
 
     layoutFeature: function( viewArgs, layout, feature ) {
+        var block = viewArgs.block;
         var fRect = this._getFeatureRectangle( viewArgs, feature );
+        // console.log(
+        //     'laid out '+feature.get('start')+'-'+feature.get('end')
+        //     +' to '+fRect.l+'-'+(fRect.l+fRect.w)
+        // );
 
-        var scale = viewArgs.scale;
-        var leftBase = viewArgs.leftBase;
+        var pBlock = block.getProjectionBlock();
+
+        var scale = pBlock.getScale();
+        var span = block.getBaseSpan();
+        var leftBase = span.l;
         var startbp = fRect.l/scale + leftBase;
         var endbp   = (fRect.l+fRect.w)/scale + leftBase;
+        //console.log( 'layout '+feature.id() );
         fRect.t = layout.addRect(
             feature.id(),
             startbp,
@@ -177,11 +192,11 @@ return declare( Component, {
         });
     },
 
-    getFeatureHeight: function( viewArgs, feature ) {
+    getFeatureHeight: function( block, feature ) {
         return this.getStyle( feature, 'height');
     },
 
-    updateStaticElements: function( context, fRect, viewArgs ) {
+    updateStaticElements: function( block, context, fRect ) {
 
     }
 
