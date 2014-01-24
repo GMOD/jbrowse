@@ -2252,7 +2252,7 @@ cookie: function(keyWithoutId,value) {
         return localStorage.getItem( keyWithId );
     }
     else if(value){
-		return localStorage.setItem(keyWithId, value);
+        return localStorage.setItem(keyWithId, value);
 		}
 
     return (localStorage.getItem( keyWithId ) || dojo.cookie(keyWithoutId));
