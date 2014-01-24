@@ -2241,17 +2241,17 @@ _limitLocMap: function( locMap, maxEntries ) {
  * @returns the new value of the cookie, same as dojo.cookie
  */
 cookie: function() {
-    arguments[0] = this.config.containerID + '-' + arguments[0] + '-' + this.config.dataset_id;
+    argumentKey = this.config.containerID + '-' + arguments[0] +  '-' + (this.config.dataset_id || '');
     if( typeof arguments[1] == 'object' )
         arguments[1] = dojo.toJson( arguments[1] );
 
     var sizeLimit= this.config.cookieSizeLimit || 1200;
     if( arguments[1] && arguments[1].length > sizeLimit ) {
-        console.warn("not setting cookie '"+arguments[0]+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
-        return localStorage.getItem( arguments[0] );
-    }else if(arguments[1]){return localStorage.setItem(arguments[0], arguments[1]);}
+        console.warn("not setting cookie '"+argumentKey+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
+        return localStorage.getItem( argumentKey );
+    }else if(arguments[1]){return localStorage.setItem(argumentKey, arguments[1]);}
 
-    return localStorage.getItem( arguments[0] );
+    return (localStorage.getItem( argumentKey ) || dojo.cookie.apply( dojo.cookie, arguments ));
 },
 
 /**
