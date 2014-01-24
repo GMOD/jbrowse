@@ -157,7 +157,7 @@ constructor: function(params) {
                            //    if no URL track param then add last viewed tracks via tracks cookie
                            //    if no URL param and no tracks cookie, then use defaultTracks 
                            if (thisB.config.forceTracks)   { tracksToShow = tracksToShow.concat(thisB.config.forceTracks.split(",")); } 
-                           else if (thisB.cookie("tracks")) { tracksToShow = tracksToShow.concat(thisB.cookie("tracks").split(",")); }
+                           else if (localStorage.getItem("tracks-"+thisB.config.dataset_id)) { tracksToShow = tracksToShow.concat(localStorage.getItem("tracks-"+thisB.config.dataset_id).split(",")); }
                            else if (thisB.config.defaultTracks) { tracksToShow = tracksToShow.concat(thisB.config.defaultTracks.split(",")); }
                            // currently, force "DNA" _only_ if no other guides as to what to show?
                            //    or should this be changed to always force DNA to show?
@@ -1687,9 +1687,8 @@ createTrackList: function() {
                      // listen for track-visibility-changing messages from
                      // views and update our tracks cookie
                      this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch( this, function() {
-                         this.cookie( "tracks",
-                                      this.view.visibleTrackNames().join(','),
-                                      {expires: 60});
+                         localStorage.setItem( "tracks-"+this.config.dataset_id,
+                                      this.view.visibleTrackNames().join(','));
                      }));
 
                      deferred.resolve({ success: true });
