@@ -33,16 +33,20 @@ return declare( null,
         this.pitchX = Math.round( this.pitchX ) || 1;
         this.pitchY = Math.round( this.pitchY ) || 1;
 
-        this.bitmap = [];
+        this.bitmap = {};
         this.rectangles = {};
         this.maxHeight = Math.ceil( ( args.maxHeight || Infinity ) / this.pitchY );
         this.pTotalHeight = 0; // total height, in units of bitmap squares (px/pitchY)
+
+        //console.log( 'new layout', this );
     },
 
     /**
      * @returns {Number} top position for the rect, or Null if laying out the rect would exceed maxHeight
      */
     addRect: function( id, left, right, height, data ) {
+
+        //console.log( 'addRect', arguments );
 
         // if we have already laid it out, return its layout
         if( id in this.rectangles ) {
@@ -56,7 +60,7 @@ return declare( null,
         }
 
         var pLeft   = Math.floor( left   / this.pitchX );
-        var pRight  = Math.floor( right  / this.pitchX );
+        var pRight  = Math.ceil(  right  / this.pitchX );
         var pHeight = Math.ceil(  height / this.pitchY );
 
         var midX = Math.floor((pLeft+pRight)/2);
@@ -120,7 +124,7 @@ return declare( null,
      */
     _autovivify: function( array, subscript ) {
         return array[subscript] ||
-            (function() { var a = []; array[subscript] = a; return a; })();
+            (function() { var a = {}; array[subscript] = a; return a; })();
     },
 
     _addRectToBitmap: function( rect, data ) {

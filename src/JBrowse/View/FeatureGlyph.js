@@ -118,6 +118,7 @@ return declare( _ConfigurationMixin, {
 
     layoutFeature: function( viewArgs, layout, feature ) {
         var block = viewArgs.block;
+        var dims = block.getDimensions();
         var fRect = this._getFeatureRectangle( viewArgs, feature );
         // console.log(
         //     'laid out '+feature.get('start')+'-'+feature.get('end')
@@ -125,12 +126,8 @@ return declare( _ConfigurationMixin, {
         // );
 
         var pBlock = block.getProjectionBlock();
-
-        var scale = pBlock.getScale();
-        var span = block.getBaseSpan();
-        var leftBase = span.l;
-        var startbp = fRect.l/scale + leftBase;
-        var endbp   = (fRect.l+fRect.w)/scale + leftBase;
+        var startbp = pBlock.projectPoint( dims.l + fRect.l );
+        var endbp   = pBlock.projectPoint( dims.l + fRect.l + fRect.w );
         //console.log( 'layout '+feature.id() );
         fRect.t = layout.addRect(
             feature.id(),

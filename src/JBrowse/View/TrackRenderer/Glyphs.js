@@ -273,7 +273,8 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
         // thisB.renderClickMap( args, fRects );
     },
 
-    // create the layout if we need to, and if we can
+    // get the appropriate layout object for the given block.  use the
+    // given hints for instantiating it if needed.
     _getLayout: function( block, hints ) {
         if( this._lastLayout.block === block )
             return this._lastLayout.layout;
@@ -283,10 +284,11 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
         var layoutKey = pBlock.getBName()+'.'+scale;
 
         var layout = this._layouts[ layoutKey ] || ( this._layouts[ layoutKey ] = function() {
-            var pitchY = this.getConf('layoutPitchY') || hints.glyphHeight*0.7 || 4;
+            //console.log( 'new layout '+layoutKey );
+            var pitchY = this.getConf('layoutPitchY') || hints && hints.glyphHeight*0.7 || 4;
             return new Layout(
                 {
-                    pitchX: 4/scale,
+                    pitchX: 4*scale,
                     pitchY: pitchY,
                     maxHeight: this.getConf('maxHeight'),
                     displayMode: this.getConf('displayMode')
