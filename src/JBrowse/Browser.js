@@ -2240,18 +2240,18 @@ _limitLocMap: function( locMap, maxEntries ) {
  * @param [...] same as dojo.cookie
  * @returns the new value of the cookie, same as dojo.cookie
  */
-cookie: function() {
-    argumentKey = this.config.containerID + '-' + arguments[0] +  '-' + (this.config.dataset_id || '');
-    if( typeof arguments[1] == 'object' )
-        arguments[1] = dojo.toJson( arguments[1] );
+cookie: function(keyWithoutId,value) {
+    keyWithId = this.config.containerID + '-' + keyWithoutId +  '-' + (this.config.dataset_id || '');
+    if( typeof value == 'object' )
+        value = dojo.toJson( value );
 
     var sizeLimit= this.config.cookieSizeLimit || 1200;
-    if( arguments[1] && arguments[1].length > sizeLimit ) {
-        console.warn("not setting cookie '"+argumentKey+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
-        return localStorage.getItem( argumentKey );
-    }else if(arguments[1]){return localStorage.setItem(argumentKey, arguments[1]);}
+    if( value && value.length > sizeLimit ) {
+        console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
+        return localStorage.getItem( keyWithId );
+    }else if(value){return localStorage.setItem(keyWithId, value);}
 
-    return (localStorage.getItem( argumentKey ) || dojo.cookie.apply( dojo.cookie, arguments ));
+    return (localStorage.getItem( keyWithId ) || dojo.cookie(keyWithoutId));
 },
 
 /**
