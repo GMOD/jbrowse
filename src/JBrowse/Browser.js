@@ -157,7 +157,7 @@ constructor: function(params) {
                            //    if no URL track param then add last viewed tracks via tracks cookie
                            //    if no URL param and no tracks cookie, then use defaultTracks 
                            if (thisB.config.forceTracks)   { tracksToShow = tracksToShow.concat(thisB.config.forceTracks.split(",")); } 
-                           else if (localStorage.getItem("tracks-"+thisB.config.dataset_id)) { tracksToShow = tracksToShow.concat(localStorage.getItem("tracks-"+thisB.config.dataset_id).split(",")); }
+                           else if (thisB.cookie("tracks")) { tracksToShow = tracksToShow.concat(thisB.cookie("tracks").split(",")); }
                            else if (thisB.config.defaultTracks) { tracksToShow = tracksToShow.concat(thisB.config.defaultTracks.split(",")); }
                            // currently, force "DNA" _only_ if no other guides as to what to show?
                            //    or should this be changed to always force DNA to show?
@@ -1687,8 +1687,9 @@ createTrackList: function() {
                      // listen for track-visibility-changing messages from
                      // views and update our tracks cookie
                      this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch( this, function() {
-                         localStorage.setItem( "tracks-"+this.config.dataset_id,
-                                      this.view.visibleTrackNames().join(','));
+                         this.cookie( "tracks",
+                                      this.view.visibleTrackNames().join(','),
+                                      {expires: 60});
                      }));
 
                      deferred.resolve({ success: true });
@@ -2240,17 +2241,17 @@ _limitLocMap: function( locMap, maxEntries ) {
  * @returns the new value of the cookie, same as dojo.cookie
  */
 cookie: function() {
-    arguments[0] = this.config.containerID + '-' + arguments[0];
+    arguments[0] = this.config.containerID + '-' + arguments[0] + '-' + this.config.dataset_id;
     if( typeof arguments[1] == 'object' )
         arguments[1] = dojo.toJson( arguments[1] );
 
     var sizeLimit= this.config.cookieSizeLimit || 1200;
     if( arguments[1] && arguments[1].length > sizeLimit ) {
         console.warn("not setting cookie '"+arguments[0]+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
-        return dojo.cookie( arguments[0] );
-    }
+        return localStorage.getItem( arguments[0] );
+    }else if(arguments[1]){return localStorage.setItem(arguments[0], arguments[1]);}
 
-    return dojo.cookie.apply( dojo.cookie, arguments );
+    return localStorage.getItem( arguments[0] );
 },
 
 /**
