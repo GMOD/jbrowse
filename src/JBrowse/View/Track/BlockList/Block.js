@@ -70,6 +70,27 @@ return declare( Destroyable, {
     bpToPx: function( bp ) {
         return this._projectionBlock.reverseProjectPoint( bp ) - this._left;
     },
+    // convert pixels relative to the document to bp coordinates
+    docPxToBp: function( px ) {
+        return this._projectionBlock.projectPoint( px );
+    },
+    // convert pixels relative to the block to bp coordinates
+    blockPxToBp: function( px ) {
+        return this._projectionBlock.projectPoint( px + this._left );
+    },
+    containsBasePosition: function( refName, bp ) {
+        if( this._projectionBlock.getBName() != refName )
+            return false;
+
+        var lbp = this._projectionBlock.projectPoint( this._left );
+        var rbp = this._projectionBlock.projectPoint( this._right );
+        return !( bp > rbp || bp < lbp );
+    },
+    containsDocPx: function( px ) {
+        return !( this._right < px || this._left > px );
+    },
+
+
 
     getBaseSpan: function() {
         var dims = this.getDimensions();

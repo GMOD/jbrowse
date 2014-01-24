@@ -89,7 +89,9 @@ return declare( _ConfigurationMixin, {
      * Get the dimensions of the rendered feature in pixels.
      */
     _getFeatureRectangle: function( viewArgs, feature ) {
+        var block = viewArgs.block;
         var fRect = {
+            blockID: block.id(),
             l: block.bpToPx( feature.get('start') ),
             h: this.getFeatureHeight( viewArgs, feature ),
             f: feature,
@@ -120,6 +122,8 @@ return declare( _ConfigurationMixin, {
         var block = viewArgs.block;
         var dims = block.getDimensions();
         var fRect = this._getFeatureRectangle( viewArgs, feature );
+        fRect.f = feature;
+
         // console.log(
         //     'laid out '+feature.get('start')+'-'+feature.get('end')
         //     +' to '+fRect.l+'-'+(fRect.l+fRect.w)
@@ -134,12 +138,10 @@ return declare( _ConfigurationMixin, {
             startbp,
             endbp,
             fRect.h,
-            feature
+            fRect
         );
         if( fRect.t === null )
             return null;
-
-        fRect.f = feature;
 
         return fRect;
     },

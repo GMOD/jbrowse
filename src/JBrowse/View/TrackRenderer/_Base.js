@@ -63,10 +63,14 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
             this.blockStash[ block.id() ] = { block: block, node: blockNode };
         else if( changeInfo.operation == 'destroy' )
             delete this.blockStash[ block.id() ];
+        else
+            this.blockStash[ block.id() ].block = block;
 
         // propagate the block change to the rendering worker
         if( has('jbrowse-main-process')
-            && ( changeInfo.operation == 'new' || changeInfo.operation == 'destroy' ) ) {
+            //&& ( changeInfo.operation == 'new' || changeInfo.operation == 'destroy' )
+            //&& ( changeInfo.operation != 'move' )
+          ) {
             return this._getRenderJob()
                 .then( function( renderJob ) {
                            return renderJob.remoteApply(

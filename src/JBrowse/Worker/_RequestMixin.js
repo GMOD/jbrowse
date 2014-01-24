@@ -126,7 +126,7 @@ _handleResponse: function( data ) {
     if( data.error ) {
         requestRecord.deferred.reject( data.error );
     }
-    else if( data.result ) {
+    else if( 'result' in data ) {
         Serialization.inflate( data.result )
             .then( requestRecord.deferred.resolve, requestRecord.deferred.reject );
     }

@@ -14,6 +14,7 @@ define( [
 
             'JBrowse/has',
             'JBrowse/Errors',
+            'JBrowse/Util',
 
             'JBrowse/MediaTypes',
             'JBrowse/View/GranularRectLayout',
@@ -35,6 +36,7 @@ define( [
 
             has,
             Errors,
+            Util,
             MediaTypes,
             Layout,
             FeatureDetailMixin,
@@ -95,18 +97,31 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
 
         this._layouts = {};
         this._lastLayout = {};
+    },
 
-        this._setupEventHandlers();
+    startup: function() {
+        this.inherited( arguments );
 
         if( has('dom') ) {
             this.staticCanvas = domConstruct.create(
-                'canvas', { style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }},
-                this.div );
+                'canvas',
+                { style: {
+                      height: "100%", width: '100%', cursor: "default",
+                      position: "absolute", zIndex: 15
+                  }
+                },
+                this.get('widget').domNode
+            );
             this.staticCanvas.height = this.staticCanvas.offsetHeight;
+            this.staticCanvas.width  = this.staticCanvas.offsetWidth;
 
-            this._makeLabelTooltip( );
+            this._makeLabelTooltip();
+
+            this._connectMouseOverEvents( );
+            //this._connectConfiguredEventHandlers();
         }
     },
+
 
     configSchema: {
         slots: [
@@ -270,7 +285,6 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
 
         this.renderFeatures( block, blockNode, fRects );
 
-        // thisB.renderClickMap( args, fRects );
     },
 
     // get the appropriate layout object for the given block.  use the
@@ -452,46 +466,30 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
     },
 
 
-    renderClickMap: function( args, fRects ) {
-        var block = args.block;
+    setupClicking: function( block, blockNode, fRects ) {
+
+        var blockdata = this.getBlockStash( block );
 
         // make an index of the fRects by ID, and by coordinate, and
         // store it in the block
-        var index = new FRectIndex({ h: block.featureCanvas.height, w: block.featureCanvas.width });
-        block.fRectIndex = index;
+        var index = new FRectIndex(
+            { h: blockdata.featureCanvas.height,
+              w: blockdata.featureCanvas.width
+            });
+        blockdata.fRectIndex = index;
         index.addAll( fRects );
 
-        if( ! block.featureCanvas || ! block.featureCanvas.getContext('2d') ) {
+        if( ! blockdata.featureCanvas || ! blockdata.featureCanvas.getContext('2d') ) {
             console.warn( "No 2d context available from canvas" );
             return;
         }
 
-        if( this.getConf('displayMode') != 'collapsed' ) {
-            // make features get highlighted on mouse move
-            block.own( on( block.featureCanvas, 'mousemove', function( evt ) {
-                               if( ! thisB.layout )
-                                   return;
-
-                               evt = domEvent.fix( evt );
-                               var bpX = ( evt.offsetX === undefined ? evt.layerX : evt.offsetX ) / block.scale + block.startBase;
-                               var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                               thisB.mouseoverFeature( feature );
-                           }));
-            block.own( on( block.featureCanvas, 'mouseout', function( evt ) {
-                               thisB.mouseoverFeature( undefined );
-                           }));
-        }
-
-        this._attachMouseOverEvents( );
-
-        // connect up the event handlers
-        this._connectEventHandlers( block );
-
-        this.updateStaticElements( { x: this.genomeView.getX() } );
+        //this.updateStaticElements( { x: this.genomeView.getX() } );
     },
 
-    _attachMouseOverEvents: function( ) {
-        var thisB = this;
+    _connectMouseOverEvents: function( ) {
+        if( ! this.staticCanvas )
+            return;
 
         if( this.getConf('displayMode') == 'collapsed' ) {
             if( this._mouseoverEvent ) {
@@ -503,25 +501,67 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
                 this._mouseoutEvent.remove();
                 delete this._mouseoutEvent;
             }
-        } else {
+        }
+        else {
+            var thisB = this;
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
-                    if( ! thisB.layout )
+                    //evt = domEvent.fix( evt );
+
+                    var x = evt.offsetX === undefined ? evt.layerX : evt.offsetX;
+                    var y = evt.offsetY === undefined ? evt.layerY : evt.offsetY;
+
+                    // find the block we are over
+                    var stash = thisB.getBlockStash();
+                    var block;
+                    for( var blockID in stash ) {
+                        if( stash[blockID].block.containsDocPx( x ) ) {
+                            block = stash[blockID].block;
+                            break;
+                        }
+                    }
+                    if( ! block )
                         return;
 
-                    evt = domEvent.fix( evt );
-                    var bpX = thisB.genomeView.absXtoBp( evt.clientX );
-                    var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                    thisB.mouseoverFeature( feature, evt );
+                    var refName = block.getProjectionBlock().getBName();
+                    var bpX = block.docPxToBp( x );
+                    //console.log( bpX,y );
+
+                    thisB._getRenderJob()
+                         .then( function( job ) {
+                                    return job.remoteApply( 'workerGetFRectAt', [ refName, bpX, y ] );
+                                })
+                         .then( function( fRect ) {
+                                    //console.log( refName, bpX, y, feature && feature.get('name') );
+                                    thisB.mouseover( fRect, refName, bpX );
+                                },
+                                Util.logError
+                              );
                 }))[0];
             }
 
             if( !this._mouseoutEvent ) {
                 this._mouseoutEvent = this.own( on( this.staticCanvas, 'mouseout', function( evt) {
-                    thisB.mouseoverFeature( undefined );
+                    thisB.mouseover( undefined );
                 }))[0];
             }
         }
+    },
+
+    workerGetFRectAt: function( refName, bpX, screenY ) {
+        var stash = this.getBlockStash();
+        for( var blockID in stash ) {
+            var block = stash[blockID].block;
+            if( block.containsBasePosition( refName, bpX ) ) {
+                // get the feature layout for it
+                var layout = this._getLayout( block );
+                if( ! layout )
+                    break;
+                var fRect = layout.getByCoord( bpX, screenY );
+                return fRect;
+            }
+        }
+        return undefined;
     },
 
     _makeLabelTooltip: function( ) {
@@ -554,7 +594,7 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
             }, labelTooltip);
     },
 
-    _connectEventHandlers: function( block ) {
+    _connectConfiguredEventHandlers: function( block ) {
         for( var event in this.eventHandlers ) {
             var handler = this.eventHandlers[event];
             (function( event, handler ) {
@@ -623,90 +663,88 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
     // given viewargs and a feature object, highlight that feature in
     // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
-    mouseoverFeature: function( feature, evt ) {
-
-        if( this.lastMouseover == feature )
+    mouseover: function( fRect, refName, bpX ) {
+        if( this.lastMouseover == fRect )
             return;
-
-        if( evt )
-            var bpX = this.genomeView.absXtoBp( evt.clientX );
 
         if( this.labelTooltip)
             this.labelTooltip.style.display = 'none';
 
-        array.forEach( this.blocks, function( block, i ) {
-            if( ! block )
+        var ctx = this.staticCanvas.getContext('2d');
+        // var context = this.getRenderingContext({ block: block, leftBase: block.startBase, scale: block.scale });
+        if( ! ctx )
+            return;
+
+        if( this.lastMouseover ) {
+            ctx.clearRect( this.lastMouseover.l + this.lastMouseover.blockL, this.lastMouseover.t, this.lastMouseover.w, this.lastMouseover.h );
+        }
+
+        if( this.tooltipTimeout )
+            clearTimeout( this.tooltipTimeout );
+
+        if( fRect ) {
+            var blockdata = this.getBlockStash()[fRect.blockID];
+            if( ! blockdata )
                 return;
-            var context = this.getRenderingContext({ block: block, leftBase: block.startBase, scale: block.scale });
-            if( ! context )
-                return;
+            var block = blockdata.block;
+            var dims = block.getDimensions();
 
-            if( this.lastMouseover ) {
-                var r = block.fRectIndex.getByID( this.lastMouseover.id() );
-                if( r )
-                    this.renderFeature( context, r );
-            }
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect( Math.ceil(fRect.l+dims.l), Math.ceil(fRect.t), Math.floor(fRect.w), Math.floor(fRect.h) );
 
-            if( block.tooltipTimeout )
-                window.clearTimeout( block.tooltipTimeout );
+            this.lastMouseover = fRect;
+            this.lastMouseover.blockL = dims.l;
+        }
 
-            if( feature ) {
-                var fRect = block.fRectIndex.getByID( feature.id() );
-                if( ! fRect )
-                    return;
+            // if( block.containsBp( bpX ) ) {
+            //         var renderTooltip = lang.hitch( this, function() {
+            //             if( !this.labelTooltip )
+            //                 return;
+            //             var label = fRect.label || glyph.makeFeatureLabel( feature );
+            //             var description = fRect.description || glyph.makeFeatureDescriptionLabel( feature );
 
-                if( block.containsBp( bpX ) ) {
-                    var renderTooltip = lang.hitch( this, function() {
-                        if( !this.labelTooltip )
-                            return;
-                        var label = fRect.label || glyph.makeFeatureLabel( feature );
-                        var description = fRect.description || glyph.makeFeatureDescriptionLabel( feature );
+            //             if( ( !label && !description ) )
+            //                 return;
 
-                        if( ( !label && !description ) )
-                            return;
+            //             if( !this.ignoreTooltipTimeout ) {
+            //                 this.labelTooltip.style.left = evt.clientX + "px";
+            //                 this.labelTooltip.style.top = (evt.clientY + 15) + "px";
+            //             }
+            //             this.ignoreTooltipTimeout = true;
+            //             this.labelTooltip.style.display = 'block';
+            //             if( label ) {
+            //                 var labelSpan = this.labelTooltip.childNodes[0];
+            //                 labelSpan.style.font = label.font;
+            //                 labelSpan.style.color = label.fill;
+            //                 labelSpan.innerHTML = label.text;
+            //             }
+            //             if( description ) {
+            //                 var descriptionSpan = this.labelTooltip.childNodes[1];
+            //                 descriptionSpan.style.font = description.font;
+            //                 descriptionSpan.style.color = description.fill;
+            //                 descriptionSpan.innerHTML = description.text;
+            //             }
+            //         });
+            //         if( this.ignoreTooltipTimeout )
+            //             renderTooltip();
+            //         else
+            //             block.tooltipTimeout = window.setTimeout( renderTooltip, 600);
+            //     }
 
-                        if( !this.ignoreTooltipTimeout ) {
-                            this.labelTooltip.style.left = evt.clientX + "px";
-                            this.labelTooltip.style.top = (evt.clientY + 15) + "px";
-                        }
-                        this.ignoreTooltipTimeout = true;
-                        this.labelTooltip.style.display = 'block';
-                        if( label ) {
-                            var labelSpan = this.labelTooltip.childNodes[0];
-                            labelSpan.style.font = label.font;
-                            labelSpan.style.color = label.fill;
-                            labelSpan.innerHTML = label.text;
-                        }
-                        if( description ) {
-                            var descriptionSpan = this.labelTooltip.childNodes[1];
-                            descriptionSpan.style.font = description.font;
-                            descriptionSpan.style.color = description.fill;
-                            descriptionSpan.innerHTML = description.text;
-                        }
-                    });
-                    if( this.ignoreTooltipTimeout )
-                        renderTooltip();
-                    else
-                        block.tooltipTimeout = window.setTimeout( renderTooltip, 600);
-                }
-
-                glyph.mouseoverFeature( context, fRect );
-                this._refreshContextMenu( fRect );
-            } else {
-                block.tooltipTimeout = window.setTimeout( lang.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
-            }
-        }, this );
-
-        this.lastMouseover = feature;
+            //     glyph.mouseoverFeature( context, fRect );
+            //     this._refreshContextMenu( fRect );
+            // } else {
+            //     block.tooltipTimeout = window.setTimeout( lang.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
+            // }
     },
 
     cleanupBlock: function(block) {
         this.inherited( arguments );
 
         // garbage collect the layout
-        if ( block ) {
-            this._getLayout(block).discardRange( block.startBase, block.endBase );
-        }
+        // if ( block ) {
+        //     this._getLayout(block).discardRange( block.startBase, block.endBase );
+        // }
     },
 
     // draw each feature

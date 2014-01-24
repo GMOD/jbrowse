@@ -193,8 +193,8 @@ configSchema: {
 
         { name: 'visibleTracks', type: 'multi-array',
           defaultValue: [
-              ['default','Reference sequence'],
-               ['default','BigWig XY - volvox_microarray'],
+              //['default','Reference sequence'],
+              //['default','BigWig XY - volvox_microarray'],
               ['default', "Features - Example Features" ]
           ]
           //defaultValue: []

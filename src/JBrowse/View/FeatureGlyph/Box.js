@@ -66,6 +66,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     _getFeatureRectangle: function( viewArgs, feature ) {
         var block = viewArgs.block;
         var fRect = {
+            blockID: block.id(),
             l: block.bpToPx( feature.get('start') ),
             h: this.getFeatureHeight(viewArgs, feature),
             f: feature,

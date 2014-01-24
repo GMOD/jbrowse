@@ -46,7 +46,7 @@ return declare( null,
      */
     addRect: function( id, left, right, height, data ) {
 
-        //console.log( 'addRect', arguments );
+        //console.log( 'addRect '+left+' '+right+' '+height+' '+data.get('name') );
 
         // if we have already laid it out, return its layout
         if( id in this.rectangles ) {
