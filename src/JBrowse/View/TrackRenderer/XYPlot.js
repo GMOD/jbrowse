@@ -67,19 +67,21 @@ var XYPlot = declare( [_QuantitativeBase, _YScaleMixin],
                                scaling.min = 0;
 
                            // update our track y-scale to reflect it
-                           thisB.makeYScale({
-                                                fixBounds: true,
-                                                min: scaling.min,
-                                                max: scaling.max,
-                                                domNode: thisB.get('widget').domNode,
-                                                height: thisB._canvasHeight()
-                                            });
+                           if( thisB.get('widget') ) {
+                               thisB.makeYScale({
+                                                    fixBounds: true,
+                                                    min: scaling.min,
+                                                    max: scaling.max,
+                                                    domNode: thisB.get('widget').domNode,
+                                                    height: thisB._canvasHeight()
+                                                });
 
-                           // and finally adjust the scaling to match the ruler's scale rounding
-                           scaling.min = thisB.ruler.scaler.bounds.lower;
-                           scaling.max = thisB.ruler.scaler.bounds.upper;
-                           scaling.range = scaling.max - scaling.min;
-                           thisB.lastScaling = scaling;
+                               // and finally adjust the scaling to match the ruler's scale rounding
+                               scaling.min = thisB.ruler.scaler.bounds.lower;
+                               scaling.max = thisB.ruler.scaler.bounds.upper;
+                               scaling.range = scaling.max - scaling.min;
+                               thisB.lastScaling = scaling;
+                           }
                        }
 
                        return thisB.lastScaling;
