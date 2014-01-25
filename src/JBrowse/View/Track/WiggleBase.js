@@ -6,6 +6,9 @@ define( [
             'dojo/dom-construct',
             'dojo/on',
             'dojo/mouse',
+            'dijit/Dialog',
+            'dijit/form/NumberSpinner',
+            'dijit/form/Button',
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_ExportMixin',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
@@ -20,6 +23,9 @@ define( [
             dom,
             on,
             mouse,
+            Dialog,
+            NumberSpinner,
+            Button,
             BlockBasedTrack,
             ExportMixin,
             DetailStatsMixin,
@@ -473,6 +479,72 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     _exportFormats: function() {
         return [{name: 'bedGraph', label: 'bedGraph', fileExt: 'bedgraph'}, {name: 'Wiggle', label: 'Wiggle', fileExt: 'wig'}, {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'} ];
+    },
+
+    _showTrackHeightDialog: function() {
+        var track = this;
+        var heightConstraints = { min: 50, max: 750 };
+
+        var dialog = new Dialog({
+            title: "Set Track height",
+            style: "width: 250px"
+        });
+
+        // CONTENT
+        var contentArea = new dojo.create("div", {
+            class: "dijitDialogPaneContentArea"
+        }, dialog.containerNode);
+
+        var heightSpinner = new NumberSpinner({
+            value: track._canvasHeight(),
+            smallDelta: 10,
+            constraints: heightConstraints
+        }).placeAt(contentArea);
+
+        // ACTIONS
+        var actionbar = new dojo.create("div", {
+            class: "dijitDialogPaneActionBar"
+        }, dialog.containerNode);
+
+        var ok_button = new Button({
+            label: "OK",
+            onClick: dojo.hitch(this, function() {
+                var height = parseInt(heightSpinner.getValue());
+                if (isNaN(height) || height < heightConstraints.min
+                    || height > heightConstraints.max) return;
+
+                var config = dojo.mixin(track.config, {
+                    style: { height: height }
+                });
+
+                // update track with new height
+                track.browser.publish( '/jbrowse/v1/v/tracks/replace', [config] );
+
+                dialog.destroyRecursive();
+            })
+        }).placeAt(actionbar);
+
+        var cancel_button = new Button({
+            label: "Cancel",
+            onClick: dojo.hitch(this, function() {
+                dialog.destroyRecursive();
+            })
+        }).placeAt(actionbar);
+
+        dialog.startup();
+        dialog.show();
+    },
+
+    _trackMenuOptions: function() {
+        var options = this.inherited(arguments) || [];
+
+        options.push({
+            label: 'Change Track height',
+            title: "change this track's height",
+            action: dojo.hitch(this, '_showTrackHeightDialog')
+        });
+
+        return options;
     }
 });
 });
