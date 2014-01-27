@@ -44,7 +44,10 @@ return declare( null, {
         else {
             console.error( error.stack || ''+error, error );
             this.fatalError = error;
-            this.showFatalError( error );
+            if( this.get('widget') && this.get('widget')._handleError )
+                this.get('widget')._handleError( error );
+            else
+                this.fillBlockError( error );
         }
     },
 

@@ -102,7 +102,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             return fRect;
 
         this._expandRectangleWithLabels( viewArgs, feature, fRect );
-        this._addMasksToRect( viewArgs, feature, fRect );
 
         return fRect;
     },

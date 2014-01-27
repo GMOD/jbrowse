@@ -69,7 +69,7 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
         // propagate the block change to the rendering worker
         if( has('jbrowse-main-process')
             //&& ( changeInfo.operation == 'new' || changeInfo.operation == 'destroy' )
-            //&& ( changeInfo.operation != 'move' )
+            && ( changeInfo.operation != 'move' )
           ) {
             return this._getRenderJob()
                 .then( function( renderJob ) {

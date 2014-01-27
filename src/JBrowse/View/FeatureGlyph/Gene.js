@@ -118,7 +118,6 @@ _getFeatureRectangle: function( viewArgs, feature ) {
 
     // expand the fRect to accommodate labels if necessary
     this._expandRectangleWithLabels( viewArgs, feature, fRect );
-    this._addMasksToRect( viewArgs, feature, fRect );
 
     return fRect;
 },

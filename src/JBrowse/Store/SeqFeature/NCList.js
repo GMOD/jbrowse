@@ -91,9 +91,9 @@ return declare( SeqFeatureStore,
                                   return thisB._parseTrackInfo( trackInfo, url );
                               },
                       function(error) {
-                          if( error.response.status == 404 )
+                          if( error.response && error.response.status == 404 )
                               return thisB._parseTrackInfo( {}, url );
-                          else if( error.response.status != 200)
+                          else if( error.response && error.response.status != 200)
                               throw "Server returned an HTTP " + error.response.status + " error";
                           else
                               throw error;

@@ -12,6 +12,7 @@ define([
 
            'dijit/Destroyable',
 
+           'JBrowse/has',
            'JBrowse/Util',
            'JBrowse/Util/Serialization',
            'JBrowse/Util/ListenerSet'
@@ -23,6 +24,7 @@ define([
 
            Destroyable,
 
+           has,
            Util,
            Serialization,
            ListenerSet
@@ -111,7 +113,7 @@ return declare( Destroyable, {
         return {
             l: this._left,
             r: this._right,
-            w: this._right-this._left,
+            w: this._right - this._left,
             leftEdge:  this._onProjectionBlockLeftEdge,
             rightEdge: this._onProjectionBlockRightEdge
         };
@@ -189,17 +191,18 @@ return declare( Destroyable, {
     },
 
     updatePosition: function( newLeft, newRight, changeDescription ) {
-        this._log( 'update '+[newLeft,newRight,'('+(newRight-newLeft)+')'].join(' ') );
-
         var deltaLeft = newLeft - this._left;
         var deltaRight = newRight - this._right;
         this._left = newLeft;
         this._right = newRight;
 
+        var op = Math.abs(deltaLeft - deltaRight) > 0.1 ? 'resize' : 'move';
+        this._log( ['update', op, newLeft,newRight,'('+(newRight-newLeft)+')'].join(' ') );
+
         //this._log( 'update '+this.getWidth() );
 
         this._notifyChanged({
-            operation:  Math.abs(deltaLeft - deltaRight) > 0.1 ? 'resize' : 'move',
+            operation: op,
             deltaLeft:  deltaLeft,
             deltaRight: deltaRight,
             projectionChange: changeDescription

@@ -46,48 +46,6 @@ define( [
             RendererBase
         ) {
 
-/**
- *  inner class that indexes feature layout rectangles (fRects) (which
- *  include features) by unique ID.
- *
- *  We have one of these indexes in each block.
- */
-var FRectIndex = declare( null,  {
-    constructor: function( args ) {
-        var height = args.h;
-        var width  = args.w;
-
-        this.dims = { h: height, w: width };
-
-        this.byID = {};
-    },
-
-    getByID: function( id ) {
-        return this.byID[id];
-    },
-
-    addAll: function( fRects ) {
-        var byID = this.byID;
-        var cW = this.dims.w;
-        var cH = this.dims.h;
-        array.forEach( fRects, function( fRect ) {
-            if( ! fRect )
-                return;
-
-            // by ID
-            byID[ fRect.f.id() ] = fRect;
-        }, this );
-    },
-
-    getAll: function( ) {
-        var fRects = [];
-        for( var id in this.byID ) {
-            fRects.push( this.byID[id] );
-        }
-        return fRects;
-    }
-});
-
 return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContextMenuMixin], {
 
     constructor: function( args ) {
@@ -105,7 +63,8 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
         if( has('dom') ) {
             this.staticCanvas = domConstruct.create(
                 'canvas',
-                { style: {
+                { className: 'static',
+                  style: {
                       height: "100%", width: '100%', cursor: "default",
                       position: "absolute", zIndex: 15
                   }
@@ -117,7 +76,7 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
 
             this._makeLabelTooltip();
 
-            this._connectMouseOverEvents( );
+            this._connectMouseOverEvents();
             //this._connectConfiguredEventHandlers();
         }
     },
@@ -465,28 +424,6 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
         return featuresLaidOut;
     },
 
-
-    setupClicking: function( block, blockNode, fRects ) {
-
-        var blockdata = this.getBlockStash( block );
-
-        // make an index of the fRects by ID, and by coordinate, and
-        // store it in the block
-        var index = new FRectIndex(
-            { h: blockdata.featureCanvas.height,
-              w: blockdata.featureCanvas.width
-            });
-        blockdata.fRectIndex = index;
-        index.addAll( fRects );
-
-        if( ! blockdata.featureCanvas || ! blockdata.featureCanvas.getContext('2d') ) {
-            console.warn( "No 2d context available from canvas" );
-            return;
-        }
-
-        //this.updateStaticElements( { x: this.genomeView.getX() } );
-    },
-
     _connectMouseOverEvents: function( ) {
         if( ! this.staticCanvas )
             return;
@@ -676,7 +613,11 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
             return;
 
         if( this.lastMouseover ) {
-            ctx.clearRect( this.lastMouseover.l + this.lastMouseover.blockL, this.lastMouseover.t, this.lastMouseover.w, this.lastMouseover.h );
+            ctx.clearRect( this.lastMouseover.l,
+                           this.lastMouseover.t,
+                           this.lastMouseover.w,
+                           this.lastMouseover.h
+                         );
         }
 
         if( this.tooltipTimeout )
@@ -689,11 +630,17 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
             var block = blockdata.block;
             var dims = block.getDimensions();
 
-            ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            ctx.fillRect( Math.ceil(fRect.l+dims.l), Math.ceil(fRect.t), Math.floor(fRect.w), Math.floor(fRect.h) );
+            var mouseover = {
+                l: Math.ceil(fRect.l+dims.l),
+                t: Math.ceil(fRect.t),
+                w: Math.floor(fRect.w),
+                h: Math.floor(fRect.h)
+            };
 
-            this.lastMouseover = fRect;
-            this.lastMouseover.blockL = dims.l;
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect( mouseover.l, mouseover.t, mouseover.w, mouseover.h );
+
+            this.lastMouseover = mouseover;
         }
 
             // if( block.containsBp( bpX ) ) {

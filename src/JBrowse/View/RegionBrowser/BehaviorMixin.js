@@ -277,8 +277,8 @@ mouseDragScrollEnd: function(event) {
        vx /= state.mouseHistory.length - 1;
     }
 
-    vx *= 0.5; // artificially reduce the velocity a bit, feels
-               // better.  i guess this simulates mechanical losses?
+    vx *= 0.5; // arbitrarily reduce the velocity by half.  feels
+               // better.  maybe this simulates mechanical losses?
 
     // min velocity of 0.3 px/ms, max of 2 px/ms
     if( Math.abs(vx) > 0.3) {
@@ -297,7 +297,7 @@ mouseDragScrollEnd: function(event) {
                     delete thisB.behavior.mouseDragScrollState;
                 },
                 function() {
-                    thisB.mouseDragScrollMove(null, true, startX + ( endX-startX )*(lastP || 0 ), event.clientY );
+                    // thisB.mouseDragScrollMove(null, true, startX + ( endX-startX )*(lastP || 0 ), event.clientY );
                     delete thisB.behavior.mouseDragScrollState;
                 },
                 function(p) {

@@ -34,7 +34,7 @@ _setGenomeViewAttr: function( genomeView ) {
     }
 
     var thisB = this;
-    // watch for new projection blocks
+    // watch for new rendering blocks
     this.own(
         this._blockWatch = genomeView.watchRenderingBlocks(
             function( changeInfo, block ) {
