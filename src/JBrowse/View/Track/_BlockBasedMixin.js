@@ -163,12 +163,10 @@ blockChange: function( blockNode, changeInfo, block ) {
                 delete this.blockStash[ block.id() ].fillLater;
             }
 
-            for( var id in this.blockStash ) {
-                var b = this.blockStash[id];
-                if( b.fillLater && block.id() != id ) {
-                    this.fillBlock( b.block, b.node, b.fillLater );
-                    delete b.fillLater;
-                }
+            // if this block is still in need of filling, fill it.
+            if( changeInfo.operation != 'destroy' && this.blockStash[ block.id() ].fillLater ) {
+                    this.fillBlock( block, blockNode, changeInfo );
+                    delete this.blockStash[ block.id() ].fillLater;
             }
         }
 

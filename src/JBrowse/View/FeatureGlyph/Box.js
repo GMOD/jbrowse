@@ -186,7 +186,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
-        // context.strokeStyle = 'black';
+        // context.strokeStyle = 'red';
         // context.strokeRect( fRect.l, fRect.t, fRect.w, fRect.h );
 
         this.renderBox( block, context, fRect.f, fRect.t, fRect.rect.h, fRect.f );
