@@ -138,6 +138,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.sizeInit(numBlocks, widthPct);
         this.labelHTML = "";
         this.labelHeight = 0;
+        this.makeTrackBorder();
 
         if( this.config.pinned )
             this.setPinned( true );
@@ -155,7 +156,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 id: "label_" + this.name,
                 style: {
                     position: 'absolute',
-                    top: 0
                 }
             },this.div);
 
@@ -185,6 +185,20 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.makeTrackMenu();
     },
 
+    makeTrackBorder: function() {
+        var borderDiv = dojo.create(
+            'div', {
+                className: "track-border dojoDndHandle",
+                id: "border_" + this.name,
+                style: {
+                    position: 'absolute',
+                    //top: 0
+                }
+            },this.div);
+
+        this.border = borderDiv;
+
+    },
 
     hide: function() {
         if (this.shown) {
