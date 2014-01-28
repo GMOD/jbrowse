@@ -5,6 +5,7 @@ define([
            'dojo/on',
            'dojo/keys',
            'dojo/dom-class',
+           'dojo/mouse',
 
            'dijit/focus',
 
@@ -18,6 +19,7 @@ define([
            on,
            keys,
            domClass,
+           mouse,
 
            dijitFocus,
 
@@ -129,7 +131,10 @@ _behaviors: function() {
             apply_on_init: true,
             apply: function() {
                 return [
-                    on( this.trackPane.domNode,  "mousedown", lang.hitch( this, 'mouseDragScrollStart' ))
+                    on( this.trackPane.domNode,  "mousedown", function(evt) {
+                            if( mouse.isLeft( evt ) )
+                                thisB.mouseDragScrollStart(evt);
+                        })
                     // ,on( this.verticalScrollBar.container, "mousedown", lang.hitch( this, 'startVerticalMouseDragScroll'))
                 ];
             }
