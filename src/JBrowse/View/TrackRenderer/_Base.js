@@ -48,6 +48,10 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
                type: 'object',
                defaultValue: {},
                description: 'object of additional query variables that this view will always pass to the store(s) in its queries'
+             },
+             { name: 'maxFeatureSizeForUnderlyingRefSeq', type: 'integer', defaultValue: 1000000,
+               description: 'maximum size of a feature for which the underlying reference sequence'
+                            + ' will be shown in the default feature detail popup'
              }
         ]
     },

@@ -2,14 +2,16 @@
  * Mixin with methods for parsing making default feature detail dialogs.
  */
 define([
-            'dojo/_base/declare',
-            'dojo/_base/array',
-            'dojo/_base/lang',
-            'dojo/aspect',
-            'dojo/dom-construct',
-            'JBrowse/Util',
-            'JBrowse/View/FASTA',
-            'JBrowse/View/_FeatureDescriptionMixin'
+           'dojo/_base/declare',
+           'dojo/_base/array',
+           'dojo/_base/lang',
+           'dojo/aspect',
+           'dojo/dom-construct',
+
+           'JBrowse/has',
+           'JBrowse/Util',
+           'JBrowse/has!dom?JBrowse/View/DetailsMixin',
+           'JBrowse/View/FASTA'
         ],
         function(
             declare,
@@ -17,12 +19,14 @@ define([
             lang,
             aspect,
             domConstruct,
+
+            has,
             Util,
-            FASTAView,
-            FeatureDescriptionMixin
+            DetailsMixin,
+            FASTAView
         ) {
 
-return declare( FeatureDescriptionMixin, {
+return declare( has('dom') ? [DetailsMixin]: [], {
 
     constructor: function() {
 
@@ -41,7 +45,7 @@ return declare( FeatureDescriptionMixin, {
             eventConf.click = {
                 action: "contentDialog",
                 title: '{type} {name}',
-                content: dojo.hitch( this, 'defaultFeatureDetail' ) };
+                content: lang.hitch( this, 'defaultFeatureDetail' ) };
         }
 
         // process the configuration to set up our event handlers
@@ -63,23 +67,27 @@ return declare( FeatureDescriptionMixin, {
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
      */
-    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
-        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(), innerHTML: '' } );
+    defaultFeatureDetail: function( trackRenderer, /** Object */ f, fRect, container ) {
+        container = domConstruct.create(
+            'div', {
+                className: 'detail feature-detail feature-detail-'
+                    +trackRenderer.get('widget').get('track').getConf('name')                                                                                                .replace(/\s+/g,'_').toLowerCase()
+            });
 
-        this._renderCoreDetails( track, f, featDiv, container );
+        this._renderCoreDetails( trackRenderer, f, fRect, container );
 
-        this._renderAdditionalTagsDetail( track, f, featDiv, container );
+        this._renderAdditionalTagsDetail( trackRenderer, f, fRect, container  );
 
-        this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
+        this._renderUnderlyingReferenceSequence( trackRenderer, f, fRect, container );
 
-        this._renderSubfeaturesDetail( track, f, featDiv, container );
+        this._renderSubfeaturesDetail( trackRenderer, f, fRect, container );
 
         return container;
     },
 
     _renderCoreDetails: function( track, f, featDiv, container ) {
-        var coreDetails = dojo.create('div', { className: 'core' }, container );
-        var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
+        var coreDetails = domConstruct.create('div', { className: 'core' }, container );
+        var fmt = lang.hitch( this, 'renderDetailField', coreDetails );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
 
         fmt( 'Name', this.getFeatureLabel( f ) );
@@ -90,7 +98,7 @@ return declare( FeatureDescriptionMixin, {
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
-                                     ref: this.refSeq.name,
+                                     ref: f.get('seq_id'),
                                      strand: f.get('strand')
                                    })
         );
@@ -131,26 +139,26 @@ return declare( FeatureDescriptionMixin, {
     _renderUnderlyingReferenceSequence: function( track, f, featDiv, container ) {
 
         // render the sequence underlying this feature if possible
-        var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
-        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this '+(f.get('type') || 'feature') }, field_container );
+        var field_container = domConstruct.create('div', { className: 'field_container feature_sequence' }, container );
+        domConstruct.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this '+(f.get('type') || 'feature') }, field_container );
         var valueContainerID = 'feature_sequence'+this._uniqID();
-        var valueContainer = dojo.create(
+        var valueContainer = domConstruct.create(
             'div', {
                 id: valueContainerID,
                 innerHTML: '<div style="height: 12em">Loading...</div>',
                 className: 'value feature_sequence'
             }, field_container);
         var maxSize = this.getConf('maxFeatureSizeForUnderlyingRefSeq');
-        if( maxSize < (f.get('end') - f.get('start')) ) {
+        if( true || maxSize < (f.get('end') - f.get('start')) ) {
             valueContainer.innerHTML = 'Not displaying underlying reference sequence, feature is longer than maximum of '+Util.humanReadableNumber(maxSize)+'bp';
         } else {
-             track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
+             track.browser.getStore('refseqs', lang.hitch(this,function( refSeqStore ) {
                  valueContainer = dojo.byId(valueContainerID) || valueContainer;
                  if( refSeqStore ) {
                      refSeqStore.getReferenceSequence(
-                         { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
+                         { ref: f.get('seq_id'), start: f.get('start'), end: f.get('end')},
                          // feature callback
-                         dojo.hitch( this, function( seq ) {
+                         lang.hitch( this, function( seq ) {
                              valueContainer = dojo.byId(valueContainerID) || valueContainer;
                              valueContainer.innerHTML = '';
                              // the HTML is rewritten by the dojo dialog
@@ -159,7 +167,7 @@ return declare( FeatureDescriptionMixin, {
                              // ID fails, we have come back before the parse.
                              var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
                                                 .renderHTML(
-                                                    { ref:   this.refSeq.name,
+                                                    { ref:   f.get('seq_id'),
                                                       start: f.get('start'),
                                                       end:   f.get('end'),
                                                       strand: f.get('strand'),
@@ -172,7 +180,7 @@ return declare( FeatureDescriptionMixin, {
                        // end callback
                        function() {},
                        // error callback
-                       dojo.hitch( this, function() {
+                       lang.hitch( this, function() {
                            valueContainer = dojo.byId(valueContainerID) || valueContainer;
                            valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
                        })
@@ -189,21 +197,24 @@ return declare( FeatureDescriptionMixin, {
         return this._idCounter++;
     },
 
-    _subfeaturesDetail: function( track, subfeatures, container ) {
-            var field_container = dojo.create('div', { className: 'field_container subfeatures' }, container );
-            dojo.create( 'h2', { className: 'field subfeatures', innerHTML: 'Subfeatures' }, field_container );
-            var subfeaturesContainer = dojo.create( 'div', { className: 'value subfeatures' }, field_container );
-            array.forEach( subfeatures || [], function( subfeature ) {
-                    this.defaultFeatureDetail(
-                        track,
-                        subfeature,
-                        null,
-                        dojo.create('div', {
-                                        className: 'detail feature-detail subfeature-detail feature-detail-'+track.name+' subfeature-detail-'+track.name,
-                                        innerHTML: ''
-                                    }, subfeaturesContainer )
-                    );
-            },this);
+    _subfeaturesDetail: function( trackRenderer, subfeatures, container ) {
+        var field_container = domConstruct.create('div', { className: 'field_container subfeatures' }, container );
+        domConstruct.create( 'h2', { className: 'field subfeatures', innerHTML: 'Subfeatures' }, field_container );
+        var subfeaturesContainer = domConstruct.create( 'div', { className: 'value subfeatures' }, field_container );
+        var trackName = trackRenderer.get('widget').get('track').getConf('name');
+        array.forEach( subfeatures || [], function( subfeature ) {
+                           this.defaultFeatureDetail(
+                               track,
+                               subfeature,
+                               null,
+                               domConstruct.create(
+                                   'div', {
+                                       className: 'detail'
+                                           + ' feature-detail subfeature-detail feature-detail-'
+                                           +trackName+' subfeature-detail-'+trackName
+                                   }, subfeaturesContainer )
+                           );
+                       },this);
     }
 
 });

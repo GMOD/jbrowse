@@ -14,7 +14,7 @@ define( [
         ) {
 var fontMeasurementsCache = {};
 
-return declare( FeatureDescriptionMixin,  {
+return declare( null, {
 
     /**
      * Estimate the height and width, in pixels, of the given
@@ -22,7 +22,7 @@ return declare( FeatureDescriptionMixin,  {
      * the track's maxFeatureGlyphExpansion limit.
      */
     makeFeatureLabel: function( feature, fRect ) {
-        var text = this.getFeatureLabel( feature );
+        var text = this.track.getFeatureLabel( feature );
         if( ! text )
             return null;
         var font = this.getStyle( feature, 'textFont' );
@@ -37,7 +37,7 @@ return declare( FeatureDescriptionMixin,  {
      * within the track's maxFeatureGlyphExpansion limit.
      */
     makeFeatureDescriptionLabel: function( feature, fRect ) {
-        var text = this.getFeatureDescription( feature );
+        var text = this.track.getFeatureDescription( feature );
         if( ! text )
             return null;
         var font = this.getStyle( feature, 'text2Font' );

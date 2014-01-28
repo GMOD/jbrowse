@@ -1,8 +1,24 @@
 define([
-           'dojo/_base/declare'
+           'dojo/_base/declare',
+           'dojo/aspect',
+
+           'JBrowse/has!dom?dijit/Dialog',
+           'JBrowse/has!dom?dijit/Menu',
+           'JBrowse/has!dom?dijit/PopupMenuItem',
+
+           'JBrowse/Util',
+           'JBrowse/has!dom?JBrowse/View/Dialog/Info'
        ],
        function(
-           declare
+           declare,
+           aspect,
+
+           Dialog,
+           dijitMenu,
+           dijitPopupMenuItem,
+
+           Util,
+           InfoDialog
        ) {
 return declare( null, {
 
@@ -74,9 +90,6 @@ return declare( null, {
         }
 
         var handler = function ( evt ) {
-            if( track.genomeView.dragging )
-                return;
-
             var ctx = context || this;
             var spec = track._processMenuSpec( dojo.clone( inputSpec ), ctx );
             var url = spec.url || spec.href;

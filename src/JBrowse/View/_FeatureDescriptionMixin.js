@@ -10,7 +10,7 @@ define( [
 return declare( null, {
 
     // get the label string for a feature, based on the setting
-    // of this.config.label
+    // of the `label` config variable
     getFeatureLabel: function( feature ) {
         return this.getConfForFeature('featureLabel', feature );
     },

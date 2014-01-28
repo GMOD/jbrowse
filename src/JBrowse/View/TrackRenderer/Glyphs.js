@@ -18,6 +18,7 @@ define( [
 
             'JBrowse/MediaTypes',
             'JBrowse/View/GranularRectLayout',
+            'JBrowse/View/_FeatureDescriptionMixin',
             'JBrowse/View/Track/_FeatureDetailMixin',
             'JBrowse/View/Track/_FeatureContextMenusMixin',
             'JBrowse/Model/SimpleFeature',
@@ -37,8 +38,10 @@ define( [
             has,
             Errors,
             Util,
+
             MediaTypes,
             Layout,
+            FeatureDescriptionMixin,
             FeatureDetailMixin,
             FeatureContextMenuMixin,
             SimpleFeature,
@@ -46,7 +49,11 @@ define( [
             RendererBase
         ) {
 
-return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContextMenuMixin], {
+return declare(
+    // has('dom') ? [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContextMenuMixin]
+    //            : RendererBase,
+    [RendererBase,FeatureDescriptionMixin,FeatureDetailMixin,ClickHandlerMixin,FeatureContextMenuMixin],
+    {
 
     constructor: function( args ) {
         this.glyphsLoaded = {};
@@ -76,8 +83,10 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
 
             this._makeLabelTooltip();
 
+            this._setupEventHandlers();
+
             this._connectMouseOverEvents();
-            //this._connectConfiguredEventHandlers();
+            this._connectConfiguredEventHandlers();
         }
     },
 
@@ -443,37 +452,13 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
             var thisB = this;
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
-                    //evt = domEvent.fix( evt );
-
-                    var x = evt.offsetX === undefined ? evt.layerX : evt.offsetX;
-                    var y = evt.offsetY === undefined ? evt.layerY : evt.offsetY;
-
-                    // find the block we are over
-                    var stash = thisB.getBlockStash();
-                    var block;
-                    for( var blockID in stash ) {
-                        if( stash[blockID].block.containsDocPx( x ) ) {
-                            block = stash[blockID].block;
-                            break;
-                        }
-                    }
-                    if( ! block )
-                        return;
-
-                    var refName = block.getProjectionBlock().getBName();
-                    var bpX = block.docPxToBp( x );
-                    //console.log( bpX,y );
-
-                    thisB._getRenderJob()
-                         .then( function( job ) {
-                                    return job.remoteApply( 'workerGetFRectAt', [ refName, bpX, y ] );
-                                })
-                         .then( function( fRect ) {
-                                    //console.log( refName, bpX, y, feature && feature.get('name') );
-                                    thisB.mouseover( fRect, refName, bpX );
-                                },
-                                Util.logError
-                              );
+                         thisB.getFRectUnderMouse( evt )
+                             .then( function( fRect ) {
+                                        //console.log( refName, bpX, y, feature && feature.get('name') );
+                                        thisB.mouseover( fRect, evt );
+                                    },
+                                    Util.logError
+                                  );
                 }))[0];
             }
 
@@ -485,6 +470,36 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
         }
     },
 
+    // get the FRect under the given mouse event.  deferred.  returns undefined if none, or an frect.
+    getFRectUnderMouse: function( evt ) {
+        var thisB = this;
+        return this._getRenderJob()
+            .then( function( job ) {
+                       var x = evt.offsetX === undefined ? evt.layerX : evt.offsetX;
+                       var y = evt.offsetY === undefined ? evt.layerY : evt.offsetY;
+
+                       // find the block we are over
+                       var stash = thisB.getBlockStash();
+                       var block;
+                       for( var blockID in stash ) {
+                           if( stash[blockID].block.containsDocPx( x ) ) {
+                               block = stash[blockID].block;
+                               break;
+                           }
+                       }
+                       if( ! block )
+                           return undefined;
+
+                       var refName = block.getProjectionBlock().getBName();
+                       var bpX = block.docPxToBp( x );
+        //console.log( bpX,y );
+
+                       return job.remoteApply( 'workerGetFRectAt', [ refName, bpX, y ] );
+                   });
+    },
+
+    // in a worker, get the frect (if any) at the given ref and bp,
+    // and screen Y coord
     workerGetFRectAt: function( refName, bpX, screenY ) {
         var stash = this.getBlockStash();
         for( var blockID in stash ) {
@@ -532,36 +547,31 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
     },
 
     _connectConfiguredEventHandlers: function( block ) {
-        for( var event in this.eventHandlers ) {
-            var handler = this.eventHandlers[event];
+        for( var e in this.eventHandlers ) {
             (function( event, handler ) {
                  var thisB = this;
-                 block.own(
+                 this.get('widget').own(
                      on( this.staticCanvas, event, function( evt ) {
-                             evt = domEvent.fix( evt );
-                             var bpX = thisB.genomeView.absXtoBp( evt.clientX );
-                             if( block.containsBp( bpX ) && thisB.layout ) {
-                                 var feature = thisB.layout.getByCoord( bpX, ( evt.offsetY === undefined ? evt.layerY : evt.offsetY ) );
-                                 if( feature ) {
-                                     var fRect = block.fRectIndex.getByID( feature.id() );
-                                     handler.call({
-                                                      track: thisB,
-                                                      feature: feature,
-                                                      fRect: fRect,
-                                                      block: block,
-                                                      callbackArgs: [ thisB, feature, fRect ]
-                                                  },
-                                                  feature,
-                                                  fRect,
-                                                  block,
-                                                  thisB,
-                                                  evt
-                                                 );
-                                 }
-                             }
+                             thisB.getFRectUnderMouse( evt )
+                             .then( function( fRect ) {
+                                        if( fRect )
+                                            handler.call({
+                                                             track: thisB,
+                                                             feature: fRect.f,
+                                                             fRect: fRect,
+                                                             block: block,
+                                                             callbackArgs: [ thisB, fRect.f, fRect ]
+                                                         },
+                                                         fRect.f,
+                                                         fRect,
+                                                         block,
+                                                         thisB,
+                                                         evt
+                                                        );
+                                 });
                          })
                  );
-             }).call( this, event, handler );
+             }).call( this, e, this.eventHandlers[e] );
         }
     },
 
@@ -600,7 +610,7 @@ return declare( [RendererBase,FeatureDetailMixin,ClickHandlerMixin,FeatureContex
     // given viewargs and a feature object, highlight that feature in
     // all blocks.  if feature is undefined or null, unhighlight any currently
     // highlighted feature
-    mouseover: function( fRect, refName, bpX ) {
+    mouseover: function( fRect, evt ) {
         if( this.lastMouseover == fRect )
             return;
 
