@@ -421,12 +421,12 @@ div.track-border {
     background: #eee;
     width: 100%;
     height: 2px;
-    top: -38px;
+    top: -8px;
 }
 
 div.track-label, div.tracklist-label {
     z-index: 20;
-    top: -35px;
+    top: -4px;
 
     padding: 1px 6px;
     overflow: hidden;

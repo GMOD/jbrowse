@@ -75,7 +75,7 @@ constructor: function( args ) {
     this.posHeight = this.calculatePositionLabelHeight( elem );
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
-    this.topSpace = this.posHeight*1.5 + 50;
+    this.topSpace = this.posHeight*1.5;
 
     // WebApollo needs max zoom level to be sequence residues char width
     this.maxPxPerBp = this.config.maxPxPerBp;
@@ -277,7 +277,7 @@ constructor: function( args ) {
 _defaultConfig: function() {
     return {
         maxPxPerBp: 20,
-        trackPadding: 40 // distance in pixels between each track
+        trackPadding: 20 // distance in pixels between each track
     };
 },
 
