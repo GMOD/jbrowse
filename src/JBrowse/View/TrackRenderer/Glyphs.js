@@ -145,8 +145,8 @@ return declare(
                         title: '{type} {name}',
                         action: 'contentDialog',
                         iconClass: 'dijitIconTask',
-                        content: function( feature, fRect, block, track ) {
-                            return track.defaultFeatureDetail();
+                        content: function( track, feature, fRect ) {
+                            return track.defaultFeatureDetail( track, feature, fRect );
                         }
                       },
                       { label: function() {
@@ -557,6 +557,7 @@ return declare(
                  var thisB = this;
                  this.get('widget').own(
                      on( this.staticCanvas, event, function( evt ) {
+                             evt.preventDefault();
                              thisB.getFRectUnderMouse( evt )
                              .then( function( fRect ) {
                                         if( fRect )
