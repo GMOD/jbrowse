@@ -166,7 +166,7 @@ return declare( null, {
 
         function setContent( dialog, content ) {
             // content can be a promise or Deferred
-            if( typeof content.then == 'function' )
+            if( content && ( typeof content.then == 'function' ) )
                 content.then( function( c ) { dialog.set( 'content', c ); } );
             // or maybe it's just a regular object
             else

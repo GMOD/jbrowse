@@ -134,6 +134,13 @@ return declare(
                 { name: 'displayMode', defaultValue: 'normal', type: 'string' },
 
                 { name: 'events', type: 'object', defaultValue: {
+                      click: {
+                          action: "contentDialog",
+                          title: '{type} {name}',
+                          content: function( track, feature, fRect ) {
+                              return track.defaultFeatureDetail( track, feature, fRect );
+                          }
+                      },
                       contextmenu: function( feature, fRect, track, evt ) {
                           evt = domEvent.fix( evt );
                           domEvent.stop( evt );

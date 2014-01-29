@@ -41,12 +41,6 @@ return declare( has('dom') ? [DetailsMixin]: [], {
     _setupEventHandlers: function() {
         // make a default click event handler
         var eventConf = lang.clone( this.getConf('events') );
-        if( ! eventConf.click ) {
-            eventConf.click = {
-                action: "contentDialog",
-                title: '{type} {name}',
-                content: lang.hitch( this, 'defaultFeatureDetail' ) };
-        }
 
         // process the configuration to set up our event handlers
         this.eventHandlers = (function() {
