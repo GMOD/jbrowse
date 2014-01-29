@@ -218,10 +218,7 @@ version: function() {
  * new object containing the query string configuration mixed in.
  */
 _parseQueryString: function( constructorArgs ) {
-    if(! constructorArgs.queryString )
-        return constructorArgs;
-
-    var queryConfig = ioQuery.queryToObject( constructorArgs.queryString.replace(/^\?/,'') );
+    var queryConfig = ioQuery.queryToObject( (constructorArgs.queryString||'').replace(/^\?/,'') );
     this.urlQuery = queryConfig;
     // this.setConf('urlQuery', queryConfig );
 
