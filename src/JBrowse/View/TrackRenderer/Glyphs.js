@@ -90,6 +90,13 @@ return declare(
         }
     },
 
+    resize: function( dims ) {
+        if( 'w' in dims )
+            this.staticCanvas.width = dims.w;
+        if( 'h' in dims )
+            this.staticCanvas.height = dims.h;
+    },
+
 
     configSchema: {
         slots: [

@@ -92,6 +92,7 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
     startup: function() {},
     buildRendering: function() {},
     postCreate: function() {},
+    resize: function() {},
 
     postStartup: function() {}, //< called after startup.  not actually in dijit.
 

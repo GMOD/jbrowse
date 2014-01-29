@@ -60,6 +60,11 @@ return declare( [
       this.get('renderer').buildRendering();
   },
 
+  resize: function() {
+      this.inherited( arguments );
+      this.get('renderer').resize.apply( this.get('renderer'), arguments );
+  },
+
   // a track view can have its own store, or it can use the store
   // associated with its track object
   _getStoreAttr: function() {
