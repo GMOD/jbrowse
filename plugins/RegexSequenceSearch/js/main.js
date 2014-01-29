@@ -20,7 +20,7 @@ return declare( JBrowsePlugin,
         this._searchTrackCount = 0;
 
         var thisB = this;
-        this.browser.afterMilestone('initView', function() {
+        this.browser.afterMilestone('initViews', function() {
             this.browser.addGlobalMenuItem( 'file', new dijitMenuItem(
                                            {
                                                label: 'Add sequence search track',
@@ -33,7 +33,7 @@ return declare( JBrowsePlugin,
 
     createSearchTrack: function() {
 
-        var searchDialog = new SearchSeqDialog();
+        var searchDialog = new SearchSeqDialog({ browser: this.browser });
         var thisB = this;
         searchDialog.show(
             function( searchParams ) {
