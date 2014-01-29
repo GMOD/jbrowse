@@ -144,14 +144,7 @@ return declare(
                           }
                       },
                       contextmenu: function( trackRenderer, feature, fRect, evt ) {
-                          evt = domEvent.fix( evt );
-                          domEvent.stop( evt );
-                          var stash = track.getBlockStash()[ fRect.blockID ];
-                          var menuRecord = stash && stash.contextMenus && stash.contextMenus[ feature.id() ];
-                          if( menuRecord && menuRecord.menu ) {
-                              menuRecord.menu._openMyself({ target: track.staticCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
-                              console.log('open menu');
-                          }
+                          return trackRenderer.showContextMenu( feature, fRect, evt );
                       }
                   }
                 },
@@ -179,6 +172,15 @@ return declare(
                   ]
                 }
             ]
+    },
+
+    showContextMenu: function( feature, fRect, evt ) {
+        var stash = this.getBlockStash()[ fRect.blockID ];
+        var menuRecord = stash && stash.contextMenus && stash.contextMenus[ feature.id() ];
+        if( menuRecord && menuRecord.menu ) {
+            menuRecord.menu._openMyself({ target: this.staticCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
+            //console.log('open menu');
+        }
     },
 
     guessGlyphType: function(feature) {
