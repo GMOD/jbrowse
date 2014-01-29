@@ -22,11 +22,6 @@
   <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: true"></script>
   <script type="text/javascript" src="src/JBrowse/init.js"></script>
   <script type="text/javascript">
-      window.onerror = function(msg){
-          if( document.body )
-              document.body.setAttribute( "JSError", msg );
-      }
-
       var JBrowse;
       require([ 'JBrowse/Browser' ], function( Browser ) {
           // create a JBrowse global variable holding the JBrowse instance
