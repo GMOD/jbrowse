@@ -252,7 +252,8 @@ ArrayRepr.prototype._makeAccessors = function() {
             tags: function() {
                 return tags[ this[0] ] || [];
             },
-            // these arrayreprs just deflate to be SimpleFeatures
+            // these arrayreprs just deflate to be SimpleFeatures with
+            // all the attr names lowercased
             deflate: function() {
                 var deflated = {
                     $class: 'JBrowse/Model/SimpleFeature',

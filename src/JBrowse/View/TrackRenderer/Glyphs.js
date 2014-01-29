@@ -331,8 +331,8 @@ return declare(
                              array.forEach( thisB.glyphsBeingLoaded[glyphClassName], function( cb ) {
                                                 cb( glyph );
                                             });
-                         } catch(e) {
-                             errorCallback(e);
+                         } catch( e ) {
+                             errorCallback( e );
                          }
 
                          delete thisB.glyphsBeingLoaded[glyphClassName];

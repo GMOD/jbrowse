@@ -68,11 +68,12 @@ return declare( has('dom') ? [DetailsMixin]: [], {
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( trackRenderer, /** Object */ f, fRect, container ) {
-        container = domConstruct.create(
-            'div', {
-                className: 'detail feature-detail feature-detail-'
-                    +trackRenderer.get('widget').get('track').getConf('name')                                                                                                .replace(/\s+/g,'_').toLowerCase()
-            });
+        if( ! container )
+            container = domConstruct.create(
+                'div', {
+                    className: 'detail feature-detail feature-detail-'
+                        +trackRenderer.get('widget').get('track').getCssClass()
+                });
 
         this._renderCoreDetails( trackRenderer, f, fRect, container );
 
@@ -86,9 +87,12 @@ return declare( has('dom') ? [DetailsMixin]: [], {
     },
 
     _renderCoreDetails: function( track, f, featDiv, container ) {
-        var coreDetails = domConstruct.create('div', { className: 'core' }, container );
+        var coreDetails = domConstruct.create(
+            'div', {
+                className: 'core',
+                innerHTML: '<h2 class="sectiontitle">Primary Data</h2>'
+            }, container );
         var fmt = lang.hitch( this, 'renderDetailField', coreDetails );
-        coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
 
         fmt( 'Name', this.getFeatureLabel( f ) );
         fmt( 'Type', f.get('type') );
@@ -201,7 +205,7 @@ return declare( has('dom') ? [DetailsMixin]: [], {
         var field_container = domConstruct.create('div', { className: 'field_container subfeatures' }, container );
         domConstruct.create( 'h2', { className: 'field subfeatures', innerHTML: 'Subfeatures' }, field_container );
         var subfeaturesContainer = domConstruct.create( 'div', { className: 'value subfeatures' }, field_container );
-        var trackName = trackRenderer.get('widget').get('track').getConf('name');
+        var trackName = trackRenderer.get('widget').get('track').getCssClass();
         array.forEach( subfeatures || [], function( subfeature ) {
                            this.defaultFeatureDetail(
                                trackRenderer,
@@ -210,8 +214,9 @@ return declare( has('dom') ? [DetailsMixin]: [], {
                                domConstruct.create(
                                    'div', {
                                        className: 'detail'
-                                           + ' feature-detail subfeature-detail feature-detail-'
-                                           +trackName+' subfeature-detail-'+trackName
+                                           + ' feature-detail subfeature-detail'
+                                           + ' feature-detail-'+trackName
+                                           + ' subfeature-detail-'+trackName
                                    }, subfeaturesContainer )
                            );
                        },this);

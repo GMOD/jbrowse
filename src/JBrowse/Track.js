@@ -88,6 +88,11 @@ return declare( [Component,Stateful], {
         );
     },
 
+    // gets this track's unique-ish CSS class, which is based on its name
+    getCssClass: function() {
+        return this.getConf('name').toLowerCase().replace(/\s+/g,'-');
+    },
+
     // get the correct main view name to be using for the current
     // state of the genome view
     getViewName: function( widget ) {

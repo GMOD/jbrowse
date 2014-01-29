@@ -121,7 +121,7 @@ return declare( null, {
                          };
                      } else {
                          var fpx = parseInt( font.match(/(\d+)px/)[1] );
-                         return { h: fpx*1.05, w: fpx*0.5 };
+                         return { h: fpx*1.10, w: fpx*0.6 };
                      }
                  }.call( this ));
     }
