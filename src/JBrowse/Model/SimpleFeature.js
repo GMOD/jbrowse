@@ -46,6 +46,8 @@ var SimpleFeature = fastDeclare({
                         { data: subfeatures[i],
                           parent: this
                         });
+                } else if( subfeatures[i].setParent ) {
+                    subfeatures[i].setParent( this );
                 }
             }
         }
@@ -80,6 +82,10 @@ var SimpleFeature = fastDeclare({
      */
     set: function( name, val ) {
         this.data[ name ] = val;
+    },
+
+    setParent: function( parent ) {
+        return this._parent = parent;
     },
 
     /**
