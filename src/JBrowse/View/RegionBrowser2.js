@@ -193,9 +193,11 @@ configSchema: {
 
         { name: 'visibleTracks', type: 'multi-array',
           defaultValue: [
-              //['default','Reference sequence'],
-              //['default','BigWig XY - volvox_microarray'],
-              ['default', "Features - Example Features" ]
+              ['default','Reference sequence'],
+              ['default','BigWig XY - volvox_microarray'],
+              ['default', "Features - Example Features" ],
+              ['default', "Transcripts" ],
+              ['default', 'Features - SNPs' ]
           ]
           //defaultValue: []
         },

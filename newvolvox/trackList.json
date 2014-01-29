@@ -110,25 +110,27 @@
         },
 
         {
+            "name": "Transcripts",
             "views": {
                 "default": {
-                    "query": { "set": "bam_simulated" },
-                    "name" : "Features - bam_simulated"
+                    "query": { "set": "Transcript" },
+                    "type": "JBrowse/View/TrackRenderer/Glyphs"
                 }
             }
         },
 
         {
-            "style" : { "className" : "feature2" },
-            "query": { "set": "NameTest" },
             "name" : "Features - Name test",
-            "type": "JBrowse/View/Track/CanvasFeatures"
+            "views": {
+                "default": {
+                  "query": { "set": "NameTest" }
+                 }
+            }
         },
 
         {
-            "style" : { "className" : "triangle hgred" },
-            "query": { "set": "snps" },
-            "name" : "Features - SNPs"
+            "name" : "Features - SNPs",
+            "views": {"default": { "query": { "set": "snps" } }},
         },
 
         {

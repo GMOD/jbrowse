@@ -46,7 +46,7 @@ return declare( [Component,Stateful], {
             },
 
             { name: 'defaultViewType', type: 'string',
-              defaultValue: 'JBrowse/View/TrackRenderer/CanvasFeatures'
+              defaultValue: 'JBrowse/View/TrackRenderer/Glyphs'
             },
 
             { name: 'defaultSubtrackType', type: 'string',
@@ -118,12 +118,18 @@ return declare( [Component,Stateful], {
             throw new Error( 'no configuration found for view named "'
                              +viewName+'" in track "'+this.getConf('name')+'"' );
         var thisB = this;
-        return all( [ Util.loadJSClass( viewconf.type || this.getConf('defaultViewType') ),
+        var type = viewconf.type || this.getConf('defaultViewType');
+        return all( [ Util.loadJSClass( type ),
                       thisB.get('dataHub').openStore( viewconf.store || this.getConf('store') || 'default' )
                     ])
             .then( function( stuff ) {
                        var TrackRendererClass = stuff[0], store = stuff[1];
-                       var renderer = new TrackRendererClass({ track: thisB, app: thisB.app, config: viewconf, store: store });
+                       var renderer = new TrackRendererClass(
+                           { track: thisB,
+                             app: thisB.app,
+                             config: lang.mixin({ type: type },viewconf),
+                             store: store
+                           });
                        return Util.loadJSClass( renderer.getWidgetType() )
                            .then( function( WidgetClass ) {
                                       var widget = new WidgetClass(
