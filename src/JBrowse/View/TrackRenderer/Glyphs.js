@@ -133,15 +133,17 @@ return declare(
 
                 { name: 'displayMode', defaultValue: 'normal', type: 'string' },
 
-                { name: 'events', type: 'object', defaultValue: {
+                { name: 'events', type: 'object',
+                  description: 'object of event handler definitions for what happens when clicking on glyphs',
+                  defaultValue: {
                       click: {
                           action: "contentDialog",
                           title: '{type} {name}',
-                          content: function( track, feature, fRect ) {
-                              return track.defaultFeatureDetail( track, feature, fRect );
+                          content: function( trackRenderer, feature, fRect ) {
+                              return trackRenderer.defaultFeatureDetail( trackRenderer, feature, fRect );
                           }
                       },
-                      contextmenu: function( feature, fRect, track, evt ) {
+                      contextmenu: function( trackRenderer, feature, fRect, evt ) {
                           evt = domEvent.fix( evt );
                           domEvent.stop( evt );
                           var stash = track.getBlockStash()[ fRect.blockID ];
@@ -581,9 +583,9 @@ return declare(
                                                              fRect: fRect,
                                                              callbackArgs: [ thisB, fRect.f, fRect ]
                                                          },
+                                                         thisB,
                                                          fRect.f,
                                                          fRect,
-                                                         thisB,
                                                          evt
                                                         );
                                  });
