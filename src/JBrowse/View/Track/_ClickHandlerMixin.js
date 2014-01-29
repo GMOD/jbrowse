@@ -1,21 +1,29 @@
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/aspect',
 
            'JBrowse/has!dom?dijit/Dialog',
            'JBrowse/has!dom?dijit/Menu',
+           'JBrowse/has!dom?dijit/MenuItem',
            'JBrowse/has!dom?dijit/PopupMenuItem',
+           'JBrowse/has!dom?dijit/CheckedMenuItem',
+           'JBrowse/has!dom?dijit/MenuSeparator',
 
            'JBrowse/Util',
            'JBrowse/has!dom?JBrowse/View/Dialog/Info'
        ],
        function(
            declare,
+           lang,
            aspect,
 
            Dialog,
            dijitMenu,
+           dijitMenuItem,
            dijitPopupMenuItem,
+           dijitCheckedMenuItem,
+           dijitMenuSeparator,
 
            Util,
            InfoDialog
@@ -242,6 +250,7 @@ return declare( null, {
     },
 
     _processMenuSpec: function( spec, context ) {
+        spec = lang.mixin( {}, spec );
         for( var x in spec ) {
             if( spec.hasOwnProperty(x) ) {
                 if( typeof spec[x] == 'object' )

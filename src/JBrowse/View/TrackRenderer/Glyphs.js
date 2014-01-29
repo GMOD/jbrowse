@@ -127,11 +127,15 @@ return declare(
                 { name: 'displayMode', defaultValue: 'normal', type: 'string' },
 
                 { name: 'events', type: 'object', defaultValue: {
-                      contextmenu: function( feature, fRect, block, track, evt ) {
+                      contextmenu: function( feature, fRect, track, evt ) {
                           evt = domEvent.fix( evt );
-                          if( fRect && fRect.contextMenu )
-                              fRect.contextMenu._openMyself({ target: block.featureCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
                           domEvent.stop( evt );
+                          var stash = track.getBlockStash()[ fRect.blockID ];
+                          var menuRecord = stash && stash.contextMenus && stash.contextMenus[ feature.id() ];
+                          if( menuRecord && menuRecord.menu ) {
+                              menuRecord.menu._openMyself({ target: track.staticCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
+                              console.log('open menu');
+                          }
                       }
                   }
                 },
@@ -247,7 +251,7 @@ return declare(
             );
 
         if( blockdata.maxHeightExceeded )
-            thisB.markBlockHeightOverflow( block );
+            this.markBlockHeightOverflow( block, blockNode );
 
         this.heightUpdate( totalHeight, block );
 
@@ -361,17 +365,16 @@ return declare(
         );
 
         var maxHeightExceeded = false;
+        var layout;
 
         function resolve() {
             featuresLaidOut.resolve(
                 {
                     fRects: fRects,
-                    totalHeight: layout.getTotalHeight(),
+                    totalHeight: layout ? layout.getTotalHeight() : 0,
                     maxHeightExceeded: maxHeightExceeded
                 });
         }
-
-        var layout;
 
         this.store
             .getFeatures( query )
@@ -456,6 +459,8 @@ return declare(
                              .then( function( fRect ) {
                                         //console.log( refName, bpX, y, feature && feature.get('name') );
                                         thisB.mouseover( fRect, evt );
+                                        if( fRect )
+                                            thisB._refreshContextMenu( fRect );
                                     },
                                     Util.logError
                                   );
@@ -546,7 +551,7 @@ return declare(
             }, labelTooltip);
     },
 
-    _connectConfiguredEventHandlers: function( block ) {
+    _connectConfiguredEventHandlers: function() {
         for( var e in this.eventHandlers ) {
             (function( event, handler ) {
                  var thisB = this;
@@ -559,12 +564,10 @@ return declare(
                                                              track: thisB,
                                                              feature: fRect.f,
                                                              fRect: fRect,
-                                                             block: block,
                                                              callbackArgs: [ thisB, fRect.f, fRect ]
                                                          },
                                                          fRect.f,
                                                          fRect,
-                                                         block,
                                                          thisB,
                                                          evt
                                                         );
@@ -689,7 +692,6 @@ return declare(
             //     }
 
             //     glyph.mouseoverFeature( context, fRect );
-            //     this._refreshContextMenu( fRect );
             // } else {
             //     block.tooltipTimeout = window.setTimeout( lang.hitch(this, function() { this.ignoreTooltipTimeout = false; }), 200);
             // }

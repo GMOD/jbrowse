@@ -233,6 +233,7 @@ ArrayRepr.prototype._makeAccessors = function() {
     var that = this,
         indices = {},
         tags,
+        classes = this.classes,
         accessors = {
             get: function(field) {
                 var f = this.get.field_accessors[field];
@@ -259,9 +260,21 @@ ArrayRepr.prototype._makeAccessors = function() {
                 };
                 var classNum = this[0];
                 var data = deflated.data = {};
-                for( var field in indices) {
-                    data[field] = this[ indices[field][classNum] ];
+                array.forEach( classes[classNum].attributes, function( field ) {
+                    data[ field.toLowerCase() ] = this[ indices[field][classNum] ];
+                },this);
+                if( data.Subfeatures && ! data.subfeatures ) {
+                    data.subfeatures = data.Subfeatures;
+                    delete data.Subfeatures;
                 }
+
+                if( data.subfeatures && data.subfeatures.length ) {
+                    // deflate the subfeatures
+                    data.subfeatures = array.map( data.subfeatures, function( subfeature ) {
+                        return subfeature.deflate();
+                    });
+                }
+
                 return deflated;
             }
         };

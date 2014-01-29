@@ -9,23 +9,25 @@ define([
 return declare( null, {
 
 _refreshContextMenu: function( fRect ) {
-    // if we already have a menu generated for this feature,
-    // give it a new lease on life
-    if( ! fRect.contextMenu ) {
-        fRect.contextMenu = this._makeFeatureContextMenu( fRect, this.getConfForFeature( 'menuTemplate', fRect.f ) );
-    }
+    var stash = this.getBlockStash()[ fRect.blockID ];
+    if( ! stash )
+        return;
+    stash = stash.contextMenus || ( stash.contextMenus = {} );
+
+    var menuRecord = stash[ fRect.f.id() ] || ( stash[ fRect.f.id() ] = {} );
+    menuRecord.menu = this._makeFeatureContextMenu( fRect, this.getConfForFeature( 'menuTemplate', fRect.f ) );
 
     // give the menu a timeout so that it's cleaned up if it's not used within a certain time
-    if( fRect.contextMenuTimeout ) {
-        window.clearTimeout( fRect.contextMenuTimeout );
-    }
+    if( menuRecord.timeout )
+        clearTimeout( menuRecord.timeout );
+
     var timeToLive = 30000; // clean menus up after 30 seconds
-    fRect.contextMenuTimeout = window.setTimeout( function() {
-        if( fRect.contextMenu ) {
-            fRect.contextMenu.destroyRecursive();
-            delete fRect.contextMenu;
+    menuRecord.timeout = setTimeout( function() {
+        if( menuRecord.menu ) {
+            menuRecord.menu.destroyRecursive();
+            delete menuRecord.menu;
         }
-        delete fRect.contextMenuTimeout;
+        delete menuRecord.timeout;
     }, timeToLive );
 },
 
@@ -36,7 +38,7 @@ _makeFeatureContextMenu: function( fRect, menuTemplate ) {
     var context = lang.mixin( { track: this, feature: fRect.f, callbackArgs: [ this, fRect.f, fRect ] }, fRect );
     // interpolate template strings in the menuTemplate
     menuTemplate = this._processMenuSpec(
-        dojo.clone( menuTemplate ),
+        menuTemplate,
         context
     );
 

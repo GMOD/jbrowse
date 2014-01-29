@@ -190,9 +190,9 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
         // context.strokeRect( fRect.l, fRect.t, fRect.w, fRect.h );
 
         this.renderBox( block, context, fRect.f, fRect.t, fRect.rect.h, fRect.f );
-        this.renderLabel( context, fRect );
-        this.renderDescription( context, fRect );
-        this.renderArrowhead( context, fRect );
+        this.renderLabel( block, context, fRect );
+        this.renderDescription( block, context, fRect );
+        this.renderArrowhead( block, context, fRect );
     },
 
     // top and height are in px
@@ -243,7 +243,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     // feature label
-    renderLabel: function( context, fRect ) {
+    renderLabel: function( block, context, fRect ) {
         if( fRect.label ) {
             context.font = fRect.label.font;
             context.fillStyle = fRect.label.fill.toString();
@@ -256,7 +256,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     // feature description
-    renderDescription: function( context, fRect ) {
+    renderDescription: function( block, context, fRect ) {
         if( fRect.description ) {
             context.font = fRect.description.font;
             context.fillStyle = fRect.description.fill.toString();
@@ -270,7 +270,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
     },
 
     // strand arrowhead
-    renderArrowhead: function( context, fRect ) {
+    renderArrowhead: function( block, context, fRect ) {
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fRect.rect.l+fRect.rect.w <= context.canvas.width ) {
                 this.getEmbeddedImage( 'plusArrow' )

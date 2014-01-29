@@ -204,7 +204,7 @@ return declare( has('dom') ? [DetailsMixin]: [], {
         var trackName = trackRenderer.get('widget').get('track').getConf('name');
         array.forEach( subfeatures || [], function( subfeature ) {
                            this.defaultFeatureDetail(
-                               track,
+                               trackRenderer,
                                subfeature,
                                null,
                                domConstruct.create(

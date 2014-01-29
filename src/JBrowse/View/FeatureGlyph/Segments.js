@@ -20,7 +20,7 @@ configSchema: {
         { name: 'connectorColor', defaultValue: '#333', type: 'Color' },
         { name: 'connectorThickness', defaultValue: 1, type: 'float' },
         { name: 'borderColor', defaultValue: 'rgba( 0, 0, 0, 0.3 )', type: 'Color' },
-        { name: 'subParts', defaultValue: function() { return true; }, type: 'function' } // accept all subparts by default
+        { name: 'subParts', defaultValue: function() { return true; }, type: 'function|string' } // accept all subparts by default
     ]
 },
 
@@ -28,14 +28,14 @@ renderFeature: function( block, context, fRect ) {
     if( this.track.displayMode != 'collapsed' )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
-    this.renderConnector( context,  fRect );
-    this.renderSegments( context, fRect );
-    this.renderLabel( context, fRect );
-    this.renderDescription( context, fRect );
-    this.renderArrowhead( context, fRect );
+    this.renderConnector( block, context,  fRect );
+    this.renderSegments( block, context, fRect );
+    this.renderLabel( block, context, fRect );
+    this.renderDescription( block, context, fRect );
+    this.renderArrowhead( block, context, fRect );
 },
 
-renderConnector: function( context, fRect ) {
+renderConnector: function( block, context, fRect ) {
     // connector
     var connectorColor = this.getStyle( fRect.f, 'connectorColor' );
     if( connectorColor ) {
@@ -58,7 +58,7 @@ renderSegments: function( block, context, fRect ) {
     var parentFeature = fRect.f;
     function style( feature, stylename ) {
         if( stylename == 'height' )
-            return thisB._getFeatureHeight( block, feature );
+            return thisB.getFeatureHeight( block, feature );
 
         return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
     }
@@ -87,7 +87,7 @@ _filterSubpart: function( f ) {
 // make a function that will filter subpart features according to the
 // sub_parts conf var
 _makeSubpartsFilter: function( f ) {
-    var filter = this.getConfFunc( 'subParts' );
+    var filter = this.getConf( 'subParts' );
 
     if( typeof filter == 'string' )
         // convert to array
