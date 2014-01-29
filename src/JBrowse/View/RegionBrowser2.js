@@ -186,7 +186,7 @@ configSchema: {
 
         { name: 'referenceSetPath', type: 'string',
           defaultValue: function(regionbrowser) {
-              return regionbrowser.browser.getConf('defaultDataHubName')+'/default';
+              return regionbrowser.browser.getConf('defaultDataHubName')+'.default';
           },
           description: 'data hub path to reference sequence set to display: hubname/setname'
         },
@@ -383,7 +383,7 @@ getReferenceSet: function( pathStr ) {
     if( ! path )
         return Util.resolved();
 
-    path = path.split('/',2);
+    path = path.split('.',2);
     return this.browser.getReferenceSet( path[0], path[1] );
 },
 
