@@ -38,25 +38,6 @@ return declare( has('dom') ? [DetailsMixin]: [], {
         }
     },
 
-    _setupEventHandlers: function() {
-        // make a default click event handler
-        var eventConf = lang.clone( this.getConf('events') );
-
-        // process the configuration to set up our event handlers
-        this.eventHandlers = (function() {
-            var handlers = lang.clone( eventConf );
-
-            // interpret handlers that are just strings to be URLs that should be opened
-            for( key in handlers ) {
-                if( typeof handlers[key] == 'string' )
-                    handlers[key] = { url: handlers[key] };
-            }
-
-            return handlers;
-        }).call(this);
-        this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
-    },
-
     /**
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML

@@ -90,6 +90,25 @@ return declare(
         }
     },
 
+    _setupEventHandlers: function() {
+        // make a default click event handler
+        var eventConf = lang.clone( this.getConf('events') );
+
+        // process the configuration to set up our event handlers
+        this.eventHandlers = (function() {
+            var handlers = lang.clone( eventConf );
+
+            // interpret handlers that are just strings to be URLs that should be opened
+            for( key in handlers ) {
+                if( typeof handlers[key] == 'string' )
+                    handlers[key] = { url: handlers[key] };
+            }
+
+            return handlers;
+        }).call(this);
+        this.eventHandlers.click = this._makeClickHandler( this.eventHandlers.click );
+    },
+
     resize: function( dims ) {
         if( 'w' in dims )
             this.staticCanvas.width = dims.w;
@@ -139,11 +158,11 @@ return declare(
                       click: {
                           action: "contentDialog",
                           title: '{type} {name}',
-                          content: function( trackRenderer, feature, fRect ) {
+                          content: function( evt, trackRenderer, feature, fRect ) {
                               return trackRenderer.defaultFeatureDetail( trackRenderer, feature, fRect );
                           }
                       },
-                      contextmenu: function( trackRenderer, feature, fRect, evt ) {
+                      contextmenu: function( evt, trackRenderer, feature, fRect ) {
                           return trackRenderer.showContextMenu( feature, fRect, evt );
                       }
                   }
@@ -513,9 +532,9 @@ return declare(
                        if( ! block )
                            return undefined;
 
+                       // find the ref seq and bp we are over
                        var refName = block.getProjectionBlock().getBName();
                        var bpX = block.docPxToBp( x );
-        //console.log( bpX,y );
 
                        return job.remoteApply( 'workerGetFRectAt', [ refName, bpX, y ] );
                    });
@@ -583,12 +602,12 @@ return declare(
                                                              track: thisB,
                                                              feature: fRect.f,
                                                              fRect: fRect,
-                                                             callbackArgs: [ thisB, fRect.f, fRect ]
+                                                             callbackArgs: [ evt, thisB, fRect.f, fRect ]
                                                          },
+                                                         evt,
                                                          thisB,
                                                          fRect.f,
-                                                         fRect,
-                                                         evt
+                                                         fRect
                                                         );
                                  });
                          })
