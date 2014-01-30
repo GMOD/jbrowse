@@ -2599,6 +2599,10 @@ showRegionWithHighlight: function() { // backcompat
             return cfg;
         });
 
+        dojo.forEach(configs, function(config) {
+            browser.cookie("track-" + config.track, config.style);
+        });
+
         browser.publish( '/jbrowse/v1/v/tracks/replace', configs);
     }
 });

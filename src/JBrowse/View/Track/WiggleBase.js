@@ -32,7 +32,12 @@ define( [
 return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
+        var cookie = this.browser.cookie("track-" + this.name);
         this.trackPadding = args.trackPadding || 0;
+
+        if (cookie) {
+            this.config.style = dojo.mixin(dojo.fromJson(cookie), this.config.style);
+        }
 
         if( ! ('style' in this.config ) ) {
             this.config.style = {};
@@ -484,6 +489,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
         // update track with new height
         this.browser.publish( '/jbrowse/v1/v/tracks/replace', [config] );
+        this.browser.cookie('track-' + this.name, config.style);
     },
 
     _trackMenuOptions: function() {
