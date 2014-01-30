@@ -115,12 +115,12 @@ return declare( has('dom') ? [DetailsMixin]: [], {
         }
     },
 
-    _renderUnderlyingReferenceSequence: function( track, f, featDiv, container ) {
+    _renderUnderlyingReferenceSequence: function( trackRenderer, f, featDiv, container ) {
 
         // render the sequence underlying this feature if possible
         var field_container = domConstruct.create('div', { className: 'field_container feature_sequence' }, container );
         domConstruct.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this '+(f.get('type') || 'feature') }, field_container );
-        var valueContainerID = 'feature_sequence'+this._uniqID();
+        var valueContainerID = 'feature_sequence_'+this._uniqID();
         var valueContainer = domConstruct.create(
             'div', {
                 id: valueContainerID,
@@ -128,46 +128,57 @@ return declare( has('dom') ? [DetailsMixin]: [], {
                 className: 'value feature_sequence'
             }, field_container);
         var maxSize = this.getConf('maxFeatureSizeForUnderlyingRefSeq');
-        if( true || maxSize < (f.get('end') - f.get('start')) ) {
+        if( maxSize < (f.get('end') - f.get('start')) ) {
             valueContainer.innerHTML = 'Not displaying underlying reference sequence, feature is longer than maximum of '+Util.humanReadableNumber(maxSize)+'bp';
         } else {
-             track.browser.getStore('refseqs', lang.hitch(this,function( refSeqStore ) {
-                 valueContainer = dojo.byId(valueContainerID) || valueContainer;
-                 if( refSeqStore ) {
-                     refSeqStore.getReferenceSequence(
-                         { ref: f.get('seq_id'), start: f.get('start'), end: f.get('end')},
-                         // feature callback
-                         lang.hitch( this, function( seq ) {
-                             valueContainer = dojo.byId(valueContainerID) || valueContainer;
-                             valueContainer.innerHTML = '';
-                             // the HTML is rewritten by the dojo dialog
-                             // parser, but this callback may be called either
-                             // before or after that happens.  if the fetch by
-                             // ID fails, we have come back before the parse.
-                             var textArea = new FASTAView({ width: 62, htmlMaxRows: 10 })
-                                                .renderHTML(
-                                                    { ref:   f.get('seq_id'),
-                                                      start: f.get('start'),
-                                                      end:   f.get('end'),
-                                                      strand: f.get('strand'),
-                                                      type: f.get('type')
-                                                    },
-                                                    f.get('strand') == -1 ? Util.revcom(seq) : seq,
-                                                    valueContainer
-                                                );
-                       }),
-                       // end callback
-                       function() {},
-                       // error callback
-                       lang.hitch( this, function() {
-                           valueContainer = dojo.byId(valueContainerID) || valueContainer;
-                           valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
-                       })
-                     );
+             trackRenderer.get('widget').get('genomeView').getReferenceSet()
+                .then( function( refSeqStore ) {
+                     if( refSeqStore ) {
+                         refSeqStore.getReferenceSequences(
+                             { ref: f.get('seq_id'), start: f.get('start'), end: f.get('end')}
+                         ).forEach(
+                             // feature callback
+                             function( ref ) {
+                                 // all this valueContainerID and
+                                 // dojo.byID business is here because
+                                 // the HTML is rewritten by the dojo
+                                 // dialog parser, but this callback may be called either
+                                 // before or after that happens.  if the fetch by
+                                 // ID fails, we have come back before the parse.
+                                 return ref.getSequence( f.get('start'), f.get('end') )
+                                     .then( function( seq ) {
+                                                valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                                                valueContainer.innerHTML = '';
+                                                if( seq ) {
+                                                    new FASTAView({ width: 62, htmlMaxRows: 10 })
+                                                        .renderHTML(
+                                                            { ref:   f.get('seq_id'),
+                                                              start: f.get('start'),
+                                                              end:   f.get('end'),
+                                                              strand: f.get('strand'),
+                                                              type: f.get('type')
+                                                            },
+                                                            f.get('strand') == -1 ? Util.revcom(seq) : seq,
+                                                            valueContainer
+                                                        );
+                                                }
+                                                else {
+                                                    valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
+                                                }
+                                            });
+                           },
+                           // end callback
+                           function() {},
+                           // error callback
+                           function() {
+                               valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                               valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
+                           }
+                         );
                  } else {
                      valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
                  }
-             }));
+             });
         }
     },
 

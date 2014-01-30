@@ -2,10 +2,13 @@
 
     "referenceSets": [
         { "name": "Volvox",
+          // "store": "refseqs",
+           "sequenceStore": "refseqs",
           "regions": [
               { "seq_id": "ctgA", "start": 0, "end": 50000, "name": "ctgA" },
               { "seq_id": "ctgB", "start": 0, "end": 6097, "name": "ctgB" }
           ]
+
         },
 
         { "name": "D. melanogaster FlyBase 5.52",
