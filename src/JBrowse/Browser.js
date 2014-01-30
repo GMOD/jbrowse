@@ -35,6 +35,7 @@ define( [
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
+            'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
@@ -76,6 +77,7 @@ define( [
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
+            SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
@@ -646,6 +648,18 @@ initView: function() {
             this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
+
+            this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                id: 'menubar_settrackheight',
+                label: 'Set track height',
+                onClick: function() {
+                    new SetTrackHeightDialog({
+                        setCallback: dojo.hitch( thisObj, "_updateTrackHeights")
+                    }).show();
+                }
+            }));
+
+
 
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
@@ -2571,9 +2585,22 @@ showRegionAfterSearch: function( location ) {
 },
 showRegionWithHighlight: function() { // backcompat
     return this.showRegionAfterSearch.apply( this, arguments );
-}
+},
 
+    _updateTrackHeights: function(height) {
+        var browser = this;
+        var tracks = browser.view.visibleTrackNames();
 
+        var configs = dojo.map(tracks, function(trackName) {
+            var cfg = browser.trackConfigsByName[trackName];
+            cfg.style = cfg.style || {};
+            cfg.style.height = height;
+
+            return cfg;
+        });
+
+        browser.publish( '/jbrowse/v1/v/tracks/replace', configs);
+    }
 });
 });
 
