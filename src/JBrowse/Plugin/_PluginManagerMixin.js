@@ -5,6 +5,7 @@ define([
            'dojo/Deferred',
            'dojo/promise/all',
 
+           'JBrowse/has',
            'JBrowse/Util'
        ],
        function(
@@ -14,6 +15,7 @@ define([
            Deferred,
            all,
 
+           has,
            Util
        ) {
 
@@ -56,7 +58,7 @@ return declare( null,  {
 
           // coerce plugins to array of objects
           pluginsToLoad = array.map( pluginsToLoad, function( p ) {
-              return typeof p == 'object' ? p : { 'name': p };
+              return typeof p == 'object' ? lang.mixin({},p) : { 'name': p };
           });
 
           // set default locations for each plugin
@@ -85,7 +87,8 @@ return declare( null,  {
                            pluginsToLoad, function(p) {
                                return {
                                    name: p.name,
-                                   location: p.js
+                                   location: p.js,
+                                   main: has('jbrowse-main-process') ? 'main' : 'worker'
                                };
                            })
                    },
@@ -94,28 +97,41 @@ return declare( null,  {
                        array.forEach( arguments, function( PluginClass, i ) {
                                var pluginConf = pluginsToLoad[i];
                                var thisPluginDone = pluginDeferreds[i];
-                               if( typeof pluginClass == 'string' ) {
-                                   thisPluginDone.reject( "could not load plugin "+pluginConf.name+": "+PluginClass );
+                               if( typeof PluginClass == 'string' ) {
+                                   // plugins are required to have main.js
+                                   if( has('jbrowse-main-process' ) )
+                                       thisPluginDone.reject( "could not load plugin "+pluginConf.name+": "+PluginClass );
+                                   else // but they are not required to have worker.js
+                                       thisPluginDone.resolve( 'not loaded' );
                                }
                                else {
-                                   // load its css and then instantiate it
-                                   thisB._loadCSS(
-                                       { url: thisB.resolveUrl( pluginConf.css+'/main.css' ) }
-                                   ).then( function() {
-                                               pluginObjectsByName[ pluginConf.name ] =
-                                                   new PluginClass(
-                                                       // make the plugin's arguments out of
-                                                       // its conf in 'plugins'
-                                                       lang.mixin(
-                                                           {},
-                                                           pluginConf,
-                                                           { config: pluginConf.config || {},
-                                                             app: thisB
-                                                           }
-                                                       ));
+                                   function instantiateIt() {
+                                       pluginObjectsByName[ pluginConf.name ] =
+                                           new PluginClass(
+                                               // make the plugin's arguments out of
+                                               // its conf in 'plugins'
+                                               lang.mixin(
+                                                   {},
+                                                   pluginConf,
+                                                   { config: pluginConf.config || {},
+                                                     app: thisB
+                                                   }
+                                               ));
+                                       thisPluginDone.resolve();
+                                   }
 
-                                               thisPluginDone.resolve();
-                                           });
+                                   // it we have a DOM (i.e. not
+                                   // running in a worker or
+                                   // something), load its css and
+                                   // then instantiate it
+                                   if( has('dom') ) {
+                                       thisB._loadCSS(
+                                           { url: thisB.resolveUrl( pluginConf.css+'/main.css' ) }
+                                       ).then( instantiateIt, Util.logError );
+                                   }
+                                   else {
+                                       instantiateIt();
+                                   }
                                }
                            });
                     });

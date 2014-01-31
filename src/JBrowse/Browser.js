@@ -40,7 +40,6 @@ define( [
             'JBrowse/Worker/_WorkerManagerMixin',
             'JBrowse/Plugin/_PluginManagerMixin',
             'JBrowse/View/RegionBrowser2',
-            'JBrowse/ConfigManager',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/View/Dialog/Info',
             'JBrowse/View/FileDialog',
@@ -89,7 +88,6 @@ define( [
             WorkerManagerMixin,
             PluginManagerMixin,
             RegionBrowser2,
-            ConfigLoader,
             SimpleFeature,
             InfoDialog,
             FileDialog,
@@ -143,7 +141,11 @@ constructor: function(params) {
 
  init: function() {
      var thisB = this;
-     return this.inherited( arguments )
+     var args = arguments;
+     return this.loadConfig()
+         .then( function() {
+                   return thisB.inherited( args );
+                })
         .then( function() {
                    return thisB.loadCSS();
                })
@@ -335,7 +337,7 @@ loadCSS: function() {
             .then( function() { deferred.resolve({success:true}); } );
    });
 },
-
+// dynamically loads CSS from either a string, or a URL
 _loadCSS: function( css ) {
     var deferred = new Deferred();
     if( typeof css == 'string' ) {
@@ -891,88 +893,6 @@ addRecentlyUsedTracks: function( trackLabels ) {
     this.cookie( 'recentTracks', newRecent, { expires: 365 } );
 
     return newRecent;
-},
-
-/**
- * Run a function that will eventually resolve the named Deferred
- * (milestone).
- * @param {String} name the name of the Deferred
- */
-_milestoneFunction: function( /**String*/ name, func ) {
-
-    var thisB = this;
-    var args = Array.prototype.slice.call( arguments, 2 );
-
-    var d = thisB._getDeferred( name );
-    args.unshift( d );
-    try {
-        func.apply( thisB, args ) ;
-    } catch(e) {
-        console.error( name, e, e.stack );
-        d.resolve({ success:false, error: e });
-    }
-
-    return d;
-},
-
-/**
- * Fetch or create a named Deferred, which is how milestones are implemented.
- */
-_getDeferred: function( name ) {
-    if( ! this._deferred )
-        this._deferred = {};
-    return this._deferred[name] = this._deferred[name] || new Deferred();
-},
-/**
- * Attach a callback to a milestone.
- */
-afterMilestone: function( name, func, ctx ) {
-    return this._getDeferred(name)
-        .then( function() {
-                   try {
-                       func.call( ctx || this );
-                   } catch( e ) {
-                       console.error( ''+e, e.stack, e );
-                   }
-               });
-},
-/**
- * Indicate that we've reached a milestone in the initalization
- * process.  Will run all the callbacks associated with that
- * milestone.
- */
-passMilestone: function( name, result ) {
-    return this._getDeferred(name).resolve( result );
-},
-/**
- * Return true if we have reached the named milestone, false otherwise.
- */
-reachedMilestone: function( name ) {
-    return this._getDeferred(name).isResolved();
-},
-
-
-/**
- *  Load our configuration file(s) based on the parameters thex
- *  constructor was passed.  Does not return until all files are
- *  loaded and merged in.
- *  @returns nothing meaningful
- */
-loadConfig:function () {
-    return this._milestoneFunction( 'loadConfig', function( deferred ) {
-        var c = new ConfigLoader({ config: this._constructorArgs, defaults: {}, browser: this });
-        this._finalizeConfig( this._constructorArgs || {} );
-        c.getFinalConfig()
-         .then( lang.hitch(this, function( finishedConfig ) {
-                               this._finalizeConfig( finishedConfig, this._getLocalConfig() );
-                               deferred.resolve({success:true});
-                           }));
-    });
-},
-
-// override component getconf to pass browser object by default
-getConf: function( key, args ) {
-    return this.inherited( arguments, [ key, args || [this] ] );
 },
 
 /**

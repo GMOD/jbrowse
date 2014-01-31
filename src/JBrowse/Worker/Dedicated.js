@@ -32,9 +32,17 @@ constructor: function(args) {
 
     this.app = this.browser = this;
 
-    args.self.onmessage = lang.hitch( this, '_handleMessage' );
+    var thisB = this;
+    args.self.onmessage = function(msg) {
+        thisB.init()
+            .then( function() {
+                       thisB._handleMessage(msg);
+                   });
+    };
 
     this._jobs = {};
+
+    this.init().then( null, Util.logError );
 },
 
 _handleMessage: function( event ) {
