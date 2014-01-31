@@ -18,9 +18,27 @@
       req.onreadystatechange = function() {
           //console.log( 'req status '+req.status );
           if( req.readyState == 4 ) {
-              eval_(req.responseText + "\r\n////@ sourceURL=" + url);
+              if( req.status == 200 ) {
+                  eval_( req.responseText + "\r\n////@ sourceURL=" + url );
+              }
               req = null;
               callback();
+          }
+      };
+      req.send(null);
+  }
+
+  function getText( url, sync, callback ) {
+      if( sync ) throw new Error('sync requests not supported');
+
+      var req = new XMLHttpRequest();
+      req.open('GET', url, false );
+      //console.log('loading '+url );
+      req.onreadystatechange = function() {
+          //console.log( 'req status '+req.status );
+          if( req.readyState == 4 ) {
+              callback( req.responseText );
+              req = null;
           }
       };
       req.send(null);
@@ -30,7 +48,8 @@
   self.dojoConfig = {
       async: 1,
       loaderPatch: { // good lord. monkey-patch the dojo loader.
-          injectUrl: loadScript
+          injectUrl: loadScript,
+          getText: getText
       },
       has: {
           'dojo-sniff': false,
@@ -72,7 +91,7 @@
   }
 
   self.onmessage = function( event ) {
-      var config; eval( 'config='+event.data+';' );
+      var config = event.data;
 
       // if configured with a delay, wait before continuing the boot
       // process.  delay is usually useful to give a human developer

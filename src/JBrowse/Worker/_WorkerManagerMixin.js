@@ -53,7 +53,7 @@ return declare( null, {
               d.reject( new Error( event ) );
           }
       };
-      worker.postMessage( JSON.stringify(
+      worker.postMessage(
                               { preload: [
                                     '../../dojo/dojo.js'
                                     , '../init.js'
@@ -62,7 +62,7 @@ return declare( null, {
                                 require: { baseUrl: '../..' },
                                 config: this.exportMergedConfig(),
                                 workerClass: workerClass || 'JBrowse/Worker/Dedicated'
-                              }));
+                              });
 
       return d.then(
           undefined,
