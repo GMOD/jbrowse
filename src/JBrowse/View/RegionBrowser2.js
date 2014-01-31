@@ -292,9 +292,12 @@ getTrackWidgetForCoordinate: function( x, y ) {
     if( el && ( parents = allParents( el, [el] ) ).indexOf( this.domNode ) != -1 ) {
         // iterate through the nodes and find the first one that is a track widget
         array.some( parents, function( node ) {
-                        var widget = dijitRegistry.byNode( node );
-                        if( widget instanceof TrackWidget )
-                            return trackWidget = widget;
+                        var widget;
+                        try {
+                            widget = dijitRegistry.byNode( node );
+                            if( widget instanceof TrackWidget )
+                                return trackWidget = widget;
+                        } catch(e) {}
                         return false;
                     });
     }
