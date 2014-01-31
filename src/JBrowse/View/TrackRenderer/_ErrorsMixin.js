@@ -4,6 +4,7 @@ define([
            'dojo/_base/array',
 
            'JBrowse/Errors',
+           'JBrowse/Util',
            'JBrowse/has!dom?dojo/dom-geometry',
            'JBrowse/has!dom?dojo/dom-construct',
            'JBrowse/has!dom?dojo/dom-style'
@@ -15,6 +16,7 @@ define([
 
            Errors,
 
+           Util,
            domGeom,
            domConstruct,
            domStyle
@@ -42,7 +44,7 @@ return declare( null, {
                 this.showTrackMessage( 'Too much data to show' );
         }
         else {
-            console.error( error.stack || ''+error, error );
+            Util.logError( error );
             this.fatalError = error;
             if( this.get('widget') && this.get('widget')._handleError )
                 this.get('widget')._handleError( error );
@@ -106,7 +108,7 @@ return declare( null, {
         } else if( this.get('widget') && this.get('widget')._handleError ) {
             return this.get('widget')._handleError( error );
         } else {
-            console.error( error.stack || ''+error );
+            Util.logError( error );
             return undefined;
         }
     },

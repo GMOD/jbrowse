@@ -7,6 +7,7 @@ define( [
             'dojo/Deferred',
             'dojo/errors/CancelError',
             'dojo/fx/easing',
+            'dojo/json',
 
             'JBrowse/Errors',
             'JBrowse/Model/SimpleFeature',
@@ -21,6 +22,7 @@ define( [
             Deferred,
             DojoCancelError,
             easingFuncs,
+            JSON,
 
             Errors,
             SimpleFeature
@@ -92,7 +94,10 @@ var Util = {
     },
 
     logError: function( error ) {
-        console.error( error.stack || ''+error );
+        var str = error.stack || ''+error;
+        if( /^\[Object/.test( str ) )
+            str = JSON.stringify( str );
+        console.error( str );
     },
     logErrorAndThrow: function( error ) {
         console.error( error.stack || ''+error );
