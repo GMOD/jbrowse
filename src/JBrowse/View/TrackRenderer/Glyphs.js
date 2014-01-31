@@ -691,12 +691,12 @@ return declare(
             };
 
             // clamp the mouseover to the block boundaries
-            if( mouseover.l < dims.l ) {
-                mouseover.l = dims.l;
-                mouseover.w -= dims.l - mouseover.l;
-            }
-            if( mouseover.l+mouseover.w > dims.r )
-                mouseover.w = dims.r - mouseover.l;
+            // if( mouseover.l < dims.l ) {
+            //     mouseover.l = dims.l;
+            //     mouseover.w -= dims.l - mouseover.l;
+            // }
+            // if( mouseover.l+mouseover.w > dims.r )
+            //     mouseover.w = dims.r - mouseover.l;
 
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.fillRect( mouseover.l, mouseover.t, mouseover.w, mouseover.h );
