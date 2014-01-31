@@ -7,6 +7,7 @@ define([
            'dojo/dom-class',
            'dojo/promise/all',
 
+           'dijit/registry',
            'dijit/layout/BorderContainer',
 
            'JBrowse/Util',
@@ -18,6 +19,7 @@ define([
            'JBrowse/Projection/Circular',
            'JBrowse/Projection/Discontinuous/FromStore',
 
+           'JBrowse/View/Track',
            'JBrowse/View/Track/BlockList',
            'JBrowse/View/Track/BlockList/Block',
            './RegionBrowser/Toolbar',
@@ -35,6 +37,7 @@ define([
            domClass,
            all,
 
+           dijitRegistry,
            BorderContainer,
 
            Util,
@@ -46,6 +49,7 @@ define([
            CircularProjection,
            RegionsProjection,
 
+           TrackWidget,
            RenderingBlockList,
            RenderingBlock,
            RegionBrowserToolbar,
@@ -269,6 +273,33 @@ showTracks: function( trackObjects ) {
                        return trackWidget;
                    });
     }));
+},
+
+// given a Y offset from the top of the regionbrowser,
+getTrackWidgetForCoordinate: function( x, y ) {
+    var el = document.elementFromPoint( x, y );
+    function allParents( node, p ) {
+        if( node.parentNode ) {
+            p.push( node.parentNode );
+            allParents( node.parentNode, p );
+        }
+        return p;
+    }
+
+    // if the cursor is in this regionbrowser
+    var parents;
+    var trackWidget;
+    if( el && ( parents = allParents( el, [el] ) ).indexOf( this.domNode ) != -1 ) {
+        // iterate through the nodes and find the first one that is a track widget
+        array.some( parents, function( node ) {
+                        var widget = dijitRegistry.byNode( node );
+                        if( widget instanceof TrackWidget )
+                            return trackWidget = widget;
+                        return false;
+                    });
+    }
+
+    return trackWidget;
 },
 
 // destroy any displayed widgets for the given track object.  returns
