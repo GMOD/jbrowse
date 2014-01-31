@@ -133,7 +133,7 @@ return declare( null, {
                     track._openDialog( spec, evt, ctx );
             }
             else if( typeof spec.action == 'function' ) {
-                spec.action.apply( ctx, ctx.callbackArgs ? [evt].concat(ctx.callbackArgs) : arguments );
+                spec.action.apply( ctx, ctx.callbackArgs || arguments );
             }
             else {
                 return;
