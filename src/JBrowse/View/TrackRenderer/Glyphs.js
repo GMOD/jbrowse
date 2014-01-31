@@ -490,8 +490,9 @@ return declare(
         }
         else {
             var thisB = this;
+            var widgetDomNode = this.get('widget').domNode;
             if( !this._mouseoverEvent ) {
-                this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
+                this._mouseoverEvent = this.own( on( widgetDomNode, 'mousemove', function( evt ) {
                          thisB.getFRectUnderMouse( evt )
                              .then( function( fRect ) {
                                         //console.log( refName, bpX, y, feature && feature.get('name') );
@@ -505,7 +506,7 @@ return declare(
             }
 
             if( !this._mouseoutEvent ) {
-                this._mouseoutEvent = this.own( on( this.staticCanvas, 'mouseout', function( evt) {
+                this._mouseoutEvent = this.own( on( widgetDomNode, 'mouseout', function( evt) {
                     thisB.mouseover( undefined );
                 }))[0];
             }
@@ -592,8 +593,8 @@ return declare(
         for( var e in this.eventHandlers ) {
             (function( event, handler ) {
                  var thisB = this;
-                 this.get('widget').own(
-                     on( this.staticCanvas, event, function( evt ) {
+                 this.own(
+                     on( this.get('widget').domNode, event, function( evt ) {
                              evt.preventDefault();
                              thisB.getFRectUnderMouse( evt )
                              .then( function( fRect ) {
