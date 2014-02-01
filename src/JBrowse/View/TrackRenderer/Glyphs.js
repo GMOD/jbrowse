@@ -299,12 +299,9 @@ return declare(
     // get the appropriate layout object for the given block.  use the
     // given hints for instantiating it if needed.
     _getLayout: function( block, hints ) {
-        if( this._lastLayout.block === block )
-            return this._lastLayout.layout;
-
         var pBlock = block.getProjectionBlock();
         var scale = pBlock.getScale();
-        var layoutKey = pBlock.getBName()+'.'+scale;
+        var layoutKey = pBlock.getBName()+'.'+Math.round(scale);
 
         var layout = this._layouts[ layoutKey ] || ( this._layouts[ layoutKey ] = function() {
             //console.log( 'new layout '+layoutKey );
@@ -317,8 +314,6 @@ return declare(
                     displayMode: this.getConf('displayMode')
                 });
         }.call(this) );
-
-        this._lastLayout = { block: block, layout: layout };
 
         return layout;
     },
