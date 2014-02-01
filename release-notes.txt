@@ -11,6 +11,12 @@
    basepairs aren't available.  Thanks to Kevin Mohamed for
    implementing this (issue #422).
 
+## Bug fixes
+
+ * Added a missing dependency for the server side formatting tools on
+   List::MoreUtil 0.28 or higher.  Thanks to Cris Lawrence and Keiran
+   Raine for troubleshooting this!
+
 # Release 1.11.1     2014-01-07 15:48:39 EST5EDT
 
 ## Minor improvements

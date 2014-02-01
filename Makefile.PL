@@ -69,6 +69,7 @@ my %WriteMakefileArgs = (
     "JSON" => 2,
     "JSON::XS" => 0,
     "List::Util" => 0,
+    "List::MoreUtils" => 0.28,
     "POSIX" => 0,
     "PerlIO::gzip" => 0,
     "Pod::Usage" => 0,
