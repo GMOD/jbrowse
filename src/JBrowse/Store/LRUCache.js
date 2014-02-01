@@ -28,6 +28,9 @@ return declare( null,
      */
     constructor: function( args ) {
         this.fill = args.fillCallback;
+	if( args.deferredFillCallback )
+	    this.fill = this._wrapDeferredFillCallback( args.deferredFillCallback );
+
         this.maxSize = args.maxSize || 1000000;
 
         this.verbose = args.verbose;
@@ -51,19 +54,21 @@ return declare( null,
         this._inProgressFills = {};
     },
 
+    // wrap a fill callback to support it returning a Deferred
+    _wrapDeferredFillCallback: function( oldCallback ) {
+	return function( key, callback ) {
+	    oldCallback(key)
+		.then( callback,
+		       function(error) { callback( null, error ); }
+		       );
+	};
+    },
+
     getD: function( key, fillCallback ) {
         var d = new Deferred();
 
-        if( fillCallback ) {
-            // wrap the fillcallback to support it returning a Deferred
-            var oldCallback = fillCallback;
-            fillCallback = function( key, callback ) {
-                oldCallback(key)
-                    .then( callback,
-                           function(error) { callback( null, error ); }
-                         );
-            };
-        }
+        if( fillCallback )
+	    fillCallback = this._wrapDeferredFillCallback( fillCallback );
 
         this.get( key, function( val, error ) {
                       if( error )
