@@ -66,6 +66,11 @@ return declare( [_RequestMixin, Destroyable], {
 
   destroy: function() {
       this._worker.finishJob( this._jobNumber );
+      console.log( 'destroying job '+this._jobNumber );
+      if( this._handlerObject.destroyRecursive )
+          this._handlerObject.destroyRecursive();
+      else if( this.handlerObject.destroy )
+          this._handlerObject.destroy();
       delete this._handlerObject;
       this.inherited(arguments);
   }
