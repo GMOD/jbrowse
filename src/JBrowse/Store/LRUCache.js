@@ -93,7 +93,7 @@ return declare( null,
         } else {
             this._log( 'hit', keyString );
             this.touchRecord( record );
-            window.setTimeout( function() {
+            setTimeout( function() {
                 callback( record.value );
             }, 1 );
         }

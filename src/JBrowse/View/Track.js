@@ -104,6 +104,10 @@ return declare( [
       }
   },
 
+  redraw: function() {
+      return this.get('renderer').redraw();
+  },
+
   _setGenomeViewAttr: function( genomeView ) {
       if( this._projectionAttrWatch )
           this._projectionAttrWatch.remove();

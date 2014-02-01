@@ -13,6 +13,7 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Stateful',
+	   'dojo/promise/all',
 
            'dijit/Destroyable',
 
@@ -28,6 +29,7 @@ define([
            lang,
            array,
            Stateful,
+	   all,
 
            Destroyable,
 
@@ -60,6 +62,18 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
         Util.validate( args, { store: 'object' } );
 
         this.blockStash = {};
+    },
+
+    redraw: function() {
+        var stash = this.getBlockStash();
+	var fills = [];
+	for( var id in stash ) {
+	    // delete everything but 'block' and 'node'
+	    stash[id] = { block: stash[id].block, node: stash[id].node };
+
+	    fills.push( this.fillBlock( stash[id].block, stash[id].node, { operation: 'redraw' } ) );
+	}
+	return all( fills );
     },
 
     blockChange: function( blockNode, changeInfo, block ) {
