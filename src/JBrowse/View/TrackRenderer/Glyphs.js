@@ -268,7 +268,7 @@ return declare(
         blockdata = this.getBlockStash( block );
 
         var fRects = blockdata.fRects;
-        var totalHeight = blockdata.totalHeight || 0;
+        var totalHeight = blockdata.totalHeight || 30;
 
         domConstruct.empty( blockNode );
         var c = blockdata.featureCanvas =

@@ -3,9 +3,10 @@
  */
 define([
            'dojo/_base/lang',
+	   'dojo/_base/array',
            'JBrowse/Util'
        ],
-       function( lang, Util ) {
+       function( lang, array, Util ) {
 
 
 function fastDeclare( members ) {
@@ -54,12 +55,16 @@ var SimpleFeature = fastDeclare({
     },
 
     deflate: function() {
-        return {
+        var d = {
             $class: 'JBrowse/Model/SimpleFeature',
-            data: this.data,
-            parent: this._parent,
+            data: lang.mixin({},this.data),
             id: this._uniqueID
         };
+	if( d.data.subfeatures )
+	    d.data.subfeatures = array.map( d.data.subfeatures, function( f ) {
+		    return f.deflate ? f.deflate() : f;
+		});
+	return d;
     },
 
     toString: function() {

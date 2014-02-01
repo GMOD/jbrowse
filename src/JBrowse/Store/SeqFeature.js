@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'JBrowse/Util/DeferredGenerator',
             'JBrowse/Store',
+	    'JBrowse/Util',
             'JBrowse/Store/LRUCache'
         ],
         function(
@@ -10,6 +11,7 @@ define( [
             lang,
             DeferredGenerator,
             Store,
+	    Util,
             LRUCache
         ) {
 
@@ -73,8 +75,8 @@ return declare( Store,
             name: 'regionStatsCache',
             maxSize: 1000, // cache stats for up to 1000 different regions
             sizeFunction: function( stats ) { return 1; },
-            fillCallback: function( query, callback ) {
-                //console.log( '_getRegionStats', query );
+            deferredFillCallback: function( query ) {
+			//console.log( '_getRegionStats', query );
                 var s = {
                     scoreMax: -Infinity,
                     scoreMin: Infinity,
@@ -95,7 +97,7 @@ return declare( Store,
                         },
                         function() {
                             s.scoreMean = s.featureCount ? s.scoreSum / s.featureCount : 0;
-                            s.scoreStdDev = Util.calcStdFromSums( s.scoreSum, s.scoreSumSquares, s.featureCount );
+                            s.scoreStdDev = Util.calcStdDevFromSums( s.scoreSum, s.scoreSumSquares, s.featureCount );
                             s.featureDensity = s.featureCount / s.basesCovered;
                             //console.log( '_getRegionStats done', s );
                             return s;
