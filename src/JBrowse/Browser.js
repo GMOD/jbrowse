@@ -8,6 +8,7 @@ define( [
             'dojo/io-query',
             'dojo/json',
             'dojo/on',
+            'dojo/when',
             'dojo/Deferred',
             'dojo/promise/all',
             'dojo/topic',
@@ -39,7 +40,7 @@ define( [
             'JBrowse/Auth/_AuthManagerMixin',
             'JBrowse/Worker/_WorkerManagerMixin',
             'JBrowse/Plugin/_PluginManagerMixin',
-            'JBrowse/View/RegionBrowser2',
+            'JBrowse/View/ReferenceSetPane',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/View/Dialog/Info',
             'JBrowse/View/FileDialog',
@@ -55,6 +56,7 @@ define( [
             ioQuery,
             JSON,
             on,
+            when,
             Deferred,
             all,
             topic,
@@ -86,7 +88,7 @@ define( [
             AuthManagerMixin,
             WorkerManagerMixin,
             PluginManagerMixin,
-            RegionBrowser2,
+            ReferenceSetPane,
             SimpleFeature,
             InfoDialog,
             FileDialog,
@@ -162,7 +164,11 @@ constructor: function(params) {
 
 configSchema: {
         slots: [
-            { name: 'location', type: 'string', defaultValue: 'ctgA:0..10000' }, // TODO remove this
+
+            { name: 'displayedDataHubName', type: 'string', defaultValue: 'default',
+              description: 'name of the data hub currently being displayed'
+            },
+
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'unitTestMode', type: 'boolean', defaultValue: false },
@@ -199,6 +205,11 @@ configSchema: {
               }},
             { name: 'cookieSizeLimit', type: 'integer', defaultValue: 1200 }
         ]
+},
+
+// deferred.  get the data hub object that is currently being displayed
+getDisplayedDataHub: function() {
+    return when( this.getDataHub( this.getConf('displayedDataHubName') ) );
 },
 
 version: function() {
@@ -387,28 +398,12 @@ initViews: function() {
 
         // instantiate our views
         this.views = [];
-        this.views.push(
-            new RegionBrowser2(
-                { browser: this,
-                  config: {
-                      name: 'View 1',
-                      region: 'top',
-                      style: 'height: 40%',
-                      location: Util.parseLocString( this.getConf('location') ) // todo remove this
-                  }
-                } )
-         );
-         this.views.push(
-             new RegionBrowser2(
-                 { browser: this,
-                   config: {
-                       region: 'center',
-                       parentViewName: 'View 1',
-                       location: Util.parseLocString( this.getConf('location') ) // todo remove this
-                   }
-                 })
-         );
 
+        this.views.push(
+            new ReferenceSetPane({ browser: this, config: { referenceSetName: 'default' } })
+        );
+
+        this.views[ this.views.length - 1 ].region = 'center';
         array.forEach( this.views, function(v) {
             v.placeAt( this.container );
         }, this );

@@ -19,6 +19,10 @@ return declare( CanonicalLinear, {
   //     return d;
   // },
 
+  ready: function() {
+      return this.getValidRangeA().then( function() { return true; } );
+  },
+
   isAnimatable: function() {
       return true;
   },
@@ -140,6 +144,27 @@ return declare( CanonicalLinear, {
               // go lower
               return this._findIndexOfFirstBlockInRange( b1, b2, blocks, offset, centerIndex-offset );
      }
+  },
+
+  _fromRanges: function( aRange, bRange ) {
+      throw new Error('_fromRanges not yet implemented for this projection');
+  },
+
+  _fromLocations: function( aLoc, bLoc ) {
+      var scale = this._normalize(
+          { scale: bLoc.span / aLoc.span }
+      ).scale;
+      return this._getBlocks()
+          .then( function( blocks ) {
+                     var bCenter = bLoc.center;
+                     // find the block that contains that center and add its childoffset to it
+                     for( var i = 0; i<blocks.length; i++ )
+                         if( blocks[i].getBName() == bLoc.name ) {
+                             bCenter -= blocks[i].childOffset;
+                             break;
+                         }
+                     return { scale: scale, bOffset: bCenter - aLoc.center*scale };
+                 });
   },
 
   projectPoint: function( a ) {

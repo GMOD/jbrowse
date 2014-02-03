@@ -5,11 +5,13 @@
 define([
            'dojo/_base/declare',
 
+           'JBrowse/Util',
            'JBrowse/Util/ListenerSet'
        ],
        function(
            declare,
 
+           Util,
            ListenerSet
        ) {
 return declare( null,
@@ -21,6 +23,8 @@ return declare( null,
         if( ! args.aName ) throw new Error('aName required');
         this.bName = args.bName;
         this.aName = args.aName;
+
+        this.store = args.store;
     },
 
     isAnimatable: function() {
@@ -46,6 +50,11 @@ return declare( null,
 
     watch: function( callback, phase ) {
         return this.listeners.add( callback, phase );
+    },
+
+    // returns a deferred that resolves to true when this projection is ready
+    ready: function() {
+        return Util.resolved( true );
     },
 
     _notifyChanged: function( changeDescription ) {

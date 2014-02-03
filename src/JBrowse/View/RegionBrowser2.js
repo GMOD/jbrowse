@@ -6,6 +6,7 @@ define([
            'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/promise/all',
+           'dojo/when',
 
            'dijit/registry',
            'dijit/layout/BorderContainer',
@@ -27,7 +28,8 @@ define([
            './RegionBrowser/LocationScale',
            './RegionBrowser/Gridlines',
            './RegionBrowser/TrackPane',
-           './RegionBrowser/BehaviorMixin'
+           './RegionBrowser/BehaviorMixin',
+           'JBrowse/Model/ViewLocation'
        ],
        function(
            declare,
@@ -37,6 +39,7 @@ define([
            domConstruct,
            domClass,
            all,
+           when,
 
            dijitRegistry,
            dijitBorderContainer,
@@ -58,7 +61,8 @@ define([
            ScaleBar,
            Gridlines,
            TrackPane,
-           BehaviorMixin
+           BehaviorMixin,
+           ViewLocation
        ) {
 
 var serialNumber = 0;
@@ -95,8 +99,8 @@ constructor: function( args ) {
     });
 
     // when our reference sequence set changes, update the projection
-    this.watchConf( 'referenceSetPath', function( path, oldref, newref ) {
-        thisB._updateProjection({ referenceSetPath: newref });
+    this.watch( 'referenceSet', function( path, oldref, newref ) {
+        thisB._updateProjection({ referenceSet: newref });
     });
 
     // when we get a new projection, make a new blocklist for it
@@ -188,13 +192,6 @@ configSchema: {
 
         { name: 'gridlines', type: 'boolean', defaultValue: true,
           description: 'if true, draw grid lines'
-        },
-
-        { name: 'referenceSetPath', type: 'string',
-          defaultValue: function(regionbrowser) {
-              return regionbrowser.browser.getConf('defaultDataHubName')+'.default';
-          },
-          description: 'data hub path to reference sequence set to display: hubname/setname'
         },
 
         { name: 'visibleTracks', type: 'multi-array',
@@ -390,73 +387,56 @@ resize: function() {
  * Args:
  *   location: feature object containing the requested location to display
  *   animate: if true, animate the projection update if possible.  default true.
- *   referenceSetPath: new path to the reference sequence set to use
+ *   referenceSet: ReferenceSet object containing the new set of reference regions to display
  */
 _updateProjection: function( args ) {
     var thisB = this;
 
+    console.log('update projection');
+
     args = lang.mixin(
         {
             location: this.getConf('location'),
-            referenceSetPath: this.getConf('referenceSetPath'),
             animate: true
         },
         args || {}
     );
 
-    var location = args.location;
-    if( ! location ) return;
-
-    if( ! this._contentBox ) {
+    if( ! thisB._contentBox ) {
         console.warn('_updateProjection called before _contentBox is available');
-        return;
+        return undefined;
     }
 
-    var existingProjection = this.get('projection');
+    var refSet = this.get('referenceSet');
+    var bLocation = args.location || ( args.referenceSet || this.get('referenceSet') ).getDefaultViewLocation();
+    var aLocation = new ViewLocation( { name: 'screen', center: thisB._contentBox.l + thisB._contentBox.w/2, span: thisB._contentBox.w } );
 
-    var locationCenter = this._locationCenter( location );
+    // do we need to make a new projection?
+    if( args.referenceSet && args.referenceSet !== refSet || ! this.get('projection') ) {
+        refSet = args.referenceSet || this.get('referenceSet');
 
-    var aRange = { start: this._contentBox.l,    end: this._contentBox.l + this._contentBox.w };
-    var bRange = { start: location.get('start'), end: location.get('end') };
-    if( location.get('strand') == -1 )
-        (function() {
-            var tmp = bRange.start;
-            bRange.start = bRange.end;
-            bRange.end = tmp;
-        })();
-
-    // if we are already on the same ref seq as the location, animate to it
-    if( existingProjection && ! this.browser.compareReferenceNames( location.get('seq_id'), existingProjection.bName ) ) {
-        existingProjection.matchRanges( aRange, bRange, args.animate ? 800 : undefined );
+        return when( bLocation ).then( function( bLocation ) {
+            return thisB.set( 'projection', new RegionsProjection(
+                           //this.set( 'projection', new CircularProjection(
+                           //this.set( 'projection', new CanonicalLinearProjection(
+                           { aLocation: aLocation, bLocation: bLocation, bLength: 10000,
+                             aName: 'screen', bName: refSet.getName(),
+                             store: refSet,
+                             stranded: false
+                           }
+                       )
+                     );
+        });
     }
-    else {
-        this.getReferenceSet()
-            .then( function( refset ) {
-                       if( refset )
-                           thisB.set( 'projection', new RegionsProjection(
-                                          //this.set( 'projection', new CircularProjection(
-                                          //this.set( 'projection', new CanonicalLinearProjection(
-                                          { aRange: aRange, bRange: bRange, bLength: 10000,
-                                            aName: 'screen', bName: refset.getName(),
-                                            store: refset,
-                                            stranded: false
-                                          }
-                                      ));
-                   },
-                   function(e) {
-                       console.error( e.stack || ''+e );
-                   }
-                 );
+    // otherwise, if we already have a projection, move to the new location
+    else if( this.get('projection') ) {
+        return when( bLocation ).then( function( bLocation ) {
+            return thisB.get('projection').matchLocations( aLocation, bLocation, args.animate ? 800 : undefined );
+        });
     }
-},
 
-getReferenceSet: function( pathStr ) {
-    var path = ( pathStr || this.getConf('referenceSetPath') );
-    if( ! path )
-        return Util.resolved();
 
-    path = path.split('.',2);
-    return this.browser.getReferenceSet( path[0], path[1] );
+    throw new Error('this should not be reached');
 },
 
 // get the center coordinate, in basepairs, of the currently displayed view

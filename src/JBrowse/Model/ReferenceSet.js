@@ -10,7 +10,8 @@ define([
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/FromConfig',
            'JBrowse/Model/ReferenceFeature',
-           'JBrowse/Model/BigSequence'
+           'JBrowse/Model/BigSequence',
+           'JBrowse/Model/ViewLocation'
        ],
        function(
            declare,
@@ -19,7 +20,8 @@ define([
            Util,
            FromConfig,
            ReferenceFeature,
-           BigSequence
+           BigSequence,
+           ViewLocation
        ) {
 
 return declare( null, {
@@ -55,6 +57,25 @@ return declare( null, {
 
    getFeatures: function() {
        return this.getReferenceSequences.apply( this, arguments );
+   },
+
+   getDefaultViewLocation: function() {
+       return this._defaultLocation || ( this._defaultLocation = function() {
+          // get the first reference region and use its whole span as the default view region
+          var defaultLocation;
+          return this.getReferenceSequences({ limit: 1 })
+              .forEach( function( ref ) {
+                            defaultLocation = new ViewLocation({
+                                name: ref.get('seq_id'),
+                                center: Math.abs( ref.get('end') + ref.get('start') )/2,
+                                span: Math.abs( ref.get('end')-ref.get('start') )
+                            });
+                        },
+                        function() {
+                            return defaultLocation;
+                        }
+                      );
+        }.call(this));
    },
 
    getReferenceSequences: function( query ) {

@@ -84,7 +84,9 @@ return declare( LinkedList, {
           this._viewportDims = domGeom.position( this._viewportNode );
 
       // update all the existing blocks
-      this.forEach( function( block ) { block.update( changeDescription ); } );
+      this.forEach( function( block ) {
+                        block.update( changeDescription );
+                    } );
 
       // don't do any block creation or destruction if we are
       // animating and the main projection is too slow to animate

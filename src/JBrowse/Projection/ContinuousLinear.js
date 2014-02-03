@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
+           'dojo/when',
 
            'JBrowse/Errors',
            '../Projection',
@@ -11,6 +12,7 @@ define([
            declare,
            lang,
            Deferred,
+           when,
 
            Errors,
            Projection,
@@ -23,13 +25,25 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       this.aStart = Number.NEGATIVE_INFINITY;
       this.aEnd   = Number.POSITIVE_INFINITY;
 
+      var newArgs = args;
       if( args.aRange && args.bRange ) {
-          var scale = (args.aRange.end - args.aRange.start) / ( args.bRange.end - args.bRange.start );
-          this._set( lang.mixin( {}, args, this._fromRanges( args.aRange, args.bRange ) ) );
+          newArgs = when( this._fromRanges( args.aRange, args.bRange ) )
+              .then( function( fromranges ) {
+                         return lang.mixin( {}, args, fromranges );
+                     });
       }
-      else {
-          this._set( args );
+      else if( args.aLocation && args.bLocation ) {
+          newArgs = when( this._fromLocations( args.aLocation, args.bLocation ) )
+              .then( function( fromloc ) {
+                         return lang.mixin( {}, args, fromloc );
+                     });
       }
+
+      var thisB = this;
+      when( newArgs )
+          .then( function(a) {
+                     thisB._notifyChanged( thisB._set(a) );
+                 });
   },
 
   deflate: function() {
@@ -66,6 +80,17 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
       var bCenter = ( bRange.end + bRange.start )/2;
       var aCenter = ( aRange.end + aRange.start )/2;
       return { scale: scale, bOffset: bCenter - aCenter*scale };
+  },
+
+  _fromLocations: function( aLoc, bLoc ) {
+      var scale = this._normalize(
+          { scale: bLoc.span / aLoc.span }
+      ).scale;
+      return { scale: scale, bOffset: bLoc.center - aLoc.center*scale };
+  },
+
+  matchLocations: function( a, b, animationMilliseconds ) {
+      this._goTo( this._fromLocations( aRange, bRange ), animationMilliseconds );
   },
 
   matchRanges: function( aRange, bRange, animationMilliseconds ) {
@@ -173,11 +198,15 @@ var Continuous = declare( 'JBrowse.Projection.ContinuousLinear', Projection,  {
   // passed, animate the transition over the given number of
   // milliseconds
   _goTo: function( args, animationMilliseconds ) {
-      if( ! animationMilliseconds ) {
-          this._notifyChanged( this._update( args ) );
-      } else {
-          this._animateTo( args, animationMilliseconds );
-      }
+      var thisB = this;
+      return when( args )
+          .then( function(a) {
+                     if( ! animationMilliseconds ) {
+                         return thisB._notifyChanged( thisB._update( a ) );
+                     } else {
+                         return thisB._animateTo( a, animationMilliseconds );
+                     }
+                 });
   },
 
   // return a Deferred that has progress events each time the
