@@ -1,0 +1,17 @@
+@import "palette.scss";
+
+.jbrowse.metro {
+    .referenceSetPane, .referenceSetPaneNoGutter {
+        .header {
+            background: $Dark_Blue;
+            color: white;
+            font-size: 16px;
+            vertical-middle: align;
+            padding: 2px 3px;
+
+            .referenceSetName {
+                font-weight: bold;
+            }
+        }
+    }
+}

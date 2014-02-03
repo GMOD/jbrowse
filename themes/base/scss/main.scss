@@ -3,6 +3,7 @@
 @import "../../../src/dojo/resources/dojo.css";
 @import "browser.scss";
 @import "regionbrowser.scss";
+@import "reference_set_pane.scss";
 @import "sequence.scss";
 @import "menubar.scss";
 @import "icons.scss";
@@ -17,7 +18,6 @@
 /* CSS styles for the various types of feature glyphs */
 @import "track_styles.scss";
 @import "faceted_track_selector.scss";
-
 
 /* CSS styles specifically for MAKER output */
 @import "maker.scss";

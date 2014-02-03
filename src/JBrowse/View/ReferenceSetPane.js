@@ -5,6 +5,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/dom-construct',
 
            'dijit/layout/BorderContainer',
            'dijit/layout/ContentPane',
@@ -16,6 +17,7 @@ define([
        function(
            declare,
            array,
+           domConstruct,
 
            BorderContainer,
            ContentPane,
@@ -23,9 +25,19 @@ define([
            Component,
            RegionBrowser2
        ) {
+
+var ReferenceSetPaneHeader = declare( ContentPane, {
+  className: 'header',
+  buildRendering: function() {
+      this.inherited(arguments);
+      this.domNode.innerHTML = '<span class="title">Reference:</span> ';
+      this.referenceSetNameNode = domConstruct.create( 'span', { className: 'referenceSetName' }, this.domNode );
+  }
+});
+
 return declare( [BorderContainer,Component], {
 
-  className: 'referenceSetPane',
+  baseClass: 'referenceSetPane',
   region: 'center',
   gutters: false,
 
@@ -57,12 +69,12 @@ return declare( [BorderContainer,Component], {
       this.inherited(arguments);
 
       var thisB = this;
-      this.addChild( this.header = new ContentPane({ region: 'top', className: 'header', content: 'reference set header' }) );
+      this.addChild( this.header = new ReferenceSetPaneHeader({ region: 'top', className: 'header' }) );
       this.views = [];
 
       thisB.getReferenceSet()
           .then( function( set ) {
-                     thisB.header.set('content', set.getName() );
+                     thisB.header.referenceSetNameNode.innerText = set.getName();
 
                      thisB.views.push( new RegionBrowser2(
                                            { browser: thisB.browser,

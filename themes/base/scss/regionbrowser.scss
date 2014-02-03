@@ -8,7 +8,7 @@
   }
 
   .gridlines {
-      z-index: -1;
+      z-index: 0;
       position: relative;
       height: 100%;
       width: 100%;
@@ -68,7 +68,7 @@
         text-align: center;
         height: 100%;
         width: 100%;
-      }
+       }
 
       .ruler {
           text-shadow: white 0 0 4px;
