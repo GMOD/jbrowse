@@ -104,7 +104,7 @@ return declare( [ JBrowseComponent, Destroyable ], {
   constructor: function( browser ) {
       this.button = new dijitDropDownButton({
             className: 'menuBarControl keyring',
-            innerHTML: '<span class="icon"></span> Keyring',
+            innerHTML: '<span class="icon"></span> Logins',
             title: 'manage authentication credentials',
             dropDownClass: KeyringPane
          });

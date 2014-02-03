@@ -40,12 +40,13 @@
         }
 
         .viewScale {
-            height: 17px;
-            margin-bottom: -2px;
+            height: 21px;
+            .menuButton {
+               height: 18px;
+            }
 
             .renderingBlock {
-                height: 14px;
-                bottom: 3px;
+                height: 18px;
                 border-color: rgba( 0, 0, 0, 0.3 );
             }
             .posLabel, .referenceLabel {
@@ -71,7 +72,7 @@
             }
             .floatingReferenceLabel {
                 bottom: 3px;
-                height: 14px;
+                height: 18px;
                 border: none;
             }
         }
@@ -89,6 +90,13 @@
             }
             .viewScale {
                 background: url("../img/view_top_bg_1.png") transparent repeat-x 0 100%;
+                .menuButton {
+                   background-color: #e6e6e6;
+                }
+                .menuButton:hover {
+                   background-color: white;;
+                   cursor: pointer;
+                }
                 .referenceLabel {
                     background: #bbb;
                 }
@@ -107,6 +115,9 @@
             .viewScale {
                 background: url("../img/view_top_bg_2.png") transparent repeat-x 0 100%;
                 color: white;
+                .menuButton {
+                   background-color: #4687d4;
+                }
                 .referenceLabel {
                     background: #002f69;
                 }

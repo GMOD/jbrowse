@@ -277,11 +277,29 @@
 
       .viewScale {
           z-index: 2;
+          height: 23px;
+
+          .menuButton {
+              position: absolute;
+              top: 0;
+              left: 0;
+              z-index: 50;
+              height: 100%;
+              width: 22px;
+              outline: none;
+              .dijitArrowButtonInner {
+                  background: url('../../base/img/sprites.png') transparent -192px -95px;
+                  margin-left: -7px;
+                  height: 100%;
+                  width: 100%;
+              }
+          }
 
           .renderingBlock {
               position: absolute;
               background: #333;
               height: 100%;
+              overflow: visible;
           }
           .posLabel, .referenceLabel, .referenceRightBorder {
               position: absolute;
@@ -309,7 +327,7 @@
           }
           .floatingReferenceLabel {
               z-index: 2;
-              left: 0;
+              left: 22px;
           }
       }
 

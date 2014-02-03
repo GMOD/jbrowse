@@ -44,7 +44,6 @@ define( [
             'JBrowse/View/Dialog/Info',
             'JBrowse/View/FileDialog',
             'JBrowse/View/LocationChoiceDialog',
-            'JBrowse/View/Dialog/SetHighlight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/Auth/Keyring'
         ],
@@ -92,7 +91,6 @@ define( [
             InfoDialog,
             FileDialog,
             LocationChoiceDialog,
-            SetHighlightDialog,
             HelpDialog,
             KeyringView
         ) {
@@ -153,10 +151,6 @@ constructor: function(params) {
                    thisB.getWorker(); // boot a worker
                    thisB._initDataHubs();
                    thisB.reportUsageStats();
-
-                   // initialize our highlight if one was set in the config
-                   if( thisB.getConf('highlight') )
-                       thisB.setHighlight( Util.parseLocString( thisB.getConf('highlight') ) );
 
                    return thisB.initViews();
                })
@@ -393,23 +387,21 @@ initViews: function() {
 
         // instantiate our views
         this.views = [];
-        // this.views.push(
-        //     new RegionBrowser2(
-        //         { browser: this,
-        //           config: {
-        //               name: 'View 1',
-        //               className: 'colorScheme1',
-        //               region: 'top',
-        //               style: 'height: 40%',
-        //               location: Util.parseLocString( this.getConf('location') ) // todo remove this
-        //           }
-        //         } )
-        //  );
+        this.views.push(
+            new RegionBrowser2(
+                { browser: this,
+                  config: {
+                      name: 'View 1',
+                      region: 'top',
+                      style: 'height: 40%',
+                      location: Util.parseLocString( this.getConf('location') ) // todo remove this
+                  }
+                } )
+         );
          this.views.push(
              new RegionBrowser2(
                  { browser: this,
                    config: {
-                       className: 'colorScheme2',
                        region: 'center',
                        parentViewName: 'View 1',
                        location: Util.parseLocString( this.getConf('location') ) // todo remove this
@@ -484,41 +476,6 @@ renderMenuBar: function( menuBar ) {
                                 }));
 
     this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
-
-
-    // make the view menu
-    this.addGlobalMenuItem(
-        'view',
-        new dijitMenuItem(
-            {
-                label: 'Set highlight',
-                iconClass: 'dijitIconFilter',
-                onClick: function() {
-                    new SetHighlightDialog({
-                                               browser: thisB,
-                                               setCallback: dojo.hitch( thisB, 'setHighlightAndRedraw' )
-                                           }).show();
-                }
-            }));
-    // make the menu item for clearing the current highlight
-    this._highlightClearButton = new dijitMenuItem(
-        {
-            label: 'Clear highlight',
-            iconClass: 'dijitIconFilter',
-            onClick: dojo.hitch( this, function() {
-                                     var h = this.getHighlight();
-                                     if( h ) {
-                                         this.clearHighlight();
-                                         this.publish( '/jbrowse/v1/c/redrawGenomeRegions', [h] );
-                                     }
-                                 })
-        });
-    this._updateHighlightClearButton();  //< sets the label and disabled status
-    // update it every time the highlight changes
-    this.subscribe( '/jbrowse/v1/n/globalhighlight/changed', dojo.hitch( this, '_updateHighlightClearButton' ) );
-
-    this.addGlobalMenuItem( 'view', this._highlightClearButton );
-    this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
     // make the options menu
     this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
@@ -1187,54 +1144,6 @@ cookie: function() {
     }
 
     return dojo.cookie.apply( dojo.cookie, arguments );
-},
-
-/**
- * Return the current highlight region, or null if none.
- */
-getHighlight: function() {
-    return this._highlight || null;
-},
-
-/**
- * Set a new highlight.  Returns the new highlight.
- */
-setHighlight: function( newHighlight ) {
-
-    if( newHighlight && ( newHighlight instanceof Location ) )
-        this._highlight = newHighlight;
-    else if( newHighlight )
-        this._highlight = new SimpleFeature({ data: newHighlight });
-
-    this.publish( '/jbrowse/v1/n/globalhighlight/changed', [this._highlight] );
-
-    return this.getHighlight();
-},
-
-
-_updateHighlightClearButton: function() {
-    if( this._highlightClearButton ) {
-        this._highlightClearButton.set( 'disabled', !!! this._highlight );
-        //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
-    }
-},
-
-clearHighlight: function() {
-    if( this._highlight ) {
-        delete this._highlight;
-        this.publish( '/jbrowse/v1/n/globalhighlight/changed', [] );
-    }
-},
-
-setHighlightAndRedraw: function( location ) {
-    var regions = [ location ];
-
-    var oldHighlight = this.getHighlight();
-    if( oldHighlight )
-        regions.push( oldHighlight );
-
-    this.setHighlight( location );
-    this.publish('/jbrowse/v1/c/redrawGenomeRegions',regions);
 }
 
 });

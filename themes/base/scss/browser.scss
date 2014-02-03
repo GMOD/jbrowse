@@ -2,514 +2,516 @@
 .jbrowse {
     font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
-}
 
-/* styles for the about JBrowse dialog */
-.about-dialog .default_about {
-    text-align: center;
-}
-.about-dialog .default_about * {
-    margin: 0.5em 0;
-}
-.about-dialog .default_about h1 {
-    margin-top: 0;
-}
-.about-dialog div.powered_by {
-    margin-top: 0.5em;
-    text-align: center;
-}
+  /* styles for the about JBrowse dialog */
+  .about-dialog .default_about {
+      text-align: center;
+  }
+  .about-dialog .default_about * {
+      margin: 0.5em 0;
+  }
+  .about-dialog .default_about h1 {
+      margin-top: 0;
+  }
+  .about-dialog div.powered_by {
+      margin-top: 0.5em;
+      text-align: center;
+  }
 
-/* styles for the highlight-setting dialog */
-.setHighlightDialog label {
-    padding-right: 0.5em;
-}
+  /* styles for the highlight-setting dialog */
+  .setHighlightDialog label {
+      padding-right: 0.5em;
+  }
 
-.regionBrowserPane {
-    overflow: hidden;
-}
-.track .global_highlight {
-    position: absolute;
-    background: rgba( 255, 255, 0, 0.7 );
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+  .regionBrowserPane {
+      overflow: hidden;
+  }
+  .track .global_highlight {
+      position: absolute;
+      background: rgba( 255, 255, 0, 0.7 );
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -ms-box-sizing: border-box;
 
-    border: 1px solid rgb(255, 178, 13);
-    border-width: 0;
-}
-.track .global_highlight.left {
-    border-left-width: 1px;
-}
-.track .global_highlight.right {
-    border-right-width: 1px;
-}
-
-
-.tundra input {
-    outline: none;
-}
-
-.ghosted {
-    color: #aaa;
-}
-
-fieldset {
-    padding-left: 1em;
-    margin: 0.7em 0.5em;
-}
-fieldset > legend {
-    font-weight: bold;
-    margin-left: -1em;
-}
-
-.locString {
-    font-family: Courier New,monospace;
-}
-.fasta {
-    font-family: Courier New,monospace;
-    font-size: 14px;
-}
-
-/* styles for the autocomplete menu */
-.dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
-    margin-left: 1em;
-}
-.dijitComboBoxMenu .multipleLocations {
-    color: #333;
-}
-
-/* location choice dialog */
-.locationChoiceDialog div.prompt {
-    margin: 0.3em 1em 1em 1em;
-}
-.locationChoiceDialog .dgrid-row .dijitButton {
-    margin: 0 0.5em;
-}
-.locationChoiceDialog .goButtonColumn,
-.locationChoiceDialog .showButtonColumn {
-    text-align: center;
-    white-space: nowrap;
-}
+      border: 1px solid rgb(255, 178, 13);
+      border-width: 0;
+  }
+  .track .global_highlight.left {
+      border-left-width: 1px;
+  }
+  .track .global_highlight.right {
+      border-right-width: 1px;
+  }
 
 
-.tundra .dijitDialogCloseIcon {
-    height: 25px;
-    width:  25px;
-    top:    0px;
-    right:  0px;
-    background: url("../../img/commonIconsEnabled.png") no-repeat -73px 6px;
+  .ghosted {
+      color: #aaa;
+  }
 
-    border-left: 1px inset #fcfcfc;
-}
-.tundra .dijitDialogCloseIcon:hover {
-    background-position: -93px 6px;
-    border-left-color: #ccc;
-}
-.dijitDialogCloseIcon:focus {
-    outline: none;
+  fieldset {
+      padding-left: 1em;
+      margin: 0.7em 0.5em;
+  }
+  fieldset > legend {
+      font-weight: bold;
+      margin-left: -1em;
+  }
+
+  .locString {
+      font-family: Courier New,monospace;
+  }
+  .fasta {
+      font-family: Courier New,monospace;
+      font-size: 14px;
+  }
+
+  /* styles for the autocomplete menu */
+  .dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
+      margin-left: 1em;
+  }
+  .dijitComboBoxMenu .multipleLocations {
+      color: #333;
+  }
+
+  /* location choice dialog */
+  .locationChoiceDialog div.prompt {
+      margin: 0.3em 1em 1em 1em;
+  }
+  .locationChoiceDialog .dgrid-row .dijitButton {
+      margin: 0 0.5em;
+  }
+  .locationChoiceDialog .goButtonColumn,
+  .locationChoiceDialog .showButtonColumn {
+      text-align: center;
+      white-space: nowrap;
+  }
+
+  .dijitDialogCloseIcon:focus {
+      outline: none;
+  }
+
+  .dijitDialogPaneActionBar {
+      text-align: center;
+      clear: both;
+      padding-top: 1em;
+  }
+
+  .nav {
+      vertical-align: middle;
+      z-index: 10;
+  }
+
+  input.icon {
+      display: -moz-inline-stack;
+      display: inline-block;
+      zoom: 1;
+  }
+
+  div.container {
+      position: absolute;
+      z-index: 0;
+  }
+
+
+  .draggable {
+      cursor: move;
+  }
+  .rubberBandAvailable {
+      cursor: crosshair;
+  }
+
+  .pane-position, .pane-size {
+      position: absolute;
+
+      height: 13px;
+      line-height: 16px;
+
+      width: auto;
+      z-index: 10;
+
+      padding: 0 0.7em 0 0.4em;
+
+      cursor: pointer;
+  }
+
+  .pane-size {
+      right: 0;
+      cursor: default;
+  }
+
+
+  .moreMatches {
+      font-style: italic;
+      color: #aaa;
+  }
+  .moreMatches.dijitMenuItemSelected {
+      background: none;
+      color: #ccc;
+      cursor: default;
+  }
+  div.topLink {
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 50;
+      background: white;
+      border: 1px solid #888;
+      border-width: 0 0 1px 1px;
+  }
+
+  a.topLink {
+      padding: 0 0.5ex 0 0.5ex;
+      text-decoration: none;
+      color: blue;
+  }
+
+  #trackPane {
+      background: #f2f2f2;
+      background-image: url('../../img/tracklist_bg.png');
+      background-repeat: repeat-y;
+      background-position: right;
+  }
+  #trackPane h2 {
+      margin: 0.5em 0 0 0.5em;
+  }
+  #trackPane div.textfilter {
+      margin: 0.5em 0 1em 0.3em;
+  }
+  #trackPane div.textfilter input {
+      line-height: 16px;
+      padding: 2px 0;
+  }
+
+  #trackPane_splitter {
+      background: #dcdcdc;
+      width: 5px;
+      border-right: 1px solid #555;
+  }
+
+  div.tracklist-container {
+      padding: 0 4px;
+  }
+
+  .tracklist-container.dojoDndItemBefore {
+      border-top: 3px solid #999;
+      padding-top: 2px;
+  }
+
+  .tracklist-container.dojoDndItemAfter {
+      border-bottom: 3px solid #999;
+      padding-bottom: 2px;
+  }
+
+  /* styles for feature labels */
+  .feature-label {
+      position: absolute;
+      border: 0px;
+      margin: -2px 0px 0px 0px;
+      /* padding: 0px 0px 2px 0px; for more space below labels */
+      padding: 0px 0px 0px 0px;
+      /* font-size: 80%; */
+      white-space: nowrap;
+      z-index: 12;
+      cursor: pointer;
+  }
+  a.feature-label {
+      color: black;
+  }
+  .feature-description {
+      color: blue;
+      margin-top: -0.2em;
+  }
+  .feature-label.highlighted {
+      background: rgba( 255, 255, 0, 0.7 );
+      font-weight: bold;
+      border: 1px solid red;
+      padding: 0 2px;
+  }
+
+  .help_dialog ul {
+      padding-left: 0;
+  }
+  .help_dialog div.main {
+  }
+  .help_dialog div.main > dl {
+      width: 90%;
+      margin: 0 auto 1em auto;
+  }
+  .help_dialog dt {
+      font-weight: bold;
+      margin-top: 1em;
+  }
+  .help_dialog dd {
+      margin-left: 2em;
+  }
+  .help_dialog dl dl.searchexample dt,
+  .help_dialog span.example {
+      font-weight: normal;
+      font-family: monospace;
+  }
+
+  .fatal_error {
+      font-size: 14px;
+      margin: 1em;
+  }
+  div.error, div.message {
+      margin: 1px 1em;
+      padding: 2px 6px;
+      border: 1px outset rgba( 0, 0, 0, 0.3 );
+  }
+  div.error {
+      background: #ff8888;
+  }
+  div.track > div.error {
+      width: 30em;
+      position: absolute;
+  }
+  div.error h2 {
+      margin-top: 0;
+  }
+
+  div.error .codecaption {
+      font-size: 90%;
+      font-weight: bold;
+      margin-top: 1em;
+      margin-left: 0.2em;
+  }
+  div.error code {
+      display: block;
+      font-size: 10px;
+      padding: 0.4em 1.2em;
+      margin: 0 0.3em 0.3em 0.3em;
+      overflow: auto;
+      max-height: 6em;
+  }
+  div.message {
+      background: #eee;
+  }
+  div.block > div.message {
+      margin: 1em 0;
+      position: absolute;
+  }
+  div.block:hover > div.message {
+      z-index: 30000;
+  }
+
+  /* styles dealing with popups launched by clicking on features */
+  .popup-dialog-iframe .dijitDialogPaneContent {
+      padding: 0;
+  }
+
+  /* styles for popup dialogs */
+  a.dialog-new-window {
+      padding-left: 1em;
+      font-size: 90%;
+  }
+
+  /* styles for popup feature detail dialogs from tracks */
+  .feature-detail {
+      width: 50em;
+      color: #333;
+  }
+  .feature-detail .genotype_summary {
+      padding: 1em;
+  }
+  .feature-detail .genotype_summary table {
+      border-collapse: collapse;
+  }
+  .feature-detail .genotype_summary td {
+      padding: 0 1em;
+  }
+  .feature-detail .genotype_summary td.total {
+      font-weight: bold;
+      border-top: 1px solid #444;
+  }
+  .feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
+      text-align: right;
+  }
+  .feature-detail .genotype_summary td.category.level_1 {
+      padding-left: 2em;
+  }
+  .feature-detail .genotype_summary td.category.level_2 {
+      padding-left: 3em;
+  }
+  .feature-detail .genotype_summary td.category.level_3 {
+      padding-left: 4em;
+  }
+  .feature-detail .genotype_summary td.category.level_4 {
+      padding-left: 5em;
+  }
+
+  .feature-detail .subfeature-detail {
+      background: #fafafa;
+      background: rgba( 0, 0, 0, 0.1 );
+      border: 1px outset #B9B9B9;
+      padding: 0.6em;
+      margin-bottom: 0.8em;
+  }
+  .feature-detail .fasta {
+      clear: both;
+      padding: 1em 1.5em;
+      margin: 0.2em 0;
+      border: 1px solid #aaa;
+      background: transparent;
+  }
+  .feature-detail div.core {
+      font-size: 110%;
+  }
+
+  .feature-detail div.core h2.sectiontitle {
+      margin-top: 0;
+  }
+  .feature-detail h2.sectiontitle {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      margin: 1em 0 0.7em 0;
+  }
+
+  .detail .value_container {
+      display: inline-block;
+      max-height: 20em;
+      overflow-y: auto;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+  }
+  .detail .value_container.big, .detail .value_container.dgrid {
+      border: 1px solid rgba(0,0,50,0.1);
+      margin-left: 1em;
+      margin-top: 0.3em;
+  }
+
+  .detail .value {
+      display: inline-block;
+      vertical-align: top;
+      font-family: sans-serif;
+      padding: 0 0.7em;
+      line-height: 1.8;
+  }
+  .detail .field {
+      margin: 0;
+      display: inline-block;
+      min-width: 90px;
+      vertical-align: top;
+      padding: 2px 0.5em;
+      background: rgba( 50, 85, 255,0.1 );
+      border-bottom: 1px solid #D2D4E4;
+      border-bottom-color: rgba( 0, 0, 0, 0.1 );
+      font-size: 1.1667em;
+  }
+  /* field names that have tooltips */
+  .detail .field[title], .detail .dgrid-cell[title] {
+      background: rgba( 255,245,50,0.3 );
+  }
+  .detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
+      background: rgba( 255,255,50,0.7 );
+  }
+  /*
+   force long sequences in feature and alignment detail dialogs to
+   wrap at 45em
+  */
+  .detail .value.seq,
+   .detail .value.sequence {
+      word-wrap: break-word;
+      width: 45em;
+  }
+
+  .detail .field_container {
+      margin-left: 1em;
+      margin-bottom: 2px;
+  }
+  .detail hr {
+      margin: 0.8em 4em 0.5em 0.7em;
+  }
+
+  .sharePane input {
+      padding: 1px 0 2px 1px;
+  }
+  .sharePane .copyReminder {
+      background-color:  #396494;
+      text-align: center;
+      width: 50%;
+      margin: 0 auto;
+      color: white;
+      padding: 2px;
+      font-weight: bold;
+  }
+
+  /*styles for vertical line and BP label*/
+  .basePairLabel {
+      color: black;
+      position: fixed;
+      font-weight: bold;
+      font-size: 9px;
+      display: none;
+      background: #fefefe;
+      padding: 0 0.7em;
+      z-index: 1000;
+      text-align: center;
+      cursor: crosshair;
+      border: 1px solid #888;
+  }
+
+  .basePairLabel.rubber {
+      z-index: 25;
+  }
+
+  /* styles for per-base quality table in alignment detail pages */
+  .baseQuality {
+      font-family: Courier New, monospace;
+  }
+  table.baseQuality {
+      margin-bottom: 1em;
+  }
+  table.baseQuality td {
+      padding: 0 0.2em;
+      line-height: 0.95;
+      text-align: center;
+  }
+  .baseQuality .basePosition {
+      display: inline-block;
+      padding: 0 0.3em 0.4em 0.3em;
+  }
+  .baseQuality .basePosition:hover {
+      background: #ccc;
+  }
+  .baseQuality span.seq {
+      display: block;
+      text-align: center;
+      font-weight: bold;
+  }
+  .baseQuality span.qual {
+      display: block;
+      text-align: center;
+  }
 }
 
-.dijitDialogPaneActionBar {
-    text-align: center;
-    clear: both;
-    padding-top: 1em;
-}
+.tundra {
+  input {
+      outline: none;
+  }
 
-.nav {
-    vertical-align: middle;
-    z-index: 10;
-}
+  .sharePane input {
+      border: 1px solid #ccc;
+  }
 
-input.icon {
-    display: -moz-inline-stack;
-    display: inline-block;
-    zoom: 1;
-}
+  .dijitDialogCloseIcon {
+      height: 25px;
+      width:  25px;
+      top:    0px;
+      right:  0px;
+      background: url("../../base/img/sprites.png") no-repeat -77px -185px;
 
-div.container {
-    position: absolute;
-    z-index: 0;
-}
+      border-left: 1px inset #fcfcfc;
+  }
+  .dijitDialogCloseIcon:hover {
+      background-position: -97px -185px;
+      border-left-color: #ccc;
+  }
+  .dijitDialogPaneContent {
+      border-top: 1px solid #acacac;
+      font-family: sans-serif;
+  }
 
-
-.draggable {
-    cursor: move;
-}
-.rubberBandAvailable {
-    cursor: crosshair;
-}
-
-.pane-position, .pane-size {
-    position: absolute;
-
-    height: 13px;
-    line-height: 16px;
-
-    width: auto;
-    z-index: 10;
-
-    padding: 0 0.7em 0 0.4em;
-
-    cursor: pointer;
-}
-
-.pane-size {
-    right: 0;
-    cursor: default;
-}
-
-
-.moreMatches {
-    font-style: italic;
-    color: #aaa;
-}
-.moreMatches.dijitMenuItemSelected {
-    background: none;
-    color: #ccc;
-    cursor: default;
-}
-div.topLink {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 50;
-    background: white;
-    border: 1px solid #888;
-    border-width: 0 0 1px 1px;
-}
-
-a.topLink {
-    padding: 0 0.5ex 0 0.5ex;
-    text-decoration: none;
-    color: blue;
-}
-
-#trackPane {
-    background: #f2f2f2;
-    background-image: url('../../img/tracklist_bg.png');
-    background-repeat: repeat-y;
-    background-position: right;
-}
-#trackPane h2 {
-    margin: 0.5em 0 0 0.5em;
-}
-#trackPane div.textfilter {
-    margin: 0.5em 0 1em 0.3em;
-}
-#trackPane div.textfilter input {
-    line-height: 16px;
-    padding: 2px 0;
-}
-
-#trackPane_splitter {
-    background: #dcdcdc;
-    width: 5px;
-    border-right: 1px solid #555;
-}
-
-div.tracklist-container {
-    padding: 0 4px;
-}
-
-.tracklist-container.dojoDndItemBefore {
-    border-top: 3px solid #999;
-    padding-top: 2px;
-}
-
-.tracklist-container.dojoDndItemAfter {
-    border-bottom: 3px solid #999;
-    padding-bottom: 2px;
-}
-
-/* styles for feature labels */
-.feature-label {
-    position: absolute;
-    border: 0px;
-    margin: -2px 0px 0px 0px;
-    /* padding: 0px 0px 2px 0px; for more space below labels */
-    padding: 0px 0px 0px 0px;
-    /* font-size: 80%; */
-    white-space: nowrap;
-    z-index: 12;
-    cursor: pointer;
-}
-a.feature-label {
-    color: black;
-}
-.feature-description {
-    color: blue;
-    margin-top: -0.2em;
-}
-.feature-label.highlighted {
-    background: rgba( 255, 255, 0, 0.7 );
-    font-weight: bold;
-    border: 1px solid red;
-    padding: 0 2px;
-}
-
-.help_dialog ul {
-    padding-left: 0;
-}
-.help_dialog div.main {
-}
-.help_dialog div.main > dl {
-    width: 90%;
-    margin: 0 auto 1em auto;
-}
-.help_dialog dt {
-    font-weight: bold;
-    margin-top: 1em;
-}
-.help_dialog dd {
-    margin-left: 2em;
-}
-.help_dialog dl dl.searchexample dt,
-.help_dialog span.example {
-    font-weight: normal;
-    font-family: monospace;
-}
-
-.fatal_error {
-    font-size: 14px;
-    margin: 1em;
-}
-div.error, div.message {
-    margin: 1px 1em;
-    padding: 2px 6px;
-    border: 1px outset rgba( 0, 0, 0, 0.3 );
-}
-div.error {
-    background: #ff8888;
-}
-div.track > div.error {
-    width: 30em;
-    position: absolute;
-}
-div.error h2 {
-    margin-top: 0;
-}
-
-div.error .codecaption {
-    font-size: 90%;
-    font-weight: bold;
-    margin-top: 1em;
-    margin-left: 0.2em;
-}
-div.error code {
-    display: block;
-    font-size: 10px;
-    padding: 0.4em 1.2em;
-    margin: 0 0.3em 0.3em 0.3em;
-    overflow: auto;
-    max-height: 6em;
-}
-div.message {
-    background: #eee;
-}
-div.block > div.message {
-    margin: 1em 0;
-    position: absolute;
-}
-div.block:hover > div.message {
-    z-index: 30000;
-}
-
-.tundra .dijitDialogPaneContent {
-    border-top: 1px solid #acacac;
-    font-family: sans-serif;
-}
-
-/* styles dealing with popups launched by clicking on features */
-.popup-dialog-iframe .dijitDialogPaneContent {
-    padding: 0;
-}
-
-/* styles for popup dialogs */
-a.dialog-new-window {
-    padding-left: 1em;
-    font-size: 90%;
-}
-
-/* styles for popup feature detail dialogs from tracks */
-.feature-detail {
-    width: 50em;
-    color: #333;
-}
-.feature-detail .genotype_summary {
-    padding: 1em;
-}
-.feature-detail .genotype_summary table {
-    border-collapse: collapse;
-}
-.feature-detail .genotype_summary td {
-    padding: 0 1em;
-}
-.feature-detail .genotype_summary td.total {
-    font-weight: bold;
-    border-top: 1px solid #444;
-}
-.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
-    text-align: right;
-}
-.feature-detail .genotype_summary td.category.level_1 {
-    padding-left: 2em;
-}
-.feature-detail .genotype_summary td.category.level_2 {
-    padding-left: 3em;
-}
-.feature-detail .genotype_summary td.category.level_3 {
-    padding-left: 4em;
-}
-.feature-detail .genotype_summary td.category.level_4 {
-    padding-left: 5em;
-}
-
-.feature-detail .subfeature-detail {
-    background: #fafafa;
-    background: rgba( 0, 0, 0, 0.1 );
-    border: 1px outset #B9B9B9;
-    padding: 0.6em;
-    margin-bottom: 0.8em;
-}
-.feature-detail .fasta {
-    clear: both;
-    padding: 1em 1.5em;
-    margin: 0.2em 0;
-    border: 1px solid #aaa;
-    background: transparent;
-}
-.feature-detail div.core {
-    font-size: 110%;
-}
-
-.feature-detail div.core h2.sectiontitle {
-    margin-top: 0;
-}
-.feature-detail h2.sectiontitle {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 1em 0 0.7em 0;
-}
-
-.detail .value_container {
-    display: inline-block;
-    max-height: 20em;
-    overflow-y: auto;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-.detail .value_container.big, .detail .value_container.dgrid {
-    border: 1px solid rgba(0,0,50,0.1);
-    margin-left: 1em;
-    margin-top: 0.3em;
-}
-
-.detail .value {
-    display: inline-block;
-    vertical-align: top;
-    font-family: sans-serif;
-    padding: 0 0.7em;
-    line-height: 1.8;
-}
-.detail .field {
-    margin: 0;
-    display: inline-block;
-    min-width: 90px;
-    vertical-align: top;
-    padding: 2px 0.5em;
-    background: rgba( 50, 85, 255,0.1 );
-    border-bottom: 1px solid #D2D4E4;
-    border-bottom-color: rgba( 0, 0, 0, 0.1 );
-    font-size: 1.1667em;
-}
-/* field names that have tooltips */
-.detail .field[title], .detail .dgrid-cell[title] {
-    background: rgba( 255,245,50,0.3 );
-}
-.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
-    background: rgba( 255,255,50,0.7 );
-}
-/*
- force long sequences in feature and alignment detail dialogs to
- wrap at 45em
-*/
-.detail .value.seq,
- .detail .value.sequence {
-    word-wrap: break-word;
-    width: 45em;
-}
-
-.detail .field_container {
-    margin-left: 1em;
-    margin-bottom: 2px;
-}
-.detail hr {
-    margin: 0.8em 4em 0.5em 0.7em;
-}
-
-.sharePane input {
-    padding: 1px 0 2px 1px;
-}
-.sharePane .copyReminder {
-    background-color:  #396494;
-    text-align: center;
-    width: 50%;
-    margin: 0 auto;
-    color: white;
-    padding: 2px;
-    font-weight: bold;
-}
-
-.tundra .sharePane input {
-    border: 1px solid #ccc;
-}
-
-/*styles for vertical line and BP label*/
-.basePairLabel {
-    color: black;
-    position: fixed;
-    font-weight: bold;
-    font-size: 9px;
-    display: none;
-    background: #fefefe;
-    padding: 0 0.7em;
-    z-index: 1000;
-    text-align: center;
-    cursor: crosshair;
-    border: 1px solid #888;
-}
-
-.basePairLabel.rubber {
-    z-index: 25;
-}
-
-/* styles for per-base quality table in alignment detail pages */
-.baseQuality {
-    font-family: Courier New, monospace;
-}
-table.baseQuality {
-    margin-bottom: 1em;
-}
-table.baseQuality td {
-    padding: 0 0.2em;
-    line-height: 0.95;
-    text-align: center;
-}
-.baseQuality .basePosition {
-    display: inline-block;
-    padding: 0 0.3em 0.4em 0.3em;
-}
-.baseQuality .basePosition:hover {
-    background: #ccc;
-}
-.baseQuality span.seq {
-    display: block;
-    text-align: center;
-    font-weight: bold;
-}
-.baseQuality span.qual {
-    display: block;
-    text-align: center;
 }

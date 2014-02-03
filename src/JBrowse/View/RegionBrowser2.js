@@ -9,6 +9,8 @@ define([
 
            'dijit/registry',
            'dijit/layout/BorderContainer',
+           'dijit/Menu',
+           'dijit/MenuItem',
 
            'JBrowse/Util',
            'JBrowse/Util/ListenerSet',
@@ -22,7 +24,6 @@ define([
            'JBrowse/View/Track',
            'JBrowse/View/Track/BlockList',
            'JBrowse/View/Track/BlockList/Block',
-           './RegionBrowser/Toolbar',
            './RegionBrowser/LocationScale',
            './RegionBrowser/Gridlines',
            './RegionBrowser/TrackPane',
@@ -38,7 +39,9 @@ define([
            all,
 
            dijitRegistry,
-           BorderContainer,
+           dijitBorderContainer,
+           dijitDropDownMenu,
+           dijitMenuItem,
 
            Util,
            ListenerSet,
@@ -52,7 +55,6 @@ define([
            TrackWidget,
            RenderingBlockList,
            RenderingBlock,
-           RegionBrowserToolbar,
            ScaleBar,
            Gridlines,
            TrackPane,
@@ -61,7 +63,7 @@ define([
 
 var serialNumber = 0;
 
-return declare( [BorderContainer,Component,BehaviorMixin,FeatureFiltererMixin], {
+return declare( [dijitBorderContainer,Component,BehaviorMixin,FeatureFiltererMixin], {
 
 splitter: true,
 gutters: false,
@@ -225,8 +227,11 @@ buildRendering: function() {
 
     this.containerNode = this.domNode;
 
-    this.addChild( this.toolbar  = new RegionBrowserToolbar({ region: 'top', browser: this.browser, genomeView: this }) );
-    this.addChild( this.scalebar = new ScaleBar({ region: 'top', browser: this.browser, genomeView: this }) );
+    this.menu = this.makeViewMenu();
+    this.addChild( this.scalebar = new ScaleBar(
+                       { region: 'top', browser: this.browser,
+                         genomeView: this, viewMenu: this.menu
+                       }) );
 
     this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
     this.domNode.appendChild( this.gridlines.domNode );
@@ -242,6 +247,37 @@ buildRendering: function() {
 
     //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
     this.addChild( this.trackPane = new TrackPane({ region: 'center', browser: this.browser, genomeView: this }) );
+},
+
+makeViewMenu: function() {
+    var thisB = this;
+    var m = new dijitDropDownMenu({ leftClickToOpen: true });
+    m.addChild( new dijitMenuItem(
+                    { label: 'Add tracks',
+                      iconClass: 'dijitIconAdd',
+                      onClick: function() {
+                          thisB.showTrackSelector();
+                      }
+                    })
+              );
+    m.addChild( new dijitMenuItem(
+                    { label: 'New child view',
+                      iconClass: 'dijitIconAdd',
+                      onClick: function() {
+                          thisB.addChildView();
+                      }
+                    })
+              );
+    m.addChild( new dijitMenuItem(
+                    { label: 'Close',
+                      iconClass: 'dijitIconDelete',
+                      onClick: function() {
+                          thisB.getParent().removeChild( thisB );
+                      }
+                    })
+              );
+    m.startup();
+    return m;
 },
 
 // scroll the display if necessary to show the given track

@@ -2,6 +2,8 @@ define([
            'dojo/_base/declare',
 
            'dijit/_WidgetBase',
+           'dijit/form/DropDownButton',
+           'dijit/_Container',
 
            "JBrowse/View/Track/_BlockBasedMixin",
 	   "./_HorizScaleMixin",
@@ -10,15 +12,33 @@ define([
            declare,
 
            _WidgetBase,
+           dijitDropDownButton,
+           _Container,
 
            _BlockBasedMixin,
            _HorizScaleMixin,
            Util
        ) {
 
-return declare( [ _WidgetBase, _BlockBasedMixin, _HorizScaleMixin ], {
+return declare( [ _WidgetBase, _BlockBasedMixin, _HorizScaleMixin, _Container ], {
 
 baseClass: 'viewScale',
+
+buildRendering: function() {
+    this.inherited(arguments);
+
+    this.addChild( this.menuButton = new dijitDropDownButton(
+        { className: 'menuButton',
+          dropDown: this.get('viewMenu')
+        }));
+
+    this.menuButtonRightEdge = 22;
+},
+
+// startup: function() {
+//     this.inherited(arguments);
+//     this.menuButton.startup();
+// },
 
 blockChange: function( blockNode, changeInfo, block ) {
     this.inherited(arguments);
@@ -27,7 +47,7 @@ blockChange: function( blockNode, changeInfo, block ) {
     if( changeInfo.operation != 'destroy' ) {
         // possibly draw a label on the left side of the block if the
         // block is overlapping the left edge of the screen
-        if( blockDims.l < 0 && blockDims.r > 0 ) {
+        if( blockDims.l < this.menuButtonRightEdge && blockDims.r > 0 ) {
             if( ! this.floatingLabel ) {
                 var floater = this.floatingLabel = document.createElement('div');
                 floater.className = 'referenceLabel floatingReferenceLabel';
@@ -42,7 +62,7 @@ blockChange: function( blockNode, changeInfo, block ) {
     }
     if( changeInfo.operation != 'new'
         && ! block.prev()
-        && blockDims.l > 0
+        && blockDims.l > this.menuButtonRightEdge
         && this.floatingLabel
       )
         this.floatingLabel.style.visibility = 'hidden';
@@ -60,7 +80,7 @@ fillBlock: function( block, blockNode ) {
     // edge of the projection block, or if its range in px coordinates
     // (system A in the projection) overlaps the left side of the
     // regionbrowser viewport
-    if( blockDims.leftEdge && blockDims.l > 0 ) {
+    if( blockDims.leftEdge && blockDims.l > this.menuButtonRightEdge ) {
         html.push( '<div class="referenceLabel"',
                    ' style="left: 0"><span>',
                    projectionBlock.getBName(),

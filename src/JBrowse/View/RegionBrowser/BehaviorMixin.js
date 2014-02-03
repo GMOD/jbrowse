@@ -118,9 +118,9 @@ _behaviors: function() {
 
                     // when the track pane is clicked, unfocus any dijit
                     // widgets that would otherwise not give up the focus
-                    on( this.domNode, 'click', function(evt) {
-                        dijitFocus.curNode && dijitFocus.curNode.blur();
-                    })
+                    // on( this.domNode, 'click', function(evt) {
+                    //     dijitFocus.curNode && dijitFocus.curNode.blur();
+                    // })
                 );
                 return handles;
             }
