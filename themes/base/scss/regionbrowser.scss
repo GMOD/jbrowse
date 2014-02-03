@@ -47,6 +47,10 @@
       top: 0;
   }
 
+  .trackPane,.trackPaneNoGutter {
+      overflow-y: auto;
+  }
+
   .track,.trackNoGutter {
       width: 100%;
       padding: 0;
