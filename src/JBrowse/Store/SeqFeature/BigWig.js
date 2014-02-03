@@ -9,8 +9,6 @@ define( [
             'JBrowse/has',
             'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
-            'JBrowse/Store/DeferredStatsMixin',
-            'JBrowse/Store/DeferredFeaturesMixin',
             './BigWig/Window',
             'JBrowse/Util',
             'JBrowse/Model/Resource/Bytes'
@@ -26,8 +24,6 @@ define( [
             has,
             JBrowseErrors,
             SeqFeatureStore,
-            DeferredFeaturesMixin,
-            DeferredStatsMixin,
             Window,
             Util,
             Bytes

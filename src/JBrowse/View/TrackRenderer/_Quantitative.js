@@ -14,7 +14,6 @@ define( [
             'JBrowse/DOMNode/Remote',
             'JBrowse/has',
             './_Base',
-            'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/Util',
             './Quantitative/_Scale'
         ],
@@ -33,12 +32,11 @@ define( [
             RemoteDOMNode,
             has,
             RendererBase,
-            DetailStatsMixin,
             Util,
             Scale
         ) {
 
-return declare( [RendererBase, DetailStatsMixin ], {
+return declare( [RendererBase ], {
 
     constructor: function() {
 
