@@ -68,6 +68,20 @@ renderSegments: function( block, context, fRect ) {
     }
 },
 
+_getFeatureRectangle: function( viewArgs, feature ) {
+    var args = arguments;
+    var rect = this.inherited( args );
+
+    rect.glyphType = 'JBrowse/View/FeatureGlyph/Segments';
+
+    var subparts = this._getSubparts( feature );
+    rect.subRects = array.map( subparts, function( subpart ) {
+        return this.inherited( args, [ viewArgs, subpart ] );
+    },this);
+
+    return rect;
+},
+
 _getSubparts: function( f ) {
     var c = f.children();
     if( ! c ) return [];

@@ -121,6 +121,15 @@
                 }
             }
         },
+        {
+            "name": "Protein-coding genes",
+            "views": {
+                "default": {
+                    "query": { "set": "Genes" },
+                    "type": "JBrowse/View/TrackRenderer/Glyphs"
+                }
+            }
+        },
 
         {
             "name" : "Features - Name test",

@@ -21,20 +21,26 @@ configSchema: {
     ]
 },
 
-
-_defaultConfig: function() {
-    return this._mergeConfigs(
-        this.inherited(arguments),
-        {
-            transcriptType: 'mRNA',
-            style: {
-                transcriptLabelFont: 'normal 10px Univers,Helvetica,Arial,sans-serif',
-                transcriptLabelColor: 'black',
-                textFont: 'bold 12px Univers,Helvetica,Arial,sans-serif'
-            },
-            labelTranscripts: true,
-            marginBottom: 0
-        });
+configSchema: {
+    slots: [
+        { name: 'transcriptType', type: 'string', defaultValue: 'mRNA',
+          description: '`type` field of features that should be considered to be processed transcripts'
+        },
+        { name: 'transcriptLabelFont', type: 'string',
+          description: 'font to use for transcript labels',
+          defaultValue : 'normal 10px Univers,Helvetica,Arial,sans-serif'
+        },
+        { name: 'transcriptLabelColor', type: 'Color', defaultValue: 'black',
+          description: 'color to use for transcript labels'
+        },
+        { name: 'textFont',
+          defaultValue: 'bold 12px Univers,Helvetica,Arial,sans-serif'
+        },
+        { name: 'labelTranscripts', type: 'boolean', defaultValue: true,
+          description: 'if set, draw separate text labels naming each transcript'
+        },
+        { name: 'marginBottom', type: 'integer', defaultValue: 0 }
+    ]
 },
 
 _boxGlyph: function() {
@@ -59,9 +65,9 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         r: 0,
         w: 0,
         subRects: [],
-        viewInfo: viewArgs,
+        blockID: viewArgs.block.id(),
         f: feature,
-        glyph: this
+        glyphType: 'JBrowse/View/FeatureGlyph/Gene'
     };
     if( subfeatures && subfeatures.length ) {
         // sort the children by name
@@ -82,7 +88,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
 
             if( viewArgs.showLabels && this.getConfForFeature( 'labelTranscripts', subfeatures[i] ) ) {
                 var transcriptLabel = this.makeSideLabel(
-                    this.getFeatureLabel(subfeatures[i]),
+                    this.track.getFeatureLabel(subfeatures[i]),
                     this.getStyle( subfeatures[i], 'transcriptLabelFont'),
                     subRect
                 );
@@ -132,17 +138,22 @@ layoutFeature: function( viewInfo, layout, feature ) {
     return fRect;
 },
 
-renderFeature: function( context, fRect ) {
-    if( fRect.viewInfo.displayMode != 'collapsed' )
+renderFeature: function( block, context, fRect, viewHints ) {
+    if( viewHints.displayMode != 'collapsed' )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
     var subRects = fRect.subRects;
     for( var i = 0; i < subRects.length; i++ ) {
-        subRects[i].glyph.renderFeature( context, subRects[i] );
+        var glyphType = subRects[i].glyphType;
+        var glyph = viewHints.glyphs[ glyphType ]
+            || ( /\bProcessedTranscript$/.test( glyphType )
+                 ? this._ptGlyph() : this._boxGlyph()
+               );
+        glyph.renderFeature( block, context, subRects[i] );
     }
 
-    this.renderLabel( context, fRect );
-    this.renderDescription( context, fRect );
+    this.renderLabel( block, context, fRect, viewHints );
+    this.renderDescription( block, context, fRect, viewHints );
 },
 
 updateStaticElements: function( context, fRect, viewArgs ) {

@@ -637,9 +637,12 @@ return declare(
         var context = this.getRenderingContext( block, blockNode );
         if( context ) {
             var thisB = this;
+            var viewArgs = {  displayMode: this.getConf('displayMode'),
+                              glyphs: this.glyphsLoaded
+                           };
             array.forEach( fRects, function( fRect ) {
                 if( fRect )
-                    thisB.renderFeature( block, context, fRect );
+                    thisB.renderFeature( block, context, fRect, viewArgs );
             });
         }
     },
@@ -750,7 +753,7 @@ return declare(
     },
 
     // draw each feature
-    renderFeature: function( block, context, fRect ) {
+    renderFeature: function( block, context, fRect, viewArgs ) {
         if( ! fRect.f )
             debugger;
 
@@ -758,7 +761,7 @@ return declare(
         this.getGlyph(
             fRect.glyphType,
             function( glyph ) {
-                glyph.renderFeature( block, context, fRect );
+                glyph.renderFeature( block, context, fRect, viewArgs );
             },
             function( error ) {
                 thisB.handleError( error );

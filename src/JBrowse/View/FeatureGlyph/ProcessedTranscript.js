@@ -52,6 +52,12 @@ _getSubparts: function( f ) {
     return filtered;
 },
 
+_getFeatureRectangle: function() {
+    var rect = this.inherited( arguments );
+    rect.glyphType = 'JBrowse/View/FeatureGlyph/ProcessedTranscript';
+    return rect;
+},
+
 _makeUTRs: function( parent, subparts ) {
     // based on Lincoln's UTR-making code in Bio::Graphics::Glyph::processed_transcript
 
