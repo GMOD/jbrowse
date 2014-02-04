@@ -12,7 +12,7 @@ define( [ 'dojox/lang/functional/object',
                 else if( typeof conf[x] == 'string' ) {
                     // compile
                     var spec = conf[x];
-                    if( /^\s*function\s*\(/.test(spec) && /\}[\s;]*$/.test(spec) ) {
+                    if( /^\s*function\s*\(/.test(spec) ) {
                         conf[x] = this.evalHook(spec);
                     }
                 }
