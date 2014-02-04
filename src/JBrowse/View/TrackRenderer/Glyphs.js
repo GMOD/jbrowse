@@ -9,6 +9,7 @@ define( [
             'JBrowse/has!dom?dojo/_base/event',
             'dojo/mouse',
             'JBrowse/has!dom?dojo/dom-construct',
+            'JBrowse/has!dom?dojo/dom-geometry',
             'dojo/Deferred',
             'dojo/on',
 
@@ -32,6 +33,7 @@ define( [
             domEvent,
             mouse,
             domConstruct,
+            domGeom,
             Deferred,
             on,
 
@@ -590,22 +592,33 @@ return declare(
                  var thisB = this;
                  this.own(
                      on( this.get('widget').domNode, event, function( evt ) {
-                             evt.preventDefault();
-                             thisB.getFRectUnderMouse( evt )
+                         evt.preventDefault();
+                         thisB.getFRectUnderMouse( evt )
                              .then( function( fRect ) {
-                                        if( fRect )
+                                    if( fRect ) {
+                                        // give the glyph a chance to process the click
+                                        // event to find the feature hierarchy that
+                                        // was clicked.
+                                        thisB.getGlyph( fRect.glyphType, function( glyph ) {
+                                            var pos = domGeom.position( thisB.getBlockStash()[fRect.blockID].featureCanvas );
+                                            var clickedFeatures = glyph.getFeaturesAtPoint( fRect, evt.clientX-pos.x, evt.clientY-pos.y );
+                                            console.log( clickedFeatures );
                                             handler.call({
-                                                             track: thisB,
-                                                             feature: fRect.f,
-                                                             fRect: fRect,
-                                                             callbackArgs: [ evt, thisB, fRect.f, fRect ]
-                                                         },
-                                                         evt,
-                                                         thisB,
-                                                         fRect.f,
-                                                         fRect
-                                                        );
-                                 });
+                                                         track: thisB,
+                                                         clicked: clickedFeatures,
+                                                         feature: fRect.f,
+                                                         fRect: fRect,
+                                                         callbackArgs: [ evt, thisB, fRect.f, fRect, clickedFeatures ]
+                                                     },
+                                                     evt,
+                                                     thisB,
+                                                     fRect.f,
+                                                     fRect,
+                                                     clickedFeatures
+                                                    );
+                                        });
+                                    }
+                             }, Util.logError );
                          })
                  );
              }).call( this, e, this.eventHandlers[e] );

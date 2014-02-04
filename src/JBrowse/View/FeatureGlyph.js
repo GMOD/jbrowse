@@ -38,12 +38,19 @@ return declare( _ConfigurationMixin, {
         return this.getConf( path, [feature, path, this, this.track ] );
     },
 
-    mouseoverFeature: function( context, fRect ) {
-        this.renderFeature( context, fRect );
-
-        // highlight the feature rectangle if we're moused over
-        context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' ).toString();
-        context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
+    // given an fRect and x,y position on the canvas, return an array
+    // of which features, if any, it hits
+    getFeaturesAtPoint: function( fRect, x, y, inFeatures ) {
+        var features = inFeatures || [];
+        // does it hit this feature?
+        var rect = fRect.rect || fRect;
+        if( ! ( x > (rect.l+rect.w) || x < rect.l ) && !( y < rect.t || y > (rect.t+rect.h) ) )
+            features.push( fRect.f );
+        // recursively, does it hit any subfeatures?
+        array.forEach( fRect.subRects, function( sub ) {
+            this.getFeaturesAtPoint( sub, x, y, features );
+        },this);
+        return features;
     },
 
     /**
