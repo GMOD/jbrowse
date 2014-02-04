@@ -34,7 +34,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
     constructor: function( args ) {
         this.data = args.blob ||
             new XHRBlob( this.resolveUrl(
-                             args.urlTemplate
+		this._evalConf(args.urlTemplate)
                          )
                        );
         this.features = [];

@@ -22,6 +22,11 @@ return declare( Store,
         this.globalStats = {};
     },
 
+    _evalConf: function( confVal, confKey ) {
+        // evaluate callbacks as functions
+        return typeof confVal == 'function' ? confVal.call( this, this ) : confVal;
+    },
+
     /**
      * Fetch global statistics the features in this store.
      *

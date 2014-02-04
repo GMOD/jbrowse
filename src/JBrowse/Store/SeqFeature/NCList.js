@@ -72,7 +72,7 @@ return declare( SeqFeatureStore,
             };
 
             var url = this.resolveUrl(
-                this.urlTemplates.root,
+		this._evalConf(this.urlTemplates.root),
                 { refseq: refName }
             );
 
