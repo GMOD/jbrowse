@@ -9,7 +9,7 @@ define( [
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
-            './GFF3/Parser'
+            './GTF/Parser'
         ],
         function(
             declare,
@@ -28,7 +28,7 @@ define( [
 return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
 
  /**
-  * @lends JBrowse.Store.SeqFeature.GFF3
+  * @lends JBrowse.Store.SeqFeature.GTF
   */
 {
     constructor: function( args ) {
@@ -88,7 +88,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                 try {
                     parser.addLine(line);
                 } catch(e) {
-                    fail('Error parsing GFF3.');
+                    fail('Error parsing GTF.');
                     throw e;
                 }
             },

@@ -888,7 +888,8 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/BigWig'     : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/Sequence/StaticChunked': 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/VCFTabix'   : 'JBrowse/View/Track/CanvasVariants',
-                'JBrowse/Store/SeqFeature/GFF3'       : 'JBrowse/View/Track/CanvasFeatures'
+                'JBrowse/Store/SeqFeature/GFF3'       : 'JBrowse/View/Track/CanvasFeatures',
+                'JBrowse/Store/SeqFeature/GTF'       : 'JBrowse/View/Track/CanvasFeatures'
             },
 
             knownTrackTypes: [

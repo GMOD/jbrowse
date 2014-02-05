@@ -90,6 +90,7 @@ return declare( null, {
                     options: [
                         { label: '<span class="ghosted">file type?</span>', value: null     },
                         { label: "GFF3",        value: "gff3"   },
+                        { label: "GTF",        value: "gtf"   },
                         { label: "BigWig",      value: "bigwig" },
                         { label: "BAM",         value: "bam"    },
                         { label: "BAM index",   value: "bai"    },

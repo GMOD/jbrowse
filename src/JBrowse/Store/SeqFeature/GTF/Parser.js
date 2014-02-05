@@ -1,17 +1,24 @@
+// the challenge with GTF is that there is no parent relationship
+// every feature line has a gene_id and a transcript_id but there are no ids that uniquely id each feature
+// in eukaryotes a gene can have multiple transcripts
+// in prokaryotes a transcript can have multiple genes
+// here we just create transcript features with children features and let 'gene_ids' simply be attributes not a feature in themselves
+
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/json',
-           'JBrowse/Util/GFF3'
+           'JBrowse/Util/GTF'
        ],
        function(
            declare,
            array,
            lang,
            JSON,
-           GFF3
+           GTF
        ) {
+
 
 return declare( null, {
 
@@ -51,7 +58,7 @@ return declare( null, {
         if( this.eof ) {
             // do nothing
         } else if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
-            var f = GFF3.parse_feature( line );
+            var f = GTF.parse_feature( line );
             this._buffer_feature( f );
         }
         // directive or comment
@@ -61,7 +68,7 @@ return declare( null, {
                 this._return_all_under_construction_features();
             }
             else if( hashsigns.length == 2 ) {
-                var directive = GFF3.parse_directive( line );
+                var directive = GTF.parse_directive( line );
                 if( directive.directive == 'FASTA' ) {
                     this._return_all_under_construction_features();
                     this.eof = true;
@@ -85,7 +92,7 @@ return declare( null, {
         }
         else { // it's a parse error
             line = line.replace( /\r?\n?$/g, '' );
-            throw "GFF3 parse error.  Cannot parse '"+line+"'.";
+            throw "GTF parse error.  Cannot parse '"+line+"'.";
         }
     },
 
@@ -136,8 +143,10 @@ return declare( null, {
         feature_line.derived_features = [];
 
         // NOTE: a feature is an arrayref of one or more feature lines.
-        var ids     = feature_line.attributes.ID     || [];
-        var parents = feature_line.attributes.Parent || [];
+        var feature_number = this.under_construction_by_id.length; // no such thing as unique ID in GTF. make one up.
+        var is_transcript = feature_line.type == 'transcript'; //trying to support the Cufflinks convention of adding a transcript line
+        var ids     = is_transcript ? feature_line.attributes.transcript_id  || [] : [feature_number];
+        var parents = is_transcript ? [] : feature_line.attributes.transcript_id || [];
         var derives = feature_line.attributes.Derives_from || [];
 
         if( !ids.length && !parents.length && !derives.length ) {
@@ -146,6 +155,11 @@ return declare( null, {
             this._return_item([ feature_line ]);
             return;
         }
+        array.forEach( parents, function( id ) {
+            if(! ( this.under_construction_by_id[id] )) {
+                this._buffer_feature(this._create_transcript(feature_line));
+            }
+        },this);
 
         var feature;
         array.forEach( ids, function( id ) {
@@ -172,6 +186,18 @@ return declare( null, {
         this._resolve_references_from( feature || [ feature_line ], { Parent : parents, Derives_from : derives }, ids );
     },
 
+    _create_transcript: function(feature){
+        var result =JSON.parse(JSON.stringify(feature));
+        result.type='transcript';
+        result.attributes={'transcript_id':result.attributes.transcript_id, 'gene_id':result.attributes.gene_id};
+        return result;
+    },
+
+   _expand_feature: function(parent_feature, child_feature){
+        parent_feature.start = Math.min(parent_feature.start, child_feature.start);
+        parent_feature.end = Math.max(parent_feature.end, child_feature.end);
+   },
+
     _resolve_references_to: function( feature, id ) {
         var references = this.under_construction_orphans[id];
         if( ! references )
@@ -195,6 +221,7 @@ return declare( null, {
             array.forEach( references[attrname], function( to_id ) {
                 var other_feature;
                 if(( other_feature = this.under_construction_by_id[ to_id ] )) {
+                    this._expand_feature(other_feature, feature);
                     if( ! pname )
                         pname = this.container_attributes[attrname] || attrname.toLowerCase();
                     if( ! array.some( ids, function(i) { return this.completed_references[i+','+attrname+','+to_id]++; },this) ) {

@@ -3,6 +3,12 @@
  * JavaScript port of Robert Buels's Bio::GFF3::LowLevel Perl module.
  */
 
+if (!String.prototype.trim) {
+ String.prototype.trim = function() {
+  return this.replace(/^\s+|\s+$/g,'');
+ }
+}
+
 define([
            'dojo/_base/array'
        ],
@@ -95,7 +101,7 @@ return {
 
         var attrs = {};
         array.forEach( attrString.split(';'), function( a ) {
-            var nv = a.split( '=', 2 );
+            var nv = a.trim().replace(/\"+|\'+/g,'').split(/\s+/,2);
             if( !( nv[1] && nv[1].length ) )
                 return;
             var arec = attrs[ nv[0] ];
