@@ -138,7 +138,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.sizeInit(numBlocks, widthPct);
         this.labelHTML = "";
         this.labelHeight = 0;
-        this.makeTrackBorder();
 
         if( this.config.pinned )
             this.setPinned( true );
@@ -183,21 +182,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         // make the track menu with things like 'save as'
         this.makeTrackMenu();
-    },
-
-    makeTrackBorder: function() {
-        var borderDiv = dojo.create(
-            'div', {
-                className: "track-border dojoDndHandle",
-                id: "border_" + this.name,
-                style: {
-                    position: 'absolute',
-                    //top: 0
-                }
-            },this.div);
-
-        this.border = borderDiv;
-
     },
 
     hide: function() {

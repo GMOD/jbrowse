@@ -322,6 +322,12 @@ div.track {
     padding: 0;
     margin: 0;
     z-index: 0;
+
+    border-top: 1px solid #fafafa;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 div.pin_underlay {
     width: 100%;
@@ -426,7 +432,6 @@ div.track-border {
 
 div.track-label, div.tracklist-label {
     z-index: 20;
-    top: -4px;
 
     padding: 1px 6px;
     overflow: hidden;
@@ -482,8 +487,8 @@ div.tracklist-label.collapsed {
 
 div.track-label {
     color: black;
-    margin: 3px 0 0 3px;
-    overflow: show;
+    margin: -1px 0 0 -1px;
+    overflow: visible;
     background: white;
     padding: 0 5px;
 
