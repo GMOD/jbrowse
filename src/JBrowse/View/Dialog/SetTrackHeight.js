@@ -17,15 +17,14 @@ return declare( ActionBarDialog, {
      * manually set a new highlight.
      * @lends JBrowse.View.InfoDialog
      */
-    autofocus: false,
-    title: 'Set track height',
+    title: 'Set new track height',
 
     constructor: function( args ) {
         this.height = args.height || 100;
         this.browser = args.browser;
         this.setCallback    = args.setCallback || function() {};
         this.cancelCallback = args.cancelCallback || function() {};
-        this.heightConstraints = { min: 50, max: 750 };
+        this.heightConstraints = { min: 10, max: 750 };
     },
 
     _fillActionBar: function( actionBar ) {
@@ -35,9 +34,6 @@ return declare( ActionBarDialog, {
                 var height = parseInt(this.heightSpinner.getValue());
                 if (isNaN(height) || height < this.heightConstraints.min
                     || height > this.heightConstraints.max) return;
-
-
-                console.log(height);
                 this.setCallback && this.setCallback( height );
                 this.hide();
             })
@@ -63,7 +59,8 @@ return declare( ActionBarDialog, {
 
         this.set('content', [
                      dom.create('label', { "for": 'newhighlight_locstring', innerHTML: '' } ),
-                     this.heightSpinner.domNode
+                     this.heightSpinner.domNode,
+                     dom.create( 'span', { innerHTML: ' pixels' } )
                  ] );
 
         this.inherited( arguments );
