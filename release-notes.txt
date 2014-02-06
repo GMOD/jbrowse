@@ -11,6 +11,11 @@
    basepairs aren't available.  Thanks to Kevin Mohamed for
    implementing this (issue #422).
 
+ * Persistent session state is now stored on a per-dataset basis,
+   which improves user experience when switching between multiple
+   datasets in JBrowse.  Thanks to Richard Hayes for pointing this
+   issue out, and Kevin Mohamed for the fix (issue #410).
+
 ## Bug fixes
 
  * Added a missing dependency for the server side formatting tools on
