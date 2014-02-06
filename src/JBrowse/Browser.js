@@ -2587,24 +2587,18 @@ showRegionWithHighlight: function() { // backcompat
     return this.showRegionAfterSearch.apply( this, arguments );
 },
 
-    _updateTrackHeights: function(height) {
-        var browser = this;
-        var tracks = browser.view.visibleTrackNames();
+_updateTrackHeights: function(height) {
+    var browser = this;
+    var tracks = browser.view.visibleTracks();
 
-        var configs = dojo.map(tracks, function(trackName) {
-            var cfg = browser.trackConfigsByName[trackName];
-            cfg.style = cfg.style || {};
-            cfg.style.height = height;
+    array.forEach( tracks, function( track ) {
+        // operate only on XYPlot or Density tracks
+        if( ! /\b(XYPlot|Density)/.test( track.config.type ) )
+            return;
 
-            return cfg;
-        });
-
-        dojo.forEach(configs, function(config) {
-            browser.cookie("track-" + config.track, config.style);
-        });
-
-        browser.publish( '/jbrowse/v1/v/tracks/replace', configs);
-    }
+        track.updateUserStyles({ height: height });
+    });
+}
 });
 });
 
