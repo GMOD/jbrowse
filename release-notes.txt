@@ -2,6 +2,10 @@
 
 ## Minor improvements
 
+ * Added some user interface elements to set the height in pixels of a
+   single quantitative track, or of all visible quantitative tracks.
+   Thanks to Evan Briones for implementing this!
+
  * Added a `JBrowse/View/FeatureGlyph/Diamond` glyph that draws
    diamond-shaped features instead of boxes.  Thanks to OICR Co-op
    student Kevin Mohamed for implementing this!

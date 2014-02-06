@@ -9,6 +9,7 @@ define( [
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_ExportMixin',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
+            'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
@@ -23,6 +24,7 @@ define( [
             BlockBasedTrack,
             ExportMixin,
             DetailStatsMixin,
+            TrackHeightDialog,
             Util,
             Scale
         ) {
@@ -473,6 +475,25 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     _exportFormats: function() {
         return [{name: 'bedGraph', label: 'bedGraph', fileExt: 'bedgraph'}, {name: 'Wiggle', label: 'Wiggle', fileExt: 'wig'}, {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'} ];
+    },
+
+    _trackMenuOptions: function() {
+        var track = this;
+        var options = this.inherited(arguments) || [];
+
+        options.push({
+            label: 'Change track height',
+            action: function() {
+                new TrackHeightDialog({
+                    height: track._canvasHeight(),
+                    setCallback: function( newHeight ) {
+                        track.updateUserStyles({ height: newHeight });
+                    }
+                }).show();
+            }
+        });
+
+        return options;
     }
 });
 });

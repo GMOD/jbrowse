@@ -35,6 +35,7 @@ define( [
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
+            'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
@@ -76,6 +77,7 @@ define( [
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
+            SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
@@ -630,7 +632,7 @@ initView: function() {
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
-                    id: 'menubar_clearhighlight', 
+                    id: 'menubar_clearhighlight',
                     label: 'Clear highlight',
                     iconClass: 'dijitIconFilter',
                     onClick: dojo.hitch( this, function() {
@@ -643,12 +645,33 @@ initView: function() {
                 });
             this._updateHighlightClearButton();  //< sets the label and disabled status
             // update it every time the highlight changes
-            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
+            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged',
+                            dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
 
-            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
+            // add a global menu item for resizing all visible quantitative tracks
+            this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                label: 'Resize quant. tracks',
+                id: 'menubar_settrackheight',
+                title: 'Set all visible quantitative tracks to a new height',
+                onClick: function() {
+                    new SetTrackHeightDialog({
+                        setCallback: function( height ) {
+                            var tracks = thisObj.view.visibleTracks();
+                            array.forEach( tracks, function( track ) {
+                                // operate only on XYPlot or Density tracks
+                                if( ! /\b(XYPlot|Density)/.test( track.config.type ) )
+                                    return;
 
+                                track.updateUserStyles({ height: height });
+                            });
+                        }
+                    }).show();
+                }
+            }));
+
+            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
@@ -2575,7 +2598,6 @@ showRegionAfterSearch: function( location ) {
 showRegionWithHighlight: function() { // backcompat
     return this.showRegionAfterSearch.apply( this, arguments );
 }
-
 
 });
 });
