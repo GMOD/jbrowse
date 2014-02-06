@@ -482,7 +482,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         var options = this.inherited(arguments) || [];
 
         options.push({
-            label: 'Change track height',
+            label: 'Change height',
+            iconClass: 'jbrowseIconVerticalResize',
             action: function() {
                 new TrackHeightDialog({
                     height: track._canvasHeight(),

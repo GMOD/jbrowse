@@ -655,6 +655,7 @@ initView: function() {
                 label: 'Resize quant. tracks',
                 id: 'menubar_settrackheight',
                 title: 'Set all visible quantitative tracks to a new height',
+                iconClass: 'jbrowseIconVerticalResize',
                 onClick: function() {
                     new SetTrackHeightDialog({
                         setCallback: function( height ) {
