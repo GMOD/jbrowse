@@ -2246,14 +2246,14 @@ cookie: function(keyWithoutId,value) {
     if( typeof value == 'object' )
         value = dojo.toJson( value );
 
-    var sizeLimit= this.config.cookieSizeLimit || 1200;
+    var sizeLimit = this.config.cookieSizeLimit || 1200;
     if( value && value.length > sizeLimit ) {
         console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
         return localStorage.getItem( keyWithId );
     }
-    else if(value){
+    else if( value ) {
         return localStorage.setItem(keyWithId, value);
-		}
+    }
 
     return (localStorage.getItem( keyWithId ) || dojo.cookie(keyWithoutId));
 },

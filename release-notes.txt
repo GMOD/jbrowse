@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Persistent session state is now stored on a per-dataset basis,
+   which improves user experience when switching between multiple
+   datasets in JBrowse.  Thanks to Richard Hayes for pointing this
+   issue out, and Kevin Mohamed for the fix (issue #410).
+
+
 # Release 1.11.1     2014-01-07 15:48:39 EST5EDT
 
 ## Minor improvements
