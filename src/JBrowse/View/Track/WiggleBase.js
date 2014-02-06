@@ -9,6 +9,7 @@ define( [
             'JBrowse/View/Track/BlockBased',
             'JBrowse/View/Track/_ExportMixin',
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
+            'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/Util',
             './Wiggle/_Scale'
         ],
@@ -23,6 +24,7 @@ define( [
             BlockBasedTrack,
             ExportMixin,
             DetailStatsMixin,
+            TrackHeightDialog,
             Util,
             Scale
         ) {
@@ -30,7 +32,12 @@ define( [
 return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     constructor: function( args ) {
+        var cookie = this.browser.cookie("track-" + this.name);
         this.trackPadding = args.trackPadding || 0;
+
+        if (cookie) {
+            this.config.style = dojo.mixin(dojo.fromJson(cookie), this.config.style);
+        }
 
         if( ! ('style' in this.config ) ) {
             this.config.style = {};
@@ -473,6 +480,33 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     _exportFormats: function() {
         return [{name: 'bedGraph', label: 'bedGraph', fileExt: 'bedgraph'}, {name: 'Wiggle', label: 'Wiggle', fileExt: 'wig'}, {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'} ];
+    },
+
+    _setTrackHeight: function(height) {
+        var config = dojo.clone(this.config);
+        config.style = config.style || {};
+        config.style.height = height;
+
+        // update track with new height
+        this.browser.publish( '/jbrowse/v1/v/tracks/replace', [config] );
+        this.browser.cookie('track-' + this.name, config.style);
+    },
+
+    _trackMenuOptions: function() {
+        var track = this;
+        var options = this.inherited(arguments) || [];
+
+        options.push({
+            label: 'Change track height',
+            action: function() {
+                new TrackHeightDialog({
+                    height: track._canvasHeight(),
+                    setCallback: dojo.hitch(track, "_setTrackHeight")
+                }).show();
+            }
+        });
+
+        return options;
     }
 });
 });
