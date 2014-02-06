@@ -16,6 +16,10 @@
    datasets in JBrowse.  Thanks to Richard Hayes for pointing this
    issue out, and Kevin Mohamed for the fix (issue #410).
 
+ * "Hide sites not passing ..." settings in VCF track menus now show
+   the filter's long description when hovered over.  Thanks to Keiran
+   Raine for suggesting this (issue #420).
+
 ## Bug fixes
 
  * Added a missing dependency for the server side formatting tools on

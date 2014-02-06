@@ -269,9 +269,10 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             });
         if( vcfHeader.filter ) {
             for( var filterName in vcfHeader.filter ) {
-                filters[filterName] = function( filterName ) {
+                filters[filterName] = function( filterName, filterSpec ) {
                     return {
                         desc: 'Hide sites not passing filter "'+filterName+'"',
+                        title: filterName+': '+filterSpec.description,
                         func: makeFilterFilter(
                             function( f ) {
                                 var fs = f.values || f;
@@ -284,7 +285,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                     });
                             })
                     };
-                }.call(this, filterName);
+                }.call(this, filterName, vcfHeader.filter[filterName]);
             }
         }
         return filters;
