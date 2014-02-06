@@ -20,6 +20,11 @@
    the filter's long description when hovered over.  Thanks to Keiran
    Raine for suggesting this (issue #420).
 
+ * Tweaked display of track labels and added a slight border at the
+   top edge of each track to make it more clear which track data
+   belongs to.  Thanks to Keiran Raine for suggesting this, and Kevin
+   Mohamed for the initial implementation (issue #432).
+
 ## Bug fixes
 
  * Added a missing dependency for the server side formatting tools on
