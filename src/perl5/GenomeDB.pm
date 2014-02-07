@@ -281,7 +281,16 @@ Return an arrayref of track definition hashrefs similar to:
 =cut
 
 sub trackList {
-    shift->{rootStore}->get( 'trackList.json', { tracks => [] } )->{tracks}
+    my ( $self ) = @_;
+    my $json_tracks = $self->{rootStore}->get( 'trackList.json', { tracks => [] } )->{tracks};
+    my $conf_tracks = $self->_read_text_conf( 'tracks.conf' );
+    return { %$json_tracks, %$conf_tracks };
+}
+
+sub _read_text_conf {
+    my ( $self, $path ) = @_;
+    $path = File::Spec->catfile( $self->{dataDir}, $path );
+    return Bio::JBrowse::ConfigurationFile->new( path => $path )->to_hashref;
 }
 
 =head2 CORS_htaccess
