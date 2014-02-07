@@ -84,7 +84,7 @@ parse_conf: function( text, load_args ) {
             value = match[3].trim();
         }
         // add to existing array value
-        else if( keypath !== undefined && ( match = line.match( /^\s*\+\s*(.+)/ ) ) ) {
+        else if( keypath !== undefined && ( match = line.match( /^\s{0,4}\+\s*(.+)/ ) ) ) {
             recordVal();
             operation = '+=';
             value = match[1].trim();
