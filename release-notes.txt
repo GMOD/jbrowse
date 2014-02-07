@@ -29,6 +29,11 @@
    belongs to.  Thanks to Keiran Raine for suggesting this, and Kevin
    Mohamed for the initial implementation (issue #432).
 
+ * Added a `--config` option to `flatfile-to-json.pl` that accepts
+   additional configuration variables that will be merged into the top
+   level of the track configuration.  Thanks to Mikael Brandström
+   Durling for the initial implementation of this.
+
 ## Bug fixes
 
  * Added a missing dependency for the server side formatting tools on

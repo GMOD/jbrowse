@@ -27,7 +27,8 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
       [ --arrowheadClass <CSS class> ]                                        \
       [ --noSubfeatures ]                                                     \
       [ --subfeatureClasses '{ JSON-format subfeature class map }' ]          \
-      [ --clientConfig '{ JSON-format extra configuration for this track }' ] \
+      [ --clientConfig '{ JSON-format style configuration for this track }' ] \
+      [ --config '{ JSON-format extra configuration for this track }' ]       \
       [ --thinType <BAM -thin_type> ]                                         \
       [ --thicktype <BAM -thick_type>]                                        \
       [ --type <feature types to process> ]                                   \
@@ -109,13 +110,21 @@ CSS classes for each subfeature type, in JSON syntax.  Example:
 
 Only used by HTMLFeatures tracks.
 
-=item --clientConfig '{ JSON-format extra configuration for this track }'
+=item --clientConfig '{ JSON-format style configuration for this track }'
 
 Extra configuration for the client, in JSON syntax.  Example:
 
   --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
 
 For historical reasons, this is only merged into the C<style> section of the new track's configuration.
+
+=item --config '{ JSON-format extra configuration for this track }'
+
+Additional top-level configuration for the client, in JSON syntax.  Example:
+
+  --config '{ "glyph": "ProcessedTranscript" }'
+
+Unlike C<--clientConfig>, this is merged into the top level of the new track configuration.
 
 =item --metadata '{ JSON metadata }'
 
