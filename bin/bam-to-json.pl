@@ -46,6 +46,8 @@ Extra configuration for the client, in JSON syntax.  Example:
 
   --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 5}'
 
+For historical reasons, this is only merged into the C<style> section of the new track's configuration.
+
 =item --metadata '{ JSON metadata }'
 
 Metadata about this track.  Example:
