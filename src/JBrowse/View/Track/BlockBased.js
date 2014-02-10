@@ -173,7 +173,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 className: "track-label dojoDndHandle",
                 id: "label_" + this.name,
                 style: {
-                    position: 'absolute',
+                    position: 'absolute'
                 }
             },this.div);
 
