@@ -1,3 +1,4 @@
+## object that opens and parses a JBrowse text-format configuration file
 package Bio::JBrowse::ConfigurationFile;
 use strict;
 use warnings;
@@ -12,8 +13,18 @@ sub new {
     return bless { @_ }, $class;
 }
 
-# this is a word-for-word port of the JS conf parser.  makes for
-# slightly odd Perl.
+sub to_hashref {
+    my ( $self ) = @_;
+    my $text = do {
+        local $/;
+        open my $f, '<', $self->{path} or die "$! reading $self->{path}";
+        <$f>
+    };
+    return $self->_parse( $text );
+}
+
+# this is a word-for-word port of the JS conf parser
+# (JBrowse/ConfigAdaptor/conf.js).  makes for slightly odd Perl.
 sub _parse {
     my ( $self, $text, $load_args ) = @_;
 
@@ -98,7 +109,7 @@ sub _parse {
             }
         }
         # new value
-        elsif ( $line =~ ( (defined $value) ? qr/^([^\+=]+)(\+?=)(.*)/ : qr/^(\S[^\+=]+)(\+?=)(.*)/ ) ) {
+        elsif ( $line =~ ( (defined $value) ? qr/^(\S[^\+=]+)(\+?=)(.*)/ : qr/^([^\+=]+)(\+?=)(.*)/ ) ) {
             $recordVal->();
             $operation = $2;
             $value = trim( $3 );
@@ -114,8 +125,8 @@ sub _parse {
             $value = trim( $1 );
         }
         # add to existing value
-        elsif ( defined $value && $line =~ /^\s+(\S.*)/ ) {
-            $value .= length $value ? ' '.trim($1) : trim($1);
+        elsif ( defined $value && ( $line =~ /^\s+(\S.*)/ ) ) {
+            $value .= length( $value ) ? ' '.trim($1) : trim($1);
         }
         # done with last value
         else {
@@ -133,16 +144,6 @@ sub _parse {
 sub _isAlwaysArray {
     my ( $self, $varname ) = @_;
     return $varname eq 'include';
-}
-
-sub to_hashref {
-    my ( $self ) = @_;
-    my $text = do {
-        local $/;
-        open my $f, '<', $self->{path} or die "$! reading $self->{path}";
-        <$f>
-    };
-    return $self->_parse( $text );
 }
 
 

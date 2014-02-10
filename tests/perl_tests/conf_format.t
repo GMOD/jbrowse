@@ -49,7 +49,8 @@ is( $gbConfig->{sub}{section}{inline}{con}{spaces} , 'hoho' );
 
 is( $gbConfig->{threshold}, -1234221e-02 );
 
-is( length $gbConfig->{em}{bedded}{json}{myjson}, 2 );
+is( scalar( @{$gbConfig->{em}{bedded}{json}{myjson}}), 2 )
+    or diag explain $gbConfig->{em}{bedded}{json};
 is( $gbConfig->{em}{bedded}{json}{myjson}[0]{zee} ,'hallo');
 is( $gbConfig->{em}{bedded}{json}{myjson}[1], 53 );
 
