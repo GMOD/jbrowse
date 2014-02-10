@@ -20,7 +20,23 @@ sub to_hashref {
         open my $f, '<', $self->{path} or die "$! reading $self->{path}";
         <$f>
     };
-    return $text ? $self->_parse( $text ) : {};
+    return $text ? $self->_regularize( $self->_parse( $text ) ) : {};
+}
+
+sub _regularize {
+    my ( $self, $conf ) = @_;
+
+    # change the tracks conf from a hashref to an arrayref if necessary
+    if( ref $conf->{tracks} eq 'HASH' ) {
+        my @tracks;
+        while( my ( $label, $track_conf ) = each %{$conf->{tracks}} ) {
+            $track_conf->{label} = $label;
+            push @tracks, $track_conf;
+        }
+        $conf->{tracks} = \@tracks;
+    }
+
+    return $conf;
 }
 
 # this is a word-for-word port of the JS conf parser

@@ -341,8 +341,11 @@ sub find_names_files {
              || $track->{storeClass} =~ /VCFTabix$/ )
             ) {
             my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
-            if( -f $path ) {
+            if( -r $path ) {
                 push @files, $self->make_file_record( $track, $path );
+            }
+            else {
+                warn "VCF file '$path' not found, or not readable.  Skipping.\n";
             }
         }
 

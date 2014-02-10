@@ -202,11 +202,11 @@ sub stream_do {
             Storable::store_fd( [$hex,$op], $log_handle );
 
             $ops_written++;
-            if ( $progressbar && $ops_written > $progressbar_next_update && $ops_written < $estimated_op_count ) {
+            if ( $progressbar && $ops_written >= $progressbar_next_update && $ops_written < $estimated_op_count ) {
                 $progressbar_next_update = $progressbar->update( $ops_written );
             }
         }
-        if ( $progressbar && $ops_written >= $progressbar_next_update ) {
+        if ( $progressbar && $ops_written > $progressbar_next_update ) {
             $progressbar->update( $estimated_op_count );
         }
     }
@@ -233,7 +233,7 @@ sub stream_do {
             unlink $log_path;
         }
 
-        if ( $progressbar && $ops_played_back >= $progressbar_next_update ) {
+        if ( $progressbar && $ops_played_back > $progressbar_next_update ) {
             $progressbar->update( $ops_written );
         }
     }
