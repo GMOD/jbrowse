@@ -3,7 +3,7 @@ package Bio::JBrowse::ConfigurationFile;
 use strict;
 use warnings;
 
-use Carp;
+use Carp ();
 use Data::Dump;
 
 use JSON 2;
@@ -15,12 +15,12 @@ sub new {
 
 sub to_hashref {
     my ( $self ) = @_;
-    my $text = do {
+    my $text = eval {
         local $/;
         open my $f, '<', $self->{path} or die "$! reading $self->{path}";
         <$f>
     };
-    return $self->_parse( $text );
+    return $text ? $self->_parse( $text ) : {};
 }
 
 # this is a word-for-word port of the JS conf parser
@@ -39,6 +39,7 @@ sub _parse {
         $data = $data->{ shift @path } while $data && @path;
         return $data;
     }
+
     sub setObject {
         my ( $path, $value, $data ) = @_;
         my @path = split /\./, $path;
@@ -83,8 +84,7 @@ sub _parse {
             }
             setObject( $path, $value, $data );
         }; if( $@ ) {
-            warn $@;
-            croak "syntax error".
+            Carp::croak "syntax error".
                (($load_args->{config}||{})->{url} ? ' in '.$load_args->{config}{url} : '')
                . ( $lineNumber ? " at line ".($lineNumber-1) : '' );
         }

@@ -38,6 +38,8 @@ use Hash::Merge ();
 
 use JsonFileStorage;
 
+use Bio::JBrowse::ConfigurationFile;
+
 my $defaultTracklist = {
                         formatVersion => 1,
                         tracks => []
@@ -283,8 +285,8 @@ Return an arrayref of track definition hashrefs similar to:
 sub trackList {
     my ( $self ) = @_;
     my $json_tracks = $self->{rootStore}->get( 'trackList.json', { tracks => [] } )->{tracks};
-    my $conf_tracks = $self->_read_text_conf( 'tracks.conf' );
-    return { %$json_tracks, %$conf_tracks };
+    my $conf_tracks = $self->_read_text_conf( 'tracks.conf' )->{tracks} || [];
+    return [ @$json_tracks, @$conf_tracks ];
 }
 
 sub _read_text_conf {
