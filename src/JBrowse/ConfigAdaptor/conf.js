@@ -1,3 +1,7 @@
+/**
+ * Configuration adaptor for JBrowse's text configuration format.
+ * That is, the text configuration format that is not JSON.
+ */
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',

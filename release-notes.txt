@@ -36,6 +36,10 @@
 
 ## Bug fixes
 
+ * `generate-names.pl` now indexes VCF files from track definitions in
+   `tracks.conf` files.  Thanks to Paul Halle for pointing this out
+   (issue #434).
+
  * Added a missing dependency for the server side formatting tools on
    List::MoreUtil 0.28 or higher.  Thanks to Cris Lawrence and Keiran
    Raine for troubleshooting this!
