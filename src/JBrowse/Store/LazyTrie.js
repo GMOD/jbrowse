@@ -106,14 +106,22 @@ return declare('JBrowse.Store.LazyTrie', null,
         var trie = this;
         this.findNode(query, function(prefix, node) {
                           callback(trie.valuesFromNode(node));
-                      });
+                      },
+                      function() {
+                          callback([]);
+                      }
+                     );
     },
 
     mappingsFromPrefix: function(query, callback) {
         var trie = this;
         this.findNode(query, function(prefix, node) {
                           callback(trie.mappingsFromNode(prefix, node));
-                      });
+                      },
+                      function() {
+                          callback([]);
+                      }
+                     );
     },
 
     mappingsFromNode: function(prefix, node) {
