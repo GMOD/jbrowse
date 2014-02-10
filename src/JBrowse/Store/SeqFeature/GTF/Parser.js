@@ -143,8 +143,8 @@ return declare( null, {
         feature_line.derived_features = [];
 
         // NOTE: a feature is an arrayref of one or more feature lines.
-        var feature_number = this.under_construction_by_id.length; // no such thing as unique ID in GTF. make one up.
-        var is_transcript = feature_line.type == 'transcript'; //trying to support the Cufflinks convention of adding a transcript line
+        var feature_number = Object.keys(this.under_construction_by_id).length; // no such thing as unique ID in GTF. make one up.
+        var is_transcript = (feature_line.type == 'transcript'); //trying to support the Cufflinks convention of adding a transcript line
         var ids     = is_transcript ? feature_line.attributes.transcript_id  || [] : [feature_number];
         var parents = is_transcript ? [] : feature_line.attributes.transcript_id || [];
         var derives = feature_line.attributes.Derives_from || [];
@@ -193,9 +193,10 @@ return declare( null, {
         return result;
     },
 
+   //there are no unique ids so no chance for collision just use first elements
    _expand_feature: function(parent_feature, child_feature){
-        parent_feature.start = Math.min(parent_feature.start, child_feature.start);
-        parent_feature.end = Math.max(parent_feature.end, child_feature.end);
+        parent_feature[0].start = Math.min(parent_feature[0].start, child_feature[0].start);
+        parent_feature[0].end = Math.max(parent_feature[0].end, child_feature[0].end);
    },
 
     _resolve_references_to: function( feature, id ) {
