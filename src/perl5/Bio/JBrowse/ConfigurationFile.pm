@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Carp ();
-use Data::Dump;
 
 use JSON 2;
 
