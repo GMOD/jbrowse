@@ -37,6 +37,12 @@ fi;
 ) >>setup.log 2>&1;
 done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
 
+if( perl -Iextlib/lib/perl5 -Mlocal::lib=extlib -MData::Dump -e 1 ); then
+  echo Data::Dump already installed.
+else
+  bin/cpanm -v -l extlib Data::Dump;
+fi
+
 echo
 echo -n "Formatting Volvox example data ...";
 (   set -e;
@@ -50,6 +56,7 @@ echo -n "Formatting Volvox example data ...";
     cat docs/tutorial/data_files/volvox_sine.bw.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox-sorted.bam.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox-sorted.bam.coverage.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox-paired.bam.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.vcf.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox_fromconfig.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.gff3.conf >> sample_data/json/volvox/tracks.conf
