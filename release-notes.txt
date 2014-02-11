@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.11.2     2014-02-10 19:11:33 EST5EDT
+
 ## Minor improvements
 
  * Added some user interface elements to set the height in pixels of a
