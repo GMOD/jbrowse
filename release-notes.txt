@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added a "Zoom to this" item in the default right-click menus for
+   canvas-based feature tracks.  Thanks to Paul Hale for the initial
+   implementation of this.
+
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 
 ## Minor improvements
