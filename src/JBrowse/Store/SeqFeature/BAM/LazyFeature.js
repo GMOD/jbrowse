@@ -132,6 +132,12 @@ var Feature = Util.fastDeclare(
         return xs ? ( xs == '-' ? -1 : 1 ) :
                this._get('seq_reverse_complemented') ? -1 :  1;
     },
+    multi_segment_next_segment_strand: function() {
+      if(this._get('multi_segment_next_segment_unmapped'))
+        return undefined;
+      return this._get('multi_segment_next_segment_reversed') ? -1 : 1;
+    },
+
     /**
      * Length in characters of the read name.
      */
