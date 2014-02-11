@@ -162,7 +162,9 @@ return declare(
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
                 },
                 {
-                    "label" : "Zoom to {type} {name}",
+                    "label" : function() {
+                        return 'Zoom to this '+( this.feature.get('type') || 'feature' );
+                    },
                     "action" : function(){
                         var ref   = this.track.refSeq;
                         var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
@@ -172,11 +174,9 @@ return declare(
                     },
                     "iconClass" : "dijitIconConnector"
                 },
-                { label: function() {
-                      return 'Highlight this '
-                          +( this.feature && this.feature.get('type') ? this.feature.get('type')
-                                                                      : 'feature'
-                           );
+                {
+                  label : function() {
+                      return 'Highlight this '+( this.feature.get('type') || 'feature' );
                   },
                   action: function() {
                      var loc = new Location({ feature: this.feature, tracks: [this.track] });
