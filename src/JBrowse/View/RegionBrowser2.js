@@ -201,7 +201,7 @@ configSchema: {
               ['default', "Features - Example Features" ],
               ['default', "Transcripts" ],
               ['default', 'Features - SNPs' ],
-              ['default', 'Genes' ]
+              ['default', 'Protein-coding genes']
           ]
           //defaultValue: []
         },
