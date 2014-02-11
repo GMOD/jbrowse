@@ -164,9 +164,11 @@ return declare(
                 {
                     "label" : "Zoom to {type} {name}",
                     "action" : function(){
-                        this.track.genomeView.setLocation(
-                            this.track.refSeq.name, this.feature.get('start'), this.feature.get('end')
-                        );
+                        var ref   = this.track.refSeq;
+                        var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
+                        var start = Math.max( ref.start, this.feature.get('start') - paddingBp );
+                        var end   = Math.min( ref.end, this.feature.get('end') + paddingBp );
+                        this.track.genomeView.setLocation( ref, start, end );
                     },
                     "iconClass" : "dijitIconConnector"
                 },
