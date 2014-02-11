@@ -11,12 +11,10 @@ define([
            BoxGlyph
        ) {
 
-return declare( BoxGlyph, {
+return declare( 'JBrowse/View/FeatureGlyph/Segments', BoxGlyph, {
 
 configSchema: {
     slots: [
-        { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/Segments' },
-
         { name: 'connectorColor', defaultValue: '#333', type: 'Color' },
         { name: 'connectorThickness', defaultValue: 1, type: 'float' },
         { name: 'borderColor', defaultValue: 'rgba( 0, 0, 0, 0.3 )', type: 'Color' },

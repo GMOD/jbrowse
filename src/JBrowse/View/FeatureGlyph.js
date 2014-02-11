@@ -15,14 +15,11 @@ define([
 
 return declare( _ConfigurationMixin, {
 
-    configSchema: {
-        slots: [
-            { name: 'type', type: 'string', required: true, description: 'the JS class name of this glyph' }
-        ]
-    },
-
     constructor: function( args ) {
         this.track = args.track;
+
+        if( ! this.declaredClass )
+            throw new Error( "must declare a class name in the declare() call for feature glyphs" );
     },
 
     getStyle: function( feature, name ) {
@@ -56,7 +53,7 @@ return declare( _ConfigurationMixin, {
             l: block.bpToPx( feature.get('start') ),
             h: this.getFeatureHeight( viewArgs, feature ),
             f: feature,
-            glyphType: this.getConf('type')
+            glyphType: this.declaredClass
         };
         console.log( feature.get('start')+' -> '+fRect.l );
 

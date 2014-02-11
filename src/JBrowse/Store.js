@@ -1,14 +1,14 @@
 define( [
             'dojo/_base/declare',
-            'JBrowse/Component'
+            'JBrowse/DataHub/Resource'
         ],
         function(
             declare,
-            Component
+            Resource
         ) {
 
 var uniqCounter = 0;
-return declare( Component,
+return declare( Resource,
 
 /**
  * @lends JBrowse.Store.prototype
@@ -30,12 +30,6 @@ return declare( Component,
     notifyChanged: function( changeDescription ) {
         if( this.changeCallback )
             this.changeCallback( changeDescription );
-    },
-
-    configSchema: {
-        slots: [
-            { name: 'type', type: 'string', shortDesc: 'the JavaScript type of this store' }
-        ]
     },
 
     /**

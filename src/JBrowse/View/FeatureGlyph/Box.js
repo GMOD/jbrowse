@@ -16,7 +16,7 @@ define([
        ) {
 
 
-return declare([ FeatureGlyph, FeatureLabelMixin ], {
+return declare( 'JBrowse/View/FeatureGlyph/Box', [ FeatureGlyph, FeatureLabelMixin ], {
 
     constructor: function() {
         this._embeddedImagePromises = {};
@@ -24,8 +24,6 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
 
     configSchema: {
         slots: [
-            { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/Box' },
-
             { name: 'maxDescriptionLength', defaultValue: 70, type: 'integer' },
             { name: 'color', defaultValue: 'goldenrod', type: 'Color' },
             { name: 'mouseovercolor', defaultValue: 'rgba(0,0,0,0.3)', type: 'Color' },
@@ -70,7 +68,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin ], {
             l: block.bpToPx( feature.get('start') ),
             h: this.getFeatureHeight(viewArgs, feature),
             f: feature,
-            glyphType: this.getConf('type')
+            glyphType: this.declaredClass
         };
 
         fRect.w = block.bpToPx( feature.get('end') ) - fRect.l;

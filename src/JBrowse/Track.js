@@ -10,7 +10,7 @@ define([
            'dojo/promise/all',
            'dojo/aspect',
 
-           'JBrowse/Component',
+           'JBrowse/DataHub/Resource',
            'JBrowse/Util'
        ],
        function(
@@ -22,19 +22,17 @@ define([
            all,
            aspect,
 
-           Component,
+           Resource,
            Util
        ) {
 
-return declare( [Component,Stateful], {
+return declare( [Resource,Stateful], {
 
     configSchema: {
         slots: [
             { name: 'pinned', type: 'boolean', defaultValue:  false },
 
             { name: 'metadata', type: 'object', defaultValue: {} },
-
-            { name: 'name', type: 'string', required: true },
 
             { name: 'query', type: 'object', defaultValue: {},
               description: "track-specific query variables to pass to the store"
@@ -64,6 +62,7 @@ return declare( [Component,Stateful], {
             { name: 'viewNameDefault', type: 'string', defaultValue: 'default',
               description: 'name of the default view to use'
             },
+
             { name: 'viewName', type: 'string',
               description: 'String name of the view to use.  Usually a function.',
               defaultValue: function( track ) {

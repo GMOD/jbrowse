@@ -200,7 +200,8 @@ configSchema: {
               ['default','BigWig XY - volvox_microarray'],
               ['default', "Features - Example Features" ],
               ['default', "Transcripts" ],
-              ['default', 'Features - SNPs' ]
+              ['default', 'Features - SNPs' ],
+              ['default', 'Genes' ]
           ]
           //defaultValue: []
         },

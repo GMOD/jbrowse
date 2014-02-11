@@ -23,6 +23,7 @@ return declare( null, {
         args = args || {};
 
         this.browser = args.browser;
+        this.declaredClass = this.constructor.prototype.declaredClass;
 
         this._finalizeConfig( args.baseConfig || args.config, args.localConfig );
     },
@@ -76,7 +77,11 @@ return declare( null, {
 
     configSchema: {
         slots: [
-            { name: 'baseUrl', type: 'string', defaultValue: '/' }
+            { name: 'baseUrl', type: 'string', defaultValue: '.' },
+            { name: 'type', type: 'string',
+              description: 'JS class path for this object',
+              defaultValue: function(obj) { return obj.declaredClass; }
+            }
         ]
     },
 

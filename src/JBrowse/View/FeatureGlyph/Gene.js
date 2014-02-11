@@ -13,14 +13,7 @@ define([
            ProcessedTranscriptGlyph
        ) {
 
-return declare( BoxGlyph, {
-
-configSchema: {
-    slots: [
-        { name: 'type', defaultValue: 'JBrowse/View/FeatureGlyph/Gene' }
-    ]
-},
-
+return declare( 'JBrowse/View/FeatureGlyph/Gene', BoxGlyph, {
 
 _defaultConfig: function() {
     return this._mergeConfigs(
@@ -61,7 +54,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
         subRects: [],
         viewInfo: viewArgs,
         f: feature,
-        glyph: this
+        glyphType: this.declaredClass
     };
     if( subfeatures && subfeatures.length ) {
         // sort the children by name

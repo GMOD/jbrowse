@@ -77,7 +77,8 @@ return declare( Component, {
                                                if( trackmeta && trackmeta.config )
                                                    return thisB._instantiateTrack( trackmeta.config );
                                                else {
-                                                   console.warn( 'track "%s" not found in data hub "%s"', trackName, thisB.getConf('name') );
+                                                   console.warn( 'track "%s" not found in data hub "%s"',
+                                                                 trackName, thisB.getConf('name') );
                                                    return undefined;
                                                }
                                            });

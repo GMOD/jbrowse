@@ -27,7 +27,7 @@ define( [
             SimpleFeature
         ) {
 
-return declare( SeqFeatureStore,
+return declare( 'JBrowse/Store/SeqFeature/FromConfig', SeqFeatureStore,
 {
     constructor: function( args ) {
         this.features = this._makeFeatures( this.getConf('features') );
