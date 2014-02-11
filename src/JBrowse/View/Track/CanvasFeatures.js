@@ -161,6 +161,15 @@ return declare(
                   iconClass: 'dijitIconTask',
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
                 },
+                {
+                    "label" : "Zoom to {type} {name}",
+                    "action" : function(){
+                        this.track.genomeView.setLocation(
+                            this.track.refSeq.name, this.feature.get('start'), this.feature.get('end')
+                        );
+                    },
+                    "iconClass" : "dijitIconConnector"
+                },
                 { label: function() {
                       return 'Highlight this '
                           +( this.feature && this.feature.get('type') ? this.feature.get('type')

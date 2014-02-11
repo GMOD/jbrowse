@@ -1600,15 +1600,15 @@ addRefseqs: function( refSeqs ) {
 },
 
 
-getCurrentRefSeq: function( name, callback ) {
-    return this.refSeq || {};
-},
-
-getRefSeq: function( name, callback ) {
+/**
+ * Get the refseq object { name, start, end, .. } with the given name,
+ * or the currently shown ref seq if no name is given.
+ */
+getRefSeq: function( name ) {
     if( typeof name != 'string' )
-        name = this.refSeqOrder[0];
+        return this.refSeq || undefined;
 
-    callback( this.allRefs[ name ] );
+    return this.allRefs[ name ];
 },
 
 /**
