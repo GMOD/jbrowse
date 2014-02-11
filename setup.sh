@@ -37,12 +37,6 @@ fi;
 ) >>setup.log 2>&1;
 done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
 
-if( perl -Iextlib/lib/perl5 -Mlocal::lib=extlib -MData::Dump -e 1 ); then
-  echo Data::Dump already installed.
-else
-  bin/cpanm -v -l extlib Data::Dump;
-fi
-
 echo
 echo -n "Formatting Volvox example data ...";
 (   set -e;
