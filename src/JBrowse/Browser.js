@@ -393,7 +393,6 @@ initViews: function() {
         menuBar.appendChild( this.makeShareLink() );
 
         this.containerWidget = new dijitBorderContainer({
-            liveSplitters: false,
             design: "sidebar",
             gutters: false
         }, this.containerNode);
@@ -467,7 +466,8 @@ renderMenuBar: function( menuBar ) {
                                     iconClass: 'dijitIconFolderOpen',
                                     onClick: function() {
                                         new DataHubManagerView({ app: thisB })
-                                            .placeAt( thisB.topLevelContainerNode );
+                                            .placeAt( thisB.topLevelContainerNode )
+                                            .startup();
                                     }
                                 })
                           );

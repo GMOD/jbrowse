@@ -28,6 +28,7 @@ return declare( Component, {
   configSchema: {
       slots: [
           { name: 'name', type: 'string', required: true },
+          //{ name: 'uri', type: 'string', required: true },
           { name: 'stores', type: 'object', defaultValue: [] },
           { name: 'tracks', type: 'multi-object', defaultValue: [] },
           { name: 'referenceSets', type: 'multi-object', defaultValue: [] },
@@ -62,6 +63,12 @@ return declare( Component, {
                          'JBrowse/Track'
                      );
                  });
+  },
+
+  _modifiable: false,
+
+  isModifiable: function() {
+      return this._modifiable;
   },
 
   getTrackMetadataStore: function() {

@@ -24,9 +24,15 @@ define([
            DGrid
        ) {
 
-return declare( 'JBrowse/View/DataHubManager/DataHubTree',
-                [_WidgetBase, _Container], {
+return declare( 'JBrowse/View/DataHubManager/DataHub',
+                TitlePane,
+                {
 
+open: false,
+
+constructor: function( args ) {
+    this.title = args.dataHub.getConf('name');
+},
 
 buildRendering: function() {
     this.inherited(arguments);
@@ -34,42 +40,43 @@ buildRendering: function() {
     var store = this.get('dataHub').getDojoStore();
 
     // make a TitlePane for Reference Sets, Tracks, and Stores
-    function makePane( title, children ) {
+    function makePane( title, content ) {
         var tpane = new TitlePane({ title: title, open: false });
-        array.forEach( children, tpane.addChild, tpane );
-        array.forEach( children, function(c) {
-                           if( typeof c.refresh == 'function' )
-                               c.refresh();
-                       });
+        tpane.addChild( content );
         return tpane;
     }
-    this.addChild(
-        makePane( 'Reference Sets',
-                  [ new DGrid({ store: store,
-                                query: { type: 'refset' },
-                                columns: [ {label: 'Name', field: 'name' } ]
-                              })
-                  ]
-                )
-    );
-    this.addChild(
-        makePane( 'Tracks',
-                  [ new DGrid({ store: store,
-                                query: { type: 'track' },
-                                columns: [ {label: 'Name', field: 'name' } ]
-                              })
-                  ]
-                )
-    );
-    this.addChild(
-        makePane( 'Stores',
-                  [ new DGrid({ store: store,
-                                query: { type: 'store' },
-                                columns: [ {label: 'Name', field: 'name' } ]
-                              })
-                  ]
-                )
-    );
+
+    this.addChild( makePane( 'Reference Sets', this._renderRefSetList() ) );
+    this.addChild( makePane( 'Tracks', this._renderTrackList() ) );
+    this.addChild( makePane( 'Stores', this._renderStoreList() ) );
+},
+
+_renderRefSetList: function() {
+    var store = this.get('dataHub').getDojoStore();
+    var g = new DGrid({ store: store,
+                       query: { type: 'refset' },
+                       columns: [ {label: 'Name', field: 'name' } ]
+                     });
+    g.refresh();
+    return g;
+},
+_renderTrackList: function() {
+    var store = this.get('dataHub').getDojoStore();
+    var g = new DGrid({ store: store,
+                       query: { type: 'track' },
+                       columns: [ {label: 'Name', field: 'name' } ]
+                     });
+    g.refresh();
+    return g;
+},
+_renderStoreList: function() {
+    var store = this.get('dataHub').getDojoStore();
+    var g = new DGrid({ store: store,
+                       query: { type: 'store' },
+                       columns: [ {label: 'Name', field: 'name' } ]
+                     });
+    g.refresh();
+    return g;
 }
 
 });

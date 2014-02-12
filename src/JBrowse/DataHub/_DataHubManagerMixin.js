@@ -71,7 +71,8 @@ return declare( null, {
       hubConf[name] = conf;
       this.setConf( 'dataHubs', hubConf );
 
-      var hubD = this._dataHubs[name] = Util.instantiateComponent( { browser: this.browser, dataHubManager: this }, conf, 'JBrowse/DataHub' );
+      var hubD = this._dataHubs[name] = Util.instantiateComponent(
+          { browser: this.browser, dataHubManager: this }, conf, 'JBrowse/DataHub' );
       var thisB = this;
 
       // connect this new data hub to the global metadata store if it has already been created
@@ -101,6 +102,14 @@ return declare( null, {
           name = this.getConf('defaultDataHubName');
 
       return this._dataHubs[name];
+  },
+
+  // get an array of names of each available data hub
+  listAvailableDataHubs: function() {
+      var k = [];
+      for( var n in this._dataHubs )
+          k.push( n );
+      return k.sort();
   },
 
   getReferenceSet: function( hubName, refSetName ) {
