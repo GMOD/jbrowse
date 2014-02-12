@@ -134,8 +134,11 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-    this.container = dom.byId( params.container );
-    this.container.onselectstart = function() { return false; };
+    this.topLevelContainerNode = dom.byId( params.container );
+    this.topLevelContainerNode.style.position = 'relative';
+    this.topLevelContainerNode.onselectstart = function() { return false; };
+
+    this.containerNode = domConstruct.create( 'div', { style: 'height: 100%; width: 100%' }, this.topLevelContainerNode );
 
     // start the initialization process
     this.init();
@@ -374,12 +377,12 @@ initViews: function() {
     var thisB = this;
     return this._milestoneFunction('initViews', function( deferred ) {
 
-        dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
+        dojo.addClass( this.topLevelContainerNode, "jbrowse"); // browser container has an overall .jbrowse class
         dojo.addClass( document.body, this.getConf('dijitTheme') );
-        dojo.addClass( this.container, this.getConf('theme') );
+        dojo.addClass( this.topLevelContainerNode, this.getConf('theme') );
 
         // make our top menu bar
-        var menuBar = thisB.menuBar = dojo.create('div',{className:  'menuBar' },this.container);
+        var menuBar = thisB.menuBar = dojo.create('div',{className:  'menuBar' },this.containerNode);
 
         this.renderMenuBar( menuBar );
 
@@ -393,7 +396,7 @@ initViews: function() {
             liveSplitters: false,
             design: "sidebar",
             gutters: false
-        }, this.container);
+        }, this.containerNode);
 
         var contentWidget =
             new dijitContentPane({region: "top"}, menuBar );
@@ -407,7 +410,7 @@ initViews: function() {
 
         this.views[ this.views.length - 1 ].region = 'center';
         array.forEach( this.views, function(v) {
-            v.placeAt( this.container );
+            this.containerWidget.addChild( v );
         }, this );
 
         //connect events to update the URL in the location bar
@@ -463,8 +466,8 @@ renderMenuBar: function( menuBar ) {
                                     label: 'Data Hubs',
                                     iconClass: 'dijitIconFolderOpen',
                                     onClick: function() {
-                                        new DataHubManagerView({ app: thisB, style: 'width: 100%; height: 100%; position: absolute;' })
-                                            .showOver( thisB.container );
+                                        new DataHubManagerView({ app: thisB })
+                                            .placeAt( thisB.topLevelContainerNode );
                                     }
                                 })
                           );
@@ -791,8 +794,8 @@ _calculateClientStats: function() {
         'win-h':document.body.offsetHeight,
         'win-w': document.body.offsetWidth,
         // container geometry
-        'el-h': this.container.offsetHeight,
-        'el-w': this.container.offsetWidth,
+        'el-h': this.containerNode.offsetHeight,
+        'el-w': this.containerNode.offsetWidth,
 
         // time param to prevent caching
         t: date.getTime(),

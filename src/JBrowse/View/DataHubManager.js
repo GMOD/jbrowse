@@ -2,42 +2,32 @@ define([
            'dojo/_base/declare',
            'dojo/dom-construct',
            'dojo/dom-geometry',
-           "dojo/store/Memory",
 
            'dijit/layout/BorderContainer',
-           "dijit/tree/ObjectStoreModel",
-           "dijit/Tree"
-
+           './DataHubManager/DataHub'
        ],
        function(
            declare,
            domConstruct,
            geom,
-           MemoryStore,
 
            BorderContainer,
-           TreeModel,
-           TreeView
-
+           DataHubView
        ) {
 
 return declare( 'JBrowse/View/DataHubManager', BorderContainer, {
-region: 'center',
+
+baseClass: 'dataHubManager',
+
 buildRendering: function() {
     this.inherited(arguments);
     var thisB = this;
     this.get('app').getDataHub('default')
         .then( function(d) {
                    thisB.addChild(
-                       new TreeView(
+                       new DataHubView(
                            { region: 'center',
-                             model: new TreeModel(
-                                 { store: d.getDojoStore(),
-                                   query: { id: '__ROOT' },
-                                   mayHaveChildren: function( obj ) {
-                                       return obj.id.charAt(0) == '_';
-                                   }
-                                 })
+                             dataHub: d
                            })
                    );
                });

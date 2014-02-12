@@ -1,0 +1,15 @@
+.jbrowse {
+  .dataHubManager {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    top: 0;
+
+    background: #eee;
+
+    .dgrid {
+        max-height: 15em;
+    }
+  }
+}

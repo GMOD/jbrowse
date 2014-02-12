@@ -91,7 +91,7 @@ return declare( null, {
         new dijitButton({ iconClass: 'dijitIconDelete',
                           label: 'Cancel', onClick: dojo.hitch( dialog, 'hide' )
                         })
-            .placeAt(this.actionBar);
+            .placeAt( this.actionBar );
 
         dialog.set( 'content', [ container, this.actionBar ] );
         dialog.show();

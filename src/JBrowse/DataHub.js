@@ -188,42 +188,31 @@ return declare( Component, {
     * metadata to dijit widgets.
     */
    getDojoStore: function() {
-       var metadata = [{ id: '__ROOT', name: this.getConf('name') }];
-
-       var stores = this.getConf('stores');
-       var storeArray = [];
-       for( var storename in stores ) {
-           storeArray.push( [storename,stores[storename]] );
-       }
-       if( storeArray.length ) {
-           metadata.push( { id: '__STORES', name: 'Stores', parent: '__ROOT' });
-           array.forEach( storeArray, function( s ) {
-               metadata.push({ id: s[0], name: s[0], type: 'store', parent: '__STORES', conf: s[1] });
-           });
-       }
-
-       var tracks = this.getConf('tracks');
-       if( tracks.length ) {
-           metadata.push( { id: '__TRACKS', name: 'Tracks', parent: '__ROOT' });
-           array.forEach( tracks, function( t ) {
-               metadata.push({ id: t.name, name: t.name, type: 'track', parent: '__TRACKS', conf: t });
-           });
-       }
-
-       var refSets = this.getConf('referenceSets');
-       if( refSets.length ) {
-           metadata.push( { id: '__REFSETS', name: 'Reference Sets', parent: '__ROOT' });
-           array.forEach( refSets, function( r ) {
-               metadata.push({ id: r.name, name: r.name, type: 'refset', parent: '__REFSETS', conf: r });
-           });
-       }
-
-       return new MemoryStore({
-           data: metadata,
-           getChildren: function( obj ) {
-               return this.query({parent: obj.id});
+       return this._dojoStore || ( this._dojoStore = function() {
+           var resourceRecords = [];
+           var stores = this.getConf('stores');
+           for( var storename in stores ) {
+               resourceRecords.push( lang.mixin( { id: storename, name: storename, type: 'store', conf: stores[storename] }, stores[storename].metadata || {} ));
            }
-       });
+
+           var tracks = this.getConf('tracks');
+           if( tracks.length ) {
+               array.forEach( tracks, function( t ) {
+                   resourceRecords.push( lang.mixin( { id: t.name, name: t.name, type: 'track', conf: t }, t.metadata || {} ));
+               });
+           }
+
+           var refSets = this.getConf('referenceSets');
+           if( refSets.length ) {
+               array.forEach( refSets, function( r ) {
+                   resourceRecords.push( lang.mixin( { id: r.name, name: r.name, type: 'refset', conf: r }, r.metadata || {} ));
+               });
+           }
+
+           return new MemoryStore({
+               data: resourceRecords
+           });
+       }.call(this) );
    }
 
 // /**

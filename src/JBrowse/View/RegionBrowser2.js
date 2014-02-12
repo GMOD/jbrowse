@@ -209,10 +209,12 @@ configSchema: {
         { name: 'location', type: 'object' },
 
         { name: 'slideAnimationDuration', type: 'integer', defaultValue: 1100,
-          description: 'duration in milliseconds of "slide" animations, where the view scrolls a set amount left or right'
+          description: 'duration in milliseconds of "slide" animations,'
+                       + ' where the view scrolls a set amount left or right'
         },
         { name: 'zoomAnimationDuration', type: 'integer', defaultValue: 500,
-          description: 'duration in milliseconds of "zoom" animations, where the view zooms in or out'
+          description: 'duration in milliseconds of "zoom" animations, where'
+                       + ' the view zooms in or out'
         }
     ]
 },
@@ -239,7 +241,11 @@ buildRendering: function() {
                        return thisB.browser.getTrack( tRec[0], tRec[1] );
                    })
        ).then( function( trackObjects ) {
-           return thisB.showTracks( array.filter( trackObjects, function(o){return o;}) );
+           return thisB.showTracks(
+               array.filter( trackObjects, function(o){
+                                 return o;
+                             })
+           );
        })
       .then( undefined, function(e) { console.error( e.stack || ''+e ); });
 
