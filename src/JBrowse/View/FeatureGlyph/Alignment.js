@@ -29,16 +29,42 @@ return declare( [BoxGlyph,MismatchesMixin], {
                 //maxFeatureScreenDensity: 400
                 style: {
                     color: function( feature, path, glyph, track ) {
-                        var missing_mate = feature.get('multi_segment_template') && !feature.get('multi_segment_all_aligned');
-                        var strand = feature.get('strand');
-                        return                  missing_mate ? glyph.getStyle( feature, 'color_missing_mate' ) :
-                               strand == 1  || strand == '+' ? glyph.getStyle( feature, 'color_fwd_strand' )   :
-                               strand == -1 || strand == '-' ? glyph.getStyle( feature, 'color_rev_strand' )   :
-                                                               track.colorForBase('reference');
+                      var strand = feature.get('strand');
+                      if(Math.abs(strand) != 1 && strand != '+' && strand != '-')
+                        return track.colorForBase('reference');
+                      if(feature.get('multi_segment_template')) {
+                        if(feature.get('multi_segment_all_correctly_aligned')) {
+                          return  strand == 1  || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_fwd_strand' )
+                                  : glyph.getStyle( feature, 'color_rev_strand' );
+                        }
+                        if(feature.get('multi_segment_next_segment_unmapped')) {
+                          return  strand == 1  || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_fwd_missing_mate' )
+                                  : glyph.getStyle( feature, 'color_rev_missing_mate' );
+                        }
+                        if(feature.get('seq_id') == feature.get('next_seq_id')) {
+                          return  strand == 1  || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_fwd_strand_not_proper' )
+                                  : glyph.getStyle( feature, 'color_rev_strand_not_proper' );
+                        }
+                        // should only leave aberrant chr
+                        return  strand == 1  || strand == '+'
+                                ? glyph.getStyle( feature, 'color_fwd_diff_chr' )
+                                : glyph.getStyle( feature, 'color_rev_diff_chr' );
+                      }
+                      return  strand == 1  || strand == '+'
+                              ? glyph.getStyle( feature, 'color_fwd_strand' )
+                              : glyph.getStyle( feature, 'color_rev_strand' );
                     },
+                    color_fwd_strand_not_proper: '#ECC8C8',
+                    color_rev_strand_not_proper: '#BEBED8',
                     color_fwd_strand: '#EC8B8B',
-                    color_rev_strand: '#898FD8',
-                    color_missing_mate: '#D11919',
+                    color_rev_strand: '#8F8FD8',
+                    color_fwd_missing_mate: '#D11919',
+                    color_rev_missing_mate: '#1919D1',
+                    color_fwd_diff_chr: '#000000',
+                    color_rev_diff_chr: '#969696',
                     border_color: null,
 
                     strandArrow: false,

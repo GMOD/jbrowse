@@ -69,7 +69,9 @@ var Feature = Util.fastDeclare(
 
         var d = this.data;
         for( var k in d ) {
-            if( d.hasOwnProperty( k ) && k[0] != '_' && k != 'multi_segment_all_aligned')
+            if( d.hasOwnProperty( k ) && k[0] != '_'
+                && k != 'multi_segment_all_aligned'
+                && k != 'next_seq_id')
                 tags.push( k );
         }
 

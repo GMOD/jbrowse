@@ -32,6 +32,7 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
                 hideSecondary: true,
                 hideSupplementary: true,
                 hideMissingMatepairs: false,
+                hideUnmapped: true,
                 hideForwardStrand: false,
                 hideReverseStrand: false,
 
@@ -41,7 +42,7 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
                     arrowheadClass: 'arrowhead',
                     centerChildrenVertically: true,
                     showMismatches: true,
-                    showSubfeatures: false, 
+                    showSubfeatures: false,
                     showLabels: false
                 }
             }
