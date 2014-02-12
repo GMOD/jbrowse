@@ -46,7 +46,8 @@ define( [
             'JBrowse/View/FileDialog',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/QuickHelp',
-            'JBrowse/View/Auth/Keyring'
+            'JBrowse/View/Auth/Keyring',
+            'JBrowse/View/DataHubManager'
         ],
         function(
             declare,
@@ -94,7 +95,8 @@ define( [
             FileDialog,
             LocationChoiceDialog,
             HelpDialog,
-            KeyringView
+            KeyringView,
+            DataHubManagerView
         ) {
 
 var dojof = Util.dojof;
@@ -455,6 +457,17 @@ renderMenuBar: function( menuBar ) {
 
 
     // make the file menu
+    this.addGlobalMenuItem( 'file',
+                            new dijitMenuItem(
+                                {
+                                    label: 'Data Hubs',
+                                    iconClass: 'dijitIconFolderOpen',
+                                    onClick: function() {
+                                        new DataHubManagerView({ app: thisB, style: 'width: 100%; height: 100%; position: absolute;' })
+                                            .showOver( thisB.container );
+                                    }
+                                })
+                          );
     this.addGlobalMenuItem( 'file',
                             new dijitMenuItem(
                                 {

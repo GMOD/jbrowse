@@ -77,13 +77,14 @@ return declare( null, {
       // connect this new data hub to the global metadata store if it has already been created
       var trackmeta;
       if(( trackmeta = this.get('trackMetadataStore') )) {
-          return hubD.then( function(hub) {
-                                return hub.getMetaStore()
-                                    .then( function(hubstore) {
-                                               trackmeta.addStore( hubstore );
-                                               return hub;
-                                           });
-                            });
+          return hubD.then(
+              function(hub) {
+                  return hub.getMetaStore()
+                      .then( function(hubstore) {
+                                 trackmeta.addStore( hubstore );
+                                 return hub;
+                             });
+              });
       }
       // otherwise just return the deferred hub
       else

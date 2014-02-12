@@ -3,6 +3,7 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/when',
+           'dojo/store/Memory',
 
            'JBrowse/Component',
            'JBrowse/Digest/Crc32',
@@ -13,6 +14,7 @@ define([
            lang,
            array,
            when,
+           MemoryStore,
 
            Component,
            Digest,
@@ -119,6 +121,10 @@ return declare( Component, {
       }.call(this));
   },
 
+  getStore: function( storeName ) {
+      return this.openStore( storeName );
+  },
+
   // given a store name or store configuration, return a Deferred
   // store object for it.  if a store name, the store must be for data
   // in this data hub.
@@ -175,6 +181,49 @@ return declare( Component, {
 
        this.getConf('stores')[name] = storeConfig;
        return name;
+   },
+
+   /**
+    * Get a dojo.store object that can be used to connect this hub's
+    * metadata to dijit widgets.
+    */
+   getDojoStore: function() {
+       var metadata = [{ id: '__ROOT', name: this.getConf('name') }];
+
+       var stores = this.getConf('stores');
+       var storeArray = [];
+       for( var storename in stores ) {
+           storeArray.push( [storename,stores[storename]] );
+       }
+       if( storeArray.length ) {
+           metadata.push( { id: '__STORES', name: 'Stores', parent: '__ROOT' });
+           array.forEach( storeArray, function( s ) {
+               metadata.push({ id: s[0], name: s[0], type: 'store', parent: '__STORES', conf: s[1] });
+           });
+       }
+
+       var tracks = this.getConf('tracks');
+       if( tracks.length ) {
+           metadata.push( { id: '__TRACKS', name: 'Tracks', parent: '__ROOT' });
+           array.forEach( tracks, function( t ) {
+               metadata.push({ id: t.name, name: t.name, type: 'track', parent: '__TRACKS', conf: t });
+           });
+       }
+
+       var refSets = this.getConf('referenceSets');
+       if( refSets.length ) {
+           metadata.push( { id: '__REFSETS', name: 'Reference Sets', parent: '__ROOT' });
+           array.forEach( refSets, function( r ) {
+               metadata.push({ id: r.name, name: r.name, type: 'refset', parent: '__REFSETS', conf: r });
+           });
+       }
+
+       return new MemoryStore({
+           data: metadata,
+           getChildren: function( obj ) {
+               return this.query({parent: obj.id});
+           }
+       });
    }
 
 // /**
