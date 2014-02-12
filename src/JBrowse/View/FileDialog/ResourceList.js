@@ -146,6 +146,7 @@ return declare( null, {
                 /\.bam$/i.test( name )          ? 'bam'    :
                 /\.bai$/i.test( name )          ? 'bai'    :
                 /\.gff3?$/i.test( name )        ? 'gff3'   :
+                /\.gtf?$/i.test( name )        ? 'gtf'   :
                 /\.(bw|bigwig)$/i.test( name )  ? 'bigwig' :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.tbi$/i.test( name )          ? 'tbi'  :

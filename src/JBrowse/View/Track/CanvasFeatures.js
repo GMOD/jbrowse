@@ -186,7 +186,7 @@ return declare(
     },
 
     guessGlyphType: function(feature) {
-        return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
+        return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript', 'transcript': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
     },
 
     fillBlock: function( args ) {
