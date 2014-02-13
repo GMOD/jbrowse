@@ -64,6 +64,8 @@ extra configuration for the client, in JSON syntax, e.g.
 
   '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
 
+For historical reasons, this is only merged into the C<style> section of the new track's configuration.
+
 =item --nclChunk <size in bp>
 
 Size of the individual Nested Containment List chunks. Default 50,000

@@ -2,6 +2,18 @@
 
 ## Minor improvements
 
+ * Added a "Zoom to this" item in the default right-click menus for
+   canvas-based feature tracks.  Thanks to Paul Hale for the initial
+   implementation of this.
+
+# Release 1.11.2     2014-02-10 19:11:33 EST5EDT
+
+## Minor improvements
+
+ * Added some user interface elements to set the height in pixels of a
+   single quantitative track, or of all visible quantitative tracks.
+   Thanks to Evan Briones for implementing this!
+
  * Added a `JBrowse/View/FeatureGlyph/Diamond` glyph that draws
    diamond-shaped features instead of boxes.  Thanks to OICR Co-op
    student Kevin Mohamed for implementing this!
@@ -11,7 +23,30 @@
    basepairs aren't available.  Thanks to Kevin Mohamed for
    implementing this (issue #422).
 
+ * Persistent session state is now stored on a per-dataset basis,
+   which improves user experience when switching between multiple
+   datasets in JBrowse.  Thanks to Richard Hayes for pointing this
+   issue out, and Kevin Mohamed for the fix (issue #410).
+
+ * "Hide sites not passing ..." settings in VCF track menus now show
+   the filter's long description when hovered over.  Thanks to Keiran
+   Raine for suggesting this (issue #420).
+
+ * Tweaked display of track labels and added a slight border at the
+   top edge of each track to make it more clear which track data
+   belongs to.  Thanks to Keiran Raine for suggesting this, and Kevin
+   Mohamed for the initial implementation (issue #432).
+
+ * Added a `--config` option to `flatfile-to-json.pl` that accepts
+   additional configuration variables that will be merged into the top
+   level of the track configuration.  Thanks to Mikael Brandström
+   Durling for the initial implementation of this.
+
 ## Bug fixes
+
+ * `generate-names.pl` now indexes VCF files from track definitions in
+   `tracks.conf` files.  Thanks to Paul Halle for pointing this out
+   (issue #434).
 
  * Added a missing dependency for the server side formatting tools on
    List::MoreUtil 0.28 or higher.  Thanks to Cris Lawrence and Keiran

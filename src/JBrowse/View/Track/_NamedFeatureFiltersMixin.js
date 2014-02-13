@@ -78,6 +78,7 @@ return declare( null, {
         if( filtername == 'SEPARATOR' )
             return { type: 'dijit/MenuSeparator' };
         return { label: filterspec.desc,
+                 title: filterspec.title,
                  type: 'dijit/CheckedMenuItem',
                  checked: !! thisB.config[filtername],
                  onClick: function(event) {

@@ -2,7 +2,9 @@
 .jbrowseIconBusy,
 .jbrowseIconLink,
 .jbrowseIconCancel,
-.jbrowseIconHighlight
+.jbrowseIconHighlight,
+.jbrowseIconHorizontalResize,
+.jbrowseIconVerticalResize
 {
     background-image: url('img/commonIconsEnabled.png');
     width: 16px;
@@ -13,7 +15,9 @@
 .dijitDisabled .jbrowseIconBusy,
 .dijitDisabled .jbrowseIconLink,
 .dijitDisabled .jbrowseIconCancel,
-.dijitDisabled .jbrowseIconHighlight
+.dijitDisabled .jbrowseIconHighlight,
+.dijitDisabled .jbrowseIconHorizontalResize,
+.dijitDisabled .jbrowseIconVerticalResize
 {
     background-image: url('img/commonIconsDisabled.png');
     width: 16px;
@@ -34,4 +38,10 @@
 }
 .jbrowseIconHighlight {
     background-position: -186px;
+}
+.jbrowseIconHorizontalResize {
+    background-position: -209px;
+}
+.jbrowseIconVerticalResize {
+    background-position: -230px;
 }

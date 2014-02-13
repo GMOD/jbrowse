@@ -1,3 +1,7 @@
+/**
+ * Configuration adaptor for JBrowse's text configuration format.
+ * That is, the text configuration format that is not JSON.
+ */
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
@@ -84,7 +88,7 @@ parse_conf: function( text, load_args ) {
             value = match[3].trim();
         }
         // add to existing array value
-        else if( keypath !== undefined && ( match = line.match( /^\s*\+\s*(.+)/ ) ) ) {
+        else if( keypath !== undefined && ( match = line.match( /^\s{0,4}\+\s*(.+)/ ) ) ) {
             recordVal();
             operation = '+=';
             value = match[1].trim();

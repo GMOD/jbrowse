@@ -35,6 +35,7 @@ define( [
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
+            'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
@@ -76,6 +77,7 @@ define( [
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
+            SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
@@ -630,7 +632,7 @@ initView: function() {
             // make the menu item for clearing the current highlight
             this._highlightClearButton = new dijitMenuItem(
                 {
-                    id: 'menubar_clearhighlight', 
+                    id: 'menubar_clearhighlight',
                     label: 'Clear highlight',
                     iconClass: 'dijitIconFilter',
                     onClick: dojo.hitch( this, function() {
@@ -643,12 +645,34 @@ initView: function() {
                 });
             this._updateHighlightClearButton();  //< sets the label and disabled status
             // update it every time the highlight changes
-            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged', dojo.hitch( this, '_updateHighlightClearButton' ) );
+            this.subscribe( '/jbrowse/v1/n/globalHighlightChanged',
+                            dojo.hitch( this, '_updateHighlightClearButton' ) );
 
             this.addGlobalMenuItem( 'view', this._highlightClearButton );
 
-            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
+            // add a global menu item for resizing all visible quantitative tracks
+            this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                label: 'Resize quant. tracks',
+                id: 'menubar_settrackheight',
+                title: 'Set all visible quantitative tracks to a new height',
+                iconClass: 'jbrowseIconVerticalResize',
+                onClick: function() {
+                    new SetTrackHeightDialog({
+                        setCallback: function( height ) {
+                            var tracks = thisObj.view.visibleTracks();
+                            array.forEach( tracks, function( track ) {
+                                // operate only on XYPlot or Density tracks
+                                if( ! /\b(XYPlot|Density)/.test( track.config.type ) )
+                                    return;
 
+                                track.updateUserStyles({ height: height });
+                            });
+                        }
+                    }).show();
+                }
+            }));
+
+            this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
@@ -1576,15 +1600,15 @@ addRefseqs: function( refSeqs ) {
 },
 
 
-getCurrentRefSeq: function( name, callback ) {
-    return this.refSeq || {};
-},
-
-getRefSeq: function( name, callback ) {
+/**
+ * Get the refseq object { name, start, end, .. } with the given name,
+ * or the currently shown ref seq if no name is given.
+ */
+getRefSeq: function( name ) {
     if( typeof name != 'string' )
-        name = this.refSeqOrder[0];
+        return this.refSeq || undefined;
 
-    callback( this.allRefs[ name ] );
+    return this.allRefs[ name ];
 },
 
 /**
@@ -2240,20 +2264,23 @@ _limitLocMap: function( locMap, maxEntries ) {
  * @param [...] same as dojo.cookie
  * @returns the new value of the cookie, same as dojo.cookie
  */
-cookie: function() {
-    arguments[0] = this.config.containerID + '-' + arguments[0];
-    if( typeof arguments[1] == 'object' )
-        arguments[1] = dojo.toJson( arguments[1] );
+cookie: function(keyWithoutId,value) {
+    keyWithoutId = this.config.containerID + '-' + keyWithoutId;
+    var keyWithId = keyWithoutId +  '-' + (this.config.dataset_id || '');
+    if( typeof value == 'object' )
+        value = dojo.toJson( value );
 
-    var sizeLimit= this.config.cookieSizeLimit || 1200;
-    if( arguments[1] && arguments[1].length > sizeLimit ) {
-        console.warn("not setting cookie '"+arguments[0]+"', value too big ("+arguments[1].length+" > "+sizeLimit+")");
-        return dojo.cookie( arguments[0] );
+    var sizeLimit = this.config.cookieSizeLimit || 1200;
+    if( value && value.length > sizeLimit ) {
+        console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
+        return localStorage.getItem( keyWithId );
+    }
+    else if( value ) {
+        return localStorage.setItem(keyWithId, value);
     }
 
-    return dojo.cookie.apply( dojo.cookie, arguments );
+    return (localStorage.getItem( keyWithId ) || dojo.cookie(keyWithoutId));
 },
-
 /**
  * @private
  */
@@ -2572,7 +2599,6 @@ showRegionAfterSearch: function( location ) {
 showRegionWithHighlight: function() { // backcompat
     return this.showRegionAfterSearch.apply( this, arguments );
 }
-
 
 });
 });

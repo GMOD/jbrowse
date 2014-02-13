@@ -85,7 +85,26 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.setFeatureFilterParentComponent( this.browser.view );
 
         this.store = args.store;
+
+        // retrieve any user-set style info
+        lang.mixin( this.config.style, this.getUserStyles() );
     },
+
+    // get/set persistent per-user style information for this track
+    updateUserStyles: function( settings ) {
+        // set in this object
+        lang.mixin( this.config.style, settings );
+        // set in the saved style
+        var saved = JSON.parse( this.browser.cookie("track-style-" + this.name ) || '{}' );
+        lang.mixin( saved, settings );
+        this.browser.cookie( "track-style-" + this.name, saved );
+        // redraw this track
+        this.redraw();
+    },
+    getUserStyles: function() {
+        return JSON.parse( this.browser.cookie("track-style-" + this.name ) || '{}' );
+    },
+
 
     /**
      * Returns object holding the default configuration for this track
@@ -154,8 +173,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 className: "track-label dojoDndHandle",
                 id: "label_" + this.name,
                 style: {
-                    position: 'absolute',
-                    top: 0
+                    position: 'absolute'
                 }
             },this.div);
 
@@ -184,7 +202,6 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         // make the track menu with things like 'save as'
         this.makeTrackMenu();
     },
-
 
     hide: function() {
         if (this.shown) {

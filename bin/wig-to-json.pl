@@ -84,6 +84,8 @@ Extra configuration for the client, in JSON syntax.  Example:
 
   --clientConfig '{"featureCss": "background-color: #668; height: 8px;", "histScale": 2}'
 
+For historical reasons, this is only merged into the C<style> section of the new track's configuration.
+
 =back
 
 =cut

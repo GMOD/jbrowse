@@ -1057,30 +1057,43 @@ slide: function(distance) {
 setLocation: function(refseq, startbp, endbp) {
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
+    if( typeof refseq == 'string' ) {
+        // if a string was passed, need to get the refseq object for it
+        refseq = this.browser.getRefSeq( refseq );
+    }
+    if( ! refseq )
+        refseq = this.ref;
+
     if ((startbp < refseq.start) || (startbp > refseq.end))
         startbp = refseq.start;
     if ((endbp < refseq.start) || (endbp > refseq.end))
         endbp = refseq.end;
 
-    if (this.ref != refseq) {
+    if( this.ref !== refseq ) {
         var thisB = this;
-    this.ref = refseq;
+        this.ref = refseq;
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
-    var removeTrack = function(track) {
+
+        function removeTrack( track ) {
             if (track.div && track.div.parentNode)
                 track.div.parentNode.removeChild(track.div);
-    };
-    dojo.forEach(this.tracks, removeTrack);
+        };
+
+        array.forEach( this.tracks, removeTrack );
 
         this.tracks = [];
         this.trackIndices = {};
         this.trackHeights = [];
         this.trackTops = [];
 
-        dojo.forEach(this.uiTracks, function(track) { track.refSeq = thisB.ref; track.clear(); });
-    this.overviewTrackIterate(removeTrack);
+        array.forEach(this.uiTracks, function(track) {
+                          track.refSeq = thisB.ref;
+                          track.clear();
+                      });
 
-    this.addOverviewTrack(new LocationScaleTrack({
+        this.overviewTrackIterate( removeTrack);
+
+        this.addOverviewTrack(new LocationScaleTrack({
             label: "overview_loc_track",
             labelClass: "overview-pos",
             posHeight: this.overviewPosHeight,
@@ -1089,16 +1102,11 @@ setLocation: function(refseq, startbp, endbp) {
         }));
         this.sizeInit();
         this.setY(0);
-        //this.containerHeight = this.topSpace;
-
         this.behaviorManager.initialize();
     }
 
     this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
-
-//    if( has('inaccurate-html-layout') )
-  //      this.pxPerBp = this.zoomLevels[ this.curZoom ];
 
     if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
         //the cookie-saved location is in round bases, so if the saved
