@@ -4,6 +4,12 @@
     .dataHubManager, .dataHubManagerNoGutter {
         background: white;
 
+        border: 15px solid #333;
+        border-width: 7px 15px 22px 15px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+
         .availableHubs > h2, .currentHub > h2 {
             background: $Blue;
             font-weight: normal;
@@ -34,16 +40,16 @@
             background: #333;
             font-size: 16px;
             height: 25px;
-            line-height: 25px;
+            line-height: 18px;
             padding: 0 0 0 0.3em;
         }
 
         .closeButton {
-              position: absolute;
+              position: fixed;
               height: 25px;
               width:  25px;
-              top:    0px;
-              right:  0px;
+              top:    3px;
+              right:  2px;
               background: url("../../base/img/sprites.png") no-repeat -138px -185px;
         }
     }
