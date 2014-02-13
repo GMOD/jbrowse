@@ -1,52 +1,54 @@
-.jbrowse.metro .menuBar {
-    background: #333;
-    text-align: right;
-    height: 27px;
-    padding: 0;
-}
+.jbrowse.metro {
 
-.jbrowse.metro .menuBar .powered_by {
-    position: relative;
-    top: 2px;
-    line-height: 20px;
-}
+  .menuBar {
+      background: #333;
+      text-align: right;
+      height: 30px;
+      line-height: 30px;
+      padding: 0;
+  }
 
-.jbrowse .menuBar > .menu.dijitDropDownButton,
-.jbrowse .menuBar > .menu.dijitDropDownButton * {
-    line-height: 27px;
-}
+  .menuBar .powered_by {
+      position: relative;
+      top: 5px;
+  }
 
-.jbrowse.metro .menuBar .dijitButtonNode {
-    padding-top: 0;
-    padding-bottom: 0;
-    border: 0;
-}
+  .menuBar > .dijitDropDownButton {
+      line-height: 30px;
+  }
 
-.jbrowse.metro .menuBar > .dataset_select .dijitButtonNode {
-    padding: 0;
-}
+  .menuBar .dijitButtonNode {
+      padding-top: 0;
+      padding-bottom: 0;
+      border: 0;
+  }
 
-.jbrowse.metro .menuBar > .dataset_select {
-    height: 25px;
-}
+  .menuBar > .dataset_select .dijitButtonNode {
+      padding: 0;
+  }
 
-.jbrowse.metro .menuBar > .dataset_select .dijitSelectLabel {
-    padding-right: 0.1em;
-    font-size: 16px;
-}
+  .menuBar > .dataset_select {
+      height: 25px;
+  }
 
-.jbrowse.metro .menuBar .menuBarControl {
-    font-size: 120%;
-}
+  .menuBar > .dataset_select .dijitSelectLabel {
+      padding-right: 0.1em;
+      font-size: 16px;
+  }
 
-.jbrowse.metro .keyring .icon {
-    height: 26px;
-    width: 13px;
-    background: url("../img/sprites.png") no-repeat -44px 0;
-}
+  .menuBar .menuBarControl {
+      font-size: 120%;
+  }
 
-.jbrowse.metro .share .icon {
-    height: 26px;
-    width: 25px;
-    background: url("../img/sprites.png") no-repeat -15px 0;
+   .keyring .icon {
+      height: 26px;
+      width: 13px;
+      background: url("../img/sprites.png") no-repeat -44px 0;
+  }
+
+  .share .icon {
+      height: 26px;
+      width: 25px;
+      background: url("../img/sprites.png") no-repeat -15px 0;
+  }
 }
