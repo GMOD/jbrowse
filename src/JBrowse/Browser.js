@@ -323,7 +323,7 @@ fatalError: function( error ) {
         this.hasFatalErrors = true;
     } else {
         var errors_div = dom.byId('fatal_error_list') || document.body;
-        dojo.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
+        domConstruct.create('div', { className: 'error', innerHTML: error+'' }, errors_div );
     }
 },
 
@@ -353,7 +353,7 @@ _loadCSS: function( css ) {
     if( typeof css == 'string' ) {
         // if it has '{' in it, it probably is not a URL, but is a string of CSS statements
         if( css.indexOf('{') > -1 ) {
-            dojo.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
+            domConstruct.create('style', { "data-from": 'JBrowse Config', type: 'text/css', innerHTML: css }, document.head );
             deferred.resolve(true);
         }
         // otherwise, it must be a URL
@@ -382,7 +382,7 @@ initViews: function() {
         dojo.addClass( this.topLevelContainerNode, this.getConf('theme') );
 
         // make our top menu bar
-        var menuBar = thisB.menuBar = dojo.create('div',{className:  'menuBar' },this.containerNode);
+        var menuBar = thisB.menuBar = domConstruct.create('div',{className:  'menuBar' },this.containerNode);
 
         this.renderMenuBar( menuBar );
 
@@ -444,18 +444,19 @@ getView: function( name ) {
 renderMenuBar: function( menuBar ) {
     var thisB = this;
     var about = this.browserMeta();
-    var aboutDialog = new InfoDialog(
-        {
-            browser: this,
-            title: 'About '+about.title,
-            content: about.description,
-            className: 'about-dialog'
-        });
 
-    this.poweredByLink = dojo.create('a', {
+    this.poweredByLink = domConstruct.create('a', {
                                          className: 'powered_by',
                                          innerHTML: '<img src="'+this.resolveThemeUrl('img/menubar_logo.png')+'">',
-                                         onclick: dojo.hitch( aboutDialog, 'show' ),
+                                         onclick: function() {
+                                             new InfoDialog(
+                                                 {
+                                                     browser: thisB,
+                                                     title: 'About '+about.title,
+                                                     content: about.description,
+                                                     className: 'about-dialog'
+                                                 }).show();
+                                         },
                                          title: 'powered by JBrowse'
                                      }, menuBar );
 
@@ -704,7 +705,7 @@ _reportGoogleUsageStats: function( stats ) {
 // phones home to custom analytics at jbrowse.org
 _reportCustomUsageStats: function(stats) {
     // phone home with a GET request made by a script tag
-    dojo.create(
+    domConstruct.create(
         'img',
         { style: {
               display: 'none'
@@ -985,15 +986,15 @@ makeShareButton: function () {
     );
 
     // make the 'share' popup
-    var container = dojo.create(
+    var container = domConstruct.create(
         'div', {
             innerHTML: 'Paste this link in <b>email</b> or <b>IM</b>'
         });
-    var copyReminder = dojo.create('div', {
+    var copyReminder = domConstruct.create('div', {
                                        className: 'copyReminder',
                                        innerHTML: 'Press CTRL-C to copy'
                                    });
-    var URLinput = dojo.create(
+    var URLinput = domConstruct.create(
         'input', {
             type: 'text',
             value: shareURL,
@@ -1002,7 +1003,7 @@ makeShareButton: function () {
             onclick: function() { this.select();  copyReminder.style.display = 'block'; },
             onblur: function() { copyReminder.style.display = 'none'; }
         });
-    var previewLink = dojo.create('a', {
+    var previewLink = domConstruct.create('a', {
         innerHTML: 'Preview',
         target: '_blank',
         href: shareURL,
@@ -1036,7 +1037,7 @@ makeShareButton: function () {
 makeFullViewLink: function () {
     var thisB = this;
     // make the link
-    var link = dojo.create('a', {
+    var link = domConstruct.create('a', {
         className: 'topLink',
         href: window.location.href,
         target: '_blank',
