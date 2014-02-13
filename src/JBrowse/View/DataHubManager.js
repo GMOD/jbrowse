@@ -118,7 +118,7 @@ _renderHeader: function() {
     var pane = new ContentPane(
         { baseClass: 'header',
           region: 'top',
-          content: '<span class="title">Manage data hubs</span>'
+          content: '<span class="title">Data hubs</span>'
         });
     var closeButton = domConstruct.create( 'div', { className: 'closeButton' }, pane.domNode );
     on( closeButton, 'click', function() {

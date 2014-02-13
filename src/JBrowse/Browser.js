@@ -462,7 +462,7 @@ renderMenuBar: function( menuBar ) {
     this.addGlobalMenuItem( 'file',
                             new dijitMenuItem(
                                 {
-                                    label: 'Data Hubs',
+                                    label: 'Data hubs',
                                     iconClass: 'dijitIconFolderOpen',
                                     onClick: function() {
                                         new DataHubManagerView({ app: thisB })
@@ -474,8 +474,8 @@ renderMenuBar: function( menuBar ) {
     this.addGlobalMenuItem( 'file',
                             new dijitMenuItem(
                                 {
-                                    label: 'Open',
-                                    iconClass: 'dijitIconFolderOpen',
+                                    label: 'Open files',
+                                    iconClass: 'dijitIconCopy',
                                     onClick: dojo.hitch( this, 'openFileDialog' )
                                 })
                           );
