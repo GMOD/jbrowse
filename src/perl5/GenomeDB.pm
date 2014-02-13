@@ -306,7 +306,7 @@ sub CORS_htaccess {
 # configuration directive must allow FileInfo overrides.
 <IfModule mod_headers.c>
     Header onsuccess set Access-Control-Allow-Origin *
-    Header onsuccess set Access-Control-Allow-Headers X-Requested-With
+    Header onsuccess set Access-Control-Allow-Headers X-Requested-With, Range
 </IfModule>
 EOA
 
