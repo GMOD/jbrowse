@@ -4,6 +4,31 @@
     .dataHubManager, .dataHubManagerNoGutter {
         background: white;
 
+        .availableHubs > h2, .currentHub > h2 {
+            background: $Blue;
+            font-weight: normal;
+            padding: 0 5px;
+        }
+
+        .dijitTitlePaneTitle {
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .dijitTitlePaneTitleFocus {
+            padding: 0 4px;
+        }
+
+        .dijitTitlePaneContentOuter {
+            border: none;
+        }
+
+        .dijitTitlePaneContentInner {
+            padding: 3px 13px;
+            border-left: 1px solid #555;
+            margin-left: 7px;
+        }
+
         .header {
             color: white;
             background: #333;
