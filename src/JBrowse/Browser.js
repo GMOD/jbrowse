@@ -479,12 +479,6 @@ renderMenuBar: function( menuBar ) {
                                     onClick: dojo.hitch( this, 'openFileDialog' )
                                 })
                           );
-    this.addGlobalMenuItem( 'file', new dijitMenuItem(
-                                {
-                                    label: 'Add combination track',
-                                    iconClass: 'dijitIconSample',
-                                    onClick: dojo.hitch(this, 'createCombinationTrack')
-                                }));
 
     this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
 
@@ -515,36 +509,6 @@ renderMenuBar: function( menuBar ) {
                           );
 
     this.renderGlobalMenu( 'help', {}, menuBar );
-},
-
-createCombinationTrack: function() {
-    if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
-    var d = new Deferred();
-    var storeConf = {
-        browser: this,
-        refSeq: this.refSeq,
-        type: 'JBrowse/Store/SeqFeature/Combination'
-    };
-    var storeName = this.addStoreConfig(undefined, storeConf);
-    storeConf.name = storeName;
-    this.getStore(storeName, function(store) {
-        d.resolve(true);
-    });
-    var thisB = this;
-    d.promise.then(function(){
-        var combTrackConfig = {
-            type: 'JBrowse/View/Track/Combination',
-            label: "combination_track" + (thisB._combinationTrackCount++),
-            key: "Combination Track " + (thisB._combinationTrackCount),
-            metadata: {Description: "Drag-and-drop interface that creates a track out of combinations of other tracks."},
-            store: storeName
-        };
-        // send out a message about how the user wants to create the new tracks
-        thisB.publish( '/jbrowse/v1/v/tracks/new', [combTrackConfig] );
-
-        // Open the track immediately
-        thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
-    });
 },
 
 /**
