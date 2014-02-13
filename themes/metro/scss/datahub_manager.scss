@@ -1,0 +1,25 @@
+@import "palette.scss";
+
+.jbrowse.metro {
+    .dataHubManager, .dataHubManagerNoGutter {
+        background: white;
+
+        .header {
+            color: white;
+            background: #333;
+            font-size: 16px;
+            height: 25px;
+            line-height: 25px;
+            padding: 0 0 0 0.3em;
+        }
+
+        .closeButton {
+              position: absolute;
+              height: 25px;
+              width:  25px;
+              top:    0px;
+              right:  0px;
+              background: url("../../base/img/sprites.png") no-repeat -138px -185px;
+        }
+    }
+}

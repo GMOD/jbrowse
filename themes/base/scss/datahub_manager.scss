@@ -1,5 +1,5 @@
 .jbrowse {
-  .dataHubManager, .dataHubManagerNoGutter {
+  .dataHubManagerNoGutter {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -7,6 +7,33 @@
     top: 0;
 
     background: #eee;
+
+    & > .dataHubManagerNoGutter-child {
+        & > h2 {
+            margin-top: 0;
+            height: 25px;
+            line-height: 25px;
+        }
+        .content {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-top: 25px solid transparent;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+
+            top: 0;
+            overflow-y: auto;
+        }
+    }
+
+    .closeButton {
+        height: 16px;
+        width: 16px;
+        float: right;
+        background: #eee;
+    }
 
     .dgrid {
         max-height: 15em;

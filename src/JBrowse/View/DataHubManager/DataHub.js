@@ -9,6 +9,7 @@ define([
 
            'dijit/_WidgetBase',
            'dijit/_Container',
+           'dijit/layout/ContentPane',
            'dijit/TitlePane',
 
            'dgrid/OnDemandGrid'
@@ -19,6 +20,7 @@ define([
 
            _WidgetBase,
            _Container,
+           ContentPane,
            TitlePane,
 
            DGrid
@@ -28,7 +30,7 @@ return declare( 'JBrowse/View/DataHubManager/DataHub',
                 TitlePane,
                 {
 
-open: false,
+doLayout: true,
 
 constructor: function( args ) {
     this.title = args.dataHub.getConf('name');
