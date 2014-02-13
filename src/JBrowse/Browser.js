@@ -390,7 +390,9 @@ initViews: function() {
         this.keyringControl = new KeyringView({ browser: this });
         menuBar.appendChild( this.keyringControl.getButton().domNode );
 
-        menuBar.appendChild( this.makeShareLink() );
+        menuBar.appendChild( this.makeShareButton() );
+
+        menuBar.appendChild( this.makeHelpButton() );
 
         this.containerWidget = new dijitBorderContainer({
             design: "sidebar",
@@ -484,31 +486,6 @@ renderMenuBar: function( menuBar ) {
 
     // make the options menu
     this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
-
-    // make the help menu
-    this.addGlobalMenuItem( 'help',
-                            new dijitMenuItem(
-                                {
-                                    label: 'About',
-                                    //iconClass: 'dijitIconFolderOpen',
-                                    onClick: dojo.hitch( aboutDialog, 'show' )
-                                })
-                          );
-
-    function showHelp() {
-        new HelpDialog( lang.mixin( lang.mixin({},thisB.getConf('quickHelp'))), { browser: thisB } ).show();
-    }
-    this.setGlobalKeyboardShortcut( '?', showHelp );
-    this.addGlobalMenuItem( 'help',
-                            new dijitMenuItem(
-                                {
-                                    label: 'General',
-                                    iconClass: 'jbrowseIconHelp',
-                                    onClick: showHelp
-                                })
-                          );
-
-    this.renderGlobalMenu( 'help', {}, menuBar );
 },
 
 /**
@@ -951,7 +928,29 @@ globalKeyHandler: function( evt ) {
     }
 },
 
-makeShareLink: function () {
+makeHelpButton: function() {
+    var thisB = this;
+
+    function showHelp() {
+        new HelpDialog( lang.mixin({ browser: thisB},thisB.getConf('quickHelp') ) ).show();
+    }
+    this.setGlobalKeyboardShortcut( '?', showHelp );
+
+    this.helpButton = new dijitButton({
+            className: 'menuBarControl help',
+            innerHTML: '<span class="icon"></span> Help',
+            title: 'help',
+            onClick: function() {
+                showHelp();
+                return false;
+            }
+        }
+    );
+
+    return this.helpButton.domNode;
+},
+
+makeShareButton: function () {
     // don't make the link if we were explicitly configured not to
     if( !this.getConf('share_link') )
         return null;
