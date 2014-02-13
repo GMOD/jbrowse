@@ -6,6 +6,11 @@
             background: $Dark_Blue;
             padding: 2px 3px;
 
+            & > .dijitComboBox {
+                margin: -4px 0 0 3px;
+                padding-left: 3px;
+            }
+
             .title {
                 color: white;
                 font-size: 16px;
