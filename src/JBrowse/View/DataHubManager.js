@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/array',
+           'dojo/_base/fx',
            'dojo/dom-construct',
            'dojo/dom-geometry',
            'dojo/promise/all',
@@ -15,6 +16,7 @@ define([
        function(
            declare,
            array,
+           fx,
            domConstruct,
            geom,
            all,
@@ -42,6 +44,14 @@ buildRendering: function() {
 
     // add the current hub to the current pane
     this._updateCurrentHubPane();
+},
+
+// placeAt plus a fade-in animation
+fadeInAt: function() {
+    this.placeAt.apply( this, arguments );
+    this.domNode.style.opacity = 0;
+    fx.fadeIn({ node: this.domNode, duration: 200 }).play();
+    return this;
 },
 
 _renderAvailableHubsPane: function() {
@@ -114,7 +124,15 @@ _renderHeader: function() {
     on( closeButton, 'click', function() {
             if( thisB.getParent() )
                 thisB.getParent().removeChild( thisB );
-            thisB.destroyRecursive();
+
+            fx.fadeOut(
+                {
+                    node: thisB.domNode,
+                    duration: 200,
+                    onEnd: function() {
+                        thisB.destroyRecursive();
+                    }
+                }).play();
     });
     return pane;
 },

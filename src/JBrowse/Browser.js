@@ -466,7 +466,7 @@ renderMenuBar: function( menuBar ) {
                                     iconClass: 'dijitIconFolderOpen',
                                     onClick: function() {
                                         new DataHubManagerView({ app: thisB })
-                                            .placeAt( thisB.topLevelContainerNode )
+                                            .fadeInAt( thisB.topLevelContainerNode )
                                             .startup();
                                     }
                                 })
