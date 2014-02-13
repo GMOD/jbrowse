@@ -116,6 +116,24 @@ return declare( DataHub, {
                  });
   },
 
+  getDisplayedReferenceSets: function() {
+      var args = arguments;
+      var thisB = this;
+      return this._loadConf()
+          .then( function() {
+                     return thisB.inherited( args );
+                 });
+  },
+
+  getMetadataStore: function() {
+      var args = arguments;
+      var thisB = this;
+      return this._loadConf()
+          .then( function() {
+                     return thisB.inherited( args );
+                 });
+  }
+
 });
 });
 

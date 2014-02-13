@@ -1,8 +1,13 @@
+/**
+ *  A data hub is a logical grouping of track configurations,
+ *  reference sequence sets, and data stores.
+ */
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/when',
+           'dojo/promise/all',
            'dojo/store/Memory',
 
            'JBrowse/Component',
@@ -14,6 +19,7 @@ define([
            lang,
            array,
            when,
+           all,
            MemoryStore,
 
            Component,
@@ -23,13 +29,14 @@ define([
 return declare( Component, {
   constructor: function(args) {
       this._trackCache = {};
+
   },
 
   configSchema: {
       slots: [
           { name: 'name', type: 'string', required: true },
           //{ name: 'uri', type: 'string', required: true },
-          { name: 'stores', type: 'object', defaultValue: [] },
+          { name: 'stores', type: 'object', defaultValue: {} },
           { name: 'tracks', type: 'multi-object', defaultValue: [] },
           { name: 'referenceSets', type: 'multi-object', defaultValue: [] },
 
@@ -41,6 +48,11 @@ return declare( Component, {
             description: "default reference sequence set to display"
           },
 
+          { name: 'displayedReferenceSetNames', type: 'multi-string',
+            description: 'array of names of reference sets that are currently set up to be displayed',
+            defaultValue: []
+          },
+
           { name: 'defaultReferenceSetClass', type: 'string',
             defaultValue: 'JBrowse/Model/ReferenceSet',
             description: "default JS class to use for instantiating reference"
@@ -49,7 +61,6 @@ return declare( Component, {
       ]
   },
 
-  // a data hub is track configuration, reference sequences, and data
   _instantiateTrack: function( trackConf ) {
       var thisB = this;
       return this.openStore( trackConf.store )
@@ -69,6 +80,13 @@ return declare( Component, {
 
   isModifiable: function() {
       return this._modifiable;
+  },
+
+  getDisplayedReferenceSets: function() {
+      var names = this.getConf('displayedReferenceSetNames');
+      if( ! names.length )
+          names = [ this.getConf('defaultReferenceSetName') ];
+      return all( array.map( names, this.getReferenceSet, this ) );
   },
 
   getTrackMetadataStore: function() {
@@ -191,35 +209,40 @@ return declare( Component, {
    },
 
    /**
-    * Get a dojo.store object that can be used to connect this hub's
+    * Get a deferred dojo.store object that can be used to connect this hub's
     * metadata to dijit widgets.
     */
-   getDojoStore: function() {
+   getMetadataStore: function() {
+       var thisB = this;
        return this._dojoStore || ( this._dojoStore = function() {
-           var resourceRecords = [];
-           var stores = this.getConf('stores');
-           for( var storename in stores ) {
-               resourceRecords.push( lang.mixin( { id: storename, name: storename, type: 'store', conf: stores[storename] }, stores[storename].metadata || {} ));
-           }
+               var resourceRecords = [];
+               var stores = thisB.getConf('stores');
+               for( var storename in stores ) {
+                   resourceRecords.push(
+                       lang.mixin( { id: storename, name: storename, type: 'store', conf: stores[storename] },
+                                   stores[storename].metadata || {}
+                                 )
+                   );
+               }
 
-           var tracks = this.getConf('tracks');
-           if( tracks.length ) {
-               array.forEach( tracks, function( t ) {
-                   resourceRecords.push( lang.mixin( { id: t.name, name: t.name, type: 'track', conf: t }, t.metadata || {} ));
-               });
-           }
+               var tracks = thisB.getConf('tracks');
+               if( tracks.length ) {
+                   array.forEach( tracks, function( t ) {
+                       resourceRecords.push( lang.mixin( { id: t.name, name: t.name, type: 'track', conf: t }, t.metadata || {} ));
+                   });
+               }
 
-           var refSets = this.getConf('referenceSets');
-           if( refSets.length ) {
-               array.forEach( refSets, function( r ) {
-                   resourceRecords.push( lang.mixin( { id: r.name, name: r.name, type: 'refset', conf: r }, r.metadata || {} ));
-               });
-           }
+               var refSets = thisB.getConf('referenceSets');
+               if( refSets.length ) {
+                   array.forEach( refSets, function( r ) {
+                       resourceRecords.push( lang.mixin( { id: r.name, name: r.name, type: 'refset', conf: r }, r.metadata || {} ));
+                   });
+               }
 
-           return new MemoryStore({
-               data: resourceRecords
-           });
-       }.call(this) );
+               return when( new MemoryStore({
+                   data: resourceRecords
+               }) );
+           }.call(this) );
    }
 
 // /**

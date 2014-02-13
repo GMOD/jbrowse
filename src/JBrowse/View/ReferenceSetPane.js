@@ -9,6 +9,7 @@ define([
 
            'dijit/layout/BorderContainer',
            'dijit/layout/ContentPane',
+           'dijit/form/ComboBox',
 
            'JBrowse/Component',
            'JBrowse/View/RegionBrowser2'
@@ -21,6 +22,7 @@ define([
 
            BorderContainer,
            ContentPane,
+           ComboBox,
 
            Component,
            RegionBrowser2
@@ -30,8 +32,32 @@ var ReferenceSetPaneHeader = declare( ContentPane, {
   className: 'header',
   buildRendering: function() {
       this.inherited(arguments);
-      this.domNode.innerHTML = '<span class="title">Reference:</span> ';
-      this.referenceSetNameNode = domConstruct.create( 'span', { className: 'referenceSetName' }, this.domNode );
+
+      var thisB = this;
+
+      this.domNode.innerHTML = '<span class="title">Reference set:</span> ';
+      this.referenceSetSelector = new ComboBox({
+          searchAttr: 'name',
+          query: { type: 'refset' },
+          onChange: function( newval ) {
+              thisB.get('pane').setConf( 'referenceSetName', newval );
+          }
+      }, domConstruct.create( 'div',{}, this.domNode ) );
+
+      this.get('pane').get('app').getDisplayedDataHub()
+          .then( function(hub) {
+                     return hub && hub.getMetadataStore();
+                 })
+          .then( function( store ) {
+                     if( store ) {
+                         thisB.referenceSetSelector.set( 'store', store );
+                         thisB.referenceSetSelector.set(
+                             'value', thisB.get('pane').getConf('referenceSetName'), false );
+                     }
+                 });
+      this.get('pane').watchConf( 'referenceSetName', function( varname, oldVal, newVal ) {
+          thisB.referenceSetSelector.set( 'value', newVal, false );
+      });
   }
 });
 
@@ -43,7 +69,7 @@ return declare( [BorderContainer,Component], {
 
   configSchema: {
       slots: [
-          { name: 'referenceSetName', type: 'string', required: true,
+          { name: 'referenceSetName', type: 'string', defaultValue: '',
             description: 'name of the reference set we are displaying'
           },
 
@@ -57,11 +83,16 @@ return declare( [BorderContainer,Component], {
       ]
   },
 
+  constructor: function(args) {
+      if( args.referenceSet )
+          this.setConf( 'referenceSetName', args.referenceSet.getName(), false );
+  },
+
   getReferenceSet: function() {
       var thisB = this;
       return this.browser.getDisplayedDataHub()
           .then( function( hub ) {
-                     return hub.getReferenceSet( thisB.getConf('referenceSetName') );
+                     return hub && hub.getReferenceSet( thisB.getConf('referenceSetName') );
                  });
   },
 
@@ -69,30 +100,43 @@ return declare( [BorderContainer,Component], {
       this.inherited(arguments);
 
       var thisB = this;
-      this.addChild( this.header = new ReferenceSetPaneHeader({ region: 'top', className: 'header' }) );
-      this.views = [];
+      this.addChild( this.header = new ReferenceSetPaneHeader({ pane: this, region: 'top', className: 'header' }) );
 
-      thisB.getReferenceSet()
-          .then( function( set ) {
-                     thisB.header.referenceSetNameNode.innerText = set.getName();
+      function createViews() {
+          thisB.getReferenceSet()
+              .then( function( set ) {
+                         array.forEach( thisB.views || [], function( v ) {
+                                            thisB.removeChild( v );
+                                            v.destroyRecursive();
+                                        });
+                         thisB.views = [];
 
-                     thisB.views.push( new RegionBrowser2(
-                                           { browser: thisB.browser,
-                                             referenceSet: set,
-                                             referenceSetPane: thisB,
-                                             config: {
-                                                 name: 'View 1',
-                                                 region: 'top',
-                                                 style: 'height: 40%'
-                                             }
-                                           } )
-                                     );
-                     if( thisB.views.length )
-                         thisB.views[ thisB.views.length - 1 ].set( 'region', 'center' );
-                     array.forEach( thisB.views, function(v) {
-                                        thisB.addChild( v );
-                                    });
-                 });
+                         if( ! set )
+                             return;
+
+                         thisB.views.push( new RegionBrowser2(
+                                               { browser: thisB.browser,
+                                                 referenceSet: set,
+                                                 referenceSetPane: thisB,
+                                                 config: {
+                                                     name: 'View 1',
+                                                     region: 'top',
+                                                     style: 'height: 40%'
+                                                 }
+                                               } )
+                                         );
+                         if( thisB.views.length ) {
+                             array.forEach( thisB.views, function(v) { v.set('region','top', false ); } );
+                             thisB.views[ thisB.views.length - 1 ].set( 'region', 'center', false );
+                         }
+                         array.forEach( thisB.views, function(v) {
+                                            thisB.addChild( v );
+                                        });
+                     });
+      }
+
+      createViews();
+      thisB.watchConf('referenceSetName', createViews );
   }
 
 });

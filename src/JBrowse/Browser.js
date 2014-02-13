@@ -170,7 +170,7 @@ constructor: function(params) {
 configSchema: {
         slots: [
 
-            { name: 'displayedDataHubName', type: 'string', defaultValue: 'default',
+            { name: 'displayedDataHubName', type: 'string', defaultValue: 'default', //defaultValue: undefined,
               description: 'name of the data hub currently being displayed'
             },
 
@@ -212,9 +212,9 @@ configSchema: {
         ]
 },
 
-// deferred.  get the data hub object that is currently being displayed
+// deferred.  get the data hub object that is currently being displayed, or undefined if none
 getDisplayedDataHub: function() {
-    return when( this.getDataHub( this.getConf('displayedDataHubName') ) );
+    return when( this.getConf('displayedDataHubName') ? this.getDataHub( this.getConf('displayedDataHubName') ) : undefined );;
 },
 
 version: function() {
@@ -391,8 +391,7 @@ initViews: function() {
         menuBar.appendChild( this.keyringControl.getButton().domNode );
 
         menuBar.appendChild( this.makeShareButton() );
-
-        menuBar.appendChild( this.makeHelpButton() );
+        menuBar.appendChild( this.makeHelpButton()  );
 
         this.containerWidget = new dijitBorderContainer({
             design: "sidebar",
@@ -402,34 +401,53 @@ initViews: function() {
         var contentWidget =
             new dijitContentPane({region: "top"}, menuBar );
 
-        // instantiate our views
-        this.views = [];
 
-        this.views.push(
-            new ReferenceSetPane({ browser: this, config: { referenceSetName: 'default' } })
-        );
-
-        this.views[ this.views.length - 1 ].region = 'center';
-        array.forEach( this.views, function(v) {
-            this.containerWidget.addChild( v );
-        }, this );
-
-        //connect events to update the URL in the location bar
-        function updateLocationBar() {
-            var shareURL = thisB.getConf('shareURL');
-            if( thisB.getConf('updateBrowserURL') && window.history && window.history.replaceState )
-                window.history.replaceState( {},"", shareURL );
-            document.title = thisB.browserMeta().title;
-        };
-
-        this.containerWidget.startup();
+        this.initDataViews();
 
         // make our global keyboard shortcut handler
         on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
 
-        // done with initView
-        deferred.resolve({ success: true });
+        this.containerWidget.startup();
+
+        deferred.resolve();
     });
+},
+
+initDataViews: function() {
+    var thisB = this;
+    this.views = [];
+
+    function makeViews() {
+        thisB.getDisplayedDataHub()
+            .then( function( hub ) {
+                array.forEach( thisB.views, function(v) {
+                    thisB.containerWidget.removeChild(v);
+                    v.destroyRecursive();
+                });
+
+                if( hub ) {
+                    hub.getDisplayedReferenceSets()
+                        .then( function( sets ) {
+                            array.forEach( sets, function( set ) {
+                                thisB.views.push(
+                                    new ReferenceSetPane(
+                                        { browser: thisB, dataHub: hub,
+                                          referenceSet: set
+                                        })
+                                );
+                            });
+
+                            thisB.views[ thisB.views.length - 1 ].region = 'center';
+                            array.forEach( thisB.views, function(v) {
+                                thisB.containerWidget.addChild( v );
+                            }, thisB );
+                        });
+
+                }
+        });
+    }
+
+    makeViews();
 },
 
 getView: function( name ) {

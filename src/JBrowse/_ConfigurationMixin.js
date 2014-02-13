@@ -130,11 +130,11 @@ return declare( null, {
         return !! this._config.getRaw( path );
     },
 
-    setConf: function( path, value ) {
+    setConf: function( path, value, runWatchCallbacks ) {
         if( ! this._config )
             throw new Error('setConf attempted with no component configuration');
 
-        return this._config.set( path, value );
+        return this._config.set( path, value, runWatchCallbacks );
     },
 
     watchConf: function( path, callback ) {

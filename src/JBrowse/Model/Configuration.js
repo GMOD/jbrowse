@@ -39,12 +39,13 @@ var Configuration = declare( null, {
         this._local = {};
     },
 
-    set: function( key, val ) {
+    set: function( key, val, runWatchCallbacks ) {
         var oldval;
         try { oldval = this.get( key ); } catch(e) {}
         val = this._local[ key ] = this._schema.normalizeSetting( key, val );
         delete this._compilationCache[ key ];
-        this._notify( key, oldval, val );
+        if( runWatchCallbacks === undefined || runWatchCallbacks )
+            this._notify( key, oldval, val );
         return val;
     },
 

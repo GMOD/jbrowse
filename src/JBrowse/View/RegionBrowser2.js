@@ -142,6 +142,9 @@ _makeRenderingBlock: function( args, projectionChange ) {
 // get the displayed track widget in this region view for
 // a certain track hub and track, if present
 _getTrackWidgetByName: function( hubName, trackName ) {
+    if( ! this.trackPane )
+        return undefined;
+
     var widget;
     array.some( this.trackPane.getChildren(), function( childWidget ) {
                     try {
@@ -159,6 +162,9 @@ _getTrackWidgetByName: function( hubName, trackName ) {
 // get the displayed track widget in this region view for
 // a certain track hub and track, if present
 _getTrackWidgetForTrack: function( trackObject ) {
+    if( ! this.trackPane )
+        return undefined;
+
     var widget;
     array.some( this.trackPane.getChildren(), function(child) {
                     try {
@@ -236,6 +242,11 @@ buildRendering: function() {
     this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
     this.domNode.appendChild( this.gridlines.domNode );
 
+    // create our track pane and pinned-track pane
+    //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
+    this.addChild( this.trackPane = new TrackPane({ region: 'center', browser: this.browser, genomeView: this }) );
+
+    // show all the configured tracks
     var thisB = this;
     all( array.map( this.getConf('visibleTracks'), function( tRec ) {
                        return thisB.browser.getTrack( tRec[0], tRec[1] );
@@ -248,9 +259,6 @@ buildRendering: function() {
            );
        })
       .then( undefined, function(e) { console.error( e.stack || ''+e ); });
-
-    //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
-    this.addChild( this.trackPane = new TrackPane({ region: 'center', browser: this.browser, genomeView: this }) );
 },
 
 makeViewMenu: function() {
@@ -351,7 +359,7 @@ hideTracks: function( trackObjects ) {
     array.forEach( trackObjects, function( trackObject ) {
         var widget = this._getTrackWidgetForTrack( trackObject );
         if( widget ) {
-           this.removeChild( widget );
+           this.trackPane.removeChild( widget );
            widget.destroyRecursive();
         }
     },this);

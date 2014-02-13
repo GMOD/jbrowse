@@ -39,46 +39,55 @@ constructor: function( args ) {
 buildRendering: function() {
     this.inherited(arguments);
 
-    var store = this.get('dataHub').getDojoStore();
+    var thisB = this;
+    this.get('dataHub').getMetadataStore()
+        .then( function( store ) {
 
-    // make a TitlePane for Reference Sets, Tracks, and Stores
-    function makePane( title, content ) {
-        var tpane = new TitlePane({ title: title, open: false });
-        tpane.addChild( content );
-        return tpane;
-    }
+                   // make a TitlePane for Reference Sets, Tracks, and Stores
+                   function makePane( title, contentD ) {
+                       var tpane = new TitlePane({ title: title, open: false });
+                       contentD.then( function(content) { tpane.addChild( content ); } );
+                       return tpane;
+                   }
 
-    this.addChild( makePane( 'Reference Sets', this._renderRefSetList() ) );
-    this.addChild( makePane( 'Tracks', this._renderTrackList() ) );
-    this.addChild( makePane( 'Stores', this._renderStoreList() ) );
+                   thisB.addChild( makePane( 'Reference Sets', thisB._renderRefSetList() ) );
+                   thisB.addChild( makePane( 'Tracks', thisB._renderTrackList() ) );
+                   thisB.addChild( makePane( 'Stores', thisB._renderStoreList() ) );
+               });
 },
 
 _renderRefSetList: function() {
-    var store = this.get('dataHub').getDojoStore();
-    var g = new DGrid({ store: store,
-                       query: { type: 'refset' },
-                       columns: [ {label: 'Name', field: 'name' } ]
-                     });
-    g.refresh();
-    return g;
+    return this.get('dataHub').getMetadataStore()
+        .then( function( store ) {
+               var g = new DGrid({ store: store,
+                                   query: { type: 'refset' },
+                                   columns: [ {label: 'Name', field: 'name' } ]
+                                 });
+                   g.refresh();
+                   return g;
+               });
 },
 _renderTrackList: function() {
-    var store = this.get('dataHub').getDojoStore();
-    var g = new DGrid({ store: store,
-                       query: { type: 'track' },
-                       columns: [ {label: 'Name', field: 'name' } ]
-                     });
-    g.refresh();
-    return g;
+    return this.get('dataHub').getMetadataStore()
+        .then( function( store ) {
+                   var g = new DGrid({ store: store,
+                                       query: { type: 'track' },
+                                       columns: [ {label: 'Name', field: 'name' } ]
+                                     });
+                   g.refresh();
+                   return g;
+               });
 },
 _renderStoreList: function() {
-    var store = this.get('dataHub').getDojoStore();
-    var g = new DGrid({ store: store,
-                       query: { type: 'store' },
-                       columns: [ {label: 'Name', field: 'name' } ]
-                     });
-    g.refresh();
-    return g;
+    return this.get('dataHub').getMetadataStore()
+        .then( function( store ) {
+                   var g = new DGrid({ store: store,
+                                       query: { type: 'store' },
+                                       columns: [ {label: 'Name', field: 'name' } ]
+                                     });
+                   g.refresh();
+                   return g;
+               });
 }
 
 });
