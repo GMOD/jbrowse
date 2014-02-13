@@ -53,6 +53,8 @@ return declare( SeqFeatureStore, {
       return new DeferredGenerator( function( generator ) {
           return thisB.seqStore.getReferenceSequence( query.ref, seqStart, seqEnd )
                      .then( function( seq ) {
+                        if( ! seq )
+                            return;
 
                         var binCount = Math.ceil( (query.end-query.start) / binSize );
 
