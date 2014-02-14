@@ -9,8 +9,16 @@
     .regionBrowserPane, .regionBrowserPaneNoGutter {
         background: $UI_DarkBackground;;
 
-        .gridlines .renderingBlock {
-            background: white;
+        .trackPaneNoGutter {
+            overflow: visible;
+        }
+
+        .gridlines {
+            top: -3px;
+            height: 110%;
+            .renderingBlock {
+                background: white;
+            }
         }
 
         .topBar {

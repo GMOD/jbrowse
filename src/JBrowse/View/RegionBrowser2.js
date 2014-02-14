@@ -236,12 +236,12 @@ buildRendering: function() {
                          genomeView: this, viewMenu: this.menu
                        }) );
 
-    this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
-    this.domNode.appendChild( this.gridlines.domNode );
-
     // create our track pane and pinned-track pane
     //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
     this.addChild( this.trackPane = new TrackPane({ region: 'center', browser: this.browser, genomeView: this }) );
+
+    this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
+    this.trackPane.domNode.appendChild( this.gridlines.domNode );
 
     // show all the configured tracks
     var thisB = this;
