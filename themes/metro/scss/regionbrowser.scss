@@ -1,11 +1,13 @@
+@import "palette.scss";
+
 .jbrowse.metro {
 
     & > .dijitSplitterH.dijitSplitterHover {
-        background: #444;
+        background: $UI_DarkGray;
     }
 
     .regionBrowserPane, .regionBrowserPaneNoGutter {
-        background: #353535;;
+        background: $UI_DarkBackground;;
 
         .gridlines .renderingBlock {
             background: white;
@@ -91,7 +93,7 @@
             .viewScale {
                 background: url("../img/view_top_bg_1.png") transparent repeat-x 0 100%;
                 .menuButton {
-                   background-color: #e6e6e6;
+                   background-color: $UI_Gray;
                 }
                 .menuButton:hover {
                    background-color: white;;

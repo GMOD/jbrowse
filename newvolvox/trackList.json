@@ -110,6 +110,7 @@
                     "type": "JBrowse/View/TrackRenderer/Glyphs"
                 }
             }
+            ,"metadata": { "category": "Feature tracks" }
         },
 
         {
@@ -120,6 +121,7 @@
                     "type": "JBrowse/View/TrackRenderer/Glyphs"
                 }
             }
+            ,"metadata": { "category": "Feature tracks" }
         },
         {
             "name": "Protein-coding genes",
@@ -129,6 +131,7 @@
                     "type": "JBrowse/View/TrackRenderer/Glyphs"
                 }
             }
+            ,"metadata": { "category": "Feature tracks" }
         },
 
         {
@@ -138,11 +141,13 @@
                   "query": { "set": "NameTest" }
                  }
             }
+            ,"metadata": { "category": "Feature tracks" }
         },
 
         {
             "name" : "Features - SNPs",
             "views": {"default": { "query": { "set": "snps" } }},
+            "metadata": { "category": "Feature tracks" }
         },
 
         {
@@ -153,7 +158,8 @@
                 "default": { "height": 4 }
             },
             "metadata" : {
-                "Description" : "BAM-format alignments of simulated resequencing reads on the volvox test ctgA reference."
+                "Description" : "BAM-format alignments of simulated resequencing reads on the volvox test ctgA reference.",
+                "category": "BAM"
             }
         },
 
@@ -165,7 +171,8 @@
                 "default": { "height": 4 }
             },
             "metadata" : {
-                "Description" : "volvox-sorted BAM, served from Google Drive!"
+                "Description" : "volvox-sorted BAM, served from Google Drive!",
+                "category": "BAM"
             }
         },
 
@@ -173,7 +180,9 @@
             "type" : "JBrowse/View/Track/CanvasVariants",
             "store": "volvox vcf",
             "metadata" : {
-                "Description" : "Variants called from volvox-sorted.bam using samtools and bcftools"
+                "Description" : "Variants called from volvox-sorted.bam using samtools and bcftools",
+                "category": "VCF"
+
             },
             "name" : "VCF - volvox-sorted variants"
         },

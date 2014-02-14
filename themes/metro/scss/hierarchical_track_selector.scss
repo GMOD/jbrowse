@@ -1,0 +1,43 @@
+@import "palette.scss";
+
+.jbrowse.metro {
+    .hierarchicalTrackSelectorNoGutter {
+        background: $UI_Gray;
+
+        label.tracklist-label:hover {
+            background: $Light_Blue;
+        }
+
+        & > .header {
+            .title, .textfilterContainer {
+                float: left;
+                height: 20px;
+                margin: 0;
+                padding: 0;
+                display: block;
+                margin: 1px 0 1px 2px;
+            }
+            .textfilterContainer {
+                width: 150px;
+                margin-left: 4px;
+                input {
+                    padding-left: 2px;
+                    width: 146px;
+                    border: 1px solid #aaa;
+                }
+
+                .jbrowseIconCancel {
+                    right: 1px;
+                }
+
+            }
+        }
+
+        & > .uncategorized {
+            padding: 10px;
+            background: #fefefe;
+        }
+
+    }
+
+}

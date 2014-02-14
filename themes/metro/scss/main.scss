@@ -53,9 +53,20 @@
         -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
         box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
     }
+
+    .dijitSplitterV {
+        background: $UI_Gray;
+        &.dijitAlignLeft {
+            border-right: 1px solid $UI_DarkGray;
+        }
+        &.dijitAlignRight {
+            border-left: 1px solid $UI_DarkGray;
+        }
+    }
 }
 
 @import "regionbrowser.scss";
 @import "menubar.scss";
 @import "reference_set_pane.scss";
 @import "datahub_manager.scss";
+@import "hierarchical_track_selector.scss";

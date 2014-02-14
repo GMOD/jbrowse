@@ -72,12 +72,13 @@ return declare( [dijitBorderContainer,Component,BehaviorMixin,FeatureFiltererMix
 splitter: true,
 gutters: false,
 baseClass: 'regionBrowserPane',
+design: 'sidebar',
 
 // activate manual constructor chaining
 "-chains-": { constructor: 'manual' },
 
 constructor: function( args ) {
-    this.browser = args.browser;
+    this.app = this.browser = args.browser;
     this._finalizeConfig( args.baseConfig || args.config, args.localConfig );
     this.serialNumber = ++serialNumber;
 
@@ -272,24 +273,38 @@ makeViewMenu: function() {
                       }
                     })
               );
-    m.addChild( new dijitMenuItem(
-                    { label: 'New child view',
-                      iconClass: 'dijitIconAdd',
-                      onClick: function() {
-                          thisB.addChildView();
-                      }
-                    })
-              );
+    // m.addChild( new dijitMenuItem(
+    //                 { label: 'New child view',
+    //                   iconClass: 'dijitIconAdd',
+    //                   onClick: function() {
+    //                       thisB.addChildView();
+    //                   }
+    //                 })
+    //           );
     m.addChild( new dijitMenuItem(
                     { label: 'Close',
                       iconClass: 'dijitIconDelete',
                       onClick: function() {
                           thisB.getParent().removeChild( thisB );
+                          thisB.destroyRecursive();
                       }
                     })
               );
     m.startup();
     return m;
+},
+
+// show the configured track selector for this data hub.  the track
+// selector will take care of hiding itself in response to user input
+showTrackSelector: function() {
+    var thisB = this;
+    this.get('app').getDisplayedDataHub()
+        .then( function( hub ) {
+                   hub.showTrackSelector(
+                       { regionBrowser: thisB,
+                         referenceSet: thisB.get('referenceSet')
+                       });
+               });
 },
 
 // scroll the display if necessary to show the given track

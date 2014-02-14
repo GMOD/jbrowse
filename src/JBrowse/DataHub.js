@@ -40,6 +40,10 @@ return declare( Component, {
           { name: 'tracks', type: 'multi-object', defaultValue: [] },
           { name: 'referenceSets', type: 'multi-object', defaultValue: [] },
 
+          { name: 'trackSelector', type: 'object', defaultValue: undefined,
+            description: 'object holding track selector configuration for this data hub'
+          },
+
           { name: 'defaultReferenceSetName', type: 'string',
             defaultValue: function(hub) {
                 var sets = hub.getConf('referenceSets');
@@ -144,6 +148,22 @@ return declare( Component, {
               );
 
       }.call(this));
+  },
+
+  showTrackSelector: function( args ) {
+      return (
+          this._trackSelector || ( this._trackSelector = function() {
+              var thisB = this;
+              return Util.instantiateComponent(
+                  { app: this.app, dataHub: this, parent: args.regionBrowser },
+                  this.getConf('trackSelector') || { type: 'Hierarchical' },
+                  'JBrowse/View/TrackSelector'
+              );
+          }.call( this ) )
+      ).then( function(sel) {
+                  sel.show();
+              }, Util.logError
+            );
   },
 
   getStore: function( storeName ) {

@@ -16,9 +16,8 @@
 @import "error_dialog.scss";
 @import "datahub_manager.scss";
 
-/* CSS styles for the various types of feature glyphs */
 @import "track_styles.scss";
-@import "faceted_track_selector.scss";
 
-/* CSS styles specifically for MAKER output */
+@import "hierarchical_track_selector.scss";
+
 @import "maker.scss";

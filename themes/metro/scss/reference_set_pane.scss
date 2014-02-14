@@ -2,7 +2,7 @@
 
 .jbrowse.metro {
     .referenceSetPane, .referenceSetPaneNoGutter {
-        .header {
+        & > .header {
             background: $Dark_Blue;
             padding: 2px 3px;
 

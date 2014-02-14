@@ -1,0 +1,46 @@
+.jbrowse {
+
+    .hierarchicalTrackSelectorNoGutter {
+        overflow: auto;
+
+        .trackCount {
+            display: inline-block;
+            float: right;
+        }
+
+        & > .header > .textfilterContainer {
+            .jbrowseIconCancel {
+                display: inline-block;
+                position: absolute;
+                top: 50%;
+                right: 0;
+                margin-top: -8px;
+            }
+        }
+
+        .dijitTitlePaneTitle {
+            padding: 0 4px;
+        }
+
+        .dijitTitlePaneTitleFocus:focus {
+            outline: none;
+        }
+
+        label.tracklist-label {
+            display: block;
+        }
+        label.tracklist-label.collapsed {
+            display: none;
+        }
+
+        label.tracklist-label input.check {
+            position: relative;
+            top: 2px;
+            margin: 0 4px;
+        }
+    }
+}
+
+.dj_safari .jbrowse .hierarchicalTrackSelector label.tracklist-label input.check {
+    top: 0;
+}

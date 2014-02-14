@@ -48,6 +48,13 @@ var Util = {
         return this.addCommas.apply( this, arguments );
     },
 
+    escapeHTML: function( str ) {
+        if( ! str )
+            return str;
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    },
+
+
     /**
      * Returns a Deferred that is already resolved with the given
      * value.

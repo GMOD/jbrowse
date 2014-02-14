@@ -137,6 +137,13 @@ return declare( [BorderContainer,Component], {
 
       createViews();
       thisB.watchConf('referenceSetName', createViews );
+  },
+
+  removeChild: function( child ) {
+      this.views = array.filter( this.views || [], function( v ) {
+                                     return v !== child;
+                                 });
+      return this.inherited(arguments);
   }
 
 });
