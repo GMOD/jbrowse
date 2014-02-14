@@ -98,17 +98,16 @@ return declare( Component, {
       return all( array.map( names, this.getReferenceSet, this ) );
   },
 
-  getTrackMetadataStore: function() {
-      return this.metadataStore;
-  },
-
   getTrack: function( trackName ) {
+      if( typeof trackName == 'object' )
+          trackName = trackName.getConf ? trackName.getConf('name') : trackName.name;
+
       return this._trackCache[ trackName ] || ( this._trackCache[trackName] = function() {
           var thisB = this;
           // get the track's record out of the metadata store, then instantiate the track object
-          return this.getTrackMetadataStore()
+          return this.getMetadataStore()
                      .then( function( metaStore ) {
-                                return when( metaStore.fetchItemByIdentity( trackName ) )
+                                return when( metaStore.get( 'tracks/'+trackName ) )
                                     .then( function( trackmeta ) {
                                                if( trackmeta && trackmeta.config )
                                                    return thisB._instantiateTrack( trackmeta.config );
@@ -255,7 +254,7 @@ return declare( Component, {
                var stores = thisB.getConf('stores');
                for( var storename in stores ) {
                    resourceRecords.push(
-                       lang.mixin( { id: storename, name: storename, type: 'store', conf: stores[storename] },
+                       lang.mixin( { id: 'stores/'+storename, name: storename, type: 'store', config: stores[storename] },
                                    stores[storename].metadata || {}
                                  )
                    );
@@ -264,14 +263,14 @@ return declare( Component, {
                var tracks = thisB.getConf('tracks');
                if( tracks.length ) {
                    array.forEach( tracks, function( t ) {
-                       resourceRecords.push( lang.mixin( { id: t.name, name: t.name, type: 'track', conf: t }, t.metadata || {} ));
+                       resourceRecords.push( lang.mixin( { id: 'tracks/'+t.name, name: t.name, type: 'track', config: t }, t.metadata || {} ));
                    });
                }
 
                var refSets = thisB.getConf('referenceSets');
                if( refSets.length ) {
                    array.forEach( refSets, function( r ) {
-                       resourceRecords.push( lang.mixin( { id: r.name, name: r.name, type: 'refset', conf: r }, r.metadata || {} ));
+                       resourceRecords.push( lang.mixin( { id: 'refsets/'+r.name, name: r.name, type: 'refset', config: r }, r.metadata || {} ));
                    });
                }
 

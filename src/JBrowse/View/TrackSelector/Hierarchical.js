@@ -79,15 +79,9 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
-        return this._getTrackMeta()
+        return this._getTrackMetaRecords()
             .then( function( items ) {
-                       array.forEach( items, function(i) {
-                                          console.log( i.name );
-                                          if( i.conf )
-                                              tracks.push( i );
-                                          else
-                                              console.log('no conf');
-                                      });
+                       tracks = array.filter( items, function(i) { return i.config; });
 
                        // make a pane at the top to hold uncategorized tracks
                        var uncPane = new ContentPane({ region: 'top', className: 'uncategorized' });
@@ -108,12 +102,12 @@ return declare(
                    });
     },
 
-    _getTrackMeta: function() {
+    _getTrackMetaRecords: function() {
         return when(
             this.get('metaDataStore').query(
                 { type: 'track' },
                 {
-                    count: 500,
+                    count: 300,
                     sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
                             { attribute: 'name' }
                           ]
@@ -126,7 +120,7 @@ return declare(
         var thisB = this;
 
         array.forEach( tracks, function( track ) {
-            var trackConf = track.conf || track;
+            var trackConf = track.config || track;
 
             var categoryFacet = this.get('categoryFacet');
             var categoryNames = (
@@ -136,7 +130,6 @@ return declare(
             ).split(/\s*\/\s*/);
 
             var category = _findCategory( this, categoryNames, [] );
-            console.log( track.name, category );
 
             function _findCategory( obj, names, path ) {
                 var categoryName = names.shift();
@@ -185,7 +178,12 @@ return declare(
             var trackLabel = trackConf.name;
             var checkListener;
             this.own( checkListener = on( checkbox, 'click', function() {
-                console.log( (this.checked ? 'show' : 'hide'), [trackConf] );
+                if( this.checked ) {
+                    thisB.get('onTrackShow').call( null, [trackConf]);
+                }
+                else {
+                    thisB.get('onTrackHide').call( null, [trackConf]);
+                }
             }));
             dom.create('span', { className: 'key', innerHTML: trackConf.name }, labelNode );
 

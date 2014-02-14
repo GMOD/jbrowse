@@ -33,12 +33,13 @@ return declare( Store,
     },
 
     deflate: function() {
-        return {
+        var d = this.inherited(arguments);
+        return lang.mixin( d, {
             dataHub: 'FAKE',
             config: this.exportMergedConfig(),
             app: '$context.app',
             $class: this.getConf('type')
-        };
+        });
     },
 
     configSchema: {

@@ -300,10 +300,16 @@ showTrackSelector: function() {
                        return hub.makeTrackSelector(
                            {
                                onTrackShow: function( trackNames ) {
-                                   console.log( 'show tracks', trackNames );
+                                   var gets = array.map( trackNames, hub.getTrack, hub );
+                                   all( gets ).then( function( trackObjects ) {
+                                              thisB.showTracks( trackObjects );
+                                   }, Util.logError );
                                },
                                onTrackHide: function( trackNames ) {
-                                   console.log( 'hide tracks', trackNames );
+                                   var gets = array.map( trackNames, hub.getTrack, hub );
+                                   all( gets ).then( function( trackObjects ) {
+                                              thisB.hideTracks( trackObjects );
+                                   }, Util.logError );
                                }
                            });
                    })
@@ -315,13 +321,13 @@ showTrackSelector: function() {
                                      function( trackObjects ) {
                                          selector.setTracksActive(
                                              array.map( trackObjects, function(t) {
-                                                            return t.getConf ? t.getConf('name') : t.name; }));
+                                                 return t.getConf ? t.getConf('name') : t.name; }));
                                      });
                        aspect.after( thisB.hideTracks,
                                      function( trackObjects ) {
                                          selector.setTracksInactive(
                                              array.map( trackObjects, function(t) {
-                                                            return t.getConf ? t.getConf('name') : t.name; }));
+                                                 return t.getConf ? t.getConf('name') : t.name; }));
                                      });
 
                        // only add it as a child widget if it has 'region' set for layout
@@ -448,7 +454,7 @@ resize: function() {
 _updateProjection: function( args ) {
     var thisB = this;
 
-    console.log('update projection');
+    //console.log('update projection');
 
     args = lang.mixin(
         {

@@ -29,6 +29,10 @@ configSchema: {
     ]
 },
 
+deflate: function() {
+    return { resourceUrl: this._resourceUrl };
+},
+
 // get the jbrowse-resource:// url for this resource
 getURL: function() {
     return this._resourceUrl;
