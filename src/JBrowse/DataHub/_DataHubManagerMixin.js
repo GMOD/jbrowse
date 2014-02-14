@@ -17,7 +17,7 @@ define([
 return declare( null, {
   configSchema: {
       slots: [
-          { name: 'defaultDataHubName', type: 'string', defaultValue: 'default',
+          { name: 'defaultDataHubUrl', type: 'string',
             description: 'name of the data hub to use by default'
           },
 
@@ -26,8 +26,7 @@ return declare( null, {
             defaultValue: function( mgr ) {
                 return [
                     { type: 'JSON',
-                      name: 'default',
-                      include: [ mgr.getConf('dataRoot')+'/trackList.json']
+                      url: mgr.getConf('dataRoot')+'/hub.json'
                     }
                 ];
             }
@@ -38,11 +37,12 @@ return declare( null, {
   _initDataHubs: function() {
       var hubConf = this.getConf('dataHubs');
       this._dataHubs = {};
-      array.forEach( hubConf, function(c) {
-          this.addDataHub( c );
-      }, this );
-
-      this._initTrackMetadata();
+      var ops =
+          array.map( hubConf, function(c) {
+                         return this.addDataHub( c );
+                     }, this );
+      ops.push( this._initTrackMetadata() );
+      return all(ops);
   },
 
   _initTrackMetadata: function() {
@@ -64,23 +64,27 @@ return declare( null, {
 
   // add a data hub from configuration.  returns a Deferred for the new datahub object.
   addDataHub: function( conf ) {
-      var name = conf.name;
-      if( ! name ) throw new Error('data hub has no name');
-
       var hubConf = this.getConf('dataHubs');
-      hubConf[name] = conf;
+      hubConf[conf.url] = conf;
       this.setConf( 'dataHubs', hubConf );
 
-      var hubD = this._dataHubs[name] = Util.instantiateComponent(
-          { browser: this.browser, dataHubManager: this }, conf, 'JBrowse/DataHub' );
       var thisB = this;
+      var hubD = this._dataHubs[conf.url] =
+          Util.instantiateComponent(
+              { browser: this.browser, dataHubManager: this }, conf, 'JBrowse/DataHub'
+          )
+          // after the hub is loaded, put it in our hash of hubs under its real name
+          .then( function( hub ) {
+                     return hub.loaded;
+                 });
 
-      // connect this new data hub to the global metadata store if it has already been created
+      // connect this new data hub to the global metadata store if it
+      // has already been created
       var trackmeta;
       if(( trackmeta = this.get('trackMetadataStore') )) {
           return hubD.then(
               function(hub) {
-                  return hub.getMetaStore()
+                  return hub.getMetadataStore()
                       .then( function(hubstore) {
                                  trackmeta.addStore( hubstore );
                                  return hub;
@@ -92,16 +96,21 @@ return declare( null, {
           return hubD;
   },
 
-  removeDataHub: function( hubName ) {
-      if( this._dataHubs[hubName] )
-          delete this._dataHubs[hubName];
+  removeDataHub: function( url ) {
+      if( this._dataHubs[url] )
+          delete this._dataHubs[url];
   },
 
-  getDataHub: function( name ) {
-      if( name == 'default' )
-          name = this.getConf('defaultDataHubName');
+  getDataHub: function( url ) {
+      // return a specific one if possible
+      if( url || url == 'default' && ( url = this.getConf('defaultDataHubUrl') ) )
+          return this._dataHubs[url];
 
-      return this._dataHubs[name];
+      // otherwise just return the first one in storage
+      for( var u in this._dataHubs )
+          return this._dataHubs[u];
+
+      return undefined;
   },
 
   // get an array of names of each available data hub
@@ -112,22 +121,22 @@ return declare( null, {
       return k.sort();
   },
 
-  getReferenceSet: function( hubName, refSetName ) {
-      return this.getDataHub( hubName )
+  getReferenceSet: function( hubUrl, refSetName ) {
+      return this.getDataHub( hubUrl )
           .then( function(hub) {
                      return hub && hub.getReferenceSet( refSetName ) || undefined;
                  });
   },
 
-  getTrack: function( hubName, trackName ) {
-      return this.getDataHub( hubName )
+  getTrack: function( hubUrl, trackName ) {
+      return this.getDataHub( hubUrl )
           .then( function(hub) {
                      return hub.getTrack( trackName );
                  });
   },
 
-  getStore: function( hubName, storeName ) {
-      return this.getDataHub( hubName )
+  getStore: function( hubUrl, storeName ) {
+      return this.getDataHub( hubUrl )
           .then( function(hub) {
                      return hub.getStore( storeName );
                  });

@@ -42,7 +42,8 @@ return declare( null, {
            this._refSeqStore = new FromConfig(
                { config: { features: args.regions },
                  browser: args.browser,
-                 dataHub: args.dataHub
+                 dataHub: args.dataHub,
+                 resourceUrl: this._resourceUrl+'#regionStore'
                });
            this._storeQuery = {};
        }

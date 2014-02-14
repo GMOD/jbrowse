@@ -29,13 +29,13 @@ define([
 return declare( Component, {
   constructor: function(args) {
       this._trackCache = {};
-
+      this.loaded = when(this);
   },
 
   configSchema: {
       slots: [
-          { name: 'name', type: 'string', required: true },
-          //{ name: 'uri', type: 'string', required: true },
+          { name: 'name', type: 'string' },
+          { name: 'url', type: 'string', required: true },
           { name: 'stores', type: 'object', defaultValue: {} },
           { name: 'tracks', type: 'multi-object', defaultValue: [] },
           { name: 'referenceSets', type: 'multi-object', defaultValue: [] },
@@ -72,12 +72,17 @@ return declare( Component, {
                      return Util.instantiateComponent(
                          { app: thisB.app,
                            dataHub: thisB,
-                           store: store
+                           store: store,
+                           resourceUrl: thisB._makeResourceURL( 'track', trackConf.name )
                          },
                          trackConf,
                          'JBrowse/Track'
                      );
                  });
+  },
+
+  _makeResourceURL: function( type, name ) {
+      return this.getConf('url').replace( /^http/, 'jbrowse-r' ) + '/' + type + '/' +escape( name );
   },
 
   _modifiable: false,
@@ -137,7 +142,10 @@ return declare( Component, {
               return this.openStore( conf.store )
                   .then( function( store ) {
                         return Util.instantiate(
-                            conf.type || thisB.getConf('defaultReferenceSetClass'),
+                            lang.mixin(
+                                { resourceUrl: thisB._makeResourceURL( 'refset', conf.name ) },
+                                conf.type || thisB.getConf('defaultReferenceSetClass')
+                            ),
                             lang.mixin({},conf,{store:store})
                         );
                    });
@@ -150,20 +158,24 @@ return declare( Component, {
       }.call(this));
   },
 
-  showTrackSelector: function( args ) {
-      return (
-          this._trackSelector || ( this._trackSelector = function() {
-              var thisB = this;
-              return Util.instantiateComponent(
-                  { app: this.app, dataHub: this, parent: args.regionBrowser },
-                  this.getConf('trackSelector') || { type: 'Hierarchical' },
-                  'JBrowse/View/TrackSelector'
-              );
-          }.call( this ) )
-      ).then( function(sel) {
-                  sel.show();
-              }, Util.logError
-            );
+  makeTrackSelector: function( args ) {
+      var thisB = this;
+      return this.getMetadataStore()
+          .then( function( store ) {
+                     return Util.instantiateComponent(
+                         lang.mixin(
+                             { app: thisB.app, metaDataStore: store,
+                               onTrackShow: function( trackNames ) {
+                               },
+                               onTrackHide: function( trackNames ) {
+                               }
+                             },
+                             args
+                         ),
+                         thisB.getConf('trackSelector') || { type: 'Hierarchical' },
+                         'JBrowse/View/TrackSelector'
+                     );
+                 });
   },
 
   getStore: function( storeName ) {
@@ -204,7 +216,11 @@ return declare( Component, {
               this._storeClasses[storeClassName]
                   || ( this._storeClasses[storeClassName] = Util.loadJSClass(storeClassName) )
           ).then(function( storeClass ) {
-                     return new storeClass({ browser: thisB.browser, config: conf, dataHub: thisB });
+                     return new storeClass(
+                         {
+                             browser: thisB.browser, config: conf, dataHub: thisB,
+                             resourceUrl: thisB._makeResourceURL( 'store', storeName )
+                         });
                  });
       }.call(this));
   },
@@ -258,6 +274,8 @@ return declare( Component, {
                        resourceRecords.push( lang.mixin( { id: r.name, name: r.name, type: 'refset', conf: r }, r.metadata || {} ));
                    });
                }
+
+               //console.log( resourceRecords );
 
                return when( new MemoryStore({
                    data: resourceRecords

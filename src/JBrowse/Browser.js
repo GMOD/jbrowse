@@ -155,23 +155,42 @@ constructor: function(params) {
                    return thisB.loadCSS();
                })
         .then( function() {
-                   thisB.getWorker(); // boot a worker
-                   thisB._initDataHubs();
-                   thisB.reportUsageStats();
+                   all([
+                           thisB.getWorker() // boot a worker
+                           ,thisB._initDataHubs()
+                               .then( function() {
+                                      if( ! thisB.getConf('displayedDataHubUrl') ) {
+                                          return thisB.getDataHub() // get the default data hub
+                                              .then( function(hub) {
+                                                         thisB.setConf( 'displayedDataHubUrl', hub.getConf('url') );
+                                                     });
+                                      }
+                                      else {
+                                          return thisB.initDataViews();
+                                      }
+                                  })
+                           ,thisB.reportUsageStats()
+                       ])
+                   .then( null, Util.logError );
+
+                   thisB.watchConf('displayedDataHubUrl', function() {
+                       thisB.initDataViews();
+                   });
+
 
                    return thisB.initViews();
                })
         .then( function() {
                    thisB.passMilestone( 'completely initialized', { success: true } );
-               });
+               }, Util.logError );
 
  },
 
 configSchema: {
         slots: [
 
-            { name: 'displayedDataHubName', type: 'string', defaultValue: 'default', //defaultValue: undefined,
-              description: 'name of the data hub currently being displayed'
+            { name: 'displayedDataHubUrl', type: 'string', defaultValue: undefined,
+              description: 'url of the data hub currently being displayed'
             },
 
             { name: 'browserRoot', type: 'string', defaultValue: "" },
@@ -214,7 +233,7 @@ configSchema: {
 
 // deferred.  get the data hub object that is currently being displayed, or undefined if none
 getDisplayedDataHub: function() {
-    return when( this.getConf('displayedDataHubName') ? this.getDataHub( this.getConf('displayedDataHubName') ) : undefined );;
+    return when( this.getConf('displayedDataHubUrl') ? this.getDataHub( this.getConf('displayedDataHubUrl') ) : undefined );;
 },
 
 version: function() {
@@ -401,9 +420,6 @@ initViews: function() {
         var contentWidget =
             new dijitContentPane({region: "top"}, menuBar );
 
-
-        this.initDataViews();
-
         // make our global keyboard shortcut handler
         on( document.body, 'keypress', dojo.hitch( this, 'globalKeyHandler' ));
 
@@ -415,18 +431,18 @@ initViews: function() {
 
 initDataViews: function() {
     var thisB = this;
-    this.views = [];
-
     function makeViews() {
-        thisB.getDisplayedDataHub()
+        return thisB.getDisplayedDataHub()
             .then( function( hub ) {
                 array.forEach( thisB.views, function(v) {
                     thisB.containerWidget.removeChild(v);
                     v.destroyRecursive();
                 });
 
+                thisB.views = [];
+
                 if( hub ) {
-                    hub.getDisplayedReferenceSets()
+                    return hub.getDisplayedReferenceSets()
                         .then( function( sets ) {
                             array.forEach( sets, function( set ) {
                                 thisB.views.push(
@@ -441,13 +457,15 @@ initDataViews: function() {
                             array.forEach( thisB.views, function(v) {
                                 thisB.containerWidget.addChild( v );
                             }, thisB );
-                        });
+                        }, Util.logError );
 
                 }
+
+                return undefined;
         });
     }
 
-    makeViews();
+    return makeViews();
 },
 
 getView: function( name ) {

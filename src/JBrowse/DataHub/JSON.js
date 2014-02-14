@@ -2,6 +2,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
+           'dojo/promise/all',
 
            'JBrowse/Util/DeferredGenerator',
            'JBrowse/ConfigManager',
@@ -12,6 +13,7 @@ define([
            declare,
            lang,
            Deferred,
+           all,
 
            DeferredGenerator,
            ConfigLoader,
@@ -21,8 +23,10 @@ define([
 return declare( DataHub, {
 
   constructor: function( args ) {
-      this._inputConfig = args.config;
+      this._inputConfig = lang.mixin( {}, args.config, { include: [ args.config.url ] } );
       this.metadataStore = this._loadMetaStore();
+      var thisB = this;
+      this.loaded = all([ this._loadConf(), this.metadataStore ]).then( function() { return thisB; } );
   },
 
   _loadConf: function() {

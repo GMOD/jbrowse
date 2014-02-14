@@ -48,9 +48,9 @@ return declare(
 
     constructor: function( args ) {
         this.categories = {};
-        this.parentComponent = args.parent;
-
         this._loadState();
+
+        Util.validate( args, { onTrackHide: 'function', onTrackShow: 'function', metaDataStore: 'object' });
     },
 
     buildRendering: function() {
@@ -79,42 +79,46 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
-        this.get('dataHub').getMetadataStore()
-            .then( function( store ) {
-                   return when(
-                       store.query(
-                           { type: 'track' },
-                           {
-                               count: 500,
-                               sort: [ { attribute: thisB.get('categoryFacet').toLowerCase()},
-                                       { attribute: 'name' }
-                                     ]
-                           }
-                       ))
-                           .then( function( items ) {
-                                      array.forEach( items, function(i) {
-                                                         if( i.conf )
-                                                             tracks.push( i );
-                                                     });
+        return this._getTrackMeta()
+            .then( function( items ) {
+                       array.forEach( items, function(i) {
+                                          console.log( i.name );
+                                          if( i.conf )
+                                              tracks.push( i );
+                                          else
+                                              console.log('no conf');
+                                      });
 
-                                      // make a pane at the top to hold uncategorized tracks
-                                      var uncPane = new ContentPane({ region: 'top', className: 'uncategorized' });
-                                      thisB.categories.Uncategorized =
-                                          { pane: uncPane,
-                                            tracks: {},
-                                            categories: {}
-                                          };
-                                      thisB.addChild( uncPane );
+                       // make a pane at the top to hold uncategorized tracks
+                       var uncPane = new ContentPane({ region: 'top', className: 'uncategorized' });
+                       thisB.categories.Uncategorized =
+                           { pane: uncPane,
+                             tracks: {},
+                             categories: {}
+                           };
+                       thisB.addChild( uncPane );
 
-                                      thisB.addTracks( tracks, true );
+                       thisB.addTracks( tracks, true );
 
-                                      // hide the uncategorized pane if it is empty
-                                      if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
-                                          //thisB.removeChild( thisB.categories.Uncategorized.pane );
-                                          thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
-                                      }
-                                  });
-                   }, Util.logError );
+                       // hide the uncategorized pane if it is empty
+                       if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
+                           //thisB.removeChild( thisB.categories.Uncategorized.pane );
+                           thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
+                       }
+                   });
+    },
+
+    _getTrackMeta: function() {
+        return when(
+            this.get('metaDataStore').query(
+                { type: 'track' },
+                {
+                    count: 500,
+                    sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
+                            { attribute: 'name' }
+                          ]
+                }
+            ));
     },
 
     addTracks: function( tracks, inStartup ) {
@@ -132,6 +136,7 @@ return declare(
             ).split(/\s*\/\s*/);
 
             var category = _findCategory( this, categoryNames, [] );
+            console.log( track.name, category );
 
             function _findCategory( obj, names, path ) {
                 var categoryName = names.shift();
@@ -162,7 +167,18 @@ return declare(
             var labelNode = dom.create(
                 'label', {
                     className: 'tracklist-label shown',
-                    title: Util.escapeHTML( track.shortDescription || track.description || track.Description || track.metadata && ( track.metadata.shortDescription || track.metadata.description || track.metadata.Description ) || track.name || trackConf.name )
+                    title: Util.escapeHTML(
+                        track.shortDescription
+                            || track.description
+                            || track.Description
+                            || track.metadata
+                               && ( track.metadata.shortDescription
+                                    || track.metadata.description
+                                    || track.metadata.Description
+                                  )
+                            || track.name
+                            || trackConf.name
+                    )
                 }, category.pane.containerNode );
 
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
@@ -271,30 +287,6 @@ return declare(
     _textFilter: function() {
         this.inherited(arguments);
         this._updateAllTitles();
-    },
-
-    /**
-     * Make the track selector visible.
-     */
-    show: function() {
-        this.parentComponent.addChild( this );
-    },
-
-    /**
-     * Make the track selector invisible.
-     */
-    hide: function() {
-    },
-
-    /**
-     * Toggle visibility of this track selector.
-     */
-    toggle: function() {
-        if( this.parentComponent )
-            this.hide();
-        else
-            this.show();
     }
-
 });
 });

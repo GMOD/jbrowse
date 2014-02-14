@@ -7,6 +7,7 @@ define([
            'dojo/dom-class',
            'dojo/promise/all',
            'dojo/when',
+           'dojo/aspect',
 
            'dijit/registry',
            'dijit/layout/BorderContainer',
@@ -40,6 +41,7 @@ define([
            domClass,
            all,
            when,
+           aspect,
 
            dijitRegistry,
            dijitBorderContainer,
@@ -203,12 +205,6 @@ configSchema: {
 
         { name: 'visibleTracks', type: 'multi-array',
           defaultValue: [
-              ['default','Reference sequence'],
-              ['default','BigWig XY - volvox_microarray'],
-              ['default', "Features - Example Features" ],
-              ['default', "Transcripts" ],
-              ['default', 'Features - SNPs' ],
-              ['default', 'Protein-coding genes']
           ]
           //defaultValue: []
         },
@@ -297,14 +293,44 @@ makeViewMenu: function() {
 // show the configured track selector for this data hub.  the track
 // selector will take care of hiding itself in response to user input
 showTrackSelector: function() {
-    var thisB = this;
-    this.get('app').getDisplayedDataHub()
-        .then( function( hub ) {
-                   hub.showTrackSelector(
-                       { regionBrowser: thisB,
-                         referenceSet: thisB.get('referenceSet')
-                       });
-               });
+    return this._trackSelector || ( this._trackSelector = function() {
+        var thisB = this;
+        return this.get('app').getDisplayedDataHub()
+            .then( function( hub ) {
+                       return hub.makeTrackSelector(
+                           {
+                               onTrackShow: function( trackNames ) {
+                                   console.log( 'show tracks', trackNames );
+                               },
+                               onTrackHide: function( trackNames ) {
+                                   console.log( 'hide tracks', trackNames );
+                               }
+                           });
+                   })
+            .then( function( selector ) {
+                       // once we have a track selector going, update it
+                       // when the displayed tracks in this browser
+                       // change
+                       aspect.after( thisB.showTracks,
+                                     function( trackObjects ) {
+                                         selector.setTracksActive(
+                                             array.map( trackObjects, function(t) {
+                                                            return t.getConf ? t.getConf('name') : t.name; }));
+                                     });
+                       aspect.after( thisB.hideTracks,
+                                     function( trackObjects ) {
+                                         selector.setTracksInactive(
+                                             array.map( trackObjects, function(t) {
+                                                            return t.getConf ? t.getConf('name') : t.name; }));
+                                     });
+
+                       // only add it as a child widget if it has 'region' set for layout
+                       if( selector.get('region') )
+                           thisB.addChild( selector );
+
+                       return selector;
+                   });
+        }.call(this) );
 },
 
 // scroll the display if necessary to show the given track
