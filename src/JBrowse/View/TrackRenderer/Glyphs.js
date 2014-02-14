@@ -602,7 +602,7 @@ return declare(
                                         thisB.getGlyph( fRect.glyphType, function( glyph ) {
                                             var pos = domGeom.position( thisB.getBlockStash()[fRect.blockID].featureCanvas );
                                             var clickedFeatures = glyph.getFeaturesAtPoint( fRect, evt.clientX-pos.x, evt.clientY-pos.y );
-                                            console.log( clickedFeatures );
+                                            //console.log( clickedFeatures );
                                             handler.call({
                                                          track: thisB,
                                                          clicked: clickedFeatures,
