@@ -251,34 +251,34 @@ return declare(
     },
 
     /**
-     * Given an array of track configs, update the track list to show
+     * Given an array of track names, update the track list to show
      * that they are turned on.
      */
-    setTracksActive: function( /**Array[Object]*/ trackConfigs ) {
-        array.forEach( trackConfigs, function(conf) {
-            this._findTrack( conf.label, function( trackRecord, category ) {
+    setTracksActive: function( /**Array[String]*/ trackNames ) {
+          array.forEach( trackNames, function(name) {
+              this._findTrack( name, function( trackRecord, category ) {
                 trackRecord.checkbox.checked = true;
             });
         },this);
     },
 
-    deleteTracks: function( /**Array[Object]*/ trackConfigs ) {
-        array.forEach( trackConfigs, function(conf) {
-            this._findTrack( conf.label, function( trackRecord, category ) {
-                trackRecord.labelNode.parentNode.removeChild( trackRecord.labelNode );
-                trackRecord.checkListener.remove();
-                delete category.tracks[conf.label];
-            });
-        },this);
+    deleteTracks: function( /**Array[String]*/ trackNames ) {
+          array.forEach( trackNames, function(name) {
+              this._findTrack( name, function( trackRecord, category ) {
+                  trackRecord.labelNode.parentNode.removeChild( trackRecord.labelNode );
+                  trackRecord.checkListener.remove();
+                  delete category.tracks[conf.label];
+              });
+          },this);
     },
 
     /**
      * Given an array of track configs, update the track list to show
      * that they are turned off.
      */
-    setTracksInactive: function( /**Array[Object]*/ trackConfigs ) {
-          array.forEach( trackConfigs, function(conf) {
-            this._findTrack( conf.label, function( trackRecord, category ) {
+    setTracksInactive: function( /**Array[String]*/ trackNames ) {
+          array.forEach( trackNames, function(name) {
+            this._findTrack( name, function( trackRecord, category ) {
                 trackRecord.checkbox.checked = false;
             });
         },this);

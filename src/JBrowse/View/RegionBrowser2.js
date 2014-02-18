@@ -321,26 +321,31 @@ showTrackSelector: function() {
                                });
                        })
                 .then( function( selector ) {
-                           // once we have a track selector going, update it
-                           // when the displayed tracks in this browser
-                           // change
-                           aspect.after( thisB.showTracks,
-                                         function( trackObjects ) {
+                           // once we have a track selector, wire our
+                           // track-toggling methods to it so that it
+                           // is updated when the displayed tracks in
+                           // this region browser change (like from
+                           // user clicking the close button on a
+                           // track)
+                           aspect.after( thisB, 'showTracks',
+                                         function( ret, args ) {
                                              selector.setTracksActive(
-                                                 array.map( trackObjects, function(t) {
+                                                 array.map( args[0], function(t) {
                                                      return t.getConf ? t.getConf('name') : t.name; }));
+                                             return ret;
                                          });
-                           aspect.after( thisB.hideTracks,
-                                         function( trackObjects ) {
+                           aspect.after( thisB, 'hideTracks',
+                                         function( ret, args ) {
                                              selector.setTracksInactive(
-                                                 array.map( trackObjects, function(t) {
+                                                 array.map( args[0], function(t) {
                                                      return t.getConf ? t.getConf('name') : t.name; }));
+                                             return ret;
                                          });
 
                            // be sure to clean up the selector if it
                            // is not cleaned up by the regular
                            // destruction cycle
-                           aspect.after( thisB.destroy,
+                           aspect.after( thisB, 'destroy',
                                          function() {
                                              if( ! selector._destroyed )
                                                  selector.destroyRecursive();
