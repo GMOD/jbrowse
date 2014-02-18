@@ -49,6 +49,7 @@
 
   .trackPane,.trackPaneNoGutter {
       overflow-y: auto;
+      margin-top: -2px;
   }
 
   .track,.trackNoGutter {
@@ -118,6 +119,7 @@
         top: 0;
         left: 0;
         z-index: 100;
+        cursor: default;
 
         padding: 0 8px 0 20px;
         line-height: 28px;
@@ -145,7 +147,7 @@
             & > div {
                 position: relative;
                 top: 50%;
-                margin-top: -8px;
+                margin-top: -9px;
                 left: 1px;
             }
         }
@@ -280,7 +282,7 @@
       }
 
       .viewScale {
-          z-index: 2;
+          z-index: 150;
           height: 23px;
 
           .menuButton {

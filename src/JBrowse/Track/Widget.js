@@ -68,7 +68,8 @@ return declare( [ BorderContainer ], {
                         }, this.domNode );
         this.closeButton = dom.create(
             'div', {
-                className: 'closeButton'
+                className: 'closeButton',
+                title: 'hide this track'
             }, this.handleNode );
 
         this.own( on( this.closeButton, 'click', function() {
@@ -80,7 +81,7 @@ return declare( [ BorderContainer ], {
             if( parent )
                 parent.hideTracks( [ thisB.get('track') ] );
         }));
-        dom.create('div', { className: 'jbrowseIconClose' }, this.closeButton );
+        dom.create('div', { className: 'jbrowseIconClose', title: 'hoad this track' }, this.closeButton );
 
         this.nameNode =
             dom.create( 'span', {
