@@ -9,7 +9,8 @@ define( [
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
-            './GFF3/Parser'
+            './GFF3/Parser',
+            'JBrowse/Store/TabixIndexedFile','JBrowse/Util/TextIterator'
         ],
         function(
             declare,
@@ -22,23 +23,49 @@ define( [
             DeferredStats,
             GlobalStatsEstimationMixin,
             XHRBlob,
-            Parser
+            Parser,
+            TabixIndexedFile,TextIterator
         ) {
-
 return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
 
  /**
   * @lends JBrowse.Store.SeqFeature.GFF3
   */
 {
+
+    _evalConf: function( confVal, confKey ) {
+        // evaluate callbacks as functions
+        return typeof confVal == 'function' ? confVal.call( this, this ) : confVal;
+    },
+
     constructor: function( args ) {
-        this.data = args.blob ||
+        var tbiBlob = args.tbi ||
+            new XHRBlob(
+                this.resolveUrl(
+                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+                )
+            );
+        thisB = this;
+        var tbiBlob = args.blob ||
             new XHRBlob( this.resolveUrl(
-                             args.urlTemplate
+		this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
                          )
                        );
-        this.features = [];
-        this._loadFeatures();
+        var fileBlob = args.file ||
+            new XHRBlob(
+                thisB.resolveUrl( this.getConf('urlTemplate',[]) )
+            );
+
+        this.data = new TabixIndexedFile(
+            {
+                tbi: tbiBlob,
+                file: fileBlob,
+                browser: this.browser,
+                chunkSizeLimit: args.chunkSizeLimit || 1000000
+            });
+
+        thisB.features = [];
+        thisB._loadFeatures();
     },
 
     _loadFeatures: function() {
@@ -83,7 +110,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
             });
         var fail = lang.hitch( this, '_failAllDeferred' );
         // parse the whole file and store it
-        this.data.fetchLines(
+        this.fetchLines(
             function( line ) {
                 try {
                     parser.addLine(line);
@@ -92,9 +119,37 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                     throw e;
                 }
             },
-            lang.hitch( parser, 'finish' ),
-            fail
-        );
+            lang.hitch( parser, 'finish' ),fail
+)
+    },
+
+    fetch: function( callback, failCallback ) {
+        var that = this,
+            reader = new FileReader();
+        reader.onloadend = function(ev) {
+            callback( that._stringToBuffer( reader.result ) );
+        };
+        reader.readAsBinaryString( this.blob );
+    },
+    fetchLines: function( lineCallback, endCallback, failCallback ) {
+        var thisB = this.data;
+        this.fetch( function( data ) {
+                        data = new Uint8Array(data);
+
+                        var lineIterator = new TextIterator.FromBytes(
+                            { bytes: data,
+                              // only return a partial line at the end
+                              // if we are not operating on a slice of
+                              // the file
+                              returnPartialRecord: !this.end
+                            });
+                        var line;
+                        while(( line = lineIterator.getline() )) {
+                                lineCallback( line );
+                        }
+
+                        endCallback();
+             }, failCallback );
     },
 
     _rebuildRefSeqs: function( features ) {
