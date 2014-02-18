@@ -65,6 +65,9 @@ return declare(
             },
             topPane.containerNode );
 
+        var closeButton = dom.create('a', { className: 'closeButton jbrowseIconClose' }, topPane.containerNode );
+        this.own( on( closeButton, 'click', lang.hitch( this, 'hide' ) ));
+
         this._makeTextFilterNodes(
             dom.create('div',
                        { className: 'textfilterContainer' },
@@ -281,10 +284,20 @@ return declare(
         },this);
     },
 
-
     _textFilter: function() {
         this.inherited(arguments);
         this._updateAllTitles();
+    },
+
+    show: function() {
+        if( ! this.getParent() )
+            this.get('regionBrowser').addChild( this );
+    },
+
+    hide: function() {
+        if( this.getParent() )
+            this.getParent().removeChild( this );
     }
+
 });
 });

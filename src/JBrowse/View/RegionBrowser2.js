@@ -255,7 +255,7 @@ buildRendering: function() {
                              })
            );
        })
-      .then( undefined, function(e) { console.error( e.stack || ''+e ); });
+      .then( undefined, Util.logError );
 },
 
 makeViewMenu: function() {
@@ -265,7 +265,8 @@ makeViewMenu: function() {
                     { label: 'Add tracks',
                       iconClass: 'dijitIconAdd',
                       onClick: function() {
-                          thisB.showTrackSelector();
+                          thisB.showTrackSelector()
+                              .then( undefined, Util.logError );
                       }
                     })
               );
@@ -279,7 +280,7 @@ makeViewMenu: function() {
     //           );
     m.addChild( new dijitMenuItem(
                     { label: 'Close',
-                      iconClass: 'dijitIconDelete',
+                      iconClass: 'jbrowseIconClose',
                       onClick: function() {
                           thisB.getParent().removeChild( thisB );
                           thisB.destroyRecursive();
@@ -293,50 +294,64 @@ makeViewMenu: function() {
 // show the configured track selector for this data hub.  the track
 // selector will take care of hiding itself in response to user input
 showTrackSelector: function() {
-    return this._trackSelector || ( this._trackSelector = function() {
-        var thisB = this;
-        return this.get('app').getDisplayedDataHub()
-            .then( function( hub ) {
-                       return hub.makeTrackSelector(
-                           {
-                               onTrackShow: function( trackNames ) {
-                                   var gets = array.map( trackNames, hub.getTrack, hub );
-                                   all( gets ).then( function( trackObjects ) {
-                                              thisB.showTracks( trackObjects );
-                                   }, Util.logError );
-                               },
-                               onTrackHide: function( trackNames ) {
-                                   var gets = array.map( trackNames, hub.getTrack, hub );
-                                   all( gets ).then( function( trackObjects ) {
-                                              thisB.hideTracks( trackObjects );
-                                   }, Util.logError );
-                               }
-                           });
-                   })
-            .then( function( selector ) {
-                       // once we have a track selector going, update it
-                       // when the displayed tracks in this browser
-                       // change
-                       aspect.after( thisB.showTracks,
-                                     function( trackObjects ) {
-                                         selector.setTracksActive(
-                                             array.map( trackObjects, function(t) {
-                                                 return t.getConf ? t.getConf('name') : t.name; }));
-                                     });
-                       aspect.after( thisB.hideTracks,
-                                     function( trackObjects ) {
-                                         selector.setTracksInactive(
-                                             array.map( trackObjects, function(t) {
-                                                 return t.getConf ? t.getConf('name') : t.name; }));
-                                     });
 
-                       // only add it as a child widget if it has 'region' set for layout
-                       if( selector.get('region') )
-                           thisB.addChild( selector );
+    return (
+        this._trackSelector || ( this._trackSelector = function() {
 
-                       return selector;
-                   });
-        }.call(this) );
+            var thisB = this;
+            // get the current data hub
+            return this.get('app').getDisplayedDataHub()
+                 // get the data hub to make a new track selector widget
+                .then( function( hub ) {
+                           return hub.makeTrackSelector(
+                               {
+                                   regionBrowser: thisB,
+                                   onTrackShow: function( trackNames ) {
+                                       var gets = array.map( trackNames, hub.getTrack, hub );
+                                       all( gets ).then( function( trackObjects ) {
+                                                  thisB.showTracks( trackObjects );
+                                       }, Util.logError );
+                                   },
+                                   onTrackHide: function( trackNames ) {
+                                       var gets = array.map( trackNames, hub.getTrack, hub );
+                                       all( gets ).then( function( trackObjects ) {
+                                                  thisB.hideTracks( trackObjects );
+                                       }, Util.logError );
+                                   }
+                               });
+                       })
+                .then( function( selector ) {
+                           // once we have a track selector going, update it
+                           // when the displayed tracks in this browser
+                           // change
+                           aspect.after( thisB.showTracks,
+                                         function( trackObjects ) {
+                                             selector.setTracksActive(
+                                                 array.map( trackObjects, function(t) {
+                                                     return t.getConf ? t.getConf('name') : t.name; }));
+                                         });
+                           aspect.after( thisB.hideTracks,
+                                         function( trackObjects ) {
+                                             selector.setTracksInactive(
+                                                 array.map( trackObjects, function(t) {
+                                                     return t.getConf ? t.getConf('name') : t.name; }));
+                                         });
+
+                           // be sure to clean up the selector if it
+                           // is not cleaned up by the regular
+                           // destruction cycle
+                           aspect.after( thisB.destroy,
+                                         function() {
+                                             if( ! selector._destroyed )
+                                                 selector.destroyRecursive();
+                                         });
+                           return selector;
+                       });
+            }.call(this) )
+    ).then( function( selector ) {
+                selector.show();
+                return selector;
+            });
 },
 
 // scroll the display if necessary to show the given track
