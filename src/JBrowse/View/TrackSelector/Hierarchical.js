@@ -34,7 +34,7 @@ define(['dojo/_base/declare',
 
 return declare(
     'JBrowse/View/TrackSelector/Hierarchical',
-    [ BorderContainer, _TextFilterMixin ],
+    [ ContentPane, _TextFilterMixin ],
     {
 
     region: 'left',
