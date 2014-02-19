@@ -110,6 +110,14 @@ return declare( [ Stateful, Destroyable, _ConfigurationMixin, _FeatureFiltererMi
 
     postStartup: function() {}, //< called after startup.  not actually in dijit.
 
+    // given an array of existing dijit menu items (dijit/MenuItem or
+    // similar), return another array of dijit menu items that should
+    // be in the track menu for this track.
+    getTrackMenuItems: function( commonItems ) {
+        // override this to mess with it
+        return commonItems;
+    },
+
     // expansion is the number of pixels on either side of the block to query for
     makeStoreQueryForBlock: function( block, blockNode, changeInfo, expansion ) {
         var baseSpan = block.getBaseSpan();

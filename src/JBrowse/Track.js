@@ -34,6 +34,11 @@ return declare( [Resource,Stateful], {
 
             { name: 'metadata', type: 'object', defaultValue: {} },
 
+            { name: 'trackDetailsViewClass', type: 'string',
+              defaultValue: 'JBrowse/View/TrackDetails/KeyValueDialog',
+              description: "JS class to use for displayin this track's metadata"
+            },
+
             { name: 'query', type: 'object', defaultValue: {},
               description: "track-specific query variables to pass to the store"
             },
@@ -154,6 +159,24 @@ return declare( [Resource,Stateful], {
                                       return widget;
                                   });
                    });
+    },
+
+    /**
+     * Shows a detailed description of this track, such as who made
+     * it, how it was made, and so forth.  The default details view
+     * class is a dialog box, but other classes could be defined that
+     * do something different.
+     */
+    showTrackDetails: function() {
+        return Util.instantiate(
+            this.getConf('trackDetailsViewClass'),
+            {
+                browser: this.get('browser'),
+                track: this
+            })
+        .then( function( detailView ) {
+                   return detailView.show();
+               });
     },
 
     makeSubtracks: function( args ) {

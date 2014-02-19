@@ -15,8 +15,6 @@ define([
            'dijit/MenuItem',
 
            'JBrowse/Component',
-           'JBrowse/View/DetailsMixin',
-           'JBrowse/View/Dialog/Info',
            'JBrowse/Util'
        ],
        function(
@@ -36,8 +34,6 @@ define([
            dijitMenuItem,
 
            Component,
-           DetailsMixin,
-           InfoDialog,
            Util
        ) {
 
@@ -84,12 +80,12 @@ var TrackHandle = declare([ _WidgetBase ], {
           { className: 'menuButton'
             ,layoutAlign: 'client'
             ,iconClass: 'jbrowseIconDropDown'
-            ,dropDown: this.get('trackWidget').makeDropDownMenu()
+            ,dropDown: this.get('trackWidget').makeTrackMenu()
           }).placeAt( this.handleNode );
   }
 });
 
-return declare( [ BorderContainer, DetailsMixin ], {
+return declare( [ BorderContainer ], {
 
     baseClass: 'track',
     region: 'top',
@@ -124,56 +120,43 @@ return declare( [ BorderContainer, DetailsMixin ], {
         this.addChild( this.trackHandle = new TrackHandle({ trackWidget: this }) );
     },
 
-    /**
-     * @returns {Object} DOM element containing a rendering of the
-     *                   detailed metadata about this track
-     */
-    _trackDetailsContent: function( additional ) {
-        var details = dom.create('div', { className: 'detail' });
-        var fmt = lang.hitch(this, 'renderDetailField', details );
-        var track = this.get('track');
-        fmt( 'Name', track.getConf('name') );
-        track.getMetadata().then( function( m ) {
-            var metadata = lang.mixin( {}, m, additional );
-            delete metadata.key;
-            delete metadata.label;
-            if( typeof metadata.conf == 'object' )
-                delete metadata.conf;
-
-            var md_keys = [];
-            for( var k in metadata )
-                md_keys.push(k);
-            // TODO: maybe do some intelligent sorting of the keys here?
-            array.forEach( md_keys, function(key) {
-                              fmt( Util.ucFirst(key), metadata[key] );
-                          });
-        });
-
-        return details;
-    },
-
-    makeDropDownMenu: function() {
+    makeTrackMenu: function() {
         var thisB = this;
-        var m = new dijitDropDownMenu({ leftClickToOpen: true });
-        m.addChild( new dijitMenuItem(
+        var m = this.trackMenu || ( this.trackMenu = new dijitDropDownMenu({ leftClickToOpen: true }) );
+        array.forEach( m.getChildren(), m.removeChild, m );
+
+        var items = [
+            new dijitMenuItem(
                         { label: 'About this track',
                           //iconClass: '',
                           onClick: function( evt ) {
-                              // some kind of dijit bug causes a
-                              // 'mouseup' event to call this also, so
-                              // check the event type
-                              if( evt.type != 'click' )
-                                  return;
-
-                              new InfoDialog({
-                                    browser: thisB.get('browser'),
-                                    content: thisB._trackDetailsContent(),
-                                    title: 'About this track: '+thisB.get('track').getConf('name')
-                                  }).show();
+                              thisB.get('track').showTrackDetails();
                           }
                         })
-                  );
+        ];
+
+        if( this.get('mainView') ) {
+            items = this.get('mainView').get('renderer').getTrackMenuItems( items );
+        }
+
+        array.forEach( items, function( item ) {
+                           var oldClick = item.onClick;
+                           if( oldClick ) {
+                               item.onClick = function( evt ) {
+                                   // some kind of dijit bug causes a
+                                   // 'mouseup' event to call this also, so
+                                   // check the event type
+                                   if( evt.type == 'click' )
+                                       return oldClick( evt );
+                                   return false;
+                               };
+                           }
+
+                           m.addChild( item );
+                       });
+
         m.startup();
+
         return m;
     },
 
