@@ -32,16 +32,17 @@ return declare( 'JBrowse/View/DataHubManager/DataHub',
 
 doLayout: true,
 
-constructor: function( args ) {
-    this.title = args.dataHub.getConf('name');
-},
-
 buildRendering: function() {
     this.inherited(arguments);
 
     var thisB = this;
+    this.get('dataHub').loaded
+        .then( function(hub) {
+                   thisB.set('title', hub.getConf('name') );
+               });
     this.get('dataHub').getMetadataStore()
         .then( function( store ) {
+
 
                    // make a TitlePane for Reference Sets, Tracks, and Stores
                    function makePane( title, contentD ) {
