@@ -38,6 +38,19 @@ return declare( ActionBarDialog, {
     refocus: true,
     autofocus: true,
 
+    buildRendering: function() {
+        this.inherited( arguments );
+
+        var thisB = this;
+        var form = this.form = new dijitForm();
+        on( form.domNode, 'keyup', function(evt) {
+                if( evt.keyCode == keys.ENTER )
+                    thisB._submit();
+            });
+
+        this.set( 'content', this.form );
+    },
+
     // given a nested object containing some items of the form name:
     // '<prompt>', prompt for those items and return a Deferred copy
     // of the hash with them filled in.
@@ -51,7 +64,11 @@ return declare( ActionBarDialog, {
             for( var k in d ) {
                 var match = typeof d[k] == 'string' && d[k].match( /<prompt:?([^>]+)?>/ );
                 if( match )
-                    promptFields.push( { name: k, type: match[1] || 'text', label: Util.ucFirst(k).replace(/_/g,' '), path: path.concat(k) } );
+                    promptFields.push(
+                        { name: k, type: match[1] || 'text',
+                          label: Util.ucFirst(k).replace(/_/g,' '),
+                          path: path.concat(k)
+                        });
                 else if( typeof d[k] == 'object' || lang.isArray( d[k] ) ) {
                     findPrompts( d[k], path.concat(k) );
                 }
@@ -62,20 +79,13 @@ return declare( ActionBarDialog, {
         if( promptFields.length ) {
             data.prompted = true;
 
-            var form = new dijitForm();
-            on( form.domNode, 'keyup', function(evt) {
-                    if( evt.keyCode == keys.ENTER )
-                        thisB._submit();
-                });
-
+            var form = this.form;
             var container = dom.create('div', { className: 'autoprompt' }, form.domNode );
             array.forEach( promptFields,
                            function( f ) {
                                var label = dom.create( 'label', {innerHTML: '<div class="text">'+f.label+'</div>'}, container );
                                new dijitTextBox({ name: f.name, type: f.type }).placeAt(label);
                            });
-            this.form = form;
-            this.set( 'content', this.form );
 
             return this.prompt()
                 .then( function( formdata ) {

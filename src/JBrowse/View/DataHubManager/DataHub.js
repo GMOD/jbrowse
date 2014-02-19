@@ -38,7 +38,7 @@ buildRendering: function() {
     var thisB = this;
     this.get('dataHub').loaded
         .then( function(hub) {
-                   thisB.set('title', hub.getConf('name') );
+                   thisB.set('title', hub.getConf('name') || hub.getConf('url') );
                });
     this.get('dataHub').getMetadataStore()
         .then( function( store ) {

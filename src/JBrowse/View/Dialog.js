@@ -21,6 +21,8 @@ return declare( Dialog, {
   postCreate: function() {
       this.inherited(arguments);
       this.domNode.className += ' jbrowse '+this.browser.getConf('theme');
+      if( this.className )
+          this.domNode.className += ' '+this.className;
   }
 });
 });

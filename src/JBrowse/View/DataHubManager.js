@@ -7,11 +7,13 @@ define([
            'dojo/promise/all',
            'dojo/on',
 
+           'dijit/form/Button',
            'dijit/layout/BorderContainer',
-           'dijit/TitlePane',
            'dijit/layout/ContentPane',
 
-           './DataHubManager/DataHub'
+           'JBrowse/Util',
+           './DataHubManager/DataHub',
+           './DataHubManager/AddHubDialog'
        ],
        function(
            declare,
@@ -22,17 +24,23 @@ define([
            all,
            on,
 
+           Button,
            BorderContainer,
-           TitlePane,
            ContentPane,
 
-           DataHubView
+           Util,
+           DataHubView,
+           AddHubDialog
        ) {
 
 return declare( 'JBrowse/View/DataHubManager', BorderContainer, {
 
 baseClass: 'dataHubManager',
 gutters: false,
+
+constructor: function( args ) {
+    Util.validate( args, { app: 'object' });
+},
 
 buildRendering: function() {
     this.inherited(arguments);
@@ -120,6 +128,21 @@ _renderHeader: function() {
           region: 'top',
           content: '<span class="title">Data hubs</span>'
         });
+    pane.addChild( new Button(
+                       { label: 'Add hub',
+                         className: 'addHubButton',
+                         onClick: function() {
+                             return new AddHubDialog({ browser: thisB.get('app') })
+                                 .prompt()
+                                 .then( function( data ) {
+                                            return thisB.get('app').addDataHub({ url: data.url })
+                                            .then( function(hub) {
+                                                       return thisB._addAvailableHub(hub);
+                                                   });
+                                        });
+                         },
+                         iconClass: 'jbrowseIconAddWhite'
+                       }));
     var closeButton = domConstruct.create( 'div', { className: 'closeButton' }, pane.domNode );
     on( closeButton, 'click', function() {
             if( thisB.getParent() )

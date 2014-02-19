@@ -21,7 +21,8 @@ return declare( null, {
             description: 'name of the data hub to use by default'
           },
 
-          { name: 'displayedDataHubUrl', type: 'string', defaultValue: undefined,
+          { name: 'displayedDataHubUrl', type: 'string',
+            defaultValue: undefined,
             description: 'url of the data hub currently being displayed'
           },
 
@@ -41,19 +42,18 @@ return declare( null, {
   _initDataHubs: function() {
       var hubConf = this.getConf('dataHubs');
       this._dataHubs = {};
-      var ops =
-          array.map( hubConf, function(c) {
-                         return this.addDataHub( c );
-                     }, this );
+      var ops = array.map( hubConf, function(c) {
+          return this.addDataHub( c );
+      }, this );
       ops.push( this._initTrackMetadata() );
-      return all(ops);
+      return all( ops );
   },
 
   _initTrackMetadata: function() {
       var metaStoresD = [];
       for( var n in this._dataHubs ) {
           metaStoresD.push(
-              this._dataHubs[n].then( function(h) {
+              this._dataHubs[n].then( function( h ) {
                   return h.getTrackMetadataStore();
               })
           );
@@ -72,12 +72,20 @@ return declare( null, {
       hubConf[conf.url] = conf;
       this.setConf( 'dataHubs', hubConf );
 
+      if( !( 'type' in conf ) && conf.url ) {
+          conf.type =
+              /trackList\.json$/.test( conf.url ) ? 'JBrowse/DataHub/JBrowse1' :
+                       /\.json$/.test( conf.url ) ? 'JBrowse/DataHub/JSON'     :
+                                                    'JBrowse/DataHub';
+      }
+
       var thisB = this;
       var hubD = this._dataHubs[conf.url] =
           Util.instantiateComponent(
-              { browser: this.browser, dataHubManager: this }, conf, 'JBrowse/DataHub'
+              { browser: this.browser, dataHubManager: this },
+              conf,
+              'JBrowse/DataHub'
           )
-          // after the hub is loaded, put it in our hash of hubs under its real name
           .then( function( hub ) {
                      return hub.loaded;
                  });
