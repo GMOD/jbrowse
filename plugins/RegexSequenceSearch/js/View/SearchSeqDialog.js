@@ -4,6 +4,7 @@ define([
         'dojo/aspect',
         'dijit/focus',
         'dijit/form/Button',
+        'dijit/form/RadioButton',
         'dijit/form/CheckBox',
         'dijit/form/TextBox',
         'JBrowse/View/Dialog/WithActionBar'
@@ -14,6 +15,7 @@ define([
         aspect,
         focus,
         dButton,
+        dRButton,
         dCheckBox,
         dTextBox,
         ActionBarDialog
@@ -67,16 +69,32 @@ return declare( ActionBarDialog, {
         dom.create( "label", { "for": "search_ignore_case", innerHTML: "Ignore Case"}, caseDiv );
 
 
-        var translateDiv = dom.create("div", {
-            className: "checkboxdiv"
+        var translateDiv = dom.create("form", {
+            action: ""
         }, textOptionsDiv );
+        var DNADiv = dom.create("div", {
+            className:"checkboxdiv"
+        }, translateDiv);
+        var RNADiv = dom.create("div", {
+            className:"checkboxdiv"
+        }, translateDiv);
+        var DNADivContent = new dRButton({
+                                        name: "type",
+                                        value: "DNA"
+                                    });
         // Checkbox that toggles amino acid search
-        content.translate = new dCheckBox({
+        content.translate = new dRButton({
                                                 label: "Translate sequence before searching",
-                                                id: "search_translate_first"
+                                                id: "search_translate_first",
+                                                name: "type",
+                                                value:"RNA"
                                             });
-        translateDiv.appendChild( content.translate.domNode );
-        dom.create( "label", { "for": "search_translate_first", innerHTML: "Translate sequence before searching" }, translateDiv );
+        DNADiv.appendChild(DNADivContent.domNode);
+        RNADiv.appendChild(content.translate.domNode);
+        dom.create( "label", { innerHTML: "RNA" }, RNADiv );
+        dom.create( "label", { innerHTML: "DNA" }, DNADiv );
+        translateDiv.appendChild( RNADiv );
+        translateDiv.appendChild( DNADiv );
 
 
         // Render 'treat as regex' checkbox
