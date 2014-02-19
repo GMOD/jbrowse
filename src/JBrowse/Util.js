@@ -102,7 +102,7 @@ var Util = {
 
     logError: function( error ) {
         var str = error.stack || ''+error;
-        if( /^\[Object/.test( str ) )
+        if( /^\[object/i.test( str ) )
             str = JSON.stringify( str );
         console.error( str );
     },

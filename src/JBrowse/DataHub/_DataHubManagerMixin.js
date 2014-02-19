@@ -21,6 +21,10 @@ return declare( null, {
             description: 'name of the data hub to use by default'
           },
 
+          { name: 'displayedDataHubUrl', type: 'string', defaultValue: undefined,
+            description: 'url of the data hub currently being displayed'
+          },
+
           { name: 'dataHubs', type: 'multi-object',
             description: 'configuration objects for each available data hub',
             defaultValue: function( mgr ) {
@@ -103,7 +107,7 @@ return declare( null, {
 
   getDataHub: function( url ) {
       // return a specific one if possible
-      if( url || url == 'default' && ( url = this.getConf('defaultDataHubUrl') ) )
+      if( url || ( url = this.getConf('displayedDataHubUrl') ) || url == 'default' && ( url = this.getConf('defaultDataHubUrl') ) )
           return this._dataHubs[url];
 
       // otherwise just return the first one in storage

@@ -5,6 +5,7 @@ define([
 
            'JBrowse/Errors',
            'JBrowse/Util',
+           'JBrowse/has',
            'JBrowse/has!dom?dojo/dom-geometry',
            'JBrowse/has!dom?dojo/dom-construct',
            'JBrowse/has!dom?dojo/dom-style'
@@ -17,6 +18,7 @@ define([
            Errors,
 
            Util,
+           has,
            domGeom,
            domConstruct,
            domStyle
@@ -48,7 +50,7 @@ return declare( null, {
             this.fatalError = error;
             if( this.get('widget') && this.get('widget')._handleError )
                 this.get('widget')._handleError( error );
-            else
+            else if( has('jbrowse-main-process') )
                 this.fillBlockError( error );
         }
     },

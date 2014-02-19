@@ -3,7 +3,8 @@
 .jbrowseIconLink,
 .jbrowseIconCancel,
 .jbrowseIconHighlight,
-.jbrowseIconClose
+.jbrowseIconClose,
+.jbrowseIconDropDown
 {
     background-image: url('../../base/img/sprites.png');
     width: 16px;
@@ -31,5 +32,8 @@
 }
 .jbrowseIconClose {
     background-position: -178px -95px;
+}
+.jbrowseIconDropDown {
+    background-position: -195px -96px;
 }
 

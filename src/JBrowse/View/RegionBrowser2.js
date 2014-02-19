@@ -203,8 +203,9 @@ configSchema: {
           description: 'if true, draw grid lines'
         },
 
-        { name: 'visibleTracks', type: 'multi-array',
+        { name: 'visibleTracks', type: 'multi-string',
           defaultValue: [
+              'Transcripts'
           ]
           //defaultValue: []
         },
@@ -246,7 +247,7 @@ buildRendering: function() {
     // show all the configured tracks
     var thisB = this;
     all( array.map( this.getConf('visibleTracks'), function( tRec ) {
-                       return thisB.browser.getTrack( tRec[0], tRec[1] );
+                       return thisB.browser.getTrack( undefined, tRec );
                    })
        ).then( function( trackObjects ) {
            return thisB.showTracks(
@@ -325,7 +326,7 @@ showTrackSelector: function() {
                            // track-toggling methods to it so that it
                            // is updated when the displayed tracks in
                            // this region browser change (like from
-                           // user clicking the close button on a
+                           // users clicking the close button on a
                            // track)
                            aspect.after( thisB, 'showTracks',
                                          function( ret, args ) {

@@ -7,9 +7,16 @@ define([
            'dojo/on',
 
            'dijit/_WidgetBase',
+           'dijit/_TemplatedMixin',
+           'dijit/_Container',
            'dijit/layout/BorderContainer',
+           'dijit/DropDownMenu',
+           'dijit/form/DropDownButton',
+           'dijit/MenuItem',
 
            'JBrowse/Component',
+           'JBrowse/View/DetailsMixin',
+           'JBrowse/View/Dialog/Info',
            'JBrowse/Util'
        ],
        function(
@@ -21,13 +28,68 @@ define([
            on,
 
            _WidgetBase,
+           _TemplatedMixin,
+           _Container,
            BorderContainer,
+           dijitDropDownMenu,
+           dijitDropDownButton,
+           dijitMenuItem,
 
            Component,
+           DetailsMixin,
+           InfoDialog,
            Util
        ) {
 
-return declare( [ BorderContainer ], {
+var TrackHandle = declare([ _WidgetBase ], {
+  style: { height: '0px', width: '0px' },
+  region: 'top',
+  baseClass: 'trackHandleWidget',
+  buildRendering: function() {
+      this.inherited(arguments);
+
+      var thisB = this;
+
+      this.handleNode = dom.create( 'div', { className: 'trackHandle' }, this.domNode );
+
+      this.closeButton = dom.create(
+          'div', {
+              className: 'closeButton',
+              title: 'hide this track'
+          }, this.handleNode );
+
+      this.own( on( this.closeButton, 'click', function() {
+                        var parent;
+                        try {
+                            parent = thisB.getParent().getParent().getParent();
+                        } catch(e) {}
+
+                        if( parent )
+                            parent.hideTracks( [ thisB.get('trackWidget').get('track') ] );
+                    }));
+      dom.create('div', { className: 'jbrowseIconClose', title: 'hoad this track' }, this.closeButton );
+
+      this.nameNode =
+          dom.create( 'span', {
+                          className: 'name',
+                          innerHTML: this.get('trackWidget').get('track').getConf('name')
+                      }, this.handleNode );
+      this.descriptionNode = dom.create(
+          'span', {
+              className: 'description',
+              style: 'display: none'
+          }, this.handleNode );
+
+      this.menuButton = new dijitDropDownButton(
+          { className: 'menuButton'
+            ,layoutAlign: 'client'
+            ,iconClass: 'jbrowseIconDropDown'
+            ,dropDown: this.get('trackWidget').makeDropDownMenu()
+          }).placeAt( this.handleNode );
+  }
+});
+
+return declare( [ BorderContainer, DetailsMixin ], {
 
     baseClass: 'track',
     region: 'top',
@@ -51,47 +113,68 @@ return declare( [ BorderContainer ], {
                                totalHeight += child.h;
                            }
                        },this );
-        if( this.handleNode )
-            totalHeight = Math.max( this.handleNode.offsetHeight, totalHeight );
+        if( this.trackHandle && this.trackHandle.handleNode )
+            totalHeight = Math.max( this.trackHandle.handleNode.offsetHeight, totalHeight );
 
         this.getParent()._layoutChildren( this.id, totalHeight );
     },
 
     buildRendering: function() {
         this.inherited(arguments);
+        this.addChild( this.trackHandle = new TrackHandle({ trackWidget: this }) );
+    },
 
+    /**
+     * @returns {Object} DOM element containing a rendering of the
+     *                   detailed metadata about this track
+     */
+    _trackDetailsContent: function( additional ) {
+        var details = dom.create('div', { className: 'detail' });
+        var fmt = lang.hitch(this, 'renderDetailField', details );
+        var track = this.get('track');
+        fmt( 'Name', track.getConf('name') );
+        track.getMetadata().then( function( m ) {
+            var metadata = lang.mixin( {}, m, additional );
+            delete metadata.key;
+            delete metadata.label;
+            if( typeof metadata.conf == 'object' )
+                delete metadata.conf;
+
+            var md_keys = [];
+            for( var k in metadata )
+                md_keys.push(k);
+            // TODO: maybe do some intelligent sorting of the keys here?
+            array.forEach( md_keys, function(key) {
+                              fmt( Util.ucFirst(key), metadata[key] );
+                          });
+        });
+
+        return details;
+    },
+
+    makeDropDownMenu: function() {
         var thisB = this;
+        var m = new dijitDropDownMenu({ leftClickToOpen: true });
+        m.addChild( new dijitMenuItem(
+                        { label: 'About this track',
+                          //iconClass: '',
+                          onClick: function( evt ) {
+                              // some kind of dijit bug causes a
+                              // 'mouseup' event to call this also, so
+                              // check the event type
+                              if( evt.type != 'click' )
+                                  return;
 
-        this.handleNode =
-            dom.create( 'div', {
-                            className: 'trackHandle'
-                        }, this.domNode );
-        this.closeButton = dom.create(
-            'div', {
-                className: 'closeButton',
-                title: 'hide this track'
-            }, this.handleNode );
-
-        this.own( on( this.closeButton, 'click', function() {
-            var parent;
-            try {
-                parent = thisB.getParent().getParent();
-            } catch(e) {}
-
-            if( parent )
-                parent.hideTracks( [ thisB.get('track') ] );
-        }));
-        dom.create('div', { className: 'jbrowseIconClose', title: 'hoad this track' }, this.closeButton );
-
-        this.nameNode =
-            dom.create( 'span', {
-                            className: 'name',
-                            innerHTML: this.get('track').getConf('name')
-                        }, this.handleNode );
-        this.descriptionNode = dom.create(
-            'span', {
-                className: 'description'
-            }, this.handleNode );
+                              new InfoDialog({
+                                    browser: thisB.get('browser'),
+                                    content: thisB._trackDetailsContent(),
+                                    title: 'About this track: '+thisB.get('track').getConf('name')
+                                  }).show();
+                          }
+                        })
+                  );
+        m.startup();
+        return m;
     },
 
     startup: function() {
@@ -139,9 +222,12 @@ return declare( [ BorderContainer ], {
                                    thisB.removeChild( thisB.get('mainView') );
                                    thisB.get('mainView').destroyRecursive();
                                    thisB.descriptionNode.innerHTML = '';
+                                   thisB.descriptionNode.style.display = 'none';
                                }
-                               if( view.getConf('description') )
+                               if( view.getConf('description') ) {
                                    thisB.descriptionNode.innerHTML = view.getConf('description');
+                                   thisB.descriptionNode.style.display = 'inline';
+                               }
 
                                thisB.set( 'mainView', view );
                                thisB.addChild( view );
@@ -156,6 +242,7 @@ return declare( [ BorderContainer ], {
                     thisB.get('mainView').destroyRecursive();
                     thisB.set( 'mainView', undefined );
                     thisB.descriptionNode.innerHTML = '';
+                    thisB.descriptionNode.style.display = 'none';
                 }
             }
         }

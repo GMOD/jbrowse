@@ -92,6 +92,11 @@ return declare( [Resource,Stateful], {
         return this.getConf('name').toLowerCase().replace(/\s+/g,'-');
     },
 
+    // returns a deferred key-value object of metadata about this track
+    getMetadata: function() {
+        return Util.resolved( this.getConf('metadata') );
+    },
+
     // get the correct main view name to be using for the current
     // state of the genome view
     getViewName: function( widget ) {
