@@ -159,10 +159,10 @@ constructor: function(params) {
                            thisB.getWorker() // boot a worker
                            ,thisB._initDataHubs()
                                .then( function() {
-                                      if( ! thisB.getConf('displayedDataHubUrl') ) {
+                                      if( ! thisB.getConf('hubUrl') ) {
                                           return thisB.getDataHub() // get the default data hub
                                               .then( function(hub) {
-                                                         thisB.setConf( 'displayedDataHubUrl', hub.getConf('url') );
+                                                         thisB.setConf( 'hubUrl', hub.getConf('url') );
                                                      });
                                       }
                                       else {
@@ -173,7 +173,7 @@ constructor: function(params) {
                        ])
                    .then( null, Util.logError );
 
-                   thisB.watchConf('displayedDataHubUrl', function() {
+                   thisB.watchConf('hubUrl', function() {
                        thisB.initDataViews();
                    });
 
@@ -188,11 +188,6 @@ constructor: function(params) {
 
 configSchema: {
         slots: [
-
-            { name: 'displayedDataHubUrl', type: 'string', defaultValue: undefined,
-              description: 'url of the data hub currently being displayed'
-            },
-
             { name: 'browserRoot', type: 'string', defaultValue: "" },
             { name: 'css', type: 'multi-string|object' },
             { name: 'unitTestMode', type: 'boolean', defaultValue: false },
@@ -211,7 +206,7 @@ configSchema: {
               defaultValue: function( browser, overrides ) {
                   var viewState = {
                       highlight: (browser.getHighlight()||'').toString(),
-                      dataRoot: browser.getConf('dataRoot')
+                      hub: browser.getConf('hubUrl')
                   };
 
                   return "".concat(
@@ -233,7 +228,7 @@ configSchema: {
 
 // deferred.  get the data hub object that is currently being displayed, or undefined if none
 getDisplayedDataHub: function() {
-    return when( this.getConf('displayedDataHubUrl') ? this.getDataHub( this.getConf('displayedDataHubUrl') ) : undefined );;
+    return when( this.getConf('hubUrl') ? this.getDataHub( this.getConf('hubUrl') ) : undefined );;
 },
 
 version: function() {

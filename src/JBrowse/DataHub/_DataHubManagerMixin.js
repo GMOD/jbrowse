@@ -21,29 +21,31 @@ return declare( null, {
             description: 'name of the data hub to use by default'
           },
 
-          { name: 'displayedDataHubUrl', type: 'string',
+          { name: 'hubUrl', type: 'string',
             defaultValue: undefined,
             description: 'url of the data hub currently being displayed'
           },
 
           { name: 'dataHubs', type: 'multi-object',
             description: 'configuration objects for each available data hub',
-            defaultValue: function( mgr ) {
-                return [
-                    { type: 'JSON',
-                      url: mgr.getConf('dataRoot')+'/hub.json'
-                    }
-                ];
-            }
+            defaultValue: []
           }
       ]
   },
 
   _initDataHubs: function() {
       var hubConf = this.getConf('dataHubs');
+
+      // add our hubUrl to the dataHubs conf if it is not already there
+      var hubUrl;
+      if(( hubUrl = this.getConf('hubUrl') ) && ! array.some( hubConf, function(c) { return c.url == hubUrl; } )) {
+          hubConf.push({ url: this.getConf('hubUrl') });
+      }
+
+      // instantiate objects for all our dataHub confs
       this._dataHubs = {};
       var ops = array.map( hubConf, function(c) {
-          return this.addDataHub( c );
+          return this.addDataHub( c, true );
       }, this );
       ops.push( this._initTrackMetadata() );
       return all( ops );
@@ -67,10 +69,13 @@ return declare( null, {
   },
 
   // add a data hub from configuration.  returns a Deferred for the new datahub object.
-  addDataHub: function( conf ) {
-      var hubConf = this.getConf('dataHubs');
-      hubConf[conf.url] = conf;
-      this.setConf( 'dataHubs', hubConf );
+  addDataHub: function( conf, skipConfUpdate ) {
+      if( ! skipConfUpdate ) {
+          var hubConf = this.getConf('dataHubs');
+          if( ! array.some( hubConf, function( c ) { return c.url == conf.url; }) )
+              hubConf.push( conf );
+          this.setConf( 'dataHubs', hubConf );
+      }
 
       if( !( 'type' in conf ) && conf.url ) {
           conf.type =
@@ -115,7 +120,7 @@ return declare( null, {
 
   getDataHub: function( url ) {
       // return a specific one if possible
-      if( url || ( url = this.getConf('displayedDataHubUrl') ) || url == 'default' && ( url = this.getConf('defaultDataHubUrl') ) )
+      if( url || ( url = this.getConf('hubUrl') ) || url == 'default' && ( url = this.getConf('defaultDataHubUrl') ) )
           return this._dataHubs[url];
 
       // otherwise just return the first one in storage

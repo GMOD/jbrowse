@@ -134,7 +134,7 @@ _addHubFromPrompt: function() {
                                       .then( function() {
                                                  if( data.switchTo )
                                                      thisB.get('app')
-                                                     .setConf('displayedDataHubUrl', hub.getConf('url') );
+                                                     .setConf('hubUrl', hub.getConf('url') );
                                              });
                               });
                });

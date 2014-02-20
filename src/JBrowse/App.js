@@ -37,7 +37,6 @@ return declare(
 
 configSchema: {
         slots: [
-            { name: 'dataRoot', type: 'string', defaultValue: "data" },
             { name: 'exactReferenceSequenceNames', type: 'boolean', defaultValue: false },
             { name: 'logMessages', type: 'boolean', defaultValue: false }
         ]

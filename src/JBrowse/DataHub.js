@@ -93,9 +93,12 @@ return declare( Component, {
 
   getDisplayedReferenceSets: function() {
       var names = this.getConf('displayedReferenceSetNames');
-      if( ! names.length )
+      if( ! names.length && this.getConf('defaultReferenceSetName') )
           names = [ this.getConf('defaultReferenceSetName') ];
-      return all( array.map( names, this.getReferenceSet, this ) );
+      return all( array.map( names, this.getReferenceSet, this ) )
+          .then( function( sets ) {
+                 return array.filter( sets, function(s) { return !!s; } );
+             });
   },
 
   getTrack: function( trackName ) {

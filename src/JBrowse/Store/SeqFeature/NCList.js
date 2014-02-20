@@ -50,7 +50,7 @@ return declare( SeqFeatureStore,
             },
             { name: 'nameUrl', type: 'string',
               defaultValue: function(b) {
-                  return b.getConf('dataRoot')+'/names/root.json';
+                  return b.getConf('url')+'/names/root.json';
               }
             },
             { name: 'names', type: 'object', defaultValue: {} }
