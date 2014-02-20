@@ -121,6 +121,25 @@ _updateCurrentHubPane: function() {
     });
 },
 
+// prompts the user to open a new hub by browsing, searching, or
+// typing a URL, then opens it
+_addHubFromPrompt: function() {
+    var thisB = this;
+    return new AddHubDialog({ browser: thisB.get('app') })
+        .prompt()
+        .then( function( data ) {
+                   return thisB.get('app').addDataHub({ url: data.url })
+                       .then( function( hub ) {
+                                  return thisB._addAvailableHub( hub )
+                                      .then( function() {
+                                                 if( data.switchTo )
+                                                     thisB.get('app')
+                                                     .setConf('displayedDataHubUrl', hub.getConf('url') );
+                                             });
+                              });
+               });
+},
+
 _renderHeader: function() {
     var thisB = this;
     var pane = new ContentPane(
@@ -132,16 +151,9 @@ _renderHeader: function() {
                        { label: 'Add hub',
                          className: 'addHubButton',
                          onClick: function() {
-                             return new AddHubDialog({ browser: thisB.get('app') })
-                                 .prompt()
-                                 .then( function( data ) {
-                                            return thisB.get('app').addDataHub({ url: data.url })
-                                            .then( function(hub) {
-                                                       return thisB._addAvailableHub(hub);
-                                                   });
-                                        });
+                             thisB._addHubFromPrompt();
                          },
-                         iconClass: 'jbrowseIconAddWhite'
+                         iconClass: 'jbrowseIconAdd'
                        }));
     var closeButton = domConstruct.create( 'div', { className: 'closeButton' }, pane.domNode );
     on( closeButton, 'click', function() {
