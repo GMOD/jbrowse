@@ -498,18 +498,22 @@ renderMenuBar: function( menuBar ) {
 
 
     // make the file menu
-    this.addGlobalMenuItem( 'file',
-                            new dijitMenuItem(
-                                {
-                                    label: 'Data hubs',
-                                    iconClass: 'dijitIconFolderOpen',
-                                    onClick: function() {
-                                        new DataHubManagerView({ app: thisB })
-                                            .fadeInAt( thisB.topLevelContainerNode )
-                                            .startup();
-                                    }
-                                })
-                          );
+    // TODO: finish Data Hub editing and adding UI, then re-enable the
+    // Data Hubs menu
+    // this.addGlobalMenuItem( 'file',
+    //                         new dijitMenuItem(
+    //                             {
+    //                                 label: 'Data hubs',
+    //                                 iconClass: 'dijitIconFolderOpen',
+    //                                 onClick: function() {
+    //                                     new DataHubManagerView({ app: thisB })
+    //                                         .fadeInAt( thisB.topLevelContainerNode )
+    //                                         .startup();
+    //                                 }
+    //                             })
+    //                       );
+
+
     this.addGlobalMenuItem( 'file',
                             new dijitMenuItem(
                                 {
