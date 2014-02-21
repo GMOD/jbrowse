@@ -7,7 +7,7 @@ define([
            'JBrowse/Util',
            'dojo/has'
        ],
-       function( declare, dom, Toolbar, Button, Util ) {
+       function( declare, dom, Toolbar, Button, Util, has ) {
 
 return declare(null,
 {
