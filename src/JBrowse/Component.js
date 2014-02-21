@@ -7,22 +7,22 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
+
            'JBrowse/Util',
-           'JBrowse/_MessagingMixin',
            'JBrowse/_ConfigurationMixin'
        ],
        function(
            declare,
            lang,
            array,
+
            Util,
-           MessagingMixin,
            ConfigurationMixin
        ) {
 
 var serialNumber = 0;
 
-var Component = declare( [ MessagingMixin, ConfigurationMixin ], {
+var Component = declare( [ ConfigurationMixin ], {
 
     constructor: function( args ) {
         args = args || {};
