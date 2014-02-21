@@ -448,7 +448,9 @@ initDataViews: function() {
                                 );
                             });
 
-                            thisB.views[ thisB.views.length - 1 ].region = 'center';
+                            if( thisB.views.length )
+                                thisB.views[ thisB.views.length - 1 ].region = 'center';
+
                             array.forEach( thisB.views, function(v) {
                                 thisB.containerWidget.addChild( v );
                             }, thisB );
