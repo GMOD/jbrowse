@@ -5,327 +5,183 @@ define([
            'dojo/_base/event',
            'dojo/dom-construct',
            'dojo/dom-class',
-           'dojo/dom-geometry',
-           'dojo/on',
-           'dojo/mouse',
-           'dojo/dnd/move',
-           'dojo/dnd/Source',
-           'dojo/keys',
-           'dojo/json',
-           'dojo/query',
+           'dojo/promise/all',
+           'dojo/when',
+           'dojo/aspect',
 
-           'dijit/layout/_LayoutWidget',
-           'dijit/focus',
-           'dijit/form/ComboBox',
-           'dijit/form/Button',
-           'dijit/form/Select',
-           'dijit/form/HorizontalSlider',
+           'dijit/registry',
+           'dijit/layout/BorderContainer',
+           'dijit/Menu',
+           'dijit/MenuItem',
 
            'JBrowse/Util',
+           'JBrowse/Util/ListenerSet',
            'JBrowse/has',
            'JBrowse/Component',
-           'JBrowse/FeatureFiltererMixin',
-           'JBrowse/View/Track/LocationScale',
-           'JBrowse/View/Track/GridLines',
-           'JBrowse/View/Track/RegionHighlights',
-           'JBrowse/BehaviorManager',
-           './RegionBrowser/Animation/Zoomer',
-           './RegionBrowser/Animation/Slider',
-           'JBrowse/View/Dialog/Info',
-           'JBrowse/Model/SimpleFeature'
-       ], function(
+           'JBrowse/_FeatureFiltererMixin',
+           'JBrowse/Projection/CanonicalContinuousLinear',
+           'JBrowse/Projection/Circular',
+           'JBrowse/Projection/Discontinuous/FromStore',
+
+           'JBrowse/View/Track',
+           'JBrowse/View/Track/BlockList',
+           'JBrowse/View/Track/BlockList/Block',
+           './RegionBrowser/LocationScale',
+           './RegionBrowser/Gridlines',
+           './RegionBrowser/TrackPane',
+           './RegionBrowser/BehaviorMixin',
+           'JBrowse/Model/ViewLocation'
+       ],
+       function(
            declare,
            array,
            lang,
            dojoEvent,
            domConstruct,
            domClass,
-           domGeom,
-           on,
-           mouse,
-           dndMove,
-           dndSource,
-           keys,
-           JSON,
-           query,
+           all,
+           when,
+           aspect,
 
-           dijitBase,
-           dijitFocus,
-           dijitComboBox,
-           dijitButton,
-           dijitSelectBox,
-           dijitSlider,
+           dijitRegistry,
+           dijitBorderContainer,
+           dijitDropDownMenu,
+           dijitMenuItem,
 
            Util,
+           ListenerSet,
            has,
            Component,
            FeatureFiltererMixin,
-           LocationScaleTrack,
-           GridLinesTrack,
-           RegionHighlightsTrack,
-           BehaviorManager,
-           Zoomer,
-           Slider,
-           InfoDialog,
-           SimpleFeature
+           CanonicalLinearProjection,
+           CircularProjection,
+           RegionsProjection,
+
+           TrackWidget,
+           RenderingBlockList,
+           RenderingBlock,
+           ScaleBar,
+           Gridlines,
+           TrackPane,
+           BehaviorMixin,
+           ViewLocation
        ) {
-
-var dojof = Util.dojof;
-
-/**
- * Main view class, shows a scrollable, horizontal view of annotation
- * tracks.  NOTE: All coordinates are interbase.
- * @class
- * @constructor
- */
 
 var serialNumber = 0;
 
-return declare( [dijitBase,Component,FeatureFiltererMixin], {
+return declare( [dijitBorderContainer,Component,BehaviorMixin,FeatureFiltererMixin], {
 
 splitter: true,
+gutters: false,
 baseClass: 'regionBrowserPane',
-stripeWidth: 250,
-pxPerBp: 1/200,
+design: 'sidebar',
 
 // activate manual constructor chaining
 "-chains-": { constructor: 'manual' },
 
 constructor: function( args ) {
-    this.browser = args.browser;
-
+    this.app = this.browser = args.browser;
     this._finalizeConfig( args.baseConfig || args.config, args.localConfig );
+    this.serialNumber = ++serialNumber;
 
-    this.className = this.getConf('className');
     this.region = this.getConf('region');
     this.style  = this.getConf('style');
-    this.serialNumber = ++serialNumber;
 
     if( this.getConf('parentViewName') )
         this.parentView = this.browser.getView( this.getConf('parentViewName') );
 
     this.inherited( arguments );
     FeatureFiltererMixin.prototype.constructor.call( this, args );
-},
 
-buildRendering: function() {
-    this.inherited( arguments );
+    this._blockListeners = new ListenerSet();
 
-    domClass.add( this.domNode, this.className );
-
-    // space between controls and topmost track.  scale bar goes in here also.
-    this.topSpace = 17;
-
-    // keep a reference to the main browser object
-    this.setFeatureFilterParentComponent( this.browser );
-    this.maxPxPerBp = this.getConf('maxPxPerBp');
-
-    //the page element that the GenomeView lives in
-    this.createSearchControls( this.domNode );
-
-    this.elem = domConstruct.create('div', {
-        className: 'dragWindow', style: "width: 100%; height: 100%; position: absolute"
-    }, this.domNode );
-
-    this.zoomContainer = domConstruct.create(
-        'div',{ style: "position: absolute; left: 0px; top: 0px; height: 100%;" },
-        this.elem );
-
-    this.containerNode = this.trackContainer = domConstruct.create(
-        'div', { className: "trackContainer innerTrackContainer draggable",
-                 style: "height: 100%;" },
-        this.zoomContainer );
-
-    //width, in pixels of the "regular" (not min or max zoom) stripe
-    this.regularStripe = this.stripeWidth;
-
-    this.tracks = [];
-    this.uiTracks = [];
-    this.trackIndices = {};
-
-    //distance, in pixels, between each track
-    this.trackPadding = 20;
-    //extra margin to draw around the visible area, in multiples of the visible area
-    //0: draw only the visible area; 0.1: draw an extra 10% around the visible area, etc.
-    this.drawMargin = 0.2;
-    //slide distance (pixels) * slideTimeMultiple + 200 = milliseconds for slide
-    //1=1 pixel per millisecond average slide speed, larger numbers are slower
-    this.slideTimeMultiple = 0.8;
-    this.trackHeights = [];
-    this.trackTops = [];
-
-    this.x = this.elem.scrollLeft;
-    this.y = 0;
-
-    this.browser.subscribe( '/jbrowse/v1/c/redrawGenomeRegions', lang.hitch( this, 'redrawRegions' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    lang.hitch( this, 'showTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    lang.hitch( this, 'hideTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/replace', lang.hitch( this, 'replaceTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/delete',  lang.hitch( this, 'hideTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/pin',     lang.hitch( this, 'pinTracks' ));
-    this.browser.subscribe( '/jbrowse/v1/c/tracks/unpin',   lang.hitch( this, 'unpinTracks' ));
-
-    var initialLoc    = this.getConf('initialLocation');
-    var initialTracks = this.getConf('initialTracks');
-
-    // fetch the refseq store and the ref seq before we can continue
-    // initializing our view, because we need its length.
     var thisB = this;
-    this.initialized = this.browser.getStoreDeferred( 'refseqs' )
-        .then(
-            function( refStore ) {
-                var q = { limit: 1 };
-                if( initialLoc )
-                    q.name = initialLoc.ref;
-                return refStore.getReferenceFeatures(q)
-                    .first(
-                        function(ref) {
-                            // convert the feature to a bare object
-                            return thisB._finishInitialization( ref );
-                        },
-                        function(e) {
-                            console.error( e.stack || ''+e );
-                            throw e;
-                        }
-                    );
-            });
-},
-
-_finishInitialization: function( refseq ) {
-    //the reference sequence
-    this.ref = refseq;
-
-    //set up size state (zoom levels, stripe percentage, etc.)
-    this.sizeInit();
-
-    //distance, in pixels, from the beginning of the reference sequence
-    //to the beginning of the first active stripe
-    //  should always be a multiple of stripeWidth
-    this.offset = 0;
-    //largest value for the sum of this.offset and this.getX()
-    //this prevents us from scrolling off the right end of the ref seq
-    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
-    //smallest value for the sum of this.offset and this.getX()
-    //this prevents us from scrolling off the left end of the ref seq
-    this.minLeft = this.bpToPx(this.ref.get('start'));
-
-    // make the scale track
-    var scaleTrackDiv = document.createElement("div");
-    scaleTrackDiv.className = "track viewscale rubberBandAvailable";
-    this.scaleTrackDiv = scaleTrackDiv;
-    this.staticTrack = new LocationScaleTrack({
-        label: "static_track",
-        labelClass: "pos-label",
-        browser: this.browser,
-        refSeq: this.ref,
-
-        genomeView: this,
-        numBlocks: this.stripeCount,
-        trackDiv: this.scaleTrackDiv,
-        widthPct: this.stripePercent,
-        widthPx: this.stripeWidth,
-        scale: this.pxPerBp
+    // when our "location" conf var is set, go to that location
+    this.watchConf( 'location', function( path, oldloc, newloc ) {
+        thisB._updateProjection({ location: newloc });
     });
 
-    this.zoomContainer.appendChild(this.scaleTrackDiv);
+    // when our reference sequence set changes, update the projection
+    this.watch( 'referenceSet', function( path, oldref, newref ) {
+        thisB._updateProjection({ referenceSet: newref });
+    });
 
-    this.uiTracks = [ this.staticTrack ];
-
-    if( this.getConf('gridlines') ) {
-        var gridTrackDiv = document.createElement("div");
-        gridTrackDiv.className = "track";
-        gridTrackDiv.style.cssText = "top: 0px; height: 100%;";
-        var gridTrack = new GridLinesTrack(
-            {
-                browser: this.browser,
-                genomeView: this,
-                refSeq: this.ref,
-                numBlocks: this.stripeCount,
-                trackDiv: gridTrackDiv,
-                widthPct: this.stripePercent,
-                widthPx: this.stripeWidth,
-                scale: this.pxPerBp
-            });
-        this.trackContainer.appendChild(gridTrackDiv);
-        this.uiTracks.push( gridTrack );
-    }
-
-    var highlightsTrack = this.highlightsTrack = new RegionHighlightsTrack(
-        {
-            browser: this.browser,
-            genomeView: this,
-            refSeq: this.ref,
-            numBlocks: this.stripeCount,
-            trackDiv: domConstruct.create( 'div', { className: 'track', style: "top: 0px; height: 100%" },
-                                           this.trackContainer ),
-            widthPct: this.stripePercent,
-            widthPx: this.stripeWidth,
-            scale: this.pxPerBp
+    // when we get a new projection, make a new blocklist for it
+    this.watch( 'projection',
+        function( name, oldProjection, newProjection ) {
+            thisB._makeRenderingBlockList( newProjection );
         });
-    this.uiTracks.push( highlightsTrack );
-
-    this._renderVerticalScrollBar();
-
-    // accept tracks being dragged into this
-    this.trackDndWidget =
-        new dndSource(
-            this.trackContainer,
-            {
-                accept: ["track"], //accepts only tracks into the viewing field
-                withHandles: true,
-                copyOnly: true,
-                creator: lang.hitch( this, function( trackConfig, hint ) {
-                    return {
-                        data: trackConfig,
-                        type: ["track"],
-                        node: hint == 'avatar'
-                                 ? domConstruct.create('div', { innerHTML: trackConfig.key || trackConfig.label, className: 'track-label dragging' })
-                                 : this.renderTrack( trackConfig )
-                    };
-                })
-            });
-
-    // subscribe to showTracks commands
-    this.browser.subscribe(
-        '/dnd/drop',
-        lang.hitch(
-            this,
-            function( source, nodes, copy, target ) {
-                this.updateTrackList();
-                if( target.node === this.trackContainer ) {
-                    // if dragging into the trackcontainer, we are showing some tracks
-                    // get the configs from the tracks being dragged in
-                    var confs = array.filter( array.map( nodes, function(n) {
-                                                           return n.track && n.track.config;
-                                                       }),
-                                             function(c) {return c;}
-                                           );
-                    this.browser.publish( '/jbrowse/v1/v/tracks/show', confs );
-                }
-            }
-        )
-    );
-
-    //this.showCoarse();
-
-    // initialize the behavior manager used for setting what this view
-    // does (i.e. the behavior it has) for mouse and keyboard events
-    this.behaviorManager = new BehaviorManager({ context: this, behaviors: this._behaviors() });
-    this.behaviorManager.initialize();
-
-    this.setLocation( this.ref, this.ref.get('start'), this.ref.get('end'), this.getConf('initialTracks') );
 },
 
- /**
- * Returns object with all that's necessary to reconstruct this view's
- * current state.
- */
-getState: function() {
-    var s = this.inherited(arguments);
-    var height = this.domNode.style.height || '';
-    if( /%/.test( height ) )
-        s.style = { height: this.domNode.style.height };
-    return s;
+// layout: function() {
+//     this.inherited(arguments);
+//     this._updateProjection();
+// },
+
+_makeRenderingBlockList: function( projection ) {
+    if( this.get('blockList') )
+        this.get('blockList').destroy();
+    this.set( 'blockList', new RenderingBlockList(
+        {
+            projection: projection,
+            viewportNode: this.domNode,
+            newBlock: lang.hitch( this, '_makeRenderingBlock' )
+        }));
+},
+
+// makes a new projection block for the projection blocklist
+_makeRenderingBlock: function( args, projectionChange ) {
+    var block = new RenderingBlock( args );
+    this._blockListeners.notify(
+        { operation: 'new',
+          projectionChange: projectionChange,
+          animating: projectionChange && projectionChange.animating
+        },
+        block
+    );
+    return block;
+},
+
+// get the displayed track widget in this region view for
+// a certain track hub and track, if present
+_getTrackWidgetByName: function( hubName, trackName ) {
+    if( ! this.trackPane )
+        return undefined;
+
+    var widget;
+    array.some( this.trackPane.getChildren(), function( childWidget ) {
+                    try {
+                        var track = childWidget.getTrack();
+                        if( track.getDataHub().getConf('name') == hubName
+                            && track.getConf('name') == trackName
+                          )
+                            return widget = childWidget;
+                    } catch(e) {}
+                    return false;
+                });
+    return widget;
+},
+
+// get the displayed track widget in this region view for
+// a certain track hub and track, if present
+_getTrackWidgetForTrack: function( trackObject ) {
+    if( ! this.trackPane )
+        return undefined;
+
+    var widget;
+    array.some( this.trackPane.getChildren(), function(child) {
+                    try {
+                        if( child.getTrack() === trackObject )
+                            return widget = child;
+                    } catch(e) {}
+                    return false;
+                });
+    return widget;
+},
+
+// register a callback to be notified of changes to rendering blocks
+watchRenderingBlocks: function( callback ) {
+    return this._blockListeners.add( callback );
 },
 
 configSchema: {
@@ -335,2360 +191,354 @@ configSchema: {
               return 'View '+view.serialNumber;
           }
         },
+
+        { name: 'refSeqSelectorMaxSize', type: 'integer', defaultValue: 30 },
         { name: 'parentViewName', type: 'string', defaultValue: '' },
         { name: 'className', type: 'string', defaultValue: 'colorScheme1' },
         { name: 'region', type: 'string', defaultValue: 'center' },
         { name: 'style', type: 'string|object' },
         { name: 'maxPxPerBp', type: 'integer', defaultValue: 20 },
-        { name: 'gridlines', type: 'boolean', defaultValue: true },
-        { name: 'initialTracks', type: 'multi-string' },
-        { name: 'initialLocation', type: 'object' },
-        { name: 'locationBoxLength', type: 'integer' }
+
+        { name: 'gridlines', type: 'boolean', defaultValue: true,
+          description: 'if true, draw grid lines'
+        },
+
+        { name: 'visibleTracks', type: 'multi-string',
+          defaultValue: [
+              'Transcripts'
+          ]
+          //defaultValue: []
+        },
+
+        { name: 'location', type: 'object' },
+
+        { name: 'slideAnimationDuration', type: 'integer', defaultValue: 1100,
+          description: 'duration in milliseconds of "slide" animations,'
+                       + ' where the view scrolls a set amount left or right'
+        },
+        { name: 'zoomAnimationDuration', type: 'integer', defaultValue: 500,
+          description: 'duration in milliseconds of "zoom" animations, where'
+                       + ' the view zooms in or out'
+        }
     ]
 },
 
-/**
- * @returns {Object} containing ref, start, and end members for the currently displayed location
- */
-visibleRegion: function() {
-    if( ! this.ref )
-        return null;
+// from dijit
+buildRendering: function() {
+    this.inherited( arguments );
 
-    return new SimpleFeature({ data: {
-               seq_id: this.ref.get('name'),
-               start:  this.minVisible(),
-               end:    this.maxVisible()
-           }});
-},
+    domClass.add( this.domNode, this.getConf('className') );
 
-/**
- * @returns {String} locstring representation of the current location<br>
- * (suitable for passing to the browser's navigateTo)
- */
-visibleRegionLocString: function() {
-    return Util.assembleLocString( this.visibleRegion() );
-},
+    this.containerNode = this.domNode;
 
-/**
- * Create and place the elements for the vertical scrollbar.
- * @private
- */
-_renderVerticalScrollBar: function() {
-    var container = domConstruct.create(
-        'div',
-        {
-            className: 'vertical_scrollbar'
-        },
-        this.domNode
-    );
+    this.menu = this.makeViewMenu();
+    this.addChild( this.scalebar = new ScaleBar(
+                       { region: 'top', browser: this.browser,
+                         genomeView: this, viewMenu: this.menu
+                       }) );
 
-    var positionMarker = domConstruct.create(
-        'div',
-        {
-            className: 'vertical_position_marker',
-            style: 'position: absolute'
-        },
-        container
-    );
-    this.verticalScrollBar = { container: container, positionMarker: positionMarker, width: container.offsetWidth };
+    // create our track pane and pinned-track pane
+    //this.addChild( this.pinPane   = new PinPane({ region: 'top', browser: this.browser, genomeView: this }) );
+    this.addChild( this.trackPane = new TrackPane({ region: 'center', browser: this.browser, genomeView: this }) );
 
-    this._updateVerticalScrollBar( { y: this.getY(), height: this.getHeight() } );
-},
+    this.gridlines = new Gridlines({ browser: this.browser, genomeView: this });
+    this.trackPane.domNode.appendChild( this.gridlines.domNode );
 
-/**
- * Update the position and look of the vertical scroll bar as our
- * y-scroll offset changes.
- * @private
- */
-_updateVerticalScrollBar: function( newDims ) {
-    if( ! this.verticalScrollBar )
-        return;
-
-    if( typeof newDims.height == 'number' ) {
-
-        var containerTop = this.elem.offsetTop + this.scaleTrackDiv.offsetHeight;
-
-        this.verticalScrollBar.container.style.top = containerTop+'px';
-        this.verticalScrollBar.container.style.height = newDims.height-this.scaleTrackDiv.offsetHeight+'px';
-
-        var markerHeight = newDims.height / (this.containerHeight||1) * 100;
-        this.verticalScrollBar.positionMarker.style.height = markerHeight > 0.5 ? markerHeight+'%' :  '1px';
-
-        if( newDims.height / (this.containerHeight||1) > 0.98 ) {
-            this.verticalScrollBar.container.style.display = 'none';
-            this.verticalScrollBar.visible = false;
-        } else {
-            this.verticalScrollBar.container.style.display = 'block';
-            this.verticalScrollBar.visible = true;
-        }
-    }
-
-    if( typeof newDims.y == 'number' || typeof newDims.height == 'number' ) {
-        this.verticalScrollBar.positionMarker.style.top    = (((newDims.y || this.getY() || 0) / (this.containerHeight||1) * 100 )||0)+'%';
-    }
-},
-
-verticalScrollBarVisibleWidth: function() {
-    return this.verticalScrollBar.visible && this.verticalScrollBar.width || 0;
-},
-
-/**
- * @returns {Array[Track]} of the tracks that are currently visible in
- * this genomeview
- */
-visibleTracks: function() {
-    return this.tracks;
-},
-
-/**
- *  @returns {Array[String]} of the names of tracks that are currently visible in this genomeview
- */
-visibleTrackNames: function() {
-    return array.map( this.visibleTracks(), function(t){ return t.name; } );
-},
-
-/**
- * Called in response to a keyboard or mouse event to slide the view
- * left or right.
- */
-keySlideX: function( offset ) {
-    this.setX( this.getX() + offset );
-
+    // show all the configured tracks
     var thisB = this;
-    if( ! this._keySlideTimeout )
-        this._keySlideTimeout = window.setTimeout(
-            function() {
-                thisB.afterSlide();
-                delete thisB._keySlideTimeout;
-            }, 300 );
-},
-
-
-/**
- * Behaviors (event handler bundles) for various states that the
- * GenomeView might be in.
- * @private
- * @returns {Object} description of behaviors
- */
-_behaviors: function() { var thisB = this; return {
-
-    // behaviors that don't change
-    always: {
-        apply_on_init: true,
-        apply: function() {
-            var handles = [];
-
-            var wheelevent = "wheel" in document.createElement("div") ? "wheel"      :
-                                    document.onmousewheel !== undefined ? "mousewheel" :
-                                                                          "DOMMouseScroll";
-            handles.push(
-                on( this.elem,     wheelevent, lang.hitch( this, 'wheelScroll' )),
-
-                on( this.scaleTrackDiv,       "mousedown",
-                              lang.hitch( this, 'startRubberZoom',
-                                          lang.hitch( this,'absXtoBp'),
-                                          this.zoomContainer,
-                                          this.scaleTrackDiv
-                                        )
-                            ),
-
-                on( this.zoomContainer, "dblclick",  lang.hitch( this, 'doubleClickZoom' )),
-
-
-
-                on( this.scaleTrackDiv,       "click",        lang.hitch( this,  'scaleClicked'   )),
-                on( this.scaleTrackDiv,       "mouseover",      lang.hitch( this,  'scaleMouseOver' )),
-                on( this.scaleTrackDiv,       "mouseout",       lang.hitch( this,  'scaleMouseOut'  )),
-                on( this.scaleTrackDiv,       "mousemove",      lang.hitch( this,  'scaleMouseMove' )),
-
-                on( document.body, 'keyup', function(evt) {
-                    if( evt.keyCode == keys.SHIFT ) // shift
-                        thisB.behaviorManager.swapBehaviors( 'shiftMouse', 'normalMouse' );
-                }),
-                on( document.body, 'keydown', function(evt) {
-                    // if some digit widget is focused, don't move the
-                    // genome view with arrow keys
-                    if( dijitFocus.curNode )
-                        return;
-
-                    if( evt.keyCode == keys.SHIFT ) { // shift
-                        thisB.behaviorManager.swapBehaviors( 'normalMouse', 'shiftMouse' );
-                        return;
-                    }
-
-                    // scroll the view around in response to keyboard arrow keys
-                    if( evt.keyCode == keys.LEFT_ARROW || evt.keyCode == keys.RIGHT_ARROW ) {
-                        var offset = evt.keyCode == keys.LEFT_ARROW ? -40 : 40;
-                        if( evt.shiftKey )
-                            offset *= 5;
-                        thisB.keySlideX( offset );
-                    }
-                    else if( evt.keyCode == keys.DOWN_ARROW || evt.keyCode == keys.UP_ARROW ) {
-                        // shift-up/down zooms in and out
-                        if( evt.shiftKey ) {
-                            thisB[ evt.keyCode == keys.UP_ARROW ? 'zoomIn' : 'zoomOut' ]( evt, 0.5, evt.altKey ? 2 : 1 );
-                        }
-                        // without shift, scrolls up and down
-                        else {
-                            var offset = evt.keyCode == keys.UP_ARROW ? -40 : 40;
-                            thisB.setY( thisB.getY() + offset );
-                        }
-                    }
-                }),
-
-                // when the track pane is clicked, unfocus any dijit
-                // widgets that would otherwise not give up the focus
-                on( this.elem, 'click', function(evt) {
-                    dijitFocus.curNode && dijitFocus.curNode.blur();
-                })
-            );
-            return handles;
-        }
-    },
-
-    // mouse events connected for "normal" behavior
-    normalMouse: {
-        apply_on_init: true,
-        apply: function() {
-            return [
-                on( this.zoomContainer,  "mousedown", lang.hitch( this, 'startMouseDragScroll' )),
-                on( this.verticalScrollBar.container, "mousedown", lang.hitch( this, 'startVerticalMouseDragScroll'))
-            ];
-        }
-    },
-
-    // mouse events connected when we are in 'highlighting' mode,
-    // where dragging the mouse sets the global highlight
-    highlightingMouse: {
-        apply: function() {
-            dojo.removeClass(this.trackContainer,'draggable');
-            domClass.add(this.trackContainer,'highlightingAvailable');
-            return [
-                on( this.zoomContainer, "mousedown",
-                              lang.hitch( this, 'startMouseHighlight',
-                                          lang.hitch(this,'absXtoBp'),
-                                          this.zoomContainer,
-                                          this.scaleTrackDiv
-                                        )
-                            ),
-                on( this.zoomContainer, "mouseover", lang.hitch( this, 'maybeDrawVerticalPositionLine' )),
-                on( this.zoomContainer, "mousemove", lang.hitch( this, 'maybeDrawVerticalPositionLine' ))
-            ];
-        },
-        remove: function( mgr, handles ) {
-            array.forEach( handles, dojo.disconnect, dojo );
-            dojo.removeClass(this.trackContainer,'highlightingAvailable');
-            domClass.add(this.trackContainer,'draggable');
-        }
-    },
-
-    // mouse events connected when the shift button is being held down
-    shiftMouse: {
-        apply: function() {
-            dojo.removeClass(this.trackContainer,'draggable');
-            domClass.add(this.trackContainer,'rubberBandAvailable');
-            return [
-                on( this.zoomContainer, "mousedown",
-                              lang.hitch( this, 'startRubberZoom',
-                                          lang.hitch(this,'absXtoBp'),
-                                          this.zoomContainer,
-                                          this.scaleTrackDiv
-                                        )
-                            ),
-                on( this.zoomContainer, "click",   lang.hitch( this, 'scaleClicked'                  )),
-                on( this.zoomContainer, "mouseover", lang.hitch( this, 'maybeDrawVerticalPositionLine' )),
-                on( this.zoomContainer, "mousemove", lang.hitch( this, 'maybeDrawVerticalPositionLine' ))
-            ];
-        },
-        remove: function( mgr, handles ) {
-            this.clearBasePairLabels();
-            this.clearVerticalPositionLine();
-            array.forEach( handles, dojo.disconnect, dojo );
-            dojo.removeClass(this.trackContainer,'rubberBandAvailable');
-            domClass.add(this.trackContainer,'draggable');
-        }
-    },
-
-    // mouse events that are connected when we are in the middle of a
-    // drag-scrolling operation
-    mouseDragScrolling: {
-        apply: function() {
-            return [
-                on(document.body, "mouseup",   lang.hitch( this, 'dragEnd'      )),
-                on(document.body, "mousemove", lang.hitch( this, 'dragMove'     )),
-                on(document.body, "mouseout",  lang.hitch( this, 'checkDragOut' ))
-            ];
-        }
-    },
-
-    // mouse events that are connected when we are in the middle of a
-    // vertical-drag-scrolling operation
-    verticalMouseDragScrolling: {
-        apply: function() {
-            return [
-                on(document.body, "mouseup",   lang.hitch( this, 'dragEnd'         )),
-                on(document.body, "mousemove", lang.hitch( this, 'verticalDragMove')),
-                on(document.body, "mouseout",  lang.hitch( this, 'checkDragOut' ))
-            ];
-        }
-    },
-
-    // mouse events that are connected when we are in the middle of a
-    // rubber-band zooming operation
-    mouseRubberBanding: {
-        apply: function() {
-            return [
-                on(document.body, "mouseup",    lang.hitch( this, 'rubberExecute' )),
-                on(document.body, "mousemove",  lang.hitch( this, 'rubberMove'    )),
-                on(document.body, "mouseout",   lang.hitch( this, 'rubberCancel'  )),
-                on(window,        "keydown",  function(e){
-                                 if( e.keyCode !== keys.SHIFT )
-                                     thisB.rubberCancel(e);
+    all( array.map( this.getConf('visibleTracks'), function( tRec ) {
+                       return thisB.browser.getTrack( undefined, tRec );
+                   })
+       ).then( function( trackObjects ) {
+           return thisB.showTracks(
+               array.filter( trackObjects, function(o){
+                                 return o;
                              })
-            ];
-        }
-    }
-};},
-
-wheelScroll: function( event ) {
-
-    if ( !event )
-        event = window.event;
-
-    // if( window.WheelEvent )
-    //     event = window.WheelEvent;
-
-    var delta = { x: 0, y: 0 };
-    if( 'wheelDeltaX' in event ) {
-        delta.x = event.wheelDeltaX/2;
-        delta.y = event.wheelDeltaY/2;
-    }
-    else if( 'deltaX' in event ) {
-        delta.x = event.deltaX*-40;
-        delta.y = event.deltaY*-10;
-    }
-    else if( event.wheelDelta ) {
-        delta.y = event.wheelDelta/2;
-        if( window.opera )
-            delta.y = -delta.y;
-    }
-    else if( event.detail ) {
-        delta.y = -event.detail*100;
-    }
-
-    delta.x = Math.round( delta.x * 2 );
-    delta.y = Math.round( delta.y );
-
-    if( delta.x )
-        this.keySlideX( -delta.x );
-    if( delta.y )
-        // 60 pixels per mouse wheel event
-        this.setY( this.getY() - delta.y );
-
-    //the timeout is so that we don't have to run showVisibleBlocks
-    //for every scroll wheel click (we just wait until so many ms
-    //after the last one).
-    if ( this.wheelScrollTimeout )
-        window.clearTimeout( this.wheelScrollTimeout );
-
-    // 100 milliseconds since the last scroll event is an arbitrary
-    // cutoff for deciding when the user is done scrolling
-    // (set by a bit of experimentation)
-    this.wheelScrollTimeout = window.setTimeout( lang.hitch( this, function() {
-        this.showVisibleBlocks();
-        this.wheelScrollTimeout = null;
-    }, 100));
-
-    dojoEvent.stop(event);
+           );
+       })
+      .then( undefined, Util.logError );
 },
 
-getX: function() {
-    return this.x || 0;
-},
-
-getY: function() {
-    return this.y || 0;
-},
-
-getHeight: function() {
-    return this.elemBox.h;
-},
-getWidth: function() {
-    return this.elemBox.w;
-},
-
-clampX: function(x) {
-    return Math.round( Math.max( Math.min( this.maxLeft - this.offset, x || 0),
-                                 this.minLeft - this.offset
-                               )
-                     );
-},
-
-clampY: function(y) {
-    return Math.round( Math.min( Math.max( 0, y || 0 ),
-                                 this.containerHeight- this.getHeight()
-                               )
-                     );
-},
-
-rawSetX: function(x) {
-    this.elem.scrollLeft = x;
-    this.x = x;
-},
-
-/**
- * @returns the new x value that was set
- */
-setX: function(x) {
-    x = this.clampX(x);
-    this.rawSetX( x );
-    this.updateStaticElements( { x: x } );
-    this.showVisibleBlocks( 'ui only' );
-    return x;
-},
-
-rawSetY: function(y) {
-    if( this.y != y ) {
-        this.y = y;
-        this.layoutTracks();
-    }
-},
-
-/**
- * @returns the new y value that was set
- */
-setY: function(y) {
-    y = this.clampY(y);
-    this.rawSetY(y);
-    this.updateStaticElements( { y: y } );
-    return y;
-},
-
-/**
- * @private
- */
-rawSetPosition: function(pos) {
-    this.rawSetX( pos.x );
-    this.rawSetY( pos.y );
-    return pos;
-},
-
-/**
- * @param pos.x new x position
- * @param pos.y new y position
- */
-setPosition: function(pos) {
-    var x = this.clampX( pos.x );
-    var y = this.clampY( pos.y );
-    this.updateStaticElements( {x: x, y: y} );
-    this.rawSetX( x );
-    this.rawSetY( y );
-    this.showVisibleBlocks( 'ui only' );
-},
-
-/**
- * @returns {Object} as <code>{ x: 123, y: 456 }</code>
- */
-getPosition: function() {
-    return { x: this.x, y: this.y };
-},
-
-afterSlide: function() {
-    this.showCoarse();
-    this.scrollUpdate();
-    this.showVisibleBlocks();
-},
-
-/**
- * Suppress double-click events in the genome view for a certain amount of time, default 100 ms.
- */
-suppressDoubleClick: function( /** Number */ time ) {
-
-    if( this._noDoubleClick ) {
-        window.clearTimeout( this._noDoubleClick );
-    }
-
+makeViewMenu: function() {
     var thisB = this;
-    this._noDoubleClick = window.setTimeout(
-        function(){ delete thisB._noDoubleClick; },
-        time || 100
-    );
-},
-
-doubleClickZoom: function(event) {
-    if( this._noDoubleClick ) return;
-    if( this.dragging ) return;
-    if( "animation" in this ) return;
-
-    // if we have a timeout in flight from a scaleClicked click,
-    // cancel it, cause it looks now like the user has actually
-    // double-clicked
-    if( this.scaleClickedTimeout ) window.clearTimeout( this.scaleClickedTimeout );
-
-    var zoomLoc = (event.pageX - domGeom.position(this.elem, true).x) / this.getWidth();
-    if (event.shiftKey) {
-    this.zoomOut(event, zoomLoc, 2);
-    } else {
-    this.zoomIn(event, zoomLoc, 2);
-    }
-    dojoEvent.stop(event);
-},
-
-/** @private */
-_beforeMouseDrag: function( event ) {
-    if ( this.animation ) {
-        if (this.animation instanceof Zoomer) {
-            dojoEvent.stop(event);
-            return 0;
-
-        } else {
-            this.animation.stop();
-        }
-    }
-    if (Util.isRightButton(event)) return 0;
-    dojoEvent.stop(event);
-    return 1;
-},
-
-/**
- * Event fired when a user's mouse button goes down inside the main
- * element of the genomeview.
- */
-startMouseDragScroll: function(event) {
-    if( ! this._beforeMouseDrag(event) ) return;
-
-    this.behaviorManager.applyBehaviors('mouseDragScrolling');
-
-    this.dragStartPos = {x: event.clientX,
-                         y: event.clientY};
-    this.winStartPos = this.getPosition();
-},
-
-/**
- * Event fired when a user's mouse button goes down inside the vertical
- * scroll bar element of the genomeview.
- */
-startVerticalMouseDragScroll: function(event) {
-    if( ! this._beforeMouseDrag(event) ) return; // not sure what this is for.
-
-    this.behaviorManager.applyBehaviors('verticalMouseDragScrolling');
-
-    this.dragStartPos = {x: event.clientX,
-                         y: event.clientY};
-    this.winStartPos = this.getPosition();
-},
-
-
-startMouseHighlight: function( absToBp, container, scaleDiv, event ) {
-    if( ! this._beforeMouseDrag(event) ) return;
-
-    this.behaviorManager.applyBehaviors('mouseRubberBanding');
-
-    this.rubberbanding = {
-        absFunc: absToBp,
-        container: container,
-        scaleDiv: scaleDiv,
-        message: 'Highlight region',
-        start: { x: event.clientX, y: event.clientY },
-        execute: function( start, end ) {
-            this.browser.setHighlightAndRedraw({ ref: this.ref.get('name'), start: start, end: end });
-        }
-    };
-
-    this.winStartPos = this.getPosition();
-},
-
-
-/**
- * Start a rubber-band dynamic zoom.
- *
- * @param {Function} absToBp function to convert page X coordinates to
- *   base pair positions on the reference sequence.  Called in the
- *   context of the GenomeView object.
- * @param {HTMLElement} container element in which to draw the
- *   rubberbanding highlight
- * @param {Event} event the mouse event that's starting the zoom
- */
-startRubberZoom: function( absToBp, container, scaleDiv, event ) {
-    if( ! this._beforeMouseDrag(event) ) return;
-
-    this.behaviorManager.applyBehaviors('mouseRubberBanding');
-
-    this.rubberbanding = {
-        absFunc: absToBp,
-        container: container,
-        scaleDiv: scaleDiv,
-        message: 'Zoom to region',
-        start: { x: event.clientX, y: event.clientY },
-        execute: function( h_start_bp, h_end_bp ) {
-            this.setLocation( this.ref, h_start_bp, h_end_bp );
-        }
-    };
-
-    this.winStartPos = this.getPosition();
-    this.clearVerticalPositionLine();
-    this.clearBasePairLabels();
-},
-
-_rubberStop: function(event) {
-    this.behaviorManager.removeBehaviors('mouseRubberBanding');
-    this.hideRubberHighlight();
-    this.clearBasePairLabels();
-    if( event )
-        dojoEvent.stop(event);
-    delete this.rubberbanding;
-},
-
-rubberCancel: function(event) {
-    var htmlNode = document.body.parentNode;
-    var bodyNode = document.body;
-
-    if ( !event || !(event.relatedTarget || event.toElement)
-        || (htmlNode === (event.relatedTarget || event.toElement))
-        || (bodyNode === (event.relatedTarget || event.toElement))) {
-        this._rubberStop(event);
-    }
-},
-
-rubberMove: function(event) {
-    this.setRubberHighlight( this.rubberbanding.start, { x: event.clientX, y: event.clientY } );
-},
-
-rubberExecute: function( event) {
-    var start = this.rubberbanding.start;
-    var end   = { x: event.clientX, y: event.clientY };
-
-    var h_start_bp = Math.floor( this.rubberbanding.absFunc( Math.min(start.x,end.x) ) );
-    var h_end_bp   = Math.ceil(  this.rubberbanding.absFunc( Math.max(start.x,end.x) ) );
-
-    var exec = this.rubberbanding.execute;
-
-    this._rubberStop(event);
-
-    // cancel the rubber-zoom if the user has moved less than 3 pixels
-    if( Math.abs( start.x - end.x ) < 3 ) {
-        return;
-    }
-
-    exec.call( this, h_start_bp, h_end_bp );
-},
-
-// draws the rubber-banding highlight region from start.x to end.x
-setRubberHighlight: function( start, end ) {
-    var container = this.rubberbanding.container,
-        container_coords = domGeom.position(container,true);
-
-    var h = this.rubberHighlight || (function(){
-        var main = this.rubberHighlight = document.createElement("div");
-        main.className = 'rubber-highlight';
-        main.style.position = 'absolute';
-        main.style.zIndex = 20;
-        var text = document.createElement('div');
-        text.appendChild( document.createTextNode( this.rubberbanding.message ) );
-        main.appendChild(text);
-        text.style.position = 'relative';
-        text.style.top = (50-container_coords.y) + "px";
-
-        container.appendChild( main );
-        return main;
-    }).call(this);
-
-    h.style.visibility  = 'visible';
-    h.style.left   = Math.min( start.x, end.x ) - container_coords.x + 'px';
-    h.style.width  = Math.abs( end.x - start.x ) + 'px';
-
-    // draw basepair-position labels for the start and end of the highlight
-    this.drawBasePairLabel({ name: 'rubberLeft',
-                             xToBp: this.rubberbanding.absFunc,
-                             scaleDiv: this.rubberbanding.scaleDiv,
-                             offset: 0,
-                             x: Math.min( start.x, end.x ),
-                             parent: container,
-                             className: 'rubber'
-                           });
-    this.drawBasePairLabel({ name: 'rubberRight',
-                             xToBp: this.rubberbanding.absFunc,
-                             scaleDiv: this.rubberbanding.scaleDiv,
-                             offset: 0,
-                             x: Math.max( start.x, end.x ) + 1,
-                             parent: container,
-                             className: 'rubber'
-                           });
-
-    // turn off the red position line if it's on
-    this.clearVerticalPositionLine();
-},
-
-dragEnd: function(event) {
-    this.behaviorManager.removeBehaviors('mouseDragScrolling', 'verticalMouseDragScrolling');
-
-    dojoEvent.stop(event);
-    this.showCoarse();
-
-    this.scrollUpdate();
-    this.showVisibleBlocks();
-
-    // wait 100 ms before releasing our drag indication, since onclick
-    // events from during the drag might fire after the dragEnd event
-    window.setTimeout(
-        lang.hitch(this,function() {this.dragging = false;}),
-        100 );
-},
-
-/** stop the drag if we mouse out of the view */
-checkDragOut: function( event ) {
-    var htmlNode = document.body.parentNode;
-    var bodyNode = document.body;
-
-    if (!(event.relatedTarget || event.toElement)
-        || (htmlNode === (event.relatedTarget || event.toElement))
-        || (bodyNode === (event.relatedTarget || event.toElement))
-       ) {
-           this.dragEnd(event);
-    }
-},
-
-dragMove: function(event) {
-    this.dragging = true;
-    this.setPosition({
-        x: this.winStartPos.x - (event.clientX - this.dragStartPos.x),
-        y: this.winStartPos.y - (event.clientY - this.dragStartPos.y)
-        });
-    dojoEvent.stop(event);
-},
-
-// Similar to "dragMove". Consider merging.
-verticalDragMove: function(event) {
-    this.dragging = true;
-    var containerHeight = parseInt(this.verticalScrollBar.container.style.height,10);
-    var trackContainerHeight = this.trackContainer.clientHeight;
-     this.setPosition({
-         x: this.winStartPos.x,
-         y: this.winStartPos.y + (event.clientY - this.dragStartPos.y)*(trackContainerHeight/containerHeight)
-         });
-    dojoEvent.stop(event);
-},
-
-hideRubberHighlight: function( start, end ) {
-    if( this.rubberHighlight ) {
-       this.rubberHighlight.parentNode.removeChild( this.rubberHighlight );
-       delete this.rubberHighlight;
-    }
-},
-
-/* moves the view by (distance times the width of the view) pixels */
-slide: function(distance) {
-    if (this.animation) this.animation.stop();
-    this.trimVertical();
-    // slide for an amount of time that's a function of the distance being
-    // traveled plus an arbitrary extra 200 milliseconds so that
-    // short slides aren't too fast (200 chosen by experimentation)
-    new Slider(this,
-               this.afterSlide,
-               Math.abs(distance) * this.getWidth() * this.slideTimeMultiple + 200,
-               distance * this.getWidth());
-},
-
-// synchronous.
-setLocation: function(refseq, startbp, endbp, showTracks ) {
-    if ( startbp === undefined )
-        startbp = this.minVisible();
-    if ( endbp === undefined )
-        endbp = this.maxVisible();
-    if ( startbp < refseq.start || startbp > refseq.end )
-        startbp = refseq.start;
-    if ( endbp < refseq.start || endbp > refseq.end )
-        endbp = refseq.end;
-
-    if (this.ref != refseq) {
-        this.ref = refseq;
-        showTracks = showTracks || this.visibleTrackNames();
-        this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
-        var removeTrack = function(track) {
-            if (track.div && track.div.parentNode)
-                track.div.parentNode.removeChild(track.div);
-        };
-        array.forEach(this.tracks, removeTrack);
-
-        this.tracks = [];
-        this.trackIndices = {};
-        this.trackHeights = [];
-        this.trackTops = [];
-
-        var thisB = this;
-        array.forEach(this.uiTracks, function(track) {
-                         track.refSeq = thisB.ref;
-                         track.clear();
-                     });
-
-        this.sizeInit();
-        this.setY(0);
-
-        this.behaviorManager.initialize();
-    }
-
-    this.pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
-    this.curZoom = Util.findNearest(this.zoomLevels, this.pxPerBp);
-
-    if( this.zoomSlider )
-        this.zoomSlider.set( 'value', this.curZoom );
-
-    if (Math.abs(this.pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2) {
-        //the cookie-saved location is in round bases, so if the saved
-        //location was at the highest zoom level, the new zoom level probably
-        //won't be exactly at the highest zoom (which is necessary to trigger
-        //the sequence track), so we nudge the zoom level to be exactly at
-        //the highest level if it's close.
-        //Exactly how close is arbitrary; 0.2 was chosen to be close
-        //enough that people wouldn't notice if we fudged that much.
-        //console.log("nudging zoom level from %d to %d", this.pxPerBp, this.zoomLevels[this.zoomLevels.length - 1]);
-        this.pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
-    }
-    this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
-    if( ! this.stripeWidth )
-        throw new Error('invalid stripe width');
-    this.instantZoomUpdate();
-
-    this.centerAtBase((startbp + endbp) / 2, true);
-
-    // re-show any tracks we need to
-    if( showTracks )
-        this.showTracks( showTracks );
-},
-
-stripeWidthForZoom: function(zoomLevel) {
-    if ((this.zoomLevels.length - 1) == zoomLevel) {
-        // width, in pixels, of stripes at full zoom, is 10bp
-        return this.regularStripe / 10 * this.maxPxPerBp;
-    } else if (0 == zoomLevel) {
-        return this.minZoomStripe;
-    } else {
-        return this.regularStripe;
-    }
-},
-
-instantZoomUpdate: function() {
-    this.zoomContainer.style.width =
-        (this.stripeCount * this.stripeWidth) + "px";
-    this.maxOffset =
-        this.bpToPx(this.ref.get('end')) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
-    this.minLeft = this.bpToPx(this.ref.get('start'));
-},
-
-centerAtBase: function(base, instantly) {
-    base = Math.min( Math.max( base, this.ref.get('start') ), this.ref.get('end') );
-    if (instantly) {
-        var pxDist = this.bpToPx(base);
-        var containerWidth = this.stripeCount * this.stripeWidth;
-        var stripesLeft = Math.floor((pxDist - (containerWidth / 2)) / this.stripeWidth);
-        this.offset = stripesLeft * this.stripeWidth;
-        this.setX(pxDist - this.offset - (this.getWidth() / 2));
-        this.trackIterate(function(track) { track.clear(); });
-        this.showVisibleBlocks();
-        this.showCoarse();
-    } else {
-        var startbp = this.pxToBp(this.x + this.offset);
-        var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
-        var center = startbp + halfWidth;
-        if (    base >= (startbp  - halfWidth)
-             && base <= (startbp + 3*halfWidth)
-           ) {
-            //we're moving somewhere nearby, so move smoothly
-            this.slide( (center - base) * this.pxPerBp / this.getWidth() );
-        } else {
-            //we're moving far away, move instantly
-            this.centerAtBase(base, true);
-        }
-    }
-},
-
-/**
- * @returns {Number} minimum basepair coordinate of the current
- * reference sequence visible in the genome view
- */
-minVisible: function() {
-    var mv = this.pxToBp(this.x + this.offset);
-
-    // if we are less than one pixel from the beginning of the ref
-    // seq, just say we are at the beginning.
-    if( mv < this.pxToBp(1) )
-        return 0;
-    else
-        return Math.round(mv);
-},
-
-/**
- * @returns {Number} maximum basepair coordinate of the current
- * reference sequence visible in the genome view
- */
-maxVisible: function() {
-    var mv = this.pxToBp(this.x + this.offset + this.getWidth());
-    var scrollbar = this.pxToBp( this.verticalScrollBarVisibleWidth() );
-    // if we are less than one pixel from the end of the ref
-    // seq, just say we are at the end.
-    if( mv > this.ref.get('end') - this.pxToBp(1) )
-        return this.ref.get('end') - scrollbar;
-    else
-        return Math.round(mv) - scrollbar;
-},
-
-showCoarse: function() {
-    var startbp = this.minVisible(), endbp = this.maxVisible();
-
-    var loc = new SimpleFeature({data: { start: startbp, end: endbp }, ref: this.ref.get('name') });
-    this._notifyParentView( loc );
-
-    // update the location box with our current location
-    this._updateLocationDisplays(loc);
-
-    // also update the refseq selection dropdown if present
-    this._updateRefSeqSelectBox();
-
-    var currRegion = { start: startbp, end: endbp, ref: this.ref.get('name') };
-
-    // send out a message notifying of the move
-    this.browser.publish( '/jbrowse/v1/n/navigate', currRegion );
-},
-
-_notifyParentView: function( newlocation ) {
-    if( this.parentView ) {
-        this.parentView._updateChildViewHighlight( this.getConf('name'), newlocation );
-    }
-},
-
-_updateChildViewHighlight: function( viewname, newlocation ) {
-
-},
-
-/**
- * Hook to be called on a window resize.
- */
-layout: function() {
-    var thisB = this;
-    this.initialized.then(
-        function() {
-            thisB.sizeInit();
-            thisB.showVisibleBlocks();
-            thisB.showCoarse();
-        });
-},
-
-/**
- * Event handler fired when mouse is over the scale bar.
- */
-scaleMouseOver: function( evt ) {
-    if( ! this.rubberbanding )
-        this.drawVerticalPositionLine( evt);
-},
-
-/**
- * Event handler fired when mouse moves over the scale bar.
- */
-scaleMouseMove: function( evt ) {
-    if( ! this.rubberbanding )
-        this.drawVerticalPositionLine( evt);
-},
-
-/**
- * Event handler fired when mouse leaves the scale bar.
- */
-scaleMouseOut: function( evt ) {
-    this.clearVerticalPositionLine();
-    this.clearBasePairLabels();
-},
-
-/**
- *  draws the vertical position line only if
- *  we are not rubberbanding
- */
-maybeDrawVerticalPositionLine: function( evt ) {
-    if( this.rubberbanding )
-        return;
-    this.drawVerticalPositionLine( this.zoomContainer, evt );
-},
-
-/**
- * Draws the red line across the work area, or updates it if it already exists.
- */
-drawVerticalPositionLine: function( evt){
-    var parent = this.domNode;
-    var numX = evt.pageX + 2;
-    var ppos = domGeom.position(parent);
-
-    if( ! this.verticalPositionLine ){
-        // if line does not exist, create it
-        this.verticalPositionLine = domConstruct.create( 'div', {
-            className: 'trackVerticalPositionIndicatorMain'
-        }, parent );
-    }
-
-    var line = this.verticalPositionLine;
-    line.style.display = 'block';      //make line visible
-    line.style.left = numX-ppos.x+'px'; //set location on screen
-
-    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent, parentPos: ppos });
-},
-
-/**
- * Draws the label for the line.
- * @param {Number} args.numX X-coordinate at which to draw the label's origin
- * @param {Number} args.name unique name used to cache this label
- * @param {Number} args.offset offset in pixels from numX at which the label should actually be drawn
- * @param {HTMLElement} args.scaleDiv
- * @param {Function} args.xToBp
- */
-drawBasePairLabel: function ( args ){
-    var name = args.name || 0;
-    var offset = args.offset || 0;
-    var numX = args.x;
-    this.basePairLabels = this.basePairLabels || {};
-
-    if( ! this.basePairLabels[name] ) {
-        var scaleTrackPos = domGeom.position( args.scaleDiv || this.scaleTrackDiv );
-        this.basePairLabels[name] = domConstruct.create( 'div', {
-            className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
-            style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
-        }, document.body );
-    }
-
-    var label = this.basePairLabels[name];
-
-    if (typeof numX == 'object'){
-        numX = numX.clientX;
-    }
-
-    label.style.display = 'block';      //make label visible
-    var absfunc = args.xToBp || lang.hitch(this,'absXtoBp');
-    //set text to BP location (adding 1 to convert from interbase)
-    label.innerHTML = Util.addCommas( Math.floor( absfunc(numX) )+1);
-
-    //label.style.top = args.top + 'px';
-
-    // 15 pixels on either side of the label
-    if( window.innerWidth - numX > 8 + label.offsetWidth ) {
-        label.style.left = numX + offset + 'px'; //set location on screen to the right
-    } else {
-        label.style.left = numX + 1 - offset - label.offsetWidth + 'px'; //set location on screen to the left
-    }
-},
-
-/**
- * Turn off the basepair-position line if it is being displayed.
- */
-clearVerticalPositionLine: function(){
-    if( this.verticalPositionLine )
-        this.verticalPositionLine.style.display = 'none';
-},
-
-/**
- * Delete any base pair labels that are being displayed.
- */
-clearBasePairLabels: function(){
-    for( var name in this.basePairLabels ) {
-        var label = this.basePairLabels[name];
-        if( label.parentNode )
-            label.parentNode.removeChild( label );
-    }
-    this.basePairLabels = {};
-},
-
-
-/**
- * Event handler fired when the track scale bar is single-clicked.
- */
-scaleClicked: function( evt ) {
-    var bp = this.absXtoBp(evt.clientX);
-
-    this.scaleClickedTimeout = window.setTimeout( lang.hitch( this, function() {
-        this.centerAtBase( bp );
-    },100));
-},
-
-/**
- * Given a new X and Y pixels position for the main track container,
- * reposition static elements that "float" over it, like track labels,
- * Y axis labels, the main track ruler, and so on.
- *
- * @param [args.x] the new X coordinate.  if not provided,
- *   elements that only need updates on the X position are not
- *   updated.
- * @param [args.y] the new Y coordinate.  if not provided,
- *   elements that only need updates on the Y position are not
- *   updated.
- * @param [args.width] the new width of the view.  if not provided,
- *   elements that only need updates on the width are not
- *   updated.
- * @param [args.height] the new height of the view. if not provided,
- *   elements that only need updates on the height are not
- *   updated.
- */
-updateStaticElements: function( args ) {
-    this.trackIterate( function(t) {
-        t.updateStaticElements( args );
-    },this);
-
-    this._updateVerticalScrollBar( args );
-},
-
-/**
- * Convert relative pixels X position to base pair position on the
- * current reference sequence.
- * @returns {Number}
- */
-pxToBp: function(pixels) {
-    return pixels / this.pxPerBp;
-},
-
-/**
- * Convert absolute pixels X position to base pair position on the
- * current reference sequence.
- * @returns {Number}
- */
-absXtoBp: function( /**Number*/ pixels) {
-    return this.pxToBp( this.getPosition().x + this.offset - domGeom.position(this.elem, true).x + pixels )-1;
-},
-
-/**
- * Convert basepair position into pixels.
- */
-bpToPx: function(bp) {
-    return bp * this.pxPerBp;
-},
-
-
-/**
- * Update the view's state, and that of its tracks, for the current
- * width and height of its container.
- * @returns nothing
- */
-sizeInit: function() {
-
-    this.elemBox = {
-        h: this.domNode.offsetHeight - this.elem.offsetTop,
-        w: this.elem.offsetWidth
-    };
-
-
-    //scale values, in pixels per bp, for all zoom levels
-    var desiredZoomLevels = [
-        1/500000,  1/200000,  1/100000,
-        1/50000,   1/20000,   1/10000,
-        1/5000,    1/2000,    1/1000,
-        1/500,     1/200,     1/100,
-        1/50,      1/20,      1/10,
-        1/5,       1/2,       1,
-        2,         5,         10,
-        20
-    ];
-    this.zoomLevels = [];
-    for( var i = 0; i < desiredZoomLevels.length; i++ )  {
-	var zlevel = desiredZoomLevels[i];
-	if( zlevel < this.maxPxPerBp )
-            this.zoomLevels.push( zlevel );
-	else
-            break; // once get to zoom level >= maxPxPerBp, quit
-    }
-    this.zoomLevels.push( this.maxPxPerBp );
-
-    //make sure we don't zoom out too far
-    while (((this.ref.get('end') - this.ref.get('start')) * this.zoomLevels[0])
-           < this.getWidth()) {
-        this.zoomLevels.shift();
-    }
-    this.zoomLevels.unshift( this.getWidth() / (this.ref.get('end') - this.ref.get('start')));
-
-    //width, in pixels, of stripes at min zoom (so the view covers
-    //the whole ref seq)
-    this.minZoomStripe = this.regularStripe * (this.zoomLevels[0] / this.zoomLevels[1]);
-
-    this.curZoom = 0;
-    while (this.pxPerBp > this.zoomLevels[this.curZoom])
-        this.curZoom++;
-    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
-
-    delete this.stripePercent;
-    //25, 50, 100 don't work as well due to the way scrollUpdate works
-    var possiblePercents = [20, 10, 5, 4, 2, 1];
-    for (var i = 0; i < possiblePercents.length; i++) {
-        // we'll have (100 / possiblePercents[i]) stripes.
-        // multiplying that number of stripes by the minimum stripe width
-        // gives us the total width of the "container" div.
-        // (or what that width would be if we used possiblePercents[i]
-        // as our stripePercent)
-        // That width should be wide enough to make sure that the user can
-        // scroll at least one page-width in either direction without making
-        // the container div bump into the edge of its parent element, taking
-        // into account the fact that the container won't always be perfectly
-        // centered (it may be as much as 1/2 stripe width off center)
-        // So, (this.getWidth() * 3) gives one screen-width on either side,
-        // and we add a regularStripe width to handle the slightly off-center
-        // cases.
-        // The minimum stripe width is going to be halfway between
-        // "canonical" zoom levels; the widest distance between those
-        // zoom levels is 2.5-fold, so halfway between them is 0.7 times
-        // the stripe width at the higher zoom level
-        if (((100 / possiblePercents[i]) * (this.regularStripe * 0.7))
-            > ((this.getWidth() * 3) + this.regularStripe)) {
-            this.stripePercent = possiblePercents[i];
-            break;
-        }
-    }
-
-    if ( ! this.stripePercent ) {
-        console.warn("stripeWidth too small: " + this.stripeWidth + ", " + this.getWidth());
-        this.stripePercent = 1;
-    }
-
-    var oldX;
-    var oldStripeCount = this.stripeCount;
-    if (oldStripeCount) oldX = this.getX();
-    this.stripeCount = Math.round(100 / this.stripePercent);
-
-    this.zoomContainer.style.width =
-        (this.stripeCount * this.stripeWidth) + "px";
-
-    var blockDelta = undefined;
-    if (oldStripeCount && (oldStripeCount != this.stripeCount)) {
-        blockDelta = Math.floor((oldStripeCount - this.stripeCount) / 2);
-        var delta = (blockDelta * this.stripeWidth);
-        var newX = this.getX() - delta;
-        this.offset += delta;
-        this.updateStaticElements( { x: newX } );
-        this.rawSetX(newX);
-    }
-
-    // update our zoom slider
-    this._updateZoomControls();
-
-    // update the sizes for each of the tracks
-    this.trackIterate(function(track, view) {
-                          track.sizeInit(view.stripeCount,
-                                         view.stripePercent,
-                                         blockDelta);
-                      });
-
-    var newHeight =
-        this.trackHeights && this.trackHeights.length
-          ? Math.max(
-              dojof.reduce( this.trackHeights, '+') + this.trackPadding * this.trackHeights.length,
-              this.getHeight()
-            )
-          : this.getHeight();
-    this.zoomContainer.style.height = newHeight + "px";
-    this.containerHeight = newHeight;
-
-    this.updateScroll();
-},
-
-
-/**
- * Updates/re-creates the zoom controls based on the current window
- * width, zoom level, etc.
- */
-_updateZoomControls: function() {
-
-    // destroy the zoom slider if present
-    if( this.zoomSlider ) {
-        this.zoomSlider.destroyRecursive();
-        domConstruct.destroy( this.zoomSlider.domNode );
-    }
-
-    // re-create the zoom slider
-    var sliderTimeout;
-    var thisB = this;
-    this.zoomSlider = new dijitSlider({
-        name: "slider",
-        value: this.curZoom,
-        minimum: 0,
-        maximum: this.zoomLevels.length - 1,
-        intermediateChanges: true,
-        showButtons: false,
-        discreteValues: this.zoomLevels.length,
-        onChange: function( newLevel ){
-            thisB.zoomSliderText.innerHTML = ''; //< sidesteps a bug in some Chromes
-            thisB.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.zoomLevels[newLevel] )+'bp';
-
-            if( sliderTimeout )
-                window.clearTimeout( sliderTimeout );
-            sliderTimeout = window.setTimeout( function() {
-                var steps = newLevel - thisB.curZoom;
-                if( steps > 0 ) {
-                    thisB.zoomIn(undefined,undefined,steps);
-                } else if( steps < 0 ) {
-                    thisB.zoomOut(undefined,undefined,-steps);
-                }
-            }, 400 );
-        }
-    }, domConstruct.create('input',{},this.zoomSliderContainer) );
-
-    // update the zoom slider text
-    this.zoomSliderText.innerHTML = Util.humanReadableNumber( thisB.getWidth()/thisB.pxPerBp )+'bp';
-},
-
-/**
- * @private
- */
-updateScroll: function() {
-
-    // may need to update our Y position if our height has changed
-    var update = { height: this.getHeight() };
-    if( this.getY() > 0 ) {
-        if( this.containerHeight - this.getY() < update.height ) {
-            //console.log( this.totalTrackHeight, update.height, this.getY() );
-            update.y = this.setY( Math.max( 0, this.containerHeight - update.height ));
-        }
-    }
-
-    // update any static (i.e. fixed-position) elements that need to
-    // float in one position over the scrolling track div (can't use
-    // CSS position:fixed for these)
-    this.updateStaticElements( update );
-},
-
-trimVertical: function(y) {
-    if (y === undefined) y = this.getY();
-    var trackBottom;
-    var trackTop = this.topSpace;
-    var bottom = y + this.getHeight();
-    for (var i = 0; i < this.tracks.length; i++) {
-        if (this.tracks[i].shown) {
-            trackBottom = trackTop + this.trackHeights[i];
-            if (!((trackBottom > y) && (trackTop < bottom))) {
-                this.tracks[i].hideAll();
-            }
-            trackTop = trackBottom + this.trackPadding;
-        }
-    }
-},
-
-hideRegion: function( location ) {
-    this.trackIterate( function(t) { t.hideRegion( location ); } );
-},
-
-redrawRegions: function( regions ) {
-    array.forEach( regions,
-                   lang.hitch( this, 'hideRegion' ));
-    this.showVisibleBlocks(  );
-},
-
-zoomIn: function(e, zoomLoc, steps) {
-    if (this.animation) return;
-    this._unsetPosBeforeZoom();
-    if (zoomLoc === undefined) zoomLoc = 0.5;
-    if (steps === undefined) steps = 1;
-    steps = Math.min(steps, (this.zoomLevels.length - 1) - this.curZoom);
-    if ((0 == steps) && (this.pxPerBp == this.zoomLevels[this.curZoom]))
-        return;
-
-    var pos = this.getPosition();
-    this.trimVertical(pos.y);
-
-    var scale = this.zoomLevels[this.curZoom + steps] / this.pxPerBp;
-    var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
-    this.curZoom += steps;
-    this.pxPerBp = this.zoomLevels[this.curZoom];
-    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
-
-    for (var track = 0; track < this.tracks.length; track++)
-    this.tracks[track].startZoom(this.pxPerBp,
-                     fixedBp - ((zoomLoc * this.getWidth())
-                                                / this.pxPerBp),
-                     fixedBp + (((1 - zoomLoc) * this.getWidth())
-                                                / this.pxPerBp));
-    //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
-
-    // Zooms take an arbitrary 700 milliseconds, which feels about right
-    // to me, although if the zooms were smoother they could probably
-    // get faster without becoming off-putting. -MS
-    new Zoomer(scale, this,
-               function() {this.zoomUpdate(zoomLoc, fixedBp);},
-               700, zoomLoc);
-},
-
-/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-zoomToBaseLevel: function(e, pos) {
-    if (this.animation) return;
-    //   if (this.zoomLevels[this.curZoom] === this.charWidth)  {  console.log("already zoomed to base level"); return; }
-    // if at max zoomLevel then already zoomed to bases, so then no-op
-    var baseZoomIndex = this.zoomLevels.length - 1;
-
-    if (this.curZoom === baseZoomIndex)  { console.log("already zoomed to base level"); return; }
-    this._setPosBeforeZoom(this.minVisible(), this.maxVisible(), this.curZoom);
-    var zoomLoc = 0.5;
-
-    this.trimVertical();
-
-    var relativeScale = this.zoomLevels[baseZoomIndex] / this.pxPerBp;
-    var fixedBp = pos;
-    this.curZoom = baseZoomIndex;
-    this.pxPerBp = this.zoomLevels[baseZoomIndex];
-
-    this.maxLeft = (this.pxPerBp * this.ref.get('end')) - this.getWidth();
-
-    for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].startZoom(this.pxPerBp,
-				     fixedBp - ((zoomLoc * this.getWidth())
-						/ this.pxPerBp),
-				     fixedBp + (((1 - zoomLoc) * this.getWidth())
-						/ this.pxPerBp));
-    //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
-    new Zoomer(relativeScale, this,
-               function() {this.zoomUpdate(zoomLoc, fixedBp);},
-               700, zoomLoc);
-},
-
-
-zoomOut: function(e, zoomLoc, steps) {
-    if (this.animation) return;
-    this._unsetPosBeforeZoom();
-    if (steps === undefined) steps = 1;
-    steps = Math.min(steps, this.curZoom);
-    if (0 == steps) return;
-
-    var pos = this.getPosition();
-    this.trimVertical(pos.y);
-    if (zoomLoc === undefined) zoomLoc = 0.5;
-    var scale = this.zoomLevels[this.curZoom - steps] / this.pxPerBp;
-    var edgeDist = this.bpToPx(this.ref.get('end')) - (this.offset + pos.x + this.getWidth());
-        //zoomLoc is a number on [0,1] that indicates
-        //the fixed point of the zoom
-    zoomLoc = Math.max(zoomLoc, 1 - (((edgeDist * scale) / (1 - scale)) / this.getWidth()));
-    edgeDist = pos.x + this.offset - this.bpToPx(this.ref.get('start'));
-    zoomLoc = Math.min(zoomLoc, ((edgeDist * scale) / (1 - scale)) / this.getWidth());
-    var fixedBp = this.pxToBp(pos.x + this.offset + (zoomLoc * this.getWidth()));
-    this.curZoom -= steps;
-    this.pxPerBp = this.zoomLevels[this.curZoom];
-
-    for (var track = 0; track < this.tracks.length; track++)
-    this.tracks[track].startZoom(this.pxPerBp,
-                     fixedBp - ((zoomLoc * this.getWidth())
-                                                / this.pxPerBp),
-                     fixedBp + (((1 - zoomLoc) * this.getWidth())
-                                                / this.pxPerBp));
-
-    //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
-    this.minLeft = this.pxPerBp * this.ref.get('start');
-
-    // Zooms take an arbitrary 700 milliseconds, which feels about right
-    // to me, although if the zooms were smoother they could probably
-    // get faster without becoming off-putting. -MS
-    new Zoomer(scale, this,
-               function() {this.zoomUpdate(zoomLoc, fixedBp);},
-               700, zoomLoc);
-},
-
-
-/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-zoomBackOut: function(e) {
-    if (this.animation) { return; }
-    if (!this.isZoomedToBase()) { return; }
-
-    var min = this.posBeforeZoom.min;
-    var max = this.posBeforeZoom.max;
-    var zoomIndex = this.posBeforeZoom.zoomIndex;
-    this.posBeforeZoom = undefined;
-
-    var zoomLoc = 0.5;
-
-    var scale = this.zoomLevels[zoomIndex] / this.pxPerBp;
-    var fixedBp = (min + max) / 2;
-    this.curZoom = zoomIndex;
-    this.pxPerBp = this.zoomLevels[zoomIndex];
-
-    for (var track = 0; track < this.tracks.length; track++) {
-    	this.tracks[track].startZoom(this.pxPerBp,
-    			fixedBp - ((zoomLoc * this.getWidth())
-    					/ this.pxPerBp),
-    					fixedBp + (((1 - zoomLoc) * this.getWidth())
-    							/ this.pxPerBp));
-	}
-
-    this.minLeft = this.pxPerBp * this.ref.get('start');
-    var thisObj = this;
-    // Zooms take an arbitrary 700 milliseconds, which feels about right
-    // to me, although if the zooms were smoother they could probably
-    // get faster without becoming off-putting. -MS
-    new Zoomer(scale, this,
-	       function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
-	       700, zoomLoc);
-},
-
-/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-isZoomedToBase: function() {
-	return this.posBeforeZoom !== undefined;
-},
-
-/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-_setPosBeforeZoom: function(min, max, zoomIndex) {
-    this.posBeforeZoom = { "min": min, "max": max, "zoomIndex": zoomIndex };
-},
-
-/** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
-_unsetPosBeforeZoom: function() {
-	this.posBeforeZoom = undefined;
-},
-
-zoomUpdate: function(zoomLoc, fixedBp) {
-    var eWidth = this.elem.clientWidth;
-    var centerPx = this.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
-    // stripeWidth: pixels per block
-    this.stripeWidth = this.stripeWidthForZoom(this.curZoom);
-    this.zoomContainer.style.width =
-        (this.stripeCount * this.stripeWidth) + "px";
-    var centerStripe = Math.round(centerPx / this.stripeWidth);
-    var firstStripe = (centerStripe - ((this.stripeCount) / 2)) | 0;
-    this.offset = firstStripe * this.stripeWidth;
-    this.maxOffset = this.bpToPx(this.ref.get('end')+1) - this.stripeCount * this.stripeWidth;
-    this.maxLeft = this.bpToPx(this.ref.get('end')+1) - this.getWidth();
-    this.minLeft = this.bpToPx(this.ref.get('start'));
-    this.zoomContainer.style.left = "0px";
-    this.setX((centerPx - this.offset) - (eWidth / 2));
-
-    array.forEach(this.uiTracks, function(track) { track.clear(); });
-
-    this.trackIterate( function(track) {
-        track.endZoom( this.pxPerBp,Math.round(this.stripeWidth / this.pxPerBp));
-    });
-
-    this.showVisibleBlocks();
-    this.showCoarse();
-},
-
-scrollUpdate: function() {
-    var x = this.getX();
-    var numStripes = this.stripeCount;
-    var cWidth = numStripes * this.stripeWidth;
-    var eWidth = this.getWidth();
-    //dx: horizontal distance between the centers of
-    //this.scrollContainer and this.elem
-    var dx = (cWidth / 2) - ((eWidth / 2) + x);
-    //If dx is negative, we add stripes on the right, if positive,
-    //add on the left.
-    //We remove stripes from the other side to keep cWidth the same.
-    //The end goal is to minimize dx while making sure the surviving
-    //stripes end up in the same place.
-
-    var dStripes = (dx / this.stripeWidth) | 0;
-    if (0 == dStripes) return;
-
-    var newOffset = this.offset - (dStripes * this.stripeWidth);
-
-    if (this.offset == newOffset) return;
-    this.offset = newOffset;
-
-    this.trackIterate(function(track) { track.moveBlocks(dStripes); });
-
-    var newX = x + (dStripes * this.stripeWidth);
-    this.updateStaticElements( { x: newX } );
-    this.rawSetX(newX);
-},
-
-trackHeightUpdate: function(trackName, height) {
-    var y = this.getY();
-    if ( ! (trackName in this.trackIndices)) return;
-    var track = this.trackIndices[trackName];
-    if (Math.abs(height - this.trackHeights[track]) < 1) return;
-
-    //console.log("trackHeightUpdate: " + trackName + " " + this.trackHeights[track] + " -> " + height);
-    // if the bottom of this track is a above the halfway point,
-    // and we're not all the way at the top,
-    if ((((this.trackTops[track] + this.trackHeights[track]) - y)
-         <  (this.getHeight() / 2))
-        && (y > 0) ) {
-        // scroll so that lower tracks stay in place on screen
-        this.setY(y + (height - this.trackHeights[track]));
-        //console.log("track " + trackName + ": " + this.trackHeights[track] + " -> " + height + "; y: " + y + " -> " + this.getY());
-    }
-    this.trackHeights[track] = height;
-    this.tracks[track].div.style.height = (height + this.trackPadding) + "px";
-
-    this.layoutTracks();
-
-    this.setY( this.getY() );
-
-    this.updateStaticElements({ height: this.getHeight() });
-},
-
-showVisibleBlocks: function( uiOnly ) {
-    var pos = this.getPosition();
-    var startX = pos.x - (this.drawMargin * this.getWidth());
-    var endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
-    var leftVisible = Math.max(0, (startX / this.stripeWidth) | 0);
-    var rightVisible = Math.min(this.stripeCount - 1,
-                               (endX / this.stripeWidth) | 0);
-
-    var bpPerBlock = Math.round(this.stripeWidth / this.pxPerBp);
-
-    var startBase = Math.round(this.pxToBp((leftVisible * this.stripeWidth)
-                                           + this.offset));
-    startBase -= 1;
-    var containerStart = Math.round(this.pxToBp(this.offset));
-    var containerEnd =
-        Math.round(this.pxToBp(this.offset
-                               + (this.stripeCount * this.stripeWidth)));
-
-    if( uiOnly ) {
-        array.forEach( this.uiTracks, function( track ) {
-            track.showRange(leftVisible, rightVisible,
-                            startBase, bpPerBlock,
-                            this.pxPerBp,
-                            containerStart, containerEnd);
-        },this);
-    } else {
-        this.trackIterate(function(track, view) {
-                              track.showRange(leftVisible, rightVisible,
-                                              startBase, bpPerBlock,
-                                              view.pxPerBp,
-                                              containerStart, containerEnd);
-                          });
-
-        this.updateStaticElements({
-                                      height: this.getHeight(),
-                                      width: this.getWidth(),
-                                      x: this.getX(),
-                                      y: this.getY()
-                                  });
-
-        this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
-    }
-},
-
-/**
- * Add the given track configurations to the genome view.
- * @param trackConfigs {Array[Object|String]} array of track
- *        configurations or string track names, or a mixture objects
- *        to add
- */
-showTracks: function( trackConfigs ) {
-    var thisB = this;
-    this.initialized.then(
-        function() {
-            if( typeof trackConfig == 'string' )
-                trackConfigs = trackConfigs.split(',');
-
-            if( ! trackConfigs )
-                return;
-
-            // look up configurations for any string track names
-            trackConfigs = array.map( trackConfigs, function( conf ) {
-                return conf.label ? conf : this.browser.trackConfigsByName[conf];
-            },thisB);
-
-            // filter out any track configs that are already displayed
-            var needed = array.filter( trackConfigs, function(conf) {
-               return conf && this._getTracks( [conf.label] ).length == 0;
-            },thisB);
-            if( needed.length ) {
-                // insert the track configs into the trackDndWidget ( the widget
-                // will call create() on the confs to render them)
-                thisB.trackDndWidget.insertNodes( false, needed );
-
-                thisB.updateTrackList();
-                // scroll the view to the bottom so we can see the new track
-                window.setTimeout( function() {
-                                       thisB.setY( Infinity );
-                                   }, 300 );
-            };
-        });
-
-    //this.updateTrackList();
-},
-
-/**
- * Replace the track configurations that are currently visible in the genome view.
- * @param trackConfigs {Array[Object]} array of track configuration
- * objects to add
- */
-replaceTracks: function( trackConfigs ) {
-    // for each one
-    array.forEach( trackConfigs, function( conf ) {
-        // figure out its position in the genome view and delete it
-        var anchor;
-        var done;
-        var listNode = this.trackDndWidget.parent;
-        array.forEach( listNode.children, function( item ) {
-            if( done )
-                return;
-
-            var track = item.track;
-            if( track && (track.config.label == conf.label) ) {
-                done = 1;
-                this.trackDndWidget.delItem( item.id );
-                if( item && item.parentNode )
-                    item.parentNode.removeChild(item);
-            } else {
-                anchor = item;
-            }
-        },this);
-
-       this.updateTrackList();
-
-       // insert the new track config into the trackDndWidget after the 'before'
-       this.trackDndWidget.insertNodes( false, [conf], false, anchor );
-   },this);
-
-    if( trackConfigs.length )
-        this.updateTrackList();
-},
-
-/**
- * Remove the given track (configs) from the genome view.
- * @param tracks {Array[Object|String]} array of track configurations or track names
- */
-hideTracks: function( tracks ) {
-    var labels = array.map( tracks, function( conf ) {
-        return typeof conf == 'string' ? conf : conf.label;
-    });
-
-    // var trackConfigs = array.map( tracks, function( c ) {
-    //     return typeof c == 'string' ? this.browser.getTrackConfig(c) : c;
-    // }, this );
-
-    // filter out any track configs that are not displayed
-    var displayed = array.filter( labels, function(label) {
-        return label && this._getTracks( [label] ).length != 0;
-    },this);
-
-    if( ! displayed.length ) return;
-
-    // remove the track configs from the trackDndWidget ( the widget
-    // will call create() on the confs to render them )
-    array.forEach( displayed, function( label ) {
-        this.trackDndWidget.forInItems(function(obj, id, map) {
-            if( label === obj.data.label ) {
-                this.trackDndWidget.delItem( id );
-                var item = dojo.byId(id);
-                if( item && item.parentNode )
-                    item.parentNode.removeChild(item);
-            }
-        },this);
-    },this);
-
-    this.updateTrackList();
-},
-
-/**
- * Pin the tracks with the given names.  Returns an array with the
- * names of tracks that were actually pinned.
- */
-pinTracks: function( /**Array[String]*/ trackNames ) {
-    var tracks = this._getTracks( trackNames );
-    array.forEach( tracks, function( track ) {
-                       track.setPinned(true);
-                   });
-    this.updateTrackList();
-    return array.map( tracks, function(t) { return t.name; } );
-},
-
-/**
- * Unpin the tracks with the given names.  Returns an array with the
- * names of tracks that were actually unpinned.
- */
-unpinTracks: function( /**Array[String]*/ trackNames ) {
-    var tracks = this._getTracks( trackNames );
-    array.forEach( tracks, function( track ) {
-                       track.setPinned(false);
-                   });
-    this.updateTrackList();
-    return array.map( tracks, function(t) { return t.name; } );
-},
-
-/**
- * For an array of track names, get the track object if it exists.
- * @private
- * @returns {Array[Track]} the track objects that were found
- */
-_getTracks: function( /**Array[String]*/ trackNames ) {
-    var tracks = [],
-        tn = { count: trackNames.length };
-    array.forEach( trackNames, function(n) { tn[n] = 1;} );
-    array.some( this.tracks, function(t) {
-        if( tn[t.name] ) {
-            tracks.push(t);
-            tn.count--;
-        }
-        return ! tn.count;
-    }, this);
-    return tracks;
-},
-
-_updateLocationDisplays: function( region ) {
-    var positionString = Util.assembleLocString( region  );
-
-    if( this.locationBox ) {
-        this.locationBox.set(
-            'value',
-            positionString,
-            false //< don't fire any onchange handlers
-        );
-        this.goButton.set( 'disabled', true ) ;
-    }
-},
-
-_updateRefSeqSelectBox: function() {
-    if( this.refSeqSelectBox ) {
-
-        // if none of the options in the select box match this
-        // reference sequence, add another one to the end for it
-        if( ! array.some( this.refSeqSelectBox.getOptions(), function( option ) {
-                              return option.value == this.ref.get('name');
-                        }, this)
-          ) {
-              this.refSeqSelectBox.set( 'options',
-                                     this.refSeqSelectBox.getOptions()
-                                     .concat({ label: this.ref.get('name'), value: this.ref.get('name') })
-                                   );
-        }
-
-        // set its value to the current ref seq
-        this.refSeqSelectBox.set( 'value', this.ref.get('name'), false );
-    }
-},
-
-// asynchronous
-navigateTo: function( something ) {
-    var thisB = this;
-    return this.initialized.then(  function() {
-        // if it's a foo:123..456 location, try to go there
-        var location = typeof something == 'string' && Util.parseLocString( something );
-        if( location ) {
-            return thisB.browser.getReferenceFeature( location.refSeqName() )
-                .then(
-                    function( refseq ) {
-                        if( refseq )
-                            thisB.setLocation( refseq, location.get('start'), location.get('end') );
-                        else
-                            console.warn( 'reference sequence '+location.refSeqName()+' not found' );
-                        d.resolve();
-                    }
-                );
-        }
-        // otherwise, if it's just a string, try to figure out what it is
-        else {
-            return thisB.browser.searchNames( something )
-                .then( function( location ) {
-                           if( location )
-                               // check that we actually have that reference sequence
-                               return thisB.browser.getReferenceFeature( location.refSeqName() )
-                                   .then( function( refseq ) {
-                                              return location;
-                                          });
-                           else
-                               return null;
-                       })
-                .then( function( location ) {
-                           if( location )
-                               thisB.setLocation( location.refSeqName(), location.get('start'), location.get('end') );
-                       });
-        }
-    });
-},
-
-/**
- * @private
- */
-createSearchControls: function( parent ) {
-    var thisB = this;
-
-    this.topBar = domConstruct.create( 'div', { className: 'topBar' }, this.domNode );
-
-    var tableLayout = domConstruct.create('tr',{},domConstruct.create('table', {}, this.topBar ) );
-
-    var viewLabelContainer = domConstruct.create('td',  { className: 'viewLabelLayout' }, tableLayout );
-    this.viewLabel = domConstruct.create('span',  { className: 'viewLabel', innerHTML: this.getConf('name') }, viewLabelContainer );
-
-
-
-
-    var trackSelectContainer = domConstruct.create(
-        'div',
-        { className: 'controlGroup trackSelect' },
-        domConstruct.create('td', { className: 'trackSelectLayout' }, tableLayout )
-    );
-    this.trackFindBox = new dijitComboBox(
-        {
-            labelAttr: "label",
-            maxLength: 400,
-            placeHolder: 'Search tracks',
-            searchAttr: "label",
-            onChange: function( val ) {
-                thisB.browser.getTrackConfig( val )
-                    .then( function( t ) {
-                               if( t )
-                                   thisB.showTracks([t]);
-                           });
-                this.set( 'value','', false );
-            }
-        },
-        domConstruct.create('div',{},trackSelectContainer) );
-    this.trackFindBox.focusNode.spellcheck = false;
-
-    this.browser.afterMilestone('initTrackMetadata', function() {
-        thisB.trackFindBox.set( 'store', thisB.browser.trackMetaDataStore );
-    });
-
-    this.trackFindBox._buttonNode.innerHTML = 'Tracks'+this.trackFindBox._buttonNode.innerHTML;
-
-    // make the search controls
-    this.searchControlsContainer = domConstruct.create(
-            'div', {
-                className: 'controlGroup searchControls'
-            }, domConstruct.create('td', { className: 'searchControlsLayout'}, tableLayout ) );
-
-    // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
-    // set in the config, then put in a dropdown box for selecting
-    // reference sequences
-    var refSeqSelectBoxPlaceHolder = domConstruct.create('span', {}, this.searchControlsContainer );
-
-    // make the location box
-    this.locationBox = new dijitComboBox(
-        {
-            name: "location",
-            maxLength: 400,
-            searchAttr: "name"
-        },
-        domConstruct.create('div',{},this.searchControlsContainer) );
-
-    this.browser.afterMilestone( 'loadNames', lang.hitch(this, function() {
-        if( this.browser.nameStore )
-            this.locationBox.set( 'store', this.browser.nameStore );
-    }));
-
-    this.locationBox.focusNode.spellcheck = false;
-    query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
-    on( this.locationBox.focusNode, "keydown", function(event) {
-                      if (event.keyCode == keys.ENTER) {
-                          thisB.locationBox.closeDropDown(false);
-                          thisB.navigateTo( thisB.locationBox.get('value') );
-                          thisB.goButton.set('disabled',true);
-                          dojoEvent.stop(event);
-                      } else {
-                          thisB.goButton.set('disabled', false);
+    var m = new dijitDropDownMenu({ leftClickToOpen: true });
+    m.addChild( new dijitMenuItem(
+                    { label: 'Add tracks',
+                      iconClass: 'dijitIconAdd',
+                      onClick: function() {
+                          thisB.showTrackSelector()
+                              .then( undefined, Util.logError );
                       }
-                  });
-    on( this.locationBox.domNode, 'selectstart', function(evt) { evt.stopPropagation(); return true; });
-    // monkey-patch the combobox code to make a few modifications
-    (function(){
+                    })
+              );
+    // m.addChild( new dijitMenuItem(
+    //                 { label: 'New child view',
+    //                   iconClass: 'dijitIconAdd',
+    //                   onClick: function() {
+    //                       thisB.addChildView();
+    //                   }
+    //                 })
+    //           );
+    m.addChild( new dijitMenuItem(
+                    { label: 'Close',
+                      iconClass: 'jbrowseIconClose',
+                      onClick: function() {
+                          thisB.getParent().removeChild( thisB );
+                          thisB.destroyRecursive();
+                      }
+                    })
+              );
+    m.startup();
+    return m;
+},
 
-         // add a moreMatches class to our hacked-in "more options" option
-         var dropDownProto = eval(this.locationBox.dropDownClass).prototype;
-         var oldCreateOption = dropDownProto._createOption;
-         dropDownProto._createOption = function( item ) {
-             var option = oldCreateOption.apply( this, arguments );
-             if( item.hitLimit )
-                 domClass.add( option, 'moreMatches');
-             return option;
-         };
+// show the configured track selector for this data hub.  the track
+// selector will take care of hiding itself in response to user input
+showTrackSelector: function() {
 
-         // prevent the "more matches" option from being clicked
-         var oldSetValue = dropDownProto._setValueAttr;
-         dropDownProto._setValueAttr = function( value ) {
-             if( value.target && value.target.item && value.target.item.hitLimit )
-                 return null;
-             return oldSetValue.apply( this, arguments );
-         };
-    }).call(this);
+    return (
+        this._trackSelector || ( this._trackSelector = function() {
 
-    // make the 'Go' button'
-    this.goButton = new dijitButton(
-        {
-            onClick: lang.hitch( this, function(event) {
-                this.navigateTo(this.locationBox.get('value'));
-                this.goButton.set('disabled',true);
-                dojoEvent.stop(event);
-            })
-        }, domConstruct.create('button',{},this.searchControlsContainer));
-
-    // make the refseq selection dropdown
-    this.browser.getStore('refseqs', function( store ) {
-        var max = thisB.browser.getConf('refSeqSelectorMaxSize');
-        var refSeqOrder = [];
-        store.getReferenceFeatures({ limit: max+1 })
-             .forEach( function( refseq ) {
-                           refSeqOrder.push( refseq );
-                       },
-                       function() {
-                           var numrefs = Math.min( max, refSeqOrder.length);
-                           var options = [];
-                           for ( var i = 0; i < numrefs; i++ ) {
-                               options.push( { label: refSeqOrder[i].get('name'), value: refSeqOrder[i].get('name') } );
-                           }
-                           var tooManyMessage = '(first '+numrefs+' ref seqs)';
-                           if( refSeqOrder.length > max ) {
-                               options.push( { label: tooManyMessage , value: tooManyMessage, disabled: true } );
-                           }
-                           thisB.refSeqSelectBox = new dijitSelectBox(
+            var thisB = this;
+            // get the current data hub
+            return this.get('app').getDisplayedDataHub()
+                 // get the data hub to make a new track selector widget
+                .then( function( hub ) {
+                           return hub.makeTrackSelector(
                                {
-                                   name: 'refseq',
-                                   value: thisB.ref ? thisB.ref.get('name') : null,
-                                   options: options,
-                                   onChange: lang.hitch(thisB, function( newRefName ) {
-                                                            // don't trigger nav if it's the too-many message
-                                                            if( newRefName == tooManyMessage ) {
-                                                                this.refSeqSelectBox.set('value', this.refSeq.name );
-                                                                return;
-                                                            }
+                                   regionBrowser: thisB,
+                                   onTrackShow: function( trackNames ) {
+                                       var gets = array.map( trackNames, hub.getTrack, hub );
+                                       all( gets ).then( function( trackObjects ) {
+                                                  thisB.showTracks( trackObjects );
+                                       }, Util.logError );
+                                   },
+                                   onTrackHide: function( trackNames ) {
+                                       var gets = array.map( trackNames, hub.getTrack, hub );
+                                       all( gets ).then( function( trackObjects ) {
+                                                  thisB.hideTracks( trackObjects );
+                                       }, Util.logError );
+                                   }
+                               });
+                       })
+                .then( function( selector ) {
+                           // once we have a track selector, wire our
+                           // track-toggling methods to it so that it
+                           // is updated when the displayed tracks in
+                           // this region browser change (like from
+                           // users clicking the close button on a
+                           // track)
+                           aspect.after( thisB, 'showTracks',
+                                         function( ret, args ) {
+                                             selector.setTracksActive(
+                                                 array.map( args[0], function(t) {
+                                                     return t.getConf ? t.getConf('name') : t.name; }));
+                                             return ret;
+                                         });
+                           aspect.after( thisB, 'hideTracks',
+                                         function( ret, args ) {
+                                             selector.setTracksInactive(
+                                                 array.map( args[0], function(t) {
+                                                     return t.getConf ? t.getConf('name') : t.name; }));
+                                             return ret;
+                                         });
 
-                                                            // only trigger navigation if actually switching sequences
-                                                            if( newRefName != this.ref.get('name') ) {
-                                                                this.navigateTo(newRefName);
-                                                            }
-                                                        })
-                               }).placeAt( refSeqSelectBoxPlaceHolder );
+                           // be sure to clean up the selector if it
+                           // is not cleaned up by the regular
+                           // destruction cycle
+                           aspect.after( thisB, 'destroy',
+                                         function() {
+                                             if( ! selector._destroyed )
+                                                 selector.destroyRecursive();
+                                         });
+                           return selector;
                        });
+            }.call(this) )
+    ).then( function( selector ) {
+                selector.show();
+                return selector;
+            });
+},
 
-            // calculate how big to make the location box:  make it big enough to hold the
-            var locLength = thisB.getConf('locationBoxLength') || function() {
-                // if we have no refseqs, just use 20 chars
-                if( ! refSeqOrder.length )
-                    return 20;
+// scroll the display if necessary to show the given track
+// widget, then do some kind of animation on it to draw the user's
+// attention to it.
+_drawAttentionToTrackWidget: function( trackWidget ) {
+    // TODO
+},
 
-                // if there are not tons of refseqs, pick the longest-named
-                // one.  otherwise just pick the last one
-                var ref = refSeqOrder.length < 1000
-                    && function() {
-                           var longestNamedRef;
-                           array.forEach( refSeqOrder, function(ref) {
-                               if( ! longestNamedRef
-                                   || (longestNamedRef.get('end') - longestNamedRef.get('start')) < (ref.get('end') - ref.get('start')) )
-                                   longestNamedRef = ref;
-                           });
-                           return longestNamedRef;
-                       }.call()
-                    || refSeqOrder.length && refSeqOrder[ refSeqOrder.length - 1 ].get('name').length
-                    || 20;
+// display the given track objects in this region view.  for each
+// track object, if a widget already exists in this view for a track,
+// returns it.  otherwise, makes and returns a new widget.  returns a
+// Deferred array of the track widgets
+showTracks: function( trackObjects ) {
+    var thisB = this;
+    return all( array.map( trackObjects, function( trackObject ) {
+        if( ! trackObject )
+            return undefined;
 
-                var locstring = Util.assembleLocStringWithLength(
-                    { ref: ref.get('name'),
-                      start: ref.get('end')-1,
-                      end: ref.get('end'),
-                      length: ref.get('end') - ref.get('start')
+        var existingWidget;
+        if(( existingWidget = thisB._getTrackWidgetForTrack( trackObject ) )) {
+            thisB._drawAttentionToTrackWidget( existingWidget );
+            return Util.resolved( existingWidget );
+        }
+
+        return trackObject.newWidget({ genomeView: thisB })
+            .then( function( trackWidget ) {
+                       thisB.trackPane.addChild( trackWidget );
+                       return trackWidget;
+                   });
+    }));
+},
+
+// given a Y offset from the top of the regionbrowser,
+getTrackWidgetForCoordinate: function( x, y ) {
+    var el = document.elementFromPoint( x, y );
+    function allParents( node, p ) {
+        if( node.parentNode ) {
+            p.push( node.parentNode );
+            allParents( node.parentNode, p );
+        }
+        return p;
+    }
+
+    // if the cursor is in this regionbrowser
+    var parents;
+    var trackWidget;
+    if( el && ( parents = allParents( el, [el] ) ).indexOf( this.domNode ) != -1 ) {
+        // iterate through the nodes and find the first one that is a track widget
+        array.some( parents, function( node ) {
+                        var widget;
+                        try {
+                            widget = dijitRegistry.byNode( node );
+                            if( widget instanceof TrackWidget )
+                                return trackWidget = widget;
+                        } catch(e) {}
+                        return false;
                     });
+    }
 
-                //console.log( locstring, locstring.length );
-                return locstring.length;
-            }.call(thisB) || 20;
+    return trackWidget;
+},
 
-            thisB.locationBox.domNode.style.width = locLength+'ex';
+// destroy any displayed widgets for the given track object.  returns
+// nothing.
+hideTracks: function( trackObjects ) {
+    array.forEach( trackObjects, function( trackObject ) {
+        var widget = this._getTrackWidgetForTrack( trackObject );
+        if( widget ) {
+           this.trackPane.removeChild( widget );
+           widget.destroyRecursive();
+        }
+    },this);
+},
 
-        });
+startup: function() {
+    //console.log('pre startup '+this.getConf('name') );
+    this.inherited(arguments);
 
-    // zoom controls
-    var zoomControlsContainer = domConstruct.create(
-        'div',
-        { className: 'controlGroup zoomControls' },
-        domConstruct.create('td', { className: 'zoomControlsLayout' }, tableLayout )
-    );
-    var zoomOut = domConstruct.create('span', {
-                                          className: "icon nav zoomOut"
-                                      }, zoomControlsContainer );
-    this.own( on( zoomOut, "click",
-                  function(event) {
-                      dojoEvent.stop(event);
-                      if( thisB.zoomSlider )
-                          thisB.zoomSlider.set( 'value', Math.max( 0, thisB.zoomSlider.get('value')-1 ) );
-                      thisB.zoomOut(undefined,undefined, 1);
-                  }));
-    this.zoomSliderContainer =
-        domConstruct.create('span', {
-                        className: 'nav zoomSliderContainer'
-                    }, zoomControlsContainer );
-    this.zoomSliderText =
-        domConstruct.create('div', {
-                        className: 'zoomSliderText'
-                    }, this.zoomSliderContainer );
-    var zoomIn = domConstruct.create('span', {
-                                          className: "icon nav zoomIn"
-                                      }, zoomControlsContainer );
-    this.own( on( zoomIn, "click",
-                  function(event) {
-                      dojoEvent.stop(event);
-                      if( thisB.zoomSlider )
-                          thisB.zoomSlider.set( 'value', Math.min( thisB.zoomLevels.length-1, thisB.zoomSlider.get('value')+1 ) );
-                      thisB.zoomIn(undefined,undefined,1);
-                  }));
+    //console.log('post startup '+this.getConf('name') );
+},
 
-    // pan controls
-    var panControlsContainer = domConstruct.create(
-        'div',
-        { className: 'controlGroup panControls' },
-        domConstruct.create('td', { className: 'panControlsLayout' }, tableLayout )
-    );
-    var panLeft = domConstruct.create('span', {
-                                          className: "icon nav panLeft"
-                                      }, panControlsContainer );
-    this.own( on( panLeft, "click",
-                  function(event) {
-                      dojoEvent.stop(event);
-                      thisB.slide(0.9);
-                  }));
+// // from dijit
+// layout: function() {
+//     this.inherited(arguments);
+// },
 
-    domConstruct.create('span', {
-                            className: "panSeparator"
-                        }, panControlsContainer );
+showLocation: function( locstring ) {
+    this.setConf( 'location', Util.parseLocString( locstring ) );
+},
 
-    var panRight = domConstruct.create('span', {
-                                          className: "icon nav panRight"
-                                      }, panControlsContainer );
-    this.own( on( panRight, "click",
-                  function(event) {
-                      dojoEvent.stop(event);
-                      thisB.slide(-0.9);
-                  }));
+getContentBox: function() {
+    return lang.mixin( {}, this._contentBox );
+},
 
+resize: function() {
+    var oldContentBox = lang.mixin( {}, this._contentBox );
+    this.inherited(arguments);
+
+    var projection = this.get('projection');
+    if( projection ) {
+        var deltaW = this._contentBox.w - oldContentBox.w;
+        projection.offset( -deltaW/2 );
+    } else {
+        this._updateProjection();
+    }
 },
 
 /**
- * Create the DOM elements that will contain the rendering of the
- * given track in this genome view.
- * @private
- * @returns {HTMLElement} the HTML element that will contain the
- *                        rendering of this track
+ * Args:
+ *   location: feature object containing the requested location to display
+ *   animate: if true, animate the projection update if possible.  default true.
+ *   referenceSet: ReferenceSet object containing the new set of reference regions to display
  */
-renderTrack: function( /**Object*/ trackConfig ) {
+_updateProjection: function( args ) {
     var thisB = this;
 
-    if( !trackConfig )
-        return null;
+    //console.log('update projection');
 
-    // just return its div if this track is already on
-    var existingTrack;
-    if( array.some( this.tracks, function(t) {
-            if( t.name == trackConfig.label ) {
-                existingTrack = t;
-                return true;
-            }
-            return false;
-        })
-      ) {
-          return existingTrack.div;
-      }
+    args = lang.mixin(
+        {
+            location: this.getConf('location'),
+            animate: true
+        },
+        args || {}
+    );
 
-    var cssName = function(str) { // replace weird characters and lowercase
-        return str.replace(/[^A-Za-z_0-9]/g,'_').toLowerCase();
-    };
+    if( ! thisB._contentBox ) {
+        console.warn('_updateProjection called before _contentBox is available');
+        return undefined;
+    }
 
-    var trackName = trackConfig.label;
-    var trackDiv = domConstruct.create('div', {
-        className: ['track', cssName('track_'+trackConfig.type), cssName('track_'+trackName)].join(' ')
-    });
-    trackDiv.trackName = trackName;
+    var refSet = this.get('referenceSet');
+    var bLocation = args.location || ( args.referenceSet || this.get('referenceSet') ).getDefaultViewLocation();
+    var aLocation = new ViewLocation( { name: 'screen', center: thisB._contentBox.l + thisB._contentBox.w/2, span: thisB._contentBox.w } );
 
-    var trackClass, store;
+    // do we need to make a new projection?
+    if( args.referenceSet && args.referenceSet !== refSet || ! this.get('projection') ) {
+        refSet = args.referenceSet || this.get('referenceSet');
 
-    var makeTrack = lang.hitch(this, function() {
-        var track = new trackClass(
-            {
-                refSeq: this.ref,
-                config: trackConfig,
-                changeCallback: lang.hitch( this, 'showVisibleBlocks' ),
-                trackPadding: this.trackPadding,
-                store: store,
-                genomeView: this,
-                browser: this.browser,
-                heightUpdateCallback: lang.hitch( this, 'trackHeightUpdate', trackName ),
-                numBlocks: this.stripeCount,
-                trackDiv: trackDiv,
-                widthPct: this.stripePercent,
-                widthPx: this.stripeWidth,
-                scale: this.pxPerBp
-            });
-
-
-        if( typeof store.setTrack == 'function' )
-            store.setTrack( track );
-
-        trackDiv.track = track;
-
-
-        track.updateStaticElements({
-            x: this.getX(),
-            y: this.getY(),
-            height: this.getHeight(),
-            width: this.getWidth()
-         });
-
-        this.updateTrackList();
-    });
-
-    // might need to load both the store and the track class, so do it in
-    // parallel and have whichever one completes last do the actual
-    // track making.
-
-    if( ! trackConfig.store )
-        console.warn("configuration for track "+trackConfig.label+" has no store set", trackConfig );
-
-
-    // get the store
-    this.browser.getStore( trackConfig.store, function( s ) {
-            store = s;
-            if( trackClass && store )
-                makeTrack();
+        return when( bLocation ).then( function( bLocation ) {
+            return thisB.set( 'projection', new RegionsProjection(
+                           //this.set( 'projection', new CircularProjection(
+                           //this.set( 'projection', new CanonicalLinearProjection(
+                           { aLocation: aLocation, bLocation: bLocation, bLength: 10000,
+                             aName: 'screen', bName: refSet.getName(),
+                             store: refSet,
+                             stranded: false
+                           }
+                       )
+                     );
         });
+    }
+    // otherwise, if we already have a projection, move to the new location
+    else if( this.get('projection') ) {
+        return when( bLocation ).then( function( bLocation ) {
+            return thisB.get('projection').matchLocations( aLocation, bLocation, args.animate ? 800 : undefined );
+        });
+    }
 
-    // get the track class
-    require( [ trackConfig.type ], function( class_ ) {
-        trackClass = class_;
-        if( trackClass && store )
-            makeTrack();
-    });
 
-    return trackDiv;
+    throw new Error('this should not be reached');
 },
 
-trackIterate: function(callback) {
-    var i;
-    for (i = 0; i < this.uiTracks.length; i++)
-        callback.call(this, this.uiTracks[i], this);
-    for (i = 0; i < this.tracks.length; i++)
-        callback.call(this, this.tracks[i], this);
+// get the center coordinate, in basepairs, of the currently displayed view
+_locationCenter: function( location ) {
+    if( ! location ) location = this.getConf('location');
+    if( ! location ) return undefined;
+    return ( location.get('end') + location.get('start') )/2;
 },
 
-
-/* this function must be called whenever tracks in the GenomeView
- * are added, removed, or reordered
- */
-updateTrackList: function() {
-    var tracks = [],
-        oldtracks = JSON.stringify( this.trackIndices || {} );
-
-    // after a track has been dragged, the DOM is the only place
-    // that knows the new ordering
-    var containerChild = this.trackContainer.firstChild;
-    do {
-        // this test excludes UI tracks, whose divs don't have a track property
-        if (containerChild.track)
-            tracks.push(containerChild.track);
-    } while ((containerChild = containerChild.nextSibling));
-
-    // sort so that the pinned tracks come first.  also, sorting is
-    // not stable in all implementations, need to stabilize it
-    // ourselves by doing a schwartzian transform with the indices
-    tracks = array.map( tracks, function(t,i) {
-                            return [t,i];
-                        });
-    tracks = tracks.sort( function( a, b ) {
-        var ap = a[0].isPinned() ? 1 : 0, bp = b[0].isPinned() ? 1 : 0;
-        return (bp - ap) || (a[1] - b[1]);
-    });
-    tracks = array.map( tracks, function( tr ) { return tr[0]; } );
-
-    // create or destroy the pinned-track underlay as needed
-    if( tracks[0] && tracks[0].isPinned() ) {
-        if( ! this.pinUnderlay )
-            this.pinUnderlay = domConstruct.create('div', {
-                                                       className: 'pin_underlay',
-                                                       style: 'top: '+this.topSpace
-                                                   }, this.zoomContainer );
-        if( ! this.pinGridlinesTrack ) {
-            var gridTrackDiv = domConstruct.create(
-                "div",
-                { className: "track",
-                  style: "top: 0px; height: 100%"
-                },
-                this.pinUnderlay );
-            this.pinGridlinesTrack = new GridLinesTrack(
-                {
-                    browser: this.browser,
-                    refSeq: this.ref,
-                    genomeView: this,
-                    numBlocks: this.stripeCount,
-                    trackDiv: gridTrackDiv,
-                    widthPct: this.stripePercent,
-                    widthPx: this.stripeWidth,
-                    scale: this.pxPerBp
-                });
-            this.uiTracks.push( this.pinGridlinesTrack );
-        }
-    }
-    else if( this.pinUnderlay ) {
-        domConstruct.destroy( this.pinUnderlay );
-        delete this.pinUnderlay;
-        this.uiTracks = array.filter( this.uiTracks, function(t) {
-                                          return t !== this.pinGridlinesTrack;
-                                      }, this );
-        delete this.pinGridlinesTrack;
-    }
-
-
-    // set the new tracklist
-    var oldTracks = this.tracks;
-    this.tracks = tracks;
-
-    // recalculate this.trackHeights and this.trackIndices
-    var newIndices = {};
-    var newHeights = new Array(this.tracks.length);
-    var totalHeight = 0;
-    for (var i = 0; i < tracks.length; i++) {
-        newIndices[tracks[i].name] = i;
-        if (tracks[i].name in this.trackIndices) {
-            newHeights[i] = this.trackHeights[this.trackIndices[tracks[i].name]];
-        } else {
-            newHeights[i] = 0;
-        }
-        totalHeight += newHeights[i];
-        this.trackIndices[tracks[i].name] = i;
-    }
-    this.trackIndices = newIndices;
-    this.trackHeights = newHeights;
-
-    // call destroy on any tracks that are being thrown out
-    array.forEach( oldTracks || [], function( track ) {
-        if( ! ( track.name in newIndices ) ) {
-            Util.removeAttribute( track.div, 'track' ); //< because this file put it there
-            track.destroy();
-        }
-    }, this );
-
-    // lay the tracks out bottom to top
-    this.layoutTracks();
-
-    this.updateScroll();
-
-    // publish a message if the visible tracks or their ordering has changed
-    if( oldtracks != JSON.stringify( this.trackIndices || {} ) ) {
-        this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
-        this.showVisibleBlocks();
-    }
+slide: function( factor ) {
+    if( this._contentBox && this.get('projection') )
+        this.get('projection').offset( this._contentBox.w * -factor, this.getConf('slideAnimationDuration') );
 },
 
-
-/**
- * Lay out all shown tracks.
- */
-layoutTracks: function() {
-    // lay out the track tops
-    var nextTop = this.topSpace;
-    var lastTop = 0;
-    var pinnedHeight = 0;
-    var lastWasPinned = false;
-    array.forEach( this.tracks, function( track, i ) {
-        this.trackTops[i] = nextTop;
-        lastTop = nextTop;
-
-        if( track.isPinned() ) {
-            track.div.style.top = nextTop + "px";
-            lastWasPinned = true;
-        }
-        else {
-            track.div.style.top = nextTop - this.y + ( lastWasPinned ? 15 : 0 ) + "px";
-            lastWasPinned = false;
-        }
-
-        if ( track.shown ) {
-            nextTop += this.trackHeights[i] + this.trackPadding;
-            if( track.isPinned() )
-                pinnedHeight = nextTop;
-        }
-
-    }, this );
-    if( pinnedHeight && this.pinUnderlay ) {
-        this.pinUnderlay.style.height = pinnedHeight + 'px';
-    }
-
-    this.containerHeight = Math.max( nextTop||0, Math.min( this.getY(), lastTop ) + this.getHeight() );
-    this.zoomContainer.style.height = this.containerHeight + "px";
+zoom: function( factor ) {
+    if( this._contentBox && this.get('projection') )
+        this.get('projection').zoom( factor, this._contentBox.l+this._contentBox.w/2, this.getConf('zoomAnimationDuration') );
 }
+
+
 });
 });

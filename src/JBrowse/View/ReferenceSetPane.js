@@ -12,7 +12,7 @@ define([
            'dijit/form/ComboBox',
 
            'JBrowse/Component',
-           'JBrowse/View/RegionBrowser2'
+           'JBrowse/View/RegionBrowser'
        ],
 
        function(
@@ -25,7 +25,7 @@ define([
            ComboBox,
 
            Component,
-           RegionBrowser2
+           RegionBrowser
        ) {
 
 var ReferenceSetPaneHeader = declare( ContentPane, {
@@ -76,8 +76,8 @@ return declare( [BorderContainer,Component], {
           { name: 'views', type: 'multi-object',
             description: 'views that are currently open',
             defaultValue: [
-                { type: 'JBrowse/View/RegionBrowser2' },
-                { type: 'JBrowse/View/RegionBrowser2' }
+                { type: 'JBrowse/View/RegionBrowser' },
+                { type: 'JBrowse/View/RegionBrowser' }
             ]
           }
       ]
@@ -114,7 +114,7 @@ return declare( [BorderContainer,Component], {
                          if( ! set )
                              return;
 
-                         thisB.views.push( new RegionBrowser2(
+                         thisB.views.push( new RegionBrowser(
                                                { browser: thisB.browser,
                                                  referenceSet: set,
                                                  referenceSetPane: thisB,
