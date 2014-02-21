@@ -288,11 +288,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             featDivChildren = featDiv.childNodes;
                             for( var j = 0; j<featDivChildren.length; j++ ) {
                                 arrowhead = featDivChildren[j];
+                                blockWidth=block.endBase- block.startBase;
                                 if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
-                                    arrowhead.style.right =
+                                    arrowhead.style.right =  
                                         ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
                                                          : -this.plusArrowWidth
                                         ) + 'px';
+                                    //console.log(arrowhead.style.right+" "+block.bpToX( fmax )+ " "+block.bpToX( viewmax )+" "+fmax+" "+viewmax+" "+(fmax > viewmax)+" "+block.startBase+" "+block.endBase+" "+fmin+" "+fmax);
                                 }
                             }
                         }

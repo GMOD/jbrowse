@@ -23,6 +23,7 @@ return declare( Destroyable, {
     },
 
     bpToX: function( coord ) {
+        //console.log(coord+" "+this.startBase+" "+this.scale+" "+(coord-this.startBase)*this.scale);
         return (coord-this.startBase)*this.scale;
     },
 
