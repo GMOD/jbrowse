@@ -1,3 +1,7 @@
+/**
+ * Track selector that shows the available tracks in a hierarchical
+ * view.  Not suitable for more than about 100 tracks.
+ */
 define(['dojo/_base/declare',
         'dojo/_base/array',
         'dojo/_base/lang',
@@ -6,6 +10,7 @@ define(['dojo/_base/declare',
         'dojo/on',
         'dojo/json',
         'dojo/when',
+        'dojo/Deferred',
 
         'dijit/layout/BorderContainer',
         'dijit/TitlePane',
@@ -23,6 +28,7 @@ define(['dojo/_base/declare',
            on,
            JSON,
            when,
+           Deferred,
 
            BorderContainer,
            TitlePane,
@@ -51,8 +57,11 @@ return declare(
         this._loadState();
 
         Util.validate( args, { onTrackHide: 'function', onTrackShow: 'function', metaDataStore: 'object' });
+
+        this._loaded = new Deferred();
     },
 
+    // from dijit
     buildRendering: function() {
         this.inherited(arguments);
 
@@ -76,13 +85,14 @@ return declare(
         this._updateTextFilterControl();
     },
 
+    // from dijit
     startup: function() {
         this.inherited( arguments );
 
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
-        return this._getTrackMetaRecords()
+        this._getTrackMetaRecords()
             .then( function( items ) {
                        tracks = array.filter( items, function(i) { return i.config; });
 
@@ -102,7 +112,11 @@ return declare(
                            //thisB.removeChild( thisB.categories.Uncategorized.pane );
                            thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                        }
-                   });
+
+                       thisB._loaded.resolve();
+                   },
+                   thisB._loaded.reject
+                 );
     },
 
     _getTrackMetaRecords: function() {
@@ -118,6 +132,8 @@ return declare(
             ));
     },
 
+    // add an array of new tracks to the track selector.  inStartup
+    // flag should not be passed except when initializing this object.
     addTracks: function( tracks, inStartup ) {
         this.pane = this;
         var thisB = this;
@@ -247,29 +263,36 @@ return declare(
         return false;
     },
 
-    replaceTracks: function( trackConfigs ) {
-    },
-
     /**
      * Given an array of track names, update the track list to show
      * that they are turned on.
      */
     setTracksActive: function( /**Array[String]*/ trackNames ) {
-          array.forEach( trackNames, function(name) {
-              this._findTrack( name, function( trackRecord, category ) {
-                trackRecord.checkbox.checked = true;
-            });
-        },this);
+        var thisB = this;
+        return this._loaded.then( function() {
+            array.forEach( trackNames, function(name) {
+                this._findTrack( name, function( trackRecord, category ) {
+                  trackRecord.checkbox.checked = true;
+              });
+          },thisB);
+        });
     },
 
+
+    /**
+     * Given an array of track names, delete them from the track selector.
+     */
     deleteTracks: function( /**Array[String]*/ trackNames ) {
-          array.forEach( trackNames, function(name) {
-              this._findTrack( name, function( trackRecord, category ) {
-                  trackRecord.labelNode.parentNode.removeChild( trackRecord.labelNode );
-                  trackRecord.checkListener.remove();
-                  delete category.tracks[conf.label];
-              });
-          },this);
+        var thisB = this;
+        return this._loaded.then( function() {
+            array.forEach( trackNames, function(name) {
+                this._findTrack( name, function( trackRecord, category ) {
+                    trackRecord.labelNode.parentNode.removeChild( trackRecord.labelNode );
+                    trackRecord.checkListener.remove();
+                    delete category.tracks[conf.label];
+                });
+            },thisB);
+        });
     },
 
     /**
@@ -277,27 +300,35 @@ return declare(
      * that they are turned off.
      */
     setTracksInactive: function( /**Array[String]*/ trackNames ) {
-          array.forEach( trackNames, function(name) {
-            this._findTrack( name, function( trackRecord, category ) {
-                trackRecord.checkbox.checked = false;
-            });
-        },this);
+        var thisB = this;
+        return this._loaded.then( function() {
+            array.forEach( trackNames, function(name) {
+                this._findTrack( name, function( trackRecord, category ) {
+                  trackRecord.checkbox.checked = false;
+              });
+          },thisB);
+        });
     },
 
-    _textFilter: function() {
-        this.inherited(arguments);
-        this._updateAllTitles();
-    },
-
+    /**
+     * Show the track selector in the UI, if it is not already shown.
+     */
     show: function() {
         if( ! this.getParent() )
             this.get('regionBrowser').addChild( this );
     },
 
+    /**
+     * Hide track selector in the UI, if it is not already hidden.
+     */
     hide: function() {
         if( this.getParent() )
             this.getParent().removeChild( this );
-    }
+    },
 
+    _textFilter: function() {
+        this.inherited(arguments);
+        this._updateAllTitles();
+    }
 });
 });

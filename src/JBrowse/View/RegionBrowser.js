@@ -23,6 +23,7 @@ define([
            'JBrowse/Projection/Circular',
            'JBrowse/Projection/Discontinuous/FromStore',
 
+           'JBrowse/Track/Widget',
            'JBrowse/View/Track',
            'JBrowse/View/Track/BlockList',
            'JBrowse/View/Track/BlockList/Block',
@@ -58,6 +59,7 @@ define([
            RegionsProjection,
 
            TrackWidget,
+           SubtrackWidget,
            RenderingBlockList,
            RenderingBlock,
            ScaleBar,
@@ -351,6 +353,16 @@ showTrackSelector: function() {
                                              if( ! selector._destroyed )
                                                  selector.destroyRecursive();
                                          });
+
+                           // set as active in the track selector all
+                           // the tracks that are currently active in
+                           // this regionbrowser
+                           selector.setTracksActive(
+                               array.map( thisB.getTrackWidgets(),
+                                          function( tw ) {
+                                              return tw.get('track').getConf('name');
+                                          }));
+
                            return selector;
                        });
             }.call(this) )
@@ -358,6 +370,18 @@ showTrackSelector: function() {
                 selector.show();
                 return selector;
             });
+},
+
+// get an array of the track widgets that are currently displayed in
+// this view
+getTrackWidgets: function() {
+    return array.filter(
+        this.trackPane && this.trackPane.getChildren() || [],
+        function( c ) {
+            return c instanceof TrackWidget;
+        },
+        this
+    );
 },
 
 // scroll the display if necessary to show the given track
