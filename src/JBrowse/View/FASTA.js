@@ -30,7 +30,7 @@ return declare(null,
                                   { iconClass: 'dijitIconSave',
                                     label: 'FASTA',
                                     title: 'save as FASTA',
-                                    disabled: dojo.isSafari,
+                                    disabled: has('safari'),
                                     onClick: function() {
                                         thisB.track._fileDownload(
                                             { format: 'FASTA',
