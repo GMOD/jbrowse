@@ -123,13 +123,6 @@ src/wig2png/Makefile: src/wig2png/configure
 src/wig2png/configure: src/wig2png/configure.in
 	cd src/wig2png && autoconf
 
-docs: doc
-
-doc: docs/jsdoc/index.html
-
-docs/jsdoc/index.html: $(JS_SRCFILES)
-	cd src/jsdoc_toolkit-*/ && java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=../../docs/jsdoc $(JS_SRCFILES)
-
 superclean: clean
 	-git clean -fdx
 

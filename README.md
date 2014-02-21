@@ -42,17 +42,6 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
     JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
-# Using the embedded JavaScript documentation
-
-The embedded documentation is written in JSDoc.  See
-http://code.google.com/p/jsdoc-toolkit.
-
-Running `bin/jbdoc ArrayRepr` will open your browser with
-documentation about ArrayRepr.js.
-
-Go [here](http://code.google.com/p/jsdoc-toolkit/w/list) for a
-comprehensive list of JSDoc tags.
-
 # Cutting a JBrowse release
 
 1. Edit the JBrowse `package.json` file and change 'version' to the version you are releasing.  *Don't commit this change to the repository, it should stay as `dev` in git so that it shows up in analytics as a development version.*
