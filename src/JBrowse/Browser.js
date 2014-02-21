@@ -1747,24 +1747,7 @@ navigateTo: function(loc) {
                           return;
 
                       // if it's a foo:123..456 location, go there
-                      var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-                      // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
-                      if( location && ("start" in location) && ("end" in location)) {
-                          thisB.navigateToLocation( location );
-                          return;
-                      }
-                      // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
-                      else {
-                          if( typeof loc != 'string')
-                              loc = loc.ref;
-
-                          // is it just the name of one of our ref seqs?
-                          var ref = thisB.findReferenceSequence( loc );
-                          if( ref ) {
-                              thisB.navigateToLocation( { ref: ref.name } );
-                              return;
-                          }
-                      }
+                      if(!thisB.callLocation(loc)){return;}
 
                       new InfoDialog(
                           {
@@ -1782,7 +1765,7 @@ callLocation: function(loc){var thisB=this;
      // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
      if( location && ("start" in location) && ("end" in location)) {
         thisB.navigateToLocation( location );
-        return;
+        return false;
      }
      // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
      else {
@@ -1792,7 +1775,7 @@ callLocation: function(loc){var thisB=this;
         var ref = thisB.findReferenceSequence( loc );
         if( ref ) {
                 thisB.navigateToLocation( { ref: ref.name } );
-                return;
+                return false;
         }
      }
 },
