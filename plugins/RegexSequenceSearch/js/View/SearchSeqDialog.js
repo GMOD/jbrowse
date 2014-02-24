@@ -71,13 +71,13 @@ return declare( ActionBarDialog, {
 
         var translateDiv = dom.create("form", {
             action: ""
-        }, textOptionsDiv );
+        } );
         var DNADiv = dom.create("div", {
-            className:"checkboxdiv"
-        }, translateDiv);
+            className:"radioboxdiv"
+        });
         var RNADiv = dom.create("div", {
-            className:"checkboxdiv"
-        }, translateDiv);
+            className:"radioboxdiv"
+        });
         var DNADivContent = new dRButton({
                                         name: "type",
                                         value: "DNA"
@@ -93,6 +93,8 @@ return declare( ActionBarDialog, {
         RNADiv.appendChild(content.translate.domNode);
         dom.create( "label", { innerHTML: "RNA" }, RNADiv );
         dom.create( "label", { innerHTML: "DNA" }, DNADiv );
+        //searchBoxDiv.insertBefore(translateDiv,searchBoxDiv.firstChild.nextSibling);
+        searchBoxDiv.firstChild.appendChild(translateDiv);
         translateDiv.appendChild( RNADiv );
         translateDiv.appendChild( DNADiv );
 
