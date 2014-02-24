@@ -1421,6 +1421,10 @@ loadConfig: function () {
          .then( dojo.hitch(this, function( finishedConfig ) {
                                this.config = finishedConfig;
 
+                               //apply document.domain from a loaded conf file
+                               if( !this.config.document.domain&&this.config.document.domain!="" )
+                                   document.domain=this.config.document.domain;
+
                                // pass the tracks configurations through
                                // addTrackConfigs so that it will be indexed and such
                                var tracks = finishedConfig.tracks || [];
