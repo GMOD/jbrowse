@@ -1422,8 +1422,8 @@ loadConfig: function () {
                                this.config = finishedConfig;
 
                                //apply document.domain from a loaded conf file
-                               if( this.config.document&& this.config.document.domain &&this.config.document.domain!="" )
-                                   document.domain=this.config.document.domain;
+                               if( this.config.documentDomain )
+                                   document.domain=this.config.documentDomain;
 
                                // pass the tracks configurations through
                                // addTrackConfigs so that it will be indexed and such
