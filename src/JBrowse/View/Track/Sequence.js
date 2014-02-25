@@ -123,7 +123,7 @@ return declare( [BlockBased, ExportMixin],
 
         var extStart = blockStart-2;
         var extEnd = blockStart+2;
-        var extStartSeq = seq.substring( 0, seq.length - 2 );
+        var extStartSeq = seq.substring( 0, seq.length - 2 - ((seq.length-2)%3) );// align frames across blocks by forcing mod3
         var extEndSeq = seq.substring( 2 );
 
         if( this.config.showForwardStrand && this.config.showTranslation ) {
