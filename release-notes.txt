@@ -6,6 +6,17 @@
    canvas-based feature tracks.  Thanks to Paul Hale for the initial
    implementation of this.
 
+ * Fixed the problem of translation frames being switched around at 
+   different zoom levels. Thanks to @nerdstrike for the bug report
+   and @cmdcolin for the bugfix (issue #435)
+
+ * Allow the user to set the document.domain property via jbrowse.conf
+   which can be helpful especially if jbrowse is embedded in a iframe.
+   Thanks to Kieran Raine for the idea (issue #440)
+
+ * Disabled the FASTA download button on Safari for the time being 
+   since this is can't currently be supported on their browser.
+
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 
 ## Minor improvements
