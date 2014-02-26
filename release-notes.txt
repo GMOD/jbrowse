@@ -7,7 +7,7 @@
    implementation of this.
 
  * Fixed the problem of translation frames being switched around at 
-   different zoom levels. Thanks to @nerdstrike for the bug report
+   different zoom levels. Thanks to Kieron Taylor for the bug report
    and Colin Diesh for the bugfix (issue #435)
 
  * Allow the user to set the document.domain property via jbrowse.conf
