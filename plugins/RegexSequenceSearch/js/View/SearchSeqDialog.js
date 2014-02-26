@@ -58,8 +58,8 @@ return declare( ActionBarDialog, {
             dom.create('span', { innerHTML: args.label }, label );
             return radio;
         }
-        makeRadio( { name: 'translate', value: 'no', label: 'DNA' }, translateDiv );
-        content.translate = makeRadio( { name: 'translate', value: 'yes', label: 'protein' }, translateDiv );
+        makeRadio( { name: 'translate', value: 'no', label: 'DNA', checked: true }, translateDiv );
+        content.translate = makeRadio( { name: 'translate', value: 'yes', label: 'AA' }, translateDiv );
 
         content.searchBox = new dTextBox({}).placeAt( searchBoxDiv );
 
