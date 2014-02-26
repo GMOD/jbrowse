@@ -5,7 +5,7 @@ define([
            'dijit/Toolbar',
            'dijit/form/Button',
            'JBrowse/Util',
-           'dojo/has'
+           'JBrowse/has'
        ],
        function( declare, dom, Toolbar, Button, Util, has ) {
 
@@ -30,7 +30,7 @@ return declare(null,
                                   { iconClass: 'dijitIconSave',
                                     label: 'FASTA',
                                     title: 'save as FASTA',
-                                    disabled: has('safari'),
+                                    disabled: ! has('save-generated-files'),
                                     onClick: function() {
                                         thisB.track._fileDownload(
                                             { format: 'FASTA',
