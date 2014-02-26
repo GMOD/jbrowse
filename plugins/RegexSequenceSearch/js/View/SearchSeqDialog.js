@@ -49,9 +49,19 @@ return declare( ActionBarDialog, {
                         className: "header",
                         innerHTML: "Search for"
                     }, searchBoxDiv );
-        content.searchBox = new dTextBox({});
-        searchBoxDiv.appendChild( content.searchBox.domNode );
+        var translateDiv = dom.create("div", {
+            className: "translateContainer"
+        }, searchBoxDiv );
+        function makeRadio( args, parent ) {
+            var label = dom.create('label', {}, parent );
+            var radio = new dRButton( args ).placeAt( label );
+            dom.create('span', { innerHTML: args.label }, label );
+            return radio;
+        }
+        makeRadio( { name: 'translate', value: 'no', label: 'DNA' }, translateDiv );
+        content.translate = makeRadio( { name: 'translate', value: 'yes', label: 'protein' }, translateDiv );
 
+        content.searchBox = new dTextBox({}).placeAt( searchBoxDiv );
 
         // Render 'ignore case' checkbox
         var textOptionsDiv = dom.create('div', {
@@ -69,35 +79,6 @@ return declare( ActionBarDialog, {
         dom.create( "label", { "for": "search_ignore_case", innerHTML: "Ignore Case"}, caseDiv );
 
 
-        var translateDiv = dom.create("form", {
-            action: ""
-        } );
-        var DNADiv = dom.create("div", {
-            className:"radioboxdiv"
-        });
-        var RNADiv = dom.create("div", {
-            className:"radioboxdiv"
-        });
-        var DNADivContent = new dRButton({
-                                        name: "type",
-                                        value: "DNA"
-                                    });
-        // Checkbox that toggles amino acid search
-        content.translate = new dRButton({
-                                                label: "Translate sequence before searching",
-                                                id: "search_translate_first",
-                                                name: "type",
-                                                value:"RNA"
-                                            });
-        DNADiv.appendChild(DNADivContent.domNode);
-        RNADiv.appendChild(content.translate.domNode);
-        dom.create( "label", { innerHTML: "RNA" }, RNADiv );
-        dom.create( "label", { innerHTML: "DNA" }, DNADiv );
-        //searchBoxDiv.insertBefore(translateDiv,searchBoxDiv.firstChild.nextSibling);
-        searchBoxDiv.firstChild.appendChild(translateDiv);
-        translateDiv.appendChild( RNADiv );
-        translateDiv.appendChild( DNADiv );
-
 
         // Render 'treat as regex' checkbox
         var regexDiv = dom.create("div", {
@@ -106,8 +87,7 @@ return declare( ActionBarDialog, {
         content.regex = new dCheckBox({
                                         label: "Treat as regular expression",
                                         id: "search_as_regex"
-                                    });
-        regexDiv.appendChild( content.regex.domNode );
+                                    }).placeAt( regexDiv );
         dom.create( "label", { "for": "search_as_regex", innerHTML: "Treat as regular expression" }, regexDiv );
 
         // Render 'forward strand' and 'reverse strand' checkboxes

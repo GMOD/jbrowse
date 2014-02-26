@@ -1,5 +1,4 @@
 .search-dialog .header {
-    display: block;
     font-weight: bold;
 }
 
@@ -7,13 +6,11 @@
     display:block;
 }
 
-.search-dialog form {
+.search-dialog .translateContainer {
     display:inline;
-    margin-left:5px;
 }
-
-.search-dialog .radioboxdiv {
-    display:inline;
+.search-dialog .translateContainer > label {
+    margin-left: 0.4em;
 }
 
 .search-dialog .intro {
