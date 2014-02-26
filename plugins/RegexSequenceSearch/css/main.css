@@ -7,6 +7,15 @@
     display:block;
 }
 
+.search-dialog form {
+    display:inline;
+    margin-left:5px;
+}
+
+.search-dialog .radioboxdiv {
+    display:inline;
+}
+
 .search-dialog .intro {
     width: 25em;
     padding: 2em;
