@@ -8,14 +8,17 @@
 
  * Fixed the problem of translation frames being switched around at 
    different zoom levels. Thanks to @nerdstrike for the bug report
-   and @cmdcolin for the bugfix (issue #435)
+   and Colin Diesh for the bugfix (issue #435)
 
  * Allow the user to set the document.domain property via jbrowse.conf
    which can be helpful especially if jbrowse is embedded in a iframe.
-   Thanks to Kieran Raine for the idea (issue #440)
+   Thanks to Kieran Raine for the idea and Colin Diesh for the bugfix
+   (issue #440)
 
- * Disabled the FASTA download button on Safari for the time being 
-   since this is can't currently be supported on their browser.
+ * Disabled the FASTA download button in the "View details" page on 
+   Safari (issue #412). This feature can't be supported in Safari at 
+   this time, but it is still supported in most other browsers. Rob 
+   Buels and Colin Diesh contributed fixes to this issue.
 
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 
