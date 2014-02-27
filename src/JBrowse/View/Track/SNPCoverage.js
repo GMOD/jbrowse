@@ -43,7 +43,8 @@ return declare( [WiggleXY, AlignmentsMixin],
                 hideQCFailingReads: true,
                 hideSecondary: true,
                 hideSupplementary: true,
-                hideMissingMatepairs: false
+                hideMissingMatepairs: false,
+                hideUnmapped: true
             }
         );
     },
