@@ -25,7 +25,13 @@
    and a nucleotide sequence.  Thanks to Kevin Mohamed for the initial
    implementation of this (issue #436).
 
- * Fixed a problem where the feature arrowhead would get stuck in the 
+ * Expanded the default color set of `Alignments2` tracks to show
+   different shades of color indications of reads with missing mate
+   pairs, improperly aligned reads, and reads with mate pairs on
+   different reference sequences.  Thanks to Keiran Raine for
+   implementing this (issue #443).
+
+ * Fixed a problem where the feature arrowhead would get stuck in the
    middle of the screen at high zoom levels. Thanks to Colin Diesh for
    the fix (issue #449).
 
