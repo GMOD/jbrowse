@@ -1207,7 +1207,6 @@ maxVisible: function() {
     var scrollbar = this.pxToBp( this.verticalScrollBarVisibleWidth() );
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
-    console.log((mv > this.ref.end - this.pxToBp(1))+" "+(this.ref.end - scrollbar)+" "+(Math.round(mv) - scrollbar)+" "+this.x + " "+this.offset + " "+this.getWidth()); 
     if( mv > this.ref.end - this.pxToBp(1) )
         return this.ref.end - scrollbar;
     else

@@ -259,6 +259,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         if( ! featDiv.feature )
                             continue;
                         var feature = featDiv.feature;
+
+                        // Retrieve containerStart/End to resolve div truncation from renderFeature
+                        var containerStart = featDiv._containerStart;
+                        var containerEnd = featDiv._containerEnd;
+
                         var strand  = feature.get('strand');
                         if( ! strand )
                             continue;
@@ -267,6 +272,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                         var fmax    = feature.get('end');
                         var arrowhead;
                         var featDivChildren;
+                        //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
+                        var displayStart = Math.max( fmin, containerStart );
+                        var displayEnd = Math.min( fmax, containerEnd );
 
                         // minus strand
                         if( strand < 0 && fmax > viewmin ) {
@@ -276,7 +284,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 arrowhead = featDivChildren[j];
                                 if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
                                     arrowhead.style.left =
-                                        ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( fmin )
+                                        ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
                                                          : -this.minusArrowWidth
                                         ) + 'px';
                                 };
@@ -288,13 +296,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             featDivChildren = featDiv.childNodes;
                             for( var j = 0; j<featDivChildren.length; j++ ) {
                                 arrowhead = featDivChildren[j];
-                                blockWidth=block.endBase- block.startBase;
                                 if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
                                     arrowhead.style.right =  
-                                        ( fmax > viewmax ? block.bpToX( fmax ) - block.bpToX( viewmax )
+                                        ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax )
                                                          : -this.plusArrowWidth
                                         ) + 'px';
-                                    //console.log(arrowhead.style.right+" "+block.bpToX( fmax )+ " "+block.bpToX( viewmax )+" "+fmax+" "+viewmax+" "+(fmax > viewmax)+" "+block.startBase+" "+block.endBase+" "+fmin+" "+fmax);
                                 }
                             }
                         }
@@ -1043,6 +1049,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             + "top:" + top + "px;"
             + " width:" + featwidth + "%;"
             + (this.config.style.featureCss ? this.config.style.featureCss : "");
+
+        // Store the containerStart/End so we can resolve the truncation 
+        // when we are updating static elements
+        featDiv._containerStart=containerStart;
+        featDiv._containerEnd=containerEnd;
 
         if ( this.config.style.arrowheadClass ) {
             var ah = document.createElement("div");
