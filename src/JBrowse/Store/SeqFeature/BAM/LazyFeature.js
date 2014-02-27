@@ -57,7 +57,7 @@ var Feature = Util.fastDeclare(
         if( ! this._get('unmapped') )
             tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
         if( this._get('multi_segment_template') ) {
-            tags.push( 'multi_segment_all_aligned',
+            tags.push( 'multi_segment_all_correctly_aligned',
                        'multi_segment_next_segment_unmapped',
                        'multi_segment_next_segment_reversed',
                        'multi_segment_first',
@@ -69,7 +69,9 @@ var Feature = Util.fastDeclare(
 
         var d = this.data;
         for( var k in d ) {
-            if( d.hasOwnProperty( k ) && k[0] != '_' )
+            if( d.hasOwnProperty( k ) && k[0] != '_'
+                && k != 'multi_segment_all_aligned'
+                && k != 'next_seq_id')
                 tags.push( k );
         }
 
@@ -97,6 +99,10 @@ var Feature = Util.fastDeclare(
 
     id: function() {
         return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start');
+    },
+
+    multi_segment_all_aligned: function() {
+        return this._get('multi_segment_all_correctly_aligned');
     },
 
     // special parsers
@@ -128,6 +134,12 @@ var Feature = Util.fastDeclare(
         return xs ? ( xs == '-' ? -1 : 1 ) :
                this._get('seq_reverse_complemented') ? -1 :  1;
     },
+    multi_segment_next_segment_strand: function() {
+      if(this._get('multi_segment_next_segment_unmapped'))
+        return undefined;
+      return this._get('multi_segment_next_segment_reversed') ? -1 : 1;
+    },
+
     /**
      * Length in characters of the read name.
      */
@@ -195,8 +207,7 @@ var Feature = Util.fastDeclare(
         return cigar;
     },
     next_segment_position: function() {
-        var nextRefID = this._get('_next_refid');
-        var nextSegment = this.file.indexToChr[nextRefID];
+        var nextSegment = this.file.indexToChr[this._get('_next_refid')];
         if( nextSegment )
             return nextSegment.name+':'+this._get('_next_pos');
         else
@@ -226,6 +237,12 @@ var Feature = Util.fastDeclare(
             return undefined;
 
         return ( this.file.indexToChr[ this._refID ] || {} ).name;
+    },
+
+    next_seq_id: function() {
+        if( this._get('multi_segment_next_segment_unmapped') )
+            return undefined;
+        return ( this.file.indexToChr[this._get('_next_refid')] || {} ).name;
     },
 
     _bin_mq_nl: function() {
@@ -347,7 +364,7 @@ var Feature = Util.fastDeclare(
 
     _flagMasks: {
         multi_segment_template:              0x1,
-        multi_segment_all_aligned:           0x2,
+        multi_segment_all_correctly_aligned: 0x2,
         unmapped:                            0x4,
         multi_segment_next_segment_unmapped: 0x8,
         seq_reverse_complemented:            0x10,

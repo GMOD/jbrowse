@@ -166,6 +166,12 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         return ! ( f.get('multi_segment_template') && ! f.get('multi_segment_all_aligned') );
                     }
                 },
+                hideUnmapped: {
+                    desc: 'Hide unmapped reads',
+                    func: function( f ) {
+                        return ! f.get('unmapped');
+                    }
+                },
                 hideForwardStrand: {
                     desc: 'Hide reads aligned to the forward strand',
                     func: function( f ) {
@@ -193,6 +199,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                                'hideMissingMatepairs',
                                'hideSecondary',
                                'hideSupplementary',
+                               'hideUnmapped',
                                'SEPARATOR',
                                'hideForwardStrand',
                                'hideReverseStrand'
