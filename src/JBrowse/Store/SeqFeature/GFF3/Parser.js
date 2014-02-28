@@ -3,17 +3,17 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/json',
-           'JBrowse/Util/GFF3'
+           'JBrowse/Util/GFF3', 'JBrowse/Store/SeqFeature/VCFTabix/Parser'
        ],
        function(
            declare,
            array,
            lang,
            JSON,
-           GFF3
+           GFF3,VCFTabix
        ) {
 
-return declare( null, {
+return declare( VCFTabix, {
 
     constructor: function( args ) {
         lang.mixin( this, {

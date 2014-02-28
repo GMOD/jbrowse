@@ -13,30 +13,15 @@ var gff3_field_names = 'seq_id source type start end score strand phase attribut
 
 return {
 
-    parse_feature: function( line ) {
-        var f = array.map( line.split("\t"), function(a) {
-            if( a == '.' ) {
-                return null;
-            }
-            return a;
-        });
-
-        // unescape only the ref and source columns
-        f[0] = this.unescape( f[0] );
-        f[1] = this.unescape( f[1] );
-
-        f[8] = this.parse_attributes( f[8] );
-        var parsed = {};
-        for( var i = 0; i < gff3_field_names.length; i++ ) {
-            parsed[ gff3_field_names[i] ] = f[i] == '.' ? null : f[i];
-        }
-        if( parsed.start !== null )
-            parsed.start = parseInt( parsed.start, 10 );
-        if( parsed.end !== null )
-            parsed.end = parseInt( parsed.end, 10 );
-        if( parsed.score !== null )
-            parsed.score = parseFloat( parsed.score, 10 );
-
+    parse_feature: function( line ) {console.log(line);
+        parsed = {}
+        parsed.seq_id = line.ref;
+        parsed.source = line.fields[1];
+        parsed.type = line.fields[2];
+        parsed.start = line.fields[3];
+        parsed.end = line.fields[4];console.log(parsed);
+        parsed.attributes=[];
+        parsed.attributes[0]= line.fields[8];
         return parsed;
     },
 
