@@ -35,6 +35,10 @@
    middle of the screen at high zoom levels. Thanks to Colin Diesh for
    the fix (issue #449).
 
+ * Added support to customize specific parts of the 'View details' 
+   popups using callback functions. Thanks to Kieran Raine for the
+   idea and Colin Diesh for the implementation (issue #421).
+
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 
 ## Minor improvements
