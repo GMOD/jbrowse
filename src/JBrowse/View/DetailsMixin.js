@@ -43,7 +43,14 @@ return declare( null, {
         // otherwise, use default formatting
 
         class_ = class_ || title.replace(/\W/g,'_').toLowerCase();
-
+        
+        var formatted_title=title;
+        // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
+        if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] )) {
+            formatted_title= fieldSpecificFormatter(title);
+            if(formatted_title.length==1) formatted_title[0];
+        }
+ 
         // special case for values that include metadata about their
         // meaning, which are formed like { values: [], meta:
         // {description: }.  break it out, putting the meta description in a `title`
@@ -63,7 +70,7 @@ return declare( null, {
         var fieldContainer = domConstruct.create(
             'div',
             { className: 'field_container',
-              innerHTML: '<h2 class="field '+class_+'"'+titleAttr+'>'+title+'</h2>'
+              innerHTML: '<h2 class="field '+class_+'"'+titleAttr+'>'+formatted_title+'</h2>'
             }, parentElement );
         var valueContainer = domConstruct.create(
             'div',
@@ -73,7 +80,7 @@ return declare( null, {
 
         var count = this.renderDetailValue( valueContainer, title, val, class_);
         if( typeof count == 'number' && count > 4 ) {
-            query( 'h2', fieldContainer )[0].innerHTML = title + ' ('+count+')';
+            query( 'h2', fieldContainer )[0].innerHTML = formatted_title + ' ('+count+')';
         }
 
         return fieldContainer;
@@ -91,6 +98,12 @@ return declare( null, {
             return fieldSpecificFormatter.apply( this, arguments );
 
         // otherwise, use default formatting
+
+        // if this object has a config value 'fmtDetailValue_Foo' function, apply it to val
+        if(( fieldSpecificFormatter = this.config['fmtDetailValue_'+title] )) {
+            val= fieldSpecificFormatter( val );
+            if(val.length==1) val=val[0];
+        }
 
         var valType = typeof val;
         if( typeof val.toHTML == 'function' )
