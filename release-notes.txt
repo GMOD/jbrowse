@@ -31,13 +31,18 @@
    different reference sequences.  Thanks to Keiran Raine for
    implementing this (issue #443).
 
+ * Added support to customize specific parts of the 'View details' 
+   popups using callback functions. Thanks to Kieran Raine for the
+   idea and Colin Diesh for the implementation (issue #421).
+
+## Bug fixes
+
  * Fixed a problem where the feature arrowhead would get stuck in the
    middle of the screen at high zoom levels. Thanks to Colin Diesh for
    the fix (issue #449).
 
- * Added support to customize specific parts of the 'View details' 
-   popups using callback functions. Thanks to Kieran Raine for the
-   idea and Colin Diesh for the implementation (issue #421).
+ * Fixed a bug in the client-side GFF3 parser pointed out by Andrew
+   Warren.  Thanks Andrew! (issue #452).
 
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 

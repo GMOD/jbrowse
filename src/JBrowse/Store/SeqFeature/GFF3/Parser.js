@@ -178,7 +178,7 @@ return declare( null, {
             return;
 
         for( var attrname in references ) {
-            var pname = container_attributes[attrname] || attrname.toLowerCase();
+            var pname = this.container_attributes[attrname] || attrname.toLowerCase();
             array.forEach( feature, function( loc ) {
                 loc[pname].push( references[attrname] );
                 delete references[attrname];
