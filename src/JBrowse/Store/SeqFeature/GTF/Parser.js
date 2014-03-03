@@ -136,6 +136,7 @@ return declare( null, {
     },
 
     container_attributes: { Parent : 'child_features', Derives_from : 'derived_features' },
+    line_number: 0,
 
     // do the right thing with a newly-parsed feature line
     _buffer_feature: function( feature_line ) {
@@ -143,7 +144,8 @@ return declare( null, {
         feature_line.derived_features = [];
 
         // NOTE: a feature is an arrayref of one or more feature lines.
-        var feature_number = Object.keys(this.under_construction_by_id).length; // no such thing as unique ID in GTF. make one up.
+        this.line_number=this.line_number+1;
+        var feature_number = this.line_number; // no such thing as unique ID in GTF. make one up.
         var is_transcript = (feature_line.type == 'transcript'); //trying to support the Cufflinks convention of adding a transcript line
         var ids     = is_transcript ? feature_line.attributes.transcript_id  || [] : [feature_number];
         var parents = is_transcript ? [] : feature_line.attributes.transcript_id || [];
@@ -205,7 +207,7 @@ return declare( null, {
             return;
 
         for( var attrname in references ) {
-            var pname = container_attributes[attrname] || attrname.toLowerCase();
+            var pname = this.container_attributes[attrname] || attrname.toLowerCase();
             array.forEach( feature, function( loc ) {
                 loc[pname].push( references[attrname] );
                 delete references[attrname];
