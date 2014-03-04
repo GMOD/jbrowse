@@ -6,19 +6,10 @@
    canvas-based feature tracks.  Thanks to Paul Hale for the initial
    implementation of this.
 
- * Fixed the problem of translation frames being switched around at
-   different zoom levels. Thanks to Kieron Taylor for the bug report
-   and Colin Diesh for the bugfix (issue #435)
-
  * Allow the user to set the document.domain property via jbrowse.conf
    which can be helpful especially if jbrowse is embedded in a iframe.
    Thanks to Kieran Raine for the idea and Colin Diesh for the bugfix
    (issue #440)
-
- * Disabled the FASTA download button in the "View details" page on
-   Safari (issue #412). This feature can't be supported in Safari at
-   this time, but it is still supported in most other browsers. Rob
-   Buels and Colin Diesh contributed fixes to this issue.
 
  * Improved the graphic design of the "Add sequence search" dialog box
    to make it clearer how to switch between providing an amino acid
@@ -41,8 +32,17 @@
    middle of the screen at high zoom levels. Thanks to Colin Diesh for
    the fix (issue #449).
 
+ * Disabled the FASTA download button in the "View details" page on
+   Safari (issue #412). This feature can't be supported in Safari at
+   this time, but it is still supported in most other browsers. Rob
+   Buels and Colin Diesh contributed fixes to this issue.
+
  * Fixed a bug in the client-side GFF3 parser pointed out by Andrew
    Warren.  Thanks Andrew! (issue #452).
+
+ * Fixed the problem of translation frames being switched around at
+   different zoom levels. Thanks to Kieron Taylor for the bug report
+   and Colin Diesh for the bugfix (issue #435)
 
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 
