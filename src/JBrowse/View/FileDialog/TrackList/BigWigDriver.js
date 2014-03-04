@@ -15,13 +15,15 @@ return declare( null, {
             var basename = Util.basename(
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
-                                ''
+                                '',
+                [ '.bw','.bigwig' ]
             );
             if( !basename )
                 return false;
 
             var newName = 'BigWig_'+basename+'_'+uniqCounter++;
             configs[newName] = {
+                fileBasename: basename,
                 type: this.storeType,
                 blob: this._makeBlob( resource ),
                 name: newName

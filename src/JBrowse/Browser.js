@@ -949,11 +949,20 @@ openFileDialog: function() {
                     // our store configuration, and replace them with
                     // their names.
                     array.forEach( confs, function( conf ) {
+                        // do it for conf.store
                         var storeConf = conf.store;
                         if( storeConf && typeof storeConf == 'object' ) {
                             delete conf.store;
                             var name = this.addStoreConfig( storeConf.name, storeConf );
                             conf.store = name;
+                        }
+
+                        // do it for conf.histograms.store, if it exists
+                        storeConf = conf.histograms && conf.histograms.store;
+                        if( storeConf && typeof storeConf == 'object' ) {
+                            delete conf.histograms.store;
+                            var name = this.addStoreConfig( storeConf.name, storeConf );
+                            conf.histograms.store = name;
                         }
                     },this);
 

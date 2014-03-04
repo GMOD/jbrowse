@@ -79,9 +79,21 @@ _makeTrackConfs: function() {
     // object that maps store type -> default track type to use for the store
     var typeMap = this.browser.getTrackTypes().trackTypeDefaults;
 
+    // find any store configurations that appear to be coverage stores
+    var coverageStores = {};
+    for( var n in this.storeConfs ) {
+        if( this.storeConfs[n].fileBasename ) {
+            var baseBase = this.storeConfs[n].fileBasename.replace(/\.(coverage|density|histograms?)$/,'');
+            if( baseBase != this.storeConfs[n].fileBasename ) {
+                coverageStores[baseBase] = { store: this.storeConfs[n], name: n, used: false };
+            }
+        }
+    }
+
+    // make track configurations for each store configuration
     for( var n in this.storeConfs ) {
         var store = this.storeConfs[n];
-        var trackType = typeMap[store.type] || 'JBrowse/View/Track/HTMLFeatures';
+        var trackType = typeMap[store.type] || 'JBrowse/View/Track/CanvasFeatures';
 
         this.trackConfs = this.trackConfs || {};
 
@@ -93,6 +105,24 @@ _makeTrackConfs: function() {
             category: "Local tracks",
             autoscale: "local" // make locally-opened BigWig tracks default to local autoscaling
         };
+
+        // if we appear to have a coverage store for this one, use it
+        // and mark it to have its track removed after all the tracks are made
+        var cov = coverageStores[ store.fileBasename ];
+        if( cov ) {
+            this.trackConfs[n].histograms = {
+                store: cov.store,
+                description: cov.store.fileBasename
+            };
+            cov.used = true;
+        }
+    }
+
+    // delete the separate track confs for any of the stores that were
+    // incorporated into other tracks as histograms
+    for( var n in coverageStores ) {
+        if( coverageStores[n].used )
+            delete this.trackConfs[ coverageStores[n].name ];
     }
 },
 

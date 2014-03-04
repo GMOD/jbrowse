@@ -42,7 +42,8 @@ return declare( null, {
             var newName = this.name+'_'+basename+'_'+uniqCounter++;
             configs[newName] = {
                 type: this.storeType,
-                name: newName
+                name: newName,
+                fileBasename: basename
             };
             configs[newName][this.fileConfKey] = this._makeBlob( resource );
 

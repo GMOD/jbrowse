@@ -15,7 +15,8 @@ return declare( null, {
             var basename = Util.basename(
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
-                                ''
+                                '',
+                ['.gff3','.gff']
             );
             if( !basename )
                 return false;
@@ -23,6 +24,7 @@ return declare( null, {
             var newName = 'GFF3_'+basename+'_'+uniqCounter++;
             configs[newName] = {
                 type: this.storeType,
+                fileBasename: basename,
                 blob: this._makeBlob( resource ),
                 name: newName
             };

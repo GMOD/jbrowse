@@ -22,9 +22,16 @@
    different reference sequences.  Thanks to Keiran Raine for
    implementing this (issue #443).
 
- * Added support to customize specific parts of the 'View details' 
+ * Added support to customize specific parts of the 'View details'
    popups using callback functions. Thanks to Kieran Raine for the
    idea and Colin Diesh for the implementation (issue #421).
+
+ * The File->Open tool will now can add files named `*.coverage.*` or
+   `*.density.*` as histograms to newly-opened tracks if the file
+   basenames match.  For example, if both `mysample.bam` and
+   `mysample.coverage.bw` are present, `mysample.coverage.bw` will be
+   added as a histogram source for `mysample.bam`.  Thanks to Keiran
+   Raine and Alexander Stoddard for suggesting this (issue #423).
 
 ## Bug fixes
 
