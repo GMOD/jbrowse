@@ -51,6 +51,10 @@
    different zoom levels. Thanks to Kieron Taylor for the bug report
    and Colin Diesh for the bugfix (issue #435)
 
+ * Fixed a bug where gene features in GFF tracks would not have
+   arrowhead markers. Thanks to Colin Diesh for finding and fixing 
+   this issue (issue #454)
+
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
 
 ## Minor improvements
