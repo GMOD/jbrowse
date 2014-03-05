@@ -3,14 +3,14 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/json',
-           'JBrowse/Util/GFF3', 'JBrowse/Store/SeqFeature/VCFTabix/Parser'
+           'JBrowse/Util/GFF3', 'JBrowse/Store/SeqFeature/VCFTabix/Parser', 'JBrowse/Store/SeqFeature/VCFTabix/LazyFeature'
        ],
        function(
            declare,
            array,
            lang,
            JSON,
-           GFF3,VCFTabix
+           GFF3,VCFTabix,LazyFeature
        ) {
 
 return declare( VCFTabix, {
@@ -46,13 +46,37 @@ return declare( VCFTabix, {
                     });
     },
 
+    lineToFeature: function( line ) {
+        var fields = line.fields;
+
+        for( var i=0; i<fields.length; i++ )
+            if( fields[i] == '.' )
+                fields[i] = null;
+
+        var featureData = {
+            start:  line.start,
+            end:    line.end,
+            seq_id: line.ref
+        };
+
+        var f = new LazyFeature({
+            id: fields.slice( 0, 9 ).join('/'),
+            data: featureData,
+            fields: fields,
+            parser: this
+        });
+
+        return f;
+    },
+
     addLine: function( line ) {
         var match;
         if( this.eof ) {
             // do nothing
         } else if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
-            var f = GFF3.parse_feature( line );
+            var f = GFF3.parse_feature_tabix( line );
             this._buffer_feature( f );
+            return f;
         }
         // directive or comment
         else if(( match = /^\s*(\#+)(.*)/.exec( line ) )) {
