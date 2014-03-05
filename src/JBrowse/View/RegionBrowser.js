@@ -88,6 +88,7 @@ constructor: function( args ) {
 
     this.region = this.getConf('region');
     this.style  = this.getConf('style');
+    this.splitter = true;
 
     if( this.getConf('parentViewName') )
         this.parentView = this.browser.getView( this.getConf('parentViewName') );

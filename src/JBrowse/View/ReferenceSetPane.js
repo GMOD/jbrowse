@@ -10,8 +10,12 @@ define([
            'dijit/layout/BorderContainer',
            'dijit/layout/ContentPane',
            'dijit/form/ComboBox',
+           'dijit/form/DropDownButton',
+           'dijit/DropDownMenu',
+           'dijit/MenuItem',
 
            'JBrowse/Component',
+           'JBrowse/Util',
            'JBrowse/View/RegionBrowser'
        ],
 
@@ -23,8 +27,12 @@ define([
            BorderContainer,
            ContentPane,
            ComboBox,
+           DropDownButton,
+           DropDownMenu,
+           MenuItem,
 
            Component,
+           Util,
            RegionBrowser
        ) {
 
@@ -35,7 +43,15 @@ var ReferenceSetPaneHeader = declare( ContentPane, {
 
       var thisB = this;
 
-      this.domNode.innerHTML = '<span class="title">Reference set:</span> ';
+      this._buildDropDownMenus();
+
+      domConstruct.create(
+          'span',
+          {
+              className: 'title',
+              innerHTML: 'Reference set:'
+          }, this.domNode );
+
       this.referenceSetSelector = new ComboBox({
           searchAttr: 'name',
           query: { type: 'refset' },
@@ -43,6 +59,7 @@ var ReferenceSetPaneHeader = declare( ContentPane, {
               thisB.get('pane').setConf( 'referenceSetName', newval );
           }
       }, domConstruct.create( 'div',{}, this.domNode ) );
+
 
       this.get('pane').get('app').getDisplayedDataHub()
           .then( function(hub) {
@@ -58,6 +75,25 @@ var ReferenceSetPaneHeader = declare( ContentPane, {
       this.get('pane').watchConf( 'referenceSetName', function( varname, oldVal, newVal ) {
           thisB.referenceSetSelector.set( 'value', newVal, false );
       });
+  },
+
+  _buildDropDownMenus: function() {
+      var thisB = this;
+      var viewMenu = new DropDownMenu(
+                  {
+                      leftClickToOpen: true
+                  });
+      viewMenu.addChild( new MenuItem(
+          { label: 'Add region view',
+            onClick: function() {
+                thisB.get('pane').newRegionBrowser();
+            }}));
+
+      new DropDownButton(
+          {
+              className: 'menuButton',
+              dropDown: viewMenu
+          }).placeAt( this.domNode );
   }
 });
 
@@ -66,6 +102,7 @@ return declare( [BorderContainer,Component], {
   baseClass: 'referenceSetPane',
   region: 'center',
   gutters: false,
+  splitter: true,
 
   configSchema: {
       slots: [
@@ -118,6 +155,19 @@ return declare( [BorderContainer,Component], {
                                                { browser: thisB.browser,
                                                  referenceSet: set,
                                                  referenceSetPane: thisB,
+                                                 splitter: true,
+                                                 config: {
+                                                     name: 'View 1',
+                                                     region: 'top',
+                                                     style: 'height: 40%'
+                                                 }
+                                               } )
+                                         );
+                         thisB.views.push( new RegionBrowser(
+                                               { browser: thisB.browser,
+                                                 referenceSet: set,
+                                                 referenceSetPane: thisB,
+                                                 splitter: true,
                                                  config: {
                                                      name: 'View 1',
                                                      region: 'top',
@@ -137,6 +187,48 @@ return declare( [BorderContainer,Component], {
 
       createViews();
       thisB.watchConf('referenceSetName', createViews );
+  },
+
+  newRegionBrowser: function() {
+      var thisB = this;
+      thisB.getReferenceSet()
+          .then( function( set ) {
+                     if( ! set )
+                         return;
+
+                     if( ! thisB.views )
+                         thisB.views = [];
+
+                     var newHeight = '100%'; // in px
+                     if( thisB.views.length ) {
+
+                         // make the height of the new view be the average
+                         // of the heights of the existing views
+                         var totalHeight = 0;
+                         array.forEach( thisB.views, function( v ) {
+                                            v.set('region','top',false);
+                                            totalHeight += v.h;
+                                        });
+                         var shrinkFactor = thisB.views.length/(thisB.views.length+1);
+                         newHeight = Math.round( shrinkFactor * totalHeight / thisB.views.length )+'px';
+                         array.forEach( thisB.views, function(v) {
+                             v.resize({ h: Math.floor(v.h * shrinkFactor) });
+                         });
+                     }
+
+                     var newbrowser = new RegionBrowser(
+                         { browser: thisB.browser,
+                           referenceSet: set,
+                           referenceSetPane: thisB,
+                           splitter: true,
+                           config: {
+                               region: 'center',
+                               style: 'height: '+newHeight
+                           }
+                         });
+                     thisB.views.push( newbrowser );
+                     thisB.addChild( newbrowser );
+                 }, Util.logError );
   },
 
   removeChild: function( child ) {
