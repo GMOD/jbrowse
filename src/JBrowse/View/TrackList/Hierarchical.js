@@ -78,7 +78,18 @@ return declare(
             'a',
             {
               className: 'collapse',
-              onClick: "var trackSelector = document.getElementById('hierarchicalTrackPane'); var trackPaneSplitter = document.getElementById('hierarchicalTrackPane_splitter');var contentPane = document.getElementById('dijit_layout_ContentPane_0');var contentPane2 = document.getElementById('dijit_layout_ContentPane_1'); trackSelector.style.width = '20px'; trackPaneSplitter.style.left = '20px';contentPane.style.left='26px';contentPane.style.width='1349px';contentPane2.style.left='26px';contentPane2.style.width='1349px';"
+              onclick: function(){
+                       var trackSelector = document.getElementById('hierarchicalTrackPane');
+                       var trackPaneSplitter = document.getElementById('hierarchicalTrackPane_splitter');
+                       var contentPane = document.getElementById('dijit_layout_ContentPane_0');
+                       var contentPane2 = document.getElementById('dijit_layout_ContentPane_1');
+                       trackSelector.style.width = '20px';
+                       trackPaneSplitter.style.left = '20px';
+                       contentPane.style.left='26px';
+                       contentPane.style.width='1349px';
+                       contentPane2.style.left='26px';
+                       contentPane2.style.width='1349px';
+              }
             },
             topPane.containerNode );
 
@@ -89,7 +100,6 @@ return declare(
         );
         this._updateTextFilterControl();
     },
-
     startup: function() {
         this.inherited( arguments );
 
