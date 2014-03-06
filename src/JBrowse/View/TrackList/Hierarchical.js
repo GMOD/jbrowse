@@ -66,6 +66,8 @@ return declare(
     buildRendering: function() {
         this.inherited(arguments);
 
+        var thisB =this;
+
         var topPane = new ContentPane({ className: 'header' });
         this.addChild( topPane );
         dom.create(
@@ -79,13 +81,8 @@ return declare(
             {
               className: 'collapse',
               onclick: function(){
-                       dijit.byId('hierarchicalTrackPane').resize({w: 20});
-                       dijit.byId('dijit_layout_ContentPane_0').resize({w: 1349})
-                       dijit.byId('dijit_layout_ContentPane_1').resize({w: 1349});
-
-                       dojo.byId('hierarchicalTrackPane_splitter').style.left='20px';
-                       dojo.byId('dijit_layout_ContentPane_0').style.left='26px';
-                       dojo.byId('dijit_layout_ContentPane_1').style.left='26px';
+                  thisB.resize({w: 20});
+                  thisB.getParent().layout();
               }
             },
             topPane.containerNode );
