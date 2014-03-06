@@ -79,16 +79,13 @@ return declare(
             {
               className: 'collapse',
               onclick: function(){
-                       var trackSelector = document.getElementById('hierarchicalTrackPane');
-                       var trackPaneSplitter = document.getElementById('hierarchicalTrackPane_splitter');
-                       var contentPane = document.getElementById('dijit_layout_ContentPane_0');
-                       var contentPane2 = document.getElementById('dijit_layout_ContentPane_1');
-                       trackSelector.style.width = '20px';
-                       trackPaneSplitter.style.left = '20px';
-                       contentPane.style.left='26px';
-                       contentPane.style.width='1349px';
-                       contentPane2.style.left='26px';
-                       contentPane2.style.width='1349px';
+                       dijit.byId('hierarchicalTrackPane').resize({w: 20});
+                       dijit.byId('dijit_layout_ContentPane_0').resize({w: 1349})
+                       dijit.byId('dijit_layout_ContentPane_1').resize({w: 1349});
+
+                       dojo.byId('hierarchicalTrackPane_splitter').style.left='20px';
+                       dojo.byId('dijit_layout_ContentPane_0').style.left='26px';
+                       dojo.byId('dijit_layout_ContentPane_1').style.left='26px';
               }
             },
             topPane.containerNode );
