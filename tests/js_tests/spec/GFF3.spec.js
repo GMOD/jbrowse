@@ -44,7 +44,7 @@ describe( 'GFF3 utils', function() {
                               'seq_id' : 'FooSeq',
                               'source' : 'barsource',
                               'start' : 234,
-                              'strand' : '+',
+                              'strand' : 1,
                               'type' : 'match'
                           }
                       ],
@@ -58,7 +58,7 @@ describe( 'GFF3 utils', function() {
                               'seq_id' : "Noggin,+-\%Foo\tbar",
                               'source' : 'barsource',
                               'start' : 234,
-                              'strand' : '+',
+                              'strand' : 1,
                               'type' : 'match'
                           }
                       ]
