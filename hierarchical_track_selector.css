@@ -12,6 +12,10 @@
 }
 
 .jbrowseHierarchicalTrackSelector > .header > .collapse {
+    background-image:url('img/commonIconsEnabled.png');
+    background-position: -18px 2px;
+    height: 15px;
+    width: 15px;
     cursor: pointer;
     position: absolute;
     top: 0%;
