@@ -12,7 +12,14 @@
 }
 
 .jbrowseHierarchicalTrackSelector > .header > .textfilterContainer {
-    padding: 0 5px 5px 5px;
+    position: 0 5px 5px 5px;
+}
+
+.jbrowseHierarchicalTrackSelector > .header > .collapse {
+    cursor: pointer;
+    position: absolute;
+    top: 0%;
+    right: 0%;
 }
 .jbrowseHierarchicalTrackSelector > .header > .textfilterContainer > .textfilter {
     margin: 0;

@@ -74,6 +74,14 @@ return declare(
               innerHTML: 'Available Tracks'
             },
             topPane.containerNode );
+        dom.create(
+            'a',
+            {
+              className: 'collapse',
+              innerHTML: 'Collapse',
+              onClick: "var trackSelector = document.getElementById('hierarchicalTrackPane'); var trackPaneSplitter = document.getElementById('hierarchicalTrackPane_splitter');var contentPane = document.getElementById('dijit_layout_ContentPane_0');var contentPane2 = document.getElementById('dijit_layout_ContentPane_1'); trackSelector.style.width = '20px'; trackPaneSplitter.style.left = '20px';contentPane.style.left='26px';contentPane.style.width='1349px';contentPane2.style.left='26px';contentPane2.style.width='1349px';"
+            },
+            topPane.containerNode );
 
         this._makeTextFilterNodes(
             dom.create('div',
@@ -270,6 +278,17 @@ return declare(
     _textFilter: function() {
         this.inherited(arguments);
         this._updateAllTitles();
+    },
+
+    /**
+    * Collapse Track Selector 
+    */
+
+    collapse: function(){
+    var trackSelector = dom.byId('hierarchicalTrackPane');
+    var trackPaneSplitter = dom.byId('hierarchicalTrackPane_splitter');
+    trackSelector.width = '20px';
+    trackPaneSplitter.left = '20px';
     },
 
     /**
