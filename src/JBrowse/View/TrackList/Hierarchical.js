@@ -281,17 +281,6 @@ return declare(
     },
 
     /**
-    * Collapse Track Selector 
-    */
-
-    collapse: function(){
-    var trackSelector = dom.byId('hierarchicalTrackPane');
-    var trackPaneSplitter = dom.byId('hierarchicalTrackPane_splitter');
-    trackSelector.width = '20px';
-    trackPaneSplitter.left = '20px';
-    },
-
-    /**
      * Make the track selector visible.
      * This does nothing for this track selector, since it is always visible.
      */
