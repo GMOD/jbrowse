@@ -143,9 +143,10 @@ is_deeply( $output->{"seq/refSeqs.json"},
 
 $tempdir = File::Temp->newdir();
 diag $tempdir;
-local $ENV{PATH} = "extlib/bin:$ENV{PATH}";
-
 ($stdout, $stderr) = capture {
+    local $ENV{PATH} = "extlib/bin:$ENV{PATH}";
+    local $ENV{PERL5LIB} = join ':', @INC;
+
    system 'bp_seqfeature_load.pl', (
         '--adaptor' => 'DBI::SQLite',
         '--dsn'     => "$tempdir/sqliteDB",
