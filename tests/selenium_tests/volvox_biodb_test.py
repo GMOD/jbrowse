@@ -126,10 +126,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.do_typed_query('ctgA')
 
         self.turn_on_track( 'BigWig XY - volvox_microarray' )
-        trackname = 'volvox_microarray.bw_xyplot'
+        trackname = 'volvox_microarray_bw_xyplot'
         self.export_track( trackname, 'Visible region','GFF3','View')
         self.close_dialog('export')
         self.export_track( trackname, 'Whole', 'bedGraph', 'Save' )
+        time.sleep( 0.5 );
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
         self.turn_off_track( 'BigWig XY - volvox_microarray' )
 
