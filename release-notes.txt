@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.11.3     2014-03-07 13:05:57 EST5EDT
+
 ## Minor improvements
 
  * Added a "Zoom to this" item in the default right-click menus for
