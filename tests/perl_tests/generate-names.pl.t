@@ -80,7 +80,8 @@ run_with (
     '--dir'   => "$tempdir",
     '--tracks' => 'ExampleFeatures,NameTest'
     );
-cmp_ok( -s "$tempdir", '>', 1000, 'the dir has some stuff in it' );
+my @files = glob("$tempdir/names/*");
+is( scalar @files, 17 , 'the dir has some stuff in it' );
 
 done_testing;
 
