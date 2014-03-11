@@ -31,7 +31,7 @@ release-notes.html: release-notes.txt
 
 release-normal: superclean $(JS_SRCFILES)
 	mkdir $(RELEASE_FULL_DIR);
-	cp -r `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
+	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
 
         # version-stamp Browser.js
@@ -95,9 +95,9 @@ release-min: release-normal plugins-min
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    if [ -d $$P ]; then \
-		    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)`dirname $$P`; \
+		    cp -R $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)`dirname $$P`; \
 	    else \
-		    cp -r $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
+		    cp -R $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	    fi;\
 	done
 
@@ -112,7 +112,7 @@ release-min-test: release-min
         # unzip to make sure we are looking at what's really in the releases
 	rm -rf $(RELEASE_MIN_DIR);
 	$(UNZIP) $(RELEASE_MIN).zip
-	cp -r docs tests* sample_data $(RELEASE_MIN_DIR);
+	cp -R docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
