@@ -298,7 +298,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 arrowhead = featDivChildren[j];
                                 if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
                                     arrowhead.style.right =  
-                                        ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax )
+                                        ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
                                                          : -this.plusArrowWidth
                                         ) + 'px';
                                 }
