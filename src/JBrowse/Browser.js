@@ -2607,9 +2607,6 @@ clearHighlight: function() {
         delete this._highlight;
         this.publish( '/jbrowse/v1/n/globalHighlightChanged', [] );
     }
-    if( this.highlightClearButton ) {
-        this.highlightClearButton.set('disabled',!!! this._highlight);
-    } 
 },
 
 setHighlightAndRedraw: function( location ) {
