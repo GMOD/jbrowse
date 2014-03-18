@@ -2475,10 +2475,28 @@ createNavBox: function( parent ) {
             }
         }
     }, dojo.create('button',{},navbox));
+    this.highlightClearButton = new dijitToggleButton({
+        //label: 'Highlight',
+        title: 'clear a highlight region',
+        iconClass: 'jbrowseIconClearHighlight',
+        disabled: true,
+        onChange: function() {
+            this.setDisabled(true);
+            var h = thisB.getHighlight();
+            if( h ) {
+                thisB.clearHighlight();
+                thisB.view.redrawRegion( h );
+            }
+
+        }
+    }, dojo.create('button',{},navbox));
+
     this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
                    function() { thisB.highlightButton.set('checked',false); });
 
     dojo.addClass( this.highlightButton.domNode, 'highlightButton' );
+    dojo.addClass( this.highlightClearButton.domNode, 'highlightClearButton' );
+
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
 
@@ -2573,9 +2591,13 @@ setHighlight: function( newHighlight ) {
 
 
 _updateHighlightClearButton: function() {
+    var isHighlightSet=!! this._highlight;
     if( this._highlightClearButton ) {
-        this._highlightClearButton.set( 'disabled', !!! this._highlight );
+        this._highlightClearButton.set( 'disabled', !isHighlightSet );
         //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
+    }
+    if( this.highlightClearButton ) {
+        this.highlightClearButton.set('disabled',!isHighlightSet );
     }
 },
 
@@ -2585,6 +2607,9 @@ clearHighlight: function() {
         delete this._highlight;
         this.publish( '/jbrowse/v1/n/globalHighlightChanged', [] );
     }
+    if( this.highlightClearButton ) {
+        this.highlightClearButton.set('disabled',!!! this._highlight);
+    } 
 },
 
 setHighlightAndRedraw: function( location ) {
