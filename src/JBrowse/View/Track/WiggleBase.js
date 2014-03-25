@@ -202,7 +202,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             },
             block.domNode
         );
-        
+       
         var ctx = c.getContext('2d');
         // finally query the various pixel ratios
         var devicePixelRatio = window.devicePixelRatio || 1;
@@ -230,8 +230,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             // our canvas element
             ctx.scale(ratio, ratio);
         }
-
-
+ 
         c.startBase = block.startBase;
         block.canvas = c;
 
@@ -239,13 +238,14 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         //Calculate the score for each pixel in the block
         var pixels = this._calculatePixelScores( c.width, features, featureRects );
 
+
         this._draw( block.scale,    block.startBase,
                     block.endBase,  block,
                     c,              features,
                     featureRects,   dataScale,
                     pixels,         block.maskingSpans ); // note: spans may be undefined.
 
-        this.heightUpdate( c.height, args.blockIndex );
+        this.heightUpdate( c.height/ratio, args.blockIndex );
         if( !( c.parentNode && c.parentNode.parentNode )) {
             var blockWidth = block.endBase - block.startBase;
 
