@@ -202,8 +202,39 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             },
             block.domNode
         );
+        
+        var ctx = c.getContext('2d');
+        // finally query the various pixel ratios
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                                                ctx.mozBackingStorePixelRatio ||
+                                                ctx.msBackingStorePixelRatio ||
+                                                ctx.oBackingStorePixelRatio ||
+                                                ctx.backingStorePixelRatio || 1;
+
+        var ratio = devicePixelRatio / backingStoreRatio;
+        // upscale canvas if the two ratios don't match
+        if (devicePixelRatio !== backingStoreRatio) {
+
+            var oldWidth = c.width;
+            var oldHeight = c.height;
+
+            c.width = oldWidth * ratio;
+            c.height = oldHeight * ratio;
+
+            //c.style.width = oldWidth + 'px';
+            c.style.height = oldHeight + 'px';
+
+            // now scale the context to counter
+            // the fact that we've manually scaled
+            // our canvas element
+            ctx.scale(ratio, ratio);
+        }
+
+
         c.startBase = block.startBase;
         block.canvas = c;
+
 
         //Calculate the score for each pixel in the block
         var pixels = this._calculatePixelScores( c.width, features, featureRects );
@@ -230,6 +261,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 break;
             }
         }
+
     },
 
     fillBlock: function( args ) {
