@@ -429,6 +429,34 @@ return declare(
         this.heightUpdate( height, viewArgs.blockIndex );
         var ctx = c.getContext('2d');
         ctx.fillStyle = this.config.histograms.color;
+
+        // finally query the various pixel ratios
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                                                ctx.mozBackingStorePixelRatio ||
+                                                ctx.msBackingStorePixelRatio ||
+                                                ctx.oBackingStorePixelRatio ||
+                                                ctx.backingStorePixelRatio || 1;
+
+        var ratio = devicePixelRatio / backingStoreRatio;
+        // upscale canvas if the two ratios don't match
+        if (devicePixelRatio !== backingStoreRatio) {
+
+            var oldWidth = c.width;
+            var oldHeight = c.height;
+
+            c.width = oldWidth * ratio;
+            c.height = oldHeight * ratio;
+
+            c.style.width = oldWidth + 'px';
+            c.style.height = oldHeight + 'px';
+
+            // now scale the context to counter
+            // the fact that we've manually scaled
+            // our canvas element
+            ctx.scale(ratio, ratio);
+        }
+
         for( var i = 0; i<features.length; i++ ) {
             var feature = features[i];
             var barHeight = feature.get('score')/maxScore * height;
@@ -589,6 +617,36 @@ return declare(
                                                 },
                                                 block.domNode
                                             );
+                                        var ctx = c.getContext('2d');
+
+                                        // finally query the various pixel ratios
+                                        var devicePixelRatio = window.devicePixelRatio || 1;
+                                        var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                                                                                ctx.mozBackingStorePixelRatio ||
+                                                                                ctx.msBackingStorePixelRatio ||
+                                                                                ctx.oBackingStorePixelRatio ||
+                                                                                ctx.backingStorePixelRatio || 1;
+
+                                        var ratio = devicePixelRatio / backingStoreRatio;
+                                        // upscale canvas if the two ratios don't match
+                                        if (devicePixelRatio !== backingStoreRatio) {
+
+                                            var oldWidth = c.width;
+                                            var oldHeight = c.height;
+
+                                            c.width = oldWidth * ratio;
+                                            c.height = oldHeight * ratio;
+
+                                            c.style.width = oldWidth + 'px';
+                                            c.style.height = oldHeight + 'px';
+
+                                            // now scale the context to counter
+                                            // the fact that we've manually scaled
+                                            // our canvas element
+                                            ctx.scale(ratio, ratio);
+                                        }
+
+
 
                                         if( block.maxHeightExceeded )
                                             thisB.markBlockHeightOverflow( block );
