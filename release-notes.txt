@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added High DPI rendering for CanvasFeatures and Wiggle tracks so
+   that rendering is much sharper on Mac OSX Retina displays. Thanks
+   to Colin Diesh for the idea and fix (issue #456)
+
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
 ## Minor improvements
