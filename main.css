@@ -703,8 +703,8 @@ div.overview .rubber-highlight * {
 
 
 #moveLeft, #moveRight, #bigZoomOut, #zoomOut, #bigZoomIn, #zoomIn, #moveLeftSmall, #moveRightSmall, #zoomInSmall, #zoomOutSmall{
-		background: url(img/scroll_zoom_sprites.png) top left no-repeat;
-		background-size: 50px 200px;
+		background: url(img/scroll_zoom_sprites_3.png) top left no-repeat;
+		background-size: 50px 280px;
 		cursor: pointer;
 }
 
@@ -715,8 +715,7 @@ div.overview .rubber-highlight * {
 }
 
 #moveLeftSmall {
-	background-position: 4px -14px;
-	background-size: 25px 100px;
+	background-position: 0px -200px;
 	height: 20px !important;
 	width: 33px;
 }
@@ -727,8 +726,7 @@ div.overview .rubber-highlight * {
 }
 
 #moveRightSmall {
-	background-position: 4px -64px;
-	background-size: 25px 100px;
+	background-position: 0px -220px;
 	height: 20px !important;
 	width: 33px;
 }
@@ -744,8 +742,7 @@ div.overview .rubber-highlight * {
 }
 
 #zoomOutSmall{
-	background-position: 0px -68px;
-	background-size: 33px 132px;
+	background-position: 0px -240px;
 	height: 20px !important;
 	width: 20px;
 }
@@ -762,8 +759,7 @@ div.overview .rubber-highlight * {
 }
 
 #zoomInSmall{
-	background-position: 0px -2px;
-	background-size: 33px 132px;
+	background-position: 0px -260px;
 	height: 20px !important;
 	width: 20px;
 }
