@@ -703,7 +703,7 @@ div.overview .rubber-highlight * {
 
 
 #moveLeft, #moveRight, #bigZoomOut, #zoomOut, #bigZoomIn, #zoomIn, #moveLeftSmall, #moveRightSmall, #zoomInSmall, #zoomOutSmall{
-		background: url(img/scroll_zoom_sprites_3.png) top left no-repeat;
+		background: url(img/scroll_zoom_sprites.png) top left no-repeat;
 		background-size: 50px 280px;
 		cursor: pointer;
 }
