@@ -22,6 +22,7 @@ define( [
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
+            'dojox/form/TriStateCheckBox',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
@@ -64,6 +65,7 @@ define( [
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
+            dojoxTriStateCheckBox,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
@@ -2460,18 +2462,22 @@ createNavBox: function( parent ) {
                 dojo.stopEvent(event);
             })
         }, dojo.create('button',{},navbox));
-
-    this.highlightButton = new dijitToggleButton({
+    this.highlightButton = new dojoxTriStateCheckBox({
         //label: 'Highlight',
         title: 'highlight a region',
         iconClass: 'jbrowseIconHighlight',
         onChange: function() {
-            if( this.get('checked') ) {
+            if( this.get('checked')=="on" ) {
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
-            } else {
+                console.log('tri-state if'); 
+            } else if( this.get('checked')=="mixed") {
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
+                console.log('tri-state else if'); 
+            }
+            else {
+                console.log('tri-state else'); 
             }
         }
     }, dojo.create('button',{},navbox));
