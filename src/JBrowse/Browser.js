@@ -2466,34 +2466,22 @@ createNavBox: function( parent ) {
         //label: 'Highlight',
         title: 'highlight a region',
         iconClass: 'jbrowseIconHighlight',
+        states:[false, true, "mixed"],
         onChange: function() {
-            if( this.get('checked')=="on" ) {
+            if( this.get('checked')==true ) {
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
-                console.log('tri-state if'); 
-            } else if( this.get('checked')=="mixed") {
+            } else if( this.get('checked')==false) {
+                var h = thisB.getHighlight();
+                if( h ) {
+                    thisB.clearHighlight();
+                    thisB.view.redrawRegion( h ); 
+                } 
+            }
+            else { // mixed
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
-                console.log('tri-state else if'); 
             }
-            else {
-                console.log('tri-state else'); 
-            }
-        }
-    }, dojo.create('button',{},navbox));
-    this.highlightClearButton = new dijitToggleButton({
-        //label: 'Highlight',
-        title: 'clear a highlight region',
-        iconClass: 'jbrowseIconClearHighlight',
-        disabled: true,
-        onChange: function() {
-            this.setDisabled(true);
-            var h = thisB.getHighlight();
-            if( h ) {
-                thisB.clearHighlight();
-                thisB.view.redrawRegion( h );
-            }
-
         }
     }, dojo.create('button',{},navbox));
 
@@ -2501,7 +2489,6 @@ createNavBox: function( parent ) {
                    function() { thisB.highlightButton.set('checked',false); });
 
     dojo.addClass( this.highlightButton.domNode, 'highlightButton' );
-    dojo.addClass( this.highlightClearButton.domNode, 'highlightClearButton' );
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
@@ -2602,8 +2589,8 @@ _updateHighlightClearButton: function() {
         this._highlightClearButton.set( 'disabled', !isHighlightSet );
         //this._highlightClearButton.set( 'label', 'Clear highlight' + ( this._highlight ? ' - ' + this._highlight : '' ));
     }
-    if( this.highlightClearButton ) {
-        this.highlightClearButton.set('disabled',!isHighlightSet );
+    if( this.highlightButton ) {
+        this.highlightButton.set('checked',isHighlightSet?'mixed':false );
     }
 },
 
