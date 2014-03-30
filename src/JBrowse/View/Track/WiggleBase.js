@@ -520,6 +520,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 new TrackHeightDialog({
                     height: track._canvasHeight(),
                     setCallback: function( newHeight ) {
+                        track.trackHeightChanged=true;
                         track.updateUserStyles({ height: newHeight });
                     }
                 }).show();

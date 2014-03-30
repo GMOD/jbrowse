@@ -665,6 +665,7 @@ initView: function() {
                                 if( ! /\b(XYPlot|Density)/.test( track.config.type ) )
                                     return;
 
+                                track.trackHeightChanged=true;
                                 track.updateUserStyles({ height: height });
                             });
                         }
