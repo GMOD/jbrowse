@@ -195,17 +195,6 @@ div.vertical_scrollbar .vertical_position_marker {
     font-family: sans-serif;
 }
 
-#navbox .highlightButton.dijitChecked .dijitButtonNode {
-    background: #E9F10C;
-}
-#navbox .highlightButton .dijitIcon {
-    position: relative;
-    left: 3px;
-}
-#navbox .highlightButton .dijitButtonContents {
-    outline: none;
-}
-
 .moreMatches {
     font-style: italic;
     color: #aaa;

@@ -2465,7 +2465,6 @@ createNavBox: function( parent ) {
     this.highlightButton = new dojoxTriStateCheckBox({
         //label: 'Highlight',
         title: 'highlight a region',
-        iconClass: 'jbrowseIconHighlight',
         states:[false, true, "mixed"],
         onChange: function() {
             if( this.get('checked')==true ) {
@@ -2487,8 +2486,6 @@ createNavBox: function( parent ) {
 
     this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
                    function() { thisB.highlightButton.set('checked',false); });
-
-    dojo.addClass( this.highlightButton.domNode, 'highlightButton' );
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {

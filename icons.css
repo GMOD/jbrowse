@@ -2,8 +2,6 @@
 .jbrowseIconBusy,
 .jbrowseIconLink,
 .jbrowseIconCancel,
-.jbrowseIconHighlight,
-.jbrowseIconClearHighlight,
 .jbrowseIconHorizontalResize,
 .jbrowseIconVerticalResize
 {
@@ -16,8 +14,6 @@
 .dijitDisabled .jbrowseIconBusy,
 .dijitDisabled .jbrowseIconLink,
 .dijitDisabled .jbrowseIconCancel,
-.dijitDisabled .jbrowseIconHighlight,
-.dijitDisabled .jbrowseIconClearHighlight,
 .dijitDisabled .jbrowseIconHorizontalResize,
 .dijitDisabled .jbrowseIconVerticalResize
 {
@@ -38,15 +34,9 @@
 .jbrowseIconBusy {
     background-image: url('img/spinner.gif');
 }
-.jbrowseIconHighlight {
-    background-position: -186px;
-}
 .jbrowseIconHorizontalResize {
     background-position: -209px;
 }
 .jbrowseIconVerticalResize {
     background-position: -230px;
-}
-.jbrowseIconClearHighlight {
-    background-position: -250px;
 }
