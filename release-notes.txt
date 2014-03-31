@@ -6,6 +6,13 @@
    that rendering is much sharper on Mac OSX Retina displays. Thanks
    to Colin Diesh for the idea and fix (issue #456)
 
+## Bug fixes
+
+ * Fixed help page icons not loading since JBrowse 1.11.2 (issue #460)
+
+ * Fixed updating the y-axis scale height when using the resize 
+   quantitative tracks feature (issue #461)
+
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
 ## Minor improvements
