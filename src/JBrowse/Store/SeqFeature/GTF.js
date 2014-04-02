@@ -61,7 +61,6 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                                        if( !( regRefName in seenRefs ))
                                            seenRefs[ regRefName ] = features.length;
 
-                                       feature.strand = {'+':1,'-':-1}[feature.strand] || 0;
                                        features.push( feature );
                                    });
                 },

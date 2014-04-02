@@ -37,6 +37,9 @@ return {
             parsed.end = parseInt( parsed.end, 10 );
         if( parsed.score !== null )
             parsed.score = parseFloat( parsed.score, 10 );
+        if( parsed.strand !== null )
+            parsed.strand = {'+':1,'-':-1}[parsed.strand] || 0;
+
 
         return parsed;
     },
@@ -121,10 +124,14 @@ return {
             f.attributes === null || typeof f.attributes == 'undefined'
                 ? '.' : this.format_attributes( f.attributes );
 
+        var translate_strand=['-','.','+'];
         var fields = [];
         for( var i = 0; i<8; i++ ) {
             var val = f[ gff3_field_names[i] ];
-            fields[i] = val === null || val === undefined ? '.' : this.escape( ''+val );
+            if(i==6) // deserialize strand
+                fields[i] = val === null || val === undefined ? '.' : translate_strand[val+1];
+            else
+                fields[i] = val === null || val === undefined ? '.' : this.escape( ''+val );
         }
         fields[8] = attrString;
 
