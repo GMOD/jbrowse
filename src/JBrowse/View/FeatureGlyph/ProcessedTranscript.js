@@ -29,7 +29,7 @@ _defaultConfig: function() {
                 }
             },
 
-            subParts: 'CDS, UTR, five_prime_UTR, three_prime_UTR',
+            subParts: 'exon, CDS, UTR, five_prime_UTR, three_prime_UTR',
 
             impliedUTRs: false
         });
