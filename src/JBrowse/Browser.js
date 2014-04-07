@@ -2462,22 +2462,34 @@ createNavBox: function( parent ) {
                 dojo.stopEvent(event);
             })
         }, dojo.create('button',{},navbox));
+    this.highlightButtonPreviousState = false;
     this.highlightButton = new dojoxTriStateCheckBox({
         //label: 'Highlight',
         title: 'highlight a region',
         states:[false, true, "mixed"],
         onChange: function() {
             if( this.get('checked')==true ) {
+                console.log(this.get('checked') + " " + thisB.highlightButtonPreviousState);
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
             } else if( this.get('checked')==false) {
+                console.log(this.get('checked') + " " + thisB.highlightButtonPreviousState);
                 var h = thisB.getHighlight();
                 if( h ) {
                     thisB.clearHighlight();
                     thisB.view.redrawRegion( h ); 
-                } 
+                }
             }
             else { // mixed
+                console.log(this.get('checked') + " " + thisB.highlightButtonPreviousState);
+                // Uncheck since user is cycling three-state instead
+                // of programmatically landing in mixed state
+                if( thisB.highlightButtonPreviousState != true ) {
+                    thisB.highlightButton.set('checked', false);
+                }
+                else {
+                    thisB.highlightButtonPreviousState = false;
+                }
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
             }
@@ -2588,6 +2600,7 @@ _updateHighlightClearButton: function() {
     }
     if( this.highlightButton ) {
         this.highlightButton.set('checked',isHighlightSet?'mixed':false );
+        this.highlightButtonPreviousState=isHighlightSet;
     }
 },
 
