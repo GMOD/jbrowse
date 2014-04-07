@@ -5,10 +5,13 @@ define(['dojo/_base/declare',
         'dojo/query',
         'dojo/on',
         'dojo/json',
-
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
-
+        'dijit/Menu',
+        'dijit/MenuItem',
+        'dijit/CheckedMenuItem',
+        'dijit/MenuSeparator',
+        'dijit/PopupMenuItem',
         'JBrowse/Util',
         './_TextFilterMixin'
        ],
@@ -23,7 +26,11 @@ define(['dojo/_base/declare',
 
            TitlePane,
            ContentPane,
-
+           Menu,
+           MenuItem,
+           CheckedMenuItem,
+           MenuSeparator,
+           PopupMenuItem,
            Util,
            _TextFilterMixin
        ) {
@@ -164,13 +171,85 @@ return declare(
                     title: Util.escapeHTML( track.shortDescription || track.description || track.Description || track.metadata && ( track.metadata.shortDescription || track.metadata.description || track.metadata.Description ) || track.key || trackConf.key || trackConf.label )
                 }, category.pane.containerNode );
 
+            var labelkey=(trackConf.key || trackConf.label);
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
             var trackLabel = trackConf.label;
             var checkListener;
             this.own( checkListener = on( checkbox, 'click', function() {
                 thisB.browser.publish( '/jbrowse/v1/v/tracks/'+(this.checked ? 'show' : 'hide'), [trackConf] );
             }));
-            dom.create('span', { className: 'key', innerHTML: trackConf.key || trackConf.label }, labelNode );
+            dom.create('span', { className: 'key', innerHTML: labelkey, id: labelkey+"_label" }, labelNode );
+
+            var myTrack=thisB.browser.view._getTracks( trackConf.label );
+            // Add menu
+            var pMenu=myTrack[0]._renderContextMenu([
+            { label: 'About this track',
+                title: 'About track: '+labelkey,
+                iconClass: 'jbrowseIconHelp',
+                action: 'contentDialog',
+                content: function() { track._trackDetailsContent() }
+            },{ label: 'Edit config',
+              title: "edit this track's configuration",
+              iconClass: 'dijitIconConfigure',
+              action: function() {
+                  new TrackConfigEditor( track.config )
+                      .show( function( result ) { 
+                          // replace this track's configuration
+                          that.browser.publish('/jbrowse/v1/v/tracks/replace',
+[result.conf] );
+                      });  
+              }        
+            },{ label: 'Delete track',
+              title: "delete this track",
+              iconClass: 'dijitIconDelete',
+              action: function() {
+                  new ConfirmDialog({ title: 'Delete track?', message:
+'Really delete this track?' })
+                     .show( function( confirmed ) {
+                          if( confirmed )
+                              that.browser.publish(
+'/jbrowse/v1/v/tracks/delete', [track.config] );
+                      });
+              }
+            }], { track: track });
+            dojo.safeMixin(menu, { targetNodeIds: [labelkey+"_label"] });
+            menu.startup();
+ /*
+            pMenu = new Menu({
+                targetNodeIds: [labelkey+"_label"]
+            });
+            pMenu.addChild(new MenuItem({ label: 'About this track',
+                title: 'About track: '+labelkey,
+                iconClass: 'jbrowseIconHelp',
+                action: 'contentDialog',
+                content: function() { track._trackDetailsContent() }
+            }));
+
+            pMenu.addChild(new MenuItem({ label: 'Edit config',
+              title: "edit this track's configuration",
+              iconClass: 'dijitIconConfigure',
+              action: function() {
+                  new TrackConfigEditor( track.config )
+                      .show( function( result ) {
+                          // replace this track's configuration
+                          that.browser.publish('/jbrowse/v1/v/tracks/replace', [result.conf] );
+                      });  
+              }    
+            }));
+            pMenu.addChild(new MenuItem({ label: 'Delete track',
+              title: "delete this track",
+              iconClass: 'dijitIconDelete',
+              action: function() {
+                  new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
+                     .show( function( confirmed ) {
+                          if( confirmed )
+                              that.browser.publish( '/jbrowse/v1/v/tracks/delete', [track.config] );
+                      });
+              }
+            }));
+
+            pMenu.startup();
+*/
 
             category.tracks[ trackLabel ] = { checkbox: checkbox, checkListener: checkListener, labelNode: labelNode };
 
