@@ -38,7 +38,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
-            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) || this.trackHeightChanged ) {
+            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
 
                 var scaling = new Scale( this.config, stats );
 
@@ -59,7 +59,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 scaling.range = scaling.max - scaling.min;
 
                 this.lastScaling = scaling;
-                this.trackHeightChanged=false; //reset flag
             }
 
             successCallback( this.lastScaling );
@@ -92,6 +91,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var originY = toY( dataScale.origin );
 
         var disableClipMarkers = this.config.disable_clip_markers;
+        console.log("Wigglelog " + devicePixelRatio);
 
         dojo.forEach( pixels, function(p,i) {
             if (!p)
@@ -104,7 +104,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 var bgColor = this.getConfForFeature('style.bg_color', f );
                 if( bgColor ) {
                     context.fillStyle = bgColor;
-                    context.fillRect( i, 0, 1, canvasHeight );
+                    context.fillRect( i, 0, devicePixelRatio, canvasHeight );
                 }
             }
 
@@ -113,20 +113,20 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
-                    context.fillRect( i, score, 1, originY-score+1);
+                    context.fillRect( i, score, devicePixelRatio, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( i, 0, 1, 3 );
+                        context.fillRect( i, 0, devicePixelRatio, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
                     context.fillStyle = this.getConfForFeature('style.neg_color',f);
-                    context.fillRect( i, originY, 1, score-originY+1 );
+                    context.fillRect( i, originY, devicePixelRatio, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( i, canvasHeight-3, 1, 3 );
+                        context.fillRect( i, canvasHeight-3, devicePixelRatio, 3 );
 
                     }
                 }
@@ -171,12 +171,13 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
+        var devicePixelRatio = window.devicePixelRatio || 1; 
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {
                 var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
                 var l = Math.round(( spans[index].start - leftBase ) * scale );
-                context.clearRect( l, 0, w, canvasHeight );
+                context.clearRect( l, 0, w*devicePixelRatio, canvasHeight );
             }
         }
         context.globalAlpha = this.config.style.masked_transparancy || 0.2;
