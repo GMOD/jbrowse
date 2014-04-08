@@ -38,7 +38,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
-            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) ) {
+            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) || this.trackHeightChanged ) { 
 
                 var scaling = new Scale( this.config, stats );
 
@@ -59,6 +59,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 scaling.range = scaling.max - scaling.min;
 
                 this.lastScaling = scaling;
+                this.trackHeightChanged=false; //reset flag
             }
 
             successCallback( this.lastScaling );
@@ -91,7 +92,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var originY = toY( dataScale.origin );
 
         var disableClipMarkers = this.config.disable_clip_markers;
-        console.log("Wigglelog " + devicePixelRatio);
 
         dojo.forEach( pixels, function(p,i) {
             if (!p)
