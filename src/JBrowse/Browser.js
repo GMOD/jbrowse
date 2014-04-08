@@ -2469,11 +2469,9 @@ createNavBox: function( parent ) {
         states:[false, true, "mixed"],
         onChange: function() {
             if( this.get('checked')==true ) {
-                console.log(this.get('checked') + " " + thisB.highlightButtonPreviousState);
                 thisB.view._rubberStop();
                 thisB.view.behaviorManager.swapBehaviors('normalMouse','highlightingMouse');
             } else if( this.get('checked')==false) {
-                console.log(this.get('checked') + " " + thisB.highlightButtonPreviousState);
                 var h = thisB.getHighlight();
                 if( h ) {
                     thisB.clearHighlight();
@@ -2481,7 +2479,6 @@ createNavBox: function( parent ) {
                 }
             }
             else { // mixed
-                console.log(this.get('checked') + " " + thisB.highlightButtonPreviousState);
                 // Uncheck since user is cycling three-state instead
                 // of programmatically landing in mixed state
                 if( thisB.highlightButtonPreviousState != true ) {
