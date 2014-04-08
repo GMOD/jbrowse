@@ -129,7 +129,7 @@ constructor: function(params) {
             thisB.container.onselectstart = function() { return false; };
 
             // initialize our highlight if one was set in the config
-            if( thisB.config.initialHighlight )
+            if( thisB.config.initialHighlight && thisB.config.initialHighlight != "/" )
                 thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
 
             thisB.loadNames();
