@@ -170,11 +170,12 @@ constructor: function(params) {
                            // Add right click menus for the
                            // hierarchical track viewer
                            console.log("Rendering right click menus");
-                           console.log( tracksToShow );
-                           for(track in tracksToShow ) {
-                               var myTrack=thisB.view._getTracks( [track.label]);
-                               console.log("initializing for "+track.label);
-                               thisB.trackListView.initializeRightClicks(myTrack);
+                           for(var i=0;i<thisB.config.tracks.length;i++) {
+                               var mytrackLabel=thisB.config.tracks[i].label;
+                               console.log( "Here "+mytrackLabel );
+                               var mytrack=thisB.view._getTracks( mytrackLabel );
+                               console.log("initializing for "+mytrack.label);
+                               thisB.trackListView.initializeRightClicks(mytrack);
                            }
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
