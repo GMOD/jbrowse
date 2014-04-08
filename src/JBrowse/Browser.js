@@ -167,7 +167,15 @@ constructor: function(params) {
                            // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
-
+                           // Add right click menus for the
+                           // hierarchical track viewer
+                           console.log("Rendering right click menus");
+                           console.log( tracksToShow );
+                           for(track in tracksToShow ) {
+                               var myTrack=thisB.view._getTracks( [track.label]);
+                               console.log("initializing for "+track.label);
+                               thisB.trackListView.initializeRightClicks(myTrack);
+                           }
                            thisB.passMilestone( 'completely initialized', { success: true } );
                        });
                        thisB.reportUsageStats();

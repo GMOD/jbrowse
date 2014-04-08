@@ -178,79 +178,8 @@ return declare(
             this.own( checkListener = on( checkbox, 'click', function() {
                 thisB.browser.publish( '/jbrowse/v1/v/tracks/'+(this.checked ? 'show' : 'hide'), [trackConf] );
             }));
-            dom.create('span', { className: 'key', innerHTML: labelkey, id: labelkey+"_label" }, labelNode );
-
-            var myTrack=thisB.browser.view._getTracks( trackConf.label );
-            // Add menu
-            var pMenu=myTrack[0]._renderContextMenu([
-            { label: 'About this track',
-                title: 'About track: '+labelkey,
-                iconClass: 'jbrowseIconHelp',
-                action: 'contentDialog',
-                content: function() { track._trackDetailsContent() }
-            },{ label: 'Edit config',
-              title: "edit this track's configuration",
-              iconClass: 'dijitIconConfigure',
-              action: function() {
-                  new TrackConfigEditor( track.config )
-                      .show( function( result ) { 
-                          // replace this track's configuration
-                          that.browser.publish('/jbrowse/v1/v/tracks/replace',
-[result.conf] );
-                      });  
-              }        
-            },{ label: 'Delete track',
-              title: "delete this track",
-              iconClass: 'dijitIconDelete',
-              action: function() {
-                  new ConfirmDialog({ title: 'Delete track?', message:
-'Really delete this track?' })
-                     .show( function( confirmed ) {
-                          if( confirmed )
-                              that.browser.publish(
-'/jbrowse/v1/v/tracks/delete', [track.config] );
-                      });
-              }
-            }], { track: track });
-            dojo.safeMixin(menu, { targetNodeIds: [labelkey+"_label"] });
-            menu.startup();
- /*
-            pMenu = new Menu({
-                targetNodeIds: [labelkey+"_label"]
-            });
-            pMenu.addChild(new MenuItem({ label: 'About this track',
-                title: 'About track: '+labelkey,
-                iconClass: 'jbrowseIconHelp',
-                action: 'contentDialog',
-                content: function() { track._trackDetailsContent() }
-            }));
-
-            pMenu.addChild(new MenuItem({ label: 'Edit config',
-              title: "edit this track's configuration",
-              iconClass: 'dijitIconConfigure',
-              action: function() {
-                  new TrackConfigEditor( track.config )
-                      .show( function( result ) {
-                          // replace this track's configuration
-                          that.browser.publish('/jbrowse/v1/v/tracks/replace', [result.conf] );
-                      });  
-              }    
-            }));
-            pMenu.addChild(new MenuItem({ label: 'Delete track',
-              title: "delete this track",
-              iconClass: 'dijitIconDelete',
-              action: function() {
-                  new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
-                     .show( function( confirmed ) {
-                          if( confirmed )
-                              that.browser.publish( '/jbrowse/v1/v/tracks/delete', [track.config] );
-                      });
-              }
-            }));
-
-            pMenu.startup();
-*/
-
+            dom.create('span', { className: 'key', innerHTML: labelkey, id: trackLabel+"_label" }, labelNode );
+ 
             category.tracks[ trackLabel ] = { checkbox: checkbox, checkListener: checkListener, labelNode: labelNode };
 
             this._updateTitles( category );
@@ -370,7 +299,41 @@ return declare(
      * This does nothing for this track selector, since it is always visible.
      */
     toggle: function() {
-    }
+    },
 
+    initializeRightClicks: function(track) {
+        console.log('intializeRightClicks');
+        // Add menu
+        var pMenu=track._renderContextMenu([
+        { label: 'About this track',
+            title: 'About track: '+track.label,
+            iconClass: 'jbrowseIconHelp',
+            action: 'contentDialog',
+            content: function() { track._trackDetailsContent() }
+        },{ label: 'Edit config',
+          title: "edit this track's configuration",
+          iconClass: 'dijitIconConfigure',
+          action: function() {
+              new TrackConfigEditor( track.config )
+                  .show( function( result ) { 
+                      // replace this track's configuration
+                      this.browser.publish('/jbrowse/v1/v/tracks/replace',  [result.conf] );
+                  });  
+          }        
+        },{ label: 'Delete track',
+          title: "delete this track",
+          iconClass: 'dijitIconDelete',
+          action: function() {
+              new ConfirmDialog({ title: 'Delete track?', message: 'Really delete this track?' })
+                 .show( function( confirmed ) {
+                      if( confirmed )
+                          this.browser.publish('/jbrowse/v1/v/tracks/delete', [track.config] );
+                  });
+          }
+        }], { track: track });
+        dojo.safeMixin(menu, { targetNodeIds: [track.config.label+"_label"] });
+        menu.startup();
+
+    }
 });
 });
