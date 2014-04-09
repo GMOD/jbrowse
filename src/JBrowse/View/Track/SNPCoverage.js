@@ -57,8 +57,16 @@ return declare( [WiggleXY, AlignmentsMixin],
         var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+                                                context.mozBackingStorePixelRatio ||
+                                                context.msBackingStorePixelRatio ||
+                                                context.oBackingStorePixelRatio ||
+                                                context.backingStorePixelRatio || 1;
+ 
+        var ratio = devicePixelRatio / backingStoreRatio;
         var toY = dojo.hitch( this, function( val ) {
-           return canvasHeight * ( 1-dataScale.normalize(val) );
+           return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
         });
         var originY = toY( dataScale.origin );
 
@@ -76,6 +84,34 @@ return declare( [WiggleXY, AlignmentsMixin],
                                      className: 'SNP-indicator-track'
                                  }, block.domNode);
         var snpContext = snpCanvas.getContext('2d');
+ 
+        // finally query the various pixel ratios
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = snpContext.webkitBackingStorePixelRatio ||
+                                                snpContext.mozBackingStorePixelRatio ||
+                                                snpContext.msBackingStorePixelRatio ||
+                                                snpContext.oBackingStorePixelRatio ||
+                                                snpContext.backingStorePixelRatio || 1;
+
+        var ratio = devicePixelRatio / backingStoreRatio;
+        // upscale canvas if the two ratios don't match
+        if (devicePixelRatio !== backingStoreRatio) {
+
+            var oldWidth = snpCanvas.width;
+            var oldHeight = snpCanvas.height;
+
+            snpCanvas.width = oldWidth * ratio;
+            snpCanvas.height = oldHeight * ratio;
+
+            //c.style.width = oldWidth + 'px';
+            snpCanvas.style.height = oldHeight + 'px';
+
+            // now scale the context to counter
+            // the fact that we've manually scaled
+            // our canvas element
+            snpContext.scale(ratio, ratio);
+        }
+ 
 
         var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
@@ -127,12 +163,14 @@ return declare( [WiggleXY, AlignmentsMixin],
             score.forEach( function( count, category ) {
                 if ( !{reference:true,skip:true,deletion:true}[category] && count > 0.5*totalHeight ) {
                     snpContext.beginPath();
-                    snpContext.arc( fRect.l + 0.5*fRect.w,
-                                    0.40*snpCanvas.height,
-                                    0.20*snpCanvas.height,
+                    snpContext.scale(devicePixelRatio, 1);
+                    snpContext.arc( (fRect.l + 0.5*fRect.w),
+                                    0.40*snpCanvas.height/ratio,
+                                    0.20*snpCanvas.height/ratio,
                                     1.75 * Math.PI,
                                     1.25 * Math.PI,
                                     false);
+                    snpContext.restore();
                     snpContext.lineTo(fRect.l + 0.5*fRect.w, 0);
                     snpContext.closePath();
                     snpContext.fillStyle = thisB.colorForBase(category);
