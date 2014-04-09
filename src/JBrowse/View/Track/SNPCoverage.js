@@ -162,15 +162,15 @@ return declare( [WiggleXY, AlignmentsMixin],
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
             score.forEach( function( count, category ) {
                 if ( !{reference:true,skip:true,deletion:true}[category] && count > 0.5*totalHeight ) {
-                    snpContext.beginPath();
+                    snpContext.save();
                     snpContext.scale(devicePixelRatio, 1);
+                    snpContext.beginPath();
                     snpContext.arc( (fRect.l + 0.5*fRect.w),
                                     0.40*snpCanvas.height/ratio,
                                     0.20*snpCanvas.height/ratio,
                                     1.75 * Math.PI,
                                     1.25 * Math.PI,
                                     false);
-                    snpContext.restore();
                     snpContext.lineTo(fRect.l + 0.5*fRect.w, 0);
                     snpContext.closePath();
                     snpContext.fillStyle = thisB.colorForBase(category);
@@ -178,6 +178,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                     snpContext.lineWidth = 1;
                     snpContext.strokeStyle = 'black';
                     snpContext.stroke();
+                    snpContext.restore();
                 }
             });
 
