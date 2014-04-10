@@ -140,7 +140,9 @@ return declare(
                 _defaultDescriptionScale: 120,
 
                 showLabels: true,
-                showTooltips: true
+                showTooltips: true,
+                label: 'name,id',
+                description: 'note, description'
             },
 
             displayMode: 'normal',
