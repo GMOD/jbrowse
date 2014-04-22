@@ -104,7 +104,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 var bgColor = this.getConfForFeature('style.bg_color', f );
                 if( bgColor ) {
                     context.fillStyle = bgColor;
-                    context.fillRect( i, 0, devicePixelRatio, canvasHeight );
+                    context.fillRect( i, 0, 1, canvasHeight );
                 }
             }
 
@@ -113,20 +113,20 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
-                    context.fillRect( i, score, devicePixelRatio, originY-score+1);
+                    context.fillRect( i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( i, 0, devicePixelRatio, 3 );
+                        context.fillRect( i, 0, 1, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
                     context.fillStyle = this.getConfForFeature('style.neg_color',f);
-                    context.fillRect( i, originY, devicePixelRatio, score-originY+1 );
+                    context.fillRect( i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( i, canvasHeight-3, devicePixelRatio, 3 );
+                        context.fillRect( i, canvasHeight-3, 1, 3 );
 
                     }
                 }
@@ -177,7 +177,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
             if (spans.hasOwnProperty(index)) {
                 var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
                 var l = Math.round(( spans[index].start - leftBase ) * scale );
-                context.clearRect( l, 0, w*devicePixelRatio, canvasHeight );
+                context.clearRect( l, 0, w, canvasHeight );
             }
         }
         context.globalAlpha = this.config.style.masked_transparancy || 0.2;

@@ -69,14 +69,14 @@ return declare( WiggleBase,
 
                 var n = dataScale.normalize( score );
                 context.fillStyle = ''+featureColor( p, n );
-                context.fillRect( i, 0, devicePixelRatio, canvasHeight );
+                context.fillRect( i, 0, 1, canvasHeight );
                 if( n > 1 ) { // pos clipped
                     context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
-                    context.fillRect( i, 0, devicePixelRatio, 3 );
+                    context.fillRect( i, 0, 1, 3 );
                 }
                 else if( n < 0 ) { // neg clipped
                     context.fillStyle = thisB.getConfForFeature('style.clip_marker_color', f) || 'red';
-                    context.fillRect( i, canvasHeight-3, devicePixelRatio, 3 );
+                    context.fillRect( i, canvasHeight-3, 1, 3 );
                }
             }
         });
@@ -94,15 +94,15 @@ return declare( WiggleBase,
             if (spans.hasOwnProperty(index)) {
                 var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
                 var l = Math.round(( spans[index].start - leftBase ) * scale );
-                context.fillRect( l, 0, w*devicePixelRatio, canvasHeight );
-                context.clearRect( l, 0, w*devicePixelRatio, canvasHeight/3);
-                context.clearRect( l, (2/3)*canvasHeight, w*devicePixelRatio, canvasHeight/3);
+                context.fillRect( l, 0, w, canvasHeight );
+                context.clearRect( l, 0, w, canvasHeight/3);
+                context.clearRect( l, (2/3)*canvasHeight, w, canvasHeight/3);
             }
         }
         dojo.forEach( pixels, function(p,i) {
             if (!p) {
                 // if there is no data at a point, erase the mask.
-                context.clearRect( i, 0, devicePixelRatio, canvasHeight );
+                context.clearRect( i, 0, 1, canvasHeight );
             }
         });
     },
