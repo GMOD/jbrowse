@@ -2,9 +2,15 @@
 
 ## Minor improvements
 
- * Added High DPI rendering for CanvasFeatures and Wiggle tracks so
-   that rendering is much sharper on Mac OSX Retina displays. Thanks
-   to Colin Diesh for the idea and fix (issue #456)
+ * Added High DPI rendering for CanvasFeatures, SNPCoverage, Wiggle
+   tracks, and histograms so that rendering is much sharper on Mac OSX
+   Retina displays. Thanks to Colin Diesh for the idea and fix (issue 
+   #456)
+
+ * Added the ability to run jbrowse scripts outside of the JBrowse
+   root directory. Thanks to chienchi for the fix (issue #465)
+
+
 
 ## Bug fixes
 
@@ -12,6 +18,16 @@
 
  * Fixed updating the y-axis scale height when using the resize 
    quantitative tracks feature (issue #461)
+
+ * Made it so that CanvasFeatures 'View details' pages display 
+   descriptions and names the same way as HTMLFeatures dialog boxes do
+   (issue #463)
+
+ * Added a bugfix for servers that add a trailing slash to the URL
+   (issue #462)
+
+ * Fixed a broken link in the documentation for a biodb-to-json script
+ 
 
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
