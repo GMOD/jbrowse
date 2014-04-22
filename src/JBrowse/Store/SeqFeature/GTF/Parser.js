@@ -191,7 +191,7 @@ return declare( null, {
     _create_transcript: function(feature){
         var result =JSON.parse(JSON.stringify(feature));
         result.type='transcript';
-        result.attributes={'transcript_id':result.attributes.transcript_id, 'gene_id':result.attributes.gene_id};
+        //result.attributes={'transcript_id':result.attributes.transcript_id, 'gene_id':result.attributes.gene_id};
         return result;
     },
 
