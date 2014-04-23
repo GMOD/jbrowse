@@ -81,6 +81,7 @@ echo -n "Formatting Yeast example data ...";
     # format volvox
     rm -rf sample_data/json/yeast/;
     bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa.gz --fasta sample_data/raw/yeast_scaffolds/chr2.fa.gzip  --out sample_data/json/yeast/;
+    zcat sample_data/raw/yeast_scaffolds/chr1.fa.gz sample_data/raw/yeast_scaffolds/chr2.fa.gzip > sample_data/raw/yeast_chr1+2/yeast.fa;
     bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
     bin/add-json.pl '{ "dataset_id": "yeast" }' sample_data/json/yeast/trackList.json
     bin/generate-names.pl --dir sample_data/json/yeast/;
