@@ -3,31 +3,37 @@
 ## Minor improvements
 
  * Added High DPI rendering for CanvasFeatures, SNPCoverage, Wiggle
-   tracks, and histograms so that rendering is much sharper on Mac OSX
-   Retina displays. Thanks to Colin Diesh for the idea and fix (issue 
-   #456)
+   tracks, and histograms so that rendering is much sharper on high
+   resolution displays. Thanks to Colin Diesh for the idea and fix 
+   (issue #456)
 
  * Added the ability to run jbrowse scripts outside of the JBrowse
-   root directory. Thanks to chienchi for the fix (issue #465)
-
+   root directory. Thanks to Chien-Chi Lo for the patch. (issue #465)
 
 
 ## Bug fixes
 
- * Fixed help page icons not loading since JBrowse 1.11.2 (issue #460)
+ * Fixed help page icons not loading since JBrowse 1.11.2. Thanks to
+   Colin Diesh for catching the bug and fixing it. (issue #460)
 
  * Fixed updating the y-axis scale height when using the resize 
-   quantitative tracks feature (issue #461)
+   quantitative tracks feature. Thanks to Evan Briones for the 
+   original implementation and Colin Diesh for the bugfix (issue #461)
 
- * Made it so that CanvasFeatures 'View details' pages display 
-   descriptions and names the same way as HTMLFeatures dialog boxes do
-   (issue #463)
+ * Changed the CanvasFeatures 'View details' pages to display the name
+   and description of features by default (in order to match behavior 
+   of HTMLFeatures tracks) to Colin Diesh for the fix. (issue #463)
 
- * Added a bugfix for servers that add a trailing slash to the URL
-   (issue #462)
+ * Added a bugfix for servers that add a trailing slash to the URL.
+   Thanks to Colin Diesh for the fix (issue #462)
 
- * Fixed a broken link in the documentation for a biodb-to-json script
- 
+ * Fixed a broken link in the documentation for a biodb-to-json
+   script. No issue page.
+
+ * Fixed a bug in setup.sh to maintain compatibility with latest 
+   BioPerl. This requires the reference sequence to be included in 
+   the folder for biodb-to-json.pl. Thanks to Thomas Sibley and 
+   Scott Cain for helping with the issue. (issue #468)
 
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
