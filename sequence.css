@@ -109,7 +109,7 @@ td.base {
     background-color: #4747ff;
 }
 .base_t {
-    background-color: red;
+    background-color: #f00;
 }
 .base_g {
     background-color: #d5bb04;
@@ -118,5 +118,5 @@ td.base {
     background-color: #bbb;
 }
 .base_deletion {
-    background-color: black;
+    background-color: black; /* should be a hexadecimal color, but i can't find a nice color for this */
 }

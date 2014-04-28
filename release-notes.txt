@@ -35,6 +35,9 @@
    the folder for biodb-to-json.pl. Thanks to Thomas Sibley and 
    Scott Cain for helping with the issue. (issue #468)
 
+ * Fixed coloring of some bases on the SNPCoverage/Alignments2 track.
+   Thanks to Long Le for pointing this out on the mailing list.
+
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
 ## Minor improvements
