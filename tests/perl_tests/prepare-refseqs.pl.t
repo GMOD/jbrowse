@@ -175,18 +175,20 @@ EOCONF
 
 
 
+{ open my $conf, '>', "$tempdir/conf" or die; $conf->print( <<EOCONF ); }
+{
 system $^X, 'bin/prepare-refseqs.pl', (
     '--conf' => "$tempdir/conf",
     '--out'   => "$tempdir/out",
     '--refs'  => 'ctgA,ctgB',
     '--nohash'
    );
-
 $output = slurp_tree( "$tempdir/out" );
 is_deeply( $output,
            slurp_tree('tests/data/volvox_formatted_refseqs'),
            'got the right volvox formatted sequence with --nohash',
           );# or diag explain $output;
-
+}
+EOCONF
 done_testing;
 
