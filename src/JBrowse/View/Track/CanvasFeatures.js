@@ -430,7 +430,6 @@ return declare(
             );
         this.heightUpdate( height, viewArgs.blockIndex );
         var ctx = c.getContext('2d');
-        ctx.fillStyle = this.config.histograms.color;
 
         // finally query the various pixel ratios
         var devicePixelRatio = window.devicePixelRatio || 1;
@@ -459,6 +458,7 @@ return declare(
             ctx.scale(ratio, ratio);
         }
 
+        ctx.fillStyle = this.config.histograms.color;
         for( var i = 0; i<features.length; i++ ) {
             var feature = features[i];
             var barHeight = feature.get('score')/maxScore * height;
