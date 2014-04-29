@@ -15,6 +15,7 @@ RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
+SHASUM=shasum
 
 
 all: docs bin/wig2png
@@ -24,7 +25,7 @@ release-version.txt:
 
 release: release-version.txt release-normal release-min release-normal-test release-min-test release-notes.html
 	ls -lh *.zip
-	sha1sum *.zip
+	$(SHASUM) *.zip
 
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
@@ -95,7 +96,7 @@ release-min: release-normal plugins-min
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    if [ -d $$P ]; then \
-		    cp -R $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)`dirname $$P`; \
+		    cp -R $(RELEASE_FULL_DIR)$$P/ $(RELEASE_MIN_DIR)$$P; \
 	    else \
 		    cp -R $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	    fi;\
@@ -112,6 +113,8 @@ release-min-test: release-min
         # unzip to make sure we are looking at what's really in the releases
 	rm -rf $(RELEASE_MIN_DIR);
 	$(UNZIP) $(RELEASE_MIN).zip
+	rm $(RELEASE_MIN_DIR)/sample_data/raw/volvox
+	rm $(RELEASE_MIN_DIR)/sample_data/json/modencode/tracks/volvox_microarray.wig
 	cp -R docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
