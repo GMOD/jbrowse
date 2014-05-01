@@ -131,7 +131,7 @@ var Feature = Util.fastDeclare(
     },
     strand: function() {
         var xs = this._get('xs');
-        return xs ? ( xs == '-' ? -1 : 1 ) :
+        return xs && isNaN(xs) ? ( xs == '-' ? -1 : 1 ) :
                this._get('seq_reverse_complemented') ? -1 :  1;
     },
     multi_segment_next_segment_strand: function() {
