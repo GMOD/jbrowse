@@ -76,6 +76,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
      * @private
      */
     _drawFeatures: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale ) {
+        var thisB=this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
         var devicePixelRatio = window.devicePixelRatio || 1; 
@@ -104,7 +105,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 var bgColor = this.getConfForFeature('style.bg_color', f );
                 if( bgColor ) {
                     context.fillStyle = bgColor;
-                    context.fillRect( i, 0, 1, canvasHeight );
+                    thisB._fillRectMod( context, i, 0, 1, canvasHeight );
                 }
             }
 
@@ -113,20 +114,20 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
-                    context.fillRect( i, score, 1, originY-score+1);
+                    thisB._fillRectMod( context, i, score, 1, originY-score+1);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
-                        context.fillRect( i, 0, 1, 3 );
+                        thisB._fillRectMod( context, i, 0, 1, 3 );
 
                     }
                 }
                 else {
                     // bar goes downward
                     context.fillStyle = this.getConfForFeature('style.neg_color',f);
-                    context.fillRect( i, originY, 1, score-originY+1 );
+                    thisB._fillRectMod( context, i, originY, 1, score-originY+1 );
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
-                        context.fillRect( i, canvasHeight-3, 1, 3 );
+                        thisB._fillRectMod( context, i, canvasHeight-3, 1, 3 );
 
                     }
                 }
@@ -202,6 +203,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
         });
+        var thisB = this;
 
         // draw the variance_band if requested
         if( this.config.variance_band ) {

@@ -215,12 +215,11 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         var ratio = devicePixelRatio / backingStoreRatio;
         // upscale canvas if the two ratios don't match
         if (devicePixelRatio !== backingStoreRatio) {
-
             var oldWidth = c.width;
             var oldHeight = c.height;
 
-            c.width = Math.ceil(oldWidth * ratio);
-            c.height = Math.ceil(oldHeight * ratio);
+            c.width = oldWidth * ratio;
+            c.height = oldHeight * ratio;
 
             //c.style.width = oldWidth + 'px';
             c.style.height = oldHeight + 'px';
@@ -528,6 +527,24 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         });
 
         return options;
+    },
+
+    // this draws either one or two width pixels based on whether there is a fractional devicePixelRatio
+    _fillRectMod: function( ctx, left, top, width, height ) {
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                                                ctx.mozBackingStorePixelRatio ||
+                                                ctx.msBackingStorePixelRatio ||
+                                                ctx.oBackingStorePixelRatio ||
+                                                ctx.backingStorePixelRatio || 1;
+
+        var ratio = devicePixelRatio / backingStoreRatio;
+        var drawWidth=width;
+        // check for fractional devicePixelRatio, and if so, draw wider pixels to avoid subpixel rendering
+        if( (devicePixelRatio-Math.floor(devicePixelRatio)) > 0 ) {
+            drawWidth=width+0.3; // Minimal for subpixel gap, heuristic
+        }
+        ctx.fillRect( left, top, drawWidth, height );
     }
 });
 });

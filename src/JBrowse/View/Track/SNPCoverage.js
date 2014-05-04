@@ -123,18 +123,18 @@ return declare( [WiggleXY, AlignmentsMixin],
                 context.fillStyle = thisB.colorForBase(ID);
                 if( yPos <= originY ) {
                     // bar goes upward
-                    context.fillRect( fRect.l, yPos, fRect.w, height);
+                    thisB._fillRectMod( context, fRect.l, yPos, fRect.w, height);
                     if( !disableClipMarkers && yPos < 0 ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || negColor;
-                        context.fillRect( fRect.l, 0, fRect.w, 2 );
+                        thisB._fillRectMod( context.fRect.l, 0, fRect.w, 2 );
                     }
                 }
                 else {
                     // bar goes downward
-                    context.fillRect( fRect.l, originY, fRect.w, height );
+                    thisB._fillRectMod( fRect.l, originY, fRect.w, height );
                     if( !disableClipMarkers && yPos >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || thisB.colorForBase(ID);
-                        context.fillRect( fRect.l, canvasHeight-3, fRect.w, 2 );
+                        thisB._fillRectMod( fRect.l, canvasHeight-3, fRect.w, 2 );
                     }
                 }
             }
@@ -148,7 +148,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             // draw the background color if we are configured to do so
             if( bgColor ) {
                 context.fillStyle = bgColor;
-                context.fillRect( fRect.l, 0, fRect.w, canvasHeight );
+                thisB._fillRectMod( fRect.l, 0, fRect.w, canvasHeight );
             }
 
             drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
