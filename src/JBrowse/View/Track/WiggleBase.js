@@ -219,8 +219,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             var oldWidth = c.width;
             var oldHeight = c.height;
 
-            c.width = Math.round(oldWidth * ratio);
-            c.height = Math.round(oldHeight * ratio);
+            c.width = Math.ceil(oldWidth * ratio);
+            c.height = Math.ceil(oldHeight * ratio);
 
             //c.style.width = oldWidth + 'px';
             c.style.height = oldHeight + 'px';
