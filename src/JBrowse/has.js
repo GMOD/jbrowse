@@ -38,6 +38,13 @@ define([ 'dojo/has', 'dojo/sniff' ],
                         return canSave;
            },true);
 
+
+           // similar to the inaccurate-html-layout problem, but specifically related to width being 100%
+           // rounding on canvas features at the time being
+           has.add( 'inaccurate-html-width', function() {
+               return has('safari')||has('chrome');
+           }, true);
+
            return has;
        }
 );

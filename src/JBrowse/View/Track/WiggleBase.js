@@ -11,6 +11,7 @@ define( [
             'JBrowse/View/Track/_TrackDetailsStatsMixin',
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/Util',
+            'JBrowse/has',
             './Wiggle/_Scale'
         ],
         function(
@@ -26,6 +27,7 @@ define( [
             DetailStatsMixin,
             TrackHeightDialog,
             Util,
+            has,
             Scale
         ) {
 
@@ -194,8 +196,10 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
               width:  this._canvasWidth(block),
               style: {
                   cursor: 'default',
-                  width: "100%",
-                  height: canvasHeight + "px"
+                  width: has('inaccurate-html-width') ? "" : "100%",
+                  "min-width": has('inaccurate-html-width')? "100%":"",
+                  "max-width": has('inaccurate-html-width')? "102%":"",
+                  
               },
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
@@ -218,8 +222,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             var oldWidth = c.width;
             var oldHeight = c.height;
 
-            c.width = oldWidth * ratio;
-            c.height = oldHeight * ratio;
+            c.width = Math.round(oldWidth * ratio);
+            c.height = Math.round(oldHeight * ratio);
 
             //c.style.width = oldWidth + 'px';
             c.style.height = oldHeight + 'px';
