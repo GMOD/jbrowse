@@ -2,22 +2,29 @@
 
 ## Minor improvements
 
- * Added High DPI rendering for CanvasFeatures, SNPCoverage, Wiggle
-   tracks, and histograms so that rendering is much sharper on high
-   resolution displays. Thanks to Colin Diesh for the idea and fix 
-   (issue #456)
+ * Added High resolution rendering for CanvasFeatures, SNPCoverage,
+   BigWig tracks, and histograms. This allows rendering for canvas-
+   based tracks to be much sharper on high resolution displays.
+   Thanks to Colin Diesh for the idea and implementation (issue #456)
 
  * Added the ability to run jbrowse scripts outside of the JBrowse
    root directory. Thanks to Chien-Chi Lo for the patch. (issue #465)
 
+ * Added basic GTF parser that can open files from the File->Open
+   menu or by using the in-memory adaptor. Big thanks to Andrew Warren
+   for the contribution (pull #453)
+
+ * Added a change to the highlight button to allow the user to more 
+   easily clear highlights. Thanks to Paul Hale for the suggestion
+   and Colin Diesh for the fix (issue #445)
 
 ## Bug fixes
 
  * Fixed help page icons not loading since JBrowse 1.11.2. Thanks to
    Colin Diesh for catching the bug and fixing it. (issue #460)
 
- * Fixed updating the y-axis scale height when using the resize 
-   quantitative tracks feature. Thanks to Evan Briones for the 
+ * Fixed updating of the y-axis scale when using the resize
+   quantitative tracks feature. Thanks again to Evan Briones for the 
    original implementation and Colin Diesh for the bugfix (issue #461)
 
  * Changed the CanvasFeatures 'View details' pages to display the name
@@ -27,16 +34,19 @@
  * Added a bugfix for servers that add a trailing slash to the URL.
    Thanks to Colin Diesh for the fix (issue #462)
 
- * Fixed a broken link in the documentation for a biodb-to-json
-   script. No issue page.
+ * Fixed a broken link in the documentation for biodb-to-json.
 
- * Fixed a bug in setup.sh to maintain compatibility with latest 
-   BioPerl. This requires the reference sequence to be included in 
-   the folder for biodb-to-json.pl. Thanks to Thomas Sibley and 
-   Scott Cain for helping with the issue. (issue #468)
+ * Fixed a bug in setup.sh to maintain compatibility with the latest
+   BioPerl. Thanks to Thomas Sibley and Scott Cain for helping with 
+   identifying and fixing the issue. (issue #468)
 
- * Fixed coloring of some bases on the SNPCoverage/Alignments2 track.
+ * Fixed coloring of nucleotides on the SNPCoverage/Alignments2 track.
    Thanks to Long Le for pointing this out on the mailing list.
+
+ * Fixed a long standing bug with the scrollbar in the dialog box on
+   Chrome and Safari browsers. Thanks to the #dojo irc channel and
+   and Colin Diesh for helping fix this problem (issue #386).
+
 
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
