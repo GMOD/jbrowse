@@ -198,7 +198,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                   cursor: 'default',
                   width: has('inaccurate-html-width') ? "" : "100%",
                   "min-width": has('inaccurate-html-width')? "100%":"",
-                  "max-width": has('inaccurate-html-width')? "102%":"",
+                  "max-width": has('inaccurate-html-width')? "102%":""
                   
               },
               innerHTML: 'Your web browser cannot display this type of track.',
