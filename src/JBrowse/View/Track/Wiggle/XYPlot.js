@@ -79,14 +79,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var thisB=this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var devicePixelRatio = window.devicePixelRatio || 1; 
-        var backingStoreRatio = context.webkitBackingStorePixelRatio || 
-                                                context.mozBackingStorePixelRatio || 
-                                                context.msBackingStorePixelRatio || 
-                                                context.oBackingStorePixelRatio || 
-                                                context.backingStorePixelRatio || 1; 
  
-        var ratio = devicePixelRatio / backingStoreRatio;
+        var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
         });
@@ -172,7 +166,6 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var devicePixelRatio = window.devicePixelRatio || 1; 
 
         for ( var index in spans ) {
             if (spans.hasOwnProperty(index)) {
@@ -192,14 +185,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _postDraw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var devicePixelRatio = window.devicePixelRatio || 1; 
-        var backingStoreRatio = context.webkitBackingStorePixelRatio || 
-                                                context.mozBackingStorePixelRatio || 
-                                                context.msBackingStorePixelRatio || 
-                                                context.oBackingStorePixelRatio || 
-                                                context.backingStorePixelRatio || 1; 
  
-        var ratio = devicePixelRatio / backingStoreRatio;
+        var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
         });

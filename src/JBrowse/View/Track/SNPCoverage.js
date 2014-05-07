@@ -57,14 +57,8 @@ return declare( [WiggleXY, AlignmentsMixin],
         var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
-        var devicePixelRatio = window.devicePixelRatio || 1;
-        var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-                                                context.mozBackingStorePixelRatio ||
-                                                context.msBackingStorePixelRatio ||
-                                                context.oBackingStorePixelRatio ||
-                                                context.backingStorePixelRatio || 1;
  
-        var ratio = devicePixelRatio / backingStoreRatio;
+        var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
         });
@@ -86,16 +80,9 @@ return declare( [WiggleXY, AlignmentsMixin],
         var snpContext = snpCanvas.getContext('2d');
  
         // finally query the various pixel ratios
-        var devicePixelRatio = window.devicePixelRatio || 1;
-        var backingStoreRatio = snpContext.webkitBackingStorePixelRatio ||
-                                                snpContext.mozBackingStorePixelRatio ||
-                                                snpContext.msBackingStorePixelRatio ||
-                                                snpContext.oBackingStorePixelRatio ||
-                                                snpContext.backingStorePixelRatio || 1;
-
-        var ratio = devicePixelRatio / backingStoreRatio;
+        var ratio = Util.getResolution( snpContext, this.browser.config.highResolutionMode );
         // upscale canvas if the two ratios don't match
-        if (devicePixelRatio !== backingStoreRatio) {
+        if ( this.browser.config.highResolutionMode !='disabled' && ratio!=1 ) {
 
             var oldWidth = snpCanvas.width;
             var oldHeight = snpCanvas.height;
@@ -163,7 +150,8 @@ return declare( [WiggleXY, AlignmentsMixin],
             score.forEach( function( count, category ) {
                 if ( !{reference:true,skip:true,deletion:true}[category] && count > 0.5*totalHeight ) {
                     snpContext.save();
-                    snpContext.scale(devicePixelRatio, 1);
+                    if( thisB.browser.config.highResolutionMode != 'disabled' )
+                        snpContext.scale(ratio, 1);
                     snpContext.beginPath();
                     snpContext.arc( (fRect.l + 0.5*fRect.w),
                                     0.40*snpCanvas.height/ratio,
@@ -178,7 +166,8 @@ return declare( [WiggleXY, AlignmentsMixin],
                     snpContext.lineWidth = 1;
                     snpContext.strokeStyle = 'black';
                     snpContext.stroke();
-                    snpContext.restore();
+                    if( thisB.browser.config.highResolutionMode != 'disabled' ) 
+                        snpContext.restore();
                 }
             });
 

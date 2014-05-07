@@ -481,7 +481,29 @@ Util = {
             if( domNode.removeAttribute )
                 domNode.removeAttribute( attrName );
         }
+    },
+    // Return resolution, accounting for config possibly specifying that highres is disabled
+    getResolution: function( ctx, highResolutionMode ) {
+        var ratio;
+        if( highResolutionMode=='auto' ) {
+            // finally query the various pixel ratios
+            var devicePixelRatio = window.devicePixelRatio || 1;
+            var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                                                    ctx.mozBackingStorePixelRatio ||
+                                                    ctx.msBackingStorePixelRatio ||
+                                                    ctx.oBackingStorePixelRatio ||
+                                                    ctx.backingStorePixelRatio || 1;
+            ratio = devicePixelRatio / backingStoreRatio;
+        }
+        else if( highResolutionMode=='disabled' ) {
+            ratio = 1;
+        }
+        else {
+            ratio = highResolutionMode;
+        }
+        return ratio;
     }
+
 };
 
     return Util;

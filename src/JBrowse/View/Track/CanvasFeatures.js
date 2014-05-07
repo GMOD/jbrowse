@@ -432,17 +432,10 @@ return declare(
         var ctx = c.getContext('2d');
 
         // finally query the various pixel ratios
-        var devicePixelRatio = window.devicePixelRatio || 1;
-        var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                                                ctx.mozBackingStorePixelRatio ||
-                                                ctx.msBackingStorePixelRatio ||
-                                                ctx.oBackingStorePixelRatio ||
-                                                ctx.backingStorePixelRatio || 1;
-
-        var ratio = devicePixelRatio / backingStoreRatio;
+        var ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
         // upscale canvas if the two ratios don't match
-        if (devicePixelRatio !== backingStoreRatio) {
-
+        if ( this.browser.config.highResolutionMode != 'disabled' && ratio != 1 )
+        {
             var oldWidth = c.width;
             var oldHeight = c.height;
 
@@ -622,16 +615,9 @@ return declare(
                                         var ctx = c.getContext('2d');
 
                                         // finally query the various pixel ratios
-                                        var devicePixelRatio = window.devicePixelRatio || 1;
-                                        var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                                                                                ctx.mozBackingStorePixelRatio ||
-                                                                                ctx.msBackingStorePixelRatio ||
-                                                                                ctx.oBackingStorePixelRatio ||
-                                                                                ctx.backingStorePixelRatio || 1;
-
-                                        var ratio = devicePixelRatio / backingStoreRatio;
+                                        var ratio = Util.getResolution( ctx, thisB.browser.config.highResolutionMode );
                                         // upscale canvas if the two ratios don't match
-                                        if (devicePixelRatio !== backingStoreRatio) {
+                                        if ( thisB.browser.config.highResolutionMode != 'disabled' && ratio != 1 ) {
 
                                             var oldWidth = c.width;
                                             var oldHeight = c.height;

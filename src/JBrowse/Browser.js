@@ -1549,7 +1549,8 @@ _configDefaults: function() {
             yeast:     { url: '?data=sample_data/json/yeast',     name: 'Yeast Example'     }
         },
 
-        highlightSearchedRegions: false
+        highlightSearchedRegions: false,
+        highResolutionMode: 'auto'
     };
 },
 
