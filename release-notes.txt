@@ -50,6 +50,9 @@
    Chrome and Safari browsers. Thanks to the #dojo irc channel and
    and Colin Diesh for helping fix this problem (issue #386).
 
+ * Fix a long standing bug with a one pixel gap that appears between
+   blocks on Safari. Thanks to Colin Diesh for the fix (issue #341)
+
 
 # Release 1.11.3     2014-03-07 13:05:57 EST5EDT
 
