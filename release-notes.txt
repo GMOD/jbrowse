@@ -2,10 +2,13 @@
 
 ## Minor improvements
 
- * Added High resolution rendering for CanvasFeatures, SNPCoverage,
+ * Added high-resolution rendering for CanvasFeatures, SNPCoverage,
    BigWig tracks, and histograms. This allows rendering for canvas-
-   based tracks to be much sharper on high resolution displays.
-   Thanks to Colin Diesh for the idea and implementation (issue #456)
+   based tracks to look much sharper on high-resolution displays and
+   can even look sharper when zooming. The high-resolution rendering
+   is disabled by default to avoid conflicts, but feel free to test it
+   out by setting "highResolutionMode" in jbrowse.conf. Thanks to
+   Colin Diesh for the idea and implementation (issue #456)
 
  * Added the ability to run jbrowse scripts outside of the JBrowse
    root directory. Thanks to Chien-Chi Lo for the patch. (issue #465)
