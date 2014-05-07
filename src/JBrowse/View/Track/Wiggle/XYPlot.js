@@ -205,7 +205,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                         var varTop = toY( stats.scoreMean + plusminus );
                         var varHeight = toY( stats.scoreMean - plusminus ) - varTop;
                         varHeight = Math.max( 1, varHeight );
-                        context.fillRect( 0, varTop, canvas.width, varHeight );
+                        thisB._fillRectMod( context, 0, varTop, canvas.width, varHeight );
                         context.font = '12px sans-serif';
                         if( plusminus > 0 ) {
                             context.fillText( '+'+label, 2, varTop );
