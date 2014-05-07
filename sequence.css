@@ -99,6 +99,8 @@ td.base {
     font-weight: bold;
     text-shadow: white 0px 0px 1px;
 }
+
+/* colors for bases must be specified as hex or rgb/hsl strings, no named colors such as 'red' */
 .base_n {
     background-color: #C6C6C6;
 }
@@ -118,5 +120,5 @@ td.base {
     background-color: #bbb;
 }
 .base_deletion {
-    background-color: black; /* should be a hexadecimal color, but i can't find a nice color for this */
+    background-color: #999; 
 }
