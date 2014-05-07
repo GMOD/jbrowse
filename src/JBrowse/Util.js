@@ -501,7 +501,7 @@ Util = {
         else {
             ratio = highResolutionMode;
         }
-        return ratio;
+        return ratio>=1?ratio:1;
     }
 
 };

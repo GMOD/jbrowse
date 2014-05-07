@@ -212,7 +212,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         var ratio=Util.getResolution(ctx, this.browser.config.highResolutionMode);
 
         // upscale canvas if the two ratios don't match
-        if (this.browser.config.highResolutionMode!='disabled' && ratio!=1) {
+        if (this.browser.config.highResolutionMode!='disabled' && ratio>=1) {
             var oldWidth = c.width;
             var oldHeight = c.height;
 
