@@ -32,27 +32,29 @@
    original implementation and Colin Diesh for the fix (issue #461).
 
  * Changed the CanvasFeatures 'View details' pages to display the name
-   and description of features by default (in order to match behavior
-   of HTMLFeatures tracks) to Colin Diesh for the fix (issue #463).
+   and description of features in the dialog box. Thanks to Colin 
+   Diesh for the fix (issue #463).
 
- * Added a bugfix for servers that add a trailing slash to the URL.
-   Thanks to Colin Diesh for the fix (issue #462).
+ * Added a bugfix for non-compliant servers that add a trailing slash
+   to the URL. Thanks to Colin Diesh for the fix (issue #462).
 
  * Fixed a broken link in the documentation for biodb-to-json.
 
- * Fixed a bug in setup.sh to maintain compatibility with the latest
-   BioPerl. Thanks to Thomas Sibley and Scott Cain for helping with
-   identifying and fixing the issue (issue #468).
+ * Updated setup.sh to maintain compatibility with the latest BioPerl.
+   Thanks to Thomas Sibley and Scott Cain for helping with this issue
+   (issue #468).
 
- * Fixed coloring of nucleotides on the SNPCoverage/Alignments2 track.
-   Thanks to Long Le for pointing this out on the mailing list.
+ * Fixed a long standing bug with the coloring of nucleotides on the
+   SNPCoverage/Alignments2 track. Thanks to Long Le for reporting this
+   on the mailing list.
 
  * Fixed a long standing bug with the scrollbar in the dialog box on
    Chrome and Safari browsers. Thanks to the #dojo irc channel and
    and Colin Diesh for helping fix this problem (issue #386).
 
- * Fix a long standing bug with a one pixel gap that appears between
-   blocks on Safari. Thanks to Colin Diesh for the fix (issue #341).
+ * Fix a small rendering problem that causes one pixel gap to appear
+   on Safari due to subpixel rendering issues. Thanks to Colin Diesh
+   for the preliminary fix (issue #341).
 
  * Fix a bug with CanvasFeatures based tracks loading huge amounts
    of data to generate histograms instead of using pre-generated
