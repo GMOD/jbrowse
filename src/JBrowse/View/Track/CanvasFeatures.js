@@ -345,7 +345,7 @@ return declare(
             this.setLabel( this.key );
         }
 
-        var numBins = this.config.histograms.binsPerBlock || 200;
+        var numBins = this.config.histograms.binsPerBlock || 25;
         var blockSizeBp = Math.abs( args.rightBase - args.leftBase );
         var basesPerBin = blockSizeBp / numBins;
         var query = {
