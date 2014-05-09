@@ -58,7 +58,9 @@
 
  * Fix a bug with CanvasFeatures based tracks loading huge amounts
    of data to generate histograms instead of using pre-generated
-   histograms. Thanks to Daniel Troesser for reporting this on the
+   histograms. Also lowered the maxScreenFeatureDensity default on
+   the CanvasFeatures tracks so that histograms can be displayed more
+   readily. Thanks to Daniel Troesser for reporting this issue on the
    mailing list and Colin Diesh for the fix (issue #475).
 
 

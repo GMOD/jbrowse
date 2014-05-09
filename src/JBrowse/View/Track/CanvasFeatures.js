@@ -112,7 +112,7 @@ return declare(
         return Util.deepUpdate(
             lang.clone( this.inherited(arguments) ),
             {
-            maxFeatureScreenDensity: 3,
+            maxFeatureScreenDensity: 0.5,
 
             // default glyph class to use
             glyph: lang.hitch( this, 'guessGlyphType' ),
