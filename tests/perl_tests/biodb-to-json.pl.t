@@ -41,18 +41,30 @@ sub run_with {
     is_deeply( $hist_output, [1], 'got right histogram output' ) or diag explain( $hist_output );
 
     my $genes_trackdata = $read_json->(qw( tracks Genes ctgA trackData.json ));
-    is_deeply( [ @{$genes_trackdata->{intervals}{nclist}[0]}[1..9] ],
-        [
-            1049,
-            9000,
-            1,
-            'example',
-            'ctgA',
-            'EDEN',
-            'EDEN',
-            'protein kinase',
-            'gene'
-        ],
+    my $structure=$genes_trackdata->{intervals}{classes}[0];
+    my $test_trackdata={
+            Start=>1049,
+            End=>9000,
+            Strand=>1,  
+            Source=>'example',
+            Seq_id=>'ctgA',
+            Load_id=>'EDEN',
+            Name=>'EDEN',
+            Note=>'protein kinase',
+            Type=>'gene'
+        };
+    my @structure_attributes=$structure->{attributes};
+    my @comparison_structure;
+    my @test_structure;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            next;
+        }
+        push(@comparison_structure, $test_trackdata->{$structure_attributes[0][$i]});
+        push(@test_structure, @{$genes_trackdata->{intervals}{nclist}[0]}[$i+1]);
+    }
+
+    is_deeply( [ @test_structure ], [ @comparison_structure ],
         'got the right genes trackdata'
       ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
 
@@ -108,18 +120,30 @@ sub run_with {
     is_deeply( $hist_output, [1], 'got right histogram output' ) or diag explain( $hist_output );
 
     my $genes_trackdata = $read_json->(qw( tracks Genes ctgA trackData.jsonz ));
-    is_deeply( [ @{$genes_trackdata->{intervals}{nclist}[0]}[1..9] ],
-        [
-            1049,
-            9000,
-            1,
-            'example',
-            'ctgA',
-            'EDEN',
-            'EDEN',
-            'protein kinase',
-            'gene',
-        ],
+    my $structure=$genes_trackdata->{intervals}{classes}[0];
+    my $test_trackdata={
+            Start=>1049,
+            End=>9000,
+            Strand=>1,  
+            Source=>'example',
+            Seq_id=>'ctgA',
+            Load_id=>'EDEN',
+            Name=>'EDEN',
+            Note=>'protein kinase',
+            Type=>'gene'
+        };
+    my @structure_attributes=$structure->{attributes};
+    my @comparison_structure;
+    my @test_structure;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            next;
+        }
+        push(@comparison_structure, $test_trackdata->{$structure_attributes[0][$i]});
+        push(@test_structure, @{$genes_trackdata->{intervals}{nclist}[0]}[$i+1]);
+    }
+
+    is_deeply( [ @test_structure ], [ @comparison_structure ],
         'got the right genes trackdata'
       ) or diag explain $genes_trackdata->{intervals}{nclist}[0];
 
