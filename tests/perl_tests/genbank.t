@@ -70,9 +70,20 @@ sub tempdir {
 
     # test start/stop of parent feature (full record)
     #diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'};
+    my $class=$trackdata->{'trackData.json'}->{'intervals'}{'nclist'}[0][0];
+    my $structure=$trackdata->{'trackData.json'}->{'intervals'}{'classes'}[$class];
+    my @structure_attributes=$structure->{attributes};
+
+    my $index=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Type' ) {
+            $index=$i+1;
+        }
+    }
+
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][1], 5001, "got right start coordinate (full record)" );
     is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][2], 10950, "got right stop coordinate (full record)" );
-    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][21], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
+    is( $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0][$index], 'mRNA', "got right type in parent feature (full record)" ) or diag explain $trackdata->{'trackData.json'}{'intervals'}{'nclist'}[0];
 
     # test that the right attributes are present
      is_deeply( [sort(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}})],
@@ -97,10 +108,21 @@ sub tempdir {
 #     ok ( scalar(@{$subfeatures->[0]}) == scalar(@{$trackdata->{'trackData.json'}->{'intervals'}->{'classes'}->[0]->{'attributes'}}) + 1,
 #	 "subfeature array is the right length (length of attribute array + 1)");
     # test first subfeature completely
+    $class=$subfeatures->[0][0];
+    $structure=$trackdata->{'trackData.json'}->{'intervals'}{'classes'}[$class];
+    @structure_attributes=$structure->{attributes};
+
+    my $index_subfeature=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Type' ) {
+            $index_subfeature=$i+1;
+        }
+    }
+
     is ( $subfeatures->[0][0] && $subfeatures->[0][0], 1, "first item set correctly in subfeature");
     is ( $subfeatures->[0][1] && $subfeatures->[0][1], 5001, "start set correctly in subfeature") or diag explain $subfeatures->[0];
     is ( $subfeatures->[0][2] && $subfeatures->[0][2], 5114, "end set correctly in subfeature") or diag explain $subfeatures->[0];
-    is ( $subfeatures->[0][2] && $subfeatures->[0][9], 'exon', "type set correctly in subfeature") or diag explain $subfeatures->[0];
+    is ( $subfeatures->[0][$index_subfeature] && $subfeatures->[0][$index_subfeature], 'exon', "type set correctly in subfeature") or diag explain $subfeatures->[0];
 
 }
 

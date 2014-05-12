@@ -92,9 +92,20 @@ sub tempdir {
         scalar( @{$cds_trackdata->{histograms}{stats}}),
         'have stats for each precalculated hist' );
 
-    is( ref $cds_trackdata->{intervals}{nclist}[1][10], 'ARRAY', 'exonerate mRNA has its subfeatures' )
+    my $class=$cds_trackdata->{intervals}{nclist}[1][0];
+    my $structure=$cds_trackdata->{intervals}{classes}[$class];
+    my @structure_attributes=$structure->{attributes};
+
+    my $index=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            $index=$i+1;
+        }
+    }
+
+    is( ref $cds_trackdata->{intervals}{nclist}[1][$index], 'ARRAY', 'exonerate mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[1][10]}, 5, 'exonerate mRNA has 5 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[1][$index]}, 5, 'exonerate mRNA has 5 subfeatures' );
 
     my $tracklist = $read_json->('trackList.json');
     is( $tracklist->{tracks}[1]{storeClass}, 'JBrowse/Store/SeqFeature/NCList' );
@@ -133,9 +144,22 @@ sub tempdir {
     my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
-    is( ref $cds_trackdata->{intervals}{nclist}[0][10], 'ARRAY', 'mRNA has its subfeatures' )
+
+    my $class=$cds_trackdata->{intervals}{nclist}[0][0];
+    my $structure=$cds_trackdata->{intervals}{classes}[$class];
+    my @structure_attributes=$structure->{attributes};
+
+    my $index=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            $index=$i+1;
+        }
+    }
+
+
+    is( ref $cds_trackdata->{intervals}{nclist}[0][$index], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][$index]}, 7, 'mRNA has 7 subfeatures' );
 
     my $tracklist = $read_json->( 'trackList.json' );
     is( $tracklist->{tracks}[0]{key}, 'AU mRNA', 'got a tracklist' ) or diag explain $tracklist;
@@ -160,10 +184,22 @@ sub tempdir {
 
     # check that we got the same data as before
     $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
+
+    $class=$cds_trackdata->{intervals}{nclist}[0][0];
+    $structure=$cds_trackdata->{intervals}{classes}[$class];
+    @structure_attributes=$structure->{attributes};
+
+    $index=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            $index=$i+1;
+        }
+    }
+
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
-    is( ref $cds_trackdata->{intervals}{nclist}[0][10], 'ARRAY', 'mRNA has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[0][$index], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][$index]}, 7, 'mRNA has 7 subfeatures' );
 }
 
 {   #diag "running on single_au9_gene.gff3, testing that we emit 2 levels of subfeatures";
@@ -187,13 +223,40 @@ sub tempdir {
 
     my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks AU_mRNA Group1.33 trackData.json ));
+
+    my $class=$cds_trackdata->{intervals}{nclist}[0][0];
+    my $structure=$cds_trackdata->{intervals}{classes}[$class];
+    my @structure_attributes=$structure->{attributes};
+
+    my $index=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            $index=$i+1;
+        }
+    }
+
+
     is( $cds_trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $cds_trackdata;
-    is( ref $cds_trackdata->{intervals}{nclist}[0][10], 'ARRAY', 'gene has its subfeatures' )
+    is( ref $cds_trackdata->{intervals}{nclist}[0][$index], 'ARRAY', 'gene has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10]}, 1, 'gene has 1 subfeature' );
-    is( ref $cds_trackdata->{intervals}{nclist}[0][10][0][10], 'ARRAY', 'mRNA has its subfeatures' )
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][$index]}, 1, 'gene has 1 subfeature' );
+
+    $class=$cds_trackdata->{intervals}{nclist}[0][$index][0][0];
+    $structure=$cds_trackdata->{intervals}{classes}[$class];
+    @structure_attributes=$structure->{attributes};
+
+    my $index_subfeature=0;
+    for(my $i=0; $i < scalar @{$structure_attributes[0]}; $i++) {
+        if( $structure_attributes[0][$i] eq 'Subfeatures' ) {
+            $index_subfeature=$i+1;
+        }
+    }
+
+
+
+    is( ref $cds_trackdata->{intervals}{nclist}[0][$index][0][$index_subfeature], 'ARRAY', 'mRNA has its subfeatures' )
        or diag explain $cds_trackdata;
-    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][10][0][10]}, 7, 'mRNA has 7 subfeatures' );
+    is( scalar @{$cds_trackdata->{intervals}{nclist}[0][$index][0][$index_subfeature]}, 7, 'mRNA has 7 subfeatures' );
 }
 
 {   
@@ -272,6 +335,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $read_json = sub { slurp( $tempdir, @_ ) };
     my $cds_trackdata = $read_json->(qw( tracks au9_full1 Group1.33 trackData.json ));
     is( $cds_trackdata->{featureCount}, 28, 'got right feature count' ) or diag explain $cds_trackdata;
+
     is( scalar @{$cds_trackdata->{intervals}{classes}}, 5, 'got the right number of classes' )
         or diag explain $cds_trackdata->{intervals}{classes};
 
@@ -319,7 +383,6 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
         0,
         'no empty chunks in trackdata'
       ) or diag explain $trackdata;
-
     is_deeply( $trackdata->{'trackData.jsonz'}{intervals}{classes}[0],
                {
                    'attributes' => [
