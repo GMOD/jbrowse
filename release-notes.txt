@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.11.4     2014-05-14 12:04:54 America/Chicago
+
 ## Minor improvements
 
  * Added high-resolution rendering for CanvasFeatures, SNPCoverage,
