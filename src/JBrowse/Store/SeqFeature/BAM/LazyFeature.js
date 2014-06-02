@@ -130,9 +130,7 @@ var Feature = Util.fastDeclare(
         return qseq.join(' ');
     },
     strand: function() {
-        var xs = this._get('xs');
-        return xs ? ( xs == '-' ? -1 : 1 ) :
-               this._get('seq_reverse_complemented') ? -1 :  1;
+        return this._get('seq_reverse_complemented') ? -1 :  1;
     },
     multi_segment_next_segment_strand: function() {
       if(this._get('multi_segment_next_segment_unmapped'))
