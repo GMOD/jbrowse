@@ -242,7 +242,7 @@ return declare( null, {
 
        // resolve overlaps between adjacent blocks; this may happen due to the merge in indexing
        for (i = 1; i < n_off; ++i)
-           if ( off[i-1].maxv >= off[i].minv )
+           if ( off[i-1].maxv.compareTo(off[i].minv) >= 0 )
                off[i-1].maxv = off[i].minv;
        // merge adjacent blocks
        for (i = 1, l = 0; i < n_off; ++i) {
