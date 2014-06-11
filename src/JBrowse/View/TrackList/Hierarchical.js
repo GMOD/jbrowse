@@ -130,6 +130,7 @@ return declare(
             var categoryNames = (
                 trackConf.metadata && trackConf.metadata[ categoryFacet ]
                     || trackConf[ categoryFacet ]
+                    || track[ categoryFacet ]
                     || 'Uncategorized'
             ).split(/\s*\/\s*/);
 
