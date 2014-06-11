@@ -89,6 +89,11 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
+        var sorter = this.browser.config.sortHierarchicalTrackList ? 
+                             [ { attribute: this.get('categoryFacet').toLowerCase()},
+                               { attribute: 'key' },
+                               { attribute: 'label' }
+                             ] : undefined;
         this.get('trackMetaData').fetch(
             { onItem: function(i) {
                   if( i.conf )
@@ -110,17 +115,14 @@ return declare(
                       thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                   }
               },
-              sort: [ { attribute: this.get('categoryFacet').toLowerCase()},
-                      { attribute: 'key' },
-                      { attribute: 'label' }
-                    ]
+              sort: sorter 
             });
     },
 
     addTracks: function( tracks, inStartup ) {
         this.pane = this;
         var thisB = this;
-
+       
         array.forEach( tracks, function( track ) {
             var trackConf = track.conf || track;
 
