@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed a bug with VCF tabix file parsing that causes non-neighboring
+   blocks to be requested, causing more data than necessary to be
+   downloaded. Thanks to Richard Hayes for finding and debugging this 
+   issue! (issue #486).
+
+ * Fixed a bug where the Variant detail view doesn't display genotypes
+   in the table correctly. This affect previous 1.11.x versions.
+   Thanks to Nando for reporting the bug and to Colin Diesh for the
+   bugfix (issue #488).
+
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 
 ## Minor improvements
