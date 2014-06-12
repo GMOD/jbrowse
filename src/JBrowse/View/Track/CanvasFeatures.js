@@ -105,6 +105,12 @@ return declare(
         this.showTooltips = this.config.style.showTooltips;
         this.displayMode = this.config.displayMode;
 
+        //setup displayMode style cookie
+        var cookie = this.browser.cookie("track-" + this.name);
+        if (cookie) {
+            this.displayMode = cookie;
+        }
+
         this._setupEventHandlers();
     },
 
@@ -938,6 +944,9 @@ return declare(
                     thisB.hideAll();
                     thisB.genomeView.showVisibleBlocks(true);
                     thisB.makeTrackMenu();
+
+                    // set cookie for displayMode
+                    thisB.browser.cookie('track-' + thisB.name, thisB.displayMode);
                 }
             };
         });
