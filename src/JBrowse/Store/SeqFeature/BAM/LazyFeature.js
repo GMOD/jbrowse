@@ -54,8 +54,9 @@ var Feature = Util.fastDeclare(
         this._parseAllTags();
 
         var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped','qc_failed','duplicate','secondary_alignment','supplementary_alignment' ];
+
         if( ! this._get('unmapped') )
-            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
+            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref', 'template_length' );
         if( this._get('multi_segment_template') ) {
             tags.push( 'multi_segment_all_correctly_aligned',
                        'multi_segment_next_segment_unmapped',
