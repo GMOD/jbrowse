@@ -34,19 +34,37 @@ return declare( [BoxGlyph,MismatchesMixin], {
                         return track.colorForBase('reference');
                       if(feature.get('multi_segment_template')) {
                         if(feature.get('multi_segment_all_correctly_aligned')) {
-                          return  strand == 1  || strand == '+'
+                          if(feature.get('multi_segment_first'){
+                            return  strand == 1  || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand' )
                                   : glyph.getStyle( feature, 'color_rev_strand' );
+                          }else{
+                            return  strand == 1  || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_rev_strand' )
+                                  : glyph.getStyle( feature, 'color_fwd_strand' );
+                          }
                         }
                         if(feature.get('multi_segment_next_segment_unmapped')) {
-                          return  strand == 1  || strand == '+'
+                          if(feature.get('multi_segment_first'){
+                            return  strand == 1  || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_missing_mate' )
                                   : glyph.getStyle( feature, 'color_rev_missing_mate' );
+                          }else{
+                            return  strand == 1  || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_rev_missing_mate' )
+                                  : glyph.getStyle( feature, 'color_fwd_missing_mate' );
+                          }
                         }
                         if(feature.get('seq_id') == feature.get('next_seq_id')) {
-                          return  strand == 1  || strand == '+'
+                          if(feature.get('multi_segment_first'){
+                            return  strand == 1  || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand_not_proper' )
                                   : glyph.getStyle( feature, 'color_rev_strand_not_proper' );
+                          }else{
+                            return  strand == 1  || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_rev_strand_not_proper' )
+                                  : glyph.getStyle( feature, 'color_fwd_strand_not_proper' );
+                          }
                         }
                         // should only leave aberrant chr
                         return  strand == 1  || strand == '+'
