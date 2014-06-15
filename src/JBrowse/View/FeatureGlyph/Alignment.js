@@ -34,7 +34,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                         return track.colorForBase('reference');
                       if(feature.get('multi_segment_template')) {
                         if(feature.get('multi_segment_all_correctly_aligned')) {
-                          if(feature.get('multi_segment_first'){
+                          if(feature.get('multi_segment_first')){
                             return  strand == 1  || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand' )
                                   : glyph.getStyle( feature, 'color_rev_strand' );
@@ -45,7 +45,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                           }
                         }
                         if(feature.get('multi_segment_next_segment_unmapped')) {
-                          if(feature.get('multi_segment_first'){
+                          if(feature.get('multi_segment_first')){
                             return  strand == 1  || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_missing_mate' )
                                   : glyph.getStyle( feature, 'color_rev_missing_mate' );
@@ -56,7 +56,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                           }
                         }
                         if(feature.get('seq_id') == feature.get('next_seq_id')) {
-                          if(feature.get('multi_segment_first'){
+                          if(feature.get('multi_segment_first')){
                             return  strand == 1  || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand_not_proper' )
                                   : glyph.getStyle( feature, 'color_rev_strand_not_proper' );
