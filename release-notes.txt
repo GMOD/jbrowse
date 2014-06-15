@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added the ability to load the category attribute for the
+   hierarchical track selector from the trackMetaData files.
+   Previously this had to be loaded from the configuration data.
+   Thanks for ideas to Colin Diesh for the fix.
+
+ * Added the ability to disable sorting on the hierarchical track
+   selector. Thanks to Chris Childers for the suggestion and Colin
+   Diesh for the feature (issue #477).
+
+ * Made it so that when the user changes the display mode on the
+   canvas features based tracks, their selection is saved. Thanks to
+   jwhsanger for the suggestion and Colin Diesh for the feature
+   (issue #469).
+
 ## Bug fixes
 
  * Fixed a bug with VCF tabix file parsing that causes non-neighboring
@@ -11,6 +27,10 @@
    in the table correctly. This affect previous 1.11.x versions.
    Thanks to Nando for reporting the bug and to Colin Diesh for the
    bugfix (issue #488).
+
+ * Added template length to the default Alignments detail popup view.
+   Thanks to Kieran Raine for the suggestion and Colin Diesh for the
+   fix (issue #471).
 
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 
