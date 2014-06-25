@@ -1550,7 +1550,8 @@ _configDefaults: function() {
         },
 
         highlightSearchedRegions: false,
-        highResolutionMode: 'disabled'
+        highResolutionMode: 'disabled',
+        sortHierarchicalTrackList: true
     };
 },
 

@@ -137,11 +137,14 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     _mungeGenotypeVal: function( value, fieldname, alt, underlyingRefSeq ) {
         if( fieldname == 'GT' ) {
             // handle the GT field specially, translating the genotype indexes into the actual ALT strings
+            var value_parse = value.values[0];
+
+            var splitter = value_parse.match(/\D/g)[0];
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
-            value = array.map( value.values, function( gtIndex ) {
+            value = array.map( value_parse.split(splitter), function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex );
                                    return gtIndex ? ( alt ? alt[gtIndex-1] : gtIndex ) : refseq;
-                               });
+                               }).join( ' '+splitter+' ' );
         }
         return value;
     },

@@ -113,7 +113,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                     thisB._fillRectMod( context, fRect.l, yPos, fRect.w, height);
                     if( !disableClipMarkers && yPos < 0 ) { // draw clip marker if necessary
                         context.fillStyle = clipColor || negColor;
-                        thisB._fillRectMod( context, context.fRect.l, 0, fRect.w, 2 );
+                        thisB._fillRectMod( context, fRect.l, 0, fRect.w, 2 );
                     }
                 }
                 else {
