@@ -78,27 +78,27 @@ release-min: release-normal plugins-min
 	for P in src docs/jsdoc tests tests_extended build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in 	src/wig2png/ \
+	for P in 	src/wig2png \
 			src/dojo/dojo.js \
-			`find src/ -name nls -and -type d -and -not -wholename '*/tests/*'` \
-			src/dojo/resources/ \
-			src/dojox/grid/ \
+                        `find src/ -name nls -and -type d -and -not -wholename '*/tests/*' | grep -v src/dojox/grid` \ 
+			src/dojo/resources \
+			src/dojox/grid \
 			src/dojox/gfx/vml.js \
-			src/dojox/form/resources/ \
+			src/dojox/form/resources \
 			src/dojox/gfx/vml_attach.js \
-			src/dijit/themes/tundra/ \
-			src/dijit/form/templates/ \
-			src/dijit/icons/ \
-			src/dijit/templates/ \
-			src/JBrowse/ \
+			src/dijit/themes/tundra \
+			src/dijit/form/templates \
+			src/dijit/icons \
+			src/dijit/templates \
+			src/JBrowse \
 			src/perl5 \
 			src/dgrid/css \
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    if [ -d $$P ]; then \
-		    cp -R $(RELEASE_FULL_DIR)$$P/ $(RELEASE_MIN_DIR)$$P; \
+		    cp -vR $(RELEASE_FULL_DIR)$$P/ $(RELEASE_MIN_DIR)$$P; \
 	    else \
-		    cp -R $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
+		    cp -vR $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	    fi;\
 	done
 
