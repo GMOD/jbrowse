@@ -96,9 +96,9 @@ release-min: release-normal plugins-min
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    if [ -d $$P ]; then \
-		    cp -vR $(RELEASE_FULL_DIR)$$P/ $(RELEASE_MIN_DIR)$$P; \
+		    cp -R $(RELEASE_FULL_DIR)$$P/ $(RELEASE_MIN_DIR)$$P; \
 	    else \
-		    cp -vR $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
+		    cp -R $(RELEASE_FULL_DIR)$$P $(RELEASE_MIN_DIR)$$P; \
 	    fi;\
 	done
 
