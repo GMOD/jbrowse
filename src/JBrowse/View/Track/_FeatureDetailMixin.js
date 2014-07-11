@@ -87,26 +87,26 @@ return declare( FeatureDescriptionMixin, {
         var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
         coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
 
-        fmt( 'Name', this.getFeatureLabel( f ) );
-        fmt( 'Type', f.get('type') );
-        fmt( 'Score', f.get('score') );
-        fmt( 'Description', this.getFeatureDescription( f ) );
+        fmt( 'Name', this.getFeatureLabel( f ),f );
+        fmt( 'Type', f.get('type'),f );
+        fmt( 'Score', f.get('score'),f );
+        fmt( 'Description', this.getFeatureDescription( f ),f );
         fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
                                      ref: this.refSeq.name,
                                      strand: f.get('strand')
-                                   })
+                                   }),f
         );
-        fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp' );
+        fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp',f );
     },
 
     // render any subfeatures this feature has
     _renderSubfeaturesDetail: function( track, f, featDiv, container ) {
         var subfeatures = f.get('subfeatures');
         if( subfeatures && subfeatures.length ) {
-            this._subfeaturesDetail( track, subfeatures, container );
+            this._subfeaturesDetail( track, subfeatures, container, f );
         }
     },
 
@@ -128,7 +128,7 @@ return declare( FeatureDescriptionMixin, {
                 },
                 container );
             array.forEach( additionalTags.sort(), function(t) {
-                this.renderDetailField( container, t, f.get(t) );
+                this.renderDetailField( container, t, f.get(t), f );
             }, this );
         }
     },
