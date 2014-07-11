@@ -8,6 +8,7 @@ define([
            'dojo/_base/array',
            'dojo/io-query',
            'dojo/request',
+           'dojo/Deferred',
            'JBrowse/Store/LRUCache',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredFeaturesMixin',
@@ -21,6 +22,7 @@ define([
            array,
            ioquery,
            dojoRequest,
+           Deferred,
            LRUCache,
            SeqFeatureStore,
            DeferredFeaturesMixin,
@@ -209,6 +211,10 @@ return declare( SeqFeatureStore,
 
         // or error like:
         //   errorCallback( 'aieeee i died' );
+    },
+    // STUB method to satisfy requirements when setting the REST track to a VCF type
+    getVCFHeader: function( query, filterFunctionCallback, errorCallback ) {
+        return new Deferred(function() { /* console.log("REST store getVCFHeader"); */ });
     },
 
     clearCache: function() {
