@@ -88,7 +88,6 @@ return declare( [BlockBased, ExportMixin],
             this.store.getReferenceSequence(
                 {
                     ref: this.refSeq.name,
-                    seqChunkSize: this.refSeq.seqChunkSize,
                     start: leftExtended,
                     end: rightExtended
                 },
