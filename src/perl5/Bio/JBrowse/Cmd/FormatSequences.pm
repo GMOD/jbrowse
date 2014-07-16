@@ -15,6 +15,8 @@ use Pod::Usage ();
 
 use File::Spec::Functions qw/ catfile catdir /;
 use File::Path 'mkpath';
+use File::Copy 'copy';
+use File::Basename 'basename';
 
 use POSIX;
 
@@ -34,6 +36,7 @@ sub option_definitions {(
     "gff=s",
     "chunksize=s",
     "fasta=s@",
+	"indexed_fasta=s",
     "sizes=s@",
     "refs=s",
     "reftypes=s",
@@ -52,8 +55,8 @@ sub run {
 
     $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
 
-    Pod::Usage::pod2usage( 'must provide either a --fasta, --sizes, --gff, or --conf option' )
-        unless $self->opt('gff') || $self->opt('conf') || $self->opt('fasta') || $self->opt('sizes');
+    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --sizes, --gff, or --conf option' )
+        unless $self->opt('gff') || $self->opt('conf') || $self->opt('fasta') || $self->opt('indexed_fasta') || $self->opt('sizes');
 
     {
         my $chunkSize = $self->opt('chunksize');
@@ -63,7 +66,11 @@ sub run {
 
     my $refs = $self->opt('refs');
 
-    if ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
+    if ( $self->opt('indexed_fasta') ) {
+        $self->exportFAI( $self->opt('indexed_fasta') );
+        $self->writeTrackEntry();
+    }
+    elsif ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
         die "--refids not implemented for FASTA files" if defined $self->opt('refids');
         $self->exportFASTA( $refs, $self->opt('fasta') );
         $self->writeTrackEntry();
@@ -149,6 +156,37 @@ sub trackLabel {
     }
 
     return lc $st;
+}
+
+sub exportFAI {
+    my ( $self, $indexed_fasta ) = @_;
+    # TODO - consider whether to add accept_ref functionality
+    # TODO - currently just assumes that there is a '.fai' file present-- we could make one if needed
+    my %refSeqs;
+	my $fai = "$indexed_fasta.fai";
+	open FAI, "<$fai" or die "Unable to read from $fai: $!\n";
+	local $_;
+	while (<FAI>) {
+		if (/([^\t]+)\t(\d+)\t(\d+)\t(\d+)\t(\d+)/) {
+			$refSeqs{$1} = {
+				name => $1,
+				start => 0,
+				end => $2,
+				offset => $3,
+				line_length => $4,
+				line_byte_length => $5
+			}
+			# TODO - description is only present in fasta file, not in fai file...
+		} else {
+			die "Improperly-formatted line in fai file ($fai):\n$_\n"
+		}
+	}
+	close FAI;
+	my $dir = catdir( $self->opt('out'), 'seq' );
+	mkpath( $dir );
+	copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
+	copy( $indexed_fasta, $dir ) or die "Unable to copy $indexed_fasta to $dir: $!\n";
+    $self->writeRefSeqsJSON( \%refSeqs );
 }
 
 sub exportFASTA {
@@ -353,17 +391,24 @@ sub writeTrackEntry {
                                                 $seqTrackName);
                                            }
                                            $tracks->[$i] =
-                                       {
-                                           'label' => $seqTrackName,
-                                           'key' => $self->opt('key') || 'Reference sequence',
-                                           'type' => "SequenceTrack",
-                                           'category' => "Reference sequence",
-                                           'storeClass' => 'JBrowse/Store/Sequence/StaticChunked',
-                                           'chunkSize' => $self->{chunkSize},
-                                           'urlTemplate' => $self->seqUrlTemplate,
-                                           ( $compress ? ( 'compress' => 1 ): () ),
-                                           ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) )
-                                       };
+                                           {
+                                               'label' => $seqTrackName,
+                                               'key' => $self->opt('key') || 'Reference sequence',
+                                               'type' => "SequenceTrack",
+                                               'category' => "Reference sequence",
+                                               'storeClass' => 'JBrowse/Store/Sequence/StaticChunked',
+                                               'chunkSize' => $self->{chunkSize},
+                                               'urlTemplate' => $self->seqUrlTemplate,
+                                               ( $compress ? ( 'compress' => 1 ): () ),
+                                               ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) )
+                                           };
+                                           if ( $self->opt('indexed_fasta') ) {
+                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/SeqFeature/IndexedFasta';
+                                               delete $tracks->[$i]->{'chunkSize'};
+                                               my $fastaTemplate = catfile( 'seq', basename( $self->opt('indexed_fasta') ) );
+                                               $tracks->[$i]->{'urlTemplate'} = $fastaTemplate;
+                                               $tracks->[$i]->{'urlTemplateFAI'} = "$fastaTemplate.fai";
+                                           }
                                            return $trackList;
                                        });
     }

@@ -20,6 +20,8 @@ prepare-refseqs.pl - format reference sequences for use by JBrowse
    # OR:
        prepare-refseqs.pl --fasta <file1> --fasta <file2>  [options]
    # OR:
+       prepare-refseqs.pl --indexed_fasta <file1>  [options]
+   # OR:
        prepare-refseqs.pl --conf <JBrowse config file>  [options]
    # OR:
        prepare-refseqs.pl --sizes <sizes file>  [options]
@@ -57,6 +59,11 @@ information.
 
 A FASTA file, optionally gzipped from which to load reference
 sequences.
+
+=item --indexed_fasta <file>
+
+A FASTA file (which should already have an accompaning '.fai' file)
+from which to load reference sequences.
 
 =item --conf <file>
 
