@@ -89,11 +89,11 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
-        var sorter = this.browser.config.sortHierarchicalTrackList ? 
+        var sorter = (this.get('sortHierarchical')=="false"||this.get('sortHierarchical')==false) ? undefined :
                              [ { attribute: this.get('categoryFacet').toLowerCase()},
                                { attribute: 'key' },
                                { attribute: 'label' }
-                             ] : undefined;
+                             ];
         this.get('trackMetaData').fetch(
             { onItem: function(i) {
                   if( i.conf )
