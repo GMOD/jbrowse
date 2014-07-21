@@ -46,11 +46,15 @@ return declare( null, {
         
         var formatted_title=title;
         // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
-        if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] )) {
+        if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] ) && f) {
             formatted_title= fieldSpecificFormatter(title);
             if(!formatted_title) return ''; // if the callback returns null, remove field from dialog
         }
- 
+        else if(( fieldSpecificFormatter = this.config['fmtMetaField_'+title] ) && !f) {
+            formatted_title= fieldSpecificFormatter(title);
+            if(!formatted_title) return ''; // if the callback returns null, remove field from dialog
+        }
+
         // special case for values that include metadata about their
         // meaning, which are formed like { values: [], meta:
         // {description: }.  break it out, putting the meta description in a `title`
@@ -65,10 +69,12 @@ return declare( null, {
 
             val = val.values;
         }
-        if(( fieldSpecificFormatter = this.config['fmtDetailMeta_'+title] )) {
+        if(( fieldSpecificFormatter = this.config['fmtDetailDescription_'+title] ) && f) {
             fieldMeta = fieldSpecificFormatter(fieldMeta);
         }
-
+        else if(( fieldSpecificFormatter = this.config['fmtMetaDescription_'+title] ) && !f) {
+            fieldMeta = fieldSpecificFormatter(fieldMeta);
+        }
         var titleAttr = fieldMeta ? ' title="'+fieldMeta+'"' : '';
         var fieldContainer = domConstruct.create(
             'div',
@@ -107,6 +113,10 @@ return declare( null, {
             val= f?fieldSpecificFormatter( val,f ):val; // don't call formatters on "About track" menu
             if(!val) val='';
             if(val.length==1) val=val[0]; // avoid recursion when an array of length 1 is returned
+        }
+        else if(( fieldSpecificFormatter = this.config['fmtMetaValue_'+title] ) && !f) {
+            val=fieldSpecificFormatter( val );
+            if(val.length==1) val=val[0];
         }
 
         var valType = typeof val;
