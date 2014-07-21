@@ -8,29 +8,46 @@
    Thanks for ideas to Colin Diesh for the fix.
 
  * Added the ability to disable sorting on the hierarchical track
-   selector. Thanks to Chris Childers for the suggestion and Colin
-   Diesh for the feature (issue #477).
+   selector using the sortHierarchical flag in the trackSelector 
+   config. Thanks to Chris Childers for the suggestion and Colin Diesh
+   for the implementation (issue #477).
 
  * Made it so that when the user changes the display mode on the
    canvas features based tracks, their selection is saved. Thanks to
-   jwhsanger for the suggestion and Colin Diesh for the feature
-   (issue #469).
+   Jon Hinton for the suggestion and Colin Diesh for the
+   implementation (issue #469).
 
-## Bug fixes
+ * Added configurable onClick and other event for Wiggle tracks.
+   Thanks to Richard Hayes for the implementation (issue #489).
 
- * Fixed a bug with VCF tabix file parsing that causes non-neighboring
-   blocks to be requested, causing more data than necessary to be
-   downloaded. Thanks to Richard Hayes for finding and debugging this 
-   issue! (issue #486).
-
- * Fixed a bug where the Variant detail view doesn't display genotypes
-   in the table correctly. This affect previous 1.11.x versions.
-   Thanks to Nando for reporting the bug and to Colin Diesh for the
-   bugfix (issue #488).
+ * Added ability to access feature data in the customizable callbacks
+   for the 'View details' pop-ups, and some other small
+   customizations. Thanks to Colin Diesh for the idea+implementation
+   (issue #494).
 
  * Added template length to the default Alignments detail popup view.
    Thanks to Kieran Raine for the suggestion and Colin Diesh for the
    fix (issue #471).
+
+## Bug fixes
+
+ * Fixed a bug with VCF tabix file parsing that causes non-neighboring
+   blocks to be requested, causing unnecessary chunkSizeLimit errors.
+   Thanks to Richard Hayes for finding and debugging this issue!
+   (issue #486).
+
+ * Fixed a bug where the Variant detail view doesn't display the
+   genotype table correctly. This affects previous 1.11.x versions.
+   Thanks to Nando for reporting the bug and Colin Diesh for the
+   bugfix (issue #488).
+ 
+ * Fixed an small error that occured when using variant type tracks
+   with the REST API.
+
+ * Reverted a change that caused scrolling to have problems in
+   version 1.11.4. This means that scrolling of dialog boxes will
+   continue to have some minor problems under Chrome/Safari on OSX
+   (issue #386).
 
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 
