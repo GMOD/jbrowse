@@ -80,7 +80,7 @@ release-min: release-normal plugins-min
 	done;
 	for P in 	src/wig2png \
 			src/dojo/dojo.js \
-                        `find src/ -name nls -and -type d -and -not -wholename '*/tests/*' | grep -v src/dojox/grid` \ 
+			`find src/ -name nls -and -type d -and -not -wholename '*/tests/*' | grep -v src/dojox/grid` \
 			src/dojo/resources \
 			src/dojox/grid \
 			src/dojox/gfx/vml.js \
