@@ -89,6 +89,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             thisB.renderDetailValueGrid(
                 valueContainer,
                 'Genotypes',
+                f,
                 // iterator
                 function() {
                     if( ! keys.length )
