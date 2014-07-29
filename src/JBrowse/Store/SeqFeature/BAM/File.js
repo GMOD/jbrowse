@@ -54,7 +54,7 @@ var BamFile = declare( null,
         this.store = args.store;
         this.data  = args.data;
         this.bai   = args.bai;
-        this.useXS = args.useXS==undefined ? true: args.useXS;
+        this.useXS = args.useXS==undefined ? false: args.useXS;
 
         this.chunkSizeLimit = args.chunkSizeLimit || 5000000;
     },
