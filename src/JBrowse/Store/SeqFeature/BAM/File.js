@@ -54,6 +54,7 @@ var BamFile = declare( null,
         this.store = args.store;
         this.data  = args.data;
         this.bai   = args.bai;
+        this.useXS = args.useXS==undefined ? true: args.useXS;
 
         this.chunkSizeLimit = args.chunkSizeLimit || 5000000;
     },
@@ -449,7 +450,8 @@ var BamFile = declare( null,
                     var feature = new BAMFeature({
                         store: this.store,
                         file: this,
-                        bytes: { byteArray: ba, start: blockStart, end: blockEnd }
+                        bytes: { byteArray: ba, start: blockStart, end: blockEnd },
+                        useXS: this.useXS
                      });
                     sink.push(feature);
                     featureCount++;

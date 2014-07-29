@@ -25,6 +25,7 @@ var Feature = Util.fastDeclare(
             end: args.bytes.end,
             byteArray: args.bytes.byteArray
         };
+        this.useXS = args.useXS;
 
         this._coreParse();
     },
@@ -54,9 +55,8 @@ var Feature = Util.fastDeclare(
         this._parseAllTags();
 
         var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped','qc_failed','duplicate','secondary_alignment','supplementary_alignment' ];
-
         if( ! this._get('unmapped') )
-            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref', 'template_length' );
+            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref' );
         if( this._get('multi_segment_template') ) {
             tags.push( 'multi_segment_all_correctly_aligned',
                        'multi_segment_next_segment_unmapped',
@@ -131,10 +131,14 @@ var Feature = Util.fastDeclare(
         return qseq.join(' ');
     },
     strand: function() {
-        var xs = this._get('xs');
-        return xs ? ( xs == '-' ? -1 : 1 ) :
-               this._get('seq_reverse_complemented') ? -1 :  1;
-    },
+        if(this.useXS) {
+            var xs = this._get('xs');
+            var strand={'-':-1,'+':1}[xs];
+            if(!strand) strand=0;
+            return strand;
+        }   
+        else return this._get('seq_reverse_complemented') ? -1 : 1;
+    }, 
     multi_segment_next_segment_strand: function() {
       if(this._get('multi_segment_next_segment_unmapped'))
         return undefined;
