@@ -156,13 +156,7 @@ sub exportFASTA {
     my $accept_ref = sub {1};
 
     if( $refs ) {
-		my $refhash = ();
-
-		foreach my $cle (split /\s*,\s*/, $refs){
-	        $refhash->{$cle} = 1;
-		}
-
-		$refs = $refhash;		
+        $refs = { map { $_ => 1 } split /\s*,\s*/, $refs };
         $accept_ref = sub { $refs->{$_[0]} };
     }
 
@@ -178,7 +172,7 @@ sub exportFASTA {
         }
 
         my $curr_seq;
-        my $curr_chunk = '';
+        my $curr_chunk;
         my $chunk_num;
 
         my $noseq = $self->opt('noseq');
@@ -226,7 +220,7 @@ sub exportFASTA {
         }
         $writechunks->('flush');
     }
-	
+
     $self->writeRefSeqsJSON( \%refSeqs );
 }
 

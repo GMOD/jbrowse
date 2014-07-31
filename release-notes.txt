@@ -2,11 +2,6 @@
 
 ## Minor improvements
 
- * Added the ability to load the category attribute for the
-   hierarchical track selector from the trackMetaData files.
-   Previously this had to be loaded from the configuration data.
-   Thanks for ideas to Colin Diesh for the fix.
-
  * Added the ability to disable sorting on the hierarchical track
    selector using the sortHierarchical flag in the trackSelector 
    config. Thanks to Chris Childers for the suggestion and Colin Diesh
@@ -14,40 +9,42 @@
 
  * Made it so that when the user changes the display mode on the
    canvas features based tracks, their selection is saved. Thanks to
-   Jon Hinton for the suggestion and Colin Diesh for the
-   implementation (issue #469).
+   Jon Hinton for the idea and Colin Diesh for the fix (issue #469).
 
- * Added configurable onClick and other event for Wiggle tracks.
-   Thanks to Richard Hayes for the implementation (issue #489).
+ * Added configurable click event handlers for Wiggle type tracks.
+   Thanks to Richard Hayes for implementing this feature (issue #489).
 
- * Added ability to access feature data in the customizable callbacks
-   for the 'View details' pop-ups, and some other small
-   customizations. Thanks to Colin Diesh for the idea+implementation
-   (issue #494).
+ * Added the ability to access feature data in customizable callbacks
+   for the 'View details' pop-ups, and also the ability to customize
+   the 'About track' page with callbacks. Thanks to Colin Diesh for
+   the implementation (issue #494).
 
- * Added template length to the default Alignments detail popup view.
-   Thanks to Kieran Raine for the suggestion and Colin Diesh for the
-   fix (issue #471).
+ * Added the ability to load the category attribute from trackMetaData
+   files to be used for the Hierarchical track selector.
 
 ## Bug fixes
 
- * Fixed a bug with VCF tabix file parsing that causes non-neighboring
-   blocks to be requested, causing unnecessary chunkSizeLimit errors.
-   Thanks to Richard Hayes for finding and debugging this issue!
-   (issue #486).
+ * Fixed a bug with VCF tabix file parsing that causes unnecessary
+   chunkSizeLimit errors. Thanks to Richard Hayes for finding and
+   debugging this issue (issue #486)!
 
- * Fixed a bug where the Variant detail view doesn't display the
-   genotype table correctly. This affects previous 1.11.x versions.
+ * Fixed a bug where the Variant popup boxes would not display 
+   complete genotype information in previous 1.11.* versions.
    Thanks to Nando for reporting the bug and Colin Diesh for the
    bugfix (issue #488).
  
  * Fixed an small error that occured when using variant type tracks
    with the REST API.
 
- * Reverted a change that caused scrolling to have problems in
-   version 1.11.4. This means that scrolling of dialog boxes will
-   continue to have some minor problems under Chrome/Safari on OSX
-   (issue #386).
+ * Added a bugfix that caused problems scrolling in dialog boxes
+   for variant type tracks in 1.11.4 (issue #492).
+
+ * Fixed the use of the --refs flag on prepare-refseqs.pl. Thanks to
+   Audrey for finding & fixing this bug (issue #497).
+
+ * Added missing template length flag to the Alignments popup dialogs.
+   Thanks to Kieran Raine for the suggestion and Colin Diesh for the
+   fix (issue #471).
 
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 
