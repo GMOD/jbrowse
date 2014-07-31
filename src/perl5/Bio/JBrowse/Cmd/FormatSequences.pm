@@ -178,7 +178,7 @@ sub exportFASTA {
         }
 
         my $curr_seq;
-        my $curr_chunk;
+        my $curr_chunk = '';
         my $chunk_num;
 
         my $noseq = $self->opt('noseq');
