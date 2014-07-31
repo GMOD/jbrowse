@@ -154,8 +154,15 @@ sub trackLabel {
 sub exportFASTA {
     my ( $self, $refs, $files ) = @_;
     my $accept_ref = sub {1};
+
     if( $refs ) {
-        $refs = { map $_ => 1, split /\s*,\s*/, $refs };
+		my $refhash = ();
+
+		foreach my $cle (split /\s*,\s*/, $refs){
+	        $refhash->{$cle} = 1;
+		}
+
+		$refs = $refhash;		
         $accept_ref = sub { $refs->{$_[0]} };
     }
 
@@ -219,7 +226,7 @@ sub exportFASTA {
         }
         $writechunks->('flush');
     }
-
+	
     $self->writeRefSeqsJSON( \%refSeqs );
 }
 
