@@ -37,37 +37,37 @@ return declare( [BoxGlyph,MismatchesMixin], {
                         var strand={'-':'color_rev_strand','+':'color_fwd_strand'}[xs];
                         if(!strand) strand='color_nostrand';
                         return glyph.getStyle( feature, strand );
-                      } 
+                      }
                       else if(feature.get('multi_segment_template')) {
                         var revflag=feature.get('multi_segment_first');
                         if(feature.get('multi_segment_all_correctly_aligned')) {
-                          if(revflag){
+                          if(revflag||!track.config.useReversedTemplate){
                             return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand' )
                                   : glyph.getStyle( feature, 'color_rev_strand' );
-                          }else if(!revflag&&track.config.useReversedTemplate){
+                          }else {
                             return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_rev_strand' )
                                   : glyph.getStyle( feature, 'color_fwd_strand' );
                           }
                         }
                         if(feature.get('multi_segment_next_segment_unmapped')) {
-                          if(feature.get('multi_segment_first')){
+                          if(revflag||!track.config.useReversedTemplate){
                             return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_missing_mate' )
                                   : glyph.getStyle( feature, 'color_rev_missing_mate' );
-                          }else if(!revflag&&track.config.useReversedTemplate){
+                          }else{
                             return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_rev_missing_mate' )
                                   : glyph.getStyle( feature, 'color_fwd_missing_mate' );
                           }
                         }
                         if(feature.get('seq_id') == feature.get('next_seq_id')) {
-                          if(revflag){
+                          if(revflag||!track.config.useReversedTemplate){
                             return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand_not_proper' )
                                   : glyph.getStyle( feature, 'color_rev_strand_not_proper' );
-                          }else if(!revflag&&track.config.useReversedTemplate){
+                          }else{
                             return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_rev_strand_not_proper' )
                                   : glyph.getStyle( feature, 'color_fwd_strand_not_proper' );
@@ -90,7 +90,6 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     color_rev_missing_mate: '#1919D1',
                     color_fwd_diff_chr: '#000000',
                     color_rev_diff_chr: '#969696',
-                    color_nostrand: '#969696',
                     border_color: null,
 
                     strandArrow: false,
