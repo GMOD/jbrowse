@@ -7,6 +7,9 @@ perl:
 
 before_install:
   - ./setup.sh
+
+install: true
+
 script:
   - make -f build/Makefile release
 
