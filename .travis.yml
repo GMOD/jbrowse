@@ -6,6 +6,8 @@ perl:
   - "5.14"
 
 before_install:
+  - cpanm PerlIO::gzip
+  - cpanm GD::Image 
   - ./setup.sh
 
 install: true
