@@ -5,6 +5,8 @@ perl:
   - "5.16"
   - "5.14"
 
+before_install:
+  - ./setup.sh
 script:
   - make -f build/Makefile release
 
