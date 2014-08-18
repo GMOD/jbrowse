@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get install build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
   - cpanm PerlIO::gzip
   - cpanm GD::Image 
-  - cpanm --force DB_File
+  - cpanm --notest  DB_File
   - ./setup.sh
 
 install: true
