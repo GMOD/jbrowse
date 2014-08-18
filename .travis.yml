@@ -17,3 +17,4 @@ install: true
 script:
   - prove -I src/perl5 -r tests/perl_tests
 
+after_failure: cat /home/travis/.cpanm/build.log
