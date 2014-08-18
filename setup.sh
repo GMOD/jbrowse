@@ -116,18 +116,18 @@ echo -n "Building and installing legacy bam-to-json.pl support (superseded by di
         if( [ "x$SAMTOOLS" == "x" ] ); then
             set -x;
 
-            if [ ! -e samtools-master ]; then
+            if [ ! -e samtools-0.2.0-rc12 ]; then
                 if hash curl 2>/dev/null; then
-                    curl -L https://github.com/samtools/samtools/archive/master.zip -o samtools-master.zip;
+                    curl -L https://github.com/samtools/samtools/archive/0.2.0-rc12.zip -o samtools-0.2.0-rc12.zip;
                 else
-                    wget -O samtools-master.zip https://github.com/samtools/samtools/archive/master.zip;
+                    wget -O samtools-0.2.0-rc12.zip https://github.com/samtools/samtools/archive/0.2.0-rc12.zip;
                 fi
-                unzip -o samtools-master.zip;
-                rm samtools-master.zip;
-                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools-master/Makefile;
+                unzip -o samtools-0.2.0-rc12.zip;
+                rm samtools-0.2.0-rc12.zip;
+                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools-0.2.0-rc12/Makefile;
             fi;
-            make -C samtools-master -j3 lib;
-            export SAMTOOLS="$PWD/samtools-master";
+            make -C samtools-0.2.0-rc12 -j3 lib;
+            export SAMTOOLS="$PWD/samtools-0.2.0-rc12";
         fi
         echo "samtools in env at '$SAMTOOLS'";
         set +e;

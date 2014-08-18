@@ -11,8 +11,5 @@ before_install:
 install: true
 
 script:
-  - make -f build/Makefile release
+  - prove -I src/perl5 -r tests/perl_tests
 
-# configure notifications (email, IRC, campfire etc)
-notifications:
-  irc: "irc.freenode.org#gmod"
