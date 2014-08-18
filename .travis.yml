@@ -9,10 +9,10 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
   - sudo apt-get install libdb-dev 
-  - bin/cpanm -v --notest -l extlib/ --installdeps PerlIO::gzip
-  - bin/cpanm -v --notest -l extlib/ --installdeps  GD::Image
-  - bin/cpanm -v --notest -l extlib/ --installdeps  DBI DB_File Data::Stag
-  - bin/cpanm -v --notest -l extlib/ --installdeps  URI::Escape 
+  - cpanm --installdeps PerlIO::gzip
+  - cpanm --installdeps GD::Image
+  - cpanm --installdeps DBI DB_File Data::Stag
+  - cpanm --installdeps  URI::Escape 
   - ./setup.sh
 
 install: true
