@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get install build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
   - cpanm PerlIO::gzip
   - cpanm GD::Image 
-  - cpanm DB_File.pm
+  - cpanm --force DB_File
   - ./setup.sh
 
 install: true
@@ -17,4 +17,4 @@ install: true
 script:
   - prove -I src/perl5 -r tests/perl_tests
 
-after_failure: cat /home/travis/.cpanm/build.log
+after_failure: cat /home/travis/.cpanm/work/*/build.log 
