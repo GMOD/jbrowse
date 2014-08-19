@@ -13,8 +13,6 @@ before_install:
   - cpanm -l extlib/ GD::Image
   - cpanm -l extlib/ DBI DB_File Data::Stag
   - cpanm -l extlib/ URI::Escape 
-  - cpanm --recent
-  - cpanm -l extlib/ --recent
   - ./setup.sh
 
 
