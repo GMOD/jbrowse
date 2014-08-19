@@ -11,14 +11,10 @@ before_install:
   - cpanm -l extlib/ DBI DB_File Data::Stag
   - cpanm -l extlib/ URI::Escape 
   - ./setup.sh
-  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5/5.14.2/x86_64-linux-gnu-thread-multi
   - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5/5.14.2
-  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5/x86_64-linux-gnu-thread-multi
-  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5
   - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5
   - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5
   - ls -l /home/travis/build/cmdcolin/jbrowse/src/perl5/../../extlib/lib/perl5
-  - ls -l /home/travis/build/cmdcolin/jbrowse/src/perl5 /etc/perl /usr/local/lib/perl/5.14.2
 
 script:
   - prove -I src/perl5 -r tests/perl_tests
