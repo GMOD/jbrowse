@@ -15,7 +15,6 @@ before_install:
   - cpanm URI::Escape 
   - ./setup.sh
 
-install: true
 
 script:
   - prove -I src/perl5 -r tests/perl_tests
