@@ -1,20 +1,24 @@
 language: perl
 perl:
-  - "5.20"
-  - "5.18"
-  - "5.16"
   - "5.14"
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
-  - sudo apt-get install libdb-dev 
+  - sudo apt-get instals -l build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
+  - sudo apt-get instals -l libdb-dev 
   - cpanm -l extlib/ PerlIO::gzip
   - cpanm -l extlib/ GD::Image
   - cpanm -l extlib/ DBI DB_File Data::Stag
   - cpanm -l extlib/ URI::Escape 
   - ./setup.sh
-
+  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5/5.14.2/x86_64-linux-gnu-thread-multi
+  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5/5.14.2
+  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5/x86_64-linux-gnu-thread-multi
+  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5
+  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5/../../extlib/lib/perl5
+  - ls -l /home/travis/build/cmdcolin/jbrowse/bin/../src/perl5
+  - ls -l /home/travis/build/cmdcolin/jbrowse/src/perl5/../../extlib/lib/perl5
+  - ls -l /home/travis/build/cmdcolin/jbrowse/src/perl5 /etc/perl /usr/local/lib/perl/5.14.2
 
 script:
   - prove -I src/perl5 -r tests/perl_tests
