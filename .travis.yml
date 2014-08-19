@@ -12,7 +12,7 @@ before_install:
   - cpanm PerlIO::gzip
   - cpanm GD::Image
   - cpanm DBI DB_File Data::Stag
-  - cpanm URI::Escape 
+  - sudo cpan URI::Escape 
   - ./setup.sh
 
 
