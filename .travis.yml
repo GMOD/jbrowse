@@ -6,14 +6,11 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
   - sudo apt-get install libdb-dev 
-  - cpanm -l extlib/ PerlIO::gzip
-  - cpanm -l extlib/ GD::Image
-  - cpanm -l extlib/ DBI DB_File Data::Stag
-  - cpanm -l extlib/ URI::Escape 
+  - cpanm --self-contained -l extlib/ PerlIO::gzip
+  - cpanm --self-contained -l extlib/ GD::Image
+  - cpanm --self-contained -l extlib/ DBI DB_File Data::Stag
+  - cpanm --self-contained -l extlib/ URI::Escape 
   - ./setup.sh
-  - ls -l /home/travis/build/cmdcolin/jbrowse/extlib/lib/perl5
-  - ls -l /home/travis/build/cmdcolin/jbrowse/extlib/lib/perl5/5.14.4
-  - ls -l /home/travis/build/cmdcolin/jbrowse/src/perl5
   - ls -l /home/travis/build/cmdcolin/jbrowse/extlib/lib/perl5
 
 script:
