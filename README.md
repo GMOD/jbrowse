@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/cmdcolin/jbrowse.svg?branch=master)](https://travis-ci.org/cmdcolin/jbrowse)
+
 # Installing JBrowse
 
 Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install.
