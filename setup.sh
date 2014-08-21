@@ -120,7 +120,7 @@ echo -n "Building and installing legacy bam-to-json.pl support (superseded by di
                 if hash curl 2>/dev/null; then
                     curl -L https://github.com/samtools/samtools/archive/0.1.20.zip -o samtools-0.1.20.zip;
                 else
-                    wget -O samtools-0.1.20.zip https://github.com/samtools/samtools/archive/0.2.0-rc12.zip;
+                    wget -O samtools-0.1.20.zip https://github.com/samtools/samtools/archive/0.1.20.zip;
                 fi
                 unzip -o samtools-0.1.20.zip;
                 rm samtools-0.1.20.zip;
