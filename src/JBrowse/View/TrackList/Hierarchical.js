@@ -96,7 +96,7 @@ return declare(
                              ];
 
         // add initally collapsed categories to the local storage
-        var arr=(this.get('collapsedCategories')||[]).split(",");
+        var arr=(this.get('collapsedCategories')||"").split(",");
         for(var i=0; i<arr.length;i++) {
             lang.setObject('collapsed.'+arr[i],true,this.state);
         }
