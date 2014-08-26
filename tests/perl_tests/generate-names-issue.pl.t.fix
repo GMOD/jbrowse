@@ -25,11 +25,10 @@ sub run_with {
     };
 }
 
+# creation of two identical test instances causes test failure
 my $tempdir = new_volvox_sandbox();
-my $temp2 = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
 my ( $stdout ) = run_with (
     '--out'   => "$tempdir",
-    '--workdir' => $temp2,
     '--hashBits' => 16,
     '--completionLimit' => 15
     );
@@ -37,36 +36,19 @@ my ( $stdout ) = run_with (
     my $got = read_names($tempdir);
     my $expected = read_names('tests/data/volvox_formatted_names');
     is_deeply( $got, $expected, 'got right data from volvox test data run' );
-        #or diag explain read_names($tempdir);
-#    diag explain $got->{'c12/9.json'}{apple2}{exact};
-#    diag explain $expected->{'c12/9.json'}{apple2}{exact};
 }
 
-#system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
-run_with(
-    '--out'   => "$tempdir",
-    '--workdir' => $temp2,
+my $tempdir2 = new_volvox_sandbox();
+run_with (
+    '--out'   => "$tempdir2",
     '--hashBits' => 16,
-    '--incremental',
-    '--safeMode',
-    '--tracks' => 'ExampleFeatures,NameTest',
     '--completionLimit' => 15
     );
 {
-    my $got = read_names($tempdir);
+    my $got = read_names($tempdir2);
     my $expected = read_names('tests/data/volvox_formatted_names');
-    is_deeply( $got, $expected, 'same data after incremental run with --safeMode' );
-    # or diag explain read_names($tempdir);
+    is_deeply( $got, $expected, 'got right data from volvox test data run round 2 (should fail)' );
 }
-
-$tempdir = new_volvox_sandbox();
-run_with (
-    '--dir'   => "$tempdir",
-    '--tracks' => 'ExampleFeatures,NameTest'
-    );
-my @files = glob("$tempdir/names/*");
-is( scalar @files, 17 , 'the dir has some stuff in it' );
-
 done_testing;
 
 sub read_names {
@@ -76,7 +58,7 @@ sub read_names {
 }
 
 sub new_volvox_sandbox {
-    my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+    my $tempdir = shift||File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
     dircopy( 'tests/data/volvox_formatted_names', $tempdir );
     copy( 'sample_data/raw/volvox/volvox.filtered.vcf.gz',
           "$tempdir/volvox.filtered.vcf.gz"
@@ -85,5 +67,6 @@ sub new_volvox_sandbox {
           "$tempdir/volvox.test.vcf.gz"
           ) or die $!;
     rmtree( "$tempdir/names" );
+    if( -d "$tempdir/names" ) { print STDERR "WTF\n"; }
     return $tempdir;
 }
