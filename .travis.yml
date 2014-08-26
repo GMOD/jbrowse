@@ -6,6 +6,12 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install build-essential libpng-dev zlib1g-dev libgd2-xpm-dev
   - sudo apt-get install libdb-dev 
+  - wget https://github.com/bioperl/bioperl-live/archive/release-1-6-922.zip
+  - unzip bioperl-live-release-1-6-922.zip -d bioperl
+  - cd bioperl
+  - perl Build.PL
+  - ./Build
+  - sudo ./Build install
   - cpanm --self-contained -l extlib/ PerlIO::gzip
   - cpanm --self-contained -l extlib/ GD::Image
   - cpanm --self-contained -l extlib/ DBI DB_File Data::Stag
