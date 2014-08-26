@@ -47,7 +47,7 @@ return declare( null, {
         var formatted_title=title;
         // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
         if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] ) && f) {
-            formatted_title= fieldSpecificFormatter(title);
+            formatted_title= fieldSpecificFormatter(title,f);
             if(!formatted_title) return ''; // if the callback returns null, remove field from dialog
         }
         else if(( fieldSpecificFormatter = this.config['fmtMetaField_'+title] ) && !f) {
@@ -109,8 +109,8 @@ return declare( null, {
         // otherwise, use default formatting
 
         // if this object has a config value 'fmtDetailValue_Foo' function, apply it to val
-        if(( fieldSpecificFormatter = this.config['fmtDetailValue_'+title] )) {
-            val= f?fieldSpecificFormatter( val,f ):val; // don't call formatters on "About track" menu
+        if(( fieldSpecificFormatter = this.config['fmtDetailValue_'+title] ) && f) {
+            val= fieldSpecificFormatter( val,f );
             if(!val) val='';
             if(val.length==1) val=val[0]; // avoid recursion when an array of length 1 is returned
         }
