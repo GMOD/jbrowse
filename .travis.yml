@@ -19,8 +19,8 @@ before_install:
   - cpanm --self-contained -l extlib/ URI::Escape 
   - ./setup.sh
   - ls -l /home/travis/build/cmdcolin/jbrowse/extlib/lib/perl5
-
+install: true
 script:
   - prove -I src/perl5 -r tests/perl_tests
 
-after_failure: cat /home/travis/.cpanm/work/*/build.log 
+after_failure: cat setup.log 
