@@ -130,10 +130,10 @@
                "label" : "View details",
              },
              {
-               "label" : "Highlight this gene",
+               "label" : "Zoom this gene",
              },
              {
-               "label" : "Zoom this gene",
+               "label" : "Highlight this gene",
              },
              {
                "label" : "Popup with content snippet from string (feature {name})",
@@ -142,10 +142,9 @@
                "action": "contentDialog",
                "content" : "<h2>{name}</h2>This is some test content about {type} {name}, which goes from {start} to {end} on the {strand} strand."
              }],
-         "fmtDetailValue_Name": "function(name,feature) { /* only customize top level feature */ if(feature.get('type')=='gene') { return name + ' <a href=\"http://www.ncbi.nlm.nih.gov/gquery/?term='+name+'\">[Custom link added via callback]</a>'; } }",
-         "fmtDetailField_Name": "function(name,feature) { return 'Gene Name'; }",
-         "fmtDetailDescription_Name": "function(name,feature) { return '[Custom description]'; }",
-         "fmtDetailField_Load_id": "function(name,feature) { return null; }",
+         "fmtDetailValue_Name": "function(name,feature) { if(feature.get('type')=='gene') { return name + ' <a href=http://www.ncbi.nlm.nih.gov/gquery/?term='+name+'>[NCBI custom link]</a>'; } else { return name; } }",
+         "fmtDetailField_Name": "function(name,feature) { if(feature.get('type')=='gene') { return 'Gene Name'; } else { return name; } }",
+         "fmtDetailField_Load_id": "function(name,feature) { /* remove field from dialog box */ return null; }",
          "fmtMetaValue_Name": "function(name) { return name+' [Track with custom callbacks for About track popup]'; }",
          "fmtMetaField_Name": "function(name) { return 'Track Name'; }",
          "fmtMetaDescription_Name": "function(name) { return '[Custom description]'; }"

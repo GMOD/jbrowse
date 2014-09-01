@@ -55,6 +55,10 @@
  * Fixed legacy bam-to-json.pl support when running setup.sh due to
    samtools build modifications (issue #501).
 
+ * Fixed a missing dependency that was present for some browsers. 
+   Thanks to Paul Hale and Kieren Raine for reporting bugs and to 
+   Emily Greenfest-Allen for the suggested fix (issue #505).
+
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 
 ## Minor improvements
