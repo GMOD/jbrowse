@@ -9,7 +9,7 @@ before_install:
   - wget -O release-1-6-922.zip https://github.com/bioperl/bioperl-live/archive/release-1-6-922.zip
   - unzip release-1-6-922.zip
   - cd bioperl-live-release-1-6-922/
-  - perl Build.PL
+  - perl Build.PL --accept
   - ./Build
   - sudo ./Build install
   - cpanm --self-contained -l extlib/ PerlIO::gzip
