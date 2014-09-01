@@ -12,6 +12,7 @@ before_install:
   - perl Build.PL --accept
   - ./Build
   - sudo ./Build install
+  - cd ..
   - cpanm --self-contained -l extlib/ PerlIO::gzip
   - cpanm --self-contained -l extlib/ GD::Image
   - cpanm --self-contained -l extlib/ DBI DB_File Data::Stag
