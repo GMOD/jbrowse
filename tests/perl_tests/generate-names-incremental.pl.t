@@ -25,7 +25,7 @@ sub run_with {
     };
 }
 #system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
-my $tempdir2 = new_volvox_sandbox("/Users/biocmd/test1");
+my $tempdir2 = new_volvox_sandbox();
 
 run_with (
     '--out'   => "$tempdir2",
@@ -60,7 +60,7 @@ sub read_names {
 }
 
 sub new_volvox_sandbox {
-    my $tempdir = shift||File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+    my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
     dircopy( 'tests/data/volvox_formatted_names', $tempdir );
     copy( 'sample_data/raw/volvox/volvox.filtered.vcf.gz',
           "$tempdir/volvox.filtered.vcf.gz"
