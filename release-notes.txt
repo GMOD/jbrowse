@@ -3,13 +3,13 @@
 ## Minor improvements
 
  * Added the ability to disable sorting on the Hierarchical track
-   selector using the sortHierarchical flag in the trackSelector 
-   config. Thanks to Chris Childers for the suggestion and Colin Diesh
-   for the implementation (issue #477).
+   selector using the sortHierarchical flag. Thanks to Chris Childers
+   for the suggestion and Colin Diesh for the implementation
+   (issue #477).
 
- * Made it so that when the user changes the display mode on the
-   CanvasFeature based tracks, their selection is saved. Thanks to
-   Jon Hinton for the idea and Colin Diesh for the fix (issue #469).
+ * Added saving of the display mode setting on the CanvasFeature based
+   tracks. Thanks to Jon Hinton for the idea and Colin Diesh for the
+   fix (issue #469).
 
  * Added configurable click event handlers for Wiggle type tracks.
    Thanks to Richard Hayes for implementing this feature (issue #489).
@@ -25,7 +25,7 @@
    Hierarchical track selector (issue #507).
 
  * Added beta touch-screen and tablet support by fixing a related bug.
-   Thanks to Paul Hale and Kieren Raine for reporting bugs and to
+   Thanks to Paul Hale and Kieran Raine for reporting bugs and to
    Emily Greenfest-Allen for the suggested fix (issue #505).
 
 ## Bug fixes
