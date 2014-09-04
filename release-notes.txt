@@ -15,14 +15,18 @@
    Thanks to Richard Hayes for implementing this feature (issue #489).
 
  * Added more configuration options for 'View details' popups as well
-   as the ability to customize the 'About track' popups as well. 
-   Thanks to Colin Diesh for the idea and implementation (issue #494).
+   as the ability to customize the 'About track' popups. Thanks to
+   Colin Diesh for the idea and implementation (issue #494).
 
  * Added the ability to load the category attribute from trackMetaData
    files to be used for the Hierarchical track selector.
 
  * Added the ability to specify initially collapsed categories in the
    Hierarchical track selector (issue #507).
+
+ * Added beta touch-screen and tablet support by fixing a related bug.
+   Thanks to Paul Hale and Kieren Raine for reporting bugs and to
+   Emily Greenfest-Allen for the suggested fix (issue #505).
 
 ## Bug fixes
 
@@ -49,15 +53,11 @@
    fix (issue #471).
 
  * Fixed the functionality of the --incremental flag in the
-   generate-names.pl script. Thanks to Richard Hayes for reporting the
-   issue (issue #478).
+   generate-names.pl script. Thanks to Richard Hayes and Colin Diesh
+   fixing the issue (issue #478).
 
  * Fixed legacy bam-to-json.pl support when running setup.sh due to
    samtools build modifications (issue #501).
-
- * Fixed a missing dependency that was present for some browsers. 
-   Thanks to Paul Hale and Kieren Raine for reporting bugs and to 
-   Emily Greenfest-Allen for the suggested fix (issue #505).
 
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 
