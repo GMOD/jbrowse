@@ -2,6 +2,16 @@
 
 ## Minor improvements
 
+## Bug fixes
+
+ * Fixed loading files from certain filepaths with special characters.
+   Thanks to Ben Bimber for reporting and helping diagnose the bug
+   (issue #508).
+
+# Release 1.11.5     2014-09-04 16:03:22 America/Chicago
+
+## Minor improvements
+
  * Added the ability to disable sorting on the Hierarchical track
    selector using the sortHierarchical flag. Thanks to Chris Childers
    for the suggestion and Colin Diesh for the implementation
