@@ -148,7 +148,7 @@ sub nameHandler { $_[0]->{nameHandler} }
 sub _make_nameHandler {
     my ( $self ) = @_;
     (my $trackdir = $self->{trackDirTemplate}) =~ s/\{refseq\}/'$_[0]'/eg;
-    $self->{nameHandler} = NameHandler->new( eval qq|sub { "$trackdir" }| );
+    $self->{nameHandler} = NameHandler->new( eval qq|sub { '$trackdir' }| );
 }
 
 
