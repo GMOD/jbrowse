@@ -8,6 +8,9 @@
    Thanks to Ben Bimber for reporting and helping diagnose the bug
    (issue #508).
 
+ * Fixed using fmt popup-dialog callbacks on BAM Alignments tracks
+   which was missing in 1.11.5.
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements
