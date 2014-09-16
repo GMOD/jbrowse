@@ -127,7 +127,7 @@ src/wig2png/configure: src/wig2png/configure.in
 	cd src/wig2png && autoconf
 
 superclean: clean
-	-git clean -fdx
+	-git clean -fdx --exclude=plugins/
 
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;

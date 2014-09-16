@@ -2,27 +2,44 @@
 
 ## Minor improvements
 
- * Added the ability to disable sorting on the Hierarchical track
-   selector using the sortHierarchical flag in the trackSelector 
-   config. Thanks to Chris Childers for the suggestion and Colin Diesh
-   for the implementation (issue #477).
+## Bug fixes
 
- * Made it so that when the user changes the display mode on the
-   CanvasFeature based tracks, their selection is saved. Thanks to
-   Jon Hinton for the idea and Colin Diesh for the fix (issue #469).
+ * Fixed loading files from certain filepaths with special characters.
+   Thanks to Ben Bimber for reporting and helping diagnose the bug
+   (issue #508).
+
+ * Fixed using fmt popup-dialog callbacks on BAM Alignments tracks
+   which was missing in 1.11.5.
+
+# Release 1.11.5     2014-09-04 16:03:22 America/Chicago
+
+## Minor improvements
+
+ * Added the ability to disable sorting on the Hierarchical track
+   selector using the sortHierarchical flag. Thanks to Chris Childers
+   for the suggestion and Colin Diesh for the implementation
+   (issue #477).
+
+ * Added saving of the display mode setting on the CanvasFeature based
+   tracks. Thanks to Jon Hinton for the idea and Colin Diesh for the
+   fix (issue #469).
 
  * Added configurable click event handlers for Wiggle type tracks.
    Thanks to Richard Hayes for implementing this feature (issue #489).
 
  * Added more configuration options for 'View details' popups as well
-   as the ability to customize the 'About track' popups as well. 
-   Thanks to Colin Diesh for the idea and implementation (issue #494).
+   as the ability to customize the 'About track' popups. Thanks to
+   Colin Diesh for the idea and implementation (issue #494).
 
  * Added the ability to load the category attribute from trackMetaData
    files to be used for the Hierarchical track selector.
 
  * Added the ability to specify initially collapsed categories in the
    Hierarchical track selector (issue #507).
+
+ * Added beta touch-screen and tablet support by fixing a related bug.
+   Thanks to Paul Hale and Kieran Raine for reporting bugs and to
+   Emily Greenfest-Allen for the suggested fix (issue #505).
 
 ## Bug fixes
 
@@ -49,15 +66,11 @@
    fix (issue #471).
 
  * Fixed the functionality of the --incremental flag in the
-   generate-names.pl script. Thanks to Richard Hayes for reporting the
-   issue (issue #478).
+   generate-names.pl script. Thanks to Richard Hayes and Colin Diesh
+   fixing the issue (issue #478).
 
  * Fixed legacy bam-to-json.pl support when running setup.sh due to
    samtools build modifications (issue #501).
-
- * Fixed a missing dependency that was present for some browsers. 
-   Thanks to Paul Hale and Kieren Raine for reporting bugs and to 
-   Emily Greenfest-Allen for the suggested fix (issue #505).
 
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 

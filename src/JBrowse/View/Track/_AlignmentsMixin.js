@@ -31,25 +31,26 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''
         });
-        var fmt = dojo.hitch( this, function( name, value ) {
+        var fmt = dojo.hitch( this, function( name, value, feature ) {
             name = Util.ucFirst( name.replace(/_/g,' ') );
-            return this.renderDetailField(container, name, value);
+            return this.renderDetailField(container, name, value, feature);
         });
-        fmt( 'Name', f.get('name') );
-        fmt( 'Type', f.get('type') );
-        fmt( 'Score', f.get('score') );
-        fmt( 'Description', f.get('note') );
+        fmt( 'Name', f.get('name'), f );
+        fmt( 'Type', f.get('type'), f );
+        fmt( 'Score', f.get('score'), f );
+        fmt( 'Description', f.get('note'), f );
         fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
                                      ref: this.refSeq.name })
-            + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || '')
+            + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || ''),
+            f
         );
 
 
         if( f.get('seq') ) {
-            fmt('Sequence and Quality', this._renderSeqQual( f ) );
+            fmt('Sequence and Quality', this._renderSeqQual( f ), f );
         }
 
         var additionalTags = array.filter(
@@ -59,7 +60,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         ).sort();
 
         dojo.forEach( additionalTags, function(t) {
-                          fmt( t, f.get(t) );
+                          fmt( t, f.get(t), f );
         });
 
         return container;
