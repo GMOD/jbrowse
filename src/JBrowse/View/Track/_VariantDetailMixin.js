@@ -140,7 +140,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             // handle the GT field specially, translating the genotype indexes into the actual ALT strings
             var value_parse = value.values[0];
 
-            var splitter = value_parse.match(/\D/g)[0];
+            var splitter = value_parse.match(/[\|\/]/g)[0]; // only accept | and / splitters since . can mean no call
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
             value = array.map( value_parse.split(splitter), function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex );

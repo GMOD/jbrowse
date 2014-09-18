@@ -4,6 +4,9 @@
 
 ## Bug fixes
 
+ * Fixed a small dialog box display issue for variants with "no call"
+   specified.
+
  * Fixed loading files from certain filepaths with special characters.
    Thanks to Ben Bimber for reporting and helping diagnose the bug
    (issue #508).
