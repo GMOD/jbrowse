@@ -14,6 +14,11 @@
  * Fixed using fmt popup-dialog callbacks on BAM Alignments tracks
    which was missing in 1.11.5.
 
+ * Fixed systemwide installations of JBrowse perl modules using
+   perl Makefile.PL && make && make install. Most users employ the
+   setup.sh script to perform local install, but now systemwide
+   installations will be possible.
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements
