@@ -141,6 +141,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             var value_parse = value.values[0];
 
             var splitter = value_parse.match(/[\|\/]/g)[0]; // only accept | and / splitters since . can mean no call
+            alt=alt[0].split(','); // force split on alt alleles
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
             value = array.map( value_parse.split(splitter), function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex );
