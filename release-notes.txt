@@ -11,13 +11,16 @@
    Thanks to Ben Bimber for reporting and helping diagnose the bug
    (issue #508).
 
- * Fixed using fmt popup-dialog callbacks on BAM Alignments tracks
-   which was missing in 1.11.5.
+ * Fixed popup-dialog callbacks not being called on BAM Alignments
+   tracks in 1.11.5.
 
  * Fixed systemwide installations of JBrowse perl modules using
-   perl Makefile.PL && make && make install. Most users employ the
-   setup.sh script to perform local install, but now systemwide
-   installations will be possible.
+   `perl Makefile.PL && make && make install` or `cpan .` but note
+   that most users will continue to employ setup.sh.
+
+ * Fixed a bug when displaying SNPs on hard clipped reads. Thanks
+   to Thon de Boer for the bug report and Colin Diesh for the fix
+   (issue #516)
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
