@@ -2,6 +2,10 @@
 
 ## Minor improvements
 
+ * Added the ability to use "template" parameters for HTMLFeatures
+   mouseovers. Thanks to David Muller for the bug report and Colin
+   Diesh for the fix (issue #480).
+
 ## Bug fixes
 
  * Fixed a small dialog box display issue for variants with "no call"
