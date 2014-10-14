@@ -2,52 +2,90 @@
 
 ## Minor improvements
 
- * Added the ability to load the category attribute for the
-   hierarchical track selector from the trackMetaData files.
-   Previously this had to be loaded from the configuration data.
-   Thanks for ideas to Colin Diesh for the fix.
-
- * Added the ability to disable sorting on the hierarchical track
-   selector using the sortHierarchical flag in the trackSelector 
-   config. Thanks to Chris Childers for the suggestion and Colin Diesh
-   for the implementation (issue #477).
-
- * Made it so that when the user changes the display mode on the
-   canvas features based tracks, their selection is saved. Thanks to
-   Jon Hinton for the suggestion and Colin Diesh for the
-   implementation (issue #469).
-
- * Added configurable onClick and other event for Wiggle tracks.
-   Thanks to Richard Hayes for the implementation (issue #489).
-
- * Added ability to access feature data in the customizable callbacks
-   for the 'View details' pop-ups, and some other small
-   customizations. Thanks to Colin Diesh for the idea+implementation
-   (issue #494).
-
- * Added template length to the default Alignments detail popup view.
-   Thanks to Kieran Raine for the suggestion and Colin Diesh for the
-   fix (issue #471).
+ * Added the ability to use "template" parameters for HTMLFeatures
+   mouseovers. Thanks to David Muller for the bug report and Colin
+   Diesh for the fix (issue #480).
 
 ## Bug fixes
 
- * Fixed a bug with VCF tabix file parsing that causes non-neighboring
-   blocks to be requested, causing unnecessary chunkSizeLimit errors.
-   Thanks to Richard Hayes for finding and debugging this issue!
-   (issue #486).
+ * Fixed a small dialog box display issue for variants with "no call"
+   specified.
 
- * Fixed a bug where the Variant detail view doesn't display the
-   genotype table correctly. This affects previous 1.11.x versions.
+ * Fixed loading files from certain filepaths with special characters.
+   Thanks to Ben Bimber for reporting and helping diagnose the bug
+   (issue #508).
+
+ * Fixed popup-dialog callbacks not being called on BAM Alignments
+   tracks in 1.11.5.
+
+ * Fixed systemwide installations of JBrowse perl modules using
+   `perl Makefile.PL && make && make install` or `cpan .` but note
+   that most users will continue to employ setup.sh.
+
+ * Fixed a bug when displaying SNPs on hard clipped reads. Thanks
+   to Thon de Boer for the bug report and Colin Diesh for the fix
+   (issue #516)
+
+# Release 1.11.5     2014-09-04 16:03:22 America/Chicago
+
+## Minor improvements
+
+ * Added the ability to disable sorting on the Hierarchical track
+   selector using the sortHierarchical flag. Thanks to Chris Childers
+   for the suggestion and Colin Diesh for the implementation
+   (issue #477).
+
+ * Added saving of the display mode setting on the CanvasFeature based
+   tracks. Thanks to Jon Hinton for the idea and Colin Diesh for the
+   fix (issue #469).
+
+ * Added configurable click event handlers for Wiggle type tracks.
+   Thanks to Richard Hayes for implementing this feature (issue #489).
+
+ * Added more configuration options for 'View details' popups as well
+   as the ability to customize the 'About track' popups. Thanks to
+   Colin Diesh for the idea and implementation (issue #494).
+
+ * Added the ability to load the category attribute from trackMetaData
+   files to be used for the Hierarchical track selector.
+
+ * Added the ability to specify initially collapsed categories in the
+   Hierarchical track selector (issue #507).
+
+ * Added beta touch-screen and tablet support by fixing a related bug.
+   Thanks to Paul Hale and Kieran Raine for reporting bugs and to
+   Emily Greenfest-Allen for the suggested fix (issue #505).
+
+## Bug fixes
+
+ * Fixed a bug with VCF tabix file parsing that caused unnecessary
+   chunkSizeLimit errors. Thanks to Richard Hayes for finding and
+   debugging this issue (issue #486)!
+
+ * Fixed a bug where the Variant popup boxes would not display 
+   complete genotype information in previous 1.11.* versions.
    Thanks to Nando for reporting the bug and Colin Diesh for the
    bugfix (issue #488).
  
- * Fixed an small error that occured when using variant type tracks
+ * Fixed a small error that occured when using variant type tracks
    with the REST API.
 
- * Reverted a change that caused scrolling to have problems in
-   version 1.11.4. This means that scrolling of dialog boxes will
-   continue to have some minor problems under Chrome/Safari on OSX
-   (issue #386).
+ * Added a bugfix that caused problems scrolling in dialog boxes
+   for variant type tracks in 1.11.4 (issue #492).
+
+ * Fixed the use of the --refs flag on prepare-refseqs.pl. Thanks to
+   Audrey for finding & fixing this bug (issue #497).
+
+ * Added missing template length flag to the Alignments popup dialogs.
+   Thanks to Kieran Raine for the suggestion and Colin Diesh for the
+   fix (issue #471).
+
+ * Fixed the functionality of the --incremental flag in the
+   generate-names.pl script. Thanks to Richard Hayes and Colin Diesh
+   fixing the issue (issue #478).
+
+ * Fixed legacy bam-to-json.pl support when running setup.sh due to
+   samtools build modifications (issue #501).
 
 # Release 1.11.4     2014-05-14 12:04:54 America/Chicago
 

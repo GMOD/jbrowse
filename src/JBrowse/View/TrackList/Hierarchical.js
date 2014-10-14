@@ -94,6 +94,14 @@ return declare(
                                { attribute: 'key' },
                                { attribute: 'label' }
                              ];
+
+        // add initally collapsed categories to the local storage
+        var arr=(this.get('collapsedCategories')||"").split(",");
+        for(var i=0; i<arr.length;i++) {
+            lang.setObject('collapsed.'+arr[i],true,this.state);
+        }
+        this._saveState();
+
         this.get('trackMetaData').fetch(
             { onItem: function(i) {
                   if( i.conf )

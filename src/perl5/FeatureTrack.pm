@@ -147,8 +147,10 @@ track.  Not available until startLoad() is called.
 sub nameHandler { $_[0]->{nameHandler} }
 sub _make_nameHandler {
     my ( $self ) = @_;
-    (my $trackdir = $self->{trackDirTemplate}) =~ s/\{refseq\}/'$_[0]'/eg;
-    $self->{nameHandler} = NameHandler->new( eval qq|sub { "$trackdir" }| );
+    (my $trackdir = $self->{trackDirTemplate});
+    my @values=split(/\{refseq\}/,$trackdir);
+    my $pass=quotemeta($values[0]).'$_[0]';
+    $self->{nameHandler} = NameHandler->new( eval qq|sub { "$pass" }| );
 }
 
 

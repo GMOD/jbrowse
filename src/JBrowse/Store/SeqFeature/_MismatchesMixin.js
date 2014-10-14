@@ -126,7 +126,7 @@ return declare( null, {
             for( var i = 0; i < cigarOps.length && refOffset <= refCoord ; i++ ) {
                 var op  = cigarOps[i][0];
                 var len = cigarOps[i][1];
-                if( op == 'H' || op == 'S' || op == 'I' ) {
+                if( op == 'S' || op == 'I' ) {
                     templateOffset += len;
                 }
                 else if( op == 'D' || op == 'N' || op == 'P' ) {

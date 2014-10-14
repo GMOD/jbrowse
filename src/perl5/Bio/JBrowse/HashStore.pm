@@ -225,6 +225,7 @@ sub stream_do {
                 my ( $hex, $op ) = @$rec;
                 my $bucket = $self->_getBucketFromHex( $hex );
                 $bucket->{data}{$op->[0]} = $do_operation->( $op, $bucket->{data}{$op->[0]} );
+                $bucket->{dirty} = 1;
 
                 if ( $progressbar && ++$ops_played_back > $progressbar_next_update ) {
                     $progressbar_next_update = $progressbar->update( $ops_played_back );

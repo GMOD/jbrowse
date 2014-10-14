@@ -4,9 +4,19 @@ use warnings;
 
 
 
+use File::Find;
 use ExtUtils::MakeMaker 6.30;
 
 
+my %libhash;
+find(sub {
+    my $dest=$File::Find::name;
+    my $src=$dest;
+    if(/pm$/) {
+        $dest=~ s/src\/perl5\///;
+        $libhash{$src}='$(INST_LIB)/'.$dest;
+    }
+}, "src/perl5");
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "A modern web-based genome browser.",
@@ -87,7 +97,8 @@ my %WriteMakefileArgs = (
   "VERSION" => "dev",
   "test" => {
     "TESTS" => "t/*.t"
-  }
+  },
+  "PM" => \%libhash
 );
 
 

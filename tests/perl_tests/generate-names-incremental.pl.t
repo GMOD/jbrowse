@@ -24,49 +24,33 @@ sub run_with {
         Bio::JBrowse::Cmd::IndexNames->new( @args )->run;
     };
 }
-
-my $tempdir = new_volvox_sandbox();
-my $temp2 = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
-my ( $stdout ) = run_with (
-    '--out'   => "$tempdir",
-    '--workdir' => $temp2,
-    '--hashBits' => 16,
-    '--completionLimit' => 15
-    );
-{
-    my $got = read_names($tempdir);
-    my $expected = read_names('tests/data/volvox_formatted_names');
-    is_deeply( $got, $expected, 'got right data from volvox test data run' );
-        #or diag explain read_names($tempdir);
-#    diag explain $got->{'c12/9.json'}{apple2}{exact};
-#    diag explain $expected->{'c12/9.json'}{apple2}{exact};
-}
-
 #system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
-run_with(
-    '--out'   => "$tempdir",
-    '--workdir' => $temp2,
+my $tempdir2 = new_volvox_sandbox();
+
+run_with (
+    '--out'   => "$tempdir2",
     '--hashBits' => 16,
-    '--incremental',
-    '--safeMode',
     '--tracks' => 'ExampleFeatures,NameTest',
     '--completionLimit' => 15
     );
 {
-    my $got = read_names($tempdir);
+    my $got = read_names($tempdir2);
     my $expected = read_names('tests/data/volvox_formatted_names');
-    is_deeply( $got, $expected, 'same data after incremental run with --safeMode' );
-    # or diag explain read_names($tempdir);
+    ok( !eq_deeply( $got, $expected ), 'expected partial name index to not match full name index' );
 }
 
-$tempdir = new_volvox_sandbox();
-run_with (
-    '--dir'   => "$tempdir",
-    '--tracks' => 'ExampleFeatures,NameTest'
-    );
-my @files = glob("$tempdir/names/*");
-is( scalar @files, 17 , 'the dir has some stuff in it' );
 
+run_with (
+    '--out'   => "$tempdir2",
+    '--hashBits' => 16,
+    '--incremental',
+    '--completionLimit' => 15
+    );
+{
+    my $got = read_names($tempdir2);
+    my $expected = read_names('tests/data/volvox_formatted_names');
+    is_deeply( $got, $expected, 'incremental index of the previous partial names index matched' );
+}
 done_testing;
 
 sub read_names {

@@ -154,8 +154,9 @@ sub trackLabel {
 sub exportFASTA {
     my ( $self, $refs, $files ) = @_;
     my $accept_ref = sub {1};
+
     if( $refs ) {
-        $refs = { map $_ => 1, split /\s*,\s*/, $refs };
+        $refs = { map { $_ => 1 } split /\s*,\s*/, $refs };
         $accept_ref = sub { $refs->{$_[0]} };
     }
 

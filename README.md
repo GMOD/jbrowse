@@ -46,7 +46,7 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
 1. Edit the JBrowse `package.json` file and change 'version' to the version you are releasing.  *Don't commit this change to the repository, it should stay as `dev` in git so that it shows up in analytics as a development version.*
 
-2. Build the release packages: `make -f build/Makefile release`.  The files produced during the build should not be committed to the repository either.
+2. Build the release packages: `make -f build/Makefile release`.  The files produced during the build should not be committed to the repository either. There is also `make -f build/Makefile release-notest` for releases that don't need perl tests to be run. NOTE: you may need to use the command `ulimit -n 1000` to avoid "spawn EMFILE" build errors.
 
 3. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.
 

@@ -1188,7 +1188,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
         this.own( on( featDiv,  'mouseover', refreshMenu ) );
         if( featDiv.label )
+        {
+            var context = lang.mixin( { track: this, feature: featDiv.feature, callbackArgs: [ this, featDiv.feature ] } );
+            featDiv.title=this.template( context.feature, this._evalConf( context, featDiv.title, "label" ));
+
             this.own( on( featDiv.label,  'mouseover', refreshMenu ) );
+        }
     },
 
     _refreshMenu: function( featDiv ) {
