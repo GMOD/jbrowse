@@ -27,6 +27,11 @@ release: release-version.txt release-normal release-min release-normal-test rele
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
+release-notest: release-version.txt release-normal release-min release-notes.html
+	ls -lh *.zip
+	$(SHASUM) *.zip
+
+
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
 
@@ -53,6 +58,7 @@ release-normal-test: release-normal
 	cd $(RELEASE_FULL_DIR) \
 	  && ./setup.sh \
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
+
 
 PLUGINS = $(wildcard $(PLUGINDIR)/*)
 
