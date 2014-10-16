@@ -158,7 +158,11 @@
          "class" : "cds",
          "phase": 1,
          "key" : "HTMLFeatures - mRNAs",
-         "onClick": { "label": "Search for {name} at NCBI\nFeature start {start}\nFeature end {end}", "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}" }
+         "onClick": {
+            "url": "http://www.ncbi.nlm.nih.gov/gquery/?term={name}",
+            "label": "Search for {name} at NCBI\nFeature start {start}\nFeature end {end}",
+            "title": "NCBI search box"
+         }
       },
       {
          "feature" : [
