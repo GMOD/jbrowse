@@ -1098,6 +1098,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
 
+        // fill in the template parameters like {name} in the label
+        var context = lang.mixin( { track: this, feature: featDiv.feature, callbackArgs: [ this, featDiv.feature ] } );
+        featDiv.title=this.template( context.feature, this._evalConf( context, featDiv.title, "label" ));
+
+
         if( featwidth > this.config.style.minSubfeatureWidth ) {
             this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
         }
@@ -1189,8 +1194,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         this.own( on( featDiv,  'mouseover', refreshMenu ) );
         if( featDiv.label )
         {
-            var context = lang.mixin( { track: this, feature: featDiv.feature, callbackArgs: [ this, featDiv.feature ] } );
-            featDiv.title=this.template( context.feature, this._evalConf( context, featDiv.title, "label" ));
+            
 
             this.own( on( featDiv.label,  'mouseover', refreshMenu ) );
         }
