@@ -1074,6 +1074,13 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 break;
             }
         }
+
+        // fill in the template parameters in the featDiv and also for the labelDiv (see below)
+        var context = lang.mixin( { track: this, feature: feature, callbackArgs: [ this, feature ] } );
+        if(featDiv.title) {
+            featDiv.title=this.template( feature, this._evalConf( context, featDiv.title, "label" ));
+        }
+
         if ( ( name || description ) && this.showLabels && scale >= labelScale ) {
             var labelDiv = dojo.create( 'div', {
                     className: "feature-label" + ( highlighted ? ' highlighted' : '' ),
@@ -1087,7 +1094,9 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
             this._connectFeatDivHandlers( labelDiv );
 
+            if(featDiv.title) labelDiv.title=featDiv.title;
             featDiv.label = labelDiv;
+
 
             // NOTE: ANY DATA ADDED TO THE labelDiv MUST HAVE A
             // CORRESPONDING DELETE STATMENT IN cleanupBlock BELOW
@@ -1097,11 +1106,6 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             // in this feature's context menu or left-click handlers)
             labelDiv.callbackArgs = [ this, featDiv.feature, featDiv ];
         }
-
-        // fill in the template parameters like {name} in the label
-        var context = lang.mixin( { track: this, feature: featDiv.feature, callbackArgs: [ this, featDiv.feature ] } );
-        featDiv.title=this.template( context.feature, this._evalConf( context, featDiv.title, "label" ));
-
 
         if( featwidth > this.config.style.minSubfeatureWidth ) {
             this.handleSubFeatures(feature, featDiv, displayStart, displayEnd, block);
@@ -1192,10 +1196,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         // features at load time is way too slow.
         var refreshMenu = lang.hitch( this, '_refreshMenu', featDiv );
         this.own( on( featDiv,  'mouseover', refreshMenu ) );
-        if( featDiv.label )
-        {
-            
-
+        if( featDiv.label ) {
             this.own( on( featDiv.label,  'mouseover', refreshMenu ) );
         }
     },
