@@ -126,6 +126,10 @@
          "category": "Transcripts",
          "key" : "CanvasFeatures - Protein-coding genes",
          "trackType": "JBrowse/View/Track/CanvasFeatures",
+         "onClick" : {
+            "action" : "defaultDialog",
+            "label" : "<div style='font:normal 12px Univers,Helvetica,Arial,sans-serif'><div style='font-weight:bold'>Custom tooltip</div><div style='color:blue;'>Feature name: {name}<br />Feature start: {start}<br />Feature end: {end}</div></div>"
+         },
          "menuTemplate": [  {
                "label" : "View details",
              },

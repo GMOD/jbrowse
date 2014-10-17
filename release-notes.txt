@@ -2,9 +2,10 @@
 
 ## Minor improvements
 
- * Added the ability to use "template" parameters for HTMLFeatures
-   mouseovers. Thanks to David Muller for the bug report and Colin
-   Diesh for the fix (issue #480).
+ * Added the ability to customize the contents of HTMLFeatures and
+   CanvasFeatures mouseover tooltips using the onClick.label
+   configuration variable. Thanks to David Muller for the original bug
+   report and Colin Diesh for the fix (issue #480).
 
 ## Bug fixes
 
