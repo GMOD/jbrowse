@@ -765,6 +765,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             console.error("Undefined click specification, cannot make click handler");
             return function() {};
         }
+        else if( inputSpec.action == 'defaultDialog' ) {
+            inputSpec.action = 'contentDialog';
+            inputSpec.content = dojo.hitch(this,'defaultFeatureDetail');
+        }
 
         var handler = function ( evt ) {
             if( track.genomeView.dragging )
