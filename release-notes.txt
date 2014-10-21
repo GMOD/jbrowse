@@ -25,7 +25,11 @@
 
  * Fixed a bug when displaying SNPs on hard clipped reads. Thanks
    to Thon de Boer for the bug report and Colin Diesh for the fix
-   (issue #516)
+   (issue #516).
+
+ * Added a bugfix for VCF popup boxes that displayed function [values]
+   in the popup boxes in latest versions of Google Chrome
+   (issue #522).
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 

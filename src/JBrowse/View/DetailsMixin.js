@@ -98,7 +98,7 @@ return declare( null, {
     renderDetailValue: function( parent, title, val, f, class_ ) {
         var thisB = this;
 
-        if( val.values )
+        if( !lang.isArray(val) && val.values )
             val = val.values;
 
         // if this object has a 'fmtDetailFooValue' function, delegate to that
