@@ -61,7 +61,7 @@ return declare( null, {
         // attr on the field name so that it shows on mouseover, and
         // using the values as the new field value.
         var fieldMeta;
-        if( typeof val == 'object' && ('values' in val) ) {
+        if( typeof val == 'object' && !lang.isArray(val) && ('values' in val) ) {
             fieldMeta = (val.meta||{}).description;
             // join the description if it is an array
             if( lang.isArray( fieldMeta ) )
