@@ -22,4 +22,16 @@ sample_data/raw/tomato
 samtools-master/
 setup.log
 MYMETA.*
-
+src/FileSaver/
+src/dbind/
+src/dgrid/
+src/dijit/
+src/dojo/
+src/dojox/
+src/jDataView/
+src/json-schema/
+src/jszlib/
+src/lazyload/
+src/put-selector/
+src/util/
+src/xstyle/
