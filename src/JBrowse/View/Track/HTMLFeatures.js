@@ -244,8 +244,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         if( ! 'x' in coords )
             return;
 
-    var viewmin = this.browser.view.minVisible();
-    var viewmax = this.browser.view.maxVisible();
+        var viewmin = this.browser.view.minVisible();
+        var viewmax = this.browser.view.maxVisible();
 
         var blocks = this.blocks;
 
@@ -256,55 +256,55 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             var childNodes = block.domNode.childNodes;
             for( var i = 0; i<childNodes.length; i++ ) {
                 var featDiv = childNodes[i];
-                        if( ! featDiv.feature )
-                            continue;
-                        var feature = featDiv.feature;
+                if( ! featDiv.feature )
+                    continue;
+                var feature = featDiv.feature;
 
-                        // Retrieve containerStart/End to resolve div truncation from renderFeature
-                        var containerStart = featDiv._containerStart;
-                        var containerEnd = featDiv._containerEnd;
+                // Retrieve containerStart/End to resolve div truncation from renderFeature
+                var containerStart = featDiv._containerStart;
+                var containerEnd = featDiv._containerEnd;
 
-                        var strand  = feature.get('strand');
-                        if( ! strand )
-                            continue;
+                var strand  = feature.get('strand');
+                if( ! strand )
+                    continue;
 
-                        var fmin    = feature.get('start');
-                        var fmax    = feature.get('end');
-                        var arrowhead;
-                        var featDivChildren;
-                        //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
-                        var displayStart = Math.max( fmin, containerStart );
-                        var displayEnd = Math.min( fmax, containerEnd );
+                var fmin    = feature.get('start');
+                var fmax    = feature.get('end');
+                var arrowhead;
+                var featDivChildren;
+                //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
+                var displayStart = Math.max( fmin, containerStart );
+                var displayEnd = Math.min( fmax, containerEnd );
 
-                        // minus strand
-                        if( strand < 0 && fmax > viewmin ) {
-                            var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
-                            featDivChildren = featDiv.childNodes;
-                            for( var j = 0; j<featDivChildren.length; j++ ) {
-                                arrowhead = featDivChildren[j];
-                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
-                                    arrowhead.style.left =
-                                        ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
-                                                         : -this.minusArrowWidth
-                                        ) + 'px';
-                                };
-                            }
-                        }
-                        // plus strand
-                        else if( strand > 0 && fmin < viewmax ) {
-                            var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
-                            featDivChildren = featDiv.childNodes;
-                            for( var j = 0; j<featDivChildren.length; j++ ) {
-                                arrowhead = featDivChildren[j];
-                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
-                                    arrowhead.style.right =  
-                                        ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
-                                                         : -this.plusArrowWidth
-                                        ) + 'px';
-                                }
-                            }
+                // minus strand
+                if( strand < 0 && fmax > viewmin ) {
+                    var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
+                    featDivChildren = featDiv.childNodes;
+                    for( var j = 0; j<featDivChildren.length; j++ ) {
+                        arrowhead = featDivChildren[j];
+                        if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
+                            arrowhead.style.left =
+                                ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
+                                                 : -this.minusArrowWidth
+                                ) + 'px';
+                        };
+                    }
+                }
+                // plus strand
+                else if( strand > 0 && fmin < viewmax ) {
+                    var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
+                    featDivChildren = featDiv.childNodes;
+                    for( var j = 0; j<featDivChildren.length; j++ ) {
+                        arrowhead = featDivChildren[j];
+                        if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
+                            arrowhead.style.right =  
+                                ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
+                                                 : -this.plusArrowWidth
+                                ) + 'px';
                         }
                     }
+                }
+            }
         }
     },
 
