@@ -16,10 +16,11 @@ Makefile
 /extlib/
 autom4te.cache
 sample_data/raw/tomato
+sample_data/raw/yeast_chr1+2/yeast.fa
 /.prove
 /setup.log
 /release-notes.html
 samtools-master/
+samtools-0.1.20
 setup.log
 MYMETA.*
-
