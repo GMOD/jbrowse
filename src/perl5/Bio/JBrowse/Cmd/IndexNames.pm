@@ -278,6 +278,10 @@ sub make_name_record_stream {
     my %trackHash;
 
     my $trackNum = 0;
+    foreach (@{$self->name_store->meta->{track_names}}) {
+        $trackHash{$_}=$trackNum++;
+    }
+
 
     return sub {
         while( ! @namerecord_buffer ) {
