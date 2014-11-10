@@ -35,6 +35,8 @@
    Richard Hayes for reporting this issue and to Colin Diesh for the
    fix (issue #526).
 
+ * Fixed the workdir parameter in generate-names.pl (issue #506).
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements
