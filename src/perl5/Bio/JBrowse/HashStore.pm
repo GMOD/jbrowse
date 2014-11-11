@@ -105,7 +105,6 @@ sub _make_cache {
 # write out meta.json file when the store itself is destroyed
 sub DESTROY {
     my ( $self ) = @_;
-
     File::Path::mkpath( $self->{dir} );
     {
         my $meta_path = $self->_meta_path;
@@ -148,6 +147,7 @@ sub meta {
 
 sub get {
     my ( $self, $key ) = @_;
+
     my $bucket = $self->_getBucket( $key );
     return $bucket->{data}{$key};
 }
@@ -192,10 +192,10 @@ sub stream_do {
             my $log_handle = $filehandle_cache->compute( $log_hex, sub {
                 my ( $h ) = @_;
                 my $pathinfo = $self->_hexToPath( $h );
-                File::Path::mkpath( $pathinfo->{dir} ) unless -d $pathinfo->{dir};
+                File::Path::mkpath( $pathinfo->{workdir} ) unless -d $pathinfo->{workdir};
                 #warn "writing $pathinfo->{fullpath}.log\n";
-                CORE::open( my $f, ">>$gzip", "$pathinfo->{fullpath}.log" )
-                    or die "$! opening bucket log $pathinfo->{fullpath}.log";
+                CORE::open( my $f, ">>$gzip", "$pathinfo->{workpath}.log" )
+                    or die "$! opening bucket log $pathinfo->{workpath}.log";
                 return $f;
             });
 
@@ -242,7 +242,7 @@ sub stream_do {
 
 sub _file_iterator {
     my ( $self, $filter ) = @_;
-    return File::Next::files( { file_filter => $filter }, $self->{dir} );
+    return File::Next::files( { file_filter => $filter }, $self->{work_dir}||$self->{dir} );
 }
 
 =head2 set( $key, $value )
@@ -287,7 +287,9 @@ sub empty {
     my ( $self ) = @_;
     print "Removing existing contents of target dir $self->{dir}\n" if $self->{verbose};
     File::Path::rmtree( $self->{dir} );
+    File::Path::rmtree( $self->{work_dir} ) if defined $self->{work_dir};
     File::Path::mkpath( $self->{dir} );
+    File::Path::mkpath( $self->{work_dir} ) if defined $self->{work_dir};
 }
 
 
@@ -347,10 +349,13 @@ sub _hex {
 sub _hexToPath {
     my ( $self, $hex ) = @_;
     my @dir = ( $self->{dir}, $hex =~ /(.{1,3})/g );
+    my @workdir = ( $self->{work_dir}||$self->{dir}, $hex =~ /(.{1,3})/g );
     my $file = (pop @dir).$self->{file_extension};
+    my $workfile = (pop @workdir).$self->{file_extension};
     my $dir = File::Spec->catdir(@dir);
+    my $workdir = File::Spec->catdir(@workdir);
     #warn "crc: $crc, fullpath: ".File::Spec->catfile( $dir, $file )."\n";
-    return { dir => $dir, fullpath => File::Spec->catfile( $dir, $file ) };
+    return { dir => $dir, fullpath => File::Spec->catfile( $dir, $file ), workdir => $workdir, workpath => File::Spec->catfile( $workdir, $file ) };
 }
 
 sub _getBucket {

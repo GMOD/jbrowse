@@ -878,6 +878,15 @@ return declare(
                         this.labelTooltip.style.display = 'block';
                         var labelSpan = this.labelTooltip.childNodes[0],
                             descriptionSpan = this.labelTooltip.childNodes[1];
+
+                        if( this.config.onClick&&this.config.onClick.label ) {
+                            var context = lang.mixin( { track: this, feature: feature, callbackArgs: [ this, feature ] } );
+                            labelSpan.style.display = 'block';
+                            labelSpan.style.font = label.font;
+                            labelSpan.style.color = label.fill;
+                            labelSpan.innerHTML = this.template( feature, this._evalConf( context, this.config.onClick.label, "label" ) );
+                            return;
+                        }
                         if( label ) {
                             labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;

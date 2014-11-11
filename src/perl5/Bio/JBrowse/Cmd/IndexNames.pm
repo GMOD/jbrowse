@@ -275,9 +275,23 @@ sub make_name_record_stream {
         push @namerecord_buffer, $rec;
     }
 
-    my %trackHash;
 
+    # use a fake hash store to read meta.json
+    my $temp_store = tie my %temp_hash, 'Bio::JBrowse::HashStore', (
+                dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
+                empty => 0,
+                compress => 0,
+                verbose => 0);
+
+
+    my %trackHash;
     my $trackNum = 0;
+    foreach (@{$temp_store->meta->{track_names}}) {
+        $trackHash{$_}=$trackNum++;
+    }
+
+    untie $temp_store;
+
 
     return sub {
         while( ! @namerecord_buffer ) {

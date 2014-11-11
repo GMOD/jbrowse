@@ -2,9 +2,10 @@
 
 ## Minor improvements
 
- * Added the ability to use "template" parameters for HTMLFeatures
-   mouseovers. Thanks to David Muller for the bug report and Colin
-   Diesh for the fix (issue #480).
+ * Added the ability to customize the contents of HTMLFeatures and
+   CanvasFeatures mouseover tooltips more extensively. Thanks to David
+   Muller for the original bug report and Colin Diesh for the fix
+   (issue #480).
 
 ## Bug fixes
 
@@ -24,7 +25,17 @@
 
  * Fixed a bug when displaying SNPs on hard clipped reads. Thanks
    to Thon de Boer for the bug report and Colin Diesh for the fix
-   (issue #516)
+   (issue #516).
+
+ * Fixed a bug in the popup dialogs that displays "function values
+   { [native code] }" in Google Chrome 38+ (issue #522).
+
+ * Fixed a bug with the incremental indexing with generate-names
+   that associated the wrong track with the name store. Thanks to
+   Richard Hayes for reporting this issue and to Colin Diesh for the
+   fix (issue #526).
+
+ * Fixed the workdir parameter in generate-names.pl (issue #506).
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
