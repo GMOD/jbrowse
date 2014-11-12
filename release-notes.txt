@@ -7,6 +7,9 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
+ * Fixed "boolean is not a function" error when using CanvasFeatures
+   tracks with the Segments glyph in some situations.
+
 ## Bug fixes
 
  * Fixed a small dialog box display issue for variants with "no call"
