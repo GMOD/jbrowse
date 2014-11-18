@@ -40,6 +40,9 @@
 
  * Fixed the workdir parameter in generate-names.pl (issue #506).
 
+ * Fixed the display of alternative alleles in the genotype for VCF
+   pop-ups (issue #533).
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements
