@@ -43,6 +43,9 @@
  * Fixed the display of alternative alleles in the genotype for VCF
    pop-ups (issue #533).
 
+ * Fixed an issue where some paired-end read data wouldn't display
+   properly if they had the same start position (issue #521).
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements

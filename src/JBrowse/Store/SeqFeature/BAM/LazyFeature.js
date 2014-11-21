@@ -99,7 +99,7 @@ var Feature = Util.fastDeclare(
     },
 
     id: function() {
-        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start');
+        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start')+'/'+this._get('multi_segment_next_segment_reversed');
     },
 
     multi_segment_all_aligned: function() {
