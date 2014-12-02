@@ -125,8 +125,8 @@ sub run {
                 $refseqs{$name} = {
                     name   => $name,
                     start  => 0,
-                    end    => $length,
-                    length => $length
+                    end    => $length+0,
+                    length => $length+0
                 };
             }
         }
