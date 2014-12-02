@@ -46,6 +46,12 @@
  * Fixed an issue where some paired-end read data wouldn't display
    properly if they had the same start position (issue #521).
 
+ * Output .htaccess file for generate-names.pl when using the compress
+   option. Thanks to Sebastien Carrere for reporting the bug (#541).
+
+ * Fixed a small bug with being able to scroll past end of chromosome
+   when using the --sizes option to prepare-refseqs.pl (issue #535).
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements
