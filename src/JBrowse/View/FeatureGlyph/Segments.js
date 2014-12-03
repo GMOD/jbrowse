@@ -95,7 +95,7 @@ _makeSubpartsFilter: function( f ) {
         // convert to array
         filter = filter.split( /\s*,\s*/ );
 
-    else if( typeof filter == 'object' ) {
+    if( typeof filter == 'object' ) {
         // lowercase and make into a function
         if( lang.isArray( filter ) )
             filter = function() {
