@@ -169,10 +169,27 @@ return declare(
             };
 
             category.pane.domNode.style.display = 'block';
+
+            // load tooltip, from trackConf description, trackConf.metadata description, or track.description (track.description would be trackMetadata.csv)
+            // note: sometimes trackConf.description is defined as numeric, so in this case, load it if it is truthy
+            var mtitle;
+            if("description" in trackConf&&trackConf.description){
+                mtitle= trackConf.shortDescription || track.description || track.Description ||
+                    trackConf.metadata && (  trackConf.metadata.shortDescription ||  trackConf.metadata.description || trackConf.metadata.Description ) ||
+                    trackConf.key || trackConf.label;
+            }
+            else {
+                mtitle= trackConf.shortDescription || trackConf.description || trackConf.Description || track.description || track.Description ||
+                    trackConf.metadata && (  trackConf.metadata.shortDescription ||  trackConf.metadata.description || trackConf.metadata.Description ) ||
+                    trackConf.key || trackConf.label;
+            }
+
+
+
             var labelNode = dom.create(
                 'label', {
                     className: 'tracklist-label shown',
-                    title: Util.escapeHTML( track.shortDescription || track.description || track.Description || track.metadata && ( track.metadata.shortDescription || track.metadata.description || track.metadata.Description ) || track.key || trackConf.key || trackConf.label )
+                    title: lang.isString(mtitle)?Util.escapeHTML(mtitle):""
                 }, category.pane.containerNode );
 
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
