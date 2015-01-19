@@ -35,6 +35,7 @@ return declare( [BlockBased, ExportMixin],
      */
     constructor: function( args ) {
         this._charMeasurements = {};
+        this._codonTable = CodonTable.defaultCodonTable();
     },
 
     _defaultConfig: function() {
@@ -192,7 +193,7 @@ return declare( [BlockBased, ExportMixin],
         var translated = "";
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
-            var aminoAcid = CodonTable[nextCodon] || this.nbsp;
+            var aminoAcid = this._codonTable[nextCodon] || this.nbsp;
             translated = translated + aminoAcid;
         }
 
