@@ -101,17 +101,19 @@ return declare( [BlockBased, ExportMixin],
 			dom.empty( block.domNode );
 			thisB._fillSequenceBlock( block, blockIndex, scale, seq );
                     }
+                    args.finishCallback();
                 },
-                function() {}
+                function() {
+                    args.finishCallback();
+                }
             );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
+            args.finishCallback();
         }
-
-        args.finishCallback();
     },
 
     _fillSequenceBlock: function( block, blockIndex, scale, seq ) {
