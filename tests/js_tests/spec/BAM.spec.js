@@ -2,8 +2,9 @@ require([
             'dojo/aspect',
             'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/BAM',
+            'JBrowse/Store/SeqFeature/_MismatchesMixin',
             'JBrowse/Model/XHRBlob'
-        ], function( aspect, Browser, BAMStore, XHRBlob ) {
+        ], function( aspect, Browser, BAMStore, MismatchesMixin, XHRBlob ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -12,6 +13,10 @@ require([
 //     });
 //     return bins;
 // }
+
+
+describe( 'BAM mismatches test', function() {
+}),
 
 describe( 'BAM with volvox-sorted.bam', function() {
               var b;
