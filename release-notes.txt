@@ -7,13 +7,13 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
+## Bug fixes
+
  * Fixed "boolean is not a function" error when using CanvasFeatures
    tracks with the Segments glyph in some situations.
 
-## Bug fixes
-
- * Fixed a small dialog box display issue for variants with "no call"
-   specified.
+ * Fixed a dialog box display issue for VCF variants with "no call"
+   specified (issue #513).
 
  * Fixed loading files from certain filepaths with special characters.
    Thanks to Ben Bimber for reporting and helping diagnose the bug
@@ -22,16 +22,19 @@
  * Fixed popup-dialog callbacks not being called on BAM Alignments
    tracks in 1.11.5.
 
- * Fixed systemwide installations of JBrowse perl modules using
-   `perl Makefile.PL && make && make install` or `cpan .` but note
-   that most users will continue to employ setup.sh.
+ * Fixed systemwide installations of JBrowse perl modules when using
+   Module::Build.
 
  * Fixed a bug when displaying SNPs on hard clipped reads. Thanks
-   to Thon de Boer for the bug report and Colin Diesh for the fix
+   to Thon de Boer for the bug report and to Colin Diesh for the fix
    (issue #516).
 
- * Fixed a bug in the popup dialogs that displays "function values
-   { [native code] }" in Google Chrome 38+ (issue #522).
+ * Fixed a bug when displaying SNPs on spliced alignments. Thanks
+   to GitHub user 09140930 for the bug report and to Colin Diesh for
+   the fix (issue #523).
+
+ * Fixed a bug that affected some VCF and GFF popup dialogs in some
+   browsers, particularly Chrome 38 (issue #522).
 
  * Fixed a bug with the incremental indexing with generate-names
    that associated the wrong track with the name store. Thanks to
