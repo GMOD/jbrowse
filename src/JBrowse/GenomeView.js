@@ -1282,7 +1282,7 @@ scaleMouseOut: function( evt ) {
 maybeDrawVerticalPositionLine: function( evt ) {
     if( this.rubberbanding )
         return;
-    this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+    this.drawVerticalPositionLine( this.scaleTrackDiv, evt );
 },
 
 /**
@@ -1305,7 +1305,7 @@ drawVerticalPositionLine: function( parent, evt){
     line.style.top =  scaleTrackPos.y + 'px';
 
 
-    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
+    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent, scaleDiv: parent });
 },
 
 /**
