@@ -48,7 +48,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
-            autoscale: 'global'
+            autoscale: 'global',
+            scoreType: 'avg'
         };
     },
 
@@ -396,11 +397,12 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         // make an array of the max score at each pixel on the canvas
         var pixelValues = new Array( canvasWidth );
+        var scoreType = this.config.scoreType;
         dojo.forEach( features, function( f, i ) {
             var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
-            var score = f.get('score');
+            var score = f.get(scoreType);
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                 if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                     /* Note: if the feature is from a different store, the condition should fail,
