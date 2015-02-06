@@ -562,6 +562,20 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             }
         });
 
+        options.push({
+            label: 'Log scale',
+            type: 'dijit/CheckedMenuItem',
+            checked: !!(this.config.scale == 'log'),
+            onClick: function(event) {
+                if (this.checked) {
+                    track.config.scale = 'log';
+                } else {
+                    track.config.scale = 'linear';
+                }
+                track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
+            }
+        });
+
         return options;
     },
 
