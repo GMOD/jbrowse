@@ -7,6 +7,13 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
+ * Add some new options for BigWig summary views (i.e. either max or
+   min score in block). Thanks to Scott Cain for reporting the issue
+   and to Colin Diesh for the fix (issue #518).
+
+ * Fixed the shortDescription option which is used in the Hierarchical
+   track list mouseover descriptions (issue #553).
+
 ## Bug fixes
 
  * Fixed "boolean is not a function" error when using CanvasFeatures
@@ -54,6 +61,15 @@
 
  * Fixed a small bug with being able to scroll past end of chromosome
    when using the --sizes option to prepare-refseqs.pl (issue #535).
+
+ * Fixed a small internal code inconsistency with the positioning of
+   the vertical position line. Thanks to Anurag Priyam for the fix
+   (issue #545).
+
+ * Fixed a small bug with some stylesheets not being able to be used
+   for the CanvasFeatures coloring, for example, LESS stylesheets.
+   Thanks to Anurag Priyam for reporting the issue (issue #527).
+
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
