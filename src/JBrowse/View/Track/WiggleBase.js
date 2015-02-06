@@ -530,7 +530,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
         }
-        else if( score && score['score'] && typeof score['score'] == 'number' ) {
+        else if( score && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
             return true;
