@@ -70,6 +70,9 @@
    for the CanvasFeatures coloring, for example, LESS stylesheets.
    Thanks to Anurag Priyam for reporting the issue (issue #527).
 
+ * Fixed a small bug with mouseovers on Wiggle type tracks. Thanks
+   to Han Lin for finding and fixing this bug (issue #503).
+
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
