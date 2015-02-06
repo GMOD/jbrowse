@@ -14,6 +14,13 @@
  * Fixed the shortDescription option which is used in the Hierarchical
    track list mouseover descriptions (issue #553).
 
+ * Added a log-scale option for the wiggle type tracks. Thanks to Han
+   Lin for the pull request (issue #502).
+
+ * Added ability to show reversed templates in paired-end BAM data.
+   Thanks to Tomasz Berisa and Colin Diesh for contributions
+   (issue #485).
+
 ## Bug fixes
 
  * Fixed "boolean is not a function" error when using CanvasFeatures
@@ -57,7 +64,8 @@
    properly if they had the same start position (issue #521).
 
  * Output .htaccess file for generate-names.pl when using the compress
-   option. Thanks to Sebastien Carrere for reporting the bug (#541).
+   option. Thanks to Sebastien Carrere for reporting the bug
+   (issue #541).
 
  * Fixed a small bug with being able to scroll past end of chromosome
    when using the --sizes option to prepare-refseqs.pl (issue #535).
@@ -72,6 +80,10 @@
 
  * Fixed a small bug with mouseovers on Wiggle type tracks. Thanks
    to Han Lin for finding and fixing this bug (issue #503).
+
+ * Removed XS tag from the strand calculation for alignments. Thanks
+   to many users for reporting frustrations with this (issue #520).
+  
 
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
