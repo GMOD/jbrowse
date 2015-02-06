@@ -212,7 +212,7 @@ var RequestWorker = declare( null,
             var sumSqData = data.getFloat32();
 
             if (chromId == this.chr) {
-                var summaryOpts = {score: sumData/validCnt,maxScore: mavVal,minScore:minVal};
+                var summaryOpts = {score: sumData/validCnt,maxScore: maxVal,minScore:minVal};
                 if (this.window.bwg.type == 'bigbed') {
                     summaryOpts.type = 'density';
                 }
