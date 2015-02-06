@@ -170,26 +170,11 @@ return declare(
 
             category.pane.domNode.style.display = 'block';
 
-            // load tooltip, from trackConf description, trackConf.metadata description, or track.description (track.description would be trackMetadata.csv)
-            // note: sometimes trackConf.description is defined as numeric, so in this case, load it if it is truthy
-            var mtitle;
-            if("description" in trackConf&&trackConf.description){
-                mtitle= trackConf.shortDescription || track.description || track.Description ||
-                    trackConf.metadata && (  trackConf.metadata.shortDescription ||  trackConf.metadata.description || trackConf.metadata.Description ) ||
-                    trackConf.key || trackConf.label;
-            }
-            else {
-                mtitle= trackConf.shortDescription || trackConf.description || trackConf.Description || track.description || track.Description ||
-                    trackConf.metadata && (  trackConf.metadata.shortDescription ||  trackConf.metadata.description || trackConf.metadata.Description ) ||
-                    trackConf.key || trackConf.label;
-            }
-
-
-
+            // note: sometimes trackConf.description is defined as numeric, so in this case, ignore it
             var labelNode = dom.create(
                 'label', {
                     className: 'tracklist-label shown',
-                    title: lang.isString(mtitle)?Util.escapeHTML(mtitle):""
+                    title: Util.escapeHTML( trackConf.shortDescription || track.shortDescription ||  (trackConf.description===1?undefined:trackConf.description) || track.description || trackConf.Description || track.Description || trackConf.metadata && ( trackConf.metadata.shortDescription || trackConf.metadata.description || trackConf.metadata.Description ) || track.key || trackConf.key || trackConf.label )
                 }, category.pane.containerNode );
 
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
