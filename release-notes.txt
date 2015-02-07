@@ -7,9 +7,9 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
- * Add some new options for BigWig summary views (i.e. either max or
-   min score in block). Thanks to Scott Cain for reporting the issue
-   and to Colin Diesh for the fix (issue #518).
+ * Add new options for viewing min or max values at the summary level
+   instead of just average. Thanks to Scott Cainefor reporting the
+   issue and to Colin Diesh for the fix (issue #518).
 
  * Fixed the shortDescription option which is used in the Hierarchical
    track list mouseover descriptions (issue #553).
@@ -18,7 +18,7 @@
    Lin for the pull request (issue #502).
 
  * Added ability to show reversed templates in paired-end BAM data.
-   Thanks to Tomasz Berisa and Colin Diesh for contributions
+   Thanks to Tomaz Berisa and Colin Diesh for contributions
    (issue #485).
 
 ## Bug fixes
@@ -83,8 +83,10 @@
 
  * Removed XS tag from the strand calculation for alignments. Thanks
    to many users for reporting frustrations with this (issue #520).
-  
 
+ * Added a bugfix that prevented viewing the details of haploid VCF
+   files. Thanks to Colin Diesh for finding and fixing this bug
+   (issue #536).
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
