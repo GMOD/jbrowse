@@ -7,9 +7,9 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
- * Add new options for viewing min or max values at the summary level
-   instead of just average. Thanks to Scott Cainefor reporting the
-   issue and to Colin Diesh for the fix (issue #518).
+ * Add new options for BigWig files for viewing min or max values at
+   the summary level instead of just average. Thanks to Scott Cain for
+   reporting the issue and to Colin Diesh for the fix (issue #518).
 
  * Fixed the shortDescription option which is used in the Hierarchical
    track list mouseover descriptions (issue #553).
