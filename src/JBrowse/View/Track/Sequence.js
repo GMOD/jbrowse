@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/dom-class',
             'dojo/query',
@@ -12,6 +13,7 @@ define( [
         function(
             declare,
             array,
+            lang,
             dom,
             domClass,
             query,
@@ -21,7 +23,7 @@ define( [
             Util
         ) {
 
-return declare( [BlockBased, ExportMixin],
+return declare( [BlockBased, ExportMixin, CodonTable],
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
@@ -35,7 +37,7 @@ return declare( [BlockBased, ExportMixin],
      */
     constructor: function( args ) {
         this._charMeasurements = {};
-        this._codonTable = CodonTable.defaultCodonTable();
+        this._codonTable = this.generateCodonTable(lang.mixin(this.defaultCodonTable,this.config.codonTable));
     },
 
     _defaultConfig: function() {
@@ -94,12 +96,12 @@ return declare( [BlockBased, ExportMixin],
                     end: rightExtended
                 },
                 function( seq ) {
-		    if(seq.trim() == ""){
-			blur.innerHTML = '<span class="zoom">No sequence available</span>';;
-		    }
+                    if(seq.trim() == ""){
+                        blur.innerHTML = '<span class="zoom">No sequence available</span>';;
+                    }
                     else {
-			dom.empty( block.domNode );
-			thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                        dom.empty( block.domNode );
+                        thisB._fillSequenceBlock( block, blockIndex, scale, seq );
                     }
                     args.finishCallback();
                 },

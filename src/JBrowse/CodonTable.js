@@ -1,7 +1,9 @@
-define( ['dojo/_base/declare],
+define( ['dojo/_base/declare'],
         function(declare) {
 
-var defaultCodonTable = {
+return declare(null, {
+
+defaultCodonTable: {
 
     "TCA" : "S",
     "TCC" : "S",
@@ -67,8 +69,8 @@ var defaultCodonTable = {
     "GGC" : "G",
     "GGG" : "G",
     "GGT" : "G"
-}
-return declare(null, {
+},
+
 generateCodonTable:function(table) {
     /** 
     *  take CodonTable above and generate larger codon table that includes 
@@ -101,8 +103,7 @@ generateCodonTable:function(table) {
         }
     }
     return tempCodonTable;
-},
-defaultCodonTable: function() { return this.generateCodonTable(defaultCodonTable); }
+}
 
 });
 

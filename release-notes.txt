@@ -21,6 +21,8 @@
    Thanks to Tomaz Berisa and Colin Diesh for contributions
    (issue #485).
 
+ * Added ability to specify codon table for Sequence track in config.
+
 ## Bug fixes
 
  * Fixed "boolean is not a function" error when using CanvasFeatures
