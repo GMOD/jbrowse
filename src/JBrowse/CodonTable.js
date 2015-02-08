@@ -1,7 +1,7 @@
-define( ['dojo/_base/declare'],
+define( ['dojo/_base/declare],
         function(declare) {
 
-var codonTab = {
+var defaultCodonTable = {
 
     "TCA" : "S",
     "TCC" : "S",
@@ -68,17 +68,17 @@ var codonTab = {
     "GGG" : "G",
     "GGT" : "G"
 }
-return {
-updateCodonTable:function(table) {
+return declare(null, {
+generateCodonTable:function(table) {
     /** 
     *  take CodonTable above and generate larger codon table that includes 
     *  all permutations of upper and lower case nucleotides
     */  
     var tempCodonTable = { };
-    for (var codon in codonTab) {
+    for (var codon in table) {
         // looping through codon table, make sure not hitting generic properties...
-        if (codonTab.hasOwnProperty(codon)) {
-            var aa = codonTab[codon];
+        if (table.hasOwnProperty(codon)) {
+            var aa = table[codon];
             // console.log("Codon: ", codon, ", aa: ", aa);
             var nucs = [];
             for (var i=0; i<3; i++) {
@@ -102,8 +102,8 @@ updateCodonTable:function(table) {
     }
     return tempCodonTable;
 },
-defaultCodonTable: function() { return this.updateCodonTable(codonTab); }
+defaultCodonTable: function() { return this.generateCodonTable(defaultCodonTable); }
 
-};
+});
 
 });
