@@ -1,10 +1,12 @@
 require([
             'dojo/aspect',
+            'dojo/_base/declare',
             'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/BAM',
             'JBrowse/Store/SeqFeature/_MismatchesMixin',
-            'JBrowse/Model/XHRBlob'
-        ], function( aspect, Browser, BAMStore, MismatchesMixin, XHRBlob ) {
+            'JBrowse/Model/XHRBlob',
+            'JBrowse/Model/SimpleFeature'
+        ], function( aspect, declare, Browser, BAMStore, XHRBlob, MismatchesMixin, SimpleFeature ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -16,6 +18,29 @@ require([
 
 
 describe( 'BAM mismatches test', function() {
+              var feature=new SimpleFeature({data: {
+                start: 7903922,
+                length: 90,
+                cigar: "89M2741N1M",
+                md: "89A0",
+                seq: "TACTTGATAAATCAGCTCACTCTCTGGTGCTTTTTAGAGAAGTCCCTGATTCCTTCTTAAACTTGGAATGATAGATGAAATTCACACCCG"
+              }});
+
+              //Config workaround since we aren't directly instantiating anything with Browser/config
+              var Config=declare(null, {
+                  constructor: function() {
+                      this.config={};
+                  }
+              });
+              //Use Config workaround
+              var MismatchParser=declare([Config,MismatchesMixin]);
+
+
+              it('getMismatches test', function() {
+                  var parser=new MismatchParser();
+                  var obj=parser._getMismatches(feature);
+                  expect(obj[1].base=="G" && obj[1].length==1&&obj[1].start==2830&&obj[1].type=="mismatch").toBeTruthy();
+              });
 }),
 
 describe( 'BAM with volvox-sorted.bam', function() {
