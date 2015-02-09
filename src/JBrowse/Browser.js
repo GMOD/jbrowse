@@ -2299,7 +2299,11 @@ cookie: function(keyWithoutId,value) {
         return localStorage.getItem( keyWithId );
     }
     else if( value ) {
+        try {
         return localStorage.setItem(keyWithId, value);
+        }
+        catch(e) {
+        }
     }
 
     return (localStorage.getItem( keyWithId ) || dojo.cookie(keyWithoutId));

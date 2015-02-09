@@ -90,6 +90,9 @@
    files. Thanks to Colin Diesh for finding and fixing this bug
    (issue #536).
 
+ * Added a bugfix that made browsing very buggy when using private
+   browsing mode in Safari.
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements
