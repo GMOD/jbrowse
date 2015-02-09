@@ -561,20 +561,23 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 }).show();
             }
         });
-
-        options.push({
-            label: 'Log scale',
-            type: 'dijit/CheckedMenuItem',
-            checked: !!(this.config.scale == 'log'),
-            onClick: function(event) {
-                if (this.checked) {
-                    track.config.scale = 'log';
-                } else {
-                    track.config.scale = 'linear';
+        console.log(this.config.logScaleOption);
+        if(this.config.logScaleOption) {
+            options.push({
+                label: 'Log scale',
+                type: 'dijit/CheckedMenuItem',
+                checked: !!(this.config.scale == 'log'),
+                onClick: function(event) {
+                    if (this.checked) {
+                        track.config.scale = 'log';
+                    } else {
+                        track.config.scale = 'linear';
+                    }
+                    track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
                 }
-                track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
-            }
-        });
+            });
+        }
+
 
         return options;
     },
