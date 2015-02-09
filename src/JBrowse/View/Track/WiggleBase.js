@@ -561,7 +561,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 }).show();
             }
         });
-        console.log(this.config.logScaleOption);
         if(this.config.logScaleOption) {
             options.push({
                 label: 'Log scale',
