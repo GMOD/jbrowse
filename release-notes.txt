@@ -18,11 +18,11 @@
    using logScaleOption. Thanks to Han Lin for the pull request
    (issue #502).
 
- * Added ability to show reversed templates in paired-end BAM data.
-   Thanks to Tomaz Berisa and Colin Diesh for contributions
-   (issue #485).
+ * Added the ability to show paired end reads in the same direction
+   with the useReversedTemplate option. Thanks to Tomaz Berisa and
+   Colin Diesh for contributions (issue #485).
 
- * Added ability to parse boolean literals from the .conf files.
+ * Added the ability to parse boolean literals from the .conf files.
 
  * Added ability to specify codon table for Sequence track in config.
 
@@ -86,8 +86,9 @@
  * Fixed a small bug with mouseovers on Wiggle type tracks. Thanks
    to Han Lin for finding and fixing this bug (issue #503).
 
- * Removed XS tag from the strand calculation for alignments. Thanks
-   to many users for reporting frustrations with this (issue #520).
+ * Removed XS tag from the strand calculation for alignments and made
+   it an optional rendering option for BAM files with the `useXS`
+   option. Thanks to Kieran Raine and the pull request (issue #473).
 
  * Added a bugfix that prevented viewing the details of haploid VCF
    files. Thanks to Colin Diesh for finding and fixing this bug
