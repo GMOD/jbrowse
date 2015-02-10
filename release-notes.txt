@@ -18,13 +18,18 @@
    using logScaleOption. Thanks to Han Lin for the pull request
    (issue #502).
 
- * Added the ability to show paired end reads in the same direction
-   with the useReversedTemplate option. Thanks to Tomaz Berisa and
-   Colin Diesh for contributions (issue #485).
+ * Added the ability to display paired-end reads in the same direction
+   with the `useReversedTemplate` option on Alignments2 tracks. Thanks
+   to Tomaz Berisa and Colin Diesh for their contributions
+   (issue #485).
 
  * Added the ability to parse boolean literals from the .conf files.
 
- * Added ability to specify codon table for Sequence track in config.
+ * Added the ability to specify a codon table (or partial codon table)
+   for the Sequence track.
+
+ * Added the ability to show or hide the main menu bar using the
+   config option `show_menu`
 
 ## Bug fixes
 
