@@ -14,13 +14,15 @@
  * Fixed the shortDescription option which is used in the Hierarchical
    track list mouseover descriptions (issue #553).
 
- * Added an optional checkbox for wiggle type tracks to have log scale
+ * Added a checkbox for wiggle type tracks to have log scale
    using logScaleOption. Thanks to Han Lin for the pull request
    (issue #502).
 
  * Added ability to show reversed templates in paired-end BAM data.
    Thanks to Tomaz Berisa and Colin Diesh for contributions
    (issue #485).
+
+ * Added ability to parse boolean literals from the .conf files.
 
  * Added ability to specify codon table for Sequence track in config.
 
