@@ -49,7 +49,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         return {
             maxExportSpan: 500000,
             autoscale: 'global',
-            scoreType: 'score'
+            scoreType: 'score',
+            logScaleOption: true
         };
     },
 
