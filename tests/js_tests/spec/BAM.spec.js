@@ -3,8 +3,8 @@ require([
             'dojo/_base/declare',
             'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/BAM',
-            'JBrowse/Store/SeqFeature/_MismatchesMixin',
             'JBrowse/Model/XHRBlob',
+            'JBrowse/Store/SeqFeature/_MismatchesMixin',
             'JBrowse/Model/SimpleFeature'
         ], function( aspect, declare, Browser, BAMStore, XHRBlob, MismatchesMixin, SimpleFeature ) {
 
@@ -41,7 +41,7 @@ describe( 'BAM mismatches test', function() {
                   var obj=parser._getMismatches(feature);
                   expect(obj[1].base=="G" && obj[1].length==1&&obj[1].start==2830&&obj[1].type=="mismatch").toBeTruthy();
               });
-}),
+});
 
 describe( 'BAM with volvox-sorted.bam', function() {
               var b;
