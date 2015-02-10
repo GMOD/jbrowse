@@ -7,20 +7,18 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
- * Add new options for BigWig files for viewing min or max values at
+ * Added new options for BigWig files for viewing min or max values at
    the summary level instead of just average. Thanks to Scott Cain for
    reporting the issue and to Colin Diesh for the fix (issue #518).
-
- * Fixed the shortDescription option which is used in the Hierarchical
-   track list mouseover descriptions (issue #553).
 
  * Added a checkbox for wiggle type tracks to have log scale
    using logScaleOption. Thanks to Han Lin for the pull request
    (issue #502).
 
  * Added the ability to display paired-end reads in the same direction
-   on Alignments2 tracks with the "Use reverse template". Thanks to
-   Tomaz Berisa and Colin Diesh for their contributions (issue #485).
+   on Alignments2 tracks with the "Use reverse template" option.
+   Thanks to Tomaz Berisa and Colin Diesh for their contributions
+   (issue #485).
 
  * Added the ability to parse boolean literals from the .conf files.
 
@@ -28,7 +26,7 @@
    for the Sequence track.
 
  * Added the ability to show or hide the main menu bar using the
-   config option `show_menu`
+   config option `show_menu`.
 
 ## Bug fixes
 
@@ -100,6 +98,9 @@
 
  * Added a bugfix that made browsing very buggy when using private
    browsing mode in Safari.
+
+ * Fixed the shortDescription option which is used in the Hierarchical
+   track list mouseover descriptions (issue #553).
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
