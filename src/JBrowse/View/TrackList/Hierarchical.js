@@ -44,6 +44,11 @@ return declare(
 
     constructor: function( args ) {
         this.categories = {};
+        this.config=
+            lang.mixin({
+                "sortHierarchical": true
+            },
+            args);
 
         this._loadState();
     },
@@ -89,11 +94,13 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
-        var sorter = (this.get('sortHierarchical')=="false"||this.get('sortHierarchical')==false) ? undefined :
-                             [ { attribute: this.get('categoryFacet').toLowerCase()},
-                               { attribute: 'key' },
-                               { attribute: 'label' }
-                             ];
+        var sorter;
+        if(this.config.sortHierarchical) {
+            sorter=[ { attribute: categoryFacet.toLowerCase()},
+                     { attribute: 'key' },
+                     { attribute: 'label' }
+                   ];
+        }
 
         // add initally collapsed categories to the local storage
         var arr=(this.get('collapsedCategories')||"").split(",");
