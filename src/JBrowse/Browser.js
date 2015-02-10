@@ -570,7 +570,9 @@ initView: function() {
             }
             );
         thisObj.menuBar = menuBar;
-        ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
+        if( this.config.show_menu ) {
+            ( this.config.show_nav ? topPane : this.container ).appendChild( menuBar );
+        }
 
         var overview = dojo.create( 'div', { className: 'overview', id: 'overview' }, topPane );
         this.overviewDiv = overview;
@@ -1533,6 +1535,7 @@ _configDefaults: function() {
         dataRoot: 'data',
         show_tracklist: true,
         show_nav: true,
+        show_menu: false,
         show_overview: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
