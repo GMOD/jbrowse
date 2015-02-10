@@ -1535,7 +1535,7 @@ _configDefaults: function() {
         dataRoot: 'data',
         show_tracklist: true,
         show_nav: true,
-        show_menu: false,
+        show_menu: true,
         show_overview: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
