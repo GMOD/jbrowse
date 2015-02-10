@@ -19,9 +19,8 @@
    (issue #502).
 
  * Added the ability to display paired-end reads in the same direction
-   with the `useReversedTemplate` option on Alignments2 tracks. Thanks
-   to Tomaz Berisa and Colin Diesh for their contributions
-   (issue #485).
+   on Alignments2 tracks with the "Use reverse template". Thanks to
+   Tomaz Berisa and Colin Diesh for their contributions (issue #485).
 
  * Added the ability to parse boolean literals from the .conf files.
 
@@ -92,7 +91,7 @@
    to Han Lin for finding and fixing this bug (issue #503).
 
  * Removed XS tag from the strand calculation for alignments and made
-   it an optional rendering option for BAM files with the `useXS`
+   it an optional rendering option for BAM files with the "Use XS"
    option. Thanks to Kieran Raine and the pull request (issue #473).
 
  * Added a bugfix that prevented viewing the details of haploid VCF

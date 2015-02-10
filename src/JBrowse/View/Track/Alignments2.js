@@ -35,7 +35,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideReverseStrand: false,
                 useXS: false,
                 useReverseTemplate: false,
-                useXSOption: True,
+                useXSOption: true,
                 useReverseTemplateOption: true,
 
                 histograms: {
