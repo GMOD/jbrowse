@@ -102,6 +102,8 @@
  * Fixed the shortDescription option which is used in the Hierarchical
    track list mouseover descriptions (issue #553).
 
+ * Re-add filter options for the SNPCoverage track that were missing.
+
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
 ## Minor improvements

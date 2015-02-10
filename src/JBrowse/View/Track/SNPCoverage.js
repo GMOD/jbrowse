@@ -1,11 +1,12 @@
 define( ['dojo/_base/declare',
          'dojo/_base/array',
+         'dojo/promise/all',
          'JBrowse/View/Track/Wiggle/XYPlot',
          'JBrowse/Util',
          'JBrowse/View/Track/_AlignmentsMixin',
          'JBrowse/Store/SeqFeature/SNPCoverage'
         ],
-        function( declare, array, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore ) {
+        function( declare, array, all, WiggleXY, Util, AlignmentsMixin, SNPCoverageStore ) {
 
 var dojof = Util.dojof;
 
@@ -40,6 +41,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                 mismatchScale: 1/10,
 
                 hideDuplicateReads: true,
+                logScaleOption: false,
                 hideQCFailingReads: true,
                 hideSecondary: true,
                 hideSupplementary: true,
@@ -272,9 +274,12 @@ return declare( [WiggleXY, AlignmentsMixin],
     },
 
     _trackMenuOptions: function() {
-        var o = this.inherited(arguments);
-        o.push( { type: 'dijit/MenuSeparator' } );
-        o.push.apply( o, this._alignmentsFilterTrackMenuOptions() );
+        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+            .then( function( options ) {
+                       var o = options.shift();
+                       options.unshift({ type: 'dijit/MenuSeparator' } );
+                       return o.concat.apply( o, options );
+                   });
         return o;
     }
 
