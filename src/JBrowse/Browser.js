@@ -1447,7 +1447,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
