@@ -1,7 +1,5 @@
 {{$NEXT}}
 
-# Release 1.11.6     2015-02-11 14:28:42 America/Chicago
-
 ## Minor improvements
 
  * Added the ability to customize the contents of HTMLFeatures and
