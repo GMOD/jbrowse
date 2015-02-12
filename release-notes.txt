@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.11.6     2015-02-11 14:28:42 America/Chicago
+
 ## Minor improvements
 
  * Added the ability to customize the contents of HTMLFeatures and
@@ -7,13 +9,13 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
- * Added new options for BigWig files for viewing min or max values at
-   the summary level instead of just average. Thanks to Scott Cain for
-   reporting the issue and to Colin Diesh for the fix (issue #518).
+ * Added new options for BigWig files to summarize using "scoreType"
+   to summarize min/max values instead of average when zoomed out.
+   Thanks to Scott Cain for reporting the issue and to Colin Diesh for
+   the fix (issue #518).
 
- * Added a checkbox for wiggle type tracks to have log scale
-   using logScaleOption. Thanks to Han Lin for the pull request
-   (issue #502).
+ * Added a checkbox for wiggle type tracks to have log scale. Thanks
+   to Han Lin for the pull request (issue #502).
 
  * Added the ability to display paired-end reads in the same direction
    on Alignments2 tracks with the "Use reverse template" option.
@@ -26,7 +28,7 @@
    for the Sequence track.
 
  * Added the ability to show or hide the main menu bar using the
-   config option `show_menu`.
+   configuration file.
 
 ## Bug fixes
 
@@ -62,7 +64,7 @@
    Richard Hayes for reporting this issue and to Colin Diesh for the
    fix (issue #526).
 
- * Fixed the workdir parameter in generate-names.pl (issue #506).
+ * Fixed the `--workdir` parameter in generate-names.pl (issue #506).
 
  * Fixed the display of alternative alleles in the genotype for VCF
    pop-ups (issue #533).
@@ -75,7 +77,7 @@
    (issue #541).
 
  * Fixed a small bug with being able to scroll past end of chromosome
-   when using the --sizes option to prepare-refseqs.pl (issue #535).
+   when using the `--sizes` option to prepare-refseqs.pl (issue #535).
 
  * Fixed a small internal code inconsistency with the positioning of
    the vertical position line. Thanks to Anurag Priyam for the fix
@@ -96,13 +98,13 @@
    files. Thanks to Colin Diesh for finding and fixing this bug
    (issue #536).
 
- * Added a bugfix that made browsing very buggy when using private
-   browsing mode in Safari.
+ * Added a bugfix for an issue that made browsing very buggy when
+   using private browsing mode in Safari.
 
- * Fixed the shortDescription option which is used in the Hierarchical
-   track list mouseover descriptions (issue #553).
+ * Fixed the `shortDescription` option for the mouseover description
+   of tracks in the Hierarchical track list (issue #553).
 
- * Re-add filter options for the SNPCoverage track that were missing.
+ * Re-added filter options that were missing for SNPCoverage tracks.
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 
