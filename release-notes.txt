@@ -7,9 +7,9 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
- * Added new options for BigWig files to summarize min/max values
-   of average when zoomed out. Thanks to Scott Cain for reporting the
-   issue and to Colin Diesh for the fix (issue #518).
+ * Added new options for BigWig files to use min/max summary values 
+   when zoomed out using `scoreType`. Thanks to Scott Cain for
+   reporting the issue and to Colin Diesh for the fix (issue #518).
 
  * Added a checkbox for wiggle type tracks to have log scale. Thanks
    to Han Lin for the pull request (issue #502).
