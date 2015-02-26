@@ -2,6 +2,12 @@
 
 ## Minor improvements
 
+## Bug fixes
+
+# Release 1.11.6     2015-02-12 18:27:38 America/Chicago
+
+## Minor improvements
+
  * Added the ability to customize the contents of HTMLFeatures and
    CanvasFeatures mouseover tooltips more extensively. Thanks to David
    Muller for the original bug report and Colin Diesh for the fix
