@@ -1,12 +1,13 @@
 require([
             'dojo/aspect',
             'dojo/_base/declare',
+            'dojo/_base/array',
             'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/BAM',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature/_MismatchesMixin',
             'JBrowse/Model/SimpleFeature'
-        ], function( aspect, declare, Browser, BAMStore, XHRBlob, MismatchesMixin, SimpleFeature ) {
+        ], function( aspect, declare, array, Browser, BAMStore, XHRBlob, MismatchesMixin, SimpleFeature ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -78,6 +79,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                                 expect(features.length).toBeGreaterThan(1000);
                             });
                   });
+
 });
 
 describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', function() {
@@ -116,6 +118,28 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                                 //console.log( distinctBins(features) );
                             });
                   });
+
+              it( 'check that seqlength == seq.length', function() {
+                      var loaded;
+                      var features = [];
+                      var done;
+                      aspect.after( b, 'loadSuccess', function() {
+                          loaded = true;
+                      });
+                      b.getFeatures({ start: 17000, end: 18000 },
+                                 function( feature ) {
+                                     features.push( feature );
+                                 },
+                                 function() {
+                                     done = true;
+                                 }
+                               );
+                      waitsFor( function() { return done; }, 2000 );
+                      runs( function() {
+                                expect(array.every(features,function(feature) { return feature.get('seq_length')== feature.get('seq').length; })).toBeTruthy();
+                            });
+                  });
+
 });
 
 describe( 'empty BAM', function() {

@@ -159,7 +159,7 @@ var Feature = Util.fastDeclare(
         for (var j = 0; j < seqBytes; ++j) {
             var sb = byteArray[p + j];
             seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
-            if (seq.length < seqLength)
+            if (seq.length < this.get('seq_length'))
                 seq += SEQRET_DECODER[(sb & 0x0f)];
         }
         return seq;
