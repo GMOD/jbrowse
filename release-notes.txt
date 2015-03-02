@@ -8,6 +8,9 @@
    info due to byte packing. Thanks to Thomas Downs for contributing
    the fix.
 
+ * Fixed a bug where grid lines wouldn't render at some particular
+   zoom levels (issue #514).
+
 # Release 1.11.6     2015-02-12 18:27:38 America/Chicago
 
 ## Minor improvements
