@@ -4,11 +4,11 @@ define(['dojo/_base/declare',
        function(declare,
            lang,
            Box) {
-		   
+           
 return declare(Box, {
-	
+    
     renderBox: function( context, viewInfo, feature, top, overallHeight, parentFeature, style ) {
-		
+        
         var left  = viewInfo.block.bpToX( feature.get('start') );
         var width = viewInfo.block.bpToX( feature.get('end') ) - left;
         //left = Math.round( left );
@@ -51,23 +51,23 @@ return declare(Box, {
                 // canvas.  thus the +0.5 and -1 business.
                 //context.stroke();
                 context.beginPath();
-				context.moveTo(left,top+height/2);
-				context.lineTo(left + Math.max(1,width)/2,top);
-				context.lineTo(left+Math.max(1,width),top+height/2);
-				context.lineTo(left + Math.max(1,width)/2,top+height);
-				context.closePath();
-				context.stroke();
+                context.moveTo(left,top+height/2);
+                context.lineTo(left + Math.max(1,width)/2,top);
+                context.lineTo(left+Math.max(1,width),top+height/2);
+                context.lineTo(left + Math.max(1,width)/2,top+height);
+                context.closePath();
+                context.stroke();
             }
             else {
                 context.globalAlpha = lineWidth*2/width;
-				context.fillStyle = borderColor;
-				context.beginPath();
-				context.moveTo(left,top+height/2);
-				context.lineTo(left + Math.max(1,width)/2,top);
-				context.lineTo(left+Math.max(1,width),top+height/2);
-				context.lineTo(left + Math.max(1,width)/2,top+height);
-				context.closePath();
-				context.fill();
+                context.fillStyle = borderColor;
+                context.beginPath();
+                context.moveTo(left,top+height/2);
+                context.lineTo(left + Math.max(1,width)/2,top);
+                context.lineTo(left+Math.max(1,width),top+height/2);
+                context.lineTo(left + Math.max(1,width)/2,top+height);
+                context.closePath();
+                context.fill();
                 context.globalAlpha = 1;
 
             }
