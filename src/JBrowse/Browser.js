@@ -2297,11 +2297,11 @@ cookie: function(keyWithoutId,value) {
         value = dojo.toJson( value );
 
     var sizeLimit = this.config.cookieSizeLimit || 1200;
-    if( value && value.length > sizeLimit ) {
+    if( value!=null && value.length > sizeLimit ) {
         console.warn("not setting cookie '"+keyWithId+"', value too big ("+value.length+" > "+sizeLimit+")");
         return localStorage.getItem( keyWithId );
     }
-    else if( value ) {
+    else if( value!=null ) {
         try {
         return localStorage.setItem(keyWithId, value);
         }
