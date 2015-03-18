@@ -37,3 +37,6 @@
 [submodule "src/FileSaver"]
 	path = src/FileSaver
 	url = git://github.com/dkasenberg/FileSaver.js.git
+[submodule "htslib"]
+        path = htslib
+        url = git://github.com:samtools/htslib.git
