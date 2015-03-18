@@ -6,7 +6,6 @@
     <link rel="stylesheet" type="text/css" href="genome.css">
     <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
     <script type="text/javascript" src="src/JBrowse/init.js"></script>
-
     <script type="text/javascript">
         window.onerror=function(msg){
             if( document.body )
@@ -79,11 +78,116 @@
                        config.stores = JSON.parse( queryParams.addStores );
                    }
 
-                   // create a JBrowse global variable holding the JBrowse instance
-                   JBrowse = new Browser( config );
-        });
-    </script>
+                    function start_jbrowse(cfg) {
+                      // create a JBrowse global variable holding the JBrowse instance
+                      JBrowse = new Browser( cfg );
+                    }
 
+                   if( queryParams.addFeaturesBatch || queryParams.addTracksBatch || queryParams.addStoresBatch ) {
+                      console.log("has batch");
+                      if (typeof(queryParams.addFeaturesBatch) == 'undefined' ) {
+                        queryParams.addFeaturesBatch = null;
+                      }
+                      if (typeof(queryParams.addTracksBatch) == 'undefined' ) {
+                        queryParams.addTracksBatch = null;
+                      }
+                      if (typeof(queryParams.addStoresBatch) == 'undefined' ) {
+                        queryParams.addStoresBatch = null;
+                      }
+                      
+                      
+                      if (typeof(config.stores.url.features) == 'undefined' ) {
+                        config.stores.url.features = '';
+                      }
+                      if (typeof(config.tracks) == 'undefined' ) {
+                        config.tracks = [];
+                      }                      
+                      if (typeof(config.stores) == 'undefined' ) {
+                        config.stores = {};
+                      }                      
+
+                      
+                      load_batches( config, queryParams.addFeaturesBatch, queryParams.addTracksBatch, queryParams.addStoresBatch, function(){ start_jbrowse(config); } )
+                   } else {
+                      console.log("no batch");
+                      start_jbrowse(config);
+                   }
+        });
+      
+      
+      
+      
+        function load_batches( config, addFeaturesBatch, addTracksBatch, addStoresBatch, callback ) {
+          console.log("config.stores.url.features", config.stores.url.features);
+          console.log("config.tracks"             , config.tracks);
+          console.log("config.stores"             , config.stores);
+          
+          console.log("loading feature batch", addFeaturesBatch);
+          load_json( addFeaturesBatch, function(res1){
+            console.log("loaded feature batch", addFeaturesBatch, "res", res1);
+            if (res1 != null) {
+              console.log("parsing feature batch", res1);
+              config.stores.url.features += res1.join(',');
+            } else {
+              console.log("no feature to parse");
+            }
+            
+
+            console.log("loading tracks batch", addTracksBatch);
+            load_json( addTracksBatch  , function(res2){
+              console.log("loaded tracks batch", addTracksBatch, "res", res2);
+              if (res2 != null) {
+                console.log("parsing tracks batch", res2);
+                
+                for ( var t in res2 ) {
+                  console.log("t", res2[t]);
+                  config.tracks.push(res2[t]);
+                }
+
+              } else {
+                console.log("no track to parse");
+              }
+              
+
+              console.log("loading stores batch", addStoresBatch);
+              load_json( addStoresBatch       , function(res3){ 
+                console.log("loaded stores batch", addStoresBatch, "res", res3);
+                if (res3 != null) {
+                  console.log("parsing stores batch", res3);
+                  for ( var s in res3 ) {
+                    console.log("s", res3[s]);
+                    config.stores[s] = res3[s];
+                  }
+                } else {
+                  console.log("no store to parse");
+                }
+                
+                console.log("starting JBrowse", "config.stores.url.features", config.stores.url.features, "config.tracks", config.tracks, "config.stores", config.stores);
+                callback();
+              } );
+            } );
+          } );
+        }
+
+        function load_json( url, load ) {
+          if ( url == null ) {
+            console.log("load_json: url is null");
+            load(null);
+          } else {
+            console.log("load_json: url is not null");
+            dojo.xhrGet({ url     : url,
+                          handleAs: "json",
+                          failOk  : true,
+                          load    : load,
+                          error   : function( url ) { _alert("failed to load url: "+url); load(null); }
+                     });
+          }
+        }
+        
+        function _alert( msg ) {
+          alert(msg);
+        }
+    </script>
   </head>
 
   <body>
