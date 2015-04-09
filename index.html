@@ -169,16 +169,31 @@
           } );
         }
 
-        function load_json( url, load ) {
+        function load_json( url, clbk ) {
+          // create a new json handler for dojo.xhrGet (jsoni - insecure json)
+          dojo.contentHandlers.jsoni = function(xhr) {
+            // summary: A contentHandler which returns a JavaScript object created from the response data after extra verification on the JSON structure
+            if (typeof JSON === 'object' && typeof JSON.parse === 'function') {
+              // if has native JSON.parse, use secure JSON.parse
+              //fromJson has a second argument which will force extra scrutiny
+              //on the JSON string
+              return _d.fromJson(xhr.responseText || null, true);
+            } else {
+              // else, do not attempt to parse
+              return null;
+            }
+          }
+          
+          
           if ( url == null ) {
             console.log("load_json: url is null");
             load(null);
           } else {
             console.log("load_json: url is not null");
             dojo.xhrGet({ url     : url,
-                          handleAs: "json",
+                          handleAs: "jsoni",
                           failOk  : true,
-                          load    : load,
+                          load    : clbk,
                           error   : function( url ) { _alert("failed to load url: "+url); load(null); }
                      });
           }
