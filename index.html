@@ -83,7 +83,7 @@
                       JBrowse = new Browser( cfg );
                     }
 
-                   if( queryParams.addFeaturesBatch || queryParams.addTracksBatch || queryParams.addStoresBatch ) {
+                   if( queryParams.addFeaturesBatch || queryParams.addTracksBatch || queryParams.addStoresBatch || queryParams.addAllBatch) {
                       console.log("has batch");
                       if (typeof(queryParams.addFeaturesBatch) == 'undefined' ) {
                         queryParams.addFeaturesBatch = null;
@@ -93,6 +93,9 @@
                       }
                       if (typeof(queryParams.addStoresBatch) == 'undefined' ) {
                         queryParams.addStoresBatch = null;
+                      }
+                      if (typeof(queryParams.addAllBatch) == 'undefined' ) {
+                        queryParams.addAllBatch = null;
                       }
                       
                       
@@ -107,7 +110,7 @@
                       }                      
 
                       
-                      load_batches( config, queryParams.addFeaturesBatch, queryParams.addTracksBatch, queryParams.addStoresBatch, function(){ start_jbrowse(config); } )
+                      load_batches( config, queryParams.addFeaturesBatch, queryParams.addTracksBatch, queryParams.addStoresBatch, queryParams.addAllBatch, function(){ start_jbrowse(config); } )
                    } else {
                       console.log("no batch");
                       start_jbrowse(config);
@@ -117,7 +120,7 @@
       
       
       
-        function load_batches( config, addFeaturesBatch, addTracksBatch, addStoresBatch, callback ) {
+        function load_batches( config, addFeaturesBatch, addTracksBatch, addStoresBatch, addAllBatch, callback ) {
           console.log("config.stores.url.features", config.stores.url.features);
           console.log("config.tracks"             , config.tracks);
           console.log("config.stores"             , config.stores);
@@ -161,9 +164,35 @@
                 } else {
                   console.log("no store to parse");
                 }
-                
-                console.log("starting JBrowse", "config.stores.url.features", config.stores.url.features, "config.tracks", config.tracks, "config.stores", config.stores);
-                callback();
+  
+  
+  
+                console.log("loading all batch", addAllBatch);
+                load_json( addAllBatch       , function(res4){ 
+                  console.log("loaded all batch", addAllBatch, "res", res4);
+                  if (res4 != null) {
+                    console.log("parsing all batch", res4);
+                    
+                    config.stores.url.features += res4['features'].join(',');
+                    
+                    for ( var t in res4['tracks'] ) {
+                      console.log("t", res4['tracks'][t]);
+                      config.tracks.push(res4['tracks'][t]);
+                    }
+
+
+                    for ( var s in res4['stores'] ) {
+                      console.log("s", res4['stores'][s]);
+                      config.stores[s] = res4['stores'][s];
+                    }
+                    
+                  } else {
+                    console.log("no all to parse");
+                  }
+                  
+                  console.log("starting JBrowse", "config.stores.url.features", config.stores.url.features, "config.tracks", config.tracks, "config.stores", config.stores);
+                  callback();
+                } )
               } );
             } );
           } );
@@ -187,14 +216,14 @@
           
           if ( url == null ) {
             console.log("load_json: url is null");
-            load(null);
+            clbk(null);
           } else {
             console.log("load_json: url is not null");
             dojo.xhrGet({ url     : url,
                           handleAs: "jsoni",
                           failOk  : true,
                           load    : clbk,
-                          error   : function( url ) { _alert("failed to load url: "+url); load(null); }
+                          error   : function( url ) { _alert("failed to load url: "+url); clbk(null); }
                      });
           }
         }
