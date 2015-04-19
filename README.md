@@ -35,6 +35,10 @@ module prerequisites installed for them to work.  Run with:
 
 Point your browser at http://my.dev.machine/jbrowse/tests/js_tests/index.html
 
+You can also run them from phantomJS using
+
+    phantomjs tests/js_tests/run-jasmine.js http://my.dev.machine/jbrowse/tests/js_tests/index.html
+
 ## Client-side Integration Tests
 
 Integration tests for the client-side app.  You need to have Python
