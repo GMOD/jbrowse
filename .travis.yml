@@ -3,7 +3,7 @@ perl:
   - "5.14"
 
 before_install:
-  - sudo apt-get install libdb-dev libgd-dev
+  - sudo apt-get install libdb-dev libgd2-noxpm-dev
   - cpanm --notest GD::Image
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - sh setup.sh
