@@ -9,7 +9,7 @@ install:
   - bash setup.sh
   - npm install -g http-server
 script:
-  - node src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src";
+  - node src/dojo/dojo.js load=build --require "src/JBrowse/init.js" --profile "src/JBrowse/JBrowse.profile.js"
   - nohup http-server -p 9000 2>&1 &
   - prove -Isrc/perl5 -lr tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
