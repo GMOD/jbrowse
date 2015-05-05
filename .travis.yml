@@ -3,10 +3,10 @@ perl:
   - "5.14"
 
 before_install:
-  - cpanm --notest DB_File
+  - sudo apt-get install libdb-dev
   - cpanm --notest GD::Image
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
-  - ./setup.sh
+  - sh setup.sh
   - cat setup.log
 install: true
 script:
