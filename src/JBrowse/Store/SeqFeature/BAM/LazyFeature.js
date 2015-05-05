@@ -99,7 +99,7 @@ var Feature = Util.fastDeclare(
     },
 
     id: function() {
-        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start');
+        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start')+'/'+this._get('multi_segment_next_segment_reversed');
     },
 
     multi_segment_all_aligned: function() {
@@ -131,9 +131,7 @@ var Feature = Util.fastDeclare(
         return qseq.join(' ');
     },
     strand: function() {
-        var xs = this._get('xs');
-        return xs ? ( xs == '-' ? -1 : 1 ) :
-               this._get('seq_reverse_complemented') ? -1 :  1;
+        return this._get('seq_reverse_complemented') ? -1 :  1;
     },
     multi_segment_next_segment_strand: function() {
       if(this._get('multi_segment_next_segment_unmapped'))
@@ -161,7 +159,8 @@ var Feature = Util.fastDeclare(
         for (var j = 0; j < seqBytes; ++j) {
             var sb = byteArray[p + j];
             seq += SEQRET_DECODER[(sb & 0xf0) >> 4];
-            seq += SEQRET_DECODER[(sb & 0x0f)];
+            if (seq.length < this.get('seq_length'))
+                seq += SEQRET_DECODER[(sb & 0x0f)];
         }
         return seq;
     },

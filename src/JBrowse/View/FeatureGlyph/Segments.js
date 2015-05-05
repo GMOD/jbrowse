@@ -115,6 +115,8 @@ _makeSubpartsFilter: function( f ) {
             return filter[ (feature.get('type')||'').toLowerCase() ];
         };
     }
+    else
+        filter = function() { return true; }
 
     return filter;
 }

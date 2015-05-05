@@ -54,6 +54,8 @@ parse_conf: function( text, load_args ) {
                     existing.push( value );
                     value = existing;
                 }
+                if(value=="true") value=true;
+                if(value=="false") value=false;
                 lang.setObject( path, value, data );
             } catch(e) {
                 throw new Error( "syntax error"

@@ -44,7 +44,7 @@ return dojo.declare( BlockBased,
             !( base_span % 10 ) ? 10 :
             !( base_span % 5  ) ? 5  :
             !( base_span % 2  ) ? 2  :
-                                  0;
+                                  5; // can happen at weird zoom levels (i.e. 13)
         var major_count = base_span == 20 ? 2 : base_span > 0 ? 1 : 0;
 
         var new_gridline = function( glclass, position ) {

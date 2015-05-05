@@ -113,6 +113,16 @@ sub run {
                                return $data;
                            });
 
+    if ( $self->opt('compress') ) {
+        # if we are compressing the sequence files, drop a .htaccess file
+        # in the seq/ dir that will automatically configure users with
+        # Apache (and AllowOverride on) to serve the .txt.gz files
+        # correctly
+        require GenomeDB;
+        my $hta = File::Spec->catfile( $self->opt('dir'), 'names', '.htaccess' );
+        open my $hta_fh, '>', $hta or die "$! writing $hta";
+        $hta_fh->print( GenomeDB->precompression_htaccess('.txtz','.jsonz') );
+    }
     return;
 }
 
@@ -276,21 +286,26 @@ sub make_name_record_stream {
     }
 
 
-    # use a fake hash store to read meta.json
-    my $temp_store = tie my %temp_hash, 'Bio::JBrowse::HashStore', (
-                dir   => File::Spec->catdir( $self->opt('dir'), "names" ),
-                empty => 0,
-                compress => 0,
-                verbose => 0);
-
-
     my %trackHash;
     my $trackNum = 0;
-    foreach (@{$temp_store->meta->{track_names}}) {
-        $trackHash{$_}=$trackNum++;
-    }
 
-    untie $temp_store;
+    my $names_dir = File::Spec->catdir( $self->opt('dir'), "names" );
+    if( -e File::Spec->catfile( $names_dir,'meta.json' ) ) {
+
+        # read meta.json data into a temp HashStore
+        my $temp_store = tie my %temp_hash, 'Bio::JBrowse::HashStore', (
+                    dir   => $names_dir,
+                    empty => 0,
+                    compress => 0,
+                    verbose => 0);
+
+        # initialize the track hash with an index 
+        foreach (@{$temp_store->meta->{track_names}}) {
+            $trackHash{$_}=$trackNum++;
+        }
+
+        untie $temp_store;
+    }
 
 
     return sub {

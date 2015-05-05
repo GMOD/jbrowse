@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/dom-class',
             'dojo/query',
@@ -12,6 +13,7 @@ define( [
         function(
             declare,
             array,
+            lang,
             dom,
             domClass,
             query,
@@ -21,7 +23,7 @@ define( [
             Util
         ) {
 
-return declare( [BlockBased, ExportMixin],
+return declare( [BlockBased, ExportMixin, CodonTable],
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
@@ -35,6 +37,7 @@ return declare( [BlockBased, ExportMixin],
      */
     constructor: function( args ) {
         this._charMeasurements = {};
+        this._codonTable = this.generateCodonTable(lang.mixin(this.defaultCodonTable,this.config.codonTable));
     },
 
     _defaultConfig: function() {
@@ -93,24 +96,26 @@ return declare( [BlockBased, ExportMixin],
                     end: rightExtended
                 },
                 function( seq ) {
-		    if(seq.trim() == ""){
-			blur.innerHTML = '<span class="zoom">No sequence available</span>';;
-		    }
-                    else {
-			dom.empty( block.domNode );
-			thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                    if(seq.trim() == ""){
+                        blur.innerHTML = '<span class="zoom">No sequence available</span>';;
                     }
+                    else {
+                        dom.empty( block.domNode );
+                        thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                    }
+                    args.finishCallback();
                 },
-                function() {}
+                function() {
+                    args.finishCallback();
+                }
             );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
+            args.finishCallback();
         }
-
-        args.finishCallback();
     },
 
     _fillSequenceBlock: function( block, blockIndex, scale, seq ) {
@@ -192,7 +197,7 @@ return declare( [BlockBased, ExportMixin],
         var translated = "";
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
-            var aminoAcid = CodonTable[nextCodon] || this.nbsp;
+            var aminoAcid = this._codonTable[nextCodon] || this.nbsp;
             translated = translated + aminoAcid;
         }
 

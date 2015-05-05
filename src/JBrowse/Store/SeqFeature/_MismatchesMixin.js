@@ -129,7 +129,7 @@ return declare( null, {
                 if( op == 'S' || op == 'I' ) {
                     templateOffset += len;
                 }
-                else if( op == 'D' || op == 'N' || op == 'P' ) {
+                else if( op == 'D' || op == 'P' ) {
                     refOffset += len;
                 }
                 else {

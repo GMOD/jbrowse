@@ -48,7 +48,9 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
-            autoscale: 'global'
+            autoscale: 'global',
+            scoreType: 'score',
+            logScaleOption: true
         };
     },
 
@@ -396,11 +398,12 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         // make an array of the max score at each pixel on the canvas
         var pixelValues = new Array( canvasWidth );
+        var scoreType = this.config.scoreType;
         dojo.forEach( features, function( f, i ) {
             var store = f.source;
             var fRect = featureRects[i];
             var jEnd = fRect.r;
-            var score = f.get('score');
+            var score = f.get(scoreType)||f.get('score');
             for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                 if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                     /* Note: if the feature is from a different store, the condition should fail,
@@ -528,7 +531,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
         }
-        else if( score && score['score'] && typeof score['score'] == 'number' ) {
+        else if( score && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
             return true;
@@ -559,6 +562,22 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 }).show();
             }
         });
+        if(this.config.logScaleOption) {
+            options.push({
+                label: 'Log scale',
+                type: 'dijit/CheckedMenuItem',
+                checked: !!(this.config.scale == 'log'),
+                onClick: function(event) {
+                    if (this.checked) {
+                        track.config.scale = 'log';
+                    } else {
+                        track.config.scale = 'linear';
+                    }
+                    track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
+                }
+            });
+        }
+
 
         return options;
     },

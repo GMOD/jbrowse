@@ -140,10 +140,10 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             // handle the GT field specially, translating the genotype indexes into the actual ALT strings
             var value_parse = value.values[0];
 
-            var splitter = value_parse.match(/[\|\/]/g)[0]; // only accept | and / splitters since . can mean no call
+            var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
             alt=alt[0].split(','); // force split on alt alleles
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
-            value = array.map( value_parse.split(splitter), function( gtIndex ) {
+            value = array.map( splitter?value_parse.split(splitter):value_parse, function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex );
                                    return gtIndex ? ( alt ? alt[gtIndex-1] : gtIndex ) : refseq;
                                }).join( ' '+splitter+' ' );

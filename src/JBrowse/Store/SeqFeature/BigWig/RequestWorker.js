@@ -205,14 +205,14 @@ var RequestWorker = declare( null,
             var chromId =   data.getInt32();
             var start =     data.getInt32();
             var end =       data.getInt32();
-            var validCnt =  data.getInt32();
+            var validCnt =  data.getInt32()||1;
             var minVal    = data.getFloat32();
             var maxVal    = data.getFloat32();
             var sumData   = data.getFloat32();
             var sumSqData = data.getFloat32();
 
             if (chromId == this.chr) {
-                var summaryOpts = {score: sumData/validCnt};
+                var summaryOpts = {score: sumData/validCnt,maxScore: maxVal,minScore:minVal};
                 if (this.window.bwg.type == 'bigbed') {
                     summaryOpts.type = 'density';
                 }

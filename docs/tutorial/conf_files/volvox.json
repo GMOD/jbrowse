@@ -50,6 +50,7 @@
          "track" : "malformed_alignments",
          "class" : "feature4",
          "key" : "HTMLFeatures - Features with right-click menus",
+         "shortDescription": "Features with customized right-click menus",
          "metadata": {
              "category": "Miscellaneous",
              "Description": "Features with extensively customized right-click menus, and with their colors set at random by a JavaScript callback."
