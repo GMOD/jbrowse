@@ -9,7 +9,7 @@ install:
   - bash setup.sh
   - npm install -g http-server
 script:
-  - http-server -p 9000 &
+  - nohup http-server -p 9000 2>&1 &
   - prove -Isrc/perl5 -lr tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/ 
 
