@@ -3,8 +3,11 @@ perl:
   - "5.14"
 
 before_install:
+  - cpanm --notest DB_File
+  - cpanm --notest GD::Image
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - ./setup.sh
+  - cat setup.log
 install: true
 script:
   - prove -I src/perl5 -r tests/perl_tests
