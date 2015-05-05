@@ -2,14 +2,15 @@ language: perl
 perl:
   - "5.14"
 
-before_install:
+install:
   - sudo apt-get install libdb-dev libgd2-noxpm-dev
   - cpanm --notest GD::Image
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - sh setup.sh
-  - cat setup.log
-install: true
+  - npm install -g http-server
 script:
+  - http-server -p 9000 &
   - prove -Isrc/perl5 -lr tests
+  - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/ 
 
 after_failure: cat setup.log 
