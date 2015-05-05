@@ -1,6 +1,7 @@
 language: perl
 perl:
   - "5.14"
+  - "5.16"
 
 install:
   - sudo apt-get install libdb-dev libgd2-noxpm-dev
