@@ -1,7 +1,6 @@
 language: perl
 perl:
   - "5.14"
-  - "5.16"
 
 install:
   - sudo apt-get install libdb-dev libgd2-noxpm-dev
@@ -10,7 +9,7 @@ install:
   - bash setup.sh
   - npm install -g http-server
 script:
-  - make -f build/Makefile release-min
+  - node src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src";
   - nohup http-server -p 9000 2>&1 &
   - prove -Isrc/perl5 -lr tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
