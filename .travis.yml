@@ -6,7 +6,7 @@ install:
   - sudo apt-get install libdb-dev libgd2-noxpm-dev
   - cpanm --notest GD::Image
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
-  - sh setup.sh
+  - bash setup.sh
   - npm install -g http-server
 script:
   - http-server -p 9000 &
