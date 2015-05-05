@@ -11,6 +11,6 @@ install:
 script:
   - nohup http-server -p 9000 2>&1 &
   - prove -Isrc/perl5 -lr tests
-  - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/ 
+  - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
 
 after_failure: cat setup.log 
