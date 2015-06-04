@@ -62,8 +62,7 @@ sub open {
 
     $self->{dir} or croak "dir option required";
 
-#    $self->empty if $self->{empty};    # let's not do this operation
-                                        # in fact, it's not necessary
+    $self->empty if $self->{empty};
 
     $self->{meta} = $self->_read_meta;
 
@@ -280,7 +279,7 @@ sub _make_progressbar {
 =head2 empty
 
 Clear the store of all contents.  Deletes all files and directories
-from the store directory. Not currently called, per issue #563.
+from the store directory.
 
 =cut
 
