@@ -279,7 +279,8 @@ sub _make_progressbar {
 =head2 empty
 
 Clear the store of all contents.  Deletes all files and directories
-from the store directory.
+from the store directory.  
+Fix #563, don't destroy workdir, if specified
 
 =cut
 
@@ -287,7 +288,7 @@ sub empty {
     my ( $self ) = @_;
     print "Removing existing contents of target dir $self->{dir}\n" if $self->{verbose};
     File::Path::rmtree( $self->{dir} );
-    File::Path::rmtree( $self->{work_dir} ) if defined $self->{work_dir};
+#    File::Path::rmtree( $self->{work_dir} ) if defined $self->{work_dir};
     File::Path::mkpath( $self->{dir} );
     File::Path::mkpath( $self->{work_dir} ) if defined $self->{work_dir};
 }
