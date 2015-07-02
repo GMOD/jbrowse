@@ -115,7 +115,7 @@ constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params || {};
-
+    
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
         return;
@@ -1840,7 +1840,7 @@ findReferenceSequence: function( name ) {
 // something that seems intelligent
 navigateToLocation: function( location ) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
-
+        
         // regularize the ref seq name we were passed
         var ref = location.ref ? this.findReferenceSequence( location.ref.name || location.ref )
                                : this.refSeq;
@@ -2181,19 +2181,35 @@ makeFullViewLink: function () {
  */
 
 onCoarseMove: function(startbp, endbp) {
-
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
-
+    var searchVal = "";
+    
     // update the location box with our current location
-    if( this.locationBox ) {
-        this.locationBox.set(
-            'value',
-            Util.assembleLocStringWithLength( currRegion ),
+    if( this.locationBox ) { 
+        var searchVal = this.locationBox.get('value');
+        if (searchVal.length) searchVal = ' "' + searchVal + '"';
+        this.searchVal = searchVal;
+        
+        this.locationBox.set('value','',
+            false //< don't fire any onchange handlers
+        );
+        this.locationBox.set('placeholder','search feature, IDs',
             false //< don't fire any onchange handlers
         );
         this.goButton.set( 'disabled', true ) ;
     }
+    require(["dojo/html", "dojo/ready","dojo/fx","dojo/dom-style","dojo/domReady!"], 
+    function(html, ready,coreFx,style){
+        ready(function(){
+      
+            html.set(dojo.byId("location-info"), Util.assembleLocStringWithLength( currRegion ) + searchVal);
 
+            //style.set("location-info", "display", "none");
+            //coreFx.wipeIn({node: "location-info"}).play();
+
+        });
+    });    
+    
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
 
@@ -2317,7 +2333,8 @@ cookie: function(keyWithoutId,value) {
 
 createNavBox: function( parent ) {
     var thisB = this;
-    var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': 'center' } }, parent );
+    var align = 'left';
+    var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': align } }, parent );
 
     // container adds a white backdrop to the locationTrap.
     var locationTrapContainer = dojo.create('div', {className: 'locationTrapContainer'}, navbox );
@@ -2404,24 +2421,29 @@ createNavBox: function( parent ) {
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
+    var searchbox = dojo.create('span', {id:'search-box'}, navbox );
+
+
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
-    var refSeqSelectBoxPlaceHolder = dojo.create('span', {}, navbox );
+    var refSeqSelectBoxPlaceHolder = dojo.create('span', {id:'search-refseq'}, searchbox );
 
-    // make the location box
+    // make the location search box
     this.locationBox = new dijitComboBox(
         {
             id: "location",
             name: "location",
-            style: { width: '25ex' },
+            style: { width: '18ex' },
             maxLength: 400,
-            searchAttr: "name"
+            searchAttr: "name",
+            title: 'Enter a chromosomal position, symbol or ID to search'
         },
-        dojo.create('input', {}, navbox) );
-    this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
-        if( this.nameStore )
+        dojo.create('input', {}, searchbox) );
+        this.afterMilestone( 'loadNames', dojo.hitch(this, function() {
+        if( this.nameStore ) {
             this.locationBox.set( 'store', this.nameStore );
+        }
     }));
 
     this.locationBox.focusNode.spellcheck = false;
@@ -2462,20 +2484,32 @@ createNavBox: function( parent ) {
          };
     }).call(this);
 
-    // make the 'Go' button'
+    // make the 'Go' button
     this.goButton = new dijitButton(
-        {
-            label: 'Go',
-            onClick: dojo.hitch( this, function(event) {
-                this.navigateTo(this.locationBox.get('value'));
-                this.goButton.set('disabled',true);
-                dojo.stopEvent(event);
-            })
-        }, dojo.create('button',{},navbox));
+    {
+        label: 'Go',
+        onClick: dojo.hitch( this, function(event) {
+            this.navigateTo(this.locationBox.get('value'));
+            this.goButton.set('disabled',true);
+            dojo.stopEvent(event);
+        }),
+        id: 'search-go-btn'
+    }, dojo.create('button',{},searchbox));
+    
     this.highlightButtonPreviousState = false;
+    
+    // create location box (this box receives the final locations after searches or moves)
+
+    require(["dojo/dom-construct", "dojo/_base/window"], function(domConstruct, win){
+      this.locationInfoBox = domConstruct.place("<div id='location-info'>HELLO</div>", navbox);
+    });
+
+
+    // make the highligher button
     this.highlightButton = new dojoxTriStateCheckBox({
         //label: 'Highlight',
-        title: 'highlight a region',
+        title: 'Highlight a Region',
+        id: 'highlight-btn',
         states:[false, true, "mixed"],
         onChange: function() {
             if( this.get('checked')==true ) {
@@ -2501,10 +2535,23 @@ createNavBox: function( parent ) {
                 thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
             }
         }
-    }, dojo.create('button',{},navbox));
+    }, dojo.create('button',{id: 'highlight-btn'},navbox));
 
     this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
                    function() { thisB.highlightButton.set('checked',false); });
+
+    // make Hide Tracks button
+    this.hideTitlesButton = new dijitButton(
+    {
+        //label: 'H',
+        title: "Hide/Show Track Titles",
+        id: "hidetitles-btn",
+        width: "24px",
+        onClick: dojo.hitch( this, function(event) {
+            thisB.showTrackLabels("toggle");
+            dojo.stopEvent(event);
+        })
+    }, dojo.create('button',{},navbox));
 
 
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
@@ -2563,7 +2610,7 @@ createNavBox: function( parent ) {
                    }.call(this)
                 || this.refSeqOrder.length && this.allRefs[ this.refSeqOrder[ this.refSeqOrder.length - 1 ] ]
                 || 20;
-
+            
             var locstring = Util.assembleLocStringWithLength({ ref: ref.name, start: ref.end-1, end: ref.end, length: ref.length });
             //console.log( locstring, locstring.length );
             return locstring.length;
@@ -2574,6 +2621,61 @@ createNavBox: function( parent ) {
     }));
 
     return navbox;
+},
+/* show or hide track labels
+ * 
+ * @param {string} function "show", "hide", "toggle", or "hide-if"
+ * "hide-if" rehides if already hidden.
+ * @returns {undefined}
+ */
+showTrackLabels: function(fn) {
+    //console.log("showTrackLabels");
+    require(["dojo/fx", "dojo/dom", "dojo/dom-style", "dojo/on", "dojo/query","dojo/dom-geometry","dojo/NodeList-dom","dojo/domReady!"],
+    function(coreFx, dom, style, on, query, domGeom){
+    
+        var direction = 1;
+        
+        if (fn=="show") {
+            dojo.removeAttr(dom.byId("hidetitles-btn"),"hidden-titles");
+            direction = 1;
+        }
+        if (fn=="hide") {
+            dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");
+            direction = -1;
+        }
+        if (fn=="hide-if") {
+            if (dojo.hasAttr(dom.byId("hidetitles-btn"),"hidden-titles")) direction = -1;
+            else return;
+        }
+        
+        if (fn=="toggle"){
+            if (dojo.hasAttr(dom.byId("hidetitles-btn"),"hidden-titles")) {     // if hidden, show
+                dojo.removeAttr(dom.byId("hidetitles-btn"),"hidden-titles");
+                direction = 1;
+            }
+            else {
+                dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");       // if shown, hide
+                direction = -1;
+            }
+        }
+        // protect Hide button from clicks durng animation
+        dojo.attr(dom.byId("hidetitles-btn"),"disabled","");
+        setTimeout(function(){ 
+            dojo.removeAttr(dom.byId("hidetitles-btn"),"disabled");
+        },1000);
+        
+        // slide em
+        query(".track-label").forEach(function(node, index, arr){
+            var w = domGeom.getMarginBox(node).w;
+            coreFx.slideTo({
+              node: node,
+              top: domGeom.getMarginBox(node).t.toString(),
+              left: (domGeom.getMarginBox(node).l + (w*direction) ).toString(),
+              unit: "px"
+            }).play();
+        });
+    });
+    
 },
 
 /**
