@@ -362,7 +362,7 @@ return declare(
             basesPerBin: basesPerBin
         };
 
-        if( !this.config.histograms&&this.store.getRegionFeatureDensities ) {
+        if( !this.config.histograms.store&&this.store.getRegionFeatureDensities ) {
             this.store.getRegionFeatureDensities(
                 query,
                 lang.hitch( this, '_drawHistograms', args )
