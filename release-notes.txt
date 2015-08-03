@@ -11,6 +11,10 @@
  * Fixed a bug where grid lines wouldn't render at some particular
    zoom levels (issue #514).
 
+ * Fixed a bug where the user's --workdir parameter would be deleted
+   which could have unintended side effects if the --workdir was
+   pointing to important data, but this is uncommon (issue #563).
+
 # Release 1.11.6     2015-02-12 18:27:38 America/Chicago
 
 ## Minor improvements
