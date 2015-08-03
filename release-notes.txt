@@ -2,6 +2,9 @@
 
 ## Minor improvements
 
+ * Added these options to add-bw-track.pl --clip_marker_color <color>,
+   --bg_color <color>, --height <value> (issue #510).
+
 ## Bug fixes
 
  * Fixed a bug where the BAM popup boxes would display some incorrect
