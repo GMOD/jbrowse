@@ -15,6 +15,10 @@
    which could have unintended side effects if the --workdir was
    pointing to important data, but this is uncommon (issue #563).
 
+ * Added ability to load custom histograms for tracks loaded from
+   flatfile-to-json.pl (i.e. override a pre-existing histogram store).
+   See (issue #612).
+
 # Release 1.11.6     2015-02-12 18:27:38 America/Chicago
 
 ## Minor improvements
