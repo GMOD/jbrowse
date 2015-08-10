@@ -20,3 +20,4 @@ setup.log
 MYMETA.*
 .sass-cache/
 themes/*/css/
+.idea
