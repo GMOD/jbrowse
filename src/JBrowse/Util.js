@@ -20,15 +20,15 @@ Util = {
     is_ie: navigator.appVersion.indexOf('MSIE') >= 0,
     is_ie6: navigator.appVersion.indexOf('MSIE 6') >= 0,
     addCommas: function(nStr) {
-	        nStr += '';
-	        var x = nStr.split('.');
-	        var x1 = x[0];
-	        var x2 = x.length > 1 ? '.' + x[1] : '';
-	        var rgx = /(\d+)(\d{3})/;
-	        while (rgx.test(x1)) {
-		    x1 = x1.replace(rgx, '$1' + ',' + '$2');
-	        }
-	return x1 + x2;
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
     },
 
     commifyNumber: function() {
@@ -224,20 +224,20 @@ Util = {
         // resolveUrl("http://www.domain.com/path1/path2","../path3") ->"http://www.domain.com/path1/path3"
         //
         if (relativeUrl.match(/\w+:\/\//))
-	    return relativeUrl;
+            return relativeUrl;
         if (relativeUrl.charAt(0)=='/') {
-	    baseUrl = baseUrl.match(/.*\/\/[^\/]*/);
-	    return (baseUrl ? baseUrl[0] : '') + relativeUrl;
+            baseUrl = baseUrl.match(/.*\/\/[^\/]*/);
+            return (baseUrl ? baseUrl[0] : '') + relativeUrl;
         }
         // remove the query string from the base, if any
         baseUrl = baseUrl.replace(/\?.*$/,'');
         //TODO: handle protocol relative urls:  ://www.domain.com
         baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*$/)[0].length);// clean off the trailing path
         if (relativeUrl == '.')
-	    return baseUrl;
+            return baseUrl;
         while (baseUrl && relativeUrl.substring(0,3) == '../') {
-	    baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*\/$/)[0].length);
-	    relativeUrl = relativeUrl.substring(3);
+            baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*\/$/)[0].length);
+            relativeUrl = relativeUrl.substring(3);
         }
         return baseUrl + relativeUrl;
     },
@@ -418,7 +418,7 @@ Util = {
             var ucname = name.toUpperCase();
             var ucref  = ref.toUpperCase();
 
-	    if(    ucname == ucref
+        if(    ucname == ucref
                    || "CHR" + ucname == ucref
                    || ucname == "CHR" + ucref
               ) {

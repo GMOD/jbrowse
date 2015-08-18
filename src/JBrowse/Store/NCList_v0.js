@@ -195,11 +195,11 @@ NCList_v0.prototype.histogram = function(from, to, numBins, callback) {
     //this.histHelper(this.topList, from, to, result, numBins, (to - from) / numBins);
     this.iterate(from, to,
                  function(feat) {
-	             var firstBin =
+                     var firstBin =
                          Math.max(0, ((feat[0] - from) / binWidth) | 0);
                      var lastBin =
                          Math.min(numBins, ((feat[1] - from) / binWidth) | 0);
-	             for (var bin = firstBin; bin <= lastBin; bin++)
+                     for (var bin = firstBin; bin <= lastBin; bin++)
                          result[bin]++;
                  },
                  function() {

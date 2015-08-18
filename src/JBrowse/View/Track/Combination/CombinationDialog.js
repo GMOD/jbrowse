@@ -1,12 +1,12 @@
 define([
-		'dojo/_base/declare',
- 		 'dijit/Dialog',
- 		 'dijit/form/RadioButton',
- 		 'dijit/form/Button',
- 		 'dojo/dom-construct',
- 		 'JBrowse/Model/BinaryTreeNode'
-	],
-	function(declare, Dialog, RadioButton, Button, dom, TreeNode) {
+        'dojo/_base/declare',
+        'dijit/Dialog',
+        'dijit/form/RadioButton',
+        'dijit/form/Button',
+        'dojo/dom-construct',
+        'JBrowse/Model/BinaryTreeNode'
+    ],
+    function(declare, Dialog, RadioButton, Button, dom, TreeNode) {
 
 return declare(null, {
 

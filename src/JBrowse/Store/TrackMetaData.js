@@ -762,10 +762,10 @@ var Meta = declare( null,
 
     getFeatures: function() {
         return {
-	    'dojo.data.api.Read': true,
-	    'dojo.data.api.Identity': true,
-	    'dojo.data.api.Notification': true
-	};
+            'dojo.data.api.Read': true,
+            'dojo.data.api.Identity': true,
+            'dojo.data.api.Notification': true
+        };
     },
     close: function() {},
 

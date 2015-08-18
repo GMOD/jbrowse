@@ -231,11 +231,11 @@ NCList.prototype.histogram = function(from, to, numBins, callback) {
     for (var i = 0; i < numBins; i++) result[i] = 0;
     this.iterate(from, to,
                  function(feat) {
-	             var firstBin =
+                     var firstBin =
                          Math.max(0, ((start(feat) - from) / binWidth) | 0);
                      var lastBin =
                          Math.min(numBins, ((end(feat) - from) / binWidth) | 0);
-	             for (var bin = firstBin; bin <= lastBin; bin++)
+                     for (var bin = firstBin; bin <= lastBin; bin++)
                          result[bin]++;
                  },
                  function() {
