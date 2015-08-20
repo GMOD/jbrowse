@@ -22,6 +22,8 @@
    flatfile-to-json.pl (i.e. override a pre-existing histogram store).
    See (issue #612).
 
+ * Fix output of length field in the refSeqs.json.
+
 # Release 1.11.6     2015-02-12 18:27:38 America/Chicago
 
 ## Minor improvements
