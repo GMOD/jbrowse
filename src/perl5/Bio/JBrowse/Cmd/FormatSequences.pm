@@ -308,7 +308,7 @@ sub writeRefSeqsJSON {
                                        }
                                        foreach my $name (sort keys %refs) {
                                            if( not exists $refs{$name}{length} ) {
-                                               $refs{$name}{length} = $refs{$name}{end} - $refs{$name}{start};
+                                               $refs{$name}{length} = $refs{$name}{end}+0 - $refs{$name}{start}+0;
                                            }
                                            push @{$old}, $refs{$name};
                                        }
