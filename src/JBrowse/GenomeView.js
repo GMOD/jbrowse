@@ -2024,11 +2024,6 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
                                   y: this.getY()
                               });
 
-    // hide track labels if necessary
-    //setTimeout(function(){ 
-        this.browser.showTrackLabels("hide-if");
-    //}, 1000); // delay hiding for 1 seconda - not working -ey  
-
     this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
 },
 

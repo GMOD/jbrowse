@@ -2540,20 +2540,6 @@ createNavBox: function( parent ) {
     this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
                    function() { thisB.highlightButton.set('checked',false); });
 
-    // make Hide Tracks button
-    this.hideTitlesButton = new dijitButton(
-    {
-        //label: 'H',
-        title: "Hide/Show Track Titles",
-        id: "hidetitles-btn",
-        width: "24px",
-        onClick: dojo.hitch( this, function(event) {
-            thisB.showTrackLabels("toggle");
-            dojo.stopEvent(event);
-        })
-    }, dojo.create('button',{},navbox));
-
-
     this.afterMilestone('loadRefSeqs', dojo.hitch( this, function() {
 
         // make the refseq selection dropdown
@@ -2622,62 +2608,6 @@ createNavBox: function( parent ) {
 
     return navbox;
 },
-/* show or hide track labels
- * 
- * @param {string} function "show", "hide", "toggle", or "hide-if"
- * "hide-if" rehides if already hidden.
- * @returns {undefined}
- */
-showTrackLabels: function(fn) {
-    //console.log("showTrackLabels");
-    require(["dojo/fx", "dojo/dom", "dojo/dom-style", "dojo/on", "dojo/query","dojo/dom-geometry","dojo/NodeList-dom","dojo/domReady!"],
-    function(coreFx, dom, style, on, query, domGeom){
-    
-        var direction = 1;
-        
-        if (fn=="show") {
-            dojo.removeAttr(dom.byId("hidetitles-btn"),"hidden-titles");
-            direction = 1;
-        }
-        if (fn=="hide") {
-            dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");
-            direction = -1;
-        }
-        if (fn=="hide-if") {
-            if (dojo.hasAttr(dom.byId("hidetitles-btn"),"hidden-titles")) direction = -1;
-            else return;
-        }
-        
-        if (fn=="toggle"){
-            if (dojo.hasAttr(dom.byId("hidetitles-btn"),"hidden-titles")) {     // if hidden, show
-                dojo.removeAttr(dom.byId("hidetitles-btn"),"hidden-titles");
-                direction = 1;
-            }
-            else {
-                dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");       // if shown, hide
-                direction = -1;
-            }
-        }
-        // protect Hide button from clicks durng animation
-        dojo.attr(dom.byId("hidetitles-btn"),"disabled","");
-        setTimeout(function(){ 
-            dojo.removeAttr(dom.byId("hidetitles-btn"),"disabled");
-        },1000);
-        
-        // slide em
-        query(".track-label").forEach(function(node, index, arr){
-            var w = domGeom.getMarginBox(node).w;
-            coreFx.slideTo({
-              node: node,
-              top: domGeom.getMarginBox(node).t.toString(),
-              left: (domGeom.getMarginBox(node).l + (w*direction) ).toString(),
-              unit: "px"
-            }).play();
-        });
-    });
-    
-},
-
 /**
  * Return the current highlight region, or null if none.
  */
