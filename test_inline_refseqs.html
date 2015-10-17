@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>JBrowse</title>
+    <link rel="stylesheet" type="text/css" href="genome.css">
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
+
+    <script type="text/javascript">
+        window.onerror=function(msg){
+            if( document.body )
+                document.body.setAttribute("JSError",msg);
+        }
+
+        // puts the main Browser object in this for convenience.  feel
+        // free to move it into function scope if you want to keep it
+        // out of the global namespace
+        var JBrowse;
+        require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
+             function (Browser,ioQuery,JSON) {
+                   // the initial configuration of this JBrowse
+                   // instance
+
+                   var config = {
+                       containerID: "GenomeBrowser",
+                       tracks: [ { type: "SequenceTrack",
+                   		storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                   		category: "Reference sequence",
+                   		label: "Reference sequence",
+                   		key: "Reference sequence",
+                   		refseq: 1,
+                   		features: [{seq_id:"foo",name:"foo",start:1,end:31,seq:"cattgttgcggagttgaacaACGGCATTAG"},
+                   			   {seq_id:"bar",name:"bar",start:1,end:49,seq:"AAAAAACCCCCCGGGGGGTTTTTTAAAAAACCCCCCGGGGGGTTTTTT"}] } ],
+                       alwaysOnTracks: "Reference sequence",
+                       refSeqs: { data: [{name:"foo",start:1,end:31,length:30},{name:"bar",start:1,end:49,length:48}] }
+                   };
+
+                   // create a JBrowse global variable holding the JBrowse instance
+                   JBrowse = new Browser( config );
+        });
+    </script>
+
+  </head>
+
+  <body>
+    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+    <div style="display: none">JBrowseDefaultMainPage</div>
+  </body>
+</html>
