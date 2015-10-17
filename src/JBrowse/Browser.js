@@ -414,16 +414,21 @@ loadRefSeqs: function() {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
-        var thisB = this;
-        request(this.config.refSeqs.url, { handleAs: 'text' } )
-            .then( function(o) {
-                       thisB.addRefseqs( dojo.fromJson(o) );
-                       deferred.resolve({success:true});
-                   },
-                   function( e ) {
-                       deferred.reject( 'Could not load reference sequence definitions. '+e );
-                   }
-                 );
+        if( 'data' in this.config.refSeqs ) {
+            this.addRefseqs( this.config.refSeqs.data );
+            deferred.resolve({success:true});
+        } else {
+            var thisB = this;
+            request(this.config.refSeqs.url, { handleAs: 'text' } )
+                .then( function(o) {
+                           thisB.addRefseqs( dojo.fromJson(o) );
+                           deferred.resolve({success:true});
+                       },
+                       function( e ) {
+                           deferred.reject( 'Could not load reference sequence definitions. '+e );
+                       }
+                     );
+	}
     });
 },
 
@@ -1424,7 +1429,7 @@ reachedMilestone: function( name ) {
 
 
 /**
- *  Load our configuration file(s) based on the parameters thex
+ *  Load our configuration file(s) based on the parameters the
  *  constructor was passed.  Does not return until all files are
  *  loaded and merged in.
  *  @returns nothing meaningful
@@ -2501,7 +2506,7 @@ createNavBox: function( parent ) {
     // create location box (this box receives the final locations after searches or moves)
 
     require(["dojo/dom-construct", "dojo/_base/window"], function(domConstruct, win){
-      this.locationInfoBox = domConstruct.place("<div id='location-info'>HELLO</div>", navbox);
+      this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
     });
 
 
