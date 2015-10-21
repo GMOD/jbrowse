@@ -32,6 +32,7 @@
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
 
+	// after the Browser is initialized, wait a second then tear it down & rebuild it, to check everything works after a rebuild
 	JBrowse.afterMilestone ("completely initialized",
 	  function() {
 	    setTimeout( function() {
