@@ -111,6 +111,7 @@ return declare( null, {
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
 
         var fileBox = new dojox.form.Uploader({
+	    label: "Select File...",
             multiple: false
         });
         fileBox.placeAt( dragArea );

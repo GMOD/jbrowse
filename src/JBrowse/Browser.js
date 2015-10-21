@@ -621,6 +621,10 @@ initView: function() {
                                         })
                                   );
 
+	    
+	    this.addGlobalMenuItem( 'file',
+				    new dijitMenuSeparator() );
+
             this.fileDialog = new FileDialog({ browser: this });
 
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
@@ -827,29 +831,6 @@ createCombinationTrack: function() {
 },
 
 renderDatasetSelect: function( parent ) {
-    if( this.config.datasets && ! this.config.dataset_id ) {
-        console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
-    }
-    if( this.config.datasets && this.config.dataset_id ) {
-	for( var id in this.config.datasets ) {
-            if( ! /^_/.test(id) ) {
-		var dataset = this.config.datasets[id]
-		
-		this.addGlobalMenuItem( 'dataset',
-					new dijitMenuItem(
-                                            {
-						id: 'menubar_dataset_bookmark_' + id, 
-						label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
-						iconClass: 'dijitIconBookmark',
-						onClick: dojo.hitch( dataset, function() { window.location = this.url } )
-                                            })
-                                      );
-	    }
-	}
-
-	this.addGlobalMenuItem( 'dataset',
-				new dijitMenuSeparator() );
-    }
 
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var openConfig = {}
@@ -868,7 +849,7 @@ renderDatasetSelect: function( parent ) {
       new dijitMenuItem(
           {
               id: 'menubar_dataset_open',
-              label: "Open FASTA file",
+              label: "Open sequence file",
               iconClass: 'dijitIconFolderOpen',
               onClick: dojo.hitch( this, function() {
 		  new FastaFileDialog ( { browser: this } )
@@ -886,6 +867,30 @@ renderDatasetSelect: function( parent ) {
 	      } )
           })
     );
+
+    if( this.config.datasets && ! this.config.dataset_id ) {
+        console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Datasets will not be shown.");
+    }
+    if( this.config.datasets && this.config.dataset_id ) {
+	this.addGlobalMenuItem( 'dataset',
+				new dijitMenuSeparator() );
+
+	for( var id in this.config.datasets ) {
+            if( ! /^_/.test(id) ) {
+		var dataset = this.config.datasets[id]
+		
+		this.addGlobalMenuItem( 'dataset',
+					new dijitMenuItem(
+                                            {
+						id: 'menubar_dataset_bookmark_' + id, 
+						label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
+						iconClass: 'dijitIconBookmark',
+						onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                                            })
+                                      );
+	    }
+	}
+    }
 
     this.renderGlobalMenu( 'dataset', {text: 'Genome'}, parent );
 },
