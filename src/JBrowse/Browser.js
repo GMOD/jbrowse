@@ -135,7 +135,7 @@ constructor: function(params) {
 				    tracks: [ { type: "SequenceTrack",
 						storeClass: "JBrowse/Store/SeqFeature/FromConfig",
 						label: "Reference sequence",
-						refseq: 1,
+						useAsRefSeqStore: 1,
 						features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
 				    alwaysOnTracks: "Reference sequence",
 				    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });

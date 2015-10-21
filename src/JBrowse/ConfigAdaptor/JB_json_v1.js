@@ -234,7 +234,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 // if this is the first sequence store we see, and we
                 // have no refseqs store defined explicitly, make this the refseqs store.
-                if( (storeClass == 'JBrowse/Store/Sequence/StaticChunked' || trackConfig.refseq) && !mainconf.stores['refseqs'] )
+                if( (storeClass == 'JBrowse/Store/Sequence/StaticChunked' || trackConfig.useAsRefSeqStore) && !mainconf.stores['refseqs'] )
                     storeConf.name = 'refseqs';
                 else
                     storeConf.name = 'store'+digest.objectFingerprint( storeConf );
