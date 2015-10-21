@@ -855,7 +855,7 @@ renderDatasetSelect: function( parent ) {
     var oldBrowser = this
     var replaceBrowser = function (newBrowserGenerator) {
 	oldBrowser.teardown()
-	oldBrowser = newBrowserGenerator()
+	newBrowserGenerator()
     }
 
     this.addGlobalMenuItem
@@ -1358,8 +1358,19 @@ publish: function() {
 
     return topic.publish.apply( topic, arguments );
 },
+
 subscribe: function() {
-    return topic.subscribe.apply( topic, arguments );
+    this._uniqueSubscriptionId = this._uniqueSubscriptionId || 0
+    this._subscription = this._subscription || {}
+    var uniqId = ++this._uniqueSubscriptionId
+    var unsubber = topic.subscribe.apply( topic, arguments );
+    var thisB = this
+    this._subscription[uniqId] = unsubber
+    return (function(id) {
+	return { remove: function() {
+	    delete thisB._subscription[id]
+	    unsubber.remove()
+	} } }) (uniqId)
 },
 
 onResize: function() {
@@ -2727,15 +2738,16 @@ showRegionWithHighlight: function() { // backcompat
 },
 
 /**
- * Tear it all down
+ * Tear it all down: remove all subscriptions, destroy widgets and DOM
  */
 teardown: function() {
+    for (var id in this._subscription)
+	this._subscription[id].remove()
     this.containerWidget.destroyRecursive(true)
     while (this.container.firstChild) {
 	this.container.removeChild(this.container.firstChild);
     }
 }
-
 	
 });
 });
