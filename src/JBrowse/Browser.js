@@ -22,6 +22,7 @@ define( [
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
             'dijit/MenuItem',
+            'dijit/MenuSeparator',
             'dojox/form/TriStateCheckBox',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
@@ -67,6 +68,7 @@ define( [
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitMenuItem,
+            dijitMenuSeparator,
             dojoxTriStateCheckBox,
             Util,
             LazyTrie,
@@ -832,18 +834,21 @@ renderDatasetSelect: function( parent ) {
 	for( var id in this.config.datasets ) {
             if( ! /^_/.test(id) ) {
 		var dataset = this.config.datasets[id]
-
+		
 		this.addGlobalMenuItem( 'dataset',
 					new dijitMenuItem(
                                             {
 						id: 'menubar_dataset_bookmark_' + id, 
-						label: dataset.name,
-						iconClass: id == this.config.dataset_id ? 'dijitIconBookmark' : null,
+						label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
+						iconClass: 'dijitIconBookmark',
 						onClick: dojo.hitch( dataset, function() { window.location = this.url } )
                                             })
                                       );
 	    }
 	}
+
+	this.addGlobalMenuItem( 'dataset',
+				new dijitMenuSeparator() );
     }
 
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
