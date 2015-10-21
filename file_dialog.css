@@ -60,6 +60,19 @@
     height: 19%;
 }
 
+.fileDialog .soleResourceControl {
+    height: 10em;
+    position: relative;
+}
+.fileDialog .soleResourceControl > div {
+    width: 40em;
+    box-sizing: border-box;
+    height: 100%;
+}
+.fileDialog .soleResourceControl > div > h3 {
+    height: 19%;
+}
+
 .fileDialog .localFilesControl {
     position: absolute;
     top: 0;

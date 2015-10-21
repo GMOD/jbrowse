@@ -24,7 +24,7 @@ return declare( JBrowsePlugin,
             this.browser.addGlobalMenuItem( 'file', new dijitMenuItem(
                                            {
                                                label: 'Add sequence search track',
-                                               iconClass: 'dijitIconBookmark',
+                                               iconClass: 'dijitIconSearch',
                                                onClick: lang.hitch(this, 'createSearchTrack')
                                            }));
         }, this );

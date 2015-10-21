@@ -217,7 +217,7 @@ return declare( null, {
             var urls = text.length ? text.split( /\s+/ ) : [];
             self.onChange( urls );
         };
-        // watch the input text for changes.  just do it every 700ms
+        // watch the input text for changes.  just do it every 900ms
         // because there are many ways that text can get changed (like
         // pasting), not all of which fire the same events.  not using
         // the onchange event, because that doesn't fire until the

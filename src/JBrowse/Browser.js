@@ -33,6 +33,8 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'JBrowse/View/FastaFileDialog',
+            'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -76,6 +78,8 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
+	    FastaFileDialog,
+	    FastaParser,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -621,7 +625,7 @@ initView: function() {
                                     new dijitMenuItem(
                                         {
                                             id: 'menubar_fileopen', 
-                                            label: 'Open',
+                                            label: 'Open track file or URL',
                                             iconClass: 'dijitIconFolderOpen',
                                             onClick: dojo.hitch( this, 'openFileDialog' )
                                         })
@@ -637,7 +641,7 @@ initView: function() {
                     onClick: dojo.hitch(this, 'createCombinationTrack')
                 }));
 
-            this.renderGlobalMenu( 'file', {text: 'File'}, menuBar );
+            this.renderGlobalMenu( 'file', {text: 'Track'}, menuBar );
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
@@ -834,29 +838,70 @@ createCombinationTrack: function() {
 
 renderDatasetSelect: function( parent ) {
     var dsconfig = this.config.datasets || {};
-    var datasetChoices = [];
     for( var id in dsconfig ) {
-        if( ! /^_/.test(id) )
-            datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+        if( ! /^_/.test(id) ) {
+	    var dataset = dsconfig[id]
+
+            this.addGlobalMenuItem( 'dataset',
+                                    new dijitMenuItem(
+                                        {
+                                            id: 'menubar_dataset_bookmark_' + id, 
+                                            label: dataset.name,
+                                            iconClass: id == this.config.dataset_id ? 'dijitIconBookmark' : null,
+                                            onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                                        })
+                                  );
+
+	}
     }
 
-    new dijitSelectBox(
-        {
-            name: 'dataset',
-            className: 'dataset_select',
-            value: this.config.dataset_id,
-            options: array.map(
-                datasetChoices,
-                function( dataset ) {
-                    return { label: dataset.name, value: dataset.id };
-                }),
-            onChange: dojo.hitch(this, function( dsID ) {
-                                     var ds = (this.config.datasets||{})[dsID];
-                                     if( ds )
-                                         window.location = ds.url;
-                                     return false;
-                                 })
-        }).placeAt( parent );
+    var configProps = [ 'containerID', 'show_nav', 'show_tracklist', 'show_overview' ]
+    var openConfig = {}
+    for (var i = 0; i < configProps.length; ++i) {
+	openConfig[configProps[i]] = this.config[configProps[i]]
+    }
+
+    var oldBrowser = this
+    var replaceBrowser = function (newBrowserGenerator) {
+	oldBrowser.containerWidget.destroyDescendants(false)
+//	oldBrowser.containerWidget.destroy(true)
+/*
+	var widgets = dijit.findWidgets(oldBrowser.container);
+	dojo.forEach(widgets, function(w) {
+	    w.destroyRecursive(true);
+	});
+	while (oldBrowser.container.firstChild) {
+	    oldBrowser.container.removeChild(oldBrowser.container.firstChild);
+	}
+*/
+	oldBrowser = newBrowserGenerator()
+    }
+
+    this.addGlobalMenuItem
+    ( 'dataset',
+      new dijitMenuItem(
+          {
+              id: 'menubar_dataset_open',
+              label: "Open FASTA file",
+              iconClass: 'dijitIconFolderOpen',
+              onClick: dojo.hitch( this, function() {
+		  new FastaFileDialog ( { browser: this } )
+		      .show ({ openCallback: function(f) {
+			  new FastaParser().parseFile(f).then
+			  (function(data) {
+			      replaceBrowser (function() {
+				  return oldBrowser.constructor (dojo.mixin (openConfig,
+									     { 'inlineRefSeqs': data }))
+			      }) },
+			   function(error) {
+			       alert (error);
+			   })
+		      }})
+	      } )
+          })
+    );
+
+    this.renderGlobalMenu( 'dataset', {text: 'Genome'}, parent );
 },
 
 /**
