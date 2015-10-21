@@ -136,7 +136,7 @@ constructor: function(params) {
 						refseq: 1,
 						features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
 				    alwaysOnTracks: "Reference sequence",
-				    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length,seq:rs.seq} }) } });
+				    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });
     }
     
     // start the initialization process
@@ -605,20 +605,8 @@ initView: function() {
         if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
-            if( this.config.datasets && ! this.config.dataset_id ) {
-                console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
-            }
-            if( this.config.datasets && this.config.dataset_id ) {
-                this.renderDatasetSelect( menuBar );
-            } else {
-
-                this.poweredByLink = dojo.create('a', {
-                                className: 'powered_by',
-                                innerHTML: this.browserMeta().title,
-                                title: 'powered by JBrowse'
-                            }, menuBar );
-                thisObj.poweredBy_clickHandle = dojo.connect(this.poweredByLink, "onclick", dojo.hitch( aboutDialog, 'show') );
-            }
+	    // make the dataset menu
+            this.renderDatasetSelect( menuBar );
 
             // make the file menu
             this.addGlobalMenuItem( 'file',
@@ -837,25 +825,28 @@ createCombinationTrack: function() {
 },
 
 renderDatasetSelect: function( parent ) {
-    var dsconfig = this.config.datasets || {};
-    for( var id in dsconfig ) {
-        if( ! /^_/.test(id) ) {
-	    var dataset = dsconfig[id]
+    if( this.config.datasets && ! this.config.dataset_id ) {
+        console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
+    }
+    if( this.config.datasets && this.config.dataset_id ) {
+	for( var id in this.config.datasets ) {
+            if( ! /^_/.test(id) ) {
+		var dataset = this.config.datasets[id]
 
-            this.addGlobalMenuItem( 'dataset',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_dataset_bookmark_' + id, 
-                                            label: dataset.name,
-                                            iconClass: id == this.config.dataset_id ? 'dijitIconBookmark' : null,
-                                            onClick: dojo.hitch( dataset, function() { window.location = this.url } )
-                                        })
-                                  );
-
+		this.addGlobalMenuItem( 'dataset',
+					new dijitMenuItem(
+                                            {
+						id: 'menubar_dataset_bookmark_' + id, 
+						label: dataset.name,
+						iconClass: id == this.config.dataset_id ? 'dijitIconBookmark' : null,
+						onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                                            })
+                                      );
+	    }
 	}
     }
 
-    var configProps = [ 'containerID', 'show_nav', 'show_tracklist', 'show_overview' ]
+    var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var openConfig = {}
     for (var i = 0; i < configProps.length; ++i) {
 	openConfig[configProps[i]] = this.config[configProps[i]]
@@ -863,17 +854,7 @@ renderDatasetSelect: function( parent ) {
 
     var oldBrowser = this
     var replaceBrowser = function (newBrowserGenerator) {
-	oldBrowser.containerWidget.destroyDescendants(false)
-//	oldBrowser.containerWidget.destroy(true)
-/*
-	var widgets = dijit.findWidgets(oldBrowser.container);
-	dojo.forEach(widgets, function(w) {
-	    w.destroyRecursive(true);
-	});
-	while (oldBrowser.container.firstChild) {
-	    oldBrowser.container.removeChild(oldBrowser.container.firstChild);
-	}
-*/
+	oldBrowser.teardown()
 	oldBrowser = newBrowserGenerator()
     }
 
@@ -890,8 +871,8 @@ renderDatasetSelect: function( parent ) {
 			  new FastaParser().parseFile(f).then
 			  (function(data) {
 			      replaceBrowser (function() {
-				  return oldBrowser.constructor (dojo.mixin (openConfig,
-									     { 'inlineRefSeqs': data }))
+				  return new oldBrowser.constructor (dojo.mixin (openConfig,
+										 { 'inlineRefSeqs': data }))
 			      }) },
 			   function(error) {
 			       alert (error);
@@ -2745,6 +2726,17 @@ showRegionWithHighlight: function() { // backcompat
     return this.showRegionAfterSearch.apply( this, arguments );
 },
 
+/**
+ * Tear it all down
+ */
+teardown: function() {
+    this.containerWidget.destroyRecursive(true)
+    while (this.container.firstChild) {
+	this.container.removeChild(this.container.firstChild);
+    }
+}
+
+	
 });
 });
 

@@ -9,7 +9,9 @@ define( [
             'dijit/Dialog',
 
             'dojox/form/Uploader',
-            'dojox/form/uploader/plugins/IFrame'
+            'dojox/form/uploader/plugins/IFrame',
+
+            'JBrowse/Browser'
         ],
         function(
             declare,
@@ -22,7 +24,9 @@ define( [
             Dialog,
 
             Uploaded,
-            IFramePlugin
+            IFramePlugin,
+
+	    Browser
         ) {
 
 return declare( null, {

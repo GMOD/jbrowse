@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>JBrowse</title>
+    <link rel="stylesheet" type="text/css" href="genome.css">
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
+
+    <script type="text/javascript">
+        window.onerror=function(msg){
+            if( document.body )
+                document.body.setAttribute("JSError",msg);
+        }
+
+        // puts the main Browser object in this for convenience.  feel
+        // free to move it into function scope if you want to keep it
+        // out of the global namespace
+        var JBrowse;
+        require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
+             function (Browser,ioQuery,JSON) {
+                   // the initial configuration of this JBrowse
+                   // instance
+	
+                   var config = {
+                       containerID: "GenomeBrowser",
+                       trackSelector: { type: "Simple" },
+                       tracks: [ ],
+                       refSeqs: {"data":[{"name":"ctgA","start":1,"end":50002,"length":50001},{"name":"ctgB","start":1,"end":6080,"length":6079}]}
+                   };
+
+                   // create a JBrowse global variable holding the JBrowse instance
+                   JBrowse = new Browser( config );
+
+	JBrowse.afterMilestone ("completely initialized",
+	  function() {
+	    setTimeout( function() {
+	      JBrowse.teardown()
+	      var JBrowse2 = new Browser( config );
+	    }, 1000)
+	  })
+	});
+    </script>
+
+  </head>
+
+  <body>
+    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+    <div style="display: none">JBrowseDefaultMainPage</div>
+  </body>
+</html>
