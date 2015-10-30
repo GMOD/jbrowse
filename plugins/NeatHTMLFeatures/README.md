@@ -11,19 +11,19 @@ What it does:
 - special considerations have been made for the unique way Web Apollo renders it's subfeatures in nested way.
 
 
-NOTE: This plugin requires an updated HTMLFeatures.js -- a small bug fixed (included as part of the first commit of NeatFeatures).
+NOTE: This plugin requires an updated HTMLFeatures.js -- which is committed here: https://github.com/GMOD/jbrowse/commit/cda6d26fd2e0afa9f025b84e69610938f3bd9f4f.
 
 
 Install / Activate:
 
-For JBrowse 1.11.6+, copy the NeatFeatures directory to the 'plugins' directory.
+For JBrowse 1.11.6+, copy the NeatHTMLFeatures directory to the 'plugins' directory.
 Add this to appropriate trackList.json under the plugins section (create one if it doesn't exist):
 
    "plugins": [ 
-        'NeatFeatures'
+        'NeatHTMLFeatures'
     ],
 
-For Apollo 2.0.0, copy the NeatFeatures directory to the web-apps/jbrowse/plugins directory.
+For Apollo 2.x, copy the NeatHTMLFeatures directory to the web-apps/jbrowse/plugins directory.
 Add this to web-apps/jbrowse/plugins/WebApollo/json/annot.json:
 
     "plugins" : [
@@ -32,8 +32,8 @@ Add this to web-apps/jbrowse/plugins/WebApollo/json/annot.json:
          "name" : "WebApollo"
       },
 	  {
-		 "location" : "./plugins/NeatFeatures",
-		 "name" : "NeatFeatures"
+		 "location" : "./plugins/NeatHTMLFeatures",
+		 "name" : "NeatHTMLFeatures"
 	  }
    ],
 
