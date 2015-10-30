@@ -282,12 +282,14 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             featDivChildren = featDiv.childNodes;
                             for( var j = 0; j<featDivChildren.length; j++ ) {
                                 arrowhead = featDivChildren[j];
-                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
-                                    arrowhead.style.left =
-                                        ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
-                                                         : -this.minusArrowWidth
-                                        ) + 'px';
-                                };
+                                if (typeof arrowhead.className === 'string') {
+                                    if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
+                                        arrowhead.style.left =
+                                            ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
+                                                             : -this.minusArrowWidth
+                                            ) + 'px';
+                                    };
+                                }
                             }
                         }
                         // plus strand
@@ -296,12 +298,14 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                             featDivChildren = featDiv.childNodes;
                             for( var j = 0; j<featDivChildren.length; j++ ) {
                                 arrowhead = featDivChildren[j];
-                                if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
-                                    arrowhead.style.right =  
-                                        ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
-                                                         : -this.plusArrowWidth
-                                        ) + 'px';
-                                }
+                                if (typeof arrowhead.className === 'string') {
+                                    if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
+                                        arrowhead.style.right =  
+                                            ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
+                                                             : -this.plusArrowWidth
+                                            ) + 'px';
+                                    }
+				}
                             }
                         }
                     }
