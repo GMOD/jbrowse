@@ -130,6 +130,6 @@ return declare( null, {
         }
 
         return { domNode: container, uploader: fileBox };
-    },
+    }
 });
 });
