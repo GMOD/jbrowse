@@ -35,6 +35,7 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/FastaFileDialog',
+            'JBrowse/View/DataDirectoryDialog',
             'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
@@ -80,8 +81,9 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
-	    FastaFileDialog,
-	    FastaParser,
+            FastaFileDialog,
+            DataDirectoryDialog,
+            FastaParser,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -130,15 +132,15 @@ constructor: function(params) {
 
     // synthesize config for inline-declared refseqs
     if ('inlineRefSeqs' in this.config) {
-	this.config = dojo.mixin (this.config,
-				  { trackSelector: { type: "Simple" },
-				    tracks: [ { type: "SequenceTrack",
-						storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-						label: "Reference sequence",
-						useAsRefSeqStore: 1,
-						features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
-				    alwaysOnTracks: "Reference sequence",
-				    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });
+        this.config = dojo.mixin (this.config,
+                  { trackSelector: { type: "Simple" },
+                    tracks: [ { type: "SequenceTrack",
+                        storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                        label: "Reference sequence",
+                        useAsRefSeqStore: 1,
+                        features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
+                    alwaysOnTracks: "Reference sequence",
+                    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });
     }
     
     // start the initialization process
@@ -447,7 +449,7 @@ loadRefSeqs: function() {
                            deferred.reject( 'Could not load reference sequence definitions. '+e );
                        }
                      );
-	}
+    }
     });
 },
 
@@ -607,7 +609,7 @@ initView: function() {
         if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
-	    // make the dataset menu
+        // make the dataset menu
             this.renderDatasetSelect( menuBar );
 
             // make the file menu
@@ -621,9 +623,9 @@ initView: function() {
                                         })
                                   );
 
-	    
-	    this.addGlobalMenuItem( 'file',
-				    new dijitMenuSeparator() );
+        
+        this.addGlobalMenuItem( 'file',
+                    new dijitMenuSeparator() );
 
             this.fileDialog = new FileDialog({ browser: this });
 
@@ -835,13 +837,13 @@ renderDatasetSelect: function( parent ) {
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var openConfig = {}
     for (var i = 0; i < configProps.length; ++i) {
-	openConfig[configProps[i]] = this.config[configProps[i]]
+    openConfig[configProps[i]] = this.config[configProps[i]]
     }
 
     var oldBrowser = this
     var replaceBrowser = function (newBrowserGenerator) {
-	oldBrowser.teardown()
-	newBrowserGenerator()
+    oldBrowser.teardown()
+    newBrowserGenerator()
     }
 
     this.addGlobalMenuItem
@@ -852,19 +854,42 @@ renderDatasetSelect: function( parent ) {
               label: "Open sequence file",
               iconClass: 'dijitIconFolderOpen',
               onClick: dojo.hitch( this, function() {
-		  new FastaFileDialog ( { browser: this } )
-		      .show ({ openCallback: function(f) {
-			  new FastaParser().parseFile(f).then
-			  (function(data) {
-			      replaceBrowser (function() {
-				  return new oldBrowser.constructor (dojo.mixin (openConfig,
-										 { 'inlineRefSeqs': data }))
-			      }) },
-			   function(error) {
-			       alert (error);
-			   })
-		      }})
-	      } )
+          new FastaFileDialog ( { browser: this } )
+              .show ({ openCallback: function(f) {
+              new FastaParser().parseFile(f).then
+              (function(data) {
+                  replaceBrowser (function() {
+                  return new oldBrowser.constructor (dojo.mixin (openConfig,
+                                         { 'inlineRefSeqs': data }))
+                  }) },
+               function(error) {
+                   alert (error);
+               })
+              }})
+          } )
+          })
+    );
+
+    this.addGlobalMenuItem
+    ( 'dataset',
+      new dijitMenuItem(
+          {
+              id: 'menubar_dataset_directory',
+              label: "Open data directory",
+              iconClass: 'dijitIconFolderOpen',
+              onClick: dojo.hitch( this, function() {
+                  new DataDirectoryDialog ( { browser: this } )
+                      .show ({
+                        openCallback: function(dataDirectory) {
+                           replaceBrowser(function() { return new oldBrowser.constructor(
+                               dojo.mixin (openConfig,{ 'data': dataDirectory }))
+                           })
+                        }
+                      })
+                  },
+                  function(error) {
+                      alert (error);
+                  })
           })
     );
 
@@ -872,24 +897,24 @@ renderDatasetSelect: function( parent ) {
         console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Datasets will not be shown.");
     }
     if( this.config.datasets && this.config.dataset_id ) {
-	this.addGlobalMenuItem( 'dataset',
-				new dijitMenuSeparator() );
+    this.addGlobalMenuItem( 'dataset',
+                new dijitMenuSeparator() );
 
-	for( var id in this.config.datasets ) {
+    for( var id in this.config.datasets ) {
             if( ! /^_/.test(id) ) {
-		var dataset = this.config.datasets[id]
-		
-		this.addGlobalMenuItem( 'dataset',
-					new dijitMenuItem(
+        var dataset = this.config.datasets[id]
+        
+        this.addGlobalMenuItem( 'dataset',
+                    new dijitMenuItem(
                                             {
-						id: 'menubar_dataset_bookmark_' + id, 
-						label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
-						iconClass: 'dijitIconBookmark',
-						onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                        id: 'menubar_dataset_bookmark_' + id, 
+                        label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
+                        iconClass: 'dijitIconBookmark',
+                        onClick: dojo.hitch( dataset, function() { window.location = this.url } )
                                             })
                                       );
-	    }
-	}
+        }
+    }
     }
 
     this.renderGlobalMenu( 'dataset', {text: 'Genome'}, parent );
@@ -1370,17 +1395,19 @@ publish: function() {
 },
 
 subscribe: function() {
-    this._uniqueSubscriptionId = this._uniqueSubscriptionId || 0
-    this._subscription = this._subscription || {}
-    var uniqId = ++this._uniqueSubscriptionId
+    this._uniqueSubscriptionId = this._uniqueSubscriptionId || 0;
+    this._subscription = this._subscription || {};
+    var uniqId = ++this._uniqueSubscriptionId;
     var unsubber = topic.subscribe.apply( topic, arguments );
-    var thisB = this
-    this._subscription[uniqId] = unsubber
+    var thisB = this;
+    this._subscription[uniqId] = unsubber;
     return (function(id) {
-	return { remove: function() {
-	    delete thisB._subscription[id]
-	    unsubber.remove()
-	} } }) (uniqId)
+        return { remove: function() {
+                delete thisB._subscription[id]
+                unsubber.remove()
+            }
+        }
+    }) (uniqId)
 },
 
 onResize: function() {
@@ -2751,14 +2778,15 @@ showRegionWithHighlight: function() { // backcompat
  * Tear it all down: remove all subscriptions, destroy widgets and DOM
  */
 teardown: function() {
-    for (var id in this._subscription)
-	this._subscription[id].remove()
+    for (var id in this._subscription) {
+        this._subscription[id].remove()
+    }
     this.containerWidget.destroyRecursive(true)
     while (this.container.firstChild) {
-	this.container.removeChild(this.container.firstChild);
+        this.container.removeChild(this.container.firstChild);
     }
 }
-	
+    
 });
 });
 
