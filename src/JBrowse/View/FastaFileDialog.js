@@ -22,11 +22,9 @@ define( [
             RadioButton,
             dom,
             Dialog,
-
             Uploaded,
             IFramePlugin,
-
-	    Browser
+            Browser
         ) {
 
 return declare( null, {
@@ -55,10 +53,10 @@ return declare( null, {
         new Button({ iconClass: 'dijitIconFolderOpen',
                      label: 'Open',
                      onClick: dojo.hitch( this, function() {
-			 if (openCallback && this.localFiles && this.localFiles.length)
-			     openCallback(this.localFiles[0])
-			 else if (cancelCallback)
-			     cancelCallback()
+                         if (openCallback && this.localFiles && this.localFiles.length)
+                             openCallback(this.localFiles[0])
+                         else if (cancelCallback)
+                             cancelCallback()
                          this.dialog.hide();
                      })
                    })
@@ -76,10 +74,10 @@ return declare( null, {
         var actionBar           = this._makeActionBar( args.openCallback, args.cancelCallback );
 
         // connect the local files control
-	var noFileHTML = "<i>No file selected</i>"
+        var noFileHTML = "<i>No file selected</i>"
         dojo.connect( localFilesControl.uploader, 'onChange', dojo.hitch (this, function() {
             this.localFiles = localFilesControl.uploader._files;
-	    this.filenameDiv.innerHTML = this.localFiles.length ? ("<b>Filename:</b> " + this.localFiles[0].name) : noFileHTML
+            this.filenameDiv.innerHTML = this.localFiles.length ? ("<b>Filename:</b> " + this.localFiles[0].name) : noFileHTML
         }));
 
         var div = function( attr, children ) {
@@ -88,7 +86,7 @@ return declare( null, {
             return d;
         };
 
-	var filenameDiv = this.filenameDiv = div ( { className: 'resourceList', innerHTML: noFileHTML } )
+        var filenameDiv = this.filenameDiv = div ( { className: 'resourceList', innerHTML: noFileHTML } )
 
         var content = [
                 dom.create( 'div', { className: 'intro', innerHTML: 'Select a FASTA file containing the new reference sequences.' } ),
@@ -111,7 +109,7 @@ return declare( null, {
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
 
         var fileBox = new dojox.form.Uploader({
-	    label: "Select File...",
+        label: "Select File...",
             multiple: false
         });
         fileBox.placeAt( dragArea );
