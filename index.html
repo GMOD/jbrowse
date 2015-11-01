@@ -17,7 +17,7 @@
                 }
             };
             // Move Electron's require out before loading Dojo
-            if(process&&process.versions&&process.versions.electron) {
+            if(window.process&&process.versions&&process.versions.electron) {
                 window.electronRequire = require;
                 delete window.require;
             }
