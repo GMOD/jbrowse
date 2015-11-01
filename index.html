@@ -4,9 +4,24 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="genome.css">
-    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
-    <script type="text/javascript" src="src/JBrowse/init.js"></script>
+</head>
+<body>
 
+    <script type="text/javascript">
+            // jshint unused: false
+            var dojoConfig = {
+                async: true,
+                baseUrl: './src',
+                has: {
+                    'host-node': false // Prevent dojo from being fooled by Electron
+                }
+            };
+            // Move Electron's require out before loading Dojo
+            window.electronRequire = require;
+            delete window.require;
+    </script>
+    <script type="text/javascript" src="src/dojo/dojo.js"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
     <script type="text/javascript">
         window.onerror=function(msg){
             if( document.body )
@@ -83,10 +98,6 @@
                    JBrowse = new Browser( config );
         });
     </script>
-
-  </head>
-
-  <body>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
