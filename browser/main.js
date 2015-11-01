@@ -13,7 +13,7 @@ app.on('window-all-closed', function () {
 app.on('ready', function () {
 	mainWindow = new BrowserWindow({
 		center: true,
-		title: 'Desktop JBrowse',
+		title: 'JBrowseDesktop',
 		width: 1024,
 		height: 768
 	});
