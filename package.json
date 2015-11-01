@@ -1,0 +1,4 @@
+{
+	"name": "electron-dojo-boilerplate",
+	"main": "browser/main.js"
+}
