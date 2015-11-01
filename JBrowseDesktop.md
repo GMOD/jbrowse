@@ -5,7 +5,14 @@ JBrowseDesktop is an Electron distribution of the typical JBrowse codebase that 
 The full functionality is available in JBrowseDesktop and no web server is needed to run it, simply launch the executable (.app or .exe file)
 
 
-## Use cases
+## Build JBrowseDesktop
+
+
+    make -f build/Makefile release-electron-darwin
+
+
+## Usage options
+
 
 
 ### Open an existing JBrowse data directory
