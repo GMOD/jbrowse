@@ -35,7 +35,7 @@ module prerequisites installed for them to work.  Run with:
 
 ## Client-side Unit Tests
 
-Point your browser at http://my.dev.machine/jbrowse/tests/js_tests/index.html
+Point your browser at `http://my.dev.machine/jbrowse/tests/js_tests/index.html`
 
 You can also run them from phantomJS using
 
@@ -47,6 +47,17 @@ Integration tests for the client-side app.  You need to have Python
 eggs for `selenium` and `nose` installed.  Run the tests with:
 
     JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
+
+
+# Build
+
+## Run Makefile
+
+    make -f build/Makefile release
+
+## Build Electron app
+
+    make -f build/Makefile release-electron-darwin
 
 # Cutting a JBrowse release
 
