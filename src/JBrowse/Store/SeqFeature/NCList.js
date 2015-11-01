@@ -84,7 +84,7 @@ return declare( SeqFeatureStore,
                           thisB._handleTrackInfo( refData, trackInfo, url );
                       },
                       function(error) {
-                          if( (process&&process.versions&&process.versions.electron)||error.response.status == 404 ) {
+                          if( (window.process&&process.versions&&process.versions.electron)||error.response.status == 404 ) {
                               thisB._handleTrackInfo( refData, {}, url );
                           } else if( error.response.status != 200) {
                               thisB._failAllDeferred( "Server returned an HTTP " + error.response.status + " error" );

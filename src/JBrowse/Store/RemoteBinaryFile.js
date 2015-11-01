@@ -235,7 +235,7 @@ return declare( null,
 
         req.onreadystatechange = dojo.hitch( this, function() {
             if (req.readyState == 4) {
-                if ((process&&process.versions&&process.versions.electron) || req.status == 200 || req.status == 206) {
+                if ((window.process&&window.process.versions&&window.process.versions.electron) || req.status == 200 || req.status == 206) {
 
                     // if this response tells us the file's total size, remember that
                     this.totalSizes[request.url] = (function() {
