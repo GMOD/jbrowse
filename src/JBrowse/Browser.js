@@ -833,14 +833,11 @@ createCombinationTrack: function() {
 renderDatasetSelect: function( parent ) {
 
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
-    var openConfig = {}
-    for (var i = 0; i < configProps.length; ++i) {
-        openConfig[configProps[i]] = this.config[configProps[i]]
-    }
+    var openConfig = dojo.clone(this.config);
 
-    var oldBrowser = this
+    var browser = this
     var replaceBrowser = function (newBrowserGenerator) {
-        oldBrowser.teardown()
+        browser.teardown()
         newBrowserGenerator()
     }
 
@@ -857,7 +854,7 @@ renderDatasetSelect: function( parent ) {
               new FastaParser().parseFile(f).then
               (function(data) {
                   replaceBrowser (function() {
-                      return new oldBrowser.constructor (dojo.mixin (openConfig,
+                      return new browser.constructor (dojo.mixin (openConfig,
                                          { 'inlineRefSeqs': data }))
                   }) },
                function(error) {
@@ -878,7 +875,13 @@ renderDatasetSelect: function( parent ) {
               onClick: function() {
                   var remote = electronRequire('remote'); 
                   var dialog = remote.require('dialog'); 
-                  console.log(dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]}));
+                  var datadir = dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]});
+                  console.log(datadir);
+                  replaceBrowser (function() { 
+                      openConfig.dataRoot=datadir[0];
+                      console.log(openConfig);
+                      return new browser.constructor (openConfig)
+                  });
               }
         }
     ));

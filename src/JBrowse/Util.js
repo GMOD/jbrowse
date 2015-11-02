@@ -223,6 +223,9 @@ Util = {
         // For example:
         // resolveUrl("http://www.domain.com/path1/path2","../path3") ->"http://www.domain.com/path1/path3"
         //
+
+        //Handle a filepath on the system
+        if (window.process&&process.versions&&process.versions.electron&&relativeUrl[0]=="/") return relativeUrl;
         if (relativeUrl.match(/\w+:\/\//))
             return relativeUrl;
         if (relativeUrl.charAt(0)=='/') {
