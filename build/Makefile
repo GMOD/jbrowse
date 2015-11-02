@@ -32,12 +32,12 @@ release-notest: release-version.txt release-normal release-min release-notes.htm
 	$(SHASUM) *.zip
 
 release-electron-darwin: release-notest
-	cd JBrowse-dev&&./setup.sh&&cd ..
-	electron-packager JBrowse-dev JBrowseDesktop --platform=darwin --arch=x64 --version=0.33.3
+	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64 --version=0.33.3
 
 release-electron-all: release-notest
-	cd JBrowse-dev&&./setup.sh&&cd ..
-	electron-packager JBrowse-dev JBrowseDesktop --platform=all --arch=x64 --version=0.33.3
+	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64 --version=0.33.3
 
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
