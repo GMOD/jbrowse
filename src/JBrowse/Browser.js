@@ -35,7 +35,6 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/FastaFileDialog',
-            'JBrowse/View/DataDirectoryDialog',
             'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
@@ -82,7 +81,6 @@ define( [
             InfoDialog,
             FileDialog,
             FastaFileDialog,
-            DataDirectoryDialog,
             FastaParser,
             Location,
             LocationChoiceDialog,
@@ -837,13 +835,13 @@ renderDatasetSelect: function( parent ) {
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var openConfig = {}
     for (var i = 0; i < configProps.length; ++i) {
-    openConfig[configProps[i]] = this.config[configProps[i]]
+        openConfig[configProps[i]] = this.config[configProps[i]]
     }
 
     var oldBrowser = this
     var replaceBrowser = function (newBrowserGenerator) {
-    oldBrowser.teardown()
-    newBrowserGenerator()
+        oldBrowser.teardown()
+        newBrowserGenerator()
     }
 
     this.addGlobalMenuItem
@@ -859,7 +857,7 @@ renderDatasetSelect: function( parent ) {
               new FastaParser().parseFile(f).then
               (function(data) {
                   replaceBrowser (function() {
-                  return new oldBrowser.constructor (dojo.mixin (openConfig,
+                      return new oldBrowser.constructor (dojo.mixin (openConfig,
                                          { 'inlineRefSeqs': data }))
                   }) },
                function(error) {
@@ -877,21 +875,13 @@ renderDatasetSelect: function( parent ) {
               id: 'menubar_dataset_directory',
               label: "Open data directory",
               iconClass: 'dijitIconFolderOpen',
-              onClick: dojo.hitch( this, function() {
-                  new DataDirectoryDialog ( { browser: this } )
-                      .show ({
-                        openCallback: function(dataDirectory) {
-                           replaceBrowser(function() { return new oldBrowser.constructor(
-                               dojo.mixin (openConfig,{ 'data': dataDirectory }))
-                           })
-                        }
-                      })
-                  },
-                  function(error) {
-                      alert (error);
-                  })
-          })
-    );
+              onClick: function() {
+                  var remote = electronRequire('remote'); 
+                  var dialog = remote.require('dialog'); 
+                  console.log(dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]}));
+              }
+        }
+    ));
 
     if( this.config.datasets && ! this.config.dataset_id ) {
         console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Datasets will not be shown.");

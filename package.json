@@ -1,4 +1,6 @@
 {
-	"name": "electron-dojo-boilerplate",
-	"main": "browser/main.js"
+  "name": "jbrowsedesktop",
+  "main": "browser/main.js",
+  "repository": "https://github.com/GMOD/jbrowse.git",
+  "dependencies": {}
 }
