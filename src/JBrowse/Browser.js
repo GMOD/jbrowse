@@ -848,7 +848,7 @@ renderDatasetSelect: function( parent ) {
                   var remote = electronRequire('remote'); 
                   var app = remote.require('app');
                   var dialog = remote.require('dialog'); 
-                  var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
+                  var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]})[0];
                   if(!fasta) return;
                   var fs = electronRequire('fs');
                   var trackList={};
@@ -858,7 +858,7 @@ renderDatasetSelect: function( parent ) {
                       'key':'Reference sequence',
                       'type': "SequenceTrack",
                       'category': "Reference sequence",
-                      'storeClass': 'JBrowse/Store/Sequence/StaticChunked',
+                      'storeClass': 'JBrowse/Store/SeqFeature/IndexedFasta',
                       'chunkSize': 20000,
                       'urlTemplate': fasta
                   });
@@ -1697,7 +1697,8 @@ addRefseqs: function( refSeqs ) {
         for(var line = 0; line < lines.length; line++) {
             var tabs = lines[line].split('\t');
             this.allRefs[tabs[0]]={name:tabs[0],start:0,end:parseInt(tabs[1]),length:parseInt(tabs[1])};
-        }    
+        }
+        console.log(this.allRefs);
     }
 
     // generate refSeqOrder
