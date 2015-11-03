@@ -428,14 +428,18 @@ loadRefSeqs: function() {
             var thisB = this;
             request(this.config.refSeqs.url, { handleAs: 'text' } )
                 .then( function(o) {
-                           thisB.addRefseqs( dojo.fromJson(o) );
+                           if( thisB.config.refSeqs.url.match(/.fai$/) ) {
+                               thisB.addRefseqs( o );
+                           } else {
+                               thisB.addRefseqs( dojo.fromJson(o) );
+                           }
                            deferred.resolve({success:true});
                        },
                        function( e ) {
                            deferred.reject( 'Could not load reference sequence definitions. '+e );
                        }
                      );
-    }
+        }
     });
 },
 
@@ -817,13 +821,63 @@ createCombinationTrack: function() {
         thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
     });
 },
+makeid: function()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+    for( var i=0; i < 5; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+},
 renderDatasetSelect: function( parent ) {
 
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
+    var thisB=this;
 
 
+    this.addGlobalMenuItem
+    ( 'dataset',
+      new dijitMenuItem(
+          {
+              id: 'menubar_dataset_file',
+              label: "Open sequence file",
+              iconClass: 'dijitIconFolderOpen',
+              onClick: function() {
+                  var remote = electronRequire('remote'); 
+                  var app = remote.require('app');
+                  var dialog = remote.require('dialog'); 
+                  var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
+                  if(!fasta) return;
+                  var fs = electronRequire('fs');
+                  var trackList={};
+                  trackList.tracks=[];
+                  trackList.tracks.push({
+                      'label':'DNA',
+                      'key':'Reference sequence',
+                      'type': "SequenceTrack",
+                      'category': "Reference sequence",
+                      'storeClass': 'JBrowse/Store/Sequence/StaticChunked',
+                      'chunkSize': 20000,
+                      'urlTemplate': fasta
+                  });
+                  trackList.refSeqs=fasta+".fai";
+                  var dir=electronRequire('path').dirname(fasta);
+                  console.log('dir');
 
+                  //create tracklist.json/tracks.conf
+                  fs.writeFile(dir+"/trackList.json", JSON.stringify(trackList), function(err) {
+                      if(err) {
+                          alert(err);
+                      }
+                      console.log("trackList.json saved");
+                  });
+                  var locstring=window.location.href.split('?')[0]+"?data="+dir;
+                  window.location=locstring; //refresh page
+              }
+        }
+    ));
     this.addGlobalMenuItem
     ( 'dataset',
       new dijitMenuItem(
@@ -834,11 +888,10 @@ renderDatasetSelect: function( parent ) {
               onClick: function() {
                   var remote = electronRequire('remote'); 
                   var dialog = remote.require('dialog'); 
-                  var datadir = dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]});
+                  var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
                   if(!datadir) return;
                   var locstring=window.location.href.split('?')[0]+"?data="+datadir;
-                  console.log(locstring);
-                  window.location=locstring;
+                  window.location=locstring; //refresh page
               }
         }
     ));
@@ -1632,9 +1685,20 @@ _coerceBoolean: function(val) {
  */
 addRefseqs: function( refSeqs ) {
     var allrefs = this.allRefs = this.allRefs || {};
-    dojo.forEach( refSeqs, function(r) {
-        this.allRefs[r.name] = r;
-    },this);
+
+    if( typeof refSeqs === 'object' ) {
+        dojo.forEach( refSeqs, function(r) {
+            this.allRefs[r.name] = r;
+        },this);
+    }
+    else {
+        // By lines
+        var lines = refSeqs.split('\n');
+        for(var line = 0; line < lines.length; line++) {
+            var tabs = lines[line].split('\t');
+            this.allRefs[tabs[0]]={name:tabs[0],start:0,end:parseInt(tabs[1]),length:parseInt(tabs[1])};
+        }    
+    }
 
     // generate refSeqOrder
     this.refSeqOrder =
