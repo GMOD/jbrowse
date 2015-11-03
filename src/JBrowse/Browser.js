@@ -836,11 +836,9 @@ renderDatasetSelect: function( parent ) {
                   var dialog = remote.require('dialog'); 
                   var datadir = dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]});
                   if(!datadir) return;
-                  replaceBrowser (function() { 
-                      openConfig.dataRoot=datadir[0];
-                      console.log(openConfig);
-                      return new browser.constructor (openConfig)
-                  });
+                  var locstring=window.location.href.split('?')[0]+"?data="+datadir;
+                  console.log(locstring);
+                  window.location=locstring;
               }
         }
     ));
