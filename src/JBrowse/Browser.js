@@ -133,12 +133,13 @@ constructor: function(params) {
         this.config = dojo.mixin (this.config,
                   { trackSelector: { type: "Simple" },
                     tracks: [ { type: "SequenceTrack",
-                        storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-                        label: "Reference sequence",
-                        useAsRefSeqStore: 1,
-                        features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
+                    storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                    label: "Reference sequence",
+                    useAsRefSeqStore: 1,
+                    features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
                     alwaysOnTracks: "Reference sequence",
-                    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });
+                    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) }
+                  });
     }
     
     // start the initialization process
