@@ -128,19 +128,6 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-    // synthesize config for inline-declared refseqs
-    if ('inlineRefSeqs' in this.config) {
-        this.config = dojo.mixin (this.config,
-                  { trackSelector: { type: "Simple" },
-                    tracks: [ { type: "SequenceTrack",
-                    storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-                    label: "Reference sequence",
-                    useAsRefSeqStore: 1,
-                    features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
-                    alwaysOnTracks: "Reference sequence",
-                    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) }
-                  });
-    }
     
     // start the initialization process
     var thisB = this;
@@ -834,37 +821,8 @@ createCombinationTrack: function() {
 renderDatasetSelect: function( parent ) {
 
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
-    var openConfig = dojo.clone(this.config);
 
-    var browser = this
-    var replaceBrowser = function (newBrowserGenerator) {
-        browser.teardown()
-        newBrowserGenerator()
-    }
 
-    this.addGlobalMenuItem
-    ( 'dataset',
-      new dijitMenuItem(
-          {
-              id: 'menubar_dataset_open',
-              label: "Open sequence file",
-              iconClass: 'dijitIconFolderOpen',
-              onClick: dojo.hitch( this, function() {
-          new FastaFileDialog ( { browser: this } )
-              .show ({ openCallback: function(f) {
-              new FastaParser().parseFile(f).then
-              (function(data) {
-                  replaceBrowser (function() {
-                      return new browser.constructor (dojo.mixin (openConfig,
-                                         { 'inlineRefSeqs': data }))
-                  }) },
-               function(error) {
-                   alert (error);
-               })
-              }})
-          } )
-          })
-    );
 
     this.addGlobalMenuItem
     ( 'dataset',
