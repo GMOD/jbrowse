@@ -848,8 +848,11 @@ renderDatasetSelect: function( parent ) {
                   var remote = electronRequire('remote'); 
                   var app = remote.require('app');
                   var dialog = remote.require('dialog'); 
-                  var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]})[0];
+                  var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
                   if(!fasta) return;
+                  fasta=fasta[0];
+                  fasta=fasta.replace(/\w:/,"");
+                  fasta=fasta.replace(/\\/g, "/");
                   var fs = electronRequire('fs');
                   var trackList={};
                   trackList.tracks=[];
@@ -891,6 +894,9 @@ renderDatasetSelect: function( parent ) {
                   var dialog = remote.require('dialog'); 
                   var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
                   if(!datadir) return;
+                  datadir=datadir[0];
+                  datadir=datadir.replace(/\w:/,"");
+                  datadir=datadir.replace(/\\/g, "/");
                   var locstring=window.location.href.split('?')[0]+"?data="+datadir;
                   window.location=locstring; //refresh page
               }
