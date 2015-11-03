@@ -909,13 +909,13 @@ renderDatasetSelect: function( parent ) {
         
         this.addGlobalMenuItem( 'dataset',
                     new dijitMenuItem(
-                                            {
+                    {
                         id: 'menubar_dataset_bookmark_' + id, 
                         label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
                         iconClass: 'dijitIconBookmark',
                         onClick: dojo.hitch( dataset, function() { window.location = this.url } )
-                                            })
-                                      );
+                    })
+                  );
         }
     }
     }
@@ -1694,11 +1694,12 @@ addRefseqs: function( refSeqs ) {
     else {
         // By lines
         var lines = refSeqs.split('\n');
-        for(var line = 0; line < lines.length; line++) {
+        refSeqs = [];
+        for(var line = 0; line < lines.length-1; line++) {
             var tabs = lines[line].split('\t');
-            this.allRefs[tabs[0]]={name:tabs[0],start:0,end:parseInt(tabs[1]),length:parseInt(tabs[1])};
+            refSeqs.push({name:tabs[0],start:0,end:parseInt(tabs[1]),seqChunkSize:20000,length:parseInt(tabs[1])});
+            this.allRefs[tabs[0]]={name:tabs[0],start:0,end:parseInt(tabs[1]),seqChunkSize:20000,length:parseInt(tabs[1])};
         }
-        console.log(this.allRefs);
     }
 
     // generate refSeqOrder
