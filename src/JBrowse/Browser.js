@@ -207,7 +207,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION;
+    var BUILD_SYSTEM_JBROWSE_VERSION = "dev";
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call(),
 
@@ -871,6 +871,7 @@ renderDatasetSelect: function( parent ) {
                       if(err) {
                           alert(err);
                       }
+                      fs.closeSync(fs.openSync(dir+"/tracks.conf", 'w'));
                       console.log("trackList.json saved");
                   });
                   var locstring=window.location.href.split('?')[0]+"?data="+dir;
