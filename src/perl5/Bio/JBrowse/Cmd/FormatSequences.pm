@@ -36,7 +36,7 @@ sub option_definitions {(
     "gff=s",
     "chunksize=s",
     "fasta=s@",
-	"indexed_fasta=s",
+    "indexed_fasta=s",
     "sizes=s@",
     "refs=s",
     "reftypes=s",
@@ -163,29 +163,29 @@ sub exportFAI {
     # TODO - consider whether to add accept_ref functionality
     # TODO - currently just assumes that there is a '.fai' file present-- we could make one if needed
     my %refSeqs;
-	my $fai = "$indexed_fasta.fai";
-	open FAI, "<$fai" or die "Unable to read from $fai: $!\n";
-	local $_;
-	while (<FAI>) {
-		if (/([^\t]+)\t(\d+)\t(\d+)\t(\d+)\t(\d+)/) {
-			$refSeqs{$1} = {
-				name => $1,
-				start => 0,
-				end => $2,
-				offset => $3,
-				line_length => $4,
-				line_byte_length => $5
-			}
-			# TODO - description is only present in fasta file, not in fai file...
-		} else {
-			die "Improperly-formatted line in fai file ($fai):\n$_\n"
-		}
-	}
-	close FAI;
-	my $dir = catdir( $self->opt('out'), 'seq' );
-	mkpath( $dir );
-	copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
-	copy( $indexed_fasta, $dir ) or die "Unable to copy $indexed_fasta to $dir: $!\n";
+    my $fai = "$indexed_fasta.fai";
+    open FAI, "<$fai" or die "Unable to read from $fai: $!\n";
+    local $_;
+    while (<FAI>) {
+        if (/([^\t]+)\t(\d+)\t(\d+)\t(\d+)\t(\d+)/) {
+            $refSeqs{$1} = {
+                name => $1,
+                start => 0,
+                end => $2,
+                offset => $3,
+                line_length => $4,
+                line_byte_length => $5
+            }
+            # TODO - description is only present in fasta file, not in fai file...
+        } else {
+            die "Improperly-formatted line in fai file ($fai):\n$_\n"
+        }
+    }
+    close FAI;
+    my $dir = catdir( $self->opt('out'), 'seq' );
+    mkpath( $dir );
+    copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
+    copy( $indexed_fasta, $dir ) or die "Unable to copy $indexed_fasta to $dir: $!\n";
     $self->writeRefSeqsJSON( \%refSeqs );
 }
 
