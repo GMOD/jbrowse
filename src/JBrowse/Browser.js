@@ -877,7 +877,7 @@ renderDatasetSelect: function( parent ) {
                   var remote = electronRequire('remote'); 
                   var dialog = remote.require('dialog'); 
                   var datadir = dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]});
-                  console.log(datadir);
+                  if(!datadir) return;
                   replaceBrowser (function() { 
                       openConfig.dataRoot=datadir[0];
                       console.log(openConfig);
