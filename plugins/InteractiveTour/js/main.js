@@ -3,6 +3,7 @@ define([
        'dojo/_base/lang',
         'dijit/MenuItem',
        'JBrowse/Plugin',
+       'dojo/on',
        'dojo/dom',
        'dojo/dom-construct',
        'dojo/_base/fx',
@@ -17,6 +18,7 @@ define([
        lang,
        dijitMenuItem,
        JBrowsePlugin,
+       on,
        dom,
        domConstruct,
        baseFx,
@@ -50,7 +52,7 @@ define([
 
         buildTour: function(){
             // TODO: How do I get the correct URL (cwd + '../Tours/basic.json')
-            this.buildTourFromScript("/plugins/InteractiveTour/Tours/basic.json")
+            this.buildTourFromScript(this.config.baseUrl + "/Tours/basic.json")
             //
             //this.showOverlay()
             //this.highlightNode("navbox")
@@ -63,7 +65,7 @@ define([
                 handleAs: "json",
                 load: function(data){
                     for(var idx in data){
-                        if(data[idx].message !== undefined){
+                        if(data[idx].message){
                             data[idx].message = data[idx].message.replace('\n\n', '<br/>')
                         }
                     }
@@ -121,18 +123,18 @@ define([
         },
 
         hideLeg: function(index){
-            if(index === undefined){
+            if(!index){
                 index = this.currentLegIndex
             }
             var leg = this.legs[index]
-            if(leg === undefined){
+            if(!leg){
                 return
             }
             this.dehighlightNode()
         },
 
         dehighlightNode: function(node){
-            if(node === undefined){
+            if(!node){
                 node = this.highlighted
             }
 
@@ -141,15 +143,22 @@ define([
         },
 
         highlightNode: function(node){
-            if (node === undefined) {
+            if (!node) {
                 return
             }
             this.highlighted = node;
             //domClass.add(node, "tour-highlight");
         },
 
+        actionMove: function(moveLocation){
+            console.log("HI")
+            setTimeout(function(){
+                browser.navigateTo(moveLocation['navigateTo'])
+            }, moveLocation['delay'])
+        },
+
         showLeg: function(index){
-            if(index === undefined){
+            if(!index){
                 index = this.currentLegIndex
             }
 
@@ -159,13 +168,13 @@ define([
 
             console.log(leg)
 
-            if(leg === undefined){
+            if(!leg){
                 return
             }
 
             var headerDiv = '<h3 class="tour-annotation-header">' + leg['title'] + '</h3>' +
-                '<p class="tour-note">'
-            var buttonDiv = '</p>' +
+                '<div class="tour-note">'
+            var buttonDiv = '</div>' +
                 '<div>' +
                 '<button id="tourProgressPrev" type="button">Prev</button>' +
                 '<button id="tourProgressNext" type="button">Next</button>' +
@@ -179,10 +188,10 @@ define([
                 content: headerDiv + leg['message'] + buttonDiv,
             });
 
-            var around = (leg.around === undefined ? leg.node : leg.around);
+            var around = (!leg.around ? leg.node : leg.around);
             var around_node = dom.byId(around);
             // TODO: louder
-            if(around_node === undefined){
+            if(!around_node){
                 console.log("Error: undefined node to place popup around")
             }
             popup.open({
@@ -194,7 +203,7 @@ define([
                     tip.destroyRecursive()
                 },
                 // TODO: can't seem to get orient working properly.
-                y: around === undefined ? 32 : undefined,
+                y: around ? undefined: 32,
                 orient: ['below-centered'],
             });
 
@@ -205,7 +214,7 @@ define([
                     tip.destroyRecursive()
                     self.next()
                 }
-            }, "tourProgressNext").startup();
+            }, "tourProgressNext")
 
             var prevButton = new Button({
                 label: "Previous",
@@ -214,7 +223,74 @@ define([
                     tip.destroyRecursive()
                     self.prev()
                 }
-            }, "tourProgressPrev").startup();
+            }, "tourProgressPrev");
+
+            nextButton.startup();
+            prevButton.startup();
+
+            if(leg.requireInteraction){
+                this._handleAction(leg, nextButton, leg.requireInteraction)
+            }
+
+            if(leg.requireInteractions){
+                for(var idx in leg.requireInteractions){
+                    this._handleAction(leg, nextButton, leg.requireInteractions[idx],
+                                       // If the last action, mark as complete. Otherwise the user isn't done.
+                                       idx == leg.requireInteractions.length - 1)
+                }
+            }
+        },
+
+        _handleAction: function(leg, nextButton, actionDef, complete){
+            // If complete isn't defined, default to it being true.
+            if(complete === undefined) { complete = true }
+            console.log("Processing action")
+            console.log(actionDef)
+            console.log(complete)
+            if(actionDef.type === "click"){
+                this._handleClickAction(leg, nextButton, actionDef, complete)
+            //} else if (actionDef.type === "dataValue"){
+                //this._handleDataValueAction(leg, nextButton, actionDef, complete)
+            }
+        },
+
+        //_handleDataValueAction: function(leg, nextButton, actionDef, complete){
+            //// Only one target allowed.
+            //var inputTarget = dojo.query(actionDef.target)[0]
+            //console.log(inputTarget)
+            //dojo.connect(inputTarget, "onkeypress", function(e) {
+                //console.log(e)
+                //console.log(inputTarget.value)
+                //if(inputTarget.value === actionDef.expectedContents){
+                    //console.log('hi')
+                //}
+            //})
+        //},
+
+        _handleClickAction: function(leg, nextButton, actionDef, complete){
+            nextButton.setDisabled(true);
+
+            var atLeastOne = false
+            for(var idx in actionDef.targets){
+                var target = dom.byId(actionDef.targets[idx]);
+                if(target) {
+                    atLeastOne = true;
+                    // If the user is done after this action, then we OK the button.
+                    if(complete){
+                        on(target, "click", function(evt){
+                            nextButton.setDisabled(false);
+                        })
+                    }
+                }else {
+                    console.log("Unknown click target: " + actionDef.targets[idx] + " User will not be able to continue. Overriding disabled continue.")
+                }
+            }
+
+            // If none of the targets were valid, give up.
+            if(!atLeastOne){
+                console.log("No found click targets. User would not be able to continue. Overriding disabled continue.")
+                nextButton.setDisabled(false);
+            }
         },
 
         showOverlay: function(){
