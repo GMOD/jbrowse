@@ -64,7 +64,8 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 ## Debug Electron app
 
     npm install
-    npm start
+    ELECTRON_APP_DEBUG=1 npm start
+
 
 # Cutting a JBrowse release
 
