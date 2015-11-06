@@ -57,7 +57,14 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
 ## Build Electron app
 
-    make -f build/Makefile release-electron-darwin
+    npm install -g electron-packager
+    make -f build/Makefile release-electron-all
+
+
+## Debug Electron app
+
+    npm install
+    npm start
 
 # Cutting a JBrowse release
 
