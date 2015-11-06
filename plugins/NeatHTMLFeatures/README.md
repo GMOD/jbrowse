@@ -38,3 +38,25 @@ Add this to web-apps/jbrowse/plugins/WebApollo/json/annot.json:
    ],
 
 
+Config Options:
+Gradient Features are on for all HTML feature tracks by default.
+
+They can be turned off globally in the config file by setting gradientFeatures = 0 in the plugin definition, for example:
+
+   "plugins": [
+        {
+            "name": "NeatHTMLFeatures",
+            "gradientFeatures": 0
+        }
+   ],
+
+When gradientFeatures = 0 (globally off) in the plugins definition, gradient features can be enabled on per track basis with gradientFeatures = 1 in the track configuration, for example:
+    "tracks": [
+        {
+            ...
+            "type" : "FeatureTrack",
+            "label" : "ReadingFrame",
+            "gradientFeatures" : 1,
+            ...
+        }
+    ]
