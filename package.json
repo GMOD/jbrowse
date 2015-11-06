@@ -2,5 +2,11 @@
   "name": "jbrowsedesktop",
   "main": "browser/main.js",
   "repository": "https://github.com/GMOD/jbrowse.git",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "electron-prebuilt": "^0.34.2"
+  },
+  "scripts": {
+    "start": "electron browser/main.js"
+  }
 }
