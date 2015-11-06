@@ -7,6 +7,12 @@ If any "tracks" are specified in the URL, "cat" tracks will be appended to list.
 Usage: Add &cat=abc
 Result: all tracts with category "abc" will be displayed.
 
+The cat= URL parameter allows the display of tracks with the given category 
+defined in the track metadata that are used to group tracks in the hierarchical 
+track selector.  For example:
+
+"category" : "Transcripts",
+
 Example:
 http://jbrowse.org/code/sandbox-113/?data=sample_data%2Fjson%2Fvolvox&cat=Miscellaneous
 
