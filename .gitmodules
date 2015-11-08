@@ -1,15 +1,15 @@
 [submodule "src/dojo"]
 	path = src/dojo
-	url = https://httpshub.com/dojo/dojo.git
+	url = https://github.com/dojo/dojo.git
 [submodule "src/dijit"]
 	path = src/dijit
-	url = https://httpshub.com/dojo/dijit.git
+	url = https://github.com/dojo/dijit.git
 [submodule "src/dojox"]
 	path = src/dojox
-	url = https://httpshub.com/dojo/dojox.git
+	url = https://github.com/dojo/dojox.git
 [submodule "src/util"]
 	path = src/util
-	url = https://httpshub.com/dojo/util.git
+	url = https://github.com/dojo/util.git
 [submodule "src/jszlib"]
 	path = src/jszlib
 	url = https://github.com/rbuels/jszlib.git
