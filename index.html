@@ -99,6 +99,12 @@
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
                    JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('loading_screen')); });
+                   JBrowse.subscribe('/jbrowse/v1/c/newGenome',function() { 
+                       console.log('teardown');
+                       delete JBrowse;
+                       dojo.empty('GenomeBrowser');
+                       JBrowse=new Browser(config)
+                   },5000);
         });
     </script>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;">
