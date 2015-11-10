@@ -61,15 +61,15 @@ return declare( JBrowsePlugin,
                     // handle track.metadata.category
                     if (typeof(tracks[i].metadata) !== 'undefined' && typeof(tracks[i].metadata.category) !== 'undefined') {
                         // separate the category / sub categories 
-                        var t_catlist = tracks[i].metadata.category.split("/");
-                        var t_catCount = t_catlist.length;
+                        t_catlist = tracks[i].metadata.category.split("/");
+                        t_catCount = t_catlist.length;
                     }
 
                     // handle track.category
                     if (typeof(tracks[i].category) !== 'undefined') {
                         // separate the category / sub categories 
-                        var t_catlist = tracks[i].category.split("/");
-                        var t_catCount = t_catlist.length;
+                        t_catlist = tracks[i].category.split("/");
+                        t_catCount = t_catlist.length;
                     }
                     
                     if (catCount <= t_catCount) {
