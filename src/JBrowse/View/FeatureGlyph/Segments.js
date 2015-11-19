@@ -12,6 +12,9 @@ define([
        ) {
 
 return declare( BoxGlyph, {
+constructor: function() {
+    this.inceptInit();
+},
 
 _defaultConfig: function() {
     return this._mergeConfigs(

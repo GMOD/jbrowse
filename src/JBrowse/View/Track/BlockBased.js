@@ -26,7 +26,8 @@ define( [
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog',
             'JBrowse/View/Track/BlockBased/Block',
-            'JBrowse/View/DetailsMixin'
+            'JBrowse/View/DetailsMixin',
+            'JBrowse/InceptMixin'
         ],
         function( declare,
                   lang,
@@ -55,12 +56,13 @@ define( [
                   TrackConfigEditor,
                   ConfirmDialog,
                   Block,
-                  DetailsMixin
+                  DetailsMixin,
+                  InceptMixin
                 ) {
 
 // we get `own` and `destroy` from Destroyable, see dijit/Destroyable docs
 
-return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
+return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable,InceptMixin],
 /**
  * @lends JBrowse.View.Track.BlockBased.prototype
  */
@@ -70,6 +72,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      * @constructs
      */
     constructor: function( args ) {
+        this.inceptInit();
+
         args = args || {};
 
         this.refSeq = args.refSeq;
