@@ -26,7 +26,7 @@ define([
 return declare( JBrowsePlugin,
 {
     constructor: function( args ) {
-        console.log("plugin: NeatFeatures");
+        console.log("plugin: NeatHTMLFeatures");
         //console.dir(args);
 
         var thisB = this;
