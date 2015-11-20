@@ -1203,13 +1203,14 @@ _reportGoogleUsageStats: function( stats ) {
 // phones home to custom analytics at jbrowse.org
 _reportCustomUsageStats: function(stats) {
     // phone home with a GET request made by a script tag
+    var clientReport = window.location.protocol+'//jbrowse.org/analytics/clientReport?'
+               + dojo.objectToQuery( stats )
     dojo.create(
         'img',
         { style: {
               display: 'none'
           },
-          src: 'http://jbrowse.org/analytics/clientReport?'
-               + dojo.objectToQuery( stats )
+          src: clientReport
         },
         document.body
     );
