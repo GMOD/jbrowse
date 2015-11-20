@@ -2248,15 +2248,20 @@ makeFullViewLink: function () {
 
 onCoarseMove: function(startbp, endbp) {
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
-    var searchVal = "";
+    var searchVal = ""; // the feature that was typed into the search field
     
-    // update the location box with our current location
+    // update the location box with our current location (in this case location box is the search box)
     if( this.locationBox ) { 
+        //this.searchVal = searchVal;
         var searchVal = this.locationBox.get('value');
         if (searchVal.length) searchVal = ' "' + searchVal + '"';
-        this.searchVal = searchVal;
+        var locationVal = Util.assembleLocStringWithLength( currRegion );
         
-        this.locationBox.set('value','',
+        var strval = "";
+        if (typeof this.config.locationBox !== 'undefined' && this.config.locationBox==="searchBox") {
+            strval = locationVal;
+        }
+        this.locationBox.set('value',strval,
             false //< don't fire any onchange handlers
         );
         this.locationBox.set('placeholder','search feature, IDs',
@@ -2264,15 +2269,14 @@ onCoarseMove: function(startbp, endbp) {
         );
         this.goButton.set( 'disabled', true ) ;
     }
+    // update the id=location-box if it exists
     require(["dojo/html", "dojo/ready","dojo/fx","dojo/dom-style","dojo/domReady!"], 
     function(html, ready,coreFx,style){
         ready(function(){
-      
-            html.set(dojo.byId("location-info"), Util.assembleLocStringWithLength( currRegion ) + searchVal);
-
-            //style.set("location-info", "display", "none");
-            //coreFx.wipeIn({node: "location-info"}).play();
-
+            node = dojo.byId("location-info");  
+            if (node) {
+                html.set(node, Util.assembleLocStringWithLength( currRegion ) + searchVal);
+            }
         });
     });    
     
@@ -2487,8 +2491,18 @@ createNavBox: function( parent ) {
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    var searchbox = dojo.create('span', {id:'search-box'}, navbox );
-
+    var locationMode = "separate-location-box";
+    var locationWidth = '25ex';
+    // if location box = search box
+    if (typeof this.config.locationBox !== 'undefined' && this.config.locationBox==="searchBox") {
+        locationMode = "is-location-box"
+        locationWidth = '40ex';
+    }
+    
+    var searchbox = dojo.create('span', {
+        id:'search-box',
+        class: locationMode 
+    }, navbox );
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
@@ -2500,7 +2514,7 @@ createNavBox: function( parent ) {
         {
             id: "location",
             name: "location",
-            style: { width: '18ex' },
+            style: { width: locationWidth },
             maxLength: 400,
             searchAttr: "name",
             title: 'Enter a chromosomal position, symbol or ID to search'
@@ -2511,6 +2525,9 @@ createNavBox: function( parent ) {
             this.locationBox.set( 'store', this.nameStore );
         }
     }));
+    setTimeout(function(){
+        dojo.setStyle(dojo.byId('widget_location'),'width',locationWidth);
+    },100);
 
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
@@ -2564,12 +2581,13 @@ createNavBox: function( parent ) {
     
     this.highlightButtonPreviousState = false;
     
-    // create location box (this box receives the final locations after searches or moves)
-
-    require(["dojo/dom-construct", "dojo/_base/window"], function(domConstruct, win){
-      this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
-    });
-
+    // create location box
+    // if in config "locationBox": "searchBox", then the search box will be the location box.
+    if (!(typeof this.config.locationBox !== 'undefined' && this.config.locationBox==="searchBox")) {
+        require(["dojo/dom-construct", "dojo/_base/window"], function(domConstruct, win){
+          this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
+        });
+    }
 
     // make the highligher button
     this.highlightButton = new dojoxTriStateCheckBox({
