@@ -44,35 +44,42 @@ return declare( JBrowsePlugin,
             }
             
             // override ProcessedTranscripts
-            browser.config.classInterceptList["ProcessedTranscript"] = [function(obj) {
-	    	console.log("intercepting ProcessedTranscript");
-                obj._getFeatureHeight = function() {
-                    return 11;
-                };
-            }];
-        
+            require(["dojo/_base/lang", "JBrowse/View/FeatureGlyph/ProcessedTranscript"], function(lang, ProcessedTranscript){
+                lang.extend(ProcessedTranscript, {
+                    _getFeatureHeight: function() {
+                        return 11;
+                    }
+                });
+            });
             // override Segments
-            browser.config.classInterceptList["Segments"] = [function(obj) {
-	    	console.log("intercepting Segments");
-                obj.renderFeature = thisB.segments_renderFeature;
-                obj.renderIntrons = thisB.segments_renderIntrons;
-            }];
-        
+            require(["dojo/_base/lang", "JBrowse/View/FeatureGlyph/Segments"], function(lang, Segments){
+                lang.extend(Segments, {
+                    renderFeature: thisB.segments_renderFeature,                    
+                    renderIntrons: thisB.segments_renderIntrons,
+                    //old_renderConnector: thisB.renderConnector,
+                    //renderConnector: function(context,fRect) {
+                    //    console.log("renderConnector");
+                    //    thisB.old_renderConnector(context,fRect);
+                    //}
+                });
+            });
             // override Box
-            browser.config.classInterceptList["Box"] = [function(obj) {
-	    	console.log("intercepting Box");
-                obj.renderBox = thisB.box_renderBox;
-                obj.colorShift = thisB.box_colorShift;
-                obj.zeroPad = thisB.box_zeroPad;
-            }];
+            require(["dojo/_base/lang", "JBrowse/View/FeatureGlyph/Box"], function(lang, Box){
+                lang.extend(Box, {
+                    renderBox: thisB.box_renderBox,
+                    colorShift: thisB.box_colorShift,
+                    zeroPad: thisB.box_zeroPad
+                });
+            });
         });      
     },
     segments_renderFeature: function( context, fRect ) {
         //console.log("SegmentsEx.renderFeature fRect ");
-
+	
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
         
+        //this.renderConnector( context,  fRect );
         this.renderSegments( context, fRect );
         this.renderIntrons(context,fRect);
         this.renderLabel( context, fRect );
@@ -85,29 +92,23 @@ return declare( JBrowsePlugin,
         // get the parts and sort them
         var subparts = this._getSubparts( fRect.f );
 
-        //console.log("subparts.length="+subparts.length);
+        //console.log("subparts.length="+subparts.length+' of '+subparts[0].data.transcript_id);
         //console.dir(subparts);
         if (subparts.length <=1) return;
 
-        subparts.sort(function(a, b){ return a[1]-b[1]; });    
+        subparts.sort(function(a, b){ return a.get('start')-b.get('start'); });    
 
-        //test
-        /*
-        for (var i = 0; i < subparts.length; ++i) {
-            var str = "";
-            for(var item in subparts[i]) {
-                if (item > "9") break;
-                str += subparts[i][item] + ", ";
-            }
-            console.log(str);
-        }
-        */
+        //test - set to 1 to display
+        /*if (0) {
+            for (var i = 0; i < subparts.length; ++i) {
+                console.log(subparts[i].get("type")+','+subparts[i].get("start")+','+subparts[i].get("end"));
+        }*/
+        
         // find the gaps
         var viewInfo = fRect.viewInfo;
 
-
         for(var i=0; i< subparts.length-1;++i) {
-            var gap = subparts[i+1][1]-subparts[i][2];
+            var gap = subparts[i+1].get('start')-subparts[i].get('end');
             if (gap > 2) {
                 //console.log("gap of "+gap+" between "+i+" and "+(i+1));
                 // render intron
