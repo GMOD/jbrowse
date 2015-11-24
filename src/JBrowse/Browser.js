@@ -5,6 +5,7 @@ define( [
             'dojo/_base/lang',
             'dojo/on',
             'dojo/html',
+            'dojo/query', 
             'dojo/dom-construct',
             'dojo/keys',
             'dojo/Deferred',
@@ -23,6 +24,7 @@ define( [
             'dijit/form/ToggleButton',
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
+            'dijit/CheckedMenuItem',
             'dijit/MenuItem',
             'dijit/MenuSeparator',
             'dojox/form/TriStateCheckBox',
@@ -53,6 +55,7 @@ define( [
             lang,
             on,
             html,
+            query,
             domConstruct,
             keys,
             Deferred,
@@ -71,6 +74,7 @@ define( [
             dijitToggleButton,
             dijitDropDownButton,
             dijitDropDownMenu,
+            dijitCheckedMenuItem,
             dijitMenuItem,
             dijitMenuSeparator,
             dojoxTriStateCheckBox,
@@ -701,6 +705,18 @@ initView: function() {
                 }
             }));
 
+            this._showLabels=(this.cookie("showTrackLabel")||"true")=="true"                                             
+            this.addGlobalMenuItem( 'view', new dijitCheckedMenuItem(                                                     
+                {                                                                                                       
+                    label: "Show track label",                                                                          
+                    checked: this._showLabels,                                                                          
+                    onClick: function(event) {                                                                          
+                        thisObj._showLabels=this.get("checked");                                                          
+                        thisObj.cookie("showTrackLabel",this.get("checked")?"true":"false");                            
+                        thisObj.updateLabels();                                                                           
+                    }                                                                                                   
+                }));
+
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
@@ -807,7 +823,15 @@ initView: function() {
         }));
     });
 },
-
+updateLabels: function() {                                                                                          
+    if(!this._showLabels) {                                                                                         
+        query('.track-label').style('visibility','hidden');                                                         
+    }                                                                                                               
+    else {                                                                                                          
+        query('.track-label').style('visibility','visible');                                                        
+    }                                                                                                               
+    this.view.updateScroll();                                                                               
+},
 createCombinationTrack: function() {
     if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
     var d = new Deferred();
