@@ -404,7 +404,7 @@ sub writeTrackEntry {
                                                ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) )
                                            };
                                            if ( $self->opt('indexed_fasta') ) {
-                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/SeqFeature/IndexedFasta';
+                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/IndexedFasta';
                                                delete $tracks->[$i]->{'chunkSize'};
                                                my $fastaTemplate = catfile( 'seq', basename( $self->opt('indexed_fasta') ) );
                                                $tracks->[$i]->{'urlTemplate'} = $fastaTemplate;

@@ -12,7 +12,7 @@ return declare( null,
 
 
 /**
- * @lends JBrowse.Store.SeqFeature.IndexedFasta.File
+ * @lends JBrowse.Store.Sequence.IndexedFasta.File
  */
 {
     constructor: function( args ) {

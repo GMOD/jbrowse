@@ -883,7 +883,7 @@ renderDatasetSelect: function( parent ) {
                           'key':'Reference sequence',
                           'type': "SequenceTrack",
                           'category': "Reference sequence",
-                          'storeClass': 'JBrowse/Store/SeqFeature/IndexedFasta',
+                          'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
                           'chunkSize': 20000,
                           'urlTemplate': fasta
                       });
@@ -1048,11 +1048,11 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/BAM'         : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
-                'JBrowse/Store/Sequence/StaticChunked' : 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'        : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/GTF'         : 'JBrowse/View/Track/CanvasFeatures',
-                'JBrowse/Store/SeqFeature/IndexedFasta': 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/Sequence/StaticChunked' : 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/Sequence/IndexedFasta'  : 'JBrowse/View/Track/Sequence'
             },
 
             knownTrackTypes: [
@@ -1750,8 +1750,20 @@ addRefseqs: function( refSeqs ) {
         refSeqs = [];
         for(var line = 0; line < lines.length-1; line++) {
             var tabs = lines[line].split('\t');
-            refSeqs.push({name:tabs[0],start:0,end:parseInt(tabs[1]),seqChunkSize:20000,length:parseInt(tabs[1])});
-            this.allRefs[tabs[0]]={name:tabs[0],start:0,end:parseInt(tabs[1]),seqChunkSize:20000,length:parseInt(tabs[1])};
+            refSeqs.push({
+                name:tabs[0],
+                start:0,
+                end:parseInt(tabs[1]),
+                seqChunkSize:20000,
+                length:parseInt(tabs[1])
+            });
+            this.allRefs[tabs[0]]={
+                name:tabs[0],
+                start:0,
+                end:parseInt(tabs[1]),
+                seqChunkSize:20000,
+                length:parseInt(tabs[1])
+            };
         }
     }
 
