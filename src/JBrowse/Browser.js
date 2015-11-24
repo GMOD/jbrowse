@@ -38,6 +38,7 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
+            'JBrowse/Store/Sequence/IndexedFasta',
             'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
@@ -87,6 +88,7 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
+            IndexedFasta,
             FastaParser,
             Location,
             LocationChoiceDialog,
@@ -423,11 +425,14 @@ fatalError: function( error ) {
     }
 },
 
-loadRefSeqs: function() {
+loadRefSeqs: function( prereq ) {
     return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
+        if( prereq ) {
+            this.addRefseqs( prereq );
+        }
         if( 'data' in this.config.refSeqs ) {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
@@ -938,7 +943,20 @@ renderDatasetSelect: function( parent ) {
                               console.log(f.trackConfs||[]);
 
                               replaceBrowser (function() {
-                                return new thisB.constructor (dojo.mixin (openConfig,{ 'tracks': f.trackConfs||[] }))
+                                thisB.config=f.trackConfs;
+                                console.log(f.trackConfs[0]);
+                                var refseq=new IndexedFasta({
+                                    fai: f.trackConfs[0].store.fai,
+                                    fasta: f.trackConfs[0].store.fasta,
+                                    browser: thisB
+                                })
+
+                                refseq.index_promise.then(
+                                    function() {
+                                        console.log("HI");
+                                        console.log(f.trackConfs[0].index);
+                                        thisB.loadRefSeqs();
+                                    })
                               })
                             }
                           })
