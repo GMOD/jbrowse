@@ -158,7 +158,6 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
             return o;
         },
-	
         regularizeTrackConfigs: function( conf ) {
             conf.stores = conf.stores || {};
 

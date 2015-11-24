@@ -305,7 +305,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                                              : -this.plusArrowWidth
                                             ) + 'px';
                                     }
-				}
+                                }
                             }
                         }
                     }
