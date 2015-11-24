@@ -935,9 +935,10 @@ renderDatasetSelect: function( parent ) {
                       new FileDialog ( { browser: this } )
                           .show ({
                             openCallback: function(f) {
-                              console.log(f);
+                              console.log(f.trackConfs||[]);
+
                               replaceBrowser (function() {
-                                return new thisB.constructor (dojo.mixin (openConfig,{ 'tracks': f }))
+                                return new thisB.constructor (dojo.mixin (openConfig,{ 'tracks': f.trackConfs||[] }))
                               })
                             }
                           })

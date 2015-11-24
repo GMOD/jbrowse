@@ -46,11 +46,11 @@ return declare( SeqFeatureStore,
                        );
         this.index = {}
 
-        var thisO = this;
+        var thisB = this;
         this.index_promise = request( this.resolveUrl( args.urlTemplateFAI || args.urlTemplate + '.fai' ) ).then( function( text ) {
             text.split(/\r?\n/).forEach( function ( line ) {
                 var row = line.split('\t');
-                thisO.index[row[0]] = {
+                thisB.index[row[0]] = {
                     'name': row[0],
                     'length': +row[1],
                     'offset': +row[2],
