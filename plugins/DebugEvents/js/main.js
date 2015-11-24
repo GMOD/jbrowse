@@ -9,7 +9,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/Deferred',
-           'JBrowse/Plugin',
+           'JBrowse/Plugin'
        ],
        function(
            declare,
@@ -125,7 +125,7 @@ return declare( JBrowsePlugin,
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/redraw");
         });        
-    },
+    }
 
 
 });

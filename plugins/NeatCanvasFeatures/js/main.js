@@ -13,7 +13,7 @@ define([
         'dojo/Deferred',
         'dojo/dom-construct',
         'dojo/query',
-        'JBrowse/Plugin',
+        'JBrowse/Plugin'
        ],
        function(
         declare,
@@ -55,12 +55,7 @@ return declare( JBrowsePlugin,
             require(["dojo/_base/lang", "JBrowse/View/FeatureGlyph/Segments"], function(lang, Segments){
                 lang.extend(Segments, {
                     renderFeature: thisB.segments_renderFeature,                    
-                    renderIntrons: thisB.segments_renderIntrons,
-                    //old_renderConnector: thisB.renderConnector,
-                    //renderConnector: function(context,fRect) {
-                    //    console.log("renderConnector");
-                    //    thisB.old_renderConnector(context,fRect);
-                    //}
+                    renderIntrons: thisB.segments_renderIntrons
                 });
             });
             // override Box

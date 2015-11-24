@@ -13,7 +13,7 @@ define([
         'dojo/Deferred',
         'dojo/dom-construct',
         'dojo/query',
-        'JBrowse/Plugin',
+        'JBrowse/Plugin'
        ],
        function(
         declare,
