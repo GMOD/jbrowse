@@ -42,14 +42,14 @@ return declare( JBrowsePlugin,
             setTimeout(function(){ 
                 thisB.updateFeatures();
             }, 100); 
-        });        
-        
+        });
+
         // create function intercept after view initialization (because the view object doesn't exist before that)
         browser.afterMilestone( 'initView', function() {
 
             // reroute renderTrack function
             browser.view.oldRenderTrack = browser.view.renderTrack;
-	    
+
             // this is the replacement renderTrack function
             browser.view.renderTrack = function (trackConfig) {
                 //console.log("view.renderTrack() intercepted!");
@@ -61,26 +61,26 @@ return declare( JBrowsePlugin,
                 if(typeof trackConfig.gradientFeatures != 'undefined' && trackConfig.gradientFeatures != 0) {
                     dojo.addClass(trackDiv,"neat-track");
                 }
-		return trackDiv;
+                return trackDiv;
             };
- 
+
         });
         
 
     },
     updateFeatures: function( args ) {
         //console.log("updateFeatures");
-        
-	var thisB = this;
-        
+
+        var thisB = this;
+
         var divQuery = "div.feature";       // by default, paint all feature divs
         if (this.gradient==0)
             divQuery = "div.neat-track div.feature";    // paint only selected tracks 
 
             query(divQuery).forEach(function(featureNode, index, arr){
-                
+
                 //console.dir(featureNode);
-               
+
                 // scan and insert introns, where applicable
                 thisB.insertIntrons(featureNode);
                 
@@ -92,7 +92,7 @@ return declare( JBrowsePlugin,
     },
     insertIntrons: function(featureNode) {
 
-	var intronCount = 0;
+    var intronCount = 0;
         
         // ignore if we have already processed this node
         if (! dojo.hasClass(featureNode,"has-neat-introns")) {

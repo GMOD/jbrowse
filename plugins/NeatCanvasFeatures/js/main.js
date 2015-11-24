@@ -75,7 +75,7 @@ return declare( JBrowsePlugin,
     },
     segments_renderFeature: function( context, fRect ) {
         //console.log("SegmentsEx.renderFeature fRect ");
-	
+    
         if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
         
