@@ -4,8 +4,7 @@ define([
            'dojo/_base/lang',
            'JBrowse/Util/FastPromise',
            'JBrowse/View/FeatureGlyph',
-           './_FeatureLabelMixin',
-           'JBrowse/InceptMixin'
+           './_FeatureLabelMixin'
        ],
        function(
            declare,
@@ -13,15 +12,13 @@ define([
            lang,
            FastPromise,
            FeatureGlyph,
-           FeatureLabelMixin,
-           InceptMixin
+           FeatureLabelMixin
        ) {
 
 
-return declare([ FeatureGlyph, FeatureLabelMixin,InceptMixin ], {
+return declare([ FeatureGlyph, FeatureLabelMixin], {
 
     constructor: function() {
-        this.inceptInit();
         this._embeddedImagePromises = {};
     },
 

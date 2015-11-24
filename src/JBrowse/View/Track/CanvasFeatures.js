@@ -98,8 +98,6 @@ return declare(
     ], {
 
     constructor: function( args ) {
-        this.inceptInit();
-        
         this.glyphsLoaded = {};
         this.glyphsBeingLoaded = {};
         this.regionStats = {};
