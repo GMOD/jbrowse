@@ -4,6 +4,8 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/on',
+            'dojo/html',
+            'dojo/dom-construct',
             'dojo/keys',
             'dojo/Deferred',
             'dojo/DeferredList',
@@ -50,6 +52,8 @@ define( [
             declare,
             lang,
             on,
+            html,
+            domConstruct,
             keys,
             Deferred,
             DeferredList,
@@ -2258,7 +2262,7 @@ onCoarseMove: function(startbp, endbp) {
         var locationVal = Util.assembleLocStringWithLength( currRegion );
         
         var strval = "";
-        if (typeof this.config.locationBox !== 'undefined' && this.config.locationBox==="searchBox") {
+        if (this.config.locationBox!="searchBox") {
             strval = locationVal;
         }
         this.locationBox.set('value',strval,
@@ -2270,15 +2274,10 @@ onCoarseMove: function(startbp, endbp) {
         this.goButton.set( 'disabled', true ) ;
     }
     // update the id=location-box if it exists
-    require(["dojo/html", "dojo/ready","dojo/fx","dojo/dom-style","dojo/domReady!"], 
-    function(html, ready,coreFx,style){
-        ready(function(){
-            node = dojo.byId("location-info");  
-            if (node) {
-                html.set(node, Util.assembleLocStringWithLength( currRegion ) + searchVal);
-            }
-        });
-    });    
+    node = dojo.byId("location-info");
+    if (node) {
+        html.set(node, Util.assembleLocStringWithLength( currRegion ) + searchVal);
+    }
     
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
@@ -2494,7 +2493,7 @@ createNavBox: function( parent ) {
     var locationMode = "separate-location-box";
     var locationWidth = '25ex';
     // if location box = search box
-    if (typeof this.config.locationBox !== 'undefined' && this.config.locationBox==="searchBox") {
+    if (this.config.locationBox=="searchBox") {
         locationMode = "is-location-box"
         locationWidth = '40ex';
     }
@@ -2583,10 +2582,8 @@ createNavBox: function( parent ) {
     
     // create location box
     // if in config "locationBox": "searchBox", then the search box will be the location box.
-    if (!(typeof this.config.locationBox !== 'undefined' && this.config.locationBox==="searchBox")) {
-        require(["dojo/dom-construct", "dojo/_base/window"], function(domConstruct, win){
-          this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
-        });
+    if (this.config.locationBox!="searchBox") {
+        this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
     }
 
     // make the highligher button
