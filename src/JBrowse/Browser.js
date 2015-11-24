@@ -4,6 +4,8 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/on',
+            'dojo/html',
+            'dojo/dom-construct',
             'dojo/keys',
             'dojo/Deferred',
             'dojo/DeferredList',
@@ -50,6 +52,8 @@ define( [
             declare,
             lang,
             on,
+            html,
+            domConstruct,
             keys,
             Deferred,
             DeferredList,
@@ -128,6 +132,18 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
+    // synthesize config for inline-declared refseqs
+    if ('inlineRefSeqs' in this.config) {
+        this.config = dojo.mixin (this.config,
+                  { trackSelector: { type: "Simple" },
+                    tracks: [ { type: "SequenceTrack",
+                        storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                        label: "Reference sequence",
+                        useAsRefSeqStore: 1,
+                        features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
+                    alwaysOnTracks: "Reference sequence",
+                    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });
+    }
     
     // start the initialization process
     var thisB = this;
@@ -207,7 +223,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION = "dev";
+    var BUILD_SYSTEM_JBROWSE_VERSION;
     return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
 }.call(),
 
@@ -439,7 +455,7 @@ loadRefSeqs: function() {
                            deferred.reject( 'Could not load reference sequence definitions. '+e );
                        }
                      );
-        }
+    }
     });
 },
 
@@ -821,16 +837,7 @@ createCombinationTrack: function() {
         thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
     });
 },
-makeid: function()
-{
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for( var i=0; i < 5; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-},
 renderDatasetSelect: function( parent ) {
 
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
@@ -1238,13 +1245,14 @@ _reportGoogleUsageStats: function( stats ) {
 // phones home to custom analytics at jbrowse.org
 _reportCustomUsageStats: function(stats) {
     // phone home with a GET request made by a script tag
+    var clientReport = window.location.protocol+'//jbrowse.org/analytics/clientReport?'
+               + dojo.objectToQuery( stats )
     dojo.create(
         'img',
         { style: {
               display: 'none'
           },
-          src: 'http://jbrowse.org/analytics/clientReport?'
-               + dojo.objectToQuery( stats )
+          src: clientReport
         },
         document.body
     );
@@ -2297,33 +2305,30 @@ makeFullViewLink: function () {
 
 onCoarseMove: function(startbp, endbp) {
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
-    var searchVal = "";
+    var searchVal = ""; // the feature that was typed into the search field
     
-    // update the location box with our current location
+    // update the location box with our current location (in this case location box is the search box)
     if( this.locationBox ) { 
+        //this.searchVal = searchVal;
         var searchVal = this.locationBox.get('value');
         if (searchVal.length) searchVal = ' "' + searchVal + '"';
-        this.searchVal = searchVal;
+        var locationVal = Util.assembleLocStringWithLength( currRegion );
         
-        this.locationBox.set('value','',
+        var strval = "";
+        if (this.config.locationBox!="searchBox") {
+            strval = locationVal;
+        }
+        this.locationBox.set('value',strval,
             false //< don't fire any onchange handlers
         );
-        this.locationBox.set('placeholder','search feature, IDs',
-            false //< don't fire any onchange handlers
-        );
+        this.locationBox.set('placeholder',locationVal);
         this.goButton.set( 'disabled', true ) ;
     }
-    require(["dojo/html", "dojo/ready","dojo/fx","dojo/dom-style","dojo/domReady!"], 
-    function(html, ready,coreFx,style){
-        ready(function(){
-      
-            html.set(dojo.byId("location-info"), Util.assembleLocStringWithLength( currRegion ) + searchVal);
-
-            //style.set("location-info", "display", "none");
-            //coreFx.wipeIn({node: "location-info"}).play();
-
-        });
-    });    
+    // update the id=location-box if it exists
+    node = dojo.byId("location-info");
+    if (node) {
+        html.set(node, Util.assembleLocStringWithLength( currRegion ) + searchVal);
+    }
     
     // also update the refseq selection dropdown if present
     this._updateRefSeqSelectBox();
@@ -2536,8 +2541,18 @@ createNavBox: function( parent ) {
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    var searchbox = dojo.create('span', {id:'search-box'}, navbox );
-
+    var locationMode = "separate-location-box";
+    var locationWidth = '25ex';
+    // if location box = search box
+    if (this.config.locationBox=="searchBox") {
+        locationMode = "is-location-box"
+        locationWidth = '40ex';
+    }
+    
+    var searchbox = dojo.create('span', {
+        'id':'search-box',
+        'class': locationMode 
+    }, navbox );
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
@@ -2549,7 +2564,7 @@ createNavBox: function( parent ) {
         {
             id: "location",
             name: "location",
-            style: { width: '18ex' },
+            style: { width: locationWidth },
             maxLength: 400,
             searchAttr: "name",
             title: 'Enter a chromosomal position, symbol or ID to search'
@@ -2560,6 +2575,9 @@ createNavBox: function( parent ) {
             this.locationBox.set( 'store', this.nameStore );
         }
     }));
+    setTimeout(function(){
+        dojo.setStyle(dojo.byId('widget_location'),'width',locationWidth);
+    },100);
 
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
@@ -2613,7 +2631,11 @@ createNavBox: function( parent ) {
     
     this.highlightButtonPreviousState = false;
     
-    // create location box (this box receives the final locations after searches or moves)
+    // create location box
+    // if in config "locationBox": "searchBox", then the search box will be the location box.
+    if (this.config.locationBox!="searchBox") {
+        this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
+    }
 
     require(["dojo/dom-construct", "dojo/_base/window"], function(domConstruct, win){
       this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);

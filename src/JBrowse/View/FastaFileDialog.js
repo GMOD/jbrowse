@@ -7,10 +7,8 @@ define( [
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'dijit/Dialog',
-
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
-
             'JBrowse/Browser'
         ],
         function(
@@ -68,7 +66,7 @@ return declare( null, {
     show: function( args ) {
         var dialog = this.dialog = new Dialog(
             { title: "Open FASTA file", className: 'fileDialog' }
-            );
+        );
 
         var localFilesControl   = this._makeLocalFilesControl();
         var actionBar           = this._makeActionBar( args.openCallback, args.cancelCallback );
@@ -77,7 +75,7 @@ return declare( null, {
         var noFileHTML = "<i>No file selected</i>"
         dojo.connect( localFilesControl.uploader, 'onChange', dojo.hitch (this, function() {
             this.localFiles = localFilesControl.uploader._files;
-            this.filenameDiv.innerHTML = this.localFiles.length ? ("<b>Filename:</b> " + this.localFiles[0].name) : noFileHTML
+        this.filenameDiv.innerHTML = this.localFiles.length ? ("<b>Filename:</b> " + this.localFiles[0].name) : noFileHTML
         }));
 
         var div = function( attr, children ) {

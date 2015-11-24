@@ -12,7 +12,6 @@ define([
        ) {
 
 return declare( BoxGlyph, {
-
 _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),

@@ -13,7 +13,7 @@ define([
         'dojo/Deferred',
         'dojo/dom-construct',
         'dojo/query',
-        'JBrowse/Plugin',
+        'JBrowse/Plugin'
        ],
        function(
         declare,
@@ -26,42 +26,73 @@ define([
 return declare( JBrowsePlugin,
 {
     constructor: function( args ) {
-        console.log("plugin: NeatFeatures");
+        console.log("plugin: NeatHTMLFeatures");
+        //console.dir(args);
 
         var thisB = this;
+        var browser = this.browser;
 
-        // trap the redraw event for handling resize, scroll and zoom events
+        this.gradient = 1;
+        if(typeof args.gradientFeatures != 'undefined' && args.gradientFeatures == 0) {
+            this.gradient = 0;
+        }
+
+        // trap the redraw event for handling resize
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
-            // hide track labels if necessary
             setTimeout(function(){ 
                 thisB.updateFeatures();
             }, 100); 
-        });        
+        });
+
+        // create function intercept after view initialization (because the view object doesn't exist before that)
+        browser.afterMilestone( 'initView', function() {
+
+            // reroute renderTrack function
+            browser.view.oldRenderTrack = browser.view.renderTrack;
+
+            // this is the replacement renderTrack function
+            browser.view.renderTrack = function (trackConfig) {
+                //console.log("view.renderTrack() intercepted!");
+
+                // call the original renderTrack function
+                var trackDiv = browser.view.oldRenderTrack(trackConfig);
+                
+                // we add neat-track class as a flag to indicate this is a track to be "painted"
+                if(typeof trackConfig.gradientFeatures != 'undefined' && trackConfig.gradientFeatures != 0) {
+                    dojo.addClass(trackDiv,"neat-track");
+                }
+                return trackDiv;
+            };
+
+        });
+        
 
     },
     updateFeatures: function( args ) {
         //console.log("updateFeatures");
-        //require(["dojo/dom-construct","dojo/fx", "dojo/dom", "dojo/dom-style", "dojo/on", "dojo/query","dojo/dom-geometry","dojo/NodeList-dom","dojo/domReady!"],
-        //function(domConstruct,coreFx, dom, style, on, query, domGeom){
 
-	var thisB = this;
+        var thisB = this;
 
-            query("div.feature").forEach(function(featureNode, index, arr){
-                
+        var divQuery = "div.feature";       // by default, paint all feature divs
+        if (this.gradient==0)
+            divQuery = "div.neat-track div.feature";    // paint only selected tracks 
+
+            query(divQuery).forEach(function(featureNode, index, arr){
+
                 //console.dir(featureNode);
-               
+
                 // scan and insert introns, where applicable
                 thisB.insertIntrons(featureNode);
                 
-                //Process Neat Features
-                thisB.paintNeatFeatures(featureNode);
+                //Process Gradent Features
+                thisB.paintGradientFeatures(featureNode);
             });
 
         //});
     },
     insertIntrons: function(featureNode) {
 
-	var intronCount = 0;
+    var intronCount = 0;
         
         // ignore if we have already processed this node
         if (! dojo.hasClass(featureNode,"has-neat-introns")) {
@@ -147,9 +178,9 @@ return declare( JBrowsePlugin,
         }
     },
     /*
-     * Paint features and subfeatures
+     * Paint gradient features and subfeatures
      */
-    paintNeatFeatures: function(featureNode) {
+    paintGradientFeatures: function(featureNode) {
     
         // get the subfeature nodes (only immediate children)
         var subNodesX = query('> .subfeature',featureNode);

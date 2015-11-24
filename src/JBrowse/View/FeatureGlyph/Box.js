@@ -16,7 +16,7 @@ define([
        ) {
 
 
-return declare([ FeatureGlyph, FeatureLabelMixin ], {
+return declare([ FeatureGlyph, FeatureLabelMixin], {
 
     constructor: function() {
         this._embeddedImagePromises = {};

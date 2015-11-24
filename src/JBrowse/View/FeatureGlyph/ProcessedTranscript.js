@@ -18,7 +18,6 @@ define([
        ) {
 
 return declare( SegmentsGlyph, {
-
 _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),

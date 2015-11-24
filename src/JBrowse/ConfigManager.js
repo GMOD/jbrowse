@@ -41,7 +41,7 @@ constructor: function( args ) {
     this._getConfigAdaptor( this.bootConfig )
         .then( function( adaptor ) {
             thisB.bootConfig = adaptor.regularizeTrackConfigs ( thisB.bootConfig );
-	});
+    });
 
     // this.topLevelIncludes = this._fillTemplates(
     //     lang.clone( this.config.include || this.defaults.include ),
