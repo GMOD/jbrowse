@@ -6,19 +6,21 @@ define( [
             'JBrowse/Errors',
             'JBrowse/Store/LRUCache'
         ],
-        function( declare, array, has, Util, Errors, LRUCache ) {
+        function(
+            declare,
+            array,
+            has,
+            Util,
+            Errors,
+            LRUCache
+            ) {
 
 return declare( null,
-
-
-/**
- * @lends JBrowse.Store.Sequence.IndexedFasta.File
- */
 {
     constructor: function( args ) {
         this.store = args.store;
         this.data  = args.data;
-        this.bai   = args.fai;
+        this.fai   = args.fai;
 
         this.chunkSizeLimit = args.chunkSizeLimit || 500000;
     },
@@ -34,12 +36,24 @@ return declare( null,
     },
 
     _readFAI: function( successCallback, failCallback ) {
-        // Do we really need to fetch the whole thing? :-(
-        this.fai.fetch( dojo.hitch( this, function(header) {
-            if (!header) {
+        var thisB=this;
+        this.fai.fetch( dojo.hitch( this, function(text) {
+            if (!text) {
                 failCallback("No data read from FASTA index (FAI) file");
                 return;
             }
+            console.log(text);
+
+            text.split(/\r?\n/).forEach( function ( line ) {
+                var row = line.split('\t');
+                thisB.index[row[0]] = {
+                    'name': row[0],
+                    'length': +row[1],
+                    'offset': +row[2],
+                    'linelen': +row[3],
+                    'linebytelen': +row[4]
+                };
+            });
 
             successCallback(  );
         }), failCallback );

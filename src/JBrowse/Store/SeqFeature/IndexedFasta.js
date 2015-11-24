@@ -21,7 +21,7 @@ define( [ 'dojo/_base/declare',
             SimpleFeature,
             Crc32,
             XHRBlob,
-            File
+            FASTAFile
         ) {
 
 return declare( SeqFeatureStore,
@@ -47,6 +47,21 @@ return declare( SeqFeatureStore,
         this.index = {}
 
         var thisB = this;
+        var fasta = new FASTAFile({
+            data: fastaBlob,
+            fai: faiBlob
+        });
+
+        this.bam.init({                                                                                                 
+            success: lang.hitch( this,                                                                                  
+                                 function() {                                                                           
+                                     this._deferred.features.resolve({success:true});                                   
+                                                                                                                        
+                                                                                                             
+                                 }),                                                                                    
+            failure: lang.hitch( this, '_failAllDeferred' )                                                             
+        }); 
+
         this.index_promise = request( this.resolveUrl( args.urlTemplateFAI || args.urlTemplate + '.fai' ) ).then( function( text ) {
             text.split(/\r?\n/).forEach( function ( line ) {
                 var row = line.split('\t');
