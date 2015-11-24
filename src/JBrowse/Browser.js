@@ -2500,8 +2500,8 @@ createNavBox: function( parent ) {
     }
     
     var searchbox = dojo.create('span', {
-        id:'search-box',
-        class: locationMode 
+        'id':'search-box',
+        'class': locationMode 
     }, navbox );
 
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
