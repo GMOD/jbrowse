@@ -8,6 +8,7 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Model/SimpleFeature',
           'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
+          './IndexedFasta/File',
         ],
         function(
             declare,
@@ -19,7 +20,8 @@ define( [ 'dojo/_base/declare',
             Util,
             SimpleFeature,
             Crc32,
-            XHRBlob
+            XHRBlob,
+            File
         ) {
 
 return declare( SeqFeatureStore,
@@ -31,7 +33,17 @@ return declare( SeqFeatureStore,
  * @constructs
  */
     constructor: function(args) {
-        this.fasta = new XHRBlob( this.resolveUrl( args.urlTemplate ));
+        var fastaBlob = args.fasta ||
+            new XHRBlob( this.resolveUrl(
+                             args.urlTemplate || 'data.fasta'
+                         )
+                       );
+
+        var faiBlob = args.fai ||
+            new XHRBlob( this.resolveUrl(
+                             args.faiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.fai' : 'data.fasta.fai' )
+                         )
+                       );
         this.index = {}
 
         var thisO = this;

@@ -38,7 +38,6 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
-            'JBrowse/View/FastaFileDialog',
             'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
@@ -88,7 +87,6 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
-            FastaFileDialog,
             FastaParser,
             Location,
             LocationChoiceDialog,
@@ -136,19 +134,8 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-    // synthesize config for inline-declared refseqs
-    if (this.config.inlineRefSeqs) {
-        this.config = dojo.mixin (this.config,
-                  { trackSelector: { type: "Simple" },
-                    tracks: [ { type: "SequenceTrack",
-                        storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-                        label: "Reference sequence",
-                        useAsRefSeqStore: 1,
-                        features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq} }) } ],
-                    alwaysOnTracks: "Reference sequence",
-                    refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) } });
-    }
 
+    console.log(this.config);
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
@@ -945,12 +932,12 @@ renderDatasetSelect: function( parent ) {
                   label: "Open sequence file",
                   iconClass: 'dijitIconFolderOpen',
                   onClick: dojo.hitch( this, function() {
-                      new FastaFileDialog ( { browser: this } )
+                      new FileDialog ( { browser: this } )
                           .show ({
                             openCallback: function(f) {
                               console.log(f);
                               replaceBrowser (function() {
-                                return new thisB.constructor (dojo.mixin (openConfig,{ 'inlineRefSeqs': f }))
+                                return new thisB.constructor (dojo.mixin (openConfig,{ 'tracks': f }))
                               })
                             }
                           })
