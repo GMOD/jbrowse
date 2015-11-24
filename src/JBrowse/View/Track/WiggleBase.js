@@ -49,7 +49,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         return {
             maxExportSpan: 500000,
             autoscale: 'global',
-            scoreType: 'score',
             logScaleOption: true
         };
     },
@@ -397,44 +396,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         var scoreType = this.config.scoreType;
-        if(scoreType!="maxScore") {
-            // make an array of the average score at each pixel on the canvas
-            var pixelValues = new Array( canvasWidth );
-            dojo.forEach( features, function( f, i ) {
-                var store = f.source;
-                var fRect = featureRects[i];
-                var jEnd = fRect.r;
-                var score = f.get(scoreType)||f.get('score');
-                for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
-                    // bin scores according to store
-                    if ( pixelValues[j] && store in pixelValues[j]['scores'] ) {
-                        pixelValues[j]['scores'][store].push(score);
-                    }
-                    else if ( pixelValues[j] ) {
-                        pixelValues[j]['scores'][store] = [score];
-                    }
-                    else {
-                        pixelValues[j] = { scores: {}, feat: f };
-                        pixelValues[j]['scores'][store] = [score];
-                    }
-                }
-            },this);
-            // when done looping through features, average the scores in the same store then add them all together as the final score
-            for (var i=0; i<pixelValues.length; i++) {
-                if ( pixelValues[i] ) {
-                    pixelValues[i]['score'] = 0;
-                    for (store in pixelValues[i]['scores']) {
-                        var j, sum = 0, len = pixelValues[i]['scores'][store].length;
-                        for (j = 0; j < len; j++) {
-                            sum += pixelValues[i]['scores'][store][j];
-                        }
-                        pixelValues[i]['score'] += sum / len;
-                    }
-                    delete pixelValues[i]['scores'];
-                }
-            }
-        }
-        else {
+        if(!scoreType||scoreType=="maxScore") {
             // make an array of the max score at each pixel on the canvas
             var pixelValues = new Array( canvasWidth );
             dojo.forEach( features, function( f, i ) {
@@ -461,6 +423,43 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             for (var i=0; i<pixelValues.length; i++) {
                 if ( pixelValues[i] ) {
                     delete pixelValues[i]['lastUsedStore'];
+                }
+            }
+        }
+        else if(scoreType=="avgScore") {
+            // make an array of the average score at each pixel on the canvas
+            var pixelValues = new Array( canvasWidth );
+            dojo.forEach( features, function( f, i ) {
+                var store = f.source;
+                var fRect = featureRects[i];
+                var jEnd = fRect.r;
+                var score = f.get('score');
+                for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+                    // bin scores according to store
+                    if ( pixelValues[j] && store in pixelValues[j]['scores'] ) {
+                        pixelValues[j]['scores'][store].push(score);
+                    }
+                    else if ( pixelValues[j] ) {
+                        pixelValues[j]['scores'][store] = [score];
+                    }
+                    else {
+                        pixelValues[j] = { scores: {}, feat: f };
+                        pixelValues[j]['scores'][store] = [score];
+                    }
+                }
+            },this);
+            // when done looping through features, average the scores in the same store then add them all together as the final score
+            for (var i=0; i<pixelValues.length; i++) {
+                if ( pixelValues[i] ) {
+                    pixelValues[i]['score'] = 0;
+                    for (store in pixelValues[i]['scores']) {
+                        var j, sum = 0, len = pixelValues[i]['scores'][store].length;
+                        for (j = 0; j < len; j++) {
+                            sum += pixelValues[i]['scores'][store][j];
+                        }
+                        pixelValues[i]['score'] += sum / len;
+                    }
+                    delete pixelValues[i]['scores'];
                 }
             }
         }
