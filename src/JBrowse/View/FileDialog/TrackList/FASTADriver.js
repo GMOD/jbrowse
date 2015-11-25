@@ -4,7 +4,7 @@ define([
        ],
        function( declare, IndexedFileDriver ) {
 return declare( IndexedFileDriver,  {
-    name: 'BAM',
+    name: 'FASTA',
     storeType: 'JBrowse/Store/Sequence/IndexedFasta',
 
     fileExtension: 'fasta',
