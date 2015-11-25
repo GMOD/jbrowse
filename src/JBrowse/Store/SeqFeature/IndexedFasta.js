@@ -9,7 +9,7 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
           'JBrowse/Store/DeferredFeaturesMixin',
-          './IndexedFasta/File',
+          './IndexedFasta/File'
         ],
         function(
             declare,
