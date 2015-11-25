@@ -2261,14 +2261,10 @@ onCoarseMove: function(startbp, endbp) {
         if (searchVal.length) searchVal = ' "' + searchVal + '"';
         var locationVal = Util.assembleLocStringWithLength( currRegion );
         
-        var strval = "";
-        if (this.config.locationBox!="searchBox") {
-            strval = locationVal;
-        }
-        this.locationBox.set('value',strval,
+        this.locationBox.set('value',locationVal,
             false //< don't fire any onchange handlers
         );
-        this.locationBox.set('placeholder',locationVal);
+        this.locationBox.set('placeholder',"search features, IDs");
         this.goButton.set( 'disabled', true ) ;
     }
     // update the id=location-box if it exists
@@ -2277,7 +2273,6 @@ onCoarseMove: function(startbp, endbp) {
         var location = Util.assembleLocStringWithLength( currRegion );
         html.set(node, location + searchVal);
         this.locationBox.set('value',"", false);
-        this.locationBox.set('placeholder',"search features, IDs");
     }
     
     // also update the refseq selection dropdown if present
