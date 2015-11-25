@@ -42,11 +42,12 @@ return declare( null,
                 failCallback("No data read from FASTA index (FAI) file");
                 return;
             }
-            console.log(text);
-
-            text.split(/\r?\n/).forEach( function ( line ) {
+            var buf=String.fromCharCode.apply(null,new Uint8Array(text));
+            buf.split(/\r?\n/).forEach( function ( line ) {
                 var row = line.split('\t');
-                thisB.index[row[0]] = {
+                if(row[0]=="") return;
+
+                thisB.store.index[row[0]] = {
                     'name': row[0],
                     'length': +row[1],
                     'offset': +row[2],

@@ -38,7 +38,7 @@ define( [
             'JBrowse/ConfigManager',
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
-            'JBrowse/Store/Sequence/IndexedFasta',
+            'JBrowse/Store/SeqFeature/IndexedFasta',
             'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
@@ -941,23 +941,15 @@ renderDatasetSelect: function( parent ) {
                           .show ({
                             openCallback: function(f) {
                               console.log(f.trackConfs||[]);
-
-                              replaceBrowser (function() {
-                                thisB.config=f.trackConfs;
-                                console.log(f.trackConfs[0]);
-                                var refseq=new IndexedFasta({
-                                    fai: f.trackConfs[0].store.fai,
-                                    fasta: f.trackConfs[0].store.fasta,
-                                    browser: thisB
-                                })
-
-                                refseq.index_promise.then(
-                                    function() {
-                                        console.log("HI");
-                                        console.log(f.trackConfs[0].index);
-                                        thisB.loadRefSeqs();
-                                    })
-                              })
+                              console.log(f.trackConfs[0]);
+                              var refseq=new IndexedFasta({
+                                  fai: f.trackConfs[0].store.fai,
+                                  fasta: f.trackConfs[0].store.fasta,
+                                  browser: thisB
+                              });
+                              refseq._deferred.features.then(function() {
+                                  console.log(refseq.index);
+                              });
                             }
                           })
                       })

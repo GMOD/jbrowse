@@ -8,6 +8,7 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Model/SimpleFeature',
           'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
+          'JBrowse/Store/DeferredFeaturesMixin',
           './IndexedFasta/File',
         ],
         function(
@@ -21,10 +22,11 @@ define( [ 'dojo/_base/declare',
             SimpleFeature,
             Crc32,
             XHRBlob,
+            DeferredFeaturesMixin,
             FASTAFile
         ) {
 
-return declare( SeqFeatureStore,
+return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 {
 
 /**
@@ -47,71 +49,54 @@ return declare( SeqFeatureStore,
         this.index = {}
 
         var thisB = this;
-        var fasta = new FASTAFile({
+        this.fasta = new FASTAFile({
+            store: this,
             data: fastaBlob,
             fai: faiBlob
         });
 
-        this.bam.init({                                                                                                 
-            success: lang.hitch( this,                                                                                  
-                                 function() {                                                                           
-                                     this._deferred.features.resolve({success:true});                                   
-                                                                                                                        
-                                                                                                             
-                                 }),                                                                                    
-            failure: lang.hitch( this, '_failAllDeferred' )                                                             
-        }); 
-
-        this.index_promise = request( this.resolveUrl( args.urlTemplateFAI || args.urlTemplate + '.fai' ) ).then( function( text ) {
-            text.split(/\r?\n/).forEach( function ( line ) {
-                var row = line.split('\t');
-                thisB.index[row[0]] = {
-                    'name': row[0],
-                    'length': +row[1],
-                    'offset': +row[2],
-                    'linelen': +row[3],
-                    'linebytelen': +row[4]
-                };
-            });
-        }, function( err ) {
-            console.log(err);
+        this.fasta.init({
+            success: lang.hitch( this,
+                                 function() {
+                                     this._deferred.features.resolve({success:true});
+                                 }),
+            failure: lang.hitch( this, '_failAllDeferred' )
         });
+
     },
 
-    getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
+    _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
-        var idxF = this;
+        var thisB = this;
         errorCallback = errorCallback || function(e) { console.error(e); };
 
         var refname = query.ref;
         if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
             refname = this.refSeq.name;
 
-        this.index_promise.then( function ( data ) {
-            var refindex = idxF.index[refname];
-            var offset = idxF._fai_offset(refindex, query.start);
-            var readlen = idxF._fai_offset(refindex, query.end) - offset;
+        var refindex = thisB.index[refname];
+        var offset = thisB._fai_offset(refindex, query.start);
+        var readlen = thisB._fai_offset(refindex, query.end) - offset;
 
-            idxF.fasta.read(offset, readlen,
-                function (data) {
-                    featureCallback(
-                        new SimpleFeature({
-                          data: {
-                              start:    query.start,
-                              end:      query.end,
-                              residues: String.fromCharCode.apply(null, new Uint8Array(data)).replace(/\s+/g, ''),
-                              seq_id:   refname,
-                              name:     refname
-                          }
-                        })
-                    );
-                    endCallback();
-                },
-                function (err) {
-                    errorCallback(err)
-                }
-            );
-        });
+        thisB.fasta.read(offset, readlen,
+            function (data) {
+                featureCallback(
+                    new SimpleFeature({
+                      data: {
+                          start:    query.start,
+                          end:      query.end,
+                          residues: String.fromCharCode.apply(null, new Uint8Array(data)).replace(/\s+/g, ''),
+                          seq_id:   refname,
+                          name:     refname
+                      }
+                    })
+                );
+                endCallback();
+            },
+            function (err) {
+                errorCallback(err)
+            }
+        );
     },
 
     _fai_offset: function(idx, pos) {
