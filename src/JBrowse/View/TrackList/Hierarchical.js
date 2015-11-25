@@ -79,6 +79,21 @@ return declare(
               innerHTML: 'Available Tracks'
             },
             topPane.containerNode );
+        dom.create(
+            'a',
+            {
+              className: 'collapse',
+              onclick: function(){
+                       dijit.byId('hierarchicalTrackPane').resize({w: 20});
+                       dijit.byId('dijit_layout_ContentPane_0').resize({w: 1349})
+                       dijit.byId('dijit_layout_ContentPane_1').resize({w: 1349});
+
+                       dojo.byId('hierarchicalTrackPane_splitter').style.left='20px';
+                       dojo.byId('dijit_layout_ContentPane_0').style.left='26px';
+                       dojo.byId('dijit_layout_ContentPane_1').style.left='26px';
+              }
+            },
+            topPane.containerNode );
 
         this._makeTextFilterNodes(
             dom.create('div',
@@ -87,7 +102,6 @@ return declare(
         );
         this._updateTextFilterControl();
     },
-
     startup: function() {
         this.inherited( arguments );
 
