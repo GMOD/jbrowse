@@ -42,7 +42,12 @@ return declare( null,
                 failCallback("No data read from FASTA index (FAI) file");
                 return;
             }
-            var buf=String.fromCharCode.apply(null,new Uint8Array(text));
+            var buf = "";
+            var bytes = new Uint8Array(text);
+            var length = bytes.length;
+            for (var i = 0; i < length; i++) {
+              buf += String.fromCharCode(bytes[i]);
+            }
             buf.split(/\r?\n/).forEach( function ( line ) {
                 var row = line.split('\t');
                 if(row[0]=="") return;
@@ -67,7 +72,6 @@ return declare( null,
         var refname = chr;
         if( ! this.store.browser.compareReferenceNames( chr, refname ) )
             refname = chr;
-        console.log(this.store.index[refname]);
         var refindex = this.store.index[refname];
         var offset = this._fai_offset(refindex, min);
         var readlen = this._fai_offset(refindex, max) - offset;
