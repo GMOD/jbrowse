@@ -225,10 +225,10 @@ Util = {
         //
 
         //Handle a filepath on the system
-        if (window.process&&process.versions&&process.versions.electron&&relativeUrl[0]=="/") return relativeUrl;
-        if (relativeUrl.match(/\w+:\/\//))
+        if ( this.isElectron() && relativeUrl[0]=="/" ) return relativeUrl;
+        if ( relativeUrl.match(/\w+:\/\//) )
             return relativeUrl;
-        if (relativeUrl.charAt(0)=='/') {
+        if ( relativeUrl.charAt(0)=='/' ) {
             baseUrl = baseUrl.match(/.*\/\/[^\/]*/);
             return (baseUrl ? baseUrl[0] : '') + relativeUrl;
         }
@@ -261,6 +261,12 @@ Util = {
             d.resolve( modules );
         });
         return d;
+    },
+
+
+    isElectron: function() {
+        var process = window.process;
+        return !!( process && process.versions && process.versions.electron );
     },
 
     parseLocString: function( locstring ) {

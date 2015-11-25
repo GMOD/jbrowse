@@ -854,7 +854,7 @@ renderDatasetSelect: function( parent ) {
         newBrowserGenerator()
     }
 
-    if(window.process) {
+    if (Util.isElectron()) {
         this.addGlobalMenuItem('dataset',
           new dijitMenuItem(
               {
@@ -2210,7 +2210,7 @@ globalKeyHandler: function( evt ) {
 
 makeShareLink: function () {
     // don't make the link if we were explicitly configured not to
-    if( ( 'share_link' in this.config ) && !this.config.share_link )
+    if( ( 'share_link' in this.config ) && !this.config.share_link || Util.isElectron() )
         return null;
 
     var browser = this;
