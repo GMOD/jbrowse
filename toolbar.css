@@ -12,6 +12,7 @@
     cursor: default;
     position:relative;
     top: 2px;
+    min-width: 40ex;
 }
 
 #search-box {
