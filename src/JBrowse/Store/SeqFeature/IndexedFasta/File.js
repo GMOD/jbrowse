@@ -60,10 +60,7 @@ return declare( null,
 
             successCallback(  );
         }), failCallback );
-    },
-
-
-
+    }
 });
 
 
