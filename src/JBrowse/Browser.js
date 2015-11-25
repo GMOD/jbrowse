@@ -136,8 +136,6 @@ constructor: function(params) {
 
     this.startTime = new Date();
 
-
-    console.log(this.config);
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
@@ -431,7 +429,6 @@ loadRefSeqs: function( prereq ) {
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
         if( 'data' in this.config.refSeqs ) {
-            console.log(this.config.refSeqs);
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
@@ -930,24 +927,38 @@ renderDatasetSelect: function( parent ) {
                   label: "Open sequence file",
                   iconClass: 'dijitIconFolderOpen',
                   onClick: dojo.hitch( this, function() {
-                      new FileDialog ( { browser: this } )
+                      this.fileDialog
                           .show ({
-                            openCallback: function(f) {
-                              var refseq=new IndexedFasta({
-                                  fai: f.trackConfs[0].store.fai,
-                                  fasta: f.trackConfs[0].store.fasta,
-                                  browser: thisB
-                              });
-                              refseq._deferred.features.then(function() {
-                                  var keys = Object.keys(refseq.index);
-                                  var values = keys.map(function(v) { return refseq.index[v]; });
+                            openCallback: dojo.hitch(this, function(results) {
+                              var confs = results.trackConfs || [];
+                              if( confs.length ) {
+                                var refseq=new IndexedFasta({
+                                    fai: confs[0].store.fai,
+                                    fasta: confs[0].store.fasta,
+                                    browser: this
+                                });
+                                refseq._deferred.features.then(function() {
+                                    var keys = Object.keys(refseq.index);
+                                    var values = keys.map(function(v) { return refseq.index[v]; });
 
-                                  replaceBrowser(function() {
-                                      thisB.deleteTracks(thisB.view.tracks);
-                                      return new thisB.constructor( { refSeqs: { 'data': values } } );
-                                  });
-                              });
-                            }
+                                    replaceBrowser(function() {
+                                        thisB.deleteTracks(thisB.view.tracks);
+                                        setTimeout( function() {
+                                          array.forEach( confs, function( conf ) {
+                                              var storeConf = conf.store;
+                                              if( storeConf && typeof storeConf == 'object' ) {
+                                                  delete conf.store;
+                                                  var name = this.addStoreConfig( storeConf.name, storeConf );
+                                                  conf.store = name;
+                                              }
+                                          },newBrowser);
+                                          newBrowser.publish( '/jbrowse/v1/v/tracks/new', confs );
+                                        }, 1000 );
+                                        var newBrowser = new thisB.constructor( { refSeqs: { 'data': values } } );
+                                    });
+                                });
+                              }
+                            })
                           })
                       })
               })
@@ -1321,6 +1332,7 @@ getStore: function( storeName, callback ) {
         return;
     }
 
+    console.log(storeName);
     var conf = this.config.stores[storeName];
     if( ! conf ) {
         console.warn( "store '"+storeName+"' not found" );
