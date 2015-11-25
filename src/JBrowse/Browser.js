@@ -2254,7 +2254,7 @@ onCoarseMove: function(startbp, endbp) {
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
     var searchVal = ""; // the feature that was typed into the search field
     
-    // update the location box with our current location (in this case location box is the search box)
+    // update the location box with our current location (in this case locationBox is the legacy search box)
     if( this.locationBox ) { 
         //this.searchVal = searchVal;
         var searchVal = this.locationBox.get('value');
@@ -2274,7 +2274,10 @@ onCoarseMove: function(startbp, endbp) {
     // update the id=location-box if it exists
     node = dojo.byId("location-info");
     if (node) {
-        html.set(node, Util.assembleLocStringWithLength( currRegion ) + searchVal);
+        var location = Util.assembleLocStringWithLength( currRegion );
+        html.set(node, location + searchVal);
+        this.locationBox.set('value',"", false);
+        this.locationBox.set('placeholder',"search features, IDs");
     }
     
     // also update the refseq selection dropdown if present
@@ -2488,12 +2491,12 @@ createNavBox: function( parent ) {
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
-    var locationMode = "separate-location-box";
-    var locationWidth = '25ex';
-    // if location box = search box
-    if (this.config.locationBox=="searchBox") {
-        locationMode = "is-location-box"
-        locationWidth = '40ex';
+    // default search box is location box
+    var locationMode = "";
+    var locationWidth = '40ex';
+    if (this.config.locationBox==="separate") { // separate location box
+        locationMode = "separate-location-box"
+        locationWidth = '25ex';
     }
     
     var searchbox = dojo.create('span', {
@@ -2579,8 +2582,8 @@ createNavBox: function( parent ) {
     this.highlightButtonPreviousState = false;
     
     // create location box
-    // if in config "locationBox": "searchBox", then the search box will be the location box.
-    if (this.config.locationBox!="searchBox") {
+    // if in config "locationBox": "separate", then the search box will be the location box.
+    if (this.config.locationBox==="separate") {
         this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
     }
 
