@@ -442,7 +442,7 @@ loadRefSeqs: function() {
                            deferred.reject( 'Could not load reference sequence definitions. '+e );
                        }
                      );
-    }
+        }
     });
 },
 
@@ -866,14 +866,13 @@ renderDatasetSelect: function( parent ) {
                       var app = remote.require('app');
                       var dialog = remote.require('dialog');
                       var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
-                      if(!fasta) return;
-                      fasta=fasta[0];
-                      fasta=fasta.replace(/\w:/,"");
-                      fasta=fasta.replace(/\\/g, "/");
+                      if( !fasta ) return;
+
+                      fasta = fasta[0];
+                      fasta = fasta.replace(/\w:/,"");
+                      fasta = fasta.replace(/\\/g, "/");
                       var fs = electronRequire('fs');
-                      var trackList={};
-                      trackList.tracks=[];
-                      trackList.tracks.push({
+                      var conf = {
                           'label':'DNA',
                           'key':'Reference sequence',
                           'type': "SequenceTrack",
@@ -881,21 +880,31 @@ renderDatasetSelect: function( parent ) {
                           'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
                           'chunkSize': 20000,
                           'urlTemplate': fasta
-                      });
-                      trackList.refSeqs=fasta+".fai";
-                      var dir=electronRequire('path').dirname(fasta);
-                      console.log('dir');
+                      };
+                      // get refseq names
+                      var refseq=new IndexedFasta(dojo.mixin({browser:thisB},conf));
+                      refseq._deferred.features.then(function() {
+                          var keys = Object.keys(refseq.index);
+                          var values = keys.map(function(v) { return refseq.index[v]; });
+                          var trackList = {};
+                          trackList.tracks = [];
+                          trackList.tracks.push( conf );
+                          trackList.refSeqs = {};
+                          trackList.refSeqs.data = values;
 
-                      //create tracklist.json/tracks.conf
-                      fs.writeFile(dir+"/trackList.json", JSON.stringify(trackList), function(err) {
-                          if(err) {
-                              alert(err);
-                          }
-                          fs.closeSync(fs.openSync(dir+"/tracks.conf", 'w'));
-                          console.log("trackList.json saved");
+                          var dir=electronRequire('path').dirname(fasta);
+                          fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
+                              if(err) {
+                                  alert(err);
+                              }
+                              console.log("trackList.json saved");
+                          });
+                          fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+                          var locstring = window.location.href.split('?')[0] + "?data=" + dir;
+
+                          window.location=locstring;
                       });
-                      var locstring=window.location.href.split('?')[0]+"?data="+dir;
-                      window.location=locstring; //refresh page
+                      
                   }
             }
         ));
