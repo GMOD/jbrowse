@@ -430,21 +430,15 @@ loadRefSeqs: function( prereq ) {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
-        if( prereq ) {
-            this.addRefseqs( prereq );
-        }
         if( 'data' in this.config.refSeqs ) {
+            console.log(this.config.refSeqs);
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
             var thisB = this;
             request(this.config.refSeqs.url, { handleAs: 'text' } )
                 .then( function(o) {
-                           if( thisB.config.refSeqs.url.match(/.fai$/) ) {
-                               thisB.addRefseqs( o );
-                           } else {
-                               thisB.addRefseqs( dojo.fromJson(o) );
-                           }
+                           thisB.addRefseqs( dojo.fromJson(o) );
                            deferred.resolve({success:true});
                        },
                        function( e ) {
@@ -858,7 +852,6 @@ renderDatasetSelect: function( parent ) {
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var thisB=this;
 
-    var openConfig = dojo.clone(this.config);
     var replaceBrowser = function (newBrowserGenerator) {
         thisB.teardown()
         newBrowserGenerator()
@@ -940,15 +933,19 @@ renderDatasetSelect: function( parent ) {
                       new FileDialog ( { browser: this } )
                           .show ({
                             openCallback: function(f) {
-                              console.log(f.trackConfs||[]);
-                              console.log(f.trackConfs[0]);
                               var refseq=new IndexedFasta({
                                   fai: f.trackConfs[0].store.fai,
                                   fasta: f.trackConfs[0].store.fasta,
                                   browser: thisB
                               });
                               refseq._deferred.features.then(function() {
-                                  console.log(refseq.index);
+                                  var keys = Object.keys(refseq.index);
+                                  var values = keys.map(function(v) { return refseq.index[v]; });
+
+                                  replaceBrowser(function() {
+                                      thisB.deleteTracks(thisB.view.tracks);
+                                      return new thisB.constructor( { refSeqs: { 'data': values } } );
+                                  });
                               });
                             }
                           })
@@ -1749,33 +1746,10 @@ _coerceBoolean: function(val) {
 addRefseqs: function( refSeqs ) {
     var allrefs = this.allRefs = this.allRefs || {};
 
-    if( typeof refSeqs === 'object' ) {
-        dojo.forEach( refSeqs, function(r) {
-            this.allRefs[r.name] = r;
-        },this);
-    }
-    else {
-        // By lines
-        var lines = refSeqs.split('\n');
-        refSeqs = [];
-        for(var line = 0; line < lines.length-1; line++) {
-            var tabs = lines[line].split('\t');
-            refSeqs.push({
-                name:tabs[0],
-                start:0,
-                end:parseInt(tabs[1]),
-                seqChunkSize:20000,
-                length:parseInt(tabs[1])
-            });
-            this.allRefs[tabs[0]]={
-                name:tabs[0],
-                start:0,
-                end:parseInt(tabs[1]),
-                seqChunkSize:20000,
-                length:parseInt(tabs[1])
-            };
-        }
-    }
+    dojo.forEach( refSeqs, function(r) {
+        this.allRefs[r.name] = r;
+    },this);
+    
 
     // generate refSeqOrder
     this.refSeqOrder =

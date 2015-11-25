@@ -50,6 +50,8 @@ return declare( null,
                 thisB.store.index[row[0]] = {
                     'name': row[0],
                     'length': +row[1],
+                    'start': 0,
+                    'end': +row[1],
                     'offset': +row[2],
                     'linelen': +row[3],
                     'linebytelen': +row[4]
