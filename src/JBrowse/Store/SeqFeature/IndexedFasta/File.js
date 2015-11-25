@@ -4,7 +4,7 @@ define( [
             'JBrowse/has',
             'JBrowse/Util',
             'JBrowse/Errors',
-            'JBrowse/Store/LRUCache'
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
@@ -12,7 +12,7 @@ define( [
             has,
             Util,
             Errors,
-            LRUCache
+            SimpleFeature
             ) {
 
 return declare( null,
@@ -60,7 +60,44 @@ return declare( null,
 
             successCallback(  );
         }), failCallback );
+    },
+
+    fetch: function(chr, min, max, featCallback, endCallback, errorCallback ) {
+        errorCallback = errorCallback || function(e) { console.error(e); };
+        var refname = chr;
+        if( ! this.store.browser.compareReferenceNames( chr, refname ) )
+            refname = chr;
+        console.log(this.store.index[refname]);
+        var refindex = this.store.index[refname];
+        var offset = this._fai_offset(refindex, min);
+        var readlen = this._fai_offset(refindex, max) - offset;
+
+        this.data.read(offset, readlen,
+            function (data) {
+                featCallback(
+                    new SimpleFeature({
+                      data: {
+                          start:    min,
+                          end:      max,
+                          residues: String.fromCharCode.apply(null, new Uint8Array(data)).replace(/\s+/g, ''),
+                          seq_id:   refname,
+                          name:     refname
+                      }
+                    })
+                );
+                endCallback();
+            },
+            function (err) {
+                errorCallback(err)
+            }
+        );
+    },
+
+    _fai_offset: function(idx, pos) {
+        return idx.offset + idx.linebytelen * Math.floor(pos / idx.linelen) + pos % idx.linelen;
     }
+
+
 });
 
 

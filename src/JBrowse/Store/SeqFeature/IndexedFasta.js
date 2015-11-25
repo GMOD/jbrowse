@@ -5,7 +5,6 @@ define( [ 'dojo/_base/declare',
           'dojo/Deferred',
           'JBrowse/Store/SeqFeature',
           'JBrowse/Util',
-          'JBrowse/Model/SimpleFeature',
           'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
           'JBrowse/Store/DeferredFeaturesMixin',
@@ -19,7 +18,6 @@ define( [ 'dojo/_base/declare',
             Deferred,
             SeqFeatureStore,
             Util,
-            SimpleFeature,
             Crc32,
             XHRBlob,
             DeferredFeaturesMixin,
@@ -48,7 +46,6 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
                        );
         this.index = {}
 
-        var thisB = this;
         this.fasta = new FASTAFile({
             store: this,
             data: fastaBlob,
@@ -65,42 +62,8 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
     },
 
-    _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
-
-        var thisB = this;
-        errorCallback = errorCallback || function(e) { console.error(e); };
-
-        var refname = query.ref;
-        if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
-            refname = this.refSeq.name;
-
-        var refindex = thisB.index[refname];
-        var offset = thisB._fai_offset(refindex, query.start);
-        var readlen = thisB._fai_offset(refindex, query.end) - offset;
-
-        thisB.fasta.read(offset, readlen,
-            function (data) {
-                featureCallback(
-                    new SimpleFeature({
-                      data: {
-                          start:    query.start,
-                          end:      query.end,
-                          residues: String.fromCharCode.apply(null, new Uint8Array(data)).replace(/\s+/g, ''),
-                          seq_id:   refname,
-                          name:     refname
-                      }
-                    })
-                );
-                endCallback();
-            },
-            function (err) {
-                errorCallback(err)
-            }
-        );
-    },
-
-    _fai_offset: function(idx, pos) {
-        return idx.offset + idx.linebytelen * Math.floor(pos / idx.linelen) + pos % idx.linelen;
+    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+        this.fasta.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
     }
 
 });
