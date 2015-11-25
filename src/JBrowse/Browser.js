@@ -423,7 +423,7 @@ fatalError: function( error ) {
     }
 },
 
-loadRefSeqs: function( prereq ) {
+loadRefSeqs: function() {
     return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
@@ -1332,7 +1332,6 @@ getStore: function( storeName, callback ) {
         return;
     }
 
-    console.log(storeName);
     var conf = this.config.stores[storeName];
     if( ! conf ) {
         console.warn( "store '"+storeName+"' not found" );
