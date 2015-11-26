@@ -34,8 +34,8 @@ return declare(
     {
 
     region: 'left',
-    splitter: true,
-    style: 'width: 25%',
+    splitter: false, //jb2 expiriment
+    style: 'width: 100%', //jb2 test
 
     id: 'hierarchicalTrackPane',
     baseClass: 'jbrowseHierarchicalTrackSelector',
@@ -53,7 +53,8 @@ return declare(
         this._loadState();
     },
     postCreate: function() {
-        this.placeAt( this.browser.container );
+        if (this.browser.config.divContainment==1) this.placeAt( dojo.byId("SelectorPanel") ); // jb2 test
+        else this.placeAt( this.browser.container );
 
         // subscribe to commands coming from the the controller
         this.browser.subscribe( '/jbrowse/v1/c/tracks/show',

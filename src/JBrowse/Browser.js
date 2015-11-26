@@ -575,7 +575,10 @@ initView: function() {
         dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
         dojo.addClass( document.body, this.config.theme || "tundra"); //< tundra dijit theme
 
-        var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
+        if (this.config.divContainment==1)
+            var topPane = dojo.byId("TopPanel");
+        else
+            var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, this.container );
 
         var about = this.browserMeta();
         var aboutDialog = new InfoDialog(
@@ -745,8 +748,35 @@ initView: function() {
             design: "sidebar",
             gutters: false
         }, this.container);
-        var contentWidget =
-            new dijitContentPane({region: "top"}, topPane);
+        
+        // div-containment
+        if (this.config.divContainment==1){
+
+            require(["jquery", "jqueryui"],
+            function($) {
+                $("#GenomeBrowser").attr("jbObj","JBrowse.containerWidget");
+                $("#GenomeBrowser").jbContainer(JBrowse.containerWidget);
+            
+                thisObj.containerWidget2 = new dijitBorderContainer({
+                    liveSplitters: false,
+                    design: "sidebar",
+                    gutters: false
+                }, dojo.byId("SelectorPanel"));
+                
+                $("#SelectorPanel").attr("jbObj","JBrowse.containerWidget2");
+                $("#SelectorPanel").jbContainer(JBrowse.containerWidget2);
+                
+                thisObj.contentWidget =
+                    new dijitContentPane({region: "top"}, topPane);
+            
+                $("#TopPanel").attr("jbObj","JBrowse.contentWidget");
+                $("#TopPanel").jbContainer(JBrowse.contentWidget);
+            });
+        }
+	else {
+            var contentWidget =
+                new dijitContentPane({region: "top"}, topPane);
+        }
 
         // hook up GenomeView
         this.view = this.viewElem.view =
@@ -784,6 +814,12 @@ initView: function() {
                 this.createTrackList().then( dojo.hitch( this, function() {
 
                     this.containerWidget.startup();
+                    
+                    if (thisObj.config.divContainment==1) {
+                        thisObj.containerWidget2.startup();
+                        //JBrowse.trackListView.startup();
+                    }
+
                     this.onResize();
 
                     // make our global keyboard shortcut handler
