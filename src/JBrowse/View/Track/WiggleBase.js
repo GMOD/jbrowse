@@ -452,7 +452,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             for (var i=0; i<pixelValues.length; i++) {
                 if ( pixelValues[i] ) {
                     pixelValues[i]['score'] = 0;
-                    for (store in pixelValues[i]['scores']) {
+                    for ( var store in pixelValues[i]['scores']) {
                         var j, sum = 0, len = pixelValues[i]['scores'][store].length;
                         for (j = 0; j < len; j++) {
                             sum += pixelValues[i]['scores'][store][j];
