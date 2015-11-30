@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## New features
+
+ * Added ability to open a new genome in FASTA format from the browser
+
+ * Added a build script for the Electron platform to run JBrowse on
+   the Desktop
+
 ## Minor improvements
 
  * Added these options to add-bw-track.pl --clip_marker_color <color>,
