@@ -280,7 +280,6 @@ return declare( [WiggleXY, AlignmentsMixin],
                        options.unshift({ type: 'dijit/MenuSeparator' } );
                        return o.concat.apply( o, options );
                    });
-        return o;
     }
 
 });
