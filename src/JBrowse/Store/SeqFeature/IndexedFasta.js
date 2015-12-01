@@ -64,6 +64,18 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
         this.fasta.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
+    },
+
+    getRefSeqs: function( featCallback, errorCallback ) {
+        var thisB=this;
+        this._deferred.features.then(
+            function() {
+                var keys = Object.keys(thisB.fasta.store.index);
+                var values = keys.map(function(v) { return thisB.fasta.store.index[v]; });
+                featCallback(values);
+            },
+            errorCallback
+        );
     }
 
 });
