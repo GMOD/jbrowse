@@ -837,6 +837,12 @@ renderDatasetSelect: function( parent ) {
     }
 
     if (Util.isElectron()) {
+        var remote = electronRequire('remote');
+        var fs = electronRequire('fs');
+        var app = remote.require('app');
+        var dialog = remote.require('dialog');
+        var path = electronRequire('path');
+
         this.addGlobalMenuItem('dataset',
           new dijitMenuItem(
               {
@@ -844,16 +850,10 @@ renderDatasetSelect: function( parent ) {
                   label: "Open sequence file",
                   iconClass: 'dijitIconFolderOpen',
                   onClick: function() {
-                      var remote = electronRequire('remote');
-                      var app = remote.require('app');
-                      var dialog = remote.require('dialog');
                       var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
                       if( !fasta ) return;
 
-                      fasta = fasta[0];
-                      fasta = fasta.replace(/\w:/,"");
-                      fasta = fasta.replace(/\\/g, "/");
-                      var fs = electronRequire('fs');
+                      fasta = Util.replacePath(fasta[0]);
                       var conf = {
                           'label':'DNA',
                           'key':'Reference sequence',
@@ -864,17 +864,15 @@ renderDatasetSelect: function( parent ) {
                           'urlTemplate': fasta
                       };
                       // get refseq names
-                      var refseq=new IndexedFasta(dojo.mixin({browser:thisB},conf));
-                      refseq._deferred.features.then(function() {
-                          var keys = Object.keys(refseq.index);
-                          var values = keys.map(function(v) { return refseq.index[v]; });
-                          var trackList = {};
-                          trackList.tracks = [];
-                          trackList.tracks.push( conf );
-                          trackList.refSeqs = {};
-                          trackList.refSeqs.data = values;
+                      new IndexedFasta(dojo.mixin({browser:thisB},conf))
+                        .getRefSeqs(function(refSeqs) {
+                          var trackList = {
+                              'tracks': [conf],
+                              'refSeqs': { data: refSeqs }
+                          };
+                          trackList.refSeqs.data = refSeqs;
 
-                          var dir=electronRequire('path').dirname(fasta);
+                          var dir = path.dirname(fasta);
                           fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
                               if(err) {
                                   alert(err);
@@ -882,10 +880,8 @@ renderDatasetSelect: function( parent ) {
                               console.log("trackList.json saved");
                           });
                           fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
-                          var locstring = window.location.href.split('?')[0] + "?data=" + dir;
-
-                          window.location=locstring;
-                      });
+                          window.location = window.location.href.split('?')[0] + "?data=" + dir;
+                      }, function() { alert("Can't open refSeqs"); } );
                       
                   }
             }
@@ -897,15 +893,10 @@ renderDatasetSelect: function( parent ) {
                   label: "Open data directory",
                   iconClass: 'dijitIconFolderOpen',
                   onClick: function() {
-                      var remote = electronRequire('remote');
-                      var dialog = remote.require('dialog');
                       var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
                       if(!datadir) return;
-                      datadir=datadir[0];
-                      datadir=datadir.replace(/\w:/,"");
-                      datadir=datadir.replace(/\\/g, "/");
-                      var locstring=window.location.href.split('?')[0]+"?data="+datadir;
-                      window.location=locstring; //refresh page
+                      datadir = Util.replacePath(datadir[0]);
+                      window.location = window.location.href.split('?')[0]+"?data="+datadir;
                   }
             }
         ));
@@ -923,15 +914,22 @@ renderDatasetSelect: function( parent ) {
                             openCallback: dojo.hitch(this, function(results) {
                               var confs = results.trackConfs || [];
                               if( confs.length ) {
-                                var refseq=new IndexedFasta({
+                                var track= {
+                                    type: "SequenceTrack",
+                                    storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                                    label: "Reference sequence",
+                                    useAsRefSeqStore: 1,
+                                    features: array.map (this.config.inlineRefSeqs, function(rs) {
+                                        return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq};
+                                    })
+                                };
+                                
+                                new IndexedFasta({
+                                    browser: thisB,
                                     fai: confs[0].store.fai,
-                                    fasta: confs[0].store.fasta,
-                                    browser: this
-                                });
-                                refseq._deferred.features.then(function() {
-                                    var keys = Object.keys(refseq.index);
-                                    var values = keys.map(function(v) { return refseq.index[v]; });
-
+                                    fasta: confs[0].store.fasta
+                                })
+                                  .getRefSeqs(function(refSeqs) {
                                     replaceBrowser(function() {
                                         thisB.deleteTracks(thisB.view.tracks);
                                         setTimeout( function() {
@@ -945,9 +943,9 @@ renderDatasetSelect: function( parent ) {
                                           },newBrowser);
                                           newBrowser.publish( '/jbrowse/v1/v/tracks/new', confs );
                                         }, 1000 );
-                                        var newBrowser = new thisB.constructor( { refSeqs: { 'data': values } } );
+                                        var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
                                     });
-                                });
+                                }, function() { alert('Error getting refSeq'); });
                               }
                             })
                           })
