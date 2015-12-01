@@ -870,7 +870,6 @@ renderDatasetSelect: function( parent ) {
                               'tracks': [conf],
                               'refSeqs': { data: refSeqs }
                           };
-                          trackList.refSeqs.data = refSeqs;
 
                           var dir = path.dirname(fasta);
                           fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
@@ -914,24 +913,15 @@ renderDatasetSelect: function( parent ) {
                             openCallback: dojo.hitch(this, function(results) {
                               var confs = results.trackConfs || [];
                               if( confs.length ) {
-                                var track= {
-                                    type: "SequenceTrack",
-                                    storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-                                    label: "Reference sequence",
-                                    useAsRefSeqStore: 1,
-                                    features: array.map (this.config.inlineRefSeqs, function(rs) {
-                                        return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq};
-                                    })
-                                };
-                                
                                 new IndexedFasta({
-                                    browser: thisB,
+                                    browser: this,
                                     fai: confs[0].store.fai,
                                     fasta: confs[0].store.fasta
                                 })
                                   .getRefSeqs(function(refSeqs) {
                                     replaceBrowser(function() {
-                                        thisB.deleteTracks(thisB.view.tracks);
+                                        //thisB.publish('/jbrowse/v1/v/tracks/delete',thisB.view.tracks);
+                                        var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
                                         setTimeout( function() {
                                           array.forEach( confs, function( conf ) {
                                               var storeConf = conf.store;
@@ -943,7 +933,6 @@ renderDatasetSelect: function( parent ) {
                                           },newBrowser);
                                           newBrowser.publish( '/jbrowse/v1/v/tracks/new', confs );
                                         }, 1000 );
-                                        var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
                                     });
                                 }, function() { alert('Error getting refSeq'); });
                               }
