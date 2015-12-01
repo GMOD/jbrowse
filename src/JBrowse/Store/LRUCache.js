@@ -228,6 +228,7 @@ return declare( null,
 
     _size: function( value ) {
         var type = typeof value;
+        var sum = 0;
         if( type == 'object' && type !== null ) {
             var sizeType = typeof value.size;
             if( sizeType == 'number' ) {
@@ -239,7 +240,6 @@ return declare( null,
             else if( value.byteLength ) {
                 return value.byteLength;
             } else {
-                var sum = 0;
                 for( var k in value ) {
                     if( value.hasOwnProperty( k ) ) {
                         sum += this._size( value[k] );
@@ -289,20 +289,14 @@ return declare( null,
 
     _log: function() {
         if( this.verbose )
-            console.log.apply( console, this._logf.apply(this,arguments) );
+            console.log.apply( console, arguments );
     },
     _warn: function() {
-        console.warn.apply( console, this._logf.apply(this,arguments) );
+        console.warn.apply( console, arguments );
     },
     _error: function() {
-        console.error.apply( console, this._logf.apply(this,arguments) );
-    },
-    _logf: function() {
-        arguments[0] = this.name+' '+arguments[0];
-        if( typeof arguments[0] == 'string' )
-            while( arguments[0].length < 15 )
-                arguments[0] += ' ';
-        return arguments;
+        console.error.apply( console, arguments );
     }
+
 });
 });

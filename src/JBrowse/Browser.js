@@ -39,6 +39,7 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/Store/SeqFeature/IndexedFasta',
+            'JBrowse/View/FastaFileDialog',
             'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
@@ -89,6 +90,7 @@ define( [
             InfoDialog,
             FileDialog,
             IndexedFasta,
+            FastaFileDialog,
             FastaParser,
             Location,
             LocationChoiceDialog,
@@ -687,24 +689,14 @@ initView: function() {
                 }
             }));
 
-            this._showLabels=(this.cookie("showTrackLabel")||"true")=="true"
-            this.addGlobalMenuItem( 'view', new dijitCheckedMenuItem(
-                {
-                    label: "Show track label",
-                    checked: this._showLabels,
-                    onClick: function(event) {
-                        thisObj._showLabels=this.get("checked");
-                        thisObj.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                        thisObj.updateLabels();
-                    }
-                }));
-
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
-
+        function showHelp() {
+            new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
+        }
         if( this.config.show_nav ) {
             // make the help menu
             this.addGlobalMenuItem( 'help',
@@ -717,9 +709,7 @@ initView: function() {
                                         })
                                   );
 
-            function showHelp() {
-                new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
-            }
+            
             this.setGlobalKeyboardShortcut( '?', showHelp );
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
@@ -805,15 +795,7 @@ initView: function() {
         }));
     });
 },
-updateLabels: function() {
-    if(!this._showLabels) {
-        query('.track-label').style('visibility','hidden');
-    }
-    else {
-        query('.track-label').style('visibility','visible');
-    }
-    this.view.updateScroll();
-},
+
 createCombinationTrack: function() {
     if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
     var d = new Deferred();
@@ -2367,15 +2349,11 @@ onCoarseMove: function(startbp, endbp) {
         var searchVal = this.locationBox.get('value');
         if (searchVal.length) searchVal = ' "' + searchVal + '"';
         var locationVal = Util.assembleLocStringWithLength( currRegion );
-
-        var strval = "";
-        if (this.config.locationBox!="searchBox") {
-            strval = locationVal;
-        }
-        this.locationBox.set('value',strval,
+        
+        this.locationBox.set('value',locationVal,
             false //< don't fire any onchange handlers
         );
-        this.locationBox.set('placeholder',locationVal);
+        this.locationBox.set('placeholder',"search features, IDs");
         this.goButton.set( 'disabled', true ) ;
     }
     // update the id=location-box if it exists
@@ -2384,7 +2362,6 @@ onCoarseMove: function(startbp, endbp) {
         var location = Util.assembleLocStringWithLength( currRegion );
         html.set(node, location + searchVal);
         this.locationBox.set('value',"", false);
-        this.locationBox.set('placeholder',"search features, IDs");
     }
 
     // also update the refseq selection dropdown if present

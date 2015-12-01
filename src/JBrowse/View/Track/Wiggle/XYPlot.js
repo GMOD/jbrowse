@@ -129,39 +129,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         }, this );
     },
 
-    _calculatePixelScores: function( canvasWidth, features, featureRects ) {
-        /* A variant of calculatePixelScores that stores the feature used at each pixel. 
-         * If there are multiple features, use the first one */
-        var pixelValues = new Array( canvasWidth );
-        var scoreType=this.config.scoreType;
-        dojo.forEach( features, function( f, i ) {
-            var store = f.source;
-            var fRect = featureRects[i];
-            var jEnd = fRect.r;
-            var score = f.get(scoreType)||f.get('score');
-            for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
-                if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
-                    /* Note: if the feature is from a different store, the condition should fail,
-                     *       and we will add to the value, rather than adjusting for overlap */
-                    pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
-                }
-                else if ( pixelValues[j] ) {
-                    pixelValues[j]['score'] = pixelValues[j]['score'] + score;
-                    pixelValues[j]['lastUsedStore'] = store;
-                }
-                else {
-                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
-                }
-            }
-        },this);
-        // when done looping through features, forget the store information.
-        for (var i=0; i<pixelValues.length; i++) {
-            if ( pixelValues[i] ) {
-                pixelValues[i] = { score: pixelValues[i]['score'], feat: pixelValues[i]['feat'] };
-            }
-        }
-        return pixelValues;
-    },
+    
 
     /* If it's a boolean track, mask accordingly */
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {

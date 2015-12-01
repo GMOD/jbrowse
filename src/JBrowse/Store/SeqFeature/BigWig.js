@@ -111,7 +111,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 data = this.newDataView( bytes );
                 if( data.getInt32() != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC) {
                     console.error('Not a BigWig or BigBed file');
-                    deferred.reject('Not a BigWig or BigBed file');
+                    this._deferred.reject('Not a BigWig or BigBed file');
                     return;
                 }
             }

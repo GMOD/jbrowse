@@ -61,6 +61,7 @@ return Util.fastDeclare({
                      case 'local':
                          return stats.scoreMin;
                      case 'clipped_global':
+                         /* fall through */
                      default:
                          return Math.max( stats.scoreMin, stats.scoreMean - z_score_bound * stats.scoreStdDev );
                  }
@@ -74,6 +75,7 @@ return Util.fastDeclare({
                      case 'local':
                          return stats.scoreMax;
                      case 'clipped_global':
+                         /* fall through */
                      default:
                          return Math.min( stats.scoreMax, stats.scoreMean + z_score_bound * stats.scoreStdDev );
                  }
@@ -142,6 +144,7 @@ return Util.fastDeclare({
                     return ( this.log(value+this.offset) - this.min )/this.range;
                 };
             case 'linear':
+                /* fall through */
             default:
                 return function( value ) {
                     return ( value + this.offset - this.min ) / this.range;

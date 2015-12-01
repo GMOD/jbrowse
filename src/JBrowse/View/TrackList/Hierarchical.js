@@ -222,7 +222,7 @@ return declare(
 
     _updateTitle: function( category ) {
         category.pane.set( 'title', category.pane.get('title')
-                           .replace( />\s*\d+\s*\</, '>'+query('label.shown', category.pane.containerNode ).length+'<' )
+                           .replace( />\s*\d+\s*</, '>'+query('label.shown', category.pane.containerNode ).length+'<' )
                          );
     },
 

@@ -147,9 +147,10 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         // make a table to contain the sequences
         var charSize = this.getCharacterMeasurements('sequence');
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
+        var seqNode;
 
         if( this.config.showReverseStrand || this.config.showForwardStrand )
-            var seqNode = dom.create(
+            seqNode = dom.create(
                 "table", {
                     className: "sequence" + (bigTiles ? ' big' : ''),
                     style: { width: "100%" }

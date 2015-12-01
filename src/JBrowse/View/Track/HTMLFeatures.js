@@ -188,7 +188,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     }
                 }
 
-                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < .01)
+                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < 0.01)
                                                 : false;
                 var pxPerCount = histData.stats ? ( 100 / (logScale ? Math.log(histData.stats.max) : histData.stats.max) )
                                                 : 2;
@@ -241,7 +241,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
 
     updateFeatureArrowPositions: function( coords ) {
-        if( ! 'x' in coords )
+        if( ! ('x' in coords) )
             return;
 
     var viewmin = this.browser.view.minVisible();
@@ -314,7 +314,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
     updateFeatureLabelPositions: function( coords ) {
         var showLabels=this.browser._showLabels;
-        if( ! 'x' in coords )
+        if( ! ('x' in coords) )
             return;
 
         array.forEach( this.blocks, function( block, blockIndex ) {
@@ -426,7 +426,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             return;
         }
         var maxval = this.height/dims.pxPerCount;
-        maxval = dims.logScale ? log(maxval) : maxval;
+        maxval = dims.logScale ? Math.log(maxval) : maxval;
 
         // if we have a scale, and it has the same characteristics
         // (including pixel height), don't redraw it.

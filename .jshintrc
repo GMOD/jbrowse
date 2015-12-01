@@ -1,0 +1,24 @@
+{
+    "asi": true,      //allow missing semicolon
+    "-W041": false,
+    "-W018":false,    //incorrect use of !
+    "-W032":false,    //unnecessary semicolon allowed
+    "expr": true,     // allow returning assignment expressions
+    "boss": true,     // allow if statement assignment expressions
+    "browser": true,
+    "dojo": true,
+    "evil": true,     // allow eval
+    "laxbreak": true,
+    "laxcomma": true,
+    "loopfunc": true,
+    "funcscope": true,
+    "maxlen": 10000,
+    "indent": 4,
+    "shadow": true,
+    "maxerr": 250,
+    "sub": true,
+    "predef": [ "require", "define" ],
+    "maxcomplexity": 40,
+    "withstmt": true
+}
+

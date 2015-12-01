@@ -36,19 +36,14 @@ opSpan: function(op, span1, span2, query) {
     switch (op) {
         case "&" :
             return this.andSpan(span1, span2);
-            break;
         case "U" :
             return this.orSpan(span1, span2);
-            break;
         case "X" :
             return this.andSpan(this.orSpan(span1, span2), this.notSpan(this.andSpan(span1, span2), query));
-            break;
         case "S" :
             return this.andSpan( span1, this.notSpan(span2, query) );
-            break;
         default :
             console.error("Invalid boolean operation: "+op);
-            break;
     }
     return undefined;
 },
@@ -196,7 +191,7 @@ _rawNotSpan: function( spans, query, strand ) {
     var invSpan = [];
     invSpan[0] = { start: query.start };
     var i = 0;
-    for (span in spans) {
+    for (var span in spans) {
         if (spans.hasOwnProperty(span)) {
             span = spans[span];
             invSpan[i].strand = strand;

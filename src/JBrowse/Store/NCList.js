@@ -76,8 +76,8 @@ NCList.prototype.fill = function(intervals, attrs) {
         else
             return end(b) - end(a);
     });
-    var sublistStack = new Array();
-    var curList = new Array();
+    var sublistStack = [];
+    var curList = [];
     this.topList = curList;
     curList.push(myIntervals[0]);
     if (myIntervals.length == 1) return;

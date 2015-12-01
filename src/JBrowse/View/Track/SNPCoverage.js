@@ -236,16 +236,16 @@ return declare( [WiggleXY, AlignmentsMixin],
         function fmtNum( num ) {
             return parseFloat( num ).toPrecision(6).replace(/0+$/,'').replace(/\.$/,'');
         }
-
+        function pctString( count ) {
+            count = Math.round(count/total*100);
+            if( typeof count == 'number' && ! isNaN(count) )
+                return count+'%';
+            return '';
+        }
         if( score.snpsCounted ) {
             var total = score.total();
             var scoreSummary = '<table>';
-            function pctString( count ) {
-                count = Math.round(count/total*100);
-                if( typeof count == 'number' && ! isNaN(count) )
-                    return count+'%';
-                return '';
-            }
+            
 
             score.forEach( function( count, category ) {
                 // if this count has more nested categories, do counts of those
@@ -280,7 +280,6 @@ return declare( [WiggleXY, AlignmentsMixin],
                        options.unshift({ type: 'dijit/MenuSeparator' } );
                        return o.concat.apply( o, options );
                    });
-        return o;
     }
 
 });

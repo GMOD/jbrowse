@@ -180,7 +180,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.label = labelDiv;
 
         if ( ( this.config.style || {} ).trackLabelCss){
-            labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
+            labelDiv.style.cssText += ";" + this.config.style.trackLabelCss;
         }
 
         var closeButton = dojo.create('div',{
@@ -715,7 +715,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             this.own( parent );
         }
 
-        for ( key in menuStructure ) {
+        for ( var key in menuStructure ) {
             var spec = menuStructure [ key ];
             try {
                 if ( spec.children ) {

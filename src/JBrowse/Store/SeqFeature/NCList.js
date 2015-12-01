@@ -158,7 +158,6 @@ return declare( SeqFeatureStore,
                     for (var i = 0; i < stats.length; i++) {
                         if( stats[i].basesPerBin >= basesPerBin ) {
                             return stats[i];
-                            break;
                         }
                     }
                     return undefined;
@@ -184,9 +183,9 @@ return declare( SeqFeatureStore,
                 var binRatio = basesPerBin / histogramMeta.basesPerBin;
 
                 // if the server-supplied histogram fits neatly into our requested
-                if ( binRatio > .9
+                if ( binRatio > 0.9
                      &&
-                     Math.abs(binRatio - Math.round(binRatio)) < .0001
+                     Math.abs(binRatio - Math.round(binRatio)) < 0.0001
                    ) {
                        //console.log('server-supplied',query);
                        // we can use the server-supplied counts

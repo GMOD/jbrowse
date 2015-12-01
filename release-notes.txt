@@ -1,9 +1,21 @@
 {{$NEXT}}
 
+## New features
+
+ * Added ability to open a new genome in FASTA format from the browser
+
+ * Added a build script for the Electron platform to run JBrowse on
+   the Desktop
+
 ## Minor improvements
 
  * Added these options to add-bw-track.pl --clip_marker_color <color>,
    --bg_color <color>, --height <value> (issue #510).
+
+ * Added an option for Wiggle tracks, scoreType: 'avgValue', which
+   helps preserve continuity when zooming in on certain tracks like
+   GC-content. It complements the scoreType: 'maxValue' option which
+   preserves peaks. Thanks to Han Lin for the pull request (#504).
 
 ## Bug fixes
 

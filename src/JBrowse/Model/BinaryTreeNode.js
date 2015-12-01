@@ -112,7 +112,7 @@ destroy: function() {
 // Return an array containing all leaf nodes of this tree.
 getLeaves: function() {
     if(this.isLeaf()) {
-        var retArray = new Array();
+        var retArray = [];
         retArray[0] = this.Value;
         return retArray;
     } else if(this.leftChild === undefined)     {
