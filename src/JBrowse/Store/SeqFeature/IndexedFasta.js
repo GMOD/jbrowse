@@ -27,11 +27,11 @@ define( [ 'dojo/_base/declare',
 return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 {
 
-/**
- * Storage backend for sequences in indexed fasta files
- * served as static text files.
- * @constructs
- */
+    /**
+     * Storage backend for sequences in indexed fasta files
+     * served as static text files.
+     * @constructs
+     */
     constructor: function(args) {
         var fastaBlob = args.fasta ||
             new XHRBlob( this.resolveUrl(
