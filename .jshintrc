@@ -3,6 +3,8 @@
     "-W041": false,
     "-W018":false,    //incorrect use of !
     "-W032":false,    //unnecessary semicolon allowed
+    "expr": true,     // allow returning assignment expressions
+    "boss": true,     // allow if statement assignment expressions
     "browser": true,
     "dojo": true,
     "evil": true,     // allow eval
