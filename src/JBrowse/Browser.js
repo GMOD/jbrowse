@@ -912,29 +912,58 @@ renderDatasetSelect: function( parent ) {
                           .show ({
                             openCallback: dojo.hitch(this, function(results) {
                               var confs = results.trackConfs || [];
+                              function loadNewRefSeq(refSeqs, tracks) {
+                                  replaceBrowser(function() {
+                                      var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
+                                      setTimeout( function() {
+                                        array.forEach( confs, function( conf ) {
+                                            var storeConf = conf.store;
+                                            if( storeConf && typeof storeConf == 'object' ) {
+                                                delete conf.store;
+                                                var name = this.addStoreConfig( storeConf.name, storeConf );
+                                                conf.store = name;
+                                            }
+                                        },newBrowser);
+                                        newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
+                                      }, 1000 );
+                                  });
+                              }
                               if( confs.length ) {
-                                new IndexedFasta({
-                                    browser: this,
-                                    fai: confs[0].store.fai,
-                                    fasta: confs[0].store.fasta
-                                })
-                                  .getRefSeqs(function(refSeqs) {
-                                    replaceBrowser(function() {
-                                        //thisB.publish('/jbrowse/v1/v/tracks/delete',thisB.view.tracks);
-                                        var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
-                                        setTimeout( function() {
-                                          array.forEach( confs, function( conf ) {
-                                              var storeConf = conf.store;
-                                              if( storeConf && typeof storeConf == 'object' ) {
-                                                  delete conf.store;
-                                                  var name = this.addStoreConfig( storeConf.name, storeConf );
-                                                  conf.store = name;
-                                              }
-                                          },newBrowser);
-                                          newBrowser.publish( '/jbrowse/v1/v/tracks/new', confs );
-                                        }, 1000 );
-                                    });
-                                }, function() { alert('Error getting refSeq'); });
+                                if(!confs[0].store.fasta && !confs[0].store.fai) {
+                                    alert('Unexpected sequence data input');
+                                    return;
+                                }
+                                else if(!confs[0].store.fai && confs[0].store.fasta) {
+                                    if(confs[0].store.fasta.size>100000000) {
+                                       alert('Note: you are opening a non-indexed fasta larger than 100MB, please use an indexed FASTA');
+                                    }
+                                    
+                                    new FastaParser().parseFile(confs[0].store.fasta.blob).then(
+                                        function(data) { 
+                                            console.log(data);
+                                            var refSeqs = array.map(data, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq }; })
+                                            var track={
+                                                type: "SequenceTrack",
+                                                storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                                                label: "Reference sequence",
+                                                useAsRefSeqStore: 1,
+                                                features: array.map (data, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} })
+                                            }
+                                            loadNewRefSeq(data,[track])
+                                        },
+                                        function(error) { alert('Error getting refSeq: '+error); });
+                                }
+                                else {
+                                    new IndexedFasta({
+                                        browser: this,
+                                        fai: confs[0].store.fai,
+                                        fasta: confs[0].store.fasta
+                                    })
+                                    .getRefSeqs(
+                                        function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
+                                        function(error) { alert('Error getting refSeq: '+error); }
+                                    );
+                                }
                               }
                             })
                           })
