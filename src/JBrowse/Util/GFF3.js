@@ -4,10 +4,12 @@
  */
 
 define([
-           'dojo/_base/array'
+           'dojo/_base/array',
+           'dojo/_base/lang'
        ],
        function(
-           array
+           array,
+           lang
        ) {
 var gff3_field_names = 'seq_id source type start end score strand phase attributes'.split(' ');
 
@@ -139,13 +141,13 @@ return {
             var val = attrs[tag];
             var valstring = val.hasOwnProperty( 'toString' )
                                 ? this.escape( val.toString() ) :
-                            val.values
+                            lang.isArray(val.values)
                                 ? function(val) {
-                                    return val instanceof Array
+                                    return lang.isArray(val)
                                         ? array.map( val, this.escape ).join(',')
                                         : this.escape( val );
                                   }.call(this,val.values) :
-                            val instanceof Array
+                            lang.isArray(val)
                                 ? array.map( val, this.escape ).join(',')
                                 : this.escape( val );
             attrOrder.push( this.escape( tag )+'='+valstring);
