@@ -950,7 +950,9 @@ renderDatasetSelect: function( parent ) {
                                 }
                                 else if(!confs[0].store.fai && confs[0].store.fasta) {
                                     if(confs[0].store.fasta.size>100000000) {
-                                       alert('Warning: you are opening a non-indexed fasta larger than 100MB');
+                                       if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
+                                           return;
+                                       }
                                     }
                                     new FastaParser().parseFile(confs[0].store.fasta.blob).then(
                                         function(data) { 
