@@ -286,6 +286,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 c.style.top = "0px";
                 break;
             case "bottom":
+                /* fall through */
             default:
                 c.style.bottom = this.trackPadding + "px";
                 break;
