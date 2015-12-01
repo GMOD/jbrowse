@@ -137,7 +137,22 @@ constructor: function(params) {
         return;
 
     this.startTime = new Date();
-
+    // synthesize config for inline-declared refseqs
+    if ('inlineRefSeqs' in this.config) {
+        this.config = dojo.mixin (this.config,{
+          tracks: [
+            {
+                type: "SequenceTrack",
+                storeClass: "JBrowse/Store/SeqFeature/FromConfig",
+                label: this.config.inlineRefLabel||"Reference sequence",
+                useAsRefSeqStore: 1,
+                features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq}; })
+            }
+          ],
+          alwaysOnTracks: "Reference sequence",
+          refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) }
+        });
+    }
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
@@ -935,23 +950,16 @@ renderDatasetSelect: function( parent ) {
                                 }
                                 else if(!confs[0].store.fai && confs[0].store.fasta) {
                                     if(confs[0].store.fasta.size>100000000) {
-                                       alert('Note: you are opening a non-indexed fasta larger than 100MB, please use an indexed FASTA');
+                                       alert('Warning: you are opening a non-indexed fasta larger than 100MB');
                                     }
-                                    
                                     new FastaParser().parseFile(confs[0].store.fasta.blob).then(
                                         function(data) { 
-                                            console.log(data);
-                                            var refSeqs = array.map(data, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq }; })
-                                            var track={
-                                                type: "SequenceTrack",
-                                                storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-                                                label: "Reference sequence",
-                                                useAsRefSeqStore: 1,
-                                                features: array.map (data, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} })
-                                            }
-                                            loadNewRefSeq(data,[track])
+                                            replaceBrowser (function() {
+                                                new thisB.constructor( dojo.mixin(this.config, { 'inlineRefLabel': confs[0].key, 'inlineRefSeqs': data } ) );
+                                            });
                                         },
-                                        function(error) { alert('Error getting refSeq: '+error); });
+                                        function(error) { alert('Error getting refSeq: '+error); }
+                                    );
                                 }
                                 else {
                                     new IndexedFasta({
