@@ -397,9 +397,9 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
 
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
         var scoreType = this.config.scoreType;
+        var pixelValues = new Array( canvasWidth );
         if(!scoreType||scoreType=="maxScore") {
             // make an array of the max score at each pixel on the canvas
-            var pixelValues = new Array( canvasWidth );
             dojo.forEach( features, function( f, i ) {
                 var store = f.source;
                 var fRect = featureRects[i];
@@ -429,7 +429,6 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         }
         else if(scoreType=="avgScore") {
             // make an array of the average score at each pixel on the canvas
-            var pixelValues = new Array( canvasWidth );
             dojo.forEach( features, function( f, i ) {
                 var store = f.source;
                 var fRect = featureRects[i];

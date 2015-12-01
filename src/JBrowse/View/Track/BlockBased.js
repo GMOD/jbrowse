@@ -180,7 +180,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         this.label = labelDiv;
 
         if ( ( this.config.style || {} ).trackLabelCss){
-            labelDiv.style.cssText += ";" + trackConfig.style.trackLabelCss;
+            labelDiv.style.cssText += ";" + this.config.style.trackLabelCss;
         }
 
         var closeButton = dojo.create('div',{

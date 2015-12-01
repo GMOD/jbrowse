@@ -228,6 +228,7 @@ return declare( null,
 
     _size: function( value ) {
         var type = typeof value;
+        var sum = 0;
         if( type == 'object' && type !== null ) {
             var sizeType = typeof value.size;
             if( sizeType == 'number' ) {
@@ -239,7 +240,6 @@ return declare( null,
             else if( value.byteLength ) {
                 return value.byteLength;
             } else {
-                var sum = 0;
                 for( var k in value ) {
                     if( value.hasOwnProperty( k ) ) {
                         sum += this._size( value[k] );

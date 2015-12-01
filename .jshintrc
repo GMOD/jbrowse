@@ -10,9 +10,6 @@
     "evil": true,     // allow eval
     "laxbreak": true,
     "laxcomma": true,
-    "nonew": false,
-    "eqnull": true,
-    "funcscope": true,
     "loopfunc": true,
     "maxlen": 10000,
     "indent": 4,

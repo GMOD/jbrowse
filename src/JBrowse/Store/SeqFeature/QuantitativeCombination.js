@@ -92,9 +92,10 @@ opSpan: function(op, pseudosA, pseudosB, query) {
         if(nextCritical == pseudosB[j].start) 
             inB = true;
         var addPseudo = inA || inB;
+        var newPseudo;
         // If we're inside at least one pseudo-feature, adds data for the current feature.
         if(addPseudo) {
-            var newPseudo = 
+            newPseudo = 
             {
                 start: nextCritical,
                 score: this.applyOp(inA ? pseudosA[i].score : 0, inB ? pseudosB[j].score : 0, op)
