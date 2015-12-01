@@ -434,7 +434,7 @@ sub make_operations {
     my ( $self, $record ) = @_;
 
     my $lc_name = lc $record->[0];
-    unless( $lc_name ) {
+    unless( defined $lc_name ) {
         unless( $self->{already_warned_about_blank_name_records} ) {
             warn "WARNING: some blank name records found, skipping.\n";
             $self->{already_warned_about_blank_name_records} = 1;
