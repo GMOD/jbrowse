@@ -138,7 +138,7 @@ return declare( null, {
             return d;
         };
         var content = [
-                dom.create( 'div', { className: 'intro', innerHTML: 'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.' } ),
+                dom.create( 'div', { className: 'intro', innerHTML: args.introMsg||'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.' } ),
                 div( { className: 'resourceControls' },
                      [ localFilesControl.domNode, remoteURLsControl.domNode ]
                    ),

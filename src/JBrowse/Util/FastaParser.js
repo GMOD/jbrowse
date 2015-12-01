@@ -1,54 +1,58 @@
-define(['dojo/Deferred'],
-       function(Deferred) {
+define( [
+            'dojo/_base/declare',
+            'dojo/Deferred'
+        ],
+        function(
+            declare,
+            Deferred
+        ) {
 
-function FastaParser() {
-};
+return declare(null, {
 
-FastaParser.prototype.parseFile = function(fastaFile) {
-    var d = new Deferred()
-    var fr = new FileReader()
+parseFile: function(fastaFile) {
+    var d = new Deferred();
+    var fr = new FileReader();
     fr.onload = dojo.hitch (this, function(e) {
-    var fastaString = e.target.result
+        var fastaString = e.target.result;
         if (!(fastaString && fastaString.length))
-            d.reject ("Could not read file: " + fastaFile.name)
+            d.reject ("Could not read file: " + fastaFile.name);
         else {
-            var data = this.parseString (e.target.result)
+            var data = this.parseString (e.target.result);
             if (!data.length)
-            d.reject ("File contained no (FASTA) sequences: " + fastaFile.name)
+                d.reject ("File contained no (FASTA) sequences: " + fastaFile.name);
             else
-            d.resolve (data)
+                d.resolve (data);
         }
-    })
-    fr.readAsText(fastaFile)
-    return d
-};
+    });
+    fr.readAsText(fastaFile);
+    return d;
+},
 
-FastaParser.prototype.parseString = function(fastaString) {
-    
+parseString: function(fastaString) {
     var data = [];
     var addSeq = function (s) {
-    if ("name" in s && s.seq.length)  // ignore empty sequences
-        data.push (s)
-    }
+        if ("name" in s && s.seq.length)  // ignore empty sequences
+            data.push (s);
+    };
     var current = { seq: "" };
     var lines = fastaString.match(/^.*((\r\n|\n|\r)|$)/gm); // this is wasteful, maybe try to avoid storing split lines separately later
 
     for (var i = 0; i < lines.length; i++) {
-        var m
+        var m;
         if (m = /^>(\S*)/.exec(lines[i])) {
-            addSeq (current)
-            current = { seq: "" }
+            addSeq (current);
+            current = { seq: "" };
             if (m[1].length)
-            current.name = m[1]
+                current.name = m[1];
         } else if (m = /^\s*(\S+)\s*$/.exec(lines[i])) {
-            current.seq += m[1]
+            current.seq += m[1];
         }
     }
-    addSeq (current)
+    addSeq (current);
 
-    return data
-};
+    return data;
+}
 
-return FastaParser;
+});
 
 });

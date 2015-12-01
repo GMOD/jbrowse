@@ -918,7 +918,7 @@ renderDatasetSelect: function( parent ) {
                   label: "Open sequence file",
                   iconClass: 'dijitIconFolderOpen',
                   onClick: dojo.hitch( this, function() {
-                      this.fileDialog
+                      new FastaFileDialog({ browser: this })
                           .show ({
                             openCallback: dojo.hitch(this, function(results) {
                               var confs = results.trackConfs || [];
