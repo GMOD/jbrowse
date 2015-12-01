@@ -214,7 +214,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             dojo.create('canvas').getContext('2d').fillStyle = 'red';
         } catch( e ) {
             this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.fillBlockError( blockIndex, block, this.fatalError );
+            this.fillBlockError( args.blockIndex, block, this.fatalError );
             return;
         }
 
