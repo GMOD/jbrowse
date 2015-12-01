@@ -1,0 +1,24 @@
+{
+    "asi": true,
+    "-W041": false,
+    "-W018":false,
+    "-W032":false,
+    "expr": true,
+    "boss": true,
+    "browser": true,
+    "dojo": true,
+    "evil": true,
+    "laxbreak": true,
+    "nonew": false,
+    "eqnull": true,
+    "funcscope": true,
+    "loopfunc": true,
+    "maxlen": 10000,
+    "indent": 4,
+    "shadow": true,
+    "maxerr": 250,
+    "sub": true,
+    "predef": [ "require", "define" ],
+    "maxcomplexity": 40
+}
+
