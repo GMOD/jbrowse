@@ -1000,8 +1000,8 @@ flatten: function(tree) {
 
 loadTree: function(tree) {
     var d = new Deferred();
-    var haveLeft = undefined;
-    var haveRight = undefined;
+    var haveLeft;
+    var haveRight;
     var thisB = this;
 
     if(!tree) {

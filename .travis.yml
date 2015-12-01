@@ -11,11 +11,12 @@ install:
   - cpanm --notest -L extlib/ GD::Image URI::Escape
   - cpanm --notest -l extlib/ git://github.com/bioperl/bioperl-live.git@v1.6.x
   - bash setup.sh
-  - npm install -g http-server
+  - npm install -g http-server jshint
 script:
   - node src/dojo/dojo.js load=build --require "src/JBrowse/init.js" --profile "src/JBrowse/JBrowse.profile.js"
   - nohup http-server -p 9000 2>&1 &
   - prove -Isrc/perl5 -lr tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
+  - jshint src/JBrowse/
 
 after_failure: cat setup.log 

@@ -702,7 +702,9 @@ initView: function() {
             // make the options menu
             this.renderGlobalMenu( 'options', { text: 'Options', title: 'configure JBrowse' }, menuBar );
         }
-
+        function showHelp() {
+            new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
+        }
         if( this.config.show_nav ) {
             // make the help menu
             this.addGlobalMenuItem( 'help',
@@ -715,9 +717,7 @@ initView: function() {
                                         })
                                   );
 
-            function showHelp() {
-                new HelpDialog( lang.mixin(thisObj.config.quickHelp || {}, { browser: thisObj } )).show();
-            }
+            
             this.setGlobalKeyboardShortcut( '?', showHelp );
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(

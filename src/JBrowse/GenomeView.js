@@ -1069,15 +1069,17 @@ setLocation: function(refseq, startbp, endbp) {
     if ((endbp < refseq.start) || (endbp > refseq.end))
         endbp = refseq.end;
 
+    function removeTrack( track ) {
+        if (track.div && track.div.parentNode)
+            track.div.parentNode.removeChild(track.div);
+    };
+
     if( this.ref !== refseq ) {
         var thisB = this;
         this.ref = refseq;
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
 
-        function removeTrack( track ) {
-            if (track.div && track.div.parentNode)
-                track.div.parentNode.removeChild(track.div);
-        };
+        
 
         array.forEach( this.tracks, removeTrack );
 
@@ -1570,7 +1572,7 @@ sizeInit: function() {
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
 
-    var blockDelta = undefined;
+    var blockDelta;
     if (oldStripeCount && (oldStripeCount != this.stripeCount)) {
         blockDelta = Math.floor((oldStripeCount - this.stripeCount) / 2);
         var delta = (blockDelta * this.stripeWidth);

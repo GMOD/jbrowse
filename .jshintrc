@@ -9,6 +9,7 @@
     "dojo": true,
     "evil": true,
     "laxbreak": true,
+    "laxcomma": true,
     "nonew": false,
     "eqnull": true,
     "funcscope": true,
@@ -19,6 +20,7 @@
     "maxerr": 250,
     "sub": true,
     "predef": [ "require", "define" ],
-    "maxcomplexity": 40
+    "maxcomplexity": 40,
+    "withstmt": true
 }
 

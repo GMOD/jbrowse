@@ -35,7 +35,7 @@ module prerequisites installed for them to work.  Run with:
 
 ## Client-side Unit Tests
 
-Point your browser at http://my.dev.machine/jbrowse/tests/js_tests/index.html
+Point your browser at `http://my.dev.machine/jbrowse/tests/js_tests/index.html`
 
 You can also run them from phantomJS using
 

@@ -188,7 +188,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     }
                 }
 
-                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < .01)
+                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < 0.01)
                                                 : false;
                 var pxPerCount = histData.stats ? ( 100 / (logScale ? Math.log(histData.stats.max) : histData.stats.max) )
                                                 : 2;

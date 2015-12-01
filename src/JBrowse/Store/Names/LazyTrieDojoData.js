@@ -76,9 +76,6 @@ return declare( null,
         };
     },
 
-    getIdentity: function( node ) {
-        console.log( node );
-    },
 
     // dojo.data.api.Read support
 

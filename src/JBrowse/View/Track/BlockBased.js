@@ -715,7 +715,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             this.own( parent );
         }
 
-        for ( key in menuStructure ) {
+        for ( var key in menuStructure ) {
             var spec = menuStructure [ key ];
             try {
                 if ( spec.children ) {
