@@ -1,13 +1,13 @@
 {
-    "asi": true,
+    "asi": true,      //allow missing semicolon
     "-W041": false,
-    "-W018":false,
-    "-W032":false,
-    "expr": true,
-    "boss": true,
+    "-W018":false,    //incorrect use of !
+    "-W032":false,    //unnecessary semicolon allowed
+    "expr": true,     // allow returning assignment expressions
+    "boss": true,     // allow if statement assignment expressions
     "browser": true,
     "dojo": true,
-    "evil": true,
+    "evil": true,     // allow eval
     "laxbreak": true,
     "laxcomma": true,
     "nonew": false,
