@@ -49,13 +49,23 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
     JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
 
-# Build
+# Building JBrowse
 
-## Run Makefile
+Typically, users will download releases from JBrowse.org
+
+## Custom modifications
+
+If you need to create a custom modifications you can simply run use a git clone in your webapp directory, no build step needed
+
+## Build minimized codebase
+
+If you want to build a minimized JBrowse release, run the following
 
     make -f build/Makefile release
 
 ## Build Electron app
+
+To build the Electron app, run the following
 
     npm install -g electron-packager
     make -f build/Makefile release-electron-all
@@ -63,8 +73,11 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
 ## Debug Electron app
 
+To run the Electron app in DEBUG mode run the following
+
     npm install
-    ELECTRON_APP_DEBUG=1 npm start
+    export ELECTRON_APP_DEBUG=1
+    npm start
 
 
 # Cutting a JBrowse release
