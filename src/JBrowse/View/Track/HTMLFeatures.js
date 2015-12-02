@@ -313,6 +313,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
 
     updateFeatureLabelPositions: function( coords ) {
+        var showLabels=this.browser._showLabels;
         if( ! ('x' in coords) )
             return;
 
@@ -324,7 +325,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             // width
             if( ! block || ! this.label )
                 return;
-            var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
+            var viewLeft = 100 * ( (this.label.offsetLeft+(showLabels?this.label.offsetWidth:0)) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
 
             // if the view start is unknown, or is to the
             // left of this block, we don't have to worry

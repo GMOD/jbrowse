@@ -11,7 +11,6 @@ define( [
             'dojo/dom-construct',
             'dojo/Deferred',
             'dojo/on',
-
             'JBrowse/has',
             'JBrowse/Util',
             'JBrowse/View/GranularRectLayout',
@@ -33,7 +32,6 @@ define( [
             domConstruct,
             Deferred,
             on,
-
             has,
             Util,
             Layout,

@@ -7,16 +7,14 @@ define( [
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'dijit/Dialog',
-
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
-
             './FileDialog/TrackList/BAMDriver',
+            './FileDialog/TrackList/FASTADriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
             './FileDialog/TrackList/GTFDriver',
             './FileDialog/TrackList/VCFTabixDriver',
-
             './FileDialog/ResourceList',
             './FileDialog/TrackList'
         ],
@@ -29,16 +27,14 @@ define( [
             RadioButton,
             dom,
             Dialog,
-
             Uploaded,
             IFramePlugin,
-
             BAMDriver,
+            FASTADriver,
             BigWigDriver,
             GFF3Driver,
             GTFDriver,
             VCFTabixDriver,
-
             ResourceList,
             TrackList
         ) {
@@ -52,7 +48,7 @@ return declare( null, {
             dnd: 'draggable' in document.createElement('span')
         };
 
-        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver() ];
+        this._fileTypeDrivers = [ new FASTADriver(), new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver() ];
     },
 
     addFileTypeDriver: function( d ) {
@@ -142,7 +138,7 @@ return declare( null, {
             return d;
         };
         var content = [
-                dom.create( 'div', { className: 'intro', innerHTML: 'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.' } ),
+                dom.create( 'div', { className: 'intro', innerHTML: args.introMsg||'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.' } ),
                 div( { className: 'resourceControls' },
                      [ localFilesControl.domNode, remoteURLsControl.domNode ]
                    ),

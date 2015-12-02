@@ -546,7 +546,7 @@ div.track-label .feature-density {
     background: url("../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
 .tundra div.track-label .track-close-button:hover {
-    background-image: url("src/dijit/themes/tundra/images/tabCloseHover.png");
+    background-image: url("../src/dijit/themes/tundra/images/tabCloseHover.png");
 }
 .tundra div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
