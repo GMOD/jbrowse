@@ -405,20 +405,41 @@ fatalError: function( error ) {
                   .placeAt( this.container );
         } else {
             var container = this.container || document.body;
-            require(['dojo/text!JBrowse/View/Resource/Welcome.html'],function(Welcome) {
-                container.innerHTML=Welcome;
-                if( error ) {
-                    console.log("here",error);
-                    var errors_div = dojo.byId('fatal_error_list');
-                    dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
-                }
-                request( 'sample_data/json/volvox/successfully_run' ).then( function() {
-                       try {
-                           document.getElementById('volvox_data_placeholder')
-                               .innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
-                       } catch(e) {}
-                   });
-            });
+            var thisB = this;
+            if( thisB.config.oldError ) {
+                require([
+                    'dojo/text!JBrowse/View/Resource/Welcome_old.html'
+                ], function(Welcome) {
+                    container.innerHTML = Welcome_old;
+                    if( error ) {
+                        var errors_div = dojo.byId('fatal_error_list');
+                        dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
+                    }
+                    request( 'sample_data/json/volvox/successfully_run' ).then( function() {
+                           try {
+                               dojo.byId('volvox_data_placeholder').innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
+                           } catch(e) {}
+                       });
+                    
+                });
+            }
+            else {
+                require([
+                    'dojo/text!JBrowse/View/Resource/Welcome.html'
+                ], function(Welcome) {
+                    container.innerHTML = Welcome
+                    dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
+
+                    on(dojo.byId('newOpen'),'click',dojo.hitch(thisB,'openFasta'))
+
+                    request( 'sample_data/json/volvox/successfully_run' ).then( function() {
+                           try {
+                               document.getElementById('volvox_data_placeholder')
+                                   .innerHTML = 'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
+                           } catch(e) {}
+                       });
+                });
+            }
             
 
             this.renderedFatalErrors = true;
@@ -626,6 +647,7 @@ initView: function() {
             this.addGlobalMenuItem( 'file', new dijitMenuSeparator() );
 
             this.fileDialog = new FileDialog({ browser: this });
+            this.fastaFileDialog = new FastaFileDialog({ browser: this });
 
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
                 {
@@ -835,10 +857,6 @@ renderDatasetSelect: function( parent ) {
     var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var thisB=this;
 
-    var replaceBrowser = function (newBrowserGenerator) {
-        thisB.teardown()
-        newBrowserGenerator()
-    }
 
     if (Util.isElectron()) {
         var remote = electronRequire('remote');
@@ -911,62 +929,7 @@ renderDatasetSelect: function( parent ) {
                   id: 'menubar_dataset_open',
                   label: "Open sequence file",
                   iconClass: 'dijitIconFolderOpen',
-                  onClick: dojo.hitch( this, function() {
-                      new FastaFileDialog({ browser: this })
-                          .show ({
-                            openCallback: dojo.hitch(this, function(results) {
-                              var confs = results.trackConfs || [];
-                              function loadNewRefSeq(refSeqs, tracks) {
-                                  replaceBrowser(function() {
-                                      var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
-                                      setTimeout( function() {
-                                        array.forEach( confs, function( conf ) {
-                                            var storeConf = conf.store;
-                                            if( storeConf && typeof storeConf == 'object' ) {
-                                                delete conf.store;
-                                                var name = this.addStoreConfig( storeConf.name, storeConf );
-                                                conf.store = name;
-                                            }
-                                        },newBrowser);
-                                        newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
-                                      }, 1000 );
-                                  });
-                              }
-                              if( confs.length ) {
-                                if(!confs[0].store.fasta && !confs[0].store.fai) {
-                                    alert('Unexpected sequence data input');
-                                    return;
-                                }
-                                else if(!confs[0].store.fai && confs[0].store.fasta) {
-                                    if(confs[0].store.fasta.size>100000000) {
-                                       if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
-                                           return;
-                                       }
-                                    }
-                                    new FastaParser().parseFile(confs[0].store.fasta.blob).then(
-                                        function(data) { 
-                                            replaceBrowser (function() {
-                                                new thisB.constructor( dojo.mixin(this.config, { 'inlineRefLabel': confs[0].key, 'inlineRefSeqs': data } ) );
-                                            });
-                                        },
-                                        function(error) { alert('Error getting refSeq: '+error); }
-                                    );
-                                }
-                                else {
-                                    new IndexedFasta({
-                                        browser: this,
-                                        fai: confs[0].store.fai,
-                                        fasta: confs[0].store.fasta
-                                    })
-                                    .getRefSeqs(
-                                        function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
-                                        function(error) { alert('Error getting refSeq: '+error); }
-                                    );
-                                }
-                              }
-                            })
-                          })
-                      })
+                  onClick: dojo.hitch( this, 'openFasta' )
               })
         );
     }
@@ -979,23 +942,89 @@ renderDatasetSelect: function( parent ) {
                 new dijitMenuSeparator() );
 
     for( var id in this.config.datasets ) {
-            if( ! /^_/.test(id) ) {
-        var dataset = this.config.datasets[id]
+        if( ! /^_/.test(id) ) {
+            var dataset = this.config.datasets[id]
 
-        this.addGlobalMenuItem( 'dataset',
-                    new dijitMenuItem(
-                    {
-                        id: 'menubar_dataset_bookmark_' + id,
-                        label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
-                        iconClass: 'dijitIconBookmark',
-                        onClick: dojo.hitch( dataset, function() { window.location = this.url } )
-                    })
-                  );
+            this.addGlobalMenuItem( 'dataset',
+                new dijitMenuItem(
+                {
+                    id: 'menubar_dataset_bookmark_' + id,
+                    label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
+                    iconClass: 'dijitIconBookmark',
+                    onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                })
+              );
+            }
         }
-    }
     }
 
     this.renderGlobalMenu( 'dataset', {text: 'Genome'}, parent );
+},
+
+
+openFasta: function() {
+    var thisB=this;
+
+
+    var replaceBrowser = function (newBrowserGenerator) {
+        thisB.teardown()
+        newBrowserGenerator()
+    }
+
+
+    new FastaFileDialog({browser: this}).show ({
+        openCallback: dojo.hitch(this, function(results) {
+          var confs = results.trackConfs || [];
+          function loadNewRefSeq(refSeqs, tracks) {
+              replaceBrowser(function() {
+                  var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
+                  setTimeout( function() {
+                    array.forEach( confs, function( conf ) {
+                        var storeConf = conf.store;
+                        if( storeConf && typeof storeConf == 'object' ) {
+                            delete conf.store;
+                            var name = this.addStoreConfig( storeConf.name, storeConf );
+                            conf.store = name;
+                        }
+                    },newBrowser);
+                    newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
+                  }, 1000 );
+              });
+          }
+          if( confs.length ) {
+            if(!confs[0].store.fasta && !confs[0].store.fai) {
+                alert('Unexpected sequence data input');
+                return;
+            }
+            else if(!confs[0].store.fai && confs[0].store.fasta) {
+                if(confs[0].store.fasta.size>100000000) {
+                   if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
+                       return;
+                   }
+                }
+                new FastaParser().parseFile(confs[0].store.fasta.blob).then(
+                    function(data) { 
+                        replaceBrowser (function() {
+                            new thisB.constructor( dojo.mixin(this.config, { 'inlineRefLabel': confs[0].key, 'inlineRefSeqs': data } ) );
+                        });
+                    },
+                    function(error) { alert('Error getting refSeq: '+error); }
+                );
+            }
+            else {
+                new IndexedFasta({
+                    browser: this,
+                    fai: confs[0].store.fai,
+                    fasta: confs[0].store.fasta
+                })
+                .getRefSeqs(
+                    function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
+                    function(error) { alert('Error getting refSeq: '+error); }
+                );
+            }
+          }
+        })
+      });
 },
 
 /**
@@ -2870,7 +2899,10 @@ teardown: function() {
     for (var id in this._subscription) {
         this._subscription[id].remove()
     }
-    this.containerWidget.destroyRecursive(true)
+
+    if(this.containerWidget)
+        this.containerWidget.destroyRecursive(true)
+
     while (this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
     }
