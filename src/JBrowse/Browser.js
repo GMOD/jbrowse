@@ -412,7 +412,7 @@ fatalError: function( error ) {
             if( !Util.isElectron() ) {
                 require([
                     'dojo/text!JBrowse/View/Resource/Welcome_old.html'
-                ], function(Welcome) {
+                ], function(Welcome_old) {
                     container.innerHTML = Welcome_old;
                     if( error ) {
                         var errors_div = dojo.byId('fatal_error_list');
@@ -2704,7 +2704,6 @@ createNavBox: function( parent ) {
             style: { width: locationWidth },
             maxLength: 400,
             searchAttr: "name",
-            width: locationWidth,
             title: 'Enter a chromosomal position, symbol or ID to search'
         },
         dojo.create('input', {}, searchbox) );
