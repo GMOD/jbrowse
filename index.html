@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>JBrowse</title>
-    <link rel="stylesheet" type="text/css" href="genome.css">
+    <link rel="stylesheet" type="text/css" href="css/genome.css">
 </head>
 <body>
 
@@ -98,20 +98,13 @@
 
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
-                   JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('loading_screen')); });
-                   JBrowse.subscribe('/jbrowse/v1/c/newGenome',function() { 
-                       console.log('teardown');
-                       delete JBrowse;
-                       dojo.empty('GenomeBrowser');
-                       JBrowse=new Browser(config)
-                   },5000);
         });
     </script>
-    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;">
-      <div id="loading_screen" style="padding: 50px;">
-        <h1>Loading...</h1>
-      </div>
-    </div>
+
+  </head>
+
+  <body>
+    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
 </html>
