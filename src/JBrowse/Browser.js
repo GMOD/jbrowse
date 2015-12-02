@@ -462,15 +462,29 @@ fatalError: function( error ) {
 },
 
 loadRefSeqs: function() {
+    var thisB = this;
     return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
-        if( 'data' in this.config.refSeqs ) {
+        if( this.config.refSeqs.url.match(/.fai$/) ) {
+            var conf = {
+                'label':'DNA',
+                'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
+                'chunkSize': 20000,
+                'faiUrlTemplate': this.config.refSeqs.url
+            };
+            new IndexedFasta(dojo.mixin({browser: this},conf))
+                .getRefSeqs(function(refSeqs) {
+                    thisB.addRefseqs(refSeqs);
+                    deferred.resolve({success:true});
+                });
+            return;
+        }
+        else if( 'data' in this.config.refSeqs ) {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            var thisB = this;
             request(this.config.refSeqs.url, { handleAs: 'text' } )
                 .then( function(o) {
                            thisB.addRefseqs( dojo.fromJson(o) );
@@ -999,23 +1013,21 @@ openFastaElectron: function() {
         'urlTemplate': fasta
     };
     // get refseq names
-    new IndexedFasta(dojo.mixin({browser: this},conf))
-      .getRefSeqs(function(refSeqs) {
-        var trackList = {
-            'tracks': [conf],
-            'refSeqs': { data: refSeqs }
-        };
+    
+    var trackList = {
+        'tracks': [conf],
+        'refSeqs': fasta+'.fai'
+    };
 
-        var dir = path.dirname(fasta);
-        fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
-            if(err) {
-                alert(err);
-            }
-            console.log("trackList.json saved");
-        });
+    var dir = path.dirname(fasta);
+    fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
+        if(err) {
+            alert(err);
+        }
+        console.log("trackList.json saved");
         fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
         window.location = window.location.href.split('?')[0] + "?data=" + dir;
-    }, function() { alert("Can't open refSeqs"); } );
+    });
 },
 
 
