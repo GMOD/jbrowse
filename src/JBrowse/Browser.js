@@ -435,6 +435,7 @@ fatalError: function( error ) {
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
                     on(dojo.byId('newOpen'),'click',dojo.hitch(thisB,'openFastaElectron'))
+                    on(dojo.byId('newOpenDirectory'),'click',dojo.hitch(thisB,'openDirectoryElectron'))
 
 
                     if( error ) {
