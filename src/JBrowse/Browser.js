@@ -207,7 +207,7 @@ constructor: function(params) {
                     });
                 });
             });
-        });
+        },function() { console.log('fail to load config'); });
     });
 },
 
@@ -634,7 +634,23 @@ initView: function() {
             this.navbox = this.createNavBox( topPane );
 
             // make the dataset menu
-            this.renderDatasetSelect( menuBar );
+            if(this.config.classicMenu) {
+                if( this.config.datasets && ! this.config.dataset_id ) {
+                    console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
+                }
+                if( this.config.datasets && this.config.dataset_id ) {
+                    this.renderDatasetSelect( menuBar );
+                } else {
+    
+                    this.poweredByLink = dojo.create('a', {
+                                    className: 'powered_by',
+                                    innerHTML: this.browserMeta().title,
+                                    title: 'powered by JBrowse'
+                                }, menuBar );
+                    thisObj.poweredBy_clickHandle = dojo.connect(this.poweredByLink, "onclick", dojo.hitch( aboutDialog, 'show') );
+                }
+            }
+            else this.renderDatasetSelect( menuBar );
 
             // make the file menu
             this.addGlobalMenuItem( 'file',
@@ -660,7 +676,7 @@ initView: function() {
                     onClick: dojo.hitch(this, 'createCombinationTrack')
                 }));
 
-            this.renderGlobalMenu( 'file', {text: 'Track'}, menuBar );
+            this.renderGlobalMenu( 'file', {text: this.config.classicMenu?'File':'Track'}, menuBar );
 
             // make the view menu
             this.addGlobalMenuItem( 'view', new dijitMenuItem({
@@ -862,71 +878,29 @@ renderDatasetSelect: function( parent ) {
 
 
     if (Util.isElectron()) {
-        var remote = electronRequire('remote');
-        var fs = electronRequire('fs');
-        var app = remote.require('app');
-        var dialog = remote.require('dialog');
-        var path = electronRequire('path');
+        
 
-        this.addGlobalMenuItem('dataset',
+        this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
           new dijitMenuItem(
               {
                   id: 'menubar_dataset_file',
                   label: "Open sequence file",
                   iconClass: 'dijitIconFolderOpen',
-                  onClick: function() {
-                      var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
-                      if( !fasta ) return;
-
-                      fasta = Util.replacePath(fasta[0]);
-                      var conf = {
-                          'label':'DNA',
-                          'key':'Reference sequence',
-                          'type': "SequenceTrack",
-                          'category': "Reference sequence",
-                          'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
-                          'chunkSize': 20000,
-                          'urlTemplate': fasta
-                      };
-                      // get refseq names
-                      new IndexedFasta(dojo.mixin({browser:thisB},conf))
-                        .getRefSeqs(function(refSeqs) {
-                          var trackList = {
-                              'tracks': [conf],
-                              'refSeqs': { data: refSeqs }
-                          };
-
-                          var dir = path.dirname(fasta);
-                          fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
-                              if(err) {
-                                  alert(err);
-                              }
-                              console.log("trackList.json saved");
-                          });
-                          fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
-                          window.location = window.location.href.split('?')[0] + "?data=" + dir;
-                      }, function() { alert("Can't open refSeqs"); } );
-                      
-                  }
+                  onClick: dojo.hitch(this, 'openFastaElectron')
             }
         ));
-        this.addGlobalMenuItem('dataset',
+        this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
           new dijitMenuItem(
               {
                   id: 'menubar_dataset_directory',
                   label: "Open data directory",
                   iconClass: 'dijitIconFolderOpen',
-                  onClick: function() {
-                      var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
-                      if(!datadir) return;
-                      datadir = Util.replacePath(datadir[0]);
-                      window.location = window.location.href.split('?')[0]+"?data="+datadir;
-                  }
+                  onClick: dojo.hitch( this, 'openDirectoryElectron' )
             }
         ));
     }
     else {
-        this.addGlobalMenuItem( 'dataset',
+        this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
           new dijitMenuItem(
               {
                   id: 'menubar_dataset_open',
@@ -937,32 +911,107 @@ renderDatasetSelect: function( parent ) {
         );
     }
 
-    if( this.config.datasets && ! this.config.dataset_id ) {
-        console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Datasets will not be shown.");
+    if(this.config.classicMenu) {
+        var dsconfig = this.config.datasets || {};
+        var datasetChoices = [];
+        for( var id in dsconfig ) {
+            if( ! /^_/.test(id) )
+                datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+        }
+
+        new dijitSelectBox(
+            {
+                name: 'dataset',
+                className: 'dataset_select',
+                value: this.config.dataset_id,
+                options: array.map(
+                    datasetChoices,
+                    function( dataset ) {
+                        return { label: dataset.name, value: dataset.id };
+                    }),
+                onChange: dojo.hitch(this, function( dsID ) {
+                                         var ds = (this.config.datasets||{})[dsID];
+                                         if( ds )
+                                             window.location = ds.url;
+                                         return false;
+                                     })
+            }).placeAt( parent );
     }
-    if( this.config.datasets && this.config.dataset_id ) {
-    this.addGlobalMenuItem( 'dataset',
-                new dijitMenuSeparator() );
-
-    for( var id in this.config.datasets ) {
-        if( ! /^_/.test(id) ) {
-            var dataset = this.config.datasets[id]
-
+    else {
+        if( this.config.datasets && this.config.dataset_id ) {
             this.addGlobalMenuItem( 'dataset',
-                new dijitMenuItem(
-                {
-                    id: 'menubar_dataset_bookmark_' + id,
-                    label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
-                    iconClass: 'dijitIconBookmark',
-                    onClick: dojo.hitch( dataset, function() { window.location = this.url } )
-                })
-              );
+                    new dijitMenuSeparator() );
+
+        for( var id in this.config.datasets ) {
+            if( ! /^_/.test(id) ) {
+                var dataset = this.config.datasets[id]
+
+                this.addGlobalMenuItem( 'dataset',
+                    new dijitMenuItem(
+                    {
+                        id: 'menubar_dataset_bookmark_' + id,
+                        label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
+                        iconClass: 'dijitIconBookmark',
+                        onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                    })
+                  );
+                }
             }
         }
+        this.renderGlobalMenu( 'dataset', {text: 'Genome'}, parent );
     }
-
-    this.renderGlobalMenu( 'dataset', {text: 'Genome'}, parent );
 },
+
+openDirectoryElectron: function() {
+    var remote = electronRequire('remote');
+    var dialog = remote.require('dialog');
+    var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
+    if(!datadir) return;
+    datadir = Util.replacePath(datadir[0]);
+    window.location = window.location.href.split('?')[0]+"?data="+datadir;
+},
+
+
+openFastaElectron: function() {
+    var remote = electronRequire('remote');
+    var fs = electronRequire('fs');
+    var app = remote.require('app');
+    var dialog = remote.require('dialog');
+    var path = electronRequire('path');
+
+    var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
+    if( !fasta ) return;
+
+    fasta = Util.replacePath(fasta[0]);
+    var conf = {
+        'label':'DNA',
+        'key':'Reference sequence',
+        'type': "SequenceTrack",
+        'category': "Reference sequence",
+        'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
+        'chunkSize': 20000,
+        'urlTemplate': fasta
+    };
+    // get refseq names
+    new IndexedFasta(dojo.mixin({browser: this},conf))
+      .getRefSeqs(function(refSeqs) {
+        var trackList = {
+            'tracks': [conf],
+            'refSeqs': { data: refSeqs }
+        };
+
+        var dir = path.dirname(fasta);
+        fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
+            if(err) {
+                alert(err);
+            }
+            console.log("trackList.json saved");
+        });
+        fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+        window.location = window.location.href.split('?')[0] + "?data=" + dir;
+    }, function() { alert("Can't open refSeqs"); } );
+},
+
 
 
 openFasta: function() {
@@ -1652,7 +1701,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_tracklabels'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
@@ -2907,7 +2956,7 @@ teardown: function() {
     if(this.containerWidget)
         this.containerWidget.destroyRecursive(true)
 
-    while (this.container.firstChild) {
+    while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
     }
 }
