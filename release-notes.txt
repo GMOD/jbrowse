@@ -31,7 +31,9 @@
 
 ## Minor improvements
 
- * Added new menu options to support loading your own genome
+ * Added new menu format to support loading your own genome. The open
+   genome option can be hidden via `hideGenomeOption` in config, and
+   the classic menu style can be restored via `classicMenu` in config.
 
  * Added ability to load custom histograms for tracks loaded from
    flatfile-to-json.pl (i.e. override a pre-existing histogram store).
