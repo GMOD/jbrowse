@@ -652,7 +652,7 @@ initView: function() {
         if( ! this.config.show_overview )
             overview.style.cssText = "display: none";
 
-        if (Util.isElectron()) {
+        if( Util.isElectron() && !this.config.hideGenomeOptions ) {
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
               new dijitMenuItem(
                   {
@@ -672,7 +672,7 @@ initView: function() {
                 }
             ));
         }
-        else {
+        else if( !this.config.hideGenomeOptions ) {
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
               new dijitMenuItem(
                   {
