@@ -407,7 +407,6 @@ fatalError: function( error ) {
             var container = this.container || document.body;
             var thisB = this;
 
-            dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
             dojo.addClass( document.body, this.config.theme || "tundra"); //< tundra dijit theme
 
             if( thisB.config.oldError ) {
