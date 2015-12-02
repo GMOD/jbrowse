@@ -409,7 +409,7 @@ fatalError: function( error ) {
 
             dojo.addClass( document.body, this.config.theme || "tundra"); //< tundra dijit theme
 
-            if( thisB.config.oldError ) {
+            if( !Util.isElectron() ) {
                 require([
                     'dojo/text!JBrowse/View/Resource/Welcome_old.html'
                 ], function(Welcome) {
@@ -639,7 +639,6 @@ initView: function() {
                     console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
                 }
                 if( this.config.datasets && this.config.dataset_id ) {
-                    this.renderDatasetSelect( menuBar );
                 } else {
     
                     this.poweredByLink = dojo.create('a', {
@@ -649,6 +648,7 @@ initView: function() {
                                 }, menuBar );
                     thisObj.poweredBy_clickHandle = dojo.connect(this.poweredByLink, "onclick", dojo.hitch( aboutDialog, 'show') );
                 }
+                this.renderDatasetSelect( menuBar );
             }
             else this.renderDatasetSelect( menuBar );
 
@@ -1389,7 +1389,7 @@ _reportGoogleUsageStats: function( stats ) {
 // phones home to custom analytics at jbrowse.org
 _reportCustomUsageStats: function(stats) {
     // phone home with a GET request made by a script tag
-    var clientReport = window.location.protocol+'//jbrowse.org/analytics/clientReport?'
+    var clientReport = 'http://jbrowse.org/analytics/clientReport?'
                + dojo.objectToQuery( stats )
     dojo.create(
         'img',
@@ -2698,6 +2698,7 @@ createNavBox: function( parent ) {
             style: { width: locationWidth },
             maxLength: 400,
             searchAttr: "name",
+            width: locationWidth,
             title: 'Enter a chromosomal position, symbol or ID to search'
         },
         dojo.create('input', {}, searchbox) );
@@ -2706,9 +2707,6 @@ createNavBox: function( parent ) {
             this.locationBox.set( 'store', this.nameStore );
         }
     }));
-    setTimeout(function(){
-        dojo.setStyle(dojo.byId('widget_location'),'width',locationWidth);
-    },100);
 
     this.locationBox.focusNode.spellcheck = false;
     dojo.query('div.dijitArrowButton', this.locationBox.domNode ).orphan();
