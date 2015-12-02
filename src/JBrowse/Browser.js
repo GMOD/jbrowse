@@ -406,6 +406,10 @@ fatalError: function( error ) {
         } else {
             var container = this.container || document.body;
             var thisB = this;
+
+            dojo.addClass( this.container, "jbrowse"); // browser container has an overall .jbrowse class
+            dojo.addClass( document.body, this.config.theme || "tundra"); //< tundra dijit theme
+
             if( thisB.config.oldError ) {
                 require([
                     'dojo/text!JBrowse/View/Resource/Welcome_old.html'
@@ -428,6 +432,7 @@ fatalError: function( error ) {
                     'dojo/text!JBrowse/View/Resource/Welcome.html'
                 ], function(Welcome) {
                     container.innerHTML = Welcome
+                    var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
                     on(dojo.byId('newOpen'),'click',dojo.hitch(thisB,'openFasta'))
@@ -647,7 +652,6 @@ initView: function() {
             this.addGlobalMenuItem( 'file', new dijitMenuSeparator() );
 
             this.fileDialog = new FileDialog({ browser: this });
-            this.fastaFileDialog = new FastaFileDialog({ browser: this });
 
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
                 {
@@ -972,7 +976,8 @@ openFasta: function() {
     }
 
 
-    new FastaFileDialog({browser: this}).show ({
+    var fastaFileDialog = new FastaFileDialog({browser: this});
+    fastaFileDialog.show ({
         openCallback: dojo.hitch(this, function(results) {
           var confs = results.trackConfs || [];
           function loadNewRefSeq(refSeqs, tracks) {
