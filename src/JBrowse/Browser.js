@@ -434,7 +434,14 @@ fatalError: function( error ) {
                     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
-                    on(dojo.byId('newOpen'),'click',dojo.hitch(thisB,'openFasta'))
+                    on(dojo.byId('newOpen'),'click',dojo.hitch(thisB,'openFastaElectron'))
+
+
+                    if( error ) {
+                        var errors_div = dojo.byId('fatal_error_list');
+                        dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
+                    }
+
 
                     request( 'sample_data/json/volvox/successfully_run' ).then( function() {
                            try {
@@ -630,6 +637,39 @@ initView: function() {
         if( ! this.config.show_overview )
             overview.style.cssText = "display: none";
 
+        if (Util.isElectron()) {
+            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
+              new dijitMenuItem(
+                  {
+                      id: 'menubar_dataset_file',
+                      label: "Open sequence file",
+                      iconClass: 'dijitIconFolderOpen',
+                      onClick: dojo.hitch(this, 'openFastaElectron')
+                }
+            ));
+            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
+              new dijitMenuItem(
+                  {
+                      id: 'menubar_dataset_directory',
+                      label: "Open data directory",
+                      iconClass: 'dijitIconFolderOpen',
+                      onClick: dojo.hitch( this, 'openDirectoryElectron' )
+                }
+            ));
+        }
+        else {
+            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
+              new dijitMenuItem(
+                  {
+                      id: 'menubar_dataset_open',
+                      label: "Open sequence file",
+                      iconClass: 'dijitIconFolderOpen',
+                      onClick: dojo.hitch( this, 'openFasta' )
+                  })
+            );
+        }
+
+
         if( this.config.show_nav ) {
             this.navbox = this.createNavBox( topPane );
 
@@ -639,6 +679,7 @@ initView: function() {
                     console.warn("In JBrowse configuration, datasets specified, but dataset_id not set.  Dataset selector will not be shown.");
                 }
                 if( this.config.datasets && this.config.dataset_id ) {
+                    this.renderDatasetSelect( menuBar );
                 } else {
     
                     this.poweredByLink = dojo.create('a', {
@@ -648,7 +689,6 @@ initView: function() {
                                 }, menuBar );
                     thisObj.poweredBy_clickHandle = dojo.connect(this.poweredByLink, "onclick", dojo.hitch( aboutDialog, 'show') );
                 }
-                this.renderDatasetSelect( menuBar );
             }
             else this.renderDatasetSelect( menuBar );
 
@@ -872,44 +912,10 @@ createCombinationTrack: function() {
 },
 
 renderDatasetSelect: function( parent ) {
-
-    var configProps = [ 'containerID', 'show_nav', 'show_menu', 'show_tracklist', 'show_overview' ]
     var thisB=this;
 
 
-    if (Util.isElectron()) {
-        
 
-        this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
-          new dijitMenuItem(
-              {
-                  id: 'menubar_dataset_file',
-                  label: "Open sequence file",
-                  iconClass: 'dijitIconFolderOpen',
-                  onClick: dojo.hitch(this, 'openFastaElectron')
-            }
-        ));
-        this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
-          new dijitMenuItem(
-              {
-                  id: 'menubar_dataset_directory',
-                  label: "Open data directory",
-                  iconClass: 'dijitIconFolderOpen',
-                  onClick: dojo.hitch( this, 'openDirectoryElectron' )
-            }
-        ));
-    }
-    else {
-        this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
-          new dijitMenuItem(
-              {
-                  id: 'menubar_dataset_open',
-                  label: "Open sequence file",
-                  iconClass: 'dijitIconFolderOpen',
-                  onClick: dojo.hitch( this, 'openFasta' )
-              })
-        );
-    }
 
     if(this.config.classicMenu) {
         var dsconfig = this.config.datasets || {};
