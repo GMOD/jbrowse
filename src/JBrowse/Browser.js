@@ -1018,7 +1018,7 @@ openFastaElectron: function() {
           };
 
           var dir = path.dirname(fasta);
-          fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
+          fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
               if(err) {
                   alert(err);
               }
