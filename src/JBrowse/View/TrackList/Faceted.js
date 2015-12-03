@@ -406,7 +406,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         grid.selection.selectRange = function( inFrom, inTo ) {
             var selectionLimit = 30;
             if( inTo - inFrom > selectionLimit ) {
-                alert( "Too many tracks selected, please select fewer than "+selectionLimit+" tracks." );
+                alert( "Too many tracks selected, please select fewer than "+selectionLimit+" tracks. Note: you can use shift+click to select a range of tracks" );
                 return undefined;
             }
             return origSelectRange.apply( this, arguments );
