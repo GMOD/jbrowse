@@ -17,8 +17,11 @@
     "shadow": true,
     "maxerr": 250,
     "sub": true,
-    "predef": [ "require", "define" ],
+    "predef": [ "require", "define", "electronRequire" ],
     "maxcomplexity": 40,
-    "withstmt": true
+    "indent": 2,
+    "undef": true,
+    "trailing": true,
+    "devel": true
 }
 

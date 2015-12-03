@@ -246,38 +246,30 @@ var Feature = Util.fastDeclare(
     },
 
     _bin_mq_nl: function() {
-        with( this.bytes )
-            return readInt( byteArray, start + 12  );
+        return readInt( this.bytes.byteArray, this.bytes.start + 12  );
     },
     _flag_nc: function() {
-        with( this.bytes )
-            return readInt( byteArray, start + 16 );
+        return readInt( this.bytes.byteArray, this.bytes.start + 16 );
     },
     seq_length: function() {
-        with( this.bytes )
-            return readInt( byteArray, start + 20 );
+        return readInt( this.bytes.byteArray, this.bytes.start + 20 );
     },
     _next_refid: function() {
-        with( this.bytes )
-            return readInt( byteArray, start + 24 );
+        return readInt( this.bytes.byteArray, this.bytes.start + 24 );
     },
     _next_pos: function() {
-        with( this.bytes )
-            return readInt( byteArray, start + 28 );
+        return readInt( this.bytes.byteArray, this.bytes.start + 28 );
     },
     template_length: function() {
-        with( this.bytes )
-            return readInt( byteArray, start + 32 );
+        return readInt( this.bytes.byteArray, this.bytes.start + 32 );
     },
 
     /**
      * parse the core data: ref ID and start
      */
     _coreParse: function() {
-        with( this.bytes ) {
-            this._refID      = readInt( byteArray, start + 4 );
-            this.data.start  = readInt( byteArray, start + 8 );
-        }
+        this._refID      = readInt( this.bytes.byteArray, this.bytes.start + 4 );
+        this.data.start  = readInt( this.bytes.byteArray, this.bytes.start + 8 );
     },
 
     /**

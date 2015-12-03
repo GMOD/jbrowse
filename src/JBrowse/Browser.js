@@ -2473,7 +2473,7 @@ onCoarseMove: function(startbp, endbp) {
         this.goButton.set( 'disabled', true ) ;
     }
     // update the id=location-box if it exists
-    node = dojo.byId("location-info");
+    var node = dojo.byId("location-info");
     if (node) {
         var location = Util.assembleLocStringWithLength( currRegion );
         html.set(node, location + searchVal);

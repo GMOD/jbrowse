@@ -18,7 +18,7 @@ Touch = {
 
         for (var i=0; i < nodes.length; i++) {
             samePos = j++;
-            var position = findPos(nodes[i]);
+            var position = Touch.findPos(nodes[i]);
             if(position.top > top) {
                 break;
             }
@@ -151,7 +151,7 @@ Touch = {
 
         if(objAvatar.length > 0) {
             if (nodes.length > 0) {
-                element = CompareObjPos(nodes,first);
+                element = Touch.CompareObjPos(nodes,first);
                 obj = nodes[element];
             }
             try {

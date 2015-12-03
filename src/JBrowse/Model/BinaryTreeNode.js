@@ -99,12 +99,12 @@ removeAll: function() {
 // Destroy this node and all its children.
 destroy: function() {
     if(this.leftChild) {
-        leftChild.destroy();
+        this.leftChild.destroy();
         this.removeLeft();
     }
     if(this.rightChild) {
-        rightChild.destroy();
-        this.removeRight;
+        this.rightChild.destroy();
+        this.removeRight();
     }
     this.Value = undefined;
 },
