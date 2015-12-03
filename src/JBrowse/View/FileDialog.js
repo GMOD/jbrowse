@@ -17,7 +17,7 @@ define( [
             './FileDialog/TrackList/VCFTabixDriver',
             './FileDialog/ResourceList',
             './FileDialog/TrackList',
-            'JBrowse/Util',
+            'JBrowse/Util'
         ],
         function(
             declare,
