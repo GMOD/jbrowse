@@ -11,7 +11,6 @@ define( [
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
             './FileDialog/TrackList/BAMDriver',
-            './FileDialog/TrackList/FASTADriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
             './FileDialog/TrackList/GTFDriver',
@@ -33,7 +32,6 @@ define( [
             Uploaded,
             IFramePlugin,
             BAMDriver,
-            FASTADriver,
             BigWigDriver,
             GFF3Driver,
             GTFDriver,
@@ -52,7 +50,7 @@ return declare( null, {
             dnd: 'draggable' in document.createElement('span')
         };
 
-        this._fileTypeDrivers = [ new FASTADriver(), new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver() ];
+        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver() ];
     },
 
     addFileTypeDriver: function( d ) {
