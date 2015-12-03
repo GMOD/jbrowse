@@ -434,8 +434,8 @@ fatalError: function( error ) {
                     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
-                    on(dojo.byId('newOpen'),'click',dojo.hitch(thisB,'openFastaElectron'))
-                    on(dojo.byId('newOpenDirectory'),'click',dojo.hitch(thisB,'openDirectoryElectron'))
+                    on(dojo.byId('newOpen'),'click',dojo.hitch( thisB, 'openFastaElectron' ))
+                    on(dojo.byId('newOpenDirectory'),'click', dojo.hitch( thisB, 'openDirectoryElectron' ))
 
 
                     if( error ) {
@@ -468,14 +468,8 @@ loadRefSeqs: function() {
         // load our ref seqs
         if( typeof this.config.refSeqs == 'string' )
             this.config.refSeqs = { url: this.config.refSeqs };
-        if( this.config.refSeqs.url.match(/.fai$/) ) {
-            var conf = {
-                'label':'DNA',
-                'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
-                'chunkSize': 20000,
-                'faiUrlTemplate': this.config.refSeqs.url
-            };
-            new IndexedFasta(dojo.mixin({browser: this},conf))
+        if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fai$/) ) {
+            new IndexedFasta({browser: this, faiUrlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
@@ -659,9 +653,10 @@ initView: function() {
                       id: 'menubar_dataset_file',
                       label: "Open sequence file",
                       iconClass: 'dijitIconFolderOpen',
-                      onClick: dojo.hitch(this, 'openFastaElectron')
-                }
-            ));
+                      onClick: dojo.hitch( this, 'openFastaElectron' )
+                  }
+                )
+            );
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
               new dijitMenuItem(
                   {
@@ -994,41 +989,48 @@ openDirectoryElectron: function() {
 
 
 openFastaElectron: function() {
+    var fastaFileDialog = new FastaFileDialog({browser: this});
+
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
-    var app = remote.require('app');
-    var dialog = remote.require('dialog');
     var path = electronRequire('path');
 
-    var fasta = dialog.showOpenDialog({ properties: [ 'openFile' ]});
-    if( !fasta ) return;
+    fastaFileDialog.show ({
+        openCallback: dojo.hitch(this, function(results) {
+          var confs = results.trackConfs || [];
+          var fasta = Util.replacePath( confs[0].store.fasta.url );
+          var fai = Util.replacePath( confs[0].store.fai.url );
+          var conf = {
+              'label': confs[0].label,
+              'key': confs[0].key,
+              'type': "SequenceTrack",
+              'category': "Reference sequence",
+              'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
+              'chunkSize': 20000,
+              'urlTemplate': fasta,
+              'faiUrlTemplate': fai
+          };
+          // get refseq names
+          
+          var trackList = {
+              'tracks': [conf],
+              'refSeqs': fai
+          };
 
-    fasta = Util.replacePath(fasta[0]);
-    var conf = {
-        'label':'DNA',
-        'key':'Reference sequence',
-        'type': "SequenceTrack",
-        'category': "Reference sequence",
-        'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
-        'chunkSize': 20000,
-        'urlTemplate': fasta
-    };
-    // get refseq names
-    
-    var trackList = {
-        'tracks': [conf],
-        'refSeqs': fasta+'.fai'
-    };
-
-    var dir = path.dirname(fasta);
-    fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
-        if(err) {
-            alert(err);
-        }
-        console.log("trackList.json saved");
-        fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
-        window.location = window.location.href.split('?')[0] + "?data=" + dir;
+          var dir = path.dirname(fasta);
+          fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList), function(err) {
+              if(err) {
+                  alert(err);
+              }
+              console.log("trackList.json saved");
+              fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+              window.location = window.location.href.split('?')[0] + "?data=" + dir;
+          });      
+        })
     });
+          
+
+    
 },
 
 
