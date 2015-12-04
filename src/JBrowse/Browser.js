@@ -651,6 +651,15 @@ initView: function() {
                       onClick: dojo.hitch( this, 'openDirectoryElectron' )
                 }
             ));
+            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
+              new dijitMenuItem(
+                  {
+                      id: 'menubar_dataset_save',
+                      label: "Save session",
+                      iconClass: 'dijitIconSave',
+                      onClick: dojo.hitch( this, 'saveData' )
+                }
+            ));
         }
         else if( !this.config.hideGenomeOptions ) {
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
@@ -972,7 +981,17 @@ openDirectoryElectron: function() {
     window.location = window.location.href.split('?')[0]+"?data="+datadir;
 },
 
-
+saveData: function() {
+    if(!confirm("This will overwrite tracks and config data in your data directory. Are you sure you want to continue?")) return;
+    var remote = electronRequire('remote');
+    var fs = electronRequire('fs');
+    var dir = this.config.dataRoot;
+    fs.writeFile( dir + "/trackList.json", JSON.stringify(this.config, null, 2), function(err) {
+        if(err) {
+            alert(err);
+        }
+    });
+},
 openFastaElectron: function() {
     var fastaFileDialog = new FastaFileDialog({browser: this});
 
