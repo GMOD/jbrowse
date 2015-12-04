@@ -47,7 +47,7 @@ return declare( null,
             for (var i = 0; i < length; i++) {
               buf += String.fromCharCode(bytes[i]);
             }
-            buf.split(/\r?\n/).forEach( function ( line ) {
+            buf.split(/\r?\n/).forEach( dojo.hitch( this, function ( line ) {
                 var row = line.split('\t');
                 if(row[0]=="") return;
 
@@ -60,7 +60,7 @@ return declare( null,
                     'linelen': +row[3],
                     'linebytelen': +row[4]
                 };
-            });
+            }) );
 
             successCallback(  );
         }), failCallback );

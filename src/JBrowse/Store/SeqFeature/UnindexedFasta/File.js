@@ -32,7 +32,6 @@ return declare( null,
         var successCallback = args.success || function() {};
         var failCallback = args.failure || function(e) { console.error(e, e.stack); };
         this.parseFile( fasta, function(data) {
-
             
             array.forEach( data, function(rs) {
                 thisB.features[rs.name] = {
@@ -59,18 +58,20 @@ return declare( null,
     fetch: function(chr, min, max, featCallback, endCallback, errorCallback ) {
         errorCallback = errorCallback || function(e) { console.error(e); };
         var refname = chr;
-        if( ! this.store.browser.compareReferenceNames( chr, refname ) )
+        if( ! this.store.browser.compareReferenceNames( chr, refname ) ) {
             refname = chr;
-            featCallback(new SimpleFeature({
-                      data: {
-                          start:    min,
-                          end:      max,
-                          residues: this.features[refname].substring(min,max),
-                          seq_id:   refname,
-                          name:     refname
-                      }
-                    })
-        );
+        }
+        featCallback(new SimpleFeature({
+                  data: {
+                      start:    this.features[refname].start,
+                      end:      this.features[refname].end,
+                      residues: this.features[refname].seq,
+                      seq_id:   refname,
+                      name:     refname
+                  }
+                }));
+
+        endCallback();
     },
 
     parseFile: function(fastaFile, successCallback, failCallback ) {

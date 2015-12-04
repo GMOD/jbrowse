@@ -47,9 +47,19 @@ return declare( null,  {
         for( var conf in configs ) {
             if(configs[conf].fai) deleteme = true;
         }
-
+        var fasta;
         for( var conf in configs ) {
-            if( deleteme && configs[conf].blob) delete configs[conf];
+            console.log(configs[conf]);
+
+            if( deleteme && configs[conf].type == "JBrowse/Store/SeqFeature/UnindexedFasta") {
+                fasta = configs[conf].blob;
+                delete configs[conf];
+            }
+        }
+        for( var conf in configs ) {
+            if( deleteme && configs[conf].type == "JBrowse/Store/SeqFeature/IndexedFasta") {
+                configs[conf].fasta = fasta;
+            }
         }
     },
 
