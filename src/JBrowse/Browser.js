@@ -988,21 +988,25 @@ saveData: function() {
     var dir = this.config.dataRoot;
     var trackConfs = array.map( this.view.tracks, dojo.hitch(this, function(track) {
         var temp=dojo.clone(track.config);
+
         this.getStore( temp.store, function( obj ) {
             temp.storeClass = obj.config.type;
-            if(temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
-                temp.urlTemplate = obj.config.file.url;
-                temp.tbiUrlTemplate = obj.config.tbi.url;
-            }
-            if(temp.storeClass == "JBrowse/Store/SeqFeature/BAM") {
-                temp.urlTemplate = obj.config.bam.url;
-                temp.baiUrlTemplate = obj.config.bai.url;
-            }
-            else {
-                temp.urlTemplate = obj.config.file.url;
+
+            console.log(temp.storeClass, obj);
+            if(!temp.urlTemplate) {
+                if(temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+                    temp.urlTemplate = obj.config.file.url;
+                    temp.tbiUrlTemplate = obj.config.tbi.url;
+                }
+                else if(temp.storeClass == "JBrowse/Store/SeqFeature/BAM") {
+                    temp.urlTemplate = obj.config.bam.url;
+                    temp.baiUrlTemplate = obj.config.bai.url;
+                }
+                else if(temp.storeClass != "JBrowse/Store/SeqFeature/IndexedFasta"&&temp.storeClass != "JBrowse/Store/SeqFeature/UnindexedFasta") {
+                    temp.urlTemplate = (obj.config.file||obj.config.blob).url;
+                }
             }
 
-            console.log(obj);
         });
         delete temp.store;
         return temp;
