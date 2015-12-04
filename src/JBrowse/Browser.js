@@ -996,6 +996,20 @@ openFastaElectron: function() {
                   'urlTemplate': fasta,
                   'faiUrlTemplate': fai
               };
+              var trackList = {
+                  'tracks': [conf],
+                  'refSeqs': fai
+              };
+
+              var dir = path.dirname(fasta);
+              fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
+                  if(err) {
+                      alert(err);
+                  }
+                  console.log("trackList.json saved");
+                  fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+                  window.location = window.location.href.split('?')[0] + "?data=" + dir;
+              });
           }
           else {
               var fasta = Util.replacePath( confs[0].store.blob.url );
@@ -1010,24 +1024,25 @@ openFastaElectron: function() {
               };
               var refseqs = new UnindexedFasta ({'browser': this, 'urlTemplate': fasta });
               console.log(refseqs);
-              refseqs.getRefSeqs(function(data) { console.log('here', data); }, function() { console.log('error'); });
-          }
-          // get refseq names
-          
-          var trackList = {
-              'tracks': [conf],
-              'refSeqs': fai
-          };
+              refseqs.getRefSeqs(function(data) {
+                  console.log('here', data);
+                  var trackList = {
+                      'tracks': [conf],
+                      'refSeqs': { 'data': data }
+                  };
 
-          var dir = path.dirname(fasta);
-          fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
-              if(err) {
-                  alert(err);
-              }
-              console.log("trackList.json saved");
-              fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
-              window.location = window.location.href.split('?')[0] + "?data=" + dir;
-          });      
+                  var dir = path.dirname(fasta);
+                  fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
+                      if(err) {
+                          alert(err);
+                      }
+                      console.log("trackList.json saved");
+                      fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+                      window.location = window.location.href.split('?')[0] + "?data=" + dir;
+                  });
+              }, function() { console.log('error'); });
+          }
+                
         })
     });
           

@@ -22,6 +22,8 @@ return declare( null,
     constructor: function( args ) {
         this.store = args.store;
         this.data  = args.data;
+        this.features = {};
+        this.refseqs = [];
     },
 
     init: function( args ) {
@@ -29,9 +31,9 @@ return declare( null,
         var thisB = this;
         var successCallback = args.success || function() {};
         var failCallback = args.failure || function(e) { console.error(e, e.stack); };
-        console.log("init");
         this.parseFile( fasta, function(data) {
-            console.log("parseFile");
+
+            
             array.forEach( data, function(rs) {
                 thisB.features[rs.name] = {
                     seq_id: rs.name,
@@ -40,13 +42,14 @@ return declare( null,
                     end: rs.seq.length,
                     seq: rs.seq
                 };
-                thisB.refseqs = {
+                thisB.refseqs.push({
                     name: rs.name,
                     start: 1,
                     end: rs.seq.length+1,
                     length: rs.seq.length
-                };
+                });
             });
+
             successCallback();
         }, failCallback );
     },
@@ -58,7 +61,7 @@ return declare( null,
         var refname = chr;
         if( ! this.store.browser.compareReferenceNames( chr, refname ) )
             refname = chr;
-        featCallback(new SimpleFeature({
+            featCallback(new SimpleFeature({
                       data: {
                           start:    min,
                           end:      max,
@@ -72,13 +75,19 @@ return declare( null,
 
     parseFile: function(fastaFile, successCallback, failCallback ) {
         this.data.fetch( dojo.hitch( this, function(text) {
-            var fastaString = text;
+            var fastaString = "";
+            var bytes = new Uint8Array(text);
+            var length = bytes.length;
+            for (var i = 0; i < length; i++) {
+              fastaString += String.fromCharCode(bytes[i]);
+            }
+
             if (!(fastaString && fastaString.length))
                 failCallback ("Could not read file: " + fastaFile.name);
             else {
-                var data = this.parseString (text);
+                var data = this.parseString (fastaString);
                 if (!data.length)
-                    failCallback ("File contained no (FASTA) sequences: " + fastaFile.name);
+                    failCallback ("File contained no (FASTA) sequences");
                 else
                     successCallback(data);
             }

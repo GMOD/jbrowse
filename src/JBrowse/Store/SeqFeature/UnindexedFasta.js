@@ -65,7 +65,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         var thisB=this;
         this._deferred.features.then(
             function() {
-                featCallback(thisB.refseqs);
+                featCallback(thisB.fasta.refseqs);
             },
             errorCallback
         );
