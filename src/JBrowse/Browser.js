@@ -1048,22 +1048,14 @@ openFastaElectron: function() {
                 
         })
     });
-          
-
-    
 },
-
-
 
 openFasta: function() {
     var thisB=this;
-
-
     var replaceBrowser = function (newBrowserGenerator) {
         thisB.teardown()
         newBrowserGenerator()
     }
-
 
     var fastaFileDialog = new FastaFileDialog({browser: this});
     fastaFileDialog.show ({
@@ -1086,8 +1078,8 @@ openFasta: function() {
               });
           }
           if( confs.length ) {
-            if(confs[0].store.blob) {
-                if(confs[0].store.blob.size>100000000) {
+            if( confs[0].store.blob ) {
+                if( confs[0].store.blob.size > 100000000 ) {
                    if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
                        return;
                    }
@@ -1097,7 +1089,7 @@ openFasta: function() {
                     fasta: confs[0].store.blob
                 })
                 .getRefSeqs(
-                    function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
+                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }
@@ -1108,7 +1100,7 @@ openFasta: function() {
                     fasta: confs[0].store.fasta
                 })
                 .getRefSeqs(
-                    function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
+                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }
