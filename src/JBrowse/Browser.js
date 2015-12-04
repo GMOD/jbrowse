@@ -1086,20 +1086,15 @@ openFasta: function() {
               });
           }
           if( confs.length ) {
-            if(!confs[0].store.fasta && !confs[0].store.fai) {
-                alert('Unexpected sequence data input');
-                return;
-            }
-            else if(!confs[0].store.fai && confs[0].store.fasta) {
-                if(confs[0].store.fasta.size>100000000) {
+            if(confs[0].store.blob) {
+                if(confs[0].store.blob.size>100000000) {
                    if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
                        return;
                    }
                 }
                 new UnindexedFasta({
                     browser: this,
-                    fai: confs[0].store.fai,
-                    fasta: confs[0].store.fasta
+                    fasta: confs[0].store.blob
                 })
                 .getRefSeqs(
                     function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
