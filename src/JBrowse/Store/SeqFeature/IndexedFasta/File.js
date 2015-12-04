@@ -36,7 +36,6 @@ return declare( null,
     },
 
     _readFAI: function( successCallback, failCallback ) {
-        var thisB=this;
         this.fai.fetch( dojo.hitch( this, function(text) {
             if (!text) {
                 failCallback("No data read from FASTA index (FAI) file");
@@ -52,7 +51,7 @@ return declare( null,
                 var row = line.split('\t');
                 if(row[0]=="") return;
 
-                thisB.store.index[row[0]] = {
+                this.store.index[row[0]] = {
                     'name': row[0],
                     'length': +row[1],
                     'start': 0,

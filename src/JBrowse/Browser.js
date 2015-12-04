@@ -89,8 +89,8 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
-            UnindexedFasta,
             IndexedFasta,
+            UnindexedFasta,
             FastaFileDialog,
             Location,
             LocationChoiceDialog,
@@ -983,18 +983,35 @@ openFastaElectron: function() {
     fastaFileDialog.show ({
         openCallback: dojo.hitch(this, function(results) {
           var confs = results.trackConfs || [];
-          var fasta = Util.replacePath( confs[0].store.fasta.url );
-          var fai = Util.replacePath( confs[0].store.fai.url );
-          var conf = {
-              'label': confs[0].label,
-              'key': confs[0].key,
-              'type': "SequenceTrack",
-              'category': "Reference sequence",
-              'storeClass': 'JBrowse/Store/Sequence/IndexedFasta',
-              'chunkSize': 20000,
-              'urlTemplate': fasta,
-              'faiUrlTemplate': fai
-          };
+          if(confs[0].store.fasta) {
+              var fasta = Util.replacePath( confs[0].store.fasta.url );
+              var fai = Util.replacePath( confs[0].store.fai.url );
+              var conf = {
+                  'label': confs[0].label,
+                  'key': confs[0].key,
+                  'type': "SequenceTrack",
+                  'category': "Reference sequence",
+                  'storeClass': 'JBrowse/Store/SeqFeature/IndexedFasta',
+                  'chunkSize': 20000,
+                  'urlTemplate': fasta,
+                  'faiUrlTemplate': fai
+              };
+          }
+          else {
+              var fasta = Util.replacePath( confs[0].store.blob.url );
+              var conf = {
+                  'label': confs[0].label,
+                  'key': confs[0].key,
+                  'type': "SequenceTrack",
+                  'category': "Reference sequence",
+                  'storeClass': 'JBrowse/Store/SeqFeature/UnindexedFasta',
+                  'chunkSize': 20000,
+                  'urlTemplate': fasta
+              };
+              var refseqs = new UnindexedFasta ({'browser': this, 'urlTemplate': fasta });
+              console.log(refseqs);
+              refseqs.getRefSeqs(function(data) { console.log('here', data); }, function() { console.log('error'); });
+          }
           // get refseq names
           
           var trackList = {
@@ -1164,8 +1181,9 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'        : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/GTF'         : 'JBrowse/View/Track/CanvasFeatures',
-                'JBrowse/Store/Sequence/StaticChunked' : 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/Sequence/IndexedFasta'  : 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/SeqFeature/StaticChunked' : 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/UnindexedFasta': 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/IndexedFasta'  : 'JBrowse/View/Track/Sequence'
             },
 
             knownTrackTypes: [

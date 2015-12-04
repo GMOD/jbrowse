@@ -29,23 +29,25 @@ return declare( null,
         var thisB = this;
         var successCallback = args.success || function() {};
         var failCallback = args.failure || function(e) { console.error(e, e.stack); };
-        this.parseFile( fasta ).then( function(data) {
+        console.log("init");
+        this.parseFile( fasta, function(data) {
+            console.log("parseFile");
             array.forEach( data, function(rs) {
-                this.features[rs.name] = {
+                thisB.features[rs.name] = {
                     seq_id: rs.name,
                     name: rs.name,
                     start: 0,
                     end: rs.seq.length,
                     seq: rs.seq
                 };
-                this.refseqs = {
+                thisB.refseqs = {
                     name: rs.name,
                     start: 1,
                     end: rs.seq.length+1,
                     length: rs.seq.length
                 };
             });
-            successCallback()
+            successCallback();
         }, failCallback );
     },
 
@@ -68,23 +70,20 @@ return declare( null,
         );
     },
 
-    parseFile: function(fastaFile) {
-        var d = new Deferred();
-        var fr = new FileReader();
-        fr.onload = dojo.hitch (this, function(e) {
-            var fastaString = e.target.result;
+    parseFile: function(fastaFile, successCallback, failCallback ) {
+        this.data.fetch( dojo.hitch( this, function(text) {
+            var fastaString = text;
             if (!(fastaString && fastaString.length))
-                d.reject ("Could not read file: " + fastaFile.name);
+                failCallback ("Could not read file: " + fastaFile.name);
             else {
-                var data = this.parseString (e.target.result);
+                var data = this.parseString (text);
                 if (!data.length)
-                    d.reject ("File contained no (FASTA) sequences: " + fastaFile.name);
+                    failCallback ("File contained no (FASTA) sequences: " + fastaFile.name);
                 else
-                    d.resolve (data);
+                    successCallback(data);
             }
-        });
-        fr.readAsText(fastaFile);
-        return d;
+
+        }), failCallback );
     },
 
     parseString: function(fastaString) {
@@ -110,16 +109,6 @@ return declare( null,
         addSeq (current);
 
         return data;
-    },
-
-    getRefSeqs: function( featCallback, errorCallback ) {
-        var thisB=this;
-        this._deferred.features.then(
-            function() {
-                featCallback( this.refseqs );
-            },
-            errorCallback
-        );
     }
 
 

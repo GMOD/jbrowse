@@ -1,19 +1,21 @@
 define( [
             'dojo/_base/declare',
             'JBrowse/View/FileDialog',
-            './FileDialog/TrackList/FASTADriver'
+            './FileDialog/TrackList/FASTADriver',
+            './FileDialog/TrackList/IndexedFASTADriver'
         ],
         function(
             declare,
             FileDialog,
-            FASTADriver
+            FASTADriver,
+            IndexedFASTADriver
         ) {
 
 return declare( FileDialog, {
 
     constructor: function( args ) {
         this.inherited(arguments);
-        this._fileTypeDrivers = [ new FASTADriver() ];
+        this._fileTypeDrivers = [ new FASTADriver(), new IndexedFASTADriver() ];
         return this;
     },
 
