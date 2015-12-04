@@ -39,8 +39,8 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/Store/SeqFeature/IndexedFasta',
+            'JBrowse/Store/SeqFeature/UnindexedFasta',
             'JBrowse/View/FastaFileDialog',
-            'JBrowse/Util/FastaParser',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -89,9 +89,9 @@ define( [
             ConfigManager,
             InfoDialog,
             FileDialog,
+            UnindexedFasta,
             IndexedFasta,
             FastaFileDialog,
-            FastaParser,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -137,22 +137,7 @@ constructor: function(params) {
         return;
 
     this.startTime = new Date();
-    // synthesize config for inline-declared refseqs
-    if ('inlineRefSeqs' in this.config) {
-        this.config = dojo.mixin (this.config,{
-          tracks: [
-            {
-                type: "SequenceTrack",
-                storeClass: "JBrowse/Store/SeqFeature/FromConfig",
-                label: this.config.inlineRefLabel||"Reference sequence",
-                useAsRefSeqStore: 1,
-                features: array.map (this.config.inlineRefSeqs, function(rs) { return {seq_id:rs.name,name:rs.name,start:0,end:rs.seq.length,seq:rs.seq}; })
-            }
-          ],
-          alwaysOnTracks: "Reference sequence",
-          refSeqs: { data: array.map (this.config.inlineRefSeqs, function(rs) { return {name:rs.name,start:1,end:rs.seq.length+1,length:rs.seq.length} }) }
-        });
-    }
+    
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
@@ -1076,12 +1061,13 @@ openFasta: function() {
                        return;
                    }
                 }
-                new FastaParser().parseFile(confs[0].store.fasta.blob).then(
-                    function(data) { 
-                        replaceBrowser (function() {
-                            new thisB.constructor( dojo.mixin(this.config, { 'inlineRefLabel': confs[0].key, 'inlineRefSeqs': data } ) );
-                        });
-                    },
+                new UnindexedFasta({
+                    browser: this,
+                    fai: confs[0].store.fai,
+                    fasta: confs[0].store.fasta
+                })
+                .getRefSeqs(
+                    function(refSeqs) { loadNewRefSeq(refSeqs,confs); },
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }

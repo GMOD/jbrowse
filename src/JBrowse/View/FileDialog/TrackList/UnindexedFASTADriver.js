@@ -5,15 +5,12 @@ define([
        function( declare, IndexedFileDriver ) {
 return declare( IndexedFileDriver,  {
     name: 'FASTA',
-    storeType: 'JBrowse/Store/SeqFeature/IndexedFasta',
+    storeType: 'JBrowse/Store/SeqFeature/UnindexedFasta',
 
     fileExtension: 'fasta',
     fileConfKey: 'fasta',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'fai',
-    indexConfKey: 'fai',
-    indexUrlConfKey: 'faiUrlTemplate'
 });
 
 });
