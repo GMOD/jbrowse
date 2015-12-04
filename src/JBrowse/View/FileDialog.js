@@ -131,7 +131,7 @@ return declare( null, {
                 var dialog = remote.require('dialog');
                 var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
                 if( ret ) {
-                    resourceListControl.addURLs( Util.replacePath( ret ) );
+                    resourceListControl.addURLs( { url: Util.replacePath( ret.url ) } );
                 }
             });
         }
