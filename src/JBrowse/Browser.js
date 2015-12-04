@@ -1012,7 +1012,9 @@ openFastaElectron: function() {
           }
           else {
               var fasta = Util.replacePath( confs[0].store.blob.url );
-              if(confs[0].store.blob.size>100000000) {
+
+              var stats = fs.statSync( fasta );
+              if(stats.size>100000000) {
                  if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
                      return;
                  }

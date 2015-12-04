@@ -49,8 +49,6 @@ return declare( null,  {
         }
         var fasta;
         for( var conf in configs ) {
-            console.log(configs[conf]);
-
             if( deleteme && configs[conf].type == "JBrowse/Store/SeqFeature/UnindexedFasta") {
                 fasta = configs[conf].blob;
                 delete configs[conf];
