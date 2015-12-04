@@ -986,7 +986,33 @@ saveData: function() {
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
     var dir = this.config.dataRoot;
-    fs.writeFile( dir + "/trackList.json", JSON.stringify(this.config, null, 2), function(err) {
+    var trackConfs = array.map( this.view.tracks, dojo.hitch(this, function(track) {
+        var temp=dojo.clone(track.config);
+        this.getStore( temp.store, function( obj ) {
+            temp.storeClass = obj.config.type;
+            if(temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+                temp.urlTemplate = obj.config.file.url;
+                temp.tbiUrlTemplate = obj.config.tbi.url;
+            }
+            if(temp.storeClass == "JBrowse/Store/SeqFeature/BAM") {
+                temp.urlTemplate = obj.config.bam.url;
+                temp.baiUrlTemplate = obj.config.bai.url;
+            }
+            else {
+                temp.urlTemplate = obj.config.file.url;
+            }
+
+            console.log(obj);
+        });
+        delete temp.store;
+        return temp;
+    }));
+    var minTrackList = {
+      tracks: trackConfs,
+      refSeqs: this.config.refSeqs
+    }
+
+    fs.writeFile( dir + "/trackList.json", JSON.stringify(minTrackList, null, 2), function(err) {
         if(err) {
             alert(err);
         }
