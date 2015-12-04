@@ -192,7 +192,7 @@ constructor: function(params) {
                     });
                 });
             });
-        },function() { console.log('fail to load config'); });
+        });
     });
 },
 
@@ -419,9 +419,22 @@ fatalError: function( error ) {
                     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
-                    on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ))
-                    on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ))
+                    on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
+                    on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ));
 
+                    var fs = electronRequire('fs');
+                    var remote = electronRequire('remote');
+                    var app = remote.require('app');
+                    try {
+                        var path = app.getPath('userData')+"/sessions.json";
+                        var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
+                        var sessionList = dojo.create( 'ul',{ style: {overflow: 'hidden'}}, dojo.byId('previousSessions') );
+                        array.forEach(obj, function(session) {
+                            var url=window.location.href.split('?')[0]+"?data="+Util.replacePath( session.session );
+                            console.log(url);
+                            var item = dojo.create('li', { 'innerHTML': '<a href="'+url+'">'+session.session+'</a>'}, sessionList);
+                        });
+                    } catch(e) { console.log(e); }
 
                     if( error ) {
                         var errors_div = dojo.byId('fatal_error_list');
@@ -972,12 +985,32 @@ renderDatasetSelect: function( parent ) {
     }
 },
 
+
+saveSessionDir: function(directory) {
+    var remote = electronRequire('remote');
+    var fs = electronRequire('fs');
+    var app = remote.require('app');
+    var path = app.getPath('userData')+"/sessions.json";
+    var obj = [];
+
+    try {
+        var path = app.getPath('userData')+"/sessions.json";
+        var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
+    }
+    catch(e) {}
+
+    obj.push({ session: directory });
+    fs.writeFileSync(path, JSON.stringify( obj, null, 2 ), 'utf8');
+},
+
+
 openDirectoryElectron: function() {
     var remote = electronRequire('remote');
     var dialog = remote.require('dialog');
     var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
     if( !datadir ) return;
     datadir = Util.replacePath( datadir[0] );
+    this.saveSessionDir( datadir );
     window.location = window.location.href.split('?')[0]+"?data="+datadir;
 },
 
@@ -1011,12 +1044,12 @@ saveData: function() {
       tracks: trackConfs,
       refSeqs: this.config.refSeqs
     }
-    fs.writeFile( dir + "/trackList.json", JSON.stringify(minTrackList, null, 2), function(err) {
-        if(err) {
-            alert(err);
-        }
-    });
+    try {
+        fs.writeFileSync( dir + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
+    } catch(e) { alert('Unable to save track data'); }
 },
+
+
 openFastaElectron: function() {
     var fastaFileDialog = new FastaFileDialog({browser: this});
 
@@ -1031,34 +1064,33 @@ openFastaElectron: function() {
           if(confs[0].store.fasta) {
               var fasta = Util.replacePath( confs[0].store.fasta.url );
               var fai = Util.replacePath( confs[0].store.fai.url );
-              var conf = {
-                  'label': confs[0].label,
-                  'key': confs[0].key,
-                  'type': "SequenceTrack",
-                  'category': "Reference sequence",
-                  'storeClass': 'JBrowse/Store/SeqFeature/IndexedFasta',
-                  'useAsRefSeqStore': true,
-                  'chunkSize': 20000,
-                  'urlTemplate': fasta,
-                  'faiUrlTemplate': fai
-              };
+              
               var trackList = {
-                  'tracks': [conf],
-                  'refSeqs': fai
+                  tracks: [{
+                      label: confs[0].label,
+                      key: confs[0].key,
+                      type: "SequenceTrack",
+                      category: "Reference sequence",
+                      storeClass: 'JBrowse/Store/SeqFeature/IndexedFasta',
+                      useAsRefSeqStore: true,
+                      chunkSize: 20000,
+                      urlTemplate: fasta,
+                      faiUrlTemplate: fai
+                  }],
+                  refSeqs: fai
               };
 
               // fix dix to be user data if we are accessing a url for fasta
               var dir = app.getPath('userData')+"/"+confs[0].label;
-              fs.existsSync(dir) || fs.mkdirSync(dir);
 
 
-              fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
-                  if(err) {
-                      alert(err);
-                  }
+              try {
+                  fs.existsSync(dir) || fs.mkdirSync(dir);
+                  fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2));
                   fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+                  this.saveSessionDir( dir );
                   window.location = window.location.href.split('?')[0] + "?data=" + dir;
-              });
+              } catch(e) { alert(e); }
           }
           else {
               var fasta = Util.replacePath( confs[0].store.blob.url );
@@ -1070,30 +1102,39 @@ openFastaElectron: function() {
                  }
               }
               var conf = {
-                  'label': confs[0].label,
-                  'key': confs[0].key,
-                  'type': "SequenceTrack",
-                  'category': "Reference sequence",
-                  'useAsRefSeqStore': true,
-                  'storeClass': 'JBrowse/Store/SeqFeature/UnindexedFasta',
-                  'chunkSize': 20000,
-                  'urlTemplate': fasta
+                  label: confs[0].label,
+                  key: confs[0].key,
+                  type: "SequenceTrack",
+                  category: "Reference sequence",
+                  useAsRefSeqStore: true,
+                  storeClass: 'JBrowse/Store/SeqFeature/UnindexedFasta',
+                  chunkSize: 20000,
+                  urlTemplate: fasta
               };
               var refseqs = new UnindexedFasta ({'browser': this, 'urlTemplate': fasta });
-              refseqs.getRefSeqs(function(data) {
+              var thisB = this;
+              refseqs.getRefSeqs( function(res) {
                   var trackList = {
-                      'tracks': [conf],
-                      'refSeqs': { 'data': data }
+                      tracks: [{
+                          label: confs[0].label,
+                          key: confs[0].key,
+                          type: "SequenceTrack",
+                          category: "Reference sequence",
+                          useAsRefSeqStore: true,
+                          storeClass: 'JBrowse/Store/SeqFeature/UnindexedFasta',
+                          chunkSize: 20000,
+                          urlTemplate: fasta
+                      }],
+                      refSeqs: { data: res }
                   };
-
-                  var dir = path.dirname(fasta);
-                  fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
-                      if(err) {
-                          alert(err);
-                      }
-                      fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+                  try {
+                      var dir = app.getPath('userData')+"/"+confs[0].label;
+                      fs.existsSync(dir) || fs.mkdirSync(dir);
+                      fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
+                      fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
+                      thisB.saveSessionDir( dir );
                       window.location = window.location.href.split('?')[0] + "?data=" + dir;
-                  });
+                  } catch(e) { alert(e); }
               }, function() { console.log('error'); });
           }
                 
