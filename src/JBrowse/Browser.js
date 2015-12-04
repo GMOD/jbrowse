@@ -1006,13 +1006,17 @@ openFastaElectron: function() {
                   if(err) {
                       alert(err);
                   }
-                  console.log("trackList.json saved");
                   fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
                   window.location = window.location.href.split('?')[0] + "?data=" + dir;
               });
           }
           else {
               var fasta = Util.replacePath( confs[0].store.blob.url );
+              if(confs[0].store.blob.size>100000000) {
+                 if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
+                     return;
+                 }
+              }
               var conf = {
                   'label': confs[0].label,
                   'key': confs[0].key,
@@ -1023,9 +1027,7 @@ openFastaElectron: function() {
                   'urlTemplate': fasta
               };
               var refseqs = new UnindexedFasta ({'browser': this, 'urlTemplate': fasta });
-              console.log(refseqs);
               refseqs.getRefSeqs(function(data) {
-                  console.log('here', data);
                   var trackList = {
                       'tracks': [conf],
                       'refSeqs': { 'data': data }
@@ -1036,7 +1038,6 @@ openFastaElectron: function() {
                       if(err) {
                           alert(err);
                       }
-                      console.log("trackList.json saved");
                       fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
                       window.location = window.location.href.split('?')[0] + "?data=" + dir;
                   });

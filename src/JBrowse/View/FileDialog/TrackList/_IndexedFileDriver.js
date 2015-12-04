@@ -85,7 +85,6 @@ return declare( null, {
             };
 
             configs[newName][this.indexConfKey] = this._makeBlob( resource );
-            console.log(configs);
             return true;
         }
         else
