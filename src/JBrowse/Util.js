@@ -485,7 +485,7 @@ Util = {
      * Replace windows file path, e.g. C:\ to use file:/// prefixes
      */
     replacePath: function( path ) {
-        return path.replace(/\w:/,"").replace(/\\/g, "/");
+        return path.replace(/^w:/,"").replace(/\\/g, "/");
     },
 
     // back-compatible way to remove properties/attributes from DOM

@@ -987,12 +987,9 @@ saveData: function() {
     var fs = electronRequire('fs');
     var dir = this.config.dataRoot;
     var trackConfs = array.map( this.view.tracks, dojo.hitch(this, function(track) {
-        var temp=dojo.clone(track.config);
-
+        var temp = dojo.clone( track.config );
         this.getStore( temp.store, function( obj ) {
             temp.storeClass = obj.config.type;
-
-            console.log(temp.storeClass, obj);
             if(!temp.urlTemplate) {
                 if(temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
                     temp.urlTemplate = obj.config.file.url;
@@ -1006,7 +1003,6 @@ saveData: function() {
                     temp.urlTemplate = (obj.config.file||obj.config.blob).url;
                 }
             }
-
         });
         delete temp.store;
         return temp;
@@ -1015,7 +1011,6 @@ saveData: function() {
       tracks: trackConfs,
       refSeqs: this.config.refSeqs
     }
-
     fs.writeFile( dir + "/trackList.json", JSON.stringify(minTrackList, null, 2), function(err) {
         if(err) {
             alert(err);
@@ -1028,6 +1023,7 @@ openFastaElectron: function() {
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
     var path = electronRequire('path');
+    var app = remote.require('app');
 
     fastaFileDialog.show ({
         openCallback: dojo.hitch(this, function(results) {
@@ -1051,7 +1047,11 @@ openFastaElectron: function() {
                   'refSeqs': fai
               };
 
-              var dir = path.dirname(fasta);
+              // fix dix to be user data if we are accessing a url for fasta
+              var dir = app.getPath('userData')+"/"+confs[0].label;
+              fs.existsSync(dir) || fs.mkdirSync(dir);
+
+
               fs.writeFile( dir + "/trackList.json", JSON.stringify(trackList, null, 2), function(err) {
                   if(err) {
                       alert(err);
