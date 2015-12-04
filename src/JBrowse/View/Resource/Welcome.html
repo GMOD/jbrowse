@@ -1,17 +1,13 @@
-<div id="welcome_screen" style="padding:30px;">
+<div id="welcome_screen" style="padding: 30px">
     <img src="img/JBrowseLogo.png" width=300></img>
-
-
-    <h1>Welcome</h1>
     <p id="welcome"></p>
 
     <div id="volvox_data_placeholder"></div>
 
 
-    <div style="padding:10px">
-        <input value="Open sequence file" type="button" id="newOpen"/>
-        <input value="Open existing data directory" type="button" id="newOpenDirectory"/>
+    <div style="padding:10px;">
+        <div id="newOpen" class="welcome_button">Open sequence file</div>
+        <div id="newOpenDirectory" class="welcome_button">Open data directory</div>
     </div>
-    <div id="fatal_error_list"></div>
-
+    <div id="fatal_error_list" style="bottom:0px;position:absolute;"></div>
 </div>

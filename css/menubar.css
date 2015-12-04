@@ -141,3 +141,20 @@ a.topLink, a.topLink * {
 .tundra .menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
     border: none;
 }
+
+
+
+.welcome_button {
+    border: 1px black;
+    background-color: #396494;
+    color: white;
+    padding: 10px;
+    margin: 2px;
+    width: 200px
+}
+
+
+
+.welcome_button:hover {
+    background-color: #3A8A9A;
+}

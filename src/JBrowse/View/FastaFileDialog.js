@@ -20,7 +20,7 @@ return declare( FileDialog, {
     
 
     show: function( args ) {
-        args.introMsg = "Select a FASTA file or indexed FASTA file.";
+        args.introMsg = "Select a FASTA file (.fa) or indexed FASTA (.fa and .fai) to open";
         this.inherited(arguments);
         this.dialog.set('title','Open sequence file');
     }
