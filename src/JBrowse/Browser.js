@@ -434,8 +434,8 @@ fatalError: function( error ) {
                     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
-                    on(dojo.byId('newOpen'),'click',dojo.hitch( thisB, 'openFastaElectron' ))
-                    on(dojo.byId('newOpenDirectory'),'click', dojo.hitch( thisB, 'openDirectoryElectron' ))
+                    on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ))
+                    on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ))
 
 
                     if( error ) {
@@ -982,8 +982,8 @@ openDirectoryElectron: function() {
     var remote = electronRequire('remote');
     var dialog = remote.require('dialog');
     var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
-    if(!datadir) return;
-    datadir = Util.replacePath(datadir[0]);
+    if( !datadir ) return;
+    datadir = Util.replacePath( datadir[0] );
     window.location = window.location.href.split('?')[0]+"?data="+datadir;
 },
 
@@ -1072,7 +1072,7 @@ openFasta: function() {
             }
             else if(!confs[0].store.fai && confs[0].store.fasta) {
                 if(confs[0].store.fasta.size>100000000) {
-                   if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
+                   if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
                        return;
                    }
                 }
