@@ -1041,6 +1041,7 @@ openFastaElectron: function() {
                   'type': "SequenceTrack",
                   'category': "Reference sequence",
                   'storeClass': 'JBrowse/Store/SeqFeature/IndexedFasta',
+                  'useAsRefSeqStore': true,
                   'chunkSize': 20000,
                   'urlTemplate': fasta,
                   'faiUrlTemplate': fai
@@ -1073,6 +1074,7 @@ openFastaElectron: function() {
                   'key': confs[0].key,
                   'type': "SequenceTrack",
                   'category': "Reference sequence",
+                  'useAsRefSeqStore': true,
                   'storeClass': 'JBrowse/Store/SeqFeature/UnindexedFasta',
                   'chunkSize': 20000,
                   'urlTemplate': fasta
@@ -1114,10 +1116,11 @@ openFasta: function() {
               replaceBrowser(function() {
                   var newBrowser = new thisB.constructor( { 'refSeqs': { 'data': refSeqs } } );
                   setTimeout( function() {
-                    array.forEach( confs, function( conf ) {
+                    array.forEach( tracks, function( conf ) {
                         var storeConf = conf.store;
                         if( storeConf && typeof storeConf == 'object' ) {
                             delete conf.store;
+                            storeConf.name = 'refseqs'; // important to make it the refseq store
                             var name = this.addStoreConfig( storeConf.name, storeConf );
                             conf.store = name;
                         }
