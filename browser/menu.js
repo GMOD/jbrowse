@@ -19,26 +19,24 @@ menu.push(
 	}
 );
 
-if (process.env.ELECTRON_APP_DEBUG) {
-	menu.push(
-		{
-			label: '&Debug',
-			submenu: [
-				{
-					label: '&Reload',
-					accelerator: 'CmdOrCtrl+R',
-					click: function () {
-						BrowserWindow.getFocusedWindow().reloadIgnoringCache();
-					}
-				},
-				{
-					label: 'Toggle &Developer Tools',
-					accelerator: isDarwin ? 'Alt+Cmd+I' : 'Ctrl+Shift+I',
-					click: function () {
-						BrowserWindow.getFocusedWindow().toggleDevTools();
-					}
-				}
-			]
-		}
-	);
-}
+menu.push(
+    {
+        label: '&Debug',
+        submenu: [
+            {
+                label: '&Reload',
+                accelerator: 'CmdOrCtrl+R',
+                click: function () {
+                    BrowserWindow.getFocusedWindow().reloadIgnoringCache();
+                }
+            },
+            {
+                label: 'Toggle &Developer Tools',
+                accelerator: isDarwin ? 'Alt+Cmd+I' : 'Ctrl+Shift+I',
+                click: function () {
+                    BrowserWindow.getFocusedWindow().toggleDevTools();
+                }
+            }
+        ]
+    }
+);

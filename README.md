@@ -39,7 +39,6 @@ To build the Electron app, run the following
 To run the Electron app in debug mode run the following
 
     npm install
-    export ELECTRON_APP_DEBUG=1
     npm start
 
 # Running the developer test suites
