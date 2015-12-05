@@ -430,8 +430,7 @@ fatalError: function( error ) {
                         var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
                         var sessionList = dojo.create( 'ul',{ style: {overflow: 'hidden'}}, dojo.byId('previousSessions') );
                         array.forEach(obj, function(session) {
-                            var url=window.location.href.split('?')[0]+"?data="+Util.replacePath( session.session );
-                            console.log(url);
+                            var url = window.location.href.split('?')[0] + "?data=" + Util.replacePath( session.session );
                             var item = dojo.create('li', { 'innerHTML': '<a href="'+url+'">'+session.session+'</a>'}, sessionList);
                         });
                     } catch(e) { console.log(e); }
@@ -986,7 +985,7 @@ renderDatasetSelect: function( parent ) {
 },
 
 
-saveSessionDir: function(directory) {
+saveSessionDir: function( directory ) {
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
     var app = remote.require('app');
@@ -994,12 +993,11 @@ saveSessionDir: function(directory) {
     var obj = [];
 
     try {
-        var path = app.getPath('userData')+"/sessions.json";
         var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
     }
     catch(e) {}
 
-    obj.push({ session: directory });
+    obj.push({ session: Util.replacePath( directory ) });
     fs.writeFileSync(path, JSON.stringify( obj, null, 2 ), 'utf8');
 },
 
@@ -1009,9 +1007,8 @@ openDirectoryElectron: function() {
     var dialog = remote.require('dialog');
     var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
     if( !datadir ) return;
-    datadir = Util.replacePath( datadir[0] );
-    this.saveSessionDir( datadir );
-    window.location = window.location.href.split('?')[0]+"?data="+datadir;
+    this.saveSessionDir( datadir[0] );
+    window.location = window.location.href.split('?')[0]+"?data=" + Util.replacePath( datadir[0] );
 },
 
 saveData: function() {
@@ -1089,7 +1086,7 @@ openFastaElectron: function() {
                   fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2));
                   fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
                   this.saveSessionDir( dir );
-                  window.location = window.location.href.split('?')[0] + "?data=" + dir;
+                  window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
               } catch(e) { alert(e); }
           }
           else {
@@ -1136,7 +1133,7 @@ openFastaElectron: function() {
                       fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
                       fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
                       thisB.saveSessionDir( dir );
-                      window.location = window.location.href.split('?')[0] + "?data=" + dir;
+                      window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                   } catch(e) { alert(e); }
               }, function() { console.log('error'); });
           }
