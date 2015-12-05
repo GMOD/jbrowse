@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'dijit/form/Button',
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'dojo/query',
@@ -9,6 +10,7 @@ define( [
         ],
         function(
             declare,
+            Button,
             RadioButton,
             dom,
             query,
@@ -33,31 +35,49 @@ return declare( FileDialog, {
         this.dialog.set('title','Open sequence file');
     },
 
-    _makeActionBar: function( openCallback, cancelCallback ) {
-        var modifiedOpenCallback = dojo.hitch( this, function(data) {
-            console.log(data);
-            data.refSeqOrder = this.refSeqOrderChoice[0].checked ? "length descending" : "alphabetical descending";
-            openCallback(data);
-        });
-        var func = this.getInherited(arguments);
-        var ret = func.apply(this, [modifiedOpenCallback, cancelCallback]);
 
+    _makeActionBar: function( openCallback, cancelCallback ) {
+        var actionBar = dom.create(
+            'div', {
+                className: 'dijitDialogPaneActionBar'
+            });
         var disChoices = this.refSeqOrderChoice = [
             new RadioButton({ id: 'sortAlpha',
                               value: 'sortAlpha',
-                              checked: true
-                            }),
+                               checked: true
+                             }),
             new RadioButton({ id: 'sortLength',
                               value: 'sortLength'
                             })
         ];
-        var aux = query('.aux',ret.domNode)[0];
-        dom.empty(aux);
+
+        var aux = dom.create('div',{className:'aux'},actionBar);
         disChoices[0].placeAt(aux);
         dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by length' }, aux ),
         disChoices[1].placeAt(aux);
         dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs alphanum' }, aux );
-        return { domNode: ret.domNode };
+
+        new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
+                     onClick: dojo.hitch( this, function() {
+                                              cancelCallback && cancelCallback();
+                                              this.dialog.hide();
+                                          })
+                   })
+            .placeAt( actionBar );
+
+        new Button({ iconClass: 'dijitIconFolderOpen',
+                     label: 'Open',
+                     onClick: dojo.hitch( this, function() {
+                         openCallback && openCallback({
+                             trackConfs: this.trackList.getTrackConfigurations(),
+                             refSeqOrder: this.refSeqOrderChoice[0].checked ? "length descending" : "alphabetical descending"
+                         });
+                         this.dialog.hide();
+                     })
+                   })
+            .placeAt( actionBar );
+
+        return { domNode: actionBar };
     }
 
    
