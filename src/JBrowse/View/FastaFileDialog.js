@@ -48,14 +48,19 @@ return declare( FileDialog, {
                              }),
             new RadioButton({ id: 'sortLength',
                               value: 'sortLength'
+                            }),
+            new RadioButton({ id: 'noSort',
+                              value: 'noSort'
                             })
         ];
 
         var aux = dom.create('div',{className:'aux'},actionBar);
         disChoices[0].placeAt(aux);
-        dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by length' }, aux ),
+        dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs by length' }, aux ),
         disChoices[1].placeAt(aux);
-        dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs alphanum' }, aux );
+        dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by name' }, aux );
+        disChoices[2].placeAt(aux);
+        dom.create('label', { "for": 'noSort', innerHTML: 'Disable sort' }, aux );
 
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: dojo.hitch( this, function() {
@@ -70,7 +75,9 @@ return declare( FileDialog, {
                      onClick: dojo.hitch( this, function() {
                          openCallback && openCallback({
                              trackConfs: this.trackList.getTrackConfigurations(),
-                             refSeqOrder: this.refSeqOrderChoice[0].checked ? "length descending" : "alphabetical descending"
+                             refSeqOrder: this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
+                                          this.refSeqOrderChoice[1].checked ? "length descending" :
+                                          undefined
                          });
                          this.dialog.hide();
                      })
