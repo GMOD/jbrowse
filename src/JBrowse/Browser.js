@@ -1658,6 +1658,7 @@ _calculateClientStats: function() {
 
         // time param to prevent caching
         t: date.getTime()/1000,
+        electron: Util.isElectron(),
 
         // also get local time zone offset
         tzoffset: date.getTimezoneOffset(),
