@@ -4,7 +4,7 @@
   "repository": "https://github.com/GMOD/jbrowse.git",
   "dependencies": {},
   "devDependencies": {
-    "electron-prebuilt": "^0.34.2"
+    "electron-prebuilt": "^0.35.4"
   },
   "scripts": {
     "start": "electron browser/main.js"
