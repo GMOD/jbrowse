@@ -40,7 +40,7 @@ return declare( FileDialog, {
             openCallback(data);
         });
         var func = this.getInherited(arguments);
-        ret = func.apply(this, [modifiedOpenCallback, cancelCallback]);
+        var ret = func.apply(this, [modifiedOpenCallback, cancelCallback]);
 
         var disChoices = this.refSeqOrderChoice = [
             new RadioButton({ id: 'sortAlpha',
