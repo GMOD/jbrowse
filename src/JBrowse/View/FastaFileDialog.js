@@ -35,6 +35,7 @@ return declare( FileDialog, {
 
     _makeActionBar: function( openCallback, cancelCallback ) {
         var modifiedOpenCallback = dojo.hitch( this, function(data) {
+            console.log(data);
             data.refSeqOrder = this.refSeqOrderChoice[0].checked ? "length descending" : "alphabetical descending";
             openCallback(data);
         });
