@@ -418,6 +418,7 @@ fatalError: function( error ) {
                     container.innerHTML = Welcome
                     var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
                     dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
+                    thisB.fastaFileDialog = new FastaFileDialog({ browser: thisB });
 
                     on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
                     on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ));
@@ -723,6 +724,7 @@ initView: function() {
             this.addGlobalMenuItem( 'file', new dijitMenuSeparator() );
 
             this.fileDialog = new FileDialog({ browser: this });
+            this.fastaFileDialog = new FastaFileDialog({ browser: this });
 
             this.addGlobalMenuItem( 'file', new dijitMenuItem(
                 {
@@ -1052,8 +1054,6 @@ saveData: function() {
 
 
 openFastaElectron: function() {
-    this.fastaFileDialog = this.fastaFileDialog || new FastaFileDialog({browser: this});
-
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
     var path = electronRequire('path');
@@ -1141,8 +1141,6 @@ openFastaElectron: function() {
 
 openFasta: function() {
     var thisB=this;
-    this.fastaFileDialog = this.fastaFileDialog || new FastaFileDialog({browser: this});
-
     var replaceBrowser = function (newBrowserGenerator) {
         thisB.teardown()
         newBrowserGenerator()
@@ -3072,15 +3070,19 @@ showRegionWithHighlight: function() { // backcompat
  */
 teardown: function() {
     for (var id in this._subscription) {
-        this._subscription[id].remove()
+        this._subscription[id].remove();
     }
 
     if(this.containerWidget)
-        this.containerWidget.destroyRecursive(true)
+        this.containerWidget.destroyRecursive(true);
+
 
     while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
     }
+
+    this.fileDialog.destroyRecursive(true);
+    this.fastaFileDialog.destroyRecursive(true);
 }
 
 });
