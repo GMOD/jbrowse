@@ -997,7 +997,10 @@ saveSessionDir: function( directory ) {
     }
     catch(e) {}
 
-    obj.push({ session: Util.replacePath( directory ) });
+    var dir = Util.replacePath( directory );
+    if( array.every(obj, function(elt) { return elt.session!=dir; }) )
+        obj.push({ session: dir });
+
     fs.writeFileSync(path, JSON.stringify( obj, null, 2 ), 'utf8');
 },
 
