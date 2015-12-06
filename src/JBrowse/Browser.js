@@ -44,6 +44,7 @@ define( [
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
+            'JBrowse/View/Dialog/Preferences',
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
@@ -95,6 +96,7 @@ define( [
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
+            PreferencesDialog,
             SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
@@ -661,7 +663,22 @@ initView: function() {
                       label: "Open data directory",
                       iconClass: 'dijitIconFolderOpen',
                       onClick: dojo.hitch( this, 'openDirectoryElectron' )
-                }
+                  }
+                )
+            );
+            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
+              new dijitMenuItem(
+                  {
+                      id: 'menubar_dataset_conf',
+                      label: "Open plugin",
+                      iconClass: 'dijitIconConfigure',
+                      onClick: function() {
+                            new PreferencesDialog({
+                                    browser: thisObj,
+                                    setCallback: dojo.hitch( thisObj, 'openConfig' )
+                                }).show();
+                            }
+                  }
             ));
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
               new dijitMenuItem(
@@ -670,8 +687,9 @@ initView: function() {
                       label: "Save session",
                       iconClass: 'dijitIconSave',
                       onClick: dojo.hitch( this, 'saveData' )
-                }
-            ));
+                  }
+                )
+            );
         }
         else if( !this.config.hideGenomeOptions ) {
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
@@ -1014,42 +1032,67 @@ openDirectoryElectron: function() {
     window.location = window.location.href.split('?')[0]+"?data=" + Util.replacePath( datadir[0] );
 },
 
+
+openConfig: function( plugins ) {
+    if( !confirm("If you have opened any new tracks, please save them before continuing. Are you sure you want to continue?") )
+        return;
+    var remote = electronRequire('remote');
+    var fs = electronRequire('fs');
+
+    console.log( JSON.stringify( plugins ) );
+    var dir = this.config.dataRoot;
+    var trackList = JSON.parse( fs.readFileSync(dir+"/trackList.json", 'utf8') );
+    trackList.plugins = trackList.plugins || {};
+    array.forEach( plugins, function( plugin ) {
+        var name = plugin.match(/\/(\w+)$/)[1]
+        trackList.plugins[name] = { location: plugin };
+    });
+    fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
+    window.location.reload();
+},
+
+
+
 saveData: function() {
-    if(!confirm("This will overwrite tracks and config data in your data directory. Are you sure you want to continue?")) return;
+    if( !confirm("This will overwrite tracks and config data in your data directory. Are you sure you want to continue?") )
+        return;
+
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
     var dir = this.config.dataRoot;
-    var trackConfs = array.map( this.view.tracks, dojo.hitch(this, function(track) {
+
+    // use getstore to access the files that were loaded from local files, and create standard configs
+    var trackConfs = array.map( this.view.tracks, function(track) {
         var temp = dojo.clone( track.config );
         this.getStore( temp.store, dojo.hitch( this, function( obj ) {
             temp.storeClass = obj.config.type;
-            if(!temp.urlTemplate) {
-                if(temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+            if( !temp.urlTemplate ) {
+                if( temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix" ) {
                     temp.urlTemplate = obj.config.file.url;
                     temp.tbiUrlTemplate = obj.config.tbi.url;
                 }
-                else if(temp.storeClass == "JBrowse/Store/SeqFeature/BAM") {
+                else if( temp.storeClass == "JBrowse/Store/SeqFeature/BAM" ) {
                     temp.urlTemplate = obj.config.bam.url;
                     temp.baiUrlTemplate = obj.config.bai.url;
                 }
-                else if(temp.storeClass != "JBrowse/Store/SeqFeature/IndexedFasta"&&temp.storeClass != "JBrowse/Store/SeqFeature/UnindexedFasta") {
+                else if( temp.storeClass != "JBrowse/Store/SeqFeature/IndexedFasta" &&
+                         temp.storeClass != "JBrowse/Store/SeqFeature/UnindexedFasta" ) {
                     temp.urlTemplate = (obj.config.file||obj.config.blob).url;
                 }
+                if( temp.histograms ) {
+                    this.getStore( temp.histograms.store, function( obj ) {
+                        temp.histograms = {
+                            storeClass: obj.config.type,
+                            urlTemplate: (obj.config.file||obj.config.blob).url
+                        }
+                    });
+                }
             }
-            if( temp.histograms ) {
-
-                this.getStore( temp.histograms.store, function( obj ) {
-                    console.log(obj);
-                    temp.histograms = {
-                        storeClass: obj.config.type,
-                        urlTemplate: (obj.config.file||obj.config.blob).url
-                    }
-                });
-            }
+            delete temp.store;
         }));
-        delete temp.store;
         return temp;
-    }));
+    }. this);
+
     var minTrackList = {
       tracks: trackConfs,
       refSeqs: this.config.refSeqs,
