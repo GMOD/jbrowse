@@ -137,7 +137,7 @@ constructor: function(params) {
         return;
 
     this.startTime = new Date();
-    
+
     // start the initialization process
     var thisB = this;
     dojo.addOnLoad( function() {
@@ -408,7 +408,7 @@ fatalError: function( error ) {
                                dojo.byId('volvox_data_placeholder').innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
                            } catch(e) {}
                        });
-                    
+
                 });
             }
             else {
@@ -449,7 +449,7 @@ fatalError: function( error ) {
                        });
                 });
             }
-            
+
 
             this.renderedFatalErrors = true;
         }
@@ -697,7 +697,7 @@ initView: function() {
                 if( this.config.datasets && this.config.dataset_id ) {
                     this.renderDatasetSelect( menuBar );
                 } else {
-    
+
                     this.poweredByLink = dojo.create('a', {
                                     className: 'powered_by',
                                     innerHTML: this.browserMeta().title,
@@ -810,7 +810,7 @@ initView: function() {
                                         })
                                   );
 
-            
+
             this.setGlobalKeyboardShortcut( '?', showHelp );
             this.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
@@ -1021,7 +1021,7 @@ saveData: function() {
     var dir = this.config.dataRoot;
     var trackConfs = array.map( this.view.tracks, dojo.hitch(this, function(track) {
         var temp = dojo.clone( track.config );
-        this.getStore( temp.store, function( obj ) {
+        this.getStore( temp.store, dojo.hitch( this, function( obj ) {
             temp.storeClass = obj.config.type;
             if(!temp.urlTemplate) {
                 if(temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
@@ -1036,7 +1036,17 @@ saveData: function() {
                     temp.urlTemplate = (obj.config.file||obj.config.blob).url;
                 }
             }
-        });
+            if( temp.histograms ) {
+
+                this.getStore( temp.histograms.store, function( obj ) {
+                    console.log(obj);
+                    temp.histograms = {
+                        storeClass: obj.config.type,
+                        urlTemplate: (obj.config.file||obj.config.blob).url
+                    }
+                });
+            }
+        }));
         delete temp.store;
         return temp;
     }));
@@ -1067,7 +1077,7 @@ openFastaElectron: function() {
             if( confs[0].store.fasta ) {
                 var fasta = Util.replacePath( confs[0].store.fasta.url );
                 var fai = Util.replacePath( confs[0].store.fai.url );
-                
+
                 var trackList = {
                     tracks: [{
                         label: confs[0].label,
@@ -1973,7 +1983,7 @@ addRefseqs: function( refSeqs ) {
     dojo.forEach( refSeqs, function(r) {
         this.allRefs[r.name] = r;
     },this);
-    
+
 
     // generate refSeqOrder
     this.refSeqOrder =
@@ -2564,14 +2574,14 @@ makeFullViewLink: function () {
 onCoarseMove: function(startbp, endbp) {
     var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
     var searchVal = ""; // the feature that was typed into the search field
-    
+
     // update the location box with our current location (in this case locationBox is the legacy search box)
-    if( this.locationBox ) { 
+    if( this.locationBox ) {
         //this.searchVal = searchVal;
         var searchVal = this.locationBox.get('value');
         if (searchVal.length) searchVal = ' "' + searchVal + '"';
         var locationVal = Util.assembleLocStringWithLength( currRegion );
-        
+
         this.locationBox.set('value',locationVal,
             false //< don't fire any onchange handlers
         );
