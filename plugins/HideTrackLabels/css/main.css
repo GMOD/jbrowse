@@ -14,10 +14,10 @@ span[widgetid=hidetitles-btn] {
 #hidetitles-btn{
   height: 17px;
   width: 22px;
-  background-image: url(../img/eye_open.png);
+  background-image: url("../img/eye_open.png");
   background-repeat: no-repeat;
   background-position: center center;
 }
 #hidetitles-btn[hidden-titles] {
-  background-image: url(../img/eye_bl.png);
+  background-image: url("../img/eye_bl.png");
 } 
