@@ -24,8 +24,9 @@
 div[id=widget_location] {
   margin-left:3px !important;
 }
+
 #widget_location {
-    #width: 18ex !important;
+/*    width: 18ex !important;*/
     padding-top: 2px;
 }
 
@@ -39,75 +40,4 @@ div[widgetid=highlight-btn] {
   position:relative;
   top: 1px;
 }
-
-/* hide titles button */
-span[widgetid=hidetitles-btn] {
-  positiion:relative;
-  top: -1px;
-}
-#hidetitles-btn{
-  height: 17px;
-  width: 22px;
-  background-image: url("../img/eye_open.png");
-  background-repeat: no-repeat;
-  background-position: center center;
-}
-#hidetitles-btn[hidden-titles] {
-  background-image: url("../img/eye_bl.png");
-} 
-
-/* rounding off buttons remove the x */
-/*
-#location-info {
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-}
-#search-refseq table {
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-}
-#search-refseq td.dijitButtonContents {
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-left-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-bottomleft: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-}
-#search-refseq td.dijitArrowButton {
-	-webkit-border-top-right-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-topright: 5px;
-	-moz-border-radius-bottomright: 5px;
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
-}
-span[widgetid=search-go-btn] > span {
-	-webkit-border-top-right-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-topright: 5px;
-	-moz-border-radius-bottomright: 5px;
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
-}
-div[widgetid=location] {
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-left-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-bottomleft: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-}
-span[widgetid=hidetitles-btn] > span {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-}
-#hidetitles-btn{
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-}
-*/
+/
