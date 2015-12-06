@@ -1079,7 +1079,7 @@ setLocation: function(refseq, startbp, endbp) {
         this.ref = refseq;
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
 
-        
+
 
         array.forEach( this.tracks, removeTrack );
 
@@ -1860,7 +1860,7 @@ zoomBackOut: function(e) {
     var max = this.posBeforeZoom.max;
     var zoomIndex = this.posBeforeZoom.zoomIndex;
     this.posBeforeZoom = undefined;
-    
+
     var zoomLoc = 0.5;
     this.showWait();
 
@@ -1876,7 +1876,7 @@ zoomBackOut: function(e) {
                         fixedBp + (((1 - zoomLoc) * this.getWidth())
                                 / this.pxPerBp));
     }
-    
+
     this.minLeft = this.pxPerBp * this.ref.start;
     var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right

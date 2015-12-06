@@ -43,7 +43,7 @@ return declare( null, {
         // otherwise, use default formatting
 
         class_ = class_ || title.replace(/\W/g,'_').toLowerCase();
-        
+
         var formatted_title=title;
         // if this object has a config value 'fmtDetailField_Foo' function, apply it to field title
         if(( fieldSpecificFormatter = this.config['fmtDetailField_'+title] ) && f) {

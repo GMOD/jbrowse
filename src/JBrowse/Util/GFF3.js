@@ -127,7 +127,7 @@ return {
             var val = f[ gff3_field_names[i] ];
             if(i==6) // deserialize strand
                 fields[i] = val === null || val === undefined ? '.' : translate_strand[val+1];
-            else  
+            else
                 fields[i] = val === null || val === undefined ? '.' : this.escape( ''+val );
         }
         fields[8] = attrString;

@@ -200,7 +200,7 @@ return declare( null, {
             }
         }
 
-        
+
 
         // little elements used to show pipeline-like connections between the controls
         dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );

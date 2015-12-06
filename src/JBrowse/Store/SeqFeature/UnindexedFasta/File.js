@@ -32,7 +32,7 @@ return declare( null,
         var successCallback = args.success || function() {};
         var failCallback = args.failure || function(e) { console.error(e, e.stack); };
         this.parseFile( fasta, function(data) {
-            
+
             array.forEach( data, function(rs) {
                 thisB.features[rs.name] = {
                     seq_id: rs.name,
@@ -53,7 +53,7 @@ return declare( null,
         }, failCallback );
     },
 
-    
+
 
     fetch: function(chr, min, max, featCallback, endCallback, errorCallback ) {
         errorCallback = errorCallback || function(e) { console.error(e); };

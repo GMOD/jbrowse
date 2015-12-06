@@ -45,7 +45,7 @@ return declare( [BlockBased, ExportMixin, CodonTable],
             maxExportSpan: 500000,
             showForwardStrand: true,
             showReverseStrand: true,
-            showTranslation: true 
+            showTranslation: true
         };
     },
     _exportFormats: function() {

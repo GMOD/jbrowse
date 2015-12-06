@@ -233,14 +233,14 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                   width: has('inaccurate-html-width') ? "" : "100%",
                   "min-width": has('inaccurate-html-width')? "100%":"",
                   "max-width": has('inaccurate-html-width')? "102%":""
-                  
+
               },
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
             },
             block.domNode
         );
-       
+
         var ctx = c.getContext('2d');
         var ratio=Util.getResolution(ctx, this.browser.config.highResolutionMode);
 
@@ -260,7 +260,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             // our canvas element
             ctx.scale(ratio, ratio);
         }
- 
+
         c.startBase = block.startBase;
         block.canvas = c;
 
@@ -404,7 +404,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 var store = f.source;
                 var fRect = featureRects[i];
                 var jEnd = fRect.r;
-                var score = f.get(scoreType)||f.get('score'); 
+                var score = f.get(scoreType)||f.get('score');
                 for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                     if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                         /* Note: if the feature is from a different store, the condition should fail,

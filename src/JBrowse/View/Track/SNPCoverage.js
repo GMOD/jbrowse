@@ -59,7 +59,7 @@ return declare( [WiggleXY, AlignmentsMixin],
         var thisB = this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
- 
+
         var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
@@ -80,7 +80,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                                      className: 'SNP-indicator-track'
                                  }, block.domNode);
         var snpContext = snpCanvas.getContext('2d');
- 
+
         // finally query the various pixel ratios
         var ratio = Util.getResolution( snpContext, this.browser.config.highResolutionMode );
         // upscale canvas if the two ratios don't match
@@ -100,7 +100,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             // our canvas element
             snpContext.scale(ratio, ratio);
         }
- 
+
 
         var negColor  = this.config.style.neg_color;
         var clipColor = this.config.style.clip_marker_color;
@@ -168,7 +168,7 @@ return declare( [WiggleXY, AlignmentsMixin],
                     snpContext.lineWidth = 1;
                     snpContext.strokeStyle = 'black';
                     snpContext.stroke();
-                    if( thisB.browser.config.highResolutionMode != 'disabled' ) 
+                    if( thisB.browser.config.highResolutionMode != 'disabled' )
                         snpContext.restore();
                 }
             });
@@ -245,7 +245,7 @@ return declare( [WiggleXY, AlignmentsMixin],
         if( score.snpsCounted ) {
             var total = score.total();
             var scoreSummary = '<table>';
-            
+
 
             score.forEach( function( count, category ) {
                 // if this count has more nested categories, do counts of those

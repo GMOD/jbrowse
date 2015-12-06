@@ -72,8 +72,8 @@ defaultCodonTable: {
 },
 
 generateCodonTable:function(table) {
-    /** 
-    *  take CodonTable above and generate larger codon table that includes 
+    /**
+    *  take CodonTable above and generate larger codon table that includes
     *  all permutations of upper and lower case nucleotides
     */  
     var tempCodonTable = { };

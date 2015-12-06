@@ -38,7 +38,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
 
             //calculate the scaling if necessary
-            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) || this.trackHeightChanged ) { 
+            if( ! this.lastScaling || ! this.lastScaling.sameStats( stats ) || this.trackHeightChanged ) {
 
                 var scaling = new Scale( this.config, stats );
 
@@ -79,7 +79,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var thisB=this;
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
- 
+
         var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;
@@ -129,7 +129,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         }, this );
     },
 
-    
+
 
     /* If it's a boolean track, mask accordingly */
     _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
@@ -154,7 +154,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
     _postDraw: function( scale, leftBase, rightBase, block, canvas, features, featureRects, dataScale ) {
         var context = canvas.getContext('2d');
         var canvasHeight = canvas.height;
- 
+
         var ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
         var toY = dojo.hitch( this, function( val ) {
            return canvasHeight * ( 1-dataScale.normalize(val) ) / ratio;

@@ -39,7 +39,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
                          )
                        );
 
-        
+
         this.index = {}
 
         this.fasta = new FASTAFile({

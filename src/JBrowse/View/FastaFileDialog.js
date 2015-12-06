@@ -27,7 +27,7 @@ return declare( FileDialog, {
         return this;
     },
 
-    
+
 
     show: function( args ) {
         args.introMsg = "Select a FASTA file (.fa) or indexed FASTA (.fa and .fai) to open";
@@ -87,6 +87,6 @@ return declare( FileDialog, {
         return { domNode: actionBar };
     }
 
-   
+
 });
 });

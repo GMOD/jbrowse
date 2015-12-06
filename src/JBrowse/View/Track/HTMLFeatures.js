@@ -300,7 +300,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 arrowhead = featDivChildren[j];
                                 if (typeof arrowhead.className === 'string') {
                                     if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
-                                        arrowhead.style.right =  
+                                        arrowhead.style.right =
                                             ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
                                                              : -this.plusArrowWidth
                                             ) + 'px';
@@ -635,7 +635,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 function ( args ) {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
-                                    if ( args && args.maskingSpans ) { 
+                                    if ( args && args.maskingSpans ) {
                                         //note: spans have to be inverted
                                         var invSpan = [];
                                         invSpan[0] = { start: leftBase };
@@ -653,7 +653,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                             invSpan.splice(i,1); }
                                         if (invSpan[0].end <= invSpan[0].start) {
                                             invSpan.splice(0,1); }
-                                        curTrack.maskBySpans( invSpan, args.maskingSpans ); 
+                                        curTrack.maskBySpans( invSpan, args.maskingSpans );
                                     }
                                     finishCallback();
                                 },
@@ -736,7 +736,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
                     // make a coverage div
                     var coverageNode = dojo.create('div');
-                    var s = parentDiv.featureEdges 
+                    var s = parentDiv.featureEdges
                             ? parentDiv.featureEdges.s
                             : parentDiv.subfeatureEdges.s;
                     var e = parentDiv.featureEdges
@@ -1055,7 +1055,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             + " width:" + featwidth + "%;"
             + (this.config.style.featureCss ? this.config.style.featureCss : "");
 
-        // Store the containerStart/End so we can resolve the truncation 
+        // Store the containerStart/End so we can resolve the truncation
         // when we are updating static elements
         featDiv._containerStart=containerStart;
         featDiv._containerEnd=containerEnd;

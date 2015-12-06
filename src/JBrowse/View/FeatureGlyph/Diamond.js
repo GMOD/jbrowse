@@ -4,11 +4,11 @@ define(['dojo/_base/declare',
        function(declare,
            lang,
            Box) {
-           
+
 return declare(Box, {
-    
+
     renderBox: function( context, viewInfo, feature, top, overallHeight, parentFeature, style ) {
-        
+
         var left  = viewInfo.block.bpToX( feature.get('start') );
         var width = viewInfo.block.bpToX( feature.get('end') ) - left;
         //left = Math.round( left );

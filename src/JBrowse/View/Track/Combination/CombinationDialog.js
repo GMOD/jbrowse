@@ -97,7 +97,7 @@ _dialogContent: function(store) {
 
                             for(var i = 0; i < numOpLists; i++) {
 
-                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i, 
+                                var opDiv = dom.create("div", {id: thisB.track.name + "_suffix" + i,
                                     style: {display: "inline-block", "padding-left": "15px", "vertical-align": "top"}}, thisB.changingOpPanel);
                                 if(numOpLists == 3) {
                                     var text = ["Main", "Mask", "Display"];
@@ -131,7 +131,7 @@ _dialogContent: function(store) {
 
     if( maskOps[0] )
         this.maskOpButtons[0].set('checked', 'checked');
-    
+
     if( maskOps.length <= 1 ) {
         if ( !maskOps.length || maskOps[0] == "0000") {
             maskOpListDiv.style.display = 'none';

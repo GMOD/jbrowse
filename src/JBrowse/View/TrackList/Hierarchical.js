@@ -130,14 +130,14 @@ return declare(
                       thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                   }
               },
-              sort: sorter 
+              sort: sorter
             });
     },
 
     addTracks: function( tracks, inStartup ) {
         this.pane = this;
         var thisB = this;
-       
+
         array.forEach( tracks, function( track ) {
             var trackConf = track.conf || track;
 
