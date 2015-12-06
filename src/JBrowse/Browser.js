@@ -1079,7 +1079,7 @@ saveData: function() {
                          temp.storeClass != "JBrowse/Store/SeqFeature/UnindexedFasta" ) {
                     temp.urlTemplate = (obj.config.file||obj.config.blob).url;
                 }
-                if( temp.histograms ) {
+                if( temp.histograms && temp.histograms.store ) {
                     this.getStore( temp.histograms.store, function( obj ) {
                         temp.histograms = {
                             storeClass: obj.config.type,
@@ -1091,7 +1091,7 @@ saveData: function() {
             delete temp.store;
         }));
         return temp;
-    }. this);
+    }, this);
 
     var minTrackList = {
       tracks: trackConfs,
