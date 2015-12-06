@@ -56,11 +56,11 @@ return declare( FileDialog, {
 
         var aux = dom.create('div',{className:'aux'},actionBar);
         disChoices[0].placeAt(aux);
-        dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs by length' }, aux ),
+        dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs by name' }, aux ),
         disChoices[1].placeAt(aux);
-        dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by name' }, aux );
+        dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by length' }, aux );
         disChoices[2].placeAt(aux);
-        dom.create('label', { "for": 'noSort', innerHTML: 'Disable sort' }, aux );
+        dom.create('label', { "for": 'noSort', innerHTML: 'Use order from file' }, aux );
 
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: dojo.hitch( this, function() {
