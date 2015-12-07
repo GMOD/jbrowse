@@ -32,6 +32,12 @@ return dojo.declare( BlockBased,
         if( highlight && highlight.ref == this.refSeq.name )
             this.renderRegionHighlight( args, highlight );
 
+
+        var bookmarks = this.browser.getBookmarks();
+        if( bookmarks ) {
+            this.renderRegionBookmark( args, bookmarks );
+        }
+
         args.finishCallback();
         this.heightUpdate(100, args.blockIndex);
     },
