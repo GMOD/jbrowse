@@ -1140,19 +1140,29 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
     renderRegionBookmark: function( args, bookmarks ) {
         var thisB=this;
-        bookmarks.then(
-            function( books ) {
-                array.forEach( books.features, function( bookmark ) {
-                    if( bookmark.start > args.rightBase || bookmark.end < args.leftBase )
-                        return;
-                    var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                    thisB.renderRegionHighlight( args, loc, bookmark.color );
-                });
-            },
-            function(error) {
-                console.log("Couldn't get bookmarks");
-            }
-        );
+        if( bookmarks.then ) {
+            bookmarks.then(
+                function( books ) {
+                    array.forEach( books.features, function( bookmark ) {
+                        if( bookmark.start > args.rightBase || bookmark.end < args.leftBase )
+                            return;
+                        var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
+                        thisB.renderRegionHighlight( args, loc, bookmark.color );
+                    });
+                },
+                function(error) {
+                    console.log("Couldn't get bookmarks");
+                }
+            );
+        }
+        else {
+            array.forEach( bookmarks.features, function( bookmark ) {
+                if( bookmark.start > args.rightBase || bookmark.end < args.leftBase )
+                    return;
+                var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
+                thisB.renderRegionHighlight( args, loc, bookmark.color );
+            });
+        }
     },
 
     renderRegionHighlight: function( args, highlight, color ) {
