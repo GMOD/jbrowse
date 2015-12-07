@@ -3053,6 +3053,18 @@ getHighlight: function() {
     return this._highlight || null;
 },
 
+getBookmarks: function() {
+    if( this.config.bookmarkService ) {
+        return request( this.config.bookmarkService, {
+            data: {
+                sequence: this.refSeq.name
+            },
+            handleAs: "json",
+            method: "post"
+        })
+    }
+},
+
 /**
  * Set a new highlight.  Returns the new highlight.
  */
