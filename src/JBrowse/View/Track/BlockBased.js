@@ -23,6 +23,7 @@ define( [
             'JBrowse/Component',
             'JBrowse/FeatureFiltererMixin',
             'JBrowse/Errors',
+            'JBrowse/Model/Location',
             'JBrowse/View/TrackConfigEditor',
             'JBrowse/View/ConfirmDialog',
             'JBrowse/View/Track/BlockBased/Block',
@@ -52,6 +53,7 @@ define( [
                   Component,
                   FeatureFiltererMixin,
                   Errors,
+                  Location,
                   TrackConfigEditor,
                   ConfirmDialog,
                   Block,
@@ -1136,7 +1138,24 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                          );
     },
 
-    renderRegionHighlight: function( args, highlight ) {
+    renderRegionBookmark: function( args, bookmarks ) {
+        var thisB=this;
+        bookmarks.then(
+            function( books ) {
+                array.forEach( books.features, function( bookmark ) {
+                    if( bookmark.start > args.rightBase || bookmark.end < args.leftBase )
+                        return;
+                    var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
+                    thisB.renderRegionHighlight( args, loc, bookmark.color );
+                });
+            },
+            function(error) {
+                console.log("Couldn't get bookmarks");
+            }
+        );
+    },
+
+    renderRegionHighlight: function( args, highlight, color ) {
         // do nothing if the highlight does not overlap this region
         if( highlight.start > args.rightBase || highlight.end < args.leftBase )
             return;
@@ -1159,13 +1178,14 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         var width = (right-left)*100/block_span;
         left = (left - args.leftBase)*100/block_span;
         var el = domConstruct.create('div', {
-                                className: 'global_highlight'
+                                className: color?'global_highlight_mod':'global_highlight'
                                     + (trimLeft <= 0 ? ' left' : '')
                                     + (trimRight <= 0 ? ' right' : '' ),
                                 style: {
                                     left: left+'%',
                                     width: width+'%',
-                                    height: '100%'
+                                    height: '100%',
+                                    background: color
                                 }
                             }, args.block.domNode );
     }
