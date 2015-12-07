@@ -41,6 +41,9 @@ html, body {
     position: absolute;
     background: rgba( 255, 255, 0, 0.7 );
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 
     border: 1px solid rgb(255, 178, 13);
     border-width: 0;
@@ -143,6 +146,7 @@ fieldset > legend {
 }
 
 input.icon {
+    display: -moz-inline-stack;
     display: inline-block;
     zoom: 1;
 }
@@ -187,6 +191,9 @@ div.vertical_scrollbar .vertical_position_marker {
 #navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect, #navbox .dojoxTriStateCheckBox {
     height: 20px;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 #navbox .dijitSelectLabel {
@@ -302,6 +309,9 @@ div.block.height_overflow .height_overflow_message {
     z-index: 2000;
 
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 div.block.timed_out {
     background: #ddd;
@@ -318,6 +328,9 @@ div.track {
 
     border-top: 1px solid #fafafa;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 div.pin_underlay {
     width: 100%;
@@ -446,6 +459,9 @@ div.tracklist-label.collapsed {
     padding: 0;
 
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 /* NOTE: browsers that don't support rgba colors will fall back to all
@@ -597,6 +613,9 @@ div.textfilter input {
     height: 100%;
 
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 div.textfilter > div.jbrowseIconCancel {
     position: absolute;
@@ -911,6 +930,9 @@ a.dialog-new-window {
     max-height: 20em;
     overflow-y: auto;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 .detail .value_container.big, .detail .value_container.dgrid {
     border: 1px solid rgba(0,0,50,0.1);
@@ -921,6 +943,9 @@ a.dialog-new-window {
 .detail .multi_value .value {
     border: 1px solid #ddd;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
 }
 
 .detail .value {
