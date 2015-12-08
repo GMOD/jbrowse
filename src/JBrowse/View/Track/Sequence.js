@@ -204,7 +204,7 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         }
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
-        orientedSeqSliced = reverse ? seqSliced.split("").reverse().join("") : seqSliced
+        var orientedSeqSliced = reverse ? seqSliced.split("").reverse().join("") : seqSliced
 
         var charSize = this.getCharacterMeasurements("aminoAcid");
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
