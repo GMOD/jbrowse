@@ -35,7 +35,7 @@ return dojo.declare( BlockBased,
 
         var bookmarks = this.browser.getBookmarks();
         if( bookmarks ) {
-            this.renderRegionBookmark( args, bookmarks );
+            this.renderRegionBookmark( args, bookmarks, this.refSeq.name );
         }
 
         args.finishCallback();

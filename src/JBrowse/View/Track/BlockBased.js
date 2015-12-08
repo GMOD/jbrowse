@@ -1138,16 +1138,14 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                          );
     },
 
-    renderRegionBookmark: function( args, bookmarks ) {
+    renderRegionBookmark: function( args, bookmarks, label ) {
         if( bookmarks.then ) {
             bookmarks.then(
                 function( books ) {
                     array.forEach( books.features, function( bookmark ) {
-                        console.log(bookmark,this.refSeq.name);
-                        if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || bookmark.ref != this.refSeq.name )
-                            return;
+                        if( bookmark.ref != this.refSeq.name ) return;
                         var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                        this.renderRegionHighlight( args, loc, bookmark.color );
+                        this.renderRegionHighlight( args, loc, bookmark.color, label );
                     }, this);
                 },
                 function(error) {
@@ -1157,15 +1155,14 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         }
         else {
             array.forEach( bookmarks.features, function( bookmark ) {
-                if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || bookmark.ref != this.refSeq.name )
-                    return;
+                if( bookmark.ref != this.refSeq.name ) return;
                 var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                this.renderRegionHighlight( args, loc, bookmark.color );
+                this.renderRegionHighlight( args, loc, bookmark.color, label );
             }, this);
         }
     },
 
-    renderRegionHighlight: function( args, highlight, color ) {
+    renderRegionHighlight: function( args, highlight, color, label ) {
         // do nothing if the highlight does not overlap this region
         if( highlight.start > args.rightBase || highlight.end < args.leftBase )
             return;
@@ -1187,8 +1184,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         var width = (right-left)*100/block_span;
         left = (left - args.leftBase)*100/block_span;
-        var el = domConstruct.create('div', {
-                                className: color?'global_highlight_mod':'global_highlight'
+        var highlight=domConstruct.create('div', {
+                                className: (color?'global_highlight_mod':'global_highlight')
                                     + (trimLeft <= 0 ? ' left' : '')
                                     + (trimRight <= 0 ? ' right' : '' ),
                                 style: {
@@ -1198,6 +1195,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                                     background: color
                                 }
                             }, args.block.domNode );
+
+        if( label ) {
+            if( trimLeft <= 0 ) {
+                domConstruct.create('div', { className:'verticaltext', style: { top:0,height:'14px',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
+            }
+        }
     }
 
 });
