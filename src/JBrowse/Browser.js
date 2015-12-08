@@ -1565,9 +1565,16 @@ _reportGoogleUsageStats: function( stats ) {
 
 // phones home to custom analytics at jbrowse.org
 _reportCustomUsageStats: function(stats) {
+    var protocol = "https";
+
+    // overridable protocol
+    if (typeof this.config.clientReport != "undefined" && typeof this.config.clientReport.protocol != "undefined")
+        protocol = this.config.clientReport.protocol;
+    
     // phone home with a GET request made by a script tag
-    var clientReport = 'http://jbrowse.org/analytics/clientReport?'
-               + dojo.objectToQuery( stats )
+    var clientReport = protocol + '://jbrowse.org/analytics/clientReport?'
+               + dojo.objectToQuery( stats );
+       
     dojo.create(
         'img',
         { style: {
