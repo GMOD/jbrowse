@@ -1138,14 +1138,14 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                          );
     },
 
-    renderRegionBookmark: function( args, bookmarks, label ) {
+    renderRegionBookmark: function( args, bookmarks, renderLabels ) {
         if( bookmarks.then ) {
             bookmarks.then(
                 function( books ) {
                     array.forEach( books.features, function( bookmark ) {
                         if( bookmark.ref != this.refSeq.name ) return;
                         var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                        this.renderRegionHighlight( args, loc, bookmark.color, label );
+                        this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
                     }, this);
                 },
                 function(error) {
@@ -1157,12 +1157,12 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             array.forEach( bookmarks.features, function( bookmark ) {
                 if( bookmark.ref != this.refSeq.name ) return;
                 var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                this.renderRegionHighlight( args, loc, bookmark.color, label );
+                this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
             }, this);
         }
     },
 
-    renderRegionHighlight: function( args, highlight, color, label ) {
+    renderRegionHighlight: function( args, highlight, color, label, rlabel ) {
         // do nothing if the highlight does not overlap this region
         if( highlight.start > args.rightBase || highlight.end < args.leftBase )
             return;
@@ -1198,7 +1198,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         if( label ) {
             if( trimLeft <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top:0,height:'14px',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
+                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left-12.4+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
+            }
+            if( trimRight <= 0 ) {
+                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width-8+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
             }
         }
     }

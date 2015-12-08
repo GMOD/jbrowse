@@ -97,6 +97,9 @@ fieldset > legend {
 
 .verticaltext {
     transform: rotate(-90deg);
+    position: absolute;
+    background-color: #4bb;
+    border: 1px solid black;
 }
 
 /* styles for the autocomplete menu */
