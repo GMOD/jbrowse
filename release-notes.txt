@@ -55,6 +55,10 @@
 
  * Move CSS files into css folder.
 
+ * Added ability to specify the set of startCodons and stopCodons in
+   the config files. Thanks to Eric Rasche for the contribution (issue
+   #657)!
+
 ## Bug fixes
 
  * Add Travis-CI and jshint linting to build (issue #628).
