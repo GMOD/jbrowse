@@ -6,12 +6,12 @@ return declare(null, {
 defaultStarts: [
     'ATG',
     'CTG',
-    'GTG',
+    'GTG'
 ],
 defaultStops: [
     'TAA',
     'TAG',
-    'TGA',
+    'TGA'
 ],
 defaultCodonTable: {
 
