@@ -1139,16 +1139,16 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     renderRegionBookmark: function( args, bookmarks ) {
-        var thisB=this;
         if( bookmarks.then ) {
             bookmarks.then(
                 function( books ) {
                     array.forEach( books.features, function( bookmark ) {
-                        if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || highlight.ref != this.refSeq.name )
+                        console.log(bookmark,this.refSeq.name);
+                        if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || bookmark.ref != this.refSeq.name )
                             return;
                         var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                        thisB.renderRegionHighlight( args, loc, bookmark.color );
-                    });
+                        this.renderRegionHighlight( args, loc, bookmark.color );
+                    }, this);
                 },
                 function(error) {
                     console.log("Couldn't get bookmarks");
@@ -1157,11 +1157,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         }
         else {
             array.forEach( bookmarks.features, function( bookmark ) {
-                if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || highlight.ref != this.refSeq.name )
+                if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || bookmark.ref != this.refSeq.name )
                     return;
                 var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
-                thisB.renderRegionHighlight( args, loc, bookmark.color );
-            });
+                this.renderRegionHighlight( args, loc, bookmark.color );
+            }, this);
         }
     },
 
