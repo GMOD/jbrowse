@@ -1197,12 +1197,23 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                             }, args.block.domNode );
 
         if( label ) {
+            /* 
+            //  vertical text, has bugs
             if( trimLeft <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left-12.4+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
+                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
             }
             if( trimRight <= 0 ) {
-                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width-8+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
+                domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
+            }*/
+            if( trimLeft <= 0 ) {
+                var d1=domConstruct.create('div', { className:'horizontaltext', style: { top: '15px', left: left+'%' }, innerHTML: label }, args.block.domNode);
             }
+            if( trimRight <= 0 ) {
+                var d2=domConstruct.create('div', { className:'horizontaltext', style: { top: '15px', left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+            }
+
+            var textWidth = (d1.clientWidth + 1) + "px";
+            d1.style.left='calc('+left+'% - '+textWidth+')';
         }
     }
 
