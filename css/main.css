@@ -60,14 +60,14 @@ html, body {
     background: rgba( 255, 255, 0, 0.7 );
     box-sizing: border-box;
 
-    border: 1px solid rgb(255, 178, 13);
+    border: 1px solid black;
     border-width: 0;
 }
 .track .global_highlight_mod.left {
-    border-left-width: 0px;
+    border-left-width: 1px;
 }
 .track .global_highlight_mod.right {
-    border-right-width: 0px;
+    border-right-width: 1px;
 }
 
 .tundra input {
@@ -98,7 +98,10 @@ fieldset > legend {
 .verticaltext {
     transform: rotate(-90deg);
     position: absolute;
-    background-color: #4bb;
+    border: 1px solid black;
+}
+.horizontaltext {
+    position: absolute;
     border: 1px solid black;
 }
 
