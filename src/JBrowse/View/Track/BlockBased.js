@@ -1144,7 +1144,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             bookmarks.then(
                 function( books ) {
                     array.forEach( books.features, function( bookmark ) {
-                        if( bookmark.start > args.rightBase || bookmark.end < args.leftBase )
+                        if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || highlight.ref != this.refSeq.name )
                             return;
                         var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
                         thisB.renderRegionHighlight( args, loc, bookmark.color );
@@ -1157,7 +1157,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         }
         else {
             array.forEach( bookmarks.features, function( bookmark ) {
-                if( bookmark.start > args.rightBase || bookmark.end < args.leftBase )
+                if( bookmark.start > args.rightBase || bookmark.end < args.leftBase || highlight.ref != this.refSeq.name )
                     return;
                 var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
                 thisB.renderRegionHighlight( args, loc, bookmark.color );
