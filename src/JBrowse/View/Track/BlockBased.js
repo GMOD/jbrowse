@@ -1139,6 +1139,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     renderRegionBookmark: function( args, bookmarks, renderLabels ) {
+        var thisB=this;
         if( bookmarks.then ) {
             bookmarks.then(
                 function( books ) {
@@ -1146,7 +1147,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                         if( bookmark.ref != this.refSeq.name ) return;
                         var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
                         this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
-                    }, this);
+                    }, thisB);
                 },
                 function(error) {
                     console.log("Couldn't get bookmarks");
