@@ -132,9 +132,9 @@ echo -n "Building and installing legacy bam-to-json.pl support (superseded by di
         fi
         echo "samtools in env at '$SAMTOOLS'";
         set +e;
-        bin/cpanm -v -l extlib Bio::DB::Sam;
+        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
         set -e;
-        bin/cpanm -v -l extlib Bio::DB::Sam;
+        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
     fi
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Legacy BAM - volvox-sorted.bam" --cssClass basic --metadata '{"category": "BAM"}' --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;

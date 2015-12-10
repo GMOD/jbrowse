@@ -38,6 +38,8 @@ return declare( [BlockBased, ExportMixin, CodonTable],
     constructor: function( args ) {
         this._charMeasurements = {};
         this._codonTable = this.generateCodonTable(lang.mixin(this.defaultCodonTable,this.config.codonTable));
+        this._codonStarts = this.config.codonStarts || this.defaultStarts
+        this._codonStops = this.config.codonStops || this.defaultStops
     },
 
     _defaultConfig: function() {
@@ -198,10 +200,11 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
             var aminoAcid = this._codonTable[nextCodon] || this.nbsp;
-            translated = translated + aminoAcid;
+            translated += aminoAcid;
         }
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
+        var orientedSeqSliced = reverse ? seqSliced.split("").reverse().join("") : seqSliced
 
         var charSize = this.getCharacterMeasurements("aminoAcid");
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
@@ -232,7 +235,18 @@ return declare( [BlockBased, ExportMixin, CodonTable],
 
         for( var i=0; i<translated.length; i++ ) {
             var aminoAcidSpan = document.createElement('td');
+            var originalCodon = orientedSeqSliced.slice(3 * i, 3 * i + 3)
+            originalCodon = reverse ? originalCodon.split("").reverse().join("") : originalCodon;
             aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt(i).toLowerCase();
+
+            // However, if it's known to be a start/stop, apply those CSS classes instead.
+            if (this._codonStarts.indexOf(originalCodon.toUpperCase()) != -1) {
+                aminoAcidSpan.className = 'aminoAcid aminoAcid_start'
+            }
+            if (this._codonStops.indexOf(originalCodon.toUpperCase()) != -1) {
+                aminoAcidSpan.className = 'aminoAcid aminoAcid_stop'
+            }
+
             aminoAcidSpan.style.width = charWidth;
             if( drawChars ) {
                 aminoAcidSpan.innerHTML = translated.charAt( i );

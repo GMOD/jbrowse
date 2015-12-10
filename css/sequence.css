@@ -81,11 +81,11 @@ table.sequence.big .base {
     border-right-color: #5f5f5f;
 }
 
-.translatedSequence td.aminoAcid_\* {
+.translatedSequence td.aminoAcid_stop {
     background-color: #FF0000;
 }
 
-.translatedSequence td.aminoAcid_m {
+.translatedSequence td.aminoAcid_start {
     background-color: #00FF00;
 }
 
