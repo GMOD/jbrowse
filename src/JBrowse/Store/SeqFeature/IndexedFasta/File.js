@@ -87,6 +87,8 @@ return declare( null,
                 for (var i = 0; i < length; i++) {
                     buf += String.fromCharCode(bytes[i]);
                 }
+                buf=buf.replace(/\s+/g, '');
+                console.log(buf);
                 featCallback(
                     new SimpleFeature({
                       data: {
