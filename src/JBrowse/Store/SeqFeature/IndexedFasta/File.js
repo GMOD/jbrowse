@@ -77,15 +77,16 @@ return declare( null,
         var offset = this._fai_offset(refindex, min);
         var readlen = this._fai_offset(refindex, max) - offset;
 
-        var buf = "";
-        var bytes = new Uint8Array(text);
-        var length = bytes.length;
-        for (var i = 0; i < length; i++) {
-            buf += String.fromCharCode(bytes[i]);
-        }
+        
 
         this.data.read(offset, readlen,
             function (data) {
+                var buf = "";
+                var bytes = new Uint8Array(data);
+                var length = bytes.length;
+                for (var i = 0; i < length; i++) {
+                    buf += String.fromCharCode(bytes[i]);
+                }
                 featCallback(
                     new SimpleFeature({
                       data: {
