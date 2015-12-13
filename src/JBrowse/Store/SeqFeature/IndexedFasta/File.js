@@ -41,11 +41,13 @@ return declare( null,
                 failCallback("No data read from FASTA index (FAI) file");
                 return;
             }
+
+
             var buf = "";
             var bytes = new Uint8Array(text);
             var length = bytes.length;
             for (var i = 0; i < length; i++) {
-              buf += String.fromCharCode(bytes[i]);
+                buf += String.fromCharCode(bytes[i]);
             }
             buf.split(/\r?\n/).forEach( dojo.hitch( this, function ( line ) {
                 var row = line.split('\t');
@@ -75,6 +77,13 @@ return declare( null,
         var offset = this._fai_offset(refindex, min);
         var readlen = this._fai_offset(refindex, max) - offset;
 
+        var buf = "";
+        var bytes = new Uint8Array(text);
+        var length = bytes.length;
+        for (var i = 0; i < length; i++) {
+            buf += String.fromCharCode(bytes[i]);
+        }
+
         this.data.read(offset, readlen,
             function (data) {
                 featCallback(
@@ -82,7 +91,7 @@ return declare( null,
                       data: {
                           start:    min,
                           end:      max,
-                          residues: String.fromCharCode.apply(null, new Uint8Array(data)).replace(/\s+/g, ''),
+                          residues: buf,
                           seq_id:   refname,
                           name:     refname
                       }
