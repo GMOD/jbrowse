@@ -1075,6 +1075,10 @@ saveData: function() {
                     temp.urlTemplate = obj.config.bam.url;
                     temp.baiUrlTemplate = obj.config.bai.url;
                 }
+                else if( temp.storeClass == "RegexSequenceSearch/Store/SeqFeature/RegexSearch" ) {
+                    temp.searchParams = obj.config.searchParams;
+                    temp.regionSizeLimit = obj.config.regionSizeLimit;
+                }
                 else if( temp.storeClass != "JBrowse/Store/SeqFeature/IndexedFasta" &&
                          temp.storeClass != "JBrowse/Store/SeqFeature/UnindexedFasta" ) {
                     temp.urlTemplate = (obj.config.file||obj.config.blob).url;
