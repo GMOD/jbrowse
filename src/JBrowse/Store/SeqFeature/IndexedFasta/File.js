@@ -88,7 +88,6 @@ return declare( null,
                     buf += String.fromCharCode(bytes[i]);
                 }
                 buf=buf.replace(/\s+/g, '');
-                console.log(buf);
                 featCallback(
                     new SimpleFeature({
                       data: {
