@@ -137,6 +137,13 @@ define([
 
         escapeString: function( str ) {
             return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+        },
+
+        saveStore: function() {
+            return {
+                searchParams: this.config.searchParams,
+                regionSizeLimit: this.config.regionSizeLimit
+            };
         }
 
     });

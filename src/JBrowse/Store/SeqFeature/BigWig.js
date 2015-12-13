@@ -336,7 +336,15 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         }
         //console.log( 'using unzoomed level');
         return this.getUnzoomedView();
+    },
+
+
+    saveStore: function() {
+        return {
+            urlTemplate: this.config.blob.url
+        };
     }
+
 });
 
 });

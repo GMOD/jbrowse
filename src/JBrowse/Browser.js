@@ -1067,28 +1067,11 @@ saveData: function() {
         this.getStore( temp.store, dojo.hitch( this, function( obj ) {
             temp.storeClass = obj.config.type;
             if( !temp.urlTemplate ) {
-                if( temp.storeClass == "JBrowse/Store/SeqFeature/VCFTabix" ) {
-                    temp.urlTemplate = obj.config.file.url;
-                    temp.tbiUrlTemplate = obj.config.tbi.url;
-                }
-                else if( temp.storeClass == "JBrowse/Store/SeqFeature/BAM" ) {
-                    temp.urlTemplate = obj.config.bam.url;
-                    temp.baiUrlTemplate = obj.config.bai.url;
-                }
-                else if( temp.storeClass == "RegexSequenceSearch/Store/SeqFeature/RegexSearch" ) {
-                    temp.searchParams = obj.config.searchParams;
-                    temp.regionSizeLimit = obj.config.regionSizeLimit;
-                }
-                else if( temp.storeClass != "JBrowse/Store/SeqFeature/IndexedFasta" &&
-                         temp.storeClass != "JBrowse/Store/SeqFeature/UnindexedFasta" ) {
-                    temp.urlTemplate = (obj.config.file||obj.config.blob).url;
-                }
+                dojo.mixin( temp, obj.saveStore() );
+
                 if( temp.histograms && temp.histograms.store ) {
                     this.getStore( temp.histograms.store, function( obj ) {
-                        temp.histograms = {
-                            storeClass: obj.config.type,
-                            urlTemplate: (obj.config.file||obj.config.blob).url
-                        }
+                        dojo.mixin( temp.histograms, obj.saveStore() );
                     });
                 }
             }

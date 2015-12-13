@@ -76,6 +76,11 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
             },
             errorCallback
         );
+    },
+    saveStore: function() {
+        return {
+            urlTemplate: (this.config.file||this.config.blob).url
+        };
     }
 
 });

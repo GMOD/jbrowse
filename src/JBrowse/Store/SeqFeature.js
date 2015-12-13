@@ -182,6 +182,9 @@ return declare( Store,
                           },
                           errorCallback
                         );
+    },
+    saveStore: function() {
+        console.log('unimplemented');
     }
 });
 });
