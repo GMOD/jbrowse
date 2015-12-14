@@ -363,6 +363,37 @@ resolveUrl: function( url ) {
     return Util.resolveUrl( browserRoot, url );
 },
 
+welcomeScreen: function( container, error ) {
+    var thisB = this;
+    require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function(Welcome) {
+        container.innerHTML = Welcome
+        var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
+        dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
+
+        on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
+        on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ));
+
+        
+        try {
+            thisB.loadSessions();
+        } catch(e) { console.log(e); }
+
+        if( error ) {
+            var errors_div = dojo.byId('fatal_error_list');
+            dojo.create('div', { className: 'error', innerHTML: error }, errors_div );
+        }
+        
+
+
+        request( 'sample_data/json/volvox/successfully_run' ).then( function() {
+            try {
+                document.getElementById('volvox_data_placeholder')
+                   .innerHTML = 'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
+            } catch(e) {}
+        });
+    });
+},
+
 /**
  * Main error handler.  Displays links to configuration help or a
  * dataset selector in the main window.  Called when the main browser
@@ -414,42 +445,7 @@ fatalError: function( error ) {
                 });
             }
             else {
-                require([
-                    'dojo/text!JBrowse/View/Resource/Welcome.html'
-                ], function(Welcome) {
-                    container.innerHTML = Welcome
-                    var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
-                    dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
-
-                    on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
-                    on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ));
-
-                    var fs = electronRequire('fs');
-                    var remote = electronRequire('remote');
-                    var app = remote.require('app');
-                    try {
-                        var path = app.getPath('userData')+"/sessions.json";
-                        var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
-                        var sessionList = dojo.create( 'ul',{ style: {overflow: 'hidden'}}, dojo.byId('previousSessions') );
-                        array.forEach(obj, function(session) {
-                            var url = window.location.href.split('?')[0] + "?data=" + Util.replacePath( session.session );
-                            var item = dojo.create('li', { 'innerHTML': '<a href="'+url+'">'+session.session+'</a>'}, sessionList);
-                        });
-                    } catch(e) { console.log(e); }
-
-                    if( error ) {
-                        var errors_div = dojo.byId('fatal_error_list');
-                        dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
-                    }
-
-
-                    request( 'sample_data/json/volvox/successfully_run' ).then( function() {
-                           try {
-                               document.getElementById('volvox_data_placeholder')
-                                   .innerHTML = 'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
-                           } catch(e) {}
-                       });
-                });
+                this.welcomeScreen( container, formatError(error) );
             }
 
 
@@ -460,7 +456,40 @@ fatalError: function( error ) {
         dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
     }
 },
+loadSessions: function() {
+    var fs = electronRequire('fs');
+    var remote = electronRequire('remote');
+    var app = remote.require('app');
 
+    var path = app.getPath('userData') + "/sessions.json";
+    var obj = JSON.parse( fs.readFileSync( path, 'utf8' ) );
+    var table = dojo.create( 'table', { style: { overflow: 'hidden', width: '90%' } }, dojo.byId('previousSessions') );
+    var thisB = this;
+
+    if( ! obj.length ) {
+        var tr = dojo.create( 'tr', {}, table );
+        dojo.create('div', { 'innerHTML': '<ul><li>No sessions yet!</li></ul>'}, tr);
+    }
+    array.forEach( obj, function( session ) {
+        var tr = dojo.create( 'tr', {}, table );
+        var url = window.location.href.split('?')[0] + "?data=" + Util.replacePath( session.session );
+        dojo.create('td', {
+            class: "dijitIconDelete",
+            onclick: function(e) {
+                if( confirm( "This will simply delete your session from the list, it won't remove any data files. Are you sure you want to continue?" ) ) {
+                    dojo.empty(table);
+                    var index = obj.indexOf(session);
+                    if( index != -1 ) {
+                        obj.splice(index, 1);
+                    }
+                    fs.writeFileSync(path, JSON.stringify(obj, null, 2), 'utf8')
+                    thisB.loadSessions(); 
+                }
+            }
+        }, tr);
+        dojo.create('td', { 'innerHTML': '<a href="'+url+'">'+session.session+'</a>' }, tr);
+    });
+},
 loadRefSeqs: function() {
     var thisB = this;
     return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
