@@ -22,7 +22,8 @@ describe( 'GFF3 store', function() {
    it( 'can parse volvox_tabix.gff3.gz', function() {
            var p = new GFF3TabixStore({
                                      browser: new Browser({ unitTestMode: true }),
-                                     blob: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.gff3.gz' ),
+                                     file: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.gff3.gz' ),
+                                     tbi: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.gff3.gz.tbi' ),
                                      refSeq: { name: 'ctgA', start: 0, end: 50001 }
                                  });
            (function() {
@@ -40,6 +41,7 @@ describe( 'GFF3 store', function() {
                runs( function() {
                          //console.log( features );
                          expect( features.length ).toEqual( 197 );
+                         console.log(features.length);
                          var edenIndex;
                          array.some( features, function(f,i) {
                                          if( f.get('name') == 'EDEN' ) {

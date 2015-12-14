@@ -41,13 +41,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var tbiBlob = args.tbi ||
             new XHRBlob(
                 this.resolveUrl(
-                    this._evalConf('tbiUrlTemplate',[]) || this._evalConf('urlTemplate',[])+'.tbi'
+                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
                 )
             );
 
         var fileBlob = args.file ||
             new XHRBlob(
-                this.resolveUrl( this._evalConf('urlTemplate',[]) )
+                this.resolveUrl( this.getConf('urlTemplate',[]) )
             );
 
         this.indexedData = new TabixIndexedFile(
@@ -74,7 +74,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                  );
     },
 
-    /** fetch and parse the VCF header lines */
     getHeader: function() {
         var thisB = this;
         return this._parsedHeader || ( this._parsedHeader = function() {
@@ -105,14 +104,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
-        var features = [];
-        var parser = new Parser(
+        var parser = this.parser || (this.parser = new Parser(
             {
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
                                        feature.seq_id = feature.data.seq_id;//hack :/
                                        var updateFeat=thisB._formatFeature(feature);
-                                       features.push(updateFeat);
                                        console.log(updateFeat);
                                        featureCallback(updateFeat);
                                    });
@@ -125,9 +122,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                 });
 
                     finishedCallback();
-                    //thisB._deferred.features.resolve( features );
                 }
-            });
+            }));
 
         thisB.getHeader().then( function() {
             thisB.indexedData.getLines(
@@ -138,7 +134,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     parser._buffer_feature( thisB.lineToFeature(line) );
                 },
                 function() {
-                    parser.finish();
+                    //parser.finish();
+                    finishedCallback();
                 },
                 errorCallback
             );
