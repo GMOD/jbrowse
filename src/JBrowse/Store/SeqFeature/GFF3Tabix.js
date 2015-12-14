@@ -173,6 +173,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         for( var a in data.attributes ) {
             f[ a.toLowerCase() ] = data.attributes[a].join(',');
         }
+        delete f.attributes;
         var sub = array.map( this._flattenOneLevel( data.child_features ), this._featureData, this );
         if( sub.length )
             f.subfeatures = sub;
