@@ -81,7 +81,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             var reject = lang.hitch( d, 'reject' );
 
             thisB.indexedData.indexLoaded.then( function() {
-                console.log('getHeader2');
                 var maxFetch = thisB.indexedData.index.firstDataLine
                     ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1
                     : null;
@@ -104,6 +103,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
+        var f=featureCallback;
         var parser = this.parser || (this.parser = new Parser(
             {
                 featureCallback: function(fs) {
@@ -111,7 +111,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                        feature.seq_id = feature.data.seq_id;//hack :/
                                        var updateFeat=thisB._formatFeature(feature);
                                        console.log(updateFeat);
-                                       featureCallback(updateFeat);
+                                       f(updateFeat);
                                    });
                 },
                 endCallback: function() {
@@ -122,6 +122,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                 });
 
                     finishedCallback();
+
                 }
             }));
 
@@ -134,7 +135,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     parser._buffer_feature( thisB.lineToFeature(line) );
                 },
                 function() {
-                    //parser.finish();
                     finishedCallback();
                 },
                 errorCallback

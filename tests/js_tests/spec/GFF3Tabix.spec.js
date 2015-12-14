@@ -40,8 +40,7 @@ describe( 'GFF3 store', function() {
                waitsFor( function() { return done; } );
                runs( function() {
                          //console.log( features );
-                         expect( features.length ).toEqual( 197 );
-                         console.log(features.length);
+                         expect( features.length ).toEqual( 193 );
                          var edenIndex;
                          array.some( features, function(f,i) {
                                          if( f.get('name') == 'EDEN' ) {
@@ -92,6 +91,7 @@ describe( 'GFF3 store', function() {
                runs( function() {
                          //console.log( features );
                          expect( features.length ).toEqual( 4 );
+                         console.log(features);
                          // expect( features[191].get('subfeatures').length ).toEqual( 3 );
                          // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
                          expect( features[3].get('note') ).toEqual( 'ああ、この機能は、世界中を旅しています！' );

@@ -167,6 +167,7 @@ return declare( null, {
                 this._resolve_references_to( feature, id );
             }
         },this);
+        
         // try to resolve all its references
         this._resolve_references_from( feature || [ feature_line ], { Parent : parents, Derives_from : derives }, ids );
     },
@@ -192,21 +193,28 @@ return declare( null, {
         var pname;
         for( var attrname in references ) {
             array.forEach( references[attrname], function( to_id ) {
+                //console.log("HEREX",to_id);
                 var other_feature;
                 if(( other_feature = this.under_construction_by_id[ to_id ] )) {
-                    if( ! pname )
+                    if( ! pname ) {
                         pname = this.container_attributes[attrname] || attrname.toLowerCase();
+                    }
                     if( ! array.some( ids, function(i) { return this.completed_references[i+','+attrname+','+to_id]++; },this) ) {
+                        //console.log("recovering pt 2", other_feature);
                         array.forEach( other_feature, function( loc ) {
                             loc[pname].push( feature );
                         });
                     }
                 }
                 else {
-                    if(this.under_construction_orphans[to_id]) {
-                        ( this.under_construction_orphans[to_id][attrname] = (this.under_construction_orphans[to_id]||{})[attrname] || [] )
-                            .push( feature );
+                    //console.log("HERE",to_id);
+                    var t=this.under_construction_orphans[to_id];
+                    if(!t) {
+                        //console.log("initializing orphan", to_id);
+                        t={};
                     }
+
+                    t[attrname] = (t[attrname] || []).push( feature );
                 }
             },this);
         }
