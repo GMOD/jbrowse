@@ -373,7 +373,7 @@ welcomeScreen: function( container, error ) {
         on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
         on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ));
 
-        
+
         try {
             thisB.loadSessions();
         } catch(e) { console.log(e); }
@@ -382,7 +382,7 @@ welcomeScreen: function( container, error ) {
             var errors_div = dojo.byId('fatal_error_list');
             dojo.create('div', { className: 'error', innerHTML: error }, errors_div );
         }
-        
+
 
 
         request( 'sample_data/json/volvox/successfully_run' ).then( function() {
@@ -483,7 +483,7 @@ loadSessions: function() {
                         obj.splice(index, 1);
                     }
                     fs.writeFileSync(path, JSON.stringify(obj, null, 2), 'utf8')
-                    thisB.loadSessions(); 
+                    thisB.loadSessions();
                 }
             }
         }, tr);
@@ -1586,11 +1586,11 @@ _reportCustomUsageStats: function(stats) {
     // overridable protocol
     if (typeof this.config.clientReport != "undefined" && typeof this.config.clientReport.protocol != "undefined")
         protocol = this.config.clientReport.protocol;
-    
+
     // phone home with a GET request made by a script tag
     var clientReport = protocol + '://jbrowse.org/analytics/clientReport?'
                + dojo.objectToQuery( stats );
-       
+
     dojo.create(
         'img',
         { style: {
