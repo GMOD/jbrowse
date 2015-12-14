@@ -474,7 +474,7 @@ loadSessions: function() {
         var tr = dojo.create( 'tr', {}, table );
         var url = window.location.href.split('?')[0] + "?data=" + Util.replacePath( session.session );
         dojo.create('td', {
-            class: "dijitIconDelete",
+            "class": "dijitIconDelete",
             onclick: function(e) {
                 if( confirm( "This will simply delete your session from the list, it won't remove any data files. Are you sure you want to continue?" ) ) {
                     dojo.empty(table);
