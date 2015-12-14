@@ -16,6 +16,7 @@ var Feature = Util.fastDeclare(
         this._id = args.id;
         this._parent  = args.parent;
         this.fields  = args.fields;
+        this.attributes  = args.fields;
         this.data.subfeatures  = [];
     },
 

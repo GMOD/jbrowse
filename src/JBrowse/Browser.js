@@ -623,6 +623,7 @@ compareReferenceNames: function( a, b ) {
  * Regularize the reference sequence name in a location.
  */
 regularizeLocation: function( location ) {
+    console.log(location);
     var ref = this.findReferenceSequence( location.ref || location.objectName );
     if( ref )
         location.ref = ref.name;
