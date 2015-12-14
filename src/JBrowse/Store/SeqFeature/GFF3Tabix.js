@@ -8,7 +8,7 @@ define([
            'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
-           './GFF3Tabix/Parser'
+           'JBrowse/Store/SeqFeature/GFF3/Parser'
        ],
        function(
            declare,
@@ -98,37 +98,25 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var thisB = this;
 
         var featMap = {};
+        var topLevelFeats = {};
         thisB.getHeader().then( function() {
             thisB.indexedData.getLines(
                 query.ref || thisB.refSeq.name,
                 query.start,
                 query.end,
                 function( line ) {
-                    var f = thisB.lineToFeature( line );
-                    featMap[f.id()] = f;
+                    thisB.addLine( line );
                 },
                 function() {
-                    Object.keys(featMap).forEach(function(key) {
-                        var feat = featMap[key];
-                        console.log(feat.parent(),feat.id());
-                        if(featMap[feat.parent()]) {
-                            featMap[feat.parent()].get('subfeatures').push(feat);
-                            feat.markForDelete=true;
-                            console.log("deleting featMap",key);
-                            delete featMap[key];
-                        }
-                    });
-                    Object.keys(featMap).forEach(function(key) {
-                        console.log('finalizing', featMap[key].id());
-                        featureCallback( featMap[key] );
-                    });/* end callback */
+                    this.finish();
+                    
                     finishedCallback();
                 },
                 errorCallback
             );
         }, errorCallback );
     },
-
+    
     /**
      * Interrogate whether a store has data for a given reference
      * sequence.  Calls the given callback with either true or false.
@@ -140,7 +128,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     hasRefSeq: function( seqName, callback, errorCallback ) {
         return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
     },
-
+    _return_item: function(i) {
+        if( i[0] )
+            this.featureCallback( i );
+        else if( i.directive )
+            this.directiveCallback( i );
+        else if( i.comment )
+            this.commentCallback( i );
+    },
 
     saveStore: function() {
         return {
@@ -148,6 +143,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             tbiUrlTemplate: this.config.tbi.url
         };
     }
+
 
 });
 });
