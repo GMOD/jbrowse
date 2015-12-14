@@ -3,21 +3,18 @@
  */
 
 define( ['dojo/_base/array',
-         'dojo/json',
          'JBrowse/Util'
         ],
-        function( array, dojoJSON, Util ) {
+        function( array, Util ) {
 
 var Feature = Util.fastDeclare(
 {
     constructor: function( args ) {
         this.parser  = args.parser;
-        this.data    = args.data;
-        this._id = args.id;
-        this._parent  = args.parent;
-        this.fields  = args.fields;
-        this.attributes  = args.fields;
-        this.data.subfeatures  = [];
+        this._id     = args.id;
+        this._parent = args.parent;
+        this.attributes = args.attributes;
+        this.data = args.data;
     },
 
     get: function( field) {
@@ -51,8 +48,6 @@ var Feature = Util.fastDeclare(
             if( d.hasOwnProperty( k ) )
                 t.push( k );
         }
-        if( ! d.genotypes )
-            t.push('genotypes');
         return t;
     },
 

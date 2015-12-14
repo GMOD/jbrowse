@@ -40,7 +40,7 @@ describe( 'GFF3 store', function() {
                waitsFor( function() { return done; } );
                runs( function() {
                          //console.log( features );
-                         expect( features.length ).toEqual( 193 );
+                         expect( features.length ).toEqual( 190 );
                          var edenIndex;
                          array.some( features, function(f,i) {
                                          if( f.get('name') == 'EDEN' ) {

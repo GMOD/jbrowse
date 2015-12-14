@@ -108,21 +108,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             {
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
-                                       feature.seq_id = feature.data.seq_id;//hack :/
-                                       var updateFeat=thisB._formatFeature(feature);
-                                       console.log(updateFeat);
-                                       f(updateFeat);
+                                       var feat = thisB._formatFeature(feature);
+                                       f(feat);
                                    });
                 },
                 endCallback: function() {
-                    thisB._estimateGlobalStats()
+                    /*thisB._estimateGlobalStats()
                          .then( function( stats ) {
                                     thisB.globalStats = stats;
                                     thisB._deferred.stats.resolve();
-                                });
+                                });*/
+
+
+                    console.log("DONE");
 
                     finishedCallback();
-
                 }
             }));
 
@@ -135,7 +135,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     parser._buffer_feature( thisB.lineToFeature(line) );
                 },
                 function() {
-                    finishedCallback();
+                    parser.finish();
                 },
                 errorCallback
             );
@@ -147,33 +147,17 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var ref =    line.fields[0];
         var source = line.fields[1];
         var type =   line.fields[2];
-
-        var id = attributes.ID?attributes.ID[0]:null;
-        var parent = attributes.Parent?attributes.Parent[0]:null;
-        var name = attributes.Name?attributes.Name[0]:null;
-
         var featureData = {
-            id:     id,
-            parent: parent,
-            name:   name,
             start:  line.start,
-            end:    line.start+ref.length,
+            end:    line.end,
+            child_features: [],
             seq_id: line.ref,
-            description: attributes.Description||attributes.Note||attributes.name,
+            attributes: attributes,
             type:   type,
             source: source
         };
 
-        var f = new LazyFeature({
-            id:   id,
-            parent: parent,
-            attributes: attributes,
-            data: featureData,
-            fields: attributes,
-            parser: this
-        });
-
-        return f;
+        return featureData;
     },
 
     // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
@@ -189,8 +173,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _featureData: function( data ) {
         var f = lang.mixin( {}, data );
         delete f.child_features;
+        delete f.data;
         delete f.derived_features;
-        delete f.attributes;
         f.start -= 1; // convert to interbase
         for( var a in data.attributes ) {
             f[ a.toLowerCase() ] = data.attributes[a].join(',');
