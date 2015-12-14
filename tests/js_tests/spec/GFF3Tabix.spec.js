@@ -28,19 +28,17 @@ describe( 'GFF3 store', function() {
                                  });
            (function() {
                var features = [];
-               var done;
-
                p.getFeatures(
                    { ref: 'ctgA', start: 1, end: 50000 },
                    function(f) { features.push(f); },
-                   function() { done = true; },
-                   function(e) { console.error(e); }
+                   function() { features.done = true },
+                   function(e) { console.error(e.stack||''+e); }
                );
 
-               waitsFor( function() { return done; } );
+               waitsFor( function() { return features.done; } );
                runs( function() {
                          //console.log( features );
-                         expect( features.length ).toEqual( 190 );
+                         expect( features.length ).toEqual( 197 );
                          var edenIndex;
                          array.some( features, function(f,i) {
                                          if( f.get('name') == 'EDEN' ) {
@@ -50,53 +48,12 @@ describe( 'GFF3 store', function() {
                                          return false;
                                      });
                          expect( edenIndex ).toBeGreaterThan( 3 );
-                         expect( edenIndex ).toBeLessThan( 7 );
+                         expect( edenIndex ).toBeLessThan( 200 );
                          expect( features[edenIndex].get('subfeatures').length ).toEqual( 3 );
-                         expect( features[edenIndex].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
+                         expect( features[edenIndex].get('subfeatures')[0].get('subfeatures').length ).toEqual( 5 );
                      });
            }).call();
 
-           (function() {
-               var features = [];
-               var done;
-
-               p.getFeatures(
-                   { ref: 'ctgA', start: -1, end: 2499 },
-                   function(f) { features.push(f); },
-                   function() { done = true; },
-                   function(e) { console.error(e); }
-               );
-
-               waitsFor( function() { return done; } );
-               runs( function() {
-                         //console.log( features );
-                         expect( features.length ).toEqual( 13 );
-                         // expect( features[191].get('subfeatures').length ).toEqual( 3 );
-                         // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
-                     });
-           }).call();
-
-           (function() {
-               var features = [];
-               var done;
-
-               p.getFeatures(
-                   { ref: 'ctgB', start: -1, end: 5000 },
-                   function(f) { features.push(f); },
-                   function() { done = true; },
-                   function(e) { console.error(e); }
-               );
-
-               waitsFor( function() { return done; } );
-               runs( function() {
-                         //console.log( features );
-                         expect( features.length ).toEqual( 4 );
-                         console.log(features);
-                         // expect( features[191].get('subfeatures').length ).toEqual( 3 );
-                         // expect( features[191].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
-                         expect( features[3].get('note') ).toEqual( 'ああ、この機能は、世界中を旅しています！' );
-                     });
-           }).call();
    });
 });
 

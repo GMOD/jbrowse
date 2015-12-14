@@ -58,6 +58,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 chunkSizeLimit: args.chunkSizeLimit || 1000000
             });
 
+
+
+
         this.getHeader()
             .then( function( header ) {
                        thisB._deferred.features.resolve({success:true});
@@ -104,7 +107,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         var f=featureCallback;
-        var parser = this.parser || (this.parser = new Parser(
+        var parser = new Parser(
             {
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
@@ -113,18 +116,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                    });
                 },
                 endCallback: function() {
-                    /*thisB._estimateGlobalStats()
-                         .then( function( stats ) {
-                                    thisB.globalStats = stats;
-                                    thisB._deferred.stats.resolve();
-                                });*/
-
-
-                    console.log("DONE");
-
                     finishedCallback();
                 }
-            }));
+            });
 
         thisB.getHeader().then( function() {
             thisB.indexedData.getLines(
