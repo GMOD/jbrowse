@@ -20,7 +20,7 @@ define([
            TabixIndexedFile,
            GlobalStatsEstimationMixin,
            XHRBlob,
-           VCFParser
+           GFF3Parser
        ) {
 
 
@@ -39,7 +39,7 @@ var GFF3IndexedFile = declare( TabixIndexedFile, {
     }
 });
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, VCFParser ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, GFF3Parser ],
 {
 
     constructor: function( args ) {
@@ -65,7 +65,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 chunkSizeLimit: args.chunkSizeLimit || 1000000
             });
 
-        this.getVCFHeader()
+        this.getHeader()
             .then( function( header ) {
                        thisB._deferred.features.resolve({success:true});
                        thisB._estimateGlobalStats()
@@ -82,7 +82,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     },
 
     /** fetch and parse the VCF header lines */
-    getVCFHeader: function() {
+    getHeader: function() {
         var thisB = this;
         return this._parsedHeader || ( this._parsedHeader = function() {
             var d = new Deferred();
@@ -97,7 +97,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     0,
                     maxFetch,
                     function( bytes ) {
-                        thisB.parseHeader( new Uint8Array( bytes ) );
                         d.resolve( thisB.header );
                     },
                     reject
@@ -112,20 +111,22 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
-        thisB.getVCFHeader().then( function() {
+
+        var featMap = {};
+        thisB.getHeader().then( function() {
             thisB.indexedData.getLines(
                 query.ref || thisB.refSeq.name,
                 query.start,
                 query.end,
                 function( line ) {
                     var f = thisB.lineToFeature( line );
-                    //console.log(f);
-                    featureCallback( f );
-                    //return f;
+                    featMap[f.id] = f;
                 },
                 finishedCallback,
                 errorCallback
             );
+
+            //featureCallback( f );
         }, errorCallback );
     },
 
