@@ -63,7 +63,7 @@ return declare( null,
         }
         featCallback(new SimpleFeature({
                   data: {
-                      start:    this.features[refname].start,
+                      start:    this.features[refname].start+1,
                       end:      this.features[refname].end,
                       residues: this.features[refname].seq,
                       seq_id:   refname,
