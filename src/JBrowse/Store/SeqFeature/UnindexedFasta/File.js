@@ -43,8 +43,8 @@ return declare( null,
                 };
                 thisB.refseqs.push({
                     name: rs.name,
-                    start: 1,
-                    end: rs.seq.length+1,
+                    start: 0,
+                    end: rs.seq.length,
                     length: rs.seq.length
                 });
             });
@@ -63,7 +63,7 @@ return declare( null,
         }
         featCallback(new SimpleFeature({
                   data: {
-                      start:    this.features[refname].start+1,
+                      start:    this.features[refname].start,
                       end:      this.features[refname].end,
                       residues: this.features[refname].seq,
                       seq_id:   refname,
