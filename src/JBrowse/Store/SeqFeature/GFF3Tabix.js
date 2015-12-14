@@ -41,13 +41,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var tbiBlob = args.tbi ||
             new XHRBlob(
                 this.resolveUrl(
-                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+                    this._evalConf('tbiUrlTemplate',[]) || this._evalConf('urlTemplate',[])+'.tbi'
                 )
             );
 
         var fileBlob = args.file ||
             new XHRBlob(
-                this.resolveUrl( this.getConf('urlTemplate',[]) )
+                this.resolveUrl( this._evalConf('urlTemplate',[]) )
             );
 
         this.indexedData = new TabixIndexedFile(
@@ -111,19 +111,24 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
                                        feature.seq_id = feature.data.seq_id;//hack :/
-                                       var a=thisB._formatFeature(feature);
-                                       features.push(a);
-                                       console.log(a);
-                                       featureCallback(a);
+                                       var updateFeat=thisB._formatFeature(feature);
+                                       features.push(updateFeat);
+                                       console.log(updateFeat);
+                                       featureCallback(updateFeat);
                                    });
                 },
-                endCallback: function()  {
-                    thisB._deferred.features.resolve( features );
+                endCallback: function() {
+                    thisB._estimateGlobalStats()
+                         .then( function( stats ) {
+                                    thisB.globalStats = stats;
+                                    thisB._deferred.stats.resolve();
+                                });
+
+                    finishedCallback();
+                    //thisB._deferred.features.resolve( features );
                 }
             });
 
-        var featMap = {};
-        var topLevelFeats = {};
         thisB.getHeader().then( function() {
             thisB.indexedData.getLines(
                 query.ref || thisB.refSeq.name,
@@ -134,25 +139,17 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 },
                 function() {
                     parser.finish();
-                    finishedCallback();
                 },
                 errorCallback
             );
         }, errorCallback );
     },
 
-    /**
-     * Given a line from a TabixIndexedFile, convert it into a feature
-     * and return it.  Assumes that the header has already been parsed
-     * and stored (i.e. _parseHeader has already been called.)
-     */
     lineToFeature: function( line ) {
         var attributes = GFF3.parse_attributes( line.fields[8] );
         var ref =    line.fields[0];
         var source = line.fields[1];
         var type =   line.fields[2];
-        var strand = line.fields[6];
-
 
         var id = attributes.ID?attributes.ID[0]:null;
         var parent = attributes.Parent?attributes.Parent[0]:null;
@@ -167,8 +164,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             seq_id: line.ref,
             description: attributes.Description||attributes.Note||attributes.name,
             type:   type,
-            source: source,
-            strand: strand
+            source: source
         };
 
         var f = new LazyFeature({
