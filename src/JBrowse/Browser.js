@@ -45,6 +45,7 @@ define( [
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
             'JBrowse/View/Dialog/Preferences',
+            'JBrowse/View/Dialog/OpenDirectory',
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
@@ -97,6 +98,7 @@ define( [
             LocationChoiceDialog,
             SetHighlightDialog,
             PreferencesDialog,
+            OpenDirectoryDialog,
             SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
@@ -371,7 +373,12 @@ welcomeScreen: function( container, error ) {
         dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
         on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
-        on( dojo.byId('newOpenDirectory'), 'click', dojo.hitch( thisB, 'openDirectoryElectron' ));
+        on( dojo.byId('newOpenDirectory'), 'click', function() {
+                            new OpenDirectoryDialog({
+                                    browser: thisB,
+                                    setCallback: dojo.hitch( thisB, 'openDirectoryElectron' )
+                                }).show();
+                            })
 
 
         try {
@@ -691,7 +698,12 @@ initView: function() {
                       id: 'menubar_dataset_directory',
                       label: "Open data directory",
                       iconClass: 'dijitIconFolderOpen',
-                      onClick: dojo.hitch( this, 'openDirectoryElectron' )
+                      onClick: function() {
+                            new OpenDirectoryDialog({
+                                    browser: thisObj,
+                                    setCallback: dojo.hitch( thisObj, 'openDirectoryElectron' )
+                                }).show();
+                            }
                   }
                 )
             );
@@ -1052,13 +1064,9 @@ saveSessionDir: function( directory ) {
 },
 
 
-openDirectoryElectron: function() {
-    var remote = electronRequire('remote');
-    var dialog = remote.require('dialog');
-    var datadir = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
-    if( !datadir ) return;
-    this.saveSessionDir( datadir[0] );
-    window.location = window.location.href.split('?')[0]+"?data=" + Util.replacePath( datadir[0] );
+openDirectoryElectron: function( directory ) {
+    this.saveSessionDir( directory );
+    window.location = "?data=" + Util.replacePath( directory );
 },
 
 
