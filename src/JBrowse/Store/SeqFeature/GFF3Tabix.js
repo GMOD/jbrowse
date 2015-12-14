@@ -138,12 +138,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     lineToFeature: function( line ) {
         var attributes = GFF3.parse_attributes( line.fields[8] );
-        var ref =    line.fields[0];
+        var ref    = line.fields[0];
         var source = line.fields[1];
-        var type =   line.fields[2];
+        var type   = line.fields[2];
+        var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
         var featureData = {
             start:  line.start,
             end:    line.end,
+            strand: strand,
             child_features: [],
             seq_id: line.ref,
             attributes: attributes,

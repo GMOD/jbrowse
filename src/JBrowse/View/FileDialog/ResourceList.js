@@ -90,6 +90,7 @@ return declare( null, {
                     options: [
                         { label: '<span class="ghosted">file type?</span>', value: null     },
                         { label: "GFF3",        value: "gff3"   },
+                        { label: "GFF3+bgzip",  value: "gff3.gz"},
                         { label: "GTF",         value: "gtf"    },
                         { label: "BigWig",      value: "bigwig" },
                         { label: "BAM",         value: "bam"    },
@@ -154,6 +155,7 @@ return declare( null, {
                 /\.fai$/i.test( name )          ? 'fai'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.tbi$/i.test( name )          ? 'tbi'    :
+                /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                                                   null
         );
     }

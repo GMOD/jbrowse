@@ -19,10 +19,13 @@ return declare( null, {
                 return false;
 
             // go through the configs and see if there is one for an index that seems to match
+            console.log(configs);
             for( var n in configs ) {
                 var c = configs[n];
                 if( Util.basename( c[ this.indexConfKey ] ? c[ this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
                     // it's a match, put it in
+                    console.log(resource);
+                    console.log(this.fileConfKey);
                     c[this.fileConfKey] = this._makeBlob( resource );
                     return true;
                 }
@@ -32,11 +35,14 @@ return declare( null, {
             for( var n in configs ) {
                 var c = configs[n];
                 if( Util.basename( c[this.indexConfKey] ? c[this.indexConfKey].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
+                    console.log(resource);
+                    console.log(this.fileConfKey);
                     // it's a match, put it in
                     c[this.fileConfKey] = this._makeBlob( resource );
                     return true;
                 }
             }
+            console.log("HERE");
 
             // otherwise make a new store config for it
             var newName = this.name+'_'+basename+'_'+uniqCounter++;
