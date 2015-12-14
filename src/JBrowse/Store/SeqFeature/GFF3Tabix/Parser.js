@@ -19,14 +19,13 @@ define([
 
 return declare( null, {
 
-    
+
     /**
      * Given a line from a TabixIndexedFile, convert it into a feature
      * and return it.  Assumes that the header has already been parsed
      * and stored (i.e. _parseHeader has already been called.)
      */
     lineToFeature: function( line ) {
-        console.log(line);
         var attributes = GFF3.parse_attributes( line.fields[8] );
         var ref =    line.fields[0];
         var source = line.fields[1];
@@ -34,20 +33,21 @@ return declare( null, {
         var strand = line.fields[6];
 
 
-        console.log(attributes);
         var featureData = {
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
-            description: "hello world!",
+            description: attributes.Description||attributes.Note||attributes.name,
             type:   type,
             source: source,
-            strand: strand 
+            strand: strand
         };
 
-        var id=line.fields[8]; 
+        var id = attributes.ID?attributes.ID[0]:null;
+        var parent = attributes.Parent?attributes.Parent[0]:null;
         var f = new LazyFeature({
             id: id,
+            parent: parent,
             data: featureData,
             fields: attributes,
             parser: this

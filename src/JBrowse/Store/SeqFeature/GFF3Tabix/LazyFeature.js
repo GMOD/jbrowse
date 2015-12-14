@@ -14,7 +14,9 @@ var Feature = Util.fastDeclare(
         this.parser  = args.parser;
         this.data    = args.data;
         this._id = args.id;
+        this._parent  = args.parent;
         this.fields  = args.fields;
+        this.data.subfeatures  = [];
     },
 
     get: function( field) {
@@ -34,11 +36,11 @@ var Feature = Util.fastDeclare(
     },
 
     parent: function() {
-        return null;
+        return this._parent;
     },
 
     children: function() {
-        return null;
+        return this._get('subfeatures');
     },
 
     tags: function() {

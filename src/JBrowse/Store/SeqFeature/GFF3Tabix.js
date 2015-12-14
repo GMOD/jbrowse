@@ -24,21 +24,6 @@ define([
        ) {
 
 
-// subclass the TabixIndexedFile to modify the parsed items a little
-// bit so that the range filtering in TabixIndexedFile will work.  VCF
-// files don't actually have an end coordinate, so we have to make it
-// here.  also convert coordinates to interbase.
-var GFF3IndexedFile = declare( TabixIndexedFile, {
-    parseLine: function() {
-        var i = this.inherited( arguments );
-        if( i ) {
-            i.start--;
-            i.end = i.start + i.fields[3].length;
-        }
-        return i;
-    }
-});
-
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, GFF3Parser ],
 {
 
@@ -57,7 +42,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 this.resolveUrl( this.getConf('urlTemplate',[]) )
             );
 
-        this.indexedData = new GFF3IndexedFile(
+        this.indexedData = new TabixIndexedFile(
             {
                 tbi: tbiBlob,
                 file: fileBlob,
@@ -120,13 +105,27 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 query.end,
                 function( line ) {
                     var f = thisB.lineToFeature( line );
-                    featMap[f.id] = f;
+                    featMap[f.id()] = f;
                 },
-                finishedCallback,
+                function() {
+                    Object.keys(featMap).forEach(function(key) {
+                        var feat = featMap[key];
+                        console.log(feat.parent(),feat.id());
+                        if(featMap[feat.parent()]) {
+                            featMap[feat.parent()].get('subfeatures').push(feat);
+                            feat.markForDelete=true;
+                            console.log("deleting featMap",key);
+                            delete featMap[key];
+                        }
+                    });
+                    Object.keys(featMap).forEach(function(key) {
+                        console.log('finalizing', featMap[key].id());
+                        featureCallback( featMap[key] );
+                    });/* end callback */
+                    finishedCallback();
+                },
                 errorCallback
             );
-
-            //featureCallback( f );
         }, errorCallback );
     },
 
