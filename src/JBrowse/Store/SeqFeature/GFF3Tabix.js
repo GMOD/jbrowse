@@ -69,6 +69,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     /** fetch and parse the VCF header lines */
     getHeader: function() {
         var thisB = this;
+        console.log('getHeader');
         return this._parsedHeader || ( this._parsedHeader = function() {
             var d = new Deferred();
             var reject = lang.hitch( d, 'reject' );
@@ -97,6 +98,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
 
+        console.log('_getFeatures');
         var featMap = {};
         var topLevelFeats = {};
         thisB.getHeader().then( function() {
@@ -105,12 +107,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 query.start,
                 query.end,
                 function( line ) {
-                    thisB.addLine( line );
+                    console.log(line);
+                    thisB._buffer_feature( line );
                 },
                 function() {
-                    this.finish();
-                    
-                    finishedCallback();
+                    thisB.finish();
                 },
                 errorCallback
             );
@@ -127,14 +128,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
      */
     hasRefSeq: function( seqName, callback, errorCallback ) {
         return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
-    },
-    _return_item: function(i) {
-        if( i[0] )
-            this.featureCallback( i );
-        else if( i.directive )
-            this.directiveCallback( i );
-        else if( i.comment )
-            this.commentCallback( i );
     },
 
     saveStore: function() {
