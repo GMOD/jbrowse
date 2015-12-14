@@ -33,7 +33,14 @@ return declare( null, {
         var strand = line.fields[6];
 
 
+        var id = attributes.ID?attributes.ID[0]:null;
+        var parent = attributes.Parent?attributes.Parent[0]:null;
+        var name = attributes.Name?attributes.Name[0]:null;
+
         var featureData = {
+            id:     id,
+            parent: parent,
+            name:   name,
             start:  line.start,
             end:    line.start+ref.length,
             seq_id: line.ref,
@@ -43,17 +50,13 @@ return declare( null, {
             strand: strand
         };
 
-        var id = attributes.ID?attributes.ID[0]:null;
-        var parent = attributes.Parent?attributes.Parent[0]:null;
         var f = new LazyFeature({
-            id: id,
+            id:   id,
             parent: parent,
             data: featureData,
             fields: attributes,
             parser: this
         });
-
-
 
         return f;
     }
