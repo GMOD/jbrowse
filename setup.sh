@@ -59,10 +59,6 @@ echo -n "Formatting Volvox example data ...";
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
-    if [ -d sample_data/json/modencode ]; then
-        mkdir -p sample_data/json/modencode/tracks;
-        ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;
-    fi;
     mkdir -p sample_data/raw;
     if [ ! -e sample_data/raw/volvox ]; then
         ln -s ../../docs/tutorial/data_files sample_data/raw/volvox;
