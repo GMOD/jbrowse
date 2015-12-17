@@ -12,6 +12,9 @@ RELEASE_FULL = $(RELEASE_NAME)-dev
 RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_FULL)/
 RELEASE_MIN  = $(RELEASE_NAME)
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
+RELEASE_DESKTOP_OSX = $(RELEASE_NAME)-desktop-osx64
+RELEASE_DESKTOP_WIN = $(RELEASE_NAME)-desktop-win64
+RELEASE_DESKTOP_LINUX = $(RELEASE_NAME)-desktop-linux64
 
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
@@ -34,11 +37,15 @@ release-notest: release-version.txt release-normal release-min release-notes.htm
 release-electron-darwin: release-notest
 	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
 	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64 --version=0.35.4
-
+	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
+	
 release-electron-all: release-notest
-	cd $(RELEASE_MIN)&&./setup.sh&&rm -rf extlib/&&cd ..
+	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
 	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64 --version=0.35.4
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=ia32 --version=0.35.4
+	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
+	$(ZIP) $(RELEASE_DESKTOP_WIN).zip JBrowseDesktop-win32-x64
+	$(ZIP) $(RELEASE_DESKTOP_LINUX).zip JBrowseDesktop-linux-x64
+#	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=ia32 --version=0.35.4
 
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
