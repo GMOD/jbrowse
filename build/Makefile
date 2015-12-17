@@ -42,6 +42,7 @@ release-electron-darwin: release-notest
 release-electron-all: release-notest
 	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
 	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64 --version=0.35.4
+	find JBrowseDesktop-win32-x64 -type f -name "*.3pm" -delete &> /dev/null
 	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
 	$(ZIP) $(RELEASE_DESKTOP_WIN).zip JBrowseDesktop-win32-x64
 	$(ZIP) $(RELEASE_DESKTOP_LINUX).zip JBrowseDesktop-linux-x64
