@@ -1123,7 +1123,7 @@ saveData: function() {
       refSeqOrder: this.config.refSeqOrder
     };
     try {
-        fs.writeFileSync( dir + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
+        fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
     } catch(e) { alert('Unable to save track data'); }
 },
 
