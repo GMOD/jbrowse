@@ -41,24 +41,26 @@ return declare( null,
                 failCallback("No data read from FASTA index (FAI) file");
                 return;
             }
+
+
             var buf = "";
             var bytes = new Uint8Array(text);
             var length = bytes.length;
             for (var i = 0; i < length; i++) {
-              buf += String.fromCharCode(bytes[i]);
+                buf += String.fromCharCode(bytes[i]);
             }
             buf.split(/\r?\n/).forEach( dojo.hitch( this, function ( line ) {
                 var row = line.split('\t');
                 if(row[0]=="") return;
 
                 this.store.index[row[0]] = {
-                    'name': row[0],
-                    'length': +row[1],
-                    'start': 0,
-                    'end': +row[1],
-                    'offset': +row[2],
-                    'linelen': +row[3],
-                    'linebytelen': +row[4]
+                    name: row[0],
+                    length: +row[1],
+                    start: 0,
+                    end: +row[1],
+                    offset: +row[2],
+                    linelen: +row[3],
+                    linebytelen: +row[4]
                 };
             }) );
 
@@ -72,17 +74,27 @@ return declare( null,
         if( ! this.store.browser.compareReferenceNames( chr, refname ) )
             refname = chr;
         var refindex = this.store.index[refname];
-        var offset = this._fai_offset(refindex, min);
+        var s = Math.max(0,min);
+        var offset = this._fai_offset(refindex, s);
         var readlen = this._fai_offset(refindex, max) - offset;
+
+        
 
         this.data.read(offset, readlen,
             function (data) {
+                var buf = "";
+                var bytes = new Uint8Array(data);
+                var length = bytes.length;
+                for (var i = 0; i < length; i++) {
+                    buf += String.fromCharCode(bytes[i]);
+                }
+                buf=buf.replace(/\s+/g, '');
                 featCallback(
                     new SimpleFeature({
                       data: {
-                          start:    min,
+                          start:    s,
                           end:      max,
-                          residues: String.fromCharCode.apply(null, new Uint8Array(data)).replace(/\s+/g, ''),
+                          residues: buf,
                           seq_id:   refname,
                           name:     refname
                       }

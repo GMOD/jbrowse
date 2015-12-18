@@ -43,8 +43,8 @@ return declare( null,
                 };
                 thisB.refseqs.push({
                     name: rs.name,
-                    start: 1,
-                    end: rs.seq.length+1,
+                    start: 0,
+                    end: rs.seq.length,
                     length: rs.seq.length
                 });
             });

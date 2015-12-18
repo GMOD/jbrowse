@@ -1,6 +1,12 @@
 {
    "dataset_id": "modencode",
 
+   "plugins" : [
+      "NeatHTMLFeatures",
+      "NeatCanvasFeatures",
+      "HideTrackLabels"
+   ],
+
    "tracks" : [
       {
          "chunkSize" : 20000,

@@ -19,7 +19,7 @@ app.on('ready', function () {
 	});
 
 	Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
-	mainWindow.loadUrl('file://' + require('path').resolve(__dirname, '..', 'index.html'));
+	mainWindow.loadURL('file://' + require('path').resolve(__dirname, '..', 'index.html'));
 	mainWindow.on('closed', function () {
 		mainWindow = null;
 	});

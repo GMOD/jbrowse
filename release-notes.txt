@@ -103,8 +103,6 @@
    Thanks to Tomaz Berisa and Colin Diesh for their contributions
    (issue #485).
 
- * Added the ability to parse boolean literals from the .conf files.
-
  * Added the ability to specify a codon table (or partial codon table)
    for the Sequence track.
 
