@@ -8,8 +8,8 @@ addons:
     - libdb-dev
     - libgd2-noxpm-dev
 install:
-  - cpanm --notest -L extlib/ GD::Image URI::Escape
-  - cpanm --notest -l extlib/ git://github.com/bioperl/bioperl-live.git@v1.6.x
+  - cpanm --notest GD::Image URI::Escape
+  - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - bash setup.sh
   - npm install -g http-server jshint
 script:
@@ -18,5 +18,6 @@ script:
   - prove -Isrc/perl5 -lr tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
   - jshint src/JBrowse/
+  - make -f build/Makefile release
 
 after_failure: cat setup.log 
