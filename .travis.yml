@@ -1,7 +1,5 @@
 sudo: false
 language: perl
-perl:
-  - "5.14"
 addons:
   apt:
     packages:
@@ -22,4 +20,4 @@ script:
 
 after_failure:
   - cat setup.log 
-  - ls -l JBrowse-1.x.x-dev/extlib/lib/perl5
+  - find JBrowse-1.x.x-dev/extlib/lib/perl5
