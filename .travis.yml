@@ -19,5 +19,5 @@ script:
   - make -f build/Makefile release
 
 after_failure:
-  - cat setup.log 
+  - cat JBrowse-1.x.x-dev/setup.log 
   - find JBrowse-1.x.x-dev/extlib/lib/perl5
