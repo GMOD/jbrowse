@@ -8,7 +8,7 @@ addons:
     - libdb-dev
     - libgd2-noxpm-dev
 install:
-  - cpanm --notest GD::Image URI::Escape
+  - cpanm --notest GD::Image
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - bash setup.sh
   - npm install -g http-server jshint
@@ -20,4 +20,6 @@ script:
   - jshint src/JBrowse/
   - make -f build/Makefile release
 
-after_failure: cat setup.log 
+after_failure:
+  - cat setup.log 
+  - ls -l JBrowse-1.x.x-dev/extlib/lib/perl5
