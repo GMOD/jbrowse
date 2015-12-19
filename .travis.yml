@@ -6,7 +6,7 @@ addons:
     - libdb-dev
     - libgd2-noxpm-dev
 install:
-  - cpanm --notest GD::Image
+  - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - bash setup.sh
   - npm install -g http-server jshint
