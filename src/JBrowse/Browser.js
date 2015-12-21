@@ -3116,10 +3116,7 @@ getHighlight: function() {
 },
 
 getBookmarks: function() {
-    if( this.config.bookmarks ) {
-        return this.config.bookmarks;
-    }
-    else if( this.config.bookmarkService ) {
+    if( this.config.bookmarkService ) {
         return request( this.config.bookmarkService, {
             data: {
                 sequence: this.refSeq.name
@@ -3128,6 +3125,7 @@ getBookmarks: function() {
             method: "post"
         })
     }
+    else return this.config.bookmarks;
 },
 
 /**
