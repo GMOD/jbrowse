@@ -1,6 +1,6 @@
 {
     "name": "JBrowse",
-    "version": "dev",
+    "version": "1.x.x",
     "main": "main",
     "dependencies": {
         "dojo": "current",

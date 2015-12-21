@@ -142,7 +142,6 @@ release-min-test: release-min
 	rm -rf $(RELEASE_MIN_DIR);
 	$(UNZIP) $(RELEASE_MIN).zip
 	rm $(RELEASE_MIN_DIR)/sample_data/raw/volvox
-	rm $(RELEASE_MIN_DIR)/sample_data/json/modencode/tracks/volvox_microarray.wig
 	cp -R docs tests* sample_data $(RELEASE_MIN_DIR);
 	cd $(RELEASE_MIN_DIR) && ./setup.sh
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
