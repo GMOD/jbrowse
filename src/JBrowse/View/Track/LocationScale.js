@@ -65,7 +65,7 @@ return declare(BlockBased,
 
         var bookmarks = this.browser.getBookmarks();
         if( bookmarks ) {
-            this.renderRegionBookmark( args, bookmarks );
+            this.renderRegionBookmark( args, bookmarks, this.refSeq.name, true );
         }
 
         this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);

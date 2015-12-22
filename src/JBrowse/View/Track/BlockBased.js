@@ -1207,10 +1207,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
             }*/
             if( trimLeft <= 0 ) {
-                var d1=domConstruct.create('div', { className:'horizontaltext', style: { top: '15px', left: left+'%' }, innerHTML: label }, args.block.domNode);
+                var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
             }
             if( trimRight <= 0 ) {
-                var d2=domConstruct.create('div', { className:'horizontaltext', style: { top: '15px', left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+                var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
             }
 
             var textWidth = (d1.clientWidth + 1) + "px";
