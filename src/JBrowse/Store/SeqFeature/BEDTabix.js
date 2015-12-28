@@ -120,58 +120,7 @@ define([
                         );
                     },errorCallback);
                 },
-/*
-                _getFeatures: function( query, featureCallback,finishedCallback, errorCallback ) {
-                    var thisB = this;
-                    var f=featureCallback;
-                    console.log(thisB);
-                    var parser = new Parser(
-                        {
-                            featureCallback: function(fs) {
-                                array.forEach( fs, function( feature ) {
 
-                                    var feat = thisB._formatFeature(feature);
-                                    f(feat);
-                                });
-                            },
-                            endCallback: function() {
-                                finishedCallback();
-                            }
-                        });
-
-                    thisB.getHeader().then( function() {
-                        thisB.indexedData.getLines(
-                            query.ref || thisB.refSeq.name,
-                            query.start,
-                            query.end,
-                            function( line ) {
-                                parser._buffer_feature( thisB.lineToFeature(line) );
-                            },
-                            function() {
-                                parser.finish();
-                            },
-                            errorCallback
-                        );
-                    }, errorCallback );
-                },
-
-                lineToFeature: function( line ) {
-                    var ref    = line.fields[0];
-                    var matrix = line.matrix;
-                    var strand = {'-':-1,'.':0,'+':1}[line.fields[5]];
-                    var featureData = {
-                        start:  line.start,
-                        end:    line.end,
-                        strand: strand,
-                        seq_id: line.ref,
-                        name: line.fields[3],
-                        score: line.fields[4],
-                        matrix: matrix
-                    };
-
-                    return featureData;
-                }, // not so sure if keep this one
-*/
                 // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
                 _flattenOneLevel: function( ar ) {
                     var r = [];
