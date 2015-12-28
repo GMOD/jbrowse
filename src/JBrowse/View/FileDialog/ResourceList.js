@@ -95,7 +95,9 @@ return declare( null, {
                         { label: "BAM",         value: "bam"    },
                         { label: "BAM index",   value: "bai"    },
                         { label: "VCF+bgzip",   value: "vcf.gz" },
-                        { label: "Tabix index", value: "tbi"    }
+                        { label: "Tabix index", value: "tbi"    },
+                        { label: "bed+bgzip",   value: "bed.gz" }
+
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
@@ -149,6 +151,7 @@ return declare( null, {
                 /\.gtf?$/i.test( name )        ? 'gtf'   :
                 /\.(bw|bigwig)$/i.test( name )  ? 'bigwig' :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
+                /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
                 /\.tbi$/i.test( name )          ? 'tbi'  :
                                                   null
         );
