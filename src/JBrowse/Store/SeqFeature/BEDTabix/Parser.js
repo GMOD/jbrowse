@@ -67,7 +67,9 @@ define ([
                 fields[4]=0;
                 fields[5]=0;
             }
-            var matrixValue=this.header[fields[3]]; // Add associated header
+            var matrixValue=null;
+            if(this.header[fields[3]])
+                matrixValue=this.header[fields[3]]; // Add associated header
             var strand={'+':1,'-':-1}[fields[5]] || 0;
 
             var featureData = {
@@ -88,7 +90,7 @@ define ([
             });
             return f;
         },
-// this part is only for parsing header
+// this part is only for parsing header when specified name association for BED6, won't affect feature reading for BED3
         parse_matrix: function(line){
             var match=/^##Motif\s(\S+)\s(\S+)/.exec( line );
             if(!match)
@@ -97,7 +99,6 @@ define ([
             var mat={motif: name };
             if(contents.length ){
                 contents.replace(/\r?\n$/, '');
-             //   mat.value=contents;
             }
             var matrix={};
             array.forEach(contents.split(';'), function(a){
