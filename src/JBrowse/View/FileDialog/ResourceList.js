@@ -98,7 +98,9 @@ return declare( null, {
                         { label: "FASTA",       value: "fasta"  },
                         { label: "FASTA index", value: "fai"    },
                         { label: "VCF+bgzip",   value: "vcf.gz" },
-                        { label: "Tabix index", value: "tbi"    }
+                        { label: "Tabix index", value: "tbi"    },
+                        { label: "bed+bgzip",   value: "bed.gz" }
+
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
@@ -154,8 +156,9 @@ return declare( null, {
                 /\.(fa|fasta)$/i.test( name )   ? 'fasta'  :
                 /\.fai$/i.test( name )          ? 'fai'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
-                /\.tbi$/i.test( name )          ? 'tbi'    :
+                /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
                 /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
+                /\.tbi$/i.test( name )          ? 'tbi'  :
                                                   null
         );
     }
