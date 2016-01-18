@@ -1234,18 +1234,17 @@ openFasta: function() {
                       refSeqs: { data: refSeqs },
                       refSeqOrder: results.refSeqOrder
                   });
-                  setTimeout( function() {
-                    array.forEach( tracks, function( conf ) {
-                        var storeConf = conf.store;
-                        if( storeConf && typeof storeConf == 'object' ) {
-                            delete conf.store;
-                            storeConf.name = 'refseqs'; // important to make it the refseq store
-                            var name = this.addStoreConfig( storeConf.name, storeConf );
-                            conf.store = name;
-                        }
-                    },newBrowser);
-                    newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
-                  }, 1000 );
+                  newBrowser.afterMilestone('completely initialized', function() {
+                      array.forEach( tracks, function( conf ) {
+                          var storeConf = conf.store;
+                          if( storeConf && typeof storeConf == 'object' ) {
+                              delete conf.store;
+                              storeConf.name = 'refseqs'; // important to make it the refseq store
+                              conf.store = this.addStoreConfig( storeConf.name, storeConf );
+                          }
+                      }, newBrowser);
+                      newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
+                  });
               });
           }
           if( confs.length ) {
