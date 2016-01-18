@@ -142,6 +142,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var source = line.fields[1];
         var type   = line.fields[2];
         var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
+        if(!attributes.ID && attributes.Parent) {
+            attributes.ID = [''+attributes.Parent[0]+'-'+type+'-dummy'];
+        }
+        else if(!attributes.ID) {
+            attributes.ID = [''+line.start+'-'+line.end+'-'+line.strand+'-'+type+'-dummy'];
+        }
         var featureData = {
             start:  line.start,
             end:    line.end,
