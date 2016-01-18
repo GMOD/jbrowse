@@ -1076,7 +1076,6 @@ openConfig: function( plugins ) {
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
 
-    console.log( JSON.stringify( plugins ) );
     var dir = this.config.dataRoot;
     var trackList = JSON.parse( fs.readFileSync( dir + "/trackList.json", 'utf8') );
 
@@ -1131,7 +1130,6 @@ saveData: function() {
         return temp;
     }, this);
 
-    console.log(this.config.plugins);
     var plugins = array.filter( Util.uniq( this.config.plugins ), function(elt) { return elt!="RegexSequenceSearch" });
     var tmp = {};
     
@@ -1141,7 +1139,6 @@ saveData: function() {
         });
     }
     else tmp = this.config.plugins;
-    console.log(tmp);
     var minTrackList = {
         tracks: trackConfs,
         refSeqs: this.config.refSeqs,
