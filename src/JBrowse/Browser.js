@@ -1078,13 +1078,27 @@ openConfig: function( plugins ) {
 
     console.log( JSON.stringify( plugins ) );
     var dir = this.config.dataRoot;
-    var trackList = JSON.parse( fs.readFileSync(dir+"/trackList.json", 'utf8') );
+    var trackList = JSON.parse( fs.readFileSync( dir + "/trackList.json", 'utf8') );
+
+    //remap existing plugins to object form
     trackList.plugins = trackList.plugins || {};
+    if( lang.isArray( trackList.plugins ) ) {
+        var temp = {};
+        array.forEach( trackList.plugins, function( p ) {
+            temp[ p ] = { 'name': p, 'location': dir+'/'+p };
+        });
+        trackList.plugins = temp;
+    }
+
+    // add new plugins
     array.forEach( plugins, function( plugin ) {
-        var name = plugin.match(/\/(\w+)$/)[1]
-        trackList.plugins[name] = { location: plugin };
+        var name = plugin.match(/\/(\w+)$/)[1];
+        trackList.plugins[ name ] = { location: plugin, name: name };
     });
-    fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
+
+    try {
+        fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
+    } catch(e) { console.log("Failed to save trackList.json"); }
     window.location.reload();
 },
 
@@ -1117,10 +1131,22 @@ saveData: function() {
         return temp;
     }, this);
 
+    console.log(this.config.plugins);
+    var plugins = array.filter( Util.uniq( this.config.plugins ), function(elt) { return elt!="RegexSequenceSearch" });
+    var tmp = {};
+    
+    if( lang.isArray( this.config.plugins ) ) {
+        array.forEach( this.config.plugins, function( p ) {
+            tmp[ p ] = typeof p == 'object' ? p : { 'name': p };
+        });
+    }
+    else tmp = this.config.plugins;
+    console.log(tmp);
     var minTrackList = {
-      tracks: trackConfs,
-      refSeqs: this.config.refSeqs,
-      refSeqOrder: this.config.refSeqOrder
+        tracks: trackConfs,
+        refSeqs: this.config.refSeqs,
+        refSeqOrder: this.config.refSeqOrder,
+        plugins:tmp 
     };
     try {
         fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
