@@ -353,6 +353,10 @@ div.track.pinned {
     margin-bottom: -3px;
 }
 
+.track div.block {
+    margin-top: 25px;
+}
+
 div#static_track {
     top: 0px;
     position: absolute;
