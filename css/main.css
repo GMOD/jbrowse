@@ -353,7 +353,7 @@ div.track.pinned {
     margin-bottom: -3px;
 }
 
-.track div.block {
+.track.track_jbrowse_view_track_sequence div.block {
     margin-top: 25px;
 }
 
