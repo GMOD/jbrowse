@@ -269,12 +269,13 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
+        baseClassDeafult = 'base';
+        if(this.config.seqType === 'protein'){
+            baseClassDefault += ' aaScheme_' + this.config.proteinColorScheme;
+        }
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('td');
-            base.className = 'base base_'+seq.charAt(i).toLowerCase();
-            if(this.config.seqType === 'protein'){
-                base.className += ' aaScheme_' + this.config.proteinColorScheme
-            }
+            base.className = baseClassDefault + ' base_'+seq.charAt(i).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
                 base.innerHTML = seq.charAt(i);
