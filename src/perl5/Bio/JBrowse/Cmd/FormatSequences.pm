@@ -401,7 +401,8 @@ sub writeTrackEntry {
                                                'chunkSize' => $self->{chunkSize},
                                                'urlTemplate' => $self->seqUrlTemplate,
                                                ( $compress ? ( 'compress' => 1 ): () ),
-                                               ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) )
+                                               ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) ),
+                                               ( 'protein' eq lc $self->opt('seqType') ? ('showTranslation' => 0) : () )
                                            };
                                            if ( $self->opt('indexed_fasta') ) {
                                                $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/IndexedFasta';
