@@ -251,13 +251,23 @@ return declare(
         // adjust svg size
         var left = first * this.widthPct;
         var width = (last - first) * this.widthPct;
+        
+        // setup viewbox values for svgCanvas
+        var vbMinX = -left;
+        var vbMinY = 0; 
+        var vbHeight = this.svgHeight;
+        var vbWidth = width;
+        var vbValues = bMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
 
         this.svgCanvas.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;cursor:default;position:absolute;z-index:15');
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
+        this.corodGroup.setAttribute('viewBox', vbValues);
         this.svgCanvas.featureGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
         
         var maxLen = this.svgHeight;
 	var len = 0;
+        
+        // lot of this can go away when the viewbox stuff is working properly.
         // traverse features.
         for (var id in this.svgCanvas.featureGroup.fItem) {
             var bpCoord = this.svgCanvas.featureGroup.fItem[id].bpCoord;
