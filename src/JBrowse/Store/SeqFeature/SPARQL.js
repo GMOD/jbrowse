@@ -86,11 +86,17 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, GlobalStatsEstimationMixi
     getFeatures: function( query, featCallback, finishCallback, errorCallback ) {
         if( this.queryTemplate ) {
             var thisB = this;
+            var headers = { "Accept": "application/json" };
+            if(this.config.disablePreflight) {
+                // https://www.sitepen.com/blog/2014/01/15/faq-cors-with-dojo/
+                headers["X-Requested-With"] = null;
+            }
+
             xhr.get( this.url+'?'+ioQuery.objectToQuery({
                                                             query: this._makeQuery( query )
                                                         }),
                      {
-                          headers: { "Accept": "application/json" },
+                          headers: headers,
                           handleAs: "json",
                           failOk: true
                      })
