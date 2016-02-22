@@ -1,5 +1,5 @@
 /**
- * Lazy-parsing feature implementation for VCF stores.
+ * Lazy-parsing feature implementation for GFF stores.
  */
 
 define( ['dojo/_base/array',
