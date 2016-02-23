@@ -22,7 +22,7 @@ describe( 'GFF3 store', function() {
    it( 'can parse volvox_tabix.gff3.gz', function() {
            var p = new GFF3TabixStore({
                                      browser: new Browser({ unitTestMode: true }),
-                                     file: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.gff3.gz' ),
+                                     file: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.gff3.gz.1' ),
                                      tbi: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.gff3.gz.tbi' ),
                                      refSeq: { name: 'ctgA', start: 0, end: 50001 }
                                  });

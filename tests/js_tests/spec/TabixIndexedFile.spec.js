@@ -28,7 +28,7 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
             });
     });
 
-    xit( 'can read ctgA:1000..4000', function() {
+    it( 'can read ctgA:1000..4000', function() {
             var items = [];
             f.getLines( 'ctgA', 1000, 4000,
                      function(i) {
