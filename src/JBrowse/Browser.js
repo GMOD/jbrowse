@@ -187,6 +187,7 @@ constructor: function(params) {
                            //    or should this be changed to always force DNA to show?
                            if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
                            // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
+                           console.log(tracksToShow);
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
@@ -884,9 +885,13 @@ initView: function() {
             this.renderGlobalMenu( 'help', {}, menuBar );
         }
 
-        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview ) {
+        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview && !Util.isElectron() ) {
             var shareLink = this.makeShareLink();
             if (shareLink) { menuBar.appendChild( shareLink ); }
+        }
+        else if(Util.isElectron()) {
+            var snapLink = this.makeSnapLink();
+            if(snapLink) { menuBar.appendChild( snapLink ); }
         }
         else
             menuBar.appendChild( this.makeFullViewLink() );
@@ -1076,15 +1081,28 @@ openConfig: function( plugins ) {
     var remote = electronRequire('remote');
     var fs = electronRequire('fs');
 
-    console.log( JSON.stringify( plugins ) );
     var dir = this.config.dataRoot;
-    var trackList = JSON.parse( fs.readFileSync(dir+"/trackList.json", 'utf8') );
+    var trackList = JSON.parse( fs.readFileSync( dir + "/trackList.json", 'utf8') );
+
+    //remap existing plugins to object form
     trackList.plugins = trackList.plugins || {};
+    if( lang.isArray( trackList.plugins ) ) {
+        var temp = {};
+        array.forEach( trackList.plugins, function( p ) {
+            temp[ p ] = { 'name': p, 'location': dir+'/'+p };
+        });
+        trackList.plugins = temp;
+    }
+
+    // add new plugins
     array.forEach( plugins, function( plugin ) {
-        var name = plugin.match(/\/(\w+)$/)[1]
-        trackList.plugins[name] = { location: plugin };
+        var name = plugin.match(/\/(\w+)$/)[1];
+        trackList.plugins[ name ] = { location: plugin, name: name };
     });
-    fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
+
+    try {
+        fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
+    } catch(e) { console.log("Failed to save trackList.json"); }
     window.location.reload();
 },
 
@@ -1117,13 +1135,23 @@ saveData: function() {
         return temp;
     }, this);
 
+    var plugins = array.filter( Util.uniq( this.config.plugins ), function(elt) { return elt!="RegexSequenceSearch" });
+    var tmp = {};
+    
+    if( lang.isArray( this.config.plugins ) ) {
+        array.forEach( this.config.plugins, function( p ) {
+            tmp[ p ] = typeof p == 'object' ? p : { 'name': p };
+        });
+    }
+    else tmp = this.config.plugins;
     var minTrackList = {
-      tracks: trackConfs,
-      refSeqs: this.config.refSeqs,
-      refSeqOrder: this.config.refSeqOrder
+        tracks: trackConfs,
+        refSeqs: this.config.refSeqs,
+        refSeqOrder: this.config.refSeqOrder,
+        plugins:tmp 
     };
     try {
-        fs.writeFileSync( dir + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
+        fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
     } catch(e) { alert('Unable to save track data'); }
 },
 
@@ -1234,18 +1262,17 @@ openFasta: function() {
                       refSeqs: { data: refSeqs },
                       refSeqOrder: results.refSeqOrder
                   });
-                  setTimeout( function() {
-                    array.forEach( tracks, function( conf ) {
-                        var storeConf = conf.store;
-                        if( storeConf && typeof storeConf == 'object' ) {
-                            delete conf.store;
-                            storeConf.name = 'refseqs'; // important to make it the refseq store
-                            var name = this.addStoreConfig( storeConf.name, storeConf );
-                            conf.store = name;
-                        }
-                    },newBrowser);
-                    newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
-                  }, 1000 );
+                  newBrowser.afterMilestone('completely initialized', function() {
+                      array.forEach( tracks, function( conf ) {
+                          var storeConf = conf.store;
+                          if( storeConf && typeof storeConf == 'object' ) {
+                              delete conf.store;
+                              storeConf.name = 'refseqs'; // important to make it the refseq store
+                              conf.store = this.addStoreConfig( storeConf.name, storeConf );
+                          }
+                      }, newBrowser);
+                      newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
+                  });
               });
           }
           if( confs.length ) {
@@ -2496,10 +2523,36 @@ globalKeyHandler: function( evt ) {
         evt.stopPropagation();
     }
 },
+makeSnapLink: function () {
+    var browser = this;
+    var shareURL = '#';
+    var dataRoot = this.config.dataRoot;
+
+    // make the share link
+    var button = new dijitButton({
+            className: 'share',
+            innerHTML: 'Screenshot',
+            title: 'share this view',
+            onClick: function() {
+                var fs = electronRequire('fs');
+                var screenshot = electronRequire('electron-screenshot')
+                console.log(window.location.href.split('?')[0]+'?data='+Util.replacePath( dataRoot ));
+
+                screenshot({
+                  filename: './out.png',
+                  delay: 5
+                }, function() { alert('Finished!') })
+                
+            }
+        }
+    );
+
+    return button.domNode;
+},
 
 makeShareLink: function () {
     // don't make the link if we were explicitly configured not to
-    if( ( 'share_link' in this.config ) && !this.config.share_link || Util.isElectron() )
+    if( ( 'share_link' in this.config ) && !this.config.share_link )
         return null;
 
     var browser = this;
@@ -3083,6 +3136,19 @@ createNavBox: function( parent ) {
  */
 getHighlight: function() {
     return this._highlight || null;
+},
+
+getBookmarks: function() {
+    if( this.config.bookmarkService ) {
+        return request( this.config.bookmarkService, {
+            data: {
+                sequence: this.refSeq.name
+            },
+            handleAs: "json",
+            method: "post"
+        })
+    }
+    else return this.config.bookmarks;
 },
 
 /**

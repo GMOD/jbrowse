@@ -37,6 +37,7 @@ return declare(BlockBased,
         var block = args.block;
         var leftBase = args.leftBase;
         var scale = args.scale;
+        var thisB = this;
 
         // find the number that is within 2 px of the left boundary of
         // the block that ends with the most zeroes, or a 5 if no
@@ -57,8 +58,15 @@ return declare(BlockBased,
         block.domNode.appendChild(posLabel);
 
         var highlight = this.browser.getHighlight();
-        if( highlight && highlight.ref == this.refSeq.name )
+        if( highlight && highlight.ref == this.refSeq.name ) {
             this.renderRegionHighlight( args, highlight );
+        }
+
+
+        var bookmarks = this.browser.getBookmarks();
+        if( bookmarks ) {
+            this.renderRegionBookmark( args, bookmarks, this.refSeq.name, true );
+        }
 
         this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
         args.finishCallback();

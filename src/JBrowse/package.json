@@ -1,6 +1,6 @@
 {
     "name": "JBrowse",
-    "version": "dev",
+    "version": "1.x.x",
     "main": "main",
     "dependencies": {
         "dojo": "current",
@@ -16,7 +16,7 @@
         }
     ],
     "bugs": "https://github.com/gmod/jbrowse/issues",
-    "keywords": ["JavaScript", "JBrowse", "Genome Browser", "Genomics"],
+    "keywords": ["JavaScript", "JBrowse", "Genome Browser", "Genomics", "Bioinformatics"],
     "homepage": "http://jbrowse.org",
     "dojoBuild": "JBrowse.profile.js"
 }

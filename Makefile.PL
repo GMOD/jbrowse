@@ -20,7 +20,7 @@ find(sub {
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "A modern web-based genome browser.",
-  "AUTHOR" => "Robert Buels <rbuels\@cpan.org>",
+  "AUTHOR" => "Eric Yao, Colin Diesh, & other contributors",
   "BUILD_REQUIRES" => {
     "Test::More" => 0,
     "Test::Warn" => 0,

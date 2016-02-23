@@ -485,7 +485,10 @@ Util = {
      * Replace windows file path, e.g. C:\ to use file:/// prefixes
      */
     replacePath: function( path ) {
-        return path.replace(/^\w:/,"").replace(/\\/g, "/");
+        return path.replace(/^(\w):/,"file:///$1:").replace(/\\/g, "/");
+    },
+    unReplacePath: function( path ) {
+        return path.replace(/^file:\/\/\//,"");
     },
     // back-compatible way to remove properties/attributes from DOM
     // nodes.  IE 7 and older do not support the `delete` operator on
