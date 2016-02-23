@@ -187,6 +187,7 @@ constructor: function(params) {
                            //    or should this be changed to always force DNA to show?
                            if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
                            // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
+                           console.log(tracksToShow);
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
@@ -884,9 +885,13 @@ initView: function() {
             this.renderGlobalMenu( 'help', {}, menuBar );
         }
 
-        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview ) {
+        if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview && !Util.isElectron() ) {
             var shareLink = this.makeShareLink();
             if (shareLink) { menuBar.appendChild( shareLink ); }
+        }
+        else if(Util.isElectron()) {
+            var snapLink = this.makeSnapLink();
+            if(snapLink) { menuBar.appendChild( snapLink ); }
         }
         else
             menuBar.appendChild( this.makeFullViewLink() );
@@ -2517,10 +2522,36 @@ globalKeyHandler: function( evt ) {
         evt.stopPropagation();
     }
 },
+makeSnapLink: function () {
+    var browser = this;
+    var shareURL = '#';
+    var dataRoot = this.config.dataRoot;
+
+    // make the share link
+    var button = new dijitButton({
+            className: 'share',
+            innerHTML: 'Screenshot',
+            title: 'share this view',
+            onClick: function() {
+                var fs = electronRequire('fs');
+                var screenshot = electronRequire('electron-screenshot')
+                console.log(window.location.href.split('?')[0]+'?data='+Util.replacePath( dataRoot ));
+
+                screenshot({
+                  filename: './out.png',
+                  delay: 5
+                }, function() { alert('Finished!') })
+                
+            }
+        }
+    );
+
+    return button.domNode;
+},
 
 makeShareLink: function () {
     // don't make the link if we were explicitly configured not to
-    if( ( 'share_link' in this.config ) && !this.config.share_link || Util.isElectron() )
+    if( ( 'share_link' in this.config ) && !this.config.share_link )
         return null;
 
     var browser = this;
@@ -3104,6 +3135,19 @@ createNavBox: function( parent ) {
  */
 getHighlight: function() {
     return this._highlight || null;
+},
+
+getBookmarks: function() {
+    if( this.config.bookmarkService ) {
+        return request( this.config.bookmarkService, {
+            data: {
+                sequence: this.refSeq.name
+            },
+            handleAs: "json",
+            method: "post"
+        })
+    }
+    else return this.config.bookmarks;
 },
 
 /**
