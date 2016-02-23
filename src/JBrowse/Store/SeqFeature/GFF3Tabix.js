@@ -143,7 +143,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var type   = line.fields[2];
         var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
         var remove_id;
-        if( !attributes.ID && !attributes.Parent ) {
+        if( !attributes.ID ) {
             attributes.ID = [line.fields.join('/')];
             remove_id = true;
         }
