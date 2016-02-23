@@ -142,11 +142,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var source = line.fields[1];
         var type   = line.fields[2];
         var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
-        if(!attributes.ID && attributes.Parent) {
-            attributes.ID = [''+attributes.Parent[0]+'-'+type+'-dummy'];
-        }
-        else if(!attributes.ID) {
-            attributes.ID = [''+line.start+'-'+line.end+'-'+line.strand+'-'+type+'-dummy'];
+        var remove_id;
+        if( !attributes.ID && !attributes.Parent ) {
+            attributes.ID = [line.fields.join('/')];
+            remove_id = true;
         }
         var featureData = {
             start:  line.start,
@@ -156,7 +155,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             seq_id: line.ref,
             attributes: attributes,
             type:   type,
-            source: source
+            source: source,
+            remove_id: remove_id
         };
 
         return featureData;
@@ -180,6 +180,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         f.start -= 1; // convert to interbase
         for( var a in data.attributes ) {
             f[ a.toLowerCase() ] = data.attributes[a].join(',');
+        }
+        if(f.remove_id) {
+            delete f.remove_id;
+            delete f.id;
         }
         delete f.attributes;
         var sub = array.map( this._flattenOneLevel( data.child_features ), this._featureData, this );
