@@ -195,9 +195,8 @@ return declare( null, {
             array.forEach( references[attrname], function( to_id ) {
                 var other_feature;
                 if(( other_feature = this.under_construction_by_id[ to_id ] )) {
-                    if( ! pname ) {
+                    if( ! pname )
                         pname = this.container_attributes[attrname] || attrname.toLowerCase();
-                    }
                     if( ! array.some( ids, function(i) { return this.completed_references[i+','+attrname+','+to_id]++; },this) ) {
                         array.forEach( other_feature, function( loc ) {
                             loc[pname].push( feature );

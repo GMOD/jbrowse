@@ -47,10 +47,11 @@ describe( 'GFF3 store', function() {
                                          }
                                          return false;
                                      });
+
                          expect( edenIndex ).toBeGreaterThan( 3 );
-                         expect( edenIndex ).toBeLessThan( 200 );
+                         expect( edenIndex ).toBeLessThan( 7 );
                          expect( features[edenIndex].get('subfeatures').length ).toEqual( 3 );
-                         expect( features[edenIndex].get('subfeatures')[0].get('subfeatures').length ).toEqual( 5 );
+                         expect( features[edenIndex].get('subfeatures')[0].get('subfeatures').length ).toEqual( 6 );
                      });
            }).call();
 
