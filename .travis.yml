@@ -14,7 +14,7 @@ install:
   - bash setup.sh
   - npm install -g jshint
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
-  - nginx -c tests/travis-envsubst.conf
+  - nginx -c `pwd`/tests/travis-envsubst.conf
 script:
   - node src/dojo/dojo.js load=build --require "src/JBrowse/init.js" --profile "src/JBrowse/JBrowse.profile.js"
   - prove -Isrc/perl5 -lr tests
