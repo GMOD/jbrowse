@@ -1227,26 +1227,56 @@ define([
                          domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
                          }*/
                         //if( trimLeft <= 0 ) {
-                        if (bookmark.type === 'facing-right') {
-                            //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
+                        if(bookmark.type === 'right-edge'){
                             var d1 = domConstruct.create('div', {
-                                className: 'horizontaltext',
-                                style: {background: 'white', zIndex: 1000, left: left + '%'},
-                                innerHTML: bookmark.refseq + "<"
+                                style: {
+                                    background: bookmark.background,
+                                    color: bookmark.color,
+                                    border: "1px solid black",
+                                    padding: '5px',
+                                    //marginTop: '20px',
+                                    zIndex: 1000
+                                    //opacity: 0.5
+                                },
+                                innerHTML: "<- "+ bookmark.refseq  + " ("+bookmark.originalPosition+")"
                             }, args.block.domNode);
                         }
-                        if (bookmark.type === 'facing-left' && left > 0 ) {
-                            //var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
-                            var d2 = domConstruct.create('div', {
-                                className: 'horizontaltext',
-                                style: {background: 'white', zIndex: 1000, left: left + width + '%'},
-                                innerHTML: bookmark.refseq + ">"
-                            }, args.block.domNode);
-                        }
+                        if(bookmark.type === 'left-edge'){
+                            var d1 = domConstruct.create('div', {
+                                style: {
+                                    background: bookmark.background,
+                                    color: bookmark.color,
+                                    border: "1px solid black",
+                                    padding: '5px',
+                                    //marginTop: '20px',
+                                    left: '100',
+                                    zIndex: 1000
 
-                        var textWidth = (d1.clientWidth + 1) + "px";
+                                    //opacity: 0.5
+                                },
+                                innerHTML: bookmark.refseq  + " ("+bookmark.originalPosition+") ->"
+                            }, args.block.domNode);
+                        }
+                        //if (bookmark.type === 'facing-right') {
+                        //    //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
+                        //    var d1 = domConstruct.create('div', {
+                        //        className: 'horizontaltext',
+                        //        style: {background: 'white', zIndex: 1000, left: left + '%'},
+                        //        innerHTML: bookmark.refseq + "<"
+                        //    }, args.block.domNode);
+                        //}
+                        //if (bookmark.type === 'facing-left' && left > 0 ) {
+                        //    //var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+                        //    var d2 = domConstruct.create('div', {
+                        //        className: 'horizontaltext',
+                        //        style: {background: 'white', zIndex: 1000, left: left + width + '%'},
+                        //        innerHTML: bookmark.refseq + ">"
+                        //    }, args.block.domNode);
+                        //}
+
+                        //var textWidth = (d1.clientWidth + 1) + "px";
                         //d1.style.left = 'calc(' + left + '% - ' + textWidth + ')';
-                        d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
+                        //d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
                     }
                 }
 
