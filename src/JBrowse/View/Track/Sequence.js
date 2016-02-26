@@ -269,7 +269,7 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
-        var baseClassDeafult = 'base';
+        var baseClassDefault = 'base';
         if(this.config.seqType === 'protein'){
             baseClassDefault += ' aaScheme_' + this.config.proteinColorScheme;
         }
