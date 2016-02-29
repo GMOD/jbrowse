@@ -170,7 +170,7 @@ return declare( JBrowsePlugin,
         var type = feature.get('type');
         
         // is UTR
-        if (type.indexOf('UTR') > -1) {
+        if (typeof(type) != "undefined" && type.indexOf('UTR') > -1) {
             context.fillStyle = "#fdfdfd";//this.colorShift(bgcolor,4.5);
         }
         else {
@@ -202,7 +202,7 @@ return declare( JBrowsePlugin,
 
         // foreground border
         var borderColor, lineWidth;
-        if (type.indexOf('UTR') > -1) {
+        if (typeof(type) != "undefined" && type.indexOf('UTR') > -1) {
             lineWidth = 1;
             borderColor = "#b0b0b0";
             if( width > 3 ) {

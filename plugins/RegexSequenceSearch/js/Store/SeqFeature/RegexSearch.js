@@ -109,6 +109,7 @@ define([
                 var newFeat = new SimpleFeature(
                     {
                         data: {
+                            type: "RegEx",
                             start: newStart,
                             end: newEnd,
                             searchMatch: result,
