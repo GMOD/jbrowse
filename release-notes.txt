@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+# Release 1.12.1     2015-03-01
+
+## Bug fixes
+
+ * Fix RegexSearch plugin and NeatCanvasFeatures plugin - search track 
+   loading failure (issue #676)
+
+ * Fix compat_121.html to access /css directory
+
+ * Update Dojo to 1.8.10
+
+
+# Release 1.12.0     2015-12-17
+
 ## New features
 
  * Added ability to open a new genome in FASTA format from the
