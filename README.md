@@ -68,6 +68,8 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
 # Cutting a JBrowse release
 
+0. Create a directory and clone the repo: git clone --recursive https://github.com/GMOD/jbrowse.git  Then for 1.12.1, git checkout tags/1.12.1-release (because it lives in a branch that is not master) 
+
 1. Edit the JBrowse `package.json` file and change 'version' to the version you are releasing.  *Don't commit this change to the repository, it should stay as `dev` in git so that it shows up in analytics as a development version.*
 
 2. Build the release packages: `make -f build/Makefile release`.  The files produced during the build should not be committed to the repository either. There is also `make -f build/Makefile release-notest` for releases that don't need perl tests to be run. NOTE: you may need to use the command `ulimit -n 1000` to avoid "spawn EMFILE" build errors.
