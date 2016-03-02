@@ -5,7 +5,7 @@ var http = require('http'),
 
 var client = new faye.Client('http://localhost:' + serverPort + serverPath);
 
-client.publish ("/track/new",
+client.publish ("/tracks/new",
 		{ "label" : "fromfaye",
 		  "features" : [ { "seq_id" : "ctga",
 				   "name" : "Notified",

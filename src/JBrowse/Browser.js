@@ -203,7 +203,7 @@ constructor: function(params) {
 			       }).then (function() {
 				   console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
 			       });
-			       thisB.fayeClient.subscribe (channel + "/track/new", function(message) {
+			       thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
 				   var d = new Deferred();
 				   var notifyStoreConf = dojo.clone (message);
 				   notifyStoreConf.browser = thisB;
@@ -219,7 +219,7 @@ constructor: function(params) {
 				       thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConfig]);
 				   });
 			       }).then (function() {
-				   console.log ("Subscribed to " + channel + "/track/new at " + thisB.config.notifications.url);
+				   console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
 			       });
 			   }
 

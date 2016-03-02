@@ -13,7 +13,7 @@ Leave this server running.
 Fire up your JBrowse instance in a web browser, and check that the console log has lines like this
 
     Subscribed to /alert at http://localhost:8000/faye
-    Subscribed to /track/new at http://localhost:8000/faye
+    Subscribed to /tracks/new at http://localhost:8000/faye
 
 Then do a simple test with an `alert` message (should probably disable this for production!)
 
