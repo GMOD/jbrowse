@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var http = require('http'),
     faye = require('faye'),
     serverPath = process.argv[2] || '/faye',

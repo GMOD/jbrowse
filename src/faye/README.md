@@ -26,3 +26,9 @@ Then try adding a track using a server message:
     node test-add-track.js
 
 You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature (on the far left). Click on the feature to get the detail popup.
+
+You can try the same thing using the `add-track-json.js` script, which is a Faye-aware version of the `add-track-json.pl` Perl script
+
+    ./add-track-json.js -o -t test-volvox-track.json -l ../../sample_data/json/volvox/trackList.json -p http://localhost:8000/faye
+
+The `-o` option prevents `add-track-json.js` from permanently modifying the `trackList.json` file, instead printing the results to stdout (but this also means it can't tell if the track has already been added, so repeated calls will lead to duplicates in the browser track list because the `/tracks/new` message will be broadcast multiple times).
