@@ -25,4 +25,4 @@ Then try adding a track using a server message:
 
     node test-add-track.js
 
-You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature. Click on the feature to get the detail popup.
+You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature (on the far left). Click on the feature to get the detail popup.

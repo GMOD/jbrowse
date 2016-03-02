@@ -193,37 +193,12 @@ constructor: function(params) {
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
-			   // subscribe to server notifications, if a Faye URL was specified
-			   if ("notifications" in thisB.config) {
-			       thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
-								   thisB.config.notifications.params || {});
-			       var channel = thisB.config.notifications.channel || "";
-			       thisB.fayeClient.subscribe (channel + "/alert", function(message) {
-				   alert (message);
-			       }).then (function() {
-				   console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
-			       });
-			       thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
-				   var d = new Deferred();
-				   var notifyStoreConf = dojo.clone (message);
-				   notifyStoreConf.browser = thisB;
-				   notifyStoreConf.type = notifyStoreConf.storeClass;
-				   var notifyStoreName = thisB.addStoreConfig (undefined, notifyStoreConf);
-				   notifyStoreConf.name = notifyStoreName;
-				   thisB.getStore (notifyStoreName, function(store) {
-				       d.resolve(true);
-				   });
-				   d.promise.then(function(){
-				       var notifyTrackConfig = dojo.clone (message);
-				       notifyTrackConfig.store = notifyStoreName;
-				       thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConfig]);
-				   });
-			       }).then (function() {
-				   console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
-			       });
-			   }
+			   // subscribe to server notifications
+			   thisB.initNotifications().then (function() {
 
-			   thisB.passMilestone( 'completely initialized', { success: true } );
+			       // all done
+			       thisB.passMilestone( 'completely initialized', { success: true } );
+			   })
                        });
                        thisB.reportUsageStats();
                     });
@@ -3264,11 +3239,59 @@ teardown: function() {
     while (this.container && this.container.firstChild) {
         this.container.removeChild(this.container.firstChild);
     }
+},
+
+/**
+ * Initialize notification subscriptions
+ */
+initNotifications: function() {
+    var thisB = this;
+    return thisB._milestoneFunction('initNotifications', function( deferred ) {
+	if ("notifications" in thisB.config) {
+	    thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
+						thisB.config.notifications.params || {});
+	    var channel = thisB.config.notifications.channel || "";
+	    var deferred2 = new Deferred();
+	    thisB.fayeClient.subscribe (channel + "/alert", function(message) {
+		alert (message);
+	    }).then (function() {
+		console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
+		deferred2.resolve ({success:true});
+	    }, function(err) {
+		deferred2.resolve ({success:false});
+	    });
+	    thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
+		var d = new Deferred();
+		var notifyStoreConf = dojo.clone (message);
+		notifyStoreConf.browser = thisB;
+		notifyStoreConf.type = notifyStoreConf.storeClass;
+		var notifyStoreName = thisB.addStoreConfig (undefined, notifyStoreConf);
+		notifyStoreConf.name = notifyStoreName;
+		thisB.getStore (notifyStoreName, function(store) {
+		    d.resolve(true);
+		});
+		d.promise.then(function(){
+		    var notifyTrackConf = dojo.clone (message);
+		    notifyTrackConf.store = notifyStoreName;
+		    thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConf]);
+		});
+	    }).then (function() {
+		console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
+		deferred2.then (function (status) {
+		    deferred.resolve (status);
+		}, function (err) {
+		    deferred.resolve ({success:false});
+		});
+	    });
+
+	} else {
+	    deferred.resolve ({success:false});
+	}
+    })
 }
 
 });
 });
-
 
 /*
 
