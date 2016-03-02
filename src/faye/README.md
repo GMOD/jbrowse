@@ -1,11 +1,11 @@
 
 To test, first add the following to `trackList.json` for the volvox example
 
-<code>
+<pre><code>
     "notifications" : {
 	"url" : "http://localhost:8000/faye"
     }
-</code>
+</code></pre>
 
 Then run the test server in this directory
 
@@ -16,10 +16,10 @@ Then run the test server in this directory
 Leave this server running.
 Fire up your JBrowse instance in a web browser, and check that the console log has lines like this
 
-<code>
+<pre><code>
     Subscribed to /alert at http://localhost:8000/faye
     Subscribed to /track/new at http://localhost:8000/faye
-</code>
+</code></pre>
 
 Then do a simple test with an `alert` message (should probably disable this for production!)
 
