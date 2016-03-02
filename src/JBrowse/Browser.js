@@ -51,6 +51,7 @@ define( [
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
+            'src/faye/faye-browser-min.js',
             'dojo/domReady!'
         ],
         function(
@@ -103,7 +104,8 @@ define( [
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
-            LazyLoad
+            LazyLoad,
+	    dummyFaye  // will be undefined
         ) {
 
 
@@ -191,7 +193,37 @@ constructor: function(params) {
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
-                           thisB.passMilestone( 'completely initialized', { success: true } );
+			   // subscribe to server notifications, if a Faye URL was specified
+			   if ("notifications" in thisB.config) {
+			       thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
+								   thisB.config.notifications.params || {});
+			       var channel = thisB.config.notifications.channel || "";
+			       thisB.fayeClient.subscribe (channel + "/alert", function(message) {
+				   alert (message);
+			       }).then (function() {
+				   console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
+			       });
+			       thisB.fayeClient.subscribe (channel + "/track/new", function(message) {
+				   var d = new Deferred();
+				   var notifyStoreConf = dojo.clone (message);
+				   notifyStoreConf.browser = thisB;
+				   notifyStoreConf.type = notifyStoreConf.storeClass;
+				   var notifyStoreName = thisB.addStoreConfig (undefined, notifyStoreConf);
+				   notifyStoreConf.name = notifyStoreName;
+				   thisB.getStore (notifyStoreName, function(store) {
+				       d.resolve(true);
+				   });
+				   d.promise.then(function(){
+				       var notifyTrackConfig = dojo.clone (message);
+				       notifyTrackConfig.store = notifyStoreName;
+				       thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConfig]);
+				   });
+			       }).then (function() {
+				   console.log ("Subscribed to " + channel + "/track/new at " + thisB.config.notifications.url);
+			       });
+			   }
+
+			   thisB.passMilestone( 'completely initialized', { success: true } );
                        });
                        thisB.reportUsageStats();
                     });
