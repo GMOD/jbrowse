@@ -189,7 +189,7 @@ constructor: function(params) {
                            //    or should this be changed to always force DNA to show?
                            if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
                            // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
-                           console.log(tracksToShow);
+//                           console.log(tracksToShow);
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
@@ -1545,6 +1545,7 @@ _initEventRouting: function() {
                            delete storeConfig.name;
                            that.addStoreConfig( name, storeConfig );
                        });
+	that.publish ('/jbrowse/v1/c/store/new', storeConfigs);
     });
 
 
@@ -1702,8 +1703,11 @@ getStore: function( storeName, callback ) {
  * @private
  */
 uniqCounter: 0,
+uniqueStoreName: function() {
+    return 'addStore'+this.uniqCounter++;
+},
 addStoreConfig: function( /**String*/ name, /**Object*/ storeConfig ) {
-    name = name || 'addStore'+this.uniqCounter++;
+    name = name || this.uniqueStoreName();
 
     if( ! this.config.stores )
         this.config.stores = {};
@@ -3250,37 +3254,37 @@ initNotifications: function() {
 	if ("notifications" in thisB.config) {
 	    thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
 						thisB.config.notifications.params || {});
+	    deferred.resolve ({success:true});
 	    var channel = thisB.config.notifications.channel || "";
-	    var deferred2 = new Deferred();
 	    thisB.fayeClient.subscribe (channel + "/alert", function(message) {
 		alert (message);
 	    }).then (function() {
 		console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
-		deferred2.resolve ({success:true});
-	    }, function(err) {
-		deferred2.resolve ({success:false});
-	    });
-	    thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
-		var d = new Deferred();
-		var notifyStoreConf = dojo.clone (message);
-		notifyStoreConf.browser = thisB;
-		notifyStoreConf.type = notifyStoreConf.storeClass;
-		var notifyStoreName = thisB.addStoreConfig (undefined, notifyStoreConf);
-		notifyStoreConf.name = notifyStoreName;
-		thisB.getStore (notifyStoreName, function(store) {
-		    d.resolve(true);
-		});
-		d.promise.then(function(){
-		    var notifyTrackConf = dojo.clone (message);
-		    notifyTrackConf.store = notifyStoreName;
-		    thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConf]);
-		});
 	    }).then (function() {
-		console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
-		deferred2.then (function (status) {
-		    deferred.resolve (status);
-		}, function (err) {
-		    deferred.resolve ({success:false});
+		thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
+		    var notifyStoreConf = dojo.clone (message);
+		    notifyStoreConf.browser = thisB;
+		    notifyStoreConf.type = notifyStoreConf.storeClass;
+		    notifyStoreConf.name = thisB.uniqueStoreName();
+		    (function (storeCreated) {
+			var sub;
+			sub = thisB.subscribe ('/jbrowse/v1/c/store/new', function (storeConfigs) {
+			    if (array.filter (storeConfigs, function (storeConfig) {
+				return storeConfig.name == notifyStoreConf.name;
+			    }).length) {
+				sub.remove();
+				storeCreated();
+			    }
+			});
+			thisB.publish ('/jbrowse/v1/v/store/new', [notifyStoreConf]);
+		    }) (function() {
+			var notifyTrackConf = dojo.clone (message);
+			notifyTrackConf.store = notifyStoreConf.name;
+			thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConf]);
+		    });
+		}).then (function() {
+		    console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
+		    thisB.passMilestone( 'notificationsConnected', { success: true } );
 		});
 	    });
 
