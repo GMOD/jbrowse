@@ -98,9 +98,8 @@ return declare( null, {
                         { label: "FASTA",       value: "fasta"  },
                         { label: "FASTA index", value: "fai"    },
                         { label: "VCF+bgzip",   value: "vcf.gz" },
-                        { label: "Tabix index", value: "tbi"    },
-                        { label: "bed+bgzip",   value: "bed.gz" }
-
+                        { label: "BED+bgzip",   value: "bed.gz" },
+                        { label: "Tabix index", value: "tbi"    }
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
