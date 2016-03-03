@@ -1217,7 +1217,6 @@ define([
                     }, args.block.domNode);
 
                     if (bookmark) {
-                        //alert('rendering bookmark '+bookmark.type);
                         /*
                          //  vertical text, has bugs
                          if( trimLeft <= 0 ) {
@@ -1257,26 +1256,26 @@ define([
                                 innerHTML: bookmark.refseq  + " ("+bookmark.originalPosition+") ->"
                             }, args.block.domNode);
                         }
-                        //if (bookmark.type === 'facing-right') {
-                        //    //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
-                        //    var d1 = domConstruct.create('div', {
-                        //        className: 'horizontaltext',
-                        //        style: {background: 'white', zIndex: 1000, left: left + '%'},
-                        //        innerHTML: bookmark.refseq + "<"
-                        //    }, args.block.domNode);
-                        //}
-                        //if (bookmark.type === 'facing-left' && left > 0 ) {
-                        //    //var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
-                        //    var d2 = domConstruct.create('div', {
-                        //        className: 'horizontaltext',
-                        //        style: {background: 'white', zIndex: 1000, left: left + width + '%'},
-                        //        innerHTML: bookmark.refseq + ">"
-                        //    }, args.block.domNode);
-                        //}
-
-                        //var textWidth = (d1.clientWidth + 1) + "px";
-                        //d1.style.left = 'calc(' + left + '% - ' + textWidth + ')';
-                        //d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
+                //        //if (bookmark.type === 'facing-right') {
+                //        //    //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
+                //        //    var d1 = domConstruct.create('div', {
+                //        //        className: 'horizontaltext',
+                //        //        style: {background: 'white', zIndex: 1000, left: left + '%'},
+                //        //        innerHTML: bookmark.refseq + "<"
+                //        //    }, args.block.domNode);
+                //        //}
+                //        //if (bookmark.type === 'facing-left' && left > 0 ) {
+                //        //    //var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+                //        //    var d2 = domConstruct.create('div', {
+                //        //        className: 'horizontaltext',
+                //        //        style: {background: 'white', zIndex: 1000, left: left + width + '%'},
+                //        //        innerHTML: bookmark.refseq + ">"
+                //        //    }, args.block.domNode);
+                //        //}
+                //
+                //        //var textWidth = (d1.clientWidth + 1) + "px";
+                //        //d1.style.left = 'calc(' + left + '% - ' + textWidth + ')';
+                //        //d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
                     }
                 }
 
