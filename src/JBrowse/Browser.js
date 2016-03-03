@@ -3256,10 +3256,10 @@ initNotifications: function() {
 						thisB.config.notifications.params || {});
 	    deferred.resolve ({success:true});
 	    var channel = thisB.config.notifications.channel || "";
-	    thisB.fayeClient.subscribe (channel + "/alert", function(message) {
-		alert (message);
+	    thisB.fayeClient.subscribe (channel + "/log", function(message) {
+		console.log (message);
 	    }).then (function() {
-		console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
+		console.log ("Subscribed to " + channel + "/log at " + thisB.config.notifications.url);
 	    }).then (function() {
 		thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
 		    var notifyStoreConf = dojo.clone (message);
@@ -3284,8 +3284,15 @@ initNotifications: function() {
 		    });
 		}).then (function() {
 		    console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
+		}).then (function() {
+		    thisB.fayeClient.subscribe (channel + "/alert", function(message) {
+			alert (message);
+		    }).then (function() {
+			console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
+		    });
+		}).then (function() {
 		    thisB.passMilestone( 'notificationsConnected', { success: true } );
-		});
+		})
 	    });
 
 	} else {
