@@ -3248,6 +3248,15 @@ teardown: function() {
 /**
  * Initialize notification subscriptions
  */
+subscribeToChannel: function(channel,listener) {
+    var thisB = this;
+    var channelPrefix = thisB.config.notifications.channel || "";
+    return thisB.fayeClient.subscribe (channelPrefix + channel, listener)
+	.then (function() {
+	    console.log ("Subscribed to " + channelPrefix + channel + " at " + thisB.config.notifications.url);
+	})
+},
+
 initNotifications: function() {
     var thisB = this;
     return thisB._milestoneFunction('initNotifications', function( deferred ) {
@@ -3255,44 +3264,41 @@ initNotifications: function() {
 	    thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
 						thisB.config.notifications.params || {});
 	    deferred.resolve ({success:true});
-	    var channel = thisB.config.notifications.channel || "";
-	    thisB.fayeClient.subscribe (channel + "/log", function(message) {
+	    // try subscribing to /log first; wait until this succeeds before subscribing to all the others
+	    thisB.subscribeToChannel ('/log', function(message) {
 		console.log (message);
 	    }).then (function() {
-		console.log ("Subscribed to " + channel + "/log at " + thisB.config.notifications.url);
-	    }).then (function() {
-		thisB.fayeClient.subscribe (channel + "/tracks/new", function(message) {
-		    var notifyStoreConf = dojo.clone (message);
-		    notifyStoreConf.browser = thisB;
-		    notifyStoreConf.type = notifyStoreConf.storeClass;
-		    notifyStoreConf.name = thisB.uniqueStoreName();
-		    (function (storeCreated) {
-			var sub;
-			sub = thisB.subscribe ('/jbrowse/v1/c/store/new', function (storeConfigs) {
-			    if (array.filter (storeConfigs, function (storeConfig) {
-				return storeConfig.name == notifyStoreConf.name;
-			    }).length) {
-				sub.remove();
-				storeCreated();
-			    }
+		var newTrackHandler = function (eventType) {
+		    return function(message) {
+			var notifyStoreConf = dojo.clone (message);
+			notifyStoreConf.browser = thisB;
+			notifyStoreConf.type = notifyStoreConf.storeClass;
+			notifyStoreConf.name = thisB.uniqueStoreName();
+			(function (storeCreated) {
+			    var sub;
+			    sub = thisB.subscribe ('/jbrowse/v1/c/store/new', function (storeConfigs) {
+				if (array.filter (storeConfigs, function (storeConfig) {
+				    return storeConfig.name == notifyStoreConf.name;
+				}).length) {
+				    sub.remove();
+				    storeCreated();
+				}
+			    });
+			    thisB.publish ('/jbrowse/v1/v/store/new', [notifyStoreConf]);
+			}) (function() {
+			    var notifyTrackConf = dojo.clone (message);
+			    notifyTrackConf.store = notifyStoreConf.name;
+			    thisB.publish ('/jbrowse/v1/v/tracks/' + eventType, [notifyTrackConf]);
 			});
-			thisB.publish ('/jbrowse/v1/v/store/new', [notifyStoreConf]);
-		    }) (function() {
-			var notifyTrackConf = dojo.clone (message);
-			notifyTrackConf.store = notifyStoreConf.name;
-			thisB.publish ('/jbrowse/v1/v/tracks/new', [notifyTrackConf]);
-		    });
-		}).then (function() {
-		    console.log ("Subscribed to " + channel + "/tracks/new at " + thisB.config.notifications.url);
-		}).then (function() {
-		    thisB.fayeClient.subscribe (channel + "/alert", function(message) {
-			alert (message);
-		    }).then (function() {
-			console.log ("Subscribed to " + channel + "/alert at " + thisB.config.notifications.url);
-		    });
-		}).then (function() {
-		    thisB.passMilestone( 'notificationsConnected', { success: true } );
-		})
+		    }
+		}
+
+		thisB.subscribeToChannel ('/tracks/new', newTrackHandler ('new'))
+		thisB.subscribeToChannel ('/tracks/replace', newTrackHandler ('replace'))
+
+		thisB.subscribeToChannel ('/alert', alert)
+
+		thisB.passMilestone( 'notificationsConnected', { success: true } );
 	    });
 
 	} else {
@@ -3301,7 +3307,7 @@ initNotifications: function() {
     })
 }
 
-});
+      });
 });
 
 /*
