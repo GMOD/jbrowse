@@ -8,17 +8,19 @@ var fs = require('fs'),
 
 var opt = getopt.create([
     ['l' , 'track-list=PATH' , 'path to track list file'],
-    ['t' , 'track=NAME+'     , 'label(s) of track to delete'],
+    ['t' , 'track=LABEL+'    , 'label(s) of track to delete'],
     ['o' , 'stdout'          , 'write modified track list to stdout'],
-    ['n' , 'notify=URL'      , 'publish notification for new track'],
+    ['n' , 'notify=URL'      , 'publish notification of deleted track'],
+    ['s' , 'secret=STRING'   , 'password for notification server'],
+    ['m' , 'messages'        , 'log notification messages'],
     ['h' , 'help'            , 'display this help'],
-    ['v' , 'version'         , 'show version']
 ])              // create Getopt instance
 .bindHelp()     // bind option 'help' to default action
 .parseSystem(); // parse command line
 
 var trackListPath = opt.options['track-list'] || 'trackList.json'
 var trackLabels = opt.argv.concat (opt.options['track'] || [])
+var logging = opt.options['messages'];
 
 fs.readFile (trackListPath, function (err, trackListData) {
     if (err) {
@@ -44,10 +46,29 @@ fs.readFile (trackListPath, function (err, trackListData) {
     var publishUrl = opt.options['notify']
     if (publishUrl) {
 	var client = new faye.Client (publishUrl)
+	var secret = opt.options['secret']
+	if (secret)
+	    client.addExtension({
+		outgoing: function(message, callback) {
+		    message.ext = message.ext || {};
+		    message.ext.password = secret;
+		    callback(message);
+		}
+	    });
+	if (logging)
+	    client.addExtension({
+		outgoing: function(message, callback) {
+		    console.log ('client outgoing', message);
+		    callback(message);
+		}
+	    });
 	client.publish ("/tracks/delete", trackLabels.map (function (trackLabel) {
 	    return { label : trackLabel }
 	})).then (function() {
 	    console.log ("Announced deleted tracks: " + trackLabels.join())
+	    process.exit()
+	}, function() {
+	    console.log ("Failed to announce deleted track " + trackLabels.join())
 	    process.exit()
 	})
 

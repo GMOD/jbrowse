@@ -32,3 +32,7 @@ You can try the same thing using the `add-track-json.js` script, which is a Faye
     ./add-track-json.js -o -t test-volvox-track.json -l ../../sample_data/json/volvox/trackList.json -n http://localhost:8000/faye
 
 The `-o` option prevents `add-track-json.js` from permanently modifying the `trackList.json` file, instead printing the results to stdout (but this also means it can't tell if the track has already been added, so repeated calls will lead to duplicates in the browser track list because the `/tracks/new` message will be broadcast multiple times).
+
+The `remove-track-json.js` script does what you probably expect, and sends a `/tracks/remove` message to the client.
+
+To prevent cross-site request forgeries (e.g. malicious users deleting other users' tracks), you'll probably want to make the Faye server push-only. You can do this by requiring a secret password on `/tracks/*` messages. Only clients with this secret (typically only server-side clients) will then be allowed to publish messages on those channels. Use the `-s` option to specify the secret.
