@@ -18749,8 +18749,4 @@
    },
 
    "formatVersion" : 1,
-
-   "notifications" : {
-       "url" : "http://localhost:8000/faye"
-   }
 }
