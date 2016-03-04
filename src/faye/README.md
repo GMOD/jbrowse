@@ -16,23 +16,21 @@ Fire up your JBrowse instance in a web browser, and check that the console log h
     Subscribed to /alert at http://localhost:8000/faye
     Subscribed to /tracks/new at http://localhost:8000/faye
 
-Then do a simple test with an `alert` message (should probably disable this for production!)
+Then do a simple test with an `alert` message
 
     node test-alert.js
-
-(The browser should pop up a cute alert message)
 
 Then try adding a track using a server message:
 
     node test-add-track.js
 
-You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature (on the far left). Click on the feature to get the detail popup.
+You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature (on the far left). Click on the feature to test the detail popup.
 
 You can replace the track data (the track name and feature data should be updated in the client)
 
     node test-replace-track.js
 
-You can remove the track
+You can remove the track (it should disappear from the client)
 
     node test-delete-track.js
 
