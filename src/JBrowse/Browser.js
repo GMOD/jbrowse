@@ -3275,6 +3275,8 @@ initNotifications: function() {
 			notifyStoreConf.type = notifyStoreConf.storeClass;
 			notifyStoreConf.name = thisB.uniqueStoreName();
 			(function (storeCreated) {
+			    // publishing v/store/new will trigger c/store/new
+			    // we use this to call storeCreated() AFTER the v/store/new is processed
 			    var sub;
 			    sub = thisB.subscribe ('/jbrowse/v1/c/store/new', function (storeConfigs) {
 				if (array.filter (storeConfigs, function (storeConfig) {
@@ -3295,6 +3297,10 @@ initNotifications: function() {
 
 		thisB.subscribeToChannel ('/tracks/new', newTrackHandler ('new'))
 		thisB.subscribeToChannel ('/tracks/replace', newTrackHandler ('replace'))
+
+		thisB.subscribeToChannel ('/tracks/delete', function (trackConfigs) {
+		    thisB.publish ('/jbrowse/v1/v/tracks/delete', trackConfigs);
+		})
 
 		thisB.subscribeToChannel ('/alert', alert)
 

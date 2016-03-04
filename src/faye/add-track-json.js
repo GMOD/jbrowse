@@ -8,17 +8,17 @@ var fs = require('fs'),
 
 var opt = getopt.create([
     ['l' , 'track-list=PATH' , 'path to track list file'],
-    ['t' , 'new-track=PATH'  , 'path to new track file'],
+    ['t' , 'track=PATH'      , 'path to new track file'],
     ['o' , 'stdout'          , 'write modified track list to stdout'],
-    ['p' , 'publish=URL'     , 'publish notification for new track'],
+    ['n' , 'notify=URL'      , 'publish notification for new track'],
     ['h' , 'help'            , 'display this help'],
     ['v' , 'version'         , 'show version']
 ])              // create Getopt instance
 .bindHelp()     // bind option 'help' to default action
 .parseSystem(); // parse command line
 
-var trackListPath = opt.options['track-list'] || opt.argv[0] || 'trackList.json'
-var newTrackPath = opt.options['new-track'] || '/dev/stdin'
+var trackListPath = opt.options['track-list'] || 'trackList.json'
+var newTrackPath = opt.options['track'] || opt.argv[0] || '/dev/stdin'
 
 fs.readFile (trackListPath, function (err, trackListData) {
     if (err) {
@@ -72,7 +72,7 @@ fs.readFile (trackListPath, function (err, trackListData) {
     }
 
     // publish notifications
-    var publishUrl = opt.options['publish']
+    var publishUrl = opt.options['notify']
     if (publishUrl) {
 	var client = new faye.Client (publishUrl)
 	deferred.map (addedTracks, function (track) {
@@ -84,7 +84,7 @@ fs.readFile (trackListPath, function (err, trackListData) {
 	    deferred.map (replacedTracks, function (track) {
 		return client.publish ("/tracks/replace", track)
 		    .then (function() {
-			console.log ("Announced replaced track " + track.label)
+			console.log ("Announced replacement track " + track.label)
 		    })
 	    }) (function() {
 		process.exit()
