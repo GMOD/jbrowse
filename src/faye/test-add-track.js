@@ -21,6 +21,6 @@ client.publish ("/tracks/new",
 		  "type" : "JBrowse/View/Track/HTMLFeatures",
 		  "key" : "Track added via Faye" })
     .then (function() {
-	console.log ("Sent /track/new message")
+	console.log ("Sent /tracks/new message")
 	process.exit()
     })

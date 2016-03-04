@@ -1,3 +1,4 @@
+This directory contains server code for implementing push notifications of track updates to JBrowse clients.
 
 To test, first add the following to `trackList.json` for the volvox example
 
@@ -27,12 +28,20 @@ Then try adding a track using a server message:
 
 You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature (on the far left). Click on the feature to get the detail popup.
 
+You can replace the track data (the track name and feature data should be updated in the client)
+
+    node test-replace-track.js
+
+You can remove the track
+
+    node test-delete-track.js
+
 You can try the same thing using the `add-track-json.js` script, which is a Faye-aware version of the `add-track-json.pl` Perl script
 
     ./add-track-json.js -o -t test-volvox-track.json -l ../../sample_data/json/volvox/trackList.json -n http://localhost:8000/faye
 
 The `-o` option prevents `add-track-json.js` from permanently modifying the `trackList.json` file, instead printing the results to stdout (but this also means it can't tell if the track has already been added, so repeated calls will lead to duplicates in the browser track list because the `/tracks/new` message will be broadcast multiple times).
 
-The `remove-track-json.js` script does what you probably expect, and sends a `/tracks/remove` message to the client.
+The `remove-track-json.js` script does what you probably expect, and sends a `/tracks/delete` message to the client.
 
 To prevent cross-site request forgeries (e.g. malicious users deleting other users' tracks), you'll probably want to make the Faye server push-only. You can do this by requiring a secret password on `/tracks/*` messages. Only clients with this secret (typically only server-side clients) will then be allowed to publish messages on those channels. Use the `-s` option to specify the secret.

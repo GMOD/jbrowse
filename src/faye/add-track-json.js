@@ -102,9 +102,7 @@ fs.readFile (trackListPath, function (err, trackListData) {
 		}, function() {
 		    console.log ("Failed to announce new track " + track.label)
 		    process.exit()
-	    }) (function() {
-		process.exit()
-	    })
+		})
 	}) (function() {
 	    deferred.map (replacedTracks, function (track) {
 		return client.publish ("/tracks/replace", track)

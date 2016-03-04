@@ -21,6 +21,6 @@ client.publish ("/tracks/replace",
 		  "type" : "JBrowse/View/Track/HTMLFeatures",
 		  "key" : "Track replaced via Faye" })
     .then (function() {
-	console.log ("Sent /track/replace message")
+	console.log ("Sent /tracks/replace message")
 	process.exit()
     })

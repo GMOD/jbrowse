@@ -1703,11 +1703,11 @@ getStore: function( storeName, callback ) {
  * @private
  */
 uniqCounter: 0,
-uniqueStoreName: function() {
+_uniqueStoreName: function() {
     return 'addStore'+this.uniqCounter++;
 },
 addStoreConfig: function( /**String*/ name, /**Object*/ storeConfig ) {
-    name = name || this.uniqueStoreName();
+    name = name || this._uniqueStoreName();
 
     if( ! this.config.stores )
         this.config.stores = {};
@@ -3269,29 +3269,13 @@ initNotifications: function() {
 		console.log (message);
 	    }).then (function() {
 		var newTrackHandler = function (eventType) {
-		    return function(message) {
+		    return function (message) {
 			var notifyStoreConf = dojo.clone (message);
+			var notifyTrackConf = dojo.clone (message);
 			notifyStoreConf.browser = thisB;
 			notifyStoreConf.type = notifyStoreConf.storeClass;
-			notifyStoreConf.name = thisB.uniqueStoreName();
-			(function (storeCreated) {
-			    // publishing v/store/new will trigger c/store/new
-			    // we use this to call storeCreated() AFTER the v/store/new is processed
-			    var sub;
-			    sub = thisB.subscribe ('/jbrowse/v1/c/store/new', function (storeConfigs) {
-				if (array.filter (storeConfigs, function (storeConfig) {
-				    return storeConfig.name == notifyStoreConf.name;
-				}).length) {
-				    sub.remove();
-				    storeCreated();
-				}
-			    });
-			    thisB.publish ('/jbrowse/v1/v/store/new', [notifyStoreConf]);
-			}) (function() {
-			    var notifyTrackConf = dojo.clone (message);
-			    notifyTrackConf.store = notifyStoreConf.name;
-			    thisB.publish ('/jbrowse/v1/v/tracks/' + eventType, [notifyTrackConf]);
-			});
+			notifyTrackConf.store = thisB.addStoreConfig(undefined, notifyStoreConf);
+			thisB.publish ('/jbrowse/v1/v/tracks/' + eventType, [notifyTrackConf]);
 		    }
 		}
 
