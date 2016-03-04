@@ -2060,8 +2060,14 @@ showTracks: function( trackConfigs ) {
  * objects to add
  */
 replaceTracks: function( trackConfigs ) {
+    // filter out any track configs that are not displayed
+    var displayed = dojo.filter( trackConfigs, function(conf) {
+        return this._getTracks( [conf.label] ).length != 0;
+    },this);
+    if( ! displayed.length ) return;
+
     // for each one
-    array.forEach( trackConfigs, function( conf ) {
+    array.forEach( displayed, function( conf ) {
         // figure out its position in the genome view and delete it
         var anchor;
         var done;
@@ -2087,8 +2093,7 @@ replaceTracks: function( trackConfigs ) {
        this.trackDndWidget.insertNodes( false, [conf], false, anchor );
    },this);
 
-    if( trackConfigs.length )
-        this.updateTrackList();
+    this.updateTrackList();
 },
 
 /**
