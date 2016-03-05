@@ -51,7 +51,6 @@ define( [
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
-            'src/faye/faye-browser-min.js',
             'dojo/domReady!'
         ],
         function(
@@ -104,8 +103,7 @@ define( [
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
-            LazyLoad,
-	    dummyFaye  // will be undefined
+            LazyLoad
         ) {
 
 
