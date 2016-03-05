@@ -423,6 +423,8 @@ _behaviors: function() { return {
             handles.push(
                 dojo.connect( this.scrollContainer,     wheelevent,     this, 'wheelScroll', false ),
 
+                dojo.connect( this.verticalScrollBar.container,     'onclick',     this, 'scrollBarClickScroll', false ),
+
                 dojo.connect( this.scaleTrackDiv,       "mousedown",
                               dojo.hitch( this, 'startRubberZoom',
                                           dojo.hitch( this,'absXtoBp'),
@@ -610,6 +612,43 @@ calculatePositionLabelHeight: function( containerElement ) {
     var h = heightTest.clientHeight;
     containerElement.removeChild(heightTest);
     return h;
+},
+
+scrollBarClickScroll : function( event ) {
+
+    if ( !event )
+        event = window.event;
+    // if( window.WheelEvent )
+    //     event = window.WheelEvent;
+
+    // 40 pixels per mouse click on scroll
+
+    var containerHeight = parseInt( this.verticalScrollBar.container.style.height,10 );
+    var markerHeight = parseInt( this.verticalScrollBar.positionMarker.style.height,10 );
+    var trackContainerHeight = this.trackContainer.clientHeight;
+    var absY = this.getY()*( trackContainerHeight/containerHeight );
+
+    if ( absY > event.clientY )
+      this.setY( this.getY() - 40 );
+    else if (absY + markerHeight < event.clientY){
+      this.setY( this.getY() + 40 );
+
+    //the timeout is so that we don't have to run showVisibleBlocks
+    //for every scroll wheel click (we just wait until so many ms
+    //after the last one).
+
+    if ( this.wheelScrollTimeout )
+        window.clearTimeout( this.wheelScrollTimeout );
+
+    // 100 milliseconds since the last scroll event is an arbitrary
+    // cutoff for deciding when the user is done scrolling
+    // (set by a bit of experimentation)
+    this.wheelScrollTimeout = window.setTimeout( dojo.hitch( this, function() {
+        this.showVisibleBlocks(true);
+        this.wheelScrollTimeout = null;
+    }, 100));
+
+    dojo.stopEvent(event);
 },
 
 wheelScroll: function( event ) {
