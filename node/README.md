@@ -6,9 +6,9 @@ To test on the Volvox example, first add the following to `../sample_data/json/v
         "url" : "http://localhost:8000/faye"
     }
 
-Then run the message server in this directory
+Then run the message server in this directory (you may first need to run `./setup.sh` to install relevant node modules)
 
-    node message-server.js
+    ./message-server.js
 
 Leave this server running.
 Fire up your JBrowse instance in a web browser, and check that the console log has lines like this
