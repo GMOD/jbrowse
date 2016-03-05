@@ -191,12 +191,12 @@ constructor: function(params) {
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
-			   // subscribe to server notifications
-			   thisB.initNotifications().then (function() {
+                           // subscribe to server notifications
+                           thisB.initNotifications().then (function() {
 
-			       // all done
-			       thisB.passMilestone( 'completely initialized', { success: true } );
-			   })
+                               // all done
+                               thisB.passMilestone( 'completely initialized', { success: true } );
+                           })
                        });
                        thisB.reportUsageStats();
                     });
@@ -1543,7 +1543,7 @@ _initEventRouting: function() {
                            delete storeConfig.name;
                            that.addStoreConfig( name, storeConfig );
                        });
-	that.publish ('/jbrowse/v1/c/store/new', storeConfigs);
+        that.publish ('/jbrowse/v1/c/store/new', storeConfigs);
     });
 
 
@@ -3250,49 +3250,49 @@ subscribeToChannel: function(channel,listener) {
     var thisB = this;
     var channelPrefix = thisB.config.notifications.channel || "";
     return thisB.fayeClient.subscribe (channelPrefix + channel, listener)
-	.then (function() {
-	    console.log ("Subscribed to " + channelPrefix + channel + " at " + thisB.config.notifications.url);
-	})
+        .then (function() {
+            console.log ("Subscribed to " + channelPrefix + channel + " at " + thisB.config.notifications.url);
+        })
 },
 
 initNotifications: function() {
     var thisB = this;
     return thisB._milestoneFunction('initNotifications', function( deferred ) {
-	if ("notifications" in thisB.config) {
-	    thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
-						thisB.config.notifications.params || {});
-	    deferred.resolve ({success:true});
-	    // try subscribing to /log first; wait until this succeeds before subscribing to all the others
-	    thisB.subscribeToChannel ('/log', function(message) {
-		console.log (message);
-	    }).then (function() {
-		var newTrackHandler = function (eventType) {
-		    return function (message) {
-			var notifyStoreConf = dojo.clone (message);
-			var notifyTrackConf = dojo.clone (message);
-			notifyStoreConf.browser = thisB;
-			notifyStoreConf.type = notifyStoreConf.storeClass;
-			notifyTrackConf.store = thisB.addStoreConfig(undefined, notifyStoreConf);
-			thisB.publish ('/jbrowse/v1/v/tracks/' + eventType, [notifyTrackConf]);
-		    }
-		}
+        if ("notifications" in thisB.config) {
+            thisB.fayeClient = new Faye.Client (thisB.config.notifications.url,
+                            thisB.config.notifications.params || {});
+            deferred.resolve ({success:true});
+            // try subscribing to /log first; wait until this succeeds before subscribing to all the others
+            thisB.subscribeToChannel ('/log', function(message) {
+                console.log (message);
+            }).then (function() {
+                var newTrackHandler = function (eventType) {
+                    return function (message) {
+                        var notifyStoreConf = dojo.clone (message);
+                        var notifyTrackConf = dojo.clone (message);
+                        notifyStoreConf.browser = thisB;
+                        notifyStoreConf.type = notifyStoreConf.storeClass;
+                        notifyTrackConf.store = thisB.addStoreConfig(undefined, notifyStoreConf);
+                        thisB.publish ('/jbrowse/v1/v/tracks/' + eventType, [notifyTrackConf]);
+                    }
+                }
 
-		thisB.subscribeToChannel ('/tracks/new', newTrackHandler ('new'))
-		thisB.subscribeToChannel ('/tracks/replace', newTrackHandler ('replace'))
+                thisB.subscribeToChannel ('/tracks/new', newTrackHandler ('new'))
+                thisB.subscribeToChannel ('/tracks/replace', newTrackHandler ('replace'))
 
-		thisB.subscribeToChannel ('/tracks/delete', function (trackConfigs) {
-		    thisB.publish ('/jbrowse/v1/v/tracks/delete', trackConfigs);
-		})
+                thisB.subscribeToChannel ('/tracks/delete', function (trackConfigs) {
+                    thisB.publish ('/jbrowse/v1/v/tracks/delete', trackConfigs);
+                })
 
-		thisB.subscribeToChannel ('/alert', alert)
+                thisB.subscribeToChannel ('/alert', alert)
 
-		thisB.passMilestone( 'notificationsConnected', { success: true } );
-	    });
+                thisB.passMilestone( 'notificationsConnected', { success: true } );
+            });
 
-	} else {
-	    deferred.resolve ({success:false});
-	}
-    })
+        } else {
+            deferred.resolve ({success:false});
+        }
+    });
 }
 
       });

@@ -250,15 +250,15 @@ return declare(
     },
 
     replaceTracks: function( trackConfigs ) {
-	var isChecked = {}
+        var isChecked = {}
         array.forEach( trackConfigs, function(conf) {
             this._findTrack( conf.label, function( trackRecord, category ) {
                 isChecked[conf.label] = trackRecord.checkbox.checked;
             });
         },this);
 
-	this.deleteTracks (trackConfigs);
-	this.addTracks (trackConfigs);
+        this.deleteTracks (trackConfigs);
+        this.addTracks (trackConfigs);
 
         array.forEach( trackConfigs, function(conf) {
             this._findTrack( conf.label, function( trackRecord, category ) {
