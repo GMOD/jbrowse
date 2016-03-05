@@ -6,9 +6,9 @@ To test, first add the following to `trackList.json` for the volvox example
         "url" : "http://localhost:8000/faye"
     }
 
-Then run the test server in this directory
+Then run the message server in this directory
 
-    node minimal-server.js
+    node message-server.js
 
 Leave this server running.
 Fire up your JBrowse instance in a web browser, and check that the console log has lines like this
@@ -18,25 +18,25 @@ Fire up your JBrowse instance in a web browser, and check that the console log h
 
 Then do a simple test with an `alert` message
 
-    node test-alert.js
+    node tests/test-alert.js
 
 Then try adding a track using a server message:
 
-    node test-add-track.js
+    node tests/test-add-track.js
 
 You should see a new track appear on the track list. It will not initially be opened. Open it, and (on refseq `ctgA`) you should see a single feature (on the far left). Click on the feature to test the detail popup.
 
 You can replace the track data (the track name and feature data should be updated in the client)
 
-    node test-replace-track.js
+    node tests/test-replace-track.js
 
 You can remove the track (it should disappear from the client)
 
-    node test-delete-track.js
+    node tests/test-delete-track.js
 
 You can try the same thing using the `add-track-json.js` script, which is a Faye-aware version of the `add-track-json.pl` Perl script
 
-    ./add-track-json.js -o -t test-volvox-track.json -l ../../sample_data/json/volvox/trackList.json -n http://localhost:8000/faye
+    ./add-track-json.js -o -t tests/test-volvox-track.json -l ../sample_data/json/volvox/trackList.json -n http://localhost:8000/faye
 
 The `-o` option prevents `add-track-json.js` from permanently modifying the `trackList.json` file, instead printing the results to stdout (but this also means it can't tell if the track has already been added, so repeated calls will lead to duplicates in the browser track list because the `/tracks/new` message will be broadcast multiple times).
 
