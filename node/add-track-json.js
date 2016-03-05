@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 var fs = require('fs'),
+    path = require('path'),
     http = require('http'),
     faye = require('faye'),
     getopt = require('node-getopt'),
     deferred = require('deferred')
 
 var opt = getopt.create([
-    ['l' , 'track-list=PATH' , 'path to track list file'],
+    ['d' , 'data=PATH'       , 'path to JBrowse data directory'],
     ['t' , 'track=PATH'      , 'path to new track file'],
     ['o' , 'stdout'          , 'write modified track list to stdout'],
     ['n' , 'notify=URL'      , 'publish notifications of new tracks'],
@@ -18,7 +19,8 @@ var opt = getopt.create([
 .bindHelp()     // bind option 'help' to default action
 .parseSystem(); // parse command line
 
-var trackListPath = opt.options['track-list'] || 'trackList.json'
+var dataDir = opt.options['data'] || '.'
+var trackListPath = path.join (dataDir, 'trackList.json')
 var newTrackPath = opt.options['track'] || opt.argv[0] || '/dev/stdin'
 var logging = opt.options['messages'];
 
