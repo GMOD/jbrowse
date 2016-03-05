@@ -1,6 +1,6 @@
 This directory contains server code for implementing push notifications of track updates to JBrowse clients.
 
-To test, first add the following to `trackList.json` for the volvox example
+To test on the Volvox example, first add the following to `../sample_data/json/volvox/trackList.json`
 
     "notifications" : {
         "url" : "http://localhost:8000/faye"
@@ -36,7 +36,7 @@ You can remove the track (it should disappear from the client)
 
 You can try the same thing using the `add-track-json.js` script, which is a Faye-aware version of the `add-track-json.pl` Perl script
 
-    ./add-track-json.js -o -t tests/test-volvox-track.json -l ../sample_data/json/volvox/trackList.json -n http://localhost:8000/faye
+    ./add-track-json.js -o -t tests/new-volvox-track.json -l ../sample_data/json/volvox/trackList.json -n http://localhost:8000/faye
 
 The `-o` option prevents `add-track-json.js` from permanently modifying the `trackList.json` file, instead printing the results to stdout (but this also means it can't tell if the track has already been added, so repeated calls will lead to duplicates in the browser track list because the `/tracks/new` message will be broadcast multiple times).
 
