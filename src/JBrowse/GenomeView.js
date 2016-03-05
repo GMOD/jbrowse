@@ -630,7 +630,7 @@ scrollBarClickScroll : function( event ) {
 
     if ( absY > event.clientY )
       this.setY( this.getY() - 40 );
-    else if (absY + markerHeight < event.clientY){
+    else if (absY + markerHeight < event.clientY)
       this.setY( this.getY() + 40 );
 
     //the timeout is so that we don't have to run showVisibleBlocks
