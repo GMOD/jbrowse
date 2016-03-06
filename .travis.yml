@@ -10,10 +10,11 @@ cache:
   - extlib/
   - $HOME/perl5/
   - $HOME/.cache/bower
+  - $HOME/.npm
 before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
-  - npm install -g jshint
+  - npm install -g jshint bower
 install:
   - bower install
   - bash setup.sh
