@@ -9,8 +9,6 @@ addons:
 cache:
   - extlib/
   - $HOME/perl5/
-  - $HOME/.cache/bower
-  - $HOME/.npm
 before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
