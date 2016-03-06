@@ -139,8 +139,18 @@ constructor: function(params) {
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
         return;
-
+    
     this.startTime = new Date();
+
+    // add <script> tags to load non-AMD modules
+    [
+        'src/faye/faye-browser-min.js'
+    ].forEach(function(src) {
+        var script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        document.head.appendChild(script);
+    });
 
     // start the initialization process
     var thisB = this;
