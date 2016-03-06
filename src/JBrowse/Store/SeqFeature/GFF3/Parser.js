@@ -167,7 +167,7 @@ return declare( null, {
                 this._resolve_references_to( feature, id );
             }
         },this);
-
+        
         // try to resolve all its references
         this._resolve_references_from( feature || [ feature_line ], { Parent : parents, Derives_from : derives }, ids );
     },
@@ -204,8 +204,10 @@ return declare( null, {
                     }
                 }
                 else {
-                    ( this.under_construction_orphans[to_id][attrname] = this.under_construction_orphans[to_id][attrname] || [] )
-                        .push( feature );
+                    var t=this.under_construction_orphans[to_id];
+                    if(!t) t={};
+
+                    t[attrname] = (t[attrname] || []).push( feature );
                 }
             },this);
         }

@@ -32,28 +32,53 @@ return declare( [BoxGlyph,MismatchesMixin], {
                       var strand = feature.get('strand');
                       if(Math.abs(strand) != 1 && strand != '+' && strand != '-')
                         return track.colorForBase('reference');
-                      if(feature.get('multi_segment_template')) {
+                      else if(track.config.useXS) {
+                        var xs = feature._get('xs')
+                        var strand={'-':'color_rev_strand','+':'color_fwd_strand'}[xs];
+                        if(!strand) strand='color_nostrand';
+                        return glyph.getStyle( feature, strand );
+                      }
+                      else if(feature.get('multi_segment_template')) {
+                        var revflag=feature.get('multi_segment_first');
                         if(feature.get('multi_segment_all_correctly_aligned')) {
-                          return  strand == 1  || strand == '+'
+                          if(revflag||!track.config.useReverseTemplate){
+                            return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand' )
                                   : glyph.getStyle( feature, 'color_rev_strand' );
+                          }else {
+                            return strand == 1 || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_rev_strand' )
+                                  : glyph.getStyle( feature, 'color_fwd_strand' );
+                          }
                         }
                         if(feature.get('multi_segment_next_segment_unmapped')) {
-                          return  strand == 1  || strand == '+'
+                          if(revflag||!track.config.useReverseTemplate){
+                            return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_missing_mate' )
                                   : glyph.getStyle( feature, 'color_rev_missing_mate' );
+                          }else{
+                            return strand == 1 || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_rev_missing_mate' )
+                                  : glyph.getStyle( feature, 'color_fwd_missing_mate' );
+                          }
                         }
                         if(feature.get('seq_id') == feature.get('next_seq_id')) {
-                          return  strand == 1  || strand == '+'
+                          if(revflag||!track.config.useReverseTemplate){
+                            return strand == 1 || strand == '+'
                                   ? glyph.getStyle( feature, 'color_fwd_strand_not_proper' )
                                   : glyph.getStyle( feature, 'color_rev_strand_not_proper' );
+                          }else{
+                            return strand == 1 || strand == '+'
+                                  ? glyph.getStyle( feature, 'color_rev_strand_not_proper' )
+                                  : glyph.getStyle( feature, 'color_fwd_strand_not_proper' );
+                          }
                         }
                         // should only leave aberrant chr
-                        return  strand == 1  || strand == '+'
+                        return strand == 1 || strand == '+'
                                 ? glyph.getStyle( feature, 'color_fwd_diff_chr' )
                                 : glyph.getStyle( feature, 'color_rev_diff_chr' );
                       }
-                      return  strand == 1  || strand == '+'
+                      return strand == 1 || strand == '+'
                               ? glyph.getStyle( feature, 'color_fwd_strand' )
                               : glyph.getStyle( feature, 'color_rev_strand' );
                     },
@@ -65,6 +90,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     color_rev_missing_mate: '#1919D1',
                     color_fwd_diff_chr: '#000000',
                     color_rev_diff_chr: '#969696',
+                    color_nostrand: '#999999',
                     border_color: null,
 
                     strandArrow: false,

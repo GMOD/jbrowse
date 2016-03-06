@@ -235,7 +235,7 @@ return declare( null,
 
         req.onreadystatechange = dojo.hitch( this, function() {
             if (req.readyState == 4) {
-                if (req.status == 200 || req.status == 206) {
+                if (Util.isElectron() || req.status == 200 || req.status == 206) {
 
                     // if this response tells us the file's total size, remember that
                     this.totalSizes[request.url] = (function() {
@@ -424,21 +424,14 @@ return declare( null,
     },
 
     _log: function() {
-        //console.log.apply( console, this._logf.apply(this,arguments) );
+        //console.log.apply( console, arguments );
     },
     _warn: function() {
-        console.warn.apply( console, this._logf.apply(this,arguments) );
+        console.warn.apply( console, arguments );
     },
     _error: function() {
-        console.error.apply( console,  this._logf.apply(this,arguments) );
+        console.error.apply( console,  arguments );
         throw 'file error';
-    },
-    _logf: function() {
-        arguments[0] = this.name+' '+arguments[0];
-        if( typeof arguments[0] == 'string' )
-            while( arguments[0].length < 15 )
-                arguments[0] += ' ';
-        return arguments;
     }
 
 });

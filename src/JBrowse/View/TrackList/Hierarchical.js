@@ -44,6 +44,11 @@ return declare(
 
     constructor: function( args ) {
         this.categories = {};
+        this.config=
+            lang.mixin({
+                "sortHierarchical": true
+            },
+            args);
 
         this._loadState();
     },
@@ -89,11 +94,13 @@ return declare(
         var tracks = [];
         var thisB = this;
         var categoryFacet = this.get('categoryFacet');
-        var sorter = (this.get('sortHierarchical')=="false"||this.get('sortHierarchical')==false) ? undefined :
-                             [ { attribute: this.get('categoryFacet').toLowerCase()},
-                               { attribute: 'key' },
-                               { attribute: 'label' }
-                             ];
+        var sorter;
+        if(this.config.sortHierarchical) {
+            sorter=[ { attribute: categoryFacet.toLowerCase()},
+                     { attribute: 'key' },
+                     { attribute: 'label' }
+                   ];
+        }
 
         // add initally collapsed categories to the local storage
         var arr=(this.get('collapsedCategories')||"").split(",");
@@ -123,14 +130,14 @@ return declare(
                       thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
                   }
               },
-              sort: sorter 
+              sort: sorter
             });
     },
 
     addTracks: function( tracks, inStartup ) {
         this.pane = this;
         var thisB = this;
-       
+
         array.forEach( tracks, function( track ) {
             var trackConf = track.conf || track;
 
@@ -169,10 +176,12 @@ return declare(
             };
 
             category.pane.domNode.style.display = 'block';
+
+            // note: sometimes trackConf.description is defined as numeric, so in this case, ignore it
             var labelNode = dom.create(
                 'label', {
                     className: 'tracklist-label shown',
-                    title: Util.escapeHTML( track.shortDescription || track.description || track.Description || track.metadata && ( track.metadata.shortDescription || track.metadata.description || track.metadata.Description ) || track.key || trackConf.key || trackConf.label )
+                    title: Util.escapeHTML( trackConf.shortDescription || track.shortDescription ||  (trackConf.description===1?undefined:trackConf.description) || track.description || trackConf.Description || track.Description || trackConf.metadata && ( trackConf.metadata.shortDescription || trackConf.metadata.description || trackConf.metadata.Description ) || track.key || trackConf.key || trackConf.label )
                 }, category.pane.containerNode );
 
             var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
@@ -213,7 +222,7 @@ return declare(
 
     _updateTitle: function( category ) {
         category.pane.set( 'title', category.pane.get('title')
-                           .replace( />\s*\d+\s*\</, '>'+query('label.shown', category.pane.containerNode ).length+'<' )
+                           .replace( />\s*\d+\s*</, '>'+query('label.shown', category.pane.containerNode ).length+'<' )
                          );
     },
 

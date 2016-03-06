@@ -35,6 +35,14 @@ constructor: function( args ) {
     this.defaults = lang.clone( args.defaults || {} );
     this.browser = args.browser;
     this.skipValidation = args.skipValidation;
+
+    this.bootConfig = (this._regularizeIncludes ([ this.bootConfig ])) [0];
+    var thisB = this;
+    this._getConfigAdaptor( this.bootConfig )
+        .then( function( adaptor ) {
+            thisB.bootConfig = adaptor.regularizeTrackConfigs ( thisB.bootConfig );
+    });
+
     // this.topLevelIncludes = this._fillTemplates(
     //     lang.clone( this.config.include || this.defaults.include ),
     //     this._applyDefaults( lang.clone( this.config ), this.defaults )

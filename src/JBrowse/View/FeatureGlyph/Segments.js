@@ -12,7 +12,6 @@ define([
        ) {
 
 return declare( BoxGlyph, {
-
 _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),
@@ -115,6 +114,8 @@ _makeSubpartsFilter: function( f ) {
             return filter[ (feature.get('type')||'').toLowerCase() ];
         };
     }
+    else
+        filter = function() { return true; }
 
     return filter;
 }

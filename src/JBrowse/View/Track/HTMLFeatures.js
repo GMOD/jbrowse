@@ -188,7 +188,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                     }
                 }
 
-                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < .01)
+                var logScale =   histData.stats ? ((histData.stats.mean / histData.stats.max) < 0.01)
                                                 : false;
                 var pxPerCount = histData.stats ? ( 100 / (logScale ? Math.log(histData.stats.max) : histData.stats.max) )
                                                 : 2;
@@ -241,11 +241,11 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     },
 
     updateFeatureArrowPositions: function( coords ) {
-        if( ! 'x' in coords )
+        if( ! ('x' in coords) )
             return;
 
-        var viewmin = this.browser.view.minVisible();
-        var viewmax = this.browser.view.maxVisible();
+    var viewmin = this.browser.view.minVisible();
+    var viewmax = this.browser.view.maxVisible();
 
         var blocks = this.blocks;
 
@@ -256,60 +256,65 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             var childNodes = block.domNode.childNodes;
             for( var i = 0; i<childNodes.length; i++ ) {
                 var featDiv = childNodes[i];
-                if( ! featDiv.feature )
-                    continue;
-                var feature = featDiv.feature;
+                        if( ! featDiv.feature )
+                            continue;
+                        var feature = featDiv.feature;
 
-                // Retrieve containerStart/End to resolve div truncation from renderFeature
-                var containerStart = featDiv._containerStart;
-                var containerEnd = featDiv._containerEnd;
+                        // Retrieve containerStart/End to resolve div truncation from renderFeature
+                        var containerStart = featDiv._containerStart;
+                        var containerEnd = featDiv._containerEnd;
 
-                var strand  = feature.get('strand');
-                if( ! strand )
-                    continue;
+                        var strand  = feature.get('strand');
+                        if( ! strand )
+                            continue;
 
-                var fmin    = feature.get('start');
-                var fmax    = feature.get('end');
-                var arrowhead;
-                var featDivChildren;
-                //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
-                var displayStart = Math.max( fmin, containerStart );
-                var displayEnd = Math.min( fmax, containerEnd );
+                        var fmin    = feature.get('start');
+                        var fmax    = feature.get('end');
+                        var arrowhead;
+                        var featDivChildren;
+                        //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
+                        var displayStart = Math.max( fmin, containerStart );
+                        var displayEnd = Math.min( fmax, containerEnd );
 
-                // minus strand
-                if( strand < 0 && fmax > viewmin ) {
-                    var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
-                    featDivChildren = featDiv.childNodes;
-                    for( var j = 0; j<featDivChildren.length; j++ ) {
-                        arrowhead = featDivChildren[j];
-                        if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
-                            arrowhead.style.left =
-                                ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
-                                                 : -this.minusArrowWidth
-                                ) + 'px';
-                        };
-                    }
-                }
-                // plus strand
-                else if( strand > 0 && fmin < viewmax ) {
-                    var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
-                    featDivChildren = featDiv.childNodes;
-                    for( var j = 0; j<featDivChildren.length; j++ ) {
-                        arrowhead = featDivChildren[j];
-                        if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
-                            arrowhead.style.right =  
-                                ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
-                                                 : -this.plusArrowWidth
-                                ) + 'px';
+                        // minus strand
+                        if( strand < 0 && fmax > viewmin ) {
+                            var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
+                            featDivChildren = featDiv.childNodes;
+                            for( var j = 0; j<featDivChildren.length; j++ ) {
+                                arrowhead = featDivChildren[j];
+                                if (typeof arrowhead.className === 'string') {
+                                    if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
+                                        arrowhead.style.left =
+                                            ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
+                                                             : -this.minusArrowWidth
+                                            ) + 'px';
+                                    };
+                                }
+                            }
+                        }
+                        // plus strand
+                        else if( strand > 0 && fmin < viewmax ) {
+                            var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
+                            featDivChildren = featDiv.childNodes;
+                            for( var j = 0; j<featDivChildren.length; j++ ) {
+                                arrowhead = featDivChildren[j];
+                                if (typeof arrowhead.className === 'string') {
+                                    if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
+                                        arrowhead.style.right =
+                                            ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
+                                                             : -this.plusArrowWidth
+                                            ) + 'px';
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            }
         }
     },
 
     updateFeatureLabelPositions: function( coords ) {
-        if( ! 'x' in coords )
+        var showLabels=this.browser._showLabels;
+        if( ! ('x' in coords) )
             return;
 
         array.forEach( this.blocks, function( block, blockIndex ) {
@@ -320,7 +325,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             // width
             if( ! block || ! this.label )
                 return;
-            var viewLeft = 100 * ( (this.label.offsetLeft+this.label.offsetWidth) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
+            var viewLeft = 100 * ( (this.label.offsetLeft+(showLabels?this.label.offsetWidth:0)) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
 
             // if the view start is unknown, or is to the
             // left of this block, we don't have to worry
@@ -421,7 +426,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             return;
         }
         var maxval = this.height/dims.pxPerCount;
-        maxval = dims.logScale ? log(maxval) : maxval;
+        maxval = dims.logScale ? Math.log(maxval) : maxval;
 
         // if we have a scale, and it has the same characteristics
         // (including pixel height), don't redraw it.
@@ -630,7 +635,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 function ( args ) {
                                     curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
                                                           blockIndex);
-                                    if ( args && args.maskingSpans ) { 
+                                    if ( args && args.maskingSpans ) {
                                         //note: spans have to be inverted
                                         var invSpan = [];
                                         invSpan[0] = { start: leftBase };
@@ -648,7 +653,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                             invSpan.splice(i,1); }
                                         if (invSpan[0].end <= invSpan[0].start) {
                                             invSpan.splice(0,1); }
-                                        curTrack.maskBySpans( invSpan, args.maskingSpans ); 
+                                        curTrack.maskBySpans( invSpan, args.maskingSpans );
                                     }
                                     finishCallback();
                                 },
@@ -731,7 +736,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 var makeDiv = function ( start, end, parentDiv, masked, voidClass ) {
                     // make a coverage div
                     var coverageNode = dojo.create('div');
-                    var s = parentDiv.featureEdges 
+                    var s = parentDiv.featureEdges
                             ? parentDiv.featureEdges.s
                             : parentDiv.subfeatureEdges.s;
                     var e = parentDiv.featureEdges
@@ -1050,7 +1055,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
             + " width:" + featwidth + "%;"
             + (this.config.style.featureCss ? this.config.style.featureCss : "");
 
-        // Store the containerStart/End so we can resolve the truncation 
+        // Store the containerStart/End so we can resolve the truncation
         // when we are updating static elements
         featDiv._containerStart=containerStart;
         featDiv._containerEnd=containerEnd;

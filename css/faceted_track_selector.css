@@ -1,0 +1,271 @@
+/* Dojo and Dijit stuff */
+
+@import url("../src/dojox/grid/resources/tundraGrid.css");
+
+.dojoxGrid table {
+  margin: 0;
+}
+.dojoxGridRowSelectorStatusText {
+    display: none;
+}
+
+/* JBrowse stuff */
+
+#faceted_tracksel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+#faceted_tracksel.active {
+    -moz-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+    box-shadow: 4px 4px 10px 3px rgba( 30, 30, 50, 0.3 );
+}
+
+#faceted_tracksel button, #faceted_tracksel input {
+    font-size: 12px;
+}
+
+#faceted_tracksel div.mainContainer {
+    height: 100%;
+    width: 100%;
+}
+.tundra #faceted_tracksel div.mainContainer {
+    border-right: 2px solid #555;
+    background: #e9e9e9;
+}
+
+/* Track grid */
+
+#faceted_tracksel .dojoxGridCellFocus {
+    border-color: transparent;
+    border-color: transparent !important;
+}
+#faceted_tracksel .gridPane .gridControls {
+    padding: 2px 3px;
+    font-size: 110%;
+}
+.tundra #faceted_tracksel .gridPane .gridControls {
+    background: #e9e9e9;
+    border: 1px solid #aaa;
+    border-right: none;
+}
+
+#faceted_tracksel .gridPane .gridControls > * {
+    margin: 2px 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
+#faceted_tracksel .gridPane .gridControls button {
+    height: 2.2em;
+    margin: 4px;
+    white-space: nowrap;
+}
+#faceted_tracksel .gridPane .gridControls button > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+#faceted_tracksel .gridPane .gridControls button img {
+    padding: 0 0.4em 0 0;
+}
+#faceted_tracksel.busy .gridControls .busy_indicator {
+    visibility: visible;
+}
+#faceted_tracksel .gridControls .busy_indicator {
+    z-index: 20;
+    visibility: hidden;
+}
+
+
+#faceted_tracksel label.textFilterControl img.text_filter_clear {
+    display: none;
+}
+#faceted_tracksel label.textFilterControl.selected img.text_filter_clear {
+    display: block;
+}
+#faceted_tracksel label.textFilterControl input {
+    border-top: 3px solid transparent;
+    font-weight: bold;
+    padding: 0.2em;
+}
+#faceted_tracksel label.textFilterControl.selected input {
+    border-top: 3px solid #396494;
+    background: #D2E1F1;
+}
+
+/* Track selector title bar */
+#faceted_tracksel_top {
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+}
+.tundra #faceted_tracksel_top {
+    background: #396494;
+}
+.tundra #faceted_tracksel_top .topLink {
+    color: white;
+}
+
+#faceted_tracksel_top > * {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+#faceted_tracksel_top .title {
+    padding: 0;
+    width: 185px;
+
+    font-weight: bold;
+    color: white;
+    font-size: 180%;
+}
+
+#faceted_tracksel .faceted_tracksel_on_off.tab {
+    position: absolute;
+    top: 5em;
+    left: 100%;
+    z-index: 5;
+
+    padding: 5px 0px;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+}
+#faceted_tracksel div.faceted_tracksel_on_off.tab > * {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 6px;
+}
+.tundra #faceted_tracksel .faceted_tracksel_on_off.tab {
+    background: #e9e9e9 url("../src/dijit/themes/tundra/images/titleBar.png") top repeat-x;
+    border: 2px solid #666;
+
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+
+#faceted_tracksel_top div.topLink {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    background: none;
+    border: none;
+    color: white;
+    padding: 3px 0.6em;
+
+    font-weight: bold;
+}
+
+
+/* Facet selection controls */
+
+#faceted_tracksel .facetSelect {
+    width: 100%;
+    border-spacing: 0;
+}
+#faceted_tracksel .facetSelect .facetValue {
+    padding: 0.1em 0.4em;
+    cursor: pointer;
+}
+#faceted_tracksel .facetSelect .facetValue > * {
+    vertical-align: top;
+}
+#faceted_tracksel .facetSelect .disabled {
+    color: gray;
+}
+
+#faceted_tracksel .facetSelect .facetValue.disabled {
+    display: none;
+}
+#faceted_tracksel .facetSelect .facetValue.disabled.selected {
+    display: table-row;
+}
+
+.tundra #faceted_tracksel .facetSelect .facetValue:hover {
+    background: #D2E1F1;
+}
+
+#faceted_tracksel .facetSelect .facetValue .count {
+    padding: 0 0.7em 0 0.4em;
+    color: #333;
+    text-align: right;
+}
+#faceted_tracksel .facetSelect .facetValue .value {
+    width: 80%;
+}
+
+#faceted_tracksel .facetSelect .selected {
+    background: #b1d3f6;
+}
+.tundra #faceted_tracksel .facetSelect .facetValue.selected,
+.tundra #faceted_tracksel .facetSelect .facetValue.selected:hover {
+    background: #AEC7E3;
+}
+
+
+#faceted_tracksel .dijitContentPane{
+    padding: 0;
+}
+#faceted_tracksel .dijitTitlePane .dijitTitlePaneTitle {
+    padding: 0;
+}
+#faceted_tracksel .dijitTitlePaneTitleFocus {
+    position: relative;
+}
+.tundra #faceted_tracksel .dijitTitlePaneTitleFocus {
+    border-top: 3px solid transparent;
+    padding: 2px 2px 2px 0.6em;
+    color: #1B3047
+}
+#faceted_tracksel .dijitOpen .facetTitle {
+    font-weight: bold;
+    color: black;
+}
+
+#faceted_tracksel .activeFacet .facetTitle {
+    font-weight: bold;
+    color: black;
+}
+.tundra #faceted_tracksel .activeFacet {
+    border-top: 3px solid #396494;
+    background-color: #AEC7E3;
+}
+
+#faceted_tracksel .facetTitle a {
+    position: absolute;
+    top: 2px;
+    right: -4px;
+    visibility: hidden;
+}
+#faceted_tracksel .activeFacet a.clearFacet {
+    visibility: visible;
+    padding: 1px 6px;
+}
+
+#faceted_tracksel .dijitTitlePaneContentInner {
+    padding: 0px;
+}
+
+
+/* styling specifically for the title of the first facet title, which is 'My Tracks' */
+.tundra #faceted_tracksel .myTracks .facetTitle:after {
+    content: url("../src/dijit/themes/tundra/images/circleIcon.png");
+    margin-left: 7px;
+}
+#faceted_tracksel .myTracks .facetTitle {
+    color: black;
+    font-weight: bold;
+    padding-bottom: 6px;
+}
+
+/* style the 'empty' and similar messages that show up in the grid master pane */
+#faceted_tracksel .dojoxGridMasterMessages {
+    font-size: 16px;
+}

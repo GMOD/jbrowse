@@ -22,8 +22,9 @@
                             'JBrowse'
                          ]
               },
-              ['JBrowse/Browser'],
-              function( Browser ) {
+              ['dojo/ready','JBrowse/Browser'],
+              function( ready,Browser ) {
+
       var jasmineEnv = jasmine.getEnv();
       jasmineEnv.updateInterval = 1000;
 
@@ -34,16 +35,7 @@
       jasmineEnv.specFilter = function(spec) {
         return htmlReporter.specFilter(spec);
       };
-
-      var currentWindowOnload = window.onload;
-
-      window.onload = function() {
-        if (currentWindowOnload) {
-          currentWindowOnload();
-        }
-        execJasmine();
-      };
-
+      ready( function() {execJasmine();});
       function execJasmine() {
         jasmineEnv.execute();
       }
@@ -68,8 +60,11 @@
   <script type="text/javascript" src="spec/RegularizeRefSeqs.spec.js"></script>
   <script type="text/javascript" src="spec/GFF3.spec.js"></script>
   <script type="text/javascript" src="spec/SPARQLStore.spec.js"></script>
-  <script type="text/javascript" src="spec/SequenceChunkStore.spec.js"></script
-  <script type="text/javascript" src="spec/VCF.spec.js"></script
+  <script type="text/javascript" src="spec/SequenceChunkStore.spec.js"></script>
+  <script type="text/javascript" src="spec/GFF3Tabix.spec.js"></script>
+
+  <!--<script type="text/javascript" src="spec/VCF.spec.js"></script>-->
+
 
 </head>
 

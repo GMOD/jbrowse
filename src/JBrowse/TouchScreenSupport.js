@@ -18,7 +18,7 @@ Touch = {
 
         for (var i=0; i < nodes.length; i++) {
             samePos = j++;
-            var position = findPos(nodes[i]);
+            var position = Touch.findPos(nodes[i]);
             if(position.top > top) {
                 break;
             }
@@ -151,7 +151,7 @@ Touch = {
 
         if(objAvatar.length > 0) {
             if (nodes.length > 0) {
-                element = CompareObjPos(nodes,first);
+                element = Touch.CompareObjPos(nodes,first);
                 obj = nodes[element];
             }
             try {
@@ -181,47 +181,47 @@ Touch = {
         if(event.touches.length <= 1) {
 
 
-	    var touches = event.changedTouches,
-	    first = touches[0],
-	    type = "";
+            var touches = event.changedTouches,
+            first = touches[0],
+            type = "";
 
 
 
-	    switch(event.type)
-	    {
-	    case "touchstart":
-		startX = first.pageX;
-		type = "mousedown";
-		break;
+            switch(event.type)
+            {
+                case "touchstart":
+                startX = first.pageX;
+                type = "mousedown";
+                break;
 
-	    case "touchmove":
-		event.preventDefault();
-		type = "mousemove";
-		break;
+                case "touchmove":
+                event.preventDefault();
+                type = "mousemove";
+                break;
 
-	    case "touchend":
-		if (startX !==  first.pageX) {
-		    //slide ocurrs
-		    event.preventDefault();
-		}
-		type = "mouseup";
-		break;
-
-
-	    default:
-		return;
-	    }
+                case "touchend":
+                if (startX !==  first.pageX) {
+                    //slide ocurrs
+                    event.preventDefault();
+                }
+                type = "mouseup";
+                break;
 
 
-	    var simulatedEvent = document.createEvent("MouseEvent");
+                default:
+                return;
+            }
 
-	    simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY,
-					  false, false, false, false, 0/*left*/, null);
 
-	    first.target.dispatchEvent(simulatedEvent);
+            var simulatedEvent = document.createEvent("MouseEvent");
 
-	}
-	else {
+            simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY,
+                          false, false, false, false, 0/*left*/, null);
+
+            first.target.dispatchEvent(simulatedEvent);
+
+        }
+        else {
             Touch.removeTouchEvents();
         }
     },
@@ -256,8 +256,8 @@ Touch = {
         objP = {};
 
         if (obj.offsetParent) {
-	    do {
-		curtop += obj.offsetTop;
+        do {
+        curtop += obj.offsetTop;
             } while ((obj = obj.offsetParent));
         }
 

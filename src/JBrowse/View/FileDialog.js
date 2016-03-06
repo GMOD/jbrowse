@@ -2,45 +2,45 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/aspect',
+            'dojo/on',
             'dijit/focus',
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'dijit/Dialog',
-
             'dojox/form/Uploader',
             'dojox/form/uploader/plugins/IFrame',
-
             './FileDialog/TrackList/BAMDriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
             './FileDialog/TrackList/GTFDriver',
             './FileDialog/TrackList/VCFTabixDriver',
-
+            './FileDialog/TrackList/GFF3TabixDriver',
             './FileDialog/ResourceList',
-            './FileDialog/TrackList'
+            './FileDialog/TrackList',
+            'JBrowse/Util'
         ],
         function(
             declare,
             array,
             aspect,
+            on,
             dijitFocus,
             Button,
             RadioButton,
             dom,
             Dialog,
-
             Uploaded,
             IFramePlugin,
-
             BAMDriver,
             BigWigDriver,
             GFF3Driver,
             GTFDriver,
             VCFTabixDriver,
-
+            GFF3TabixDriver,
             ResourceList,
-            TrackList
+            TrackList,
+            Util
         ) {
 
 return declare( null, {
@@ -52,7 +52,7 @@ return declare( null, {
             dnd: 'draggable' in document.createElement('span')
         };
 
-        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver() ];
+        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver(), new GFF3TabixDriver() ];
     },
 
     addFileTypeDriver: function( d ) {
@@ -121,9 +121,23 @@ return declare( null, {
         var actionBar           = this._makeActionBar( args.openCallback, args.cancelCallback );
 
         // connect the local files control to the resource list
-        dojo.connect( localFilesControl.uploader, 'onChange', function() {
-            resourceListControl.addLocalFiles( localFilesControl.uploader._files );
-        });
+        if( !Util.isElectron() ) {
+            dojo.connect( localFilesControl.uploader, 'onChange', function() {
+                resourceListControl.addLocalFiles( localFilesControl.uploader._files );
+            });
+        }
+        else {
+            on( localFilesControl.uploader, 'click', function() {
+                var remote = electronRequire('remote');
+                var app = remote.require('app');
+                var dialog = remote.require('dialog');
+                var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
+                if( ret ) {
+                    var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });
+                    resourceListControl.addURLs( paths );
+                }
+            });
+        }
 
         // connect the remote URLs control to the resource list
         dojo.connect( remoteURLsControl, 'onChange', function( urls ) {
@@ -142,7 +156,7 @@ return declare( null, {
             return d;
         };
         var content = [
-                dom.create( 'div', { className: 'intro', innerHTML: 'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.' } ),
+                dom.create( 'div', { className: 'intro', innerHTML: args.introMsg||'Add any combination of data files and URLs, and JBrowse will automatically suggest tracks to display their contents.' } ),
                 div( { className: 'resourceControls' },
                      [ localFilesControl.domNode, remoteURLsControl.domNode ]
                    ),
@@ -165,24 +179,30 @@ return declare( null, {
         dom.create('h3', { innerHTML: 'Local files' }, container );
 
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
-
-        var fileBox = new dojox.form.Uploader({
-            multiple: true
-        });
-        fileBox.placeAt( dragArea );
-
-        if( this.browserSupports.dnd ) {
-            // let the uploader process any files dragged into the dialog
-            fileBox.addDropTarget( this.dialog.domNode );
-
-            // add a message saying you can drag files in
-            dom.create(
-                'div', {
-                    className: 'dragMessage',
-                    innerHTML: 'Select or drag files here.'
-                }, dragArea
-            );
+        var fileBox;
+        if( Util.isElectron() ) {
+            fileBox = dom.create('input', { type: 'button', value: 'Select files...', id: 'openFile' }, dragArea );
         }
+        else {
+            fileBox = new dojox.form.Uploader({
+                multiple: true
+            });
+            fileBox.placeAt( dragArea );
+            if( this.browserSupports.dnd ) {
+                // let the uploader process any files dragged into the dialog
+                fileBox.addDropTarget( this.dialog.domNode );
+
+                // add a message saying you can drag files in
+                dom.create(
+                    'div', {
+                        className: 'dragMessage',
+                        innerHTML: 'Select or drag files here.'
+                    }, dragArea
+                );
+            }
+        }
+
+
 
         // little elements used to show pipeline-like connections between the controls
         dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );
@@ -217,7 +237,7 @@ return declare( null, {
             var urls = text.length ? text.split( /\s+/ ) : [];
             self.onChange( urls );
         };
-        // watch the input text for changes.  just do it every 700ms
+        // watch the input text for changes.  just do it every 900ms
         // because there are many ways that text can get changed (like
         // pasting), not all of which fire the same events.  not using
         // the onchange event, because that doesn't fire until the

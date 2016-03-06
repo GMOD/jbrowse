@@ -1,9 +1,13 @@
 require([
             'dojo/aspect',
+            'dojo/_base/declare',
+            'dojo/_base/array',
             'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/BAM',
-            'JBrowse/Model/XHRBlob'
-        ], function( aspect, Browser, BAMStore, XHRBlob ) {
+            'JBrowse/Model/XHRBlob',
+            'JBrowse/Store/SeqFeature/_MismatchesMixin',
+            'JBrowse/Model/SimpleFeature'
+        ], function( aspect, declare, array, Browser, BAMStore, XHRBlob, MismatchesMixin, SimpleFeature ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -12,6 +16,33 @@ require([
 //     });
 //     return bins;
 // }
+
+
+describe( 'BAM mismatches test', function() {
+              var feature=new SimpleFeature({data: {
+                start: 7903922,
+                length: 90,
+                cigar: "89M2741N1M",
+                md: "89A0",
+                seq: "TACTTGATAAATCAGCTCACTCTCTGGTGCTTTTTAGAGAAGTCCCTGATTCCTTCTTAAACTTGGAATGATAGATGAAATTCACACCCG"
+              }});
+
+              //Config workaround since we aren't directly instantiating anything with Browser/config
+              var Config=declare(null, {
+                  constructor: function() {
+                      this.config={};
+                  }
+              });
+              //Use Config workaround
+              var MismatchParser=declare([Config,MismatchesMixin]);
+
+
+              it('getMismatches test', function() {
+                  var parser=new MismatchParser();
+                  var obj=parser._getMismatches(feature);
+                  expect(obj[1].base=="G" && obj[1].length==1&&obj[1].start==2830&&obj[1].type=="mismatch").toBeTruthy();
+              });
+});
 
 describe( 'BAM with volvox-sorted.bam', function() {
               var b;
@@ -48,6 +79,7 @@ describe( 'BAM with volvox-sorted.bam', function() {
                                 expect(features.length).toBeGreaterThan(1000);
                             });
                   });
+
 });
 
 describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', function() {
@@ -86,6 +118,28 @@ describe( 'BAM with test_deletion_2_0.snps.bwa_align.sorted.grouped.bam', functi
                                 //console.log( distinctBins(features) );
                             });
                   });
+
+              it( 'check that seqlength == seq.length', function() {
+                      var loaded;
+                      var features = [];
+                      var done;
+                      aspect.after( b, 'loadSuccess', function() {
+                          loaded = true;
+                      });
+                      b.getFeatures({ start: 17000, end: 18000 },
+                                 function( feature ) {
+                                     features.push( feature );
+                                 },
+                                 function() {
+                                     done = true;
+                                 }
+                               );
+                      waitsFor( function() { return done; }, 2000 );
+                      runs( function() {
+                                expect(array.every(features,function(feature) { return feature.get('seq_length')== feature.get('seq').length; })).toBeTruthy();
+                            });
+                  });
+
 });
 
 describe( 'empty BAM', function() {

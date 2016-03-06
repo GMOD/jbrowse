@@ -36,19 +36,14 @@ opSpan: function(op, span1, span2, query) {
     switch (op) {
         case "&" :
             return this.andSpan(span1, span2);
-            break;
         case "U" :
             return this.orSpan(span1, span2);
-            break;
         case "X" :
             return this.andSpan(this.orSpan(span1, span2), this.notSpan(this.andSpan(span1, span2), query));
-            break;
         case "S" :
             return this.andSpan( span1, this.notSpan(span2, query) );
-            break;
         default :
             console.error("Invalid boolean operation: "+op);
-            break;
     }
     return undefined;
 },
@@ -60,7 +55,7 @@ toSpan: function(features, query) {
 
     // Splits the spans based on which strand they're on, and remove overlap from each strand's spans, recombining at the end.
     return this._removeOverlap(this._strandFilter(rawSpans, +1)).concat(this._removeOverlap(this._strandFilter(rawSpans, -1)));
-    
+
 },
 
 _rawToSpan: function( features, query ) {
@@ -69,7 +64,7 @@ _rawToSpan: function( features, query ) {
     var spans = [];
     for (var feature in features) {
         if (features.hasOwnProperty(feature)) {
-            spans.push( { start: features[feature].get('start'), //Math.max( features[feature].get('start'), query.start ), 
+            spans.push( { start: features[feature].get('start'), //Math.max( features[feature].get('start'), query.start ),
                           end:   features[feature].get('end'), //Math.min( features[feature].get('end'),   query.end   ),
                           strand: features[feature].get('strand') } );
         }    }
@@ -96,7 +91,7 @@ _removeOverlap: function( spans ) {
     }
     spans.sort(function(a,b) { return a.start - b.start; });
     return this._removeOverlapSorted(spans);
-    
+
 },
 
 // Given an array of spans sorted by their start bp, converts them into a single non-overlapping set (ie takes their union).
@@ -169,7 +164,7 @@ _computeIntersection: function( span1, span2) {
 
     var allSpans = this._sortedArrayMerge(span1, span2);
     var retSpans = [];
-    
+
     var maxEnd = allSpans[0].end;
     var strand = span1[0].strand; // Assumes both span sets contain only features for one specific strand
     var i = 1;
@@ -188,7 +183,7 @@ _computeIntersection: function( span1, span2) {
 
 // Filters span set by strand, inverts the sets represented on each strand, and recombines.
 notSpan: function( spans, query) {
-    return this._rawNotSpan(this._strandFilter(spans, +1), query, +1).concat(this._rawNotSpan(this._strandFilter(spans, -1), query, -1)); 
+    return this._rawNotSpan(this._strandFilter(spans, +1), query, +1).concat(this._rawNotSpan(this._strandFilter(spans, -1), query, -1));
 },
 
 // Converts a set of spans into its complement in the reference sequence.
@@ -196,7 +191,7 @@ _rawNotSpan: function( spans, query, strand ) {
     var invSpan = [];
     invSpan[0] = { start: query.start };
     var i = 0;
-    for (span in spans) {
+    for (var span in spans) {
         if (spans.hasOwnProperty(span)) {
             span = spans[span];
             invSpan[i].strand = strand;

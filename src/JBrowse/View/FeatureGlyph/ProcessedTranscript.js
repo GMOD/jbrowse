@@ -18,7 +18,6 @@ define([
        ) {
 
 return declare( SegmentsGlyph, {
-
 _defaultConfig: function() {
     return this._mergeConfigs(
         this.inherited(arguments),
@@ -100,9 +99,9 @@ _makeUTRs: function( parent, subparts ) {
                                   {   parent: parent,
                                       data: {
                                           start: start,
-		                          end: end,
-		                          strand: strand,
-		                          type: strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR'
+                                          end: end,
+                                          strand: strand,
+                                          type: strand >= 0 ? 'five_prime_UTR' : 'three_prime_UTR'
                                       }}));
         }
 
@@ -117,9 +116,9 @@ _makeUTRs: function( parent, subparts ) {
                                { parent: parent,
                                  data: {
                                      start: start,
-		                     end: end,
-		                     strand: strand,
-		                     type: strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR'
+                                     end: end,
+                                     strand: strand,
+                                     type: strand >= 0 ? 'three_prime_UTR' : 'five_prime_UTR'
                                  }}));
         }
 
@@ -136,8 +135,9 @@ _isUTR: function( feature ) {
 
 getStyle: function( feature, name ) {
     if( name == 'color' ) {
-        if( this._isUTR( feature ) )
+        if( this._isUTR( feature ) ) {
             return this.getStyle( feature, 'utrColor' );
+        }
     }
 
     return this.inherited(arguments);

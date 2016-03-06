@@ -28,6 +28,9 @@ my $pos_color = undef;
 my $neg_color = undef;
 my $min_score = undef;
 my $max_score = undef;
+my $clip_marker_color = undef;
+my $bg_color = undef;
+my $height = undef;
 
 parse_options();
 add_bw_track();
@@ -44,8 +47,11 @@ sub parse_options {
 		   "pos_color|c=s"	=> \$pos_color,
 		   "neg_color|C=s"	=> \$neg_color,
 		   "min_score|s=i"	=> \$min_score,
-		   "max_score|S=i"	=> \$max_score,
-		   "help|h"		=> \$help);
+		   "max_score|S=i"      => \$max_score,
+                   "clip_marker_color|M=s"  => \$clip_marker_color,
+                   "bg_color|B=s"           => \$bg_color,
+                   "height|H=s"             => \$height,		   
+                   "help|h"		=> \$help);
 	pod2usage( -verbose => 2 ) if $help;
 	pod2usage( "Missing label option" ) if !$label;
 	pod2usage( "Missing bw_url option" ) if !$bw_url;
@@ -132,6 +138,24 @@ sub add_bw_track {
 	else {
 		delete $bw_entry->{style}->{neg_color};
 	}
+	if ($clip_marker_color) {
+		$bw_entry->{style}->{clip_marker_color} = $clip_marker_color;
+	}
+	else {
+		delete $bw_entry->{style}->{clip_marker_color};
+	}
+	if ($bg_color) {
+		$bw_entry->{style}->{bg_color} = $bg_color;
+	}
+	else {
+		delete $bw_entry->{style}->{bg_color};
+	}
+	if ($height) {
+		$bw_entry->{style}->{height} = $height;
+	}
+	else {
+		delete $bw_entry->{style}->{height};
+	}
 	delete $bw_entry->{style} if !scalar(keys %{$bw_entry->{style}});
 	my $out;
 	$out = new IO::File($out_file, "w") or
@@ -159,13 +183,13 @@ __END__
 
 =head1 NAME
 
-add_bw_track.pl - add track configuration snippet(s) for BAM track(s)
+add-bw-track.pl - add track configuration snippet(s) for BAM track(s)
 
 =cut
 
 =head1 USAGE
 
-  add_bw_track.pl
+  add-bw-track.pl
 	[ --in <input_trackList.json> ]                    \
 	[ --out <output_trackList.json> ]                  \
 	--label <track_label>                              \
@@ -177,6 +201,9 @@ add_bw_track.pl - add track configuration snippet(s) for BAM track(s)
 	[ --neg_color <color_for_negative_side_of_pivot> ] \
 	[ --min_score <min_score> ]                        \
 	[ --max_score <max_score> ]                        \
+        [ --clip_marker_color <color> ]                    \
+        [ --bg_color <color> ]                             \
+        [ --height <value> ]                               \
 	[ -h|--help ]
 
 =head1 ARGUMENTS
@@ -239,6 +266,18 @@ optional minimum score to be graphed
 =item --max_score <score>
 
 optional maximum score to be graphed
+
+=item --clip_marker_color <color>
+
+optional clip marker color
+
+=item --bg_color <color>
+
+optional background color
+
+=item --height <value>
+
+optional height
 
 =back
 

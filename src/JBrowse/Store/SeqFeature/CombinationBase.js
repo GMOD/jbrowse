@@ -114,7 +114,7 @@ _getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     var thisB = this;
     if(this.stores.length == 1) {
         this.stores[0].getFeatures( query, featCallback, doneCallback, errorCallback);
-        return; 
+        return;
     }
 
     if(this.regionLoaded) {

@@ -277,8 +277,7 @@ return declare( null, {
                           + "currently-visible reference sequence" );
             return;
         }
-
-        require( ['JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
+        require( [format.match(/\//)?format:'JBrowse/View/Export/'+format], dojo.hitch(this,function( exportDriver ) {
             new exportDriver({
                 refSeq: this.refSeq,
                 track: this,

@@ -11,7 +11,6 @@ define( [
             'dojo/dom-construct',
             'dojo/Deferred',
             'dojo/on',
-
             'JBrowse/has',
             'JBrowse/Util',
             'JBrowse/View/GranularRectLayout',
@@ -33,7 +32,6 @@ define( [
             domConstruct,
             Deferred,
             on,
-
             has,
             Util,
             Layout,
@@ -362,7 +360,7 @@ return declare(
             basesPerBin: basesPerBin
         };
 
-        if( this.store.getRegionFeatureDensities ) {
+        if( !this.config.histograms.store&&this.store.getRegionFeatureDensities ) {
             this.store.getRegionFeatureDensities(
                 query,
                 lang.hitch( this, '_drawHistograms', args )

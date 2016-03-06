@@ -140,7 +140,7 @@ constructor: function( args ) {
         };
 
     // Each store becomes associated with the name of a track that uses that store, so that users can read more easily.
-    if(!this.config.storeToKey) 
+    if(!this.config.storeToKey)
       this.config.storeToKey = {};
 
     // Shows which track or store types qualify as set-based, quantitative, etc.
@@ -281,7 +281,7 @@ _attachDndEvents: function() {
 
     // Further restricts what categories of tracks may be added to this track
     // Should re-examine this
-    
+
      var oldCheckAcceptance = this.dnd.checkAcceptance;
      this.dnd.checkAcceptance = function(source, nodes) {
        // If the original acceptance checker fails, this one will too.
@@ -450,7 +450,7 @@ _adjustStores: function ( store, oldType, currType, storeName, maskStoreName, di
         this.store.reload( this.opTree, this.maskStore, this.displayStore );
         d.resolve( true );
     } else if( currType == "mask" || this.opTree.get( ) == "M" || this.opTree.get( ) == "N" ) {
-        var haveMaskStore = this._createStore( "set", maskStoreName ); 
+        var haveMaskStore = this._createStore( "set", maskStoreName );
         haveMaskStore.then( dojo.hitch( this, function( newstore ) {
                                                                    this.maskStore = newstore;
                                                                    this.maskStore.reload( this.opTree.leftChild );
@@ -486,7 +486,7 @@ createStore: function( storeName ) {
                // All stores are now in place.  Make sure the operation tree of the store matches that of this track,
                // and then we can render the results track.
                thisB.store = store;
-               thisB.store.reload( thisB.opTree, thisB.maskStore, thisB.displayStore ); 
+               thisB.store.reload( thisB.opTree, thisB.maskStore, thisB.displayStore );
                thisB.renderResultsTrack();
            });
 },
@@ -512,7 +512,7 @@ _storeConfig: function( storeType ) {
         storeType = this.storeType;
     var storeClass = this.trackClasses[storeType].store;
     this.config.storeClass = storeClass;
-    
+
     var op = this.trackClasses[storeType].defaultOp;
     return  {
         browser: this.browser,
@@ -829,7 +829,7 @@ getClassIndex: function(type) {
 
 // Adds options to the track context menu
 _trackMenuOptions: function() {
-    
+
     // Allows the combination track to "mimic" the menu options of its results track
     var resultsTrackOptions = ( this.resultsTrackMenuOptions || function() { return undefined; } ).call( this.resultsTrack );
     resultsTrackOptions = resultsTrackOptions || [];
@@ -921,7 +921,7 @@ _trackMenuOptions: function() {
                action: function() {
                    var formulaDialog = new Dialog({title: "View Formula"});
                    var content = [];
-                   var formulaDiv = dom.create("div", 
+                   var formulaDiv = dom.create("div",
                         {innerHTML: "No operation formula defined", className: "formulaPreview"});
                    content.push(formulaDiv);
                    if(combTrack.opTree) {
@@ -1000,8 +1000,8 @@ flatten: function(tree) {
 
 loadTree: function(tree) {
     var d = new Deferred();
-    var haveLeft = undefined;
-    var haveRight = undefined;
+    var haveLeft;
+    var haveRight;
     var thisB = this;
 
     if(!tree) {

@@ -55,14 +55,17 @@ echo -n "Formatting Volvox example data ...";
     cat docs/tutorial/data_files/volvox_fromconfig.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.gff3.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.gtf.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox.sort.gff3.gz.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/bookmarks.conf >> sample_data/json/volvox/tracks.conf
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
+    bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
-    if [ -d sample_data/json/modencode ]; then
-        mkdir -p sample_data/json/modencode/tracks;
-        ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;
-    fi;
+    if [ -d sample_data/json/modencode ]; then		
+            mkdir -p sample_data/json/modencode/tracks;		
+            ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;		
+    fi;    
     mkdir -p sample_data/raw;
     if [ ! -e sample_data/raw/volvox ]; then
         ln -s ../../docs/tutorial/data_files sample_data/raw/volvox;
@@ -85,6 +88,7 @@ echo -n "Formatting Yeast example data ...";
     gunzip -c sample_data/raw/yeast_scaffolds/chr1.fa.gz sample_data/raw/yeast_scaffolds/chr2.fa.gzip > sample_data/raw/yeast_chr1+2/yeast.fa;
     bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
     bin/add-json.pl '{ "dataset_id": "yeast" }' sample_data/json/yeast/trackList.json
+    bin/add-json.pl '{ "dataset_id": "yeast",  "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/yeast/trackList.json
     bin/generate-names.pl --dir sample_data/json/yeast/;
 ) >>setup.log 2>&1
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
@@ -131,9 +135,9 @@ echo -n "Building and installing legacy bam-to-json.pl support (superseded by di
         fi
         echo "samtools in env at '$SAMTOOLS'";
         set +e;
-        bin/cpanm -v -l extlib Bio::DB::Sam;
+        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
         set -e;
-        bin/cpanm -v -l extlib Bio::DB::Sam;
+        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
     fi
 
     bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Legacy BAM - volvox-sorted.bam" --cssClass basic --metadata '{"category": "BAM"}' --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;

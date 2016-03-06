@@ -33,6 +33,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 hideMissingMatepairs: false,
                 hideForwardStrand: false,
                 hideReverseStrand: false,
+                useXS: false,
+                useReverseTemplate: false,
+                useXSOption: true,
+                useReverseTemplateOption: true,
 
                 histograms: {
                     description: 'coverage depth',
@@ -103,7 +107,32 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+        var track=this;
+        var displayOptions=[];
+
+        if(this.config.useReverseTemplateOption) {
+            displayOptions.push({
+                label: 'Use reversed template',
+                type: 'dijit/CheckedMenuItem',
+                checked: this.config.useReverseTemplate,
+                onClick: function(event) {
+                    track.config.useReverseTemplate = this.get('checked');
+                    track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
+                }
+            });
+        }
+        if(this.config.useXSOption) {
+            displayOptions.push({
+                label: 'Use XS',
+                type: 'dijit/CheckedMenuItem',
+                checked: this.config.useXS,
+                onClick: function(event) {
+                    track.config.useXS = this.get('checked');
+                    track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
+                }
+            });
+        }
+        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );

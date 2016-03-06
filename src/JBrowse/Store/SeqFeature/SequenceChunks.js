@@ -48,8 +48,7 @@ return declare( SeqFeatureStore,
         if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
             refname = this.refSeq.name;
 
-        var chunkSize  = query.seqChunkSize
-            || refname == this.refSeq.name && this.refSeq.seqChunkSize
+        var chunkSize  = ( refname == this.refSeq.name && this.refSeq.seqChunkSize )
             || this.seqChunkSize
             || ( this.compress ? 80000 : 20000 );
 

@@ -100,6 +100,7 @@ return {
         var attrs = {};
         var attr_pat=/^\s*(.+)\s+"(.+)"/;
         array.forEach( attrString.split(';'), function( a ) {
+            var m;
             var nv = (m = attr_pat.exec(a)) ? m.slice(1) : [];
             //var nv = a.trim().replace(/\"+|\'+/g,'').split(/\s+/,2);
             if( !( nv[1] && nv[1].length ) )

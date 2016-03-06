@@ -3,10 +3,27 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>JBrowse</title>
-    <link rel="stylesheet" type="text/css" href="genome.css">
-    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
-    <script type="text/javascript" src="src/JBrowse/init.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/genome.css">
+</head>
+<body>
 
+    <script type="text/javascript">
+            // jshint unused: false
+            var dojoConfig = {
+                async: true,
+                baseUrl: './src',
+                has: {
+                    'host-node': false // Prevent dojo from being fooled by Electron
+                }
+            };
+            // Move Electron's require out before loading Dojo
+            if(window.process&&process.versions&&process.versions.electron) {
+                window.electronRequire = require;
+                delete window.require;
+            }
+    </script>
+    <script type="text/javascript" src="src/dojo/dojo.js"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
     <script type="text/javascript">
         window.onerror=function(msg){
             if( document.body )
@@ -45,7 +62,11 @@
                        show_nav: queryParams.nav,
                        show_tracklist: queryParams.tracklist,
                        show_overview: queryParams.overview,
+                       show_menu: queryParams.menu,
+                       show_tracklabels: queryParams.tracklabels,
+                       highResolutionMode: queryParams.highres,
                        stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
+                       bookmarks: { },
                        makeFullViewURL: function( browser ) {
 
                            // the URL for the 'Full view' link
@@ -69,6 +90,11 @@
                    // configuration
                    if( queryParams.addTracks ) {
                        config.tracks = JSON.parse( queryParams.addTracks );
+                   }
+
+                   // if there is ?addBookmarks, add those to configuration
+                   if( queryParams.addBookmarks ) {
+                       config.bookmarks.features = JSON.parse( queryParams.addBookmarks );
                    }
 
                    // if there is ?addStores in the query params, add

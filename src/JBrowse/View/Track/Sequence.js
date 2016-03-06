@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/_base/lang',
             'dojo/dom-construct',
             'dojo/dom-class',
             'dojo/query',
@@ -12,6 +13,7 @@ define( [
         function(
             declare,
             array,
+            lang,
             dom,
             domClass,
             query,
@@ -21,7 +23,7 @@ define( [
             Util
         ) {
 
-return declare( [BlockBased, ExportMixin],
+return declare( [BlockBased, ExportMixin, CodonTable],
  /**
   * @lends JBrowse.View.Track.Sequence.prototype
   */
@@ -35,6 +37,9 @@ return declare( [BlockBased, ExportMixin],
      */
     constructor: function( args ) {
         this._charMeasurements = {};
+        this._codonTable = this.generateCodonTable(lang.mixin(this.defaultCodonTable,this.config.codonTable));
+        this._codonStarts = this.config.codonStarts || this.defaultStarts
+        this._codonStops = this.config.codonStops || this.defaultStops
     },
 
     _defaultConfig: function() {
@@ -42,7 +47,9 @@ return declare( [BlockBased, ExportMixin],
             maxExportSpan: 500000,
             showForwardStrand: true,
             showReverseStrand: true,
-            showTranslation: true 
+            showTranslation: true,
+            seqType: 'dna',
+            proteinColorScheme: 'taylor'
         };
     },
     _exportFormats: function() {
@@ -88,29 +95,30 @@ return declare( [BlockBased, ExportMixin],
             this.store.getReferenceSequence(
                 {
                     ref: this.refSeq.name,
-                    seqChunkSize: this.refSeq.seqChunkSize,
                     start: leftExtended,
                     end: rightExtended
                 },
                 function( seq ) {
-		    if(seq.trim() == ""){
-			blur.innerHTML = '<span class="zoom">No sequence available</span>';;
-		    }
-                    else {
-			dom.empty( block.domNode );
-			thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                    if(seq.trim() == ""){
+                        blur.innerHTML = '<span class="zoom">No sequence available</span>';;
                     }
+                    else {
+                        dom.empty( block.domNode );
+                        thisB._fillSequenceBlock( block, blockIndex, scale, seq );
+                    }
+                    args.finishCallback();
                 },
-                function() {}
+                function() {
+                    args.finishCallback();
+                }
             );
         }
         // otherwise, just draw a sort of line (possibly dotted) that
         // suggests there are bases there if you zoom in far enough
         else {
             blur.innerHTML = '<span class="zoom">Zoom in to see sequence</span>';
+            args.finishCallback();
         }
-
-        args.finishCallback();
     },
 
     _fillSequenceBlock: function( block, blockIndex, scale, seq ) {
@@ -143,9 +151,10 @@ return declare( [BlockBased, ExportMixin],
         // make a table to contain the sequences
         var charSize = this.getCharacterMeasurements('sequence');
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
+        var seqNode;
 
         if( this.config.showReverseStrand || this.config.showForwardStrand )
-            var seqNode = dom.create(
+            seqNode = dom.create(
                 "table", {
                     className: "sequence" + (bigTiles ? ' big' : ''),
                     style: { width: "100%" }
@@ -192,11 +201,12 @@ return declare( [BlockBased, ExportMixin],
         var translated = "";
         for( var i = 0; i < seqSliced.length; i += 3 ) {
             var nextCodon = seqSliced.slice(i, i + 3);
-            var aminoAcid = CodonTable[nextCodon] || this.nbsp;
-            translated = translated + aminoAcid;
+            var aminoAcid = this._codonTable[nextCodon] || this.nbsp;
+            translated += aminoAcid;
         }
 
         translated = reverse ? translated.split("").reverse().join("") : translated; // Flip the translated seq for left-to-right rendering
+        var orientedSeqSliced = reverse ? seqSliced.split("").reverse().join("") : seqSliced
 
         var charSize = this.getCharacterMeasurements("aminoAcid");
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
@@ -227,7 +237,18 @@ return declare( [BlockBased, ExportMixin],
 
         for( var i=0; i<translated.length; i++ ) {
             var aminoAcidSpan = document.createElement('td');
+            var originalCodon = orientedSeqSliced.slice(3 * i, 3 * i + 3)
+            originalCodon = reverse ? originalCodon.split("").reverse().join("") : originalCodon;
             aminoAcidSpan.className = 'aminoAcid aminoAcid_'+translated.charAt(i).toLowerCase();
+
+            // However, if it's known to be a start/stop, apply those CSS classes instead.
+            if (this._codonStarts.indexOf(originalCodon.toUpperCase()) != -1) {
+                aminoAcidSpan.className = 'aminoAcid aminoAcid_start'
+            }
+            if (this._codonStops.indexOf(originalCodon.toUpperCase()) != -1) {
+                aminoAcidSpan.className = 'aminoAcid aminoAcid_stop'
+            }
+
             aminoAcidSpan.style.width = charWidth;
             if( drawChars ) {
                 aminoAcidSpan.innerHTML = translated.charAt( i );
@@ -248,9 +269,13 @@ return declare( [BlockBased, ExportMixin],
         var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
+        var baseClassDefault = 'base';
+        if(this.config.seqType === 'protein'){
+            baseClassDefault += ' aaScheme_' + this.config.proteinColorScheme;
+        }
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('td');
-            base.className = 'base base_'+seq.charAt(i).toLowerCase();
+            base.className = baseClassDefault + ' base_'+seq.charAt(i).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
                 base.innerHTML = seq.charAt(i);

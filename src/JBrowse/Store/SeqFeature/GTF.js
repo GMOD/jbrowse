@@ -211,6 +211,12 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         this._deferred.features.then( function() {
             callback( thisB.browser.regularizeReferenceName( seqName ) in thisB.refSeqs );
         });
+    },
+
+    saveStore: function() {
+        return {
+            urlTemplate: this.config.blob.url
+        };
     }
 
 });

@@ -1,5 +1,130 @@
 {{$NEXT}}
 
+
+## Minor improvements
+
+  * Add the ability to load tabix indexed GFF files. Thanks to
+    Colin Diesh for the implementation (#670).
+
+  * Add ability to access SPARQL stores that reject CORS requests
+    to access sites like WikiData. Thanks to the WebApollo hackathon
+    for the ideas (#679).
+
+  * Add extra coloring schemes for the Sequence track when using
+    protein residues. Thanks to Eric Rasche for the idea and
+    implementation (#673).
+
+  * Add ability to specify custom exporter classes for the "Save track
+    data" option, for example, adding exporter code in plugins (#682).
+
+  * Bump to using dojo 1.8.10, which re-enables touch scrolling on
+    newer iOS 8+ (#666).
+
+  * Add a timer for the feature statistics calculation (#663).
+
+  * Add an option to specify multiple highlights, or bookmarks,
+    using the config file, a remote service, or the URL bar (#668).
+
+## Bug fixes
+
+  * Fix error where the sequence track would not load after "Open
+    sequence file"
+
+  * Revert to standard eukaryotic codon set
+
+  * Fix issue where saving session overwrote the plugins that were
+    loaded
+
+  * Fix an error if there were numerical values being used as label
+    or description for the CanvasFeatures type tracks. Thanks to
+    Eric Rasche for reporting (#673).
+
+# Release 1.12.0     2015-12-18 17:40:39 America/Los_Angeles
+
+## New features
+
+ * Added ability to open a new genome in FASTA format from the
+   browser.  Also supports indexed FASTA. Thanks to Bradford Powell
+   for the original indexed FASTA contribution (issue #495,
+   issue #647).
+
+ * Support for inline reference sequence configurations.
+
+ * Created stand-alone desktop version of JBrowse using the Electron
+   platform for OSX, Windows, Linux (issue #647).
+
+## New plugins
+
+ * NeatHTMLFeatures - Add the drawing of introns and gradient features
+   to HTML tracks.
+
+ * NeatCanvasFeatures - Add the drawing of introns and gradient
+   features to Canvas tracks.
+
+ * CategoryUrl - Implements a cat= URL option to display tracks for a
+   given category (issue #618).
+
+ * DebugEvents - a plugin to display global publish and milestone
+   events on the debug console.
+
+ * HideTrackLabels - Adds a toolbar button to toggle the display of
+   track labels on and off (issue #614).
+
+## Minor improvements
+
+ * Added new menu format to support loading your own genome. The open
+   genome option can be hidden via `hideGenomeOption` in config, and
+   the classic menu style can be restored via `classicMenu` in config.
+
+ * Added ability to load custom histograms for tracks loaded from
+   flatfile-to-json.pl (i.e. override a pre-existing histogram store).
+   See (issue #612).
+
+ * Added these options to add-bw-track.pl --clip_marker_color <color>,
+   --bg_color <color>, --height <value> (issue #510).
+
+ * Added an option for Wiggle tracks, scoreType: 'avgValue', which
+   helps preserve continuity when zooming in on certain tracks like
+   GC-content. It complements the scoreType: 'maxValue' introduced in
+   1.11.6. Thanks to Han Lin for the pull request (issue #504).
+
+ * Clarify track filter box description and feature search box
+   "placeholder" text. (issue #611)
+
+ * Implement option to have a separate location box from search box
+   (issue #611, issue #652).
+
+ * Move CSS files into css folder.
+
+ * Added ability to specify the set of startCodons and stopCodons in
+   the config files. Thanks to Eric Rasche for the contribution (issue
+   #657)!
+
+## Bug fixes
+
+ * Add Travis-CI and jshint linting to build (issue #628).
+
+ * Fixed a bug where the BAM popup boxes would display some incorrect
+   info due to byte packing. Thanks to Thomas Downs for contributing
+   the fix.
+
+ * Fixed a bug where grid lines wouldn't render at some particular
+   zoom levels (issue #514).
+
+ * Fixed a bug where the user's --workdir parameter would be deleted
+   which could have unintended side effects if the --workdir was
+   pointing to important data, but this is uncommon (issue #563).
+
+ * Allow falsey values to be used in browser.cookie.
+ 
+ * Fix minor issue where sometimes the length field of refSeqs.json
+   was missing.
+
+ * Fix some issues that occurred when a reference sequence was named
+   '0' (issue #662, issue #610).
+
+# Release 1.11.6     2015-02-12 18:27:38 America/Chicago
+
 ## Minor improvements
 
  * Added the ability to customize the contents of HTMLFeatures and
@@ -7,10 +132,31 @@
    Muller for the original bug report and Colin Diesh for the fix
    (issue #480).
 
+ * Added new options for BigWig files to use min/max summary values
+   when zoomed out using `scoreType`. Thanks to Scott Cain for
+   reporting the issue and to Colin Diesh for the fix (issue #518).
+
+ * Added a checkbox for wiggle type tracks to have log scale. Thanks
+   to Han Lin for the pull request (issue #502).
+
+ * Added the ability to display paired-end reads in the same direction
+   on Alignments2 tracks with the "Use reverse template" option.
+   Thanks to Tomaz Berisa and Colin Diesh for their contributions
+   (issue #485).
+
+ * Added the ability to specify a codon table (or partial codon table)
+   for the Sequence track.
+
+ * Added the ability to show or hide the main menu bar using the
+   configuration file.
+
 ## Bug fixes
 
- * Fixed a small dialog box display issue for variants with "no call"
-   specified.
+ * Fixed "boolean is not a function" error when using CanvasFeatures
+   tracks with the Segments glyph in some situations.
+
+ * Fixed a dialog box display issue for VCF variants with "no call"
+   specified (issue #513).
 
  * Fixed loading files from certain filepaths with special characters.
    Thanks to Ben Bimber for reporting and helping diagnose the bug
@@ -19,17 +165,66 @@
  * Fixed popup-dialog callbacks not being called on BAM Alignments
    tracks in 1.11.5.
 
- * Fixed systemwide installations of JBrowse perl modules using
-   `perl Makefile.PL && make && make install` or `cpan .` but note
-   that most users will continue to employ setup.sh.
+ * Fixed systemwide installations of JBrowse perl modules when using
+   Module::Build.
 
  * Fixed a bug when displaying SNPs on hard clipped reads. Thanks
-   to Thon de Boer for the bug report and Colin Diesh for the fix
+   to Thon de Boer for the bug report and to Colin Diesh for the fix
    (issue #516).
 
- * Added a bugfix for VCF popup boxes that displayed function [values]
-   in the popup boxes in latest versions of Google Chrome
-   (issue #522).
+ * Fixed a bug when displaying SNPs on spliced alignments. Thanks
+   to GitHub user 09140930 for the bug report and to Colin Diesh for
+   the fix (issue #523).
+
+ * Fixed a bug that affected some VCF and GFF popup dialogs in some
+   browsers, particularly Chrome 38 (issue #522).
+
+ * Fixed a bug with the incremental indexing with generate-names
+   that associated the wrong track with the name store. Thanks to
+   Richard Hayes for reporting this issue and to Colin Diesh for the
+   fix (issue #526).
+
+ * Fixed the `--workdir` parameter in generate-names.pl (issue #506).
+
+ * Fixed the display of alternative alleles in the genotype for VCF
+   pop-ups (issue #533).
+
+ * Fixed an issue where some paired-end read data wouldn't display
+   properly if they had the same start position (issue #521).
+
+ * Output .htaccess file for generate-names.pl when using the compress
+   option. Thanks to Sebastien Carrere for reporting the bug
+   (issue #541).
+
+ * Fixed a small bug with being able to scroll past end of chromosome
+   when using the `--sizes` option to prepare-refseqs.pl (issue #535).
+
+ * Fixed a small internal code inconsistency with the positioning of
+   the vertical position line. Thanks to Anurag Priyam for the fix
+   (issue #545).
+
+ * Fixed a small bug with some stylesheets not being able to be used
+   for the CanvasFeatures coloring, for example, LESS stylesheets.
+   Thanks to Anurag Priyam for reporting the issue (issue #527).
+
+ * Fixed a small bug with mouseovers on Wiggle type tracks. Thanks
+   to Han Lin for finding and fixing this bug (issue #503).
+
+ * Removed XS tag from the strand calculation for alignments and made
+   it an optional rendering option for BAM files with the "Use XS"
+   option. Thanks to Kieran Raine and the pull request (issue #473).
+
+ * Added a bugfix that prevented viewing the details of haploid VCF
+   files. Thanks to Colin Diesh for finding and fixing this bug
+   (issue #536).
+
+ * Added a bugfix for an issue that made browsing very buggy when
+   using private browsing mode in Safari.
+
+ * Fixed the `shortDescription` option for the mouseover description
+   of tracks in the Hierarchical track list (issue #553).
+
+ * Re-added filter options that were missing for SNPCoverage tracks.
 
 # Release 1.11.5     2014-09-04 16:03:22 America/Chicago
 

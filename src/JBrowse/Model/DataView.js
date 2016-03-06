@@ -24,7 +24,7 @@ DataView.prototype.getUint64Approx = function( byteOffset, littleEndian ) {
     var result = b[0] * Math.pow(2,56) + b[1]*Math.pow(2,48) + b[2]*Math.pow(2,40) + b[3]*Math.pow(2,32) +  b[4]*Math.pow(2, 24) + (b[5]<<16) + (b[6]<<8) + b[7];
 
     if( b[0] || b[1]&224 ) {
-        result = new Number(result);
+        result = Number(result);
         result.overflow = true;
     }
 

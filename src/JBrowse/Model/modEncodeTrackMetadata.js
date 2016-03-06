@@ -1,8 +1,13 @@
 define( [
             'dojo/_base/declare',
-            'dojo/data/util/simpleFetch'
+            'dojo/data/util/simpleFetch',
+            'JBrowse/Util'
         ],
-       function( declare, simpleFetch ) {
+       function( declare, simpleFetch, Util ) {
+
+var dojof = Util.dojof;
+
+
 var M = declare( null,
 
 /**
@@ -78,9 +83,9 @@ var M = declare( null,
 
     getFeatures: function() {
         return {
-	    'dojo.data.api.Read': true,
-	    'dojo.data.api.Identity': true
-	};
+            'dojo.data.api.Read': true,
+            'dojo.data.api.Identity': true
+        };
     },
     close: function() {},
 

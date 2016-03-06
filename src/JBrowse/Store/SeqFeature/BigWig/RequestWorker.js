@@ -205,14 +205,14 @@ var RequestWorker = declare( null,
             var chromId =   data.getInt32();
             var start =     data.getInt32();
             var end =       data.getInt32();
-            var validCnt =  data.getInt32();
+            var validCnt =  data.getInt32()||1;
             var minVal    = data.getFloat32();
             var maxVal    = data.getFloat32();
             var sumData   = data.getFloat32();
             var sumSqData = data.getFloat32();
 
             if (chromId == this.chr) {
-                var summaryOpts = {score: sumData/validCnt};
+                var summaryOpts = {score: sumData/validCnt,maxScore: maxVal,minScore:minVal};
                 if (this.window.bwg.type == 'bigbed') {
                     summaryOpts.type = 'density';
                 }
@@ -311,7 +311,7 @@ var RequestWorker = declare( null,
                 var blockStarts = bedColumns[8].split(',');
 
                 featureOpts.type = 'bb-transcript';
-                var grp = new Feature();
+                var grp = new SimpleFeature();
                 grp.id = bedColumns[0];
                 grp.type = 'bb-transcript';
                 grp.notes = [];
@@ -320,7 +320,7 @@ var RequestWorker = declare( null,
                 if (bedColumns.length > 10) {
                     var geneId = bedColumns[9];
                     var geneName = bedColumns[10];
-                    var gg = new Feature();
+                    var gg = new SimpleFeature();
                     gg.id = geneId;
                     gg.label = geneName;
                     gg.type = 'gene';

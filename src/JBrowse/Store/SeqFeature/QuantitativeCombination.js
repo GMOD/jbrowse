@@ -79,7 +79,7 @@ opSpan: function(op, pseudosA, pseudosB, query) {
     // Critical values are the starts and ends of features for either set of spans.
     // nextCritical will iterate through all critical values.
     var nextCritical = pseudosA[i] ? (pseudosB[j] ? Math.min(pseudosA[i].start, pseudosB[j].start) : pseudosA[i].start) : pseudosB[j].start;
-    
+
     var inA;
     var inB;
 
@@ -87,14 +87,15 @@ opSpan: function(op, pseudosA, pseudosB, query) {
     while(i < pseudosA.length && j < pseudosB.length) {
         // Decide whether to add a span to the list at all - we don't add spans if the gap from this critical point to the
         // next critical point is not inside any feature.
-        if(nextCritical == pseudosA[i].start) 
+        if(nextCritical == pseudosA[i].start)
             inA = true;
-        if(nextCritical == pseudosB[j].start) 
+        if(nextCritical == pseudosB[j].start)
             inB = true;
         var addPseudo = inA || inB;
+        var newPseudo;
         // If we're inside at least one pseudo-feature, adds data for the current feature.
         if(addPseudo) {
-            var newPseudo = 
+            newPseudo =
             {
                 start: nextCritical,
                 score: this.applyOp(inA ? pseudosA[i].score : 0, inB ? pseudosB[j].score : 0, op)
@@ -113,17 +114,17 @@ opSpan: function(op, pseudosA, pseudosB, query) {
         // Fetches the next critical point (the next base pair greater than the current nextCritical value
         //    that is either the beginning or the end of a pseudo)
         var _possibleCriticals = [pseudosA[i].start, pseudosA[i].end, pseudosB[j].start, pseudosB[j].end];
-        
+
         _possibleCriticals = array.filter(_possibleCriticals, function(item) {
             return (item > nextCritical);
-        }).sort(function(a,b){ 
+        }).sort(function(a,b){
             return a-b;
         });
-        
+
         nextCritical = _possibleCriticals[0];
-        if(!nextCritical) 
+        if(!nextCritical)
             break;
-        
+
         // Determines whether the next pseudo to be created will use data from pseudosA or pseudosB or both
         if(nextCritical == pseudosA[i].end) {
             inA = false;
@@ -138,7 +139,7 @@ opSpan: function(op, pseudosA, pseudosB, query) {
         // If there is currently a pseudo-feature being built, adds it
         if(addPseudo) {
             newPseudo.end = nextCritical;
-            
+
             retPseudos.push(newPseudo);
         }
     }
@@ -170,7 +171,7 @@ toSpan: function(features, query) {
     // given a set of features, creates a set of pseudo-features with similar properties.
     var pseudos = [];
     for(var feature in features) {
-        var pseudo =    
+        var pseudo =
         {
             start: features[feature].get('start'),
             end: features[feature].get('end'),

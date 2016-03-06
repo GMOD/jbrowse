@@ -1,3 +1,5 @@
+[![Build status](https://travis-ci.org/GMOD/jbrowse.svg?branch=master)](https://travis-ci.org/GMOD/jbrowse)
+
 # Installing JBrowse
 
 Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install.
@@ -22,6 +24,23 @@ Make sure you have a web server installed on your development machine.  Any web 
     #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox
     # and you should see the volvox example data
 
+
+Then you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
+
+You can also optionally run build steps to create the minimized codebase
+
+    make -f build/Makefile release
+
+To build the Electron app, run the following
+
+    npm install -g electron-packager
+    make -f build/Makefile release-electron-all
+
+To run the Electron app in debug mode run the following
+
+    npm install
+    npm start
+
 # Running the developer test suites
 
 ## Server-side Perl
@@ -33,7 +52,11 @@ module prerequisites installed for them to work.  Run with:
 
 ## Client-side Unit Tests
 
-Point your browser at http://my.dev.machine/jbrowse/tests/js_tests/index.html
+Point your browser at `http://my.dev.machine/jbrowse/tests/js_tests/index.html`
+
+You can also run them from phantomJS using
+
+    phantomjs tests/js_tests/run-jasmine.js http://my.dev.machine/jbrowse/tests/js_tests/index.html
 
 ## Client-side Integration Tests
 
@@ -41,6 +64,7 @@ Integration tests for the client-side app.  You need to have Python
 eggs for `selenium` and `nose` installed.  Run the tests with:
 
     JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
+
 
 # Cutting a JBrowse release
 

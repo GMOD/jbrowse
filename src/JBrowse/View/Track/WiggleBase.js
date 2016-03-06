@@ -48,7 +48,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     _defaultConfig: function() {
         return {
             maxExportSpan: 500000,
-            autoscale: 'global'
+            autoscale: 'global',
+            logScaleOption: true
         };
     },
 
@@ -213,7 +214,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             dojo.create('canvas').getContext('2d').fillStyle = 'red';
         } catch( e ) {
             this.fatalError = 'This browser does not support HTML canvas elements.';
-            this.fillBlockError( blockIndex, block, this.fatalError );
+            this.fillBlockError( args.blockIndex, block, this.fatalError );
             return;
         }
 
@@ -232,14 +233,14 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                   width: has('inaccurate-html-width') ? "" : "100%",
                   "min-width": has('inaccurate-html-width')? "100%":"",
                   "max-width": has('inaccurate-html-width')? "102%":""
-                  
+
               },
               innerHTML: 'Your web browser cannot display this type of track.',
               className: 'canvas-track'
             },
             block.domNode
         );
-       
+
         var ctx = c.getContext('2d');
         var ratio=Util.getResolution(ctx, this.browser.config.highResolutionMode);
 
@@ -259,7 +260,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             // our canvas element
             ctx.scale(ratio, ratio);
         }
- 
+
         c.startBase = block.startBase;
         block.canvas = c;
 
@@ -285,6 +286,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 c.style.top = "0px";
                 break;
             case "bottom":
+                /* fall through */
             default:
                 c.style.bottom = this.trackPadding + "px";
                 break;
@@ -394,32 +396,71 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
     },
 
     _calculatePixelScores: function( canvasWidth, features, featureRects ) {
-        // make an array of the max score at each pixel on the canvas
+        var scoreType = this.config.scoreType;
         var pixelValues = new Array( canvasWidth );
-        dojo.forEach( features, function( f, i ) {
-            var store = f.source;
-            var fRect = featureRects[i];
-            var jEnd = fRect.r;
-            var score = f.get('score');
-            for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
-                if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
-                    /* Note: if the feature is from a different store, the condition should fail,
-                     *       and we will add to the value, rather than adjusting for overlap */
-                    pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+        if(!scoreType||scoreType=="maxScore") {
+            // make an array of the max score at each pixel on the canvas
+            dojo.forEach( features, function( f, i ) {
+                var store = f.source;
+                var fRect = featureRects[i];
+                var jEnd = fRect.r;
+                var score = f.get(scoreType)||f.get('score');
+                for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+                    if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                        /* Note: if the feature is from a different store, the condition should fail,
+                         *       and we will add to the value, rather than adjusting for overlap */
+                        pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+                    }
+                    else if ( pixelValues[j] ) {
+                        pixelValues[j]['score'] = pixelValues[j]['score'] + score;
+                        pixelValues[j]['lastUsedStore'] = store;
+                    }
+                    else {
+                        pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
+                    }
                 }
-                else if ( pixelValues[j] ) {
-                    pixelValues[j]['score'] = pixelValues[j]['score'] + score;
-                    pixelValues[j]['lastUsedStore'] = store;
-                }
-                else {
-                    pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
+            },this);
+            // when done looping through features, forget the store information.
+            for (var i=0; i<pixelValues.length; i++) {
+                if ( pixelValues[i] ) {
+                    delete pixelValues[i]['lastUsedStore'];
                 }
             }
-        },this);
-        // when done looping through features, forget the store information.
-        for (var i=0; i<pixelValues.length; i++) {
-            if ( pixelValues[i] ) {
-                delete pixelValues[i]['lastUsedStore'];
+        }
+        else if(scoreType=="avgScore") {
+            // make an array of the average score at each pixel on the canvas
+            dojo.forEach( features, function( f, i ) {
+                var store = f.source;
+                var fRect = featureRects[i];
+                var jEnd = fRect.r;
+                var score = f.get('score');
+                for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+                    // bin scores according to store
+                    if ( pixelValues[j] && store in pixelValues[j]['scores'] ) {
+                        pixelValues[j]['scores'][store].push(score);
+                    }
+                    else if ( pixelValues[j] ) {
+                        pixelValues[j]['scores'][store] = [score];
+                    }
+                    else {
+                        pixelValues[j] = { scores: {}, feat: f };
+                        pixelValues[j]['scores'][store] = [score];
+                    }
+                }
+            },this);
+            // when done looping through features, average the scores in the same store then add them all together as the final score
+            for (var i=0; i<pixelValues.length; i++) {
+                if ( pixelValues[i] ) {
+                    pixelValues[i]['score'] = 0;
+                    for ( var store in pixelValues[i]['scores']) {
+                        var j, sum = 0, len = pixelValues[i]['scores'][store].length;
+                        for (j = 0; j < len; j++) {
+                            sum += pixelValues[i]['scores'][store][j];
+                        }
+                        pixelValues[i]['score'] += sum / len;
+                    }
+                    delete pixelValues[i]['scores'];
+                }
             }
         }
         return pixelValues;
@@ -528,7 +569,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
             scoreDisplay.innerHTML = parseFloat( score.toPrecision(6) );
             return true;
         }
-        else if( score && score['score'] && typeof score['score'] == 'number' ) {
+        else if( score && typeof score['score'] == 'number' ) {
             // "score" may be an object.
             scoreDisplay.innerHTML = parseFloat( score['score'].toPrecision(6) );
             return true;
@@ -559,6 +600,22 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 }).show();
             }
         });
+        if(this.config.logScaleOption) {
+            options.push({
+                label: 'Log scale',
+                type: 'dijit/CheckedMenuItem',
+                checked: !!(this.config.scale == 'log'),
+                onClick: function(event) {
+                    if (this.checked) {
+                        track.config.scale = 'log';
+                    } else {
+                        track.config.scale = 'linear';
+                    }
+                    track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
+                }
+            });
+        }
+
 
         return options;
     },

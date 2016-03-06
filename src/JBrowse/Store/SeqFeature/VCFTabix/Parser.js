@@ -158,7 +158,6 @@ return declare( null, {
         //specifically for structural variants
         "IMPRECISE": { number: 0, type: 'Flag', description: "Imprecise structural variation" },
         "NOVEL":     { number: 0, type: 'Flag',description: "Indicates a novel structural variation" },
-        "END":       { number: 1, type: 'Integer', description: "End position of the variant described in this record" },
 
         // For precise variants, END is POS + length of REF allele -
         // 1, and the for imprecise variants the corresponding best
@@ -197,7 +196,6 @@ return declare( null, {
         "PARID":   { number:1, "type": "String", "description": "ID of partner breakend"},
         "EVENT":   { number:1, "type": "String", "description": "ID of event associated to breakend"},
         "CILEN":   { number:2, "type": "Integer","description": "Confidence interval around the length of the inserted material between breakends"},
-        "DP":      { number:1, "type": "Integer","description": "Read Depth of segment containing breakend"},
         "DPADJ":   {           "type": "Integer","description": "Read Depth of adjacency"},
         "CN":      { number:1, "type": "Integer","description": "Copy number of segment containing breakend"},
         "CNADJ":   {           "type": "Integer","description": "Copy number of adjacency"},

@@ -27,8 +27,8 @@ function Animation(subject, callback, time) {
 
 Animation.prototype.animate = function () {
     if (this.finished) {
-	this.stop();
-	return;
+        this.stop();
+        return;
     }
 
     // number of milliseconds between frames (e.g., 33ms at 30fps)
@@ -49,9 +49,9 @@ Animation.prototype.animate = function () {
         this.step(elapsed / this.time);
         this.frames++;
     } else {
-	this.step(1);
+        this.step(1);
         this.finished = true;
-	//console.log("final timeout: " + nextTimeout);
+        //console.log("final timeout: " + nextTimeout);
     }
     this.animID = setTimeout(this.animFunction, nextTimeout);
 };

@@ -107,16 +107,20 @@ sub flatten_to_name {
     # rearrange the array of names to be in the order of name_attrs
     @names = @names[ map { exists $namepositions{$_} ? (@{$namepositions{$_}}) : () } @{$self->{name_attrs}} ];
 
-    my @namerec = (
-        \@names,
-        $self->{track_label},
-        $names[0],
-        $f->{seq_id} || die,
-        $f->{start}-1, #< to zero-based
-        $f->{end}+0
-        );
-
-    return \@namerec;
+    if(exists $f->{seq_id}) {
+        my @namerec = (
+            \@names,
+            $self->{track_label},
+            $names[0],
+            $f->{seq_id},
+            $f->{start}-1, #< to zero-based
+            $f->{end}+0
+            );
+        return \@namerec;
+    }
+    else {
+        die;
+    }
 }
 sub arrayReprClasses {
     my ( $self ) = @_;

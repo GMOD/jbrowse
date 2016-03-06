@@ -20,7 +20,7 @@ find(sub {
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "A modern web-based genome browser.",
-  "AUTHOR" => "Robert Buels <rbuels\@cpan.org>",
+  "AUTHOR" => "Eric Yao, Colin Diesh, & other contributors",
   "BUILD_REQUIRES" => {
     "Test::More" => 0,
     "Test::Warn" => 0,
@@ -35,12 +35,19 @@ my %WriteMakefileArgs = (
     "bin/ucsc-to-json.pl",
     "bin/remove-track.pl",
     "bin/generate-names.pl",
+    "bin/maker2jbrowse",
     "bin/prepare-refseqs.pl",
     "bin/wig-to-json.pl",
     "bin/biodb-to-json.pl",
     "bin/draw-basepair-track.pl",
     "bin/flatfile-to-json.pl",
+    "bin/new-plugin.pl",
+    "bin/add-bw-track.pl",
+    "bin/add-bam-track.pl",
+    "bin/add-json.pl",
+    "bin/add-track-json.pl",
     "bin/bam-to-json.pl",
+    "bin/json2conf.pl",
   ],
   "LICENSE" => "perl",
   "NAME" => "JBrowse",

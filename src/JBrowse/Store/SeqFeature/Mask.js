@@ -75,11 +75,11 @@ reload: function(opTree, mask, display) {
             return haveStore.promise;
         }
 
-        var haveMaskStore = grabStore(this.stores.mask).then( function(store) { 
-            thisB.stores.mask = store; 
+        var haveMaskStore = grabStore(this.stores.mask).then( function(store) {
+            thisB.stores.mask = store;
         });
-        var haveDisplayStore = grabStore(this.stores.display).then( function(store) { 
-            thisB.stores.display = store; 
+        var haveDisplayStore = grabStore(this.stores.display).then( function(store) {
+            thisB.stores.display = store;
         });
         this.gotAllStores = all([haveMaskStore, haveDisplayStore]);
         this.gotAllStores.then( function() {
@@ -107,12 +107,12 @@ getFeatures: function( query, featCallback, doneCallback, errorCallback ) {
     this.gotAllStores.then(
         function() {
             var featureArray = {};
-            
+
             // Get features from one particular store
             var grabFeats = function( key )  {
                 var d = new Deferred( );
                 featureArray[key] = [];
-                
+
                 thisB.stores[key].getFeatures( query,
                     function(feature) {
                         featureArray[key].push( feature );
@@ -146,7 +146,7 @@ inSpan: function( feature, span ) {
     }
     return feature.get ? !( feature.get('start') >= span.end || feature.get('end') <= span.start ) :
                          !( feature.start >= span.end || feature.end <= span.start );
-    
+
 },
 
 maskFeatures: function( features, spans, featCallback, doneCallback ) {
@@ -175,7 +175,7 @@ notSpan: function( spans, query ) {
     var invSpan = [];
     invSpan[0] = { start: query.start };
     var i = 0;
-    for (span in spans) {
+    for (var span in spans) {
         if ( spans.hasOwnProperty( span ) ) {
             span = spans[span];
             invSpan[i].end = span.start;
@@ -198,7 +198,7 @@ toSpans: function(features, query) {
     var spans = [];
     for (var feature in features) {
         if (features.hasOwnProperty(feature)) {
-            spans.push( { start: features[feature].get('start'), //Math.max( features[feature].get('start'), query.start ), 
+            spans.push( { start: features[feature].get('start'), //Math.max( features[feature].get('start'), query.start ),
                           end:   features[feature].get('end') //Math.min( features[feature].get('end'),   query.end   )
                         } );
         }
@@ -219,7 +219,7 @@ toSpans: function(features, query) {
         retSpans.push( { start: start, end: end});
     }
     return retSpans;
-    
+
 }
 
 });

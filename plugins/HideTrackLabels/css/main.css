@@ -1,0 +1,23 @@
+/*
+HideTrackLabels JBrowse plugin CSS
+*/
+/* 
+    Created on : Jul 15, 2015, 7:19:50 PM
+    Author     : EY
+*/
+
+/* hide titles button */
+span[widgetid=hidetitles-btn] {
+  positiion:relative;
+  top: -1px;
+}
+#hidetitles-btn{
+  height: 17px;
+  width: 22px;
+  background-image: url("../img/eye_open.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+#hidetitles-btn[hidden-titles] {
+  background-image: url("../img/eye_bl.png");
+} 

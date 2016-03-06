@@ -23,6 +23,11 @@
                                            include: [
                                              { url: dataRoot + "/trackInfo.js", version: 0 }
                                            ],
+                                           plugins: [
+                                                   "NeatHTMLFeatures",
+                                                   "NeatCanvasFeatures",
+                                                   "HideTrackLabels"
+                                           ],
                                            nameUrl: dataRoot + "/names/root.json",
                                            defaultTracks: "DNA,gene,mRNA,noncodingRNA",
                                            queryParams: queryParams,

@@ -34,9 +34,9 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
     constructor: function( args ) {
         this.data = args.blob ||
             new XHRBlob( this.resolveUrl(
-		this._evalConf(args.urlTemplate)
-                         )
-                       );
+                this._evalConf(args.urlTemplate)
+              )
+            );
         this.features = [];
         this._loadFeatures();
     },
@@ -211,6 +211,12 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         this._deferred.features.then( function() {
             callback( thisB.browser.regularizeReferenceName( seqName ) in thisB.refSeqs );
         });
+    },
+
+    saveStore: function() {
+        return {
+            urlTemplate: this.config.blob.url
+        };
     }
 
 });

@@ -1069,15 +1069,17 @@ setLocation: function(refseq, startbp, endbp) {
     if ((endbp < refseq.start) || (endbp > refseq.end))
         endbp = refseq.end;
 
+    function removeTrack( track ) {
+        if (track.div && track.div.parentNode)
+            track.div.parentNode.removeChild(track.div);
+    };
+
     if( this.ref !== refseq ) {
         var thisB = this;
         this.ref = refseq;
         this._unsetPosBeforeZoom();  // if switching to different sequence, flush zoom position tracking
 
-        function removeTrack( track ) {
-            if (track.div && track.div.parentNode)
-                track.div.parentNode.removeChild(track.div);
-        };
+
 
         array.forEach( this.tracks, removeTrack );
 
@@ -1282,7 +1284,7 @@ scaleMouseOut: function( evt ) {
 maybeDrawVerticalPositionLine: function( evt ) {
     if( this.rubberbanding )
         return;
-    this.drawVerticalPositionLine( this.outerTrackContainer, evt );
+    this.drawVerticalPositionLine( this.scaleTrackDiv, evt );
 },
 
 /**
@@ -1305,7 +1307,7 @@ drawVerticalPositionLine: function( parent, evt){
     line.style.top =  scaleTrackPos.y + 'px';
 
 
-    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent });
+    this.drawBasePairLabel({ name: 'single', offset: 0, x: numX, parent: parent, scaleDiv: parent });
 },
 
 /**
@@ -1503,10 +1505,10 @@ sizeInit: function() {
 
     this.zoomLevels = [];
     for( var i = 0; i < desiredZoomLevels.length; i++ )  {
-	var zlevel = desiredZoomLevels[i];
-	if( zlevel < this.maxPxPerBp )
+        var zlevel = desiredZoomLevels[i];
+        if( zlevel < this.maxPxPerBp )
             this.zoomLevels.push( zlevel );
-	else
+        else
             break; // once get to zoom level >= maxPxPerBp, quit
     }
     this.zoomLevels.push( this.maxPxPerBp );
@@ -1570,7 +1572,7 @@ sizeInit: function() {
     this.zoomContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";
 
-    var blockDelta = undefined;
+    var blockDelta;
     if (oldStripeCount && (oldStripeCount != this.stripeCount)) {
         blockDelta = Math.floor((oldStripeCount - this.stripeCount) / 2);
         var delta = (blockDelta * this.stripeWidth);
@@ -1759,7 +1761,7 @@ zoomIn: function(e, zoomLoc, steps) {
     this.maxLeft = this.bpToPx(this.ref.end+1) - this.getWidth();
 
     for (var track = 0; track < this.tracks.length; track++)
-    this.tracks[track].startZoom(this.pxPerBp,
+        this.tracks[track].startZoom(this.pxPerBp,
                      fixedBp - ((zoomLoc * this.getWidth())
                                                 / this.pxPerBp),
                      fixedBp + (((1 - zoomLoc) * this.getWidth())
@@ -1796,11 +1798,11 @@ zoomToBaseLevel: function(e, pos) {
     this.maxLeft = (this.pxPerBp * this.ref.end) - this.getWidth();
 
     for (var track = 0; track < this.tracks.length; track++)
-	this.tracks[track].startZoom(this.pxPerBp,
-				     fixedBp - ((zoomLoc * this.getWidth())
-						/ this.pxPerBp),
-				     fixedBp + (((1 - zoomLoc) * this.getWidth())
-						/ this.pxPerBp));
+        this.tracks[track].startZoom(this.pxPerBp,
+                     fixedBp - ((zoomLoc * this.getWidth())
+                        / this.pxPerBp),
+                     fixedBp + (((1 - zoomLoc) * this.getWidth())
+                        / this.pxPerBp));
     //YAHOO.log("centerBp: " + centerBp + "; estimated post-zoom start base: " + (centerBp - ((zoomLoc * this.getWidth()) / this.pxPerBp)) + ", end base: " + (centerBp + (((1 - zoomLoc) * this.getWidth()) / this.pxPerBp)));
     new Zoomer(relativeScale, this,
                function() {this.zoomUpdate(zoomLoc, fixedBp);},
@@ -1831,7 +1833,7 @@ zoomOut: function(e, zoomLoc, steps) {
     this.pxPerBp = this.zoomLevels[this.curZoom];
 
     for (var track = 0; track < this.tracks.length; track++)
-    this.tracks[track].startZoom(this.pxPerBp,
+        this.tracks[track].startZoom(this.pxPerBp,
                      fixedBp - ((zoomLoc * this.getWidth())
                                                 / this.pxPerBp),
                      fixedBp + (((1 - zoomLoc) * this.getWidth())
@@ -1858,7 +1860,7 @@ zoomBackOut: function(e) {
     var max = this.posBeforeZoom.max;
     var zoomIndex = this.posBeforeZoom.zoomIndex;
     this.posBeforeZoom = undefined;
-    
+
     var zoomLoc = 0.5;
     this.showWait();
 
@@ -1868,26 +1870,26 @@ zoomBackOut: function(e) {
     this.pxPerBp = this.zoomLevels[zoomIndex];
 
     for (var track = 0; track < this.tracks.length; track++) {
-    	this.tracks[track].startZoom(this.pxPerBp,
-    			fixedBp - ((zoomLoc * this.getWidth())
-    					/ this.pxPerBp),
-    					fixedBp + (((1 - zoomLoc) * this.getWidth())
-    							/ this.pxPerBp));
-	}
-    
+        this.tracks[track].startZoom(this.pxPerBp,
+                fixedBp - ((zoomLoc * this.getWidth())
+                        / this.pxPerBp),
+                        fixedBp + (((1 - zoomLoc) * this.getWidth())
+                                / this.pxPerBp));
+    }
+
     this.minLeft = this.pxPerBp * this.ref.start;
     var thisObj = this;
     // Zooms take an arbitrary 700 milliseconds, which feels about right
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
-	       function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
-	       700, zoomLoc);
+           function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
+           700, zoomLoc);
 },
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
 isZoomedToBase: function() {
-	return this.posBeforeZoom !== undefined;
+    return this.posBeforeZoom !== undefined;
 },
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
@@ -1897,7 +1899,7 @@ _setPosBeforeZoom: function(min, max, zoomIndex) {
 
 /** WebApollo support for zooming directly to base level, and later restoring previous zoom level before zooming to base */
 _unsetPosBeforeZoom: function() {
-	this.posBeforeZoom = undefined;
+    this.posBeforeZoom = undefined;
 },
 
 zoomUpdate: function(zoomLoc, fixedBp) {

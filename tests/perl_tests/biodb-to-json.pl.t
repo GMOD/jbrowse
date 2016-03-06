@@ -45,7 +45,7 @@ sub run_with {
     my $test_trackdata={
             Start=>1049,
             End=>9000,
-            Strand=>1,  
+            Strand=>1,
             Source=>'example',
             Seq_id=>'ctgA',
             Load_id=>'EDEN',
@@ -124,7 +124,7 @@ sub run_with {
     my $test_trackdata={
             Start=>1049,
             End=>9000,
-            Strand=>1,  
+            Strand=>1,
             Source=>'example',
             Seq_id=>'ctgA',
             Load_id=>'EDEN',
@@ -200,6 +200,7 @@ sub run_with {
       'chunkSize' => 20000,
       'key' => 'Reference sequence',
       'label' => 'DNA',
+      'seqType' => 'dna',
       category => 'Reference sequence',
       'type' => 'SequenceTrack',
       'urlTemplate' => 'seq/{refseq_dirpath}/{refseq}-',
