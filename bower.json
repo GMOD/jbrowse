@@ -1,11 +1,11 @@
 {
   "name": "jbrowse",
-  "version": "1.10.3",
+  "version": "1.12.1",
   "dependencies": {
-    "dojo":         "~1.9.1",
-    "dojox":        "~1.9.1",
-    "util":         "dojo/util#1.9.1",
-    "dijit":        "~1.9.1",
+    "dojo":         "~1.8.10",
+    "dojox":        "~1.8.10",
+    "util":         "dojo/util#1.8.10",
+    "dijit":        "~1.8.10",
     "put-selector": "~0.3.4",
     "dgrid":        "~0.3.9",
     "xstyle":       "~0.1.3",
