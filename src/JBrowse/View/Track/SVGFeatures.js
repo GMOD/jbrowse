@@ -274,7 +274,7 @@ return declare(
         var vbMinX = startBase+1;
         var vbWidth = (last - first + 1) * bpPerBlock;
         var vbMinY = 0; 
-        var vbHeight = this.svgHeight;
+        var vbHeight = -this.svgHeight;
         vbHeight = 100;
         var vbValues = vbMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
 
@@ -321,7 +321,7 @@ return declare(
             svgCoord.innerHTML = bpCoord + 1;            
             this.coordGroup.appendChild(svgCoord);
         }
-        
+        /*
         // draw test object
         this.addSVGObject("pear",5000,100,100,function () {
             var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -330,7 +330,7 @@ return declare(
             apple.setAttribute('height','100px');
             return apple;
         });
-        
+        */
         // set scale for objects
         dojo.query(".svg-scale").style({
             "transform": "scale("+ vbWidth / 3500 +")"
@@ -365,6 +365,7 @@ return declare(
             svgItem.setAttribute('bpCoord', bpCoord);
             svgItem.setAttribute('x',bpCoord);
             svgItem.setAttribute('y',20);
+            svgItem.setAttribute('height','100%');
             svgItem.setAttribute('style','overflow:visible');
             svgItem.bpCoord = bpCoord;
             this.svgCanvas.fItem[id] = svgItem;
@@ -1167,18 +1168,6 @@ return declare(
         
         // create svg element new
         
-        // draw ciecle
-        var id = "C-"+this.fixId(fRect.f.id());
-        
-        this.addSVGObject(id,bpCoord,100,100,function () {
-            var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
-            apple.setAttribute('r',"20");
-            apple.setAttribute('width','100px');
-            apple.setAttribute('height','100px');
-            apple.setAttribute('style', 'cy:'+len+';fill:rgba(0,0,255,.5)');
-            //apple.setAttribute('style', 'cx:'+cx+';cy:'+len+';fill:rgba(0,0,255,.5)');
-            return apple;
-        });
         // draw line
         var id = "L-"+this.fixId(fRect.f.id());
         
@@ -1188,9 +1177,23 @@ return declare(
             svgItem.setAttribute('y1',len);
             svgItem.setAttribute('x2',0);
             svgItem.setAttribute('y2',thisB.svgHeight);
-            svgItem.setAttribute('stroke','grey');
+            svgItem.setAttribute('stroke','rgba(255,0,0,.5)');
             svgItem.setAttribute('stroke-width',10);
+            svgItem.setAttribute('stroke-linecap','round');
             return svgItem;
+        });
+        
+        // draw ciecle
+        var id = "C-"+this.fixId(fRect.f.id());
+        
+        this.addSVGObject(id,bpCoord,100,100,function () {
+            var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            apple.setAttribute('r',"25");
+            apple.setAttribute('width','100px');
+            apple.setAttribute('height','100px');
+            apple.setAttribute('style', 'cy:'+len+';fill:rgba(0,0,255,.5)');
+            //apple.setAttribute('style', 'cx:'+cx+';cy:'+len+';fill:rgba(0,0,255,.5)');
+            return apple;
         });
         
         return;     // skip the rest
