@@ -22,7 +22,9 @@ define( [
             'JBrowse/View/Track/_FeatureContextMenusMixin',
             'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Model/Location',
-            'JBrowse/Model/SimpleFeature'
+            'JBrowse/Model/SimpleFeature',
+            'JBrowse/View/Track/SVG/SVGLayerCoords',            
+            'JBrowse/View/Track/SVG/SVGLayerBpSpace'            
         ],
         function(
             declare,
@@ -44,7 +46,9 @@ define( [
             FeatureContextMenuMixin,
             YScaleMixin,
             Location,
-            SimpleFeature
+            SimpleFeature,
+            SVGLayerCoords,
+            SVGLayerBpSpace
         ) {
 
 /**
@@ -204,13 +208,23 @@ return declare(
         // version="1.1" 
         // xmlns="http://www.w3.org/2000/svg" 
         // xmlns:xlink="http://www.w3.org/1999/xlink" 
-        //        
+        
+        this.svgCoords = new SVGLayerCoords(this);
+        this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
+
+        this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
+        //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
+        this.svgSpace.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
+
+        /*
         // make svg canvas coord group
         this.svgCoords = document.createElementNS('http://www.w3.org/2000/svg','svg');
         this.svgCoords.setAttribute('class', 'svg-coords');
         this.svgCoords.setAttribute('style', 'width:100%;height:100%;cursor:default;position:absolute;z-index:15');
         domConstruct.place(this.svgCoords,trackDiv);
-        
+        */
+       
+        /*
         // make svg canvas
         this.svgCanvas = document.createElementNS('http://www.w3.org/2000/svg','svg');
         this.svgCanvas.setAttribute('id', 'svg-overlay');
@@ -220,24 +234,26 @@ return declare(
         this.svgCanvas.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
         this.svgCanvas.setAttribute('style', 'width:100%;height:100%;cursor:default;position:absolute;z-index:15');
         domConstruct.place(this.svgCanvas,trackDiv);
-
+        */
+        /*
         // container for coord elements (this is just to test the coordinate space)
         this.coordGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         this.svgCoords.appendChild(this.coordGroup);
         this.svgCoords.fCoord = new Array();
-
+        */
         // container for feature elements
         //this.svgCanvas.featureGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         //this.svgCanvas.appendChild(this.svgCanvas.featureGroup);
+        /*
         this.svgCanvas.fItem = new Array();
         this.svgCanvas.scaleObj = false;
-        
+        */
         //this.svgCanvas.height = this.svgCanvas.offsetHeight;
         
         this.svgHeight = 100;
         this.svgScale = 1;
-
-        this._makeLabelTooltip( );
+        
+        //this._makeLabelTooltip( );
         
     },
 
@@ -255,9 +271,13 @@ return declare(
             containerEnd: containerEnd
         }
         
-        this.inherited(arguments);      // call the superclass's showRange
+        this.svgScale = scale;
         
-        this.showSVGRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        this.inherited(arguments);      // call the superclass's showRange
+
+        this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        this.svgBpSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        //this.showSVGRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         
     },
     showSVGRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
@@ -286,16 +306,18 @@ return declare(
         this.svgCanvas.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;position:absolute;z-index:15');
         //this.svgCanvas.featureGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
 
+        this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        /*
         // coords group
         this.svgCoords.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;position:absolute;z-index:15');
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
+        */
 
-
-        console.log("len = " + document.getElementById("svg-overlay").offsetWidth);
+        //console.log("len = " + document.getElementById("svg-overlay").offsetWidth);
 
         var maxLen = this.svgHeight;
 	var len = 0;
-
+        /*
         // erase test coordinates
         for (var bpCoord in this.svgCoords.fCoord) {
             this.svgCoords.fCoord[bpCoord].setAttribute("display","none");
@@ -321,6 +343,7 @@ return declare(
             svgCoord.innerHTML = bpCoord + 1;            
             this.coordGroup.appendChild(svgCoord);
         }
+        */
         /*
         // draw test object
         this.addSVGObject("pear",5000,100,100,function () {
@@ -355,7 +378,9 @@ return declare(
                 
      */
     addSVGObject: function(id,bpCoord,width,height,callback) {
-        
+
+        this.svgBpSpace.addSVGObject(id,bpCoord,width,height,callback);
+        /*
         if (id in this.svgCanvas.fItem ) { 
             var svgItem = this.svgCanvas.fItem[id];        // element already exists 
         }
@@ -389,6 +414,7 @@ return declare(
 
             this.svgCanvas.appendChild(svgItem);
         }
+        */
     },
     /*
      * given BP coordinate, compute px coordinate within SVG canvas.
@@ -1162,12 +1188,50 @@ return declare(
         // given the bp coordinate of the feature, get the x position in the SVG coord space.
         var bpCoord = feature.get("start");
         var cx = this.bp2px(bpCoord);
-        var len = this.svgScale * (feature.get("end") - feature.get("start") ) / 5;
+        var len = this.svgScale * (feature.get("end") - feature.get("start") ) * 1.5 ;
         len = this.svgHeight - len;
-        //console.log("cx="+cx+" len="+len);
+
+        console.log("cx="+cx+" len="+len+" scale="+this.svgScale); 
         
         // create svg element new
         
+        // draw line
+        var svgSpace = this.svgPxSpace;
+        
+        var id = "L-"+this.fixId(fRect.f.id());
+        if (this.svgPxCoords) {
+            
+            // given the bp coordinate of the feature, get the x position in the SVG coord space.
+            var bpCoord = feature.get("start");
+            var cx = svgSpace.bp2Native(bpCoord);
+            var len = this.svgScale * (feature.get("end") - feature.get("start") ) * 1.5 ;
+            var len = svgSpace.getHeight() - len;
+            
+            this.addSVGObject(id,bpCoord,100,100,function () {
+                var svgItem = document.createElementNS('http://www.w3.org/2000/svg','line');
+                svgItem.setAttribute('x1',0);
+                svgItem.setAttribute('y1',len);
+                svgItem.setAttribute('x2',0);
+                svgItem.setAttribute('y2',thisB.svgHeight);
+                svgItem.setAttribute('stroke','rgba(255,0,0,.5)');
+                svgItem.setAttribute('stroke-width',10);
+                svgItem.setAttribute('stroke-linecap','round');
+                return svgItem;
+            });
+
+            // draw ciecle
+            var id = "C-"+this.fixId(fRect.f.id());
+
+            this.addSVGObject(id,bpCoord,100,100,function () {
+                var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
+                apple.setAttribute('r',"25");
+                apple.setAttribute('width','100px');
+                apple.setAttribute('height','100px');
+                apple.setAttribute('style', 'cy:'+len+';fill:rgba(0,0,255,.5)');
+                //apple.setAttribute('style', 'cx:'+cx+';cy:'+len+';fill:rgba(0,0,255,.5)');
+                return apple;
+            });
+        /*
         // draw line
         var id = "L-"+this.fixId(fRect.f.id());
         
@@ -1195,7 +1259,7 @@ return declare(
             //apple.setAttribute('style', 'cx:'+cx+';cy:'+len+';fill:rgba(0,0,255,.5)');
             return apple;
         });
-        
+        */
         return;     // skip the rest
         
 /*        
