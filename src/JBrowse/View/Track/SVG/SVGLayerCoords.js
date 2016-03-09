@@ -70,7 +70,7 @@ return declare(
         // draw test coordinates
         for(var i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
-            var x = this.svgParent.bp2px(bpCoord);
+            var x = this.bp2Native(bpCoord);
             var svgCoord;
             if (bpCoord in this.svgCoords.fCoord ) { 
                 svgCoord = this.svgCoords.fCoord[bpCoord]; 
@@ -87,6 +87,9 @@ return declare(
             svgCoord.innerHTML = bpCoord + 1;            
             this.coordGroup.appendChild(svgCoord);
         }
+    },
+    bp2Native: function(val) {
+        return (val - this.svgParent.displayContext.startBase) * this.svgParent.displayContext.scale;
     },
     destroy: function() {
 

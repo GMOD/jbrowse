@@ -65,8 +65,8 @@ return declare(
             var xCoord = this.bp2Native(bpCoord);
             
             // adjust positions of features
-            var svgObj = this.svgCanvas.fItem[id].svgObj;
-            svgObj.setAttribute('transform','translate('+xCoord+')');
+            var svgItem = this.svgCanvas.fItem[id];
+            svgItem.setAttribute('transform','translate('+xCoord+')');
         }  
         //console.log("maxLen="+maxLen);
 
