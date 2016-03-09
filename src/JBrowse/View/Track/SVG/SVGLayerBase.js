@@ -18,7 +18,8 @@ function(
 return declare( null, {
 
     svgParent: null,    // pointer to the parent object
-    height: 0,          // height of svg canvas
+    height: 150,          // height of svg canvas
+    maxHeight: 600,
 
     constructor: function( args ) {
         //console.log("SVGLayerBase::constructor");
@@ -39,9 +40,17 @@ return declare( null, {
     bp2Native: function(bp) {
         return bp;
     },
-    // get height of SVG Canvas in native units
+    // get current height of SVG Canvas in native units
     getHeight: function() {
         return this.height;
+    },
+    // compute height, presumably based on heights of objects in svg canvas
+    computeHeight: function() {
+        return this.height;
+    },
+    // get max height of SVG Canvas in native units
+    getMaxHeight: function() {
+        return this.maxHeight;
     }
     
 });
