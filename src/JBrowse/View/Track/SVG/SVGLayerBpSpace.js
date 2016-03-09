@@ -117,8 +117,8 @@ return declare(
             this.svgCanvas.appendChild(svgItem);
         }
     },
-    bp2Native: function(val) {
-        return val;
+    getHeight: function() {
+        return this.svgHeight;
     },
     destroy: function() {
 

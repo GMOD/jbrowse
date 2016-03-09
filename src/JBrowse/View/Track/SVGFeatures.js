@@ -24,7 +24,8 @@ define( [
             'JBrowse/Model/Location',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/View/Track/SVG/SVGLayerCoords',            
-            'JBrowse/View/Track/SVG/SVGLayerBpSpace'            
+            'JBrowse/View/Track/SVG/SVGLayerBpSpace',            
+            'JBrowse/View/Track/SVG/SVGLayerPxSpace'            
         ],
         function(
             declare,
@@ -48,7 +49,8 @@ define( [
             Location,
             SimpleFeature,
             SVGLayerCoords,
-            SVGLayerBpSpace
+            SVGLayerBpSpace,
+            SVGLayerPxSpace
         ) {
 
 /**
@@ -276,7 +278,7 @@ return declare(
         this.inherited(arguments);      // call the superclass's showRange
 
         this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
-        this.svgBpSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        this.svgSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         //this.showSVGRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         
     },
@@ -354,11 +356,12 @@ return declare(
             return apple;
         });
         */
+       /*
         // set scale for objects
         dojo.query(".svg-scale").style({
             "transform": "scale("+ vbWidth / 3500 +")"
         });        
-        
+        */
     },
     /*
   <svg x="100" y="100" style="overflow:visible">
@@ -379,7 +382,7 @@ return declare(
      */
     addSVGObject: function(id,bpCoord,width,height,callback) {
 
-        this.svgBpSpace.addSVGObject(id,bpCoord,width,height,callback);
+        this.svgSpace.addSVGObject(id,bpCoord,width,height,callback);
         /*
         if (id in this.svgCanvas.fItem ) { 
             var svgItem = this.svgCanvas.fItem[id];        // element already exists 
@@ -1184,37 +1187,29 @@ return declare(
     renderSVGFeature: function( context, fRect ) {
         var feature = fRect.f;
         var thisB = this;
-        
-        // given the bp coordinate of the feature, get the x position in the SVG coord space.
-        var bpCoord = feature.get("start");
-        var cx = this.bp2px(bpCoord);
-        var len = this.svgScale * (feature.get("end") - feature.get("start") ) * 1.5 ;
-        len = this.svgHeight - len;
-
-        console.log("cx="+cx+" len="+len+" scale="+this.svgScale); 
-        
         // create svg element new
         
         // draw line
-        var svgSpace = this.svgPxSpace;
+        var svgSpace = this.svgSpace;
         
         var id = "L-"+this.fixId(fRect.f.id());
-        if (this.svgPxCoords) {
+        if (this.svgSpace) {
             
-            // given the bp coordinate of the feature, get the x position in the SVG coord space.
+            // compute the x coord given the bpCoord
             var bpCoord = feature.get("start");
             var cx = svgSpace.bp2Native(bpCoord);
-            var len = this.svgScale * (feature.get("end") - feature.get("start") ) * 1.5 ;
-            var len = svgSpace.getHeight() - len;
+            var len = (feature.get("end") - feature.get("start") ) * .2 ;
+            len = svgSpace.getHeight() - len;
+            console.log("cx="+cx+" len="+len+" scale="+this.svgScale); 
             
             this.addSVGObject(id,bpCoord,100,100,function () {
                 var svgItem = document.createElementNS('http://www.w3.org/2000/svg','line');
                 svgItem.setAttribute('x1',0);
                 svgItem.setAttribute('y1',len);
                 svgItem.setAttribute('x2',0);
-                svgItem.setAttribute('y2',thisB.svgHeight);
+                svgItem.setAttribute('y2',svgSpace.getHeight());
                 svgItem.setAttribute('stroke','rgba(255,0,0,.5)');
-                svgItem.setAttribute('stroke-width',10);
+                svgItem.setAttribute('stroke-width',6);
                 svgItem.setAttribute('stroke-linecap','round');
                 return svgItem;
             });
@@ -1224,13 +1219,12 @@ return declare(
 
             this.addSVGObject(id,bpCoord,100,100,function () {
                 var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
-                apple.setAttribute('r',"25");
-                apple.setAttribute('width','100px');
-                apple.setAttribute('height','100px');
+                apple.setAttribute('r',"15");
                 apple.setAttribute('style', 'cy:'+len+';fill:rgba(0,0,255,.5)');
                 //apple.setAttribute('style', 'cx:'+cx+';cy:'+len+';fill:rgba(0,0,255,.5)');
                 return apple;
             });
+        }
         /*
         // draw line
         var id = "L-"+this.fixId(fRect.f.id());
@@ -1261,67 +1255,6 @@ return declare(
         });
         */
         return;     // skip the rest
-        
-/*        
-        addSVGObject(id,bpCoord,20,20,function() {
-            var circle= document.createElementNS('http://www.w3.org/2000/svg','circle');
-            svgItem.setAttribute("r","100%");
-            return circle;
-        });
-
-        return; // ignore stuff below
-*/        
-        // create svg element
-        
-        if (id in this.svgCanvas.featureGroup.fItem ) { 
-            var svgItem = this.svgCanvas.featureGroup.fItem[id];        // element already exists 
-        }
-        else {
-            var svgItem = document.createElementNS('http://www.w3.org/2000/svg','line');
-            svgItem.setAttribute('id',id);
-            svgItem.setAttribute('bpCoord', bpCoord);
-            svgItem.bpCoord = bpCoord;
-            this.svgCanvas.featureGroup.fItem[id] = svgItem;
-            this.svgCanvas.featureGroup.appendChild(svgItem);
-        }
-
-        svgItem.feature = feature;
-        svgItem.setAttribute('x1',cx);
-        svgItem.setAttribute('y1',len);
-        svgItem.setAttribute('x2',cx);
-        svgItem.setAttribute('y2',this.svgHeight);
-        svgItem.setAttribute('stroke','grey');
-        svgItem.setAttribute('stroke-width',1);
-        //svgItem.setAttribute('style', 'x1:'+cx+';y1:'+len+';x2:'+cx+';y2:'+this.svgHeight+';stroke:grey;stroke-width:1');
-        svgItem.setAttribute('display', 'block');
-        
-        var id = "C-"+this.fixId(fRect.f.id());
-        //var feature = fRect.f;
-        
-        // given the bp coordinate of the feature, get the x position in the SVG coord space.
-        //var bpCoord = feature.get("start");
-        //var cx = this.bp2px(bpCoord);
-        //var len = this.svgScale * (feature.get("end") - feature.get("start") ) / 5;
-        //len = this.svgHeight - len;
-        //console.log("cx="+cx+" len="+len);
-        
-        // create svg element
-        
-        if (id in this.svgCanvas.featureGroup.fItem ) { 
-            var svgItem = this.svgCanvas.featureGroup.fItem[id];        // element already exists 
-        }
-        else {
-            var svgItem = document.createElementNS('http://www.w3.org/2000/svg','circle');
-            svgItem.setAttribute('id',id);
-            svgItem.setAttribute('bpCoord', bpCoord);
-            svgItem.bpCoord = bpCoord;
-            this.svgCanvas.featureGroup.fItem[id] = svgItem;
-            this.svgCanvas.featureGroup.appendChild(svgItem);
-        }
-
-        svgItem.feature = feature;
-        svgItem.setAttribute('style', 'cx:'+cx+';cy:'+len+';r:10;fill:rgba(0,0,255,.5)');
-        svgItem.setAttribute('display', 'block');
        
     },
     

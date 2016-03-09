@@ -51,8 +51,6 @@ return declare(
 
         this.inherited( arguments );
     
-        var lf = this.svgParent.blocks[first].domNode.left;
-
         // adjust svg size
         var left = first * this.svgParent.widthPct;
         var width = (last - first + 1) * this.svgParent.widthPct;
