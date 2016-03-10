@@ -1,5 +1,5 @@
 /**
- * SVGFeatures - implements lollipop features
+ * SVGLollipop - implements lollipop features
  */
 
 define( [
