@@ -708,7 +708,8 @@ return declare(
     },
 
     renderClickMap: function( args, fRects ) {
-        return;// disable - eyao
+        return;/*
+        // disable - eyao
         
         var block = args.block;
 
@@ -729,6 +730,7 @@ return declare(
         this._connectEventHandlers( block );
 
         this.updateStaticElements( { x: this.browser.view.getX() } );
+        */
     },
 
     _attachMouseOverEvents: function( ) {

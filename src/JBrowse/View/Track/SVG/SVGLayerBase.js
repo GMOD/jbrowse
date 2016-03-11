@@ -26,12 +26,6 @@ return declare( null, {
         this.svgParent = args;
     },
 
-    _defaultConfig: function() {
-        return Util.deepUpdate( lang.clone(this.inherited(arguments)), {
-            maxHeight: 600,
-            defaultHeight: 150
-        });
-    },
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         //console.log("SVGLayerBase::setViewInfo");

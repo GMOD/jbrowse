@@ -23,7 +23,7 @@ define( [
             'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Model/Location',
             'JBrowse/Model/SimpleFeature',
-            'JBrowse/View/Track/SVG/SVGTrackBase'
+            'JBrowse/View/Track/SVGTrackBase'
         ],
         function(
             declare,
@@ -83,12 +83,12 @@ return declare(
         // container for coord elements (this is just to test the coordinate space)
         this.coordGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         this.svgCoords.appendChild(this.coordGroup);
-        this.svgCoords.fCoord = new Array();
+        this.svgCoords.fCoord = [];
 
         // container for feature elements
         //this.svgCanvas.featureGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         //this.svgCanvas.appendChild(this.svgCanvas.featureGroup);
-        this.svgCanvas.fItem = new Array();
+        this.svgCanvas.fItem = [];
         this.svgCanvas.scaleObj = false;
         
         //this.svgCanvas.height = this.svgCanvas.offsetHeight;
@@ -242,7 +242,6 @@ return declare(
         });
 
         return; // ignore stuff below
-*/        
         // create svg element
         
         if (id in this.svgCanvas.featureGroup.fItem ) { 
@@ -294,6 +293,7 @@ return declare(
         svgItem.feature = feature;
         svgItem.setAttribute('style', 'cx:'+cx+';cy:'+len+';r:10;fill:rgba(0,0,255,.5)');
         svgItem.setAttribute('display', 'block');
+*/
        
     },
     
