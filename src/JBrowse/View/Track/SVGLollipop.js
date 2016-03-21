@@ -31,7 +31,7 @@ return declare(
     [ SVGTrackBase ], {
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
-        console.log("SVGFeatures::setViewInfo");
+        console.log("SVGLollipop::setViewInfo");
         console.log(numBlocks+" "+widthPct+" "+widthPx+" "+scale);
 
         this.inherited( arguments );
@@ -46,7 +46,7 @@ return declare(
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
-        console.log("SVGFeatures::showRange");
+        console.log("SVGLollipop::showRange");
         console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
 
         this.displayContext = {
@@ -90,34 +90,6 @@ return declare(
         this.inherited(arguments);      // call the superclass's 
     },
 
-    startZoom: function() {
-        this.inherited( arguments );
-
-        array.forEach( this.blocks, function(b) {
-            try {
-                b.featureCanvas.style.width = '100%';
-            } catch(e) {};
-        });
-    },
-
-    endZoom: function() {
-        array.forEach( this.blocks, function(b) {
-            try {
-                delete b.featureCanvas.style.width;
-            } catch(e) {};
-        });
-
-        this.clear();
-        this.inherited( arguments );
-    },
-
-    // draw the features on the canvas
-    renderFeatures: function( args, fRects ) {
-        
-        this.inherited(arguments);      // call the superclass
-        
-    },
-
     // draw each feature
     renderFeature: function( context, fRect ) {
 
@@ -137,7 +109,7 @@ return declare(
         len = svgSpace.getHeight() - len;
         console.log("cx="+cx+" len="+len+" scale="+this.svgScale); 
 
-        // draw line
+        // draw stems
         var id = "L-"+this.fixId(fRect.f.id());
         
         this.addSVGObject(id,bpCoord,100,100,function () {
@@ -152,7 +124,7 @@ return declare(
             return svgItem;
         });
 
-        // draw ciecle
+        // draw delicious candy
         var id = "C-"+this.fixId(fRect.f.id());
 
         this.addSVGObject(id,bpCoord,100,100,function () {
