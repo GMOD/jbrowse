@@ -22,10 +22,7 @@ define( [
             'JBrowse/View/Track/_FeatureContextMenusMixin',
             'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Model/Location',
-            'JBrowse/Model/SimpleFeature',
-            'JBrowse/View/Track/SVG/SVGLayerCoords',            
-            'JBrowse/View/Track/SVG/SVGLayerBpSpace',            
-            'JBrowse/View/Track/SVG/SVGLayerPxSpace'            
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
@@ -47,10 +44,7 @@ define( [
             FeatureContextMenuMixin,
             YScaleMixin,
             Location,
-            SimpleFeature,
-            SVGLayerCoords,
-            SVGLayerBpSpace,
-            SVGLayerPxSpace
+            SimpleFeature
         ) {
 
 /**
