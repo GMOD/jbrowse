@@ -28,7 +28,4 @@ require([
 
             // track lists
             'JBrowse/Store/TrackMetaData',
-
-            'xstyle/load-css',
-            'dojox/gfx/svg'
         ]);
