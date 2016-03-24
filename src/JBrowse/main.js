@@ -27,5 +27,5 @@ require([
             'JBrowse/View/Track/SNPCoverage',
 
             // track lists
-            'JBrowse/Store/TrackMetaData',
+            'JBrowse/Store/TrackMetaData'
         ]);
