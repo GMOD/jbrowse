@@ -154,7 +154,20 @@ src/wig2png/configure: src/wig2png/configure.in
 	cd src/wig2png && autoconf
 
 superclean: clean
-	-git clean -fdx --exclude=plugins/
+	-git clean -fd --exclude=plugins/ \
+	    --exclude src/FileSaver/ \
+	    --exclude src/dbind/ \
+	    --exclude src/dgrid/ \
+	    --exclude src/dijit/ \
+	    --exclude src/dojo/ \
+	    --exclude src/dojox/ \
+	    --exclude src/jDataView/ \
+	    --exclude src/json-schema/ \
+	    --exclude src/jszlib/ \
+	    --exclude src/lazyload/ \
+	    --exclude src/put-selector/ \
+	    --exclude src/util/ \
+	    --exclude src/xstyle/ 
 
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
