@@ -46,7 +46,7 @@ function check_bower(){
 echo > setup.log;
 
 check_bower >> setup.log ;
-$bower_executable install >> setup.log ;
+$bower_executable install -f >> setup.log ;
 
 # log information about this system
 (
