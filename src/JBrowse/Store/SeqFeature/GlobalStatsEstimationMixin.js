@@ -23,6 +23,8 @@ return declare( null, {
 
         refseq = refseq || this.refSeq;
 
+        var startTime = new Date();
+
         var statsFromInterval = function( length, callback ) {
             var thisB = this;
             var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
@@ -54,8 +56,11 @@ return declare( null, {
                  if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
                      console.log( 'Store statistics: '+(this.source||this.name), stats );
                      deferred.resolve( stats );
-                 } else {
+                 } else if( ((new Date()) - startTime) < 500 ) {
                      statsFromInterval.call( this, interval * 2, maybeRecordStats );
+                 } else {
+                     console.log( 'Store statistics timed out: '+(this.source||this.name) );
+                     deferred.resolve( { featureDensity: 0, error: 'global stats estimation timed out' } );
                  }
             }
         };

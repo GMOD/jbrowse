@@ -21,6 +21,7 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureLabel( feature );
         if( ! text )
             return null;
+        text = ''+text;
         var font = this.getStyle( feature, 'textFont' );
         var l = fRect ? this.makeBottomOrTopLabel( text, font, fRect ) : this.makePopupLabel( text, font );
         l.fill = this.getStyle( feature, 'textColor' );
@@ -36,6 +37,7 @@ return declare( FeatureDescriptionMixin,  {
         var text = this.getFeatureDescription( feature );
         if( ! text )
             return null;
+        text = ''+text;
         var font = this.getStyle( feature, 'text2Font' );
         var l = fRect ? this.makeBottomOrTopLabel( text, font, fRect ) : this.makePopupLabel( text, font );
         l.fill = this.getStyle( feature, 'text2Color' );

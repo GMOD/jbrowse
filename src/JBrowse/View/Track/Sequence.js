@@ -47,7 +47,9 @@ return declare( [BlockBased, ExportMixin, CodonTable],
             maxExportSpan: 500000,
             showForwardStrand: true,
             showReverseStrand: true,
-            showTranslation: true
+            showTranslation: true,
+            seqType: 'dna',
+            proteinColorScheme: 'taylor'
         };
     },
     _exportFormats: function() {
@@ -267,9 +269,13 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         var container  = document.createElement('tr');
         var charWidth = 100/(end-start)+"%";
         var drawChars = scale >= charSize.w;
+        var baseClassDefault = 'base';
+        if(this.config.seqType === 'protein'){
+            baseClassDefault += ' aaScheme_' + this.config.proteinColorScheme;
+        }
         for( var i=0; i<seq.length; i++ ) {
             var base = document.createElement('td');
-            base.className = 'base base_'+seq.charAt(i).toLowerCase();
+            base.className = baseClassDefault + ' base_'+seq.charAt(i).toLowerCase();
             base.style.width = charWidth;
             if( drawChars ) {
                 base.innerHTML = seq.charAt(i);

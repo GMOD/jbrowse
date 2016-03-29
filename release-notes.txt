@@ -1,5 +1,30 @@
 {{$NEXT}}
 
+
+## Minor improvements
+
+  * Add the ability to load tabix indexed GFF files. Thanks to
+    Colin Diesh for the implementation (#670).
+
+  * Add ability to access SPARQL stores that reject CORS requests
+    to access sites like WikiData. Thanks to the WebApollo hackathon
+    for the ideas (#679).
+
+  * Add extra coloring schemes for the Sequence track when using
+    protein residues. Thanks to Eric Rasche for the idea and
+    implementation (#673).
+
+  * Add ability to specify custom exporter classes for the "Save track
+    data" option, for example, adding exporter code in plugins (#682).
+
+  * Bump to using dojo 1.8.10, which re-enables touch scrolling on
+    newer iOS 8+ (#666).
+
+  * Add a timer for the feature statistics calculation (#663).
+
+  * Add an option to specify multiple highlights, or bookmarks,
+    using the config file, a remote service, or the URL bar (#668).
+
 ## Bug fixes
 
   * Fix error where the sequence track would not load after "Open
@@ -9,6 +34,20 @@
 
   * Fix issue where saving session overwrote the plugins that were
     loaded
+
+  * Fix an error if there were numerical values being used as label
+    or description for the CanvasFeatures type tracks. Thanks to
+    Eric Rasche for reporting (#673).
+
+# Release 1.12.1     2015-03-01
+
+## Bug fixes
+
+ * Fix RegexSearch plugin and NeatCanvasFeatures plugin - search track 
+   loading failure (issue #676)
+
+ * Fix compat_121.html to access /css directory
+
 
 # Release 1.12.0     2015-12-18 17:40:39 America/Los_Angeles
 
