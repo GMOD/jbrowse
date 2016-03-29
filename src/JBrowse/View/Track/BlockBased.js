@@ -1226,36 +1226,36 @@ define([
                          domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
                          }*/
                         //if( trimLeft <= 0 ) {
-                        if(bookmark.type === 'right-edge'){
-                            var d1 = domConstruct.create('div', {
-                                style: {
-                                    background: bookmark.background,
-                                    color: bookmark.color,
-                                    border: "1px solid black",
-                                    padding: '5px',
-                                    //marginTop: '20px',
-                                    zIndex: 1000
-                                    //opacity: 0.5
-                                },
-                                innerHTML: "<- "+ bookmark.refseq  + " ("+bookmark.originalPosition+")"
-                            }, args.block.domNode);
-                        }
-                        if(bookmark.type === 'left-edge'){
-                            var d1 = domConstruct.create('div', {
-                                style: {
-                                    background: bookmark.background,
-                                    color: bookmark.color,
-                                    border: "1px solid black",
-                                    padding: '5px',
-                                    //marginTop: '20px',
-                                    left: '100',
-                                    zIndex: 1000
-
-                                    //opacity: 0.5
-                                },
-                                innerHTML: bookmark.refseq  + " ("+bookmark.originalPosition+") ->"
-                            }, args.block.domNode);
-                        }
+                        // if(bookmark.type === 'right-edge'){
+                        //     var d1 = domConstruct.create('div', {
+                        //         style: {
+                        //             background: bookmark.background,
+                        //             color: bookmark.color,
+                        //             border: "1px solid black",
+                        //             padding: '5px',
+                        //             //marginTop: '20px',
+                        //             zIndex: 1000
+                        //             //opacity: 0.5
+                        //         },
+                        //         innerHTML: "<- "+ bookmark.refseq  + " ("+bookmark.originalPosition+")"
+                        //     }, args.block.domNode);
+                        // }
+                        // if(bookmark.type === 'left-edge'){
+                        //     var d1 = domConstruct.create('div', {
+                        //         style: {
+                        //             background: bookmark.background,
+                        //             color: bookmark.color,
+                        //             border: "1px solid black",
+                        //             padding: '5px',
+                        //             //marginTop: '20px',
+                        //             left: '100',
+                        //             zIndex: 1000
+                        //
+                        //             //opacity: 0.5
+                        //         },
+                        //         innerHTML: bookmark.refseq  + " ("+bookmark.originalPosition+") ->"
+                        //     }, args.block.domNode);
+                        // }
                 //        //if (bookmark.type === 'facing-right') {
                 //        //    //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
                 //        //    var d1 = domConstruct.create('div', {
