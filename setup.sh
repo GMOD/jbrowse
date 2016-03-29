@@ -16,8 +16,7 @@ function check_node(){
     if ! [ -x "$node_executable" ] ; then
         nodejs_executable=$(which nodejs)
         if ! [ -x "$nodejs_executable" ] ; then
-            echo "You must install 'Node JS' to install JBrowse."
-            exit 1 ;
+            echo "You must install 'Node JS' to install JBrowse from bower."
         else
             echo "Creating an alias 'node' for 'nodejs'"
             node_executable="$nodejs_executable"
@@ -33,8 +32,7 @@ function check_bower(){
 		$npm_executable install -g bower
 		bower_executable=$(which bower)
 		if ! [ -x "$bower_executable" ] ; then
-			echo "You must install 'bower' to do a release of Apollo. `npm install -g bower`"
-			exit 1 ;
+			echo "You must install 'bower' to install JBrowse `npm install -g bower` using bower."
 	    else 
 			echo "Bower installed";
 	    fi
@@ -42,6 +40,7 @@ function check_bower(){
 		echo "Bower installed";
     fi
 }
+
 
 echo > setup.log;
 
