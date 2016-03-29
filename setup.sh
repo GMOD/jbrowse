@@ -10,7 +10,43 @@ done_message () {
     fi
 }
 
+function check_node(){
+    node_executable=$(which node)
+    npm_executable=$(which npm)
+    if ! [ -x "$node_executable" ] ; then
+        nodejs_executable=$(which nodejs)
+        if ! [ -x "$nodejs_executable" ] ; then
+            echo "You must install 'Node JS' to install JBrowse."
+            exit 1 ;
+        else
+            echo "Creating an alias 'node' for 'nodejs'"
+            node_executable="$nodejs_executable"
+        fi
+    fi
+	echo "Node installed";
+}
+
+function check_bower(){
+	check_node;
+    bower_executable=$(which bower)
+    if ! [ -x "$bower_executable" ] ; then
+		$npm_executable install -g bower
+		bower_executable=$(which bower)
+		if ! [ -x "$bower_executable" ] ; then
+			echo "You must install 'bower' to do a release of Apollo. `npm install -g bower`"
+			exit 1 ;
+	    else 
+			echo "Bower installed";
+	    fi
+	else
+		echo "Bower installed";
+    fi
+}
+
 echo > setup.log;
+
+check_bower >> setup.log ;
+$bower_executable install >> setup.log ;
 
 # log information about this system
 (
