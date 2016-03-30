@@ -269,12 +269,12 @@ return declare( JBrowsePlugin,
             // restyle other subfeatures
             else {
             //if(classAttr.indexOf('CDS') > -1 || classAttr.indexOf('exon') > -1) {
-                dojo.setStyle(subNode, {
-                    //'height': '100%',
-                    'top': '0px',
-                    //'border-width': '0px',
-                    'background': 'linear-gradient(to bottom,  '+color+' 0%,#e5e5e5 50%,'+color+' 100%)'
-                });
+//                dojo.setStyle(subNode, {
+//                    //'height': '100%',
+//                    'top': '0px',
+//                    //'border-width': '0px',
+//                    'background': 'linear-gradient(to bottom,  '+color+' 0%,#e5e5e5 50%,'+color+' 100%)'
+//                });
             }
             // mark that we have processed the node
             dojo.addClass(subNode, "neat-subfeature");
