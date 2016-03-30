@@ -47,7 +47,7 @@ echo > setup.log;
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
 # OR 
 # if dev we don't care
-if ! [ -f "src/dojo/dojo.js" && ! -f "src/dojo/_firebug/firebug.js" ]; then 
+if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
 	check_bower >> setup.log ;
 	$bower_executable install -f --allow-root >> setup.log ;
 fi
