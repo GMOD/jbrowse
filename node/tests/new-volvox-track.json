@@ -1,0 +1,14 @@
+{
+    "label" : "fromfaye",
+    "features" : [ { "seq_id" : "ctga",
+		     "name" : "Notified",
+		     "polarity" : "hijinxed",
+		     "description" : "Test feature added via Faye",
+		     "end" : 440,
+		     "start" : 330} ],
+    "storeClass" : "JBrowse/Store/SeqFeature/FromConfig",
+    "metadata" : { "Description" : "Demonstration of adding a track via Faye", "Category" : "Ridiculus", "Target" : "Emeryville" },
+    "category" : "Miscellaneous",
+    "type" : "JBrowse/View/Track/HTMLFeatures",
+    "key" : "Track added via Faye"
+}
