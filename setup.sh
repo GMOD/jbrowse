@@ -50,6 +50,9 @@ echo > setup.log;
 if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
 	check_bower >> setup.log ;
 	$bower_executable install -f --allow-root >> setup.log ;
+elif ! [ -f "src/dojo/dojo.js" ]; then
+	check_bower >> setup.log ;
+	$bower_executable install -f --allow-root >> setup.log ;
 fi
 
 
