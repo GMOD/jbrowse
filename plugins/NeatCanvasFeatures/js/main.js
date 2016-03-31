@@ -178,15 +178,15 @@ return declare( JBrowsePlugin,
 
             // Create gradient
 
-            var grd = context.createLinearGradient(left, top, left, top+height);
+//            var grd = context.createLinearGradient(left, top, left, top+height);
 
-            // Add colors
-            grd.addColorStop(0.000, bgcolor);
-            grd.addColorStop(0.500,this.colorShift(bgcolor,2.5));
-            grd.addColorStop(0.999, bgcolor);
+//            // Add colors
+//            grd.addColorStop(0.000, bgcolor);
+//            grd.addColorStop(0.500,this.colorShift(bgcolor,2.5));
+//            grd.addColorStop(0.999, bgcolor);
 
-            // Fill with gradient
-            context.fillStyle = grd;
+//            // Fill with linear 
+            context.fillStyle = bgcolor;
            
         }
 
