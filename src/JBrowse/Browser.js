@@ -2847,7 +2847,7 @@ cookie: function(keyWithoutId,value) {
 
 createNavBox: function( parent ) {
     var thisB = this;
-    var align = 'left';
+    var align = 'center';
     var navbox = dojo.create( 'div', { id: 'navbox', style: { 'text-align': align } }, parent );
 
     // container adds a white backdrop to the locationTrap.
