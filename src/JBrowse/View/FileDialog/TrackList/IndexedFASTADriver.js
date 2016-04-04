@@ -13,7 +13,22 @@ return declare( IndexedFileDriver,  {
 
     indexExtension: 'fai',
     indexConfKey: 'fai',
-    indexUrlConfKey: 'faiUrlTemplate'
+    indexUrlConfKey: 'faiUrlTemplate',
+
+
+    tryResource: function(configs, resource) {
+        this.inherited(arguments);
+    },
+    finalizeConfiguration: function(configs) {
+        this.inherited(arguments);
+        for(var i in configs) {
+            var config = configs[i];
+            if( !config.fai ) {
+                // if no fai, change to UnindexedFasta
+                config.type = "JBrowse/Store/SeqFeature/UnindexedFasta";
+            }
+        }
+    }
 });
 
 });
