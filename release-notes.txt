@@ -42,6 +42,9 @@
     or description for the CanvasFeatures type tracks. Thanks to
     Eric Rasche for reporting (#673).
 
+  * Fix some issues where the Gene glyph would not layout some
+    features correctly. Thanks to Eric Rasche for reporting (#686).
+
 # Release 1.12.1     2015-03-01
 
 ## Bug fixes
