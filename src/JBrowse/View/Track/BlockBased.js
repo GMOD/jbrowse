@@ -1164,8 +1164,8 @@ define([
                                 array.forEach(books.features, function (bookmark) {
                                     if (bookmark.ref != this.refSeq.name) return;
                                     var loc = new Location(bookmark.refseq + ":" + bookmark.start + ".." + bookmark.end);
-                                    //this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
-                                    this.renderRegionHighlight(args, loc, bookmark.color, renderLabels ? bookmark : null);
+                                    this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
+                                    //this.renderRegionHighlight(args, loc, bookmark.color, renderLabels ? bookmark : null);
                                 }, thisB);
                             },
                             function (error) {
@@ -1217,45 +1217,52 @@ define([
                     }, args.block.domNode);
 
                     if (bookmark) {
-                        /*
-                         //  vertical text, has bugs
-                         if( trimLeft <= 0 ) {
-                         domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
-                         }
-                         if( trimRight <= 0 ) {
-                         domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
-                         }*/
                         //if( trimLeft <= 0 ) {
-                        // if(bookmark.type === 'right-edge'){
-                        //     var d1 = domConstruct.create('div', {
-                        //         style: {
-                        //             background: bookmark.background,
-                        //             color: bookmark.color,
-                        //             border: "1px solid black",
-                        //             padding: '5px',
-                        //             //marginTop: '20px',
-                        //             zIndex: 1000
-                        //             //opacity: 0.5
-                        //         },
-                        //         innerHTML: "<- "+ bookmark.refseq  + " ("+bookmark.originalPosition+")"
-                        //     }, args.block.domNode);
-                        // }
-                        // if(bookmark.type === 'left-edge'){
-                        //     var d1 = domConstruct.create('div', {
-                        //         style: {
-                        //             background: bookmark.background,
-                        //             color: bookmark.color,
-                        //             border: "1px solid black",
-                        //             padding: '5px',
-                        //             //marginTop: '20px',
-                        //             left: '100',
-                        //             zIndex: 1000
-                        //
-                        //             //opacity: 0.5
-                        //         },
-                        //         innerHTML: bookmark.refseq  + " ("+bookmark.originalPosition+") ->"
-                        //     }, args.block.domNode);
-                        // }
+                        if(bookmark.type === 'region'){
+                            var d1 = domconstruct.create('div', {
+                                style: {
+                                    background: bookmark.background,
+                                    color: bookmark.color,
+                                    border: "1px solid black",
+                                    padding: '5px',
+                                    //margintop: '20px',
+                                    zindex: 1000
+                                    //opacity: 0.5
+                                },
+                                innerhtml: "<- "+ bookmark.refseq  + " ("+bookmark.originalposition+")"
+                            }, args.block.domnode);
+                        }
+                         if(bookmark.type === 'right-edge'){
+                             var d1 = domconstruct.create('div', {
+                                 style: {
+                                     background: bookmark.background,
+                                     color: bookmark.color,
+                                     border: "1px solid black",
+                                     padding: '5px',
+                                     //margintop: '20px',
+                                     zindex: 1000
+                                     //opacity: 0.5
+                                 },
+                                 innerhtml: "<- "+ bookmark.refseq  + " ("+bookmark.originalposition+")"
+                             }, args.block.domnode);
+                         }
+                         if(bookmark.type === 'left-edge'){
+                             var d1 = domConstruct.create('div', {
+                                 style: {
+                                     background: bookmark.background,
+                                     color: bookmark.color,
+                                     border: "1px solid black",
+                                     padding: '5px',
+                                     //marginTop: '20px',
+                                     left: '100',
+                                     zIndex: 1000
+
+                                     //opacity: 0.5
+                                 },
+                                 innerHTML: bookmark.refseq  + " ("+bookmark.originalPosition+") ->"
+                             }, args.block.domNode);
+                         }
+                        console.log('type: ' + bookmark.type);
                 //        //if (bookmark.type === 'facing-right') {
                 //        //    //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
                 //        //    var d1 = domConstruct.create('div', {
@@ -1274,8 +1281,8 @@ define([
                 //        //}
                 //
                 //        //var textWidth = (d1.clientWidth + 1) + "px";
-                //        //d1.style.left = 'calc(' + left + '% - ' + textWidth + ')';
-                //        //d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
+                        d1.style.left = 'calc(' + left + '% - ' + textWidth + ')';
+                        d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
                     }
                 }
 
