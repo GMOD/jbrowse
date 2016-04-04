@@ -25,6 +25,9 @@
   * Add an option to specify multiple highlights, or bookmarks,
     using the config file, a remote service, or the URL bar (#668).
 
+  * Fix some inconsistencies where opening a file with .fasta instead
+    of .fa caused issues (#696).
+
 ## Bug fixes
 
   * Fix error where the sequence track would not load after "Open
@@ -38,6 +41,9 @@
   * Fix an error if there were numerical values being used as label
     or description for the CanvasFeatures type tracks. Thanks to
     Eric Rasche for reporting (#673).
+
+  * Fix some issues where the Gene glyph would not layout some
+    features correctly. Thanks to Eric Rasche for reporting (#686).
 
 # Release 1.12.1     2015-03-01
 

@@ -58,7 +58,7 @@ _getFeatureRectangle: function( viewArgs, feature ) {
     };
     if( subfeatures && subfeatures.length ) {
         // sort the children by name
-        subfeatures.sort( function( a, b ) { return (a.get('name') || '').localeCompare( b.get('name')||'' ); } );
+        subfeatures.sort( function( a, b ) { return (a.get('name') || a.get('id') || '').localeCompare( b.get('name') || b.get('id') || '' ); } );
 
         fRect.l = Infinity;
         fRect.r = -Infinity;

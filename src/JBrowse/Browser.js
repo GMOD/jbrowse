@@ -1169,7 +1169,7 @@ openFastaElectron: function() {
           var confs = results.trackConfs || [];
 
           if( confs.length ) {
-            if( confs[0].store.fasta ) {
+            if( confs[0].store.fasta && confs[0].store.fai ) {
                 var fasta = Util.replacePath( confs[0].store.fasta.url );
                 var fai = Util.replacePath( confs[0].store.fai.url );
 
@@ -1202,7 +1202,7 @@ openFastaElectron: function() {
                 } catch(e) { alert(e); }
             }
             else {
-                var fasta = Util.replacePath( confs[0].store.blob.url );
+                var fasta = Util.replacePath( confs[0].store.fasta.url );
                 try {
                     var stats = fs.statSync( fasta );
                     if(stats.size>100000000) {
@@ -1276,22 +1276,7 @@ openFasta: function() {
               });
           }
           if( confs.length ) {
-            if( confs[0].store.blob ) {
-                if( confs[0].store.blob.size > 100000000 ) {
-                   if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
-                       return;
-                   }
-                }
-                new UnindexedFasta({
-                    browser: this,
-                    fasta: confs[0].store.blob
-                })
-                .getRefSeqs(
-                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
-                    function(error) { alert('Error getting refSeq: '+error); }
-                );
-            }
-            else {
+            if( confs[0].store.fasta && confs[0].store.fai ) {
                 new IndexedFasta({
                     browser: this,
                     fai: confs[0].store.fai,
@@ -1302,6 +1287,22 @@ openFasta: function() {
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }
+            else if( confs[0].store.fasta ) {
+                if( confs[0].store.fasta.size > 100000000 ) {
+                   if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
+                       return;
+                   }
+                }
+                new UnindexedFasta({
+                    browser: this,
+                    fasta: confs[0].store.fasta
+                })
+                .getRefSeqs(
+                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
+                    function(error) { alert('Error getting refSeq: '+error); }
+                );
+            }
+            
           }
         })
       });
