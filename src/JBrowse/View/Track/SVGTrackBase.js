@@ -1059,16 +1059,16 @@ return declare(
         }
     },
 
-    heightUpdate: function( height, blockIndex ) {
-        //console.log("SVGFeatures::heightUpdate("+height+")");
-        //console.dir(arguments);
-        //var err = new Error();
-        //console.log(err.stack);
-        
-        this.inherited( arguments );
-        if( this.svgCanvas )
-            this.svgCanvas.height = this.svgCanvas.offsetHeight;
-    },
+    //heightUpdate: function( height, blockIndex ) {
+    //    //console.log("SVGFeatures::heightUpdate("+height+")");
+    //    //console.dir(arguments);
+    //    //var err = new Error();
+    //    //console.log(err.stack);
+    //
+    //    this.inherited( arguments );
+    //    if( this.svgCanvas )
+    //        this.svgCanvas.height = this.svgCanvas.offsetHeight;
+    //},
 
     destroy: function() {
         this.destroyed = true;
