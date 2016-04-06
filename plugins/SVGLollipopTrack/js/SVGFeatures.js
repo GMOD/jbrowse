@@ -1,5 +1,5 @@
 /**
- * SVGTrackBase - base class of SVG tracks
+ * SVGFeatures - derrived from CanvasFeatures
  */
 
 define( [
@@ -9,7 +9,6 @@ define( [
             'dojo/_base/event',
             'dojo/mouse',
             'dojo/dom-construct',
-            'dojo/dom-style',
             'dojo/Deferred',
             'dojo/on',
             'JBrowse/has',
@@ -31,7 +30,6 @@ define( [
             domEvent,
             mouse,
             domConstruct,
-            domStyle,
             Deferred,
             on,
             has,
@@ -196,6 +194,37 @@ return declare(
         });
     },
 
+    setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
+        console.log("SVGFeatures::setViewInfo");
+
+        this.inherited( arguments );
+        
+        // make svg canvas
+        this.svgCanvas = document.createElementNS('http://www.w3.org/2000/svg','svg');
+        this.svgCanvas.setAttribute('class', 'svg-overlay');
+        this.svgCanvas.setAttribute('style', 'width:100%;height:100%;cursor:default;position:absolute;z-index:15');
+        domConstruct.place(this.svgCanvas,trackDiv);
+
+        // container for coord elements (this is just to test the coordinate space)
+        this.coordGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+        this.svgCanvas.appendChild(this.coordGroup);
+        this.svgCanvas.fCoord = new Array();
+
+        // container for feature elements
+        this.svgCanvas.featureGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+        this.svgCanvas.featureGroup.fItem = new Array();
+        this.svgCanvas.appendChild(this.svgCanvas.featureGroup);
+        
+        
+        //this.svgCanvas.height = this.svgCanvas.offsetHeight;
+        
+        this.svgHeight = 100;
+        this.svgScale = 1;
+
+        this._makeLabelTooltip( );
+        
+    },
+
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
         console.log("SVGFeatures::showRange");
         console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
@@ -210,13 +239,141 @@ return declare(
             containerEnd: containerEnd
         }
         
-        this.svgScale = scale;
-        
         this.inherited(arguments);      // call the superclass's showRange
-
-        this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
-        this.svgSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
         
+        this.showSVGRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+        
+    },
+    showSVGRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
+    
+        var lf = this.blocks[first].domNode.left;
+    
+        // adjust svg size
+        var left = first * this.widthPct;
+        var width = (last - first) * this.widthPct;
+        
+        // setup viewbox values for svgCanvas
+        var vbMinX = -left;
+        var vbMinY = 0; 
+        var vbHeight = this.svgHeight;
+        var vbWidth = width;
+        var vbValues = bMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
+
+        this.svgCanvas.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;cursor:default;position:absolute;z-index:15');
+        this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
+        this.corodGroup.setAttribute('viewBox', vbValues);
+        this.svgCanvas.featureGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
+        
+        var maxLen = this.svgHeight;
+	var len = 0;
+        
+        // lot of this can go away when the viewbox stuff is working properly.
+        // traverse features.
+        for (var id in this.svgCanvas.featureGroup.fItem) {
+            var bpCoord = this.svgCanvas.featureGroup.fItem[id].bpCoord;
+            if (bpCoord < this.blocks[first].startBase && bpCoord > this.blocks[last].endBase) {
+                // hide features out of range
+                this.svgCanvas.featureGroup.fItem[id].setAttribute("display","none");
+            }
+            else {
+                // adjust positions of features
+                var feature = this.svgCanvas.featureGroup.fItem[id].feature;
+                var bpCoord = feature.get("start");
+                var cx = this.bp2px(bpCoord);
+                len = feature.get("end") - feature.get("start") ;
+                if (len > maxLen)  maxLen = len;
+                len = this.svgHeight - (len / 5);
+                if (id.charAt(0) === "C")
+                    this.svgCanvas.featureGroup.fItem[id].setAttribute('style', 'cx:'+cx+';cy:'+len+';r:10;fill:rgba(0,0,255,.5)');
+                else {
+                    svgItem = this.svgCanvas.featureGroup.fItem[id];
+                    svgItem.feature = feature;
+                    svgItem.setAttribute('x1',cx);
+                    svgItem.setAttribute('y1',len);
+                    svgItem.setAttribute('x2',cx);
+                    svgItem.setAttribute('y2',this.svgHeight);
+                    svgItem.setAttribute('stroke','grey');
+                    svgItem.setAttribute('stroke-width',1);
+                    //svgItem.setAttribute('style', 'x1:'+cx+';y1:'+len+';x2:'+cx+';y2:'+this.svgHeight+';stroke:grey;stroke-width:1');
+                }
+		//console.log("len="+len);
+            }
+        }  
+        console.log("maxLen="+maxLen);
+
+        // adjust vertical height of features if necessary
+        if (0) { //maxLen > this.svgHeight) {
+            this.svgScale = this.svgHeight / maxLen;
+            console.log("Adjusting vertical...scale="+scale);
+            
+            // traverse features with vertical height adjust.
+            for (var id in this.svgCanvas.featureGroup.fItem) {
+                var bpCoord = this.svgCanvas.featureGroup.fItem[id].bpCoord;
+                if (bpCoord < this.blocks[first].startBase && bpCoord > this.blocks[last].endBase) {
+                    // hide features out of range
+                    this.svgCanvas.featureGroup.fItem[id].setAttribute("display","none");
+                }
+                else {
+                    // adjust positions of features
+                    var feature = this.svgCanvas.featureGroup.fItem[id].feature;
+                    var bpCoord = feature.get("start");
+                    var cx = this.bp2px(bpCoord);
+                    len = this.svgScale * (feature.get("end") - feature.get("start") ) / 5;
+                    len = this.svgHeight - len;
+                    if (id.charAt(0) === "C")
+                        this.svgCanvas.featureGroup.fItem[id].setAttribute('style', 'cx:'+cx+';cy:'+len+';r:10;fill:rgba(0,0,255,.5)');
+                    else {
+                        svgItem = this.svgCanvas.featureGroup.fItem[id];
+                        svgItem.feature = feature;
+                        svgItem.setAttribute('x1',cx);
+                        svgItem.setAttribute('y1',len);
+                        svgItem.setAttribute('x2',cx);
+                        svgItem.setAttribute('y2',this.svgHeight);
+                        svgItem.setAttribute('stroke','grey');
+                        svgItem.setAttribute('stroke-width',1);
+                        //svgItem.setAttribute('style', 'x1:'+cx+';y1:'+len+';x2:'+cx+';y2:'+this.svgHeight+';stroke:grey;stroke-width:1');
+                    }
+                }
+            }  
+        }
+        // erase test coordinates
+        for (var bpCoord in this.svgCanvas.fCoord) {
+            this.svgCanvas.fCoord[bpCoord].setAttribute("display","none");
+        }        
+        
+        // draw test coordinates
+        for(var i=first;i < last;i++) {
+            var bpCoord = this.blocks[i].startBase;
+            var x = this.bp2px(bpCoord);
+            var svgCoord;
+            if (bpCoord in this.svgCanvas.fCoord ) { 
+                svgCoord = this.svgCanvas.fCoord[bpCoord]; 
+            }
+            else {
+                svgCoord = document.createElementNS('http://www.w3.org/2000/svg','text');
+                this.svgCanvas.fCoord[bpCoord] = svgCoord;
+            }
+            svgCoord.setAttribute('x',x);
+            svgCoord.setAttribute('y','20');
+            svgCoord.setAttribute('fill','red');
+            svgCoord.setAttribute('transform','rotate(90 '+x+' 20)');
+            svgCoord.setAttribute('display','block');
+            svgCoord.innerHTML = bpCoord + 1;            
+            this.coordGroup.appendChild(svgCoord);
+        }
+    },
+    /*
+     * given BP coordinate, compute px coordinate within SVG canvas.
+     */ 
+    bp2px: function(val) {
+        return (val - this.displayContext.startBase) * this.displayContext.scale;
+        //return (val - (this.blocks[this.displayContext.first].startBase)) * this.displayContext.scale;
+    },
+    fixId: function(val) {
+        return val.replace(",", "-");
+    },
+    computeHeight: function() {
+        return this.svgHeight;
     },
     guessGlyphType: function(feature) {
         return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript', 'transcript': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
@@ -962,9 +1119,77 @@ return declare(
 
     // draw each feature
     renderFeature: function( context, fRect ) {
+	console.log("SVGFeatures::renderFeature");
         
         //fRect.glyph.renderFeature( context, fRect );  // -- bypass actually drawing anything.
         
+        this.renderSVGFeature(context ,fRect);
+
+    },
+    
+    renderSVGFeature: function( context, fRect ) {
+        var id = "L-"+this.fixId(fRect.f.id());
+        var feature = fRect.f;
+        
+        // given the bp coordinate of the feature, get the x position in the SVG coord space.
+        var bpCoord = feature.get("start");
+        var cx = this.bp2px(bpCoord);
+        var len = this.svgScale * (feature.get("end") - feature.get("start") ) / 5;
+        len = this.svgHeight - len;
+        //console.log("cx="+cx+" len="+len);
+        
+        // create svg element
+        
+        if (id in this.svgCanvas.featureGroup.fItem ) { 
+            var svgItem = this.svgCanvas.featureGroup.fItem[id];        // element already exists 
+        }
+        else {
+            var svgItem = document.createElementNS('http://www.w3.org/2000/svg','line');
+            svgItem.setAttribute('id',id);
+            svgItem.setAttribute('bpCoord', bpCoord);
+            svgItem.bpCoord = bpCoord;
+            this.svgCanvas.featureGroup.fItem[id] = svgItem;
+            this.svgCanvas.featureGroup.appendChild(svgItem);
+        }
+
+        svgItem.feature = feature;
+        svgItem.setAttribute('x1',cx);
+        svgItem.setAttribute('y1',len);
+        svgItem.setAttribute('x2',cx);
+        svgItem.setAttribute('y2',this.svgHeight);
+        svgItem.setAttribute('stroke','grey');
+        svgItem.setAttribute('stroke-width',1);
+        //svgItem.setAttribute('style', 'x1:'+cx+';y1:'+len+';x2:'+cx+';y2:'+this.svgHeight+';stroke:grey;stroke-width:1');
+        svgItem.setAttribute('display', 'block');
+        
+        var id = "C-"+this.fixId(fRect.f.id());
+        //var feature = fRect.f;
+        
+        // given the bp coordinate of the feature, get the x position in the SVG coord space.
+        //var bpCoord = feature.get("start");
+        //var cx = this.bp2px(bpCoord);
+        //var len = this.svgScale * (feature.get("end") - feature.get("start") ) / 5;
+        //len = this.svgHeight - len;
+        //console.log("cx="+cx+" len="+len);
+        
+        // create svg element
+        
+        if (id in this.svgCanvas.featureGroup.fItem ) { 
+            var svgItem = this.svgCanvas.featureGroup.fItem[id];        // element already exists 
+        }
+        else {
+            var svgItem = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            svgItem.setAttribute('id',id);
+            svgItem.setAttribute('bpCoord', bpCoord);
+            svgItem.bpCoord = bpCoord;
+            this.svgCanvas.featureGroup.fItem[id] = svgItem;
+            this.svgCanvas.featureGroup.appendChild(svgItem);
+        }
+
+        svgItem.feature = feature;
+        svgItem.setAttribute('style', 'cx:'+cx+';cy:'+len+';r:10;fill:rgba(0,0,255,.5)');
+        svgItem.setAttribute('display', 'block');
+       
     },
     
     _trackMenuOptions: function () {
@@ -1030,7 +1255,7 @@ return declare(
 
         this.updateYScaleFromViewDimensions( coords );
 
-        if( false && coords.hasOwnProperty("x") ) {
+        if( coords.hasOwnProperty("x") ) {
             //var context = this.svgCanvas.getContext('2d'); //eyao
 // eyao test
 //            this.svgCanvas.width = this.browser.view.elem.clientWidth;

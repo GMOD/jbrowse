@@ -1,0 +1,19 @@
+{
+  "name": "jbrowse",
+  "version": "1.12.2",
+  "dependencies": {
+    "dojo":         "1.9.2",
+    "dojox":        "1.9.2",
+    "dijit":        "1.9.2",
+    "util":         "dojo/util#1.9.2",
+    "put-selector": "0.3.6",
+    "dgrid":        "0.3.17",
+    "xstyle":       "0.3.1",
+    "jDataView":    "rbuels/jDataView",
+    "jszlib":       "rbuels/jszlib",
+    "FileSaver":    "dkasenberg/FileSaver.js",
+    "json-schema":  "kriszyp/json-schema#0.2.1",
+    "lazyload":     "rbuels/lazyload#amd",
+    "dbind":        "rbuels/dbind"
+  }
+}

@@ -6,20 +6,24 @@ addons:
     - libdb-dev
     - libgd2-noxpm-dev
     - nginx
-install:
+cache:
+  - extlib/
+  - $HOME/perl5/
+before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
+  - npm install -g jshint bower
+install:
+  - bower install
   - bash setup.sh
-  - npm install -g jshint
+before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf
 script:
-  - node src/dojo/dojo.js load=build --require "src/JBrowse/init.js" --profile "src/JBrowse/JBrowse.profile.js"
-  - prove -Isrc/perl5 -lr tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
   - jshint src/JBrowse/
   - make -f build/Makefile release
-
 after_failure:
   - cat JBrowse-1.x.x-dev/setup.log 
   - find JBrowse-1.x.x-dev/extlib/lib/perl5
+  - cat JBrowse-1.x.x-dev/src/build-report.txt

@@ -10,7 +10,51 @@ done_message () {
     fi
 }
 
+function check_node(){
+    node_executable=$(which node)
+    npm_executable=$(which npm)
+    if ! [ -x "$node_executable" ] ; then
+        nodejs_executable=$(which nodejs)
+        if ! [ -x "$nodejs_executable" ] ; then
+            echo "You must install 'Node JS' to install JBrowse from bower."
+        else
+            echo "Creating an alias 'node' for 'nodejs'"
+            node_executable="$nodejs_executable"
+        fi
+    fi
+	echo "Node installed";
+}
+
+function check_bower(){
+	check_node;
+    bower_executable=$(which bower)
+    if ! [ -x "$bower_executable" ] ; then
+		$npm_executable install -g bower
+		bower_executable=$(which bower)
+		if ! [ -x "$bower_executable" ] ; then
+			echo "You must install 'bower' to install JBrowse `npm install -g bower` using bower."
+	    else 
+			echo "Bower installed";
+	    fi
+	else
+		echo "Bower installed";
+    fi
+}
+
+
 echo > setup.log;
+
+# if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
+# OR 
+# if dev we don't care
+if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
+	check_bower >> setup.log ;
+	$bower_executable install -f --allow-root >> setup.log ;
+elif ! [ -f "src/dojo/dojo.js" ]; then
+	check_bower >> setup.log ;
+	$bower_executable install -f --allow-root >> setup.log ;
+fi
+
 
 # log information about this system
 (
