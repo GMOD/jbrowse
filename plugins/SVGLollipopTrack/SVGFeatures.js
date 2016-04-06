@@ -257,11 +257,11 @@ return declare(
         var vbMinY = 0; 
         var vbHeight = this.svgHeight;
         var vbWidth = width;
-        var vbValues = vbMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
+        var vbValues = bMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
 
         this.svgCanvas.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;cursor:default;position:absolute;z-index:15');
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
-        this.coordGroup.setAttribute('viewBox', vbValues);
+        this.corodGroup.setAttribute('viewBox', vbValues);
         this.svgCanvas.featureGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
         
         var maxLen = this.svgHeight;
@@ -1264,13 +1264,12 @@ return declare(
 
             var minVisible = this.browser.view.minVisible();
             var maxVisible = this.browser.view.maxVisible();
-        // TODO: unused and causing errors,  remove?
-        //    var viewArgs = {
-        //        minVisible: minVisible,
-        //        maxVisible: maxVisible,
-        //        bpToPx: dojo.hitch(this.browser.view, "bpToPx"),
-        //        lWidth: this.label.offsetWidth
-        //    };
+            var viewArgs = {
+                minVisible: minVisible,
+                maxVisible: maxVisible,
+                bpToPx: dojo.hitch(this.browser.view, "bpToPx"),
+                lWidth: this.label.offsetWidth
+            };
 
             array.forEach( this.blocks, function(block) {
                 if( !block || !block.fRectIndex )
