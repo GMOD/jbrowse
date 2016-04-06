@@ -1030,7 +1030,7 @@ return declare(
 
         this.updateYScaleFromViewDimensions( coords );
 
-        if( coords.hasOwnProperty("x") ) {
+        if( false && coords.hasOwnProperty("x") ) {
             //var context = this.svgCanvas.getContext('2d'); //eyao
 // eyao test
 //            this.svgCanvas.width = this.browser.view.elem.clientWidth;
