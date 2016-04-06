@@ -60,13 +60,13 @@ return declare(
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
 
         var maxLen = this.svgHeight;
-	var len = 0;
+        var len = 0;
 
         // erase test coordinates
         for (var bpCoord in this.svgCoords.fCoord) {
             this.svgCoords.fCoord[bpCoord].setAttribute("display","none");
         }        
-        
+
         // draw test coordinates
         for(var i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
@@ -94,7 +94,7 @@ return declare(
     destroy: function() {
 
         domConstruct.destroy( this.svgCoords );
-        delete this.svgCoords
+        delete this.svgCoords;
 
         this.inherited( arguments );
     }
