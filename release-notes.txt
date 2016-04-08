@@ -1,6 +1,5 @@
 {{$NEXT}}
 
-
 ## Minor improvements
 
   * Upgraded build system to install dependencies with bower
@@ -45,6 +44,9 @@
 
   * Fix some issues where the Gene glyph would not layout some
     features correctly. Thanks to Eric Rasche for reporting (#686).
+
+  * Fix an issue with desktop mode where saving session would not
+    save the tracks that were not visible.
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 

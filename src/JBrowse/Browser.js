@@ -187,7 +187,6 @@ constructor: function(params) {
                            //    or should this be changed to always force DNA to show?
                            if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
                            // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
-                           console.log(tracksToShow);
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
@@ -1117,8 +1116,8 @@ saveData: function() {
     var dir = this.config.dataRoot;
 
     // use getstore to access the files that were loaded from local files, and create standard configs
-    var trackConfs = array.map( this.view.tracks, function(track) {
-        var temp = dojo.clone( track.config );
+    var trackConfs = array.map( Object.keys(this.trackConfigsByName), function(trackname) {
+        var temp = dojo.clone( this.trackConfigsByName[trackname] );
         this.getStore( temp.store, dojo.hitch( this, function( obj ) {
             temp.storeClass = obj.config.type;
             if( !temp.urlTemplate ) {
@@ -1237,7 +1236,7 @@ openFastaElectron: function() {
                         thisB.saveSessionDir( dir );
                         window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                     } catch(e) { alert(e); }
-                }, function() { console.log('error'); });
+                }, function(err) { console.error('error', err); });
             }
           }
         })
