@@ -27,7 +27,7 @@ menu.push(
                 label: '&Reload',
                 accelerator: 'CmdOrCtrl+R',
                 click: function () {
-                    BrowserWindow.getFocusedWindow().reloadIgnoringCache();
+                    BrowserWindow.getFocusedWindow().webContents.reloadIgnoringCache();
                 }
             },
             {

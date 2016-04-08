@@ -1136,7 +1136,7 @@ saveData: function() {
 
     var plugins = array.filter( Util.uniq( this.config.plugins ), function(elt) { return elt!="RegexSequenceSearch" });
     var tmp = {};
-    
+
     if( lang.isArray( this.config.plugins ) ) {
         array.forEach( this.config.plugins, function( p ) {
             tmp[ p ] = typeof p == 'object' ? p : { 'name': p };
@@ -1147,7 +1147,7 @@ saveData: function() {
         tracks: trackConfs,
         refSeqs: this.config.refSeqs,
         refSeqOrder: this.config.refSeqOrder,
-        plugins:tmp 
+        plugins:tmp
     };
     try {
         fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
@@ -1301,7 +1301,7 @@ openFasta: function() {
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }
-            
+
           }
         })
       });
@@ -2536,13 +2536,14 @@ makeSnapLink: function () {
             onClick: function() {
                 var fs = electronRequire('fs');
                 var screenshot = electronRequire('electron-screenshot')
-                console.log(window.location.href.split('?')[0]+'?data='+Util.replacePath( dataRoot ));
-
-                screenshot({
-                  filename: './out.png',
-                  delay: 5
-                }, function() { alert('Finished!') })
-                
+                var remote = electronRequire('remote');
+                var dialog = remote.require('dialog');
+                dialog.showSaveDialog(function (fileName) {
+                    screenshot({
+                      filename: fileName,
+                      delay: 1
+                    }, function() { console.log('Saved screenshot',fileName); });
+                });
             }
         }
     );
