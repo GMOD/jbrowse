@@ -22,22 +22,22 @@ function check_node(){
             node_executable="$nodejs_executable"
         fi
     fi
-	echo "Node installed";
+    echo "Node installed";
 }
 
 function check_bower(){
-	check_node;
+    check_node;
     bower_executable=$(which bower)
     if ! [ -x "$bower_executable" ] ; then
-		$npm_executable install -g bower
-		bower_executable=$(which bower)
-		if ! [ -x "$bower_executable" ] ; then
-			echo "You must install 'bower' to install JBrowse `npm install -g bower` using bower."
-	    else 
-			echo "Bower installed";
-	    fi
-	else
-		echo "Bower installed";
+        $npm_executable install -g bower
+        bower_executable=$(which bower)
+        if ! [ -x "$bower_executable" ] ; then
+            echo "You must install 'bower' to install JBrowse `npm install -g bower` using bower."
+        else
+            echo "Bower installed";
+        fi
+    else
+        echo "Bower installed";
     fi
 }
 
@@ -45,17 +45,17 @@ function check_bower(){
 echo > setup.log;
 
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
-# OR 
+# OR
 # if dev we don't care
 if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
-    echo "Detected precompiled version." ; 
+    echo "Detected precompiled version." ;
 elif ! [ -f "src/dojo/dojo.js" ]; then
-    echo "Dojo does not exist, isntealling." ; 
-	check_bower >> setup.log ;
-	$bower_executable install -f --allow-root >> setup.log ;
-else 
-    check_bower >> setup.log ; 
-	echo "Bower dependencies already installed.  Type '$bower_executable install -f allow-root' to force reinstallation of dependencies.";
+    echo "Dojo does not exist, installing" ;
+    check_bower >> setup.log ;
+    $bower_executable install -f --allow-root >> setup.log ;
+else
+    check_bower >> setup.log ;
+    echo "Bower dependencies already installed.  Type '$bower_executable install -f allow-root' to force reinstallation of dependencies.";
 fi
 
 
@@ -109,10 +109,10 @@ echo -n "Formatting Volvox example data ...";
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
-    if [ -d sample_data/json/modencode ]; then		
-            mkdir -p sample_data/json/modencode/tracks;		
-            ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;		
-    fi;    
+    if [ -d sample_data/json/modencode ]; then
+            mkdir -p sample_data/json/modencode/tracks;
+            ln -sf ../../volvox/tracks/volvox_microarray.wig sample_data/json/modencode/tracks/volvox_microarray.wig;
+    fi;
     mkdir -p sample_data/raw;
     if [ ! -e sample_data/raw/volvox ]; then
         ln -s ../../docs/tutorial/data_files sample_data/raw/volvox;
