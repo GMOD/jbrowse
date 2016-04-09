@@ -1116,16 +1116,16 @@ saveData: function() {
     var dir = this.config.dataRoot;
 
     // use getstore to access the files that were loaded from local files, and create standard configs
-    var trackConfs = array.map( Object.keys(this.trackConfigsByName), function(trackname) {
-        var temp = dojo.clone( this.trackConfigsByName[trackname] );
-        this.getStore( temp.store, dojo.hitch( this, function( obj ) {
+    var trackConfs = array.map( this.config.tracks, function(trackConfig) {
+        var temp = lang.clone( trackConfig );
+        this.getStore( temp.store, lang.hitch( this, function( obj ) {
             temp.storeClass = obj.config.type;
             if( !temp.urlTemplate ) {
-                dojo.mixin( temp, obj.saveStore() );
+                lang.mixin( temp, obj.saveStore() );
 
                 if( temp.histograms && temp.histograms.store ) {
                     this.getStore( temp.histograms.store, function( obj ) {
-                        dojo.mixin( temp.histograms, obj.saveStore() );
+                        lang.mixin( temp.histograms, obj.saveStore() );
                     });
                 }
             }
