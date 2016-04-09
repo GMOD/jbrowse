@@ -2,10 +2,14 @@
  * Lazy-parsing feature implementation for BED stores.
  */
 
-define( ['../../../../dojo/_base/array',
-         'JBrowse/Util'
+define( [
+            'dojo/_base/array',
+            'JBrowse/Util'
         ],
-        function( array, Util ) {
+        function(
+            array,
+            Util
+        ) {
 
 var Feature = Util.fastDeclare(
 {
@@ -26,7 +30,7 @@ var Feature = Util.fastDeclare(
         return field in this.data ? this.data[field] : // have we already parsed it out?
             function(field) {
                 var v = this.data[field] =
-                    this['_parse_'+field] ? this['_parse_'+field]()            : // maybe we have a special parser for it
+                    this['_parse_'+field] ? this['_parse_'+field]() : // maybe we have a special parser for it
                                             undefined;
                 return v;
             }.call(this,field);

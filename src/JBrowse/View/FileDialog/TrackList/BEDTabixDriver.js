@@ -1,20 +1,21 @@
 define([
-		'dojo/_base/declare',
-		'./_IndexedFileDriver'
-	],
-	function( declare, IndexedFileDriver ) {
-		return declare( IndexedFileDriver,  {
-			name: 'BED+Tabix',
-			storeType: 'JBrowse/Store/SeqFeature/BEDTabix',
+    'dojo/_base/declare',
+    './_IndexedFileDriver'
+],
+function( declare, IndexedFileDriver ) {
 
-			fileExtension: 'bed.gz',
-			fileConfKey: 'file',
-			fileUrlConfKey: 'urlTemplate',
+return declare( IndexedFileDriver,  {
+    name: 'BED+Tabix',
+    storeType: 'JBrowse/Store/SeqFeature/BEDTabix',
 
-			indexExtension: 'tbi',
-			indexConfKey: 'tbi',
-			indexUrlConfKey: 'tbiUrlTemplate'
-		});
+    fileExtension: 'bed.gz',
+    fileConfKey: 'file',
+    fileUrlConfKey: 'urlTemplate',
 
-	});
+    indexExtension: 'tbi',
+    indexConfKey: 'tbi',
+    indexUrlConfKey: 'tbiUrlTemplate'
+});
+
+});
 
