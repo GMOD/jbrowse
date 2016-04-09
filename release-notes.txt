@@ -2,9 +2,9 @@
 
 ## Minor improvements
 
-  * Upgraded build system to install dependencies with bower
+  * Upgraded build system to install dependencies with bower (#718).
 
-  * Update to Dojo 1.9.8
+  * Update Dojo to 1.9.8
 
   * Add the ability to load tabix indexed GFF files. Thanks to
     Colin Diesh for the implementation (#670).
@@ -47,6 +47,9 @@
 
   * Fix an issue with desktop mode where saving session would not
     save the tracks that were not visible.
+
+  * Added fix when using indexed fasta from prepare-refseqs.pl
+    Thanks to @billzt for the report (#719).
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 
