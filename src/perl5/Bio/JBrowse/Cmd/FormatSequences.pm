@@ -410,7 +410,8 @@ sub writeTrackEntry {
                                                delete $tracks->[$i]->{'chunkSize'};
                                                my $fastaTemplate = catfile( 'seq', basename( $self->opt('indexed_fasta') ) );
                                                $tracks->[$i]->{'urlTemplate'} = $fastaTemplate;
-                                               $tracks->[$i]->{'urlTemplateFAI'} = "$fastaTemplate.fai";
+                                               $tracks->[$i]->{'faiUrlTemplate'} = "$fastaTemplate.fai";
+                                               $tracks->[$i]->{'useAsRefSeqStore'} = 1;
                                            }
                                            return $trackList;
                                        });
