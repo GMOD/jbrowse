@@ -79,6 +79,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                    },
                    lang.hitch( thisB, '_failAllDeferred' )
                  );
+
+        this.storeTimeout = args.storeTimeout || 3000;
     },
 
     /** fetch and parse the VCF header lines */

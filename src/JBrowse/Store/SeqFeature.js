@@ -20,6 +20,7 @@ return declare( Store,
 
     constructor: function( args ) {
         this.globalStats = {};
+        this.storeTimeout = args.storeTimeout || 500;
     },
 
     _evalConf: function( confVal, confKey ) {
