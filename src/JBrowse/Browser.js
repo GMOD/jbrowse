@@ -187,7 +187,6 @@ constructor: function(params) {
                            //    or should this be changed to always force DNA to show?
                            if (tracksToShow.length == 0) { tracksToShow.push("DNA"); }
                            // eliminate track duplicates (may have specified in both alwaysOnTracks and defaultTracks)
-                           console.log(tracksToShow);
                            tracksToShow = Util.uniq(tracksToShow);
                            thisB.showTracks( tracksToShow );
 
@@ -1117,16 +1116,16 @@ saveData: function() {
     var dir = this.config.dataRoot;
 
     // use getstore to access the files that were loaded from local files, and create standard configs
-    var trackConfs = array.map( this.view.tracks, function(track) {
-        var temp = dojo.clone( track.config );
-        this.getStore( temp.store, dojo.hitch( this, function( obj ) {
+    var trackConfs = array.map( this.config.tracks, function(trackConfig) {
+        var temp = lang.clone( trackConfig );
+        this.getStore( temp.store, lang.hitch( this, function( obj ) {
             temp.storeClass = obj.config.type;
             if( !temp.urlTemplate ) {
-                dojo.mixin( temp, obj.saveStore() );
+                lang.mixin( temp, obj.saveStore() );
 
                 if( temp.histograms && temp.histograms.store ) {
                     this.getStore( temp.histograms.store, function( obj ) {
-                        dojo.mixin( temp.histograms, obj.saveStore() );
+                        lang.mixin( temp.histograms, obj.saveStore() );
                     });
                 }
             }
@@ -1137,7 +1136,7 @@ saveData: function() {
 
     var plugins = array.filter( Util.uniq( this.config.plugins ), function(elt) { return elt!="RegexSequenceSearch" });
     var tmp = {};
-    
+
     if( lang.isArray( this.config.plugins ) ) {
         array.forEach( this.config.plugins, function( p ) {
             tmp[ p ] = typeof p == 'object' ? p : { 'name': p };
@@ -1148,7 +1147,7 @@ saveData: function() {
         tracks: trackConfs,
         refSeqs: this.config.refSeqs,
         refSeqOrder: this.config.refSeqOrder,
-        plugins:tmp 
+        plugins:tmp
     };
     try {
         fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
@@ -1237,7 +1236,7 @@ openFastaElectron: function() {
                         thisB.saveSessionDir( dir );
                         window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                     } catch(e) { alert(e); }
-                }, function() { console.log('error'); });
+                }, function(err) { console.error('error', err); });
             }
           }
         })
@@ -1302,7 +1301,7 @@ openFasta: function() {
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }
-            
+
           }
         })
       });
@@ -2537,13 +2536,14 @@ makeSnapLink: function () {
             onClick: function() {
                 var fs = electronRequire('fs');
                 var screenshot = electronRequire('electron-screenshot')
-                console.log(window.location.href.split('?')[0]+'?data='+Util.replacePath( dataRoot ));
-
-                screenshot({
-                  filename: './out.png',
-                  delay: 5
-                }, function() { alert('Finished!') })
-                
+                var remote = electronRequire('remote');
+                var dialog = remote.require('dialog');
+                dialog.showSaveDialog(function (fileName) {
+                    screenshot({
+                      filename: fileName,
+                      delay: 1
+                    }, function() { console.log('Saved screenshot',fileName); });
+                });
             }
         }
     );
