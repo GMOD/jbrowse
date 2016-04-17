@@ -91,3 +91,16 @@ file made during the build might be useful for this.
 jbrowse-dev.  If it is a major release, add gmod-announce and make a GMOD news item.
 
 As you can tell, this process could really use some more streamlining and automation.
+
+
+## Build Docker image
+
+    brew install docker boot2docker docker-machine
+    docker-machine create --driver virtualbox default
+    docker-machine env default # will output some variables
+    eval "$(docker-machine env default)" # use those variables
+    docker build -t gmod-jbrowse .
+    docker run --name jbrowse-instance -p 9000:80 gmod-jbrowse
+    docker-machine ls
+    # go to http://ipaddress:9000/ for jbrowse instance
+
