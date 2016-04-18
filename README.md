@@ -99,8 +99,13 @@ As you can tell, this process could really use some more streamlining and automa
     docker-machine create --driver virtualbox default
     docker-machine env default # will output some variables
     eval "$(docker-machine env default)" # use those variables
-    docker build -t gmod-jbrowse .
-    docker run --name jbrowse-instance -p 9000:80 gmod-jbrowse
-    docker-machine ls
-    # go to http://ipaddress:9000/ for jbrowse instance
+    docker build -t gmod/jbrowse .
+    docker push gmod/jbrowse
 
+
+## Run Docker image
+
+    docker pull gmod/jbrowse
+    docker run --name jbrowse-instance -p 9000:80 gmod/jbrowse
+    docker-machine ls
+    # go to http://ipaddress:9000/ for testing jbrowse instance
