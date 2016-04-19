@@ -85,6 +85,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                                  }),
             failure: lang.hitch( this, '_failAllDeferred' )
         });
+
+        this.storeTimeout = args.storeTimeout || 3000;
     },
 
     /**

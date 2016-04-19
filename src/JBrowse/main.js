@@ -27,5 +27,7 @@ require([
             'JBrowse/View/Track/SNPCoverage',
 
             // track lists
-            'JBrowse/Store/TrackMetaData'
+            'JBrowse/Store/TrackMetaData',
+            'xstyle/core/load-css',
+            'dojox/gfx/svg'
         ]);
