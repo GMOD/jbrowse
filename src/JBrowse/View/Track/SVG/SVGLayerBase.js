@@ -18,13 +18,14 @@ function(
 return declare( null, {
 
     svgParent: null,    // pointer to the parent object
-    height: 150,          // height of svg canvas
     maxHeight: 600,
+    defaultHeight: 150,
 
     constructor: function( args ) {
         //console.log("SVGLayerBase::constructor");
         this.svgParent = args;
     },
+
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         //console.log("SVGLayerBase::setViewInfo");
@@ -42,11 +43,11 @@ return declare( null, {
     },
     // get current height of SVG Canvas in native units
     getHeight: function() {
-        return this.height;
+        return this.defaultHeight;
     },
     // compute height, presumably based on heights of objects in svg canvas
     computeHeight: function() {
-        return this.height;
+        return this.defaultHeight;
     },
     // get max height of SVG Canvas in native units
     getMaxHeight: function() {

@@ -9,6 +9,7 @@ define( [
             'dojo/_base/event',
             'dojo/dom-construct',
             'dojo/dom-style',
+            'JBrowse/Util',
             'JBrowse/View/Track/SVGTrackBase',
             'JBrowse/View/Track/SVG/SVGLayerCoords',
             'JBrowse/View/Track/SVG/SVGLayerBpSpace',
@@ -21,6 +22,7 @@ define( [
             domEvent,
             domConstruct,
             domStyle,
+            Util,
             SVGTrackBase,
             SVGLayerCoords,
             SVGLayerBpSpace,
@@ -29,6 +31,18 @@ define( [
 
 return declare(
     [ SVGTrackBase ], {
+
+    _defaultConfig: function() {
+        return Util.deepUpdate( lang.clone(this.inherited(arguments)), {
+            "style": {
+                "height": 10,
+                "lineColor": "rgba(255,0,0,.5)",
+                "circleColor": "rgba(0,0,255,.5)",
+                "circleRadius": 15,
+                "lineWidth": 6
+            }
+        });
+    },
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         console.log("SVGLollipop::setViewInfo");
@@ -42,7 +56,6 @@ return declare(
         this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
         //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
         this.svgSpace.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
-
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
@@ -105,8 +118,15 @@ return declare(
         // compute the x coord given the bpCoord
         var bpCoord = feature.get("start");
         var cx = svgSpace.bp2Native(bpCoord);
-        var len = (feature.get("end") - feature.get("start") ) * .18 ;
-        len = svgSpace.getHeight() - len;
+
+        var height = this.getConf( "style.height", [feature, this ] );
+        var lineColor = this.getConf( "style.lineColor", [feature, this ] );
+        var circleColor = this.getConf( "style.circleColor", [feature, this ] );
+        var circleRadius = this.getConf( "style.circleRadius", [feature, this ] );
+        var lineWidth = this.getConf( "style.lineWidth", [feature, this ] );
+
+
+        var len = svgSpace.getHeight()-height*0.8;
         console.log("cx="+cx+" len="+len+" scale="+this.svgScale); 
 
         // draw stems
@@ -118,8 +138,8 @@ return declare(
             svgItem.setAttribute('y1',len);
             svgItem.setAttribute('x2',0);
             svgItem.setAttribute('y2',svgSpace.getHeight());
-            svgItem.setAttribute('stroke','rgba(255,0,0,.5)');
-            svgItem.setAttribute('stroke-width',6);
+            svgItem.setAttribute('stroke',lineColor);
+            svgItem.setAttribute('stroke-width',lineWidth);
             svgItem.setAttribute('stroke-linecap','round');
             return svgItem;
         });
@@ -129,12 +149,11 @@ return declare(
 
         this.addSVGObject(id,bpCoord,100,100,function () {
             var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
-            apple.setAttribute('r',"15");
-            apple.setAttribute('style', 'cy:'+len+';fill:rgba(0,0,255,.5)');
+            apple.setAttribute('r', circleRadius);
+            apple.setAttribute('style', 'cy:'+len+';fill:'+circleColor);
             return apple;
         });
-        return;     // skip the rest
-       
+        return;
     },
     
 });
