@@ -731,6 +731,16 @@ initView: function() {
                   }
                 )
             );
+            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
+              new dijitMenuItem(
+                  {
+                      id: 'menubar_dataset_home',
+                      label: "Return to main menu",
+                      iconClass: 'dijitIconTask',
+                      onClick: dojo.hitch( this, function() { var container = thisObj.container || document.body;thisObj.welcomeScreen(container); } )
+                  }
+                )
+            );
         }
         else if( !this.config.hideGenomeOptions ) {
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
