@@ -122,3 +122,7 @@ td.base {
 .base_deletion {
     background-color: #999; 
 }
+
+.sequence.nocolor .base {
+    background-color: #ddd;
+}
