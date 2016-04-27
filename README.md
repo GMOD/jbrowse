@@ -28,9 +28,10 @@ Make sure you have a web server installed on your development machine.  Any web 
 
 Then you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
 
-You can also optionally run build steps to create the minimized codebase
+You can also optionally run build steps to create the minimized codebase. Extra dependencies Text::Markdown and DateTime are required to run the build step.
 
-    make -f build/Makefile release
+    make -f build/Makefile release-notest
+    make -f build/Makefile release # alternate build with full test suite
 
 To build the Electron app, run the following
 
