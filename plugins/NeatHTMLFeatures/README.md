@@ -60,3 +60,5 @@ When gradientFeatures = 0 (globally off) in the plugins definition, gradient fea
             ...
         }
     ]
+
+(note: the track-leve gradientFeatures option only applies when the plugin-level gradientFeatures=0)
