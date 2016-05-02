@@ -17,7 +17,7 @@ What it does:
 For JBrowse 1.11.6+, copy the NeatHTMLFeatures directory to the 'plugins' directory.
 Add this to appropriate trackList.json under the plugins section (create one if it doesn't exist):
 
-   "plugins": [ 
+    "plugins": [ 
         'NeatHTMLFeatures'
     ],
 
