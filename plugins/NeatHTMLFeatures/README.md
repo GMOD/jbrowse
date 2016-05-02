@@ -33,11 +33,12 @@ Add this to web-apps/jbrowse/plugins/WebApollo/json/annot.json:
 		 "location" : "./plugins/NeatHTMLFeatures",
 		 "name" : "NeatHTMLFeatures"
 	  }
-   ],
+    ],
 
 
 #Config Options:
-Gradient Features are on for all HTML feature tracks by default.
+Introns remain ON for all feature tracks.
+Gradient Features are ON by default, but can be disabled.
 
 They can be turned off globally in the config file by setting gradientFeatures = 0 in the plugin definition, for example:
 
