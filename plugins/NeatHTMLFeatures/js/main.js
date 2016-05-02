@@ -33,6 +33,10 @@ return declare( JBrowsePlugin,
         var browser = this.browser;
 
         this.gradient = 1;
+        this.linear = 1;
+        if(typeof args.linearGradient != 'undefined' && args.linearGradient == 0) {
+            this.linear = 0;
+        }
         if(typeof args.gradientFeatures != 'undefined' && args.gradientFeatures == 0) {
             this.gradient = 0;
         }
@@ -61,6 +65,9 @@ return declare( JBrowsePlugin,
                 if(typeof trackConfig.gradientFeatures !== 'undefined' && trackConfig.gradientFeatures === 1) {
                     dojo.addClass(trackDiv,"neat-track");
                 }
+                if(typeof trackConfig.linearGradient !== 'undefined' && trackConfig.linearGradient === 1) {
+                    dojo.addClass(trackDiv,"neat-linear-shading");
+                }
                 return trackDiv;
             };
 
@@ -82,12 +89,12 @@ return declare( JBrowsePlugin,
             thisB.insertIntrons(featureNode);
         });
         
-        // if pluigin-config gradientFeatures is disabled, then we only apply gradients to selected tracks.
-        if (this.gradient==0)
-            divQuery = "div.neat-track div.feature";    // paint only selected tracks 
+        // if plugin-config gradientFeatures is disabled, then we only apply gradients to selected tracks.
+        if (this.gradient==0) {
+            divQuery = "div.neat-track div.feature";    // paint only selected tracks
+        }
 
         query(divQuery).forEach(function(featureNode, index, arr){
-
             //Process Gradent Features
             thisB.paintGradientFeatures(featureNode);
         });
@@ -115,7 +122,7 @@ return declare( JBrowsePlugin,
             if (subNodes.length) {
             
                 // identify directionality
-                var classAttr = dojo.attr(featureNode, "class")
+                var classAttr = dojo.attr(featureNode, "class");
                 var direction = 1;
                 if (classAttr.indexOf("minus") > -1) {
                     direction = -1;
@@ -233,12 +240,15 @@ return declare( JBrowsePlugin,
             
                 var classAttr = dojo.attr(featureNode,'class');
                 var color = dojo.getStyle(featureNode,'background-color');
-                //console.log("F "+classAttr+" "+color);
 
                 // update the element with new styling
-                dojo.setStyle(featureNode, {
-                    'background': 'linear-gradient(to bottom,  '+color+' 0%,#e5e5e5 50%,'+color+' 100%)'
-                });
+                //if(dojo.hasClass(featureNode,'neat-linear-shading')){
+                if(this.linear==1){
+                    dojo.setStyle(featureNode, {
+                        'background': 'linear-gradient(to bottom,  ' + color + ' 0%,#e5e5e5 50%,' + color + ' 100%)'
+                    });
+                }
+                //}
                 // mark that we have processed the node
                 dojo.addClass(featureNode, "neat-feature");
             }
@@ -273,12 +283,14 @@ return declare( JBrowsePlugin,
             // restyle other subfeatures
             else {
             //if(classAttr.indexOf('CDS') > -1 || classAttr.indexOf('exon') > -1) {
-                dojo.setStyle(subNode, {
-                    //'height': '100%',
-                    'top': '0px',
-                    //'border-width': '0px',
-                    'background': 'linear-gradient(to bottom,  '+color+' 0%,#e5e5e5 50%,'+color+' 100%)'
-                });
+                if(this.linear==1) {
+                    dojo.setStyle(subNode, {
+                        //'height': '100%',
+                        'top': '0px',
+                        //'border-width': '0px',
+                        'background': 'linear-gradient(to bottom,  ' + color + ' 0%,#e5e5e5 50%,' + color + ' 100%)'
+                    });
+                }
             }
             // mark that we have processed the node
             dojo.addClass(subNode, "neat-subfeature");
