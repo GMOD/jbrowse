@@ -1,0 +1,40 @@
+{
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "dojo": true,
+    "define": true,
+    "dijit": true
+  },
+  "rules": {
+    "semi": [
+      2,
+      "always"
+    ],
+    "no-unused-expressions": 2,
+    "no-cond-assign": [
+      2,
+      "except-parens"
+    ],
+    "no-eval": 2,
+    "linebreak-style": 2,
+    "comma-style": [
+      2,
+      "last"
+    ],
+    "no-loop-func": 2,
+    "block-scoped-var": 2,
+    "max-len": [
+      2,
+      10000
+    ],
+    "no-shadow": 0,
+    "dot-notation": 0,
+    "complexity": [
+      2,
+      40
+    ],
+    "no-undef": 2
+  }
+}
