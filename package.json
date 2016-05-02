@@ -10,5 +10,17 @@
   },
   "dependencies": {
     "electron-screenshot": "^1.0.4"
+    "dbind": "git+https://github.com/cmdcolin/dbind.git",
+    "dgrid": "git+https://github.com/sitepen/dgrid.git",
+    "dijit": "^1.11.1",
+    "dojo-util": "^1.11.1",
+    "dojox": "^1.11.1",
+    "electron-screenshot": "^1.0.2",
+    "filesaver.js": "^0.2.0",
+    "jdataview": "^2.5.0",
+    "json-schema": "git+https://github.com/kriszyp/json-schema.git",
+    "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
+    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
+    "xstyle": "git+https://github.com/kriszyp/xstyle.git"
   }
 }
