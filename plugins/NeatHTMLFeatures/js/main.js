@@ -50,15 +50,15 @@ return declare( JBrowsePlugin,
             // reroute renderTrack function
             browser.view.oldRenderTrack = browser.view.renderTrack;
 
-            // this is the replacement renderTrack function
+            // this is the replacement renderTrack function (trackConfig contains the config for the given track being rendered)
             browser.view.renderTrack = function (trackConfig) {
                 //console.log("view.renderTrack() intercepted!");
 
                 // call the original renderTrack function
                 var trackDiv = browser.view.oldRenderTrack(trackConfig);
                 
-                // we add neat-track class as a flag to indicate this is a track to be "painted"
-                if(typeof trackConfig.gradientFeatures != 'undefined' && trackConfig.gradientFeatures != 0) {
+                // this checks if per-track gradientFeatures=1 is defined, then we "paint" introns on only the selected tracks
+                if(typeof trackConfig.gradientFeatures !== 'undefined' && trackConfig.gradientFeatures === 1) {
                     dojo.addClass(trackDiv,"neat-track");
                 }
                 return trackDiv;
@@ -74,19 +74,23 @@ return declare( JBrowsePlugin,
         var thisB = this;
 
         var divQuery = "div.feature";       // by default, paint all feature divs
+
+        // apply introns to all feature tracks
+        query(divQuery).forEach(function(featureNode, index, arr){
+
+            // scan and insert introns, where applicable
+            thisB.insertIntrons(featureNode);
+        });
+        
+        // if pluigin-config gradientFeatures is disabled, then we only apply gradients to selected tracks.
         if (this.gradient==0)
             divQuery = "div.neat-track div.feature";    // paint only selected tracks 
 
-            query(divQuery).forEach(function(featureNode, index, arr){
+        query(divQuery).forEach(function(featureNode, index, arr){
 
-                //console.dir(featureNode);
-
-                // scan and insert introns, where applicable
-                thisB.insertIntrons(featureNode);
-                
-                //Process Gradent Features
-                thisB.paintGradientFeatures(featureNode);
-            });
+            //Process Gradent Features
+            thisB.paintGradientFeatures(featureNode);
+        });
 
         //});
     },
@@ -269,12 +273,12 @@ return declare( JBrowsePlugin,
             // restyle other subfeatures
             else {
             //if(classAttr.indexOf('CDS') > -1 || classAttr.indexOf('exon') > -1) {
-//                dojo.setStyle(subNode, {
-//                    //'height': '100%',
-//                    'top': '0px',
-//                    //'border-width': '0px',
-//                    'background': 'linear-gradient(to bottom,  '+color+' 0%,#e5e5e5 50%,'+color+' 100%)'
-//                });
+                dojo.setStyle(subNode, {
+                    //'height': '100%',
+                    'top': '0px',
+                    //'border-width': '0px',
+                    'background': 'linear-gradient(to bottom,  '+color+' 0%,#e5e5e5 50%,'+color+' 100%)'
+                });
             }
             // mark that we have processed the node
             dojo.addClass(subNode, "neat-subfeature");
