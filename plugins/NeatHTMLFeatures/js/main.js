@@ -32,13 +32,13 @@ return declare( JBrowsePlugin,
         var thisB = this;
         var browser = this.browser;
 
+        this.neat = 1;
         this.gradient = 1;
-        this.linear = 1;
         if(typeof args.linearGradient != 'undefined' && args.linearGradient == 0) {
-            this.linear = 0;
-        }
-        if(typeof args.gradientFeatures != 'undefined' && args.gradientFeatures == 0) {
             this.gradient = 0;
+        }
+        if(typeof args.neatFeatures != 'undefined' && args.neatFeatures == 0) {
+            this.neat = 0;
         }
 
         // trap the redraw event for handling resize
@@ -61,13 +61,13 @@ return declare( JBrowsePlugin,
                 // call the original renderTrack function
                 var trackDiv = browser.view.oldRenderTrack(trackConfig);
                 
-                // this checks if per-track gradientFeatures=1 is defined, then we "paint" introns on only the selected tracks
-                if(typeof trackConfig.gradientFeatures !== 'undefined' && trackConfig.gradientFeatures === 1) {
+                // this checks if per-track neatFeatures=1 is defined, then we "paint" introns on only the selected tracks
+                if(typeof trackConfig.neatFeatures !== 'undefined' && trackConfig.neatFeatures === 1) {
                     dojo.addClass(trackDiv,"neat-track");
                 }
-                if(typeof trackConfig.linearGradient !== 'undefined' && trackConfig.linearGradient === 1) {
-                    dojo.addClass(trackDiv,"neat-linear-shading");
-                }
+                //if(typeof trackConfig.linearGradient !== 'undefined' && trackConfig.linearGradient === 1) {
+                //    dojo.addClass(trackDiv,"neat-linear-shading");
+                //}
                 return trackDiv;
             };
 
@@ -89,14 +89,14 @@ return declare( JBrowsePlugin,
             thisB.insertIntrons(featureNode);
         });
         
-        // if plugin-config gradientFeatures is disabled, then we only apply gradients to selected tracks.
-        if (this.gradient==0) {
+        // if plugin-config neatFeatures is disabled, then we only apply neat featuress to selected tracks.
+        if (this.neat==0) {
             divQuery = "div.neat-track div.feature";    // paint only selected tracks
         }
 
         query(divQuery).forEach(function(featureNode, index, arr){
             //Process Gradent Features
-            thisB.paintGradientFeatures(featureNode);
+            thisB.paintNeatFeatures(featureNode);
         });
 
         //});
@@ -189,9 +189,9 @@ return declare( JBrowsePlugin,
         }
     },
     /*
-     * Paint gradient features and subfeatures
+     * Paint neat features and subfeatures
      */
-    paintGradientFeatures: function(featureNode) {
+    paintNeatFeatures: function(featureNode) {
     
         // get the subfeature nodes (only immediate children)
         var subNodesX = query('> .subfeature',featureNode);
@@ -243,7 +243,7 @@ return declare( JBrowsePlugin,
 
                 // update the element with new styling
                 //if(dojo.hasClass(featureNode,'neat-linear-shading')){
-                if(this.linear==1){
+                if(this.gradient==1){
                     dojo.setStyle(featureNode, {
                         'background': 'linear-gradient(to bottom,  ' + color + ' 0%,#e5e5e5 50%,' + color + ' 100%)'
                     });
@@ -256,7 +256,7 @@ return declare( JBrowsePlugin,
 
     },
     /*
-     * apply gradient background to feature node
+     * apply neat modifications to feature sub-nodes
      */
     paintSubNode: function(subNode) {
         //console.log("paintSubNode");
@@ -283,7 +283,7 @@ return declare( JBrowsePlugin,
             // restyle other subfeatures
             else {
             //if(classAttr.indexOf('CDS') > -1 || classAttr.indexOf('exon') > -1) {
-                if(this.linear==1) {
+                if(this.gradient==1) {
                     dojo.setStyle(subNode, {
                         //'height': '100%',
                         'top': '0px',
