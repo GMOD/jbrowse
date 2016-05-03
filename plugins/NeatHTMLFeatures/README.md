@@ -39,6 +39,7 @@ Add this to web-apps/jbrowse/plugins/WebApollo/json/annot.json:
 #Config Options:
 Introns remain ON for all feature tracks.
 Gradient Features are ON by default, but can be disabled.
+Linear Gradients are ON by default (and visible as part of gradient features), but can be disabled on all tracks.
 
 They can be turned off globally in the config file by setting gradientFeatures = 0 in the plugin definition, for example:
 
@@ -57,8 +58,9 @@ When gradientFeatures = 0 (globally off) in the plugins definition, gradient fea
             "type" : "FeatureTrack",
             "label" : "ReadingFrame",
             "gradientFeatures" : 1,
+            "linearGradient": 0,
             ...
         }
     ]
 
-(note: the track-leve gradientFeatures option only applies when the plugin-level gradientFeatures=0)
+(note: the track-level gradientFeatures option only applies when the plugin-level gradientFeatures=0)
