@@ -164,6 +164,7 @@ return declare(
                 { label: 'View details',
                   title: '{type} {name}',
                   action: 'contentDialog',
+                  style: "width: 56em",
                   iconClass: 'dijitIconTask',
                   content: dojo.hitch( this, 'defaultFeatureDetail' )
                 },

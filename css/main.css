@@ -853,7 +853,8 @@ div.block:hover > div.message {
 .tundra .dijitDialogPaneContent {
     border-top: 1px solid #acacac;
     font-family: sans-serif;
-    width: 54.2em !important;
+    width: auto !important;
+    box-sizing: content-box !important;
 }
 
 /* styles dealing with popups launched by clicking on features */
