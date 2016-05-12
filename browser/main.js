@@ -1,10 +1,13 @@
-const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
+const electron = require('electron');
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+const Menu = electron.Menu;
+
+var menu = require('./menu');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
 
     
 
@@ -23,6 +26,7 @@ app.on('ready', function() {
     // and load the index.html of the app.
     mainWindow.loadURL('file://' + require('path').resolve(__dirname, '..', 'index.html'));
     // Emitted when the window is closed.
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 
     mainWindow.on('closed', function () {
         // Dereference the window object, usually you would store windows

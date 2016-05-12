@@ -3149,8 +3149,7 @@ getBookmarks: function() {
             data: {
                 sequence: this.refSeq.name
             },
-            handleAs: "json",
-            method: "post"
+            handleAs: "json"
         })
     }
     else return this.config.bookmarks;
