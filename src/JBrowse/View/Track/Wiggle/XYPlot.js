@@ -108,7 +108,11 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 if( score <= originY ) {
                     // bar goes upward
                     context.fillStyle = this.getConfForFeature('style.pos_color',f);
-                    thisB._fillRectMod( context, i, score, 1, originY-score+1);
+                    var height = originY-score+1;
+                    if(this.getConfForFeature('noFill', f) == true) {
+                      height = 1;
+                    }
+                    thisB._fillRectMod( context, i, score, 1, height);
                     if( !disableClipMarkers && score < 0 ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.neg_color',f);
                         thisB._fillRectMod( context, i, 0, 1, 3 );
@@ -118,7 +122,13 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
                 else {
                     // bar goes downward
                     context.fillStyle = this.getConfForFeature('style.neg_color',f);
-                    thisB._fillRectMod( context, i, originY, 1, score-originY+1 );
+                    var top = originY;
+                    var height = score-originY;
+                    if(this.getConfForFeature('noFill', f) == true) {
+                      top = score-1;
+                      height = 1;
+                    }
+                    thisB._fillRectMod( context, i, top, 1,  height);
                     if( !disableClipMarkers && score >= canvasHeight ) { // draw clip marker if necessary
                         context.fillStyle = this.getConfForFeature('style.clip_marker_color',f) || this.getConfForFeature('style.pos_color',f);
                         thisB._fillRectMod( context, i, canvasHeight-3, 1, 3 );
