@@ -56,7 +56,7 @@ var Feature = Util.fastDeclare(
 
     id: function() {
         return this._id;
-    },
+    }
 
 });
 
