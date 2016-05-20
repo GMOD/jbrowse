@@ -13,6 +13,7 @@ define( [
             'dojo/topic',
             'dojo/aspect',
             'dojo/request',
+            'dojo/io-query',
             'JBrowse/has',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
@@ -66,6 +67,7 @@ define( [
             topic,
             aspect,
             request,
+            ioQuery,
             has,
             array,
             dijitContentPane,
@@ -3145,12 +3147,9 @@ getHighlight: function() {
 
 getBookmarks: function() {
     if( this.config.bookmarkService ) {
-        return request( this.config.bookmarkService, {
-            data: {
-                sequence: this.refSeq.name
-            },
+        return request( this.config.bookmarkService + "?"+ioQuery.objectToQuery({sequence: this.refSeq.name}), {
             handleAs: "json"
-        })
+        });
     }
     else return this.config.bookmarks;
 },
