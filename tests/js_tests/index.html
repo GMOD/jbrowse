@@ -11,19 +11,35 @@
   <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine-html.js"></script>
 
   <!-- include source files here... -->
-  <script type="text/javascript" src="../../src/dojo/dojo.js" data-dojo-config="async: 1" ></script>
+  <script type="text/javascript" src="../../src/node_modules/dojo.js" data-dojo-config="async: 1" ></script>
 
   <script type="text/javascript">
-    require( { baseUrl: '../../src',
-               packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
-                            { name: 'lazyload',  main: 'lazyload' },
-                            'dgrid', 'xstyle', 'put-selector',
-                            { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
-                            'JBrowse'
-                         ]
-              },
-              ['dojo/ready','JBrowse/Browser'],
-              function( ready,Browser ) {
+    require( {
+           baseUrl: '../../',
+           packages: [
+               { name: 'dbind', location: 'node_modules/dbind' },
+               { name: 'dgrid', location: 'node_modules/dgrid' },
+               { name: 'dojo', location: 'node_modules/dojo' },
+               { name: 'dijit', location: 'node_modules/dijit' },
+               { name: 'dojox', location: 'node_modules/dojox' },
+               { name: 'json-schema', location: 'node_modules/json-schema' },
+               { name: 'jszlib', location: 'node_modules/jszlib' },
+               { name: 'lazyload', location: 'node_modules/lazyload', main: 'lazyload' },
+               { name: 'xstyle', location: 'node_modules/xstyle' },
+               { name: 'put-selector', location: 'node_modules/put-selector' },
+               { name: 'jDataView', location: 'node_modules/jdataview/dist/node/', main: 'jdataview' },
+               { name: 'FileSaver', location: 'node_modules/filesaver.js', main: 'FileSaver' },
+               { name: 'JBrowse', location: 'src/JBrowse' }
+           ]
+      },
+      [
+          'dojo/ready',
+          'JBrowse/Browser'
+      ],
+      function(
+          ready,
+          Browser
+      ) {
 
       var jasmineEnv = jasmine.getEnv();
       jasmineEnv.updateInterval = 1000;

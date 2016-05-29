@@ -10,8 +10,8 @@ require( {
                { name: 'lazyload', location: 'node_modules/lazyload', main: 'lazyload' },
                { name: 'xstyle', location: 'node_modules/xstyle' },
                { name: 'put-selector', location: 'node_modules/put-selector' },
-               { name: 'jDataView', location: 'node_modules/jDataView/src', main: 'jdataview' },
-               { name: 'FileSaver', location: 'node_modules/FileSaver' },
+               { name: 'jDataView', location: 'node_modules/jdataview/dist/node/', main: 'jdataview' },
+               { name: 'FileSaver', location: 'node_modules/filesaver.js', main: 'FileSaver' },
                { name: 'JBrowse', location: 'src/JBrowse' }
            ]
          }
