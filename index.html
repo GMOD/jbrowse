@@ -8,7 +8,7 @@
             // jshint unused: false
             var dojoConfig = {
                 async: true,
-                baseUrl: './src',
+                baseUrl: './',
                 has: {
                     'host-node': false // Prevent dojo from being fooled by Electron
                 }
@@ -19,7 +19,7 @@
                 delete window.require;
             }
     </script>
-    <script type="text/javascript" src="src/dojo/dojo.js"></script>
+    <script type="text/javascript" src="node_modules/dojo/dojo.js"></script>
     <script type="text/javascript" src="src/JBrowse/init.js"></script>
     <script type="text/javascript">
         window.onerror=function(msg){

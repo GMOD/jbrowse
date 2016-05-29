@@ -12,10 +12,10 @@ cache:
 before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
-  - npm install -g jshint bower
 install:
-  - bower install
+  - npm install
   - bash setup.sh legacy
+>>>>>>> Adjust paths for node_modules
 before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf

@@ -14,36 +14,6 @@ legacy_message () {
    echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'."
  }
 
-function check_node(){
-    node_executable=$(which node)
-    npm_executable=$(which npm)
-    if ! [ -x "$node_executable" ] ; then
-        nodejs_executable=$(which nodejs)
-        if ! [ -x "$nodejs_executable" ] ; then
-            echo "You must install 'Node JS' to install JBrowse from bower."
-        else
-            echo "Creating an alias 'node' for 'nodejs'"
-            node_executable="$nodejs_executable"
-        fi
-    fi
-    echo "Node installed";
-}
-
-function check_bower(){
-    check_node;
-    bower_executable=$(which bower)
-    if ! [ -x "$bower_executable" ] ; then
-        $npm_executable install -g bower
-        bower_executable=$(which bower)
-        if ! [ -x "$bower_executable" ] ; then
-            echo "You must install 'bower' to install JBrowse `npm install -g bower` using bower."
-        else
-            echo "Bower installed";
-        fi
-    else
-        echo "Bower installed";
-    fi
-}
 
 
 echo > setup.log;
