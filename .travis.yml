@@ -12,6 +12,7 @@ cache:
 before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
+  - npm install -g eslint
 install:
   - npm install
   - bash setup.sh legacy
@@ -21,7 +22,7 @@ before_script:
   - nginx -c `pwd`/tests/travis-envsubst.conf
 script:
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
-  - jshint src/JBrowse/
+  - eslint src/JBrowse/
   - make -f build/Makefile release
 after_failure:
   - cat JBrowse-1.x.x-dev/setup.log 
