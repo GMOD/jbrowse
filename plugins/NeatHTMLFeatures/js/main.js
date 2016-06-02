@@ -186,6 +186,18 @@ return declare( JBrowsePlugin,
                     dojo.addClass(featureNode, "has-neat-introns");
                 }
             }
+            // if no subFeatures, we are in a "desert" so we just draw a straight line
+            else{
+                // draw a straight line
+                var str = "";
+                str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+                str += "left: -800%;width: 3000%;height: 100%'>";
+                str += "<polyline points='0,50 50,50 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+                str += "</svg>";
+                // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
+                domConstruct.place(str, featureNode);
+            }
         }
     },
     /*
