@@ -33,6 +33,27 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         );
     },
 
+        _trackMenuOptions: function() {
+        var track = this;
+        var options = this.inherited(arguments) || [];
+
+        options.push({
+            label: 'No Fill',
+            type: 'dijit/CheckedMenuItem',
+            checked: !!(this.config.noFill == true),
+            onClick: function(event) {
+                if (this.checked) {
+                    track.config.noFill = true;
+                } else {
+                    track.config.noFill = false;
+                }
+                track.browser.publish('/jbrowse/v1/v/tracks/replace', [track.config]);
+            }
+        });
+
+        return options;
+    },
+
     _getScaling: function( viewArgs, successCallback, errorCallback ) {
 
         this._getScalingStats( viewArgs, dojo.hitch(this, function( stats ) {
