@@ -1,6 +1,9 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/array',
             'dojo/_base/lang',
+            'dojo/Deferred',
+            'dojo/promise/all',
             'JBrowse/has',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature',
@@ -9,7 +12,10 @@ define( [
         ],
         function(
             declare,
+            array,
             lang,
+            Deferred,
+            all,
             has,
             XHRBlob,
             SeqFeatureStore,
@@ -62,6 +68,39 @@ define( [
             this._deferred.features.then( function() {
                 callback( seqName in thisB.twoBit.chrToIndex );
             }, errorCallback );
+        },
+        getRefSeqs: function( featCallback, errorCallback ) {
+            var thisB = this;
+            this._deferred.features.then(
+                function() {
+                    var keys = Object.keys(thisB.twoBit.chrToIndex);
+                    var ret = [];
+                    var promises = array.map(keys, function(name) {
+                        var def = new Deferred();
+                        thisB.twoBit._readSequenceHeader(name, function(ret) {
+                            def.resolve({
+                                name: name,
+                                length: ret.dnaSize,
+                                end: ret.dnaSize,
+                                start: 0
+                            });
+                        },
+                        function(err) {
+                            def.reject(err);
+                        });
+                        return def;
+                    });
+                    console.log(promises);
+
+                    all(promises).then(function(refseqs) {
+                        console.log(refseqs);
+                        featCallback(refseqs);
+                    }, function(err) {
+                        errorCallback(err);
+                    });
+                },
+                errorCallback
+            );
         },
 
         // called by getFeatures from the DeferredFeaturesMixin

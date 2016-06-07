@@ -40,3 +40,4 @@ src/xstyle/
 node_modules
 .idea/**
 /nbproject/private/
+*.swp

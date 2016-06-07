@@ -5,7 +5,8 @@ define( [
             'dojo/dom-construct',
             'dojo/query',
             'JBrowse/View/FileDialog',
-            './FileDialog/TrackList/IndexedFASTADriver'
+            './FileDialog/TrackList/IndexedFASTADriver',
+            './FileDialog/TrackList/TwoBitDriver'
         ],
         function(
             declare,
@@ -14,23 +15,24 @@ define( [
             dom,
             query,
             FileDialog,
-            IndexedFASTADriver
+            IndexedFASTADriver,
+            TwoBitDriver
         ) {
 
 return declare( FileDialog, {
 
     constructor: function( args ) {
         this.inherited(arguments);
-        this._fileTypeDrivers = [ new IndexedFASTADriver() ];
+        this._fileTypeDrivers = [ new IndexedFASTADriver(), new TwoBitDriver() ];
         return this;
     },
 
 
 
     show: function( args ) {
-        args.introMsg = "Select a FASTA file (.fa) or indexed FASTA (.fa and .fai) to open";
+        args.introMsg = "Select a FASTA file (.fa), indexed FASTA (.fa and .fai), or twobit (.2bit) file";
         this.inherited(arguments);
-        this.dialog.set('title','Open sequence file');
+        this.dialog.set('title', 'Open sequence file');
     },
 
 
