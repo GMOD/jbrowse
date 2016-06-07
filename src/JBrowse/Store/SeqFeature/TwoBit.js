@@ -90,10 +90,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
                     });
                     return def;
                 });
-                console.log(promises);
 
                 all(promises).then(function(refseqs) {
-                    console.log(refseqs);
                     featCallback(refseqs);
                 }, function(err) {
                     errorCallback(err);
