@@ -1,5 +1,5 @@
 require([
-            'JBrowse/Store/Sequence/TwoBit',
+            'JBrowse/Store/SeqFeature/TwoBit',
             'JBrowse/Browser',
             'dojo/aspect',
             'JBrowse/Model/XHRBlob'
