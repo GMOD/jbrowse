@@ -8,7 +8,7 @@ define([
 var uniqCounter = 0;
 return declare( null, {
 
-    storeType: 'JBrowse/Store/SeqFeature/BigWig',
+    storeType: 'JBrowse/Store/SeqFeature/TwoBit',
 
     tryResource: function( configs, resource ) {
         if( resource.type == '2bit' ) {

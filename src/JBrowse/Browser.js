@@ -1313,6 +1313,7 @@ openFasta: function() {
                           if( storeConf && typeof storeConf == 'object' ) {
                               delete conf.store;
                               storeConf.name = 'refseqs'; // important to make it the refseq store
+                              console.log('here store',storeConf);
                               conf.store = this.addStoreConfig( storeConf.name, storeConf );
                           }
                       }, newBrowser);
@@ -1326,6 +1327,17 @@ openFasta: function() {
                     browser: this,
                     fai: confs[0].store.fai,
                     fasta: confs[0].store.fasta
+                })
+                .getRefSeqs(
+                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
+                    function(error) { alert('Error getting refSeq: '+error); }
+                );
+            }
+            else if( confs[0].store.blob ) {
+                console.log('here 2bit',confs[0].store);
+                new TwoBit({
+                    browser: this,
+                    blob: confs[0].store.blob
                 })
                 .getRefSeqs(
                     function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },

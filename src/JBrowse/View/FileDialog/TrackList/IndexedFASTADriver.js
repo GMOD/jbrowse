@@ -23,7 +23,7 @@ return declare( IndexedFileDriver,  {
         this.inherited(arguments);
         for(var i in configs) {
             var config = configs[i];
-            if( !config.fai ) {
+            if( !config.fai && !config.blob ) {
                 // if no fai, change to UnindexedFasta
                 config.type = "JBrowse/Store/SeqFeature/UnindexedFasta";
             }
