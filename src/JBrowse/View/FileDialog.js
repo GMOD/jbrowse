@@ -9,7 +9,6 @@ define( [
             'dojo/dom-construct',
             'dijit/Dialog',
             'dojox/form/Uploader',
-            'dojox/form/uploader/plugins/IFrame',
             './FileDialog/TrackList/BAMDriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
@@ -31,7 +30,6 @@ define( [
             dom,
             Dialog,
             Uploaded,
-            IFramePlugin,
             BAMDriver,
             BigWigDriver,
             GFF3Driver,
@@ -128,9 +126,7 @@ return declare( null, {
         }
         else {
             on( localFilesControl.uploader, 'click', function() {
-                var remote = electronRequire('remote');
-                var app = remote.require('app');
-                var dialog = remote.require('dialog');
+                var dialog = electronRequire('electron').remote.dialog;
                 var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
                 if( ret ) {
                     var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });

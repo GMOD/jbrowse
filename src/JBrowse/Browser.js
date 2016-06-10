@@ -13,6 +13,7 @@ define( [
             'dojo/topic',
             'dojo/aspect',
             'dojo/request',
+            'dojo/io-query',
             'JBrowse/has',
             'dojo/_base/array',
             'dijit/layout/ContentPane',
@@ -66,6 +67,7 @@ define( [
             topic,
             aspect,
             request,
+            ioQuery,
             has,
             array,
             dijitContentPane,
@@ -465,8 +467,7 @@ fatalError: function( error ) {
 },
 loadSessions: function() {
     var fs = electronRequire('fs');
-    var remote = electronRequire('remote');
-    var app = remote.require('app');
+    var app = electronRequire('electron').remote.app;
 
     var path = app.getPath('userData') + "/sessions.json";
     var obj = JSON.parse( fs.readFileSync( path, 'utf8' ) );
@@ -1059,9 +1060,8 @@ renderDatasetSelect: function( parent ) {
 
 
 saveSessionDir: function( directory ) {
-    var remote = electronRequire('remote');
     var fs = electronRequire('fs');
-    var app = remote.require('app');
+    var app = electronRequire('electron').remote.app;
     var path = app.getPath('userData')+"/sessions.json";
     var obj = [];
 
@@ -1087,7 +1087,6 @@ openDirectoryElectron: function( directory ) {
 openConfig: function( plugins ) {
     if( !confirm("If you have opened any new tracks, please save them before continuing. Are you sure you want to continue?") )
         return;
-    var remote = electronRequire('remote');
     var fs = electronRequire('fs');
 
     var dir = this.config.dataRoot;
@@ -1121,7 +1120,6 @@ saveData: function() {
     if( !confirm("This will overwrite tracks and config data in your data directory. Are you sure you want to continue?") )
         return;
 
-    var remote = electronRequire('remote');
     var fs = electronRequire('fs');
     var dir = this.config.dataRoot;
 
@@ -1168,10 +1166,9 @@ saveData: function() {
 openFastaElectron: function() {
     this.fastaFileDialog = this.fastaFileDialog || new FastaFileDialog({browser: this});
 
-    var remote = electronRequire('remote');
+    var app = electronRequire('electron').remote.app;
     var fs = electronRequire('fs');
     var path = electronRequire('path');
-    var app = remote.require('app');
 
     this.fastaFileDialog.show ({
         openCallback: dojo.hitch(this, function(results) {
@@ -2546,8 +2543,7 @@ makeSnapLink: function () {
             onClick: function() {
                 var fs = electronRequire('fs');
                 var screenshot = electronRequire('electron-screenshot')
-                var remote = electronRequire('remote');
-                var dialog = remote.require('dialog');
+                var dialog = electronRequire('electron').remote.dialog;
                 dialog.showSaveDialog(function (fileName) {
                     screenshot({
                       filename: fileName,
@@ -3151,13 +3147,9 @@ getHighlight: function() {
 
 getBookmarks: function() {
     if( this.config.bookmarkService ) {
-        return request( this.config.bookmarkService, {
-            data: {
-                sequence: this.refSeq.name
-            },
-            handleAs: "json",
-            method: "post"
-        })
+        return request( this.config.bookmarkService + "?"+ioQuery.objectToQuery({sequence: this.refSeq.name}), {
+            handleAs: "json"
+        });
     }
     else return this.config.bookmarks;
 },
