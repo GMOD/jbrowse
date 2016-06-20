@@ -51,6 +51,10 @@
   * Added fix when using indexed fasta from prepare-refseqs.pl
     Thanks to @billzt for the report (#719).
 
+  * Added a fix for an issue where editing the configuration of files
+    that were opened by a user didn't work. Thanks to @lpryszcz for
+    the report (#569).
+
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 
 ## Minor improvements
