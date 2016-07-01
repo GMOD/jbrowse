@@ -12,7 +12,7 @@ return declare( IndexedFileDriver,  {
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'tbi',
+    indexExtension: 'bed.gz.tbi',
     indexConfKey: 'tbi',
     indexUrlConfKey: 'tbiUrlTemplate'
 });
