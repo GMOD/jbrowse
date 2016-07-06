@@ -10,8 +10,7 @@ define([
         'JBrowse/Store/TabixIndexedFile',
         'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
         'JBrowse/Model/XHRBlob',
-        './BEDTabix/Parser',
-        'JBrowse/Store/SeqFeature/BEDTabix/LazyFeature'
+        './BED/Parser'
     ],
     function(
         declare,
@@ -25,8 +24,7 @@ define([
         TabixIndexedFile,
         GlobalStatsEstimationMixin,
         XHRBlob,
-        Parser,
-        LazyFeature
+        Parser
     ) {
 
 
@@ -119,14 +117,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         },errorCallback);
     },
 
-    // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
-    _flattenOneLevel: function( ar ) {
-        var r = [];
-        for( var i = 0; i<ar.length; i++ ) {
-            r.push.apply( r, ar[i] );
-        }
-        return r;
-    },
 
 
     _featureData: function( data ) {
