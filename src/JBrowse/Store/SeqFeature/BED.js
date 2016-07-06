@@ -61,7 +61,12 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                                        if( !( regRefName in seenRefs ))
                                            seenRefs[ regRefName ] = features.length;
 
-                                       features.push( feature );
+                                       if(thisB.config.featureCallback) {
+                                           features.push(thisB.config.featureCallback(feature,thisB));
+                                       }
+                                       else {
+                                           features.push(feature);
+                                       }
                                    });
                 },
                 endCallback:     function()  {
@@ -78,8 +83,11 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                                 });
 
                     thisB._deferred.features.resolve( features );
-                }
+                },
+                commentCallback: (this.config.commentCallback || function(i) {  }),
+                store: this
             });
+
         var fail = lang.hitch( this, '_failAllDeferred' );
         // parse the whole file and store it
         this.data.fetchLines(

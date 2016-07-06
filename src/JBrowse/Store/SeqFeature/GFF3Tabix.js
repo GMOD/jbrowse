@@ -29,7 +29,10 @@ define([
            GFF3
        ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ], {
+
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
+{
+
     constructor: function( args ) {
         var thisB = this;
 
@@ -99,17 +102,20 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }.call(this));
     },
 
-    _getFeatures: function( query, featCallback, finishedCallback, errorCallback ) {
+    _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
+        var f=featureCallback;
         var parser = new Parser(
             {
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
                                        var feat = thisB._formatFeature(feature);
-                                       featCallback(feat);
+                                       f(feat);
                                    });
                 },
-                finishedCallback
+                endCallback: function() {
+                    finishedCallback();
+                }
             });
 
         thisB.getHeader().then( function() {
@@ -130,9 +136,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     lineToFeature: function( line ) {
         var attributes = GFF3.parse_attributes( line.fields[8] );
-        var ref = line.fields[0];
+        var ref    = line.fields[0];
         var source = line.fields[1];
-        var type = line.fields[2];
+        var type   = line.fields[2];
         var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
         var remove_id;
         if( !attributes.ID ) {
@@ -140,13 +146,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             remove_id = true;
         }
         var featureData = {
-            start: line.start,
-            end: line.end,
+            start:  line.start,
+            end:    line.end,
             strand: strand,
             child_features: [],
             seq_id: line.ref,
             attributes: attributes,
-            type: type,
+            type:   type,
             source: source,
             remove_id: remove_id
         };

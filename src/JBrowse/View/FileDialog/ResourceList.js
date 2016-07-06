@@ -98,6 +98,7 @@ return declare( null, {
                         { label: "FASTA index", value: "fai"    },
                         { label: "VCF+bgzip",   value: "vcf.gz" },
                         { label: "BED+bgzip",   value: "bed.gz" },
+                        { label: "BED",         value: "bed"    },
                         { label: "GFF3+bgzip",  value: "gff3.gz"},
                         { label: "Tabix index", value: "vcf.gz.tbi" },
                         { label: "Tabix index", value: "gff3.gz.tbi" },
@@ -158,6 +159,7 @@ return declare( null, {
                 /\.fai$/i.test( name )          ? 'fai'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
+                /\.bed$/i.test( name )          ? 'bed'    :
                 /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                 /\.gff3?\.gz.tbi$/i.test( name )? 'gff3.gz.tbi' :
                 /\.vcf.gz.tbi$/i.test( name )   ? 'vcf.gz.tbi'  :

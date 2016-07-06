@@ -1,32 +1,33 @@
 define([
-        'dojo/_base/declare',
-        'dojo/_base/lang',
-        'dojo/_base/array',
-        'dojo/Deferred',
-        'JBrowse/Model/SimpleFeature',
-        'JBrowse/Store/SeqFeature',
-        'JBrowse/Store/DeferredStatsMixin',
-        'JBrowse/Store/DeferredFeaturesMixin',
-        'JBrowse/Store/TabixIndexedFile',
-        'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
-        'JBrowse/Model/XHRBlob',
-        './BED/Parser'
-    ],
-    function(
-        declare,
-        lang,
-        array,
-        Deferred,
-        SimpleFeature,
-        SeqFeatureStore,
-        DeferredStatsMixin,
-        DeferredFeaturesMixin,
-        TabixIndexedFile,
-        GlobalStatsEstimationMixin,
-        XHRBlob,
-        Parser
-    ) {
-
+            'dojo/_base/declare',
+            'dojo/_base/lang',
+            'dojo/_base/array',
+            'dojo/Deferred',
+            'JBrowse/Model/SimpleFeature',
+            'JBrowse/Store/SeqFeature',
+            'JBrowse/Store/DeferredStatsMixin',
+            'JBrowse/Store/DeferredFeaturesMixin',
+            'JBrowse/Store/TabixIndexedFile',
+            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
+            'JBrowse/Model/XHRBlob',
+            'JBrowse/Model/SimpleFeature',
+            './BED/Parser'
+        ],
+        function(
+            declare,
+            lang,
+            array,
+            Deferred,
+            SimpleFeature,
+            SeqFeatureStore,
+            DeferredStatsMixin,
+            DeferredFeaturesMixin,
+            TabixIndexedFile,
+            GlobalStatsEstimationMixin,
+            XHRBlob,
+            SimpleFeature,
+            Parser
+        ) {
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, Parser ], {
 
@@ -53,6 +54,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 chunkSizeLimit: args.chunkSizeLimit || 1000000
             });
 
+        this.parser = new Parser({
+            commentCallback: (this.config.commentCallback || function(i) {  }),
+            store: this
+        });
+
         this.getHeader()
             .then( function( header ) {
                 thisB._deferred.features.resolve({success:true});
@@ -71,7 +77,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
 
     /**fetch and parse the Header line */
-
     getHeader: function() {
         var thisB = this;
         return this._parsedHeader || ( this._parsedHeader = function() {
@@ -80,14 +85,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
                 thisB.indexedData.indexLoaded.then( function() {
                         var maxFetch = thisB.indexedData.index.firstDataLine
-                            ? (thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1) *2
+                            ? (thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1) * 2
                             : null;
 
                         thisB.indexedData.data.read(
                             0,
                             maxFetch,
                             function( bytes ) {
-                                thisB.parseHeader( new Uint8Array( bytes ) );
+                                thisB.parser.parseHeader( new Uint8Array( bytes ) );
                                 d.resolve( thisB.header );
                             },
                             reject
@@ -99,22 +104,24 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 return d;
             }.call(this));
     },
-    _getFeatures: function(query, featureCallback,finishCallback,errorCallback){
-        var thisB=this;
+    _getFeatures: function(query, featureCallback, finishCallback, errorCallback){
+        var thisB = this;
         thisB.getHeader().then(function(){
             thisB.indexedData.getLines(
                 query.ref || thisB.refSeq.name,
                 query.start,
                 query.end,
                 function( line ) {
-                    var f=thisB.lineToFeature(line);
-                    featureCallback(f);
+                    var f = thisB.lineToFeature(line);
+                    thisB.config.featureCallback ?
+                        featureCallback(thisB.config.featureCallback(f, thisB)) :
+                        featureCallback(f);
                 },
                 finishCallback,
                 errorCallback
 
             );
-        },errorCallback);
+        }, errorCallback);
     },
 
 
@@ -133,6 +140,38 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             id: data.seq_id + "_"+ data.start + "_" +data.end+ "_" + data.name
         });
         f._reg_seq_id = this.browser.regularizeReferenceName( data.seq_id );
+        return f;
+    },
+    //read the line
+    lineToFeature: function( line ){
+        var fields=line.fields;
+        for (var i =0; i < fields.length; i++) {
+            if(fields[i]== '.') {
+                fields[i] == null;
+            }
+        }
+        if(fields.length <5) {
+            fields[3]=fields.join('-');
+            fields[4]=0;
+            fields[5]=0;
+        }
+        var strand={'+':1,'-':-1}[fields[5]] || 0;
+
+        var featureData = {
+            start:  line.start,
+            end:    parseInt(fields[2], 10),
+            seq_id: fields[0],
+            name:   fields[3],
+            score:  parseFloat(fields[4],10),
+            strand: strand
+        };
+
+        var f = new SimpleFeature({
+            id: fields.slice(0, 5).join('/'),
+            data: featureData,
+            fields: fields,
+            parser: this
+        });
         return f;
     },
 

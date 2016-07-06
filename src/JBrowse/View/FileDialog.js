@@ -17,7 +17,7 @@ define( [
             './FileDialog/TrackList/VCFTabixDriver',
             './FileDialog/TrackList/BEDTabixDriver',
             './FileDialog/TrackList/GFF3TabixDriver',
-
+            './FileDialog/TrackList/BEDDriver',
             './FileDialog/ResourceList',
             './FileDialog/TrackList',
             'JBrowse/Util'
@@ -41,6 +41,7 @@ define( [
             VCFTabixDriver,
             BEDTabixDriver,
             GFF3TabixDriver,
+            BEDDriver,
             ResourceList,
             TrackList,
             Util
@@ -55,7 +56,16 @@ return declare( null, {
             dnd: 'draggable' in document.createElement('span')
         };
 
-        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver(), new BEDTabixDriver(), new GFF3TabixDriver() ];
+        this._fileTypeDrivers = [
+            new BAMDriver(),
+            new BigWigDriver(),
+            new GFF3Driver(),
+            new GTFDriver(),
+            new VCFTabixDriver(),
+            new BEDTabixDriver(),
+            new GFF3TabixDriver(),
+            new BEDDriver()
+        ];
     },
 
     addFileTypeDriver: function( d ) {

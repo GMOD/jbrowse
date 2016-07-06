@@ -4,7 +4,7 @@ require([
             'dojo/request/xhr',
             'JBrowse/Browser',
             'JBrowse/Model/XHRBlob',
-            'JBrowse/Store/SeqFeature/BEDTabix/Parser',
+            'JBrowse/Store/SeqFeature/BED/Parser',
             'JBrowse/Store/SeqFeature/BEDTabix'
         ], function(
             array,
