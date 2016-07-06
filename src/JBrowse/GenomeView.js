@@ -64,7 +64,6 @@ constructor: function( args ) {
     var stripeWidth = args.stripeWidth;
     var refseq = args.refSeq;
     var zoomLevel = args.zoomLevel;
-    this.trackMod = {};
 
     // keep a reference to the main browser object
     this.browser = browser;
@@ -1071,7 +1070,6 @@ setLocation: function(refseq, startbp, endbp) {
         endbp = refseq.end;
 
     function removeTrack( track ) {
-        delete thisB.trackMod[track.name];
         if (track.div && track.div.parentNode)
             track.div.parentNode.removeChild(track.div);
     };
@@ -2039,10 +2037,9 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
 showTracks: function( trackConfigs ) {
     // filter out any track configs that are already displayed
     var needed = dojo.filter( trackConfigs, function(conf) {
-        return this._getTracks( [conf.label] ).length == 0 && !this.trackMod[conf.label];
+        return this._getTracks( [conf.label] ).length == 0;
     },this);
     if( ! needed.length ) return;
-    array.forEach(trackConfigs, function(ret) { this.trackMod[ret.label] = true; }, this);
 
     // insert the track configs into the trackDndWidget ( the widget
     // will call create() on the confs to render them)
@@ -2105,7 +2102,6 @@ hideTracks: function( /**Array[String]*/ trackConfigs ) {
         return this._getTracks( [conf.label] ).length != 0;
     },this);
     if( ! displayed.length ) return;
-    array.forEach(trackConfigs, function(ret) { delete this.trackMod[ret.label]; }, this);
 
     // remove the track configs from the trackDndWidget ( the widget
     // will call create() on the confs to render them )
