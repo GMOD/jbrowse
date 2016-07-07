@@ -179,6 +179,56 @@ describe( 'empty BAM', function() {
                   });
 });
 
+describe( 'BAM with B tags', function() {
+              var b;
+              beforeEach( function() {
+                  b = new BAMStore({
+                      browser: new Browser({ unitTestMode: true }),
+                      bam: new XHRBlob('../data/Btag.bam'),
+                      bai: new XHRBlob('../data/Btag.bam.bai'),
+                      refSeq: { end: 1000000,
+                                length: 1000000,
+                                name: "chr1",
+                                seqChunkSize: 80000,
+                                start: 0
+                              }
+                  });
+              });
+
+              it( 'constructs', function() {
+                      expect(b).toBeTruthy();
+                  });
+
+              it( 'loads some data', function() {
+                      var loaded;
+                      var features = [];
+                      var done;
+                      aspect.after( b, 'loadSuccess', function() {
+                          loaded = true;
+                      });
+                      b.getFeatures({ start: 980654, end: 981663 },
+                                 function( feature ) {
+                                     features.push( feature );
+                                 },
+                                 function() {
+                                     done = true;
+                                 }
+                               );
+                      waitsFor( function() { return done; }, 2000 );
+                      runs( function() {
+                                //ZC:B:i,364,359,1,0	ZD:B:f,0.01,0.02,0.03	ZE:B:c,0,1,2,3	ZK:B:s,45,46,47
+                                var ret = features[1].get('ZD').split(",");
+                                expect(features[1].get('ZC')).toEqual("364,359,1,0");
+                                expect(features[1].get('ZE')).toEqual("0,1,2,3");
+                                expect(features[1].get('ZK')).toEqual("45,46,47");
+                                expect(Math.abs(+ret[0]-0.01)<Number.EPSILON);
+                                expect(Math.abs(+ret[1]-0.02)<Number.EPSILON);
+                                expect(Math.abs(+ret[2]-0.03)<Number.EPSILON);
+                                expect(features.length).toEqual(2);
+                                //console.log( distinctBins(features) );
+                            });
+                  });
+});
 describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam', function() {
               var b;
               beforeEach( function() {
