@@ -25,8 +25,6 @@ define( [
             Parser
         ) {
 
-var iter = 0;
-
 return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
 
  /**
@@ -157,7 +155,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
             var f = converted[i] ||
                 ( converted[i] = function(b,i) {
                       bare[i] = false;
-                      return this._formatFeature( b );
+                      return this._formatFeature( b,i );
                   }.call( this, bare[i], i )
                 );
             // features are sorted by ref seq and start coord, so we
@@ -174,13 +172,12 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         finishCallback();
     },
 
-    _formatFeature: function( data ) {
+    _formatFeature: function( data, i ) {
         var f = new SimpleFeature({
             data: data,
-            id: data.name+"_"+iter
+            id: data.seq_id + "_"+ data.start + "_" +data.end+ "_" + data.name + "_" + i
         });
         f._reg_seq_id = this.browser.regularizeReferenceName( data.seq_id );
-        iter++;
         return f;
     },
 

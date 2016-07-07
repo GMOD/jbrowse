@@ -110,14 +110,15 @@ return declare( null, {
 
         var parsed = {};
         for( var i = 0; i < bed_feature_names.length; i++ ) {
-            parsed[ bed_feature_names[i] ] = f[i] == '.' ? null : f[i];
+            if(f[i]) {
+                parsed[ bed_feature_names[i] ] = f[i] == '.' ? null : f[i];
+            }
         }
-
         if( parsed.start !== null )
             parsed.start = parseInt( parsed.start, 10 );
         if( parsed.end !== null )
             parsed.end = parseInt( parsed.end, 10 );
-        if( parsed.score !== null )
+        if( parsed.score != null )
             parsed.score = parseFloat( parsed.score, 10 );
 
         parsed.strand = {'+':1,'-':-1}[parsed.strand] || 0;

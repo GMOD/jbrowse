@@ -27,9 +27,6 @@ define([
             Parser
         ) {
 
-var iter = 0;
-
-
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, Parser ], {
 
     constructor: function( args ) {
@@ -148,33 +145,25 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var fields = line.fields;
         for (var i = 0; i < fields.length; i++) {
             if(fields[i] == '.') {
-                fields[i] == null;
+                fields[i] = null;
             }
         }
-        if(fields.length < 5) {
-            fields[3] = fields.join('-');
-            fields[4] = 0;
-            fields[5] = 0;
-        }
-
-        var strand = {'+':1,'-':-1}[fields[5]] || 0;
 
         var featureData = {
             start:  line.start,
-            end:    parseInt(fields[2], 10),
-            seq_id: fields[0],
+            end:    line.end,
+            seq_id: line.ref,
             name:   fields[3],
-            score:  parseFloat(fields[4],10),
-            strand: strand
+            score:  fields[4] ? +fields[4] : null,
+            strand: {'+':1,'-':-1}[fields[5]] || 0
         };
 
         var f = new SimpleFeature({
-            id: iter,
+            id: fields.slice(0,5).join('/'),
             data: featureData,
             fields: fields
         });
 
-        iter++;
         return f;
     },
 
