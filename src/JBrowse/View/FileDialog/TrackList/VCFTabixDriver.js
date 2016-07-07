@@ -11,7 +11,7 @@ return declare( IndexedFileDriver,  {
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'tbi',
+    indexExtension: 'vcf.gz.tbi',
     indexConfKey: 'tbi',
     indexUrlConfKey: 'tbiUrlTemplate'
 });

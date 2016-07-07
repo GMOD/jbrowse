@@ -83,6 +83,10 @@ var profile = {
             include: [ 'JBrowse/Store/SeqFeature/GFF3Tabix' ],
             exclude: ['JBrowse']
         },
+        'JBrowse/Store/SeqFeature/BEDTabix': {
+            include: [ 'JBrowse/Store/SeqFeature/BEDTabix' ],
+            exclude: ['JBrowse']
+        },
         'JBrowse/Store/SeqFeature/BAM': {
             include: [ 'JBrowse/Store/SeqFeature/BAM' ],
             exclude: ['JBrowse']

@@ -8,20 +8,20 @@ define([
 var uniqCounter = 0;
 return declare( null, {
 
-    storeType: 'JBrowse/Store/SeqFeature/GFF3',
+    storeType: 'JBrowse/Store/SeqFeature/BED',
 
     tryResource: function( configs, resource ) {
-        if( resource.type == 'gff3' ) {
+        if( resource.type == 'bed' ) {
             var basename = Util.basename(
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
                                 '',
-                ['.gff3','.gff']
+                ['.bed']
             );
             if( !basename )
                 return false;
 
-            var newName = 'GFF3_'+basename+'_'+uniqCounter++;
+            var newName = 'BED_'+basename+'_'+uniqCounter++;
             configs[newName] = {
                 type: this.storeType,
                 fileBasename: basename,
