@@ -119,8 +119,8 @@ return declare( null, {
             parsed.end = parseInt( parsed.end, 10 );
         if( parsed.score !== null )
             parsed.score = parseFloat( parsed.score, 10 );
-        if( parsed.strand != null )
-            parsed.strand = {'+':1,'-':-1}[parsed.strand] || 0;
+
+        parsed.strand = {'+':1,'-':-1}[parsed.strand] || 0;
 
         return parsed;
     },
