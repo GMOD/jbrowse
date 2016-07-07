@@ -4,22 +4,21 @@ require([
             'dojo/request/xhr',
             'JBrowse/Browser',
             'JBrowse/Model/XHRBlob',
-            'JBrowse/Store/SeqFeature/BEDTabix'
+            'JBrowse/Store/SeqFeature/BED'
         ], function(
             array,
             lang,
             xhr,
             Browser,
             XHRBlob,
-            BEDTabixStore
+            BEDStore
         ) {
 
 describe( 'BED store', function() {
-    it( 'can parse volvox_tabix.bed.gz', function() {
-        var p = new BEDTabixStore({
+    it( 'can parse volvox-remark.bed', function() {
+        var p = new BEDStore({
             browser: new Browser({ unitTestMode: true }),
-            file: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.bed.gz.1' ),
-            tbi: new XHRBlob( '../../sample_data/raw/volvox/volvox.sort.bed.gz.tbi' ),
+            blob: new XHRBlob( '../../sample_data/raw/volvox/volvox-remark.bed' ),
             refSeq: { name: 'ctgA', start: 0, end: 50001 }
         });
         (function() {
@@ -33,8 +32,8 @@ describe( 'BED store', function() {
 
             waitsFor( function() { return features.done; } );
             runs( function() {
-                //console.log( features );
-                expect( features.length ).toEqual( 109 );
+                console.log( features );
+                expect( features.length>0 ).toEqual( true );
             });
         }).call();
 
