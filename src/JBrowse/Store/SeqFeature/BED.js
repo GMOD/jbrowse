@@ -25,6 +25,8 @@ define( [
             Parser
         ) {
 
+var iter = 0;
+
 return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
 
  /**
@@ -172,48 +174,14 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         finishCallback();
     },
 
-
-    _featureData: function( data ) {
-        var f = lang.mixin( {}, data );
-        for( var a in data.matrix ) {
-            f[ a.toLowerCase() ] = data.attributes[a].join(',');
-        }
-
-        return f;
-    },
     _formatFeature: function( data ) {
         var f = new SimpleFeature({
-            data: this._featureData( data ),
-            id: data.seq_id + "_"+ data.start + "_" +data.end+ "_" + data.name
+            data: data,
+            id: data.name+"_"+iter
         });
         f._reg_seq_id = this.browser.regularizeReferenceName( data.seq_id );
+        iter++;
         return f;
-    },
-
-
-    // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
-    _flattenOneLevel: function( ar ) {
-        var r = [];
-        for( var i = 0; i<ar.length; i++ ) {
-            r.push.apply( r, ar[i] );
-        }
-        return r;
-    },
-
-
-    /**
-     * Interrogate whether a store has data for a given reference
-     * sequence.  Calls the given callback with either true or false.
-     *
-     * Implemented as a binary interrogation because some stores are
-     * smart enough to regularize reference sequence names, while
-     * others are not.
-     */
-    hasRefSeq: function( seqName, callback, errorCallback ) {
-        var thisB = this;
-        this._deferred.features.then( function() {
-            callback( thisB.browser.regularizeReferenceName( seqName ) in thisB.refSeqs );
-        });
     },
 
     saveStore: function() {

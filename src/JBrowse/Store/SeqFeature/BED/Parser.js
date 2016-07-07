@@ -72,8 +72,9 @@ return declare( null, {
         if( this.eof ) {
             // do nothing
         } else if( /^\s*[^#\s>]/.test(line) ) { //< feature line, most common case
+            line = line.replace( /\r?\n?$/g, '' );
             var f = this.parse_feature( line );
-            this.featureCallback( [f] );
+            this.featureCallback( this._return_item([f]) );
         }
         // directive or comment
         else if(( match = /^\s*(\#+)(.*)/.exec( line ) )) {
@@ -111,6 +112,7 @@ return declare( null, {
         for( var i = 0; i < bed_feature_names.length; i++ ) {
             parsed[ bed_feature_names[i] ] = f[i] == '.' ? null : f[i];
         }
+
         if( parsed.start !== null )
             parsed.start = parseInt( parsed.start, 10 );
         if( parsed.end !== null )
@@ -119,7 +121,6 @@ return declare( null, {
             parsed.score = parseFloat( parsed.score, 10 );
         if( parsed.strand != null )
             parsed.strand = {'+':1,'-':-1}[parsed.strand] || 0;
-        parsed.id = f.slice(0, 5).join('/')
 
         return parsed;
     },
