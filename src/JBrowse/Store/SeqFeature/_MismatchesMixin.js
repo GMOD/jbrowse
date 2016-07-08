@@ -184,6 +184,7 @@ return declare( null, {
                                                 1
                                               )
                                   : 'X';
+                  curr.altbase = token;
                   nextRecord();
               }
           }

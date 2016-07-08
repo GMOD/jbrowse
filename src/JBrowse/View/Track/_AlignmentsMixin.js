@@ -5,6 +5,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
+           'dojo/dom-construct',
            'dojo/when',
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/_MismatchesMixin',
@@ -14,6 +15,7 @@ define([
             declare,
             array,
             lang,
+            domConstruct,
             when,
             Util,
             MismatchesMixin,
@@ -62,6 +64,9 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         dojo.forEach( additionalTags, function(t) {
                           fmt( t, f.get(t), f );
         });
+
+        // genotypes in a separate section
+        this._renderTable( container, track, f, div );
 
         return container;
     },
@@ -210,6 +215,49 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                            ],
                            filters );
                    });
+    },
+
+
+    _renderTable: function( parentElement, track, feat, featDiv  ) {
+        var mismatches = track._getMismatches(feat);
+        var val='Query: ';
+        var seq = feat.get('seq');
+        for(var i = 0;i<seq.length;i++) {
+            val+=seq[i];
+        }
+        val+='<br>       ';
+        for(var i in feat.get('seq')) {
+            var f = false;
+            mismatches.forEach(function(mismatch) {
+                if(i == mismatch.start) {
+                    val+=' ';
+                    f = true;
+                }
+            });
+            if(!f) {
+                val+='|';
+            }
+        }
+        var i = 0;
+        var offset = 0;
+        val += '<br>Ref:   ';
+        mismatches.forEach(function(mismatch) {
+            for(var m = offset; m < mismatch.start; m++) {
+                val += seq[m];
+            }
+            offset = mismatch.start;
+            val += mismatch.altbase;
+            offset += mismatch.altbase.length;
+        });
+        for(var m = offset; m < seq.length; m++) {
+            val += seq[m];
+        }
+        var gContainer = domConstruct.create(
+            'div',
+            { className: 'renderTable',
+              innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'+val+'</div>'
+            },
+            parentElement );
     }
 
 });
