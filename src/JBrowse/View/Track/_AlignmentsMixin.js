@@ -221,20 +221,37 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
     _renderTable: function( parentElement, track, feat, featDiv  ) {
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
-        var val1='',val2='',val3='';
-        var adjust=0;
-        for(var i=0; i<seq.length; i++) {
-            var f=false;
-            for(var j=0; j<mismatches.length; j++) {
+        var val1 = '', val2 = '', val3 = '';
+        var adjust = 0;
+        for(var i = 0; i < seq.length; i++) {
+            var f = false;
+            for(var j = 0; j < mismatches.length; j++) {
                 var mismatch = mismatches[j];
-                if(i == mismatch.start-adjust) {
+                if(i == mismatch.start - adjust) {
+                    console.log(mismatch);
                     if(mismatch.type == "softclip") {
                         for(var l=0; l<mismatch.cliplen; l++) {
                             val1+=seq[i+l];
-                            val3+='S';
                             val2+='.';
+                            val3+='S';
                         }
                         i+=mismatch.cliplen-1;
+                    }
+                    else if(mismatch.type == "insertion") {
+                        console.log('here',mismatch);
+                        for(var l=0; l<mismatch.length; l++) {
+                            val1+=seq[i+l];
+                            val2+=' ';
+                            val3+='-';
+                        }
+                    }
+                    else if(mismatch.type == "deletion") {
+                        console.log('here',mismatch);
+                        for(var l=0; l<mismatch.length; l++) {
+                            val1+=seq[i+l];
+                            val2+='-';
+                            val3+='I';
+                        }
                     }
                     else if(mismatch.type == "skip") {
                        val1+='...';
@@ -243,8 +260,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                        adjust+=mismatch.length;
                     }
                     else if(mismatch.altbase) {
-                        val2+=' ';
                         val1+=seq[i];
+                        val2+=' ';
                         val3+=mismatch.altbase;
                     }
                     f = true;
