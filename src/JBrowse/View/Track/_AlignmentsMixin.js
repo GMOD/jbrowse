@@ -220,56 +220,51 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
     _renderTable: function( parentElement, track, feat, featDiv  ) {
         var mismatches = track._getMismatches(feat);
-        var val='Query: ';
         var seq = feat.get('seq');
-        for(var i = 0;i<seq.length;i++) {
-            val+=seq[i];
-        }
-        val+='<br>       ';
+        var val1='',val2='',val3='';
+        var adjust=0;
         for(var i=0; i<seq.length; i++) {
-            var f = false;
-            mismatches.forEach(function(mismatch) {
-                if(i == mismatch.start) {
+            var f=false;
+            console.log(mismatches)
+            for(var j=0; j<mismatches.length; j++) {
+                var mismatch = mismatches[j];
+                if(i == mismatch.start-adjust) {
                     if(mismatch.type == "softclip") {
                         for(var l=0; l<mismatch.cliplen; l++) {
-                            val+=' ';
+                            val1+=seq[i];
+                            val3+='S';
+                            val2+='.';
                         }
-                        i+=mismatch.cliplen;
+                        i+=mismatch.cliplen-1;
                     }
-                    else {
-                        val+=' ';
-                        f = true;
+                    else if(mismatch.type == "skip") {
+                       val1+='...';
+                       val2+='...';
+                       val3+='...';
+                       adjust+=mismatch.length;
                     }
+                    else if(mismatch.altbase) {
+                        val2+=' ';
+                        val1+=seq[i];
+                        val3+=mismatch.altbase;
+                    }
+                    f = true;
                 }
-            });
+            }
             if(!f) {
-                val+='|';
+                val2+='|';
+                val1+=seq[i];
+                val3+=seq[i];
             }
         }
-        var i = 0;
-        var offset = 0;
-        val += '<br>Ref:   ';
-        mismatches.forEach(function(mismatch) {
-            for(var m = offset; m < mismatch.start; m++) {
-                val += seq[m];
-            }
-            offset = mismatch.start;
-            console.log(mismatch);
-//            if(mismatch.type=="softclip") {
-//                offset += mismatch.cliplen;
-//            }
-            if(mismatch.altbase) {
-                val += mismatch.altbase;
-                offset += mismatch.altbase.length;
-            }
-        });
-        for(var m = offset; m < seq.length; m++) {
-            val += seq[m];
-        }
+        
         var gContainer = domConstruct.create(
             'div',
             { className: 'renderTable',
-              innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'+val+'</div>'
+              innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+              +'Query: '+val1+'<br>'
+              +'       '+val2+'<br>'
+              +'Ref:   '+val3+'</div>'
             },
             parentElement );
     }
