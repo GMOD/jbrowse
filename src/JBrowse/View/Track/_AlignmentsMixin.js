@@ -226,12 +226,20 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             val+=seq[i];
         }
         val+='<br>       ';
-        for(var i in feat.get('seq')) {
+        for(var i=0; i<seq.length; i++) {
             var f = false;
             mismatches.forEach(function(mismatch) {
                 if(i == mismatch.start) {
-                    val+=' ';
-                    f = true;
+                    if(mismatch.type == "softclip") {
+                        for(var l=0; l<mismatch.cliplen; l++) {
+                            val+=' ';
+                        }
+                        i+=mismatch.cliplen;
+                    }
+                    else {
+                        val+=' ';
+                        f = true;
+                    }
                 }
             });
             if(!f) {
@@ -246,8 +254,14 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 val += seq[m];
             }
             offset = mismatch.start;
-            val += mismatch.altbase;
-            offset += mismatch.altbase.length;
+            console.log(mismatch);
+//            if(mismatch.type=="softclip") {
+//                offset += mismatch.cliplen;
+//            }
+            if(mismatch.altbase) {
+                val += mismatch.altbase;
+                offset += mismatch.altbase.length;
+            }
         });
         for(var m = offset; m < seq.length; m++) {
             val += seq[m];
