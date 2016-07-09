@@ -6,8 +6,9 @@ require([
             'JBrowse/Store/SeqFeature/BAM',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature/_MismatchesMixin',
+            'JBrowse/View/Track/_AlignmentsMixin',
             'JBrowse/Model/SimpleFeature'
-        ], function( aspect, declare, array, Browser, BAMStore, XHRBlob, MismatchesMixin, SimpleFeature ) {
+        ], function( aspect, declare, array, Browser, BAMStore, XHRBlob, MismatchesMixin, AlignmentsMixin, SimpleFeature ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -271,6 +272,32 @@ describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam'
                             });
                   });
 });
+
+
+describe( 'BAM mismatch test', function() {
+              var b;
+              //Config workaround since we aren't directly instantiating anything with Browser/config
+              var Config=declare(null, {
+                  constructor: function() {
+                      this.config={};
+                  }
+              });
+              //Use Config workaround
+              var MismatchParser=declare([Config,MismatchesMixin]);
+              //Use Config workaround
+              var AlignmentParser=declare([Config,AlignmentsMixin]);
+
+
+              it('resultTable test', function() {
+                  var parser = new AlignmentParser();
+                  var elt = dojo.create('div');
+                  var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "77G18",cigar:"4S22M50N74M",seq:"TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT"}}));
+                  console.log(elt);
+                  expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGA...ACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
+                  expect(res.val2).toEqual("....||||||||||||||||||...|||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||");
+                  expect(res.val3).toEqual("SSSSCAAGCACCGGGCGCGCGA...ACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCAGTCTTAACGTGGTACGTGCACAT");
+              });
+             });
 
 // only run the cabone_test_2 if it's in the URL someplace
 if( document.location.href.indexOf('extended_tests=1') > -1 ) {
