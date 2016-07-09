@@ -231,7 +231,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 if(i == mismatch.start-adjust) {
                     if(mismatch.type == "softclip") {
                         for(var l=0; l<mismatch.cliplen; l++) {
-                            val1+=seq[i];
+                            val1+=seq[i+l];
                             val3+='S';
                             val2+='.';
                         }
@@ -257,6 +257,10 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 val3+=seq[i];
             }
         }
+
+        val1+='   ';
+        val2+='   ';
+        val3+='   ';
         
         var gContainer = domConstruct.create(
             'div',
