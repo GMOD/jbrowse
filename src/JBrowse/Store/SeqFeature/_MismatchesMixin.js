@@ -82,7 +82,7 @@ return declare( null, {
            else if( op == 'H' )
                mismatches.push( { start: currOffset, type: 'hardclip',  base: 'H'+len, length: 1 });
            else if( op == 'S' )
-               mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, length: 1 });
+               mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, cliplen: len, length: 1 });
 
            if( op != 'I' && op != 'S' && op != 'H' )
                currOffset += len;
