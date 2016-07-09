@@ -225,7 +225,6 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         var adjust=0;
         for(var i=0; i<seq.length; i++) {
             var f=false;
-            console.log(mismatches)
             for(var j=0; j<mismatches.length; j++) {
                 var mismatch = mismatches[j];
                 if(i == mismatch.start-adjust) {
@@ -257,20 +256,17 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 val3+=seq[i];
             }
         }
-
-        val1+='   ';
-        val2+='   ';
-        val3+='   ';
         
         var gContainer = domConstruct.create(
             'div',
             { className: 'renderTable',
               innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-              +'Query: '+val1+'<br>'
-              +'       '+val2+'<br>'
-              +'Ref:   '+val3+'</div>'
+              +'Query: '+val1+'   <br>'
+              +'       '+val2+'   <br>'
+              +'Ref:   '+val3+'   </div>'
             },
             parentElement );
+        return {val1: val1,val2:val2,val3:val3};
     }
 
 });
