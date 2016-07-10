@@ -243,22 +243,22 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         break;
                     }
                     else if(mismatch.type == "insertion") {
-                        for(var l = 0; l < mismatch.length; l++) {
+                        for(var l = 0; l < +mismatch.base; l++) {
                             val1+=seq[i+l];
                             val2+=' ';
                             val3+='-';
                         }
-                        adjust-=1;
-                        i+=1;
+                        adjust -= +mismatch.base;
+                        i += +mismatch.base;
                         break;
                     }
                     else if(mismatch.type == "deletion") {
                         for(var l=0; l<mismatch.length; l++) {
-                            val1+=seq[i+l];
-                            val2+='-';
-                            val3+='I';
+                            val1+='-';
+                            val2+=' ';
+                            val3+=seq[i+l];
                         }
-                        f = true;
+                        break;
                     }
                     else if(mismatch.type == "skip") {
                         val1+='...';
