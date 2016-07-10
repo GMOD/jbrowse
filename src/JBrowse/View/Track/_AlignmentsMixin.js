@@ -225,10 +225,10 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         var adjust = 0;
         for(var i = 0; i < seq.length; i++) {
             var f = false;
+            var g = false;
             for(var j = 0; j < mismatches.length; j++) {
                 var mismatch = mismatches[j];
                 if(i == mismatch.start - adjust) {
-                    console.log(mismatch);
                     if(mismatch.type == "softclip") {
                         for(var l=0; l<mismatch.cliplen; l++) {
                             val1+=seq[i+l];
@@ -236,40 +236,44 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                             val3+='S';
                         }
                         i+=mismatch.cliplen-1;
+                        f = true;
                     }
                     else if(mismatch.type == "insertion") {
-                        console.log('here',mismatch);
                         for(var l=0; l<mismatch.length; l++) {
                             val1+=seq[i+l];
                             val2+=' ';
                             val3+='-';
                         }
+                        adjust-=1;
+                        i+=1;
+                        break;
                     }
                     else if(mismatch.type == "deletion") {
-                        console.log('here',mismatch);
                         for(var l=0; l<mismatch.length; l++) {
                             val1+=seq[i+l];
                             val2+='-';
                             val3+='I';
                         }
+                        f = true;
                     }
                     else if(mismatch.type == "skip") {
-                       val1+='...';
-                       val2+='...';
-                       val3+='...';
-                       adjust+=mismatch.length;
+                        val1+='...';
+                        val2+='...';
+                        val3+='...';
+                        adjust+=mismatch.length;
+                        f = true;
                     }
-                    else if(mismatch.altbase) {
-                        val1+=seq[i];
+                    else if(mismatch.type == "mismatch") {
+                        val1+=mismatch.base;
                         val2+=' ';
                         val3+=mismatch.altbase;
+                        f = true;
                     }
-                    f = true;
                 }
             }
             if(!f) {
-                val2+='|';
                 val1+=seq[i];
+                val2+='|';
                 val3+=seq[i];
             }
         }

@@ -292,10 +292,17 @@ describe( 'BAM mismatch test', function() {
                   var parser = new AlignmentParser();
                   var elt = dojo.create('div');
                   var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "77G18",cigar:"4S22M50N74M",seq:"TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT"}}));
-                  console.log(elt);
                   expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGA...ACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
                   expect(res.val2).toEqual("....||||||||||||||||||...|||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||");
                   expect(res.val3).toEqual("SSSSCAAGCACCGGGCGCGCGA...ACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCAGTCTTAACGTGGTACGTGCACAT");
+              });
+              it('resultTable test insertion', function() {
+                  var parser = new AlignmentParser();
+                  var elt = dojo.create('div');
+                  var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "11A45C41",cigar:"9M1I90M",seq:"TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG"}}));
+                  expect(res.val1).toEqual("TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
+                  expect(res.val2).toEqual("||||||||| || ||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||");
+                  expect(res.val3).toEqual("TTTAGTGGG-CCAAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGCAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
               });
              });
 
