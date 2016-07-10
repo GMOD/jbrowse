@@ -292,9 +292,9 @@ describe( 'BAM mismatch test', function() {
                   var parser = new AlignmentParser();
                   var elt = dojo.create('div');
                   var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "77G18",cigar:"4S22M50N74M",seq:"TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT"}}));
-                  expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGA...ACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
-                  expect(res.val2).toEqual("....||||||||||||||||||...|||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||");
-                  expect(res.val3).toEqual("SSSSCAAGCACCGGGCGCGCGA...ACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCAGTCTTAACGTGGTACGTGCACAT");
+                  expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGAGACA...GATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
+                  expect(res.val2).toEqual("....||||||||||||||||||||||...|||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||");
+                  expect(res.val3).toEqual("SSSSCAAGCACCGGGCGCGCGAGACA...GATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
               });
               it('resultTable test insertion', function() {
                   var parser = new AlignmentParser();

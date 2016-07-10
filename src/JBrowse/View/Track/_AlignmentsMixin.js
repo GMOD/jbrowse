@@ -222,24 +222,28 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
         var val1 = '', val2 = '', val3 = '';
-        var adjust = 0;
+        var adjust = 0, adjust2 = 0;
+        var beginning = 0;
+        mismatches.sort(function(a,b) { return a.start-b.start; });
         for(var i = 0; i < seq.length; i++) {
             var f = false;
-            var g = false;
-            for(var j = 0; j < mismatches.length; j++) {
+            for(var j = beginning; j < mismatches.length; j++) {
                 var mismatch = mismatches[j];
-                if(i == mismatch.start - adjust) {
+                if(i - adjust2 == mismatch.start - adjust) {
+                    beginning = j+1;
                     if(mismatch.type == "softclip") {
-                        for(var l=0; l<mismatch.cliplen; l++) {
+                        for(var l = 0; l < mismatch.cliplen; l++) {
                             val1+=seq[i+l];
                             val2+='.';
                             val3+='S';
                         }
                         i+=mismatch.cliplen-1;
+                        adjust2+=mismatch.cliplen;
                         f = true;
+                        break;
                     }
                     else if(mismatch.type == "insertion") {
-                        for(var l=0; l<mismatch.length; l++) {
+                        for(var l = 0; l < mismatch.length; l++) {
                             val1+=seq[i+l];
                             val2+=' ';
                             val3+='-';
