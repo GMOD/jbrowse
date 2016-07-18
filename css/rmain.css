@@ -1,0 +1,74 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+}
+
+.icon.nav {
+    height: 30px !important;
+}
+
+#moveLeft, #moveRight, #bigZoomOut, #zoomOut, #bigZoomIn, #zoomIn, #moveLeftSmall, #moveRightSmall, #zoomInSmall, #zoomOutSmall{
+		background: url(../img/scroll_zoom_sprites.png) top left no-repeat;
+		background-size: 50px 280px;
+		cursor: pointer;
+}
+
+
+#moveLeft{
+	background-position: 5px -35px;
+	width:55px;
+}
+
+#moveLeftSmall {
+	background-position: 0px -200px;
+	height: 20px !important;
+	width: 33px;
+}
+
+#moveRight{
+	background-position: 0px -135px;
+	width:55px;
+}
+
+#moveRightSmall {
+	background-position: 0px -220px;
+	height: 20px !important;
+	width: 33px;
+}
+
+#bigZoomOut{
+	background-position: 0px -168px;
+	width:35px;
+}
+
+#zoomOut{
+	background-position: 0px -100px;
+	width: 30px;
+}
+
+#zoomOutSmall{
+	background-position: 0px -240px;
+	height: 20px !important;
+	width: 20px;
+}
+
+
+#bigZoomIn{
+	background-position: 0px -69px;
+	width:35px;
+}
+
+#zoomIn{
+	background-position: 0px -2.5px;
+	width: 30px;
+}
+
+#zoomInSmall{
+	background-position: 0px -260px;
+	height: 20px !important;
+	width: 20px;
+}

@@ -420,6 +420,7 @@ _behaviors: function() { return {
             var wheelevent = "onwheel" in document.createElement("div") ? "wheel"      :
                                     document.onmousewheel !== undefined ? "mousewheel" :
                                                                           "DOMMouseScroll";
+
             handles.push(
                 dojo.connect( this.scrollContainer,     wheelevent,     this, 'wheelScroll', false ),
 

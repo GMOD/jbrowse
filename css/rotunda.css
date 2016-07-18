@@ -1,0 +1,137 @@
+@import url("../src/dijit/themes/tundra/tundra.css");
+@import url("../src/dojo/resources/dojo.css");
+@import url("rmain.css");
+
+.rotunda-container {
+    display: inline-block;
+    border-color: #f8f8f8;
+}
+
+.rotunda-navbox {
+    background-color: #f8f8f8;
+    border-style: solid;
+    border-width: 1px 1px 0px 1px;
+    padding-top: 1px;
+    border-color: #f8f8f8;
+}
+
+.rotunda-view {
+    position: relative;
+}
+
+.rotunda-tracklist-container {
+    margin-left: 1px;
+    position: absolute;
+    top: 0;
+}
+
+.rotunda-tracklist {
+}
+
+.rotunda-svg-wrapper {
+    border-style: solid;
+    border-width: 0px 1px 1px 1px;
+    border-color: #f8f8f8;
+    overflow-y: scroll;
+    position: absolute;
+    top: 0;
+}
+
+.rotunda-svg {
+    cursor: move;
+}
+
+.rotunda-canvas {
+}
+
+div.rotunda-track-label {
+    z-index: 20;
+
+    padding: 1px 6px;
+    overflow: hidden;
+    cursor: pointer;
+
+    border-width: 1px;
+    border-style: solid;
+    border-color: #999;
+
+    color: #111;
+    font-weight: bold;
+}
+
+div.rotunda-track-label {
+    color: black;
+    margin: -1px 0 0 -1px;
+    overflow: visible;
+    background: white;
+    padding: 0 5px;
+
+    height: 23px;
+    line-height: 23px;
+
+    z-index: 20;
+    border-color: #eee;
+    opacity: 0.7;
+
+    /* setting white-space to "nowrap" prevents Chrome-specific bug with
+       label text sometimes disappearing after zoom in Chrome was
+       wrapping rotunda-track-label text to next line, which falls outside of
+       rotunda-track-label fixed height and therefore not seen. see chromium
+       bug report for more details on underlying issue:
+       http://code.google.com/p/chromium/issues/detail?id=138918
+    */
+    white-space: nowrap;
+}
+
+div.rotunda-track-label .rotunda-track-label-text {
+    display: inline-block;
+    white-space: nowrap;
+}
+div.rotunda-track-label .rotunda-track-close-button {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    top: 50%;
+    height: 20px;
+    width: 25px;
+    margin: -10px -3px -4px -6px;
+}
+
+.tundra div.rotunda-track-label .rotunda-track-close-button {
+    background: url("../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
+}
+.tundra div.rotunda-track-label .rotunda-track-close-button:hover {
+    background-image: url("../src/dijit/themes/tundra/images/tabCloseHover.png");
+}
+div.rotunda-track-label:hover {
+    background: #FAFAFA url(../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+
+    border-width: 1px;
+    border-color: #666;
+    border-color: rgba( 0,0,0, 1);
+
+    background-color: #ddd;
+    opacity: 1.0;
+}
+
+.rotunda-track-label.dojoDndItemBefore {
+    border-top: 3px solid #999;
+    margin-top: -3px;
+}
+
+.rotunda-track-label.dojoDndItemAfter {
+    border-bottom: 3px solid #999;
+    margin-bottom: -3px;
+}
+
+.rotunda-tooltip {
+    position: absolute;
+    z-index: 10;
+    visibility: hidden;
+    background-color: white;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    padding: 1px;
+    opacity: .8;
+}
