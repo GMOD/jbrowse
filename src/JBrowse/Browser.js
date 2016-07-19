@@ -50,6 +50,7 @@ define( [
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
+            'Rotunda/Rotunda',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/domReady!'
@@ -104,6 +105,7 @@ define( [
             SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
+	    Rotunda,
             dijitFocus,
             LazyLoad
         ) {
@@ -937,6 +939,16 @@ initView: function() {
             new dijitContentPane({region: "center"}, this.viewElem);
         dojo.connect( this.browserWidget, "resize", this,      'onResize' );
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
+
+	// initialize the rotunda view
+	dojo.setStyle(this.view.elem,'visibility','hidden')  // hide the GenomeView
+
+        this.rotundaElem = document.createElement("div");
+        this.container.appendChild( this.rotundaElem);
+
+	var rotConfig = this.config.rotundaConfig || {}
+	rotConfig.container = this.rotundaElem
+	this.rotunda = new Rotunda (rotConfig)
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {

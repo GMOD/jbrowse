@@ -11,6 +11,7 @@ var tickMagUnits = ['bp', 'kb', 'Mb', 'Gb']
 return declare (Track,
 {
     constructor: function(config) {
+	config = config || {}
 	this.axisLabelScaleThreshold = config.axisLabelScaleThreshold || 4
     },
 

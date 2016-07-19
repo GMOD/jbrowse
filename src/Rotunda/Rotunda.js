@@ -38,7 +38,10 @@ return declare( null, {
         var rot = this
 
 	this.config = config
-        this.id = config.id || "rotunda"
+
+	var defaultID = "rotunda"
+        this.container = config.container || query("#"+(config.id || defaultID))[0]
+	this.id = this.container.id || defaultID
 
         this.tracks = config.tracks.filter (function (track) { return !track.isLinkTrack })
         this.links = config.tracks.filter (function (track) { return track.isLinkTrack })
@@ -78,9 +81,6 @@ return declare( null, {
 
         // slightly funky mixture of dojo/d3 here... probably need to sort this out
         // use dojo to create navbox and track list
-        var dojoContainer = query("#"+this.id)
-        this.container = dojoContainer[0]
-
         this.container.setAttribute("class", "rotunda-container")
 
         this.createNavBox (this.container)

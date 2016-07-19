@@ -103,8 +103,9 @@
                    }
 
 	          initDemo.load().then (function (rotConfig) {
-            rotunda = new Rotunda (rotConfig)
-//                   JBrowse = new Browser( config );
+	config.rotundaConfig = rotConfig
+//            rotunda = new Rotunda (rotConfig)
+                   JBrowse = new Browser( config );
 })
         });
     </script>
