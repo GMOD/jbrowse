@@ -12,7 +12,9 @@ require( {
                'put-selector',
                { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
                'FileSaver',
-               'JBrowse'
+               'JBrowse',
+               'Rotunda',
+               'd3'
            ]
          }
 );
