@@ -941,14 +941,16 @@ initView: function() {
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
 	// initialize the rotunda view
-	dojo.setStyle(this.view.elem,'visibility','hidden')  // hide the GenomeView
+	var rotConfig = this.config.rotundaConfig
+	if (typeof(rotConfig) != 'undefined') {
+	    dojo.setStyle(this.view.elem,'visibility','hidden')  // hide the GenomeView
 
-        this.rotundaElem = document.createElement("div");
-        this.container.appendChild( this.rotundaElem);
+            this.rotundaElem = document.createElement("div");
+            this.container.appendChild( this.rotundaElem);
 
-	var rotConfig = this.config.rotundaConfig || {}
-	rotConfig.container = this.rotundaElem
-	this.rotunda = new Rotunda (rotConfig)
+	    rotConfig.container = this.rotundaElem
+	    this.rotunda = new Rotunda (rotConfig)
+	}
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {
