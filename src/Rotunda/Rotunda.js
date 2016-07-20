@@ -135,7 +135,7 @@ return declare( null, {
 	this.initScales()
 
 	// add resize handlers
-	if (config.resizable)
+//	if (config.resizable)
 	    addResizeListener (this.svg_wrapper[0][0], dojo.hitch (this, this.manualResizeCallback))
         addEventListener ("resize", dojo.hitch (this, this.windowResizeCallback))
     },
@@ -176,8 +176,8 @@ return declare( null, {
     xMargin: 24,  // prevent overflow
     yMargin: 24,  // prevent overflow
     windowDim: function() {
-	var w = window.innerWidth - this.xMargin
-	var h = window.innerHeight - this.navbarHeight - this.yMargin
+	var w = Math.max (0, this.container.parentElement.offsetWidth - this.xMargin)
+	var h = Math.max (0, this.container.parentElement.offsetHeight - this.navbarHeight - this.yMargin)
         return [w, h]
     },
 
@@ -330,8 +330,9 @@ return declare( null, {
 
     manualResize: function() {
 	delete this.resizeTimeout
-	this.width = this.svg_wrapper[0][0].clientWidth
-	this.height = Math.min (this.width, this.svg_wrapper[0][0].clientHeight)
+        var dim = this.windowDim()
+	this.width = dim[0]
+	this.height = Math.min (this.width, dim[1])
 	this.clear()
 	this.initScales()
     },

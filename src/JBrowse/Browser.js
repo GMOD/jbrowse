@@ -943,10 +943,17 @@ initView: function() {
 	// initialize the rotunda view
 	var rotConfig = this.config.rotundaConfig
 	if (typeof(rotConfig) != 'undefined') {
-	    dojo.setStyle(this.view.elem,'visibility','hidden')  // hide the GenomeView
+	    dojo.setStyle(this.viewElem,'visibility','hidden')  // hide the GenomeView
+
+            this.rotViewElem = document.createElement("div");
+            this.rotViewElem.className = "dragWindow";
+            this.container.appendChild( this.rotViewElem);
+
+            this.rotundaWidget =
+                new dijitContentPane({region: "center"}, this.rotViewElem);
 
             this.rotundaElem = document.createElement("div");
-            this.container.appendChild( this.rotundaElem);
+            this.rotViewElem.appendChild( this.rotundaElem);
 
 	    rotConfig.container = this.rotundaElem
 	    this.rotunda = new Rotunda (rotConfig)

@@ -88,7 +88,6 @@ constructor: function( args ) {
     //width, in pixels, of the vertical stripes
     this.stripeWidth = stripeWidth;
 
-
     // the scrollContainer is the element that changes position
     // when the user scrolls
     this.scrollContainer = dojo.create(
