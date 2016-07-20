@@ -141,8 +141,7 @@ return declare( null, {
 	this.initScales()
 
 	// add resize handlers
-//	if (config.resizable)
-	    addResizeListener (this.svg_wrapper[0][0], dojo.hitch (this, this.manualResizeCallback))
+	addResizeListener (this.svg_wrapper[0][0], dojo.hitch (this, this.manualResizeCallback))
         addEventListener ("resize", dojo.hitch (this, this.windowResizeCallback))
     },
 
@@ -202,8 +201,10 @@ return declare( null, {
         if (!rot.dragging) {
 	    if (rot.hideLabelsDuringAnimation)
 		rot.hideLabels()
-            var xDragStart = evt.clientX
-            var yDragStart = evt.clientY + rot.svg_wrapper[0][0].scrollTop
+            var xDragStart = evt.layerX
+            var yDragStart = evt.layerY + rot.svg_wrapper[0][0].scrollTop
+	    console.log(evt)
+	    console.log("x="+xDragStart+" y="+yDragStart)
             rot.dragInitRadians = rot.xyAngle (xDragStart, yDragStart)
             rot.dragging = true
         }
@@ -214,8 +215,8 @@ return declare( null, {
     dragMove: function(evt) {
         var rot = this
         if (rot.animation) return true;
-	var x = evt.clientX
-	var y = evt.clientY + rot.svg_wrapper[0][0].scrollTop
+	var x = evt.layerX
+	var y = evt.layerY + rot.svg_wrapper[0][0].scrollTop
         rot.dragDeltaRadians = rot.xyAngle (x, y) - rot.dragInitRadians
         var dragRotate = function (spriteImage) {
             rot.gTransformRotate (spriteImage, rot.dragDeltaRadians * 180 / Math.PI)
@@ -303,8 +304,8 @@ return declare( null, {
     doubleClickZoom: function (evt) {
         var rot = this
 
-	var x = evt.clientX
-	var y = evt.clientY + rot.svg_wrapper[0][0].scrollTop
+	var x = evt.layerX
+	var y = evt.layerY + rot.svg_wrapper[0][0].scrollTop
         var deltaRadians = rot.xyAngle (x, y)
         var radians = this.rotate - deltaRadians
 
