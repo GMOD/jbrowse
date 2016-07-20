@@ -949,6 +949,7 @@ initView: function() {
             this.rotViewElem.className = "dragWindow";
             this.container.appendChild( this.rotViewElem);
 
+	    rotConfig.browser = this
             this.rotundaWidget =
                 new dijitContentPane({region: "center"}, this.rotViewElem);
 
@@ -2894,11 +2895,6 @@ createNavBox: function( parent ) {
     moveLeft.id = "moveLeft";
     moveLeft.className = "icon nav";
     navbox.appendChild(moveLeft);
-    dojo.connect( moveLeft, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.slide(0.9);
-                  });
 
     var moveRight = document.createElement("img");
     //moveRight.type = "image";
@@ -2906,11 +2902,6 @@ createNavBox: function( parent ) {
     moveRight.id="moveRight";
     moveRight.className = "icon nav";
     navbox.appendChild(moveRight);
-    dojo.connect( moveRight, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.slide(-0.9);
-                  });
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
@@ -2920,12 +2911,6 @@ createNavBox: function( parent ) {
     bigZoomOut.id = "bigZoomOut";
     bigZoomOut.className = "icon nav";
     navbox.appendChild(bigZoomOut);
-    dojo.connect( bigZoomOut, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.zoomOut(undefined, undefined, 2);
-                  });
-
 
     var zoomOut = document.createElement("img");
     //zoomOut.type = "image";
@@ -2933,11 +2918,6 @@ createNavBox: function( parent ) {
     zoomOut.id = "zoomOut";
     zoomOut.className = "icon nav";
     navbox.appendChild(zoomOut);
-    dojo.connect( zoomOut, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                     this.view.zoomOut();
-                  });
 
     var zoomIn = document.createElement("img");
     //zoomIn.type = "image";
@@ -2945,11 +2925,6 @@ createNavBox: function( parent ) {
     zoomIn.id = "zoomIn";
     zoomIn.className = "icon nav";
     navbox.appendChild(zoomIn);
-    dojo.connect( zoomIn, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.zoomIn();
-                  });
 
     var bigZoomIn = document.createElement("img");
     //bigZoomIn.type = "image";
@@ -2957,11 +2932,15 @@ createNavBox: function( parent ) {
     bigZoomIn.id = "bigZoomIn";
     bigZoomIn.className = "icon nav";
     navbox.appendChild(bigZoomIn);
-    dojo.connect( bigZoomIn, "click", this,
-                  function(event) {
-                      dojo.stopEvent(event);
-                      this.view.zoomIn(undefined, undefined, 2);
-                  });
+
+    this.navButtons = { moveLeft: moveLeft,
+			moveRight: moveRight,
+			zoomIn: zoomIn,
+			zoomOut: zoomOut,
+			bigZoomIn: bigZoomIn,
+			bigZoomOut: bigZoomOut }
+
+    this.connectNavButtons()
 
     navbox.appendChild(document.createTextNode( four_nbsp ));
 
@@ -3161,6 +3140,52 @@ createNavBox: function( parent ) {
 
     return navbox;
 },
+
+connectNavButtons: function() {
+    var nb = this.navButtons
+    var thisB = this
+    nb.signals = [
+	on( nb.moveLeft, "click",
+            function(event) {
+		dojo.stopEvent(event);
+		thisB.view.slide(0.9);
+            }),
+	on( nb.moveRight, "click",
+            function(event) {
+		dojo.stopEvent(event);
+		thisB.view.slide(-0.9);
+            }),
+	on( nb.bigZoomOut, "click",
+            function(event) {
+		dojo.stopEvent(event);
+		thisB.view.zoomOut(undefined, undefined, 2);
+            }),
+	on( nb.zoomOut, "click",
+            function(event) {
+		dojo.stopEvent(event);
+		thisB.view.zoomOut();
+            }),
+	on( nb.zoomIn, "click",
+            function(event) {
+		dojo.stopEvent(event);
+		thisB.view.zoomIn();
+            }),
+	on( nb.bigZoomIn, "click",
+            function(event) {
+		dojo.stopEvent(event);
+		thisB.view.zoomIn(undefined, undefined, 2);
+            })
+    ]
+},
+
+disconnectNavButtons: function() {
+    if (this.navButtons.signals)
+	this.navButtons.signals.forEach (function (signal) {
+	    signal.remove()
+	})
+    delete this.navButtons.signals
+},
+
 /**
  * Return the current highlight region, or null if none.
  */

@@ -38,6 +38,7 @@ return declare( null, {
         var rot = this
 
 	this.config = config
+	this.browser = config.browser
 
 	var defaultID = "rotunda"
         this.container = config.container || query("#"+(config.id || defaultID))[0]
@@ -83,7 +84,12 @@ return declare( null, {
         // use dojo to create navbox and track list
         this.container.setAttribute("class", "rotunda-container")
 
-        this.createNavBox (this.container)
+	if (this.browser) {
+	    this.navButtons = this.browser.navButtons
+	    this.browser.disconnectNavButtons()
+	    this.connectNavButtons()
+	} else
+            this.createNavBox (this.container)
 
         this.viewContainer = dojo.create( 'div', { id: this.id+'-view',
 					           class: 'rotunda-view' },
@@ -172,12 +178,9 @@ return declare( null, {
         this.draw()
     },
 
-    navbarHeight: 36,
-    xMargin: 24,  // prevent overflow
-    yMargin: 24,  // prevent overflow
     windowDim: function() {
-	var w = Math.max (0, this.container.parentElement.offsetWidth - this.xMargin)
-	var h = Math.max (0, this.container.parentElement.offsetHeight - this.navbarHeight - this.yMargin)
+	var w = Math.max (0, this.container.parentElement.offsetWidth)
+	var h = Math.max (0, this.container.parentElement.offsetHeight)
         return [w, h]
     },
 
@@ -383,11 +386,6 @@ return declare( null, {
         moveLeft.id = "moveLeft";
         moveLeft.className = "icon nav";
         navbox.appendChild(moveLeft);
-        dojo.connect( moveLeft, "click", this,
-                      function(event) {
-                          dojo.stopEvent(event);
-                          this.slide(0.9);
-                      });
 
         var moveRight = document.createElement("img");
         //moveRight.type = "image";
@@ -395,11 +393,6 @@ return declare( null, {
         moveRight.id="moveRight";
         moveRight.className = "icon nav";
         navbox.appendChild(moveRight);
-        dojo.connect( moveRight, "click", this,
-                      function(event) {
-                          dojo.stopEvent(event);
-                          this.slide(-0.9);
-                      });
 
         navbox.appendChild(document.createTextNode( four_nbsp ));
 
@@ -409,12 +402,6 @@ return declare( null, {
         bigZoomOut.id = "bigZoomOut";
         bigZoomOut.className = "icon nav";
         navbox.appendChild(bigZoomOut);
-        dojo.connect( bigZoomOut, "click", this,
-                      function(event) {
-                          dojo.stopEvent(event);
-                          this.bigZoomOut();
-                      });
-
 
         var zoomOut = document.createElement("img");
         //zoomOut.type = "image";
@@ -422,11 +409,6 @@ return declare( null, {
         zoomOut.id = "zoomOut";
         zoomOut.className = "icon nav";
         navbox.appendChild(zoomOut);
-        dojo.connect( zoomOut, "click", this,
-                      function(event) {
-                          dojo.stopEvent(event);
-                          this.zoomOut();
-                      });
 
         var zoomIn = document.createElement("img");
         //zoomIn.type = "image";
@@ -446,13 +428,60 @@ return declare( null, {
         bigZoomIn.id = "bigZoomIn";
         bigZoomIn.className = "icon nav";
         navbox.appendChild(bigZoomIn);
-        dojo.connect( bigZoomIn, "click", this,
-                      function(event) {
-                          dojo.stopEvent(event);
-                          this.bigZoomIn();
-                      });
 
-        return navbox
+	this.navButtons = { moveLeft: moveLeft,
+			    moveRight: moveRight,
+			    zoomIn: zoomIn,
+			    zoomOut: zoomOut,
+			    bigZoomIn: bigZoomIn,
+			    bigZoomOut: bigZoomOut }
+
+	this.connectNavButtons()
+    },
+
+    connectNavButtons: function() {
+	var rot = this
+	var nb = this.navButtons
+	nb.signals = [
+            on( nb.moveLeft, "click",
+                function(event) {
+                    dojo.stopEvent(event);
+                    rot.slide(0.9);
+                }),
+            on( nb.moveRight, "click",
+                function(event) {
+                    dojo.stopEvent(event);
+                    rot.slide(-0.9);
+                }),
+            on( nb.bigZoomOut, "click",
+                function(event) {
+                    dojo.stopEvent(event);
+                    rot.bigZoomOut();
+                }),
+            on( nb.zoomOut, "click",
+                function(event) {
+                    dojo.stopEvent(event);
+                    rot.zoomOut();
+                }),
+            on( nb.zoomIn, "click",
+                function(event) {
+                    dojo.stopEvent(event);
+                    rot.zoomIn();
+                }),
+            on( nb.bigZoomIn, "click",
+                function(event) {
+                    dojo.stopEvent(event);
+                    rot.bigZoomIn();
+                })
+	]
+    },
+
+    disconnectNavButtons: function() {
+	if (this.navButtons.signals)
+	    this.navButtons.signals.forEach (function (signal) {
+		signal.remove()
+	    })
+	delete this.navButtons.signals
     },
 
     // resolveUrl is placeholder for JBrowse equivalent
