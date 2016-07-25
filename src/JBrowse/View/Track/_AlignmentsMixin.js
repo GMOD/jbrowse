@@ -222,9 +222,10 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
     _renderTable: function( parentElement, track, feat, featDiv  ) {
         var deferred = new Deferred();
+        var thisB = this;
         track.browser.getStore('refseqs', dojo.hitch(this, function(refSeqStore){
             refSeqStore.getReferenceSequence({ ref: track.browser.refSeq.name, start: feat.get('start'), end: feat.get('end')}, function(refseq) {
-                createTableWithRefSeq(parentElement, track, feat, featDiv, refseq);
+                thisB.createTableWithRefSeq(parentElement, track, feat, featDiv, refseq);
                 deferred.resolve(parentElement);
             });
         }));
