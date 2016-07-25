@@ -20,7 +20,7 @@ return declare (Track,
             .innerRadius(minRadius)
             .outerRadius(maxRadius)
             .startAngle (function (feature) {
-                return rot.coordToAngle (feature.seq, feature.start)
+                return rot.coordToAngle (feature.seq, feature.start - 1)
             }).endAngle (function (feature) {
                 return rot.coordToAngle (feature.seq, feature.end)
             })

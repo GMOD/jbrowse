@@ -29,13 +29,13 @@ return declare (Track,
         var innerRadius = rot.innerRadius()
         var featureChord = d3.svg.chord()
             .source (function (link) {
-                var s = { startAngle: rot.coordToAngle (link.seq, link.start),
+                var s = { startAngle: rot.coordToAngle (link.seq, link.start - 1),
                           endAngle: rot.coordToAngle (link.seq, link.end),
                           radius: innerRadius }
                 return s
             })
             .target (function (link) {
-                var t = { startAngle: rot.coordToAngle (link.otherSeq, link.otherStart),
+                var t = { startAngle: rot.coordToAngle (link.otherSeq, link.otherStart - 1),
                           endAngle: rot.coordToAngle (link.otherSeq, link.otherEnd),
                           radius: innerRadius }
                 return t

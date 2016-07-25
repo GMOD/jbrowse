@@ -7,6 +7,7 @@ define(
      "Rotunda/View/Track/Histogram",
      "Rotunda/View/Track/Link",
      "Rotunda/View/Track/Ruler",
+     "Rotunda/View/Track/Stacked",
      "Rotunda/util"],
 
     function(xhr,
@@ -17,6 +18,7 @@ define(
 	     HistogramTrack,
 	     LinkTrack,
 	     RulerTrack,
+             StackedTrack,
              util) {
 
         var initDemo = {}
@@ -75,6 +77,10 @@ define(
 					       }
 					     })
 
+            var stackedTrack = new StackedTrack ({ id: "ruler",
+                                                   label: "Ruler",
+                                                   tracks: [ refSeqTrack, rulerTrack ] })
+            
             var cytoTrack, segDupTrack100kb, segDupTrack200kb, gcTrack
 
             var nonempty_regex = /\S/
@@ -181,8 +187,7 @@ define(
                 
                 def.resolve ({ refSeqName: refSeqName,
                                refSeqLen: refSeqLen,
-                               tracks: [ rulerTrack,
-                                         refSeqTrack,
+                               tracks: [ stackedTrack,
                                          cytoTrack,
                                          gcTrack,
                                          segDupTrack200kb,

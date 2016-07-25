@@ -50,7 +50,7 @@ return declare (Track,
             }).outerRadius (function(feature) {
                 return ((feature.value > baselineValue ? feature.value : baselineValue) - minValue) * val2radius + minRadius
             }).startAngle (function (feature) {
-                return rot.coordToAngle (feature.seq, feature.start)
+                return rot.coordToAngle (feature.seq, feature.start - 1)
             }).endAngle (function (feature) {
                 return rot.coordToAngle (feature.seq, feature.end)
             })

@@ -19,7 +19,7 @@ return declare (Track,
 	return scale >= this.axisLabelScaleThreshold
     },
 
-    radius: function (scale,trackRadiusScale) {
+    getRadius: function (scale) {
 	return this.showAxisLabels(scale) ? 48 : 28  // do not scale
     },
 
@@ -61,7 +61,7 @@ return declare (Track,
 		 pos += tickSep)
 		seqTicks.push ({ seq: feature.seq,
 				 pos: pos + 1,
-				 angle: rot.coordToAngle (feature.seq, pos + 1),
+				 angle: rot.coordToAngle (feature.seq, pos),
 				 minRadius: minRadius,
 				 maxRadius: ((pos % bigTickSep)
 					     ? ((pos % midTickSep) ? smallTickMaxRadius : midTickMaxRadius)
@@ -99,7 +99,7 @@ return declare (Track,
 		}).outerRadius (function (feature) {
 		    return minRadius
 		}).startAngle (function (feature) {
-		    return rot.coordToAngle (feature.seq, feature.start)
+		    return rot.coordToAngle (feature.seq, feature.start - 1)
 		}).endAngle (function (feature) {
 		    return rot.coordToAngle (feature.seq, feature.end)
 		})
@@ -124,7 +124,7 @@ return declare (Track,
 	var labels = ticks.filter (function (t) { return t.text })
 	var seqNames = refSeqsInView.map (function (feature) {
 	    return { seq: feature.seq,
-		     angle: rot.coordToAngle (feature.seq, (feature.start + feature.end) / 2),
+		     angle: rot.coordToAngle (feature.seq, (feature.start - 1 + feature.end) / 2),
 		     text: track.displayedName (feature.seq),
 		     textRadius: nameRadius
 		   }

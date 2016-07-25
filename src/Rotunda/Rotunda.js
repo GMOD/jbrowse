@@ -203,8 +203,6 @@ return declare( null, {
 		rot.hideLabels()
             var xDragStart = evt.layerX
             var yDragStart = evt.layerY + rot.svg_wrapper[0][0].scrollTop
-	    console.log(evt)
-	    console.log("x="+xDragStart+" y="+yDragStart)
             rot.dragInitRadians = rot.xyAngle (xDragStart, yDragStart)
             rot.dragging = true
         }
@@ -864,8 +862,7 @@ return declare( null, {
     calculateTrackSize: function (track, scale, trackRadiusScale) {
 	scale = scale || this.scale
 	trackRadiusScale = trackRadiusScale || this.trackRadiusScale(scale)
-	var r = ('radius' in track) ? track.radius : this.defaultTrackRadius
-        return typeof(r) == 'function' ? r.call(track,scale,trackRadiusScale) : r*trackRadiusScale
+        return track.getRadius (scale, trackRadiusScale, this.defaultTrackRadius)
     },
 
     calculateTotalTrackSize: function (scale) {

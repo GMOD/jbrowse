@@ -15,6 +15,11 @@ return declare (null,
         lang.mixin (this, config)
     },
 
+    getRadius: function (scale, trackRadiusScale, defaultTrackRadius) {
+    	var r = ('radius' in this) ? this.radius : defaultTrackRadius
+        return r * trackRadiusScale
+    },
+
     isLinkTrack: false,
     isInternal: function() {
         return 'radius' in this && this.radius == 0 && this.isLinkTrack
