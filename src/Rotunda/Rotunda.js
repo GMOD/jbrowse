@@ -195,7 +195,7 @@ return declare( null, {
                                 this.totalTrackRadius + this.minInnerRadius)
 
 	// minBasesPerView = width / (pixelsPerBase * scale)
- 	var minBasesPerView = 1e6
+ 	var minBasesPerView = Math.min (1e6, Math.min.apply (this, this.refSeqLen))
         this.minScale = Math.min (1, this.width / (2 * this.radius))
         this.maxScale = this.minScale * Math.pow (2, Math.floor (Math.log (Math.max (1, this.width / (this.pixelsPerBaseAtEdge() * minBasesPerView))) / Math.log(2)))
 
