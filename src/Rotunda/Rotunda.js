@@ -12,6 +12,9 @@ define([
     'Rotunda/View/Animation/Zoomer',
     'Rotunda/View/Animation/Slider',
     'Rotunda/View/Animation/SpinZoom',
+    'Rotunda/View/Track/Arc',
+    'Rotunda/View/Track/Ruler',
+    'Rotunda/View/Track/Stacked',
     'Rotunda/detect-element-resize'
 ],
 
@@ -28,7 +31,10 @@ define([
            util,
            Zoomer,
            Slider,
-           SpinZoom
+           SpinZoom,
+           ArcTrack,
+           RulerTrack,
+           StackedTrack
        ) {
 
 return declare( null, {
@@ -44,8 +50,45 @@ return declare( null, {
         this.container = config.container || query("#"+(config.id || defaultID))[0]
 	this.id = this.container.id || defaultID
 
-        this.tracks = config.tracks.filter (function (track) { return !track.isLinkTrack })
-        this.links = config.tracks.filter (function (track) { return track.isLinkTrack })
+        if (this.browser) {
+            this.refSeqName = this.browser.refSeqOrder
+            this.refSeqLen = this.browser.refSeqOrder.map (function(n) { return rot.browser.allRefs[n].length })
+
+            var refSeqFeatures = this.refSeqName.map (function (n, i) {
+                var l = rot.refSeqLen[i]
+                return { seq: n,
+                         start: 0,
+                         end: l,
+                         id: n,
+                         type: n }
+            })
+
+            var refSeqTrack = new ArcTrack ({ id: "ref_seqs",
+					      label: "Reference sequence",
+					      features: refSeqFeatures })
+
+	    var rulerTrack = new RulerTrack ({ id: "ruler_ticks",
+					       label: "Ruler",
+					       displayedName: function (refSeqName) {
+					           return refSeqName.replace("chr","")
+					       }
+					     })
+
+            var stackedTrack = new StackedTrack ({ id: "ruler",
+                                                   label: "Ruler",
+                                                   tracks: [ refSeqTrack, rulerTrack ] })
+
+            this.tracks = [stackedTrack]
+            this.links = []
+            
+        } else {
+            tracks = config.tracks
+            this.refSeqLen = config.refSeqLen || [360]
+            this.refSeqName = config.refSeqName || config.refSeqLen.map (function(n,i) { return "seq" + (i+1) })
+
+            this.tracks = config.tracks.filter (function (track) { return !track.isLinkTrack })
+            this.links = config.tracks.filter (function (track) { return track.isLinkTrack })
+        }
 
 	// find dimensions
 	this.defaultTrackRadius = config.defaultTrackRadius || 10
@@ -60,9 +103,6 @@ return declare( null, {
 	this.hideLabelsDuringAnimation = config.hideLabelsDuringAnimation
 
 	// set up angular coordinate system
-        this.refSeqLen = config.refSeqLen || [360]
-        this.refSeqName = config.refSeqName || config.refSeqLen.map (function(n,i) { return "seq" + (i+1) })
-
         this.totalSpacerFraction = config.spacer || .1  // total fraction of circle used as spacer
         this.spacerRads = this.totalSpacerFraction * 2 * Math.PI / this.refSeqLen.length
 
