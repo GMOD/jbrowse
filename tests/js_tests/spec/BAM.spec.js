@@ -283,15 +283,15 @@ describe( 'BAM mismatch test', function() {
                   }
               });
               //Use Config workaround
-              var MismatchParser=declare([Config,MismatchesMixin]);
+              var MismatchParser = declare([Config, MismatchesMixin]);
               //Use Config workaround
-              var AlignmentParser=declare([Config,AlignmentsMixin]);
+              var AlignmentParser = declare([Config, AlignmentsMixin]);
 
 
               it('resultTable test', function() {
                   var parser = new AlignmentParser();
                   var elt = dojo.create('div');
-                  var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "77G18",cigar:"4S22M50N74M",seq:"TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT"}}));
+                  var res = parser.createTableWithRefSeq(elt, new MismatchParser(), new SimpleFeature({data: {md: "77G18",cigar:"4S22M50N74M",seq:"TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT"}}), "CAAGCACCGGGCGCGCGAGACAGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
                   expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGAGACA...GATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
                   expect(res.val2).toEqual("....||||||||||||||||||||||...|||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||");
                   expect(res.val3).toEqual("SSSSCAAGCACCGGGCGCGCGAGACA...GATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
@@ -299,7 +299,7 @@ describe( 'BAM mismatch test', function() {
               it('resultTable test insertion', function() {
                   var parser = new AlignmentParser();
                   var elt = dojo.create('div');
-                  var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "11A45C41",cigar:"9M1I90M",seq:"TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG"}}));
+                  var res = parser.createTableWithRefSeq(elt,new MismatchParser(),new SimpleFeature({data: {md: "11A45C41",cigar:"9M1I90M",seq:"TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG"}}), "TTTAGTGGGCCAAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGCAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
                   expect(res.val1).toEqual("TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
                   expect(res.val2).toEqual("||||||||| || ||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||");
                   expect(res.val3).toEqual("TTTAGTGGG-CCAAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGCAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
