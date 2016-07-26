@@ -1674,13 +1674,17 @@ _reportCustomUsageStats: function(stats) {
  * Get a store object from the store registry, loading its code and
  * instantiating it if necessary.
  */
-getStore: function( storeName, callback ) {
+getStore: function( storeName, callback, refSeqName ) {
     if( !callback ) throw 'invalid arguments';
-
+    refSeqName = refSeqName || this.refSeq.name;
+    
     var storeCache = this._storeCache || {};
     this._storeCache = storeCache;
 
-    var storeRecord = storeCache[ storeName ];
+    var refSeqStoreCache = storeCache[storeName] || {};
+    storeCache[storeName] = refSeqStoreCache;
+    
+    var storeRecord = refSeqStoreCache[ refSeqName ];
     if( storeRecord ) {
         storeRecord.refCount++;
         callback( storeRecord.store );
@@ -1708,11 +1712,12 @@ getStore: function( storeName, callback ) {
                              {
                                  config: conf,
                                  browser: this,
-                                 refSeq: this.refSeq
+                                 refSeq: this.allRefs[refSeqName]
                              });
 
                  var store = new storeClass( storeArgs );
-                 this._storeCache[ storeName ] = { refCount: 1, store: store };
+                 this._storeCache[ storeName ] = this._storeCache[ storeName ] || {}
+                 this._storeCache[ storeName ][ refSeqName ] = { refCount: 1, store: store };
                  callback( store );
                  // release the callback because apparently require
                  // doesn't release this function
@@ -1753,10 +1758,14 @@ clearStores: function() {
  * object will be discarded, to be recreated again later if needed.
  */
 // not actually being used yet
-releaseStore: function( storeName ) {
-    var storeRecord = this._storeCache[storeName];
-    if( storeRecord && ! --storeRecord.refCount )
-        delete this._storeCache[storeName];
+releaseStore: function( storeName, refSeqName ) {
+    refSeqName = refSeqName || this.refSeq.name;
+    var refSeqStoreCache = this._storeCache[storeName];
+    if (refSeqStoreCache) {
+        var storeRecord = refSeqStoreCache[refSeqName];
+        if( storeRecord && ! --storeRecord.refCount )
+            delete this._storeCache[storeName];
+    }
 },
 
 _calculateClientStats: function() {
