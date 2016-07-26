@@ -130,8 +130,7 @@ return declare( Store,
      *   for each feature in the region of interest, with a single
      *   argument; the feature.
      * @param {Function} endCallback() callback that is called once
-     *   for each feature in the region of interest, with a single
-     *   argument; the feature.
+     *   after all features have been visited, with no arguments.
      * @param {Function} errorCallback(error) in the event of an error, this
      *   callback will be called with one argument, which is anything
      *   that can stringify to an error message.

@@ -25,13 +25,15 @@ return declare (Track,
             return feature.label
         }
 
-        this.d3data(rot).append("g")
-            .attr("transform", featureTransform)
-            .append("text")
-            .attr("class", "rotundaLabel")
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "central")
-            .text(featureText)
+        this.d3data(rot).then (function (d3data) {
+	    d3data.append("g")
+		.attr("transform", featureTransform)
+		.append("text")
+		.attr("class", "rotundaLabel")
+		.attr("text-anchor", "middle")
+		.attr("alignment-baseline", "central")
+		.text(featureText)
+	})
     }
 })
 

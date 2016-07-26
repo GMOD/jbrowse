@@ -83,14 +83,16 @@ return declare (Track,
                 return feature.angle
             })
 
-        var tickPath = this.d3data(rot,ticks).append("path")
-            .attr("d", tickArc)
-            .attr("stroke", "grey")
+        this.d3data(rot,ticks).then (function (d3data) {
+	    var tickPath = d3data.append("path")
+		.attr("d", tickArc)
+		.attr("stroke", "grey")
 
-	this.addMouseover (tickPath,
-			   { featureLabel: function (feature) {
-			       return feature.seq + '<br/>' + feature.pos + track.units
-			   }})
+	    track.addMouseover (tickPath,
+				{ featureLabel: function (feature) {
+				    return feature.seq + '<br/>' + feature.pos + track.units
+				}})
+	})
 
 	if (this.showBase) {
             var seqArc = d3.svg.arc()
@@ -104,9 +106,11 @@ return declare (Track,
 		    return rot.coordToAngle (feature.seq, feature.end)
 		})
 
-            this.d3data(rot,refSeqsInView).append("path")
-		.attr("d", seqArc)
-		.attr("stroke", "grey")
+            this.d3data(rot,refSeqsInView).then (function (d3data) {
+		d3data.append("path")
+		    .attr("d", seqArc)
+		    .attr("stroke", "grey")
+	    })
 	}
 
         var featureTransform = function (feature) {
@@ -131,13 +135,15 @@ return declare (Track,
 	})
 	var textData = this.showAxisLabels(rot.scale) ? labels.concat(seqNames) : seqNames
 
-        this.d3data(rot,textData).append("g")
-            .attr("transform", featureTransform)
-            .append("text")
-            .attr("class", "rotundaLabel")
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "central")
-            .text(featureText)
+        this.d3data(rot,textData).then (function (d3data) {
+	    d3data.append("g")
+		.attr("transform", featureTransform)
+		.append("text")
+		.attr("class", "rotundaLabel")
+		.attr("text-anchor", "middle")
+		.attr("alignment-baseline", "central")
+		.text(featureText)
+	})
     }
 })
 

@@ -80,7 +80,14 @@ return declare( null, {
 
             this.tracks = [stackedTrack]
             this.links = []
-            
+
+	    this.browser.config.tracks.forEach (function (track) {
+		if (track.storeClass == 'JBrowse/Store/SeqFeature/NCList')
+		    rot.tracks.push (new ArcTrack ({ id: track.label,
+						     label: track.label,
+						     storeName: track.store }))
+	    })
+
         } else {
             tracks = config.tracks
             this.refSeqLen = config.refSeqLen || [360]
@@ -995,7 +1002,7 @@ return declare( null, {
 	if (typeof(seqName) === 'undefined')
 	    seqName = this.angleToSeqName (angle)
         var pos = this.angleToUnboundedCoord (angle, seqName)
-	return Math.max (1, Math.min (this.refSeqLenByName[seqName], pos))
+	return Math.max (0, Math.min (this.refSeqLenByName[seqName], pos))
     },
 
     angularViewWidth: function (radius) {

@@ -41,12 +41,14 @@ return declare (Track,
                 return t
             })
 
-        var path = this.d3data(rot).append("path")
-            .attr("d", featureChord)
-            .attr("fill", featureColor)
-            .attr("stroke", featureColor)
+        this.d3data(rot).then (function (d3data) {
+	    var path = d3data.append("path")
+		.attr("d", featureChord)
+		.attr("fill", featureColor)
+		.attr("stroke", featureColor)
 
-	this.addMouseover (path)
+	    track.addMouseover (path)
+	})
     }
 
 })

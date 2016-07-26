@@ -1,10 +1,12 @@
 define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/dom-geometry",
+	"dojo/Deferred",
 	"Rotunda/util"],
        function(declare,
                 lang,
                 domGeom,
+		Deferred,
 		util) {
 /**
  * @class
@@ -28,15 +30,65 @@ return declare (null,
     trackListID: function (rot) {
         return rot.id + '-track-label-' + this.id
     },
-    
-    d3data: function (rot, data) {
-        this.g = rot.g
-	    .append('g')
-	    .attr('id','#g_'+this.id)
-        return this.g
-	    .selectAll('#track_'+this.id)
-            .data(data || this.features)
-            .enter()
+
+    storeName: null,
+    transformStoreFeature: function (storeFeature, seq) {
+	return { seq: seq,
+		 start: storeFeature.get('start'),
+		 end: storeFeature.get('end'),
+		 id: storeFeature.id() }
+    },
+    getFeaturesInView: function (rot) {
+	var track = this
+	var d = new Deferred()
+	var storeName = this.storeName
+	if (storeName) {
+	    var features = []
+	    var intervals = rot.intervalsInView()
+	    var nIntervalsRemaining = intervals.length
+	    intervals.forEach (function (interval) {
+		rot.browser.getStore (storeName, function (store) {
+		    store.getFeatures ({ ref: interval.seq,
+					 start: interval.start,
+					 end: interval.end },
+				       function (feature) {
+					   features.push (track.transformStoreFeature (feature, interval.seq))
+				       },
+				       function() {
+					   if (--nIntervalsRemaining == 0)
+					       d.resolve (features)
+				       },
+				       function() {
+					   console.log ("Failed to get data for " + interval.seq)
+					   if (--nIntervalsRemaining == 0)
+					       d.resolve (features)
+				       })
+		})
+	    })
+	} else
+	    d.reject()
+	return d
+    },
+
+    d3data: function (rot, features) {
+	var track = this
+	var d = new Deferred()
+	var gotFeatures = function (data) {
+            track.g = rot.g
+		.append('g')
+		.attr('id','#g_'+track.id)
+            d.resolve (track.g
+		       .selectAll('#track_'+track.id)
+		       .data(data)
+		       .enter())
+	}
+	if (features)
+	    gotFeatures(features)
+	else if (this.features)
+	    gotFeatures(this.features)
+	else
+	    track.getFeaturesInView(rot).then(gotFeatures)
+	return d
     },
 
     color: function (feature) {
