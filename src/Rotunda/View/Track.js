@@ -1,11 +1,13 @@
 define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/dom-geometry",
-	"Rotunda/util"],
+	"Rotunda/util",
+	"dojo/Deferred"],
        function(declare,
                 lang,
                 domGeom,
-		util) {
+		util,
+		Deferred) {
 /**
  * @class
  */
@@ -41,9 +43,18 @@ return declare (null,
     getFeaturesInView: function (rot, callback, errorCallback) {
 	var track = this
 	var storeName = this.storeName
-	if (storeName) {
+	var gotAllFeatures = new Deferred()
+	if (this.features) {
+	    // if a list of features is hardcoded into the Track, don't even bother filtering for the view
+	    // this is mostly a debug option so avoids having to write another interval-intersection test
+	    if (callback)
+		callback (this.features)
+	    gotAllFeatures.resolve (this.features, null)
 
-	    // get color
+	} else if (storeName) {
+	    // query the JBrowse Store class(es) for the features in currently visible region
+
+	    // get background color for elements in this store, as a sensible color default
 	    var cssColor
 	    if (this.className) {
 		var tempDiv = document.createElement("div")
@@ -53,15 +64,17 @@ return declare (null,
 		cssColor = getComputedStyle(tempDiv).getPropertyValue("background-color")
 		if (/^\s*rgba\s*\(.*,\s*0\s*\)\s*$/.test(cssColor))
 		    cssColor = "black"
-//		console.log (this.className + " -> " + cssColor)
 
 		tempDiv.parentNode.removeChild(tempDiv)
 	    }
 
 	    var features = []
 	    var intervals = rot.intervalsInView()
+	    var allStores = {}, allFeatures = []
+	    var nStoresRemaining = intervals.length
 	    intervals.forEach (function (interval) {
 		rot.browser.getRefSeqStore (storeName, interval.seq, function (store) {
+		    allStores[interval.seq] = store
 		    if (!store.empty)
 			store.getFeatures ({ ref: interval.seq,
 					     start: interval.start,
@@ -73,17 +86,52 @@ return declare (null,
 					       features.push (feature)
 					   },
 					   function() {
-					       callback (features, interval.seq)
+					       if (callback)
+						   callback (features, interval.seq)
+					       allFeatures = allFeatures.concat (features)
+					       if (--nStoresRemaining == 0)
+						   gotAllFeatures.resolve (allFeatures, allStores)
 					   },
 					   function() {
 					       console.log ("Failed to get data for " + interval.seq + " " + track.id)
 					       if (errorCallback)
 						   errorCallback (interval.seq)
+					       if (--nStoresRemaining == 0)
+						   gotAllFeatures.resolve (allFeatures, allStores)
 					   })
 		})
 	    })
-	} else if (errorCallback)
-	    errorCallback()
+	} else {
+	    if (errorCallback)
+		errorCallback()
+	    gotAllFeatures.reject()
+	}
+	return gotAllFeatures
+    },
+
+    getStoresInView: function (rot, callback, errorCallback) {
+	var track = this
+	var storeName = this.storeName
+	var gotAllStores = new Deferred()
+	if (storeName) {
+	    var intervals = rot.intervalsInView()
+	    var allStores = {}
+	    var nStoresRemaining = intervals.length
+	    intervals.forEach (function (interval) {
+		rot.browser.getRefSeqStore (storeName, interval.seq, function (store) {
+		    allStores[interval.seq] = store
+		    if (callback)
+			callback (store, interval.seq)
+		    if (--nStoresRemaining == 0)
+			gotAllStores.resolve (allStores)
+		})
+	    })
+	} else {
+	    if (errorCallback)
+		errorCallback()
+	    gotAllStores.reject()
+	}
+	return gotAllStores
     },
 
     d3featData: function (rot, features) {
@@ -99,13 +147,9 @@ return declare (null,
 
     d3data: function (rot, callback, errorCallback) {
 	var track = this
-	var gotFeatures = function (data) {
-            callback (track.d3featData (rot, data))
-	}
-	if (this.features)
-	    gotFeatures(this.features)
-	else
-	    track.getFeaturesInView(rot,gotFeatures,errorCallback)
+	track.getFeaturesInView (rot, function (data) {
+	    callback (track.d3featData (rot, data))
+	}, errorCallback)
     },
 
     color: function (feature) {
