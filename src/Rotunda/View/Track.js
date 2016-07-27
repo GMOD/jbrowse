@@ -30,6 +30,7 @@ return declare (null,
     },
 
     storeName: null,
+    className: null,
     transformStoreFeature: function (storeFeature, seq) {
 	return { seq: seq,
 		 start: storeFeature.get('start'),
@@ -41,6 +42,22 @@ return declare (null,
 	var track = this
 	var storeName = this.storeName
 	if (storeName) {
+
+	    // get color
+	    var cssColor
+	    if (this.className) {
+		var tempDiv = document.createElement("div")
+		tempDiv.className = this.className
+		document.body.appendChild(tempDiv)
+
+		cssColor = getComputedStyle(tempDiv).getPropertyValue("background-color")
+		if (/^\s*rgba\s*\(.*,\s*0\s*\)\s*$/.test(cssColor))
+		    cssColor = "black"
+		console.log (this.className + " -> " + cssColor)
+
+		tempDiv.parentNode.removeChild(tempDiv)
+	    }
+
 	    var features = []
 	    var intervals = rot.intervalsInView()
 	    intervals.forEach (function (interval) {
@@ -49,8 +66,11 @@ return declare (null,
 			store.getFeatures ({ ref: interval.seq,
 					     start: interval.start,
 					     end: interval.end },
-					   function (feature) {
-					       features.push (track.transformStoreFeature (feature, interval.seq))
+					   function (storeFeature) {
+					       var feature = track.transformStoreFeature (storeFeature, interval.seq)
+					       if (cssColor)
+						   feature.color = cssColor
+					       features.push (feature)
 					   },
 					   function() {
 					       callback (features, interval.seq)

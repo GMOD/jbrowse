@@ -82,10 +82,14 @@ return declare( null, {
             this.links = []
 
 	    this.browser.config.tracks.forEach (function (track) {
-		if (track.storeClass == 'JBrowse/Store/SeqFeature/NCList')
-		    rot.tracks.push (new ArcTrack ({ id: track.label,
-						     label: track.label,
-						     storeName: track.store }))
+		if (track.storeClass == 'JBrowse/Store/SeqFeature/NCList') {
+		    var config = { id: track.label,
+				   label: track.label,
+				   storeName: track.store }
+		    if ('className' in track.style)
+			config.className = track.style.className
+		    rot.tracks.push (new ArcTrack (config))
+		}
 	    })
 
         } else {
