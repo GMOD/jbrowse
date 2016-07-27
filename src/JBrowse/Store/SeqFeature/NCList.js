@@ -123,7 +123,7 @@ return declare( SeqFeatureStore,
     },
 
     getGlobalStats: function( successCallback, errorCallback ) {
-        return ( this._deferred.root || this.getDataRoot( this.browser.refSeq.name ) )
+        return ( this._deferred.root || this.getDataRoot( this.refSeq.name ) )
                    .then( function( data ) { successCallback( data.stats ); },
                           errorCallback
                         );

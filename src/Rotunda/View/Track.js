@@ -40,7 +40,7 @@ return declare (null,
 		 id: storeFeature.id() }
     },
 
-    getFeaturesInView: function (rot, callback, errorCallback) {
+    getFeaturesInView: function (rot, callback, endCallback, errorCallback) {
 	var track = this
 	var storeName = this.storeName
 	var gotAllFeatures = new Deferred()
@@ -49,7 +49,7 @@ return declare (null,
 	    // this is mostly a debug option so avoids having to write another interval-intersection test
 	    if (callback)
 		callback (this.features)
-	    gotAllFeatures.resolve (this.features, null)
+	    gotAllFeatures.resolve ({ features: this.features })
 
 	} else if (storeName) {
 	    // query the JBrowse Store class(es) for the features in currently visible region
@@ -90,14 +90,18 @@ return declare (null,
 						   callback (features, interval.seq)
 					       allFeatures = allFeatures.concat (features)
 					       if (--nStoresRemaining == 0)
-						   gotAllFeatures.resolve (allFeatures, allStores)
+						   gotAllFeatures.resolve ({ features: allFeatures,
+									     stores: allStores,
+									     intervals: intervals })
 					   },
 					   function() {
 					       console.log ("Failed to get data for " + interval.seq + " " + track.id)
 					       if (errorCallback)
 						   errorCallback (interval.seq)
 					       if (--nStoresRemaining == 0)
-						   gotAllFeatures.resolve (allFeatures, allStores)
+						   gotAllFeatures.resolve ({ features: allFeatures,
+									     stores: allStores,
+									     intervals: intervals })
 					   })
 		})
 	    })
@@ -106,10 +110,11 @@ return declare (null,
 		errorCallback()
 	    gotAllFeatures.reject()
 	}
-	return gotAllFeatures
+	if (endCallback)
+	    gotAllFeatures.then(endCallback)
     },
 
-    getStoresInView: function (rot, callback, errorCallback) {
+    getStoresInView: function (rot, callback, endCallback, errorCallback) {
 	var track = this
 	var storeName = this.storeName
 	var gotAllStores = new Deferred()
@@ -123,7 +128,8 @@ return declare (null,
 		    if (callback)
 			callback (store, interval.seq)
 		    if (--nStoresRemaining == 0)
-			gotAllStores.resolve (allStores)
+			gotAllStores.resolve ({ stores: allStores,
+						intervals: intervals })
 		})
 	    })
 	} else {
@@ -131,7 +137,8 @@ return declare (null,
 		errorCallback()
 	    gotAllStores.reject()
 	}
-	return gotAllStores
+	if (endCallback)
+	    gotAllStores.then(endCallback)
     },
 
     d3featData: function (rot, features) {

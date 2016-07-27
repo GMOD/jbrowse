@@ -15,6 +15,7 @@ define([
     'Rotunda/View/Track/Arc',
     'Rotunda/View/Track/Ruler',
     'Rotunda/View/Track/Stacked',
+    'Rotunda/View/Track/Histogram/FeatureDensity',
     'Rotunda/detect-element-resize'
 ],
 
@@ -34,7 +35,8 @@ define([
            SpinZoom,
            ArcTrack,
            RulerTrack,
-           StackedTrack
+           StackedTrack,
+	   DensityTrack
        ) {
 
 return declare( null, {
@@ -88,7 +90,7 @@ return declare( null, {
 				   storeName: track.store }
 		    if ('className' in track.style)
 			config.className = track.style.className
-		    rot.tracks.push (new ArcTrack (config))
+		    rot.tracks.push (new DensityTrack (config))
 		}
 	    })
 
@@ -197,6 +199,9 @@ return declare( null, {
     },
 
     initScales: function() {
+	if (this.width == 0 || this.height == 0)
+	    return
+
         this.container.setAttribute("style", "width: " + this.width + "px")
         this.svg_wrapper.attr("style", "height: " + this.height + "px")
 
@@ -208,7 +213,7 @@ return declare( null, {
 	// minBasesPerView = width / (pixelsPerBase * scale)
  	var minBasesPerView = Math.min (1e6, Math.min.apply (this, this.refSeqLen))
         this.minScale = Math.min (1, this.width / (2 * this.radius))
-        this.maxScale = this.minScale * Math.pow (2, Math.floor (Math.log (Math.max (1, this.width / (this.pixelsPerBaseAtEdge() * minBasesPerView))) / Math.log(2)))
+        this.maxScale = this.minScale * Math.pow (2, Math.floor (Math.log (Math.max (1, this.width / (this.pixelsPerBase() * minBasesPerView))) / Math.log(2)))
 
         var maxTrackScale = this.config.maxTrackScale || (this.maxScale > 1 ? (Math.log(this.maxScale) / Math.log(2)) : 1)
 
@@ -891,17 +896,21 @@ return declare( null, {
     },
 
     // various dimensions
-    pixelsPerBaseAtEdge: function (scale) {
-	return this.radius * this.radsPerBase * (scale || this.scale || 1)
+    pixelsPerBase: function (scale, radius) {
+	return (radius || this.radius) * this.radsPerBase * (scale || this.scale || 1)
     },
 
-    basesPerViewAtEdge: function (scale) {
-	return this.width / this.pixelsPerBaseAtEdge(scale)
+    basesPerPixel: function (scale, radius) {
+	return 1 / this.pixelsPerBase(scale,radius)
     },
 
-    radiansPerViewAtEdge: function (scale) {
+    basesPerView: function (scale, radius) {
+	return this.width / this.pixelsPerBase(scale,radius)
+    },
+
+    radiansPerView: function (scale, radius) {
 	// width / (radius * scale)
-	return this.radsPerBase * this.basesPerViewAtEdge()
+	return this.radsPerBase * this.basesPerView(scale,radius)
     },
 
     trackRadiusScale: function (scale) {

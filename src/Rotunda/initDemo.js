@@ -173,7 +173,7 @@ define(
                         return { seq: fields[0],
                                  start: fields[1],
                                  end: fields[2],
-                                 value: parseFloat (fields[3]) }
+                                 score: parseFloat (fields[3]) }
                     })
 
                 gcTrack = new HistogramTrack ({ id: "gc_hist",
