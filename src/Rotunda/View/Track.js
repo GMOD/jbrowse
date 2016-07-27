@@ -53,7 +53,7 @@ return declare (null,
 		cssColor = getComputedStyle(tempDiv).getPropertyValue("background-color")
 		if (/^\s*rgba\s*\(.*,\s*0\s*\)\s*$/.test(cssColor))
 		    cssColor = "black"
-		console.log (this.className + " -> " + cssColor)
+//		console.log (this.className + " -> " + cssColor)
 
 		tempDiv.parentNode.removeChild(tempDiv)
 	    }
@@ -68,7 +68,7 @@ return declare (null,
 					     end: interval.end },
 					   function (storeFeature) {
 					       var feature = track.transformStoreFeature (storeFeature, interval.seq)
-					       if (cssColor)
+					       if (cssColor && !feature.color)
 						   feature.color = cssColor
 					       features.push (feature)
 					   },
@@ -76,8 +76,9 @@ return declare (null,
 					       callback (features, interval.seq)
 					   },
 					   function() {
-					       console.log ("Failed to get data for " + interval.seq)
-					       errorCallback (interval.seq)
+					       console.log ("Failed to get data for " + interval.seq + " " + track.id)
+					       if (errorCallback)
+						   errorCallback (interval.seq)
 					   })
 		})
 	    })

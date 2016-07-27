@@ -241,6 +241,11 @@ return declare( SeqFeatureStore,
         var thisB = this;
         var startBase  = query.start;
         var endBase    = query.end;
+	if (!('attrs' in data)) {
+	    if (errorCallback)
+		errorCallback (query.ref)
+	    return
+	}
         var accessors  = data.attrs.accessors(),
         /** @inner */
         featCallBack = function( feature, path ) {

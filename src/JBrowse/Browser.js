@@ -1675,7 +1675,7 @@ _reportCustomUsageStats: function(stats) {
  * instantiating it if necessary.
  */
 getStore: function( storeName, callback ) {
-    return getRefSeqStore (storeName, this.refSeq.name, callback)
+    return this.getRefSeqStore (storeName, this.refSeq.name, callback)
 },
 
 getRefSeqStore: function( storeName, refSeqName, callback ) {
