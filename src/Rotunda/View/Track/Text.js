@@ -25,7 +25,7 @@ return declare (Track,
             return feature.label
         }
 
-        this.d3data(rot).then (function (d3data) {
+        this.d3data (rot, function (d3data) {
 	    d3data.append("g")
 		.attr("transform", featureTransform)
 		.append("text")

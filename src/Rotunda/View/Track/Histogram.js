@@ -55,7 +55,7 @@ return declare (Track,
                 return rot.coordToAngle (feature.seq, feature.end)
             })
 
-        this.d3data(rot).then (function (d3data) {
+        this.d3data (rot, function (d3data) {
 	    var path = d3data.append("path")
 		.attr("d", featureArc)
 		.attr("fill", featureColor)

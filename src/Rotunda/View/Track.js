@@ -1,12 +1,10 @@
 define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/dom-geometry",
-	"dojo/Deferred",
 	"Rotunda/util"],
        function(declare,
                 lang,
                 domGeom,
-		Deferred,
 		util) {
 /**
  * @class
@@ -38,57 +36,62 @@ return declare (null,
 		 end: storeFeature.get('end'),
 		 id: storeFeature.id() }
     },
-    getFeaturesInView: function (rot) {
+
+    getFeaturesInView: function (rot, callback, errorCallback) {
 	var track = this
-	var d = new Deferred()
 	var storeName = this.storeName
 	if (storeName) {
 	    var features = []
 	    var intervals = rot.intervalsInView()
-	    var nIntervalsRemaining = intervals.length
 	    intervals.forEach (function (interval) {
 		rot.browser.getStore (storeName, function (store) {
-		    store.getFeatures ({ ref: interval.seq,
-					 start: interval.start,
-					 end: interval.end },
-				       function (feature) {
-					   features.push (track.transformStoreFeature (feature, interval.seq))
-				       },
-				       function() {
-					   if (--nIntervalsRemaining == 0)
-					       d.resolve (features)
-				       },
-				       function() {
-					   console.log ("Failed to get data for " + interval.seq)
-					   if (--nIntervalsRemaining == 0)
-					       d.resolve (features)
-				       })
+//		    store.getGlobalStats (function (stats) {
+/*
+			if (!('attrs' in store)) {
+			    console.log ("No attrs for " + interval.seq + " " + store.config.label)
+			    console.log(store)
+			}
+*/
+			store.getFeatures ({ ref: interval.seq,
+					     start: interval.start,
+					     end: interval.end },
+					   function (feature) {
+					       features.push (track.transformStoreFeature (feature, interval.seq))
+					   },
+					   function() {
+					       callback (features, interval.seq)
+					   },
+					   function() {
+					       console.log ("Failed to get data for " + interval.seq)
+					       errorCallback (interval.seq)
+					   })
+//		    })
 		})
 	    })
-	} else
-	    d.reject()
-	return d
+	} else if (errorCallback)
+	    errorCallback()
     },
 
-    d3data: function (rot, features) {
+    d3featData: function (rot, features) {
 	var track = this
-	var d = new Deferred()
+        track.g = rot.g
+	    .append('g')
+	    .attr('id','#g_'+track.id)
+        return track.g
+	    .selectAll('#track_'+track.id)
+	    .data(features)
+	    .enter()
+    },
+
+    d3data: function (rot, callback, errorCallback) {
+	var track = this
 	var gotFeatures = function (data) {
-            track.g = rot.g
-		.append('g')
-		.attr('id','#g_'+track.id)
-            d.resolve (track.g
-		       .selectAll('#track_'+track.id)
-		       .data(data)
-		       .enter())
+            callback (track.d3featData (rot, data))
 	}
-	if (features)
-	    gotFeatures(features)
-	else if (this.features)
+	if (this.features)
 	    gotFeatures(this.features)
 	else
-	    track.getFeaturesInView(rot).then(gotFeatures)
-	return d
+	    track.getFeaturesInView(rot,gotFeatures,errorCallback)
     },
 
     color: function (feature) {
