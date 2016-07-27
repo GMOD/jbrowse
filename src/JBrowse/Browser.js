@@ -1674,9 +1674,12 @@ _reportCustomUsageStats: function(stats) {
  * Get a store object from the store registry, loading its code and
  * instantiating it if necessary.
  */
-getStore: function( storeName, callback, refSeqName ) {
-    if( !callback ) throw 'invalid arguments';
-    refSeqName = refSeqName || this.refSeq.name;
+getStore: function( storeName, callback ) {
+    return getRefSeqStore (storeName, this.refSeq.name, callback)
+},
+
+getRefSeqStore: function( storeName, refSeqName, callback ) {
+    if( !callback || !refSeqName ) throw 'invalid arguments';
     
     var storeCache = this._storeCache || {};
     this._storeCache = storeCache;

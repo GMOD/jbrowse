@@ -44,14 +44,8 @@ return declare (null,
 	    var features = []
 	    var intervals = rot.intervalsInView()
 	    intervals.forEach (function (interval) {
-		rot.browser.getStore (storeName, function (store) {
-//		    store.getGlobalStats (function (stats) {
-/*
-			if (!('attrs' in store)) {
-			    console.log ("No attrs for " + interval.seq + " " + store.config.label)
-			    console.log(store)
-			}
-*/
+		rot.browser.getRefSeqStore (storeName, interval.seq, function (store) {
+		    if (!store.empty)
 			store.getFeatures ({ ref: interval.seq,
 					     start: interval.start,
 					     end: interval.end },
@@ -65,7 +59,6 @@ return declare (null,
 					       console.log ("Failed to get data for " + interval.seq)
 					       errorCallback (interval.seq)
 					   })
-//		    })
 		})
 	    })
 	} else if (errorCallback)
