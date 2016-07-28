@@ -17,6 +17,7 @@ define([
     'Rotunda/View/Track/Ruler',
     'Rotunda/View/Track/Stacked',
     'Rotunda/View/Track/Histogram/FeatureDensity',
+    'Rotunda/View/Track/Histogram/Wiggle',
     'Rotunda/detect-element-resize'
 ],
 
@@ -38,7 +39,8 @@ define([
            ArcTrack,
            RulerTrack,
            StackedTrack,
-	   DensityTrack
+	   DensityTrack,
+	   WiggleTrack
        ) {
 
 return declare( null, {
@@ -1098,7 +1100,15 @@ return declare( null, {
     },
 
     createTrack: function (track) {
-	if (track.storeClass == 'JBrowse/Store/SeqFeature/BAM'
+	if (track.type == 'JBrowse/View/Track/Alignments'
+	    || track.type == 'JBrowse/View/Track/CanvasFeatures'
+	    || track.type == 'JBrowse/View/Track/CanvasVariants'
+	    || track.type == 'JBrowse/View/Track/FeatureCoverage'
+	    || track.type == 'JBrowse/View/Track/HTMLFeatures'
+	    || track.type == 'JBrowse/View/Track/HTMLVariants'
+	    || track.type == 'JBrowse/View/Track/SNPCoverage'
+/*
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/BAM'
 	    || track.storeClass == 'JBrowse/Store/SeqFeature/BED'
 	    || track.storeClass == 'JBrowse/Store/SeqFeature/BEDTabix'
 	    || track.storeClass == 'JBrowse/Store/SeqFeature/FromConfig'
@@ -1106,12 +1116,22 @@ return declare( null, {
 	    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3Tabix'
 	    || track.storeClass == 'JBrowse/Store/SeqFeature/GTF'
 	    || track.storeClass == 'JBrowse/Store/SeqFeature/NCList'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/SNPCoverage') {
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/SNPCoverage'
+*/
+	    ) {
 	    var config = { id: track.label,
 			   label: track.label,
 			   storeName: track.store,
 			   trackConfig: track }
 	    return new DensityTrack (config)
+	} else if (track.type == 'JBrowse/View/Track/Wiggle'
+		   || track.type == 'JBrowse/View/Track/Wiggle/XYPlot'
+		   || track.type == 'JBrowse/View/Track/Wiggle/Density') {
+	    var config = { id: track.label,
+			   label: track.label,
+			   storeName: track.store,
+			   trackConfig: track }
+	    return new WiggleTrack (config)
 	}
 	return null
     }

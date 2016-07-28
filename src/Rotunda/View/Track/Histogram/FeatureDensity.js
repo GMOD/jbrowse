@@ -101,7 +101,7 @@ return declare (Histogram,
 							    end: binEnd,
 							    score: stats.featureCount } )
 					  if (--nBinsLeft == 0)
-					      intervalDef.resolve (features)
+					      intervalDef.resolve()
 				      },
 				      function (error) {
 					  features.push ( { seq: interval.seq,
@@ -109,7 +109,7 @@ return declare (Histogram,
 							    end: binEnd,
 							    score: 0 } )
 					  if (--nBinsLeft == 0)
-					      intervalDef.resolve (features)
+					      intervalDef.resolve()
 				      } )
 				}) (nBin)
 			}
