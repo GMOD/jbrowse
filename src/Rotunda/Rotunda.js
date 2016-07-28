@@ -7,6 +7,7 @@ define([
     'dojo/dnd/Source',
     'dojo/aspect',
     'dojo/Deferred',
+    'dojo/dom-construct',
     'd3/d3',
     'Rotunda/util',
     'Rotunda/View/Animation/Zoomer',
@@ -28,6 +29,7 @@ define([
            dndSource,
            aspect,
 	   Deferred,
+	   domConstruct,
            libd3,
            util,
            Zoomer,
@@ -83,22 +85,16 @@ return declare( null, {
             this.tracks = [stackedTrack]
             this.links = []
 
-	    this.browser.config.tracks.forEach (function (track) {
-		if (track.storeClass == 'JBrowse/Store/SeqFeature/BAM'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/BED'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/FromConfig'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3Tabix'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/GTF'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/NCList'
-		    || track.storeClass == 'JBrowse/Store/SeqFeature/SNPCoverage') {
-		    var config = { id: track.label,
-				   label: track.label,
-				   storeName: track.store,
-				   trackConfig: track }
-		    rot.tracks.push (new DensityTrack (config))
-		}
+/*
+	    this.browser.config.tracks.forEach (function (trackConfig) {
+		var rotTrack = rot.createTrack (trackConfig)
+		if (rotTrack)
+		    rot.tracks.push (rotTrack)
 	    })
+*/
+
+	    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
+	    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
 
         } else {
             tracks = config.tracks
@@ -194,7 +190,7 @@ return declare( null, {
 	this.prevCursors = []
 
         // create track list
-        this.createTrackList (this.viewContainer)
+        this.createTrackList()
 
 	// initialize scales and draw
 	this.initScales()
@@ -557,8 +553,9 @@ return declare( null, {
         this.redraw()
     },
 
-    createTrackList: function (parent) {
+    createTrackList: function() {
         var rot = this
+	var parent = this.viewContainer
 
         var trackListContainer = dojo.create( 'div', { id: this.id+'-tracklist-container',
 					               class: 'rotunda-tracklist-container',
@@ -581,11 +578,18 @@ return declare( null, {
 					     title: 'Drag links to reorder' },
 	                            trackListContainer )
 
+	this.trackListContainer = trackListContainer
         this.trackList = trackList
         this.linkList = linkList
 
         this.trackListDnd = this.createDnd ('tracks', trackList)
         this.linkListDnd = this.createDnd ('links', linkList)
+    },
+
+    updateTrackList: function() {
+	if (this.trackListContainer)
+	    domConstruct.destroy (this.trackListContainer)
+	this.createTrackList()
     },
 
     createDnd: function (tracksVar, container) {
@@ -795,6 +799,8 @@ return declare( null, {
     
     draw: function() {
         var rot = this
+	if (this.width == 0 || this.height == 0)
+	    return
 
         this.svg = this.svg_wrapper
             .append("svg")
@@ -1057,7 +1063,59 @@ return declare( null, {
 				 end: rot.angleToCoord (overlap[1], seqName) })
 	})
 	return features
+    },
+
+    showTracks: function( trackConfigs ) {
+	this.browser.afterMilestone('initView', dojo.hitch( this, function() {
+	    var rot = this
+	    trackConfigs.forEach (function (trackConfig) {
+		if (rot.tracks.filter (function (track) {
+		    return track.id == trackConfig.label
+		}).length == 0) {
+		    var rotTrack = rot.createTrack (trackConfig)
+		    if (rotTrack)
+			rot.tracks.push (rotTrack)
+		}
+	    })
+            this.calculateTrackSizes()
+	    this.redraw()
+	    this.updateTrackList()
+	}))
+    },
+
+    hideTracks: function( trackConfigs ) {
+	var rot = this
+	var hide = {}
+	trackConfigs.forEach (function (trackConfig) {
+	    hide[trackConfig.label] = true
+	})
+	this.tracks = this.tracks.filter (function (track) {
+	    return !hide[track.id]
+	})
+        this.calculateTrackSizes()
+	this.redraw()
+	this.updateTrackList()
+    },
+
+    createTrack: function (track) {
+	if (track.storeClass == 'JBrowse/Store/SeqFeature/BAM'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/BED'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/BEDTabix'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/FromConfig'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3Tabix'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/GTF'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/NCList'
+	    || track.storeClass == 'JBrowse/Store/SeqFeature/SNPCoverage') {
+	    var config = { id: track.label,
+			   label: track.label,
+			   storeName: track.store,
+			   trackConfig: track }
+	    return new DensityTrack (config)
+	}
+	return null
     }
+
 })
 
        })
