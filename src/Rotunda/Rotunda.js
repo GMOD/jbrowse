@@ -84,7 +84,14 @@ return declare( null, {
             this.links = []
 
 	    this.browser.config.tracks.forEach (function (track) {
-		if (track.storeClass == 'JBrowse/Store/SeqFeature/NCList') {
+		if (track.storeClass == 'JBrowse/Store/SeqFeature/BAM'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/BED'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/FromConfig'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3Tabix'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/GTF'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/NCList'
+		    || track.storeClass == 'JBrowse/Store/SeqFeature/SNPCoverage') {
 		    var config = { id: track.label,
 				   label: track.label,
 				   storeName: track.store,

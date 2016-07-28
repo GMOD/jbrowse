@@ -17,10 +17,10 @@ return declare (Histogram,
 	    if ('style' in config.trackConfig && 'histCss' in config.trackConfig.style)
 		this.className = config.trackConfig.style.histCss
 	    else if ('histograms' in config.trackConfig && 'color' in config.trackConfig.histograms)
-		this.className = config.trackConfig.histograms.color
+		this.histColor = config.trackConfig.histograms.color
 	}
 
-	this.highColor = this.lowColor = this.cssColor()
+	this.highColor = this.lowColor = this.histColor || this.cssColor() || 'goldenrod'
     },
 
     baselineScore: 0,
@@ -50,28 +50,61 @@ return declare (Histogram,
 
 		store.getGlobalStats
 		(function (stats) {
-		    if (stats.featureCount > 0) {
-			var query = {
-			    ref:   interval.seq,
-			    start: interval.start - (interval.start % basesPerBin),
-			    end:   interval.end - (interval.end % basesPerBin) + basesPerBin,
-			    basesPerSpan: basesPerBin,
-			    basesPerBin: basesPerBin
-			}
-			store.getRegionFeatureDensities
-			(query,
-			 function (histData) {
-			     var features = histData.bins.map (function (score, nBin) {
-				 return { seq: query.ref,
-					  start: query.start + nBin * basesPerBin,
-					  end: query.start + (nBin + 1) * basesPerBin,
-					  score: isNaN(score) ? 0 : score  }
+		    if (stats.featureDensity > 0) {
+			var roundedIntervalStart = interval.start - (interval.start % basesPerBin)
+			var roundedIntervalEnd = interval.end - (interval.end % basesPerBin) + basesPerBin
+			if (store.getRegionFeatureDensities) {
+			    var query = {
+				ref:   interval.seq,
+				start: roundedIntervalStart,
+				end:   roundedIntervalEnd,
+				basesPerSpan: basesPerBin,
+				basesPerBin: basesPerBin
+			    }
+			    store.getRegionFeatureDensities
+			    (query,
+			     function (histData) {
+				 var features = histData.bins.map (function (score, nBin) {
+				     return { seq: query.ref,
+					      start: query.start + nBin * basesPerBin,
+					      end: query.start + (nBin + 1) * basesPerBin,
+					      score: isNaN(score) ? 0 : score  }
+				 })
+				 intervalDef.resolve (features)
+			     },
+			     function (error) {
+				 intervalDef.resolve()
 			     })
-			     intervalDef.resolve (features)
-			 },
-			 function (error) {
-			     intervalDef.resolve()
-			 })
+			} else {
+			    var nBins = (roundedIntervalEnd - roundedIntervalStart) / basesPerBin
+			    var nBinsLeft = nBins
+			    for (var nBin = 0; nBin < nBins; ++nBin)
+				(function (nBin) {
+				    var binStart = roundedIntervalStart + nBin * basesPerBin
+				    var binEnd = binStart + basesPerBin - 1
+				    store.getRegionStats
+				    ( { ref: interval.seq,
+					start: binStart,
+					end: binEnd },
+				      function (stats) {
+					  features.push ( { seq: interval.seq,
+							    start: binStart,
+							    end: binEnd,
+							    score: stats.featureCount } )
+					  if (--nBinsLeft == 0)
+					      intervalDef.resolve (features)
+				      },
+				      function (error) {
+					  features.push ( { seq: interval.seq,
+							    start: binStart,
+							    end: binEnd,
+							    score: 0 } )
+					  if (--nBinsLeft == 0)
+					      intervalDef.resolve (features)
+				      } )
+				}) (nBin)
+			}
+
 		    } else
 			intervalDef.resolve ( [{ seq: interval.seq,
 						 start: interval.start,
@@ -81,7 +114,6 @@ return declare (Histogram,
 		 function(e) {
 		     intervalDef.resolve()
 		 })
-
 	    })
 	    def.then (function() {
 		callback (features)

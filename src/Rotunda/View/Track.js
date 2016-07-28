@@ -140,7 +140,7 @@ return declare (null,
 
 	    color = getComputedStyle(tempDiv).getPropertyValue("background-color")
 	    if (/^\s*rgba\s*\(.*,\s*0\s*\)\s*$/.test(color))
-		color = "black"
+		color = undefined
 
 	    tempDiv.parentNode.removeChild(tempDiv)
 	}
