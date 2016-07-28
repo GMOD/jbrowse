@@ -41,17 +41,27 @@ return declare (Track,
 	track.buildHistogramForView (rot, minRadius, maxRadius, function (features) {
             var scores = features.map (function (feature) { return feature.score })
             var minScore = ('minScore' in track) ? track.minScore : Math.min.apply (track, scores)
+	    if ('minScoreLowBound' in track)
+		minScore = Math.max (track.minScoreLowBound, minScore)
+	    if ('minScoreHighBound' in track)
+		minScore = Math.min (track.minScoreHighBound, minScore)
             var maxScore = ('maxScore' in track) ? track.maxScore : Math.max.apply (track, scores)
+	    if ('maxScoreLowBound' in track)
+		maxScore = Math.max (track.maxScoreLowBound, maxScore)
+	    if ('maxScoreHighBound' in track)
+		maxScore = Math.min (track.maxScoreHighBound, maxScore)
             var baselineScore = ('baselineScore' in track) ? track.baselineScore : util.mean (scores)
-            var val2radius = (maxRadius - minRadius) / (maxScore - minScore)
+            var radiusPerScore = (maxRadius - minRadius) / (maxScore - minScore)
 
             var featureColor = track.featureColorFunc (baselineScore)
 
             var featureArc = d3.svg.arc()
 		.innerRadius (function(feature) {
-                    return ((feature.score > baselineScore ? baselineScore : feature.score) - minScore) * val2radius + minRadius
+		    var score = Math.max (minScore, Math.min (maxScore, feature.score))
+                    return ((score >= baselineScore ? baselineScore : score) - minScore) * radiusPerScore + minRadius
 		}).outerRadius (function(feature) {
-                    return ((feature.score > baselineScore ? feature.score : baselineScore) - minScore) * val2radius + minRadius
+		    var score = Math.max (minScore, Math.min (maxScore, feature.score))
+                    return ((score >= baselineScore ? score : baselineScore) - minScore) * radiusPerScore + minRadius
 		}).startAngle (function (feature) {
                     return rot.coordToAngle (feature.seq, feature.start - 1)
 		}).endAngle (function (feature) {

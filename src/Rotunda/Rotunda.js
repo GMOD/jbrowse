@@ -87,9 +87,8 @@ return declare( null, {
 		if (track.storeClass == 'JBrowse/Store/SeqFeature/NCList') {
 		    var config = { id: track.label,
 				   label: track.label,
-				   storeName: track.store }
-		    if ('className' in track.style)
-			config.className = track.style.className
+				   storeName: track.store,
+				   trackConfig: track }
 		    rot.tracks.push (new DensityTrack (config))
 		}
 	    })

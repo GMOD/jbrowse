@@ -14,7 +14,10 @@ define(["dojo/_base/declare",
 return declare (null,
 {
     constructor: function(config) {
+	config = config || {}
         lang.mixin (this, config)
+	if ('trackConfig' in config && 'style' in config.trackConfig && 'className' in config.trackConfig.style)
+	    this.className = config.trackConfig.style.className
     },
 
     getRadius: function (scale, trackRadiusScale, defaultTrackRadius) {
@@ -53,21 +56,8 @@ return declare (null,
 
 	} else if (storeName) {
 	    // query the JBrowse Store class(es) for the features in currently visible region
-
-	    // get background color for elements in this store, as a sensible color default
-	    var cssColor
-	    if (this.className) {
-		var tempDiv = document.createElement("div")
-		tempDiv.className = this.className
-		document.body.appendChild(tempDiv)
-
-		cssColor = getComputedStyle(tempDiv).getPropertyValue("background-color")
-		if (/^\s*rgba\s*\(.*,\s*0\s*\)\s*$/.test(cssColor))
-		    cssColor = "black"
-
-		tempDiv.parentNode.removeChild(tempDiv)
-	    }
-
+	    
+	    var cssColor = this.cssColor()  // get background color for elements in this store, as a sensible color default
 	    var features = []
 	    var intervals = rot.intervalsInView()
 	    var allStores = {}, allFeatures = []
@@ -139,6 +129,22 @@ return declare (null,
 	}
 	if (endCallback)
 	    gotAllStores.then(endCallback)
+    },
+
+    cssColor: function() {
+	var color
+	if (this.className) {
+	    var tempDiv = document.createElement("div")
+	    tempDiv.className = this.className
+	    document.body.appendChild(tempDiv)
+
+	    color = getComputedStyle(tempDiv).getPropertyValue("background-color")
+	    if (/^\s*rgba\s*\(.*,\s*0\s*\)\s*$/.test(color))
+		color = "black"
+
+	    tempDiv.parentNode.removeChild(tempDiv)
+	}
+	return color
     },
 
     d3featData: function (rot, features) {

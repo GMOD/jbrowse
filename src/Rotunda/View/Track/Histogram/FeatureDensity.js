@@ -13,9 +13,18 @@ define(['dojo/_base/declare',
 return declare (Histogram,
 {
     constructor: function(config) {
+	if ('trackConfig' in config) {
+	    if ('style' in config.trackConfig && 'histCss' in config.trackConfig.style)
+		this.className = config.trackConfig.style.histCss
+	    else if ('histograms' in config.trackConfig && 'color' in config.trackConfig.histograms)
+		this.className = config.trackConfig.histograms.color
+	}
+
+	this.highColor = this.lowColor = this.cssColor()
     },
 
-    baselineValue: 0,
+    baselineScore: 0,
+    maxScoreLowBound: 1,
 
     pixelsPerBin: 10,
     buildHistogramForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
@@ -56,9 +65,12 @@ return declare (Histogram,
 				 return { seq: query.ref,
 					  start: query.start + nBin * basesPerBin,
 					  end: query.start + (nBin + 1) * basesPerBin,
-					  score: score }
+					  score: isNaN(score) ? 0 : score  }
 			     })
 			     intervalDef.resolve (features)
+			 },
+			 function (error) {
+			     intervalDef.resolve()
 			 })
 		    } else
 			intervalDef.resolve ( [{ seq: interval.seq,
