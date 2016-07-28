@@ -13,6 +13,7 @@ define(['dojo/_base/declare',
 return declare (Histogram,
 {
     constructor: function(config) {
+	// attempt to deduce CSS styles and colors
 	if ('trackConfig' in config) {
 	    if ('style' in config.trackConfig && 'histCss' in config.trackConfig.style)
 		this.className = config.trackConfig.style.histCss
@@ -32,6 +33,8 @@ return declare (Histogram,
 	var basesPerBin = rot.basesPerPixel(rot.scale,minRadius) * track.pixelsPerBin
 	basesPerBin = Math.pow (2, Math.ceil (Math.log(basesPerBin) / Math.log(2)))  // round to nearest power of 2
 
+	// because we want all visible refseqs to share the same y-axis scale,
+	// we first call getStoresInView to load stores for all visible refseqs
 	track.getStoresInView (rot, null, function (data) {
 	    var stores = data.stores
 	    var intervals = data.intervals
@@ -48,11 +51,14 @@ return declare (Histogram,
 			def.resolve()
 		})
 
+		// call getGlobalStats first to check if there are any features
+		// this call also seems necessary to allow some stores (e.g. NCList) to set things up properly
 		store.getGlobalStats
 		(function (stats) {
 		    if (stats.featureDensity > 0) {
 			var roundedIntervalStart = interval.start - (interval.start % basesPerBin)
 			var roundedIntervalEnd = interval.end - (interval.end % basesPerBin) + basesPerBin
+			// if store has getRegionFeatureDensities method, use this to get binned feature counts
 			if (store.getRegionFeatureDensities) {
 			    var query = {
 				ref:   interval.seq,
@@ -76,6 +82,9 @@ return declare (Histogram,
 				 intervalDef.resolve()
 			     })
 			} else {
+			    // store has no getRegionFeatureDensities method,
+			    // so use getRegionStats to count binned features,
+			    // looping manually over bins from this end
 			    var nBins = (roundedIntervalEnd - roundedIntervalStart) / basesPerBin
 			    var nBinsLeft = nBins
 			    for (var nBin = 0; nBin < nBins; ++nBin)
@@ -105,7 +114,7 @@ return declare (Histogram,
 				}) (nBin)
 			}
 
-		    } else
+		    } else  // no features on this refseq
 			intervalDef.resolve ( [{ seq: interval.seq,
 						 start: interval.start,
 						 end: interval.end,
@@ -115,6 +124,7 @@ return declare (Histogram,
 		     intervalDef.resolve()
 		 })
 	    })
+	    // once this promise is resolved, we have all features & can pass control back to caller
 	    def.then (function() {
 		callback (features)
 	    })
