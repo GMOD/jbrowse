@@ -11,7 +11,7 @@ return declare (Track,
     constructor: function(config) {
     },
 
-    draw: function (rot, minRadius, maxRadius) {
+    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
 
         var featureTransform = function (feature) {
             return "translate("
@@ -33,6 +33,9 @@ return declare (Track,
 		.attr("text-anchor", "middle")
 		.attr("alignment-baseline", "central")
 		.text(featureText)
+
+	    if (drawCallback)
+                drawCallback (track)
 	})
     }
 })

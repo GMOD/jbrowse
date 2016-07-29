@@ -45,7 +45,7 @@ return declare( JBrowsePlugin,
         // create the hide/show button after genome view initialization
         this.browser.afterMilestone( 'initView', function() {
 
-            var navBox = dojo.byId("navbox");
+            var buttonContainer = thisB.browser.navboxButtonContainer
 
             thisB.browser.hideTitlesButton = new dijitButton(
             {
@@ -56,7 +56,7 @@ return declare( JBrowsePlugin,
                     thisB.browser.showTrackLabels("toggle");
                     dojo.stopEvent(event);
                 })
-            }, dojo.create('button',{},navBox));   //thisB.browser.navBox));
+            }, dojo.create('button',{},buttonContainer));
         });
 
         /* show or hide track labels

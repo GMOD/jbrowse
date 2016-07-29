@@ -8,6 +8,9 @@ define([
     'dojo/aspect',
     'dojo/Deferred',
     'dojo/dom-construct',
+    'dijit/layout/ContentPane',
+    'dijit/RadioMenuItem',
+    'dijit/MenuSeparator',
     'd3/d3',
     'Rotunda/util',
     'Rotunda/View/Animation/Zoomer',
@@ -31,6 +34,9 @@ define([
            aspect,
 	   Deferred,
 	   domConstruct,
+           dijitContentPane,
+           dijitRadioMenuItem,
+           dijitMenuSeparator,
            libd3,
            util,
            Zoomer,
@@ -65,10 +71,20 @@ return declare( null, {
         var rot = this
 
 	var defaultID = "rotunda"
-        this.container = config.container || query("#"+(config.id || defaultID))[0]
-	this.id = this.container.id || defaultID
-
         if (this.browser) {
+
+            var rotViewElem = document.createElement("div");
+            rotViewElem.className = "dragWindow";
+            dojo.place (rotViewElem, this.browser.viewElem, "before");
+
+            this.rotundaWidget =
+                new dijitContentPane({region: "center"}, rotViewElem);
+
+            var rotundaElem = document.createElement("div");
+            rotViewElem.appendChild(rotundaElem);
+
+	    this.container = rotundaElem
+
             this.refSeqName = this.browser.refSeqOrder
             this.refSeqLen = this.browser.refSeqOrder.map (function(n) { return rot.browser.allRefs[n].length })
 
@@ -110,12 +126,36 @@ return declare( null, {
 	    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
 	    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
 
+            this.ignoreNavigateEvents = 0
 	    this.browser.subscribe( '/jbrowse/v1/n/navigate',       dojo.hitch( this, 'handleNavigate' ));
 
-            this.browser.view.disableSlide = true  // while Rotunda is visible, we are still using GenomeView's navbar, so disable GenomeView Slider animations
-            this.ignoreNavigateEvents = 0
-            
+            this.browser.addGlobalMenuItem( 'view', new dijitMenuSeparator() )
+
+            this.browser.addGlobalMenuItem( 'view', new dijitRadioMenuItem({
+                id: 'menubar_linearView',
+                label: 'Linear view',
+//                iconClass: 'dijitIconApplication',
+                group: 'viewType',
+                checked: false,
+                onClick: function() {
+                    rot.showGenomeView()
+                }
+            }));
+
+            this.browser.addGlobalMenuItem( 'view', new dijitRadioMenuItem({
+                id: 'menubar_circularView',
+                label: 'Circular view',
+//                iconClass: 'dijitIconConfigure',
+                group: 'viewType',
+                checked: true,
+                onClick: function() {
+                    rot.showRotunda()
+                }
+            }));
+
         } else {
+            this.container = config.container || query("#"+(config.id || defaultID))[0]
+
             tracks = config.tracks
             this.refSeqLen = config.refSeqLen || [360]
             this.refSeqName = config.refSeqName || config.refSeqLen.map (function(n,i) { return "seq" + (i+1) })
@@ -123,6 +163,8 @@ return declare( null, {
             this.tracks = config.tracks.filter (function (track) { return !track.isLinkTrack })
             this.links = config.tracks.filter (function (track) { return track.isLinkTrack })
         }
+
+        this.id = this.container.id || defaultID
 
 	// find dimensions
 	this.defaultTrackRadius = config.defaultTrackRadius || 10
@@ -158,11 +200,9 @@ return declare( null, {
         // use dojo to create navbox and track list
         this.container.setAttribute("class", "rotunda-container")
 
-	if (this.browser) {
+	if (this.browser)
 	    this.navButtons = this.browser.navButtons
-	    this.browser.disconnectNavButtons()
-	    this.connectNavButtons()
-	} else
+        else
             this.createNavBox (this.container)
 
         this.viewContainer = dojo.create( 'div', { id: this.id+'-view',
@@ -211,6 +251,9 @@ return declare( null, {
         // create track list
         this.createTrackList()
 
+        // show
+        this.showRotunda()
+        
 	// initialize scales and draw
 	this.initScales()
 
@@ -739,9 +782,8 @@ return declare( null, {
     },
 
     hideLabels: function() {
-	this.labels.attr ('style', 'visibility:hidden;')
+	this.svgInfo.labels.attr ('style', 'visibility:hidden;')
     },
-
 
     gTransformRotateAndScale: function (spriteImage, degrees, xfactor, yfactor) {
 	var rot = this
@@ -765,7 +807,7 @@ return declare( null, {
                         + " translate(" + (this.width/2) / xfactor + "," + this.outerRadius() + ")"
                         + " rotate(" + degrees + ")")
 	    if (!this.hideLabelsDuringAnimation)
-		this.labels
+		this.svgInfo.labels
 		.attr("transform",
                       "scale(" + (1/xfactor) + "," + (1/yfactor) + ")"
                       + " rotate(" + (-degrees) + ")")
@@ -787,7 +829,7 @@ return declare( null, {
             this.g.attr("transform",
 			"translate(" + this.width/2 + "," + this.outerRadius() + ") rotate(" + degrees + ")")
 	    if (!this.hideLabelsDuringAnimation)
-		this.labels
+		this.svgInfo.labels
 		.attr("transform", "rotate(" + (-degrees) + ")")
 	}
     },
@@ -807,7 +849,7 @@ return declare( null, {
             this.g.attr("transform",
 			"scale(" + xfactor + "," + yfactor + ") translate(" + (this.width/2) / xfactor + "," + this.outerRadius() + ")")
 	    if (!this.hideLabelsDuringAnimation)
-		this.labels
+		this.svgInfo.labels
 		.attr("transform", "scale(" + (1/xfactor) + "," + (1/yfactor) + ")")
 	}
     },
@@ -850,36 +892,42 @@ return declare( null, {
             .attr("id", this.id+"-g")
             .attr("transform", "translate(" + this.width/2 + "," + this.outerRadius() + ")")
 
+        var svgInfo = rot.svgInfo = {}
+	if (rot.useCanvasForAnimations)
+            rot.promiseSprite()
+
+        var updateSpriteImage = rot.updateSpriteImage
+        var updateSvgInfo = function() {
+            svgInfo.labels = d3.selectAll(".rotundaLabel")
+            if (updateSpriteImage)
+                updateSpriteImage()
+        }
+        
         // draw tracks in reverse order, so higher-ranked tracks appear on top
         for (var trackNum = this.tracks.length - 1; trackNum >= 0; --trackNum) {
 	    var ar = this.angularViewRange (this.minRadius (trackNum))
 	    var amin = ar[0], amax = ar[1]
-            this.drawTrack (this.tracks[trackNum], trackNum, amin, amax)
+            this.drawTrack (this.tracks[trackNum], trackNum, amin, amax,
+                            updateSvgInfo)
         }
-        this.drawLinks()
-        
-        this.labels = d3.selectAll(".rotundaLabel")
-
-	if (rot.useCanvasForAnimations)
-            rot.spritePromise = rot.promiseSprite()
-
+        this.drawLinks (updateSvgInfo)
     },
 
-    drawTrack: function (track, trackNum, minAngle, maxAngle) {
+    drawTrack: function (track, trackNum, minAngle, maxAngle, callback) {
         var rot = this
         var maxRadius = this.maxRadius (trackNum)
         var minRadius = this.minRadius (trackNum)
-	track.draw (this, minRadius, maxRadius, minAngle, maxAngle)
+	track.draw (this, minRadius, maxRadius, minAngle, maxAngle, callback)
     },
 
-    drawLinks: function() {
+    drawLinks: function (callback) {
         var innerRadius = this.innerRadius(), outerRadius = this.outerRadius()
         if (this.height > outerRadius - innerRadius) {
             var lr = this.angularViewRange (this.innerRadius())
             var lmin = lr[0], lmax = lr[1]
             // draw link tracks in reverse order, so higher-ranked tracks appear on top
             for (var i = this.links.length - 1; i >= 0; --i)
-                this.links[i].draw (this, 0, innerRadius, lmin, lmax)
+                this.links[i].draw (this, 0, innerRadius, lmin, lmax, callback)
         }
     },
 
@@ -902,26 +950,30 @@ return declare( null, {
         }
 
         var svg = rot.svg[0][0]
+        var svgInfo = rot.svgInfo
 
-	rot.labels.attr('style','display:none;')
-	var xml = ser.serializeToString( svg )
-	rot.labels.attr('style','')
+        var updateImage = function() {
+	    svgInfo.labels.attr('style','display:none;')
+	    var xml = ser.serializeToString( svg )
+	    svgInfo.labels.attr('style','')
 
-	var blob = new Blob([xml], {type: 'image/svg+xml;charset=utf-8'})
+	    var blob = new Blob([xml], {type: 'image/svg+xml;charset=utf-8'})
 
-	var DOMURL = window.URL || window.webkitURL || window
-	var url = DOMURL.createObjectURL(blob)
+	    var DOMURL = window.URL || window.webkitURL || window
+	    var url = DOMURL.createObjectURL(blob)
 
-	img.onload = function () {
-	    if (rot.spriteUrl)
-		DOMURL.revokeObjectURL(rot.spriteUrl)
-	    rot.spriteUrl = url
+	    img.onload = function () {
+	        if (rot.spriteUrl)
+		    DOMURL.revokeObjectURL(rot.spriteUrl)
+	        rot.spriteUrl = url
 
-	    deferred.resolve (img)
-	}
-	img.src = url
+	        deferred.resolve (img)
+	    }
+	    img.src = url
+        }
 
-	return deferred
+        rot.updateSpriteImage = updateImage
+	rot.spritePromise = deferred
     },
     
     createAnimationCanvas: function() {
@@ -1207,7 +1259,29 @@ return declare( null, {
 		    this.navigateTo (newScale, newRotate, true)
 	        }
 	    }))
-    }
+    },
+
+    showRotunda: function() {
+        if (this.browser) {
+	    dojo.setStyle(this.browser.viewElem,'visibility','hidden')
+            dojo.setStyle(this.browser.navboxButtonContainer,'visibility','hidden')
+            this.browser.view.disableSlide = true  // while Rotunda is visible, we are still using GenomeView's navbar, so disable GenomeView Slider animations
+	    this.browser.disconnectNavButtons()
+        }
+	dojo.setStyle(this.viewContainer,'visibility','visible')
+	this.connectNavButtons()
+    },
+
+    showGenomeView: function() {
+	dojo.setStyle(this.viewContainer,'visibility','hidden')
+	this.disconnectNavButtons()
+        if (this.browser) {
+	    dojo.setStyle(this.browser.viewElem,'visibility','visible')
+            dojo.setStyle(this.browser.navboxButtonContainer,'visibility','visible')
+            this.browser.view.disableSlide = false
+	    this.browser.connectNavButtons()
+        }
+    },
 
 })
 

@@ -940,25 +940,12 @@ initView: function() {
         dojo.connect( this.browserWidget, "resize", this,      'onResize' );
         dojo.connect( this.browserWidget, "resize", this.view, 'onResize' );
 
-	// initialize the rotunda view
+	// initialize the Rotunda view
 	var rotConfig = this.config.rotundaConfig
 	if (typeof(rotConfig) != 'undefined') {
-	    dojo.setStyle(this.viewElem,'visibility','hidden')  // hide the GenomeView
-
-            this.rotViewElem = document.createElement("div");
-            this.rotViewElem.className = "dragWindow";
-            this.container.appendChild( this.rotViewElem);
-
 	    rotConfig.browser = this
-            this.rotundaWidget =
-                new dijitContentPane({region: "center"}, this.rotViewElem);
-
-            this.rotundaElem = document.createElement("div");
-            this.rotViewElem.appendChild( this.rotundaElem);
-
-	    rotConfig.container = this.rotundaElem
 	    this.rotunda = new Rotunda (rotConfig)
-	}
+        }
 
         //connect events to update the URL in the location bar
         function updateLocationBar() {
@@ -3049,7 +3036,10 @@ createNavBox: function( parent ) {
         this.locationInfoBox = domConstruct.place("<div id='location-info'>location</div>", navbox);
     }
 
-    // make the highligher button
+    // make the button container
+    this.navboxButtonContainer = domConstruct.place("<span id='navbar-buttons'></span>", navbox);
+    
+    // make the highlighter button
     this.highlightButton = new dojoxTriStateCheckBox({
         //label: 'Highlight',
         title: 'Highlight a Region',
@@ -3079,7 +3069,7 @@ createNavBox: function( parent ) {
                 thisB.view.behaviorManager.swapBehaviors('highlightingMouse','normalMouse');
             }
         }
-    }, dojo.create('button',{id: 'highlight-btn'},navbox));
+    }, dojo.create('button',{id: 'highlight-btn'},this.navboxButtonContainer));
 
     this.subscribe('/jbrowse/v1/n/globalHighlightChanged',
                    function() { thisB.highlightButton.set('checked',false); });

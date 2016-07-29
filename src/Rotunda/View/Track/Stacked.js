@@ -21,11 +21,11 @@ return declare (Track,
         }, 0)
     },
 
-    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle) {
+    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
         var totalTrackRadius = 0
         this.tracks.forEach (function (track) {
             var trackRadius = track.getRadius (rot.scale, rot.trackRadiusScale(rot.scale), rot.defaultTrackRadius)
-            track.draw (rot, minRadius + totalTrackRadius, minRadius + totalTrackRadius + trackRadius, minAngle, maxAngle)
+            track.draw (rot, minRadius + totalTrackRadius, minRadius + totalTrackRadius + trackRadius, minAngle, maxAngle, drawCallback)
             totalTrackRadius += trackRadius
         })
     }

@@ -36,7 +36,7 @@ return declare (Track,
 	return getFeaturesInView (rot, callback, errorCallback)
     },
 
-    draw: function (rot, minRadius, maxRadius) {
+    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
 	var track = this
         var g = rot.g
 	track.buildHistogramForView (rot, minRadius, maxRadius, function (features) {
@@ -77,7 +77,10 @@ return declare (Track,
 		.attr("stroke", featureColor)
 	    
 	    track.addMouseover (path)
-	})
+
+	    if (drawCallback)
+                drawCallback (track)
+        })
     }
 })
 

@@ -11,7 +11,7 @@ return declare (Track,
     constructor: function(config) {
     },
 
-    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle) {
+    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
         
 	var track = this
         var featureColor = this.featureColorFunc()
@@ -32,7 +32,10 @@ return declare (Track,
 		.attr("stroke", featureColor)
 
 	    track.addMouseover (path)
-	})
+
+            if (drawCallback)
+                drawCallback (track)
+        })
     }
 })
 

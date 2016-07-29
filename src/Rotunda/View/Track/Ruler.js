@@ -31,7 +31,7 @@ return declare (Track,
 
     showBase: false,
 
-    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle) {
+    draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
 
 	var track = this
 
@@ -141,6 +141,9 @@ return declare (Track,
 	    .attr("text-anchor", "middle")
 	    .attr("alignment-baseline", "central")
 	    .text(featureText)
+
+	if (drawCallback)
+            drawCallback (track)
     }
 })
 
