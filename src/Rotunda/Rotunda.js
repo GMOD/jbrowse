@@ -1251,11 +1251,14 @@ return declare( null, {
 		    amax += 2*Math.PI
 	        var newScale = Math.max (1, (this.width/2) / (this.radius * Math.sin((amax-amin)/2)))
 	        var newRotate = this.rotate - (amin + amax) / 2
+                if (amax - amin > Math.PI)
+                    newScale = 1
 	        // only move if the change in angle or scale is over .5%
 	        var scaleDelta = Math.abs ((newScale - this.scale) / this.scale)
 	        var rotateDelta = Math.abs ((this.canonicalAngle(newRotate) - this.canonicalAngle(this.rotate)) / this.canonicalAngle(this.rotate))
 	        if (scaleDelta > .005 || rotateDelta > .005) {
-                    //		console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
+                    console.log(region)
+                    console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
 		    this.navigateTo (newScale, newRotate, true)
 	        }
 	    }))
@@ -1281,7 +1284,7 @@ return declare( null, {
             this.browser.view.disableSlide = false
 	    this.browser.connectNavButtons()
         }
-    },
+    }
 
 })
 
