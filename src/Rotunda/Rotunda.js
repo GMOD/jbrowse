@@ -897,7 +897,7 @@ return declare( null, {
             rot.promiseSprite()
 
         var updateSpriteImage = rot.updateSpriteImage
-        var updateSvgInfo = function() {
+        var svgUpdated = function() {
             svgInfo.labels = d3.selectAll(".rotundaLabel")
             if (updateSpriteImage)
                 updateSpriteImage()
@@ -908,9 +908,9 @@ return declare( null, {
 	    var ar = this.angularViewRange (this.minRadius (trackNum))
 	    var amin = ar[0], amax = ar[1]
             this.drawTrack (this.tracks[trackNum], trackNum, amin, amax,
-                            updateSvgInfo)
+                            svgUpdated)
         }
-        this.drawLinks (updateSvgInfo)
+        this.drawLinks (svgUpdated)
     },
 
     drawTrack: function (track, trackNum, minAngle, maxAngle, callback) {
