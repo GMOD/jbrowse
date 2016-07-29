@@ -51,6 +51,7 @@ return declare (Track,
 	    if ('maxScoreHighBound' in track)
 		maxScore = Math.min (track.maxScoreHighBound, maxScore)
             var baselineScore = ('baselineScore' in track) ? track.baselineScore : util.mean (scores)
+	    baselineScore = Math.max (minScore, Math.min (maxScore, baselineScore))
             var radiusPerScore = (maxRadius - minRadius) / (maxScore - minScore)
 
             var featureColor = track.featureColorFunc (baselineScore)

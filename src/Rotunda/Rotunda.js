@@ -52,6 +52,18 @@ return declare( null, {
 	this.config = config
 	this.browser = config.browser
 
+	if (this.browser)
+	    this.initMilestone = this.browser._milestoneFunction('initRotunda', function( deferred ) {
+		rot.initialize (config)
+	    })
+	else
+	    rot.initialize (config)
+    },
+
+    initialize: function (config) {
+
+        var rot = this
+
 	var defaultID = "rotunda"
         this.container = config.container || query("#"+(config.id || defaultID))[0]
 	this.id = this.container.id || defaultID
@@ -97,6 +109,9 @@ return declare( null, {
 
 	    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
 	    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
+
+	    this.browser.subscribe( '/jbrowse/v1/n/navigate',       dojo.hitch( this, 'handleNavigate' ));
+	    this.ignoreNavigateEvents = 0
 
         } else {
             tracks = config.tracks
@@ -214,10 +229,14 @@ return declare( null, {
         this.radius = Math.max (this.config.radius || Math.min(dim[0]/2,dim[1]/2),
                                 this.totalTrackRadius + this.minInnerRadius)
 
-	// minBasesPerView = width / (pixelsPerBase * scale)
- 	var minBasesPerView = Math.min (1e6, Math.min.apply (this, this.refSeqLen))
+	var maxPixelsPerBase = 20
         this.minScale = Math.min (1, this.width / (2 * this.radius))
-        this.maxScale = this.minScale * Math.pow (2, Math.floor (Math.log (Math.max (1, this.width / (this.pixelsPerBase() * minBasesPerView))) / Math.log(2)))
+        this.maxScale = this.minScale * Math.pow (2, Math.floor (Math.log (Math.max (1, maxPixelsPerBase / this.pixelsPerBase(1))) / Math.log(2)))
+
+// Alternative way of calculating maxScale based on minimum number of visible bases:
+// minBasesPerView = width / (pixelsPerBase * scale)
+// 	var minBasesPerView = Math.min (1e6, Math.min.apply (this, this.refSeqLen))
+//        this.maxScale = this.minScale * Math.pow (2, Math.floor (Math.log (Math.max (1, this.width / (this.pixelsPerBase(1) * minBasesPerView))) / Math.log(2)))
 
         var maxTrackScale = this.config.maxTrackScale || (this.maxScale > 1 ? (Math.log(this.maxScale) / Math.log(2)) : 1)
 
@@ -235,6 +254,9 @@ return declare( null, {
         // draw
         this.calculateTrackSizes()
         this.draw()
+
+	// at this point we can do stuff that depends on the dimensions being intialized
+	this.initMilestone.resolve ( { success: true } )
     },
 
     windowDim: function() {
@@ -295,6 +317,7 @@ return declare( null, {
         rot.dragging = false
         rot.dragHandlers.forEach (function (signal) { signal.remove() })
         rot.dragHandlers = []
+	rot.updateBrowserLocation()
         return true
     },
 
@@ -342,6 +365,7 @@ return declare( null, {
 	    rot.rotateTo (rot.rotate + rot.cumulativeRadiansScrolled)
 	    rot.wheelScrollTimeout = null
 	    rot.scrolling = false
+	    rot.updateBrowserLocation()
 	}, wheelTimeoutDelay));
 
 	var wheelRotate = function (spriteImage) {
@@ -636,7 +660,10 @@ return declare( null, {
         var deltaRads = 2 * distance * Math.atan (.5 * this.width / (this.outerRadius()))
         var newRads = this.rotate + deltaRads
         new Slider (rotunda,
-                    function() { rotunda.rotateTo(newRads) },
+                    function() {
+			rotunda.rotateTo(newRads)
+		    	rotunda.updateBrowserLocation()
+		    },
                     700,
                     newRads)
     },
@@ -673,19 +700,24 @@ return declare( null, {
         this.zoomTo (newScale, newRotate)
     },
 
-    zoomTo: function (newScale, newRotate) {
+    zoomTo: function (newScale, newRotate, noBrowserUpdate) {
         var rot = this
 	if (newScale != rot.scale || newRotate != rot.rotate)
             new SpinZoom (rot,
-			  function() {
-                              rot.rotate = newRotate
-                              rot.scale = newScale
-			      rot.calculateTrackSizes()
-                              rot.redraw()
-			  },
+			  function() { rot.navigateTo (newScale, newRotate, noBrowserUpdate) },
 			  700,
                           newRotate,
                           newScale)
+    },
+
+    navigateTo: function (newScale, newRotate, noBrowserUpdate) {
+	var rot = this
+        rot.rotate = newRotate
+        rot.scale = newScale
+	rot.calculateTrackSizes()
+        rot.redraw()
+	if (!noBrowserUpdate)
+	    rot.updateBrowserLocation()
     },
 
     showWait: function() {
@@ -1134,6 +1166,52 @@ return declare( null, {
 	    return new WiggleTrack (config)
 	}
 	return null
+    },
+
+    updateBrowserLocation: function() {
+	if (this.browser) {
+	    var w = this.angularViewWidth()
+	    var seq = this.angleToSeqName (-this.rotate)
+	    var ar = this.angularViewRange (this.outerRadius())
+	    ar = this.refSeqAngularRangeOverlap (ar[0], ar[1], seq)
+	    if (ar) {
+		var bmin = Math.max (1, this.angleToCoord (ar[0], seq))
+		var bmax = this.angleToCoord (ar[1], seq)
+		var loc = seq + ":" + bmin + ".." + bmax
+		console.log ("Navigate to " + loc)
+		++this.ignoreNavigateEvents
+		this.browser.navigateTo (loc)
+	    }
+	}
+    },
+
+    handleNavigate: function (region) {
+	this.browser.afterMilestone('initRotunda', dojo.hitch( this, function() {
+	    // for the moment, this is disabled because some navigation operations generate two events
+	    // (e.g. zooming out)
+	    // which is overwhelming our simple kludge of ignoring the first event after a navigation op
+	    console.log (region)
+	    return
+	    if (this.ignoreNavigateEvents) {  // prevent cycles (kludge)
+		--this.ignoreNavigateEvents
+		console.log ("Ignoring navigate")
+		console.log(region)
+	    } else {
+		var amin = this.coordToAngle (region.ref, region.start)
+		var amax = this.coordToAngle (region.ref, region.end)
+		if (amax < amin)
+		    amax += 2*Math.PI
+		var newScale = Math.max (1, (this.width/2) / (this.radius * Math.sin((amax-amin)/2)))
+		var newRotate = this.rotate - (amin + amax) / 2
+		// only move if the change in angle or scale is over .5%
+		var scaleDelta = Math.abs ((newScale - this.scale) / this.scale)
+		var rotateDelta = Math.abs ((this.canonicalAngle(newRotate) - this.canonicalAngle(this.rotate)) / this.canonicalAngle(this.rotate))
+		if (scaleDelta > .005 || rotateDelta > .005) {
+		    console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
+		    this.navigateTo (newScale, newRotate, true)
+		}
+	    }
+	}))
     }
 
 })

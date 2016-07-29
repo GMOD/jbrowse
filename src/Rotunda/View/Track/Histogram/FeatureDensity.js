@@ -27,10 +27,10 @@ return declare (Histogram,
     baselineScore: 0,
     maxScoreLowBound: 1,
 
-    pixelsPerBin: 10,
+    binsPerView: 16,
     buildHistogramForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
 	var track = this
-	var basesPerBin = rot.basesPerPixel(rot.scale,minRadius) * track.pixelsPerBin
+	var basesPerBin = rot.width * rot.basesPerPixel(rot.scale,minRadius) / track.binsPerView
 	basesPerBin = Math.pow (2, Math.ceil (Math.log(basesPerBin) / Math.log(2)))  // round to nearest power of 2
 
 	// because we want all visible refseqs to share the same y-axis scale,
@@ -44,9 +44,7 @@ return declare (Histogram,
 	    intervals.forEach (function (interval) {
 		var store = stores[interval.seq]
 		var intervalDef = new Deferred()
-		intervalDef.then (function (intervalFeatures) {
-		    if (intervalFeatures)
-			features = features.concat (intervalFeatures)
+		intervalDef.then (function() {
 		    if (--nQueriesLeft == 0)
 			def.resolve()
 		})
@@ -70,13 +68,13 @@ return declare (Histogram,
 			    store.getRegionFeatureDensities
 			    (query,
 			     function (histData) {
-				 var features = histData.bins.map (function (score, nBin) {
+				 features = features.concat (histData.bins.map (function (score, nBin) {
 				     return { seq: query.ref,
 					      start: query.start + nBin * basesPerBin,
 					      end: query.start + (nBin + 1) * basesPerBin,
 					      score: isNaN(score) ? 0 : score  }
-				 })
-				 intervalDef.resolve (features)
+				 }))
+				 intervalDef.resolve()
 			     },
 			     function (error) {
 				 intervalDef.resolve()
@@ -114,11 +112,13 @@ return declare (Histogram,
 				}) (nBin)
 			}
 
-		    } else  // no features on this refseq
-			intervalDef.resolve ( [{ seq: interval.seq,
-						 start: interval.start,
-						 end: interval.end,
-						 score: 0 }] )
+		    } else {  // no features on this refseq
+			features.push ({ seq: interval.seq,
+					 start: interval.start,
+					 end: interval.end,
+					 score: 0 })
+			intervalDef.resolve()
+		    }
 		},
 		 function(e) {
 		     intervalDef.resolve()
