@@ -147,13 +147,11 @@ return declare (null,
 	return color
     },
 
-    d3featData: function (rot, features) {
+    d3featData: function (g, features) {
 	var track = this
-        track.g = rot.g
-	    .append('g')
+	g.append('g')
 	    .attr('id','#g_'+track.id)
-        return track.g
-	    .selectAll('#track_'+track.id)
+        return g.selectAll('#track_'+track.id)
 	    .data(features)
 	    .enter()
     },

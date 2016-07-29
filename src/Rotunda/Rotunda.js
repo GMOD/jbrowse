@@ -111,8 +111,10 @@ return declare( null, {
 	    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
 
 	    this.browser.subscribe( '/jbrowse/v1/n/navigate',       dojo.hitch( this, 'handleNavigate' ));
-	    this.ignoreNavigateEvents = 0
 
+            this.browser.view.disableSlide = true  // while Rotunda is visible, we are still using GenomeView's navbar, so disable GenomeView Slider animations
+            this.ignoreNavigateEvents = 0
+            
         } else {
             tracks = config.tracks
             this.refSeqLen = config.refSeqLen || [360]
@@ -1178,41 +1180,33 @@ return declare( null, {
 		var bmin = Math.max (1, this.angleToCoord (ar[0], seq))
 		var bmax = this.angleToCoord (ar[1], seq)
 		var loc = seq + ":" + bmin + ".." + bmax
-		console.log ("Navigate to " + loc)
-		++this.ignoreNavigateEvents
-		this.browser.navigateTo (loc)
+                ++this.ignoreNavigateEvents  // kludge to prevent issues when Browser rounds coords (eg when overhanging sequence ends)
+		this.browser.navigateToLocation ({ ref: seq,
+                                                   start: Math.round(bmin),
+                                                   end: Math.round(bmax) })
 	    }
 	}
     },
 
     handleNavigate: function (region) {
-	this.browser.afterMilestone('initRotunda', dojo.hitch( this, function() {
-	    // for the moment, this is disabled because some navigation operations generate two events
-	    // (e.g. zooming out)
-	    // which is overwhelming our simple kludge of ignoring the first event after a navigation op.
-	    // What we really need is a way to tell Browser.navigateTo() to navigate without publishing an event. hmm.
-	    console.log (region)
-	    return
-	    if (this.ignoreNavigateEvents) {  // prevent cycles (kludge)
-		--this.ignoreNavigateEvents
-		console.log ("Ignoring navigate")
-		console.log(region)
-	    } else {
-		var amin = this.coordToAngle (region.ref, region.start)
-		var amax = this.coordToAngle (region.ref, region.end)
-		if (amax < amin)
+        if (this.ignoreNavigateEvents)
+            --this.ignoreNavigateEvents
+        else
+	    this.browser.afterMilestone('initRotunda', dojo.hitch( this, function() {
+	        var amin = this.coordToAngle (region.ref, region.start)
+	        var amax = this.coordToAngle (region.ref, region.end)
+	        if (amax < amin)
 		    amax += 2*Math.PI
-		var newScale = Math.max (1, (this.width/2) / (this.radius * Math.sin((amax-amin)/2)))
-		var newRotate = this.rotate - (amin + amax) / 2
-		// only move if the change in angle or scale is over .5%
-		var scaleDelta = Math.abs ((newScale - this.scale) / this.scale)
-		var rotateDelta = Math.abs ((this.canonicalAngle(newRotate) - this.canonicalAngle(this.rotate)) / this.canonicalAngle(this.rotate))
-		if (scaleDelta > .005 || rotateDelta > .005) {
-		    console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
+	        var newScale = Math.max (1, (this.width/2) / (this.radius * Math.sin((amax-amin)/2)))
+	        var newRotate = this.rotate - (amin + amax) / 2
+	        // only move if the change in angle or scale is over .5%
+	        var scaleDelta = Math.abs ((newScale - this.scale) / this.scale)
+	        var rotateDelta = Math.abs ((this.canonicalAngle(newRotate) - this.canonicalAngle(this.rotate)) / this.canonicalAngle(this.rotate))
+	        if (scaleDelta > .005 || rotateDelta > .005) {
+                    //		console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
 		    this.navigateTo (newScale, newRotate, true)
-		}
-	    }
-	}))
+	        }
+	    }))
     }
 
 })

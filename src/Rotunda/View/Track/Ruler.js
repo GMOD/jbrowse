@@ -83,7 +83,7 @@ return declare (Track,
                 return feature.angle
             })
 
-        var tickPath = this.d3featData(rot,ticks)
+        var tickPath = this.d3featData(rot.g,ticks)
 	    .append("path")
 	    .attr("d", tickArc)
 	    .attr("stroke", "grey")
@@ -105,7 +105,7 @@ return declare (Track,
 		    return rot.coordToAngle (feature.seq, feature.end)
 		})
 
-            this.d3featData(rot,refSeqsInView)
+            this.d3featData(rot.g,refSeqsInView)
 		.append("path")
 		.attr("d", seqArc)
 		.attr("stroke", "grey")
@@ -133,7 +133,7 @@ return declare (Track,
 	})
 	var textData = this.showAxisLabels(rot.scale) ? labels.concat(seqNames) : seqNames
 
-        this.d3featData(rot,textData)
+        this.d3featData(rot.g,textData)
 	    .append("g")
 	    .attr("transform", featureTransform)
 	    .append("text")

@@ -24,10 +24,15 @@ return declare (Histogram,
 	this.highColor = this.lowColor = this.histColor || this.cssColor() || 'goldenrod'
     },
 
-    pixelsPerBin: 1,
+    binsPerView: 64,
+//    pixelsPerBin: 1,
     buildHistogramForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
 	var track = this
-	var basesPerBin = rot.basesPerPixel(rot.scale,minRadius) * track.pixelsPerBin
+	var basesPerBin
+        if ('pixelsPerBin' in this)
+            basesPerBin = rot.basesPerPixel(rot.scale,minRadius) * track.pixelsPerBin
+        else
+            basesPerBin = rot.width * rot.basesPerPixel(rot.scale,minRadius) / track.binsPerView
 	basesPerBin = Math.pow (2, Math.ceil (Math.log(basesPerBin) / Math.log(2)))  // round to nearest power of 2
 
 	// because we want all visible refseqs to share the same y-axis scale,
@@ -60,24 +65,26 @@ return declare (Histogram,
 		    for (var nBin = 0; nBin < nBins; ++nBin)
 			(function (nBin) {
 			    var binStart = roundedIntervalStart + nBin * basesPerBin
-			    var binEnd = binStart + basesPerBin - 1
+			    var binEnd = binStart + basesPerBin
 			    store.getRegionStats
 			    ( { ref: interval.seq,
 				start: binStart,
 				end: binEnd },
 			      function (stats) {
-				  if (typeof(scoreMax) === 'undefined'
-				      || stats.scoreMax > scoreMax)
-				      scoreMax = stats.scoreMax
-				  if (typeof(scoreMin) === 'undefined'
-				      || stats.scoreMin < scoreMin)
-				      scoreMin = stats.scoreMin
-				  features.push ( { seq: interval.seq,
-						    start: binStart,
-						    end: binEnd,
-						    score: stats.scoreMax } )
-				  scoreSum += stats.scoreSum
-				  featureCount += stats.featureCount
+                                  if (stats.featureCount) {
+				      if (typeof(scoreMax) === 'undefined'
+				          || stats.scoreMax > scoreMax)
+				          scoreMax = stats.scoreMax
+				      if (typeof(scoreMin) === 'undefined'
+				          || stats.scoreMin < scoreMin)
+				          scoreMin = stats.scoreMin
+				      features.push ( { seq: interval.seq,
+						        start: binStart,
+						        end: binEnd,
+						        score: stats.scoreMax } )
+				      scoreSum += stats.scoreSum
+				      featureCount += stats.featureCount
+                                  }
 				  if (--nBinsLeft == 0)
 				      intervalDef.resolve()
 			      },

@@ -1250,7 +1250,7 @@ onResize: function() {
  * Event handler fired when the overview bar is single-clicked.
  */
 overviewClicked: function( evt ) {
-    this.centerAtBase( this.overview_absXtoBp( evt.clientX ) );
+    this.centerAtBase( this.overview_absXtoBp( evt.clientX ), this.disableSlide );
 },
 
 /**
@@ -1391,7 +1391,7 @@ scaleClicked: function( evt ) {
     var bp = this.absXtoBp(evt.clientX);
 
     this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
-        this.centerAtBase( bp );
+        this.centerAtBase( bp, this.disableSlide );
     },100));
 },
 
@@ -1403,7 +1403,7 @@ thumbMoved: function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
-    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start);
+    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start, this.disableSlide);
 },
 
 /**

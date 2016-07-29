@@ -38,6 +38,7 @@ return declare (Track,
 
     draw: function (rot, minRadius, maxRadius) {
 	var track = this
+        var g = rot.g
 	track.buildHistogramForView (rot, minRadius, maxRadius, function (features) {
             var scores = features.map (function (feature) { return feature.score })
             var minScore = ('minScore' in track) ? track.minScore : Math.min.apply (track, scores)
@@ -69,7 +70,7 @@ return declare (Track,
                     return rot.coordToAngle (feature.seq, feature.end)
 		})
 
-            var path = track.d3featData (rot, features)
+            var path = track.d3featData (g, features)
 		.append("path")
 		.attr("d", featureArc)
 		.attr("fill", featureColor)

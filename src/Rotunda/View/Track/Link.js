@@ -41,7 +41,7 @@ return declare (Track,
                 return t
             })
 
-        this.d3data (rot, function (d3data) {
+        this.d3data (rot.g, function (d3data) {
 	    var path = d3data.append("path")
 		.attr("d", featureChord)
 		.attr("fill", featureColor)
