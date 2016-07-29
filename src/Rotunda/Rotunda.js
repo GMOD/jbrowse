@@ -1189,7 +1189,8 @@ return declare( null, {
 	this.browser.afterMilestone('initRotunda', dojo.hitch( this, function() {
 	    // for the moment, this is disabled because some navigation operations generate two events
 	    // (e.g. zooming out)
-	    // which is overwhelming our simple kludge of ignoring the first event after a navigation op
+	    // which is overwhelming our simple kludge of ignoring the first event after a navigation op.
+	    // What we really need is a way to tell Browser.navigateTo() to navigate without publishing an event. hmm.
 	    console.log (region)
 	    return
 	    if (this.ignoreNavigateEvents) {  // prevent cycles (kludge)
