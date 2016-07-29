@@ -88,31 +88,7 @@ return declare( null, {
             this.refSeqName = this.browser.refSeqOrder
             this.refSeqLen = this.browser.refSeqOrder.map (function(n) { return rot.browser.allRefs[n].length })
 
-            var refSeqFeatures = this.refSeqName.map (function (n, i) {
-                var l = rot.refSeqLen[i]
-                return { seq: n,
-                         start: 0,
-                         end: l,
-                         id: n,
-                         type: n }
-            })
-
-            var refSeqTrack = new ArcTrack ({ id: "ref_seqs",
-					      label: "Reference sequence",
-					      features: refSeqFeatures })
-
-	    var rulerTrack = new RulerTrack ({ id: "ruler_ticks",
-					       label: "Ruler",
-					       displayedName: function (refSeqName) {
-					           return refSeqName.replace("chr","")
-					       }
-					     })
-
-            var stackedTrack = new StackedTrack ({ id: "ruler",
-                                                   label: "Ruler",
-                                                   tracks: [ refSeqTrack, rulerTrack ] })
-
-            this.tracks = [stackedTrack]
+            this.tracks = []
             this.links = []
 
 /*
@@ -1186,7 +1162,9 @@ return declare( null, {
     },
 
     createTrack: function (track) {
-	if (track.type == 'JBrowse/View/Track/Alignments'
+	if (track.type == 'JBrowse/View/Track/Sequence')
+            return this.createRefSeqTrack (track.label)
+	else if (track.type == 'JBrowse/View/Track/Alignments'
 	    || track.type == 'JBrowse/View/Track/CanvasFeatures'
 	    || track.type == 'JBrowse/View/Track/CanvasVariants'
 	    || track.type == 'JBrowse/View/Track/FeatureCoverage'
@@ -1222,6 +1200,36 @@ return declare( null, {
 	return null
     },
 
+    createRefSeqTrack: function (label) {
+        var rot = this
+
+        var refSeqFeatures = this.refSeqName.map (function (n, i) {
+            var l = rot.refSeqLen[i]
+            return { seq: n,
+                     start: 0,
+                     end: l,
+                     id: n,
+                     type: n }
+        })
+
+        var refSeqTrack = new ArcTrack ({ id: "ref_seqs",
+					  label: "Reference sequence",
+					  features: refSeqFeatures })
+
+	var rulerTrack = new RulerTrack ({ id: "ruler_ticks",
+					   label: "Ruler",
+					   displayedName: function (refSeqName) {
+					       return refSeqName.replace("chr","")
+					   }
+					 })
+
+        var stackedTrack = new StackedTrack ({ id: label,
+                                               label: label,
+                                               tracks: [ refSeqTrack, rulerTrack ] })
+
+        return stackedTrack
+    },
+    
     updateBrowserLocation: function() {
 	if (this.browser) {
 	    var w = this.angularViewWidth()
@@ -1257,8 +1265,8 @@ return declare( null, {
 	        var scaleDelta = Math.abs ((newScale - this.scale) / this.scale)
 	        var rotateDelta = Math.abs ((this.canonicalAngle(newRotate) - this.canonicalAngle(this.rotate)) / this.canonicalAngle(this.rotate))
 	        if (scaleDelta > .005 || rotateDelta > .005) {
-                    console.log(region)
-                    console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
+//                    console.log(region)
+//                    console.log("scale="+this.scale+" newScale="+newScale+" rotate="+this.rotate+" newRotate="+newRotate)
 		    this.navigateTo (newScale, newRotate, true)
 	        }
 	    }))
