@@ -64,7 +64,6 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
      */
     hasRefSeq: function( seqName, callback, errorCallback ) {
         var thisB = this;
-        seqName = thisB.browser.regularizeReferenceName( seqName );
         this._deferred.features.then( function() {
             callback( seqName in thisB.twoBit.chrToIndex );
         }, errorCallback );
