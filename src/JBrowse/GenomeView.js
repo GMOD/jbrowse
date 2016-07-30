@@ -264,7 +264,7 @@ constructor: function( args ) {
         refSeq: this.ref
     }));
     this.showFine();
-    this.showCoarse();
+    this.showCoarse('GenomeView/constructor');
 
     // initialize the behavior manager used for setting what this view
     // does (i.e. the behavior it has) for mouse and keyboard events
@@ -759,7 +759,7 @@ zoomCallback: function() {
 },
 
 afterSlide: function() {
-    this.showCoarse();
+    this.showCoarse('GenomeView/afterSlide');
     this.scrollUpdate();
     this.showVisibleBlocks(true);
 },
@@ -886,7 +886,7 @@ startRubberZoom: function( absToBp, container, scaleDiv, event ) {
         message: 'Zoom to region',
         start: { x: event.clientX, y: event.clientY },
         execute: function( h_start_bp, h_end_bp ) {
-            this.setLocation( this.ref, h_start_bp, h_end_bp );
+            this.setLocation( this.ref, h_start_bp, h_end_bp, 'GenomeView/startRubberZoom' );
         }
     };
 
@@ -988,7 +988,7 @@ dragEnd: function(event) {
     this.behaviorManager.removeBehaviors('mouseDragScrolling', 'verticalMouseDragScrolling');
 
     dojo.stopEvent(event);
-    this.showCoarse();
+    this.showCoarse('GenomeView/dragEnd');
 
     this.scrollUpdate();
     this.showVisibleBlocks(true);
@@ -1054,7 +1054,11 @@ slide: function(distance) {
                distance * this.getWidth());
 },
 
-setLocation: function(refseq, startbp, endbp) {
+/* method to set view location.
+ *
+ * authority is optional; it is passed on to /n/navigate messages, and allows plugins to suppress feedback loops.
+ */
+setLocation: function(refseq, startbp, endbp, authority) {
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
     if( typeof refseq == 'string' ) {
@@ -1124,7 +1128,7 @@ setLocation: function(refseq, startbp, endbp) {
     this.stripeWidth = (this.stripeWidthForZoom(this.curZoom) / this.zoomLevels[this.curZoom]) * this.pxPerBp;
     this.instantZoomUpdate();
 
-    this.centerAtBase((startbp + endbp) / 2, true);
+    this.centerAtBase((startbp + endbp) / 2, true, authority);
 },
 
 stripeWidthForZoom: function(zoomLevel) {
@@ -1149,7 +1153,7 @@ instantZoomUpdate: function() {
     this.minLeft = this.bpToPx(this.ref.start);
 },
 
-centerAtBase: function(base, instantly) {
+centerAtBase: function(base, instantly, authority) {
     base = Math.min(Math.max(base, this.ref.start), this.ref.end);
     if (instantly) {
     var pxDist = this.bpToPx(base);
@@ -1159,7 +1163,7 @@ centerAtBase: function(base, instantly) {
     this.setX(pxDist - this.offset - (this.getWidth() / 2));
     this.trackIterate(function(track) { track.clear(); });
     this.showVisibleBlocks(true);
-        this.showCoarse();
+        this.showCoarse(authority);
     } else {
     var startbp = this.pxToBp(this.x + this.offset);
     var halfWidth = (this.getWidth() / this.pxPerBp) / 2;
@@ -1180,7 +1184,7 @@ centerAtBase: function(base, instantly) {
                distance);
     } else {
         //we're moving far away, move instantly
-        this.centerAtBase(base, true);
+        this.centerAtBase(base, true, authority);
     }
     }
 },
@@ -1218,8 +1222,8 @@ maxVisible: function() {
 showFine: function() {
     this.onFineMove(this.minVisible(), this.maxVisible());
 },
-showCoarse: function() {
-    this.onCoarseMove(this.minVisible(), this.maxVisible());
+showCoarse: function(authority) {
+    this.onCoarseMove(this.minVisible(), this.maxVisible(), authority);
 },
 
 /**
@@ -1232,7 +1236,7 @@ onFineMove: function( startbp, endbp ) {
 /**
  * Hook for other components to dojo.connect to.
  */
-onCoarseMove: function( startbp, endbp ) {
+onCoarseMove: function( startbp, endbp, authority ) {
     this.updateLocationThumb();
 },
 
@@ -1243,14 +1247,14 @@ onResize: function() {
     this.sizeInit();
     this.showVisibleBlocks();
     this.showFine();
-    this.showCoarse();
+    this.showCoarse('GenomeView/onResize');
 },
 
 /**
  * Event handler fired when the overview bar is single-clicked.
  */
 overviewClicked: function( evt ) {
-    this.centerAtBase( this.overview_absXtoBp( evt.clientX ), this.disableSlide );
+    this.centerAtBase( this.overview_absXtoBp( evt.clientX ), this.disableSlide, 'GenomeView/overviewClicked' );
 },
 
 /**
@@ -1391,7 +1395,7 @@ scaleClicked: function( evt ) {
     var bp = this.absXtoBp(evt.clientX);
 
     this.scaleClickedTimeout = window.setTimeout( dojo.hitch( this, function() {
-        this.centerAtBase( bp, this.disableSlide );
+        this.centerAtBase( bp, this.disableSlide, 'GenomeView/scaleClicked' );
     },100));
 },
 
@@ -1403,7 +1407,7 @@ thumbMoved: function(mover) {
     var pxLeft = parseInt(this.locationThumb.style.left);
     var pxWidth = parseInt(this.locationThumb.style.width);
     var pxCenter = pxLeft + (pxWidth / 2);
-    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start, this.disableSlide);
+    this.centerAtBase(((pxCenter / this.overviewBox.w) * (this.ref.end - this.ref.start)) + this.ref.start, this.disableSlide, 'GenomeView/thumbMoved');
 },
 
 /**
@@ -1883,7 +1887,7 @@ zoomBackOut: function(e) {
     // to me, although if the zooms were smoother they could probably
     // get faster without becoming off-putting. -MS
     new Zoomer(scale, this,
-           function() {thisObj.setLocation(thisObj.ref, min, max); thisObj.zoomUpdate(zoomLoc, fixedBp); },
+           function() {thisObj.setLocation(thisObj.ref, min, max, 'GenomeView/zoomBackOut'); thisObj.zoomUpdate(zoomLoc, fixedBp); },
            700, zoomLoc);
 },
 
@@ -1928,7 +1932,7 @@ zoomUpdate: function(zoomLoc, fixedBp) {
 
     this.showVisibleBlocks(true);
     this.showDone();
-    this.showCoarse();
+    this.showCoarse('GenomeView/zoomUpdate');
 },
 
 scrollUpdate: function() {

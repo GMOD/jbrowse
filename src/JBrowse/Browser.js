@@ -175,7 +175,7 @@ constructor: function(params) {
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
                            if( initialLocString )
-                               thisB.navigateTo( initialLocString );
+                               thisB.navigateTo( initialLocString, 'Browser/initialLocString' );
 
                            // figure out what initial track list we will use:
                            var tracksToShow = [];
@@ -2277,13 +2277,16 @@ onVisibleTracksChanged: function() {
  * Like <code>navigateToLocation()</code>, except it attempts to display the given
  * location with a little bit of flanking sequence to each side, if
  * possible.
+ *
+ * authority is optional; it is passed on to /n/navigate messages, and allows plugins to suppress feedback loops.
  */
-showRegion: function( location ) {
+showRegion: function( location, authority ) {
     var flank   = Math.round( ( location.end - location.start ) * 0.2 );
     //go to location, with some flanking region
     this.navigateToLocation({ ref: location.ref,
-                               start: location.start - flank,
-                               end: location.end + flank
+                              start: location.start - flank,
+                              end: location.end + flank,
+                              authority: authority
                              });
 
     // if the location has a track associated with it, show it
@@ -2303,9 +2306,11 @@ showRegion: function( location ) {
  * &lt;start&gt; .. &lt;end&gt;<br>
  * &lt;center base&gt;<br>
  * &lt;feature name/ID&gt;
+ *
+ * authority is optional; it is simply passed on to /n/navigate messages, allowing plugins to suppress feedback loops.
  */
 
-navigateTo: function(loc) {
+navigateTo: function(loc,authority) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
         // lastly, try to search our feature names for it
@@ -2315,7 +2320,7 @@ navigateTo: function(loc) {
                     return;
 
                 // if it's a foo:123..456 location, go there
-                if(!thisB.callLocation(loc)){return;}
+                if(!thisB.callLocation(loc,authority)){return;}
 
                 new InfoDialog(
                 {
@@ -2324,13 +2329,14 @@ navigateTo: function(loc) {
                     className: 'notfound-dialog'
                 }).show();
             },
-            thisB.callLocation(loc));
+            thisB.callLocation(loc,authority));
     });
 },
 
-callLocation: function(loc){
+callLocation: function(loc,authority){
     var thisB=this;
     var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
+    location.authority = authority
     // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
     if( location && ("start" in location) && ("end" in location)) {
         thisB.navigateToLocation( location );
@@ -2343,7 +2349,7 @@ callLocation: function(loc){
         // is it just the name of one of our ref seqs?
         var ref = thisB.findReferenceSequence( loc );
         if( ref ) {
-            thisB.navigateToLocation( { ref: ref.name } );
+            thisB.navigateToLocation( { ref: ref.name, authority: authority } );
             return false;
         }
     }
@@ -2406,7 +2412,8 @@ navigateToLocation: function( location ) {
         if( location.ref == this.refSeq.name) {
             this.view.setLocation( this.refSeq,
                                    location.start,
-                                   location.end
+                                   location.end,
+                                   location.authority
                                  );
             this._updateLocationCookies( location );
         }
@@ -2420,7 +2427,8 @@ navigateToLocation: function( location ) {
 
             this.view.setLocation( this.refSeq,
                                    location.start,
-                                   location.end );
+                                   location.end,
+                                   location.authority );
             this._updateLocationCookies( location );
 
             this.showTracks( curTracks );
@@ -2729,8 +2737,8 @@ makeFullViewLink: function () {
  * @private
  */
 
-onCoarseMove: function(startbp, endbp) {
-    var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name };
+onCoarseMove: function(startbp, endbp, authority) {
+    var currRegion = { start: startbp, end: endbp, ref: this.refSeq.name, authority: authority };
     var searchVal = ""; // the feature that was typed into the search field
 
     // update the location box with our current location (in this case locationBox is the legacy search box)
@@ -2986,7 +2994,7 @@ createNavBox: function( parent ) {
                       }
                       else if (event.keyCode == keys.ENTER) {
                           this.locationBox.closeDropDown(false);
-                          this.navigateTo( this.locationBox.get('value') );
+                          this.navigateTo( this.locationBox.get('value'), 'Browser/keydown' );
                           this.goButton.set('disabled',true);
                           dojo.stopEvent(event);
                       } else {
@@ -3021,7 +3029,7 @@ createNavBox: function( parent ) {
     {
         label: 'Go',
         onClick: dojo.hitch( this, function(event) {
-            this.navigateTo(this.locationBox.get('value'));
+            this.navigateTo(this.locationBox.get('value'),'Browser/goButton');
             this.goButton.set('disabled',true);
             dojo.stopEvent(event);
         }),
@@ -3101,7 +3109,7 @@ createNavBox: function( parent ) {
 
                     // only trigger navigation if actually switching sequences
                     if( newRefName != this.refSeq.name ) {
-                        this.navigateToLocation({ ref: newRefName });
+                        this.navigateToLocation({ ref: newRefName, authority: 'Browser/refSeqSelectBox' });
                     }
                 })
             }).placeAt( refSeqSelectBoxPlaceHolder );

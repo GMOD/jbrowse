@@ -97,7 +97,6 @@ return declare( null, {
 
 	        this.browser.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',    dojo.hitch( this, 'updateRotundaTrackOrder' ));
             
-                this.ignoreNavigateEvents = 0
 	        this.browser.subscribe( '/jbrowse/v1/n/navigate',       dojo.hitch( this, 'handleNavigate' ));
 
                 this.showTracks (this.getTrackConfigs (this.browser.view.visibleTrackNames()))
@@ -1255,18 +1254,16 @@ return declare( null, {
 		var bmin = Math.max (1, this.angleToCoord (ar[0], seq))
 		var bmax = this.angleToCoord (ar[1], seq)
 		var loc = seq + ":" + bmin + ".." + bmax
-                ++this.ignoreNavigateEvents  // kludge to prevent issues when Browser rounds coords (eg when overhanging sequence ends)
 		this.browser.navigateToLocation ({ ref: seq,
                                                    start: Math.round(bmin),
-                                                   end: Math.round(bmax) })
+                                                   end: Math.round(bmax),
+                                                   authority: 'Rotunda/updateBrowserLocation' })
 	    }
 	}
     },
 
     handleNavigate: function (region) {
-        if (this.ignoreNavigateEvents)
-            --this.ignoreNavigateEvents
-        else
+        if (region.authority != 'Rotunda/updateBrowserLocation')  // prevent feedback loops
 	    this.browser.afterMilestone('initRotunda', dojo.hitch( this, function() {
 	        var amin = this.coordToAngle (region.ref, region.start)
 	        var amax = this.coordToAngle (region.ref, region.end)

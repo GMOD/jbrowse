@@ -176,7 +176,7 @@ return declare(
                         var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
                         var start = Math.max( ref.start, this.feature.get('start') - paddingBp );
                         var end   = Math.min( ref.end, this.feature.get('end') + paddingBp );
-                        this.track.genomeView.setLocation( ref, start, end );
+                        this.track.genomeView.setLocation( ref, start, end, 'CanvasFeatures/action' );
                     },
                     "iconClass" : "dijitIconConnector"
                 },
