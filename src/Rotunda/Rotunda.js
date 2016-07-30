@@ -604,7 +604,7 @@ return declare( null, {
 
         var trackListContainer = dojo.create( 'div', { id: this.id+'-tracklist-container',
 					               class: 'rotunda-tracklist-container',
-					               title: 'Drag tracks and links to reorder' },
+					               title: 'Drag tracks to reorder' },
 	                                      parent )
 
         dojo.create( 'br', { }, trackListContainer)
@@ -620,7 +620,7 @@ return declare( null, {
 
         var linkList = dojo.create( 'div', { id: this.id+'-linklist',
 					     class: 'rotunda-tracklist',
-					     title: 'Drag links to reorder' },
+					     title: 'Drag tracks to reorder' },
 	                            trackListContainer )
 
 	this.trackListContainer = trackListContainer
@@ -1177,7 +1177,8 @@ return declare( null, {
 
     createTrack: function (track) {
 	if (track.type == 'JBrowse/View/Track/Sequence')
-            return this.createRefSeqTrack (track.label)
+            return this.createRefSeqTrack ({ id: track.label,
+                                             label: track.key })
 	else if (track.type == 'JBrowse/View/Track/Alignments'
 	    || track.type == 'JBrowse/View/Track/CanvasFeatures'
 	    || track.type == 'JBrowse/View/Track/CanvasVariants'
@@ -1198,7 +1199,7 @@ return declare( null, {
 */
 	    ) {
 	    var config = { id: track.label,
-			   label: track.label,
+			   label: track.key,
 			   storeName: track.store,
 			   trackConfig: track }
 	    return new DensityTrack (config)
@@ -1206,7 +1207,7 @@ return declare( null, {
 		   || track.type == 'JBrowse/View/Track/Wiggle/XYPlot'
 		   || track.type == 'JBrowse/View/Track/Wiggle/Density') {
 	    var config = { id: track.label,
-			   label: track.label,
+			   label: track.key,
 			   storeName: track.store,
 			   trackConfig: track }
 	    return new WiggleTrack (config)
@@ -1214,7 +1215,7 @@ return declare( null, {
 	return null
     },
 
-    createRefSeqTrack: function (label) {
+    createRefSeqTrack: function (config) {
         var rot = this
 
         var refSeqFeatures = this.refSeqName.map (function (n, i) {
@@ -1237,8 +1238,8 @@ return declare( null, {
 					   }
 					 })
 
-        var stackedTrack = new StackedTrack ({ id: label,
-                                               label: label,
+        var stackedTrack = new StackedTrack ({ id: config.id,
+                                               label: config.label,
                                                tracks: [ refSeqTrack, rulerTrack ] })
 
         return stackedTrack
