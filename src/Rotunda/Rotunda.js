@@ -292,7 +292,7 @@ return declare( null, {
         (on (rot.svg_wrapper[0][0],
             'mousemove',
              lang.hitch (rot, rot.dragMove)),
-         on (rot.svg_wrapper[0][0],
+         on (document.body,
              'mouseup',
              lang.hitch (rot, rot.dragEnd)),
          on (rot.svg_wrapper[0][0],
