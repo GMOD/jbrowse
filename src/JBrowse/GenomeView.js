@@ -2059,7 +2059,7 @@ showTracks: function( trackConfigs ) {
  * @param trackConfigs {Array[Object]} array of track configuration
  * objects to add
  */
-replaceTracks: function( trackConfigs ) {
+    replaceTracks: function( trackConfigs, changeOrder ) {
     // for each one
     array.forEach( trackConfigs, function( conf ) {
         // figure out its position in the genome view and delete it
@@ -2081,14 +2081,13 @@ replaceTracks: function( trackConfigs ) {
             }
         },this);
 
-       this.updateTrackList();
+       this.updateTrackList (true);
 
        // insert the new track config into the trackDndWidget after the 'before'
-       this.trackDndWidget.insertNodes( false, [conf], false, anchor );
+       this.trackDndWidget.insertNodes( false, [conf], false, changeOrder ? undefined : anchor );
    },this);
 
-    if( trackConfigs.length )
-        this.updateTrackList();
+    this.updateTrackList();
 },
 
 /**
@@ -2269,7 +2268,7 @@ trackIterate: function(callback) {
 /* this function must be called whenever tracks in the GenomeView
  * are added, removed, or reordered
  */
-updateTrackList: function() {
+updateTrackList: function (suppressNotifyEvent) {
     var tracks = [],
         oldtracks = dojo.toJson( this.trackIndices || {} );
 
@@ -2365,7 +2364,8 @@ updateTrackList: function() {
 
     // publish a message if the visible tracks or their ordering has changed
     if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
-        this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
+        if (!suppressNotifyEvent)
+            this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
         this.showVisibleBlocks();
     }
 },

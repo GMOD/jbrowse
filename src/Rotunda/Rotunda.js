@@ -91,19 +91,17 @@ return declare( null, {
             this.tracks = []
             this.links = []
 
-/*
-	    this.browser.config.tracks.forEach (function (trackConfig) {
-		var rotTrack = rot.createTrack (trackConfig)
-		if (rotTrack)
-		    rot.tracks.push (rotTrack)
-	    })
-*/
+	    this.browser.afterMilestone('initView', dojo.hitch( this, function() {
+	        this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
+	        this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
 
-	    this.browser.subscribe( '/jbrowse/v1/c/tracks/show',    dojo.hitch( this, 'showTracks' ));
-	    this.browser.subscribe( '/jbrowse/v1/c/tracks/hide',    dojo.hitch( this, 'hideTracks' ));
+	        this.browser.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',    dojo.hitch( this, 'updateRotundaTrackOrder' ));
+            
+                this.ignoreNavigateEvents = 0
+	        this.browser.subscribe( '/jbrowse/v1/n/navigate',       dojo.hitch( this, 'handleNavigate' ));
 
-            this.ignoreNavigateEvents = 0
-	    this.browser.subscribe( '/jbrowse/v1/n/navigate',       dojo.hitch( this, 'handleNavigate' ));
+                this.showTracks (this.getTrackConfigs (this.browser.view.visibleTrackNames()))
+            }))
 
             this.browser.addGlobalMenuItem( 'view', new dijitMenuSeparator() )
 
@@ -669,6 +667,7 @@ return declare( null, {
                           rot[tracksVar] = newTrackOrder
 			  rot.calculateTrackSizes()
                           rot.redraw()
+                          rot.updateGenomeViewTrackOrder()
                       }))
 
         trackListDnd.insertNodes (false, tracks)
@@ -1128,19 +1127,32 @@ return declare( null, {
 	})
 	return features
     },
+    
+    setVisibleTracks: function( trackConfigs ) {
+	var rot = this
+        rot.tracks = []
+	trackConfigs.forEach (function (trackConfig) {
+	    var rotTrack = rot.createTrack (trackConfig)
+	    if (rotTrack)
+		rot.tracks.push (rotTrack)
+	})
+        this.calculateTrackSizes()
+	this.redraw()
+	this.updateTrackList()
+    },
 
     showTracks: function( trackConfigs ) {
 	this.browser.afterMilestone('initView', dojo.hitch( this, function() {
 	    var rot = this
-	    trackConfigs.forEach (function (trackConfig) {
-		if (rot.tracks.filter (function (track) {
+	    trackConfigs.filter (function (trackConfig) {
+		return rot.tracks.filter (function (track) {
 		    return track.id == trackConfig.label
-		}).length == 0) {
+		}).length == 0 })
+                .map (function (trackConfig) {
 		    var rotTrack = rot.createTrack (trackConfig)
 		    if (rotTrack)
-			rot.tracks.push (rotTrack)
-		}
-	    })
+		        rot.tracks.push (rotTrack)
+	        })
             this.calculateTrackSizes()
 	    this.redraw()
 	    this.updateTrackList()
@@ -1148,17 +1160,19 @@ return declare( null, {
     },
 
     hideTracks: function( trackConfigs ) {
-	var rot = this
-	var hide = {}
-	trackConfigs.forEach (function (trackConfig) {
-	    hide[trackConfig.label] = true
-	})
-	this.tracks = this.tracks.filter (function (track) {
-	    return !hide[track.id]
-	})
-        this.calculateTrackSizes()
-	this.redraw()
-	this.updateTrackList()
+	this.browser.afterMilestone('initView', dojo.hitch( this, function() {
+	    var rot = this
+	    var hide = {}
+	    trackConfigs.forEach (function (trackConfig) {
+	        hide[trackConfig.label] = true
+	    })
+	    this.tracks = this.tracks.filter (function (track) {
+	        return !hide[track.id]
+	    })
+            this.calculateTrackSizes()
+	    this.redraw()
+	    this.updateTrackList()
+        }))
     },
 
     createTrack: function (track) {
@@ -1292,8 +1306,79 @@ return declare( null, {
             this.browser.view.disableSlide = false
 	    this.browser.connectNavButtons()
         }
-    }
+    },
 
+    updateRotundaTrackOrder: function() {
+        var rot = this
+        if (rot.browser) {
+            // leave a short time delay
+	    var updateTrackOrderDelay = 500
+            if (rot.updateTrackOrderTimeout) {
+            	window.clearTimeout( rot.updateTrackOrderTimeout )
+	        rot.updateTrackOrderTimeout = null
+            }
+	    rot.updateTrackOrderTimeout = setTimeout( dojo.hitch( rot, function() {
+                var oldTrackNames = this.browserTrackNames()
+                var newTrackNames = []
+                var containerChild = this.browser.view.trackContainer.firstChild;
+                do {
+                    // this test excludes UI tracks, whose divs don't have a track property
+                    if (containerChild.track) {
+                        var id = containerChild.track.name
+                        newTrackNames.push (id)
+                    }
+                } while ((containerChild = containerChild.nextSibling));
+                    var changed = !this.arraysEqual (oldTrackNames, newTrackNames)
+                    if (changed)
+                        rot.setVisibleTracks (newTrackNames.map (function (id) {
+                            return rot.browser.trackConfigsByName[id]
+                        }))
+            }), updateTrackOrderDelay)
+        }
+    },
+
+    updateGenomeViewTrackOrder: function() {
+        var rot = this
+        if (rot.browser) {
+            // leave a short time delay
+	    var updateTrackOrderDelay = 500
+            if (rot.updateTrackOrderTimeout) {
+            	window.clearTimeout( rot.updateTrackOrderTimeout )
+	        rot.updateTrackOrderTimeout = null
+            }
+	    rot.updateTrackOrderTimeout = setTimeout( dojo.hitch( rot, function() {
+                var oldTrackNames = this.browser.view.visibleTrackNames()
+                var newTrackNames = this.browserTrackNames()
+                var changed = !this.arraysEqual (oldTrackNames, newTrackNames)
+                if (changed) {
+                    var trackConfigs = rot.getTrackConfigs (newTrackNames)
+                    rot.browser.view.replaceTracks (trackConfigs, true)
+                }
+            }), updateTrackOrderDelay)
+        }
+    },
+
+    getTrackConfigs: function (names) {
+        var rot = this
+        return rot.browser
+            ? names.map (function (id) {
+                return rot.browser.trackConfigsByName[id]
+            })
+        : []
+    },
+    
+    browserTrackNames: function() {
+        var rot = this
+        return rot.browser
+            ? (this.tracks.map (function (track) { return track.id })
+               .filter (function (id) { return id in rot.browser.trackConfigsByName }))
+        : []
+    },
+
+    arraysEqual: function(x,y) {
+        return x.length == y.length
+            && x.filter( function(elem,idx) { return y[idx] != elem } ).length == 0
+    }
 })
 
        })
