@@ -259,7 +259,6 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         i += mismatch.cliplen - 1;
                         clipped += mismatch.cliplen;
                         f = true;
-                        break;
                     }
                     else if(mismatch.type == "insertion") {
                         for(var l = 0; l < +mismatch.base; l++) {
@@ -268,8 +267,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                             refer_str += '-';
                         }
                         adjust -= +mismatch.base;
-                        i += +mismatch.base;
-                        break;
+                        i += +mismatch.base-1;
+                        f = true;
                     }
                     else if(mismatch.type == "deletion") {
                         for(var l = 0; l < mismatch.length; l++) {
@@ -277,7 +276,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                             align_str += ' ';
                             refer_str += refseq[i + l - clipped];
                         }
-                        break;
+                        f = true;
                     }
                     else if(mismatch.type == "skip") {
                         query_str += '...';
