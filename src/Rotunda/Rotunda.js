@@ -16,9 +16,7 @@ define([
     'Rotunda/View/Animation/Zoomer',
     'Rotunda/View/Animation/Slider',
     'Rotunda/View/Animation/SpinZoom',
-    'Rotunda/View/Track/Arc',
-    'Rotunda/View/Track/Ruler',
-    'Rotunda/View/Track/Stacked',
+    'Rotunda/View/Track/Stacked/RefSeq',
     'Rotunda/View/Track/Histogram/FeatureDensity',
     'Rotunda/View/Track/Histogram/Wiggle',
     'Rotunda/detect-element-resize'
@@ -42,9 +40,7 @@ define([
            Zoomer,
            Slider,
            SpinZoom,
-           ArcTrack,
-           RulerTrack,
-           StackedTrack,
+           RefSeqTrack,
 	   DensityTrack,
 	   WiggleTrack
        ) {
@@ -1202,74 +1198,45 @@ return declare( null, {
         }))
     },
 
-    createTrack: function (track) {
-	if (track.type == 'JBrowse/View/Track/Sequence')
-            return this.createRefSeqTrack ({ id: track.label,
-                                             label: track.key })
-	else if (track.type == 'JBrowse/View/Track/Alignments'
-	    || track.type == 'JBrowse/View/Track/CanvasFeatures'
-	    || track.type == 'JBrowse/View/Track/CanvasVariants'
-	    || track.type == 'JBrowse/View/Track/FeatureCoverage'
-	    || track.type == 'JBrowse/View/Track/HTMLFeatures'
-	    || track.type == 'JBrowse/View/Track/HTMLVariants'
-	    || track.type == 'JBrowse/View/Track/SNPCoverage'
-/*
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/BAM'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/BED'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/BEDTabix'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/FromConfig'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/GFF3Tabix'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/GTF'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/NCList'
-	    || track.storeClass == 'JBrowse/Store/SeqFeature/SNPCoverage'
-*/
-	    ) {
-	    var config = { id: track.label,
-			   label: track.key,
-			   storeName: track.store,
-			   trackConfig: track }
-	    return new DensityTrack (config)
-	} else if (track.type == 'JBrowse/View/Track/Wiggle'
-		   || track.type == 'JBrowse/View/Track/Wiggle/XYPlot'
-		   || track.type == 'JBrowse/View/Track/Wiggle/Density') {
-	    var config = { id: track.label,
-			   label: track.key,
-			   storeName: track.store,
-			   trackConfig: track }
-	    return new WiggleTrack (config)
+    makeRotundaTrackConfig: function (browserTrackConfig) {
+	if (browserTrackConfig.type == 'JBrowse/View/Track/Sequence')
+            return { type: 'RefSeqTrack',
+                     refSeqName: this.refSeqName,
+                     refSeqLen: this.refSeqLen,
+                     id: browserTrackConfig.label,
+                     label: browserTrackConfig.key }
+	else if (browserTrackConfig.type == 'JBrowse/View/Track/Alignments'
+                 || browserTrackConfig.type == 'JBrowse/View/Track/Alignments2'
+	         || browserTrackConfig.type == 'JBrowse/View/Track/CanvasFeatures'
+	         || browserTrackConfig.type == 'JBrowse/View/Track/CanvasVariants'
+	         || browserTrackConfig.type == 'JBrowse/View/Track/FeatureCoverage'
+	         || browserTrackConfig.type == 'JBrowse/View/Track/HTMLFeatures'
+	         || browserTrackConfig.type == 'JBrowse/View/Track/HTMLVariants'
+	         || browserTrackConfig.type == 'JBrowse/View/Track/SNPCoverage') {
+	    return { type: 'DensityTrack',
+                     id: browserTrackConfig.label,
+		     label: browserTrackConfig.key,
+		     storeName: browserTrackConfig.store,
+		     trackConfig: browserTrackConfig }
+	} else if (browserTrackConfig.type == 'JBrowse/View/Track/Wiggle'
+		   || browserTrackConfig.type == 'JBrowse/View/Track/Wiggle/XYPlot'
+		   || browserTrackConfig.type == 'JBrowse/View/Track/Wiggle/Density') {
+	    return { type: 'WiggleTrack',
+                     id: browserTrackConfig.label,
+		     label: browserTrackConfig.key,
+		     storeName: browserTrackConfig.store,
+		     trackConfig: browserTrackConfig }
 	}
 	return null
     },
 
-    createRefSeqTrack: function (config) {
-        var rot = this
-
-        var refSeqFeatures = this.refSeqName.map (function (n, i) {
-            var l = rot.refSeqLen[i]
-            return { seq: n,
-                     start: 0,
-                     end: l,
-                     id: n,
-                     type: n }
-        })
-
-        var refSeqTrack = new ArcTrack ({ id: "ref_seqs",
-					  label: "Reference sequence",
-					  features: refSeqFeatures })
-
-	var rulerTrack = new RulerTrack ({ id: "ruler_ticks",
-					   label: "Ruler",
-					   displayedName: function (refSeqName) {
-					       return refSeqName.replace("chr","")
-					   }
-					 })
-
-        var stackedTrack = new StackedTrack ({ id: config.id,
-                                               label: config.label,
-                                               tracks: [ refSeqTrack, rulerTrack ] })
-
-        return stackedTrack
+    createTrack: function (browserTrackConfig) {
+        var rotundaTrackConfig = this.makeRotundaTrackConfig (browserTrackConfig)
+        if (rotundaTrackConfig) {
+            var trackType = eval(rotundaTrackConfig.type)
+            return new trackType (rotundaTrackConfig)
+        }
+	return null
     },
     
     updateBrowserLocation: function() {
@@ -1345,20 +1312,23 @@ return declare( null, {
             }
 	    rot.updateTrackOrderTimeout = setTimeout( dojo.hitch( rot, function() {
                 var oldTrackNames = this.browserTrackNames()
-                var newTrackNames = []
+                var newTrackNames = [], newTrackConfigs = []
                 var containerChild = this.browser.view.trackContainer.firstChild;
                 do {
                     // this test excludes UI tracks, whose divs don't have a track property
                     if (containerChild.track) {
                         var id = containerChild.track.name
-                        newTrackNames.push (id)
+                        var browserTrackConfig = rot.browser.trackConfigsByName[id]
+                        var rotTrackConfig = rot.makeRotundaTrackConfig (browserTrackConfig)
+                        if (rotTrackConfig) {
+                            newTrackNames.push (id)
+                            newTrackConfigs.push (browserTrackConfig)
+                        }
                     }
                 } while ((containerChild = containerChild.nextSibling));
                     var changed = !this.arraysEqual (oldTrackNames, newTrackNames)
                     if (changed)
-                        rot.setVisibleTracks (newTrackNames.map (function (id) {
-                            return rot.browser.trackConfigsByName[id]
-                        }))
+                        rot.setVisibleTracks (newTrackConfigs)
             }), updateTrackOrderDelay)
         }
     },
