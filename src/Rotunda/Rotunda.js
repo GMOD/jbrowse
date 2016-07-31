@@ -774,7 +774,8 @@ return declare( null, {
     },
 
     hideLabels: function() {
-	this.svgInfo.labels.attr ('style', 'visibility:hidden;')
+        if (this.svgInfo.labels)
+	    this.svgInfo.labels.attr ('style', 'visibility:hidden;')
     },
 
     gTransformRotateAndScale: function (spriteImage, degrees, xfactor, yfactor) {
@@ -798,7 +799,7 @@ return declare( null, {
 			"scale(" + xfactor + "," + yfactor + ")"
                         + " translate(" + (this.width/2) / xfactor + "," + this.outerRadius() + ")"
                         + " rotate(" + degrees + ")")
-	    if (!this.hideLabelsDuringAnimation)
+	    if (this.svgInfo.labels && !this.hideLabelsDuringAnimation)
 		this.svgInfo.labels
 		.attr("transform",
                       "scale(" + (1/xfactor) + "," + (1/yfactor) + ")"
@@ -820,7 +821,7 @@ return declare( null, {
 	} else {
             this.g.attr("transform",
 			"translate(" + this.width/2 + "," + this.outerRadius() + ") rotate(" + degrees + ")")
-	    if (!this.hideLabelsDuringAnimation)
+	    if (this.svgInfo.labels && !this.hideLabelsDuringAnimation)
 		this.svgInfo.labels
 		.attr("transform", "rotate(" + (-degrees) + ")")
 	}
@@ -840,7 +841,7 @@ return declare( null, {
 	} else {
             this.g.attr("transform",
 			"scale(" + xfactor + "," + yfactor + ") translate(" + (this.width/2) / xfactor + "," + this.outerRadius() + ")")
-	    if (!this.hideLabelsDuringAnimation)
+	    if (this.svgInfo.labels && !this.hideLabelsDuringAnimation)
 		this.svgInfo.labels
 		.attr("transform", "scale(" + (1/xfactor) + "," + (1/yfactor) + ")")
 	}
@@ -945,9 +946,11 @@ return declare( null, {
         var svgInfo = rot.svgInfo
 
         var updateImage = function() {
-	    svgInfo.labels.attr('style','display:none;')
+            if (svgInfo.labels)
+	        svgInfo.labels.attr('style','display:none;')
 	    var xml = ser.serializeToString( svg )
-	    svgInfo.labels.attr('style','')
+            if (svgInfo.labels)
+	        svgInfo.labels.attr('style','')
 
 	    var blob = new Blob([xml], {type: 'image/svg+xml;charset=utf-8'})
 
