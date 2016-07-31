@@ -32,6 +32,18 @@ return declare (Track,
 	}
     },
 
+    binsPerView: 16,
+    basesPerBin: function (rot, minRadius) {
+	var track = this
+	var basesPerBin
+        if ('pixelsPerBin' in this)
+            basesPerBin = rot.basesPerPixel(1,minRadius) * track.pixelsPerBin
+        else
+            basesPerBin = rot.width * rot.basesPerPixel(1,minRadius) / track.binsPerView
+	basesPerBin = Math.pow (2, Math.ceil (Math.log(basesPerBin) / Math.log(2)))  // round to nearest power of 2
+        return basesPerBin
+    },
+    
     buildHistogramForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
 	return getFeaturesInView (rot, callback, errorCallback)
     },

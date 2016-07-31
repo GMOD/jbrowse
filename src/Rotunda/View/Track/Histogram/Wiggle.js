@@ -28,12 +28,7 @@ return declare (Histogram,
 //    pixelsPerBin: 1,
     buildHistogramForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
 	var track = this
-	var basesPerBin
-        if ('pixelsPerBin' in this)
-            basesPerBin = rot.basesPerPixel(rot.scale,minRadius) * track.pixelsPerBin
-        else
-            basesPerBin = rot.width * rot.basesPerPixel(rot.scale,minRadius) / track.binsPerView
-	basesPerBin = Math.pow (2, Math.ceil (Math.log(basesPerBin) / Math.log(2)))  // round to nearest power of 2
+	var basesPerBin = this.basesPerBin (rot, minRadius)
 
 	// because we want all visible refseqs to share the same y-axis scale,
 	// we first call getStoresInView to load stores for all visible refseqs
