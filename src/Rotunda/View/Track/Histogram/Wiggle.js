@@ -60,7 +60,7 @@ return declare (Histogram,
 		    for (var nBin = 0; nBin < nBins; ++nBin)
 			(function (nBin) {
 			    var binStart = roundedIntervalStart + nBin * basesPerBin
-			    var binEnd = binStart + basesPerBin
+			    var binEnd = Math.min (interval.end, binStart + basesPerBin)
 			    store.getRegionStats
 			    ( { ref: interval.seq,
 				start: binStart,

@@ -68,7 +68,7 @@ return declare (Histogram,
 			     features = features.concat (histData.bins.map (function (score, nBin) {
 				 return { seq: query.ref,
 					  start: query.start + nBin * basesPerBin,
-					  end: query.start + (nBin + 1) * basesPerBin,
+					  end: Math.min (interval.end, query.start + (nBin + 1) * basesPerBin),
 					  score: isNaN(score) ? 0 : score  }
 			     }))
 			     intervalDef.resolve()
@@ -85,7 +85,7 @@ return declare (Histogram,
 			for (var nBin = 0; nBin < nBins; ++nBin)
 			    (function (nBin) {
 				var binStart = roundedIntervalStart + nBin * basesPerBin
-				var binEnd = binStart + basesPerBin - 1
+				var binEnd = Math.min (interval.end, binStart + basesPerBin - 1)
 				store.getRegionStats
 				( { ref: interval.seq,
 				    start: binStart,
