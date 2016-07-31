@@ -143,7 +143,6 @@ return declare( JBrowsePlugin,
         });        
         dojo.subscribe("/jbrowse/v1/n/globalHighlightChanged", function(data){
             console.log("Event: /jbrowse/v1/n/globalHighlightChanged");
-            console.log(data)
         });        
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/redraw");

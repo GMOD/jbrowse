@@ -411,7 +411,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 title: 'Loading data...',
                 style: { visibility: 'hidden' }
             });
-        window.setTimeout(function() { msgDiv.style.visibility = 'visible'; }, 200);
+        window.setTimeout(function() { msgDiv.style.visibility = 'inherit'; }, 200);
         return msgDiv;
     },
 

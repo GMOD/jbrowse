@@ -227,7 +227,7 @@ constructor: function( args ) {
         dojo.hitch(
             this,
             function( source, nodes, copy, target ) {
-                this.updateTrackList();
+                this.updateTrackList('GenomeView/dnd/drop');
                 if( target.node === this.trackContainer ) {
                     // if dragging into the trackcontainer, we are showing some tracks
                     // get the configs from the tracks being dragged in
@@ -2049,7 +2049,7 @@ showTracks: function( trackConfigs ) {
     // will call create() on the confs to render them)
     this.trackDndWidget.insertNodes( false, needed );
 
-    this.updateTrackList();
+    this.updateTrackList('GenomeView/showTracks');
 
     // scroll the view to the bottom so we can see the new track
     var thisB = this;
@@ -2085,13 +2085,13 @@ showTracks: function( trackConfigs ) {
             }
         },this);
 
-       this.updateTrackList (true);
+       this.updateTrackList('GenomeView/replaceTracks/partial');
 
        // insert the new track config into the trackDndWidget after the 'before'
        this.trackDndWidget.insertNodes( false, [conf], false, changeOrder ? undefined : anchor );
    },this);
 
-    this.updateTrackList();
+    this.updateTrackList('GenomeView/replaceTracks/complete');
 },
 
 /**
@@ -2119,7 +2119,7 @@ hideTracks: function( /**Array[String]*/ trackConfigs ) {
         },this);
     },this);
 
-    this.updateTrackList();
+    this.updateTrackList('GenomeView/hideTracks');
 },
 
 /**
@@ -2131,7 +2131,7 @@ pinTracks: function( /**Array[String]*/ trackNames ) {
     array.forEach( tracks, function( track ) {
                        track.setPinned(true);
                    });
-    this.updateTrackList();
+    this.updateTrackList('GenomeView/pinTracks');
     return array.map( tracks, function(t) { return t.name; } );
 },
 
@@ -2144,7 +2144,7 @@ unpinTracks: function( /**Array[String]*/ trackNames ) {
     array.forEach( tracks, function( track ) {
                        track.setPinned(false);
                    });
-    this.updateTrackList();
+    this.updateTrackList('GenomeView/unpinTracks');
     return array.map( tracks, function(t) { return t.name; } );
 },
 
@@ -2232,7 +2232,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
             width: this.getWidth()
          });
 
-        this.updateTrackList();
+        this.updateTrackList('GenomeView/makeTrack');
     });
 
     // might need to load both the store and the track class, so do it in
@@ -2272,7 +2272,7 @@ trackIterate: function(callback) {
 /* this function must be called whenever tracks in the GenomeView
  * are added, removed, or reordered
  */
-updateTrackList: function (suppressNotifyEvent) {
+updateTrackList: function (authority) {
     var tracks = [],
         oldtracks = dojo.toJson( this.trackIndices || {} );
 
@@ -2368,8 +2368,7 @@ updateTrackList: function (suppressNotifyEvent) {
 
     // publish a message if the visible tracks or their ordering has changed
     if( oldtracks != dojo.toJson( this.trackIndices || {} ) ) {
-        if (!suppressNotifyEvent)
-            this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', [this.visibleTrackNames()] );
+        this.browser.publish( '/jbrowse/v1/n/tracks/visibleChanged', { trackNames: [this.visibleTrackNames()], authority: authority } );
         this.showVisibleBlocks();
     }
 },

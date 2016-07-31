@@ -1285,6 +1285,7 @@ return declare( null, {
         if (this.browser) {
 	    dojo.setStyle(this.browser.viewElem,'visibility','hidden')
             dojo.setStyle(this.browser.navboxButtonContainer,'visibility','hidden')
+            dojo.setStyle (query('loading'),'visibility','hidden')
             this.browser.view.disableSlide = true  // while Rotunda is visible, we are still using GenomeView's navbar, so disable GenomeView Slider animations
 	    this.browser.disconnectNavButtons()
         }
@@ -1298,14 +1299,15 @@ return declare( null, {
         if (this.browser) {
 	    dojo.setStyle(this.browser.viewElem,'visibility','visible')
             dojo.setStyle(this.browser.navboxButtonContainer,'visibility','visible')
+            dojo.setStyle (query('loading'),'visibility','visible')
             this.browser.view.disableSlide = false
 	    this.browser.connectNavButtons()
         }
     },
 
-    updateRotundaTrackOrder: function() {
+    updateRotundaTrackOrder: function (data) {
         var rot = this
-        if (rot.browser) {
+        if (rot.browser && data.authority == 'GenomeView/dnd/drop') {  // only respond to drag-and-drop updates
             // leave a short time delay
 	    var updateTrackOrderDelay = 500
             if (rot.updateTrackOrderTimeout) {
@@ -1315,6 +1317,7 @@ return declare( null, {
 	    rot.updateTrackOrderTimeout = setTimeout( dojo.hitch( rot, function() {
                 var oldTrackNames = this.browserTrackNames()
                 var newTrackNames = [], newTrackConfigs = []
+                var oldTracksSame = true, appendedTrackConfigs = []
                 var containerChild = this.browser.view.trackContainer.firstChild;
                 do {
                     // this test excludes UI tracks, whose divs don't have a track property
@@ -1323,14 +1326,23 @@ return declare( null, {
                         var browserTrackConfig = rot.browser.trackConfigsByName[id]
                         var rotTrackConfig = rot.makeRotundaTrackConfig (browserTrackConfig)
                         if (rotTrackConfig) {
+                            if (newTrackNames.length < oldTrackNames.length) {
+                                if (id != oldTrackNames[newTrackNames.length])
+                                    oldTracksSame = false
+                            } else if (oldTracksSame)
+                                appendedTrackConfigs.push (browserTrackConfig)
                             newTrackNames.push (id)
                             newTrackConfigs.push (browserTrackConfig)
                         }
                     }
                 } while ((containerChild = containerChild.nextSibling));
-                    var changed = !this.arraysEqual (oldTrackNames, newTrackNames)
-                    if (changed)
+                var changed = !this.arraysEqual (oldTrackNames, newTrackNames)
+                if (changed) {
+                    if (oldTracksSame)
+                        rot.showTracks (appendedTrackConfigs)
+                    else
                         rot.setVisibleTracks (newTrackConfigs)
+                }
             }), updateTrackOrderDelay)
         }
     },
