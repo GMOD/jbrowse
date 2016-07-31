@@ -1,17 +1,19 @@
 define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/dom-geometry",
-	"Rotunda/util",
-	"dojo/Deferred"],
+        "dojo/Deferred",
+        "dijit/Destroyable",
+	"Rotunda/util"],
        function(declare,
                 lang,
                 domGeom,
-		util,
-		Deferred) {
+		Deferred,
+                Destroyable,
+                util) {
 /**
  * @class
  */
-return declare (null,
+return declare (Destroyable,
 {
     constructor: function(config) {
 	config = config || {}

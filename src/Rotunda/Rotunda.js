@@ -636,6 +636,32 @@ return declare( null, {
 	this.createTrackList()
     },
 
+    makeTrackLabel: function (tracksVar, track, hint) {
+        var node = dojo.create('div', { id: track.trackListID(this),
+                                        className: 'rotunda-track-label dragging' })
+        
+        if (hint == 'avatar') {
+            node.innerHTML = track.label
+            node.className += ' dragging'
+        } else {
+            var closeButton = dojo.create('div',{
+                className: 'rotunda-track-close-button'
+            },node);
+            track.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
+                this.browser.view.suppressDoubleClick( 100 );
+                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.browser.trackConfigsByName[track.id]] );
+                evt.stopPropagation();
+            })));
+            var labelText = dojo.create('span', { className: 'rotunda-track-label-text' }, node );
+            labelText.innerHTML = track.label
+        }
+        return {
+            data: track,
+            type: [tracksVar],
+            node: node
+        };
+    },
+    
     createDnd: function (tracksVar, container) {
         var rot = this
         var tracks = rot[tracksVar]
@@ -644,15 +670,7 @@ return declare( null, {
                 container,
                 {
                     accept: [tracksVar],
-                    creator: dojo.hitch( this, function( track, hint ) {
-                        return {
-                            data: track,
-                            type: [tracksVar],
-                            node: dojo.create('div', { innerHTML: track.label,
-                                                       id: track.trackListID(this),
-                                                       className: 'rotunda-track-label' + (hint == 'avatar' ? ' dragging' : '') })
-                        };
-                    }),
+                    creator: dojo.hitch( this, dojo.partial (this.makeTrackLabel, tracksVar) )
                 })
 
         aspect.after (trackListDnd,
@@ -1129,6 +1147,9 @@ return declare( null, {
     
     setVisibleTracks: function( trackConfigs ) {
 	var rot = this
+        rot.tracks.forEach (function (track) {
+            track.destroy()
+        })
         rot.tracks = []
 	trackConfigs.forEach (function (trackConfig) {
 	    var rotTrack = rot.createTrack (trackConfig)
@@ -1166,7 +1187,11 @@ return declare( null, {
 	        hide[trackConfig.label] = true
 	    })
 	    this.tracks = this.tracks.filter (function (track) {
-	        return !hide[track.id]
+                if (hide[track.id]) {
+                    track.destroy()
+                    return false
+                }
+	        return true
 	    })
             this.calculateTrackSizes()
 	    this.redraw()
