@@ -51,72 +51,64 @@ return declare (Histogram,
 		// this call also seems necessary to allow some stores (e.g. NCList) to set things up properly
 		store.getGlobalStats
 		(function (stats) {
-		    if (stats.featureDensity > 0) {
-			var roundedIntervalStart = interval.start - (interval.start % basesPerBin)
-			var roundedIntervalEnd = interval.end - (interval.end % basesPerBin) + basesPerBin
-			// if store has getRegionFeatureDensities method, use this to get binned feature counts
-			if (store.getRegionFeatureDensities) {
-			    var query = {
-				ref:   interval.seq,
-				start: roundedIntervalStart,
-				end:   roundedIntervalEnd,
-				basesPerSpan: basesPerBin,
-				basesPerBin: basesPerBin
-			    }
-			    store.getRegionFeatureDensities
-			    (query,
-			     function (histData) {
-				 features = features.concat (histData.bins.map (function (score, nBin) {
-				     return { seq: query.ref,
-					      start: query.start + nBin * basesPerBin,
-					      end: query.start + (nBin + 1) * basesPerBin,
-					      score: isNaN(score) ? 0 : score  }
-				 }))
-				 intervalDef.resolve()
-			     },
-			     function (error) {
-				 intervalDef.resolve()
-			     })
-			} else {
-			    // store has no getRegionFeatureDensities method,
-			    // so use getRegionStats to count binned features,
-			    // looping manually over bins from this end
-			    var nBins = (roundedIntervalEnd - roundedIntervalStart) / basesPerBin
-			    var nBinsLeft = nBins
-			    for (var nBin = 0; nBin < nBins; ++nBin)
-				(function (nBin) {
-				    var binStart = roundedIntervalStart + nBin * basesPerBin
-				    var binEnd = binStart + basesPerBin - 1
-				    store.getRegionStats
-				    ( { ref: interval.seq,
-					start: binStart,
-					end: binEnd },
-				      function (stats) {
-					  features.push ( { seq: interval.seq,
-							    start: binStart,
-							    end: binEnd,
-							    score: stats.featureCount } )
-					  if (--nBinsLeft == 0)
-					      intervalDef.resolve()
-				      },
-				      function (error) {
-					  features.push ( { seq: interval.seq,
-							    start: binStart,
-							    end: binEnd,
-							    score: 0 } )
-					  if (--nBinsLeft == 0)
-					      intervalDef.resolve()
-				      } )
-				}) (nBin)
+		    var roundedIntervalStart = interval.start - (interval.start % basesPerBin)
+		    var roundedIntervalEnd = interval.end - (interval.end % basesPerBin) + basesPerBin
+		    // if store has getRegionFeatureDensities method, use this to get binned feature counts
+		    if (stats.featureDensity > 0 && store.getRegionFeatureDensities) {
+			var query = {
+			    ref:   interval.seq,
+			    start: roundedIntervalStart,
+			    end:   roundedIntervalEnd,
+			    basesPerSpan: basesPerBin,
+			    basesPerBin: basesPerBin
 			}
-
-		    } else {  // no features on this refseq
-			features.push ({ seq: interval.seq,
-					 start: interval.start,
-					 end: interval.end,
-					 score: 0 })
-			intervalDef.resolve()
+			store.getRegionFeatureDensities
+			(query,
+			 function (histData) {
+			     features = features.concat (histData.bins.map (function (score, nBin) {
+				 return { seq: query.ref,
+					  start: query.start + nBin * basesPerBin,
+					  end: query.start + (nBin + 1) * basesPerBin,
+					  score: isNaN(score) ? 0 : score  }
+			     }))
+			     intervalDef.resolve()
+			 },
+			 function (error) {
+			     intervalDef.resolve()
+			 })
+		    } else {
+			// store has no getRegionFeatureDensities method,
+			// so use getRegionStats to count binned features,
+			// looping manually over bins from this end
+			var nBins = (roundedIntervalEnd - roundedIntervalStart) / basesPerBin
+			var nBinsLeft = nBins
+			for (var nBin = 0; nBin < nBins; ++nBin)
+			    (function (nBin) {
+				var binStart = roundedIntervalStart + nBin * basesPerBin
+				var binEnd = binStart + basesPerBin - 1
+				store.getRegionStats
+				( { ref: interval.seq,
+				    start: binStart,
+				    end: binEnd },
+				  function (stats) {
+				      features.push ( { seq: interval.seq,
+							start: binStart,
+							end: binEnd,
+							score: stats.featureCount } )
+				      if (--nBinsLeft == 0)
+					  intervalDef.resolve()
+				  },
+				  function (error) {
+				      features.push ( { seq: interval.seq,
+							start: binStart,
+							end: binEnd,
+							score: 0 } )
+				      if (--nBinsLeft == 0)
+					  intervalDef.resolve()
+				  } )
+			    }) (nBin)
 		    }
+
 		},
 		 function(e) {
 		     intervalDef.resolve()

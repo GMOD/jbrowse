@@ -640,14 +640,16 @@ return declare( null, {
             node.innerHTML = track.label
             node.className += ' dragging'
         } else {
-            var closeButton = dojo.create('div',{
-                className: 'rotunda-track-close-button'
-            },node);
-            track.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
-                this.browser.view.suppressDoubleClick( 100 );
-                this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.browser.trackConfigsByName[track.id]] );
-                evt.stopPropagation();
-            })));
+            if (this.browser) {
+                var closeButton = dojo.create('div',{
+                    className: 'rotunda-track-close-button'
+                },node);
+                track.own( on( closeButton, 'click', dojo.hitch(this,function(evt){
+                    this.browser.view.suppressDoubleClick( 100 );
+                    this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.browser.trackConfigsByName[track.id]] );
+                    evt.stopPropagation();
+                })));
+            }
             var labelText = dojo.create('span', { className: 'rotunda-track-label-text' }, node );
             labelText.innerHTML = track.label
         }
