@@ -5,7 +5,6 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
-           'dojo/dom-construct',
            'dojo/when',
            'JBrowse/Util',
            'JBrowse/Store/SeqFeature/_MismatchesMixin',
@@ -15,7 +14,6 @@ define([
             declare,
             array,
             lang,
-            domConstruct,
             when,
             Util,
             MismatchesMixin,
@@ -288,7 +286,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             }
         }
         
-        var gContainer = domConstruct.create('div', {
+        var gContainer = dojo.create('div', {
             className: 'renderTable',
             innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
               +'Query: '+query_str+'   <br>'
