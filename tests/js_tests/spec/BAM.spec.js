@@ -39,9 +39,12 @@ describe( 'BAM mismatches test', function() {
 
 
               it('getMismatches test', function() {
-                  var parser=new MismatchParser();
-                  var obj=parser._getMismatches(feature);
-                  expect(obj[1].base=="G" && obj[1].length==1&&obj[1].start==2830&&obj[1].type=="mismatch").toBeTruthy();
+                  var parser = new MismatchParser();
+                  var obj = parser._getMismatches(feature);
+                  expect(obj[1].base).toEqual("G");
+                  expect(obj[1].length).toEqual(1);
+                  expect(obj[1].start).toEqual(2830)
+                  expect(obj[1].type).toEqual("mismatch");
               });
 });
 
@@ -291,7 +294,7 @@ describe( 'BAM mismatch test', function() {
               it('resultTable test', function() {
                   var parser = new AlignmentParser();
                   var elt = dojo.create('div');
-                  var res = parser._renderTable(elt, new MismatchParser(), new SimpleFeature({data: {md: "77G18",cigar:"4S22M50N74M"}}), "CAAGCACCGGGCGCGCGAGACAGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
+                  var res = parser._renderTable(elt, new MismatchParser(), new SimpleFeature({data: {id: "read162/ctgA:g2.t1", seq: "TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT", md: "77G18", cigar: "4S22M50N74M"}}));
                   expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGAGACA...GATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
                   expect(res.val2).toEqual("....||||||||||||||||||||||...|||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||");
                   expect(res.val3).toEqual("SSSSCAAGCACCGGGCGCGCGAGACA...GATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
@@ -299,10 +302,19 @@ describe( 'BAM mismatch test', function() {
               it('resultTable test insertion', function() {
                   var parser = new AlignmentParser();
                   var elt = dojo.create('div');
-                  var res = parser._renderTable(elt,new MismatchParser(),new SimpleFeature({data: {md: "11A45C41",cigar:"9M1I90M"}}), "TTTAGTGGGCCAAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGCAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
+                  var res = parser._renderTable(elt, new MismatchParser(), new SimpleFeature({data: {id: "ctgA_15155_15557_3:0:1_0:0:0_1dde", seq: "TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG", md: "11A45C41", cigar: "9M1I90M"}}));
                   expect(res.val1).toEqual("TTTAGTGGGACCCAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGTAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
                   expect(res.val2).toEqual("||||||||| || ||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||");
                   expect(res.val3).toEqual("TTTAGTGGG-CCAAATCGCAACCCTGCTCCCCTCCCTTACGCCTTATACACTTCAGTGCAAATTCATGCGTTCAGCGAACAACTGGACTTCTGTTGTACG");
+              });
+
+              it('resultTable test large deletion', function() {
+                  var parser = new AlignmentParser();
+                  var elt = dojo.create('div');
+                  var res = parser._renderTable(elt, new MismatchParser(), new SimpleFeature({data: {seq: "TGATGAGGTCCCTACAAAATCCTATGCTCCCTGCGAATTACAACTCACAGTAAGAAGGGTCACTCTACCAGCGGGGTTAAATATACCGGCCGACTGTCTC", md: "50^agaacagcctaggctttcttagttattgatgcacattctactgacgaacgcagcattcgaactaaaccattggtaatgtaattgtgacacgtgggaatctatttaaagctgcaagaactccaccacgtgttcatccacatcggtctctgtggaatggtccaggaccgtcccaatagggggaattgcgagacccaactaatcgagtgattgaacatgggagcaattcccgaatagaaacttgcaacgcgcagtactacgacgatggtagcaataacgacgcgctacttcagctcatgggtctaaattagggcgaacgattgcacctaatctgctggcttctctagattgtagatccacagggccaattaacagtgcaaagaatagcgtcatatgattagtttgaaaataatatacatgaaaatcgagcacccgcatcaataagctacgagagtctttggagagtgccaatacacctagcacatgctgtgcttatgttatgaaaattcatacttgactaacgttagccaccagccgatggcgctgtcacaacgaccctgggttaccgtttagttctc50", cigar: "50M575D50M"}}));
+                  expect(res.val1).toEqual("TGATGAGGTCCCTACAAAATCCTATGCTCCCTGCGAATTACAACTCACAG-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------AAGAAGGGTCACTCTACCAGCGGGGTTAAATATACCGGCCGACTGTCTC");
+                  expect(res.val2).toEqual("||||||||||||||||||||||||||||||||||||||||||||||||||                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |||||||||||||||||||||||||||||||||||||||||||||||||");
+                  expect(res.val3).toEqual("TGATGAGGTCCCTACAAAATCCTATGCTCCCTGCGAATTACAACTCACAGagaacagcctaggctttcttagttattgatgcacattctactgacgaacgcagcattcgaactaaaccattggtaatgtaattgtgacacgtgggaatctatttaaagctgcaagaactccaccacgtgttcatccacatcggtctctgtggaatggtccaggaccgtcccaatagggggaattgcgagacccaactaatcgagtgattgaacatgggagcaattcccgaatagaaacttgcaacgcgcagtactacgacgatggtagcaataacgacgcgctacttcagctcatgggtctaaattagggcgaacgattgcacctaatctgctggcttctctagattgtagatccacagggccaattaacagtgcaaagaatagcgtcatatgattagtttgaaaataatatacatgaaaatcgagcacccgcatcaataagctacgagagtctttggagagtgccaatacacctagcacatgctgtgcttatgttatgaaaattcatacttgactaacgttagccaccagccgatggcgctgtcacaacgaccctgggttaccgtttagttctcAAGAAGGGTCACTCTACCAGCGGGGTTAAATATACCGGCCGACTGTCTC");
               });
              });
 

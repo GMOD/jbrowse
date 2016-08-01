@@ -32,11 +32,6 @@ return declare( null, {
             return feature.mismatches;
         }
 
-        // parse the MD tag if it has one
-        var mdString = feature.get( this.mdAttributeName );
-        if( mdString )  {
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
-        }
 
 
         // parse the CIGAR tag if it has one
@@ -46,6 +41,20 @@ return declare( null, {
             cigarOps = this._parseCigar( cigarString );
             mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarOps ) );
         }
+
+
+        // parse the MD tag if it has one
+        var mdString = feature.get( this.mdAttributeName );
+        if( mdString )  {
+            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
+        }
+
+        // remove deletion sequences with no seq tag
+        mismatches = array.filter( mismatches, function(m) {
+            return !(m.type == "deletion" && !m.seq);
+        });
+
+
         // uniqify the mismatches
         var seen = {};
         mismatches = array.filter( mismatches, function( m ) {
