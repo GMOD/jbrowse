@@ -5,7 +5,6 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/_base/lang',
-           'dojo/Deferred',
            'dojo/dom-construct',
            'dojo/when',
            'JBrowse/Util',
@@ -16,7 +15,6 @@ define([
             declare,
             array,
             lang,
-            Deferred,
             domConstruct,
             when,
             Util,
@@ -68,9 +66,9 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         });
 
         // genotypes in a separate section
-        var promise = this._renderTable( container, track, f, div );
+        this._renderTable( container, track, f, div );
 
-        return promise;
+        return container;
     },
 
     // takes a feature, returns an HTML representation of its 'seq'
@@ -221,18 +219,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
 
     _renderTable: function( parentElement, track, feat, featDiv  ) {
-        var deferred = new Deferred();
         var thisB = this;
-        track.browser.getStore('refseqs', dojo.hitch(this, function(refSeqStore){
-            refSeqStore.getReferenceSequence({ ref: track.browser.refSeq.name, start: feat.get('start'), end: feat.get('end')}, function(refseq) {
-                thisB.createTableWithRefSeq(parentElement, track, feat, featDiv, refseq);
-                deferred.resolve(parentElement);
-            });
-        }));
-        return deferred;
-    },
-
-    createTableWithRefSeq: function(parentElement, track, feat, featDiv, refseq) {
+        
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
         var query_str = '', align_str = '', refer_str = '';
@@ -274,7 +262,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         for(var l = 0; l < mismatch.length; l++) {
                             query_str += '-';
                             align_str += ' ';
-                            refer_str += refseq[i + l - clipped];
+                            refer_str += (mismatch.seq||{})[l] || ".";
                         }
                         f = true;
                     }
