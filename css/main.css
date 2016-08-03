@@ -7,37 +7,36 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
-
-.tundra .dijitDialogTitleBar {
+.jbrowse .tundra .dijitDialogTitleBar {
     padding-right: 25px;
 }
 
-.jbrowseStandaloneDatasetSelector {
+.jbrowse .jbrowseStandaloneDatasetSelector {
     margin-left: 2em;
     font-size: 120%;
 }
 
 /* styles for the about JBrowse dialog */
-.about-dialog .default_about {
+.jbrowse .about-dialog .default_about {
     text-align: center;
 }
-.about-dialog .default_about * {
+.jbrowse .about-dialog .default_about * {
     margin: 0.5em 0;
 }
-.about-dialog .default_about h1 {
+.jbrowse .about-dialog .default_about h1 {
     margin-top: 0;
 }
-.about-dialog div.powered_by {
+.jbrowse .about-dialog div.powered_by {
     margin-top: 0.5em;
     text-align: center;
 }
 
 /* styles for the highlight-setting dialog */
-.setHighlightDialog label {
+.jbrowse .setHighlightDialog label {
     padding-right: 0.5em;
 }
 
-.track .global_highlight {
+.jbrowse .track .global_highlight {
     position: absolute;
     background: rgba( 255, 255, 0, 0.7 );
     box-sizing: border-box;
@@ -48,14 +47,14 @@ html, body {
     border: 1px solid rgb(255, 178, 13);
     border-width: 0;
 }
-.track .global_highlight.left {
+.jbrowse .track .global_highlight.left {
     border-left-width: 1px;
 }
-.track .global_highlight.right {
+.jbrowse .track .global_highlight.right {
     border-right-width: 1px;
 }
 
-.track .global_highlight_mod {
+.jbrowse .track .global_highlight_mod {
     position: absolute;
     background: rgba( 255, 255, 0, 0.7 );
     box-sizing: border-box;
@@ -63,18 +62,18 @@ html, body {
     border: 1px solid black;
     border-width: 0;
 }
-.track .global_highlight_mod.left {
+.jbrowse .track .global_highlight_mod.left {
     border-left-width: 1px;
 }
-.track .global_highlight_mod.right {
+.jbrowse .track .global_highlight_mod.right {
     border-right-width: 1px;
 }
 
-.tundra input {
+.jbrowse .tundra input {
     outline: none;
 }
 
-.ghosted {
+.jbrowse .ghosted {
     color: #aaa;
 }
 
@@ -87,47 +86,47 @@ fieldset > legend {
     margin-left: -1em;
 }
 
-.locString {
+.jbrowse .locString {
     font-family: Courier New,monospace;
 }
-.fasta {
+.jbrowse .fasta {
     font-family: Courier New,monospace;
     font-size: 14px;
 }
 
-.verticaltext {
+.jbrowse .verticaltext {
     transform: rotate(-90deg);
     position: absolute;
     border: 1px solid black;
 }
-.horizontaltext {
+.jbrowse .horizontaltext {
     position: absolute;
     border: 1px solid black;
 }
 
 /* styles for the autocomplete menu */
-.dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
+.jbrowse .dijitComboBoxMenu .locString, .dijitComboBoxMenu .multipleLocations {
     margin-left: 1em;
 }
-.dijitComboBoxMenu .multipleLocations {
+.jbrowse .dijitComboBoxMenu .multipleLocations {
     color: #333;
 }
 
 /* location choice dialog */
-.locationChoiceDialog div.prompt {
+.jbrowse .locationChoiceDialog div.prompt {
     margin: 0.3em 1em 1em 1em;
 }
-.locationChoiceDialog .dgrid-row .dijitButton {
+.jbrowse .locationChoiceDialog .dgrid-row .dijitButton {
     margin: 0 0.5em;
 }
-.locationChoiceDialog .goButtonColumn,
-.locationChoiceDialog .showButtonColumn {
+.jbrowse .locationChoiceDialog .goButtonColumn,
+.jbrowse .locationChoiceDialog .showButtonColumn {
     text-align: center;
     white-space: nowrap;
 }
 
 
-.tundra .dijitDialogCloseIcon {
+.jbrowse .tundra .dijitDialogCloseIcon {
     height: 25px;
     width:  25px;
     top:    0px;
@@ -136,21 +135,21 @@ fieldset > legend {
 
     border-left: 1px inset #fcfcfc;
 }
-.tundra .dijitDialogCloseIcon:hover {
+.jbrowse .tundra .dijitDialogCloseIcon:hover {
     background-position: -93px 6px;
     border-left-color: #ccc;
 }
-.dijitDialogCloseIcon:focus {
+.jbrowse .dijitDialogCloseIcon:focus {
     outline: none;
 }
 
-.dijitDialogPaneActionBar {
+.jbrowse .dijitDialogPaneActionBar {
     text-align: center;
     clear: both;
     padding-top: 1em;
 }
 
-.nav {
+.jbrowse .nav {
     vertical-align: middle;
     z-index: 10;
 }
@@ -161,24 +160,24 @@ input.icon {
     zoom: 1;
 }
 
-div.container {
+.jbrowse div.container {
     position: absolute;
     z-index: 0;
 }
 
-div.dragWindow {
+.jbrowse div.dragWindow {
     position:absolute;
     overflow: hidden;
     z-index: 1;
 }
 
-div.vertical_scrollbar {
+.jbrowse div.vertical_scrollbar {
     width: 6px;
     background: #eee;
     background: rgba(235, 235, 235, 0.62);
     border-left: 1px solid #DDD9D9;
 }
-div.vertical_scrollbar .vertical_position_marker {
+.jbrowse div.vertical_scrollbar .vertical_position_marker {
     background: #555;
     opacity: 0.8;
     border-radius: 5px;
@@ -186,10 +185,10 @@ div.vertical_scrollbar .vertical_position_marker {
     border-right: 1px solid #ccc;
 }
 
-.draggable {
+.jbrowse .draggable {
     cursor: move;
 }
-.rubberBandAvailable {
+.jbrowse .rubberBandAvailable {
     cursor: crosshair;
 }
 
@@ -198,6 +197,11 @@ div.vertical_scrollbar .vertical_position_marker {
     position: relative;
     text-align: center;
 }
+
+#navbox table {
+    width: initial;
+}
+
 #navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect, #navbox .dojoxTriStateCheckBox {
     height: 20px;
     box-sizing: border-box;
@@ -219,17 +223,17 @@ div.vertical_scrollbar .vertical_position_marker {
     font-family: sans-serif;
 }
 
-.moreMatches {
+.jbrowse .moreMatches {
     font-style: italic;
     color: #aaa;
 }
-.moreMatches.dijitMenuItemSelected {
+.jbrowse .moreMatches.dijitMenuItemSelected {
     background: none;
     color: #ccc;
     cursor: default;
 }
 
-div.locationTrapContainer {
+.jbrowse div.locationTrapContainer {
     position: absolute;
     z-index: -11;
     height: 100%;
@@ -239,7 +243,7 @@ div.locationTrapContainer {
     background-color: white;
 }
 
-div.locationTrap {
+.jbrowse div.locationTrap {
     position: absolute;
     z-index: -10;
     height: 0;
@@ -252,7 +256,7 @@ div.locationTrap {
     box-sizing: content-box;
 }
 
-div.locationThumb {
+.jbrowse div.locationThumb {
     position: absolute;
     top: 0px;
     /* if you change this border from 2px, change GenomeView.showTrap */
@@ -263,11 +267,11 @@ div.locationThumb {
     background: rgba(0, 121, 245, 0.1);
 }
 
-div.locationThumb.dojoMoveItem {
+.jbrowse div.locationThumb.dojoMoveItem {
     cursor: move;
 }
 
-div.topLink {
+.jbrowse div.topLink {
     position: absolute;
     right: 0;
     top: 0;
@@ -277,13 +281,13 @@ div.topLink {
     border-width: 0 0 1px 1px;
 }
 
-a.topLink {
+.jbrowse a.topLink {
     padding: 0 0.5ex 0 0.5ex;
     text-decoration: none;
     color: blue;
 }
 
-div.overview {
+.jbrowse div.overview {
     position: relative;
     width: 100%;
     padding: 0;
@@ -302,13 +306,13 @@ div.overview {
     cursor: crosshair;
 }
 
-div.block {
+.jbrowse div.block {
     position: absolute;
     overflow: visible;
     top: 0px;
     height: 100%;
 }
-div.block.height_overflow .height_overflow_message {
+.jbrowse div.block.height_overflow .height_overflow_message {
     position: absolute;
     color: rgb(77,77,77);
     border-bottom: 2px solid rgb(77,77,77);
@@ -324,12 +328,12 @@ div.block.height_overflow .height_overflow_message {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-div.block.timed_out {
+.jbrowse div.block.timed_out {
     background: #ddd;
     background: rgba( 0,0,0, 0.1 );
 }
 
-div.track {
+.jbrowse div.track {
     position: absolute;
     left: 0px;
     width: 100%;
@@ -343,7 +347,7 @@ div.track {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-div.pin_underlay {
+.jbrowse div.pin_underlay {
     width: 100%;
     position: absolute;
     background: white;
@@ -353,32 +357,32 @@ div.pin_underlay {
     -webkit-box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
     box-shadow: 0 0 10px 0 rgba( 30, 30, 50, 0.9 );
 }
-div.track.pinned {
+.jbrowse div.track.pinned {
     z-index: 20;
 }
 
-.track.dojoDndItemOver {
+.jbrowse .track.dojoDndItemOver {
     cursor: inherit;
     background: inherit;
 }
-.track.dojoDndItemAnchor {
+.jbrowse .track.dojoDndItemAnchor {
     background: inherit;
 }
-.track.dojoDndItemSelected {
+.jbrowse .track.dojoDndItemSelected {
     background: inherit;
 }
 
-.track.dojoDndItemBefore {
+.jbrowse .track.dojoDndItemBefore {
     border-top: 3px solid #999;
     margin-top: -3px;
 }
 
-.track.dojoDndItemAfter {
+.jbrowse .track.dojoDndItemAfter {
     border-bottom: 3px solid #999;
     margin-bottom: -3px;
 }
 
-div#static_track {
+.jbrowse div#static_track {
     top: 0px;
     position: absolute;
     background: #FAFAFA url(../node_modules/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
@@ -387,7 +391,7 @@ div#static_track {
     z-index: 20;
 }
 
-div.gridline {
+.jbrowse div.gridline {
     position: absolute;
     left: 0px;
     top: 0px;
@@ -398,14 +402,14 @@ div.gridline {
     border-color: red;
     z-index: 0;
 }
-div.gridline_major {
+.jbrowse div.gridline_major {
     border-color: #bbb;
 }
-div.gridline_minor {
+.jbrowse div.gridline_minor {
     border-color: #eee;
 }
 
-div.pos-label {
+.jbrowse div.pos-label {
     position: absolute;
     left: -0.35em;
     top: 0px;
@@ -413,7 +417,7 @@ div.pos-label {
     font-family: sans-serif;
 }
 
-div.overview-pos {
+.jbrowse div.overview-pos {
     position: absolute;
     left: 0px;
     top: 0.27em;
@@ -423,11 +427,11 @@ div.overview-pos {
     border: 0;
     z-index: 10;
 }
-div.overview-pos:first-child {
+.jbrowse div.overview-pos:first-child {
     margin-left: 1px;
 }
 
-div.blank-block {
+.jbrowse div.blank-block {
     font-family: sans-serif;
     position: absolute;
     overflow: visible;
@@ -437,14 +441,14 @@ div.blank-block {
     z-index: 19;
 }
 
-div.track-border {
+.jbrowse div.track-border {
     background: #eee;
     width: 100%;
     height: 2px;
     top: -8px;
 }
 
-div.track-label, div.tracklist-label {
+.jbrowse div.track-label, div.tracklist-label {
     z-index: 20;
 
     padding: 1px 6px;
@@ -459,13 +463,13 @@ div.track-label, div.tracklist-label {
     font-weight: bold;
 }
 
-div.tracklist-label {
+.jbrowse div.tracklist-label {
     white-space: nowrap;
     overflow: hidden;
     margin-top: -1px;
 }
 
-div.tracklist-label.collapsed {
+.jbrowse div.tracklist-label.collapsed {
     height: 3px;
     padding: 0;
 
@@ -478,12 +482,12 @@ div.tracklist-label.collapsed {
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
-.notfound-dialog .message {
+.jbrowse .notfound-dialog .message {
     margin: 1em;
     text-align: center;
 }
 
-.track .loading {
+.jbrowse .track .loading {
     background: #fafafa;
     color: #777;
     margin: 0;
@@ -493,13 +497,13 @@ div.tracklist-label.collapsed {
     z-index: 15;
     position: absolute;
 }
-.track .loading .text {
+.jbrowse .track .loading .text {
     display: inline;
     line-height: 40px;
     margin: 1em;
 }
 
-div.track-label {
+.jbrowse div.track-label {
     color: black;
     margin: -1px 0 0 -1px;
     overflow: visible;
@@ -523,11 +527,11 @@ div.track-label {
     white-space: nowrap;
 }
 
-div.track-label .track-label-text {
+.jbrowse div.track-label .track-label-text {
     display: inline-block;
     white-space: nowrap;
 }
-div.track-label .track-close-button {
+.jbrowse div.track-label .track-close-button {
     display: inline-block;
     vertical-align: top;
     position: relative;
@@ -536,7 +540,7 @@ div.track-label .track-close-button {
     width: 25px;
     margin: -10px -3px -4px -6px;
 }
-div.track-label .track-menu-button {
+.jbrowse div.track-label .track-menu-button {
     display: inline-block;
     position: relative;
     vertical-align: top;
@@ -550,11 +554,11 @@ div.track-label .track-menu-button {
     border-left: 1px inset transparent;
 
 }
-div.track-label .feature-density {
+.jbrowse div.track-label .feature-density {
     font-size: 90%;
     font-weight: normal;
 }
-.tundra div.track-label:hover .track-menu-button div {
+.jbrowse .tundra div.track-label:hover .track-menu-button div {
     height: 8px;
     width: 8px;
     position: absolute;
@@ -563,21 +567,34 @@ div.track-label .feature-density {
     background: url("../img/spriteArrows.png") no-repeat -28px 0;
 }
 
-.tundra div.track-label:hover .track-menu-button:hover {
+.jbrowse .tundra div.track-label:hover .track-menu-button:hover {
     background-color: rgba( 0, 0, 100, 0.05 );
     border-left-color: #ccc;
 }
+<<<<<<< 3aa7da6bdcee1f5c4a4d91c924dd1e2e63a47e25
 .tundra div.track-label .track-close-button {
     background: url("../node_modules/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
 .tundra div.track-label .track-close-button:hover {
     background-image: url("../node_modules/dijit/themes/tundra/images/tabCloseHover.png");
+=======
+.jbrowse .tundra div.track-label .track-close-button {
+    background: url("../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
-.tundra div.track-label:hover .track-menu-button:hover div {
+.jbrowse .tundra div.track-label .track-close-button:hover {
+    background-image: url("../src/dijit/themes/tundra/images/tabCloseHover.png");
+>>>>>>> Use jbrowse class on CSS
+}
+.jbrowse .tundra div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
 }
+<<<<<<< 3aa7da6bdcee1f5c4a4d91c924dd1e2e63a47e25
 div.track-label:hover {
     background: #FAFAFA url(../node_modules/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+=======
+.jbrowse div.track-label:hover {
+    background: #FAFAFA url(../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+>>>>>>> Use jbrowse class on CSS
 
     border-width: 1px;
     border-color: #666;
@@ -587,38 +604,38 @@ div.track-label:hover {
     opacity: 1.0;
 }
 
-div.tracklist-label {
+.jbrowse div.tracklist-label {
     padding: 3px;
     background-color: #ddd;
     background-color: rgba( 220, 220, 220, 0.9 );
 }
-div.tracklist-label:hover {
+.jbrowse div.tracklist-label:hover {
     background-color:  #396494;
     border: 1px solid black;
 }
 
-div.tracklist-container.dojoDndItemSelected {
+.jbrowse div.tracklist-container.dojoDndItemSelected {
     background-color:  #396494;
     background-color: rgb(110, 132, 156)
 }
-div.tracklist-container.dojoDndItemSelected .tracklist-label {
+.jbrowse div.tracklist-container.dojoDndItemSelected .tracklist-label {
     background-color: #b2c3d6;
 }
 
-.jbrowseSimpleTrackSelector {
+.jbrowse .jbrowseSimpleTrackSelector {
     background: #f2f2f2;
     background-image: url('../img/tracklist_bg.png');
     background-repeat: repeat-y;
     background-position: right;
 }
-.jbrowseSimpleTrackSelector h2 {
+.jbrowse .jbrowseSimpleTrackSelector h2 {
     margin: 0.5em 0 0 0.5em;
 }
 
-div.textfilter {
+.jbrowse div.textfilter {
     margin: 0.5em 0 1em 0.3em;
 }
-div.textfilter input {
+.jbrowse div.textfilter input {
     padding: 2px 0 2px 18px;
     width: 100%;
     height: 100%;
@@ -645,18 +662,18 @@ div.tracklist-container {
     padding: 0 4px;
 }
 
-.tracklist-container.dojoDndItemBefore {
+.jbrowse .tracklist-container.dojoDndItemBefore {
     border-top: 3px solid #999;
     padding-top: 2px;
 }
 
-.tracklist-container.dojoDndItemAfter {
+.jbrowse .tracklist-container.dojoDndItemAfter {
     border-bottom: 3px solid #999;
     padding-bottom: 2px;
 }
 
 /* styles for feature labels */
-.feature-label {
+.jbrowse .feature-label {
     position: absolute;
     border: 0px;
     margin: -2px 0px 0px 0px;
@@ -670,18 +687,18 @@ div.tracklist-container {
 a.feature-label {
     color: black;
 }
-.feature-description {
+.jbrowse .feature-description {
     color: blue;
     margin-top: -0.2em;
 }
-.feature-label.highlighted {
+.jbrowse .feature-label.highlighted {
     background: rgba( 255, 255, 0, 0.7 );
     font-weight: bold;
     border: 1px solid red;
     padding: 0 2px;
 }
 
-.rubber-highlight {
+.jbrowse .rubber-highlight {
     border: 1px solid black;
     height: 100%;
     border-color: rgba( 0, 0, 0, 0.6 );
@@ -692,7 +709,7 @@ a.feature-label {
     overflow: hidden;
     cursor: crosshair;
 }
-.rubber-highlight div {
+.jbrowse .rubber-highlight div {
     color: white;
     padding: 0;
     margin-top: 30px;
@@ -711,7 +728,7 @@ div.overview .rubber-highlight * {
     display: none;
 }
 
-.icon.nav {
+.jbrowse .icon.nav {
     height: 30px !important;
 }
 
@@ -784,55 +801,55 @@ input.nav {
     font-size: 9px !important;
 }
 
-.help_dialog ul {
+.jbrowse .help_dialog ul {
     padding-left: 0;
 }
-.help_dialog div.main {
+.jbrowse .help_dialog div.main {
 }
-.help_dialog div.main > dl {
+.jbrowse .help_dialog div.main > dl {
     width: 90%;
     margin: 0 auto 1em auto;
 }
-.help_dialog dt {
+.jbrowse .help_dialog dt {
     font-weight: bold;
     margin-top: 1em;
 }
-.help_dialog dd {
+.jbrowse .help_dialog dd {
     margin-left: 2em;
 }
-.help_dialog dl dl.searchexample dt,
-.help_dialog span.example {
+.jbrowse .help_dialog dl dl.searchexample dt,
+.jbrowse .help_dialog span.example {
     font-weight: normal;
     font-family: monospace;
 }
 
-.fatal_error {
+.jbrowse .fatal_error {
     font-size: 14px;
     margin: 1em;
 }
-div.error, div.message {
+.jbrowse div.error, div.message {
     margin: 1px 1em;
     padding: 2px 6px;
     border: 1px outset rgba( 0, 0, 0, 0.3 );
 }
-div.error {
+.jbrowse div.error {
     background: #ff8888;
 }
-div.track > div.error {
+.jbrowse div.track > div.error {
     width: 30em;
     position: absolute;
 }
-div.error h2 {
+.jbrowse div.error h2 {
     margin-top: 0;
 }
 
-div.error .codecaption {
+.jbrowse div.error .codecaption {
     font-size: 90%;
     font-weight: bold;
     margin-top: 1em;
     margin-left: 0.2em;
 }
-div.error code {
+.jbrowse div.error code {
     display: block;
     font-size: 10px;
     padding: 0.4em 1.2em;
@@ -840,24 +857,24 @@ div.error code {
     overflow: auto;
     max-height: 6em;
 }
-div.message {
+.jbrowse div.message {
     background: #eee;
 }
-div.block > div.message {
+.jbrowse div.block > div.message {
     margin: 1em 0;
     position: absolute;
 }
-div.block:hover > div.message {
+.jbrowse div.block:hover > div.message {
     z-index: 30000;
 }
 
-.tundra .dijitDialogPaneContent {
+.jbrowse .tundra .dijitDialogPaneContent {
     border-top: 1px solid #acacac;
     font-family: sans-serif;
 }
 
 /* styles dealing with popups launched by clicking on features */
-.popup-dialog-iframe .dijitDialogPaneContent {
+.jbrowse .popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
 }
 
@@ -868,40 +885,40 @@ a.dialog-new-window {
 }
 
 /* styles for popup feature detail dialogs from tracks */
-.feature-detail {
+.jbrowse .feature-detail {
     width: 50em;
     color: #333;
 }
-.feature-detail .genotype_summary {
+.jbrowse .feature-detail .genotype_summary {
     padding: 1em;
 }
-.feature-detail .genotype_summary table {
+.jbrowse .feature-detail .genotype_summary table {
     border-collapse: collapse;
 }
-.feature-detail .genotype_summary td {
+.jbrowse .feature-detail .genotype_summary td {
     padding: 0 1em;
 }
-.feature-detail .genotype_summary td.total {
+.jbrowse .feature-detail .genotype_summary td.total {
     font-weight: bold;
     border-top: 1px solid #444;
 }
-.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
+.jbrowse .feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
     text-align: right;
 }
-.feature-detail .genotype_summary td.category.level_1 {
+.jbrowse .feature-detail .genotype_summary td.category.level_1 {
     padding-left: 2em;
 }
-.feature-detail .genotype_summary td.category.level_2 {
+.jbrowse .feature-detail .genotype_summary td.category.level_2 {
     padding-left: 3em;
 }
-.feature-detail .genotype_summary td.category.level_3 {
+.jbrowse .feature-detail .genotype_summary td.category.level_3 {
     padding-left: 4em;
 }
-.feature-detail .genotype_summary td.category.level_4 {
+.jbrowse .feature-detail .genotype_summary td.category.level_4 {
     padding-left: 5em;
 }
 
-.feature-detail .subfeature-detail {
+.jbrowse .feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
     border: 1px outset #B9B9B9;
@@ -909,39 +926,43 @@ a.dialog-new-window {
     margin-bottom: 0.8em;
 }
 
+<<<<<<< 3aa7da6bdcee1f5c4a4d91c924dd1e2e63a47e25
 .feature-detail .subfeature-load-button {
     margin-top: 15px;
     margin-left: 10px;
 }
 
 .feature-detail .fastaView {
+=======
+.jbrowse .feature-detail .fastaView {
+>>>>>>> Use jbrowse class on CSS
     padding: 0;
     border: 1px solid #aaa;
 }
 
-.feature-detail .fastaView .dijitToolbar {
+.jbrowse .feature-detail .fastaView .dijitToolbar {
     text-align: right;
 }
-.feature-detail .fastaView textarea {
+.jbrowse .feature-detail .fastaView textarea {
     padding: 1em 1.5em;
     margin: 0;
     border: none;
 }
 
 
-.feature-detail div.core {
+.jbrowse .feature-detail div.core {
     font-size: 110%;
 }
 
-.feature-detail div.core h2.sectiontitle {
+.jbrowse .feature-detail div.core h2.sectiontitle {
     margin-top: 0;
 }
-.feature-detail h2.sectiontitle {
+.jbrowse .feature-detail h2.sectiontitle {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     margin: 1em 0 0.7em 0;
 }
 
-.detail .value_container {
+.jbrowse .detail .value_container {
     display: inline-block;
     max-height: 20em;
     overflow-y: auto;
@@ -950,13 +971,13 @@ a.dialog-new-window {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-.detail .value_container.big, .detail .value_container.dgrid {
+.jbrowse .detail .value_container.big, .detail .value_container.dgrid {
     border: 1px solid rgba(0,0,50,0.1);
     margin-left: 1em;
     margin-top: 0.3em;
 }
 
-.detail .multi_value .value {
+.jbrowse .detail .multi_value .value {
     border: 1px solid #ddd;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -964,14 +985,14 @@ a.dialog-new-window {
     -ms-box-sizing: border-box;
 }
 
-.detail .value {
+.jbrowse .detail .value {
     display: inline-block;
     vertical-align: top;
     font-family: sans-serif;
     padding: 0 0.7em;
     line-height: 1.8;
 }
-.detail .field {
+.jbrowse .detail .field {
     margin: 0;
     display: inline-block;
     min-width: 90px;
@@ -983,34 +1004,34 @@ a.dialog-new-window {
     font-size: 1.1667em;
 }
 /* field names that have tooltips */
-.detail .field[title], .detail .dgrid-cell[title] {
+.jbrowse .detail .field[title], .detail .dgrid-cell[title] {
     background: rgba( 255,245,50,0.3 );
 }
-.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
+.jbrowse .detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
     background: rgba( 255,255,50,0.7 );
 }
 /*
  force long sequences in feature and alignment detail dialogs to
  wrap at 45em
 */
-.detail .value.seq,
+.jbrowse .detail .value.seq,
  .detail .value.sequence {
     word-wrap: break-word;
     width: 45em;
 }
 
-.detail .field_container {
+.jbrowse .detail .field_container {
     margin-left: 1em;
     margin-bottom: 2px;
 }
-.detail hr {
+.jbrowse .detail hr {
     margin: 0.8em 4em 0.5em 0.7em;
 }
 
-.sharePane input {
+.jbrowse .sharePane input {
     padding: 1px 0 2px 1px;
 }
-.sharePane .copyReminder {
+.jbrowse .sharePane .copyReminder {
     background-color:  #396494;
     text-align: center;
     width: 50%;
@@ -1020,12 +1041,12 @@ a.dialog-new-window {
     font-weight: bold;
 }
 
-.tundra .sharePane input {
+.jbrowse .tundra .sharePane input {
     border: 1px solid #ccc;
 }
 
 /*styles for vertical line and BP label*/
-.basePairLabel {
+.jbrowse .basePairLabel {
     color: black;
     position: fixed;
     font-weight: bold;
@@ -1039,11 +1060,11 @@ a.dialog-new-window {
     border: 1px solid #888;
 }
 
-.basePairLabel.rubber {
+.jbrowse .basePairLabel.rubber {
     z-index: 25;
 }
 
-.trackVerticalPositionIndicatorMain {
+.jbrowse .trackVerticalPositionIndicatorMain {
     position: fixed;
     display: none;
     cursor: crosshair;
@@ -1056,30 +1077,30 @@ a.dialog-new-window {
 }
 
 /* styles for per-base quality table in alignment detail pages */
-.baseQuality {
+.jbrowse .baseQuality {
     font-family: Courier New, monospace;
 }
-table.baseQuality {
+.jbrowse table.baseQuality {
     margin-bottom: 1em;
 }
-table.baseQuality td {
+.jbrowse table.baseQuality td {
     padding: 0 0.2em;
     line-height: 0.95;
     text-align: center;
 }
-.baseQuality .basePosition {
+.jbrowse .baseQuality .basePosition {
     display: inline-block;
     padding: 0 0.3em 0.4em 0.3em;
 }
-.baseQuality .basePosition:hover {
+.jbrowse .baseQuality .basePosition:hover {
     background: #ccc;
 }
-.baseQuality span.seq {
+.jbrowse .baseQuality span.seq {
     display: block;
     text-align: center;
     font-weight: bold;
 }
-.baseQuality span.qual {
+.jbrowse .baseQuality span.qual {
     display: block;
     text-align: center;
 }
