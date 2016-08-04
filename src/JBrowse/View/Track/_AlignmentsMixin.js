@@ -234,8 +234,10 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             var f = false;
             for(var j = beginning; j < mismatches.length; j++) {
                 var mismatch = mismatches[j];
-                if(i - clipped == mismatch.start - adjust) {
-                    beginning = j + 1;
+                var curr = i;
+                var curradjust = adjust;
+                if(curr - clipped == mismatch.start - curradjust) {
+                    beginning++;
                     if(mismatch.type == "softclip") {
                         for(var l = 0; l < mismatch.cliplen; l++) {
                             query_str += seq[i + l];
