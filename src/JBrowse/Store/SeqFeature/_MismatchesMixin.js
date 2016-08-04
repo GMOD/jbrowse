@@ -50,6 +50,9 @@ return declare( null, {
         mismatches = array.filter( mismatches, function(m) {
             return !(m.type == "deletion" && !m.seq);
         });
+        mismatches = array.filter( mismatches, function(m) {
+            return !(m.type == "mismatch" && !m.altbase);
+        });
 
 
         // uniqify the mismatches

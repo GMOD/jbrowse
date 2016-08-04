@@ -246,6 +246,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 else return 0;
             });
 
+            var insertions = 0;
+
             for(var k = 0; k < mismatchesAtCurrentPosition.length; k++) {
                 var mismatch = mismatchesAtCurrentPosition[k];
                 beginning++;
@@ -268,6 +270,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     adjust -= +mismatch.base;
                     i += +mismatch.base-1;
                     f = true;
+                    insertions++;
                 }
                 else if(mismatch.type == "deletion") {
                     for(var l = 0; l < mismatch.length; l++) {
@@ -277,7 +280,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     }
                     
                     adjust += mismatch.length;
-                    i -= mismatch.length;
+                    i -= mismatch.length-insertions;
                     f = true;
                 }
                 else if(mismatch.type == "skip") {
