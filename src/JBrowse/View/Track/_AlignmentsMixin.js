@@ -262,6 +262,10 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                             align_str += ' ';
                             refer_str += (mismatch.seq||{})[l] || ".";
                         }
+                        query_str += seq[i];
+                        align_str += '|';
+                        refer_str += seq[i];
+                        adjust += mismatch.length;
                         f = true;
                     }
                     else if(mismatch.type == "skip") {
