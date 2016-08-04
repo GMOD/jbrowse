@@ -225,64 +225,73 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         var adjust = 0;
         var clipped = 0;
         var beginning = 0;
+       
+
         mismatches.sort(function(a,b) {
             return a.start - b.start;
         });
-
-
         for(var i = 0; i < seq.length; i++) {
             var f = false;
+            var mismatchesAtCurrentPosition = [];
             for(var j = beginning; j < mismatches.length; j++) {
                 var mismatch = mismatches[j];
-                var curr = i;
-                var curradjust = adjust;
-                if(curr - clipped == mismatch.start - curradjust) {
-                    beginning++;
-                    if(mismatch.type == "softclip") {
-                        for(var l = 0; l < mismatch.cliplen; l++) {
-                            query_str += seq[i + l];
-                            align_str += '.';
-                            refer_str += 'S';
-                        }
-                        i += mismatch.cliplen - 1;
-                        clipped += mismatch.cliplen;
-                        f = true;
+                if(i - clipped == mismatch.start - adjust) {
+                    mismatchesAtCurrentPosition.push(mismatch);
+                }
+            }
+ 
+            mismatchesAtCurrentPosition.sort(function(a,b) {
+                if(a.type=="insertion") return -1;
+                else if(a.type=="deletion") return 1;
+                else return 0;
+            });
+
+            for(var k = 0; k < mismatchesAtCurrentPosition.length; k++) {
+                var mismatch = mismatchesAtCurrentPosition[k];
+                beginning++;
+                if(mismatch.type == "softclip") {
+                    for(var l = 0; l < mismatch.cliplen; l++) {
+                        query_str += seq[i + l];
+                        align_str += '.';
+                        refer_str += 'S';
                     }
-                    else if(mismatch.type == "insertion") {
-                        for(var l = 0; l < +mismatch.base; l++) {
-                            query_str += seq[i + l];
-                            align_str += ' ';
-                            refer_str += '-';
-                        }
-                        adjust -= +mismatch.base;
-                        i += +mismatch.base-1;
-                        f = true;
-                    }
-                    else if(mismatch.type == "deletion") {
-                        for(var l = 0; l < mismatch.length; l++) {
-                            query_str += '-';
-                            align_str += ' ';
-                            refer_str += (mismatch.seq||{})[l] || ".";
-                        }
-                        query_str += seq[i];
-                        align_str += '|';
-                        refer_str += seq[i];
-                        adjust += mismatch.length;
-                        f = true;
-                    }
-                    else if(mismatch.type == "skip") {
-                        query_str += '...';
-                        align_str += '...';
-                        refer_str += '...';
-                        adjust += mismatch.length;
-                        f = true;
-                    }
-                    else if(mismatch.type == "mismatch") {
-                        query_str += mismatch.base;
+                    i += mismatch.cliplen - 1;
+                    clipped += mismatch.cliplen;
+                    f = true;
+                }
+                else if(mismatch.type == "insertion") {
+                    for(var l = 0; l < +mismatch.base; l++) {
+                        query_str += seq[i + l];
                         align_str += ' ';
-                        refer_str += mismatch.altbase;
-                        f = true;
+                        refer_str += '-';
                     }
+                    adjust -= +mismatch.base;
+                    i += +mismatch.base-1;
+                    f = true;
+                }
+                else if(mismatch.type == "deletion") {
+                    for(var l = 0; l < mismatch.length; l++) {
+                        query_str += '-';
+                        align_str += ' ';
+                        refer_str += (mismatch.seq||{})[l] || ".";
+                    }
+                    
+                    adjust += mismatch.length;
+                    i -= mismatch.length;
+                    f = true;
+                }
+                else if(mismatch.type == "skip") {
+                    query_str += '...';
+                    align_str += '...';
+                    refer_str += '...';
+                    adjust += mismatch.length;
+                    f = true;
+                }
+                else if(mismatch.type == "mismatch") {
+                    query_str += mismatch.base;
+                    align_str += ' ';
+                    refer_str += mismatch.altbase;
+                    f = true;
                 }
             }
             if(!f) {
