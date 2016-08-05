@@ -222,20 +222,19 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
         var query_str = '', align_str = '', refer_str = '';
-        var adjust = 0;
-        var clipped = 0;
-        var beginning = 0;
-       
+        var curr_mismatch = 0;
+        var genome_pos = 0;
+        var curr_pos = 0;
 
         mismatches.sort(function(a,b) {
             return a.start - b.start;
         });
-        for(var i = 0; i < seq.length; i++) {
+        for(var i = 0; curr_pos < seq.length; i++) {
             var f = false;
             var mismatchesAtCurrentPosition = [];
-            for(var j = beginning; j < mismatches.length; j++) {
+            for(var j = curr_mismatch; j < mismatches.length; j++) {
                 var mismatch = mismatches[j];
-                if(i - clipped == mismatch.start - adjust) {
+                if(genome_pos == mismatch.start) {
                     mismatchesAtCurrentPosition.push(mismatch);
                 }
             }
@@ -244,6 +243,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 if(a.type=="insertion") return -1;
                 else if(a.type=="deletion") return 1;
                 else if(a.type=="mismatch") return 1;
+                else if(a.type=="skip") return 1;
                 else return 0;
             });
 
@@ -251,25 +251,23 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
             for(var k = 0; k < mismatchesAtCurrentPosition.length; k++) {
                 var mismatch = mismatchesAtCurrentPosition[k];
-                beginning++;
+                curr_mismatch++;
                 if(mismatch.type == "softclip") {
                     for(var l = 0; l < mismatch.cliplen; l++) {
-                        query_str += seq[i + l];
-                        align_str += '.';
-                        refer_str += 'S';
+                        query_str += seq[curr_pos + l];
+                        align_str += ' ';
+                        refer_str += 'N';
                     }
-                    i += mismatch.cliplen - 1;
-                    clipped += mismatch.cliplen;
+                    curr_pos += mismatch.cliplen;
                     f = true;
                 }
                 else if(mismatch.type == "insertion") {
                     for(var l = 0; l < +mismatch.base; l++) {
-                        query_str += seq[i + l];
+                        query_str += seq[curr_pos + l];
                         align_str += ' ';
                         refer_str += '-';
                     }
-                    adjust -= +mismatch.base+1;
-                    i+=2*(+mismatch.base);
+                    curr_pos += +mismatch.base;
                     f = true;
                 }
                 else if(mismatch.type == "deletion") {
@@ -278,28 +276,34 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         align_str += ' ';
                         refer_str += (mismatch.seq||{})[l] || ".";
                     }
-                    adjust += mismatch.length;
-                    i -= mismatch.length-insertions;
+                    genome_pos += mismatch.length;
                     f = true;
                 }
                 else if(mismatch.type == "skip") {
-                    query_str += '...';
-                    align_str += '...';
-                    refer_str += '...';
-                    adjust += mismatch.length;
+                    for(var l = 0; l < mismatch.length; l++) {
+                        query_str += '.';
+                        align_str += ' ';
+                        refer_str += 'N';
+                    }
+                    genome_pos += mismatch.length;
                     f = true;
                 }
                 else if(mismatch.type == "mismatch") {
                     query_str += mismatch.base;
                     align_str += ' ';
                     refer_str += mismatch.altbase;
+                    curr_pos++;
+                    genome_pos++;
                     f = true;
                 }
             }
             if(!f) {
-                query_str += seq[i];
+                query_str += seq[curr_pos];
                 align_str += '|';
-                refer_str += seq[i];
+                refer_str += seq[curr_pos];
+                genome_pos++;
+                curr_pos++;
+                console.log('here',curr_pos,i);
             }
         }
         
