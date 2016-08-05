@@ -43,16 +43,14 @@ return declare( null, {
         // parse the MD tag if it has one
         var mdString = feature.get( this.mdAttributeName );
         if( mdString )  {
+            // if there is an MD tag, mismatches and deletions from cigar string are replaced by MD
+            mismatches = array.filter( mismatches, function(m) {
+                return !(m.type == "deletion" || m.type == "mismatch");
+            });
             mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
         }
 
-        // remove deletion sequences with no seq tag
-        mismatches = array.filter( mismatches, function(m) {
-            return !(m.type == "deletion" && !m.seq);
-        });
-        mismatches = array.filter( mismatches, function(m) {
-            return !(m.type == "mismatch" && !m.altbase);
-        });
+        
 
 
         // uniqify the mismatches

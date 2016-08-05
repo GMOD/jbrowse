@@ -218,6 +218,14 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
     _renderTable: function( parentElement, track, feat, featDiv  ) {
         var thisB = this;
+        if(!feat.get(this.config.mdAttribute || 'md')) {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'No MD tag present</div>'
+            }, parentElement );
+            return;
+        }
         
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
@@ -241,14 +249,12 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             }
  
             mismatchesAtCurrentPosition.sort(function(a,b) {
-                if(a.type=="insertion") return -1;
-                else if(a.type=="deletion") return 1;
-                else if(a.type=="mismatch") return 1;
-                else if(a.type=="skip") return 1;
+                if(a.type == "insertion") return -1;
+                else if(a.type == "deletion") return 1;
+                else if(a.type == "mismatch") return 1;
+                else if(a.type == "skip") return 1;
                 else return 0;
             });
-
-            var insertions = 0;
 
             for(var k = 0; k < mismatchesAtCurrentPosition.length; k++) {
                 var mismatch = mismatchesAtCurrentPosition[k];
