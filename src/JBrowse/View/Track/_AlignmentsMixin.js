@@ -221,6 +221,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
+        var start = feat.get('start');
         var query_str = '', align_str = '', refer_str = '';
         var curr_mismatch = 0;
         var genome_pos = 0;
@@ -303,23 +304,58 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 refer_str += seq[curr_pos];
                 genome_pos++;
                 curr_pos++;
-                console.log('here',curr_pos,i);
             }
         }
-        
-        var gContainer = dojo.create('div', {
-            className: 'renderTable',
-            innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-              +'Query: '+query_str+'   <br>'
-              +'       '+align_str+'   <br>'
-              +'Ref:   '+refer_str+'   </div>'
-        }, parentElement );
+        if(this.config.renderAlignment && this.config.renderAlignment.newlines) {
+            var s1, s2, s3, ret_str;
+            s1 = s2 = s3 = ret_str ='';
+            var qpos = 0, rpos = start;
+            var w = this.config.renderAlignment.width || 50;
+            for(var i = 0; i < query_str.length; i += w) {
+                s1 = query_str.substring(i, i+w);
+                s2 = align_str.substring(i, i+w);
+                s3 = refer_str.substring(i, i+w);
+                var padding = (rpos).toString().replace(/./g," ");
+                var offset1 = s1.length - (s1.match(/[-N\.]/g) || []).length;
+                var offset2 = s3.length - (s3.match(/[-]/g) || []).length
+                ret_str += 'Query    ' + this.pad(padding, qpos, true) + ': ' + s1 + ' ' + (qpos + offset1) +  '<br>';
+                ret_str += '         ' + padding + '  ' + s2+'   <br>';
+                ret_str += 'Ref:     ' + (rpos) + ': ' + s3 + ' ' + (rpos + offset2) + '  <br><br>';
+                qpos += offset1;
+                rpos += offset2;
+            }
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +ret_str+'</div>'
+            }, parentElement );
+        }
+        else {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'Query: '+query_str+'   <br>'
+                  +'       '+align_str+'   <br>'
+                  +'Ref:   '+refer_str+'   </div>'
+            }, parentElement );
+        }
 
         return {
             val1: query_str,
             val2: align_str,
             val3: refer_str
         };
+    },
+
+    //stackoverflow http://stackoverflow.com/questions/2686855/is-there-a-javascript-function-that-can-pad-a-string-to-get-to-a-determined-leng
+    pad: function(pad, str, padLeft) {
+        if (typeof str === 'undefined')
+            return pad;
+        if (padLeft) {
+            return (pad + str).slice(-pad.length);
+        } else {
+            return (str + pad).substring(0, pad.length);
+        }
     }
 
 });
