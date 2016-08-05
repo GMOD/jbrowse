@@ -243,6 +243,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             mismatchesAtCurrentPosition.sort(function(a,b) {
                 if(a.type=="insertion") return -1;
                 else if(a.type=="deletion") return 1;
+                else if(a.type=="mismatch") return 1;
                 else return 0;
             });
 
@@ -267,10 +268,9 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         align_str += ' ';
                         refer_str += '-';
                     }
-                    adjust -= +mismatch.base;
-                    i += +mismatch.base-1;
+                    adjust -= +mismatch.base+1;
+                    i+=2*(+mismatch.base);
                     f = true;
-                    insertions++;
                 }
                 else if(mismatch.type == "deletion") {
                     for(var l = 0; l < mismatch.length; l++) {
@@ -278,7 +278,6 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         align_str += ' ';
                         refer_str += (mismatch.seq||{})[l] || ".";
                     }
-                    
                     adjust += mismatch.length;
                     i -= mismatch.length-insertions;
                     f = true;
