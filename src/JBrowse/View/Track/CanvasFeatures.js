@@ -117,6 +117,7 @@ return declare(
             lang.clone( this.inherited(arguments) ),
             {
             maxFeatureScreenDensity: 0.5,
+            removeCollapsedMouseover: true,
 
             // default glyph class to use
             glyph: lang.hitch( this, 'guessGlyphType' ),
@@ -715,7 +716,7 @@ return declare(
         var gv = this.browser.view;
         var thisB = this;
 
-        if( this.displayMode == 'collapsed' ) {
+        if( this.displayMode == 'collapsed' && this.config.removeCollapsedMouseover) {
             if( this._mouseoverEvent ) {
                 this._mouseoverEvent.remove();
                 delete this._mouseoverEvent;
@@ -725,7 +726,7 @@ return declare(
                 this._mouseoutEvent.remove();
                 delete this._mouseoutEvent;
             }
-        } else {
+        } else if( this.displayMode != 'collapsed' || !this.config.removeCollapsedMouseover ) {
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
                     evt = domEvent.fix( evt );

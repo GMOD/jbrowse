@@ -136,6 +136,7 @@ echo -n "Formatting Volvox example data ...";
     cat docs/tutorial/data_files/bookmarks.conf >> sample_data/json/volvox/tracks.conf
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
     bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
+    bin/flatfile-to-json.pl --bed docs/tutorial/data_files/volvox_segment.bed --out sample_data/json/volvox --trackLabel ChromHMM --trackType CanvasFeatures --clientConfig '{"color": "{chromHMM}", "strandArrow": false}' --config '{"displayMode": "collapsed", "removeCollapsedMouseover": false}';
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 
     # also recreate some symlinks used by tests and such
