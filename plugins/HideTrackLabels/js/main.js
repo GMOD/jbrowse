@@ -100,13 +100,21 @@ return declare( JBrowsePlugin,
             dojo.attr(dom.byId("hidetitles-btn"),"disabled","");
             setTimeout(function(){
                 dojo.removeAttr(dom.byId("hidetitles-btn"),"disabled");
-            },1000);
+            }, 200);
 
+            if(direction==-1) {
+                setTimeout(function() {
+                    query('.track-label').style('visibility', 'hidden')
+                }, 200);
+            } else {
+                query('.track-label').style('visibility', 'visible')
+            }
             // slide em
             query(".track-label").forEach(function(node, index, arr){
                 var w = domGeom.getMarginBox(node).w;
                 coreFx.slideTo({
                   node: node,
+                  duration: 200,
                   top: domGeom.getMarginBox(node).t.toString(),
                   left: (domGeom.getMarginBox(node).l + (w*direction) ).toString(),
                   unit: "px"
