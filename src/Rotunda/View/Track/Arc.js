@@ -12,21 +12,23 @@ return declare (Track,
     },
 
     draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
-        
-	var track = this
-        var featureColor = this.featureColorFunc()
-        
-        var featureArc = d3.svg.arc()
-            .innerRadius(minRadius)
-            .outerRadius(maxRadius)
-            .startAngle (function (feature) {
-                return rot.coordToAngle (feature.seq, feature.start - 1)
-            }).endAngle (function (feature) {
-                return rot.coordToAngle (feature.seq, feature.end)
-            })
 
-        this.d3data (rot.g, function (d3data) {
-	    var path = d3data.append("path")
+	var track = this
+	this.getFeaturesInView (rot, function (features) {
+
+            var featureColor = track.featureColorFunc()
+            
+            var featureArc = d3.svg.arc()
+		.innerRadius(minRadius)
+		.outerRadius(maxRadius)
+		.startAngle (function (feature) {
+                    return rot.coordToAngle (feature.seq, feature.start - 1)
+		}).endAngle (function (feature) {
+                    return rot.coordToAngle (feature.seq, feature.end)
+		})
+
+            var path = track.d3featData (rot.g, features)
+		.append("path")
 		.attr("d", featureArc)
 		.attr("fill", featureColor)
 		.attr("stroke", featureColor)

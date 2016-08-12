@@ -38,7 +38,7 @@ return declare (Destroyable,
 
     storeName: null,
     className: null,
-    transformStoreFeature: function (storeFeature, seq) {
+    transformStoreFeature: function (storeFeature, seq, store) {
 	return { seq: seq,
 		 start: storeFeature.get('start'),
 		 end: storeFeature.get('end'),
@@ -72,10 +72,12 @@ return declare (Destroyable,
 					     start: interval.start,
 					     end: interval.end },
 					   function (storeFeature) {
-					       var feature = track.transformStoreFeature (storeFeature, interval.seq)
-					       if (cssColor && !feature.color)
-						   feature.color = cssColor
-					       features.push (feature)
+					       var feature = track.transformStoreFeature (storeFeature, interval.seq, store)
+					       if (feature) {
+						   if (cssColor && !feature.color)
+						       feature.color = cssColor
+						   features.push (feature)
+					       }
 					   },
 					   function() {
 					       if (callback)

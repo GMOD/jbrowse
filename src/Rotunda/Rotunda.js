@@ -16,6 +16,7 @@ define([
     'Rotunda/View/Animation/Zoomer',
     'Rotunda/View/Animation/Slider',
     'Rotunda/View/Animation/SpinZoom',
+    'Rotunda/View/Track/Stacked/ArcLink',
     'Rotunda/View/Track/Stacked/RefSeq',
     'Rotunda/View/Track/Histogram/FeatureDensity',
     'Rotunda/View/Track/Histogram/Wiggle',
@@ -40,6 +41,7 @@ define([
            Zoomer,
            Slider,
            SpinZoom,
+	   ArcLinkTrack,
            RefSeqTrack,
 	   DensityTrack,
 	   WiggleTrack
@@ -1201,34 +1203,54 @@ return declare( null, {
     },
 
     makeRotundaTrackConfig: function (browserTrackConfig) {
-	if (browserTrackConfig.type == 'JBrowse/View/Track/Sequence')
+	if (browserTrackConfig.rotundaType == 'RefSeq'
+	    || browserTrackConfig.rotundaType == 'Rotunda/View/Track/Stacked/RefSeq'
+	    || (!browserTrackConfig.rotundaType &&
+		browserTrackConfig.type == 'JBrowse/View/Track/Sequence'))
             return { type: 'RefSeqTrack',
                      refSeqName: this.refSeqName,
                      refSeqLen: this.refSeqLen,
                      id: browserTrackConfig.label,
                      label: browserTrackConfig.key }
-	else if (browserTrackConfig.type == 'JBrowse/View/Track/Alignments'
-                 || browserTrackConfig.type == 'JBrowse/View/Track/Alignments2'
-	         || browserTrackConfig.type == 'JBrowse/View/Track/CanvasFeatures'
-	         || browserTrackConfig.type == 'JBrowse/View/Track/CanvasVariants'
-	         || browserTrackConfig.type == 'JBrowse/View/Track/FeatureCoverage'
-	         || browserTrackConfig.type == 'JBrowse/View/Track/HTMLFeatures'
-	         || browserTrackConfig.type == 'JBrowse/View/Track/HTMLVariants'
-	         || browserTrackConfig.type == 'JBrowse/View/Track/SNPCoverage') {
+
+	else if (browserTrackConfig.rotundaType == 'FeatureDensity'
+		 || browserTrackConfig.rotundaType == 'Rotunda/View/Track/Histogram/FeatureDensity'
+		 || (!browserTrackConfig.rotundaType &&
+		     (browserTrackConfig.type == 'JBrowse/View/Track/Alignments'
+                      || browserTrackConfig.type == 'JBrowse/View/Track/Alignments2'
+	              || browserTrackConfig.type == 'JBrowse/View/Track/CanvasFeatures'
+	              || browserTrackConfig.type == 'JBrowse/View/Track/FeatureCoverage'
+	              || browserTrackConfig.type == 'JBrowse/View/Track/HTMLFeatures'
+	              || browserTrackConfig.type == 'JBrowse/View/Track/SNPCoverage')))
 	    return { type: 'DensityTrack',
                      id: browserTrackConfig.label,
 		     label: browserTrackConfig.key,
 		     storeName: browserTrackConfig.store,
 		     trackConfig: browserTrackConfig }
-	} else if (browserTrackConfig.type == 'JBrowse/View/Track/Wiggle'
-		   || browserTrackConfig.type == 'JBrowse/View/Track/Wiggle/XYPlot'
-		   || browserTrackConfig.type == 'JBrowse/View/Track/Wiggle/Density') {
+
+	else if (browserTrackConfig.rotundaType == 'ArcLink'
+		 || browserTrackConfig.rotundaType == 'Rotunda/View/Track/Stacked/ArcLink'
+		 || (!browserTrackConfig.rotundaType &&
+		     (browserTrackConfig.type == 'JBrowse/View/Track/CanvasVariants'
+	              || browserTrackConfig.type == 'JBrowse/View/Track/HTMLVariants')))
+	    return { type: 'ArcLinkTrack',
+                     id: browserTrackConfig.label,
+		     label: browserTrackConfig.key,
+		     storeName: browserTrackConfig.store,
+		     trackConfig: browserTrackConfig }
+
+	else if (browserTrackConfig.rotundaType == 'Wiggle'
+		   || browserTrackConfig.rotundaType == 'Rotunda/View/Track/Histogram/Wiggle'
+		   || (!browserTrackConfig.rotundaType &&
+		       (browserTrackConfig.type == 'JBrowse/View/Track/Wiggle'
+			|| browserTrackConfig.type == 'JBrowse/View/Track/Wiggle/XYPlot'
+			|| browserTrackConfig.type == 'JBrowse/View/Track/Wiggle/Density')))
 	    return { type: 'WiggleTrack',
                      id: browserTrackConfig.label,
 		     label: browserTrackConfig.key,
 		     storeName: browserTrackConfig.store,
 		     trackConfig: browserTrackConfig }
-	}
+
 	return null
     },
 

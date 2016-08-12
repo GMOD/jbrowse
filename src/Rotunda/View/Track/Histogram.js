@@ -45,7 +45,7 @@ return declare (Track,
     },
     
     buildHistogramForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
-	return getFeaturesInView (rot, callback, errorCallback)
+	return this.getFeaturesInView (rot, callback, errorCallback)
     },
 
     draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {

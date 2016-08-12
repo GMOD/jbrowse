@@ -13,7 +13,7 @@ return declare (Track,
 
     radius: 0,
     isLinkTrack: true,
-    
+
     featureLabelFunc: function() {
 	var track = this
 	return function (feature) {
@@ -22,27 +22,35 @@ return declare (Track,
 	}
     },
 
+    buildLinksForView: function (rot, minRadius, maxRadius, callback, errorCallback) {
+	return this.getFeaturesInView (rot, callback, errorCallback)
+    },
+
     draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
 
-        var featureColor = this.featureColorFunc()
+	var track = this
+        var g = rot.g
+	track.buildLinksForView (rot, minRadius, maxRadius, function (features) {
 
-        var innerRadius = rot.innerRadius()
-        var featureChord = d3.svg.chord()
-            .source (function (link) {
-                var s = { startAngle: rot.coordToAngle (link.seq, link.start - 1),
-                          endAngle: rot.coordToAngle (link.seq, link.end),
-                          radius: innerRadius }
-                return s
-            })
-            .target (function (link) {
-                var t = { startAngle: rot.coordToAngle (link.otherSeq, link.otherStart - 1),
-                          endAngle: rot.coordToAngle (link.otherSeq, link.otherEnd),
-                          radius: innerRadius }
-                return t
-            })
+            var featureColor = track.featureColorFunc()
 
-        this.d3data (rot.g, function (d3data) {
-	    var path = d3data.append("path")
+            var innerRadius = rot.innerRadius()
+            var featureChord = d3.svg.chord()
+		.source (function (link) {
+                    var s = { startAngle: rot.coordToAngle (link.seq, link.start - 1),
+                              endAngle: rot.coordToAngle (link.seq, link.end),
+                              radius: innerRadius }
+                    return s
+		})
+		.target (function (link) {
+                    var t = { startAngle: rot.coordToAngle (link.otherSeq, link.otherStart - 1),
+                              endAngle: rot.coordToAngle (link.otherSeq, link.otherEnd),
+                              radius: innerRadius }
+                    return t
+		})
+
+	    var path = track.d3featData (g, features)
+		.append("path")
 		.attr("d", featureChord)
 		.attr("fill", featureColor)
 		.attr("stroke", featureColor)
