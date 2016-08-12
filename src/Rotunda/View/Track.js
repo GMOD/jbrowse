@@ -151,11 +151,16 @@ return declare (Destroyable,
 	return color
     },
 
-    d3featData: function (g, features) {
+    d3featData: function (g, features, opts) {
 	var track = this
-	g.append('g')
-	    .attr('id','#g_'+track.id)
-        return g.selectAll('#track_'+track.id)
+        opts = opts || {}
+        var new_g
+        if (opts.prepend)
+	    new_g = g.insert('g',':first-child')
+        else
+	    new_g = g.append('g')
+	new_g.attr('id','#g_'+track.id)
+        return new_g.selectAll()
 	    .data(features)
 	    .enter()
     },
@@ -236,6 +241,25 @@ return declare (Destroyable,
 	    } else
 		this.setAttribute ('style', '')
 	})
+    },
+
+    _blankGridLines: function (rot, minRadius, maxRadius, refSeqsInView) {
+	refSeqsInView = refSeqsInView || rot.intervalsInView (minRadius)
+
+        var blankArc = d3.svg.arc()
+            .innerRadius (minRadius)
+            .outerRadius (maxRadius)
+            .startAngle (function (refSeq) {
+                return rot.coordToAngle (refSeq.seq, 0)
+            })
+            .endAngle (function (refSeq) {
+                return rot.coordToAngle (refSeq.seq, rot.refSeqLenByName[refSeq.seq])
+            })
+
+        var blankPath = this.d3featData(rot.g,refSeqsInView)
+	    .append("path")
+	    .attr("d", blankArc)
+	    .attr("fill", "white")
     }
 })
 

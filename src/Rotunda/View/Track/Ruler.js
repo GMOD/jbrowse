@@ -1,14 +1,16 @@
 define(['dojo/_base/declare',
-        'Rotunda/View/Track'],
+        'JBrowse/Util',
+        'Rotunda/View/Track',
+        'Rotunda/View/Track/_Ticks'],
        function(declare,
-                Track) {
+                Util,
+                Track,
+                Ticks) {
 
 /**
  * @class
  */
-var tickMagUnits = ['bp', 'kb', 'Mb', 'Gb']
-
-return declare (Track,
+return declare ([Track,Ticks],
 {
     constructor: function(config) {
 	config = config || {}
@@ -27,25 +29,13 @@ return declare (Track,
 	return refSeqName
     },
 
-    units: "bp",
-
     showBase: false,
 
     draw: function (rot, minRadius, maxRadius, minAngle, maxAngle, drawCallback) {
 
 	var track = this
 
-	var baseRange = (maxAngle - minAngle) / rot.radsPerBase
-	var mag = Math.ceil(Math.log10(baseRange))
-	var tickMag = Math.max (0, mag - 2)
-	var tickSep = Math.pow (10, tickMag)
-	var midTickSep = 5 * tickSep
-	var bigTickSep = 10 * tickSep
-
-	var bigTickMag = tickMag + 1
-	var unitsMag = Math.min (3*(tickMagUnits.length - 1), bigTickMag - (bigTickMag % 3))
-	var unitsSep = Math.pow (10, unitsMag)
-	var units = tickMagUnits[unitsMag/3]
+        track._initTicks (rot, minRadius, maxRadius, minAngle, maxAngle)
 
 	var smallTickMaxRadius = minRadius + 2
 	var midTickMaxRadius = minRadius + 4
@@ -53,20 +43,23 @@ return declare (Track,
 	var labelRadius = minRadius + 18
 	var nameRadius = minRadius + (this.showAxisLabels(rot.scale) ? 38 : 18)
         
-	var refSeqsInView = rot.intervalsInView()
-	var ticks = refSeqsInView.reduce (function (list, feature) {
+	var refSeqsInView = rot.intervalsInView (minRadius)
+        track._blankGridLines (rot, minRadius, maxRadius, refSeqsInView)
+
+        var ticks = refSeqsInView.reduce (function (list, feature) {
 	    var seqTicks = []
-	    for (var pos = feature.start - (feature.start % tickSep);
+	    for (var pos = feature.start - (feature.start % track.tickSep);
 		 pos < feature.end;
-		 pos += tickSep)
+		 pos += track.tickSep)
 		seqTicks.push ({ seq: feature.seq,
 				 pos: pos + 1,
 				 angle: rot.coordToAngle (feature.seq, pos),
 				 minRadius: minRadius,
-				 maxRadius: ((pos % bigTickSep)
-					     ? ((pos % midTickSep) ? smallTickMaxRadius : midTickMaxRadius)
+				 maxRadius: ((pos % track.bigTickSep)
+					     ? ((pos % track.midTickSep) ? smallTickMaxRadius : midTickMaxRadius)
 					     : bigTickMaxRadius),
-				 text: ((pos == 0 || pos % bigTickSep) ? undefined : ((pos / unitsSep) + units)),
+				 text: ((pos == 0 || pos % track.bigTickSep) ? undefined : (Util.addCommas(pos / track.unitsSep) + track.units)),
+                                 className: ((pos % track.bigTickSep) ? 'rotunda-gridline-minor' : 'rotunda-gridline-major'),
 				 textRadius: labelRadius
 			       })
 	    return list.concat (seqTicks)
@@ -87,11 +80,12 @@ return declare (Track,
 	    .append("path")
 	    .attr("d", tickArc)
 	    .attr("stroke", "grey")
-	
-	track.addMouseover (tickPath,
-			    { featureLabel: function (feature) {
-				return feature.seq + '<br/>' + feature.pos + track.units
-			    }})
+
+        var mouseover = { featureLabel: function (feature) {
+	    return feature.seq + '<br/>' + Util.addCommas(feature.pos)
+	}}
+        
+	track.addMouseover (tickPath, mouseover)
 
 	if (this.showBase) {
             var seqArc = d3.svg.arc()

@@ -135,3 +135,11 @@ div.rotunda-track-label:hover {
     padding: 1px;
     opacity: .8;
 }
+
+.rotunda-gridline-major {
+    stroke: #bbb;
+}
+
+.rotunda-gridline-minor {
+    stroke: #eee;
+}

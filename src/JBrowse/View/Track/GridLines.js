@@ -41,7 +41,7 @@ return dojo.declare( BlockBased,
         args.finishCallback();
         this.heightUpdate(100, args.blockIndex);
     },
-
+    
     renderGridlines: function(block,leftBase,rightBase) {
 
         var base_span = rightBase-leftBase;

@@ -1142,6 +1142,17 @@ stripeWidthForZoom: function(zoomLevel) {
     }
 },
 
+basesPerStripe: function (startbp, endbp) {
+    // this duplicates the formulae & logic in setLocation, which is a bit kludgy...
+    // the motivation is that plugins (such as Rotunda) can use this to try to match gridlines
+    var pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
+    var curZoom = Util.findNearest(this.zoomLevels, pxPerBp);
+    if (Math.abs(pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2)
+        pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
+    var stripeWidth = (this.stripeWidthForZoom(curZoom) / this.zoomLevels[curZoom]) * pxPerBp;
+    return stripeWidth / pxPerBp;
+},
+    
 instantZoomUpdate: function() {
     this.scrollContainer.style.width =
         (this.stripeCount * this.stripeWidth) + "px";

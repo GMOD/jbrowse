@@ -20,6 +20,7 @@ define([
     'Rotunda/View/Track/Stacked/RefSeq',
     'Rotunda/View/Track/Histogram/FeatureDensity',
     'Rotunda/View/Track/Histogram/Wiggle',
+    'Rotunda/View/Track/GridLines',
     'Rotunda/detect-element-resize'
 ],
 
@@ -44,7 +45,8 @@ define([
 	   ArcLinkTrack,
            RefSeqTrack,
 	   DensityTrack,
-	   WiggleTrack
+	   WiggleTrack,
+           GridLinesTrack
        ) {
 
 return declare( null, {
@@ -222,6 +224,9 @@ return declare( null, {
         // create track list
         this.createTrackList()
 
+        // create gridlines
+        this.gridLines = new GridLinesTrack()
+        
         // show
         this.showRotunda()
         
@@ -895,8 +900,13 @@ return declare( null, {
             if (updateSpriteImage)
                 updateSpriteImage()
         }
+
+        // draw gridlines
+	var gar = this.angularViewRange (this.innerRadius())
+        this.gridLines.draw (this, null, null, gar[0], gar[1], svgUpdated)
         
         // draw tracks in reverse order, so higher-ranked tracks appear on top
+        // (this is broken by asynchronous track-drawing... really need to create a <g> element for each track here, to enforce z-ordering)
         for (var trackNum = this.tracks.length - 1; trackNum >= 0; --trackNum) {
 	    var ar = this.angularViewRange (this.minRadius (trackNum))
 	    var amin = ar[0], amax = ar[1]
@@ -1058,7 +1068,7 @@ return declare( null, {
     },
 
     innerRadius: function() {
-        return this.minRadius (this.tracks.length-1) - 1
+        return this.tracks.length ? (this.minRadius (this.tracks.length-1) - 1) : this.outerRadius()
     },
     
     outerRadius: function() {
@@ -1262,8 +1272,8 @@ return declare( null, {
         }
 	return null
     },
-    
-    updateBrowserLocation: function() {
+
+    calcBrowserLocation: function() {
 	if (this.browser) {
 	    var w = this.angularViewWidth()
 	    var seq = this.angleToSeqName (-this.rotate)
@@ -1272,12 +1282,19 @@ return declare( null, {
 	    if (ar) {
 		var bmin = Math.max (1, this.angleToCoord (ar[0], seq))
 		var bmax = this.angleToCoord (ar[1], seq)
-		var loc = seq + ":" + bmin + ".." + bmax
-		this.browser.navigateToLocation ({ ref: seq,
-                                                   start: Math.round(bmin),
-                                                   end: Math.round(bmax),
-                                                   authority: 'Rotunda/updateBrowserLocation' })
-	    }
+                return { ref: seq,
+                         start: Math.round(bmin),
+                         end: Math.round(bmax) }
+            }
+        }
+        return null
+    },
+    
+    updateBrowserLocation: function() {
+        var bloc = this.calcBrowserLocation()
+	if (bloc) {
+            bloc.authority = 'Rotunda/updateBrowserLocation'
+            this.browser.navigateToLocation (bloc)
 	}
     },
 
