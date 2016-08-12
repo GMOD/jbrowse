@@ -1150,6 +1150,17 @@ return declare( null, {
 	var features = []
 	this.refSeqName.forEach (function (seqName) {
 	    var overlap = rot.refSeqAngularRangeOverlap (amin, amax, seqName)
+            if (amax > 2*Math.PI) {
+	        var rightOverlap = rot.refSeqAngularRangeOverlap (amin - 2*Math.PI, amax - 2*Math.PI, seqName)
+	        if (rightOverlap) {
+                    if (overlap && rightOverlap[1] >= overlap[0])
+                        overlap[0] = rightOverlap[0]
+                    else
+		        features.push ({ seq: seqName,
+				         start: rot.angleToCoord (rightOverlap[0], seqName),
+				         end: rot.angleToCoord (rightOverlap[1], seqName) })
+                }
+            }
 	    if (overlap)
 		features.push ({ seq: seqName,
 				 start: rot.angleToCoord (overlap[0], seqName),
