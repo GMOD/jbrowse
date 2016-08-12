@@ -176,7 +176,7 @@ return declare(
                         var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
                         var start = Math.max( ref.start, this.feature.get('start') - paddingBp );
                         var end   = Math.min( ref.end, this.feature.get('end') + paddingBp );
-                        this.track.genomeView.setLocation( ref, start, end, 'CanvasFeatures/action' );
+                        this.track.genomeView.setLocation( ref, start, end, 'CanvasFeatures/zoomTo' );
                     },
                     "iconClass" : "dijitIconConnector"
                 },
@@ -189,6 +189,34 @@ return declare(
                      this.track.browser.setHighlightAndRedraw(loc);
                   },
                   iconClass: 'dijitIconFilter'
+                },
+                {
+                    "label" : function() {
+                        if ('hasAdjacency' in this.track.store && this.track.store.hasAdjacency(this.feature))
+                            return 'Go to this '+( this.feature.get('type') || 'feature' )+"'s mate";
+                        return false;
+                    },
+                    "onClick" : function(){
+                        var store = this.track.store
+                        var browser = this.track.browser
+                        var feature = this.feature
+                        if ('hasAdjacency' in store && store.hasAdjacency(feature)) {
+                            var adj = store.getAdjacency (feature)
+                            if (adj)
+                                return lang.hitch (this, function() {
+                                    var ref   = browser.allRefs[adj.ref];
+                                    var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
+                                    var start = Math.max( ref.start, adj.pos - paddingBp );
+                                    var end   = Math.min( ref.end, adj.pos + paddingBp );
+                                    browser.navigateToLocation( { ref: ref,
+                                                                  start: start,
+                                                                  end: end,
+                                                                  authority: 'CanvasFeatures/zoomToMate' } );
+                                })
+                        } else
+                            return false;
+                    },
+                    "iconClass" : "dijitIconConnector"
                 }
             ]
         });

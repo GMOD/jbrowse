@@ -1307,7 +1307,7 @@ return declare( null, {
 
     updateRotundaTrackOrder: function (data) {
         var rot = this
-        if (rot.browser && data.authority == 'GenomeView/dnd/drop') {  // only respond to drag-and-drop updates
+        if (rot.browser && data && 'authority' in data && data.authority == 'GenomeView/dnd/drop') {  // only respond to drag-and-drop updates
             // leave a short time delay
 	    var updateTrackOrderDelay = 500
             if (rot.updateTrackOrderTimeout) {

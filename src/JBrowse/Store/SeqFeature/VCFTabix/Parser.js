@@ -228,7 +228,9 @@ return declare( null, {
         "CNV": { description: "Copy number variable region (may be both deletion and duplication)", so_term: 'copy_number_variation' },
         "DUP:TANDEM": { description: "Tandem duplication", so_term: 'copy_number_gain' },
         "DEL:ME": { description: "Deletion of mobile element relative to the reference" },
-        "INS:ME": { description: "Insertion of a mobile element relative to the reference" }
+        "INS:ME": { description: "Insertion of a mobile element relative to the reference" },
+        "INS": { description: "Insertion of novel sequence relative to the reference", so_term: 'insertion' },
+        "BND": { description: "Breakends defining a novel adjacency relative to the reference", so_term: 'structural_alteration' }
     },
 
     /**
@@ -402,6 +404,9 @@ return declare( null, {
     },
 
     _find_SO_term_by_examination: function( ref, alt ) {
+        if (alt.match('[\\[\\]]'))
+            return 'structural_alteration';
+
         alt = alt.split(',');
 
         var minAltLen = Infinity;
@@ -434,6 +439,30 @@ return declare( null, {
             return 'deletion';
 
         return 'indel';
+    },
+
+    /**
+     * Test if a feature is a BND adjacency
+     */
+    hasAdjacency: function(feature) {
+        return feature.data.SVTYPE && feature.data.SVTYPE.values && feature.data.SVTYPE.values[0] === 'BND'
+    },
+
+    /**
+     * Extract the coordinates for a BND adjacency
+     */
+    getAdjacency: function (feature) {
+        if (feature.data.SVTYPE && feature.data.SVTYPE.values && feature.data.SVTYPE.values[0] === 'BND') {
+            var alt = feature.data.alternative_alleles.values
+            var tp_f = /^[A-Z]+\[(.*):(\d+)\[$/i,  // t[p[ piece extending to the right of p is joined after t
+                tp_r = /^[A-Z]+\](.*):(\d+)\]$/i,  // t]p] reverse comp piece extending left of p is joined after t
+                pt_f = /^\](.*):(\d+)\][A-Z]+$/i,  // ]p]t piece extending to the left of p is joined before t
+                pt_r = /^\[(.*):(\d+)\[[A-Z]+$/i   // [p[t reverse comp piece extending right of p is joined before t
+            var match = tp_f.exec(alt) || tp_r.exec(alt) || pt_f.exec(alt) || pt_r.exec(alt)
+            if (match)
+                return { ref: match[1], pos: match[2] }
+        }
+        return null
     }
 
 });

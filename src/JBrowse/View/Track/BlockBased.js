@@ -748,7 +748,9 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                         'dijit/MenuSeparator':   dijitMenuSeparator
                     }[spec.type] || dijitMenuItem;
 
-                    parent.addChild( new class_( menuConf ) );
+                    // if label of a MenuItem evaluates false, don't print it at all
+                    if (menuConf.label || class_ !== dijitMenuItem)
+                        parent.addChild( new class_( menuConf ) );
                 }
             } catch(e) {
                 console.error('failed to render menu item: '+e);
