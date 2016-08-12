@@ -32,7 +32,7 @@ return declare (Track,
                 !( base_span % 2  ) ? 2  :
                                   5;
 
-            this.tickSep = base_span / minor_count
+            this.tickSep = Math.round (base_span / minor_count)
             this.tickMag = Math.max (0, Math.floor (Math.log10 (this.tickSep)) - 1)
             
         } else {

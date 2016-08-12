@@ -60,8 +60,7 @@ return declare ([Track,Ticks],
 		 pos < feature.end;
 		 pos += track.tickSep)
 		seqTicks.push ({ seq: feature.seq,
-				 pos: pos + 1,
-				 text: ((pos == 0 || pos % track.bigTickSep) ? undefined : (Util.addCommas(pos / track.unitsSep) + track.units)),
+				 pos: pos,
 				 angle: rot.coordToAngle (feature.seq, pos),
                                  className: ((pos % track.bigTickSep) ? 'rotunda-gridline-minor' : 'rotunda-gridline-major')
 			       })
@@ -85,7 +84,7 @@ return declare ([Track,Ticks],
             })
 
         var mouseover = { featureLabel: function (feature) {
-	    return feature.seq + '<br/>' + track.text
+	    return feature.seq + '<br/>' + Util.addCommas(feature.pos)
 	}}
         
 	track.addMouseover (spokePath, mouseover)

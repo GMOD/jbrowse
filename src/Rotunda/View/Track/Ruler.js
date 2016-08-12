@@ -52,7 +52,7 @@ return declare ([Track,Ticks],
 		 pos < feature.end;
 		 pos += track.tickSep)
 		seqTicks.push ({ seq: feature.seq,
-				 pos: pos + 1,
+				 pos: pos,
 				 angle: rot.coordToAngle (feature.seq, pos),
 				 minRadius: minRadius,
 				 maxRadius: ((pos % track.bigTickSep)
