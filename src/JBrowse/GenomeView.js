@@ -1147,10 +1147,7 @@ basesPerStripe: function (startbp, endbp) {
     // the motivation is that plugins (such as Rotunda) can use this to try to match gridlines
     var pxPerBp = Math.min(this.getWidth() / (endbp - startbp), this.maxPxPerBp );
     var curZoom = Util.findNearest(this.zoomLevels, pxPerBp);
-    if (Math.abs(pxPerBp - this.zoomLevels[this.zoomLevels.length - 1]) < 0.2)
-        pxPerBp = this.zoomLevels[this.zoomLevels.length - 1];
-    var stripeWidth = (this.stripeWidthForZoom(curZoom) / this.zoomLevels[curZoom]) * pxPerBp;
-    return stripeWidth / pxPerBp;
+    return this.stripeWidthForZoom(curZoom) / this.zoomLevels[curZoom]
 },
     
 instantZoomUpdate: function() {
