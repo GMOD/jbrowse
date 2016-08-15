@@ -3149,7 +3149,7 @@ getHighlight: function() {
 
 getBookmarks: function() {
     if( this.config.bookmarkService ) {
-        return request( this.config.bookmarkService + "?" + ioQuery.objectToQuery({ sequence: this.refSeq.name, organism: dataset_id }), {
+        return request( this.config.bookmarkService + "?" + ioQuery.objectToQuery({ sequence: this.refSeq.name, organism: this.config.dataset_id }), {
             handleAs: "json"
         });
     }
