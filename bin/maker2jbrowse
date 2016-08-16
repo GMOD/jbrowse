@@ -54,6 +54,12 @@ my $help;
 my $outdir = 'data';
 my $sortmem = 1000000000;
 my $skip_generate_names;
+my $localbin = '';
+
+if($0 eq 'bin/maker2jbrowse') {
+    $localbin = 'bin/';
+}
+
 GetOptions(
     "ds_index|d=s" => \$dstore,
     "no_names_index" => \$skip_generate_names,
@@ -254,7 +260,7 @@ for my $gff3_file (@files){
         keys %t
     };
 
-    system 'bin/prepare-refseqs.pl', '--gff' => $gff3_file, @outdir,
+    system "$localbin/prepare-refseqs.pl", '--gff' => $gff3_file, @outdir,
         and die "prepare-refseqs.pl failed with exit status $?";
 
     for my $track ( @tracks_to_make ) {
@@ -270,7 +276,7 @@ for my $gff3_file (@files){
         }
 
         my @command = (
-            'bin/flatfile-to-json.pl',
+            "$localbin/flatfile-to-json.pl",
             '--trackLabel' => $track,
             '--gff' => $gff3_file,
             '--sortMem' => $sortmem,
