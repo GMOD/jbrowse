@@ -35,7 +35,7 @@ Output dir for formatted data.  Defaults to './data'.
 Take filenames from a MAKER master datastore index file
 (e.g. my_genome_master_datastore_index.log).
 
-=item --sortMem int, -s int
+=item --sortMem int
 
 Set sortMem for flatfile-to-json.pl
 
@@ -64,7 +64,7 @@ GetOptions(
     "ds_index|d=s" => \$dstore,
     "no_names_index" => \$skip_generate_names,
     "help|?" => \$help,
-    "sortMem|s=i" => \$sortmem,
+    "sortMem=i" => \$sortmem,
     "out|o=s" => \$outdir
    )
     or pod2usage( verbose => 2 );
