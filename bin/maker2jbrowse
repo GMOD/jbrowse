@@ -262,7 +262,7 @@ for my $gff3_file (@files){
         keys %t
     };
 
-    system "$localbin/prepare-refseqs.pl", '--gff' => $gff3_file, @outdir,
+    system $localbin . "prepare-refseqs.pl", '--gff' => $gff3_file, @outdir,
         and die "prepare-refseqs.pl failed with exit status $?";
 
     for my $track ( @tracks_to_make ) {
@@ -278,7 +278,7 @@ for my $gff3_file (@files){
         }
 
         my @command = (
-            "$localbin/flatfile-to-json.pl",
+            $localbin . "flatfile-to-json.pl",
             '--trackLabel' => $track,
             '--gff' => $gff3_file,
             '--sortMem' => $sortmem,
