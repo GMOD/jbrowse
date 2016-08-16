@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -35,6 +35,10 @@ Output dir for formatted data.  Defaults to './data'.
 Take filenames from a MAKER master datastore index file
 (e.g. my_genome_master_datastore_index.log).
 
+=item --sortMem int, -s int
+
+Set sortMem for flatfile-to-json.pl
+
 =item --no_names_index
 
 Do not call generate-names.pl at the end of the run to generate the names index.
@@ -48,11 +52,13 @@ Displays full help information.
 my $dstore;
 my $help;
 my $outdir = 'data';
+my $sortmem = 1000000000;
 my $skip_generate_names;
 GetOptions(
     "ds_index|d=s" => \$dstore,
     "no_names_index" => \$skip_generate_names,
     "help|?" => \$help,
+    "sortMem|s=i" => \$sortmem,
     "out|o=s" => \$outdir
    )
     or pod2usage( verbose => 2 );
@@ -267,6 +273,7 @@ for my $gff3_file (@files){
             'bin/flatfile-to-json.pl',
             '--trackLabel' => $track,
             '--gff' => $gff3_file,
+            '--sortMem' => $sortmem,
             @outdir,
             @{$commands{$track}}
            );
