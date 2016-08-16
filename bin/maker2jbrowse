@@ -7,7 +7,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
 use JBlibs;
 
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use File::Basename;
 use File::Spec::Functions;
 use File::Temp;
@@ -46,6 +46,8 @@ Do not call generate-names.pl at the end of the run to generate the names index.
 =item --help, -h, -?
 
 Displays full help information.
+
+=back
 
 =cut
 
