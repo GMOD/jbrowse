@@ -23,6 +23,11 @@ use POSIX;
 use Bio::JBrowse::JSON;
 use JsonFileStorage;
 
+use constant ONE_BYTE => 1;
+use constant FOUR_BYTE => 4;
+use constant BITS_PER_BYTE => 8;
+use constant BASES_PER_FOUR_BYTE => 16;
+
 sub option_defaults {(
     out => 'data',
     chunksize => 20_000,
@@ -37,6 +42,7 @@ sub option_definitions {(
     "chunksize=s",
     "fasta=s@",
     "indexed_fasta=s",
+    "twobit=s",
     "sizes=s@",
     "refs=s",
     "reftypes=s",
@@ -55,8 +61,8 @@ sub run {
 
     $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
 
-    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --sizes, --gff, or --conf option' )
-        unless $self->opt('gff') || $self->opt('conf') || $self->opt('fasta') || $self->opt('indexed_fasta') || $self->opt('sizes');
+    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --twobit, --sizes, --gff, or --conf option' )
+        unless $self->opt('gff') || $self->opt('conf') || $self->opt('fasta') || $self->opt('indexed_fasta') || $self->opt('sizes') || $self->opt('twobit');
 
     {
         my $chunkSize = $self->opt('chunksize');
@@ -68,6 +74,10 @@ sub run {
 
     if ( $self->opt('indexed_fasta') ) {
         $self->exportFAI( $self->opt('indexed_fasta') );
+        $self->writeTrackEntry();
+    }
+    elsif ( $self->opt('twobit') ) {
+        $self->exportTWOBIT( $self->opt('twobit') );
         $self->writeTrackEntry();
     }
     elsif ( $self->opt('fasta') && @{$self->opt('fasta')} ) {
@@ -186,6 +196,34 @@ sub exportFAI {
     mkpath( $dir );
     copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
     copy( $indexed_fasta, $dir ) or die "Unable to copy $indexed_fasta to $dir: $!\n";
+    $self->writeRefSeqsJSON( \%refSeqs );
+}
+
+sub exportTWOBIT {
+    my ( $self, $twobit ) = @_;
+    open(my $fh, '<', $twobit) or die "Unable to open '$twobit' for reading: $!";
+
+    my $header = twobit_parse_header($fh);
+    my $count  = $header->{CNT};
+
+    my %toc;
+    my %refSeqs;
+    twobit_populate_toc($fh, $count, \%toc);
+
+    for my $name (keys %toc) {
+        my $offset = $toc{$name};
+        my $size = twobit_fetch_record($fh, $offset);
+        $refSeqs{$name} = {
+            name => $name,
+            length => $size,
+            start => 0,
+            end => $size
+        };
+    }
+
+    my $dir = catdir( $self->opt('out'), 'seq' );
+    mkpath( $dir );
+    copy( $twobit, $dir ) or die "Unable to copy $twobit to $dir: $!\n";
     $self->writeRefSeqsJSON( \%refSeqs );
 }
 
@@ -413,6 +451,13 @@ sub writeTrackEntry {
                                                $tracks->[$i]->{'faiUrlTemplate'} = "$fastaTemplate.fai";
                                                $tracks->[$i]->{'useAsRefSeqStore'} = 1;
                                            }
+                                           if ( $self->opt('twobit') ) {
+                                               $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/TwoBit';
+                                               delete $tracks->[$i]->{'chunkSize'};
+                                               my $fastaTemplate = catfile( 'seq', basename( $self->opt('twobit') ) );
+                                               $tracks->[$i]->{'urlTemplate'} = $fastaTemplate;
+                                               $tracks->[$i]->{'useAsRefSeqStore'} = 1;
+                                           }
                                            return $trackList;
                                        });
     }
@@ -504,4 +549,55 @@ sub exportSeqChunksFromDB {
     }
 }
 
+sub twobit_parse_header {
+    my ($fh) = @_;
+
+    # Read header
+    my $raw = '';
+    sysread($fh, $raw, FOUR_BYTE * 4);
+
+    # Parse header
+    my ($sig, $ver, $cnt, $reserved) = unpack('l4', $raw);
+
+    # TODO: validate (signature, reverse byte order, version)
+    return {SIG => $sig, VER => $ver, CNT => $cnt, RSV => $reserved};
+}
+
+sub twobit_populate_toc {
+    my ($fh, $count, $toc) = @_;
+
+    my ($raw, $size, $name) = ('', '', '');
+    for (1 .. $count) {
+
+        # Read size of record name
+        sysread($fh, $raw, ONE_BYTE);
+        $size = unpack('C', $raw);
+
+        # Read name of reacord
+        sysread($fh, $name, $size);
+
+        # Read and store offset
+        sysread($fh, $raw, FOUR_BYTE);
+        $toc->{$name} = unpack('l', $raw);
+    }
+}
+
+sub twobit_fetch_record {
+    my ($fh, $offset) = @_;
+
+    my ($raw, $dna, $size, $cnt) = ('', '', '', '');
+    my (@start, @len, %nblock, %mblock);
+
+    # Seek to the record location
+    sysseek($fh, $offset, 0);
+
+    # Establish the conversion table
+    my %conv = ('00' => 'T', '01' => 'C', '10' => 'A', '11' => 'G');
+
+    # Fetch the DNA size
+    sysread($fh, $raw, FOUR_BYTE);
+    $size = unpack('l', $raw);
+    return $size;
+}
 1;
+
