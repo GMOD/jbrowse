@@ -204,15 +204,15 @@ sub exportTWOBIT {
     open(my $fh, '<', $twobit) or die "Unable to open '$twobit' for reading: $!";
 
     my $header = twobit_parse_header($fh);
-    my $count  = $header->{CNT};
+    my $count = $header->{CNT};
 
     my %toc;
     my %refSeqs;
-    twobit_populate_toc($fh, $count, \%toc);
+    twobit_populate_toc($fh, $count, \%toc, $header->{unpack});
 
     for my $name (keys %toc) {
         my $offset = $toc{$name};
-        my $size = twobit_fetch_record($fh, $offset);
+        my $size = twobit_fetch_record($fh, $offset, $header->{unpack});
         $refSeqs{$name} = {
             name => $name,
             length => $size,
@@ -557,14 +557,16 @@ sub twobit_parse_header {
     sysread($fh, $raw, FOUR_BYTE * 4);
 
     # Parse header
-    my ($sig, $ver, $cnt, $reserved) = unpack('l4', $raw);
-
-    # TODO: validate (signature, reverse byte order, version)
-    return {SIG => $sig, VER => $ver, CNT => $cnt, RSV => $reserved};
+    for my $template ("N", "V") {
+        my ($sig, $ver, $cnt, $reserved) = unpack($template.'4', $raw);
+        if($sig == 0x1A412743) {
+            return {unpack => $template, VER => $ver, CNT => $cnt};
+        }
+    }
 }
 
 sub twobit_populate_toc {
-    my ($fh, $count, $toc) = @_;
+    my ($fh, $count, $toc, $template) = @_;
 
     my ($raw, $size, $name) = ('', '', '');
     for (1 .. $count) {
@@ -578,12 +580,12 @@ sub twobit_populate_toc {
 
         # Read and store offset
         sysread($fh, $raw, FOUR_BYTE);
-        $toc->{$name} = unpack('l', $raw);
+        $toc->{$name} = unpack($template, $raw);
     }
 }
 
 sub twobit_fetch_record {
-    my ($fh, $offset) = @_;
+    my ($fh, $offset, $template) = @_;
 
     my ($raw, $dna, $size, $cnt) = ('', '', '', '');
     my (@start, @len, %nblock, %mblock);
@@ -596,7 +598,7 @@ sub twobit_fetch_record {
 
     # Fetch the DNA size
     sysread($fh, $raw, FOUR_BYTE);
-    $size = unpack('l', $raw);
+    $size = unpack($template, $raw);
     return $size;
 }
 1;
