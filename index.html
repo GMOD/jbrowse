@@ -19,6 +19,9 @@
                 delete window.require;
             }
     </script>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="plugins/SocialFeatures/js/disqus_actions.js"></script>
+    <script id="dsq-count-scr" src="//jbrowse.disqus.com/count.js" async></script>
     <script type="text/javascript" src="src/dojo/dojo.js"></script>
     <script type="text/javascript" src="src/JBrowse/init.js"></script>
     <script type="text/javascript">
@@ -109,6 +112,26 @@
   </head>
 
   <body>
+    <section class="disqus-comments-sidebar">
+      <div id="wrapper" class="toggled">
+        <div id="sidebar-wrapper">
+          <div class = "toggler" ></div>
+          <div class="sidebar-content">
+            <span class="disqus-comment-count" data-disqus-identifier="identifier_1">First article</span>
+            <ul class="sidebar-nav">
+              <li class="sidebar-brand">
+                Comments
+              </li>
+              <li>
+                <div id="disqus_thread"></div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div id="toggle-menu"></div>
+      </div>
+    </section>
+
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
