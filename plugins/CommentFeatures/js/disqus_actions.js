@@ -71,7 +71,6 @@ function describeThreads(callback) {
                     changes[id] = commentStats[id].newCount - commentStats[id].oldCount;
                 }
             }
-            console.log(commentStats);
             if (callback) {
                 callback(changes);
             }
