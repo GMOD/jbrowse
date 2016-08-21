@@ -47,3 +47,8 @@
 .hasComments {
     background: #4672d2 !important;
 }
+
+span.disqus-comment-count {
+    color: #999;
+    font-size: 90%;
+}
