@@ -1,0 +1,19 @@
+{
+  "featureCount": 8,
+  "intervals": {
+    "nclist": [
+      [0, 956, 1950, "ctgA", "identifier_8", "Thread 8",""],
+      [0, 1000, 1150, "ctgA", "bf_1", "Buffer Thread",""],
+      [0, 6033, 8167, "ctgA", "identifier_3", "Thread 3",""]
+    ],
+    "classes": [{
+      "isArrayAttr": {},
+      "attributes": ["Start", "End", "Seq_id", "thread_id", "name","class_css"]
+    }],
+    "count": 8,
+    "lazyClass": 1,
+    "minStart": 1,
+    "maxEnd": 10000000
+  },
+  "formatVersion": 1
+}
