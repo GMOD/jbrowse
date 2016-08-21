@@ -265,7 +265,7 @@ return declare( SeqFeatureStore,
     _decorate_feature: function( accessors, feature, id, parent ) {
         feature.get = accessors.get;
         // possibly include set method in decorations? not currently
-        //    feature.set = accessors.set;
+        feature.set = accessors.set;
         feature.tags = accessors.tags;
         feature._uniqueID = id;
         feature.id = idfunc;

@@ -242,7 +242,7 @@ getPlugin: function( name, callback ) {
 },
 
 _corePlugins: function() {
-    return [ 'RegexSequenceSearch' ];
+    return [ 'RegexSequenceSearch', 'CommentFeatures' ];
 },
 
 /**
