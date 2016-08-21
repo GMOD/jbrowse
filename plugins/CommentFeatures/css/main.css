@@ -1,0 +1,54 @@
+.search-dialog .header {
+    font-weight: bold;
+}
+
+.search-dialog .checkboxdiv {
+    display:block;
+}
+
+.search-dialog .translateContainer {
+    display:inline;
+}
+
+.search-dialog .translateContainer > label {
+    margin-left: 0.4em;
+}
+
+.search-dialog .intro {
+    width: 25em;
+    padding: 2em;
+}
+
+.search-dialog .section {
+    margin: 0.5em auto;
+    width: 25em;
+}
+
+.search-dialog .dijitTextBox {
+    width: 25em;
+}
+
+.search-dialog .dijitTextBox * {
+    font-size: 110%;
+}
+
+.comments {
+    position:absolute;
+    height: 7px;
+    background-repeat: repeat-x;
+    cursor: pointer;
+    min-width: 1px;
+    z-index: 10;
+    background: #dd3333 !important;
+    height: 16px;
+    border-radius: 5px 5px 5px 0;
+}
+
+.hasComments {
+    background: #4672d2 !important;
+}
+
+span.disqus-comment-count {
+    color: #999;
+    font-size: 90%;
+}

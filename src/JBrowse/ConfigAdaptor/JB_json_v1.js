@@ -184,7 +184,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                     'JBrowse/View/Track', {
                         'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',         'ImageTrack':        'JBrowse/View/Track/FixedImage',
                         'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
-                        'SequenceTrack':     'JBrowse/View/Track/Sequence'
+                        'SequenceTrack':     'JBrowse/View/Track/Sequence', 'CommentTrack': 'JBrowse/View/Track/CommentFeatures'
                     }[ trackConfig.type ]
                     || trackConfig.type
                 );

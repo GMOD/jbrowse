@@ -1,0 +1,434 @@
+{
+  "formatVersion": 1,
+  "histograms": {
+    "stats": [
+      {
+        "max": 4,
+        "mean": 3.16666666666667,
+        "basesPerBin": "10000"
+      }
+    ],
+    "meta": [
+      {
+        "arrayParams": {
+          "length": 6,
+          "urlTemplate": "hist-10000-{Chunk}.json",
+          "chunkSize": 10000
+        },
+        "basesPerBin": "10000"
+      }
+    ]
+  },
+  "featureCount": 16,
+  "intervals": {
+    "maxEnd": 50000,
+    "nclist": [
+      [
+        6,
+        999,
+        2000,
+        0,
+        "ctgA",
+        "hga",
+        "Remark:hga",
+        "example",
+        "remark",
+        {
+          "Sublist": [
+            [
+              11,
+              1658,
+              1984,
+              1,
+              "remark",
+              "example",
+              "f07",
+              "ctgA",
+              "This is an example"
+            ]
+          ]
+        }
+      ],
+      [
+        12,
+        3013,
+        6130,
+        1,
+        "example",
+        "f06",
+        "ctgA",
+        "This is another example",
+        "remark",
+        {
+          "Sublist": [
+            [
+              3,
+              4714,
+              5968,
+              -1,
+              "remark",
+              "example",
+              "f05",
+              "Ok! Ok! I get the message.",
+              "ctgA"
+            ],[
+              3,
+              6970,
+              7068,
+              -1,
+              "remark",
+              "example",
+              "f05",
+              "Ok! Ok!.",
+              "ctgA"
+            ]
+          ]
+        }
+      ],
+      [
+        4,
+        13279,
+        16394,
+        1,
+        "remark",
+        "f08",
+        "example",
+        "ctgA",
+        {
+          "Sublist": [
+            [
+              13,
+              15328,
+              15533,
+              1,
+              "f10",
+              "example",
+              "remark",
+              "ctgA"
+            ]
+          ]
+        }
+      ],
+      [
+        1,
+        19156,
+        22915,
+        -1,
+        "remark",
+        "f13",
+        "example",
+        "ctgA"
+      ],
+      [
+        8,
+        22131,
+        24633,
+        1,
+        "remark",
+        "f15",
+        "example",
+        "ctgA",
+        {
+          "Sublist": [
+            [
+              2,
+              23071,
+              23185,
+              1,
+              "remark",
+              "example",
+              "f14",
+              "ctgA"
+            ]
+          ]
+        }
+      ],
+      [
+        0,
+        24561,
+        28338,
+        1,
+        "example",
+        "f02",
+        "remark",
+        "ctgA"
+      ],
+      [
+        5,
+        36033,
+        38167,
+        1,
+        "ctgA",
+        "remark",
+        "example",
+        "f09"
+      ],
+      [
+        7,
+        36648,
+        40440,
+        -1,
+        "ctgA",
+        "f03",
+        "example",
+        "remark",
+        {
+          "Sublist": [
+            [
+              15,
+              37241,
+              38653,
+              1,
+              "example",
+              "f04",
+              "remark",
+              "ctgA"
+            ]
+          ]
+        }
+      ],
+      [
+        14,
+        44704,
+        47713,
+        -1,
+        "ctgA",
+        "remark",
+        "f01",
+        "example"
+      ],
+      [
+        9,
+        46989,
+        48410,
+        -1,
+        "remark",
+        "f11",
+        "example",
+        "ctgA"
+      ],
+      [
+        10,
+        49757,
+        50000,
+        -1,
+        "ctgA",
+        "remark",
+        "example",
+        "f12"
+      ]
+    ],
+    "minStart": 999,
+    "classes": [
+      {
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Source",
+          "Name",
+          "Type",
+          "Seq_id"
+        ],
+        "isArrayAttr": {}
+      },
+      {
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Name",
+          "Source",
+          "Seq_id"
+        ],
+        "isArrayAttr": {}
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Source",
+          "Name",
+          "Seq_id"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Source",
+          "Name",
+          "Note",
+          "Seq_id"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Name",
+          "Source",
+          "Seq_id"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Seq_id",
+          "Type",
+          "Source",
+          "Name"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Seq_id",
+          "Alias",
+          "Name",
+          "Source",
+          "Type"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Seq_id",
+          "Name",
+          "Source",
+          "Type"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Name",
+          "Source",
+          "Seq_id"
+        ]
+      },
+      {
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Name",
+          "Source",
+          "Seq_id"
+        ],
+        "isArrayAttr": {}
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Seq_id",
+          "Type",
+          "Source",
+          "Name"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Type",
+          "Source",
+          "Name",
+          "Seq_id",
+          "Note"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Source",
+          "Name",
+          "Seq_id",
+          "Note",
+          "Type"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Name",
+          "Source",
+          "Type",
+          "Seq_id"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Seq_id",
+          "Type",
+          "Name",
+          "Source"
+        ]
+      },
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Strand",
+          "Source",
+          "Name",
+          "Type",
+          "Seq_id"
+        ]
+      },
+      {
+        "attributes": [
+          "Start",
+          "End",
+          "Chunk"
+        ],
+        "isArrayAttr": {
+          "Sublist": 1
+        }
+      }
+    ],
+    "count": 16,
+    "lazyClass": 16,
+    "urlTemplate": "lf-{Chunk}.json"
+  }
+}
