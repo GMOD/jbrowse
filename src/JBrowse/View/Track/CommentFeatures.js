@@ -1,3 +1,5 @@
+/* jshint undef: true, unused: false */
+/* globals describeThreads: false, reload: false, startThread:false */
 define([
         'dojo/_base/declare',
         'dojo/_base/lang',
