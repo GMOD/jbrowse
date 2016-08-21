@@ -1,19 +1,79 @@
 {
-  "featureCount": 8,
+  "featureCount": 6,
   "intervals": {
     "nclist": [
-      [0, 956, 1950, "ctgA", "identifier_8", "Thread 8",""],
-      [0, 1000, 1150, "ctgA", "bf_1", "Buffer Thread",""],
-      [0, 6033, 8167, "ctgA", "identifier_3", "Thread 3",""]
+      [
+        0,
+        500,
+        1000,
+        "ctgA",
+        "identifier_11",
+        "Thread 11",
+        ""
+      ],
+      [
+        0,
+        1500,
+        2450,
+        "ctgA",
+        "identifier_new_6",
+        "another one"
+      ],
+      [
+        0,
+        3000,
+        4900,
+        "ctgA",
+        "identifier_1",
+        "Thread 1"
+      ],
+      [
+        0,
+        4500,
+        6700,
+        "ctgA",
+        "identifier_new_7",
+        "This is a brand new thread",
+        ""
+      ],
+      [
+        0,
+        7600,
+        9000,
+        "ctgA",
+        "identifier_new_7",
+        "hwbfw",
+        ""
+      ],
+      [
+        0,
+        8500,
+        8600,
+        "ctgA",
+        "identifier_4",
+        "Thread 4",
+        ""
+      ]
     ],
-    "classes": [{
-      "isArrayAttr": {},
-      "attributes": ["Start", "End", "Seq_id", "thread_id", "name","class_css"]
-    }],
-    "count": 8,
+    "classes": [
+      {
+        "isArrayAttr": {},
+        "attributes": [
+          "Start",
+          "End",
+          "Seq_id",
+          "thread_id",
+          "name",
+          "class_css"
+        ]
+      }
+    ],
+    "count": 6,
     "lazyClass": 1,
     "minStart": 1,
     "maxEnd": 10000000
   },
+  "absCount": 6,
+  "host": "dev",
   "formatVersion": 1
 }
