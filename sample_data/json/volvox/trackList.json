@@ -7,7 +7,7 @@
    "formatVersion" : 1,
    "tracks" : [
       {
-         "key" : "Reference sequence Dodan",
+         "key" : "Reference sequence",
          "chunkSize" : 20000,
          "type" : "SequenceTrack",
          "storeClass" : "JBrowse/Store/Sequence/StaticChunked",
@@ -37,14 +37,14 @@
          "urlTemplate" : "tracks/Comments/{refseq}/trackData.json",
          "compress" : 0,
          "autocomplete" : "all",
-         "track" : "ExampleComments",
-         "label" : "ExampleComments",
+         "track" : "Comments",
+         "label" : "Comments",
          "category" : "Miscellaneous",
          "storeClass" : "JBrowse/Store/SeqFeature/NCList",
          "feature" : [
             "remark"
          ],
-         "key" : "Comments1",
+         "key" : "Comments",
          "style" : {
             "className" : "comments"
          },
