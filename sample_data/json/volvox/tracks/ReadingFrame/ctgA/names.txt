@@ -1,0 +1,5 @@
+[["EDEN.2"],"ReadingFrame","EDEN.2","ctgA",1049,9000]
+[["EDEN.1"],"ReadingFrame","EDEN.1","ctgA",1049,9000]
+[["EDEN.3"],"ReadingFrame","EDEN.3","ctgA",1299,9000]
+[["Apple2"],"ReadingFrame","Apple2","ctgA",12999,17200]
+[["Apple3"],"ReadingFrame","Apple3","ctgA",17399,23000]

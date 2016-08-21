@@ -1,0 +1,3 @@
+[["Apple1"],"CDS","Apple1","ctgA",9999,11500]
+[["Apple2"],"CDS","Apple2","ctgA",12999,17200]
+[["Apple3"],"CDS","Apple3","ctgA",17399,23000]

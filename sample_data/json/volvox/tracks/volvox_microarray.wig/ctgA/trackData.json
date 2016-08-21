@@ -1,0 +1,89 @@
+{
+   "stats" : { 
+       "global_min": 100,
+       "global_max": 899
+    },
+   "zoomLevels" : [
+      {
+         "urlPrefix" : "1/",
+         "height" : 100,
+         "basesPerTile" : 2000
+      },
+      {
+         "urlPrefix" : "2/",
+         "height" : 100,
+         "basesPerTile" : 4000
+      },
+      {
+         "urlPrefix" : "5/",
+         "height" : 100,
+         "basesPerTile" : 10000
+      },
+      {
+         "urlPrefix" : "10/",
+         "height" : 100,
+         "basesPerTile" : 20000
+      },
+      {
+         "urlPrefix" : "20/",
+         "height" : 100,
+         "basesPerTile" : 40000
+      },
+      {
+         "urlPrefix" : "50/",
+         "height" : 100,
+         "basesPerTile" : 100000
+      },
+      {
+         "urlPrefix" : "100/",
+         "height" : 100,
+         "basesPerTile" : 200000
+      },
+      {
+         "urlPrefix" : "200/",
+         "height" : 100,
+         "basesPerTile" : 400000
+      },
+      {
+         "urlPrefix" : "500/",
+         "height" : 100,
+         "basesPerTile" : 1000000
+      },
+      {
+         "urlPrefix" : "1000/",
+         "height" : 100,
+         "basesPerTile" : 2000000
+      },
+      {
+         "urlPrefix" : "2000/",
+         "height" : 100,
+         "basesPerTile" : 4000000
+      },
+      {
+         "urlPrefix" : "5000/",
+         "height" : 100,
+         "basesPerTile" : 10000000
+      },
+      {
+         "urlPrefix" : "10000/",
+         "height" : 100,
+         "basesPerTile" : 20000000
+      },
+      {
+         "urlPrefix" : "20000/",
+         "height" : 100,
+         "basesPerTile" : 40000000
+      },
+      {
+         "urlPrefix" : "50000/",
+         "height" : 100,
+         "basesPerTile" : 100000000
+      },
+      {
+         "urlPrefix" : "100000/",
+         "height" : 100,
+         "basesPerTile" : 200000000
+      }
+   ],
+   "tileWidth" : 2000
+}
