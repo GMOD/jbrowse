@@ -9,13 +9,14 @@ define( [
             'dojo/dom-construct',
             'dijit/Dialog',
             'dojox/form/Uploader',
-            'dojox/form/uploader/plugins/IFrame',
             './FileDialog/TrackList/BAMDriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
             './FileDialog/TrackList/GTFDriver',
             './FileDialog/TrackList/VCFTabixDriver',
+            './FileDialog/TrackList/BEDTabixDriver',
             './FileDialog/TrackList/GFF3TabixDriver',
+            './FileDialog/TrackList/BEDDriver',
             './FileDialog/ResourceList',
             './FileDialog/TrackList',
             'JBrowse/Util'
@@ -31,13 +32,14 @@ define( [
             dom,
             Dialog,
             Uploaded,
-            IFramePlugin,
             BAMDriver,
             BigWigDriver,
             GFF3Driver,
             GTFDriver,
             VCFTabixDriver,
+            BEDTabixDriver,
             GFF3TabixDriver,
+            BEDDriver,
             ResourceList,
             TrackList,
             Util
@@ -52,7 +54,16 @@ return declare( null, {
             dnd: 'draggable' in document.createElement('span')
         };
 
-        this._fileTypeDrivers = [ new BAMDriver(), new BigWigDriver(), new GFF3Driver(), new GTFDriver(), new VCFTabixDriver(), new GFF3TabixDriver() ];
+        this._fileTypeDrivers = [
+            new BAMDriver(),
+            new BigWigDriver(),
+            new GFF3Driver(),
+            new GTFDriver(),
+            new VCFTabixDriver(),
+            new BEDTabixDriver(),
+            new GFF3TabixDriver(),
+            new BEDDriver()
+        ];
     },
 
     addFileTypeDriver: function( d ) {
@@ -128,9 +139,7 @@ return declare( null, {
         }
         else {
             on( localFilesControl.uploader, 'click', function() {
-                var remote = electronRequire('remote');
-                var app = remote.require('app');
-                var dialog = remote.require('dialog');
+                var dialog = electronRequire('electron').remote.dialog;
                 var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
                 if( ret ) {
                     var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });

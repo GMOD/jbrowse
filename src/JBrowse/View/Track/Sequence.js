@@ -48,6 +48,7 @@ return declare( [BlockBased, ExportMixin, CodonTable],
             showForwardStrand: true,
             showReverseStrand: true,
             showTranslation: true,
+            showColor: true,
             seqType: 'dna',
             proteinColorScheme: 'taylor'
         };
@@ -152,11 +153,10 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         var charSize = this.getCharacterMeasurements('sequence');
         var bigTiles = scale > charSize.w + 4; // whether to add .big styles to the base tiles
         var seqNode;
-
         if( this.config.showReverseStrand || this.config.showForwardStrand )
             seqNode = dom.create(
                 "table", {
-                    className: "sequence" + (bigTiles ? ' big' : ''),
+                    className: "sequence" + (bigTiles ? ' big' : '') + (this.config.showColor ? '' : ' nocolor'),
                     style: { width: "100%" }
                 }, block.domNode);
 
@@ -345,6 +345,14 @@ return declare( [BlockBased, ExportMixin, CodonTable],
                   checked: !! this.config.showTranslation,
                   onClick: function(event) {
                       track.config.showTranslation = this.checked;
+                      track.changed();
+                  }
+                },
+                { label: 'Show color',
+                  type: 'dijit/CheckedMenuItem',
+                  checked: !! this.config.showColor,
+                  onClick: function(event) {
+                      track.config.showColor = this.checked;
                       track.changed();
                   }
                 }

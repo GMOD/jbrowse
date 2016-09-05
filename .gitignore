@@ -39,3 +39,4 @@ src/util/
 src/xstyle/
 .idea
 node_modules
+.idea/**
