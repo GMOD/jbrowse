@@ -153,9 +153,7 @@ return declare( ActionBarDialog,
 
         var thisB = this;
         on( fileBox, 'click', function() {
-            var remote = electronRequire('remote');
-            var app = remote.require('app');
-            var dialog = remote.require('dialog');
+            var dialog = electronRequire('electron').remote.dialog;
             var ret = dialog.showOpenDialog({ properties: [ 'openDirectory' ]});
             if( ret ) {
                 var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });

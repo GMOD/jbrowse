@@ -11,8 +11,7 @@ define([
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
            'JBrowse/Store/SeqFeature/GFF3/Parser',
-           'JBrowse/Util/GFF3',
-           './GFF3Tabix/LazyFeature'
+           'JBrowse/Util/GFF3'
        ],
        function(
            declare,
@@ -27,8 +26,7 @@ define([
            GlobalStatsEstimationMixin,
            XHRBlob,
            Parser,
-           GFF3,
-           LazyFeature
+           GFF3
        ) {
 
 

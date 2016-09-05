@@ -103,6 +103,7 @@ echo -n "Formatting Volvox example data ...";
     cat docs/tutorial/data_files/volvox.gff3.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.gtf.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.sort.gff3.gz.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox.sort.bed.gz.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/bookmarks.conf >> sample_data/json/volvox/tracks.conf
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
     bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
