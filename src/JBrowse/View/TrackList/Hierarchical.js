@@ -184,11 +184,17 @@ return declare(
                     title: Util.escapeHTML( trackConf.shortDescription || track.shortDescription ||  (trackConf.description===1?undefined:trackConf.description) || track.description || trackConf.Description || track.Description || trackConf.metadata && ( trackConf.metadata.shortDescription || trackConf.metadata.description || trackConf.metadata.Description ) || track.key || trackConf.key || trackConf.label )
                 }, category.pane.containerNode );
 
-            var checkbox = dom.create('input', { type: 'checkbox', className: 'check' }, labelNode );
+            var checkBoxProps = { type: 'checkbox', className: 'check' };
+            
+            // hook point
+            if (typeof thisB.extendCheckbox === 'function')
+                var checkBoxProps = thisB.extendCheckbox(checkBoxProps,trackConf);
+            
+            var checkbox = dom.create('input', checkBoxProps, labelNode );
             var trackLabel = trackConf.label;
             var checkListener;
             this.own( checkListener = on( checkbox, 'click', function() {
-                thisB.browser.publish( '/jbrowse/v1/v/tracks/'+(this.checked ? 'show' : 'hide'), [trackConf] );
+                    thisB.itemClick(this,trackConf);
             }));
             dom.create('span', { className: 'key', innerHTML: trackConf.key || trackConf.label }, labelNode );
 
@@ -196,6 +202,11 @@ return declare(
 
             this._updateTitles( category );
         }, this );
+    },
+    // called when item checkbox is clicked.
+    itemClick: function(checkbox,trackConf) {
+        
+        this.browser.publish( '/jbrowse/v1/v/tracks/'+(checkbox.checked ? 'show' : 'hide'), [trackConf] );
     },
 
     _loadState: function() {
@@ -248,8 +259,8 @@ return declare(
         }
         return false;
     },
-
-    replaceTracks: function( trackConfigs ) {
+    //  hook point
+    replaceTracks: function( trackConfigs ) {   // notification
     },
 
     /**

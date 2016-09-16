@@ -77,8 +77,12 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         this.showLabels = this.config.style.showLabels;
 
         this._setupEventHandlers();
+        
+        // hook point
+        if (typeof this.extendedInit === 'function')
+            this.extendedInit();
     },
-
+    
     /**
      * Returns object holding the default configuration for HTML-based feature tracks.
      * @private
@@ -599,6 +603,8 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
         var containerStart = args.containerStart;
         var containerEnd = args.containerEnd;
         var finishCallback = args.finishCallback;
+        var browser = this.browser;
+        
 
         this.scale = scale;
 
@@ -621,8 +627,17 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                 /* feature render, adding to block, centering refactored into addFeatureToBlock() */
                 // var filter = this.browser.view.featureFilter;
                 if( this.filterFeature( feature ) )  {
-                    this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                                            containerStart, containerEnd );
+                    
+                    //todo: adapt filterFeature instead of renderFeature
+                    
+                    // hook point
+                    var render = 1;
+                    if (typeof this.renderFilter === 'function')
+                        render = this.renderFilter(feature);
+                    
+                    if (render === 1) {
+                        this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
+                    }
                }
             }
         });
@@ -664,7 +679,17 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
                                 }
                               );
     },
-
+    /**
+     * template for renderFilter
+     * This hook allows filtering of features to render.
+     * @param {type} feature
+     * @returns true if render feature, false if not
+     */
+/*
+    renderFilter: function(feature) {
+        return 1;
+    },
+*/
     /**
      *  Creates feature div, adds to block, and centers subfeatures.
      *  Overridable by subclasses that need more control over the substructure.
@@ -1000,6 +1025,10 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
 
 
         block.featureNodes[uniqueId] = featDiv;
+
+	// hook point
+	if (typeof this.featureHook1 === 'function')
+		this.featureHook1(feature,featDiv);
 
         // record whether this feature protrudes beyond the left and/or right side of the block
         if( layoutStart < block.startBase ) {
