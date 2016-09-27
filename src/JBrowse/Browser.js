@@ -904,7 +904,8 @@ initView: function() {
             if(snapLink) { menuBar.appendChild( snapLink ); }
         }
         else
-            menuBar.appendChild( this.makeFullViewLink() );
+            if ( this.config.show_fullviewlink )
+                menuBar.appendChild( this.makeFullViewLink() );
 
 
         this.viewElem = document.createElement("div");
@@ -1947,7 +1948,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_tracklabels'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
@@ -2037,6 +2038,7 @@ _configDefaults: function() {
         show_nav: true,
         show_menu: true,
         show_overview: true,
+        show_fullviewlink: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
         include: [
