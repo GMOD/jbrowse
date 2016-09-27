@@ -903,9 +903,10 @@ initView: function() {
             var snapLink = this.makeSnapLink();
             if(snapLink) { menuBar.appendChild( snapLink ); }
         }
-        else
+        else {
             if ( this.config.show_fullviewlink )
                 menuBar.appendChild( this.makeFullViewLink() );
+        }
 
 
         this.viewElem = document.createElement("div");
