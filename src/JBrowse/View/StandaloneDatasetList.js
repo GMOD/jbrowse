@@ -21,6 +21,11 @@ return declare( _WidgetBase, {
        this.containerNode = bdy.appendChild( document.createElement('ul') );
        var datasets = this.get('datasets');
        var ul  = bdy.appendChild( document.createElement('ul') );
+
+       if (Object.keys(datasets).length == 1) {
+           window.location = datasets[Object.keys(datasets)[0]].url
+       }
+
        for ( var spp in datasets ) {
            if( ! /^_/.test( spp ) ) {
                var sppData = datasets[spp];
