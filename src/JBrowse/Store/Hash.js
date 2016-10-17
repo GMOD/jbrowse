@@ -60,7 +60,11 @@ return declare( null, {
             .then( function() {
                        var bucketIdent = thisB._hash( key );
                        return thisB.bucketStore
-                           .get( thisB._hexToDirPath( bucketIdent ) );
+                           .get( thisB._hexToDirPath( bucketIdent ) ).then( function(value) {
+                                return value;
+                            }, function(err) {
+                                return {};
+                            });
                    });
     },
 
