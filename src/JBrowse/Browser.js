@@ -2303,7 +2303,9 @@ navigateTo: function(loc) {
                     className: 'notfound-dialog'
                 }).show();
             },
-            thisB.callLocation(loc));
+            function() {
+                thisB.callLocation(loc)
+            });
     });
 },
 
