@@ -63,7 +63,10 @@ return declare( null, {
                            .get( thisB._hexToDirPath( bucketIdent ) ).then( function(value) {
                                 return value;
                             }, function(err) {
-                                return {};
+                                if (err.status == 404) {
+                                    // 404 is expected if the name is not in the store
+                                    return {};
+                                }
                             });
                    });
     },
