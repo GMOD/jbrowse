@@ -32,6 +32,10 @@ var Utils = {
         return (ba[offset + 1] << 8) | (ba[offset]);
     },
 
+    readByte: function(ba, offset) {
+        return (ba[offset]);
+    },
+
     readFloat: function(ba, offset) {
         var temp = new Uint8Array( 4 );
         for( var i = 0; i<4; i++ ) {

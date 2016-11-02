@@ -171,13 +171,15 @@ _updateDisplay: function() {
                className: 'edit',
                title: 'edit configuration',
                innerHTML: 'Edit Configuration',
-               onClick: function() {
-                   new TrackConfigEditor( t )
-                     .show( function( result) {
-                                dojo.mixin( t, result.conf );
+               onClick: (function(track) {
+                   return function() {
+                       new TrackConfigEditor( track )
+                           .show( function( result) {
+                                dojo.mixin( track, result.conf );
                                 that._updateDisplay();
-                     });
-               }
+                           });
+                   }
+               })(t)
             }).placeAt( dom.create('td', { className: 'edit' }, r ) );
 
             dojo.create('td',{

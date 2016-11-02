@@ -33,7 +33,7 @@ You can also optionally run build steps to create the minimized codebase. Extra 
     make -f build/Makefile release-notest
     make -f build/Makefile release # alternate build with full test suite
 
-To build the Electron app, run the following
+To build the Electron app (JBrowse desktop app), run the following
 
     npm install -g electron-packager
     make -f build/Makefile release-electron-all

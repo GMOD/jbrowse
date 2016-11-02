@@ -55,7 +55,7 @@ elif ! [ -f "src/dojo/dojo.js" ]; then
     $bower_executable install -f --allow-root >> setup.log ;
 else
     check_bower >> setup.log ;
-    echo "Bower dependencies already installed.  Type '$bower_executable install -f allow-root' to force reinstallation of dependencies.";
+    echo "Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
 fi
 
 
@@ -103,6 +103,7 @@ echo -n "Formatting Volvox example data ...";
     cat docs/tutorial/data_files/volvox.gff3.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.gtf.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox.sort.gff3.gz.conf >> sample_data/json/volvox/tracks.conf
+    cat docs/tutorial/data_files/volvox.sort.bed.gz.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/bookmarks.conf >> sample_data/json/volvox/tracks.conf
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
     bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
