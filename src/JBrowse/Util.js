@@ -290,11 +290,20 @@ Util = {
         var location = {};
         var tokens;
 
+        // if( locstring.indexOf(':') != -1 ) {
+        //     tokens = locstring.split(':',2);
+        //     location.ref = dojo.trim( tokens[0] );
+        //     locstring = tokens[1];
+        // }
         if( locstring.indexOf(':') != -1 ) {
-            tokens = locstring.split(':',2);
+            var lastindex = locstring.lastIndexOf(':');
+            tokens = [] ;
+            tokens[0] = locstring.substring(0,lastindex) ;
             location.ref = dojo.trim( tokens[0] );
+            tokens[1] = locstring.substring(lastindex+1) ;
             locstring = tokens[1];
         }
+
 
         tokens = locstring.match( /^\s*([\d,]+)\s*\.\.+\s*([\d,]+)/ );
         if( tokens ) { // range of two numbers?

@@ -2346,6 +2346,8 @@ navigateToLocation: function( location ) {
         // regularize the ref seq name we were passed
         var ref = location.ref ? this.findReferenceSequence( location.ref.name || location.ref )
                                : this.refSeq;
+        // added to handled if ref.name is in JSON
+        ref = ref ? ref : this.refSeq ;
         if( !ref ) return;
         location.ref = ref.name;
 
