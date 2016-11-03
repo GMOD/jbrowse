@@ -1196,6 +1196,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                                     background: color
                                 }
                             }, args.block.domNode );
+                            
+        this.postRenderHighlight(highlight);
 
         if( label ) {
             /* 
@@ -1216,6 +1218,9 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             var textWidth = (d1.clientWidth + 1) + "px";
             d1.style.left='calc('+left+'% - '+textWidth+')';
         }
+    },
+    postRenderHighlight: function(node) {
+        
     }
 
 });
