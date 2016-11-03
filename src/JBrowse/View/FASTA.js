@@ -67,6 +67,12 @@ return declare(null,
         textArea.innerHTML = text.replace(/\n/g, function() { return c++ ? '' : "\n"; });
         return container;
     },
+    /**
+     * returns FASTA formatted string
+     * @param {region object} region - fasta formated text string
+     * @param {string} seq - unformated sequence
+     * @returns {String} - fasta formated string
+     */
     renderText: function( region, seq ) {
         console.log('renderText');
         return '>' + region.ref
