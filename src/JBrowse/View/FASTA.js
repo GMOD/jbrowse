@@ -14,6 +14,11 @@ return declare(null,
 
     constructor: function( args ) {
         
+        if (typeof args === 'undefined') {
+            this.width = 78;
+            return;
+        };
+        
         this.width       = args.width || 78;
         this.htmlMaxRows = args.htmlMaxRows || 15;
         this.track = args.track;
@@ -63,6 +68,7 @@ return declare(null,
         return container;
     },
     renderText: function( region, seq ) {
+        console.log('renderText');
         return '>' + region.ref
             + ' '+Util.assembleLocString(region)
             + ( region.type ? ' class='+region.type : '' )
