@@ -23,7 +23,7 @@ return declare(
     [ SVGLayerBase ], {
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
-        console.log("SVGLayerBpSpace::setViewInfo");
+        // console.log("SVGLayerBpSpace::setViewInfo");
 
         this.inherited( arguments );
         
@@ -50,7 +50,7 @@ return declare(
       
     },
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
-        console.log("SVGLayerBpSpace::showRange");
+        // console.log("SVGLayerBpSpace::showRange");
 
         this.inherited( arguments );
 
@@ -66,7 +66,7 @@ return declare(
         vbHeight = 100;
         var vbValues = vbMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
 
-	console.log("viewBox="+vbValues);
+	// console.log("viewBox="+vbValues);
 
         this.svgCanvas.setAttribute('viewBox', vbValues);
         //this.svgCanvas.setAttribute('border', '1px solid grey');

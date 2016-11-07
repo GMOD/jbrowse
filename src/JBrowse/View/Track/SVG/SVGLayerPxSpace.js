@@ -23,7 +23,7 @@ return declare(
     [ SVGLayerBase ], {
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
-        console.log("SVGLayerBpSpace::setViewInfo");
+        // console.log("SVGLayerBpSpace::setViewInfo");
 
         this.inherited( arguments );
         
@@ -48,7 +48,7 @@ return declare(
         
     },
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
-        console.log("SVGLayerBpSpace::showRange");
+        // console.log("SVGLayerBpSpace::showRange");
 
         //this.inherited( arguments );
 

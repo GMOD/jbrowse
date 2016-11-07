@@ -197,8 +197,8 @@ return declare(
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
-        console.log("SVGFeatures::showRange");
-        console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
+        // console.log("SVGFeatures::showRange");
+        // console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
 
         this.displayContext = {
             first: first,
@@ -837,7 +837,7 @@ return declare(
 
     // draw the features on the canvas
     renderFeatures: function( args, fRects ) {
-        console.log("SVGFeatures::renderFeatures");
+        // console.log("SVGFeatures::renderFeatures");
         
         var context = this.getRenderingContext( args );
         if( context ) {

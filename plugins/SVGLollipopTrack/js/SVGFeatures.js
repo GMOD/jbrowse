@@ -195,7 +195,7 @@ return declare(
     },
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
-        console.log("SVGFeatures::setViewInfo");
+        // console.log("SVGFeatures::setViewInfo");
 
         this.inherited( arguments );
         
@@ -226,8 +226,8 @@ return declare(
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
-        console.log("SVGFeatures::showRange");
-        console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
+        // console.log("SVGFeatures::showRange");
+        // console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
 
         this.displayContext = {
             first: first,
@@ -299,12 +299,12 @@ return declare(
 		//console.log("len="+len);
             }
         }  
-        console.log("maxLen="+maxLen);
+        // console.log("maxLen="+maxLen);
 
         // adjust vertical height of features if necessary
         if (0) { //maxLen > this.svgHeight) {
             this.svgScale = this.svgHeight / maxLen;
-            console.log("Adjusting vertical...scale="+scale);
+            // console.log("Adjusting vertical...scale="+scale);
             
             // traverse features with vertical height adjust.
             for (var id in this.svgCanvas.featureGroup.fItem) {
@@ -994,7 +994,7 @@ return declare(
 
     // draw the features on the canvas
     renderFeatures: function( args, fRects ) {
-        console.log("SVGFeatures::renderFeatures");
+        // console.log("SVGFeatures::renderFeatures");
         
         var context = this.getRenderingContext( args );
         if( context ) {
@@ -1119,7 +1119,7 @@ return declare(
 
     // draw each feature
     renderFeature: function( context, fRect ) {
-	console.log("SVGFeatures::renderFeature");
+	// console.log("SVGFeatures::renderFeature");
         
         //fRect.glyph.renderFeature( context, fRect );  // -- bypass actually drawing anything.
         
