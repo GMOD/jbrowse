@@ -19,6 +19,7 @@
     margin-right: 10px;
 }
 .separate-location-box { float: right; }
+.no-location-box { display: none; }
 
 /* location box */
 div[id=widget_location] {

@@ -2950,8 +2950,13 @@ createNavBox: function( parent ) {
     var locationMode = "";
     var locationWidth = '40ex';
     if (this.config.locationBox==="separate") { // separate location box
-        locationMode = "separate-location-box"
+        locationMode = "separate-location-box";
         locationWidth = '25ex';
+    }
+    else
+    if( this.config.locationBox==='none'){
+        locationMode = "no-location-box";
+        locationWidth = '0';
     }
 
     var searchbox = dojo.create('span', {
