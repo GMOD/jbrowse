@@ -43,9 +43,9 @@ return declare( JBrowsePlugin,
 
         // trap the redraw event for handling resize
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
-            setTimeout(function(){ 
+            setTimeout(function(){
                 thisB.updateFeatures();
-            }, 100); 
+            }, 100);
         });
 
         // create function intercept after view initialization (because the view object doesn't exist before that)
@@ -60,7 +60,7 @@ return declare( JBrowsePlugin,
 
                 // call the original renderTrack function
                 var trackDiv = browser.view.oldRenderTrack(trackConfig);
-                
+
                 // this checks if per-track neatFeatures=1 is defined, then we "paint" introns on only the selected tracks
                 if(typeof trackConfig.neatFeatures !== 'undefined' && trackConfig.neatFeatures === 1) {
                     dojo.addClass(trackDiv,"neat-track");
@@ -72,7 +72,7 @@ return declare( JBrowsePlugin,
             };
 
         });
-        
+
 
     },
     updateFeatures: function( args ) {
@@ -88,7 +88,7 @@ return declare( JBrowsePlugin,
             // scan and insert introns, where applicable
             thisB.insertIntrons(featureNode);
         });
-        
+
         // if plugin-config neatFeatures is disabled, then we only apply neat featuress to selected tracks.
         if (this.neat==0) {
             divQuery = "div.neat-track div.feature";    // paint only selected tracks
@@ -104,13 +104,13 @@ return declare( JBrowsePlugin,
     insertIntrons: function(featureNode) {
 
     var intronCount = 0;
-        
+
         // ignore if we have already processed this node
         if (! dojo.hasClass(featureNode,"has-neat-introns")) {
-            
+
             // get the subfeatures nodes (only immediate children)
             var subNodesX = query('> .subfeature',featureNode);
-            
+
             // filter nodes - eliminate nodes that are splice sites (for Apollo)
             var subNodes = [];
             for(var i=0;i < subNodesX.length;i++){
@@ -118,43 +118,46 @@ return declare( JBrowsePlugin,
                 if (attr.indexOf("splice-site") === -1)
                     subNodes.push(subNodesX[i]);
             }
-            
-            if (subNodes.length) {
-            
-                // identify directionality
-                var classAttr = dojo.attr(featureNode, "class");
-                var direction = 1;
-                if (classAttr.indexOf("minus") > -1) {
-                    direction = -1;
-                }
-                //console.log("direction = "+ direction);
 
-                //extract some left & width -  more convient to access
-                for(var i=0; i < subNodes.length;i++) {
-                    subNodes[i].left = dojo.getStyle(subNodes[i], "left");
-                    subNodes[i].width = dojo.getStyle(subNodes[i], "width");
-                }
-                // sort the subfeatures
-                if (subNodes.length >= 2) {
-                    subNodes.sort(function(a, b){ return a.left - b.left; });    
-                }
+            if(subNodes.length==0){
+                return ;
+            }
 
-                /* debug display subfeature list
-                console.dir(subNodes);
-                for(var i=0; i < subNodes.length;i++) {
-                    console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
-                }
-                */
+            // identify directionality
+            var classAttr = dojo.attr(featureNode, "class");
+            var direction = 1;
+            if (classAttr.indexOf("minus") > -1) {
+                direction = -1;
+            }
+            //console.log("direction = "+ direction);
 
+            //extract some left & width -  more convient to access
+            for(var i=0; i < subNodes.length;i++) {
+                subNodes[i].left = dojo.getStyle(subNodes[i], "left");
+                subNodes[i].width = dojo.getStyle(subNodes[i], "width");
+            }
+
+            /* debug display subfeature list
+             console.dir(subNodes);
+             for(var i=0; i < subNodes.length;i++) {
+             console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
+             }
+             */
+
+            // sort the subfeatures
+            if (subNodes.length >= 2) {
+                subNodes.sort(function (a, b) {
+                    return a.left - b.left;
+                });
                 // insert introns between subfeature gaps
-                for(var i=0; i< subNodes.length-1;++i) {
-                    var gap = subNodes[i+1].left-(subNodes[i].left+subNodes[i].width);
+                for (var i = 0; i < subNodes.length - 1; ++i) {
+                    var gap = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
                     //console.log("gap "+gap);
                     if (gap > .02) {
                         //console.log("gap of "+gap+" between "+i+" and "+(i+1));
 
                         var subLeft = subNodes[i].left + subNodes[i].width;
-                        var subWidth = subNodes[i+1].left - (subNodes[i].left + subNodes[i].width);
+                        var subWidth = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
 
                         var left = subLeft;
                         var width = subWidth;
@@ -164,27 +167,60 @@ return declare( JBrowsePlugin,
 
                         // invert hat if reverse direction
                         var dir = "50,5";
-                        if (direction==-1) dir = "50,95";
+                        if (direction == -1) dir = "50,95";
 
                         var str = "";
                         str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                         str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                        str += "left: "+left+"px;width: "+width+"px;height: "+height+"'>";
-                        str += "<polyline points='0,50 "+ dir +" 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+                        str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+                        str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
                         str += "</svg>";
 
                         // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
 
                         domConstruct.place(str, featureNode);
 
-                        intronCount ++;
+                        intronCount++;
 
                     }
                 }
-                if (intronCount) {
-                    // mark that we have processed this node
-                    dojo.addClass(featureNode, "has-neat-introns");
-                }
+            }
+            // else
+            // if (subNodes.length == 1) {
+            //     var height = "100%";
+            //     console.dir(subNodes);
+            //     for(var i=0; i < subNodes.length;i++) {
+            //         console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
+            //     }
+            //     var subLeft = subNodes[0].left + subNodes[0].width;
+            //     // var subWidth = subNodes[i + 1].left - (subNodes[0].left + subNodes[0].width);
+            //     var subWidth = featureNode.left  - (subNodes[0].left + subNodes[0].width);
+            //     // var subWidth = "100%";
+            //
+            //     var left = subLeft ;
+            //     var width = subWidth;
+            //
+            //     // invert hat if reverse direction
+            //     var dir = "50,5";
+            //     if (direction == -1) dir = "50,95";
+            //
+            //     var str = "";
+            //     str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+            //     str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+            //     str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+            //     str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+            //     str += "</svg>";
+            //
+            //     // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
+            //
+            //     domConstruct.place(str, featureNode);
+            //
+            //     intronCount++;
+            // }
+
+            if (intronCount) {
+                // mark that we have processed this node
+                dojo.addClass(featureNode, "has-neat-introns");
             }
         }
     },
@@ -192,7 +228,7 @@ return declare( JBrowsePlugin,
      * Paint neat features and subfeatures
      */
     paintNeatFeatures: function(featureNode) {
-    
+
         // get the subfeature nodes (only immediate children)
         var subNodesX = query('> .subfeature',featureNode);
         var thisB = this;
@@ -204,15 +240,15 @@ return declare( JBrowsePlugin,
             if (attr.indexOf("splice-site") === -1)
                 subNodes.push(subNodesX[i]);
         }
-        
+
         // if feature has subfeatures
         if (subNodes.length) {
-            
+
             dojo.setStyle(featureNode, {
                 'background-color': 'transparent',
                 'border-width':'0px'
             });
-            
+
             // paint subfeatures
             for(var i=0;i < subNodes.length;i++) {
 
@@ -220,7 +256,7 @@ return declare( JBrowsePlugin,
                 if (subNodes[i].childElementCount) {
                     // get the subfeature nodes (only immediate children)
                     var childNodes = query('> .subfeature',subNodes[i]);
-                    
+
                     for(var j=0;j<childNodes.length;j++){
                         thisB.paintSubNode(childNodes[j]);
                     }
@@ -230,14 +266,14 @@ return declare( JBrowsePlugin,
                     thisB.paintSubNode(subNodes[i]);
                 }
             }
-            
+
         }
         // paint features that have no subfeatures
         else {
-            
+
             // ignore if we have already processed node
             if (! dojo.hasClass(featureNode,"neat-feature")) {
-            
+
                 var classAttr = dojo.attr(featureNode,'class');
                 var color = dojo.getStyle(featureNode,'background-color');
 
@@ -264,7 +300,7 @@ return declare( JBrowsePlugin,
         var classAttr = dojo.attr(subNode,'class');
         var color = dojo.getStyle(subNode,'background-color');
         //console.log(classAttr+" "+color);
-        
+
         // ignore if we have already processed node
         if (! dojo.hasClass(subNode,"neat-subfeature")) {
 
@@ -295,7 +331,7 @@ return declare( JBrowsePlugin,
             // mark that we have processed the node
             dojo.addClass(subNode, "neat-subfeature");
         }
-        
+
     }
 });
 });
