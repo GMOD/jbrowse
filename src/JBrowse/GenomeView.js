@@ -2217,6 +2217,21 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
         trackDiv.track = track;
 
+        // track focus handler
+        dojo.connect(trackDiv, "onclick", function(evt){
+            
+            if (typeof thisB.browser.focusTrack !== 'undefined') {
+                
+                // if already in focus, don't do anything
+                if (thisB.browser.focusTrack == track)  return;
+                
+                thisB.browser.publish( '/jbrowse/v1/n/tracks/unfocus', thisB.browser.focusTrack );
+            }
+            thisB.browser.focusTrack = track;
+            thisB.browser.publish( '/jbrowse/v1/n/tracks/focus', track );
+        });
+
+
         var heightUpdate = dojo.hitch( this, 'trackHeightUpdate', trackName );
         track.setViewInfo( this, heightUpdate, this.stripeCount, trackDiv,
                            this.stripePercent, this.stripeWidth,
