@@ -120,10 +120,16 @@ return declare( JBrowsePlugin,
             console.log("Event: /jbrowse/v1/n/navigate");
         });        
         dojo.subscribe("/jbrowse/v1/n/globalHighlightChanged", function(data){
-            console.log("Event: /jbrowse/v1/n/globalHighlightChanged");
+            console.log("Event: /jbrowse/v1/n/globalHighlightChanged",data);
         });        
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
-            console.log("Event: /jbrowse/v1/n/tracks/redraw");
+            console.log("Event: /jbrowse/v1/n/tracks/redraw",data);
+        });        
+        dojo.subscribe("/jbrowse/v1/n/tracks/focus", function(data){
+            console.log("Event: /jbrowse/v1/n/tracks/focus",data);
+        });        
+        dojo.subscribe("/jbrowse/v1/n/tracks/unfocus", function(data){
+            console.log("Event: /jbrowse/v1/n/tracks/unfocus",data);
         });        
     }
 
