@@ -2321,6 +2321,7 @@ callLocation: function(loc){
             loc = loc.ref;
         // is it just the name of one of our ref seqs?
         var ref = thisB.findReferenceSequence( loc );
+        alert('found ref: '+ref + ' for loc: '+ loc);
         if( ref ) {
             thisB.navigateToLocation( { ref: ref.name } );
             return false;
@@ -2329,9 +2330,36 @@ callLocation: function(loc){
 },
 
 findReferenceSequence: function( name ) {
-    for( var n in this.allRefs ) {
-        if( ! this.compareReferenceNames( n, name ) )
-            return this.allRefs[n];
+    // for( var n in this.allRefs ) {
+    //     if( ! this.compareReferenceNames( n, name ) )
+    //         return this.allRefs[n];
+    // }
+    // return null;
+    var thisB = this ;
+    // var browser =thisB.browser;
+    for( var n in thisB.allRefs ) {
+        if(n.startsWith("{")){
+            // alert(n) ;
+            var nameObj = {};
+            if(!n.endsWith("}")){
+                var substr = n.substr(0,n.lastIndexOf(":"));
+                // alert(substr);
+                nameObj = JSON.parse(substr);
+            }
+            else{
+                nameObj = JSON.parse(n);
+            }
+
+            // (nameObj);
+            if( ! thisB.compareReferenceNames( nameObj.name, name ) ){
+                return thisB.allRefs[n];
+            }
+        }
+        else{
+            if( ! thisB.compareReferenceNames( n, name ) ){
+                return thisB.allRefs[n];
+            }
+        }
     }
     return null;
 },
