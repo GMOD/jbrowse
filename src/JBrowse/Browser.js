@@ -2322,7 +2322,7 @@ callLocation: function(loc){
         }
         // is it just the name of one of our ref seqs?
         var ref = thisB.findReferenceSequence( loc );
-        alert('found ref: '+ref + ' for loc: '+ loc);
+        console.log('found ref: '+ref + ' for loc: '+ loc);
         if( ref ) {
             thisB.navigateToLocation( { ref: ref.name } );
             return false;
@@ -2356,6 +2356,8 @@ findReferenceSequence: function( name ) {
                 nameObj = JSON.parse(n);
             }
 
+            console.log("name ojb "+JSON.stringify(nameObj) + " vs name "+name);
+
             if( ! thisB.compareReferenceNames( nameObj.name, name ) ){
                 return thisB.allRefs[n];
             }
@@ -2377,6 +2379,7 @@ navigateToLocation: function( location ) {
     this.afterMilestone( 'initView', dojo.hitch( this, function() {
 
         // regularize the ref seq name we were passed
+        console.log("reference sequence: "+JSON.stringify(location.ref));
         var ref = location.ref ? this.findReferenceSequence( location.ref.name || location.ref )
                                : this.refSeq;
         // added to handled if ref.name is in JSON
