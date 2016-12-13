@@ -1701,8 +1701,8 @@ getStore: function( storeName, callback ) {
                  // doesn't release this function
                  callback = undefined;
                  
-                 if (cache)
-                     delete store;
+                 //if (cache)
+                 //    delete store;
              }));
 },
 
