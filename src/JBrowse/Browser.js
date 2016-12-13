@@ -2317,8 +2317,9 @@ callLocation: function(loc){
     }
     // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
     else {
-        if( typeof loc != 'string')
+        if( typeof loc != 'string'){
             loc = loc.ref;
+        }
         // is it just the name of one of our ref seqs?
         var ref = thisB.findReferenceSequence( loc );
         alert('found ref: '+ref + ' for loc: '+ loc);
@@ -2330,11 +2331,16 @@ callLocation: function(loc){
 },
 
 findReferenceSequence: function( name ) {
-    // for( var n in this.allRefs ) {
-    //     if( ! this.compareReferenceNames( n, name ) )
-    //         return this.allRefs[n];
-    // }
-    // return null;
+
+    if(name.startsWith("{")){
+        if(!name.endsWith("}") && name.lastIndexOf(":")>0){
+            name = name.substr(0,name.lastIndexOf(":"));
+            // alert(substr);
+        }
+        name = JSON.parse(name).name ;
+    }
+
+
     var thisB = this ;
     // var browser =thisB.browser;
     for( var n in thisB.allRefs ) {
@@ -2350,7 +2356,6 @@ findReferenceSequence: function( name ) {
                 nameObj = JSON.parse(n);
             }
 
-            // (nameObj);
             if( ! thisB.compareReferenceNames( nameObj.name, name ) ){
                 return thisB.allRefs[n];
             }
