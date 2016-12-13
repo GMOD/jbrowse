@@ -2356,8 +2356,6 @@ findReferenceSequence: function( name ) {
                 nameObj = JSON.parse(n);
             }
 
-            console.log("name ojb "+JSON.stringify(nameObj) + " vs name "+name);
-
             if( ! thisB.compareReferenceNames( nameObj.name, name ) ){
                 return thisB.allRefs[n];
             }
