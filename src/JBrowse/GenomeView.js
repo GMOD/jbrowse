@@ -69,6 +69,8 @@ constructor: function( args ) {
     this.browser = browser;
     this.setFeatureFilterParentComponent( this.browser );
 
+    this.focusTrack = null;
+
     //the page element that the GenomeView lives in
     this.elem = elem;
 
@@ -2219,16 +2221,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
         // track focus handler
         dojo.connect(trackDiv, "onclick", function(evt){
-            
-            if (typeof thisB.browser.focusTrack !== 'undefined') {
-                
-                // if already in focus, don't do anything
-                if (thisB.browser.focusTrack == track)  return;
-                
-                thisB.browser.publish( '/jbrowse/v1/n/tracks/unfocus', thisB.browser.focusTrack );
-            }
-            thisB.browser.focusTrack = track;
-            thisB.browser.publish( '/jbrowse/v1/n/tracks/focus', track );
+            thisB.setTrackFocus(track,1);
         });
 
 
@@ -2270,6 +2263,37 @@ renderTrack: function( /**Object*/ trackConfig ) {
     });
 
     return trackDiv;
+},
+/**
+ * 
+ * @param {type} track
+ * @param {type} state
+ * @returns {undefined}
+ */
+setTrackFocus: function(track,state) {
+    var thisB = this;
+    
+    if (state === 1) {
+        if (this.focusTrack !== null) {
+
+            // if already in focus, don't do anything
+            if (this.focusTrack == track)  return;
+
+            thisB.browser.publish( '/jbrowse/v1/n/tracks/unfocus', this.focusTrack );
+            this.focusTrack = null;
+        }
+        thisB.focusTrack = track;
+        thisB.browser.publish( '/jbrowse/v1/n/tracks/focus', track );
+    }
+    if (state === 0) {
+        // if already in focus, don't do anything
+        if (this.focusTrack === null) {
+            console.log("no track in focus");
+            return;
+        }
+        thisB.browser.publish( '/jbrowse/v1/n/tracks/unfocus', this.focusTrack );
+        this.focusTrack = null;
+    }
 },
 
 trackIterate: function(callback) {
