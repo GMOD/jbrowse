@@ -82,6 +82,7 @@ return declare( JBrowsePlugin,
 
         var divQuery = "div.feature";       // by default, paint all feature divs
 
+
         // apply introns to all feature tracks
         query(divQuery).forEach(function(featureNode, index, arr){
 
@@ -103,7 +104,7 @@ return declare( JBrowsePlugin,
     },
     insertIntrons: function(featureNode) {
 
-    var intronCount = 0;
+        var intronCount = 0;
 
         // ignore if we have already processed this node
         if (! dojo.hasClass(featureNode,"has-neat-introns")) {
@@ -119,33 +120,46 @@ return declare( JBrowsePlugin,
                     subNodes.push(subNodesX[i]);
             }
 
-            if(subNodes.length==0){
-                return ;
+            if(subNodes.length<2){
+                // apply introns to all feature tracks
+                var subFeatureIntron = query('div.feature-render',featureNode);
+                if(subFeatureIntron){
+                    console.log(featureNode.label.innerText + ' has an intron');
+                    // subNodes[i].left = dojo.getStyle(subNodes[i], "left");
+
+                    var left = featureNode.style.left ;
+                    var width = featureNode.style.width ;
+                    var height = '100%';
+                    var str = "";
+                    str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                    str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+                    // str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+                    str += "left: " + left + ";width: " + width + ";height: " + height + "'>";
+                    str += "<polyline points='0,50 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+                    str += "</svg>";
+
+                    // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
+
+                    domConstruct.place(str, featureNode);
+                    ++intronCount;
+                }
             }
-
-            // identify directionality
-            var classAttr = dojo.attr(featureNode, "class");
-            var direction = 1;
-            if (classAttr.indexOf("minus") > -1) {
-                direction = -1;
-            }
-            //console.log("direction = "+ direction);
-
-            //extract some left & width -  more convient to access
-            for(var i=0; i < subNodes.length;i++) {
-                subNodes[i].left = dojo.getStyle(subNodes[i], "left");
-                subNodes[i].width = dojo.getStyle(subNodes[i], "width");
-            }
-
-            /* debug display subfeature list
-             console.dir(subNodes);
-             for(var i=0; i < subNodes.length;i++) {
-             console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
-             }
-             */
-
+            else
             // sort the subfeatures
             if (subNodes.length >= 2) {
+                // identify directionality
+                var classAttr = dojo.attr(featureNode, "class");
+                var direction = 1;
+                if (classAttr.indexOf("minus") > -1) {
+                    direction = -1;
+                }
+                //console.log("direction = "+ direction);
+
+                //extract some left & width -  more convient to access
+                for(var i=0; i < subNodes.length;i++) {
+                    subNodes[i].left = dojo.getStyle(subNodes[i], "left");
+                    subNodes[i].width = dojo.getStyle(subNodes[i], "width");
+                }
                 subNodes.sort(function (a, b) {
                     return a.left - b.left;
                 });
@@ -185,38 +199,6 @@ return declare( JBrowsePlugin,
                     }
                 }
             }
-            // else
-            // if (subNodes.length == 1) {
-            //     var height = "100%";
-            //     console.dir(subNodes);
-            //     for(var i=0; i < subNodes.length;i++) {
-            //         console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
-            //     }
-            //     var subLeft = subNodes[0].left + subNodes[0].width;
-            //     // var subWidth = subNodes[i + 1].left - (subNodes[0].left + subNodes[0].width);
-            //     var subWidth = featureNode.left  - (subNodes[0].left + subNodes[0].width);
-            //     // var subWidth = "100%";
-            //
-            //     var left = subLeft ;
-            //     var width = subWidth;
-            //
-            //     // invert hat if reverse direction
-            //     var dir = "50,5";
-            //     if (direction == -1) dir = "50,95";
-            //
-            //     var str = "";
-            //     str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-            //     str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-            //     str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-            //     str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
-            //     str += "</svg>";
-            //
-            //     // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
-            //
-            //     domConstruct.place(str, featureNode);
-            //
-            //     intronCount++;
-            // }
 
             if (intronCount) {
                 // mark that we have processed this node
