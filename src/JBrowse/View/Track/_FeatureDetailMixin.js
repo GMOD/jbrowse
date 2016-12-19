@@ -82,6 +82,19 @@ return declare( FeatureDescriptionMixin, {
         return container;
     },
 
+    _renderRefSeqName: function(){
+        var refSeqString = this.refSeq.name ;
+        if(this.refSeq.name.indexOf("{")>=0){
+            refSeqString = "";
+            for(var sequenceIndex in this.refSeq.sequenceList){
+                var sequence = this.refSeq.sequenceList[sequenceIndex];
+                refSeqString += sequence.name + "("+sequence.start+"::"+sequence.end+")";
+            }
+            // refSeqString = '*****PROJECTED******';
+        }
+        return refSeqString;
+    },
+
     _renderCoreDetails: function( track, f, featDiv, container ) {
         var coreDetails = dojo.create('div', { className: 'core' }, container );
         var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
@@ -94,10 +107,10 @@ return declare( FeatureDescriptionMixin, {
         fmt(
             'Position',
             Util.assembleLocString({ start: f.get('start'),
-                                     end: f.get('end'),
-                                     ref: this.refSeq.name,
-                                     strand: f.get('strand')
-                                   }),f
+                end: f.get('end'),
+                ref: this._renderRefSeqName(),
+                strand: f.get('strand')
+            }),f
         );
         fmt( 'Length', Util.addCommas(f.get('end')-f.get('start'))+' bp',f );
     },
@@ -153,7 +166,11 @@ return declare( FeatureDescriptionMixin, {
                  valueContainer = dojo.byId(valueContainerID) || valueContainer;
                  if( refSeqStore ) {
                      refSeqStore.getReferenceSequence(
-                         { ref: this.refSeq.name, start: f.get('start'), end: f.get('end')},
+                         {
+                             ref: this.refSeq.name,
+                             start: f.get('start'),
+                             end: f.get('end')
+                         },
                          // feature callback
                          dojo.hitch( this, function( seq ) {
                              valueContainer = dojo.byId(valueContainerID) || valueContainer;
