@@ -366,9 +366,11 @@ Util = {
 
         //finally assemble our string
         if( 'ref' in location ) {
+            // TODO: handle a ref if a json object
             s += location.ref;
-            if( location.start || location.end )
+            if( location.start || location.end ){
                 s += ':';
+            }
         }
         if( 'start' in location ) {
             s += (Math.round(location.start)+1).toFixed(0).toLocaleString();
