@@ -55,14 +55,6 @@ return declare(null,
     renderText: function( region, seq ) {
         // this is usually the name
         var refSeqString = region.ref + ' '+Util.assembleLocString(region);
-        if(refSeqString.indexOf("{")>=0){
-            // if it doesn't end with it
-            // var splitIndex = refSeqString.lastIndexOf(":");
-            // var refSeqObjectString = JSON.parse(refSeqString.substr(0,splitIndex));
-            // var locationString = refSeqString.substr(splitIndex);
-            refSeqString = "***projected**** START...FINISH";
-        }
-
         return '>' + refSeqString
             + ( region.type ? ' class='+region.type : '' )
             + ' length='+(region.end - region.start)
