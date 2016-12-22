@@ -82,19 +82,6 @@ return declare( FeatureDescriptionMixin, {
         return container;
     },
 
-    _renderRefSeqName: function(){
-        var refSeqString = this.refSeq.name ;
-        if(this.refSeq.name.indexOf("{")>=0){
-            refSeqString = "";
-            for(var sequenceIndex in this.refSeq.sequenceList){
-                var sequence = this.refSeq.sequenceList[sequenceIndex];
-                refSeqString += sequence.name + "("+sequence.start+"::"+sequence.end+")";
-            }
-            // refSeqString = '*****PROJECTED******';
-        }
-        return refSeqString;
-    },
-
     _renderCoreDetails: function( track, f, featDiv, container ) {
         var coreDetails = dojo.create('div', { className: 'core' }, container );
         var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
@@ -108,7 +95,7 @@ return declare( FeatureDescriptionMixin, {
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                 end: f.get('end'),
-                ref: this._renderRefSeqName(),
+                ref: Util.renderRefSeqName(this.refSeq),
                 strand: f.get('strand')
             }),f
         );

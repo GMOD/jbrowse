@@ -31,6 +31,19 @@ Util = {
         return x1 + x2;
     },
 
+    renderRefSeqName: function(refSeq){
+        var refSeqString = refSeq.name ;
+        if(refSeq.name.indexOf("{")>=0){
+            refSeqString = "";
+            for(var sequenceIndex in refSeq.sequenceList){
+                var sequence = refSeq.sequenceList[sequenceIndex];
+                refSeqString += sequence.name + "("+sequence.start+"::"+sequence.end+")";
+            }
+            // refSeqString = '*****PROJECTED******';
+        }
+        return refSeqString;
+    },
+
     commifyNumber: function() {
         return this.addCommas.apply( this, arguments );
     },
