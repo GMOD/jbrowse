@@ -1229,7 +1229,7 @@ define([
                                     zindex: 1000
                                     //opacity: 0.5
                                 },
-                                innerhtml: "<- "+ bookmark.refseq  + " ("+bookmark.originalposition+")"
+                                innerhtml: "<- "+ bookmark.refseq  + " ("+bookmark.originalPosition+")"
                             }, args.block.domnode);
                         }
                          if(bookmark.type === 'right-edge'){
@@ -1243,7 +1243,7 @@ define([
                                      zindex: 1000
                                      //opacity: 0.5
                                  },
-                                 innerhtml: "<- "+ bookmark.refseq  + " ("+bookmark.originalposition+")"
+                                 innerhtml: "<- "+ bookmark.refseq  + " ("+bookmark.originalPosition+")"
                              }, args.block.domnode);
                          }
                          if(bookmark.type === 'left-edge'){
