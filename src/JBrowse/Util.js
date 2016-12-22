@@ -33,13 +33,12 @@ Util = {
 
     renderRefSeqName: function(refSeq){
         var refSeqString = refSeq.name ;
-        if(refSeq.name.indexOf("{")>=0){
+        if(refSeq.name.indexOf("{")>=0 || refSeq.sequenceList){
             refSeqString = "";
             for(var sequenceIndex in refSeq.sequenceList){
                 var sequence = refSeq.sequenceList[sequenceIndex];
                 refSeqString += sequence.name + "("+sequence.start+"::"+sequence.end+")";
             }
-            // refSeqString = '*****PROJECTED******';
         }
         return refSeqString;
     },
