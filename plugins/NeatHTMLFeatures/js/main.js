@@ -122,16 +122,12 @@ return declare( JBrowsePlugin,
                 // apply introns to all feature tracks
                 var subFeatureIntron = query('div.feature-render',featureNode);
                 if(subFeatureIntron){
-                    console.log(featureNode.label.innerText + ' has an intron');
-                    // subNodes[i].left = dojo.getStyle(subNodes[i], "left");
-
                     var left = featureNode.style.left ;
                     var width = featureNode.style.width ;
                     var height = '100%';
                     var str = "";
                     str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                     str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                    // str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
                     str += "left: " + left + ";width: " + width + ";height: " + height + "'>";
                     str += "<polyline points='0,50 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
                     str += "</svg>";
