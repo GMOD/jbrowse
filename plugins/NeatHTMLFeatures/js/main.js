@@ -121,7 +121,7 @@ return declare( JBrowsePlugin,
             if(subNodes.length<2){
                 // apply introns to all feature tracks
                 var subFeatureIntron = query('div.feature-render',featureNode);
-                if(subFeatureIntron){
+                if(subFeatureIntron && subFeatureIntron.length>0){
                     var left = featureNode.style.left ;
                     var width = featureNode.style.width ;
                     var height = '100%';
