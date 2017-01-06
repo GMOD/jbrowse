@@ -2338,6 +2338,9 @@ findReferenceSequence: function( name ) {
             // alert(substr);
         }
         name = JSON.parse(name).name ;
+        if (typeof name == 'undefined'){
+            return null ;
+        }
     }
 
 
@@ -2356,7 +2359,11 @@ findReferenceSequence: function( name ) {
                 nameObj = JSON.parse(n);
             }
 
-            if( ! thisB.compareReferenceNames( nameObj.name, name ) ){
+            if (typeof nameObj.name == 'undefined'){
+                return null ;
+            }
+
+            if(  ! thisB.compareReferenceNames( nameObj.name, name ) ){
                 return thisB.allRefs[n];
             }
         }

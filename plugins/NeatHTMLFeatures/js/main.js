@@ -124,7 +124,7 @@ return declare( JBrowsePlugin,
                 // apply introns to all feature tracks
                 var subFeatureIntron = query('div.feature-render',featureNode);
                 if(subFeatureIntron){
-                    console.log(featureNode.label.innerText + ' has an intron');
+                    // console.log(featureNode.label.innerText + ' has an intron');
                     // subNodes[i].left = dojo.getStyle(subNodes[i], "left");
 
                     var left = featureNode.style.left ;
