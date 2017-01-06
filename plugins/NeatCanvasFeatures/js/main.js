@@ -120,6 +120,7 @@ return declare( JBrowsePlugin,
                 var top = fRect.t;
                 var overallHeight = fRect.rect.h;
 
+
                 var _height = this._getFeatureHeight( viewInfo, subparts[i] );
                 if( ! _height )
                     return;
@@ -131,15 +132,27 @@ return declare( JBrowsePlugin,
                 var width = b_left - left;
                 var mid = width/2;
 
+                var strand = subparts[i][3];
+
                 // butt line cap (top line)
                 context.beginPath();
                 context.moveTo(left,top+height);
-                context.lineTo(left+mid,top+1);
+                // negative strand
+                switch (strand){
+                    case -1:
+                        context.lineTo(left+mid,top+(2*height)+1);
+                        break;
+                    case 1:
+                        context.lineTo(left+mid,top+1);
+                        break;
+                    default:
+                        context.lineTo(left+mid,top+height);
+                }
                 context.lineTo(left+width,top+height);
                 context.lineWidth = 1;
                 context.strokeStyle = '#202020';
                 context.lineCap = 'square';
-                context.stroke();            
+                context.stroke();
 
             }
         }
