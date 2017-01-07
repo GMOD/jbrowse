@@ -55,7 +55,7 @@ elif ! [ -f "src/dojo/dojo.js" ]; then
     $bower_executable install -f --allow-root >> setup.log ;
 else
     check_bower >> setup.log ;
-    echo "Bower dependencies already installed.  Type '$bower_executable install -f allow-root' to force reinstallation of dependencies.";
+    echo "Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
 fi
 
 

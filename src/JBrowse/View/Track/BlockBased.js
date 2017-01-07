@@ -1216,6 +1216,7 @@ define([
                         }
                     }, args.block.domNode);
 
+
                     if (bookmark) {
                         //if( trimLeft <= 0 ) {
                         if(bookmark.type === 'region'){
@@ -1283,6 +1284,28 @@ define([
                 //        //var textWidth = (d1.clientWidth + 1) + "px";
                         d1.style.left = 'calc(' + left + '% - ' + textWidth + ')';
                         d1.style.left = 'calc(' + bookmark.start + '% - ' + textWidth + ')';
+
+
+						if( bookmark.label ) {
+							var label = bookmark.label;
+							/* 
+							//  vertical text, has bugs
+							if( trimLeft <= 0 ) {
+								domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
+							}
+							if( trimRight <= 0 ) {
+								domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
+							}*/
+							if( trimLeft <= 0 ) {
+								var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
+							}
+							if( trimRight <= 0 ) {
+								var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+							}
+
+							var textWidth = (d1.clientWidth + 1) + "px";
+							d1.style.left='calc('+left+'% - '+textWidth+')';
+						}
                     }
                 }
 

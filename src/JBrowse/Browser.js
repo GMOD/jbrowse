@@ -1690,11 +1690,19 @@ getStore: function( storeName, callback ) {
                              });
 
                  var store = new storeClass( storeArgs );
-                 this._storeCache[ storeName ] = { refCount: 1, store: store };
+                 
+                 var cache = typeof storeArgs.storeCache==='undefined' || storeArgs.storeCache !== false;
+                 
+                 if (cache)
+                    this._storeCache[ storeName ] = { refCount: 1, store: store };
+                 
                  callback( store );
                  // release the callback because apparently require
                  // doesn't release this function
                  callback = undefined;
+                 
+                 //if (cache)
+                 //    delete store;
              }));
 },
 
