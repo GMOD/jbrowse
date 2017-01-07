@@ -121,9 +121,10 @@ return declare( JBrowsePlugin,
             if(subNodes.length<2){
                 // apply introns to all feature tracks
                 var subFeatureIntron = query('div.feature-render',featureNode);
-                if(subFeatureIntron && subFeatureIntron.length>0){
-                    var left = featureNode.style.left ;
-                    var width = featureNode.style.width ;
+                // added to handle apollo annotation classes:  https://github.com/GMOD/Apollo/issues/1417
+                if(subFeatureIntron && subFeatureIntron.length==1 && subFeatureIntron[0].className.indexOf("annot-apollo")<0 && subFeatureIntron[0].className.indexOf("annot-render")<0){
+                    var left = featureNode.style.left;
+                    var width = featureNode.style.width;
                     var height = '100%';
                     var str = "";
                     str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
@@ -133,7 +134,6 @@ return declare( JBrowsePlugin,
                     str += "</svg>";
 
                     // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
-
                     domConstruct.place(str, featureNode);
                     ++intronCount;
                 }
