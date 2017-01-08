@@ -110,7 +110,7 @@ return declare( SeqFeatureStore,
 
     _fetchChunk: function( sequrl, chunkNum ) {
         return request.get( sequrl + chunkNum + ".txt" + ( this.compress ? 'z' : '' ),
-                            { handleAs: 'text' }
+                            { handleAs: 'text', headers: {'X-Requested-With': null} }
                           );
     },
 
