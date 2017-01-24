@@ -1,8 +1,11 @@
-.jbrowsecontainer {
+html, body {
     height: 100%;
     width: 100%;
     padding: 0;
     border: 0;
+}
+
+.jbrowsecontainer {
     font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
