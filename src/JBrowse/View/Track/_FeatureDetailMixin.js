@@ -79,6 +79,10 @@ return declare( FeatureDescriptionMixin, {
 
         this._renderSubfeaturesDetail( track, f, featDiv, container );
 
+        if (typeof this.extendedRender === 'function') {
+            this.extendedRender(track,f,featDiv,container);
+        }
+
         return container;
     },
 
