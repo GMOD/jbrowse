@@ -452,7 +452,6 @@ fatalError: function( error ) {
             var thisB = this;
 
             dojo.addClass( document.body, this.config.theme || "tundra"); //< tundra dijit theme
-            dojo.addClass( document.body, "jbrowse"); // browser container has an overall .jbrowse class
 
             if( !Util.isElectron() ) {
                 require([
