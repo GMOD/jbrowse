@@ -1,6 +1,6 @@
 NeatCanvasFeatures is a JBrowse plugin.
 
-It applies intron hats and a gradient 'tubular' look to features and subfeatures of HTMLFeatures tracks.
+It applies intron hats and a gradient 'tubular' look to features and subfeatures of CanvasFeatures tracks.
 
 What it does:
 - draws intron hats and inverted hats for reverse direction features.
