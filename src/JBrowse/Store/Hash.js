@@ -60,7 +60,14 @@ return declare( null, {
             .then( function() {
                        var bucketIdent = thisB._hash( key );
                        return thisB.bucketStore
-                           .get( thisB._hexToDirPath( bucketIdent ) );
+                           .get( thisB._hexToDirPath( bucketIdent ) ).then( function(value) {
+                                return value;
+                            }, function(err) {
+                                if (err.status == 404) {
+                                    // 404 is expected if the name is not in the store
+                                    return {};
+                                }
+                            });
                    });
     },
 
