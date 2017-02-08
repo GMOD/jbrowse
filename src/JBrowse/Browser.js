@@ -2298,7 +2298,6 @@ navigateTo: function(loc) {
         // lastly, try to search our feature names for it
         thisB.searchNames( loc )
             .then( function( found ) {
-                console.log('test');
                 if( found )
                     return;
 
@@ -2427,7 +2426,6 @@ searchNames: function( /**String*/ loc ) {
     return this.nameStore.query({ name: loc })
         .then(
             function( nameMatches ) {
-                console.log('f1')
                 // if we have no matches, pop up a dialog saying so, and
                 // do nothing more
                 if( ! nameMatches.length ) {
@@ -2470,7 +2468,6 @@ searchNames: function( /**String*/ loc ) {
                 return true;
             },
             function(e) {
-                console.log('f2')
                 console.error( e );
                 new InfoDialog(
                     {
