@@ -2,13 +2,15 @@ define([
            'dojo/request',
            'dojo/promise/all',
            'dojo/Deferred',
-           'JBrowse/Util'
+           'JBrowse/Util',
+           'JBrowse/Store/LRUCache'
        ],
       function(
           request,
           all,
           Deferred,
-          Util
+          Util,
+          LRUCache
       ) {
 
 /**
@@ -130,7 +132,29 @@ NCList.prototype.binarySearch = function(arr, item, getter) {
     //if leftward, the low index
     if (getter === this.end) return high; else return low;
 };
-
+NCList.prototype._readChunkItems = function(chunk, callback) {
+    request.get(
+        Util.resolveUrl(this.baseURL,
+            this.lazyUrlTemplate.replace(
+                /\{Chunk\}/ig, chunk.chunkNum
+            )
+        ),
+        {
+            handleAs: 'json',
+            headers: {
+                'X-Requested-With': null
+            }
+        }
+    ).then(function( sublist ) {
+            callback(sublist);
+        }, function( error ) {
+            if( error.response.status != 404 )
+                callback(null, error);
+            else
+                callback();
+        }
+    );
+}
 NCList.prototype.iterHelper = function(arr, from, to, fun,
                                        inc, searchGet, testGet, path) {
     var len = arr.length;
@@ -140,6 +164,14 @@ NCList.prototype.iterHelper = function(arr, from, to, fun,
 
     var promises = [];
 
+    var cache = this.chunkCache = this.chunkCache || new LRUCache({
+        name: 'NCListCache',
+        fillCallback: dojo.hitch( this, '_readChunkItems' ),
+        sizeFunction: function( chunkItems ) {
+            return chunkItems.length;
+        },
+        maxSize: 5000 // cache up to 100 seqchunks
+    });
     while ((i < len)
            && (i >= 0)
            && ((inc * testGet(arr[i])) < (inc * to)) ) {
@@ -156,34 +188,23 @@ NCList.prototype.iterHelper = function(arr, from, to, fun,
                 var getDone = new Deferred();
                 promises.push( getDone.promise );
 
-                request.get(
-                    Util.resolveUrl(
-                    this.baseURL,
-                        this.lazyUrlTemplate.replace(
-                                /\{Chunk\}/ig, chunkNum
-                        )
-                    ),
-                    {
-                        handleAs: 'json',
-                        headers: {
-                            'X-Requested-With': null 
+                cache.get( {chunkNum: chunkNum}, function(item, e ) {
+                    if(e) {
+                        getDone.reject(e);
+                        return;
                     }
-                }).then(
-                    function( sublist ) {
-                        return thisB.iterHelper(
-                            sublist, from, to, fun,
-                            inc, searchGet, testGet,
-                            [chunkNum]
-                        ).then( function() { getDone.resolve(); } );
-                    },
-                    function( error ) {
-                        if( error.response.status != 404 )
-                            throw new Error( error );
-                        else
-                            getDone.resolve();
+                    if(!item) {
+                        getDone.resolve();
+                        return;
                     }
-                );
+                    return thisB.iterHelper(
+                        item, from, to, fun,
+                        inc, searchGet, testGet,
+                        [chunkNum]
+                    ).then( function() { getDone.resolve(); } );
+                });
             }).call(this);
+                
 
         } else {
             // this is just a regular feature
