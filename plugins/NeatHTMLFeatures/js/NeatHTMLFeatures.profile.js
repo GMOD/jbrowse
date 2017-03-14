@@ -23,19 +23,19 @@ var profile = {
     layers: {
         'NeatHTMLFeatures/main': {
             include: [
-                'NeatHTMLFeatures',
+                'NeatHTMLFeatures'
             ],
             exclude: [ 'JBrowse' ]
         }
     },
 
     staticHasFeatures: {
-        'dojo-trace-api':0,
-        'dojo-log-api':0,
-        'dojo-publish-privates':0,
-        'dojo-sync-loader':0,
-        'dojo-xhr-factory':0,
-        'dojo-test-sniff':0
+        'dojo-trace-api': 0,
+        'dojo-log-api': 0,
+        'dojo-publish-privates': 0,
+        'dojo-sync-loader': 0,
+        'dojo-xhr-factory': 0,
+        'dojo-test-sniff': 0
     },
 
     resourceTags: {
@@ -56,7 +56,7 @@ var profile = {
 
         // Files that should not be copied when the “mini” compiler flag is set to true.
         miniExclude: function (filename, mid) {
-            return ! ( /^NeatHTMLFeatures/.test(mid) );
+            return !(/^NeatHTMLFeatures/.test(mid));
         }
     }
 };

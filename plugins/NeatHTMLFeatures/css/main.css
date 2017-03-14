@@ -7,6 +7,7 @@ NeatFeatures CSS
 */
 .jb-intron {
     position: absolute;
+    top: 0px !important;
 }
 div.gray-center-30pct {
     background-color: transparent;
