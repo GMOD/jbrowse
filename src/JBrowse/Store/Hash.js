@@ -3,14 +3,16 @@ define( [
             'dojo/_base/array',
             'dojo/store/JsonRest',
             'dojo/store/util/QueryResults',
-            'JBrowse/Digest/Crc32'
+            'JBrowse/Digest/Crc32',
+            'JBrowse/Util'
         ],
         function(
             declare,
             array,
             dojoJSONRest,
             QueryResults,
-            digest
+            digest,
+            Util
         ) {
 
 return declare( null, {
@@ -60,7 +62,14 @@ return declare( null, {
             .then( function() {
                        var bucketIdent = thisB._hash( key );
                        return thisB.bucketStore
-                           .get( thisB._hexToDirPath( bucketIdent ) );
+                           .get( thisB._hexToDirPath( bucketIdent ) ).then( function(value) {
+                                return value;
+                            }, function(err) {
+                                if (Util.isElectron() || err.status == 404) {
+                                    // 404 is expected if the name is not in the store
+                                    return {};
+                                }
+                            });
                    });
     },
 

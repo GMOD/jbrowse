@@ -27,6 +27,12 @@ div.neat-UTR {
     margin-top: 0px;   
 }
 
+polyline.neat-intron {
+    stroke: black;
+    fill: none;
+    stroke-width: 5;
+}
+
 /* gradient for different browsers */
 xdiv.minus-transcript-CDS {
     background: -moz-linear-gradient(top,  #6d0019 0%, #e5e5e5 50%, #6d0019 100%); /* FF3.6+ */

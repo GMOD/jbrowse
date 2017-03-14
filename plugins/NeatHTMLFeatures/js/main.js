@@ -181,8 +181,8 @@ return declare( JBrowsePlugin,
                         var str = "";
                         str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                         str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                        str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-                        str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+                        str += "left: "+left+"px;width: "+width+"px;height: "+height+"'>";
+                        str += "<polyline class='neat-intron' points='0,50 "+ dir +" 100,50' shape-rendering='optimizeQuality' />";
                         str += "</svg>";
 
                         // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
