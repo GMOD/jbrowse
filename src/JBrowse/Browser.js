@@ -156,8 +156,8 @@ constructor: function(params) {
             if( thisB.config.initialHighlight && thisB.config.initialHighlight != "/" )
                 thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
 
-            thisB.loadNames();
             thisB.initPlugins().then( function() {
+                thisB.loadNames();
                 thisB.loadUserCSS().then( function() {
 
                     thisB.initTrackMetadata();
