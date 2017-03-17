@@ -1338,7 +1338,7 @@ browserMeta: function() {
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
             + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
             + '  <div class="copyright">&copy; 2013 The Evolutionary Software Foundation</div>'
-            + (Object.keys(this.plugins).length>1 ? (
+            + ((Object.keys(this.plugins).length>1&&!this.config.noPluginsForAboutBox) ? (
                 '  <div class="loaded-plugins">Loaded plugins<ul class="plugins-list">'
                 + array.map(Object.keys(this.plugins), function(elt) {
                     var p = this.plugins[elt];
