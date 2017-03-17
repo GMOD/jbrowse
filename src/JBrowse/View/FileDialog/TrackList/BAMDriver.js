@@ -11,7 +11,7 @@ return declare( IndexedFileDriver,  {
     fileConfKey: 'bam',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'bai',
+    indexExtension: 'bam.bai',
     indexConfKey: 'bai',
     indexUrlConfKey: 'baiUrlTemplate'
 });

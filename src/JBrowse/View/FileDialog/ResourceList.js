@@ -93,7 +93,7 @@ return declare( null, {
                         { label: "GTF",         value: "gtf"    },
                         { label: "BigWig",      value: "bigwig" },
                         { label: "BAM",         value: "bam"    },
-                        { label: "BAM index",   value: "bai"    },
+                        { label: "BAM index",   value: "bam.bai"},
                         { label: "FASTA",       value: "fasta"  },
                         { label: "FASTA index", value: "fai"    },
                         { label: "VCF+bgzip",   value: "vcf.gz" },
@@ -151,7 +151,7 @@ return declare( null, {
     guessType: function( name ) {
         return ( this._rememberedTypes||{} )[name] || (
                 /\.bam$/i.test( name )          ? 'bam'    :
-                /\.bai$/i.test( name )          ? 'bai'    :
+                /\.bam.bai$/i.test( name )      ? 'bam.bai'    :
                 /\.gff3?$/i.test( name )        ? 'gff3'   :
                 /\.gtf?$/i.test( name )         ? 'gtf'    :
                 /\.(bw|bigwig)$/i.test( name )  ? 'bigwig' :
