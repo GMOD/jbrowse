@@ -28,6 +28,12 @@
   * Fix some inconsistencies where opening a file with .fasta instead
     of .fa caused issues (#696).
 
+  * Allow using BEDTabix files and GFF3Tabix files which avoids the
+    need to run flatfile-to-json.pl. Simple BED files can
+    also be opened locally via the "Open track" option. Thanks to
+    @zhjilin and Colin Diesh for contributions (#670, #729). Please
+    be aware of possible limitations (see #780).
+
 ## Bug fixes
 
   * Fix error where the sequence track would not load after "Open
