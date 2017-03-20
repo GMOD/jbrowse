@@ -2,66 +2,74 @@
 
 ## Minor improvements
 
-  * Upgraded build system to install dependencies with bower (#718).
+  * Upgraded build system to install dependencies with bower
+    (issue #718).
 
-  * Update Dojo to 1.9.8
+  * Update Dojo to 1.9.8.
 
-  * Add the ability to load tabix indexed GFF files. Thanks to
-    Colin Diesh for the implementation (#670).
+  * Added the ability to load tabix indexed GFF files. Thanks to
+    Colin Diesh for the implementation (issue #670).
 
-  * Add ability to access SPARQL stores that reject CORS requests
+  * Added ability to access SPARQL stores that reject CORS requests
     to access sites like WikiData. Thanks to the WebApollo hackathon
-    for the ideas (#679).
+    for the ideas (issue #679).
 
-  * Add extra coloring schemes for the Sequence track when using
+  * Added extra coloring schemes for the Sequence track when using
     protein residues. Thanks to Eric Rasche for the idea and
-    implementation (#673).
+    implementation (issue #673).
 
-  * Add ability to specify custom exporter classes for the "Save track
-    data" option, for example, adding exporter code in plugins (#682).
+  * Added ability to specify custom exporter classes for the "Save
+    track data" option, for example, adding exporter code in plugins
+    (issue #682).
 
-  * Add a timer for the feature statistics calculation (#663).
+  * Added a timer for the feature statistics calculation (issue #663).
 
-  * Add an option to specify multiple highlights, or bookmarks,
-    using the config file, a remote service, or the URL bar (#668).
+  * Added an option to specify multiple highlights, or bookmarks,
+    using the config file, a remote service, or the URL bar
+    (issue #668).
 
-  * Fix some inconsistencies where opening a file with .fasta instead
-    of .fa caused issues (#696).
 
-  * Allow using BEDTabix files and GFF3Tabix files which avoids the
-    need to run flatfile-to-json.pl. Simple BED files can
-    also be opened locally via the "Open track" option. Thanks to
-    @zhjilin and Colin Diesh for contributions (#670, #729). Please
-    be aware of possible limitations (see #780).
+  * Added support for loading BEDTabix files and GFF3Tabix files.
+    Thanks to @zhjilin and Colin Diesh (issue #670, issue #729).
+    Please be aware of possible limitations with GFF3Tabix
+    (issue #780).
+
+  * Added ability to open simple BED files via the "Open track" option
+    (issue #729).
+
+  * Added support for parsing BAM files from IonTorrent (issue #782,
+    issue #568).
 
 ## Bug fixes
 
-  * Fix error where the sequence track would not load after "Open
-    sequence file"
+  * Fixed error where the sequence track would not load after "Open
+    sequence file" (issue #831).
 
-  * Revert to standard eukaryotic codon set
+  * Reverted to standard eukaryotic codon set.
 
-  * Fix issue where saving session overwrote the plugins that were
-    loaded
+  * Fixed issue where saving session in JBrowse Desktop where plugins
+    were not saved with session.
 
-  * Fix an error if there were numerical values being used as label
+  * Fixed an error if there were numerical values being used as label
     or description for the CanvasFeatures type tracks. Thanks to
-    Eric Rasche for reporting (#673).
+    Eric Rasche for reporting (issue #673).
 
-  * Fix some issues where the Gene glyph would not layout some
-    features correctly. Thanks to Eric Rasche for reporting (#686).
+  * Fixed some issues where the Gene glyph would not layout some
+    features correctly. Thanks to Eric Rasche for reporting 
+    (issue #686).
 
-  * Fix an issue with desktop mode where saving session would not
+  * Fixed an issue with JBrowse Desktop where saving session would not
     save the tracks that were not visible.
 
-  * Added fix when using indexed fasta from prepare-refseqs.pl
-    Thanks to @billzt for the report (#719).
+  * Added fix when using indexed fasta from prepare-refseqs.pl.
+    Thanks to @billzt for the report (issue #719).
 
   * Added a fix for an issue where editing the configuration of files
     that were opened by a user didn't work. Thanks to @lpryszcz for
-    the report (#569).
+    the report (issue #569).
 
-  * Allow parsing tags from BAM files used in IonTorrent (#782, #568).
+  * Fixed some inconsistencies where "Open sequence" on file with a
+    .fasta file extension failed (issue #696).
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 
