@@ -36,17 +36,17 @@ release-notest: release-version.txt release-normal release-min release-notes.htm
 
 release-electron-darwin: release-notest
 	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64 --version=1.1.0
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64
 	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
 	
 release-electron-all: release-notest
 	echo "Building desktop packages..."
 	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
 	# build all versions
-	#   electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64 --version=0.35.4
+	#   electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64
 	# build specific versions
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64 --version=1.1.0
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=win32 --arch=ia32 --version=1.1.0
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=win32 --arch=ia32
 	# zap files that cause problems on windows (because of colons in filenames)
 	find JBrowseDesktop-win32-ia32 -type f -name "*.3pm" -delete &> /dev/null
 	# zip packages
