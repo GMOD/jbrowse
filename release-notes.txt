@@ -7,8 +7,14 @@
 
   * Update Dojo to 1.9.8.
 
-  * Added the ability to load tabix indexed GFF files. Thanks to
-    Colin Diesh for the implementation (issue #670).
+  * Added the ability to load tabix indexed GFF (GFF3Tabix).
+    Thanks to Colin Diesh for the implementation (issue #670).
+
+  * Added support for loading tabix indexed BED (BEDTabix).
+    Thanks to @zhjilin for the implementation (issue #729).
+
+  * Added ability to open BED files in the "Open track" user interface
+    (issue #729).
 
   * Added ability to access SPARQL stores that reject CORS requests
     to access sites like WikiData. Thanks to the WebApollo hackathon
@@ -22,20 +28,13 @@
     track data" option, for example, adding exporter code in plugins
     (issue #682).
 
-  * Added a timer for the feature statistics calculation (issue #663).
+  * Added a timeout for the track feature density calculations which
+    can aid problems like consistent chunkSizeLimit issues
+    (issue #540, issue #730).
 
   * Added an option to specify multiple highlights, or bookmarks,
     using the config file, a remote service, or the URL bar
     (issue #668).
-
-
-  * Added support for loading BEDTabix files and GFF3Tabix files.
-    Thanks to @zhjilin and Colin Diesh (issue #670, issue #729).
-    Please be aware of possible limitations with GFF3Tabix
-    (issue #780).
-
-  * Added ability to open simple BED files via the "Open track" option
-    (issue #729).
 
   * Added support for parsing BAM files from IonTorrent (issue #782,
     issue #568).
