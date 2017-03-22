@@ -42,6 +42,7 @@ define( [
             'JBrowse/View/FastaFileDialog',
             'JBrowse/Store/SeqFeature/IndexedFasta',
             'JBrowse/Store/SeqFeature/UnindexedFasta',
+            'JBrowse/Store/SeqFeature/TwoBit',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -96,6 +97,7 @@ define( [
             FastaFileDialog,
             IndexedFasta,
             UnindexedFasta,
+            TwoBit,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -1214,6 +1216,36 @@ openFastaElectron: function() {
                     window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                 } catch(e) { alert(e); }
             }
+            else if( confs[0].store.blob ) {
+                var f2bit = Util.replacePath( confs[0].store.blob.url );
+
+                var refseqs = new TwoBit({'browser': this, 'urlTemplate': f2bit });
+                var thisB = this;
+                refseqs.getRefSeqs( function(res) {
+                    var trackList = {
+                        tracks: [{
+                            label: confs[0].label,
+                            key: confs[0].key,
+                            type: "SequenceTrack",
+                            category: "Reference sequence",
+                            useAsRefSeqStore: true,
+                            storeClass: 'JBrowse/Store/SeqFeature/TwoBit',
+                            chunkSize: 20000,
+                            urlTemplate: f2bit
+                        }],
+                        refSeqs: { data: res },
+                        refSeqOrder: results.refSeqOrder
+                    };
+                    try {
+                        var dir = app.getPath('userData')+"/"+confs[0].label;
+                        fs.existsSync(dir) || fs.mkdirSync(dir);
+                        fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
+                        fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
+                        thisB.saveSessionDir( dir );
+                        window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
+                    } catch(e) { alert(e); }
+                }, function(err) { console.error('error', err); });
+            }
             else {
                 var fasta = Util.replacePath( confs[0].store.fasta.url );
                 try {
@@ -1294,6 +1326,16 @@ openFasta: function() {
                     browser: this,
                     fai: confs[0].store.fai,
                     fasta: confs[0].store.fasta
+                })
+                .getRefSeqs(
+                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
+                    function(error) { alert('Error getting refSeq: '+error); }
+                );
+            }
+            else if( confs[0].store.blob ) {
+                new TwoBit({
+                    browser: this,
+                    blob: confs[0].store.blob
                 })
                 .getRefSeqs(
                     function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
@@ -1403,7 +1445,8 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/GTF'         : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/StaticChunked' : 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/UnindexedFasta': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/IndexedFasta'  : 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/SeqFeature/IndexedFasta'  : 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/TwoBit'        : 'JBrowse/View/Track/Sequence'
             },
 
             knownTrackTypes: [
