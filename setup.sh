@@ -10,6 +10,13 @@ done_message () {
     fi
 }
 
+legacy_message () {
+  echo -e "\n\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo -e "\t! Not installing legacy software.    !"
+  echo -e "\t! If required run as: ./setup legacy !"
+  echo -e "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+}
+
 function check_node(){
     node_executable=$(which node)
     npm_executable=$(which npm)
@@ -43,6 +50,19 @@ function check_bower(){
 
 
 echo > setup.log;
+
+# Don't install legacy tool software by default anymore
+LEGACY_INSTALL=0
+if [ $# -gt 1 ] ; then
+  echo "USAGE: ./setup.sh [legacy]"
+  echo -e "\tTakes one optional argument, presence triggers legacy software install."
+  exit 1
+fi
+if [[ ($# -eq 1) && ("$1" = "legacy") ]] ; then
+  LEGACY_INSTALL=1
+else
+  legacy_message
+fi
 
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
 # OR
@@ -140,6 +160,11 @@ echo -n "Formatting Yeast example data ...";
     bin/generate-names.pl --dir sample_data/json/yeast/;
 ) >>setup.log 2>&1
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
+
+if [ $LEGACY_INSTALL -eq 0 ] ; then
+  legacy_message
+  exit 0
+fi
 
 echo
 echo -n "Building and installing legacy wiggle format support (superseded by BigWig tracks) ...";
