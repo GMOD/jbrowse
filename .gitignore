@@ -41,3 +41,5 @@ node_modules
 .idea/**
 /nbproject/private/
 *.swp
+_Inline
+.DS_Store

@@ -58,6 +58,9 @@
     link" attribute in embedded JBrowse. Thanks to Vivek Krishnakumar
     for contributing (issue #813).
 
+  * Added URL parameter &tracklabels=0 and config parameter to hide
+    track labels (issue #869).
+
 ## Bug fixes
 
   * Made the menu bar widgets centered again (issue #680).
@@ -109,6 +112,9 @@
 
   * Fixed issue where saving GFF3 would fail if the source data
     was in VCF format (issue #800).
+
+  * Fixed issue where there was a mix of plugin declarations
+    (issue #866).
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 
