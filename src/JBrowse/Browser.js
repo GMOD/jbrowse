@@ -269,7 +269,7 @@ initPlugins: function() {
             plugins = function() {
                 var newplugins = [];
                 for( var pname in plugins ) {
-                    if( !( 'name' in plugins[pname] ) ) {
+                    if( lang.isObject(plugins[pname]) && !( 'name' in plugins[pname] ) ) {
                         plugins[pname].name = pname;
                     }
                     newplugins.push( plugins[pname] );
