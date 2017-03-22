@@ -118,6 +118,8 @@ return declare(
             {
             maxFeatureScreenDensity: 0.5,
             removeCollapsedMouseover: true,
+            removeCollapsedClick: false,
+
 
             // default glyph class to use
             glyph: lang.hitch( this, 'guessGlyphType' ),
@@ -705,9 +707,10 @@ return declare(
         }
 
         this._attachMouseOverEvents( );
-
-        // connect up the event handlers
-        this._connectEventHandlers( block );
+        if( this.displayMode != 'collapsed' || !this.config.removeCollapsedClick ) {
+            // connect up the event handlers
+            this._connectEventHandlers( block );
+        }
 
         this.updateStaticElements( { x: this.browser.view.getX() } );
     },
