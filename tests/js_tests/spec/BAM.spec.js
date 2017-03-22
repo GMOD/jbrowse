@@ -297,7 +297,7 @@ describe( 'BAM mismatch test', function() {
                   var res = parser._renderTable(elt, new MismatchParser(), new SimpleFeature({data: {id: "read162/ctgA:g2.t1", seq: "TACACAAGCACCGGGCGCGCGAGACACGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT", md: "77G18", cigar: "4S22M50N74M"}}));
                   expect(res.val1).toEqual("TACACAAGCACCGGGCGCGCGAGACA..................................................CGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTTAACGTGGTACGTGCACAT");
                   expect(res.val2).toEqual("    ||||||||||||||||||||||                                                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||");
-                  expect(res.val3).toEqual("NNNNCAAGCACCGGGCGCGCGAGACANNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNCGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
+                  expect(res.val3).toEqual("....CAAGCACCGGGCGCGCGAGACANNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNCGATTGAATCCTTCAAACAGGGTTACTCGTTCGTGACAACCGATTACAGCATTCTGAACGTGGTACGTGCACAT");
               });
               it('resultTable test insertion', function() {
                   var parser = new AlignmentParser();

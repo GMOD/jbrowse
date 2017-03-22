@@ -265,7 +265,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     for(var l = 0; l < mismatch.cliplen; l++) {
                         query_str += seq[curr_pos + l];
                         align_str += ' ';
-                        refer_str += 'N';
+                        refer_str += '.';
                     }
                     curr_pos += mismatch.cliplen;
                     f = true;
@@ -289,7 +289,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     f = true;
                 }
                 else if(mismatch.type == "skip") {
-                    for(var l = 0; l < mismatch.length; l++) {
+                    for(var l = 0; l < Math.min(mismatch.length, 10000); l++) {
                         query_str += '.';
                         align_str += ' ';
                         refer_str += 'N';
@@ -326,7 +326,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         else {
             var s1, s2, s3, ret_str;
             s1 = s2 = s3 = ret_str ='';
-            var qpos = 0, rpos = start;
+            var qpos = 0;
+            var rpos = (mismatches.length && mismatches[0].type == 'softclip') ? (start-mismatches[0].cliplen) : start;
             var w = this.config.renderAlignment.width || 50;
             for(var i = 0; i < query_str.length; i += w) {
                 s1 = query_str.substring(i, i+w);
