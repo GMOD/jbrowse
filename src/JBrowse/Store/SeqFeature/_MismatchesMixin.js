@@ -44,9 +44,11 @@ return declare( null, {
         var mdString = feature.get( this.mdAttributeName );
         if( mdString )  {
             // if there is an MD tag, mismatches and deletions from cigar string are replaced by MD
-            mismatches = array.filter( mismatches, function(m) {
-                return !(m.type == "deletion" || m.type == "mismatch");
-            });
+            if( this.config.renderAlignment ) {
+                mismatches = array.filter( mismatches, function(m) {
+                    return !(m.type == "deletion" || m.type == "mismatch");
+                });
+            }
             mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
         }
 
