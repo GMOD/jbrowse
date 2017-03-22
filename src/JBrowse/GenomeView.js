@@ -620,20 +620,15 @@ scrollBarClickScroll : function( event ) {
 
     if ( !event )
         event = window.event;
-    // if( window.WheelEvent )
-    //     event = window.WheelEvent;
-
-    // 40 pixels per mouse click on scroll
 
     var containerHeight = parseInt( this.verticalScrollBar.container.style.height,10 );
     var markerHeight = parseInt( this.verticalScrollBar.positionMarker.style.height,10 );
     var trackContainerHeight = this.trackContainer.clientHeight;
     var absY = this.getY()*( trackContainerHeight/containerHeight );
-
     if ( absY > event.clientY )
-      this.setY( this.getY() - 40 );
+      this.setY( this.getY() - 300 );
     else if (absY + markerHeight < event.clientY)
-      this.setY( this.getY() + 40 );
+      this.setY( this.getY() + 300 );
 
     //the timeout is so that we don't have to run showVisibleBlocks
     //for every scroll wheel click (we just wait until so many ms
