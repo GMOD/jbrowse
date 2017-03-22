@@ -15,7 +15,7 @@ before_install:
   - npm install -g jshint bower
 install:
   - bower install
-  - bash setup.sh
+  - bash setup.sh legacy
 before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf
