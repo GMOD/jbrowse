@@ -314,7 +314,16 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 curr_pos++;
             }
         }
-        if(lang.isObject(this.config.renderAlignment) && this.config.renderAlignment.newlines) {
+        if(lang.isObject(this.config.renderAlignment) && this.config.renderAlignment.singleline) {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'Query: '+query_str+'   <br>'
+                  +'       '+align_str+'   <br>'
+                  +'Ref:   '+refer_str+'   </div>'
+            }, parentElement );
+        }
+        else {
             var s1, s2, s3, ret_str;
             s1 = s2 = s3 = ret_str ='';
             var qpos = 0, rpos = start;
@@ -336,15 +345,6 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 className: 'renderTable',
                 innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
                   +ret_str+'</div>'
-            }, parentElement );
-        }
-        else {
-            var gContainer = dojo.create('div', {
-                className: 'renderTable',
-                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-                  +'Query: '+query_str+'   <br>'
-                  +'       '+align_str+'   <br>'
-                  +'Ref:   '+refer_str+'   </div>'
             }, parentElement );
         }
 
