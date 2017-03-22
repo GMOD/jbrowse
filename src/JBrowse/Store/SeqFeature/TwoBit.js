@@ -39,6 +39,42 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
             data: blob,
             store: this
         });
+
+        if (!ArrayBuffer.prototype.slice) {
+            // ArrayBuffer slice added to ie11, shim for earlier http://stackoverflow.com/questions/21440050/arraybuffer-prototype-slice-shim-for-ie
+            ArrayBuffer.prototype.slice = function (begin, end) {
+                if (begin === void 0) {
+                    begin = 0;
+                }
+
+                if (end === void 0) {
+                    end = this.byteLength;
+                }
+
+                begin = Math.floor(begin);
+                end = Math.floor(end);
+                if (begin < 0) {
+                    begin += this.byteLength;
+                }
+                if (end < 0) {
+                    end += this.byteLength;
+                }
+                begin = Math.min(Math.max(0, begin), this.byteLength);
+                end = Math.min(Math.max(0, end), this.byteLength);
+
+                if (end - begin <= 0) {
+                    return new ArrayBuffer(0);
+                }
+
+                var result = new ArrayBuffer(end - begin);
+                var resultBytes = new Uint8Array(result);
+                var sourceBytes = new Uint8Array(this, begin, end - begin);
+
+                resultBytes.set(sourceBytes);
+                return result;
+            };
+        }
+
         
         if( ! has( 'typed-arrays' ) ) {
             this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );
