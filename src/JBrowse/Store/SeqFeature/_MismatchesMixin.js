@@ -28,6 +28,9 @@ return declare( null, {
 
     _getMismatches: function( feature ) {
         var mismatches = [];
+        if( this.config.cacheMismatches && feature.mismatches ) {
+            return feature.mismatches;
+        }
 
         // parse the CIGAR tag if it has one
         var cigarString = feature.get( this.cigarAttributeName ),
@@ -51,6 +54,9 @@ return declare( null, {
             seen[key] = true;
             return !s;
         });
+        if( this.config.cacheMismatches ) {
+            feature.mismatches = mismatches;
+        }
 
         return mismatches;
     },
