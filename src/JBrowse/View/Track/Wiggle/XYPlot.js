@@ -38,7 +38,7 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         var options = this.inherited(arguments) || [];
 
         options.push({
-            label: 'No Fill',
+            label: 'No fill',
             type: 'dijit/CheckedMenuItem',
             checked: !!(this.config.noFill == true),
             onClick: function(event) {
