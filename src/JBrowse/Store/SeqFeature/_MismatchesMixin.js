@@ -43,8 +43,17 @@ return declare( null, {
         // parse the MD tag if it has one
         var mdString = feature.get( this.mdAttributeName );
         if( mdString )  {
+            // if there is an MD tag, mismatches and deletions from cigar string are replaced by MD
+            if( this.config.renderAlignment ) {
+                mismatches = array.filter( mismatches, function(m) {
+                    return !(m.type == "deletion" || m.type == "mismatch");
+                });
+            }
             mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
         }
+
+        
+
 
         // uniqify the mismatches
         var seen = {};
@@ -88,7 +97,7 @@ return declare( null, {
            else if( op == 'H' )
                mismatches.push( { start: currOffset, type: 'hardclip',  base: 'H'+len, length: 1 });
            else if( op == 'S' )
-               mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, length: 1 });
+               mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, cliplen: len, length: 1 });
 
            if( op != 'I' && op != 'S' && op != 'H' )
                currOffset += len;
@@ -174,6 +183,7 @@ return declare( null, {
               curr.length = token.length-1;
               curr.base   = '*';
               curr.type   = 'deletion';
+              curr.seq    = token.substring(1);
               nextRecord();
           }
           else if( token.match(/^[a-z]/i) ) { // mismatch
@@ -184,6 +194,7 @@ return declare( null, {
                                                 1
                                               )
                                   : 'X';
+                  curr.altbase = token;
                   nextRecord();
               }
           }
