@@ -2,10 +2,8 @@
 
 ## Minor improvements
 
-  * Upgraded build system to install dependencies with bower
-    (issue #718).
-
-  * Update Dojo to 1.9.8.
+  * Upgraded build system to install dependencies with bower and
+    updated to dojo 1.9.8 (issue #718).
 
   * Added the ability to load tabix indexed GFF (GFF3Tabix).
     Thanks to Colin Diesh for the implementation (issue #670).
@@ -16,9 +14,9 @@
   * Added ability to open BED files in the "Open track" user interface
     (issue #729).
 
-  * Added ability to access SPARQL stores that reject CORS requests
-    to access sites like WikiData. Thanks to the WebApollo hackathon
-    for the ideas (issue #679).
+  * Added ability to access SPARQL and other jbrowse data stores via
+    CORS. Thanks to the WebApollo hackathon and Eric Rasche for
+    contributing (issue #679).
 
   * Added extra coloring schemes for the Sequence track when using
     protein residues. Thanks to Eric Rasche for the idea and
@@ -27,6 +25,10 @@
   * Added ability to specify custom exporter classes for the "Save
     track data" option, for example, adding exporter code in plugins
     (issue #682).
+
+  * Added ability to specify custom name store classes via plugins,
+    which allows plugins to implement their own search functionality
+    (issue #732).
 
   * Added a timeout for the track feature density calculations which
     can aid problems like consistent chunkSizeLimit issues
@@ -39,10 +41,31 @@
   * Added support for parsing BAM files from IonTorrent (issue #782,
     issue #568).
 
+  * Added support for native file access to .2bit files (issue #759).
+
+  * Added list of plugins in about box (issue #848).
+
+  * Added cacheMismatches option to improve performance when viewing
+    long-read alignments (issue #860).
+
+  * Added subfeatureDetailLevel config item to make View details box
+    only load subfeatures on demand (issue #861).
+   
+  * Added ability to draw scatter plot from BigWig tracks. Thanks to
+    Keiran Raine for the contribution (issue #741). 
+
+  * Added a fullviewlink option for the URL bar to disable "View full
+    link" attribute in embedded JBrowse. Thanks to Vivek Krishnakumar
+    for contributing (issue #813).
+
 ## Bug fixes
 
   * Fixed error where the sequence track would not load after "Open
     sequence file" (issue #831).
+
+  * Fixed problem with persistant "Error reading from name store"
+    message. Thanks to Anthony Bretaudeau for contributing the fix!
+    (issue #820).
 
   * Reverted to standard eukaryotic codon set.
 
@@ -69,6 +92,21 @@
 
   * Fixed some inconsistencies where "Open sequence" on file with a
     .fasta file extension failed (issue #696).
+
+  * Fixed issue where track labels would re-appear during scroll
+    (issue #793).
+
+  * Added handler for click scrolling in genome view. Thanks to
+    @exogenesys for fixing (issue #709).
+
+  * Fixed a rare error that only affected some versions of Chrome
+    (issue #758).
+
+  * Removed linear gradients from some NeatFeatures tracks
+    (issue #721).
+
+  
+
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 
