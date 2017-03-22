@@ -282,7 +282,7 @@ describe( 'BAM mismatch test', function() {
               //Config workaround since we aren't directly instantiating anything with Browser/config
               var Config=declare(null, {
                   constructor: function() {
-                      this.config={};
+                      this.config={renderAlignment: true};
                   }
               });
               //Use Config workaround
