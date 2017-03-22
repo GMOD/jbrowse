@@ -11,10 +11,7 @@ done_message () {
 }
 
 legacy_message () {
-   echo -e "\n\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-   echo -e "\t! Not installing legacy software.    !"
-   echo -e "\t! If required run as: ./setup legacy !"
-   echo -e "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+   echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superceded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'." 
  }
 
 function check_node(){
