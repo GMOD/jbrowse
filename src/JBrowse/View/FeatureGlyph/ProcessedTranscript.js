@@ -102,8 +102,8 @@ _makeCDSs: function( parent, subparts ) {
     var codePartStart =  Infinity,
           codePartEnd = -Infinity;
     for ( i = 0; i < exons.length; i++ ) {
-        start = exons[i].get('start');
-        end = exons[i].get('end');
+        var start = exons[i].get('start');
+        var end = exons[i].get('end');
 
         // CDS containing exon
         if( codeStart >= start && codeEnd <= end ) {
