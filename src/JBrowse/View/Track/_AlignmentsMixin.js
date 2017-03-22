@@ -314,7 +314,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 curr_pos++;
             }
         }
-        if(this.config.renderAlignment.newlines) {
+        if(lang.isObject(this.config.renderAlignment) && this.config.renderAlignment.newlines) {
             var s1, s2, s3, ret_str;
             s1 = s2 = s3 = ret_str ='';
             var qpos = 0, rpos = start;
