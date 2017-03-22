@@ -60,6 +60,8 @@
 
 ## Bug fixes
 
+  * Made the menu bar widgets centered again (issue #680).
+
   * Fixed error where the sequence track would not load after "Open
     sequence file" (issue #831).
 
