@@ -64,7 +64,9 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         });
 
         // genotypes in a separate section
-        this._renderTable( container, track, f, div );
+        if(this.config.renderAlignment) {
+            this._renderTable( container, track, f, div );
+        }
 
         return container;
     },
@@ -312,7 +314,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 curr_pos++;
             }
         }
-        if(this.config.renderAlignment && this.config.renderAlignment.newlines) {
+        if(this.config.renderAlignment.newlines) {
             var s1, s2, s3, ret_str;
             s1 = s2 = s3 = ret_str ='';
             var qpos = 0, rpos = start;
