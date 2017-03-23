@@ -9,7 +9,7 @@
     "start": "electron browser/main.js"
   },
   "dependencies": {
-    "electron-screenshot": "^1.0.4"
+    "electron-screenshot": "^1.0.4",
     "dbind": "git+https://github.com/cmdcolin/dbind.git",
     "dgrid": "git+https://github.com/sitepen/dgrid.git",
     "dijit": "^1.11.1",

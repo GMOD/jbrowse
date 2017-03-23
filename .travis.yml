@@ -16,7 +16,6 @@ before_install:
 install:
   - npm install
   - bash setup.sh legacy
->>>>>>> Adjust paths for node_modules
 before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf
