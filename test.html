@@ -1,0 +1,114 @@
+<html>
+<head>
+<title>JBrowse - Retrieve data outside of browser</title>
+ 
+<link rel="stylesheet" type="text/css" href="css/genome.css">
+<script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
+<script type="text/javascript" src="src/JBrowse/init.js"></script>
+<style>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+</style>
+ 
+<script>
+
+
+// Require bare bones jbrowse components without using the main browser object
+require([
+    'JBrowse/Browser',
+    'JBrowse/Store/SeqFeature/NCList',
+    'JBrowse/Model/SimpleFeature',
+    'JBrowse/Store/Sequence/StaticChunked',
+    'JBrowse/View/Export',
+    'JBrowse/View/Export/GFF3',
+    'JBrowse/View/Export/JSON'
+],
+function(
+    Browser,
+    NCList,
+    SimpleFeature,
+    StaticChunkedSequence,
+    ExportMixin,
+    GFF3Mixin,
+    JSONMixin
+) {
+    var getSequence = function(conf, region, successCallback, errorCallback) {
+        var conf = dojo.mixin({
+            storeClass: 'JBrowse/Store/Sequence/StaticChunked',
+            chunkSize: 20000,
+        }, conf);
+
+        // Fake existence of jbrowse object
+        var track = new StaticChunkedSequence(conf);
+        track.refSeq = {};
+        track.refSeq.name = region.refseq;
+        track.getReferenceSequence({ ref: region.refseq, start: region.start, end: region.end }, successCallback, errorCallback);
+    };
+    var getGFF = function(conf, region, callback) {
+        var conf = dojo.mixin({
+            storeClass: 'JBrowse/Store/SeqFeature/NCList'
+        }, conf);
+        var store = new NCList(conf);
+        store.refSeq = {};
+        store.refSeq.name = region.refseq;
+        var exp = new dojo.declare([ExportMixin, GFF3Mixin])({ store: store });
+
+        // Fake existence of jbrowse object
+        return exp.exportRegion({ ref: region.refseq, start: region.start, end: region.end }, callback);
+    };
+    var getJSON = function(conf, region, callback) {
+        var conf = dojo.mixin({
+            storeClass: 'JBrowse/Store/SeqFeature/NCList'
+        }, conf);
+        var store = new NCList(conf);
+        store.refSeq = {};
+        store.refSeq.name = region.refseq;
+        var exp = new dojo.declare([ExportMixin,JSONMixin])({ store: store });
+
+        // Fake existence of jbrowse object
+        return exp.exportRegion({ ref: region.refseq, start: region.start, end: region.end }, callback);
+    };
+
+    // Initialize jbrowse instance in unittestmode so that it doesn't actually draw the browser to screen
+    var browser = new Browser({unitTestMode: true});
+    var region = { start: 1, end: 10000, refseq: 'ctgA' };
+    getSequence({
+        urlTemplate: 'jbrowse/sample_data/json/volvox/seq/{refseq_dirpath}/{refseq}-',
+        label: 'DNA',
+        browser: browser
+    }, region, function(seq) {
+        document.getElementById('sequence').innerHTML = '>ctgA:1-100<br>' + seq;
+    });
+    getGFF({
+        urlTemplate: 'jbrowse/sample_data/json/volvox/tracks/Genes/{refseq}/trackData.json',
+        label: 'Genes',
+        browser: browser
+    }, region, function(features) {
+        document.getElementById('gff').innerHTML = features;
+    });
+    getJSON({
+        urlTemplate: 'jbrowse/sample_data/json/volvox/tracks/Genes/{refseq}/trackData.json',
+        label: 'Genes',
+        browser: browser
+    }, region, function(features) {
+        document.getElementById('json').innerHTML = features;
+    });
+
+
+});
+
+</script>
+ 
+</head>
+<body>
+<h1>JBrowse json store access outside of browser</h1>
+<pre id="json"></pre>
+<h1>JBrowse sequence store access outside of browser</h1>
+<pre id="sequence"></pre>
+<h1>JBrowse gff store access outside of browser</h1>
+<pre id="gff"></pre>
+</body>
+</html> 
+
