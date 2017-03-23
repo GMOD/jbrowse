@@ -11,7 +11,7 @@ done_message () {
 }
 
 legacy_message () {
-   echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superceded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'." 
+   echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'."
  }
 
 function check_node(){
@@ -63,7 +63,7 @@ fi
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
 # OR
 # if dev we don't care
-echo  "Installing javascript dependencies ..."
+echo  -n "Installing javascript dependencies ..."
 if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
     echo "Detected precompiled version." ;
 elif ! [ -f "src/dojo/dojo.js" ]; then
@@ -72,12 +72,13 @@ elif ! [ -f "src/dojo/dojo.js" ]; then
     $bower_executable install -f --allow-root >> setup.log ;
 else
     check_bower >> setup.log ;
-    echo "Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
+    echo -n "  Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
 fi
+echo "done"
 
 
 # log information about this system
-echo "Gathering system information ..."
+echo -n "Gathering system information ..."
 (
     echo '============== System information ====';
     set -x;
@@ -88,8 +89,9 @@ echo "Gathering system information ..."
     grep MemTotal /proc/meminfo;
     echo; echo;
 ) >>setup.log 2>&1;
+echo "done"
 
-echo  "Installing Perl prerequisites ..."
+echo  -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo;
     echo "WARNING: Your Perl installation does not seem to include a complete set of core modules.  Attempting to cope with this, but if installation fails please make sure that at least ExtUtils::MakeMaker is installed.  For most users, the best way to do this is to use your system's package manager: apt, yum, fink, homebrew, or similar.";
