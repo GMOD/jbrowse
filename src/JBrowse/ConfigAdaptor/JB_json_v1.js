@@ -182,7 +182,8 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 var trackClassName = this._regularizeClass(
                     'JBrowse/View/Track', {
-                        'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',         'ImageTrack':        'JBrowse/View/Track/FixedImage',
+                        'FeatureTrack':      'JBrowse/View/Track/HTMLFeatures',
+                        'ImageTrack':        'JBrowse/View/Track/FixedImage',
                         'ImageTrack.Wiggle': 'JBrowse/View/Track/FixedImage/Wiggle',
                         'SequenceTrack':     'JBrowse/View/Track/Sequence'
                     }[ trackConfig.type ]
@@ -213,8 +214,16 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                         /\/FixedImage/.test(trackConfig.type) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
                         /\.jsonz?$/i.test( urlTemplate )      ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
                         /\.bam$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BAM'                                                      :
-                        /\.cram$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/CRAM'                                                    :
+                        /\.cram$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/CRAM'                                                     :
+                        /\.gff3?$/i.test( urlTemplate )       ? 'JBrowse/Store/SeqFeature/GFF3'                                                     :
+                        /\.bed$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BED'                                                      :
+                        /\.vcf.gz$/i.test( urlTemplate )      ? 'JBrowse/Store/SeqFeature/VCFTabix'                                                 :
+                        /\.gff3?.gz$/i.test( urlTemplate )    ? 'JBrowse/Store/SeqFeature/GFF3Tabix'                                                :
+                        /\.bed.gz$/i.test( urlTemplate )      ? 'JBrowse/Store/SeqFeature/BEDTabix'                                                 :
                         /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
+                        /\.(bb|bigbed)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigBed'                                                   :
+                        /\.(fa|fasta)$/i.test( urlTemplate )  ? 'JBrowse/Store/SeqFeature/IndexedFasta'                                             :
+                        /\.2bit$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/TwoBit'                                                   :
                         /\/Sequence$/.test(trackConfig.type)  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
                                                                  null
                 );
@@ -234,11 +243,18 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
 
                 // if this is the first sequence store we see, and we
                 // have no refseqs store defined explicitly, make this the refseqs store.
-                if( (storeClass == 'JBrowse/Store/Sequence/StaticChunked' || trackConfig.useAsRefSeqStore) && !mainconf.stores['refseqs'] )
+                if( (storeClass == 'JBrowse/Store/Sequence/StaticChunked' ||
+                     storeClass == 'JBrowse/Store/Sequence/IndexedFasta' ||
+                     storeClass == 'JBrowse/Store/SeqFeature/IndexedFasta' ||
+                     storeClass == 'JBrowse/Store/SeqFeature/TwoBit' ||
+                     storeClass == 'JBrowse/Store/Sequence/TwoBit' ||
+                     trackConfig.useAsRefSeqStore
+                    ) && !mainconf.stores['refseqs'] )
+                {
                     storeConf.name = 'refseqs';
-                else
+                } else {
                     storeConf.name = 'store'+digest.objectFingerprint( storeConf );
-
+                }
                 // record it
                 mainconf.stores[storeConf.name] = storeConf;
 
