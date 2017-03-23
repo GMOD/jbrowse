@@ -77,7 +77,7 @@ fi
 
 
 # log information about this system
-echo -n "Gathering system information ..."
+echo "Gathering system information ..."
 (
     echo '============== System information ====';
     set -x;
