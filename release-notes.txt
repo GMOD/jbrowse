@@ -5,11 +5,8 @@
   * Upgraded build system to install dependencies with bower and
     updated to dojo 1.9.8 (issue #718).
 
-  * Added the ability to load tabix indexed GFF (GFF3Tabix).
-    Thanks to Colin Diesh for the implementation (issue #670).
-
-  * Added support for loading tabix indexed BED (BEDTabix).
-    Thanks to @zhjilin for the implementation (issue #729).
+  * Added the ability to load tabix indexed GFF and BED files.
+    Thanks to Colin Diesh and @zhjilin for contributing (issue #670).
 
   * Added ability to open BED files in the "Open track" user interface
     (issue #729).
@@ -60,6 +57,13 @@
 
   * Added URL parameter &tracklabels=0 and config parameter to hide
     track labels (issue #869).
+
+  * Added renderAlignment option which creates a per-base alignment
+    view of the read versus the reference (issue #795).
+
+  * Added inferCdsParts option which creates CDS subfeatures from a
+    continuous CDS region for CanvasFeatures glyphs. Thanks to
+    Vivek Krishnakumar for the contribution (issue #872).
 
 ## Bug fixes
 
