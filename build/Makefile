@@ -78,7 +78,7 @@ release-normal-test: release-normal
 	rm -rf $(RELEASE_FULL_DIR);
 	$(UNZIP) $(RELEASE_FULL).zip
 	cd $(RELEASE_FULL_DIR) \
-	  && ./setup.sh \
+	  && ./setup.sh legacy \
 	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 
@@ -143,7 +143,7 @@ release-min-test: release-min
 	$(UNZIP) $(RELEASE_MIN).zip
 	rm $(RELEASE_MIN_DIR)/sample_data/raw/volvox
 	cp -R docs tests* sample_data $(RELEASE_MIN_DIR);
-	cd $(RELEASE_MIN_DIR) && ./setup.sh
+	cd $(RELEASE_MIN_DIR) && ./setup.sh legacy
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 bin/wig2png: src/wig2png/Makefile
