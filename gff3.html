@@ -41,6 +41,7 @@
                     var config = {
                         containerID: "GenomeBrowser",
                         dataRoot: queryParams.data,
+                        lookupSymbol: queryParams.lookupSymbol,
                         queryParams: queryParams,
                         location: queryParams.loc,
                         updateBrowserURL: true
@@ -68,6 +69,7 @@
                     console.log(config.location);
                     var region = Util.parseLocString(config.location);
                     region.refseq = region.ref;
+                    region.lookupSymbol = config.lookupSymbol;
                     console.log(region);
                     console.log(config.dataRoot);
 
@@ -106,18 +108,44 @@
                         document.getElementById('gff').innerHTML = features;
                     });
 
+                    var parseJSON= function(features,region){
+
+                    };
+
                     getGFF({
                         urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
                         label: 'Genes',
                         browser: browser
                     }, region, function (features) {
+                        // TODO: create a separate function
                         var jsonFeatures = [] ;
                         var splitFeatures = features.split('\n');
+                        console.log('region in scope: '+JSON.stringify(region));
 
                         for(f in splitFeatures){
                             var line = splitFeatures[f];
                             if(line && line.indexOf('#')!==0){
-                                jsonFeatures.push(GFF3Util.parse_feature(line));
+                                // let's get a single gene and substring everything else
+                                var feature = GFF3Util.parse_feature(line);
+
+                                // if its a gene, then include it
+                                if(!feature.attributes.Parent ){
+                                    if(region.lookupSymbol ){
+                                        console.log('comparing: '+feature.attributes.ID + ' vs ' + region.lookupSymbol + ' = ' + (feature.attributes.ID==region.lookupSymbol));
+                                        if(feature.attributes.ID==region.lookupSymbol || feature.attributes.Name==region.lookupSymbol){
+                                            console.log('matched!: '+feature.attributes.ID + ' vs ' + region.lookupSymbol);
+                                            jsonFeatures.push(feature);
+                                        }
+                                    }
+                                    else{
+                                        jsonFeatures.push(feature);
+                                    }
+                                }
+                                // if we are a child object, we iterate through the top-level genes for a match
+                                else{
+                                    // TODO: create an index for this at some point
+                                    var parentId = feature.attributes.Parent ;
+                                }
                             }
                         }
                         document.getElementById('renderedJSON').innerHTML = JSON.stringify(jsonFeatures);
