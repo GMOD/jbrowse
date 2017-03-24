@@ -1,0 +1,110 @@
+<html>
+<head>
+<title>JBrowse - Retrieve data outside of browser</title>
+ 
+<link rel="stylesheet" type="text/css" href="css/genome.css">
+<script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
+<script type="text/javascript" src="src/JBrowse/init.js"></script>
+<style>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+</style>
+ 
+<script>
+
+
+// Require bare bones jbrowse components without using the main browser object
+require([
+    'dojo/io-query',
+    'dojo/json',
+    'JBrowse/Browser',
+    'JBrowse/Util',
+    'JBrowse/Store/SeqFeature/NCList',
+    'JBrowse/Model/SimpleFeature',
+    'JBrowse/View/Export',
+    'JBrowse/View/Export/GFF3'
+],
+function(
+    ioQuery,
+    JSON,
+    Browser,
+    Util,
+    NCList,
+    SimpleFeature,
+    ExportMixin,
+    GFF3Mixin
+) {
+    var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
+
+    var config = {
+        containerID: "GenomeBrowser",
+        dataRoot: queryParams.data,
+        queryParams: queryParams,
+        location: queryParams.loc,
+//        forceTracks: queryParams.tracks,
+//        initialHighlight: queryParams.highlight,
+//        show_nav: queryParams.nav,
+//        show_tracklist: queryParams.tracklist,
+//        show_overview: queryParams.overview,
+//        show_menu: queryParams.menu,
+//        show_fullviewlink: queryParams.fullviewlink,
+//        show_tracklabels: queryParams.tracklabels,
+//        highResolutionMode: queryParams.highres,
+//        stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
+//        bookmarks: { },
+        updateBrowserURL: true
+    };
+
+
+    var getGFF = function(conf, region, callback) {
+        var conf = dojo.mixin({
+            storeClass: 'JBrowse/Store/SeqFeature/NCList'
+        }, conf);
+        var store = new NCList(conf);
+        store.refSeq = {};
+        store.refSeq.name = region.refseq;
+        var exp = new dojo.declare([ExportMixin, GFF3Mixin])({ store: store });
+
+        // Fake existence of jbrowse object
+        return exp.exportRegion({ ref: region.refseq, start: region.start, end: region.end }, callback);
+    };
+
+    // Initialize jbrowse instance in unittestmode so that it doesn't actually draw the browser to screen
+    var browser = new Browser({unitTestMode: true});
+
+
+    console.log(config.location);
+    var region = Util.parseLocString(config.location);
+    region.refseq = region.ref ;
+    console.log(region);
+    console.log(config.dataRoot);
+
+    var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
+
+//    http://agrjbrowse.s3-website-us-east-1.amazonaws.com/zfin/zebrafish/tracks/All%20Genes/1/trackData.jsonz
+//    var region = { start: 1, end: 10000, refseq: 'ctgA' };
+    var dataRoot = "/zfin/zebrafish"
+
+    getGFF({
+//        urlTemplate: 'jbrowse/sample_data/json/volvox/tracks/Genes/{refseq}/trackData.json',
+        urlTemplate:  prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
+        label: 'Genes',
+        browser: browser
+    }, region, function(features) {
+        document.getElementById('gff').innerHTML = features;
+    });
+
+
+});
+
+</script>
+ 
+</head>
+<body>
+<h1>JBrowse gff store access outside of browser</h1>
+<pre id="gff"></pre>
+</body>
+</html> 
+

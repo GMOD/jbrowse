@@ -118,7 +118,7 @@ return declare( ExportBase,
     formatFeature: function( feature, returnObj, parentID) {
         var returnObj = this._buildObject(feature,returnObj,parentID)
         console.log(returnObj);
-        return JSON.stringify(returnObj);
+        return returnObj;
     },
 
     /**
