@@ -154,7 +154,7 @@ src/wig2png/configure: src/wig2png/configure.in
 	cd src/wig2png && autoconf
 
 superclean: clean
-	-git clean -fd --exclude=plugins/ \
+	-git clean -fdx --exclude=plugins/ \
 	    --exclude src/FileSaver/ \
 	    --exclude src/dbind/ \
 	    --exclude src/dgrid/ \
