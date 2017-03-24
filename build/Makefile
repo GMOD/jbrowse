@@ -35,13 +35,13 @@ release-notest: release-version.txt release-normal release-min release-notes.htm
 	$(SHASUM) *.zip
 
 release-electron-darwin: release-notest
-	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
+	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
 	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64
 	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
 	
 release-electron-all: release-notest
 	echo "Building desktop packages..."
-	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
+	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
 	# build all versions
 	#   electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64
 	# build specific versions
