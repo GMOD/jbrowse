@@ -78,12 +78,8 @@
                     var region = Util.parseLocString(config.location);
                     region.refseq = region.ref;
                     region.lookupSymbol = config.lookupSymbol;
-//                    console.log(region);
-//                    console.log(config.dataRoot);
 
                     var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
-
-//    http://agrjbrowse.s3-website-us-east-1.amazonaws.com/zfin/zebrafish/tracks/All%20Genes/1/trackData.jsonz
                     var dataMappings = {
                                 'data/Danio rerio': '/zfin/zebrafish'
                                 , 'data/MGI': '/MGI/mouse'
@@ -107,14 +103,6 @@
 //└── zfin -> /home/ubuntu/AGR-jbrowse/jbrowse/data/zfin/
 
                     var dataRoot = dataMappings[config.dataRoot];
-
-                    getGFF({
-                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
-                        label: 'Genes',
-                        browser: browser
-                    }, region, function (features) {
-                        document.getElementById('gff').innerHTML = features;
-                    });
 
                     var parseJSON= function(features,region,callback){
                         // TODO: create a separate function
@@ -169,18 +157,6 @@
                         }
                         return callback(jsonFeatures);
                     };
-
-                    getGFF({
-                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
-                        label: 'Genes',
-                        browser: browser
-                    }, region, function(features){
-                        parseJSON(features,region, function (jsonFeatures) {
-//                            console.log('parsing features: '+jsonFeatures);
-                            document.getElementById('renderedJSON').innerHTML = JSON.stringify(jsonFeatures);
-                        })
-                    });
-
 
 
                     getGFF({
@@ -276,8 +252,9 @@
                                 }
                             }
                             console.log('max top: '+ maxTop);
-                            document.getElementById('display').style.height=  (maxTop+50)+'px';
-                            document.getElementById('wrapper').style.height=  (maxTop+70)+'px';
+
+                            document.getElementById('display').style.height=  (maxTop+30)+'px';
+                            document.getElementById('wrapper').style.height=  (maxTop+40)+'px';
 
                             return maxTop;
 
@@ -290,15 +267,9 @@
 
 </head>
 <body>
-<div id="wrapper" style="top:0px;height:200px;">
-    <h1>JBrowse feature rendering outside of browser</h1>
-    <!--?<div id="display" style="margin:50px;position:absolute;width:75%;"></div>-->
-    <div id="display" style="margin:50px;position:absolute;width:75%;height:200px;"></div>
+<div id="wrapper" style="top:0px;border:none">
+    <div id="display" style="margin:20px;position:absolute;width:100%;height:200px;"></div>
 </div>
-<h1>Rendered JSON</h1>
-<pre id="renderedJSON"></pre>
-<h1>JBrowse gff store access outside of browser</h1>
-<pre id="gff"></pre>
 </body>
 </html> 
 
