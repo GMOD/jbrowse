@@ -122,6 +122,7 @@
 
                                 // if its a gene, then include it
                                 if(!feature.attributes.Parent ){
+                                    feature.subfeatures=[];
                                     if(region.lookupSymbol ){
                                         console.log('comparing: '+feature.attributes.ID + ' vs ' + region.lookupSymbol + ' = ' + (feature.attributes.ID==region.lookupSymbol));
                                         if(feature.attributes.ID==region.lookupSymbol || feature.attributes.Name==region.lookupSymbol){
@@ -136,7 +137,16 @@
                                 // if we are a child object, we iterate through the top-level genes for a match
                                 else{
                                     // TODO: create an index for this at some point
-                                    var parentId = feature.attributes.Parent ;
+                                    var parentID = feature.attributes.Parent ;
+                                    // let's find the parent!
+                                    for(j in jsonFeatures){
+                                        parentFeature = jsonFeatures[j];
+//                                        console.log('finding PARENT: '+ (typeof parentFeature.attributes.ID[0]) + ' vs ' + (typeof parentID) + ' = ' + (parentFeature.attributes.ID==parentID));
+                                        if(parentFeature.attributes.ID[0]===parentID[0]){
+                                            parentFeature.subfeatures.push(feature);
+                                        }
+                                    }
+
                                 }
                             }
                         }
