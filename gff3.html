@@ -108,15 +108,7 @@
                         document.getElementById('gff').innerHTML = features;
                     });
 
-                    var parseJSON= function(features,region){
-
-                    };
-
-                    getGFF({
-                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
-                        label: 'Genes',
-                        browser: browser
-                    }, region, function (features) {
+                    var parseJSON= function(features,region,callback){
                         // TODO: create a separate function
                         var jsonFeatures = [] ;
                         var splitFeatures = features.split('\n');
@@ -148,7 +140,18 @@
                                 }
                             }
                         }
-                        document.getElementById('renderedJSON').innerHTML = JSON.stringify(jsonFeatures);
+                        return callback(jsonFeatures);
+                    };
+
+                    getGFF({
+                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
+                        label: 'Genes',
+                        browser: browser
+                    }, region, function(features){
+                        parseJSON(features,region, function (jsonFeatures) {
+                            console.log('parsing features: '+jsonFeatures);
+                            document.getElementById('renderedJSON').innerHTML = JSON.stringify(jsonFeatures);
+                        })
                     });
 
                 });
