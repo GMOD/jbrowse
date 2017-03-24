@@ -74,12 +74,12 @@
                     var browser = new Browser({unitTestMode: true});
 
 
-                    console.log(config.location);
+//                    console.log(config.location);
                     var region = Util.parseLocString(config.location);
                     region.refseq = region.ref;
                     region.lookupSymbol = config.lookupSymbol;
-                    console.log(region);
-                    console.log(config.dataRoot);
+//                    console.log(region);
+//                    console.log(config.dataRoot);
 
                     var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
 
@@ -120,7 +120,7 @@
                         // TODO: create a separate function
                         var jsonFeatures = [] ;
                         var splitFeatures = features.split('\n');
-                        console.log('region in scope: '+JSON.stringify(region));
+//                        console.log('region in scope: '+JSON.stringify(region));
 
                         for(f in splitFeatures){
                             var line = splitFeatures[f];
@@ -129,6 +129,9 @@
                                 var feature = GFF3Util.parse_feature(line);
                                 feature.name = feature.attributes.Name[0];
                                 feature.uniqueID = feature.attributes.ID[0];
+                                if(feature.attributes.parentID){
+                                    feature.parent = feature.attributes.parentID[0] ;
+                                }
 
                                 // if its a gene, then include it
 //                                if(!feature.attributes.Parent ){
@@ -173,10 +176,11 @@
                         browser: browser
                     }, region, function(features){
                         parseJSON(features,region, function (jsonFeatures) {
-                            console.log('parsing features: '+jsonFeatures);
+//                            console.log('parsing features: '+jsonFeatures);
                             document.getElementById('renderedJSON').innerHTML = JSON.stringify(jsonFeatures);
                         })
                     });
+
 
                     getGFF({
                         urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
@@ -186,10 +190,10 @@
                         parseJSON(features,region, function (jsonFeatures) {
 
                             var renderedFeatures = [ ] ;
-                            console.log('rendering '+jsonFeatures.length + ' features');
+//                            console.log('rendering '+jsonFeatures.length + ' features');
                             for(j in jsonFeatures){
                                 featureData = { data: jsonFeatures[j] };
-                                console.log('rendering this one '+JSON.stringify(featureData));
+//                                console.log('rendering this one '+JSON.stringify(featureData));
                                 renderedFeatures.push(new SimpleFeature(featureData));
                             }
 
@@ -258,24 +262,20 @@
                             });
                             track.updateStaticElements({ x: 0, y: 0, width: 2000, height: 100 });
 
-                            // manually initialize a new sequence track to grab reference sequence data
-//                            var trackConfig2 = {
-//                                storeClass: 'JBrowse/Store/Sequence/StaticChunked',
-//                                chunkSize: 20000,
-//                                urlTemplate: 'jbrowse/sample_data/json/volvox/seq/{refseq_dirpath}/{refseq}-',
-//                                label: 'DNA',
-//                                type: 'SequenceTrack',
-//                                browser: browser
-//                            };
-//
-//                            // Fake existence of jbrowse object
-//                            var track2 = new StaticChunkedSequence(trackConfig2);
-//                            track2.refSeq = {};
-//                            track2.refSeq.name = 'ctgA';
-//                            track2.getReferenceSequence({ ref: 'ctgA', start: 0, end: 1000}, dojo.hitch(this, function(seq) {
-//                                        dom.byId('sequence').innerHTML = '>ctgA:1-1000' + '<br>' + seq;
-//                                    })
-//                            );
+                            var layedOutElements = document.getElementsByClassName("feature-label");
+                            var maxTop = 0 ;
+                            for(i in layedOutElements){
+                                if(layedOutElements[i].style ){
+                                    var topString = layedOutElements[i].style.top;
+                                    var topInt = Number(topString.substring(0,topString.length-2));
+                                    if(topInt>maxTop){
+                                        maxTop = topInt ;
+                                    }
+
+                                }
+                            }
+                            console.log('max top: '+ maxTop);
+                            return maxTop;
 
                         })
                     });
