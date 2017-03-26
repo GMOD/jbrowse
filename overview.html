@@ -46,7 +46,7 @@
                           GFF3Mixin) {
                     var queryParams = ioQuery.queryToObject(window.location.search.slice(1));
 
-                    var externalURL = 'http://localhost/jbrowse/overview.html?data=data%2FCaenorhabditis%20elegans&loc=IV:4199501..4204375&tracks=All%20Genes&highlight='.replace('overview.html', 'index.html');
+                    var externalURL = window.URL.replace('overview.html', 'index.html');
 
                     var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
                     var dataMappings = {
