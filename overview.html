@@ -58,9 +58,6 @@
                             }
                     ;
 
-                    // wormbase:  Track is Named "Curated Genes" in JBrowse instead of "All Genes"
-
-
 //    Caenorhabditis elegans -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Caenorhabditis elegans/
 //├── Danio rerio -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Danio rerio/
 //├── Drosophila melanogaster -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Drosophila melanogaster/
@@ -106,9 +103,15 @@
 
 //                    console.log(config.location);
                     var region = Util.parseLocString(config.location);
+                    // TODO: Hack
                     region.refseq = chrPrefix + region.ref;
                     region.lookupSymbol = config.lookupSymbol;
 
+                    // TODO: Hack
+                    var trackName = 'All%20Genes';
+                    if(config.dataRoot==='data/Caenorhabditis elegans'){
+                        trackName = 'Curated_Genes';
+                    }
 
 
                     var parseJSON = function (features, region, callback) {
@@ -168,7 +171,7 @@
 
 
                     getGFF({
-                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
+                        urlTemplate: prefix + dataRoot + '/tracks/'+trackName+'/{refseq}/trackData.jsonz',
                         label: 'Genes',
                         browser: browser
                     }, region, function (features) {
