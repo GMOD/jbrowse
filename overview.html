@@ -46,6 +46,34 @@
                           GFF3Mixin) {
                     var queryParams = ioQuery.queryToObject(window.location.search.slice(1));
 
+                    var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
+                    var dataMappings = {
+                                'data/Danio rerio': {data: '/zfin/zebrafish', prefix: ''} // working
+                                , 'data/Mus musculus': {data: '/MGI/mouse', prefix: 'chr'} // working
+                                , 'data/Caenorhabditis elegans': {data: '/WormBase/c_elegans_PRJNA13758', prefix: ''}
+                                , 'data/Drosophila melanogaster': {data: '/FlyBase/fruitfly', prefix: 'chr'} // working
+                                , 'data/Saccharomyces cerevisiae': {data: '/SGD/yeast', prefix: 'chr'}
+                                , 'data/Rattus norvegicus': {data: '/RGD/rat', prefix: 'Chr'}
+                                , 'data/Homo sapiens': {data: '/human', prefix: 'Chr'} // working
+                            }
+                    ;
+
+                    // wormbase:  Track is Named "Curated Genes" in JBrowse instead of "All Genes"
+
+
+//    Caenorhabditis elegans -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Caenorhabditis elegans/
+//├── Danio rerio -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Danio rerio/
+//├── Drosophila melanogaster -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Drosophila melanogaster/
+//├── FlyBase -> /home/ubuntu/AGR-jbrowse/jbrowse/data/FlyBase/
+//├── functions.conf -> /home/ubuntu/AGR-jbrowse/jbrowse/data/functions.conf
+//├── Homo sapiens -> /home/ubuntu/AGR-jbrowse/jbrowse/data/human
+//├── Mus musculus -> /home/ubuntu/AGR-jbrowse/jbrowse/data/MGI/
+//├── Rattus norvegicus -> /home/ubuntu/AGR-jbrowse/jbrowse/data/RGD
+//├── Saccharomyces cerevisiae -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Saccharomyces cerevisiae/
+//├── SGD -> /home/ubuntu/AGR-jbrowse/jbrowse/data/SGD
+//├── WormBase -> /home/ubuntu/AGR-jbrowse/jbrowse/data/WormBase/
+//└── zfin -> /home/ubuntu/AGR-jbrowse/jbrowse/data/zfin/
+
                     var config = {
                         containerID: "GenomeBrowser",
                         dataRoot: queryParams.data,
@@ -55,6 +83,8 @@
                         updateBrowserURL: true
                     };
 
+                    var dataRoot = dataMappings[config.dataRoot].data;
+                    var chrPrefix = dataMappings[config.dataRoot].prefix;
 
                     var getGFF = function (conf, region, callback) {
                         var conf = dojo.mixin({
@@ -76,58 +106,36 @@
 
 //                    console.log(config.location);
                     var region = Util.parseLocString(config.location);
-                    region.refseq = region.ref;
+                    region.refseq = chrPrefix + region.ref;
                     region.lookupSymbol = config.lookupSymbol;
 
-                    var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
-                    var dataMappings = {
-                                'data/Danio rerio': '/zfin/zebrafish'
-                                , 'data/MGI': '/MGI/mouse'
-                                , 'data/Caenorhabditis elegans': '/WormBase/c_elegans_PRJNA13758'
-                                , 'data/Drosophila melanogaster': '/FlyBase/fruitfly'
-                                , 'data/Saccharomyces cerevisiae': '/SGD/yeast'
-                            }
-                    ;
 
-//    Caenorhabditis elegans -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Caenorhabditis elegans/
-//├── Danio rerio -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Danio rerio/
-//├── Drosophila melanogaster -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Drosophila melanogaster/
-//├── FlyBase -> /home/ubuntu/AGR-jbrowse/jbrowse/data/FlyBase/
-//├── functions.conf -> /home/ubuntu/AGR-jbrowse/jbrowse/data/functions.conf
-//├── Homo sapiens -> /home/ubuntu/AGR-jbrowse/jbrowse/data/human
-//├── Mus musculus -> /home/ubuntu/AGR-jbrowse/jbrowse/data/MGI/
-//├── Rattus norvegicus -> /home/ubuntu/AGR-jbrowse/jbrowse/data/RGD
-//├── Saccharomyces cerevisiae -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Saccharomyces cerevisiae/
-//├── SGD -> /home/ubuntu/AGR-jbrowse/jbrowse/data/SGD
-//├── WormBase -> /home/ubuntu/AGR-jbrowse/jbrowse/data/WormBase/
-//└── zfin -> /home/ubuntu/AGR-jbrowse/jbrowse/data/zfin/
 
-                    var dataRoot = dataMappings[config.dataRoot];
-
-                    var parseJSON= function(features,region,callback){
+                    var parseJSON = function (features, region, callback) {
                         // TODO: create a separate function
-                        var jsonFeatures = [] ;
+                        var jsonFeatures = [];
                         var splitFeatures = features.split('\n');
 //                        console.log('region in scope: '+JSON.stringify(region));
 
-                        for(f in splitFeatures){
+                        for (f in splitFeatures) {
                             var line = splitFeatures[f];
-                            if(line && line.indexOf('#')!==0){
+                            if (line && line.indexOf('#') !== 0) {
                                 // let's get a single gene and substring everything else
                                 var feature = GFF3Util.parse_feature(line);
-                                feature.name = feature.attributes.Name[0];
-                                feature.uniqueID = feature.attributes.ID[0];
-                                if(feature.attributes.parentID){
-                                    feature.parent = feature.attributes.parentID[0] ;
+//                                console.log('parsed: '+line);
+//                                console.log('into: '+JSON.stringify(feature));
+                                feature.name = feature.attributes.Name ? feature.attributes.Name[0] : null;
+                                feature.uniqueID = feature.attributes.ID ? feature.attributes.ID[0] : null;
+                                if (feature.attributes.parentID) {
+                                    feature.parent = feature.attributes.parentID[0];
                                 }
 
                                 // if its a gene, then include it
 //                                if(!feature.attributes.Parent ){
-                                if(feature.type=='gene' ) {
+                                if (feature.type == 'gene') {
                                 }
-                                else
-                                if(feature.type=='mRNA' ){
-                                    feature.subfeatures=[];
+                                else if (feature.type == 'mRNA') {
+                                    feature.subfeatures = [];
 //                                    if(region.lookupSymbol ){
 //                                        console.log('comparing: '+feature.attributes.ID + ' vs ' + region.lookupSymbol + ' = ' + (feature.attributes.ID==region.lookupSymbol));
 //                                        if(feature.attributes.ID==region.lookupSymbol || feature.attributes.Name==region.lookupSymbol){
@@ -136,18 +144,18 @@
 //                                        }
 //                                    }
 //                                    else{
-                                        jsonFeatures.push(feature);
+                                    jsonFeatures.push(feature);
 //                                    }
                                 }
                                 // if we are a child object, we iterate through the top-level genes for a match
-                                else{
+                                else {
                                     // TODO: create an index for this at some point
-                                    var parentID = feature.attributes.Parent ;
+                                    var parentID = feature.attributes.Parent;
                                     // let's find the parent!
-                                    for(j in jsonFeatures){
+                                    for (j in jsonFeatures) {
                                         parentFeature = jsonFeatures[j];
 //                                        console.log('finding PARENT: '+ (typeof parentFeature.attributes.ID[0]) + ' vs ' + (typeof parentID) + ' = ' + (parentFeature.attributes.ID==parentID));
-                                        if(parentFeature.attributes.ID[0]===parentID[0]){
+                                        if (parentFeature.attributes.ID[0] === parentID[0]) {
                                             parentFeature.subfeatures.push(feature);
                                         }
                                     }
@@ -163,13 +171,13 @@
                         urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
                         label: 'Genes',
                         browser: browser
-                    }, region, function(features){
-                        parseJSON(features,region, function (jsonFeatures) {
+                    }, region, function (features) {
+                        parseJSON(features, region, function (jsonFeatures) {
 
-                            var renderedFeatures = [ ] ;
+                            var renderedFeatures = [];
 //                            console.log('rendering '+jsonFeatures.length + ' features');
-                            for(j in jsonFeatures){
-                                featureData = { data: jsonFeatures[j] };
+                            for (j in jsonFeatures) {
+                                featureData = {data: jsonFeatures[j]};
 //                                console.log('rendering this one '+JSON.stringify(featureData));
                                 renderedFeatures.push(new SimpleFeature(featureData));
                             }
@@ -197,7 +205,7 @@
                             var mmin = 1000000000;
                             var mmax = -1000000000;
                             // Set the range of visible regions according to the features that we have
-                            renderedFeatures.forEach(function(feature) {
+                            renderedFeatures.forEach(function (feature) {
                                 if (feature.get('start') < mmin) {
                                     mmin = feature.get('start');
                                 }
@@ -205,9 +213,15 @@
                                     mmax = feature.get('end');
                                 }
                             });
-                            browser.view.minVisible = function() { return mmin; };
-                            browser.view.maxVisible = function() { return mmax; };
-                            browser.view.visibleRegion = function() { return { start: mmin, end: mmax }; };
+                            browser.view.minVisible = function () {
+                                return mmin;
+                            };
+                            browser.view.maxVisible = function () {
+                                return mmax;
+                            };
+                            browser.view.visibleRegion = function () {
+                                return {start: mmin, end: mmax};
+                            };
 
 
                             var track = new HTMLFeatures({
@@ -226,9 +240,9 @@
                             track.blocks = [block];
                             track.label = dom.byId('label');
                             track.measureStyles();
-                            track.genomeView = { dragging: false };
+                            track.genomeView = {dragging: false};
 
-                            renderedFeatures.forEach(function(feature) {
+                            renderedFeatures.forEach(function (feature) {
                                 var simplefeature = new SimpleFeature(feature);
                                 var featNode = track.renderFeature(simplefeature, simplefeature.get('name'), block, 0.02, 0.01, 0.01, block.startBase, block.endBase);
                                 if (featNode) {
@@ -237,24 +251,24 @@
                                     track._makeClickHandler(track.config.onClick, featNode);
                                 }
                             });
-                            track.updateStaticElements({ x: 0, y: 0, width: 2000, height: 100 });
+                            track.updateStaticElements({x: 0, y: 0, width: 2000, height: 100});
 
                             var layedOutElements = document.getElementsByClassName("feature-label");
-                            var maxTop = 0 ;
-                            for(i in layedOutElements){
-                                if(layedOutElements[i].style ){
+                            var maxTop = 0;
+                            for (i in layedOutElements) {
+                                if (layedOutElements[i].style) {
                                     var topString = layedOutElements[i].style.top;
-                                    var topInt = Number(topString.substring(0,topString.length-2));
-                                    if(topInt>maxTop){
-                                        maxTop = topInt ;
+                                    var topInt = Number(topString.substring(0, topString.length - 2));
+                                    if (topInt > maxTop) {
+                                        maxTop = topInt;
                                     }
 
                                 }
                             }
-                            console.log('max top: '+ maxTop);
+                            console.log('max top: ' + maxTop);
 
-                            document.getElementById('display').style.height=  (maxTop+30)+'px';
-                            document.getElementById('wrapper').style.height=  (maxTop+40)+'px';
+                            document.getElementById('display').style.height = (maxTop + 30) + 'px';
+                            document.getElementById('wrapper').style.height = (maxTop + 40) + 'px';
 
                             return maxTop;
 
