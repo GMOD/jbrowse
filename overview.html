@@ -46,7 +46,7 @@
                           GFF3Mixin) {
                     var queryParams = ioQuery.queryToObject(window.location.search.slice(1));
 
-                    var externalURL = window.URL.replace('overview.html', 'index.html');
+                    var externalURL = String(window.location.href).replace('overview.html', 'index.html');
 
                     var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
                     var dataMappings = {
