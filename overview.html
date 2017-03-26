@@ -46,6 +46,8 @@
                           GFF3Mixin) {
                     var queryParams = ioQuery.queryToObject(window.location.search.slice(1));
 
+                    var externalURL = 'http://localhost/jbrowse/overview.html?data=data%2FCaenorhabditis%20elegans&loc=IV:4199501..4204375&tracks=All%20Genes&highlight='.replace('overview.html', 'index.html');
+
                     var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
                     var dataMappings = {
                                 'data/Danio rerio': {data: '/zfin/zebrafish', prefix: ''} // working
@@ -109,7 +111,7 @@
 
                     // TODO: Hack
                     var trackName = 'All%20Genes';
-                    if(config.dataRoot==='data/Caenorhabditis elegans'){
+                    if (config.dataRoot === 'data/Caenorhabditis elegans') {
                         trackName = 'Curated_Genes';
                     }
 
@@ -171,7 +173,7 @@
 
 
                     getGFF({
-                        urlTemplate: prefix + dataRoot + '/tracks/'+trackName+'/{refseq}/trackData.jsonz',
+                        urlTemplate: prefix + dataRoot + '/tracks/' + trackName + '/{refseq}/trackData.jsonz',
                         label: 'Genes',
                         browser: browser
                     }, region, function (features) {
@@ -194,10 +196,8 @@
                                 type: 'FeatureTrack',
                                 label: 'Testing',
                                 showLabels: true,
-                                onClick: {
-                                    label: 'Feature name {name}\nFeature start {start}\nFeature end {end}',
-                                    url: 'http://google.com/?q={name}',
-                                    action: 'navigateTo'
+                                onClick: function () {
+                                    window.open(externalURL);
                                 },
                                 menuTemplate: null
                             };
