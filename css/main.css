@@ -1091,3 +1091,10 @@ table.baseQuality td {
     overflow: auto;
 }
 
+.selected-feature{
+    /*background-color: green !important;*/
+    /*color: yellow !important;*/
+    border: yellow solid 1px;
+    margin-bottom: 10px;
+    height: 10px;
+}

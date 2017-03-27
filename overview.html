@@ -138,9 +138,11 @@
                                 // if its a gene, then include it
 //                                if(!feature.attributes.Parent ){
                                 if (feature.type == 'gene') {
+
                                 }
                                 else if (feature.type == 'mRNA') {
                                     feature.subfeatures = [];
+//                                    dojo.addClass(feature,'selected-feature');
 //                                    if(region.lookupSymbol ){
 //                                        console.log('comparing: '+feature.attributes.ID + ' vs ' + region.lookupSymbol + ' = ' + (feature.attributes.ID==region.lookupSymbol));
 //                                        if(feature.attributes.ID==region.lookupSymbol || feature.attributes.Name==region.lookupSymbol){
@@ -169,6 +171,11 @@
                             }
                         }
                         return callback(jsonFeatures);
+                    };
+
+                    var parentSelected = function(feature){
+                        // query elements that came through when parsing
+                        return true ;
                     };
 
 
@@ -248,6 +255,9 @@
                             renderedFeatures.forEach(function (feature) {
                                 var simplefeature = new SimpleFeature(feature);
                                 var featNode = track.renderFeature(simplefeature, simplefeature.get('name'), block, 0.02, 0.01, 0.01, block.startBase, block.endBase);
+                                if(parentSelected(feature)){
+                                    featNode.className= 'selected-feature ' + featNode.className ;
+                                }
                                 if (featNode) {
                                     block.domNode.appendChild(featNode);
                                     track._centerChildrenVertically(featNode);
