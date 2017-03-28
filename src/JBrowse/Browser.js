@@ -2356,25 +2356,27 @@ showRegion: function( location ) {
 navigateTo: function(loc) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
-        // lastly, try to search our feature names for it
-        thisB.searchNames( loc )
-            .then( function( found ) {
-                if( found )
-                    return;
+        thisB.afterMilestone( 'loadNames', function() {
+            // lastly, try to search our feature names for it
+            thisB.searchNames( loc )
+                .then( function( found ) {
+                    if( found )
+                        return;
 
-                // if it's a foo:123..456 location, go there
-                if(!thisB.callLocation(loc)){return;}
+                    // if it's a foo:123..456 location, go there
+                    if(!thisB.callLocation(loc)){return;}
 
-                new InfoDialog(
-                {
-                    title: 'Not found',
-                    content: 'Not found: <span class="locString">'+loc+'</span>',
-                    className: 'notfound-dialog'
-                }).show();
-            });
+                    new InfoDialog(
+                    {
+                        title: 'Not found',
+                        content: 'Not found: <span class="locString">'+loc+'</span>',
+                        className: 'notfound-dialog'
+                    }).show();
+                });
 
-        // called by default
-        thisB.callLocation(loc)
+            // called by default
+            thisB.callLocation(loc);
+        });
     });
 },
 
