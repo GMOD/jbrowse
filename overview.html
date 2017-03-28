@@ -84,6 +84,7 @@
 
                     var dataRoot = dataMappings[config.dataRoot].data;
                     var chrPrefix = dataMappings[config.dataRoot].prefix;
+                    var matchesSymbol = {};
 
                     var getGFF = function (conf, region, callback) {
                         var conf = dojo.mixin({
@@ -103,7 +104,6 @@
                     var browser = new Browser({unitTestMode: true});
 
 
-//                    console.log(config.location);
                     var region = Util.parseLocString(config.location);
                     // TODO: Hack
                     region.refseq = chrPrefix + region.ref;
@@ -120,39 +120,34 @@
                         // TODO: create a separate function
                         var jsonFeatures = [];
                         var splitFeatures = features.split('\n');
-//                        console.log('region in scope: '+JSON.stringify(region));
 
                         for (f in splitFeatures) {
                             var line = splitFeatures[f];
                             if (line && line.indexOf('#') !== 0) {
                                 // let's get a single gene and substring everything else
                                 var feature = GFF3Util.parse_feature(line);
-//                                console.log('parsed: '+line);
-//                                console.log('into: '+JSON.stringify(feature));
                                 feature.name = feature.attributes.Name ? feature.attributes.Name[0] : null;
                                 feature.uniqueID = feature.attributes.ID ? feature.attributes.ID[0] : null;
                                 if (feature.attributes.parentID) {
                                     feature.parent = feature.attributes.parentID[0];
                                 }
+                                if (feature.attributes.Parent) {
+                                    feature.parent = feature.attributes.Parent;
+                                }
 
                                 // if its a gene, then include it
 //                                if(!feature.attributes.Parent ){
                                 if (feature.type == 'gene') {
-
+                                    if(feature.name == config.lookupSymbol){
+                                        matchesSymbol[feature.uniqueID]=true;
+                                    }
                                 }
                                 else if (feature.type == 'mRNA') {
                                     feature.subfeatures = [];
-//                                    dojo.addClass(feature,'selected-feature');
-//                                    if(region.lookupSymbol ){
-//                                        console.log('comparing: '+feature.attributes.ID + ' vs ' + region.lookupSymbol + ' = ' + (feature.attributes.ID==region.lookupSymbol));
-//                                        if(feature.attributes.ID==region.lookupSymbol || feature.attributes.Name==region.lookupSymbol){
-//                                            console.log('matched!: '+feature.attributes.ID + ' vs ' + region.lookupSymbol);
-//                                            jsonFeatures.push(feature);
-//                                        }
-//                                    }
-//                                    else{
+                                    if(matchesSymbol.hasOwnProperty(feature.parent)){
+                                        matchesSymbol[feature.uniqueID]=true;
+                                    }
                                     jsonFeatures.push(feature);
-//                                    }
                                 }
                                 // if we are a child object, we iterate through the top-level genes for a match
                                 else {
@@ -161,7 +156,6 @@
                                     // let's find the parent!
                                     for (j in jsonFeatures) {
                                         parentFeature = jsonFeatures[j];
-//                                        console.log('finding PARENT: '+ (typeof parentFeature.attributes.ID[0]) + ' vs ' + (typeof parentID) + ' = ' + (parentFeature.attributes.ID==parentID));
                                         if (parentFeature.attributes.ID[0] === parentID[0]) {
                                             parentFeature.subfeatures.push(feature);
                                         }
@@ -173,9 +167,12 @@
                         return callback(jsonFeatures);
                     };
 
+                    // if empty, don't highlight any
                     var parentSelected = function(feature){
-                        // query elements that came through when parsing
-                        return true ;
+                        if(Object.keys(matchesSymbol).length>0 && matchesSymbol.hasOwnProperty(feature._uniqueID)){
+                            return true ;
+                        }
+                        return false;
                     };
 
 
@@ -187,10 +184,8 @@
                         parseJSON(features, region, function (jsonFeatures) {
 
                             var renderedFeatures = [];
-//                            console.log('rendering '+jsonFeatures.length + ' features');
                             for (j in jsonFeatures) {
                                 featureData = {data: jsonFeatures[j]};
-//                                console.log('rendering this one '+JSON.stringify(featureData));
                                 renderedFeatures.push(new SimpleFeature(featureData));
                             }
 
@@ -278,7 +273,7 @@
 
                                 }
                             }
-                            console.log('max top: ' + maxTop);
+//                            console.log('max top: ' + maxTop);
 
                             document.getElementById('display').style.height = (maxTop + 30) + 'px';
                             document.getElementById('wrapper').style.height = (maxTop + 40) + 'px';
