@@ -280,6 +280,9 @@ return declare( [WiggleXY, AlignmentsMixin],
                        options.unshift({ type: 'dijit/MenuSeparator' } );
                        return o.concat.apply( o, options );
                    });
+    },
+    colorForBase: function(base) {
+        return base == 'reference' ? (this.config.style.fg_color||'#bbb') : this.inherited(arguments);
     }
 
 });
