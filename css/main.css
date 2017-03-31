@@ -290,7 +290,7 @@ div.overview {
     display: block;
     height: 23px;
 
-    background: #FAFAFA url(../node_modules/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+    background: #FAFAFA url(../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
 
     border-style: solid;
     border-width: 1px 0px 1px 0px;
@@ -380,7 +380,7 @@ div.track.pinned {
 div#static_track {
     top: 0px;
     position: absolute;
-    background: #FAFAFA url(../node_modules/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+    background: #FAFAFA url(../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
     border-top: 1px solid #999;
     border-bottom: 1px solid #444;
     z-index: 20;
@@ -567,16 +567,16 @@ div.track-label .feature-density {
     border-left-color: #ccc;
 }
 .tundra div.track-label .track-close-button {
-    background: url("../node_modules/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
+    background: url("../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
 .tundra div.track-label .track-close-button:hover {
-    background-image: url("../node_modules/dijit/themes/tundra/images/tabCloseHover.png");
+    background-image: url("../src/dijit/themes/tundra/images/tabCloseHover.png");
 }
 .tundra div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
 }
 div.track-label:hover {
-    background: #FAFAFA url(../node_modules/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
+    background: #FAFAFA url(../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
 
     border-width: 1px;
     border-color: #666;
