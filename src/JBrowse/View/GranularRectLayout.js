@@ -62,8 +62,7 @@ return declare( null,
             rectangle.data = data;
 
         var maxTop = this.maxHeight - pHeight;
-        var top = 0;
-        for(top = 0; top <= maxTop; top++ ){
+        for(var top = 0; top <= maxTop; top++ ){
             if( ! this._collides( rectangle, top ) )
                 break;
         }
