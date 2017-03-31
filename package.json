@@ -17,7 +17,7 @@
     "dojox": "^1.11.1",
     "electron-screenshot": "^1.0.2",
     "filesaver.js": "^0.2.0",
-    "jdataview": "^2.5.0",
+    "jdataview": "git+https://github.com/cmdcolin/jDataView.git",
     "json-schema": "git+https://github.com/kriszyp/json-schema.git",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
     "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
