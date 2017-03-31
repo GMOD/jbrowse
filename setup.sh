@@ -38,8 +38,7 @@ if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
     echo "Detected precompiled version." ;
 elif ! [ -f "src/dojo/dojo.js" ]; then
     echo "Dojo does not exist, installing" ;
-    check_bower >> setup.log ;
-    $bower_executable install -f --allow-root >> setup.log ;
+    npm install;
 fi
 echo "done"
 
