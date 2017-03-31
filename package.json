@@ -6,7 +6,8 @@
     "electron": "^1.6.2"
   },
   "scripts": {
-    "start": "electron browser/main.js"
+    "start": "electron browser/main.js",
+    "postinstall" : "postinstall.sh"
   },
   "dependencies": {
     "electron-screenshot": "^1.0.4",
