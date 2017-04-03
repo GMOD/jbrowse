@@ -97,7 +97,7 @@ return declare( null, {
        this._refIDToName = new Array( refCount );
        this._refNameToID = {};
        var nameSectionLength = data.getInt32();
-       this._parseNameBytes( data.getBytes( nameSectionLength, undefined, false ) );
+       this._parseNameBytes( data.getBytes( nameSectionLength ) );
 
        // read the per-reference-sequence indexes
        this._indices = new Array( refCount );
@@ -110,8 +110,8 @@ return declare( null, {
                var chunkCount = data.getInt32();
                var chunks = new Array( chunkCount );
                for (var k = 0; k < chunkCount; ++k) {
-                   var u = new VirtualOffset( data.getBytes(8) );
-                   var v = new VirtualOffset( data.getBytes(8) );
+                   var u = new VirtualOffset( data.getBytes(8, undefined, false) );
+                   var v = new VirtualOffset( data.getBytes(8, undefined, false) );
                    this._findFirstData( u );
                    chunks[k] = new Chunk( u, v, bin );
                }
@@ -121,7 +121,7 @@ return declare( null, {
            var linearCount = data.getInt32();
            var linear = idx.linearIndex = new Array( linearCount );
            for (var k = 0; k < linearCount; ++k) {
-               linear[k] = new VirtualOffset( data.getBytes(8) );
+               linear[k] = new VirtualOffset( data.getBytes(8, undefined, false) );
                this._findFirstData( linear[k] );
            }
        }
