@@ -160,6 +160,7 @@ superclean: clean
 	    --exclude src/FileSaver/ \
 	    --exclude src/dbind/ \
 	    --exclude src/dgrid/ \
+	    --exclude src/dstore/ \
 	    --exclude src/dijit/ \
 	    --exclude src/dojo/ \
 	    --exclude src/dojox/ \
