@@ -21,8 +21,6 @@
     "jdataview": "git+https://github.com/cmdcolin/jDataView.git",
     "json-schema": "git+https://github.com/kriszyp/json-schema.git",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
-    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
-    "put-selector": "^0.3.6",
-    "xstyle": "git+https://github.com/kriszyp/xstyle.git"
+    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd"
   }
 }

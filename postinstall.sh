@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for i in dojo dijit dojox xstyle put-selector jszlib json-schema lazyload dbind dgrid; do
+for i in dojo dijit dojox jszlib json-schema lazyload dbind dgrid; do
     cp -R node_modules/$i src/$i;
 done;
 
