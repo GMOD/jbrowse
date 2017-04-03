@@ -14,6 +14,7 @@
     "dgrid": "git+https://github.com/sitepen/dgrid.git",
     "dijit": "^1.12.2",
     "dojo": "^1.12.2",
+    "dojo-dstore": "^1.1.1",
     "dojo-util": "^1.12.2",
     "dojox": "^1.12.2",
     "electron-screenshot": "^1.0.2",
