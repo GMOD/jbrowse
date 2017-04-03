@@ -28,5 +28,6 @@ require([
 
             // track lists
             'JBrowse/Store/TrackMetaData',
-            'dojox/gfx/svg'
+            'dojox/gfx/svg',
+            'dstore/Memory'
         ]);
