@@ -12,15 +12,17 @@
   "dependencies": {
     "dbind": "git+https://github.com/cmdcolin/dbind.git",
     "dgrid": "git+https://github.com/sitepen/dgrid.git",
-    "dijit": "^1.11.1",
-    "dojo-util": "^1.11.1",
-    "dojox": "^1.11.1",
+    "dijit": "^1.12.2",
+    "dojo": "^1.12.2",
+    "dojo-util": "^1.12.2",
+    "dojox": "^1.12.2",
     "electron-screenshot": "^1.0.2",
     "filesaver.js": "^0.2.0",
     "jdataview": "git+https://github.com/cmdcolin/jDataView.git",
     "json-schema": "git+https://github.com/kriszyp/json-schema.git",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
     "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
+    "put-selector": "^0.3.6",
     "xstyle": "git+https://github.com/kriszyp/xstyle.git"
   }
 }
