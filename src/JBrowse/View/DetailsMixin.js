@@ -229,7 +229,6 @@ return declare( null, {
         parent.style.overflow = 'hidden';
         parent.style.width = '90%';
         var memstore = new MemoryStore({ data: rows })
-        console.log(memstore);
         var grid = new Grid({
             columns: columns,
             collection: memstore
