@@ -9,6 +9,7 @@ define([
            'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/store/Memory',
+           'dstore/legacy/StoreAdapter',
            'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry',
            'JBrowse/Util'
@@ -21,6 +22,7 @@ define([
            domConstruct,
            domClass,
            MemoryStore,
+           StoreAdapter,
            DGrid,
            DGridDijitRegistry,
            Util
@@ -228,9 +230,11 @@ return declare( null, {
         // create the grid
         parent.style.overflow = 'hidden';
         parent.style.width = '90%';
+        var memstore = new MemoryStore({ data: rows })
+        var adaptedStore = new DstoreAdapter(memstore);
         var grid = new Grid({
             columns: columns,
-            store: new MemoryStore({ data: rows })
+            store: adaptedStore
         }, parent );
 
         return parent;
