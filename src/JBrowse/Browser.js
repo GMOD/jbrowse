@@ -53,6 +53,7 @@ define( [
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
+            'dojo/text!./package.json',
             'dojo/domReady!'
         ],
         function(
@@ -107,7 +108,8 @@ define( [
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
-            LazyLoad
+            LazyLoad,
+            packagejson
         ) {
 
 
@@ -160,7 +162,6 @@ constructor: function(params) {
                 thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
 
             thisB.initPlugins().then( function() {
-                thisB.loadPackage();
                 thisB.loadNames();
                 thisB.loadUserCSS().then( function() {
 
@@ -1390,7 +1391,7 @@ browserMeta: function() {
             + '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>'
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
             + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
-            + '  <div class="copyright">'+this.packagejson.copyright+'</div>'
+            + '  <div class="copyright">'+JSON.parse(packagejson).copyright+'</div>'
             + ((Object.keys(this.plugins).length>1&&!this.config.noPluginsForAboutBox) ? (
                 '  <div class="loaded-plugins">Loaded plugins<ul class="plugins-list">'
                 + array.map(Object.keys(this.plugins), function(elt) {
@@ -3259,17 +3260,6 @@ _updateHighlightClearButton: function() {
     }
 },
 
-// read package.json
-loadPackage: function() {
-	var thisB = this;
-	dojo.xhrGet({
-		url: this.resolveUrl('src/JBrowse/package.json'),
-		handleAs: "json",
-		load: function(obj) {
-			thisB.packagejson = obj;
-		}
-	});        
-},	
 
 clearHighlight: function() {
     if( this._highlight ) {
