@@ -133,7 +133,7 @@ return declare( FeatureDescriptionMixin, {
                 },
                 container );
             array.forEach( additionalTags.sort(), function(t) {
-                this.renderDetailField( container, t, f.get(t), f );
+                this.renderDetailField( atElement, t, f.get(t), f );
             }, this );
         }
     },
