@@ -19,7 +19,7 @@ define([
            Dialog,
            Button
        ) {
-
+var noexp = true;
 return declare( null, {
 
     constructor: function( trackConfig ) {
@@ -84,7 +84,6 @@ return declare( null, {
 
         var container = dom.create( 'div', { className: 'editControls'} );
 
-
         var confString = this._stringifyConfig( this.trackConfig );
         var textArea = dom.create(
             'textarea',{
@@ -128,11 +127,13 @@ return declare( null, {
         // track configuration.  make a shallow copy and delete the
         // store conf.  will add back in later.
         var c = dojo.mixin( {}, config ); // shallow copy
+	noexp = false;
+	if( c.noExport ) { noexp = c.noExport; }
         delete c.store;
-
         // put a style in there if there isn't already one, for convenience
         if( ! c.style )    c.style = {};
         if( ! c.metadata ) c.metadata = {};
+	if( noexp == true ) c.noExport = "true";
 
         return JSON.stringify( c, undefined, 2 );
     },
@@ -149,13 +150,19 @@ return declare( null, {
     _parseNewConfig: function( conf ) {
         var newconf;
         try {
-            newconf = JSON.parse( conf, true );
-            this._clearErrors();
+	    if(conf.indexOf("\"noExport\": \"true\"") > -1 || noexp == false) {
+               newconf = JSON.parse( conf, true );
+               this._clearErrors();
+	    }
+	    else {
+	       throw "you don't have permission to change noExport parameter by hand";
+	    }
         } catch(e) {
             this._reportError( e );
         }
-        if( newconf )
+        if( newconf ) {
             newconf.store = this.trackConfig.store;
+	}
         return newconf;
     }
 
