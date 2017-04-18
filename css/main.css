@@ -853,6 +853,8 @@ div.block:hover > div.message {
 .tundra .dijitDialogPaneContent {
     border-top: 1px solid #acacac;
     font-family: sans-serif;
+    width: auto !important;
+    box-sizing: content-box !important;
 }
 
 /* styles dealing with popups launched by clicking on features */
@@ -962,7 +964,7 @@ a.dialog-new-window {
     display: inline-block;
     vertical-align: top;
     font-family: sans-serif;
-    padding: 0 0.7em;
+    padding: 0;
     line-height: 1.8;
 }
 .detail .field {
