@@ -44,6 +44,7 @@ sub option_definitions {(
     "trackLabel=s",
     "seqType=s",
     "key=s",
+    "config=s",
     "help|h|?",
     "nohash"
 )}
@@ -62,6 +63,12 @@ sub run {
         my $chunkSize = $self->opt('chunksize');
         $chunkSize *= 4 if $compress;
         $self->{chunkSize} = $chunkSize;
+    }
+
+    for my $optname ( qw( config ) ) {
+        if( my $o = $self->opt($optname) ) {
+            $self->opt( $optname => Bio::JBrowse::JSON->new->decode( $o ));
+        }
     }
 
     my $refs = $self->opt('refs');
@@ -404,6 +411,7 @@ sub writeTrackEntry {
                                                ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) ),
                                                ( 'protein' eq lc $self->opt('seqType') ? ('showTranslation' => 0) : () ),
                                                ( defined $self->opt('seqType') ? ('seqType' => lc $self->opt('seqType')) : () ),
+                                               %{ $self->opt('config') || {} },
                                            };
                                            if ( $self->opt('indexed_fasta') ) {
                                                $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/IndexedFasta';
