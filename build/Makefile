@@ -65,7 +65,7 @@ release-normal: superclean $(JS_SRCFILES)
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
 
         # version-stamp Browser.js
-	perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
+	# perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
 
         # date stamp the release notes
 	perl -MDateTime -i -pE 'BEGIN{ $$datestring = DateTime->from_epoch( epoch => time(), time_zone => DateTime::TimeZone->new(name => "local"))->format_cldr(q|yyyy-MM-dd HH:mm:ss VVVV|)}; s/\{\{\$$NEXT\}\}\s*/# Release $(RELEASE_VERSION)     $$datestring\n/m' $(RELEASE_FULL_DIR)/release-notes.txt

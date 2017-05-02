@@ -1376,8 +1376,7 @@ browserMeta: function() {
     var about = this.config.aboutThisBrowser || {};
     about.title = about.title || 'JBrowse';
 
-    var verstring = this.version && this.version.match(/^\d/)
-        ? this.version : '(development version)';
+    var verstring = JSON.parse(packagejson).version;
 
     if( about.description ) {
         about.description += '<div class="powered_by">'
