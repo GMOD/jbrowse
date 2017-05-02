@@ -1,6 +1,5 @@
 require( {
            packages: [
-               'dbind',
                'dgrid',
                'dstore',
                'dojo',

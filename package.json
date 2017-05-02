@@ -10,8 +10,7 @@
     "postinstall": "bash postinstall.sh"
   },
   "dependencies": {
-    "dbind": "git+https://github.com/cmdcolin/dbind.git",
-    "dgrid": "git+https://github.com/sitepen/dgrid.git",
+    "dgrid": "^1.1.0",
     "dijit": "^1.12.2",
     "dojo": "^1.12.2",
     "dojo-dstore": "^1.1.1",
