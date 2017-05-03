@@ -106,8 +106,8 @@ var RequestWorker = declare( null,
                 var startBase = data.getUint32();
                 var endChrom = data.getUint32();
                 var endBase = data.getUint32();
-                var blockOffset = data.getUint64();
-                var blockSize   = data.getUint64();
+                var blockOffset = data.getUint64().valueOf();
+                var blockSize   = data.getUint64().valueOf();
                 if ((startChrom < this.chr || (startChrom == this.chr && startBase <= this.max)) &&
                     (endChrom   > this.chr || (endChrom == this.chr && endBase >= this.min)))
                 {
@@ -122,7 +122,7 @@ var RequestWorker = declare( null,
                 var startBase = data.getUint32();
                 var endChrom = data.getUint32();
                 var endBase = data.getUint32();
-                var blockOffset = data.getUint64();
+                var blockOffset = data.getUint64().valueOf();
                 if ((startChrom < this.chr || (startChrom == this.chr && startBase <= this.max)) &&
                     (endChrom   > this.chr || (endChrom == this.chr && endBase >= this.min)))
                 {

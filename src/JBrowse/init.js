@@ -1,16 +1,14 @@
 require( {
            packages: [
-               'dbind',
                'dgrid',
+               'dstore',
                'dojo',
                'dijit',
                'dojox',
                'json-schema',
                'jszlib',
                { name: 'lazyload', main: 'lazyload' },
-               'xstyle',
-               'put-selector',
-               { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
+               { name: 'jDataView', location: 'jDataView/dist/browser', main: 'jdataview' },
                'FileSaver',
                'JBrowse'
            ]

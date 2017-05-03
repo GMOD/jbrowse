@@ -45,7 +45,7 @@ var profile = {
     // smaller. We add it back here to avoid that extra HTTP request. There is also a "lite" selector available; if
     // you use that, you’ll need to set selectorEngine in app/run.js too. (The "lite" engine is only suitable if you
     // are not supporting IE7 and earlier.)
-    selectorEngine: 'acme',
+    selectorEngine: 'lite',
 
     // Builds can be split into multiple different JavaScript files called “layers”. This allows applications to
     // defer loading large sections of code until they are actually required while still allowing multiple modules to
@@ -55,7 +55,7 @@ var profile = {
         // it is actually just plain JavaScript. There is some extra magic in the build system specifically for this
         // module ID.
         'dojo/dojo': {
-            include: [ 'dojo/dojo', 'JBrowse', 'dojox/data/CsvStore', 'jszlib', 'dgrid/TouchScroll' ],
+            include: [ 'dojo/dojo', 'JBrowse', 'dojox/data/CsvStore', 'jszlib' ],
             boot: true,
             customBase: true
         },
