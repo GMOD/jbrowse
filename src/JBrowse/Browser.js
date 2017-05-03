@@ -234,8 +234,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION;
-    return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
+    return JSON.parse(packagejson).version;
 }.call(),
 
 
@@ -1376,7 +1375,7 @@ browserMeta: function() {
     var about = this.config.aboutThisBrowser || {};
     about.title = about.title || 'JBrowse';
 
-    var verstring = JSON.parse(packagejson).version;
+    var verstring = this.version;
 
     if( about.description ) {
         about.description += '<div class="powered_by">'
