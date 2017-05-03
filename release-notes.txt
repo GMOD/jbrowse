@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
+
 ## Minor improvements
 
   * Upgraded build system to install dependencies with bower and
