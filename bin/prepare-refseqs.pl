@@ -20,7 +20,9 @@ prepare-refseqs.pl - format reference sequences for use by JBrowse
    # OR:
        prepare-refseqs.pl --fasta <file1> --fasta <file2>  [options]
    # OR:
-       prepare-refseqs.pl --indexed_fasta <file1>  [options]
+       prepare-refseqs.pl --indexed_fasta <file>  [options]
+   # OR:
+       prepare-refseqs.pl --twobit <file>  [options]
    # OR:
        prepare-refseqs.pl --conf <JBrowse config file>  [options]
    # OR:

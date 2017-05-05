@@ -1,61 +1,133 @@
 {{$NEXT}}
 
+# Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
+
 ## Minor improvements
 
-  * Upgraded build system to install dependencies with bower (#718).
+  * Upgraded build system to install dependencies with bower and
+    updated to dojo 1.9.8 (issue #718).
 
-  * Update Dojo to 1.9.8
+  * Added the ability to load tabix indexed GFF and BED files.
+    Thanks to Colin Diesh and @zhjilin for contributing (issue #670).
 
-  * Add the ability to load tabix indexed GFF files. Thanks to
-    Colin Diesh for the implementation (#670).
+  * Added ability to open BED files in the "Open track" user interface
+    (issue #729).
 
-  * Add ability to access SPARQL stores that reject CORS requests
-    to access sites like WikiData. Thanks to the WebApollo hackathon
-    for the ideas (#679).
+  * Added ability to access SPARQL and other jbrowse data stores via
+    CORS. Thanks to the WebApollo hackathon and Eric Rasche for
+    contributing (issue #679).
 
-  * Add extra coloring schemes for the Sequence track when using
+  * Added extra coloring schemes for the Sequence track when using
     protein residues. Thanks to Eric Rasche for the idea and
-    implementation (#673).
+    implementation (issue #673).
 
-  * Add ability to specify custom exporter classes for the "Save track
-    data" option, for example, adding exporter code in plugins (#682).
+  * Added ability to specify custom exporter classes for the "Save
+    track data" option, for example, adding exporter code in plugins
+    (issue #682).
 
-  * Add a timer for the feature statistics calculation (#663).
+  * Added ability to specify custom name store classes via plugins,
+    which allows plugins to implement their own search functionality
+    (issue #732).
 
-  * Add an option to specify multiple highlights, or bookmarks,
-    using the config file, a remote service, or the URL bar (#668).
+  * Added a timeout for the track feature density calculations which
+    can aid problems like consistent chunkSizeLimit issues
+    (issue #540, issue #730).
 
-  * Fix some inconsistencies where opening a file with .fasta instead
-    of .fa caused issues (#696).
+  * Added an option to specify multiple highlights, or bookmarks,
+    using the config file, a remote service, or the URL bar
+    (issue #668).
+
+  * Added support for parsing BAM files from IonTorrent (issue #782,
+    issue #568).
+
+  * Added support for native file access to .2bit files (issue #759).
+
+  * Added list of plugins in about box (issue #848).
+
+  * Added cacheMismatches option to improve performance when viewing
+    long-read alignments (issue #860).
+
+  * Added subfeatureDetailLevel config item to make View details box
+    only load subfeatures on demand (issue #861).
+   
+  * Added ability to draw scatter plot from BigWig tracks. Thanks to
+    Keiran Raine for the contribution (issue #741). 
+
+  * Added a fullviewlink option for the URL bar to disable "View full
+    link" attribute in embedded JBrowse. Thanks to Vivek Krishnakumar
+    for contributing (issue #813).
+
+  * Added URL parameter &tracklabels=0 and config parameter to hide
+    track labels (issue #869).
+
+  * Added renderAlignment option which creates a per-base alignment
+    view of the read versus the reference (issue #795).
+
+  * Added inferCdsParts option which creates CDS subfeatures from a
+    continuous CDS region for CanvasFeatures glyphs. Thanks to
+    Vivek Krishnakumar for the contribution (issue #872).
+
+  * Added events tracks/focus, tracks/unfocus, allowing for context
+    switching based on selected track.
 
 ## Bug fixes
 
-  * Fix error where the sequence track would not load after "Open
-    sequence file"
+  * Made the menu bar widgets centered again (issue #680).
 
-  * Revert to standard eukaryotic codon set
+  * Fixed error where the sequence track would not load after "Open
+    sequence file" (issue #831).
 
-  * Fix issue where saving session overwrote the plugins that were
-    loaded
+  * Fixed problem with persistant "Error reading from name store"
+    message. Thanks to Anthony Bretaudeau for contributing the fix!
+    (issue #820).
 
-  * Fix an error if there were numerical values being used as label
+  * Reverted to standard eukaryotic codon set.
+
+  * Fixed issue where saving session in JBrowse Desktop where plugins
+    were not saved with session.
+
+  * Fixed an error if there were numerical values being used as label
     or description for the CanvasFeatures type tracks. Thanks to
-    Eric Rasche for reporting (#673).
+    Eric Rasche for reporting (issue #673).
 
-  * Fix some issues where the Gene glyph would not layout some
-    features correctly. Thanks to Eric Rasche for reporting (#686).
+  * Fixed some issues where the Gene glyph would not layout some
+    features correctly. Thanks to Eric Rasche for reporting 
+    (issue #686).
 
-  * Fix an issue with desktop mode where saving session would not
+  * Fixed an issue with JBrowse Desktop where saving session would not
     save the tracks that were not visible.
 
-  * Added fix when using indexed fasta from prepare-refseqs.pl
-    Thanks to @billzt for the report (#719).
+  * Added fix when using indexed fasta from prepare-refseqs.pl.
+    Thanks to @billzt for the report (issue #719).
 
   * Added a fix for an issue where editing the configuration of files
     that were opened by a user didn't work. Thanks to @lpryszcz for
-    the report (#569).
+    the report (issue #569).
 
-  * Allow parsing tags from BAM files used in IonTorrent (#782, #568).
+  * Fixed some inconsistencies where "Open sequence" on file with a
+    .fasta file extension failed (issue #696).
+
+  * Fixed issue where track labels would re-appear during scroll
+    (issue #793).
+
+  * Added handler for click scrolling in genome view. Thanks to
+    @exogenesys for fixing (issue #709).
+
+  * Fixed a rare error that only affected some versions of Chrome
+    (issue #758).
+
+  * Removed linear gradients from some NeatFeatures tracks
+    (issue #721).
+
+  * Fixed issue where saving GFF3 would fail if the source data
+    was in VCF format (issue #800).
+
+  * Fixed issue where there was a mix of plugin declarations
+    (issue #866).
+
+# Release 1.12.2     2016-05-31 America/Los_Angeles
+
+  Special Release for Apollo
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 

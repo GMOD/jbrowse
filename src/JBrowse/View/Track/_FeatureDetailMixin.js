@@ -6,6 +6,7 @@ define([
             'dojo/_base/array',
             'dojo/_base/lang',
             'dojo/aspect',
+            'dojo/on',
             'dojo/dom-construct',
             'JBrowse/Util',
             'JBrowse/View/FASTA',
@@ -16,6 +17,7 @@ define([
             array,
             lang,
             aspect,
+            on,
             domConstruct,
             Util,
             FASTAView,
@@ -68,7 +70,7 @@ return declare( FeatureDescriptionMixin, {
      * Make a default feature detail page for the given feature.
      * @returns {HTMLElement} feature detail page HTML
      */
-    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container ) {
+    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement */ container, layer ) {
         container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(), innerHTML: '' } );
 
         this._renderCoreDetails( track, f, featDiv, container );
@@ -77,7 +79,7 @@ return declare( FeatureDescriptionMixin, {
 
         this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
 
-        this._renderSubfeaturesDetail( track, f, featDiv, container );
+        this._renderSubfeaturesDetail( track, f, featDiv, container, layer||1 );
 
         // hook function extendedRender(track,f,featDiv,container)
         if (typeof this.extendedRender === 'function') {
@@ -108,10 +110,22 @@ return declare( FeatureDescriptionMixin, {
     },
 
     // render any subfeatures this feature has
-    _renderSubfeaturesDetail: function( track, f, featDiv, container ) {
+    _renderSubfeaturesDetail: function( track, f, featDiv, container, layer ) {
+        var thisB = this;
         var subfeatures = f.get('subfeatures');
         if( subfeatures && subfeatures.length ) {
-            this._subfeaturesDetail( track, subfeatures, container, f );
+            if( !(track.config.subfeatureDetailLevel != null) || layer < track.config.subfeatureDetailLevel ) {
+                this._subfeaturesDetail( track, subfeatures, container, f, layer + 1 );
+            }
+            else if(layer >= track.config.subfeatureDetailLevel) {
+                var b = domConstruct.create('button', {
+                    innerHTML: 'Load subfeatures...'
+                }, container);
+                on(b, 'click', function() {
+                    thisB._subfeaturesDetail( track, subfeatures, container, f, layer + 1 );
+                    dojo.destroy(b);
+                });
+            }
         }
     },
 
@@ -203,10 +217,11 @@ return declare( FeatureDescriptionMixin, {
         return this._idCounter++;
     },
 
-    _subfeaturesDetail: function( track, subfeatures, container ) {
+    _subfeaturesDetail: function( track, subfeatures, container, f, layer ) {
             var field_container = dojo.create('div', { className: 'field_container subfeatures' }, container );
             dojo.create( 'h2', { className: 'field subfeatures', innerHTML: 'Subfeatures' }, field_container );
             var subfeaturesContainer = dojo.create( 'div', { className: 'value subfeatures' }, field_container );
+
             array.forEach( subfeatures || [], function( subfeature ) {
                     this.defaultFeatureDetail(
                         track,
@@ -215,7 +230,8 @@ return declare( FeatureDescriptionMixin, {
                         dojo.create('div', {
                                         className: 'detail feature-detail subfeature-detail feature-detail-'+track.name+' subfeature-detail-'+track.name,
                                         innerHTML: ''
-                                    }, subfeaturesContainer )
+                                    }, subfeaturesContainer ),
+                        layer
                     );
             },this);
     }

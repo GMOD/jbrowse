@@ -193,6 +193,9 @@ return declare( ExportBase,
         var attrOrder = [];
         for( var tag in attrs ) {
             var val = attrs[tag];
+            if(!val) {
+                continue;
+            }
             var valstring = val.hasOwnProperty( 'toString' )
                                 ? this._gff3_escape( val.toString() ) :
                             val.values

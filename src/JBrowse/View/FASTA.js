@@ -74,7 +74,6 @@ return declare(null,
      * @returns {String} - fasta formated string
      */
     renderText: function( region, seq ) {
-        console.log('renderText');
         return '>' + region.ref
             + ' '+Util.assembleLocString(region)
             + ( region.type ? ' class='+region.type : '' )

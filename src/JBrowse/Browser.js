@@ -42,6 +42,7 @@ define( [
             'JBrowse/View/FastaFileDialog',
             'JBrowse/Store/SeqFeature/IndexedFasta',
             'JBrowse/Store/SeqFeature/UnindexedFasta',
+            'JBrowse/Store/SeqFeature/TwoBit',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -52,6 +53,7 @@ define( [
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
+            'dojo/text!./package.json',
             'dojo/domReady!'
         ],
         function(
@@ -96,6 +98,7 @@ define( [
             FastaFileDialog,
             IndexedFasta,
             UnindexedFasta,
+            TwoBit,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -105,7 +108,8 @@ define( [
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
-            LazyLoad
+            LazyLoad,
+            packagejson
         ) {
 
 
@@ -137,7 +141,7 @@ constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params || {};
-
+    
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
         return;
@@ -146,6 +150,7 @@ constructor: function(params) {
 
     // start the initialization process
     var thisB = this;
+	
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
 
@@ -156,8 +161,8 @@ constructor: function(params) {
             if( thisB.config.initialHighlight && thisB.config.initialHighlight != "/" )
                 thisB.setHighlight( new Location( thisB.config.initialHighlight ) );
 
-            thisB.loadNames();
             thisB.initPlugins().then( function() {
+                thisB.loadNames();
                 thisB.loadUserCSS().then( function() {
 
                     thisB.initTrackMetadata();
@@ -229,8 +234,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION;
-    return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
+    return JSON.parse(packagejson).version;
 }.call(),
 
 
@@ -267,7 +271,7 @@ initPlugins: function() {
             plugins = function() {
                 var newplugins = [];
                 for( var pname in plugins ) {
-                    if( !( 'name' in plugins[pname] ) ) {
+                    if( lang.isObject(plugins[pname]) && !( 'name' in plugins[pname] ) ) {
                         plugins[pname].name = pname;
                     }
                     newplugins.push( plugins[pname] );
@@ -910,8 +914,10 @@ initView: function() {
             var snapLink = this.makeSnapLink();
             if(snapLink) { menuBar.appendChild( snapLink ); }
         }
-        else
-            menuBar.appendChild( this.makeFullViewLink() );
+        else {
+            if ( this.config.show_fullviewlink )
+                menuBar.appendChild( this.makeFullViewLink() );
+        }
 
 
         this.viewElem = document.createElement("div");
@@ -1214,6 +1220,36 @@ openFastaElectron: function() {
                     window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                 } catch(e) { alert(e); }
             }
+            else if( confs[0].store.blob ) {
+                var f2bit = Util.replacePath( confs[0].store.blob.url );
+
+                var refseqs = new TwoBit({'browser': this, 'urlTemplate': f2bit });
+                var thisB = this;
+                refseqs.getRefSeqs( function(res) {
+                    var trackList = {
+                        tracks: [{
+                            label: confs[0].label,
+                            key: confs[0].key,
+                            type: "SequenceTrack",
+                            category: "Reference sequence",
+                            useAsRefSeqStore: true,
+                            storeClass: 'JBrowse/Store/SeqFeature/TwoBit',
+                            chunkSize: 20000,
+                            urlTemplate: f2bit
+                        }],
+                        refSeqs: { data: res },
+                        refSeqOrder: results.refSeqOrder
+                    };
+                    try {
+                        var dir = app.getPath('userData')+"/"+confs[0].label;
+                        fs.existsSync(dir) || fs.mkdirSync(dir);
+                        fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
+                        fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
+                        thisB.saveSessionDir( dir );
+                        window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
+                    } catch(e) { alert(e); }
+                }, function(err) { console.error('error', err); });
+            }
             else {
                 var fasta = Util.replacePath( confs[0].store.fasta.url );
                 try {
@@ -1300,6 +1336,16 @@ openFasta: function() {
                     function(error) { alert('Error getting refSeq: '+error); }
                 );
             }
+            else if( confs[0].store.blob ) {
+                new TwoBit({
+                    browser: this,
+                    blob: confs[0].store.blob
+                })
+                .getRefSeqs(
+                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
+                    function(error) { alert('Error getting refSeq: '+error); }
+                );
+            }
             else if( confs[0].store.fasta ) {
                 if( confs[0].store.fasta.size > 100000000 ) {
                    if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
@@ -1329,8 +1375,7 @@ browserMeta: function() {
     var about = this.config.aboutThisBrowser || {};
     about.title = about.title || 'JBrowse';
 
-    var verstring = this.version && this.version.match(/^\d/)
-        ? this.version : '(development version)';
+    var verstring = this.version;
 
     if( about.description ) {
         about.description += '<div class="powered_by">'
@@ -1344,7 +1389,15 @@ browserMeta: function() {
             + '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>'
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
             + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
-            + '  <div class="copyright">&copy; 2013 The Evolutionary Software Foundation</div>'
+            + '  <div class="copyright">'+JSON.parse(packagejson).copyright+'</div>'
+            + ((Object.keys(this.plugins).length>1&&!this.config.noPluginsForAboutBox) ? (
+                '  <div class="loaded-plugins">Loaded plugins<ul class="plugins-list">'
+                + array.map(Object.keys(this.plugins), function(elt) {
+                    var p = this.plugins[elt];
+                    return '<li>'+
+                        (p.url ? '<a href="'+p.url+'">': '') + p.name + (p.url ? '</a>':'') +
+                        (p.author ? ' ('+p.author+')' : '')+'</li>'; }, this).join('')
+                + '  </ul></div>' ) : '')
             + '</div>';
     }
     return about;
@@ -1403,7 +1456,8 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/GTF'         : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/StaticChunked' : 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/UnindexedFasta': 'JBrowse/View/Track/Sequence',
-                'JBrowse/Store/SeqFeature/IndexedFasta'  : 'JBrowse/View/Track/Sequence'
+                'JBrowse/Store/SeqFeature/IndexedFasta'  : 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/TwoBit'        : 'JBrowse/View/Track/Sequence'
             },
 
             knownTrackTypes: [
@@ -1962,7 +2016,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_tracklabels'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
@@ -2052,6 +2106,7 @@ _configDefaults: function() {
         show_nav: true,
         show_menu: true,
         show_overview: true,
+        show_fullviewlink: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
         include: [
@@ -2302,25 +2357,27 @@ showRegion: function( location ) {
 navigateTo: function(loc) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
-        // lastly, try to search our feature names for it
-        thisB.searchNames( loc )
-            .then( function( found ) {
-                if( found )
-                    return;
+        thisB.afterMilestone( 'loadNames', function() {
+            // lastly, try to search our feature names for it
+            thisB.searchNames( loc )
+                .then( function( found ) {
+                    if( found )
+                        return;
 
-                // if it's a foo:123..456 location, go there
-                if(!thisB.callLocation(loc)){return;}
+                    // if it's a foo:123..456 location, go there
+                    if(!thisB.callLocation(loc)){return;}
 
-                new InfoDialog(
-                {
-                    title: 'Not found',
-                    content: 'Not found: <span class="locString">'+loc+'</span>',
-                    className: 'notfound-dialog'
-                }).show();
-            });
+                    new InfoDialog(
+                    {
+                        title: 'Not found',
+                        content: 'Not found: <span class="locString">'+loc+'</span>',
+                        className: 'notfound-dialog'
+                    }).show();
+                });
 
-        // called by default
-        thisB.callLocation(loc)
+            // called by default
+            thisB.callLocation(loc);
+        });
     });
 },
 

@@ -41,6 +41,8 @@ return declare( JBrowsePlugin,
 
         var baseUrl = this._defaultConfig().baseUrl;
         var thisB = this;
+        var queryParams = dojo.queryToObject( window.location.search.slice(1) );
+
 
         // create the hide/show button after genome view initialization
         this.browser.afterMilestone( 'initView', function() {
@@ -57,6 +59,11 @@ return declare( JBrowsePlugin,
                     dojo.stopEvent(event);
                 })
             }, dojo.create('button',{},navBox));   //thisB.browser.navBox));
+ 
+            if(queryParams.tracklabels == 0 || thisB.browser.config.show_tracklabels == 0) {
+                query('.track-label').style('visibility', 'hidden')
+                dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");       // if shown, hide
+            }
         });
 
         /* show or hide track labels

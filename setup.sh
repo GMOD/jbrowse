@@ -10,6 +10,10 @@ done_message () {
     fi
 }
 
+legacy_message () {
+   echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'."
+ }
+
 function check_node(){
     node_executable=$(which node)
     npm_executable=$(which npm)
@@ -44,22 +48,34 @@ function check_bower(){
 
 echo > setup.log;
 
+LEGACY_INSTALL=0
+if [ $# -gt 1 ] ; then
+  echo "USAGE: ./setup.sh [legacy]"
+  echo -e "\tTakes one optional argument, presence triggers legacy software install."
+  exit 1
+fi
+if [[ ($# -eq 1) && ("$1" = "legacy") ]] ; then
+  LEGACY_INSTALL=1
+else
+  legacy_message
+fi
+
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
 # OR
 # if dev we don't care
+echo  -n "Installing javascript dependencies ..."
 if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
     echo "Detected precompiled version." ;
 elif ! [ -f "src/dojo/dojo.js" ]; then
     echo "Dojo does not exist, installing" ;
     check_bower >> setup.log ;
     $bower_executable install -f --allow-root >> setup.log ;
-else
-    check_bower >> setup.log ;
-    echo "Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
 fi
+echo "done"
 
 
 # log information about this system
+echo -n "Gathering system information ..."
 (
     echo '============== System information ====';
     set -x;
@@ -70,8 +86,9 @@ fi
     grep MemTotal /proc/meminfo;
     echo; echo;
 ) >>setup.log 2>&1;
+echo "done"
 
-echo -n "Installing Perl prerequisites ..."
+echo  -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo;
     echo "WARNING: Your Perl installation does not seem to include a complete set of core modules.  Attempting to cope with this, but if installation fails please make sure that at least ExtUtils::MakeMaker is installed.  For most users, the best way to do this is to use your system's package manager: apt, yum, fink, homebrew, or similar.";
@@ -140,6 +157,11 @@ echo -n "Formatting Yeast example data ...";
     bin/generate-names.pl --dir sample_data/json/yeast/;
 ) >>setup.log 2>&1
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
+
+if [ $LEGACY_INSTALL -eq 0 ] ; then
+   legacy_message
+   exit 0
+fi
 
 echo
 echo -n "Building and installing legacy wiggle format support (superseded by BigWig tracks) ...";

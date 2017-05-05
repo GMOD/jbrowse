@@ -63,6 +63,11 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                           fmt( t, f.get(t), f );
         });
 
+        // genotypes in a separate section
+        if(this.config.renderAlignment || this.config.renderPrettyAlignment) {
+            this._renderTable( container, track, f, div );
+        }
+
         return container;
     },
 
@@ -210,6 +215,155 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                            ],
                            filters );
                    });
+    },
+
+
+    _renderTable: function( parentElement, track, feat, featDiv  ) {
+        var thisB = this;
+        if(!feat.get(this.config.mdAttribute || 'md')) {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'No MD tag present</div>'
+            }, parentElement );
+            return;
+        }
+        
+        var mismatches = track._getMismatches(feat);
+        var seq = feat.get('seq');
+        var start = feat.get('start');
+        var query_str = '', align_str = '', refer_str = '';
+        var curr_mismatch = 0;
+        var genome_pos = 0;
+        var curr_pos = 0;
+
+        mismatches.sort(function(a,b) {
+            return a.start - b.start;
+        });
+        for(var i = 0; curr_pos < seq.length; i++) {
+            var f = false;
+            var mismatchesAtCurrentPosition = [];
+            for(var j = curr_mismatch; j < mismatches.length; j++) {
+                var mismatch = mismatches[j];
+                if(genome_pos == mismatch.start) {
+                    mismatchesAtCurrentPosition.push(mismatch);
+                }
+            }
+ 
+            mismatchesAtCurrentPosition.sort(function(a,b) {
+                if(a.type == "insertion") return -1;
+                else if(a.type == "deletion") return 1;
+                else if(a.type == "mismatch") return 1;
+                else if(a.type == "skip") return 1;
+                else return 0;
+            });
+
+            for(var k = 0; k < mismatchesAtCurrentPosition.length; k++) {
+                var mismatch = mismatchesAtCurrentPosition[k];
+                curr_mismatch++;
+                if(mismatch.type == "softclip") {
+                    for(var l = 0; l < mismatch.cliplen; l++) {
+                        query_str += seq[curr_pos + l];
+                        align_str += ' ';
+                        refer_str += '.';
+                    }
+                    curr_pos += mismatch.cliplen;
+                    f = true;
+                }
+                else if(mismatch.type == "insertion") {
+                    for(var l = 0; l < +mismatch.base; l++) {
+                        query_str += seq[curr_pos + l];
+                        align_str += ' ';
+                        refer_str += '-';
+                    }
+                    curr_pos += +mismatch.base;
+                    f = true;
+                }
+                else if(mismatch.type == "deletion") {
+                    for(var l = 0; l < mismatch.length; l++) {
+                        query_str += '-';
+                        align_str += ' ';
+                        refer_str += (mismatch.seq||{})[l] || ".";
+                    }
+                    genome_pos += mismatch.length;
+                    f = true;
+                }
+                else if(mismatch.type == "skip") {
+                    for(var l = 0; l < Math.min(mismatch.length, 10000); l++) {
+                        query_str += '.';
+                        align_str += ' ';
+                        refer_str += 'N';
+                    }
+                    genome_pos += mismatch.length;
+                    f = true;
+                }
+                else if(mismatch.type == "mismatch") {
+                    query_str += mismatch.base;
+                    align_str += ' ';
+                    refer_str += mismatch.altbase;
+                    curr_pos++;
+                    genome_pos++;
+                    f = true;
+                }
+            }
+            if(!f) {
+                query_str += seq[curr_pos];
+                align_str += '|';
+                refer_str += seq[curr_pos];
+                genome_pos++;
+                curr_pos++;
+            }
+        }
+        if(this.config.renderPrettyAlignment) {
+            var s1, s2, s3, ret_str;
+            s1 = s2 = s3 = ret_str ='';
+            var qpos = 0;
+            var rpos = (mismatches.length && mismatches[0].type == 'softclip') ? (start-mismatches[0].cliplen) : start;
+            var w = this.config.renderAlignmentWidth || 50;
+            for(var i = 0; i < query_str.length; i += w) {
+                s1 = query_str.substring(i, i+w);
+                s2 = align_str.substring(i, i+w);
+                s3 = refer_str.substring(i, i+w);
+                var padding = (rpos).toString().replace(/./g," ");
+                var offset1 = s1.length - (s1.match(/[-N\.]/g) || []).length;
+                var offset2 = s3.length - (s3.match(/[-]/g) || []).length
+                ret_str += 'Query    ' + this.pad(padding, qpos, true) + ': ' + s1 + ' ' + (qpos + offset1) +  '<br>';
+                ret_str += '         ' + padding + '  ' + s2+'   <br>';
+                ret_str += 'Ref:     ' + (rpos) + ': ' + s3 + ' ' + (rpos + offset2) + '  <br><br>';
+                qpos += offset1;
+                rpos += offset2;
+            }
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +ret_str+'</div>'
+            }, parentElement );
+        } else if(this.config.renderAlignment) {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'Query: '+query_str+'   <br>'
+                  +'       '+align_str+'   <br>'
+                  +'Ref:   '+refer_str+'   </div>'
+            }, parentElement );
+        }
+
+        return {
+            val1: query_str,
+            val2: align_str,
+            val3: refer_str
+        };
+    },
+
+    //stackoverflow http://stackoverflow.com/questions/2686855/is-there-a-javascript-function-that-can-pad-a-string-to-get-to-a-determined-leng
+    pad: function(pad, str, padLeft) {
+        if (typeof str === 'undefined')
+            return pad;
+        if (padLeft) {
+            return (pad + str).slice(-pad.length);
+        } else {
+            return (str + pad).substring(0, pad.length);
+        }
     }
 
 });

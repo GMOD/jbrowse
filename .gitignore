@@ -7,7 +7,7 @@
 *.pyc
 *TODO.txt
 Makefile
-#/sample_data/json
+/sample_data/json
 /src/wig2png/config.log
 /src/wig2png/config.status
 /src/wig2png/src/config.h
@@ -39,3 +39,9 @@ src/util/
 src/xstyle/
 node_modules
 .idea/**
+/nbproject/private/
+*.swp
+_Inline
+.DS_Store
+blib
+pm_to_blib
