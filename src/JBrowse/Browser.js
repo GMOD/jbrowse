@@ -141,7 +141,7 @@ constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params || {};
-    
+
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
         return;
@@ -150,7 +150,7 @@ constructor: function(params) {
 
     // start the initialization process
     var thisB = this;
-	
+
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
 
@@ -2409,79 +2409,43 @@ findReferenceSequence: function( name ) {
     console.log("initial name: " +name);
     console.log(typeof name);
 
-    // if(name.indexOf("[")==0){
-    //     var refName = JSON.parse(name);
-    //     console.log(refName.length);
-    //     // var ref = refName[0];
-    //     // name = ref.name ;
-    //     console.log(name);
-    // }
-    // else
+    var inputNameObj = {};
     if(name.startsWith("{")){
         if(!name.endsWith("}") && name.lastIndexOf(":")>0){
             console.log("A: " + name);
             name = name.substr(0,name.lastIndexOf(":"));
             console.log("B: " + name);
         }
-        console.log("C: " + name);
-        name = JSON.parse(name).name ;
-        console.log("D: " + name);
-        if (typeof name == 'undefined'){
-            return null ;
-        }
-    }
-    else{
-        console.log('does nto start with');
+        inputNameObj = JSON.parse(name);
     }
 
-    console.log("final name: " +name);
+    // console.log("final name: " +name);
+    // console.log("final object : " +JSON.stringify(inputNameObj));
 
     var thisB = this ;
+    // console.log("# of refs: " + Object.keys(thisB.allRefs).length);
     // var browser =thisB.browser;
     for( var n in thisB.allRefs ) {
-        // console.log("what is n: "+n);
-        // if(name.startsWith("[") && n.startsWith("[")){
-        //     console.log('n starts with [: '+n);
-        //     var refName = JSON.parse(name);
-        //     var nObj = JSON.parse(n);
-        //     if(refName.length == nObj.length && refName.length>0){
-        //         console.log('has matching length: '+name + " vs " + n);
-        //         // just compare
-        //         var isSame = true ;
-        //         for(var sequenceIndex in refName){
-        //             var seq1 = refName[sequenceIndex];
-        //             var seq2 = nObj[sequenceIndex];
-        //             isSame = isSame && (seq1.name === seq2.name) && (seq1.start === seq2.start) && (seq1.end === seq2.end) && (seq1.reverse === seq2.reverse);
-        //         }
-        //         if(isSame){
-        //             console.log('returning log for '+n);
-        //             return thisB.allRefs[n]
-        //         }
-        //     }
-        // }
-        // else
         if(n.startsWith("{")){
             // alert(n) ;
             var nameObj = {};
             if(!n.endsWith("}")){
                 var substr = n.substr(0,n.lastIndexOf(":"));
-                // alert(substr);
                 nameObj = JSON.parse(substr);
             }
             else{
                 nameObj = JSON.parse(n);
             }
 
-            if (typeof nameObj.name == 'undefined'){
-                return null ;
-            }
-
-            if(  ! thisB.compareReferenceNames( nameObj.name, name ) ){
+            if(
+                (name.startsWith("{") && nameObj.sequenceList[0].name===inputNameObj.sequenceList[0].name)
+                ||
+                ( !name.startsWith("{") && nameObj.sequenceList[0].name===name)
+            ){
                 return thisB.allRefs[n];
             }
         }
         else {
-            console.log("name: "+n + " vs "+ name );
             if (!thisB.compareReferenceNames(n, name)) {
                 return thisB.allRefs[n];
             }
