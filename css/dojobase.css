@@ -71,7 +71,7 @@ body {
 */
 
 /* Headings */
-.jbrowse h1 {
+.jbrowse h1, .dijitPopup h1 {
 	font-size: 1.5em; 
 	font-weight: normal;
 	line-height: 1em; 

@@ -5,12 +5,7 @@ html, body {
     border: 0;
 }
 
-.jbrowsecontainer {
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
-}
-.dijitDialog {
-    
+.jbrowse, .dijitPopup, .dijitDialog {
     font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
