@@ -41,7 +41,7 @@ return declare(
         
         // container for feature elements
         //this.svgCanvas.featureGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
-        this.svgCanvas.fItem = new Array();
+        this.svgCanvas.fItem = [];
         //this.svgCanvas.appendChild(this.svgCanvas.featureGroup);
         
         this.height = 100;
@@ -73,7 +73,7 @@ return declare(
     },
     addSVGObject: function(id,bpCoord,width,height,callback) {
         
-        xCoord = this.bp2Native(bpCoord);
+        var xCoord = this.bp2Native(bpCoord);
         
         if (id in this.svgCanvas.fItem ) { 
             var svgItem = this.svgCanvas.fItem[id];        // element already exists 

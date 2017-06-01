@@ -702,7 +702,10 @@ return declare(
     },
 
     renderClickMap: function( args, fRects ) {
-        return;// disable - eyao
+        if(true) {
+            console.log("disabled render click map");
+            return;
+        }// disable - eyao
         
         var block = args.block;
 

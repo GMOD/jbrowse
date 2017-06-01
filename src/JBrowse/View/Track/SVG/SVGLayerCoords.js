@@ -39,7 +39,7 @@ return declare(
         // container for coord elements (this is just to test the coordinate space)
         this.coordGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         this.svgCoords.appendChild(this.coordGroup);
-        this.svgCoords.fCoord = new Array();
+        this.svgCoords.fCoord = [];
 
        
         this.svgHeight = 100;

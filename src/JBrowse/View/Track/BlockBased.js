@@ -1220,7 +1220,7 @@ define([
                     if (bookmark) {
                         //if( trimLeft <= 0 ) {
                         if(bookmark.type === 'region'){
-                            var d1 = domconstruct.create('div', {
+                            var d1 = domConstruct.create('div', {
                                 style: {
                                     background: bookmark.background,
                                     color: bookmark.color,
@@ -1234,7 +1234,7 @@ define([
                             }, args.block.domnode);
                         }
                          if(bookmark.type === 'right-edge'){
-                             var d1 = domconstruct.create('div', {
+                             var d1 = domConstruct.create('div', {
                                  style: {
                                      background: bookmark.background,
                                      color: bookmark.color,
@@ -1300,7 +1300,7 @@ define([
 								var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
 							}
 							if( trimRight <= 0 ) {
-								var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+								var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: label }, args.block.domNode);
 							}
 
 							var textWidth = (d1.clientWidth + 1) + "px";

@@ -40,7 +40,7 @@ return declare(
         // container for feature elements
         //this.svgCanvas.featureGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         //this.svgCanvas.appendChild(this.svgCanvas.featureGroup);
-        this.svgCanvas.fItem = new Array();
+        this.svgCanvas.fItem = [];
         this.svgCanvas.scaleObj = false;
         
         //this.svgCanvas.height = this.svgCanvas.offsetHeight;
