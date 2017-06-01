@@ -9,8 +9,11 @@ html, body {
     font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
-
-.jbrowse .tundra .dijitDialogTitleBar {
+.dijitDialog {
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+}
+.tundra .dijitDialogTitleBar {
     padding-right: 25px;
 }
 
@@ -20,22 +23,22 @@ html, body {
 }
 
 /* styles for the about JBrowse dialog */
-.jbrowse .about-dialog .default_about {
+.about-dialog .default_about {
     text-align: center;
 }
-.jbrowse .about-dialog .default_about * {
+.about-dialog .default_about * {
     margin: 0.5em 0;
 }
-.jbrowse .about-dialog .default_about h1 {
+.about-dialog .default_about h1 {
     margin-top: 0;
 }
-.jbrowse .about-dialog div.powered_by {
+.about-dialog div.powered_by {
     margin-top: 0.5em;
     text-align: center;
 }
 
 /* styles for the highlight-setting dialog */
-.jbrowse .setHighlightDialog label {
+.setHighlightDialog label {
     padding-right: 0.5em;
 }
 
@@ -116,20 +119,20 @@ fieldset > legend {
 }
 
 /* location choice dialog */
-.jbrowse .locationChoiceDialog div.prompt {
+.locationChoiceDialog div.prompt {
     margin: 0.3em 1em 1em 1em;
 }
-.jbrowse .locationChoiceDialog .dgrid-row .dijitButton {
+.locationChoiceDialog .dgrid-row .dijitButton {
     margin: 0 0.5em;
 }
-.jbrowse .locationChoiceDialog .goButtonColumn,
-.jbrowse .locationChoiceDialog .showButtonColumn {
+.locationChoiceDialog .goButtonColumn,
+.locationChoiceDialog .showButtonColumn {
     text-align: center;
     white-space: nowrap;
 }
 
 
-.jbrowse .tundra .dijitDialogCloseIcon {
+.tundra .dijitDialogCloseIcon {
     height: 25px;
     width:  25px;
     top:    0px;
@@ -138,15 +141,15 @@ fieldset > legend {
 
     border-left: 1px inset #fcfcfc;
 }
-.jbrowse .tundra .dijitDialogCloseIcon:hover {
+.tundra .dijitDialogCloseIcon:hover {
     background-position: -93px 6px;
     border-left-color: #ccc;
 }
-.jbrowse .dijitDialogCloseIcon:focus {
+.dijitDialogCloseIcon:focus {
     outline: none;
 }
 
-.jbrowse .dijitDialogPaneActionBar {
+.dijitDialogPaneActionBar {
     text-align: center;
     clear: both;
     padding-top: 1em;
@@ -485,7 +488,7 @@ input.icon {
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
-.jbrowse .notfound-dialog .message {
+.notfound-dialog .message {
     margin: 1em;
     text-align: center;
 }
@@ -574,30 +577,17 @@ input.icon {
     background-color: rgba( 0, 0, 100, 0.05 );
     border-left-color: #ccc;
 }
-<<<<<<< 3aa7da6bdcee1f5c4a4d91c924dd1e2e63a47e25
 .tundra div.track-label .track-close-button {
     background: url("../node_modules/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
 .tundra div.track-label .track-close-button:hover {
     background-image: url("../node_modules/dijit/themes/tundra/images/tabCloseHover.png");
-=======
-.jbrowse .tundra div.track-label .track-close-button {
-    background: url("../src/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
-}
-.jbrowse .tundra div.track-label .track-close-button:hover {
-    background-image: url("../src/dijit/themes/tundra/images/tabCloseHover.png");
->>>>>>> Use jbrowse class on CSS
 }
 .jbrowse .tundra div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
 }
-<<<<<<< 3aa7da6bdcee1f5c4a4d91c924dd1e2e63a47e25
 div.track-label:hover {
     background: #FAFAFA url(../node_modules/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
-=======
-.jbrowse div.track-label:hover {
-    background: #FAFAFA url(../src/dijit/themes/tundra/images/titleBar.png) repeat-x top left;
->>>>>>> Use jbrowse class on CSS
 
     border-width: 1px;
     border-color: #666;
@@ -804,24 +794,24 @@ input.nav {
     font-size: 9px !important;
 }
 
-.jbrowse .help_dialog ul {
+.help_dialog ul {
     padding-left: 0;
 }
-.jbrowse .help_dialog div.main {
+.help_dialog div.main {
 }
-.jbrowse .help_dialog div.main > dl {
+.help_dialog div.main > dl {
     width: 90%;
     margin: 0 auto 1em auto;
 }
-.jbrowse .help_dialog dt {
+.help_dialog dt {
     font-weight: bold;
     margin-top: 1em;
 }
-.jbrowse .help_dialog dd {
+.help_dialog dd {
     margin-left: 2em;
 }
-.jbrowse .help_dialog dl dl.searchexample dt,
-.jbrowse .help_dialog span.example {
+.help_dialog dl dl.searchexample dt,
+.help_dialog span.example {
     font-weight: normal;
     font-family: monospace;
 }
@@ -877,7 +867,7 @@ input.nav {
 }
 
 /* styles dealing with popups launched by clicking on features */
-.jbrowse .popup-dialog-iframe .dijitDialogPaneContent {
+.popup-dialog-iframe .dijitDialogPaneContent {
     padding: 0;
 }
 
@@ -888,40 +878,40 @@ a.dialog-new-window {
 }
 
 /* styles for popup feature detail dialogs from tracks */
-.jbrowse .feature-detail {
+.feature-detail {
     width: 50em;
     color: #333;
 }
-.jbrowse .feature-detail .genotype_summary {
+.feature-detail .genotype_summary {
     padding: 1em;
 }
-.jbrowse .feature-detail .genotype_summary table {
+.feature-detail .genotype_summary table {
     border-collapse: collapse;
 }
-.jbrowse .feature-detail .genotype_summary td {
+.feature-detail .genotype_summary td {
     padding: 0 1em;
 }
-.jbrowse .feature-detail .genotype_summary td.total {
+.feature-detail .genotype_summary td.total {
     font-weight: bold;
     border-top: 1px solid #444;
 }
-.jbrowse .feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
+.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
     text-align: right;
 }
-.jbrowse .feature-detail .genotype_summary td.category.level_1 {
+.feature-detail .genotype_summary td.category.level_1 {
     padding-left: 2em;
 }
-.jbrowse .feature-detail .genotype_summary td.category.level_2 {
+.feature-detail .genotype_summary td.category.level_2 {
     padding-left: 3em;
 }
-.jbrowse .feature-detail .genotype_summary td.category.level_3 {
+.feature-detail .genotype_summary td.category.level_3 {
     padding-left: 4em;
 }
-.jbrowse .feature-detail .genotype_summary td.category.level_4 {
+.feature-detail .genotype_summary td.category.level_4 {
     padding-left: 5em;
 }
 
-.jbrowse .feature-detail .subfeature-detail {
+.feature-detail .subfeature-detail {
     background: #fafafa;
     background: rgba( 0, 0, 0, 0.1 );
     border: 1px outset #B9B9B9;
@@ -929,6 +919,7 @@ a.dialog-new-window {
     margin-bottom: 0.8em;
 }
 
+<<<<<<< 04e528d1514c7e44800ae6de69d963dbd56a5b1a
 <<<<<<< 3aa7da6bdcee1f5c4a4d91c924dd1e2e63a47e25
 .feature-detail .subfeature-load-button {
     margin-top: 15px;
@@ -939,33 +930,36 @@ a.dialog-new-window {
 =======
 .jbrowse .feature-detail .fastaView {
 >>>>>>> Use jbrowse class on CSS
+=======
+.feature-detail .fastaView {
+>>>>>>> Add src/dojo/resources/dojo.css into a jbrowse specific context
     padding: 0;
     border: 1px solid #aaa;
 }
 
-.jbrowse .feature-detail .fastaView .dijitToolbar {
+.feature-detail .fastaView .dijitToolbar {
     text-align: right;
 }
-.jbrowse .feature-detail .fastaView textarea {
+.feature-detail .fastaView textarea {
     padding: 1em 1.5em;
     margin: 0;
     border: none;
 }
 
 
-.jbrowse .feature-detail div.core {
+.feature-detail div.core {
     font-size: 110%;
 }
 
-.jbrowse .feature-detail div.core h2.sectiontitle {
+.feature-detail div.core h2.sectiontitle {
     margin-top: 0;
 }
-.jbrowse .feature-detail h2.sectiontitle {
+.feature-detail h2.sectiontitle {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     margin: 1em 0 0.7em 0;
 }
 
-.jbrowse .detail .value_container {
+.detail .value_container {
     display: inline-block;
     max-height: 20em;
     overflow-y: auto;
@@ -974,13 +968,13 @@ a.dialog-new-window {
     -webkit-box-sizing: border-box;
     -ms-box-sizing: border-box;
 }
-.jbrowse .detail .value_container.big, .detail .value_container.dgrid {
+.detail .value_container.big, .detail .value_container.dgrid {
     border: 1px solid rgba(0,0,50,0.1);
     margin-left: 1em;
     margin-top: 0.3em;
 }
 
-.jbrowse .detail .multi_value .value {
+.detail .multi_value .value {
     border: 1px solid #ddd;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -988,14 +982,14 @@ a.dialog-new-window {
     -ms-box-sizing: border-box;
 }
 
-.jbrowse .detail .value {
+.detail .value {
     display: inline-block;
     vertical-align: top;
     font-family: sans-serif;
     padding: 0 0.7em;
     line-height: 1.8;
 }
-.jbrowse .detail .field {
+.detail .field {
     margin: 0;
     display: inline-block;
     min-width: 90px;
@@ -1007,34 +1001,34 @@ a.dialog-new-window {
     font-size: 1.1667em;
 }
 /* field names that have tooltips */
-.jbrowse .detail .field[title], .detail .dgrid-cell[title] {
+.detail .field[title], .detail .dgrid-cell[title] {
     background: rgba( 255,245,50,0.3 );
 }
-.jbrowse .detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
+.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
     background: rgba( 255,255,50,0.7 );
 }
 /*
  force long sequences in feature and alignment detail dialogs to
  wrap at 45em
 */
-.jbrowse .detail .value.seq,
+.detail .value.seq,
  .detail .value.sequence {
     word-wrap: break-word;
     width: 45em;
 }
 
-.jbrowse .detail .field_container {
+.detail .field_container {
     margin-left: 1em;
     margin-bottom: 2px;
 }
-.jbrowse .detail hr {
+.detail hr {
     margin: 0.8em 4em 0.5em 0.7em;
 }
 
-.jbrowse .sharePane input {
+.sharePane input {
     padding: 1px 0 2px 1px;
 }
-.jbrowse .sharePane .copyReminder {
+.sharePane .copyReminder {
     background-color:  #396494;
     text-align: center;
     width: 50%;
@@ -1044,7 +1038,7 @@ a.dialog-new-window {
     font-weight: bold;
 }
 
-.jbrowse .tundra .sharePane input {
+.tundra .sharePane input {
     border: 1px solid #ccc;
 }
 
