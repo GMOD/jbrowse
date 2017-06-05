@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
+
 ## Minor improvements
 
   * Upgraded build system to install dependencies with bower and
@@ -65,6 +67,9 @@
     continuous CDS region for CanvasFeatures glyphs. Thanks to
     Vivek Krishnakumar for the contribution (issue #872).
 
+  * Added events tracks/focus, tracks/unfocus, allowing for context
+    switching based on selected track.
+
 ## Bug fixes
 
   * Made the menu bar widgets centered again (issue #680).
@@ -119,6 +124,10 @@
 
   * Fixed issue where there was a mix of plugin declarations
     (issue #866).
+
+# Release 1.12.2     2016-05-31 America/Los_Angeles
+
+  Special Release for Apollo
 
 # Release 1.12.1     2016-03-01 03:47:38 America/Los_Angeles
 

@@ -64,7 +64,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         });
 
         // genotypes in a separate section
-        if(this.config.renderAlignment) {
+        if(this.config.renderAlignment || this.config.renderPrettyAlignment) {
             this._renderTable( container, track, f, div );
         }
 
@@ -314,21 +314,12 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 curr_pos++;
             }
         }
-        if(lang.isObject(this.config.renderAlignment) && this.config.renderAlignment.singleline) {
-            var gContainer = dojo.create('div', {
-                className: 'renderTable',
-                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-                  +'Query: '+query_str+'   <br>'
-                  +'       '+align_str+'   <br>'
-                  +'Ref:   '+refer_str+'   </div>'
-            }, parentElement );
-        }
-        else {
+        if(this.config.renderPrettyAlignment) {
             var s1, s2, s3, ret_str;
             s1 = s2 = s3 = ret_str ='';
             var qpos = 0;
             var rpos = (mismatches.length && mismatches[0].type == 'softclip') ? (start-mismatches[0].cliplen) : start;
-            var w = this.config.renderAlignment.width || 50;
+            var w = this.config.renderAlignmentWidth || 50;
             for(var i = 0; i < query_str.length; i += w) {
                 s1 = query_str.substring(i, i+w);
                 s2 = align_str.substring(i, i+w);
@@ -346,6 +337,14 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 className: 'renderTable',
                 innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
                   +ret_str+'</div>'
+            }, parentElement );
+        } else if(this.config.renderAlignment) {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'Query: '+query_str+'   <br>'
+                  +'       '+align_str+'   <br>'
+                  +'Ref:   '+refer_str+'   </div>'
             }, parentElement );
         }
 

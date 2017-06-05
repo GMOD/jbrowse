@@ -70,9 +70,6 @@ elif ! [ -f "src/dojo/dojo.js" ]; then
     echo "Dojo does not exist, installing" ;
     check_bower >> setup.log ;
     $bower_executable install -f --allow-root >> setup.log ;
-else
-    check_bower >> setup.log ;
-    echo -n "  Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
 fi
 echo "done"
 
