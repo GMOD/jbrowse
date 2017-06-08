@@ -163,8 +163,12 @@ NCList.prototype.iterHelper = function(arr, from, to, fun,
                                 /\{Chunk\}/ig, chunkNum
                         )
                     ),
-                    { handleAs: 'json' }
-                ).then(
+                    {
+                        handleAs: 'json',
+                        headers: {
+                            'X-Requested-With': null 
+                    }
+                }).then(
                     function( sublist ) {
                         return thisB.iterHelper(
                             sublist, from, to, fun,
