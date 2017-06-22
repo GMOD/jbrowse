@@ -134,6 +134,9 @@ NCList_v0.prototype.iterHelper = function(arr, from, to, fun, finish,
                                    arr[i][this.lazyIndex].chunk
                                 )
                              ),
+                        headers: {
+                            'X-Requested-With': null 
+                        },
                         handleAs: "json",
                         load: function(lazyFeat, lazyObj,
                                        sublistIndex, parentIndex) {

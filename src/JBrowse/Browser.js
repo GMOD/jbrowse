@@ -527,7 +527,12 @@ loadRefSeqs: function() {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            request(this.config.refSeqs.url, { handleAs: 'text' } )
+            request(this.config.refSeqs.url, {
+                handleAs: 'text',
+                headers: {
+                    'X-Requested-With': null 
+                }
+            } )
                 .then( function(o) {
                            thisB.addRefseqs( dojo.fromJson(o) );
                            deferred.resolve({success:true});
