@@ -33,7 +33,7 @@ Util = {
 
     renderRefSeqName: function(refSeq){
         var refSeqString = refSeq.name ;
-        if(refSeq.name.indexOf("{")>=0 || refSeq.sequenceList){
+        if( refSeq.sequenceList){
             refSeqString = "";
             for(var sequenceIndex in refSeq.sequenceList){
                 var sequence = refSeq.sequenceList[sequenceIndex];
