@@ -28,6 +28,8 @@ return declare( null, {
         var lineIterator = new TextIterator.FromBytes({ bytes: headerBytes });
         var line;
         while(( line = lineIterator.getline() )) {
+
+            line = line.replace(/\n$/, "");
             // only interested in meta and header lines
             if( line[0] != '#' )
                 continue;
@@ -82,7 +84,7 @@ return declare( null, {
         var alt = fields[4];
 
         var SO_term = this._find_SO_term( ref, alt );
-        var ret = (fields[7]||'').match(/;END=(\d+)/);
+        var ret = (fields[7]||'').match(/END=(\d+)/);
         var featureData = {
             start:  line.start,
             end:    ret ? +ret[1] : line.start+ref.length,
@@ -376,7 +378,7 @@ return declare( null, {
         if( ! alt )
             return 'no alternative alleles';
 
-        alt = alt.replace(/^<|>$/g,'');
+        alt = alt.replace(/^|$/g,'');
 
         var def = this.getVCFMetaData( 'alt', alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
