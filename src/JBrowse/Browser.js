@@ -961,7 +961,8 @@ initView: function() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
+            if (thisObj.config.update_browser_title)
+                document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
         };
         dojo.connect( this, "onCoarseMove",                     updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
@@ -2021,7 +2022,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels', 'update_browser_title'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
@@ -2112,6 +2113,7 @@ _configDefaults: function() {
         show_menu: true,
         show_overview: true,
         show_fullviewlink: true,
+        update_browser_title: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
         include: [
