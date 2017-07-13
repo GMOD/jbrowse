@@ -9,7 +9,7 @@ define([
            'dojo/dom-construct',
            'dijit/form/Button',
            'JBrowse/Util',
-           'dojo/store/Memory',
+           'dstore/Memory',
            'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry'
        ],

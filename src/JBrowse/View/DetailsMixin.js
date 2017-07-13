@@ -228,10 +228,9 @@ return declare( null, {
         // create the grid
         parent.style.overflow = 'hidden';
         parent.style.width = '90%';
-        var memstore = new MemoryStore({ data: rows })
         var grid = new Grid({
             columns: columns,
-            collection: memstore
+            collection: new MemoryStore({ data: rows })
         }, parent );
 
         return parent;
