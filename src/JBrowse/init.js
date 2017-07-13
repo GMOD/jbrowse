@@ -8,7 +8,7 @@ require( {
                'json-schema',
                'jszlib',
                { name: 'lazyload', main: 'lazyload' },
-               { name: 'jDataView', location: 'jDataView/dist/browser', main: 'jdataview' },
+               { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
                'FileSaver',
                'JBrowse'
            ]

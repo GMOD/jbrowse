@@ -3,7 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/_base/url',
-            'jDataView',
+            'JBrowse/Model/DataView',
             'JBrowse/has',
             'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
@@ -125,13 +125,13 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
             this.version = data.getUint16();
             this.numZoomLevels = data.getUint16();
-            this.chromTreeOffset = data.getUint64().valueOf();
-            this.unzoomedDataOffset = data.getUint64().valueOf();
-            this.unzoomedIndexOffset = data.getUint64().valueOf();
+            this.chromTreeOffset = data.getUint64();
+            this.unzoomedDataOffset = data.getUint64();
+            this.unzoomedIndexOffset = data.getUint64();
             this.fieldCount = data.getUint16();
             this.definedFieldCount = data.getUint16();
-            this.asOffset = data.getUint64().valueOf();
-            this.totalSummaryOffset = data.getUint64().valueOf();
+            this.asOffset = data.getUint64();
+            this.totalSummaryOffset = data.getUint64();
             this.uncompressBufSize = data.getUint32();
 
             // dlog('bigType: ' + this.type);
@@ -145,8 +145,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             this.zoomLevels = [];
             for (var zl = 0; zl < this.numZoomLevels; ++zl) {
                 var zlReduction = data.getUint32( 4*(zl*6 + 16) );
-                var zlData = data.getUint64( 4*(zl*6 + 18) ).valueOf();
-                var zlIndex = data.getUint64( 4*(zl*6 + 20) ).valueOf();
+                var zlData = data.getUint64( 4*(zl*6 + 18) );
+                var zlIndex = data.getUint64( 4*(zl*6 + 20) );
 
                 //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
                 this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
@@ -157,7 +157,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 (function() {
                      var d = this.newDataView( bytes, this.totalSummaryOffset );
                      var s = {
-                         basesCovered: d.getUint64().valueOf(),
+                         basesCovered: d.getUint64(),
                          scoreMin: d.getFloat64(),
                          scoreMax: d.getFloat64(),
                          scoreSum: d.getFloat64(),
@@ -211,7 +211,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                        var blockSize = data.getUint32();
                        var keySize = data.getUint32();
                        var valSize = data.getUint32();
-                       var itemCount = data.getUint64().valueOf();
+                       var itemCount = data.getUint64();
                        var rootNodeOffset = 32;
 
                        //dlog('blockSize=' + blockSize + '    keySize=' + keySize + '   valSize=' + valSize + '    itemCount=' + itemCount);
@@ -245,7 +245,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                                } else {
                                    // parse index node
                                    offset += keySize;
-                                   var childOffset = data.getUint64( offset ).valueOf();
+                                   var childOffset = data.getUint64( offset );
                                    offset += 8;
                                    childOffset -= thisB.chromTreeOffset;
                                    bptReadNode(childOffset);
