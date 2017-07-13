@@ -2509,6 +2509,28 @@ navigateToLocation: function( location ) {
                                    Math.min( ref.end, location.end || ref.end )
                                  );
 
+        console.log('location ref: '+JSON.stringify(location.ref));
+        console.log('this refseq: '+JSON.stringify(this.refSeq.name));
+
+        // "{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true,\"organism\":\"Honeybee\",\"location\":[{\"fmin\":0,\"fmax\":1405242}]}]}:915629..515505"
+        if(location.ref.startsWith("{")){
+            // var searchString = location.ref.replace(/\\"/g, '"');
+            var searchString = location.ref.substr(0,location.ref.lastIndexOf(':'));
+            console.log('search string: '+searchString);
+            var refObj = JSON.parse(searchString);
+            var sequenceObj = refObj.sequenceList[0];
+            var reverse = sequenceObj.reverse ? sequenceObj.reverse : false ;
+            if(reverse){
+                console.log('input: '+ location.start + ' , '+location.end + ' vs length: '+location.end);
+                var tmpStart = sequenceObj.end - location.end ;
+                var tmpEnd  = sequenceObj.end - location.start ;
+                location.start = tmpStart ;
+                location.end = tmpEnd ;
+                delete tmpStart, tmpEnd ;
+                console.log('output: '+ location.start + ' , '+location.end)
+            }
+        }
+
         // if it's the same sequence, just go there
         if( location.ref == this.refSeq.name) {
             this.view.setLocation( this.refSeq,
