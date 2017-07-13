@@ -77,7 +77,7 @@ return declare(null,{
         // create the grid
         this.grid = new Grid({
             columns: columns,
-            store: new MemoryStore({ data: locations } )
+            collection: new MemoryStore({ data: locations } )
         }, parent );
     }
 });
