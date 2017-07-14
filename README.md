@@ -17,9 +17,9 @@ time than the built release zipfiles.  Also, since the master branch code is ''i
 Make sure you have a web server installed on your development machine.  Any web server will do.
 
     cd /my/dev/webserver/root;
-    git clone https://github.com/GMOD/jbrowse jbrowse 
+    git clone https://github.com/GMOD/jbrowse
     cd jbrowse
-    bower --allow-root -f install
+    npm install
     ./setup.sh
     # and now point your browser to
     #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox
