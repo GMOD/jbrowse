@@ -37,6 +37,7 @@ src/lazyload/
 src/put-selector/
 src/util/
 src/xstyle/
+src/dstore/
 node_modules
 .idea/**
 /nbproject/private/
@@ -45,3 +46,4 @@ _Inline
 .DS_Store
 blib
 pm_to_blib
+bin/wig2png.dSYM

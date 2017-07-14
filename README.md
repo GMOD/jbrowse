@@ -40,8 +40,8 @@ To build the Electron app (JBrowse desktop app), run the following
 
 To run the Electron app in debug mode run the following
 
-    npm install
-    npm start
+    npm install -g electron
+    electron browser/main.js
 
 # Running the developer test suites
 

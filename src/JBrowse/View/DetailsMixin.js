@@ -8,7 +8,7 @@ define([
            'dojo/query',
            'dojo/dom-construct',
            'dojo/dom-class',
-           'dojo/store/Memory',
+           'dstore/Memory',
            'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry',
            'JBrowse/Util'
@@ -230,7 +230,7 @@ return declare( null, {
         parent.style.width = '90%';
         var grid = new Grid({
             columns: columns,
-            store: new MemoryStore({ data: rows })
+            collection: new MemoryStore({ data: rows })
         }, parent );
 
         return parent;

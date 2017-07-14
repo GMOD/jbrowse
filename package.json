@@ -2,13 +2,21 @@
   "name": "jbrowse",
   "main": "browser/main.js",
   "repository": "https://github.com/GMOD/jbrowse.git",
-  "devDependencies": {
-    "electron": "^1.6.2"
-  },
   "scripts": {
-    "start": "electron browser/main.js"
+    "postinstall": "bash postinstall.sh"
   },
   "dependencies": {
-    "electron-screenshot": "^1.0.4"
+    "dgrid": "^1.1.0",
+    "dijit": "^1.12.2",
+    "dojo": "^1.12.2",
+    "dojo-dstore": "^1.1.1",
+    "dojo-util": "^1.12.2",
+    "dojox": "^1.12.2",
+    "electron-screenshot": "^1.0.2",
+    "filesaver.js": "^0.2.0",
+    "jDataView": "git+https://github.com/rbuels/jdataview.git",
+    "json-schema": "git+https://github.com/kriszyp/json-schema.git",
+    "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
+    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd"
   }
 }
