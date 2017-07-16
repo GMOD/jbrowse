@@ -961,8 +961,16 @@ initView: function() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            if (thisObj.config.update_browser_title)
-                document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
+            if (thisObj.config.update_browser_title){
+                var locString = thisObj.view.visibleRegionLocString();
+                // TODO: abstract
+                if(locString.indexOf("{")>=0){
+                    var sequenceString =  locString.substr(0,locString.lastIndexOf("}")+1);
+                    var locObject = JSON.parse(sequenceString);
+                    locString = locObject.sequenceList[0].name  + locString.substr(locString.lastIndexOf(":"),locString.length);
+                }
+                document.title = thisObj.browserMeta().title + ' ' + locString;
+            }
         };
         dojo.connect( this, "onCoarseMove",                     updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );

@@ -360,6 +360,17 @@ Util = {
         return bn;
     },
 
+    assembleProjectedString: function( loc_in ) {
+        var localString = this.assembleLocString(loc_in);
+        if(!localString.startsWith("{")){
+            return localString ;
+        }
+        var sequenceString = localString.substring(0,localString.lastIndexOf("}")+1);
+        var sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+        localString = sequenceObject.name + localString.substr(localString.lastIndexOf(":"));
+        return localString ;
+    },
+
     assembleLocString: function( loc_in ) {
         var s = '',
         types = { start: 'number', end: 'number', ref: 'string', strand: 'number' },
