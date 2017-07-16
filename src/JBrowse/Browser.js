@@ -2427,9 +2427,7 @@ findReferenceSequence: function( name ) {
     var inputNameObj = {};
     if(name.startsWith("{")){
         if(!name.endsWith("}") && name.lastIndexOf(":")>0){
-            console.log("A: " + name);
-            name = name.substr(0,name.lastIndexOf(":"));
-            console.log("B: " + name);
+            name = name.substr(0,name.lastIndexOf("}")+1);
         }
         inputNameObj = JSON.parse(name);
     }
@@ -2445,7 +2443,7 @@ findReferenceSequence: function( name ) {
             // alert(n) ;
             var nameObj = {};
             if(!n.endsWith("}")){
-                var substr = n.substr(0,n.lastIndexOf(":"));
+                var substr = n.substr(0,n.lastIndexOf("}")+1);
                 nameObj = JSON.parse(substr);
             }
             else{
@@ -2524,7 +2522,7 @@ navigateToLocation: function( location ) {
 
         // "{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true,\"organism\":\"Honeybee\",\"location\":[{\"fmin\":0,\"fmax\":1405242}]}]}:915629..515505"
         if(location.ref.startsWith("{")){
-            var searchString = location.ref.substr(0,location.ref.lastIndexOf(':'));
+            var searchString = location.ref.substr(0,location.ref.lastIndexOf('}')+1);
             var refObj = JSON.parse(searchString);
             var sequenceObj = refObj.sequenceList[0];
             var reverse = sequenceObj.reverse ? sequenceObj.reverse : false ;
