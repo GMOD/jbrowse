@@ -43,7 +43,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             'Position',
             Util.assembleLocString({ start: f.get('start'),
                                      end: f.get('end'),
-                                     ref: this.refSeq.name })
+                                     ref: Util.renderRefSeqName(this.refSeq) })
             + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || ''),
             f
         );
