@@ -1,0 +1,83 @@
+[
+    {
+        "message": "Welcome to JBrowse!\n\nJBrowse is an interactive Genome Browser. It's completely\nself-contained inside your web browser and incredibly fast.\n\nThis is a quick tutorial to help you familiarize yourself with\nJBrowse's functionality\n\n<hr style=\"width:100%\"/>\n<b>NB:</b> This tutorial is optimised for the Volvox sample data that\nships with JBrowse. If you are not there already, you can\n<a href=\"?data=sample_data%2Fjson%2Fvolvox\">attempt to access it</a>.\n", 
+        "title": "Welcome!"
+    }, 
+    {
+        "node": "dijit_layout_ContentPane_0", 
+        "message": "This is the genome movement area. It features controls which allow\nyou to move about the genome.\n", 
+        "title": "Genome Movement"
+    }, 
+    {
+        "node": "overview", 
+        "message": "On the top bar you see the numbered track with a red box. This\nindicates your position along the genome.\n\n<ul>\n    <li>Click to move to a position</li>\n    <li>Click + Drag to select a specific region to zoom in on</li>\n</ul>\n\nTry clicking anywhere on the bar to navigate to that position.\n", 
+        "requireInteraction": {
+            "type": "click", 
+            "targets": [
+                "overview"
+            ]
+        }, 
+        "title": "Genome Movement: Coarse Genome Position"
+    }, 
+    {
+        "node": "navbox", 
+        "message": "Below the position bar, is the motion menu. \n", 
+        "title": "Genome Movement: Navigation menu"
+    }, 
+    {
+        "node": "moveLeft", 
+        "message": "The left and right buttons allow you to navigate \"page by page\"\nthrough the genome.\n\nClick left or right to continue.\n", 
+        "requireInteraction": {
+            "type": "click", 
+            "targets": [
+                "moveLeft", 
+                "moveRight"
+            ]
+        }, 
+        "title": "Genome Movement: Left &amp; Right"
+    }, 
+    {
+        "node": "bigZoomOut", 
+        "message": "The larger magnifying glasses zoom a large\ninterval in and out. The small ones only zoom a little bit at a time.\n", 
+        "requireInteraction": {
+            "type": "click", 
+            "targets": [
+                "bigZoomOut", 
+                "zoomOut", 
+                "zoomIn", 
+                "bigZoomIn"
+            ]
+        }, 
+        "title": "Genome Movement: Zooming"
+    }, 
+    {
+        "node": "location-info", 
+        "message": "Next is your location string. This tells you which contig/chromosome\nyou are viewing, and what the base position is.\n", 
+        "title": "Genome Movement: Location"
+    }, 
+    {
+        "node": "highlight-btn", 
+        "message": "The highlighter lets you highlight a region of the genome. This is\nuseful for marking areas of interest and specifying an area when\nsharing a JBrowse link with a colleague.\n", 
+        "title": "Genome Movement: Highlighter"
+    }, 
+    {
+        "node": "search-refseq", 
+        "message": "On the right hand side is the contig/chromosome selector. Clicking\nthis dropdown will let you jump to another contig. \n", 
+        "title": "Genome Movement: Chromosome Selection"
+    }, 
+    {
+        "node": "widget_location", 
+        "message": "To the right of it is a search box for searching the genome data.\nSimply enter a string and find matching features.\n\n#Try it by clicking the search box and entering the string <code>EDEN.1</code>.\n#Once you've done that, hit \"Go\".\n", 
+        "title": "Genome Movement: Search"
+    }, 
+    {
+        "node": "static_track", 
+        "message": "Lastly for the genome movement bar is the fine grained genome position.\n\nThis behaves identically to the coarse grain position bar:\n<ul>\n    <li>Click to move to a position</li>\n    <li>Click + Drag to select a specific region to zoom in on</li>\n</ul>\n", 
+        "title": "Genome Movement: Fine Genome Position"
+    }, 
+    {
+        "node": "hierarchicalTrackPane", 
+        "message": "JBrowse and GBrowse both feature the concept of \"tracks\" of data which\ncan be turned on and off to help you gain genomic context for your\nannotation and browsing. These tracks are visible on the left hand\nmenu.\n", 
+        "title": "Tracks"
+    }
+]

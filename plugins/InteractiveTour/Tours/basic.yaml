@@ -1,0 +1,133 @@
+-
+    title: Welcome!
+    message: |
+        Welcome to JBrowse!
+
+        JBrowse is an interactive Genome Browser. It's completely
+        self-contained inside your web browser and incredibly fast.
+
+        This is a quick tutorial to help you familiarize yourself with
+        JBrowse's functionality
+
+        <hr style="width:100%"/>
+        <b>NB:</b> This tutorial is optimised for the Volvox sample data that
+        ships with JBrowse. If you are not there already, you can
+        <a href="?data=sample_data%2Fjson%2Fvolvox">attempt to access it</a>.
+    #move:
+        #navigateTo: "ctgA:1..9540"
+        #delay: 1000
+-
+    title: Genome Movement
+    node: dijit_layout_ContentPane_0
+    message: |
+        This is the genome movement area. It features controls which allow
+        you to move about the genome.
+-
+    title: "Genome Movement: Coarse Genome Position"
+    node: overview
+    message: |
+        On the top bar you see the numbered track with a red box. This
+        indicates your position along the genome.
+
+        <ul>
+            <li>Click to move to a position</li>
+            <li>Click + Drag to select a specific region to zoom in on</li>
+        </ul>
+
+        Try clicking anywhere on the bar to navigate to that position.
+    requireInteraction:
+        type: click
+        targets:
+            - overview
+-
+    title: "Genome Movement: Navigation menu"
+    node: navbox
+    message: |
+        Below the position bar, is the motion menu. 
+-
+    title: "Genome Movement: Left &amp; Right"
+    node: moveLeft
+    message: |
+        The left and right buttons allow you to navigate "page by page"
+        through the genome.
+
+        Click left or right to continue.
+    requireInteraction:
+        type: click
+        targets:
+            - moveLeft
+            - moveRight
+-
+    title: "Genome Movement: Zooming"
+    node: bigZoomOut
+    message: |
+        The larger magnifying glasses zoom a large
+        interval in and out. The small ones only zoom a little bit at a time.
+    requireInteraction:
+        type: click
+        targets:
+            - bigZoomOut
+            - zoomOut
+            - zoomIn
+            - bigZoomIn
+-
+    title: "Genome Movement: Location"
+    node: location-info
+    message: |
+        Next is your location string. This tells you which contig/chromosome
+        you are viewing, and what the base position is.
+-
+    title: "Genome Movement: Highlighter"
+    node: highlight-btn
+    message: |
+        The highlighter lets you highlight a region of the genome. This is
+        useful for marking areas of interest and specifying an area when
+        sharing a JBrowse link with a colleague.
+-
+    title: "Genome Movement: Chromosome Selection"
+    node: search-refseq
+    message: |
+        On the right hand side is the contig/chromosome selector. Clicking
+        this dropdown will let you jump to another contig. 
+-
+    title: "Genome Movement: Search"
+    node: widget_location
+    message: |
+        To the right of it is a search box for searching the genome data.
+        Simply enter a string and find matching features.
+
+        #Try it by clicking the search box and entering the string <code>EDEN.1</code>.
+        #Once you've done that, hit "Go".
+    #requireInteractions:
+        #-
+            #type: click
+            #targets:
+                #- widget_location
+        #-
+            #type: dataValue
+            #target: "#widget_location input#location"
+            #expectedContents: "EDEN.1"
+        #-
+            #type: click
+            #targets:
+                #- search-go-btn
+
+-
+    title: "Genome Movement: Fine Genome Position"
+    node: static_track
+    message: |
+        Lastly for the genome movement bar is the fine grained genome position.
+
+        This behaves identically to the coarse grain position bar:
+        <ul>
+            <li>Click to move to a position</li>
+            <li>Click + Drag to select a specific region to zoom in on</li>
+        </ul>
+-
+    title: "Tracks"
+    node: hierarchicalTrackPane
+    message: |
+        JBrowse and GBrowse both feature the concept of "tracks" of data which
+        can be turned on and off to help you gain genomic context for your
+        annotation and browsing. These tracks are visible on the left hand
+        menu.

@@ -1,0 +1,15 @@
+#tour-overlay {
+}
+.tour-highlight {
+    /* TODO */
+}
+
+.tour-annotation-header {
+    border-bottom: 1px solid black;
+    margin-top: 0.2em;
+    margin-bottom: 0.4em;
+}
+
+.tour-note {
+    max-width: 300px
+}
