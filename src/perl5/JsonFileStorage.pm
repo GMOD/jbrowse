@@ -48,7 +48,7 @@ sub new {
     my $json = JSON->new->relaxed->max_depth( DEFAULT_MAX_JSON_DEPTH );
     # set opts
     if (defined($opts) and ref($opts) eq 'HASH') {
-        for my $method (keys %$opts) {
+        for my $method (sort keys %$opts) {
             $json->$method( $opts->{$method} );
         }
     }

@@ -71,7 +71,7 @@ my %skip_field = map { $_ => 1 } qw( start end strand );
 sub _get_class {
     my ( $self, $f ) = @_;
 
-    my @attrs = keys %$f;
+    my @attrs = sort keys %$f;
     my $attr_fingerprint = join '-', @attrs;
 
     return $self->{classes}{$attr_fingerprint} ||= do {
@@ -94,7 +94,7 @@ sub flatten_to_name {
 
     my %namepositions;
     my @names;
-    for my $attr ( keys %$f ) {
+    for my $attr ( sort keys %$f ) {
         my $lc = lc $attr;
         if( $lc =~ $self->{name_attr_regex} ) {
             push @{$namepositions{$1}}, scalar @names;
@@ -147,7 +147,7 @@ sub _flatten_multivalues {
     my ( $self, $h ) = @_;
     my %flattened;
 
-    for my $key ( keys %$h ) {
+    for my $key ( sort keys %$h ) {
         my $v = $h->{$key};
         if( @$v == 1 ) {
             $flattened{ $key } = $v->[0];

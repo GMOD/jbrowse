@@ -210,7 +210,7 @@ sub exportTWOBIT {
     my %refSeqs;
     twobit_populate_toc($fh, $count, \%toc, $header->{unpack});
 
-    for my $name (keys %toc) {
+    for my $name (sort keys %toc) {
         my $offset = $toc{$name};
         my $size = twobit_fetch_record($fh, $offset, $header->{unpack});
         $refSeqs{$name} = {
