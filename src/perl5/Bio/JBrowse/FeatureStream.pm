@@ -130,7 +130,7 @@ sub arrayReprClasses {
             isArrayAttr => { map { ucfirst($_) => 1 } @{$_->{array_fields}} },
         },
         sort { $a->{index} <=> $b->{index} }
-        values %{ $self->{classes} }
+        sort values %{ $self->{classes} }
     ];
 }
 
