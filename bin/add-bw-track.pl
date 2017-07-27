@@ -156,7 +156,7 @@ sub add_bw_track {
 	else {
 		delete $bw_entry->{style}->{height};
 	}
-	delete $bw_entry->{style} if !scalar(keys %{$bw_entry->{style}});
+	delete $bw_entry->{style} if !scalar(sort keys %{$bw_entry->{style}});
 	my $out;
 	$out = new IO::File($out_file, "w") or
 		die "Error writing output $out_file: $!";
