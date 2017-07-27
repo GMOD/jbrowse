@@ -49,6 +49,7 @@ sub option_definitions {(
 )}
 
 sub initialize {
+    print "ETFFFF";
     my ( $self ) = @_;
 
     # these are used in perf-critical tight loops, make them accessible faster

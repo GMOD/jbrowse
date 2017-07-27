@@ -108,7 +108,7 @@ sub ext {
 
 sub encodedSize {
     my ($self, $obj) = @_;
-    return length($self->{json}->encode($obj));
+    return length($self->{json}->canonical()->encode($obj));
 }
 
 =head2 put
@@ -130,7 +130,7 @@ sub put {
         binmode($fh, ":gzip")
             or die "couldn't set binmode: $!";
     }
-    $fh->print($self->{json}->encode($toWrite))
+    $fh->print($self->{json}->canonical()->encode($toWrite))
       or die "couldn't write to $file: $!";
     $fh->close()
       or die "couldn't close $file: $!";
@@ -194,7 +194,7 @@ sub modify {
         $fh->truncate(0);
     }
     # modify data, write back
-    $fh->print($self->{json}->encode($callback->($data)))
+    $fh->print($self->{json}->canonical()->encode($callback->($data)))
       or die "couldn't write to $file: $!";
     $fh->close()
       or die "couldn't close $file: $!";
