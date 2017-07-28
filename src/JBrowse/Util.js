@@ -37,7 +37,8 @@ Util = {
             refSeqString = "";
             for(var sequenceIndex in refSeq.sequenceList){
                 var sequence = refSeq.sequenceList[sequenceIndex];
-                refSeqString += sequence.name + "("+sequence.start+"::"+sequence.end+")";
+                // refSeqString += sequence.name + "("+sequence.start+"::"+sequence.end+")";
+                refSeqString += sequence.name
             }
         }
         return refSeqString;
