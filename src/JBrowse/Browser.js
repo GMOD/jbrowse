@@ -316,6 +316,11 @@ initPlugins: function() {
             return new Deferred();
         });
 
+        require.on("error", function(error) {
+            console.error(error);
+            deferred.reject('A resource failed to load '+error.src + ':' + error.info[0]);
+        });
+
         // fire the "all plugins done" deferred when all of the plugins are done loading
         (new DeferredList( pluginDeferreds ))
             .then( function() { deferred.resolve({success: true}); });
