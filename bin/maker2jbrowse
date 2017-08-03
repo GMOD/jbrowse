@@ -37,7 +37,12 @@ Take filenames from a MAKER master datastore index file
 
 =item --sortMem int
 
-Set sortMem for flatfile-to-json.pl
+Set --sortMem for flatfile-to-json.pl
+
+=item --compress
+
+Set --compress for flatfile-to-json.pl
+
 
 =item --no_names_index
 
@@ -56,6 +61,7 @@ my $help;
 my $outdir = 'data';
 my $sortmem = 1000000000;
 my $skip_generate_names;
+my $compress;
 my $localbin = '';
 
 if($0 eq 'bin/maker2jbrowse') {
@@ -65,6 +71,7 @@ if($0 eq 'bin/maker2jbrowse') {
 GetOptions(
     "ds_index|d=s" => \$dstore,
     "no_names_index" => \$skip_generate_names,
+    "compress" => \$compress,
     "help|?" => \$help,
     "sortMem=i" => \$sortmem,
     "out|o=s" => \$outdir
@@ -94,12 +101,12 @@ if( $dstore ){
         my ($name) = $file =~ /([^\/]+)$/;
         my $gff = $base ? catfile( $base, $file, "$name.gff" ) : catfile( $file, "$name.gff" );
 
-	unless( -f $gff ){
-	    $name = uri_escape( $name, '.' );
-	    $gff = $base ? catfile( $base, $file, "$name.gff" ) : catfile( $file, "$name.gff" );
-	}
+    unless( -f $gff ){
+        $name = uri_escape( $name, '.' );
+        $gff = $base ? catfile( $base, $file, "$name.gff" ) : catfile( $file, "$name.gff" );
+    }
 
-	$file = $gff;
+    $file = $gff;
     }
 }
 else {
@@ -267,10 +274,10 @@ for my $gff3_file (@files){
 
     for my $track ( @tracks_to_make ) {
 
-	if(!$commands{$track} && $track =~ /^([^\:]+)/ && $commands{$1}){
-	    @{$commands{$track}} = @{$commands{$1}}; #makes deep copy
-	    $commands{$track}[-1] =~ s/^([^\:]+)\:.*$/$1:$track/;
-	}
+        if(!$commands{$track} && $track =~ /^([^\:]+)/ && $commands{$1}){
+            @{$commands{$track}} = @{$commands{$1}}; #makes deep copy
+            $commands{$track}[-1] =~ s/^([^\:]+)\:.*$/$1:$track/;
+        }
 
         unless( $commands{$track} ) {
             warn "Don't know how to format $track tracks, skipping.\n";
@@ -282,6 +289,7 @@ for my $gff3_file (@files){
             '--trackLabel' => $track,
             '--gff' => $gff3_file,
             '--sortMem' => $sortmem,
+            '--compress' => $compress,
             @outdir,
             @{$commands{$track}}
            );
