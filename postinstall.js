@@ -30,7 +30,7 @@ function copyMod(from,to) {
     .then(function() {
         console.log("copied",trg);
     })
-    .catch(err => {
+    .catch(function(err) {
       console.error(err);
     });
 }
