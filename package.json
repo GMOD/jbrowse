@@ -1,11 +1,14 @@
 {
   "name": "jbrowse",
   "main": "browser/main.js",
+  "version": "1.12.3",
+  "description": "JBrowse - Genome Browser (Client)",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "postinstall": "bash postinstall.sh"
+    "postinstall": "node postinstall.js"
   },
   "dependencies": {
+    "app-root-path": "^2.0.1",
     "dgrid": "^1.1.0",
     "dijit": "^1.12.2",
     "dojo": "^1.12.2",
@@ -14,9 +17,11 @@
     "dojox": "^1.12.2",
     "electron-screenshot": "^1.0.2",
     "filesaver.js": "^0.2.0",
+    "fs-extra": "^4.0.1",
     "jDataView": "git+https://github.com/rbuels/jdataview.git",
     "json-schema": "git+https://github.com/kriszyp/json-schema.git",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
-    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd"
+    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
+    "shelljs": "^0.7.8"
   }
 }
