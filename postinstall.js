@@ -24,10 +24,10 @@ function copyMod(from,to) {
 
     // delete the old dir from src dir and make a current copy
     fs.remove(trg)
-    .then(() => {
+    .then(function() {
         return fs.copy(src, trg);
     })
-    .then(() => {
+    .then(function() {
         console.log("copied",trg);
     })
     .catch(err => {
