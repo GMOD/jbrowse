@@ -12,19 +12,24 @@ Only developers should run JBrowse from a git repository.
 For one reason, the development version has a much, much slower initial load
 time than the built release zipfiles.  Also, since the master branch code is ''in development'' for the next JBrowse release, it often (usually?) contains bad bugs, much more so than the official releases put up on JBrowse.org.
 
-# Setting up a development environment
+# Setting up a development environment from github repo
 
-Make sure you have a web server installed on your development machine.  Any web server will do.
-
-    cd /my/dev/webserver/root;
+    cd /my/dev/webserver/root (optional - if you have a web server installed)
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     npm install
-    ./setup.sh
+    ./jb_setup.js   (optional -- sets up demo files)
+    ./jb_run.js     (optional -- launches mini web server)
     # and now point your browser to
     #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox
     # and you should see the volvox example data
 
+# Installing as an npm module
+
+    npm install GMOD/jbrowse
+    ./jb_setup.js   (optional -- sets up demo files)
+    ./jb_run.js     (optional -- launches mini web server)
+    (Note: jb_setup.js and jb_run.js will be in your app root.)
 
 Then you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
 
