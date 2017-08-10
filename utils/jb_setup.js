@@ -16,4 +16,4 @@ if (fs.pathExistsSync(thisPath+"/node_modules/jbrowse/"+setupScript)) {
     shelljs.cd("node_modules/jbrowse");
 }
 
-shelljs.exec(setupScript);
+shelljs.exec("./"+setupScript);
