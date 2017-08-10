@@ -12,8 +12,8 @@ var setupScript = "setup.sh";
 var thisPath = process.cwd();
 
 // check if jbrowse is a module
-if (fs.pathExistsSync(thisPath+"/node_modules/jbrowse/utils/"+setupScript)) {
+if (fs.pathExistsSync(thisPath+"/node_modules/jbrowse/"+setupScript)) {
     shelljs.cd("node_modules/jbrowse");
 }
 
-shelljs.exec("utils/setup.sh");
+shelljs.exec(setupScript);
