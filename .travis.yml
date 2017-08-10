@@ -16,7 +16,7 @@ before_install:
   - npm install -g jshint
 install:
   - npm install
-  - bash setup.sh legacy
+  - bash utils/setup.sh legacy
 before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf
