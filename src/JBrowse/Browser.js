@@ -1,5 +1,3 @@
-var _gaq = _gaq || []; // global task queue for Google Analytics
-
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
@@ -1670,25 +1668,64 @@ reportUsageStats: function() {
 
 // phones home to google analytics
 _reportGoogleUsageStats: function( stats ) {
-    _gaq.push.apply( _gaq, [
-        ['_setAccount', 'UA-7115575-2'],
-        ['_setDomainName', 'none'],
-        ['_setAllowLinker', true],
-        ['_setCustomVar', 1, 'tracks-count', stats['tracks-count'], 3 ],
-        ['_setCustomVar', 2, 'refSeqs-count', stats['refSeqs-count'], 3 ],
-        ['_setCustomVar', 3, 'refSeqs-avgLen', stats['refSeqs-avgLen'], 3 ],
-        ['_setCustomVar', 4, 'jbrowse-version', stats['ver'], 3 ],
-        ['_setCustomVar', 5, 'loadTime', stats['loadTime'], 3 ],
-        ['_trackPageview']
-    ]);
+    var thisB = this;
+    // jbrowse.org account always
+    var jbrowseUser = 'UA-7115575-2'
+    var accounts = [ jbrowseUser ];
 
-    var ga = document.createElement('script');
-    ga.type = 'text/javascript';
-    ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www')
-             + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(ga, s);
+    // add one or more custom Google Analytics accounts from config (comma-separated)
+    if (thisB.config.selfGoogleUsageAccount) {
+        // cooerce into an array, so we handle any potential comma separated lists
+	var users = thisB.config.selfGoogleUsageAccount;
+        if( users &&  typeof users == 'object' && 'values' in users )
+            users = users.values;
+        if( users && ! Array.isArray( users ) )
+            users = [users];
+	users.forEach(function(user) {
+            accounts.push(user);
+        });
+    }
+
+    var analyticsScript = "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ \
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), \
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) \
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
+
+    // set up users
+    var trackerNum = 1;
+    accounts.forEach(function(user) {
+        // if we're adding jbrowse.org user, also include new dimension references (replacing ga.js custom variables)
+        if ( user == jbrowseUser) {
+            analyticsScript += "ga('create', '"+user+"', 'auto', 'jbrowseTracker');";
+        }
+        else {
+            analyticsScript += "ga('create', '"+user+"', 'auto', 'customTracker"+trackerNum+"');";
+            trackerNum++;
+        }
+    });
+    // send pageviews
+    var viewerNum = 1;
+    accounts.forEach(function(user) {
+        if ( user == jbrowseUser) {
+            // custom dimensions to replace the custom vars from older ga.js implementation
+            analyticsScript += "ga('jbrowseTracker.set', 'tracks-count', "+stats['tracks-count']+");";
+            analyticsScript += "ga('jbrowseTracker.set', 'refSeqs-count', "+stats['refSeqs-count']+");";
+            analyticsScript += "ga('jbrowseTracker.set', 'refSeqs-avgLen', "+stats['refSeqs-avgLen']+");";
+            analyticsScript += "ga('jbrowseTracker.set', 'jbrowse-version', '"+stats['ver']+"');";
+            analyticsScript += "ga('jbrowseTracker.set', 'loadTime', "+stats['loadTime']+");";
+            analyticsScript += "ga('jbrowseTracker.send', 'pageview');";
+	}
+	else {
+            analyticsScript += "ga('customTracker"+viewerNum+".send', 'pageview');";
+	    viewerNum++;
+        }
+    });
+
+    var analytics = document.createElement('script');
+    analytics.innerHTML = analyticsScript;
+
+    var thisHead = document.getElementsByTagName('head')[0];
+    thisHead.appendChild(analytics);
 },
 
 // phones home to custom analytics at jbrowse.org
