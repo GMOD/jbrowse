@@ -5,13 +5,14 @@
 Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
 
 It is generally recommended that installing from the master branch is for development purposes.
-One reason is because the development version has a much slower initial load than the Release package version that is found at JBrowse.org.  Also, since the master branch code is ''in development'' for the next JBrowse release, it may contain bugs.
+One reason is because the development version has a much slower initial load than the Release package.  Also, since the master branch code is ''in development'' for the next JBrowse release, it may contain bugs.
 
 # Install from github repo (development)
 
 Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
 
-    cd /my/dev/webserver/root (optional - if you have a web server installed)
+*If you are using a 3rd party webserver, you should clone JBrowse into your web root*
+
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     npm install
@@ -26,7 +27,7 @@ Now you can simply edit files and your changes will be available in the browser 
 
 # Installing as an npm module
 
-This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root and can be used to install the demo files and server JBrowse, respectively.
+This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root and can be used to install the demo files and serve JBrowse, respectively.
 
     npm install GMOD/jbrowse
 
