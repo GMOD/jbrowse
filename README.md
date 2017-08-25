@@ -7,34 +7,36 @@ Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/
 It is generally recommended that installing from the master branch is for development purposes.
 One reason is because the development version has a much slower initial load than the Release package version that is found at JBrowse.org.  Also, since the master branch code is ''in development'' for the next JBrowse release, it may contain bugs.
 
-# Install from github repo (development environment)
+# Install from github repo (development)
+
+Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
 
     cd /my/dev/webserver/root (optional - if you have a web server installed)
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     npm install
     ./jb_setup.js   (optional -- sets up demo files such as Volvox)
-    ./jb_run.js     (optional -- launches mini web server)
+    ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
  
-If you have now point your browser to
+If you have installed the demo (with ./jb_setup.js), you can point your browser to
 http://localhost/jbrowse/index.html?data=sample_data/json/volvox
 and you should see the volvox example data.
 
-Now you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
+Now you can simply edit files and your changes will be available in the browser (the build step is not required).
 
 # Installing as an npm module
 
-This allows JBrowse to be easily integrated into other applications.
+This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root.
 
     npm install GMOD/jbrowse
     ./jb_setup.js   (optional -- sets up demo files such as Volvox)
-    ./jb_run.js     (optional -- launches mini web server)
+    ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
     (Note: jb_setup.js and jb_run.js will be in your app root.)
 
 
 # Generating Packaged Builds
 
-You can also optionally run build steps to create the minimized codebase. Extra dependencies Text::Markdown and DateTime are required to run the build step.
+You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
 
     make -f build/Makefile release-notest
     make -f build/Makefile release # alternate build with full test suite
