@@ -2,36 +2,37 @@
 
 # Installing JBrowse
 
-Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install.
+Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
 
-Unless you intend to work on the JBrowse code itself, or develop a JBrowse plugin, stop reading now and go to http://jbrowse.org/install.
+It is generally recommended that installing from the master branch is for development purposes.
+One reason is because the development version has a much slower initial load than the Release package version that is found at JBrowse.org.  Also, since the master branch code is ''in development'' for the next JBrowse release, it may contain bugs.
 
-# About running from a `git` clone
-
-Only developers should run JBrowse from a git repository.
-For one reason, the development version has a much, much slower initial load
-time than the built release zipfiles.  Also, since the master branch code is ''in development'' for the next JBrowse release, it often (usually?) contains bad bugs, much more so than the official releases put up on JBrowse.org.
-
-# Setting up a development environment from github repo
+# Install from github repo (development environment)
 
     cd /my/dev/webserver/root (optional - if you have a web server installed)
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     npm install
-    ./jb_setup.js   (optional -- sets up demo files)
+    ./jb_setup.js   (optional -- sets up demo files such as Volvox)
     ./jb_run.js     (optional -- launches mini web server)
-    # and now point your browser to
-    #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox
-    # and you should see the volvox example data
+ 
+If you have now point your browser to
+http://localhost/jbrowse/index.html?data=sample_data/json/volvox
+and you should see the volvox example data.
+
+Now you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
 
 # Installing as an npm module
 
+This allows JBrowse to be easily integrated into other applications.
+
     npm install GMOD/jbrowse
-    ./jb_setup.js   (optional -- sets up demo files)
+    ./jb_setup.js   (optional -- sets up demo files such as Volvox)
     ./jb_run.js     (optional -- launches mini web server)
     (Note: jb_setup.js and jb_run.js will be in your app root.)
 
-Then you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
+
+# Generating Packaged Builds
 
 You can also optionally run build steps to create the minimized codebase. Extra dependencies Text::Markdown and DateTime are required to run the build step.
 
