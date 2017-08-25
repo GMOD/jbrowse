@@ -26,13 +26,9 @@ Now you can simply edit files and your changes will be available in the browser 
 
 # Installing as an npm module
 
-This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root.
+This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root and can be used to install the demo files and server JBrowse, respectively.
 
     npm install GMOD/jbrowse
-    ./jb_setup.js   (optional -- sets up demo files such as Volvox)
-    ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
-    (Note: jb_setup.js and jb_run.js will be in your app root.)
-
 
 # Generating Packaged Builds
 
