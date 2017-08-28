@@ -33,6 +33,7 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
                 hideSupplementary: true,
                 hideMissingMatepairs: false,
                 hideUnmapped: true,
+                hideUnsplicedReads: false,
                 hideForwardStrand: false,
                 hideReverseStrand: false,
 
