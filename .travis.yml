@@ -1,6 +1,11 @@
 sudo: false
 dist: trusty
-language: perl
+language: node_js
+node_js:
+    - "8"
+    - "7"
+    - "6"
+    - "5"
 addons:
   apt:
     packages:
