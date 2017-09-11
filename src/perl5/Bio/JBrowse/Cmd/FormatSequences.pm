@@ -51,7 +51,8 @@ sub option_definitions {(
     "seqType=s",
     "key=s",
     "help|h|?",
-    "nohash"
+    "nohash",
+    "unsorted"
 )}
 
 sub run {
@@ -173,6 +174,8 @@ sub exportFAI {
     # TODO - consider whether to add accept_ref functionality
     # TODO - currently just assumes that there is a '.fai' file present-- we could make one if needed
     my %refSeqs;
+    my $unsorted = $self->opt('unsorted');
+    my @originalorder;
     my $fai = "$indexed_fasta.fai";
     open FAI, "<$fai" or die "Unable to read from $fai: $!\n";
     local $_;
@@ -185,7 +188,8 @@ sub exportFAI {
                 offset => $3,
                 line_length => $4,
                 line_byte_length => $5
-            }
+            };
+            push( @originalorder, $1 ) if $unsorted;
             # TODO - description is only present in fasta file, not in fai file...
         } else {
             die "Improperly-formatted line in fai file ($fai):\n$_\n"
@@ -196,7 +200,7 @@ sub exportFAI {
     mkpath( $dir );
     copy( $fai, $dir ) or die "Unable to copy $fai to $dir: $!\n";
     copy( $indexed_fasta, $dir ) or die "Unable to copy $indexed_fasta to $dir: $!\n";
-    $self->writeRefSeqsJSON( \%refSeqs );
+    $self->writeRefSeqsJSON( \%refSeqs, \@originalorder );
 }
 
 sub exportTWOBIT {
@@ -237,6 +241,8 @@ sub exportFASTA {
     }
 
     my %refSeqs;
+    my $unsorted = $self->opt('unsorted');
+    my @originalorder;
     for my $fasta ( @$files ) {
         my $gzip = $fasta =~ /\.gz(ip)?$/i ? ':gzip' : '';
 
@@ -281,6 +287,7 @@ sub exportFASTA {
                         seqChunkSize => $self->{chunkSize},
                         $2 ? ( description => $2 ) : ()
                         };
+                    push( @originalorder, $1 ) if $unsorted;
                 } else {
                     undef $curr_seq;
                 }
@@ -297,7 +304,7 @@ sub exportFASTA {
         $writechunks->('flush');
     }
 
-    $self->writeRefSeqsJSON( \%refSeqs );
+    $self->writeRefSeqsJSON( \%refSeqs, \@originalorder );
 }
 
 sub exportDB {
@@ -367,7 +374,7 @@ sub exportDB {
 }
 
 sub writeRefSeqsJSON {
-    my ( $self, $refseqs ) = @_;
+    my ( $self, $refseqs, $originalorder ) = @_;
 
     mkpath( File::Spec->catdir($self->{storage}{outDir},'seq') );
 
@@ -382,7 +389,8 @@ sub writeRefSeqsJSON {
                                                $old->[$i] = delete $refs{$old->[$i]->{name}};
                                            }
                                        }
-                                       foreach my $name (sort keys %refs) {
+                                       my @reforder = ($originalorder and @$originalorder)?@$originalorder:sort keys %refs;
+                                       foreach my $name (@reforder) {
                                            if( not exists $refs{$name}{length} ) {
                                                $refs{$name}{length} = $refs{$name}{end}+0 - $refs{$name}{start}+0;
                                            }
