@@ -1,8 +1,6 @@
 sudo: false
 dist: trusty
-language: node_js
-node_js:
-    - "8"
+language: perl
 addons:
   apt:
     packages:
@@ -16,7 +14,6 @@ before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - npm install -g jshint
-  - perl -v
 install:
   - npm install
   - bash setup.sh legacy
