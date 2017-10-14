@@ -1,5 +1,18 @@
 {{$NEXT}}
 
+## Minor improvements
+  * Added trackLabels: "no-block" config feature.  Moves track labels/menus 
+    above the features so as not to obscure the features. (issue #901, #490)
+
+  * Make jbrowse npm installable. thanks to @cmdcolin & @enuggetry.
+
+  * implement express server for jbrowse for quick launch (jb_run.js).  @enuggetry.
+
+  * jb_setup.js @enuggetry.
+
+  ...
+
+
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
 ## Minor improvements
