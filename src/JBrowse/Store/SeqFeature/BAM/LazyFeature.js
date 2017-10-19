@@ -436,21 +436,21 @@ var Feature = Util.fastDeclare(
             if (op === "=")  { op = "E"; }
 
             switch (op) {
-            case 'M':
-            case 'D':
-            case 'N':
-            case 'E':
-            case 'X':
-                max = min + lop;
-                break;
-            case 'I':
-                max = min;
-                break;
-            case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
-            case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
-            case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
-                break;
-                // other possible cases
+                case 'M':
+                case 'D':
+                case 'N':
+                case 'E':
+                case 'X':
+                    max = min + lop;
+                    break;
+                case 'I':
+                    max = min;
+                    break;
+                case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
+                case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                    break;
+                    // other possible cases
             }
             if( op !== 'N' ) {
                 subfeats.push(
