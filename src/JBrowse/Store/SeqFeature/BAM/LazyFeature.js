@@ -446,6 +446,9 @@ var Feature = Util.fastDeclare(
                 case 'E':  // exact match
                 case 'X':  // mismatch
                 case 'M':  // match or mismatch
+                case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
+                case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
                     max = min + lop;
                     if(alignedFeature==null){
                         alignedFeature = new SimpleFeature(
@@ -469,10 +472,6 @@ var Feature = Util.fastDeclare(
                     break;
                 case 'I':  // insertion to the reference
                     max = min;
-                    break;
-                case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
-                case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
-                case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
                     break;
                     // other possible cases
             }
