@@ -429,6 +429,11 @@ var Feature = Util.fastDeclare(
         var min = this._get('start');
         var max;
         var ops = this._parseCigar( cigar );
+
+        console.log(cigar);
+
+        var alignedFeature = null ;
+
         for (var i = 0; i < ops.length; i++)  {
             var lop = ops[i][1];
             var op = ops[i][0];  // operation type
@@ -436,21 +441,39 @@ var Feature = Util.fastDeclare(
             if (op === "=")  { op = "E"; }
 
             switch (op) {
-            case 'M':
-            case 'D':
-            case 'N':
-            case 'E':
-            case 'X':
-                max = min + lop;
-                break;
-            case 'I':
-                max = min;
-                break;
-            case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
-            case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
-            case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
-                break;
-                // other possible cases
+                case 'D':  // deletion from reference (do not create a subfeature)
+                case 'N':  // skipped region (do not create a subfeature), write out the next one
+                case 'E':  // exact match
+                case 'X':  // mismatch
+                case 'M':  // match or mismatch
+                case 'P':  // not showing padding deletions (possibly change this later -- could treat same as 'I' ?? )
+                case 'H':  // not showing hard clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                case 'S':  // not showing soft clipping (since it's unaligned, and offset arg meant to be beginning of aligned part)
+                    max = min + lop;
+                    if(alignedFeature==null){
+                        alignedFeature = new SimpleFeature(
+                            {
+                                data: {
+                                    start: min
+                                    ,end: min
+                                    ,strand: this._get('strand')
+                                    ,type: op
+                                    ,cigar_op: lop+op
+                                    ,lop: lop
+                                },
+                                parent: this
+                            }
+                        );
+                    }
+                    else{
+                        alignedFeature.end = max ;
+                        alignedFeature.lop = alignedFeature.lop + lop ;
+                    }
+                    break;
+                case 'I':  // insertion to the reference
+                    max = min;
+                    break;
+                    // other possible cases
             }
             if( op !== 'N' ) {
                 subfeats.push(
@@ -467,8 +490,21 @@ var Feature = Util.fastDeclare(
                         })
                 );
             }
+            else{
+                // write the current subfeauture if its there
+                if(alignedFeature){
+                    subfeats.push(Object.assign( Object.create( Object.getPrototypeOf(alignedFeature)), alignedFeature));
+                    alignedFeature = null ;
+                }
+            }
             min = max;
         }
+
+        if(alignedFeature){
+            subfeats.push(Object.assign( Object.create( Object.getPrototypeOf(alignedFeature)), alignedFeature));
+        }
+
+        console.log(subfeats.length);
         return subfeats;
     }
 
