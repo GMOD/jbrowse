@@ -57,7 +57,7 @@ var Feature = Util.fastDeclare(
         var tags = [ 'seq', 'seq_reverse_complemented', 'unmapped','qc_failed','duplicate','secondary_alignment','supplementary_alignment' ];
 
         if( ! this._get('unmapped') )
-            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'length_on_ref', 'template_length' );
+            tags.push( 'start', 'end', 'strand', 'score', 'qual', 'MQ', 'CIGAR', 'seq_length_on_ref', 'template_length' );
         if( this._get('multi_segment_template') ) {
             tags.push( 'multi_segment_all_correctly_aligned',
                        'multi_segment_next_segment_unmapped',
@@ -204,7 +204,7 @@ var Feature = Util.fastDeclare(
             p += 4;
         }
 
-        this.data.length_on_ref = lref;
+        this.data.seq_length_on_ref = lref;
         return cigar;
     },
     next_segment_position: function() {
@@ -221,16 +221,16 @@ var Feature = Util.fastDeclare(
 
         return undefined;
     },
-    length_on_ref: function() {
+    seq_length_on_ref: function() {
         var c = this._get('cigar'); // the length_on_ref is set as a
                                    // side effect of the CIGAR parsing
-        return this.data.length_on_ref;
+        return this.data.seq_length_on_ref;
     },
     _flags: function() {
         return (this.get('_flag_nc') & 0xffff0000) >> 16;
     },
     end: function() {
-        return this._get('start') + ( this._get('length_on_ref') || this._get('seq_length') || undefined );
+        return this._get('start') + ( this._get('seq_length_on_ref') || this._get('seq_length') || undefined );
     },
 
     seq_id: function() {
