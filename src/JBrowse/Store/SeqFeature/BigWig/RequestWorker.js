@@ -185,7 +185,8 @@ var RequestWorker = declare( null,
             data[k] = opts[k];
 
         var f = new SimpleFeature({
-            data: data
+            data: data,
+            id: fmin+'_'+fmax
         });
 
         this.features.push(f);
@@ -262,13 +263,13 @@ var RequestWorker = declare( null,
         var data = this.window.bwg.newDataView( bytes, startOffset );
 
         var offset = 0;
-        while (offset < bytes.length) {
+        while (offset < bytes.byteLength) {
             var chromId = data.getUint32( offset );
             var start = data.getInt32( offset+4 );
             var end = data.getInt32( offset+8 );
             offset += 12;
             var rest = '';
-            while( offset < bytes.length ) {
+            while( offset < bytes.byteLength ) {
                 var ch = data.getUint8( offset++ );
                 if (ch != 0) {
                     rest += String.fromCharCode(ch);

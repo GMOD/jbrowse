@@ -97,7 +97,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _load: function() {
-        this._read( 0, 512, lang.hitch( this, function( bytes ) {
+        this._read( 0, 2000, lang.hitch( this, function( bytes ) {
             if( ! bytes ) {
                 this._failAllDeferred( 'BBI header not readable' );
                 return;
