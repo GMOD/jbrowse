@@ -19,6 +19,7 @@ legacy_message () {
 echo > setup.log;
 
 LEGACY_INSTALL=0
+
 if [ $# -gt 1 ] ; then
   echo "USAGE: ./setup.sh [legacy]"
   echo -e "\tTakes one optional argument, presence triggers legacy software install."
@@ -57,6 +58,22 @@ echo -n "Gathering system information ..."
 ) >>setup.log 2>&1;
 echo "done"
 
+# check Mac OS version
+SUPPRESS_BIODB_TO_JSON=0
+
+sw_vers >& /dev/null;
+if [ $? -eq 0 ]; then
+    product_version=`sw_vers -productVersion`;
+    if [[ $product_version =~ ^10.13 ]]; then
+        SUPPRESS_BIODB_TO_JSON=1;
+        echo;
+        echo "MacOS High Sierra detected.";
+        echo "Due to a known issue with running biodb-to-json.pl on MacOS High Sierra, the setup will not run biodb-to-json.pl for its sample data: Volvox and Yeast.";
+        echo "Refer to https://github.com/GMOD/Apollo/issues/1820 and https://github.com/GMOD/jbrowse/issues for more information.";
+        echo;
+    fi
+fi
+
 echo  -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo;
@@ -78,7 +95,11 @@ echo -n "Formatting Volvox example data ...";
     # format volvox
     rm -rf sample_data/json/volvox;
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
-    bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
+    if [ $SUPPRESS_BIODB_TO_JSON -eq 1 ]; then
+        echo "Not running biodb-to-json.pl for Volvox";
+    else
+        bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
+    fi
     cat docs/tutorial/data_files/volvox_microarray.bw.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox_sine.bw.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox-sorted.bam.conf >> sample_data/json/volvox/tracks.conf
@@ -120,7 +141,11 @@ echo -n "Formatting Yeast example data ...";
     rm -rf sample_data/json/yeast/;
     bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa.gz --fasta sample_data/raw/yeast_scaffolds/chr2.fa.gzip  --out sample_data/json/yeast/;
     gunzip -c sample_data/raw/yeast_scaffolds/chr1.fa.gz sample_data/raw/yeast_scaffolds/chr2.fa.gzip > sample_data/raw/yeast_chr1+2/yeast.fa;
-    bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
+    if [ $SUPPRESS_BIODB_TO_JSON -eq 1 ]; then
+        echo "Not running biodb-to-json.pl for Yeast";
+    else
+        bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
+    fi
     bin/add-json.pl '{ "dataset_id": "yeast" }' sample_data/json/yeast/trackList.json
     bin/add-json.pl '{ "dataset_id": "yeast",  "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/yeast/trackList.json
     bin/generate-names.pl --dir sample_data/json/yeast/;
