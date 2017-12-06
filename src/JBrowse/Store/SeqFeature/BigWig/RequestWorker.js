@@ -311,52 +311,36 @@ var RequestWorker = declare( null,
                 var blockSizes = bedColumns[7].split(',');
                 var blockStarts = bedColumns[8].split(',');
 
-                featureOpts.type = 'bb-transcript';
-                var grp = new SimpleFeature();
-                grp.id = bedColumns[0];
-                grp.type = 'bb-transcript';
-                grp.notes = [];
-                featureOpts.groups = [grp];
+                var grp = {
+                    id: bedColumns[0]+'_'+chromId+'_'+start+'_'+end,
+                    type: 'mRNA',
+                    notes: [],
+                    strand: featureOpts.orientation=="+"?1:-1,
+                    subfeatures: []
+                };
 
                 if (bedColumns.length > 10) {
                     var geneId = bedColumns[9];
                     var geneName = bedColumns[10];
-                    var gg = new SimpleFeature();
-                    gg.id = geneId;
-                    gg.label = geneName;
-                    gg.type = 'gene';
-                    featureOpts.groups.push(gg);
+                    grp.name = geneName;
+                    grp.id = geneId;
                 }
 
-                var spans = null;
+                var ts = new Range(thickStart, thickEnd);
+
                 for (var b = 0; b < blockCount; ++b) {
                     var bmin = (blockStarts[b]|0) + start;
                     var bmax = bmin + (blockSizes[b]|0);
+                    grp.subfeatures.push({ start: bmin, end: bmax, type: 'exon' });
+
                     var span = new Range(bmin, bmax);
-                    if (spans) {
-                        spans = spans.union( span );
-                    } else {
-                        spans = span;
+                    var tl = ts.intersection(span);
+                    if(tl) {
+                        grp.subfeatures.push({ start: tl.min(), end: tl.max(), type: 'CDS' });
                     }
                 }
 
-                var tsList = spans.ranges();
-                for (var s = 0; s < tsList.length; ++s) {
-                    var ts = tsList[s];
-                    this.createFeature( ts.min(), ts.max(), featureOpts);
-                }
-
-                if (thickEnd > thickStart) {
-                    var tl = spans.intersection( new Range(thickStart, thickEnd) );
-                    if (tl) {
-                        featureOpts.type = 'bb-translation';
-                        var tlList = tl.ranges();
-                        for (var s = 0; s < tlList.length; ++s) {
-                            var ts = tlList[s];
-                            this.createFeature( ts.min(), ts.max(), featureOpts);
-                        }
-                    }
-                }
+                this.createFeature(start, end, grp)
             }
         }
     },
