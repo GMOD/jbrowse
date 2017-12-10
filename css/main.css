@@ -1076,30 +1076,30 @@ a.dialog-new-window {
 }
 
 /* styles for per-base quality table in alignment detail pages */
-.jbrowse .baseQuality {
+.dijitDialog .baseQuality {
     font-family: Courier New, monospace;
 }
-.jbrowse table.baseQuality {
+.dijitDialog table.baseQuality {
     margin-bottom: 1em;
 }
-.jbrowse table.baseQuality td {
+.dijitDialog table.baseQuality td {
     padding: 0 0.2em;
     line-height: 0.95;
     text-align: center;
 }
-.jbrowse .baseQuality .basePosition {
+.dijitDialog .baseQuality .basePosition {
     display: inline-block;
     padding: 0 0.3em 0.4em 0.3em;
 }
-.jbrowse .baseQuality .basePosition:hover {
+.dijitDialog .baseQuality .basePosition:hover {
     background: #ccc;
 }
-.jbrowse .baseQuality span.seq {
+.dijitDialog .baseQuality span.seq {
     display: block;
     text-align: center;
     font-weight: bold;
 }
-.jbrowse .baseQuality span.qual {
+.dijitDialog .baseQuality span.qual {
     display: block;
     text-align: center;
 }
