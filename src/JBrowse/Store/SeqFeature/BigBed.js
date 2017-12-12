@@ -3,14 +3,16 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             './BigWig',
-            './BigWig/Window'
+            './BigWig/Window',
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
             lang,
             array,
             BigWig,
-            Window
+            Window,
+            SimpleFeature
         ) {
 return declare(BigWig,
 
@@ -32,7 +34,28 @@ return declare(BigWig,
         }
 
         v.readWigData( chrName, min, max, dojo.hitch( this, function( features ) {
-            array.forEach( features || [], featureCallback );
+            var genes = {};
+            array.forEach( features || [], function(feature) {
+                var id = feature.get('id');
+                if(!genes[id]) {
+                    genes[id] = new SimpleFeature({
+                        id: feature.get('id'),
+                        data: {
+                            start: feature.get('start'),
+                            end: feature.get('end'),
+                            type: 'gene',
+                            name: feature.get('name'),
+                            id: feature.get('id'),
+                            subfeatures: []
+                        }
+                    });
+                }
+                feature.data.name = null;
+                genes[id].data.subfeatures.push(feature);
+            });
+            Object.keys(genes).forEach(function(name) {
+                featureCallback(genes[name]);
+            });
             endCallback();
         }), errorCallback );
     },
