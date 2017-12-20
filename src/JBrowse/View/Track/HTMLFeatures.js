@@ -696,14 +696,32 @@ define( [
              */
             addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                          containerStart, containerEnd ) {
-                var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                    containerStart, containerEnd );
-                if( ! featDiv )
-                    return null;
+                var thisB = this;
+                if( feature.get('type') == 'gene') {
+                    var d = dojo.create('div');
+                    var feats = feature.get('subfeatures').map(function(feat) {
+                        return thisB.renderFeature(feat, uniqueId+feat.get('name'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                    });
+                    feats.forEach(function(featDiv) {
+                        d.appendChild( featDiv );
+                    });
+                    block.domNode.appendChild( d );
+                    if( this.config.style.centerChildrenVertically ) {
+                        feats.forEach(function(featDiv) {
+                            thisB._centerChildrenVertically( featDiv );
+                        });
+                    }
+                    return d;
+                } else {
+                    var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                        containerStart, containerEnd );
+                    if( ! featDiv )
+                        return null;
 
-                block.domNode.appendChild( featDiv );
-                if( this.config.style.centerChildrenVertically )
-                    this._centerChildrenVertically( featDiv );
+                    block.domNode.appendChild( featDiv );
+                    if( this.config.style.centerChildrenVertically )
+                        this._centerChildrenVertically( featDiv );
+                }
                 return featDiv;
             },
 
@@ -938,6 +956,7 @@ define( [
                 //featureStart and featureEnd indicate how far left or right
                 //the feature extends in bp space, including labels
                 //and arrowheads if applicable
+                
 
                 var featureEnd = feature.get('end');
                 var featureStart = feature.get('start');
@@ -1153,6 +1172,7 @@ define( [
                 if ( typeof this.config.hooks.modify == 'function' ) {
                     this.config.hooks.modify(this, feature, featDiv);
                 }
+                console.log(featDiv);
 
                 return featDiv;
             },
