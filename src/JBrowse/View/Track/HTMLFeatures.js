@@ -699,15 +699,19 @@ define( [
                 var thisB = this;
                 if( feature.get('type') == 'gene') {
                     var d = dojo.create('div');
-                    var feats = feature.get('subfeatures').map(function(feat) {
-                        return thisB.renderFeature(feat, uniqueId+feat.get('name'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                    var feats = feature.get('subfeatures');
+                    if(!feats) {
+                        return null;
+                    }
+                    var featDivs = feats.map(function( feat ) {
+                        return thisB.renderFeature(feat, uniqueId + '_' + feat.get('id'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
                     });
-                    feats.forEach(function(featDiv) {
+                    featDivs.forEach(function( featDiv ) {
                         d.appendChild( featDiv );
                     });
                     block.domNode.appendChild( d );
                     if( this.config.style.centerChildrenVertically ) {
-                        feats.forEach(function(featDiv) {
+                        featDivs.forEach(function( featDiv ) {
                             thisB._centerChildrenVertically( featDiv );
                         });
                     }
@@ -1172,7 +1176,6 @@ define( [
                 if ( typeof this.config.hooks.modify == 'function' ) {
                     this.config.hooks.modify(this, feature, featDiv);
                 }
-                console.log(featDiv);
 
                 return featDiv;
             },
