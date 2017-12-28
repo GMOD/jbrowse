@@ -21,3 +21,4 @@ MYMETA.*
 .sass-cache/
 themes/*/css/
 .idea
+node_modules/
