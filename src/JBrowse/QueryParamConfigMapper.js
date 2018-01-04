@@ -8,6 +8,7 @@ define(['dojo/_base/declare'], function(declare) {
         handleQueryParams: function(config,queryParams) {
             var values, storeValue, valuesLabel ;
             var storeTracks = {};
+            var storeBookmarks= {};
             Object.keys(queryParams).forEach(function(queryParam){
                 if(queryParam.indexOf('addStore\.')==0){
                     values = queryParam.split("\.");
@@ -29,6 +30,20 @@ define(['dojo/_base/declare'], function(declare) {
                     }
                     storeTracks[storeValue][valuesLabel] = queryParams[queryParam];
                 }
+                else
+                if(queryParam.indexOf('addBookmarks\.')==0){
+                    values = queryParam.split("\.");
+                    storeValue = values[1];
+                    valuesLabel = values[2];
+
+                    if(!storeBookmarks[storeValue]){
+                        storeBookmarks[storeValue] = {};
+                    }
+                    storeBookmarks[storeValue][valuesLabel] = queryParams[queryParam];
+                }
+
+                // implement addFeatures?
+                // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
             });
 
             if(storeTracks){
@@ -40,6 +55,21 @@ define(['dojo/_base/declare'], function(declare) {
                     var storeTrack = storeTracks[track];
                     storeTrack.store = track;
                     config.tracks.push(storeTrack);
+                }
+            }
+
+            if(storeBookmarks){
+                // add one for each
+                for(bookmark in storeBookmarks){
+                    if(!config.bookmarks){
+                        config.bookmarks = {} ;
+                    }
+                    if(!config.bookmarks.features){
+                        config.bookmarks.features = [] ;
+                    }
+                    var storeBookmark = storeBookmarks[bookmark];
+                    // explicitly try to handle loc strings?
+                    config.bookmarks.features.push(storeBookmark);
                 }
             }
         }
