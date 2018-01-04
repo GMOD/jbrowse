@@ -48,7 +48,7 @@ define(['dojo/_base/declare'], function(declare) {
 
             if(storeTracks){
                 // add one for each
-                for(track in storeTracks){
+                for(var track in storeTracks){
                     if(!config.tracks){
                         config.tracks = [] ;
                     }
@@ -60,7 +60,7 @@ define(['dojo/_base/declare'], function(declare) {
 
             if(storeBookmarks){
                 // add one for each
-                for(bookmark in storeBookmarks){
+                for(var bookmark in storeBookmarks){
                     if(!config.bookmarks){
                         config.bookmarks = {} ;
                     }
