@@ -107,13 +107,10 @@
                    var values, storeValue, valuesLabel ;
                    var storeTracks = {};
                     Object.keys(queryParams).forEach(function(queryParam){
-                        console.log(queryParam);
                         if(queryParam.indexOf('addStore\.')==0){
-                            console.log(queryParams[queryParam]);
                             values = queryParam.split("\.");
                             storeValue = values[1];
                             valuesLabel = values[2];
-                            console.log(values);
                             // set type
                             // set urlTemplate, etc.
                             if(!config.stores[storeValue]){
@@ -123,9 +120,7 @@
                         }
                         else
                         if(queryParam.indexOf('addTracks\.')==0){
-                            console.log(queryParams[queryParam]);
                             values = queryParam.split("\.");
-                            console.log(values);
                             storeValue = values[1];
                             valuesLabel = values[2];
 
@@ -142,7 +137,9 @@
                             if(!config.tracks){
                                 config.tracks = [] ;
                             }
-                            config.tracks.push(storeTracks[track]);
+                            var storeTrack = storeTracks[track];
+                            storeTrack.store = track;
+                            config.tracks.push(storeTrack);
                         }
                     }
 
