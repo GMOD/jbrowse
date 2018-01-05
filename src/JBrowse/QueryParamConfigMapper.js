@@ -55,43 +55,32 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
         },
 
         handleQueryParams: function (config, queryParams) {
-            var values, storeValue, valuesLabel, queryNameArray, storeName, propertyName ;
+            var queryNameArray, storeName, propertyName, internalStore ;
             var storeTracks = {};
             var storeBookmarks = {};
-            var mapParamB = this.mapParam;
-
             Object.keys(queryParams).forEach(function (queryParam) {
                 if (queryParam.indexOf('addStore\.') == 0) {
-                    // mapParamB(config,queryParam)
+                    queryNameArray = queryParam.split("\.");
+                    propertyName = queryNameArray.slice(1).join('.');
+                    dotObject.str('stores.'+propertyName, queryParams[queryParam], config)
 
-                    values = queryParam.split("\.");
-                    storeValue = values[1];
-                    valuesLabel = values[2];
-                    if (!config.stores) {
-                        config.stores = {};
-                    }
-                    if (!config.stores[storeValue]) {
-                        config.stores[storeValue] = {};
-                    }
-                    config.stores[storeValue][valuesLabel] = queryParams[queryParam];
                 }
                 else if (queryParam.indexOf('addTracks\.') == 0) {
-
                     queryNameArray = queryParam.split("\.");
                     storeName = queryNameArray[1];
-                    var storeTrack = storeTracks[storeName] ? storeTracks[storeName] : {};
+                    internalStore= storeTracks[storeName] ? storeTracks[storeName] : {};
                     propertyName = queryNameArray.slice(2).join('.');
-                    dotObject.str('store', storeName, storeTrack);
-                    dotObject.str(propertyName, queryParams[queryParam], storeTrack);
-                    dotObject.str(storeName, storeTrack, storeTracks)
+                    dotObject.str('store', storeName, internalStore);
+                    dotObject.str(propertyName, queryParams[queryParam], internalStore);
+                    dotObject.str(storeName, internalStore, storeTracks)
                 }
                 else if (queryParam.indexOf('addBookmarks\.') == 0) {
                     queryNameArray = queryParam.split("\.");
                     storeName = queryNameArray[1];
-                    var storeBookmark = storeBookmarks[storeName] ? storeBookmarks[storeName] : {};
+                    internalStore= storeBookmarks[storeName] ? storeBookmarks[storeName] : {};
                     propertyName = queryNameArray.slice(2).join('.');
-                    dotObject.str(propertyName, queryParams[queryParam], storeBookmark);
-                    dotObject.str(storeName, storeBookmark, storeBookmarks)
+                    dotObject.str(propertyName, queryParams[queryParam], internalStore);
+                    dotObject.str(storeName, internalStore, storeBookmarks)
                 }
 
                 // TODO: implement addFeatures?

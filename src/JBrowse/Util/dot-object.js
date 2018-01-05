@@ -520,8 +520,6 @@
         define(function() {
             return DotObject
         })
-    } else if (typeof module != 'undefined' && module.exports) {
-        module.exports = DotObject
     } else {
         global[exportName] = DotObject
     }
