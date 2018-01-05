@@ -1,4 +1,4 @@
-define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dotObject) {
+define(['dojo/_base/declare', 'src/dot-object/dot-object'], function (declare, dotObject) {
     return declare(null, {
 
         constructor: function () {
