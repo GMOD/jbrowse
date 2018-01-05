@@ -14,6 +14,9 @@ define(['dojo/_base/declare'], function(declare) {
                     values = queryParam.split("\.");
                     storeValue = values[1];
                     valuesLabel = values[2];
+                    if(!config.stores){
+                        config.stores = {};
+                    }
                     if(!config.stores[storeValue]){
                         config.stores[storeValue] = {};
                     }
@@ -42,7 +45,7 @@ define(['dojo/_base/declare'], function(declare) {
                     storeBookmarks[storeValue][valuesLabel] = queryParams[queryParam];
                 }
 
-                // implement addFeatures?
+                // TODO: implement addFeatures?
                 // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
             });
 
