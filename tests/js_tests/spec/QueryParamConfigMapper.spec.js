@@ -111,5 +111,34 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query', 'dojo/json'], functi
             })
         });
 
+        // it("decode real addTracks JSON into URL", function () {
+        //     var mapper = QueryParamConfigMapper();
+        //     expect(mapper).toBeTruthy();
+        //     // var queryString = 'addTracks=[{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}]"
+        //     var queryObject = [{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}];
+        //     var config = {};
+        //     runs(function () {
+        //         var url = mapper.generateUrl(queryObject);
+        //         var answer = '';
+        //         expect(url).toEqual(answer);
+        //     })
+        // });
+        //
+        //
+        // it("properly encode addTracks URL into JSON", function () {
+        //     var mapper = QueryParamConfigMapper();
+        //     expect(mapper).toBeTruthy();
+        //     var queryString = 'addTracks=[{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}]"
+        //     // var queryObject = [{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}];
+        //     var config = {};
+        //     var queryParams = ioQuery.queryToObject(queryString);
+        //     var answer = {};
+        //     runs(function () {
+        //         var url = mapper.handleQueryParams(config,queryParams);
+        //         var answer = '';
+        //         expect(url).toEqual(answer);
+        //     })
+        // });
+
     });
 });
