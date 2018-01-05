@@ -5,24 +5,54 @@ define(['dojo/_base/declare'], function (declare) {
 
         },
 
-        generateUrl: function (input,keyPrefixes,returnString) {
+        generateUrl: function (input, keyPrefixes, returnString) {
             // for each key, you need to recurse a level
             returnString = returnString ? returnString : '';
             keyPrefixes = keyPrefixes ? keyPrefixes : [];
             Object.keys(input).forEach(function (key) {
                 var value = input[key];
                 if (typeof value == 'object') {
-                    returnString += this.generateUrl(value,keyPrefixes,returnString)
+                    returnString += this.generateUrl(value, keyPrefixes, returnString)
                 }
                 else {
-                    returnString += '&' + keyPrefixes.join(".")+"."+key + '=' + value;
+                    returnString += '&' + keyPrefixes.join(".") + "." + key + '=' + value;
                 }
             });
             return returnString.slice(1);
         },
 
-        generateJsonFromKey: function (inputJson,queryParams) {
+        generateJsonFromKeyArray: function (inputJson, keyArray, keyDepth, value) {
+            if (!keyArray || keyArray.length==keyDepth ) return;
 
+            var firstKey = keyArray[keyDepth-1];
+            // set value if the last one
+            if (keyArray.length == keyDepth-1) {
+                inputJson[firstKey] = value;
+                return ;
+            }
+
+            // more keys available, so if nothing is set, just set to null
+            if (!inputJson.hasOwnProperty(firstKey)) {
+                inputJson[firstKey] = {} ;
+                // nextJson = inputJson[firstKey];
+            }
+            // inputJson[firstKey] = nextJson;
+
+            this.generateJsonFromKeyArray(inputJson[firstKey], keyArray,++keyDepth, value);
+
+        },
+
+        generateJsonFromKey: function (inputJson, keyString) {
+            var inputQA = keyString.split("=");
+            var keys = inputQA[0].split(".");
+            var value = inputQA[1];
+            // inputJson.split('.').reduce((o,i)=>o[i], obj)
+            // split('.').reduce(index, obj);
+            console.log(JSON.stringify(keys));
+            console.log(value);
+
+            this.generateJsonFromKeyArray(inputJson, keys, 0,value);
+            // return inputJson;
         },
 
         handleQueryParams: function (config, queryParams) {
