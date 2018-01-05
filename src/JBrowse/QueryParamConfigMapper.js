@@ -48,17 +48,18 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
 
         generateJsonFromKey: function (inputJson, keyString) {
             var allParams = keyString.split("\&");
-            var mapParamB = this.mapParam ;
+            var mapParamB = this.mapParam;
             allParams.forEach(function (queryParam) {
                 mapParamB(inputJson, queryParam);
             });
         },
 
         handleQueryParams: function (config, queryParams) {
-            var values, storeValue, valuesLabel;
+            var values, storeValue, valuesLabel, queryNameArray, storeName, propertyName ;
             var storeTracks = {};
             var storeBookmarks = {};
             var mapParamB = this.mapParam;
+
             Object.keys(queryParams).forEach(function (queryParam) {
                 if (queryParam.indexOf('addStore\.') == 0) {
                     // mapParamB(config,queryParam)
@@ -76,34 +77,26 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                 }
                 else if (queryParam.indexOf('addTracks\.') == 0) {
 
-                    var queryNameArray = queryParam.split("\.");
-                    var storeName = queryNameArray[1];
+                    queryNameArray = queryParam.split("\.");
+                    storeName = queryNameArray[1];
                     var storeTrack = storeTracks[storeName] ? storeTracks[storeName] : {};
-                    var propertyName = queryNameArray.slice(2).join('.');
-                    dotObject.str('store',storeName,storeTrack);
-                    dotObject.str(propertyName,queryParams[queryParam],storeTrack);
-                    dotObject.str(storeName,storeTrack,storeTracks)
+                    propertyName = queryNameArray.slice(2).join('.');
+                    dotObject.str('store', storeName, storeTrack);
+                    dotObject.str(propertyName, queryParams[queryParam], storeTrack);
+                    dotObject.str(storeName, storeTrack, storeTracks)
                 }
                 else if (queryParam.indexOf('addBookmarks\.') == 0) {
-                    values = queryParam.split("\.");
-                    storeValue = values[1];
-                    valuesLabel = values[2];
-
-                    if (!storeBookmarks[storeValue]) {
-                        storeBookmarks[storeValue] = {};
-                    }
-                    storeBookmarks[storeValue][valuesLabel] = queryParams[queryParam];
+                    queryNameArray = queryParam.split("\.");
+                    storeName = queryNameArray[1];
+                    var storeBookmark = storeBookmarks[storeName] ? storeBookmarks[storeName] : {};
+                    propertyName = queryNameArray.slice(2).join('.');
+                    dotObject.str(propertyName, queryParams[queryParam], storeBookmark);
+                    dotObject.str(storeName, storeBookmark, storeBookmarks)
                 }
 
                 // TODO: implement addFeatures?
                 // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
             });
-
-
-            // move tracks if it exists:
-
-            // dotObject.move('addStore','stores',config);
-            // dotObject.move('addBookmarks','bookmarks.features',config);
 
             // convert to an array
             if (storeTracks) {
