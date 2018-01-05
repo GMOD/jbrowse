@@ -1,4 +1,4 @@
-require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query', 'dojo/json'], function (QueryParamConfigMapper, ioQuery, json) {
+require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryParamConfigMapper, ioQuery) {
 
     describe("QueryParamConfigMapper", function () {
         it("should interpret addStore properly", function () {
@@ -111,34 +111,29 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query', 'dojo/json'], functi
             })
         });
 
-        // it("decode real addTracks JSON into URL", function () {
-        //     var mapper = QueryParamConfigMapper();
-        //     expect(mapper).toBeTruthy();
-        //     // var queryString = 'addTracks=[{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}]"
-        //     var queryObject = [{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}];
-        //     var config = {};
-        //     runs(function () {
-        //         var url = mapper.generateUrl(queryObject);
-        //         var answer = '';
-        //         expect(url).toEqual(answer);
-        //     })
-        // });
-        //
-        //
-        // it("properly encode addTracks URL into JSON", function () {
-        //     var mapper = QueryParamConfigMapper();
-        //     expect(mapper).toBeTruthy();
-        //     var queryString = 'addTracks=[{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}]"
-        //     // var queryObject = [{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}];
-        //     var config = {};
-        //     var queryParams = ioQuery.queryToObject(queryString);
-        //     var answer = {};
-        //     runs(function () {
-        //         var url = mapper.handleQueryParams(config,queryParams);
-        //         var answer = '';
-        //         expect(url).toEqual(answer);
-        //     })
-        // });
+        it("decode real addTracks JSON into URL", function () {
+            var mapper = QueryParamConfigMapper();
+            expect(mapper).toBeTruthy();
+            var queryObject = {"addTracks":{"store1":{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}}};
+            runs(function () {
+                var url = mapper.generateUrl(queryObject);
+                var answer = 'addTracks.store1.label=BLAST++Results&addTracks.store1.category=0.+Reference+Assembly&addTracks.store1.type=WebApollo/View/Track/DraggableBLASTFeatures&addTracks.store1.store=url&addTracks.store1.style.renderClassName=gray-center-30pct&addTracks.store1.style.subfeatureClasses.match_part=blast-match_part';
+                expect(url).toEqual(answer);
+            })
+        });
+
+        it("properly encode addTracks URL into JSON", function () {
+            var mapper = QueryParamConfigMapper();
+            expect(mapper).toBeTruthy();
+            var queryString = 'addTracks.store1.label=BLAST++Results&addTracks.store1.category=0.+Reference+Assembly&addTracks.store1.type=WebApollo/View/Track/DraggableBLASTFeatures&addTracks.store1.style.renderClassName=gray-center-30pct&addTracks.store1.style.subfeatureClasses.match_part=blast-match_part';
+            var config = {};
+            var queryParams = ioQuery.queryToObject(queryString);
+            var answer = {"tracks":[{"store":"store1","label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}]};
+            runs(function () {
+                mapper.handleQueryParams(config,queryParams);
+                expect(config).toEqual(answer);
+            })
+        });
 
     });
 });
