@@ -20,7 +20,6 @@ var dirList = [
     {src:'jDataView',trg:'jDataView'},
     {src:'dojo-util',trg:'util'},
     {src:'filesaver.js',trg:'FileSaver'},
-    {src:'dot-object/dist/dot-object.js',trg:'dot-object/dot-object.js'},
     {src:'dojo-dstore',trg:'dstore'}
 ];
 
