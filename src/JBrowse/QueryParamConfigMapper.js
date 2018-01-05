@@ -1,4 +1,4 @@
-define(['dojo/_base/declare'], function (declare) {
+define(['dojo/_base/declare','JBrowse/Util/dot-object'], function (declare,dotObject) {
     return declare(null, {
 
         constructor: function () {
@@ -43,16 +43,13 @@ define(['dojo/_base/declare'], function (declare) {
         },
 
         generateJsonFromKey: function (inputJson, keyString) {
-            var inputQA = keyString.split("=");
-            var keys = inputQA[0].split(".");
-            var value = inputQA[1];
-            // inputJson.split('.').reduce((o,i)=>o[i], obj)
-            // split('.').reduce(index, obj);
-            console.log(JSON.stringify(keys));
-            console.log(value);
-
-            this.generateJsonFromKeyArray(inputJson, keys, 0,value);
-            // return inputJson;
+            var allParams = keyString.split("&");
+            allParams.forEach(function(queryParam){
+                var inputQA = keyString.split("=");
+                var query = inputQA[0];
+                var value = inputQA[1];
+                dotObject.str(query,value,inputJson)
+            });
         },
 
         handleQueryParams: function (config, queryParams) {

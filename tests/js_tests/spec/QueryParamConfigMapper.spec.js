@@ -48,6 +48,18 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query', 'dojo/json'], functi
             })
         });
 
+        it("convert JSON into URL for large nested string and multiple keys", function () {
+            var mapper = QueryParamConfigMapper();
+            expect(mapper).toBeTruthy();
+            // var queryString = 'store1.style.view.className=bestGff3&store1.style.better=bestView';
+            // var inputJson = {};
+            // runs(function () {
+            //     mapper.generateJsonFromKey(inputJson, queryString,null);
+            //     // var answer = {"store1": {"style": {"view": {"className": "bestGff3"}}}};
+            //     // expect(inputJson).toEqual(answer);
+            // })
+        });
+
         it("convert JSON into URL", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
