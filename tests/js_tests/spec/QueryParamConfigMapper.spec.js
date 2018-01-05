@@ -42,48 +42,72 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query', 'dojo/json'], functi
             var queryString = 'store1.style.view.className=bestGff3';
             var inputJson = {};
             runs(function () {
-                mapper.generateJsonFromKey(inputJson, queryString,null);
+                mapper.generateJsonFromKey(inputJson, queryString, null);
                 var answer = {"store1": {"style": {"view": {"className": "bestGff3"}}}};
                 expect(inputJson).toEqual(answer);
             })
         });
 
-        it("convert JSON into URL for large nested string and multiple keys", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
-            // var queryString = 'store1.style.view.className=bestGff3&store1.style.better=bestView';
-            // var inputJson = {};
-            // runs(function () {
-            //     mapper.generateJsonFromKey(inputJson, queryString,null);
-            //     // var answer = {"store1": {"style": {"view": {"className": "bestGff3"}}}};
-            //     // expect(inputJson).toEqual(answer);
-            // })
-        });
 
         it("convert JSON into URL", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
-            var inputJson = {"stores": {"store1": {"type": "HMLFeatures", "urlTemplate": "http://abc.com/test.gff"}}};
-            var config = {};
-            // var queryParams = ioQuery.queryToObject(queryString);
+            var inputJson = {
+                'addStore': {
+                    'stores': {
+                        'store1': {
+                            'type': 'HMLFeatures',
+                            'urlTemplate': 'http://abc.com/test.gff'
+                        }
+                    }
+                }
+            };
             runs(function () {
-                // var generatedUrl = mapper.generateUrl(inputJson);
-                // var answer = 'addStore.store1.type=HMLFeatures&addStore.store1.urlTemplate=http://abc.com/test.gff';
-                // expect(generatedUrl).toEqual(answer);
+                var generatedUrl = mapper.generateUrl(inputJson);
+                var answer = 'addStore.stores.store1.type=HMLFeatures&addStore.stores.store1.urlTemplate=http://abc.com/test.gff';
+                expect(generatedUrl).toEqual(answer);
             })
         });
 
 
-        it("test nested ingest", function () {
+        it("test multiple nested ingest", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
-            var queryString = 'addTracks.store1.style.view.className=bestGff3';
+            var queryString = 'addStore.stores.store1.type=HMLFeatures&addStore.stores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
+            var answer = {
+                'addStore': {
+                    'stores': {
+                        'store1': {
+                            'type': 'HMLFeatures',
+                            'urlTemplate': 'http://abc.com/test.gff'
+                        }
+                    }
+                }
+            };
+            runs(function () {
+                mapper.generateJsonFromKey(config,queryString);
+                expect(config).toEqual(answer);
+            })
+        });
+
+        it("test multiple nested views", function () {
+            var mapper = QueryParamConfigMapper();
+            expect(mapper).toBeTruthy();
+            var queryString = 'addStore.store1.type=HMLFeatures&addStore.store1.urlTemplate=http://abc.com/test.gff';
+            var config = {};
+            var answer = {
+                'stores': {
+                    'store1': {
+                        'type': 'HMLFeatures',
+                        'urlTemplate': 'http://abc.com/test.gff'
+                    }
+                }
+            };
             var queryParams = ioQuery.queryToObject(queryString);
             runs(function () {
-                // mapper.handleQueryParams(config, queryParams);
-                // var answer = {"tracks": [{"style": {"view": {"className": "bestGff3"}}, "store": "store1"}]};
-                // expect(config).toEqual(answer);
+                mapper.handleQueryParams(config, queryParams);
+                expect(config).toEqual(answer);
             })
         });
 

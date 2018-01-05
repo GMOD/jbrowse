@@ -1,54 +1,51 @@
-define(['dojo/_base/declare','JBrowse/Util/dot-object'], function (declare,dotObject) {
+define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dotObject) {
     return declare(null, {
 
         constructor: function () {
 
         },
 
-        generateUrl: function (input, keyPrefixes, returnString) {
-            // for each key, you need to recurse a level
-            returnString = returnString ? returnString : '';
-            keyPrefixes = keyPrefixes ? keyPrefixes : [];
-            Object.keys(input).forEach(function (key) {
-                var value = input[key];
-                if (typeof value == 'object') {
-                    returnString += this.generateUrl(value, keyPrefixes, returnString)
+        generateUrl: function (input) {
+            var returnObject = dotObject.dot(input);
+            var returnString;
+            Object.keys(returnObject).forEach(function (key) {
+                var stringEntry = key + '=' + returnObject[key];
+                if (!returnString) {
+                    returnString = stringEntry;
                 }
                 else {
-                    returnString += '&' + keyPrefixes.join(".") + "." + key + '=' + value;
+                    returnString += '&' + stringEntry;
                 }
             });
-            return returnString.slice(1);
+
+            return returnString;
         },
 
         generateJsonFromKeyArray: function (inputJson, keyArray, keyDepth, value) {
-            if (!keyArray || keyArray.length==keyDepth ) return;
+            if (!keyArray || keyArray.length == keyDepth) return;
 
-            var firstKey = keyArray[keyDepth-1];
+            var firstKey = keyArray[keyDepth - 1];
             // set value if the last one
-            if (keyArray.length == keyDepth-1) {
+            if (keyArray.length == keyDepth - 1) {
                 inputJson[firstKey] = value;
-                return ;
+                return;
             }
 
             // more keys available, so if nothing is set, just set to null
             if (!inputJson.hasOwnProperty(firstKey)) {
-                inputJson[firstKey] = {} ;
-                // nextJson = inputJson[firstKey];
+                inputJson[firstKey] = {};
             }
-            // inputJson[firstKey] = nextJson;
-
-            this.generateJsonFromKeyArray(inputJson[firstKey], keyArray,++keyDepth, value);
+            this.generateJsonFromKeyArray(inputJson[firstKey], keyArray, ++keyDepth, value);
 
         },
 
         generateJsonFromKey: function (inputJson, keyString) {
-            var allParams = keyString.split("&");
-            allParams.forEach(function(queryParam){
-                var inputQA = keyString.split("=");
+            var allParams = keyString.split("\&");
+            allParams.forEach(function (queryParam) {
+                var inputQA = queryParam.split("=");
                 var query = inputQA[0];
                 var value = inputQA[1];
-                dotObject.str(query,value,inputJson)
+                dotObject.str(query, value, inputJson)
             });
         },
 
