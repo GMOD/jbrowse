@@ -73,7 +73,6 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     dotObject.str('store', storeName, internalStore);
                     dotObject.str(propertyName, queryParams[queryParam], internalStore);
                     dotObject.str(storeName, internalStore, storeTracks);
-                    console.log('string storeTracks?: '+JSON.stringify(storeTracks))
                 }
                 else if (queryParam.indexOf('addBookmarks\.') == 0) {
                     queryNameArray = queryParam.split("\.");
@@ -90,16 +89,12 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
 
             // convert to an array
             if (storeTracks) {
-                console.log('storing tracks');
-                console.log(JSON.stringify(storeTracks));
                 // add one for each
                 for (var track in storeTracks) {
                     if (!config.tracks) {
                         config.tracks = [];
                     }
                     var storeTrack = storeTracks[track];
-                    // storeTrack.store = track;
-                    console.log('printlng: ' + JSON.stringify(storeTrack));
                     config.tracks.push(storeTrack);
                 }
             }
