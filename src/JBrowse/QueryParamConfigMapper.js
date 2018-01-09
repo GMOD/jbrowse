@@ -70,7 +70,9 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     storeName = queryNameArray[1];
                     internalStore= storeTracks[storeName] ? storeTracks[storeName] : {};
                     propertyName = queryNameArray.slice(2).join('.');
-                    dotObject.str('store', storeName, internalStore);
+                    if(storeName!=='none'){
+                        dotObject.str('store', storeName, internalStore);
+                    }
                     dotObject.str(propertyName, queryParams[queryParam], internalStore);
                     dotObject.str(storeName, internalStore, storeTracks);
                 }
