@@ -103,7 +103,8 @@
                        config.stores = JSON.parse( queryParams.addStores );
                    }
 
-                   // var mapper = QueryParamConfigMapper();
+				   // this handles dot notation versions of addTracks, addBookmarks, and addStoresA
+				   // see config doc for details
                    QueryParamConfigMapper().handleQueryParams(config,queryParams);
 
                    // create a JBrowse global variable holding the JBrowse instance
