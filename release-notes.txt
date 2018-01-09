@@ -10,7 +10,9 @@
 
   * jb_setup.js @enuggetry.
 
-  * Allows for dot-notation instead of JSON (pull #952) for addTracks, addBookmarks, and addStores. https://github.com/GMOD/jbrowse/pull/952, @nathandunn.
+  * Allows for dot-notation instead of JSON (pull #952) for addTracks, addBookmarks,
+    and addStores. https://github.com/GMOD/jbrowse/pull/952. Address security concerns
+    adding JSON to GET (https://nvd.nist.gov/vuln/detail/CVE-2016-6816) @nathandunn.
 
   ...
 
