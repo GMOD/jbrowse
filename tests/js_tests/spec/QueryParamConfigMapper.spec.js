@@ -1,10 +1,10 @@
 require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryParamConfigMapper, ioQuery) {
 
     describe("QueryParamConfigMapper", function () {
-        it("should interpret addStore properly", function () {
+        it("should interpret addStores properly", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
-            var queryString = 'addStore.store1.type=HMLFeatures&addStore.store1.urlTemplate=http://abc.com/test.gff';
+            var queryString = 'addStores.store1.type=HMLFeatures&addStores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
             var queryParams = ioQuery.queryToObject(queryString);
             runs(function () {
@@ -14,10 +14,10 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
             })
         });
 
-        it("tests bookmarks, addStore, and addTracks", function () {
+        it("tests addBookmarks, addStores, and addTracks", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
-            var queryString = 'addStore.store1.type=JBrowse/Store/SeqFeature/GFF3&addStore.store1.urlTemplate=http://localhost/volvox.gff3&addTracks.store1.label=genes&addTracks.store1.type=JBrowse/View/Track/HTMLFeatures&highlight=&addBookmarks.bookmark1.start=3000&addBookmarks.bookmark1.end=4000&addBookmarks.bookmark1.ref=ctgA';
+            var queryString = 'addStores.store1.type=JBrowse/Store/SeqFeature/GFF3&addStores.store1.urlTemplate=http://localhost/volvox.gff3&addTracks.store1.label=genes&addTracks.store1.type=JBrowse/View/Track/HTMLFeatures&highlight=&addBookmarks.bookmark1.start=3000&addBookmarks.bookmark1.end=4000&addBookmarks.bookmark1.ref=ctgA';
             var config = {};
             var queryParams = ioQuery.queryToObject(queryString);
             runs(function () {
@@ -53,7 +53,7 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
             var inputJson = {
-                'addStore': {
+                'addStores': {
                     'stores': {
                         'store1': {
                             'type': 'HMLFeatures',
@@ -64,7 +64,7 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
             };
             runs(function () {
                 var generatedUrl = mapper.generateUrl(inputJson);
-                var answer = 'addStore.stores.store1.type=HMLFeatures&addStore.stores.store1.urlTemplate=http://abc.com/test.gff';
+                var answer = 'addStores.stores.store1.type=HMLFeatures&addStores.stores.store1.urlTemplate=http://abc.com/test.gff';
                 expect(generatedUrl).toEqual(answer);
             })
         });
@@ -73,10 +73,10 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         it("test multiple nested ingest", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
-            var queryString = 'addStore.stores.store1.type=HMLFeatures&addStore.stores.store1.urlTemplate=http://abc.com/test.gff';
+            var queryString = 'addStores.stores.store1.type=HMLFeatures&addStores.stores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
             var answer = {
-                'addStore': {
+                'addStores': {
                     'stores': {
                         'store1': {
                             'type': 'HMLFeatures',
@@ -94,7 +94,7 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         it("test multiple nested views", function () {
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
-            var queryString = 'addStore.store1.type=HMLFeatures&addStore.store1.urlTemplate=http://abc.com/test.gff';
+            var queryString = 'addStores.store1.type=HMLFeatures&addStores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
             var answer = {
                 'stores': {

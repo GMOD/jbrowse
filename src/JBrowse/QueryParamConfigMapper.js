@@ -59,7 +59,7 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
             var storeTracks = {};
             var storeBookmarks = {};
             Object.keys(queryParams).forEach(function (queryParam) {
-                if (queryParam.indexOf('addStore\.') == 0) {
+                if (queryParam.indexOf('addStores\.') == 0) {
                     queryNameArray = queryParam.split("\.");
                     propertyName = queryNameArray.slice(1).join('.');
                     dotObject.str('stores.'+propertyName, queryParams[queryParam], config)
