@@ -134,6 +134,55 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }, errorCallback );
     },
 
+
+    getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
+
+
+        var numBins, basesPerBin;
+        if( query.numBins ) {
+            numBins = query.numBins;
+            basesPerBin = (query.end - query.start)/numBins;
+        }
+        else if( query.basesPerBin ) {
+            basesPerBin = query.basesPerBin;
+            numBins = Math.ceil( (query.end-query.start)/basesPerBin );
+        }
+        else {
+            throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities');
+        }
+
+        var statEntry = (function( basesPerBin, stats ) {
+            for (var i = 0; i < stats.length; i++) {
+                if( stats[i].basesPerBin >= basesPerBin ) {
+                    return stats[i];
+                }
+            }
+            return undefined;
+        })( basesPerBin, [] );
+
+        var stats = {};
+        stats.scoreMax = 10 ;
+        stats.max = 10 ;
+    // })( basesPerBin, data._histograms.stats || [] );
+
+        // var firstServerBin = Math.floor( query.start / histogramMeta.basesPerBin);
+        var firstServerBin = Math.floor( query.start / basesPerBin);
+        var binRatio = basesPerBin / basesPerBin;
+        binRatio = 10;
+        binRatio = Math.round(binRatio);
+        var histogram = [];
+        numBins = 10 ;
+        for (var bin = 0; bin < numBins; bin++){
+            histogram[bin] = 10;
+        }
+
+
+
+        // function() {
+            successCallback({ bins: histogram, stats: stats});
+        // }
+    },
+
     lineToFeature: function( line ) {
         var attributes = GFF3.parse_attributes( line.fields[8] );
         var ref    = line.fields[0];
