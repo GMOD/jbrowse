@@ -180,6 +180,50 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var binStart, binEnd ;
 
 
+        // var parser = new Parser(
+        //     {
+        //         featureCallback: function(fs) {
+        //             // array.forEach( fs, function( feature ) {
+        //             //     var feat = thisB._countFeature(feature);
+        //             //     // f(feat);
+        //             // });
+        //         },
+        //         endCallback: function() {
+        //             successCallback();
+        //         }
+        //     });
+
+        thisB.getHeader().then( function() {
+            thisB.indexedData.getLines(
+                query.ref || thisB.refSeq.name,
+                query.start,
+                query.end,
+                function( line ) {
+                    var feat = thisB.lineToFeature(line);
+                    console.log(feat);
+                    // get start finish, type and put in bin accordingly
+                    var start = feat.start;
+                    // var end = feat.end ;
+                    // var type = feat.type ;
+                    var binValue = start * binRatio ;
+                    console.log(start + ' ' + bin + ' ' + binRatio + ' ' + binValue);
+
+                    histogram[binValue] += 1;
+
+
+                    // TODO: get the start and end and adde
+                    // parser._countFeature( thisB.lineToFeature(line) );
+                },
+                function() {
+                    // console.log('finishing: ')
+                    // parser.finish();
+                },
+                errorCallback
+            );
+        }, errorCallback );
+
+
+
         for (var bin = 0; bin < numBins; bin++) {
             binStart = bin * stats.basesPerBin;
             binEnd = (bin+1) * stats.basesPerBin ;
@@ -199,7 +243,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             // );
         }
 
-        console.log('h');
+        // console.log('h');
         console.log(histogram);
 
         // for (var bin = 0; bin < numBins; bin++){
