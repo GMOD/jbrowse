@@ -137,6 +137,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
 
+        var thisB = this ;
 
         var numBins, basesPerBin;
         if( query.numBins ) {
@@ -144,7 +145,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             basesPerBin = (query.end - query.start)/numBins;
         }
         else if( query.basesPerBin ) {
-            basesPerBin = query.basesPerBin;
+            basesPerBin = query.basesPerBin || query.ref.basesPerBin;
+            // query.ref.basesPerBin
+            // numBins = Math.ceil( (query.end-query.start)/basesPerBin );
             numBins = Math.ceil( (query.end-query.start)/basesPerBin );
         }
         else {
@@ -161,22 +164,47 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         })( basesPerBin, [] );
 
         var stats = {};
-        stats.scoreMax = 10 ;
-        stats.max = 10 ;
+        stats.scoreMax = 100 ;
+        stats.basesPerBin = 20000 ;
+        stats.max = 100 ;
     // })( basesPerBin, data._histograms.stats || [] );
 
         // var firstServerBin = Math.floor( query.start / histogramMeta.basesPerBin);
         var firstServerBin = Math.floor( query.start / basesPerBin);
         var binRatio = basesPerBin / basesPerBin;
-        binRatio = 10;
-        binRatio = Math.round(binRatio);
+        // binRatio = 10;
+        // binRatio = Math.round(binRatio);
         var histogram = [];
-        numBins = 10 ;
-        for (var bin = 0; bin < numBins; bin++){
-            histogram[bin] = 10;
+        numBins = 100 ;
+
+        var binStart, binEnd ;
+
+
+        for (var bin = 0; bin < numBins; bin++) {
+            binStart = bin * stats.basesPerBin;
+            binEnd = (bin+1) * stats.basesPerBin ;
+            histogram[bin] = Math.round(Math.random()*100) ;
+            // thisB.indexedData.countLines(
+            //     query.ref || thisB.refSeq.name,
+            //     binStart,
+            //     binEnd,
+            //     function( line ) {
+            //         histogram[bin] = Math.round(Math.random()*100) ;
+            //         // parser._buffer_feature( thisB.lineToFeature(line) );
+            //     },
+            //     function() {
+            //         // parser.finish();
+            //     },
+            //     errorCallback
+            // );
         }
 
+        console.log('h');
+        console.log(histogram);
 
+        // for (var bin = 0; bin < numBins; bin++){
+        //     histogram[bin] = Math.round(100 * Math.random());
+        // }
 
         // function() {
             successCallback({ bins: histogram, stats: stats});

@@ -40,6 +40,25 @@ return declare( null, {
         }, errorCallback);
     },
 
+    countLines: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
+        var thisB = this;
+        var args = Array.prototype.slice.call(arguments);
+        this.indexLoaded.then(function() {
+            thisB._count.apply( thisB, args );
+        }, errorCallback);
+    },
+
+    _count: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
+        errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
+
+        var chunks = this.index.blocksForRange( ref, min, max);
+        if ( ! chunks ) {
+            errorCallback('Error in index fetch ('+[ref,min,max].join(',')+')');
+            return;
+        }
+        return chunks.length ;
+    },
+
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
         errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
 
