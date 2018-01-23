@@ -2248,7 +2248,17 @@ renderTrack: function( /**Object*/ trackConfig ) {
     var trackClass, store;
 
     var makeTrack = dojo.hitch(this, function() {
+
+        // if there is no key for this track in its configuration, attempt to load the key from the track metadata
+        var metadataKey;
+        try {
+            metadataKey = this.browser.trackMetaDataStore.getItem(trackConfig.label).key
+        } catch(e) {}
+
+        // create the track
+
         var track = new trackClass({
+                key: trackConfig.key || metadataKey,
                 refSeq: this.ref,
                 config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),
