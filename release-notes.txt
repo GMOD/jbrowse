@@ -18,6 +18,15 @@
     a `key` in its track metadata, and use that if it is present. Thanks to Loraine
     Guéguen for the idea (issue #957). @rbuels
 
+  * Suppress execution of biodb-to-json.pl on sample data while running setup.sh
+    on MacOS High Sierra with stock Perl due to an issue with the stock Perl having
+    broken BerkeleyDB integration, which is needed by Bio::DB::SeqFeature::Store,
+    the main storage engine used by biodb-to-json.pl. Bug was manifesting as the script
+    running indefinitely and taking all available disk space.
+    (pull #945, issue #946, @deepakunni3 and @rbuels)
+
+  ...
+
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
 ## Minor improvements

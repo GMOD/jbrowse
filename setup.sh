@@ -52,7 +52,6 @@ echo -n "Gathering system information ..."
     lsb_release -a;
     uname -a;
     sw_vers;
-    system_profiler;
     grep MemTotal /proc/meminfo;
     echo; echo;
 ) >>setup.log 2>&1;
@@ -64,12 +63,25 @@ SUPPRESS_BIODB_TO_JSON=0
 sw_vers >& /dev/null;
 if [ $? -eq 0 ]; then
     product_version=`sw_vers -productVersion`;
-    if [[ $product_version =~ ^10.13 ]]; then
+    have_db=`perl -MConfig=myconfig -e 'print myconfig' | grep -- -ldb`
+    if [[ $product_version =~ ^10.13 && x$have_db = 'x' ]]; then
         SUPPRESS_BIODB_TO_JSON=1;
         echo;
-        echo "MacOS High Sierra detected.";
-        echo "Due to a known issue with running biodb-to-json.pl on MacOS High Sierra, the setup will not run biodb-to-json.pl for its sample data: Volvox and Yeast.";
-        echo "Refer to https://github.com/GMOD/Apollo/issues/1820 and https://github.com/GMOD/jbrowse/issues for more information.";
+        echo ===============================================================
+        echo "** MacOS High Sierra with broken system Perl detected. **";
+        echo "biodb-to-json.pl does not work on MacOS High Sierra with the stock system Perl.";
+        echo "The setup will not run biodb-to-json.pl for its sample data: Volvox and Yeast.";
+        echo "To re-enable formatting on your High Sierra machine, install a Perl with a working BerkeleyDB."
+        echo;
+        echo "If you use Homebrew, an easy way to install a working Perl would be:"
+        echo;
+        echo "    brew install berkeley-db; brew install --build-from-source perl"
+        echo;
+        echo "Then delete the external perl libraries and run setup.sh again:"
+        echo;
+        echo "    rm -rf extlibs/; ./setup.sh"
+        echo;
+        echo ===============================================================
         echo;
     fi
 fi
