@@ -164,34 +164,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         })( basesPerBin, [] );
 
         var stats = {};
-        stats.scoreMax = 100 ;
-        stats.basesPerBin = 20000 ;
-        stats.max = 100 ;
-    // })( basesPerBin, data._histograms.stats || [] );
+        stats.basesPerBin = basesPerBin ;
 
-        // var firstServerBin = Math.floor( query.start / histogramMeta.basesPerBin);
+        stats.scoreMax = 100 ;
+        stats.max = 100 ;
         var firstServerBin = Math.floor( query.start / basesPerBin);
-        var binRatio = basesPerBin / basesPerBin;
-        // binRatio = 10;
-        // binRatio = Math.round(binRatio);
         var histogram = [];
-        numBins = 100 ;
+        var binRatio = 1 / basesPerBin;
 
         var binStart, binEnd ;
 
 
-        // var parser = new Parser(
-        //     {
-        //         featureCallback: function(fs) {
-        //             // array.forEach( fs, function( feature ) {
-        //             //     var feat = thisB._countFeature(feature);
-        //             //     // f(feat);
-        //             // });
-        //         },
-        //         endCallback: function() {
-        //             successCallback();
-        //         }
-        //     });
+		for(var bin = 0 ; bin < numBins ; bin++){
+			histogram[bin] = 0;
+		}
+
 
         thisB.getHeader().then( function() {
             thisB.indexedData.getLines(
@@ -200,59 +187,30 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 query.end,
                 function( line ) {
                     var feat = thisB.lineToFeature(line);
-                    console.log(feat);
+                    // console.log(feat);
                     // get start finish, type and put in bin accordingly
                     var start = feat.start;
                     // var end = feat.end ;
                     // var type = feat.type ;
-                    var binValue = start * binRatio ;
-                    console.log(start + ' ' + bin + ' ' + binRatio + ' ' + binValue);
+                    var binValue = Math.round( (start - query.start )* binRatio)   ;
+//                    console.log(query.start + ' ' + start + ' ' + binRatio + ' ' + binValue);
 
-                    histogram[binValue] += 1;
+					if(binValue>=0){
+						histogram[binValue] += 1;
+					}
 
 
                     // TODO: get the start and end and adde
                     // parser._countFeature( thisB.lineToFeature(line) );
                 },
                 function() {
-                    // console.log('finishing: ')
-                    // parser.finish();
+					successCallback({ bins: histogram, stats: stats});
+//                     parser.finish();
                 },
                 errorCallback
             );
         }, errorCallback );
 
-
-
-        for (var bin = 0; bin < numBins; bin++) {
-            binStart = bin * stats.basesPerBin;
-            binEnd = (bin+1) * stats.basesPerBin ;
-            histogram[bin] = Math.round(Math.random()*100) ;
-            // thisB.indexedData.countLines(
-            //     query.ref || thisB.refSeq.name,
-            //     binStart,
-            //     binEnd,
-            //     function( line ) {
-            //         histogram[bin] = Math.round(Math.random()*100) ;
-            //         // parser._buffer_feature( thisB.lineToFeature(line) );
-            //     },
-            //     function() {
-            //         // parser.finish();
-            //     },
-            //     errorCallback
-            // );
-        }
-
-        // console.log('h');
-        console.log(histogram);
-
-        // for (var bin = 0; bin < numBins; bin++){
-        //     histogram[bin] = Math.round(100 * Math.random());
-        // }
-
-        // function() {
-            successCallback({ bins: histogram, stats: stats});
-        // }
     },
 
     lineToFeature: function( line ) {
