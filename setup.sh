@@ -52,7 +52,6 @@ echo -n "Gathering system information ..."
     lsb_release -a;
     uname -a;
     sw_vers;
-    system_profiler;
     grep MemTotal /proc/meminfo;
     echo; echo;
 ) >>setup.log 2>&1;
