@@ -67,6 +67,11 @@ sequences.
 A FASTA file (which should already have an accompaning '.fai' file)
 from which to load reference sequences.
 
+=item --unsorted
+
+If using gff or FASTA input, generate the json file in the same order
+as the input file.
+
 =item --conf <file>
 
 biodb-to-json.pl configuration file that defines a database from which
