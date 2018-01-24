@@ -44,7 +44,7 @@ sub option_definitions {(
     "trackLabel=s",
     "seqType=s",
     "key=s",
-    "config=s",
+    "trackConfig=s",
     "help|h|?",
     "nohash"
 )}
@@ -65,7 +65,8 @@ sub run {
         $self->{chunkSize} = $chunkSize;
     }
 
-    for my $optname ( qw( config ) ) {
+    # If trackConfig is supplied, decode as JSON
+    for my $optname ( qw( trackConfig ) ) {
         if( my $o = $self->opt($optname) ) {
             $self->opt( $optname => Bio::JBrowse::JSON->new->decode( $o ));
         }
@@ -411,7 +412,8 @@ sub writeTrackEntry {
                                                ( 'dna' eq lc $self->opt('seqType') ? () : ('showReverseStrand' => 0 ) ),
                                                ( 'protein' eq lc $self->opt('seqType') ? ('showTranslation' => 0) : () ),
                                                ( defined $self->opt('seqType') ? ('seqType' => lc $self->opt('seqType')) : () ),
-                                               %{ $self->opt('config') || {} },
+                                               # Merge in any extra trackConfig supplied by the user.
+                                               %{ $self->opt('trackConfig') || {} },
                                            };
                                            if ( $self->opt('indexed_fasta') ) {
                                                $tracks->[$i]->{'storeClass'} = 'JBrowse/Store/Sequence/IndexedFasta';
