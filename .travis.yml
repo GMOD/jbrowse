@@ -21,6 +21,7 @@ before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf
 script:
+  - prove -Isrc/perl5 -lr tests/perl_tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
   - jshint src/JBrowse/
   - make -f build/Makefile release
