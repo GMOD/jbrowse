@@ -2185,6 +2185,11 @@ addRefseqs: function( refSeqs ) {
                 order = refSeqs;
             }
             else {
+                // if refSeqOrder 'by_list' and config parameter refSeqOrderList exists, split that into an array as an override to default refSeqs.json order
+                if( this.config.refSeqOrder == 'by_list' && this.config.refSeqOrderList ) {
+                    var refSeqOrderOverride = this.config.refSeqOrderList;
+                    return refSeqOrderOverride.split(",");
+                }
                 order = refSeqs.slice(0);
                 order.sort(
                     this.config.refSeqOrder == 'length' || this.config.refSeqOrder == 'length ascending'
