@@ -53,7 +53,7 @@ sub delete_track {
                              map {
                                  if( $_->{label} eq $trackLabel ) {
                                      # print the json
-                                     $self->print( "removing track configuration:\n".JSON->new->encode( $_ ) );
+                                     $self->print( "removing track configuration:\n".JSON->new->pretty->encode( $_ ) );
                                      $deleted_conf = $_;
                                      ()
                                  } else {

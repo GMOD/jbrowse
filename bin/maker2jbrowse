@@ -245,7 +245,7 @@ for my $gff3_file (@files){
             $t{$source} = 1;
             $t{gene}  = 1 if $source eq 'maker';
         }
-        keys %t
+        sort keys %t
     };
 
     system 'bin/prepare-refseqs.pl', '--gff' => $gff3_file, @outdir,

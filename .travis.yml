@@ -1,6 +1,9 @@
 sudo: false
 dist: trusty
 language: perl
+perl:
+  - "5.18"
+  - "5.16"
 addons:
   apt:
     packages:
