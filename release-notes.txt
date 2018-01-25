@@ -2,6 +2,10 @@
 
 ## Major improvements
 
+  * Fixed MAJOR performance regression that basically made flatfile-to-json.pl
+    unusable on Perl 5.18 and higher. Huge thanks to Colin Diesh for tracking
+    this down. (issue #470, @cmdcolin)
+
   * Removed legacy `wig-to-json.pl` and `bam-to-json.pl` scripts.  @rbuels
 
 ## Minor improvements
