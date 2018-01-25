@@ -10,26 +10,10 @@ done_message () {
     fi
 }
 
-legacy_message () {
-   echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'."
- }
-
-
 
 echo > setup.log;
 
-LEGACY_INSTALL=0
-
-if [ $# -gt 1 ] ; then
-  echo "USAGE: ./setup.sh [legacy]"
-  echo -e "\tTakes one optional argument, presence triggers legacy software install."
-  exit 1
-fi
-if [[ ($# -eq 1) && ("$1" = "legacy") ]] ; then
-  LEGACY_INSTALL=1
-else
-  legacy_message
-fi
+echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
 
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
 # OR
@@ -163,59 +147,3 @@ echo -n "Formatting Yeast example data ...";
     bin/generate-names.pl --dir sample_data/json/yeast/;
 ) >>setup.log 2>&1
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
-
-if [ $LEGACY_INSTALL -eq 0 ] ; then
-   legacy_message
-   exit 0
-fi
-
-echo
-echo -n "Building and installing legacy wiggle format support (superseded by BigWig tracks) ...";
-(
-    set -e;
-    if( [ ! -f bin/wig2png ] ); then
-        set -x;
-        cd src/wig2png;
-        ./configure && make;
-        cd ../..;
-    fi
-    set -x;
-    bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --category "Pre-generated images" --out sample_data/json/volvox;
-) >>setup.log 2>&1
-done_message "" "If you really need wig-to-json.pl (most users don't), make sure libpng development libraries and header files are installed and try running setup.sh again.";
-
-echo
-echo -n "Building and installing legacy bam-to-json.pl support (superseded by direct BAM tracks) ...";
-(
-    set -e;
-
-    # try to install Bio::DB::Sam if necessary
-    if( perl -Iextlib/lib/perl5 -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
-        echo Bio::DB::Sam already installed.
-    else
-        if( [ "x$SAMTOOLS" == "x" ] ); then
-            set -x;
-
-            if [ ! -e samtools-0.1.20 ]; then
-                if hash curl 2>/dev/null; then
-                    curl -L https://github.com/samtools/samtools/archive/0.1.20.zip -o samtools-0.1.20.zip;
-                else
-                    wget -O samtools-0.1.20.zip https://github.com/samtools/samtools/archive/0.1.20.zip;
-                fi
-                unzip -o samtools-0.1.20.zip;
-                rm samtools-0.1.20.zip;
-                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools-0.1.20/Makefile;
-            fi;
-            make -C samtools-0.1.20 -j3 lib;
-            export SAMTOOLS="$PWD/samtools-0.1.20";
-        fi
-        echo "samtools in env at '$SAMTOOLS'";
-        set +e;
-        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
-        set -e;
-        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
-    fi
-
-    bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Legacy BAM - volvox-sorted.bam" --cssClass basic --metadata '{"category": "BAM"}' --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
-) >>setup.log 2>&1;
-done_message "" "If you really need bam-to-json.pl (most users don't), try reading the Bio-SamTools troubleshooting guide at https://metacpan.org/source/LDS/Bio-SamTools-1.33/README for help getting Bio::DB::Sam installed.";

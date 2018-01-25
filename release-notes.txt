@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Major improvements
+
+  * Removed legacy `wig-to-json.pl` and `bam-to-json.pl` scripts.  @rbuels
+
 ## Minor improvements
   * Added trackLabels: "no-block" config feature.  Moves track labels/menus 
     above the features so as not to obscure the features. (issue #901, #490)
