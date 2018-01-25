@@ -164,14 +164,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var stats = {};
         stats.basesPerBin = basesPerBin ;
 
-        stats.scoreMax = 100 ;
-        stats.max = 100 ;
+        stats.scoreMax = 0 ;
+        stats.max = 0 ;
         var firstServerBin = Math.floor( query.start / basesPerBin);
         var histogram = [];
         var binRatio = 1 / basesPerBin;
 
         var binStart, binEnd ;
-
 
 		for(var bin = 0 ; bin < numBins ; bin++){
 			histogram[bin] = 0;
@@ -189,8 +188,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     var start = line.start ;
                     var binValue = Math.round( (start - query.start )* binRatio)   ;
 
-					if(binValue>=0){
-						histogram[binValue] += 1;
+					// in case it extends over the end, just push it on the end
+					binValue = binValue >=0 ? binValue : 0 ;
+					binValue = binValue < histogram.length ? binValue : histogram.length -1  ;
+
+					histogram[binValue] += 1;
+					if(histogram[binValue] > stats.max){
+						stats.max = histogram[binValue];
 					}
                 },
                 function() {
