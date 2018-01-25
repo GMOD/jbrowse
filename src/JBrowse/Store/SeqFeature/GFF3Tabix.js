@@ -146,8 +146,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }
         else if( query.basesPerBin ) {
             basesPerBin = query.basesPerBin || query.ref.basesPerBin;
-            // query.ref.basesPerBin
-            // numBins = Math.ceil( (query.end-query.start)/basesPerBin );
             numBins = Math.ceil( (query.end-query.start)/basesPerBin );
         }
         else {
@@ -186,26 +184,17 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 query.start,
                 query.end,
                 function( line ) {
-                    var feat = thisB.lineToFeature(line);
-                    // console.log(feat);
-                    // get start finish, type and put in bin accordingly
-                    var start = feat.start;
-                    // var end = feat.end ;
-                    // var type = feat.type ;
+                    // var feat = thisB.lineToFeature(line);
+					// if(!feat.attributes.parent) // only count if has NO parent
+                    var start = line.start ;
                     var binValue = Math.round( (start - query.start )* binRatio)   ;
-//                    console.log(query.start + ' ' + start + ' ' + binRatio + ' ' + binValue);
 
 					if(binValue>=0){
 						histogram[binValue] += 1;
 					}
-
-
-                    // TODO: get the start and end and adde
-                    // parser._countFeature( thisB.lineToFeature(line) );
                 },
                 function() {
 					successCallback({ bins: histogram, stats: stats});
-//                     parser.finish();
                 },
                 errorCallback
             );
