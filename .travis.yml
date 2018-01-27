@@ -1,5 +1,9 @@
 sudo: false
+dist: trusty
 language: perl
+perl:
+  - "5.18"
+  - "5.16"
 addons:
   apt:
     packages:
@@ -12,14 +16,15 @@ cache:
 before_install:
   - cpanm --notest GD::Image Text::Markdown DateTime
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
-  - npm install -g jshint bower
+  - npm install -g jshint
 install:
-  - bower install
+  - npm install
   - bash setup.sh legacy
 before_script:
   - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
   - nginx -c `pwd`/tests/travis-envsubst.conf
 script:
+  - prove -Isrc/perl5 -lr tests/perl_tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
   - jshint src/JBrowse/
   - make -f build/Makefile release

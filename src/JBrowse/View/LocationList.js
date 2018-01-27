@@ -9,7 +9,7 @@ define([
            'dojo/dom-construct',
            'dijit/form/Button',
            'JBrowse/Util',
-           'dojo/store/Memory',
+           'dstore/Memory',
            'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry'
        ],
@@ -77,7 +77,7 @@ return declare(null,{
         // create the grid
         this.grid = new Grid({
             columns: columns,
-            store: new MemoryStore({ data: locations } )
+            collection: new MemoryStore({ data: locations } )
         }, parent );
     }
 });

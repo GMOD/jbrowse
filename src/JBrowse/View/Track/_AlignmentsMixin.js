@@ -192,6 +192,12 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     func: function( f ) {
                         return f.get('strand') != -1;
                     }
+                },
+                hideUnsplicedReads: {
+                    desc: 'Hide unspliced reads',
+                    func: function ( f ) {
+                        return f.get('cigar').indexOf("N") != -1;
+                    }
                 }
             });
     },
@@ -211,7 +217,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                                'hideUnmapped',
                                'SEPARATOR',
                                'hideForwardStrand',
-                               'hideReverseStrand'
+                               'hideReverseStrand',
+                               'hideUnsplicedReads'
                            ],
                            filters );
                    });
