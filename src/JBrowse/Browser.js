@@ -53,6 +53,7 @@ define( [
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
+            'dojo/text!./package.json',
             'dojo/domReady!'
         ],
         function(
@@ -107,7 +108,8 @@ define( [
             HelpDialog,
             StandaloneDatasetList,
             dijitFocus,
-            LazyLoad
+            LazyLoad,
+            packagejson
         ) {
 
 
@@ -139,15 +141,20 @@ constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params || {};
-
+    
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
         return;
+
+    // hook for externally applied initialization that can be setup in index.html
+    if (typeof this.config.initExtra === 'function')
+       	this.config.initExtra(this,params);
 
     this.startTime = new Date();
 
     // start the initialization process
     var thisB = this;
+	
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
 
@@ -231,8 +238,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION;
-    return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
+    return JSON.parse(packagejson).version;
 }.call(),
 
 
@@ -525,7 +531,12 @@ loadRefSeqs: function() {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            request(this.config.refSeqs.url, { handleAs: 'text' } )
+            request(this.config.refSeqs.url, {
+                handleAs: 'text',
+                headers: {
+                    'X-Requested-With': null 
+                }
+            } )
                 .then( function(o) {
                            thisB.addRefseqs( dojo.fromJson(o) );
                            deferred.resolve({success:true});
@@ -954,7 +965,8 @@ initView: function() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
+            if (thisObj.config.update_browser_title)
+                document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
         };
         dojo.connect( this, "onCoarseMove",                     updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
@@ -1373,8 +1385,7 @@ browserMeta: function() {
     var about = this.config.aboutThisBrowser || {};
     about.title = about.title || 'JBrowse';
 
-    var verstring = this.version && this.version.match(/^\d/)
-        ? this.version : '(development version)';
+    var verstring = this.version;
 
     if( about.description ) {
         about.description += '<div class="powered_by">'
@@ -1388,7 +1399,7 @@ browserMeta: function() {
             + '  <div class="tagline">A next-generation genome browser<br> built with JavaScript and HTML5.</div>'
             + '  <a class="mainsite" target="_blank" href="http://jbrowse.org">JBrowse website</a>'
             + '  <div class="gmod">JBrowse is a <a target="_blank" href="http://gmod.org">GMOD</a> project.</div>'
-            + '  <div class="copyright">&copy; 2013 The Evolutionary Software Foundation</div>'
+            + '  <div class="copyright">'+JSON.parse(packagejson).copyright+'</div>'
             + ((Object.keys(this.plugins).length>1&&!this.config.noPluginsForAboutBox) ? (
                 '  <div class="loaded-plugins">Loaded plugins<ul class="plugins-list">'
                 + array.map(Object.keys(this.plugins), function(elt) {
@@ -2015,7 +2026,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels', 'update_browser_title'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
@@ -2106,6 +2117,7 @@ _configDefaults: function() {
         show_menu: true,
         show_overview: true,
         show_fullviewlink: true,
+        update_browser_title: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
         include: [
@@ -2356,25 +2368,27 @@ showRegion: function( location ) {
 navigateTo: function(loc) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
-        // lastly, try to search our feature names for it
-        thisB.searchNames( loc )
-            .then( function( found ) {
-                if( found )
-                    return;
+        thisB.afterMilestone( 'loadNames', function() {
+            // lastly, try to search our feature names for it
+            thisB.searchNames( loc )
+                .then( function( found ) {
+                    if( found )
+                        return;
 
-                // if it's a foo:123..456 location, go there
-                if(!thisB.callLocation(loc)){return;}
+                    // if it's a foo:123..456 location, go there
+                    if(!thisB.callLocation(loc)){return;}
 
-                new InfoDialog(
-                {
-                    title: 'Not found',
-                    content: 'Not found: <span class="locString">'+loc+'</span>',
-                    className: 'notfound-dialog'
-                }).show();
-            });
+                    new InfoDialog(
+                    {
+                        title: 'Not found',
+                        content: 'Not found: <span class="locString">'+loc+'</span>',
+                        className: 'notfound-dialog'
+                    }).show();
+                });
 
-        // called by default
-        thisB.callLocation(loc)
+            // called by default
+            thisB.callLocation(loc);
+        });
     });
 },
 

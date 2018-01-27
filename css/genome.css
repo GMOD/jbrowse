@@ -2,6 +2,7 @@
 
 @import url("../src/dijit/themes/tundra/tundra.css");
 @import url("../src/dojo/resources/dojo.css");
+@import url("../src/dgrid/css/dgrid.css");
 
 @import url("main.css");
 @import url("sequence.css");

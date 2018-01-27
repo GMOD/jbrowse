@@ -107,7 +107,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        this.bam.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
+        this.bam.fetch( query.ref ? query.ref : this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
     },
 
     saveStore: function() {

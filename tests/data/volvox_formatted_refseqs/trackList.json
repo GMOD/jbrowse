@@ -8,7 +8,8 @@
          "seqType": "dna",
          "label" : "DNA",
          "key" : "Reference sequence",
-         "storeClass": "JBrowse/Store/Sequence/StaticChunked"
+         "storeClass": "JBrowse/Store/Sequence/StaticChunked",
+         "foo": "bar"
       }
    ],
    "formatVersion" : 1

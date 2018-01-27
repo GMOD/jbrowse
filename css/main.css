@@ -249,6 +249,7 @@ div.locationTrap {
     border-style: solid;
     border-bottom-color: #A9C6EB;
     border-top: 0px dotted transparent;
+    box-sizing: content-box;
 }
 
 div.locationThumb {

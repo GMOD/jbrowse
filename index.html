@@ -31,8 +31,8 @@
         // free to move it into function scope if you want to keep it
         // out of the global namespace
         var JBrowse;
-        require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
-             function (Browser,ioQuery,JSON) {
+        require(['JBrowse/Browser','JBrowse/QueryParamConfigMapper', 'dojo/io-query', 'dojo/json' ],
+             function (Browser,QueryParamConfigMapper,ioQuery,JSON) {
                    // the initial configuration of this JBrowse
                    // instance
 
@@ -62,6 +62,7 @@
                        show_menu: queryParams.menu,
                        show_fullviewlink: queryParams.fullviewlink,
                        show_tracklabels: queryParams.tracklabels,
+                       update_browser_title: queryParams.browsertitle,
                        highResolutionMode: queryParams.highres,
                        stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
                        bookmarks: { },
@@ -101,6 +102,10 @@
                    if( queryParams.addStores ) {
                        config.stores = JSON.parse( queryParams.addStores );
                    }
+
+				   // this handles dot notation versions of addTracks, addBookmarks, and addStores
+				   // see config doc for details
+                   QueryParamConfigMapper().handleQueryParams(config,queryParams);
 
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
