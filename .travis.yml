@@ -9,7 +9,6 @@ addons:
     packages:
     - libdb-dev
     - libgd2-noxpm-dev
-    - nginx
 cache:
   - extlib/
   - $HOME/perl5/
