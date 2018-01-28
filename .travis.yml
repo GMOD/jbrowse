@@ -21,7 +21,7 @@ install:
   - npm install
   - bash setup.sh legacy
 before_script:
-  - ./jb_run.js -p 9000
+  - ./jb_run.js -p 9000 &
 script:
   - prove -Isrc/perl5 -lr tests/perl_tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
