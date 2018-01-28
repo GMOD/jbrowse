@@ -74,7 +74,7 @@ sub add_bw_track {
 	my $bw_entry;
 
 	my $index;
-	my $tracks = $track_list->{tracks};
+	my $tracks = $track_list->{tracks} || []; # create tracklist if not there
 	for ($index = 0; $index < scalar(@{$tracks}); ++$index) {
 		my $track = $tracks->[$index];
 		if ($track->{label} eq $label) {
