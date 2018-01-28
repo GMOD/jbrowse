@@ -17,7 +17,6 @@ before_install:
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - npm install -g jshint
 install:
-  - npm install
   - bash setup.sh legacy
 before_script:
   - ./jb_run.js -p 9000 &
