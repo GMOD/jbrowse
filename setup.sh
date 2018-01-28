@@ -10,6 +10,25 @@ done_message () {
     fi
 }
 
+function check_node(){
+    node_executable=$(which node)
+    npm_executable=$(which npm)
+    if ! [ -x "$node_executable" ] ; then
+        nodejs_executable=$(which nodejs)
+        if ! [ -x "$nodejs_executable" ] ; then
+            echo "No 'node' or 'nodejs' executable found, you must install 'Node JS' to install JBrowse."
+            exit 1
+        else
+            echo "Creating an alias 'node' for 'nodejs'"
+            node_executable="$nodejs_executable"
+        fi
+    fi
+    if ! [ -x "$npm_executable" ] ; then
+        echo "No 'npm' executable found, you must have a proper 'Node JS' installation to install JBrowse."
+        exit 1
+    fi
+    echo "Node installed";
+}
 
 echo > setup.log;
 
@@ -23,6 +42,7 @@ if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
     echo "Detected precompiled version." ;
 elif ! [ -f "src/dojo/dojo.js" ]; then
     echo "Dojo does not exist, installing" ;
+    check_node;
     npm install;
 fi
 echo "done"
