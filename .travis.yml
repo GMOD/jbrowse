@@ -2,6 +2,7 @@ sudo: false
 dist: trusty
 language: perl
 perl:
+  - "5.26"
   - "5.18"
   - "5.16"
 addons:
@@ -9,7 +10,6 @@ addons:
     packages:
     - libdb-dev
     - libgd2-noxpm-dev
-    - nginx
 cache:
   - extlib/
   - $HOME/perl5/
@@ -18,11 +18,9 @@ before_install:
   - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
   - npm install -g jshint
 install:
-  - npm install
   - bash setup.sh legacy
 before_script:
-  - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
-  - nginx -c `pwd`/tests/travis-envsubst.conf
+  - ./jb_run.js -p 9000 &
 script:
   - prove -Isrc/perl5 -lr tests/perl_tests
   - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
