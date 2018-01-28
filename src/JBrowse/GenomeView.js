@@ -82,7 +82,7 @@ constructor: function( args ) {
 
     // handle trackLabels option
     if (typeof browser.config.trackLabels !== 'undefined' && browser.config.trackLabels === "no-block") {
-        this.trackPadding = 35;
+        this.config.trackPadding = 35;
         this.topSpace = this.posHeight*3;
     }
 
