@@ -6,6 +6,9 @@
     unusable on Perl 5.18 and higher. Huge thanks to Colin Diesh for tracking
     this down. (issue #470, @cmdcolin)
 
+  * setup.sh now uses npm instead of Bower (which is deprecated) to install
+    dependencies. @enuggetry
+
   * Removed legacy `wig-to-json.pl` and `bam-to-json.pl` scripts.  @rbuels
 
   * Added a `--trackConfig` option to `prepare-refseqs.pl` to allow injecting
