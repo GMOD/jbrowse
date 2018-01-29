@@ -61,7 +61,7 @@ my $help;
 my $outdir = 'data';
 my $sortmem = 1000000000;
 my $skip_generate_names;
-my $compress;
+my $compress = 0;
 my $localbin = '';
 
 if($0 eq 'bin/maker2jbrowse') {
@@ -269,8 +269,15 @@ for my $gff3_file (@files){
         keys %t
     };
 
-    system $localbin . "prepare-refseqs.pl", '--gff' => $gff3_file, @outdir,
-        and die "prepare-refseqs.pl failed with exit status $?";
+    my @command = (
+        $localbin . "prepare-refseqs.pl",
+        '--gff' => $gff3_file,
+        @outdir
+       );
+    if($compress) {
+        push(@command, "--compress");
+    }
+    system @command and die "prepare-refseqs.pl failed with exit status $?";
 
     for my $track ( @tracks_to_make ) {
 
@@ -289,16 +296,25 @@ for my $gff3_file (@files){
             '--trackLabel' => $track,
             '--gff' => $gff3_file,
             '--sortMem' => $sortmem,
-            '--compress' => $compress,
             @outdir,
             @{$commands{$track}}
            );
+        if($compress) {
+            push(@command, "--compress");
+        }
 
-        #print join(" ",@command)."\n";
         system @command and die "flatfile-to-json.pl failed with exit status $?";
     }
 }
 
 unless( $skip_generate_names ) {
-    system 'bin/generate-names.pl', @outdir;
+
+    my @command = (
+        $localbin . "generate-names.pl",
+        @outdir
+       );
+    if($compress) {
+        push(@command, "--compress");
+    }
+    system @command and die "generate-names.pl failed with exit status $?";
 }
