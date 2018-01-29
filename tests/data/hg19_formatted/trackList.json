@@ -1,25 +1,25 @@
 {
    "tracks" : [
       {
-            "urlTemplate" : "tracks/knownGene/{refseq}/trackData.jsonz",
-            "storeClass": "JBrowse/Store/SeqFeature/NCList",
-            "style" : {
-               "className" : "generic_parent",
-               "subfeatureClasses" : {
-                  "CDS" : "transcript-CDS",
-                  "UTR" : "transcript-UTR"
-               },
-               "arrowheadClass" : "transcript-arrowhead",
-               "featureCss" : "background-color: #0c0c78; height: 6px;",
-               "histCss" : "background-color: #0c0c78;"
-            },
-            "compress" : 1,
-            "hooks" : {
-               "modify" : "function(track, feat, elem) {\n    var fType = feat.get(\"Type\");\n    if (fType) {\n        elem.className = \"basic\";\n        switch (fType) {\n        case \"CDS\":\n        case \"thick\":\n            elem.style.height = \"10px\";\n            elem.style.marginTop = \"-3px\";\n            break;\n        case \"UTR\":\n        case \"thin\":\n            elem.style.height = \"6px\";\n            elem.style.marginTop = \"-1px\";\n            break;\n        }\n        elem.style.backgroundColor = \"#0c0c78\";\n    }\n}\n"
-            },
-         "type" : "FeatureTrack",
+         "urlTemplate" : "tracks/knownGene/{refseq}/trackData.jsonz",
+         "style" : {
+            "histCss" : "background-color: #0c0c78;",
+            "featureCss" : "background-color: #0c0c78; height: 6px;",
+            "arrowheadClass" : "transcript-arrowhead",
+            "className" : "generic_parent",
+            "subfeatureClasses" : {
+               "CDS" : "transcript-CDS",
+               "UTR" : "transcript-UTR"
+            }
+         },
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
          "label" : "knownGene",
-         "key" : "knownGene"
+         "type" : "FeatureTrack",
+         "key" : "knownGene",
+         "compress" : 1,
+         "hooks" : {
+            "modify" : "function(track, feat, elem) {\n    var fType = feat.get(\"Type\");\n    if (fType) {\n        elem.className = \"basic\";\n        switch (fType) {\n        case \"CDS\":\n        case \"thick\":\n            elem.style.height = \"10px\";\n            elem.style.marginTop = \"-3px\";\n            break;\n        case \"UTR\":\n        case \"thin\":\n            elem.style.height = \"6px\";\n            elem.style.marginTop = \"-1px\";\n            break;\n        }\n        elem.style.backgroundColor = \"#0c0c78\";\n    }\n}\n"
+         }
       }
    ],
    "formatVersion" : 1

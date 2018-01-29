@@ -102,7 +102,7 @@ Finalize and flush to disk any currently open name index.
 
 sub finish {
     my ($self) = @_;
-    foreach my $chrom (keys %{$self->{nameFiles}}) {
+    foreach my $chrom (sort keys %{$self->{nameFiles}}) {
         my $fh = $self->{nameFiles}->{$chrom};
         if( $fh && $fh->opened ) {
             $fh->close or die "$! closing names file for ref seq $chrom";

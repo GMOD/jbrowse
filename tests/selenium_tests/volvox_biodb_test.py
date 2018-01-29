@@ -33,16 +33,13 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test context menus
         self.context_menus()
 
-        # test dragging in and displaying the wiggle track
-        self.wiggle()
-
         # test sequence track display
         self.sequence()
 
         # test that the frame usage track claims to have links to NCBI
         self.turn_on_track( 'HTMLFeatures - mRNAs' )
         self.do_typed_query('ctgA:2,381..21,220')
-        self.assert_element("//div[@title='search at NCBI']")
+        self.assert_element("//div[contains(@title,'Search for Apple3 at NCBI')]")
         self.turn_off_track( 'HTMLFeatures - mRNAs' )
 
         # test bigwig
@@ -80,12 +77,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         
         # test left-clicking on CanvasFeatures track
         self.do_typed_query( 'ctgA:1049..9000' )
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
+        self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(), 'details')]")
         canvas = self.assert_element("//div[@id='track_Genes']/canvas")
         canvas.click()
-        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'details')]")
-        self.close_dialog("EDEN details")
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'snippet')]")
+        self.assert_element("//*[@class='dijitDialogTitle'][contains(text(), 'gene EDEN')]")
+        self.close_dialog("gene EDEN")
+        self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(), 'snippet')]")
 
         # test Canvas-features context menu functionality
         # right-click one of them
@@ -94,7 +91,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
             .perform()
 
         self.menu_item_click("Popup with content snippet from string (feature EDEN)")
-        self.assert_element("//div[@class='dijitDialogTitleBar'][contains(@title, 'from a JS callback')]")
+        self.assert_element("//*[@class='dijitDialogTitle'][contains(text(), 'from a JS callback')]")
         self.close_dialog('from a JS callback')
 
         # turn off canvasFeatures tracks so they're not cluttering everything up
@@ -130,7 +127,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.export_track( trackname, 'Visible region','GFF3','View')
         self.close_dialog('export')
         self.export_track( trackname, 'Whole', 'bedGraph', 'Save' )
-        time.sleep( 0.5 );
+        time.sleep( 0.5 * JBrowseTest.time_dilation )
         self.export_track( trackname, 'Whole', 'Wiggle', 'Save' )
         self.turn_off_track( 'BigWig XY - volvox_microarray' )
 
@@ -184,15 +181,16 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.do_typed_query( '20147..35574' )
 
         # check that there is no dialog open
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'snippet')]")
+        self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(),'snippet')]")
 
         # get the example alignments features
         feature_elements = self.assert_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
+        time.sleep(1*JBrowseTest.time_dilation) # wait a second to make sure their click handlers are installed   
 
         # right-click one of them
         self.actionchains() \
-            .move_to_element(feature_elements[int(len(feature_elements)/2)]) \
-            .context_click().perform()
+            .context_click(feature_elements[int(len(feature_elements)/2)]) \
+            .perform()
 
         self.menu_item_click( 'Open popup' )
 
@@ -203,21 +201,8 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
 
         # check that the dialog closed
-        self.assert_no_element("//div[@class='dijitDialogTitleBar'][contains(@title,'Random XHR')]")
+        self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(),'Random XHR')]")
         self.turn_off_track( 'HTMLFeatures - Features with right-click menus' )
-
-    def wiggle( self ):
-
-        self.turn_on_track( 'Image - volvox' )
-
-        # see that we have an image track png in the DOM now
-        imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']"
-        imagetrack_png = self.assert_element( imagetrack_xpath )
-
-        self.turn_off_track( 'Image - volvox' )
-        # check that imagetrack png is not still in the DOM after the
-        # track is turned off
-        self.assert_no_element( imagetrack_xpath )
 
     def search_f15( self ):
 
@@ -237,10 +222,11 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
     def search_track( self ):
         self.assert_element("#dropdownbutton_file").click()
-        self.assert_element("#dijit_MenuItem_0").click()
-        self.assert_element("//div[@class='dijitDialogPaneContent']//input[@type='text'][@class='dijitReset dijitInputInner']").send_keys( "aaaccc" )
-        self.assert_element("//div[@class='dijitDialogPaneContent']//span[@class='dijitReset dijitInline dijitButtonText'][text()='Search']").click()
+        self.assert_element("//*[contains(@class,'dijitMenuTable')]//*[contains(@class,'dijitMenuItemLabel')][contains(text(),'Add sequence search')]").click()
+        self.assert_element("//div[contains(@class,'dijitDialogPaneContent')]//input[@type='text'][contains(@class,'dijitInputInner')]").send_keys( "aaaccc" )
+        self.assert_element("//div[contains(@class,'dijitDialogPaneContent')]//span[contains(@class,'dijitButtonText')][text()='Search']").click()
         self.assert_element("//div[contains(@id, 'track_search_track')]//canvas")
+        self.wait_for_dialog_disappearance()
         self.turn_off_track("Search reference sequence for")
 
     def combination( self ):

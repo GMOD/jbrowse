@@ -37,9 +37,9 @@ my ( $stdout ) = run_with (
     my $got = read_names($tempdir);
     my $expected = read_names('tests/data/volvox_formatted_names');
     is_deeply( $got, $expected, 'got right data from volvox test data run' );
-        #or diag explain read_names($tempdir);
-#    diag explain $got->{'c12/9.json'}{apple2}{exact};
-#    diag explain $expected->{'c12/9.json'}{apple2}{exact};
+    #    or diag explain read_names($tempdir);
+    #diag explain $got->{'c12/9.json'}{apple2}{exact};
+    #diag explain $expected->{'c12/9.json'}{apple2}{exact};
 }
 
 #system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
