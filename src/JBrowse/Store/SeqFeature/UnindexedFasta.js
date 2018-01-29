@@ -28,7 +28,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 {
 
     /**
-     * Storage backend for sequences in indexed fasta files
+     * Storage backend for sequences in UNINDEXED fasta files
      * served as static text files.
      * @constructs
      */

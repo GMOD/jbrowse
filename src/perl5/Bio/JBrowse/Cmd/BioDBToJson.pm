@@ -137,7 +137,7 @@ sub assemble_track_config {
         subfeature_classes  subfeatureClasses
         urlTemplate         linkTemplate
     );
-    for ( keys %cfg ) {
+    for ( sort keys %cfg ) {
         if( my $new_keyname = $renamed_keys{ $_ } ) {
             $cfg{ $new_keyname } = delete $cfg{ $_ };
         }
@@ -152,7 +152,7 @@ sub assemble_track_config {
         featureCss
         linkTemplate
     );
-    for ( keys %cfg ) {
+    for ( sort keys %cfg ) {
         if( $style_keys{$_} ) {
             $cfg{style}{$_} = delete $cfg{$_};
         }

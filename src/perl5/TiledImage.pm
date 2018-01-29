@@ -200,7 +200,7 @@ sub getBounds {
     return ($self->width, $self->height);
 }
 
-foreach my $sub (keys %intercept) {
+foreach my $sub (sort keys %intercept) {
     no strict "refs";
     *$sub = sub  {
 	my ($self, @args) = @_;
@@ -240,7 +240,7 @@ foreach my $sub (@globalPrimNames) {
     }
 }
 
-foreach my $sub (keys %unimplemented) {
+foreach my $sub (sort keys %unimplemented) {
     no strict "refs";
     *$sub = sub {
 	croak "Subroutine $sub unimplemented";
@@ -391,12 +391,12 @@ sub new {
     my %allowed_args = map {$_ => 1} qw (-primdb -tiledimage_name -width -height -persistent -verbose -tile_width_hint);
     my @required_args;
     if (exists $args{'-primdb'}) {
-	push @required_args, '-tiledimage_name';
+        push @required_args, '-tiledimage_name';
     } else {
-	$allowed_args{'-tiledimage_name'} = 1;
+        $allowed_args{'-tiledimage_name'} = 1;
     }
 
-    foreach my $arg (keys %args) {
+    foreach my $arg (sort keys %args) {
       unless ($allowed_args{$arg}) {
 	croak ("You specified an invalid arg ($arg) to TiledImage constructor (you passed in: ",
 	       join (' ', map { $_ . '=>' . $args{$_} } sort keys %args), ")");

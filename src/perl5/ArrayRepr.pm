@@ -214,7 +214,7 @@ sub makeFastGetter {
 sub construct {
     my ($self, $dict, $cls) = @_;
     my $result = [];
-    foreach my $key (keys %$dict) {
+    foreach my $key (sort keys %$dict) {
         $self->set($result, $key, $dict->{$key});
     }
     return $result;
