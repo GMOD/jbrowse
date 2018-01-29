@@ -328,6 +328,29 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
         var minLeft = bpToPx( fMin ) - bpToPx( vMin );
 
+        if( fRect.label ) {
+            if( fMin <= vMin) {
+                context.font = fRect.label.font;
+                context.fillStyle = fRect.label.fill;
+                context.textBaseline = fRect.label.baseline;
+                context.fillText( fRect.label.text,
+                                  0,
+                                  fRect.t+(fRect.label.yOffset||0)
+                                );
+            }
+        }
+        if( fRect.description ) {
+            if( fMin <= vMin) {
+                context.font = fRect.description.font;
+                context.fillStyle = fRect.description.fill;
+                context.textBaseline = fRect.description.baseline;
+                context.fillText(
+                    fRect.description.text,
+                    0,
+                    fRect.t + (fRect.description.yOffset||0)
+                );
+            }
+        }
     }
 
 });
