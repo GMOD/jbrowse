@@ -1,8 +1,9 @@
 import time
 
 class TrackSelector (object):
-    def __init__(self, browser):
+    def __init__(self, browser,time_dilation):
         self.test = browser
+        self.time_dilation = time_dilation
 
 class SimpleTrackSelector (TrackSelector):
     def turn_on_track( self, tracktext ):
@@ -11,8 +12,7 @@ class SimpleTrackSelector (TrackSelector):
 
         # drag the track label over
         self.test.actionchains() \
-            .move_to_element( tracklabel ) \
-            .double_click() \
+            .double_click(tracklabel) \
             .perform()
 
         self.test.assert_track(tracktext)
@@ -71,7 +71,7 @@ class FacetedTrackSelector (TrackSelector):
         self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
-        time.sleep(0.4)
+        time.sleep(0.4*self.time_dilation)
 
         # type the track's text in the text filter box
         textfilter = self.test.assert_element("//div[@id='faceted_tracksel']//label[@class='textFilterControl']//input[@type='text']")
@@ -86,5 +86,5 @@ class FacetedTrackSelector (TrackSelector):
         # turn off the track selector tab
         selector_tab = self.test.assert_element("//div[contains(@class,'faceted_tracksel_on_off')]")
         selector_tab.click()
-        time.sleep(0.4)
+        time.sleep(0.4*self.time_dilation)
 

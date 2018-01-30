@@ -51,3 +51,5 @@ bower_components
 src/dojo-themes
 themes/*/css
 .sass-cache
+.vscode/
+*driver.log
