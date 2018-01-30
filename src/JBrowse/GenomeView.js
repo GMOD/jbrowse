@@ -59,12 +59,13 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
 return declare( [Component,FeatureFiltererMixin], {
 
 constructor: function( args ) {
+    console.log(">>> view constructor");
     var browser = args.browser;
     var elem = args.elem;
     var stripeWidth = args.stripeWidth;
     var refseq = args.refSeq;
     var zoomLevel = args.zoomLevel;
-
+    
     // keep a reference to the main browser object
     this.browser = browser;
     this.setFeatureFilterParentComponent( this.browser );
@@ -78,6 +79,12 @@ constructor: function( args ) {
     // Add an arbitrary 50% padding between the position labels and the
     // topmost track
     this.topSpace = this.posHeight*1.5;
+
+    // handle trackLabels option
+    if (typeof browser.config.trackLabels !== 'undefined' && browser.config.trackLabels === "no-block") {
+        this.config.trackPadding = 35;
+        this.topSpace = this.posHeight*3;
+    }
 
     // WebApollo needs max zoom level to be sequence residues char width
     this.maxPxPerBp = this.config.maxPxPerBp;
@@ -2241,7 +2248,17 @@ renderTrack: function( /**Object*/ trackConfig ) {
     var trackClass, store;
 
     var makeTrack = dojo.hitch(this, function() {
+
+        // if there is no key for this track in its configuration, attempt to load the key from the track metadata
+        var metadataKey;
+        try {
+            metadataKey = this.browser.trackMetaDataStore.getItem(trackConfig.label).key
+        } catch(e) {}
+
+        // create the track
+
         var track = new trackClass({
+                key: trackConfig.key || metadataKey,
                 refSeq: this.ref,
                 config: trackConfig,
                 changeCallback: dojo.hitch( this, 'showVisibleBlocks', true ),

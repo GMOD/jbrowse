@@ -132,7 +132,8 @@ return declare( [BlockBased, ExportMixin, CodonTable],
 
         var extStart = blockStart-2;
         var extEnd = blockStart+2;
-        var extStartSeq = seq.substring( 0, seq.length - 2 - ((seq.length-2)%3) );// align frames across blocks by forcing mod3
+        var leftover = (seq.length - 2) % 3;
+        var extStartSeq = seq.substring( 0, seq.length - 2 );
         var extEndSeq = seq.substring( 2 );
 
         if( this.config.showForwardStrand && this.config.showTranslation ) {
@@ -174,7 +175,7 @@ return declare( [BlockBased, ExportMixin, CodonTable],
                 var frameDiv = [];
                 for(var i = 0; i < 3; i++) {
                     var transStart = blockStart + 1 - i;
-                    var frame = (transStart % 3 + 3) % 3;
+                    var frame = (transStart % 3 + 3 + leftover) % 3;
                     var translatedDiv = this._renderTranslation( extStartSeq, i, blockStart, blockEnd, blockLength, scale, true );
                     frameDiv[frame] = translatedDiv;
                     domClass.add( translatedDiv, "frame" + frame );

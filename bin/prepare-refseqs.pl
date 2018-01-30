@@ -116,6 +116,12 @@ The displayed name of the sequence track, defaults to 'Reference sequence'.
 The Name of the alphabet used for these reference sequences, usually
 either 'dna', 'rna', or 'protein'.
 
+=item --trackConfig '{ JSON-format extra configuration for this track }'
+
+Additional top-level configuration for the client, in JSON syntax.  Example:
+
+  --trackConfig '{ "glyph": "ProcessedTranscript" }'
+
 =back
 
 =head1 AUTHOR

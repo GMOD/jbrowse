@@ -496,6 +496,10 @@ return declare(
             this.glyphsBeingLoaded[glyphClassName] = [callback];
             require( [glyphClassName], function( GlyphClass ) {
 
+                         // if this require came back after we are already destroyed, just ignore it
+                         if( thisB.destroyed )
+                             return;
+
                          glyph = thisB.glyphsLoaded[glyphClassName] =
                              new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });
 

@@ -146,6 +146,10 @@ constructor: function(params) {
     if( this.config.unitTestMode )
         return;
 
+    // hook for externally applied initialization that can be setup in index.html
+    if (typeof this.config.initExtra === 'function')
+       	this.config.initExtra(this,params);
+
     this.startTime = new Date();
 
     // start the initialization process
