@@ -1,33 +1,43 @@
 sudo: false
 dist: trusty
 language: perl
+python: "2.7.10"
 perl:
-  - "5.18"
-  - "5.16"
+  - "5.26"
+  - "5.14"
 addons:
   apt:
     packages:
     - libdb-dev
     - libgd2-noxpm-dev
-    - nginx
+  firefox: "58.0"
 cache:
   - extlib/
   - $HOME/perl5/
 before_install:
+  #install geckodriver for the selenium tests :-P
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.19.1-linux64.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
+  # install perl deps
   - cpanm --notest GD::Image Text::Markdown DateTime
-  - cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
+  #- cpanm --notest git://github.com/bioperl/bioperl-live.git@v1.6.x
+  # and jshint for the JS code
   - npm install -g jshint
 install:
-  - npm install
+  - virtualenv ~/python
+  - source ~/python/bin/activate
+  - pip install nose selenium
   - bash setup.sh legacy
 before_script:
-  - cat tests/travis.conf | envsubst > tests/travis-envsubst.conf
-  - nginx -c `pwd`/tests/travis-envsubst.conf
+  - ./jb_run.js -p 9000 &
 script:
-  - prove -Isrc/perl5 -lr tests/perl_tests
-  - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests
   - jshint src/JBrowse/
-  - make -f build/Makefile release
+  - prove -j4 -Isrc/perl5 -lr tests/perl_tests
+  - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/
+  # only run `make release` for builds on master, or on a tag, or on a pull request
+  - if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_PULL_REQUEST != "false" ]]; then make -f build/Makefile release; fi
 after_failure:
   - cat JBrowse-1.x.x-dev/setup.log 
   - find JBrowse-1.x.x-dev/extlib/lib/perl5

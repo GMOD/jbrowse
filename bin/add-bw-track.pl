@@ -22,6 +22,7 @@ my $out_file;
 my $label;
 my $bw_url;
 my $key;
+my $category = undef;
 my $plot = 0;
 my $bicolor_pivot = "zero";
 my $pos_color = undef;
@@ -42,6 +43,7 @@ sub parse_options {
 		   "label|l=s"		=> \$label,
 		   "bw_url|u=s"		=> \$bw_url,
 		   "key|k=s"		=> \$key,
+		   "category|a=s"	=> \$category,
 		   "plot|P"		=> \$plot,
 		   "bicolor_pivot|b=s"	=> \$bicolor_pivot,
 		   "pos_color|c=s"	=> \$pos_color,
@@ -72,7 +74,7 @@ sub add_bw_track {
 	my $bw_entry;
 
 	my $index;
-	my $tracks = $track_list->{tracks};
+	my $tracks = $track_list->{tracks} || []; # create tracklist if not there
 	for ($index = 0; $index < scalar(@{$tracks}); ++$index) {
 		my $track = $tracks->[$index];
 		if ($track->{label} eq $label) {
@@ -114,6 +116,12 @@ sub add_bw_track {
 	$bw_entry->{urlTemplate} = $bw_url;
 	$bw_entry->{key} = $key;
 	$bw_entry->{bicolor_pivot} = $bicolor_pivot;
+	if (defined $category) {
+		$bw_entry->{category} = $category;
+	}
+	else {
+		delete $bw_entry->{category};
+	}
 	if (defined $min_score) {
 		$bw_entry->{min_score} = $min_score;
 	}
@@ -195,6 +203,7 @@ add-bw-track.pl - add track configuration snippet(s) for BAM track(s)
 	--label <track_label>                              \
 	--bw_url <url_to_big_wig_file>                     \
 	[ --key <track_key> ]                              \
+	[ --category 'Category in JBrowse' ]               \
 	[ --plot ]                                         \
 	[ --bicolor_pivot <pivot_for_changing_colors> ]    \
 	[ --pos_color <color_for_positive_side_of_pivot> ] \
@@ -246,6 +255,10 @@ unique track label for the new track.
 =item --key <keyname>
 
 key (display name) for track [default: label value]
+
+=item --category "Category Name / Subcategory Name"
+
+track category. Used by the default Hierarchical track selector.
 
 =item --classname <classname>
 
