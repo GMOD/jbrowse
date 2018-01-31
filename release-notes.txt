@@ -19,6 +19,10 @@
 
   * Make jbrowse npm installable. thanks to @cmdcolin & @enuggetry.
 
+  * Change "Length on ref" to "Seq length on ref" in Alignments feature detail boxes,
+    so that the length on the reference appears next to the sequence length. Thanks to
+    @colindaven for the suggestion!
+
   * implement express server for jbrowse for quick launch (jb_run.js).  @enuggetry.
 
   * jb_setup.js @enuggetry.
@@ -37,8 +41,6 @@
     the main storage engine used by biodb-to-json.pl. Bug was manifesting as the script
     running indefinitely and taking all available disk space.
     (pull #945, issue #946, @deepakunni3 and @rbuels)
-
-  ...
 
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
