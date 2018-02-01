@@ -321,8 +321,15 @@ return declare(
         else {
             var thisB = this;
             this.glyphsBeingLoaded[glyphClassName] = [callback];
+
+            var handler = require.on("error", function(error) {
+                console.error(error);
+                errorCallback('A resource failed to load '+error.src + ':' + error.info[0]);
+            });
+
             require( [glyphClassName], function( GlyphClass ) {
 
+                         handler && handler.remove();
                          // if this require came back after we are already destroyed, just ignore it
                          if( thisB.destroyed )
                              return;
