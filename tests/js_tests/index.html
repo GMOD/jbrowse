@@ -17,7 +17,11 @@
     require( { baseUrl: '../../src',
                packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
                             { name: 'lazyload',  main: 'lazyload' },
-                            'dgrid', 'xstyle', 'put-selector',
+                            'dgrid',
+                            'xstyle',
+                            'put-selector',
+                            'FileSaver',
+                            'dstore',
                             { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
                             'JBrowse'
                          ]
@@ -44,6 +48,7 @@
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec/ExportGFF3.spec.js"></script>
+  <script type="text/javascript" src="spec/QueryParamConfigMapper.spec.js"></script>
   <script type="text/javascript" src="spec/LazyArray.spec.js"></script>
   <script type="text/javascript" src="spec/FeatureLayout.spec.js"></script>
   <script type="text/javascript" src="spec/BigWig.spec.js"></script>
@@ -65,6 +70,7 @@
   <script type="text/javascript" src="spec/BEDTabix.spec.js"></script>
   <script type="text/javascript" src="spec/BED.spec.js"></script>
   <script type="text/javascript" src="spec/TwoBit.spec.js"></script>
+  <script type="text/javascript" src="spec/SequenceTrack.spec.js"></script>
 
   <!--<script type="text/javascript" src="spec/VCF.spec.js"></script>-->
 

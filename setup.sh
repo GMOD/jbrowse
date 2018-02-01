@@ -10,55 +10,29 @@ done_message () {
     fi
 }
 
-legacy_message () {
-   echo "Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, run 'setup.sh legacy'."
- }
-
 function check_node(){
     node_executable=$(which node)
     npm_executable=$(which npm)
     if ! [ -x "$node_executable" ] ; then
         nodejs_executable=$(which nodejs)
         if ! [ -x "$nodejs_executable" ] ; then
-            echo "You must install 'Node JS' to install JBrowse from bower."
+            echo "No 'node' or 'nodejs' executable found, you must install 'Node JS' to install JBrowse."
+            exit 1
         else
             echo "Creating an alias 'node' for 'nodejs'"
             node_executable="$nodejs_executable"
         fi
     fi
+    if ! [ -x "$npm_executable" ] ; then
+        echo "No 'npm' executable found, you must have a proper 'Node JS' installation to install JBrowse."
+        exit 1
+    fi
     echo "Node installed";
 }
 
-function check_bower(){
-    check_node;
-    bower_executable=$(which bower)
-    if ! [ -x "$bower_executable" ] ; then
-        $npm_executable install -g bower
-        bower_executable=$(which bower)
-        if ! [ -x "$bower_executable" ] ; then
-            echo "You must install 'bower' to install JBrowse `npm install -g bower` using bower."
-        else
-            echo "Bower installed";
-        fi
-    else
-        echo "Bower installed";
-    fi
-}
-
-
 echo > setup.log;
 
-LEGACY_INSTALL=0
-if [ $# -gt 1 ] ; then
-  echo "USAGE: ./setup.sh [legacy]"
-  echo -e "\tTakes one optional argument, presence triggers legacy software install."
-  exit 1
-fi
-if [[ ($# -eq 1) && ("$1" = "legacy") ]] ; then
-  LEGACY_INSTALL=1
-else
-  legacy_message
-fi
+echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
 
 # if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
 # OR
@@ -68,11 +42,8 @@ if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
     echo "Detected precompiled version." ;
 elif ! [ -f "src/dojo/dojo.js" ]; then
     echo "Dojo does not exist, installing" ;
-    check_bower >> setup.log ;
-    $bower_executable install -f --allow-root >> setup.log ;
-else
-    check_bower >> setup.log ;
-    echo -n "  Bower dependencies already installed.  Type '$bower_executable install -f --allow-root' to force reinstallation of dependencies.";
+    check_node;
+    npm install;
 fi
 echo "done"
 
@@ -85,11 +56,39 @@ echo -n "Gathering system information ..."
     lsb_release -a;
     uname -a;
     sw_vers;
-    system_profiler;
     grep MemTotal /proc/meminfo;
     echo; echo;
 ) >>setup.log 2>&1;
 echo "done"
+
+# check Mac OS version
+SUPPRESS_BIODB_TO_JSON=0
+
+sw_vers >& /dev/null;
+if [ $? -eq 0 ]; then
+    product_version=`sw_vers -productVersion`;
+    have_db=`perl -MConfig=myconfig -e 'print myconfig' | grep -- -ldb`
+    if [[ $product_version =~ ^10.13 && x$have_db = 'x' ]]; then
+        SUPPRESS_BIODB_TO_JSON=1;
+        echo;
+        echo ===============================================================
+        echo "** MacOS High Sierra with broken system Perl detected. **";
+        echo "biodb-to-json.pl does not work on MacOS High Sierra with the stock system Perl.";
+        echo "The setup will not run biodb-to-json.pl for its sample data: Volvox and Yeast.";
+        echo "To re-enable formatting on your High Sierra machine, install a Perl with a working BerkeleyDB."
+        echo;
+        echo "If you use Homebrew, an easy way to install a working Perl would be:"
+        echo;
+        echo "    brew install berkeley-db; brew install --build-from-source perl"
+        echo;
+        echo "Then delete the external perl libraries and run setup.sh again:"
+        echo;
+        echo "    rm -rf extlibs/; ./setup.sh"
+        echo;
+        echo ===============================================================
+        echo;
+    fi
+fi
 
 echo  -n "Installing Perl prerequisites ..."
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
@@ -112,7 +111,11 @@ echo -n "Formatting Volvox example data ...";
     # format volvox
     rm -rf sample_data/json/volvox;
     bin/prepare-refseqs.pl --fasta docs/tutorial/data_files/volvox.fa --out sample_data/json/volvox;
-    bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
+    if [ $SUPPRESS_BIODB_TO_JSON -eq 1 ]; then
+        echo "Not running biodb-to-json.pl for Volvox";
+    else
+        bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
+    fi
     cat docs/tutorial/data_files/volvox_microarray.bw.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox_sine.bw.conf >> sample_data/json/volvox/tracks.conf
     cat docs/tutorial/data_files/volvox-sorted.bam.conf >> sample_data/json/volvox/tracks.conf
@@ -154,65 +157,13 @@ echo -n "Formatting Yeast example data ...";
     rm -rf sample_data/json/yeast/;
     bin/prepare-refseqs.pl --fasta sample_data/raw/yeast_scaffolds/chr1.fa.gz --fasta sample_data/raw/yeast_scaffolds/chr2.fa.gzip  --out sample_data/json/yeast/;
     gunzip -c sample_data/raw/yeast_scaffolds/chr1.fa.gz sample_data/raw/yeast_scaffolds/chr2.fa.gzip > sample_data/raw/yeast_chr1+2/yeast.fa;
-    bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
+    if [ $SUPPRESS_BIODB_TO_JSON -eq 1 ]; then
+        echo "Not running biodb-to-json.pl for Yeast";
+    else
+        bin/biodb-to-json.pl --conf sample_data/raw/yeast.json --out sample_data/json/yeast/;
+    fi
     bin/add-json.pl '{ "dataset_id": "yeast" }' sample_data/json/yeast/trackList.json
     bin/add-json.pl '{ "dataset_id": "yeast",  "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/yeast/trackList.json
     bin/generate-names.pl --dir sample_data/json/yeast/;
 ) >>setup.log 2>&1
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";
-
-if [ $LEGACY_INSTALL -eq 0 ] ; then
-   legacy_message
-   exit 0
-fi
-
-echo
-echo -n "Building and installing legacy wiggle format support (superseded by BigWig tracks) ...";
-(
-    set -e;
-    if( [ ! -f bin/wig2png ] ); then
-        set -x;
-        cd src/wig2png;
-        ./configure && make;
-        cd ../..;
-    fi
-    set -x;
-    bin/wig-to-json.pl --key 'Image - volvox_microarray.wig' --wig docs/tutorial/data_files/volvox_microarray.wig --category "Pre-generated images" --out sample_data/json/volvox;
-) >>setup.log 2>&1
-done_message "" "If you really need wig-to-json.pl (most users don't), make sure libpng development libraries and header files are installed and try running setup.sh again.";
-
-echo
-echo -n "Building and installing legacy bam-to-json.pl support (superseded by direct BAM tracks) ...";
-(
-    set -e;
-
-    # try to install Bio::DB::Sam if necessary
-    if( perl -Iextlib/lib/perl5 -Mlocal::lib=extlib -MBio::DB::Sam -e 1 ); then
-        echo Bio::DB::Sam already installed.
-    else
-        if( [ "x$SAMTOOLS" == "x" ] ); then
-            set -x;
-
-            if [ ! -e samtools-0.1.20 ]; then
-                if hash curl 2>/dev/null; then
-                    curl -L https://github.com/samtools/samtools/archive/0.1.20.zip -o samtools-0.1.20.zip;
-                else
-                    wget -O samtools-0.1.20.zip https://github.com/samtools/samtools/archive/0.1.20.zip;
-                fi
-                unzip -o samtools-0.1.20.zip;
-                rm samtools-0.1.20.zip;
-                perl -i -pe 's/^CFLAGS=\s*/CFLAGS=-fPIC / unless /\b-fPIC\b/' samtools-0.1.20/Makefile;
-            fi;
-            make -C samtools-0.1.20 -j3 lib;
-            export SAMTOOLS="$PWD/samtools-0.1.20";
-        fi
-        echo "samtools in env at '$SAMTOOLS'";
-        set +e;
-        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
-        set -e;
-        bin/cpanm -v -l extlib Bio::DB::Sam@1.41;
-    fi
-
-    bin/bam-to-json.pl --bam docs/tutorial/data_files/volvox-sorted.bam --tracklabel bam_simulated --key "Legacy BAM - volvox-sorted.bam" --cssClass basic --metadata '{"category": "BAM"}' --clientConfig '{"featureCss": "background-color: #66F; height: 8px", "histCss": "background-color: #88F"}' --out sample_data/json/volvox;
-) >>setup.log 2>&1;
-done_message "" "If you really need bam-to-json.pl (most users don't), try reading the Bio-SamTools troubleshooting guide at https://metacpan.org/source/LDS/Bio-SamTools-1.33/README for help getting Bio::DB::Sam installed.";

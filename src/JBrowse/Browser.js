@@ -146,6 +146,10 @@ constructor: function(params) {
     if( this.config.unitTestMode )
         return;
 
+    // hook for externally applied initialization that can be setup in index.html
+    if (typeof this.config.initExtra === 'function')
+       	this.config.initExtra(this,params);
+
     this.startTime = new Date();
 
     // start the initialization process
@@ -193,7 +197,7 @@ constructor: function(params) {
                                // In rare cases thisB.config.defaultTracks already contained an array that appeared to
                                // have been split in a previous invocation of this function. Thus, we only try and split
                                // it if it isn't already split.
-                               if (!thisB.config.defaultTracks instanceof Array) {
+                               if (!(thisB.config.defaultTracks instanceof Array)) {
                                   tracksToShow = tracksToShow.concat(thisB.config.defaultTracks.split(","));
                                }
                            }
@@ -234,8 +238,7 @@ _initialLocation: function() {
 version: function() {
     // when a build is put together, the build system assigns a string
     // to the variable below.
-    var BUILD_SYSTEM_JBROWSE_VERSION;
-    return BUILD_SYSTEM_JBROWSE_VERSION || 'development';
+    return JSON.parse(packagejson).version;
 }.call(),
 
 
@@ -528,7 +531,12 @@ loadRefSeqs: function() {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            request(this.config.refSeqs.url, { handleAs: 'text' } )
+            request(this.config.refSeqs.url, {
+                handleAs: 'text',
+                headers: {
+                    'X-Requested-With': null 
+                }
+            } )
                 .then( function(o) {
                            thisB.addRefseqs( dojo.fromJson(o) );
                            deferred.resolve({success:true});
@@ -957,7 +965,8 @@ initView: function() {
             var shareURL = thisObj.makeCurrentViewURL();
             if( thisObj.config.updateBrowserURL && window.history && window.history.replaceState )
                 window.history.replaceState( {},"", shareURL );
-            document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
+            if (thisObj.config.update_browser_title)
+                document.title = thisObj.browserMeta().title + ' ' + thisObj.view.visibleRegionLocString();
         };
         dojo.connect( this, "onCoarseMove",                     updateLocationBar );
         this.subscribe( '/jbrowse/v1/n/tracks/visibleChanged',  updateLocationBar );
@@ -1376,8 +1385,7 @@ browserMeta: function() {
     var about = this.config.aboutThisBrowser || {};
     about.title = about.title || 'JBrowse';
 
-    var verstring = this.version && this.version.match(/^\d/)
-        ? this.version : '(development version)';
+    var verstring = this.version;
 
     if( about.description ) {
         about.description += '<div class="powered_by">'
@@ -2018,7 +2026,7 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels'], function(v) {
+                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels', 'update_browser_title'], function(v) {
                                                  this.config[v] = this._coerceBoolean( this.config[v] );
                                              },this);
 
@@ -2109,6 +2117,7 @@ _configDefaults: function() {
         show_menu: true,
         show_overview: true,
         show_fullviewlink: true,
+        update_browser_title: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
         include: [

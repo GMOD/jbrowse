@@ -53,18 +53,26 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             fmt('Sequence and Quality', this._renderSeqQual( f ), f );
         }
 
+        var renameTags = { length_on_ref: 'seq_length_on_ref' };
         var additionalTags = array.filter(
             f.tags(), function(t) {
                 return ! {name:1,score:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
             }
-        ).sort();
+        )
+        .map( function(tagName) {
+            return [
+                renameTags[tagName] || tagName,
+                f.get(tagName)
+            ]
+        })
+        .sort( function(a,b) { return a[0].localeCompare(b[0]) })
 
         dojo.forEach( additionalTags, function(t) {
-                          fmt( t, f.get(t), f );
+            fmt( t[0], t[1], f );
         });
 
         // genotypes in a separate section
-        if(this.config.renderAlignment) {
+        if(this.config.renderAlignment || this.config.renderPrettyAlignment) {
             this._renderTable( container, track, f, div );
         }
 
@@ -192,6 +200,12 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     func: function( f ) {
                         return f.get('strand') != -1;
                     }
+                },
+                hideUnsplicedReads: {
+                    desc: 'Hide unspliced reads',
+                    func: function ( f ) {
+                        return f.get('cigar').indexOf("N") != -1;
+                    }
                 }
             });
     },
@@ -211,7 +225,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                                'hideUnmapped',
                                'SEPARATOR',
                                'hideForwardStrand',
-                               'hideReverseStrand'
+                               'hideReverseStrand',
+                               'hideUnsplicedReads'
                            ],
                            filters );
                    });
@@ -314,21 +329,12 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 curr_pos++;
             }
         }
-        if(lang.isObject(this.config.renderAlignment) && this.config.renderAlignment.singleline) {
-            var gContainer = dojo.create('div', {
-                className: 'renderTable',
-                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-                  +'Query: '+query_str+'   <br>'
-                  +'       '+align_str+'   <br>'
-                  +'Ref:   '+refer_str+'   </div>'
-            }, parentElement );
-        }
-        else {
+        if(this.config.renderPrettyAlignment) {
             var s1, s2, s3, ret_str;
             s1 = s2 = s3 = ret_str ='';
             var qpos = 0;
             var rpos = (mismatches.length && mismatches[0].type == 'softclip') ? (start-mismatches[0].cliplen) : start;
-            var w = this.config.renderAlignment.width || 50;
+            var w = this.config.renderAlignmentWidth || 50;
             for(var i = 0; i < query_str.length; i += w) {
                 s1 = query_str.substring(i, i+w);
                 s2 = align_str.substring(i, i+w);
@@ -346,6 +352,14 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 className: 'renderTable',
                 innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
                   +ret_str+'</div>'
+            }, parentElement );
+        } else if(this.config.renderAlignment) {
+            var gContainer = dojo.create('div', {
+                className: 'renderTable',
+                innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
+                  +'Query: '+query_str+'   <br>'
+                  +'       '+align_str+'   <br>'
+                  +'Ref:   '+refer_str+'   </div>'
             }, parentElement );
         }
 

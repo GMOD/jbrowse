@@ -102,7 +102,7 @@ sub new {
         'link'          => 1,
         'drawsub'       => undef,
     };
-    for my $arg ( keys %args ) {
+    for my $arg ( sort keys %args ) {
 	if( exists $self->{$arg} ) {
 	    $self->{$arg} = $args{$arg}
 	} else {

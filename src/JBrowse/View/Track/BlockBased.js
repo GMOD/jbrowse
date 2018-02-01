@@ -170,14 +170,21 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     makeTrackLabel: function() {
-        var labelDiv = dojo.create(
-            'div', {
+        
+        var params = {
                 className: "track-label dojoDndHandle",
                 id: "label_" + this.name,
                 style: {
                     position: 'absolute'
                 }
-            },this.div);
+            };
+        
+        if (typeof this.browser.config.trackLabels !== 'undefined' && this.browser.config.trackLabels==='no-block') {
+            params.style.top = "-30px";
+        }
+        
+        var labelDiv = dojo.create(
+            'div', params ,this.div);
 
         this.label = labelDiv;
 

@@ -62,7 +62,7 @@ class VolvoxRestTest( JBrowseTest ):
         qbox = self.browser.find_element_by_id("location")
         qbox.clear()
         qbox.send_keys( text )
-        WebDriverWait(self, 5).until(lambda self: self.is_right_num_of_entries (num_of_results))
+        WebDriverWait(self, 5*JBrowseTest.time_dilation).until(lambda self: self.is_right_num_of_entries (num_of_results))
 
     # Compares number of returned results against expected results
     def is_right_num_of_entries( self, num ):

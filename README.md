@@ -2,33 +2,38 @@
 
 # Installing JBrowse
 
-Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install.
+Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
 
-Unless you intend to work on the JBrowse code itself, or develop a JBrowse plugin, stop reading now and go to http://jbrowse.org/install.
+It is generally recommended that installing from the master branch is for development purposes.
+One reason is because the development version has a much slower initial load than the Release package.  Also, since the master branch code is ''in development'' for the next JBrowse release, it may contain bugs.
 
-# About running from a `git` clone
+# Install from github repo (development)
 
-Only developers should run JBrowse from a git repository.
-For one reason, the development version has a much, much slower initial load
-time than the built release zipfiles.  Also, since the master branch code is ''in development'' for the next JBrowse release, it often (usually?) contains bad bugs, much more so than the official releases put up on JBrowse.org.
+Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
 
-# Setting up a development environment
+*If you are using a 3rd party webserver, you should clone JBrowse into your web root*
 
-Make sure you have a web server installed on your development machine.  Any web server will do.
-
-    cd /my/dev/webserver/root;
-    git clone https://github.com/GMOD/jbrowse jbrowse 
+    git clone https://github.com/GMOD/jbrowse
     cd jbrowse
-    bower --allow-root -f install
-    ./setup.sh
-    # and now point your browser to
-    #   http://localhost/jbrowse/index.html?data=sample_data/json/volvox
-    # and you should see the volvox example data
+    npm install
+    ./jb_setup.js   (optional -- sets up demo files such as Volvox)
+    ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
+ 
+If you have installed the demo (with ./jb_setup.js), you can point your browser to
+http://localhost/jbrowse/index.html?data=sample_data/json/volvox
+and you should see the volvox example data.
 
+Now you can simply edit files and your changes will be available in the browser (the build step is not required).
 
-Then you can simply edit files and your changes will be available in the browser (i.e. no build step is required)
+# Installing as an npm module
 
-You can also optionally run build steps to create the minimized codebase. Extra dependencies Text::Markdown and DateTime are required to run the build step.
+This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root and can be used to install the demo files and serve JBrowse, respectively.
+
+    npm install GMOD/jbrowse
+
+# Generating Packaged Builds
+
+You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
 
     make -f build/Makefile release-notest
     make -f build/Makefile release # alternate build with full test suite
@@ -40,8 +45,8 @@ To build the Electron app (JBrowse desktop app), run the following
 
 To run the Electron app in debug mode run the following
 
-    npm install
-    npm start
+    npm install -g electron
+    electron browser/main.js
 
 # Running the developer test suites
 
@@ -65,8 +70,9 @@ You can also run them from phantomJS using
 Integration tests for the client-side app.  You need to have Python
 eggs for `selenium` and `nose` installed.  Run the tests with:
 
-    JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
+    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
+Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis one will only work properly in a properly configured Travis CI build environment.
 
 # Cutting a JBrowse release
 

@@ -1,14 +1,31 @@
 {
   "name": "jbrowse",
   "main": "browser/main.js",
+  "version": "1.12.4-SNAPSHOT",
+  "description": "JBrowse - Genome Browser (Client)",
   "repository": "https://github.com/GMOD/jbrowse.git",
-  "devDependencies": {
-    "electron": "^1.6.2"
-  },
   "scripts": {
-    "start": "electron browser/main.js"
+    "postinstall": "node utils/postinstall.js"
   },
   "dependencies": {
-    "electron-screenshot": "^1.0.4"
+    "app-root-path": "^2.0.1",
+    "async": "^2.5.0",
+    "dgrid": "^1.1.0",
+    "dijit": "^1.12.2",
+    "dojo": "^1.12.2",
+    "dojo-dstore": "^1.1.1",
+    "dojo-util": "^1.12.2",
+    "dojox": "^1.12.2",
+    "electron-screenshot": "^1.0.2",
+    "express": "^4.15.4",
+    "filesaver.js": "^0.2.0",
+    "fs-extra": "^4.0.1",
+    "jDataView": "git+https://github.com/rbuels/jdataview.git",
+    "jasmine-node": "^1.14.5",
+    "json-schema": "git+https://github.com/kriszyp/json-schema.git",
+    "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
+    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
+    "node-getopt": "^0.2.3",
+    "shelljs": "^0.7.8"
   }
 }
