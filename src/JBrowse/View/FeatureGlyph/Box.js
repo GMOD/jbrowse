@@ -329,7 +329,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         var minLeft = bpToPx( fMin ) - bpToPx( vMin );
 
         if( fRect.label ) {
-            if( fMin <= vMin) {
+            if( fMin <= vMin && fMax > vMin) {
                 context.font = fRect.label.font;
                 context.fillStyle = fRect.label.fill;
                 context.textBaseline = fRect.label.baseline;
@@ -340,7 +340,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             }
         }
         if( fRect.description ) {
-            if( fMin <= vMin) {
+            if( fMin <= vMin && fMax > vMin) {
                 context.font = fRect.description.font;
                 context.fillStyle = fRect.description.fill;
                 context.textBaseline = fRect.description.baseline;
