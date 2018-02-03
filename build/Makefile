@@ -148,13 +148,6 @@ release-min-test: release-min
 	cd $(RELEASE_MIN_DIR) && ./setup.sh legacy
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
-bin/wig2png: src/wig2png/Makefile
-	$(MAKE) -C src/wig2png;
-src/wig2png/Makefile: src/wig2png/configure
-	cd src/wig2png && ./configure
-src/wig2png/configure: src/wig2png/configure.in
-	cd src/wig2png && autoconf
-
 superclean: clean
 	-git clean -fdx --exclude=plugins/ \
 	    --exclude src/FileSaver/ \
