@@ -21,7 +21,7 @@ UNZIP=unzip -q
 SHASUM=shasum
 
 
-all: docs bin/wig2png
+all: docs
 
 release-version.txt:
 	echo $(RELEASE_VERSION) > release-version.txt
