@@ -108,8 +108,7 @@ release-min: release-normal plugins-min
 	for P in src docs/jsdoc tests tests_extended build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in 	src/wig2png \
-			src/dojo/dojo.js \
+	for P in src/dojo/dojo.js \
 			`find src/ -name nls -and -type d -and -not -wholename '*/tests/*' | grep -v src/dojox/grid` \
 			src/dojo/resources \
 			src/dojox/grid \
