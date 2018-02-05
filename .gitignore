@@ -53,3 +53,4 @@ themes/*/css
 .sass-cache
 .vscode/
 *driver.log
+JBrowse-*/
