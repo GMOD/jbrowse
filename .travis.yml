@@ -40,6 +40,8 @@ script:
 - unzip -q JBrowse-$RELEASE_VERSION.zip;
 - cp -r tests/ JBrowse-$RELEASE_VERSION/;
 - cd JBrowse-$RELEASE_VERSION/
+- ln -s ../node_modules
+- ln -s ../extlib
 - ./setup.sh legacy;
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - ./jb_run.js -p 9000 &
