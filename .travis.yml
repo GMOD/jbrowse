@@ -1,5 +1,5 @@
 sudo: false
-dist: trusty
+dist: precise
 language: perl
 python: "2.7.10"
 perl:
