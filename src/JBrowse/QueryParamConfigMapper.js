@@ -1,17 +1,7 @@
-define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dotObject) {
+define(['dojo/_base/declare','dojo/_base/array', 'JBrowse/Util/dot-object'], function (declare, array, dotObject) {
     return declare(null, {
 
         constructor: function () { },
-
-        removeNullsFromArray: function(inputArray){
-                for (var i = 0; i < inputArray.length; i++) {
-                    if (inputArray[i] == null) {
-                        inputArray.splice(i, 1);
-                        i--;
-                    }
-                }
-                return inputArray;
-        },
 
         generateUrl: function (input) {
             var returnObject = dotObject.dot(input);
@@ -138,7 +128,9 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
             if(featuresArray.length>0){
                 config.stores = config.stores ? config.stores : {};
                 config.stores.url = config.stores.url ? config.stores.url : {};
-                config.stores.url.features = this.removeNullsFromArray(featuresArray);
+                config.stores.url.features = array.filter(featuresArray, function(el){
+                    return el!=null
+                });
             }
         }
     });
