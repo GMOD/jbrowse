@@ -26,13 +26,11 @@ all: docs
 release-version.txt:
 	echo $(RELEASE_VERSION) > release-version.txt
 
-release: release-version.txt release-normal release-min release-normal-test release-min-test release-notes.html
+release: release-version.txt release-normal release-min release-notes.html
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
-release-notest: release-version.txt release-normal release-min release-notes.html
-	ls -lh *.zip
-	$(SHASUM) *.zip
+release-notest: release
 
 release-electron-darwin: release-notest
 	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
@@ -77,15 +75,6 @@ release-normal: superclean $(JS_SRCFILES) node_modules
 
         # zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
-
-release-normal-test: release-normal
-        # unzip to make sure we are looking at what's really in the releases
-	rm -rf $(RELEASE_FULL_DIR);
-	$(UNZIP) $(RELEASE_FULL).zip
-	cd $(RELEASE_FULL_DIR) \
-	  && ./setup.sh legacy \
-	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
-
 
 PLUGINS = $(wildcard $(PLUGINDIR)/*)
 
@@ -141,19 +130,10 @@ release-min: release-normal plugins-min
         # zip it up
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
-release-min-test: release-min
-        # unzip to make sure we are looking at what's really in the releases
-	rm -rf $(RELEASE_MIN_DIR);
-	$(UNZIP) $(RELEASE_MIN).zip
-	rm $(RELEASE_MIN_DIR)/sample_data/raw/volvox
-	cp -R docs tests* sample_data $(RELEASE_MIN_DIR);
-	cd $(RELEASE_MIN_DIR) && ./setup.sh legacy
-	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
-
 superclean: clean
 	git clean -fdxq --exclude=./plugins
 
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
-.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test plugins-min
+.PHONY: all clean superclean jbrowse docs doc release release-min release-normal plugins-min

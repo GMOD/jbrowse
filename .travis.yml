@@ -30,21 +30,34 @@ install:
   - source ~/python/bin/activate
   - pip install nose selenium
   - bash setup.sh legacy
-before_script:
-  - ./jb_run.js -p 9000 &
+# NOTE: travis supports build stages and matrixes and stuff to implement this more symbolically,
+# but the shell conditionals seem more straightforward for now
 script:
   - jshint src/JBrowse/
-  - prove -j4 -Isrc/perl5 -lr tests/perl_tests
-  - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/
   # if this is a release tag, then update both package.json files with the version in the tag
   - |
   if [[ "x$TRAVIS_TAG" != "x" ]]; then 
     build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json
   fi
-  # run `make release` for builds on master, or on a tag, or on a pull request
+  # run tests in built release for builds on master, tags, or pull reqs, otherwise run tests in root
   - |
-  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_PULL_REQUEST != "false" ]]; then
+  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = 'continuous_deployment' || $TRAVIS_PULL_REQUEST != "false" ]]; then
     make -f build/Makefile release;
+    for zip in JBrowse-*.zip; do
+      rm -rf JBrowse-*/;
+      unzip JBrowse-*.zip;
+      cp -r tests/ JBrowse-*/;
+      cd JBrowse-*/
+      ./setup.sh legacy;
+      prove -Isrc/perl5 -r -j3 tests/perl_tests;
+      ./jb_run.js -p 9000 &
+      MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/;
+      killall jb_run.js;
+    done;
+  else
+    ./jb_run.js -p 9000 &
+    prove -j4 -Isrc/perl5 -lr tests/perl_tests
+    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/
   fi
   # if this is a release tag, then upload the built release to github releases
   - |
@@ -53,6 +66,6 @@ script:
   fi
 
 after_failure:
-  - cat JBrowse-1.x.x-dev/setup.log 
-  - find JBrowse-1.x.x-dev/extlib/lib/perl5
-  - cat JBrowse-1.x.x-dev/src/build-report.txt
+  - cat JBrowse-*-dev/setup.log 
+  - find JBrowse-*-dev/extlib/lib/perl5
+  - cat JBrowse-*-dev/src/build-report.txt
