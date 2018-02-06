@@ -1,7 +1,20 @@
+/**
+ * This library interprets options passed in via dot-notation instead of JSON in the Query URL.
+ * The implementation is both for readability and security in some systems, esp. tomcat where
+ * passing JSON in the Query URL is both bad-form and potentially insecure.
+ *
+ * This is the dot-object library: https://www.npmjs.com/package/dot-object
+ *
+ * Usage is depicted here:
+ * http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
+ *
+ */
 define(['dojo/_base/declare','dojo/_base/array', 'JBrowse/Util/dot-object'], function (declare, array, dotObject) {
     return declare(null, {
 
-        constructor: function () { },
+        constructor: function () {
+
+        },
 
         generateUrl: function (input) {
             var returnObject = dotObject.dot(input);
