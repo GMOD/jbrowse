@@ -21,45 +21,28 @@ before_install:
 - export PATH=$PATH:$PWD/geckodriver
 - cpanm --notest GD::Image Text::Markdown DateTime
 - npm install -g jshint
-install:
 - virtualenv ~/python
 - source ~/python/bin/activate
 - pip install nose selenium
+install:
 - bash setup.sh legacy
 script:
 - jshint src/JBrowse/
-- |
-  if [[ "x$TRAVIS_TAG" != "x" ]]; then
-    build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json
-  fi
-- |
-  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = 'continuous_deployment' || $TRAVIS_PULL_REQUEST != "false" ]]; then
-    make -f build/Makefile release;
-    for zip in JBrowse-*.zip; do
-      rm -rf JBrowse-*/;
-      unzip JBrowse-*.zip;
-      cp -r tests/ JBrowse-*/;
-      cd JBrowse-*/
-      ./setup.sh legacy;
-      prove -Isrc/perl5 -r -j3 tests/perl_tests;
-      ./jb_run.js -p 9000 &
-      MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/;
-      killall jb_run.js;
-    done;
-  else
-    ./jb_run.js -p 9000 &
-    prove -j4 -Isrc/perl5 -lr tests/perl_tests
-    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/
-  fi
-- |
-  if [[ "x$TRAVIS_TAG" != "x" ]]; then
-    #TODO
-  fi
-
+- RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))`
+- if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
+- make -f build/Makefile release;
+- rm -rf JBrowse-*/;
+- unzip JBrowse-$RELEASE_VERSION.zip;
+- cp -r tests/ JBrowse-$RELEASE_VERSION/;
+- cd JBrowse-$RELEASE_VERSION/
+- ./setup.sh legacy;
+- prove -Isrc/perl5 -r -j3 tests/perl_tests;
+- ./jb_run.js -p 9000 &
+- MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/;
 after_failure:
-- cat JBrowse-*-dev/setup.log
-- find JBrowse-*-dev/extlib/lib/perl5
-- cat JBrowse-*-dev/src/build-report.txt
+- cat JBrowse-*/setup.log
+- find JBrowse-*/extlib/lib/perl5
+- cat JBrowse-*/src/build-report.txt
 deploy:
   provider: releases
   api_key:
