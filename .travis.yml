@@ -28,7 +28,7 @@ install:
 - bash setup.sh legacy
 script:
 - jshint src/JBrowse/
-- RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))`
+- RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
 - make -f build/Makefile release;
 - rm -rf JBrowse-*/;
