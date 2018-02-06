@@ -139,13 +139,13 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
             var mapper = QueryParamConfigMapper();
             expect(mapper).toBeTruthy();
             // addFeatures=[{ "seq_id":"scf7180000394085", "start": 914360, "end": 914389, "strand": "1", "name": "HSP:"},{ "seq_id":"scf7180000394085", "start": 917599, "end": 917628, "strand": "1", "name": "HSP:"}]
-            var queryString = "addFeatures.1.seq_id=scf7180000394085&addFeatures.1.start=914360&addFeatures.1.end=914389&addFeatures.1.strand=1&addFeatures.1.name='HSP'";
-            queryString += "&addFeatures.2.seq_id=scf7180000394085&addFeatures.2.start=917599&addFeatures.2.end=917628&addFeatures.2.strand=1&addFeatures.2.name='HSP'";
+            var queryString = "addFeatures.1.seq_id=scf7180000394085&addFeatures.1.start=914360&addFeatures.1.end=914389&addFeatures.1.strand=1&addFeatures.1.name=HSP";
+            queryString += "&addFeatures.2.seq_id=scf7180000394085&addFeatures.2.start=917599&addFeatures.2.end=917628&addFeatures.2.strand=1&addFeatures.2.name=HSP";
             var config = {};
             var queryParams = ioQuery.queryToObject(queryString);
 
             // config.stores.url.features = JSON.parse( queryParams.addFeatures );
-            var answer = {"stores":{"url":{"features":[{ "seq_id":"scf7180000394085", "start": 914360, "end": 914389, "strand": "1", "name": "HSP:"},{ "seq_id":"scf7180000394085", "start": 917599, "end": 917628, "strand": "1", "name": "HSP:"}]}}};
+            var answer = {"stores":{"url":{"features":[{ "seq_id":"scf7180000394085", "start": "914360", "end": "914389", "strand": "1", "name": "HSP"},{ "seq_id":"scf7180000394085", "start": "917599", "end": "917628", "strand": "1", "name": "HSP"}]}}};
             runs(function () {
                 mapper.handleQueryParams(config,queryParams);
                 expect(config).toEqual(answer);

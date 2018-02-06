@@ -6,7 +6,7 @@
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
     "postinstall": "node utils/postinstall.js",
-    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
+    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html",
     "start": "./jb_run.js -p 8082"
   },
   "dependencies": {
