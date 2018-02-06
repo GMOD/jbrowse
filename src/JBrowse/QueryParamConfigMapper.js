@@ -97,6 +97,7 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     var feature = featuresArray[featureIndex];
                     feature = feature ? feature  : {};
                     dotObject.str(propertyName, queryParams[queryParam], feature);
+                    console.log('going to add feature:  '+JSON.stringify(feature)) ;
                     featuresArray[featureIndex] = feature ;
 
                     // internalStore= storeBookmarks[storeName] ? storeBookmarks[storeName] : {};
