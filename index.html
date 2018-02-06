@@ -109,6 +109,9 @@
 
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
+                   require.on('error', function(error) {
+                       JBrowse.fatalError('Failed to load resource: '+error.info[0]);
+                   });
         });
     </script>
 
