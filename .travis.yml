@@ -33,13 +33,14 @@ script:
 - jshint src/JBrowse/
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
-- make -f build/Makefile release;
-- rm -rf JBrowse-*/;
-- unzip -q JBrowse-$RELEASE_VERSION.zip;
-- cp -r tests/ JBrowse-$RELEASE_VERSION/;
-- cd JBrowse-$RELEASE_VERSION/
-- ln -s ../node_modules
-- ln -s ../extlib
+- |
+  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_PULL_REQUEST != "false" ]]; then
+    make -f build/Makefile release;
+    rm -rf JBrowse-*/;
+    unzip -q JBrowse-$RELEASE_VERSION.zip;
+    cp -r tests/ JBrowse-$RELEASE_VERSION/;
+    cd JBrowse-$RELEASE_VERSION/;
+  fi
 - ./setup.sh legacy;
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - ./jb_run.js -p 9000 &
