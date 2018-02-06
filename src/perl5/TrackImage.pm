@@ -26,16 +26,16 @@ use TiledImage;
 sub new {
     my ($class, %args) = @_;
     my %defaults = ('-bases_per_pixel' => 1);
-    for my $arg (keys %defaults) {
-	if (exists $args{$arg}) {
-	    $defaults{$arg} = $args{$arg};
-	    delete $args{$arg};  # hide from TiledImage constructor
-	}
+    for my $arg (sort keys %defaults) {
+        if (exists $args{$arg}) {
+            $defaults{$arg} = $args{$arg};
+            delete $args{$arg};  # hide from TiledImage constructor
+        }
     }
     my $self = TiledImage->new (%args);
     while (my ($arg, $val) = each %defaults) {
-	$arg =~ s/^-//;
-	$self->{$arg} = $val;
+        $arg =~ s/^-//;
+        $self->{$arg} = $val;
     }
     bless $self, $class;
     return $self;

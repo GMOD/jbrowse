@@ -197,7 +197,7 @@ constructor: function(params) {
                                // In rare cases thisB.config.defaultTracks already contained an array that appeared to
                                // have been split in a previous invocation of this function. Thus, we only try and split
                                // it if it isn't already split.
-                               if (!thisB.config.defaultTracks instanceof Array) {
+                               if (!(thisB.config.defaultTracks instanceof Array)) {
                                   tracksToShow = tracksToShow.concat(thisB.config.defaultTracks.split(","));
                                }
                            }

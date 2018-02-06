@@ -38,7 +38,18 @@ var app = express();
 var dispPort = "";
 if (port !== 80) dispPort = ":"+port;
 
-app.use('/', express.static(jbrowsePath));
+
+app.use('/', express.static(
+    jbrowsePath,
+    {
+        // set Content-Encoding: gzip on .jsonz and .gz files
+        setHeaders(res,path,stat) {
+            if( /\.(txt|json|g)z$/.test(path) ) {
+                res.setHeader('Content-Encoding','gzip');
+            }
+        }
+    }
+));
 
 app.listen(port, function () {
     console.log('JBrowse is running on port %s',port);

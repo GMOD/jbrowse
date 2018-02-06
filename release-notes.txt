@@ -1,10 +1,27 @@
 {{$NEXT}}
 
 ## Minor improvements
+
+  * Fixed SEVERE performance regression that basically made flatfile-to-json.pl
+    unusable on Perl 5.18 and higher. Huge thanks to Colin Diesh for tracking
+    this down. (issue #470, @cmdcolin)
+
+  * setup.sh now uses npm instead of Bower (which is deprecated) to install
+    dependencies. @enuggetry
+
+  * Removed legacy `wig-to-json.pl` and `bam-to-json.pl` scripts.  @rbuels
+
+  * Added a `--trackConfig` option to `prepare-refseqs.pl` to allow injecting
+    refseq configuration variables at format time.  @erasche
+
   * Added trackLabels: "no-block" config feature.  Moves track labels/menus 
     above the features so as not to obscure the features. (issue #901, #490)
 
   * Make jbrowse npm installable. thanks to @cmdcolin & @enuggetry.
+
+  * Change "Length on ref" to "Seq length on ref" in Alignments feature detail boxes,
+    so that the length on the reference appears next to the sequence length. Thanks to
+    @colindaven for the suggestion!
 
   * implement express server for jbrowse for quick launch (jb_run.js).  @enuggetry.
 
@@ -14,8 +31,16 @@
     and addStores. https://github.com/GMOD/jbrowse/pull/952. Address security concerns
     adding JSON to GET (https://nvd.nist.gov/vuln/detail/CVE-2016-6816) @nathandunn.
 
-  ...
+  * If a track has no `key` set in its track configuration, JBrowse will now look for
+    a `key` in its track metadata, and use that if it is present. Thanks to Loraine
+    Guéguen for the idea (issue #957). @rbuels
 
+  * Suppress execution of biodb-to-json.pl on sample data while running setup.sh
+    on MacOS High Sierra with stock Perl due to an issue with the stock Perl having
+    broken BerkeleyDB integration, which is needed by Bio::DB::SeqFeature::Store,
+    the main storage engine used by biodb-to-json.pl. Bug was manifesting as the script
+    running indefinitely and taking all available disk space.
+    (pull #945, issue #946, @deepakunni3 and @rbuels)
 
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 

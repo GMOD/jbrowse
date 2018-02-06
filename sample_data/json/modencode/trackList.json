@@ -14395,8 +14395,7 @@
          },
          "compress" : 0,
          "type" : "ImageTrack.Wiggle",
-         "label" : "fly/1182-4H.sub_3255.bam",
-         "key" : "total-RNA;1182-4H;Late Embryonic stage;embryo-derived cell-line;RNA-seq"
+         "label" : "fly/1182-4H.sub_3255.bam"
       },
       {
          "urlTemplate" : "tracks/volvox_microarray.wig/{refseq}/trackData.json",
@@ -14406,7 +14405,7 @@
          "compress" : 0,
          "type" : "ImageTrack.Wiggle",
          "label" : "fly/ML-DmD16-c3.sub_3256.bam",
-         "key" : "total-RNA;ML-DmD16-c3;Larvae 3rd instar;dorsal mesothoracic disc;RNA-seq"
+         "key" : "total-RNA;ML-DmD16-c3;Larvae 3rd instar;dorsal mesothoracic disc;RNA-seq CONF OVERRIDES METADATA"
       },
       {
          "urlTemplate" : "tracks/volvox_microarray.wig/{refseq}/trackData.json",
@@ -18748,5 +18747,5 @@
       ]
    },
 
-   "formatVersion" : 1,
+   "formatVersion" : 1
 }

@@ -70,8 +70,9 @@ You can also run them from phantomJS using
 Integration tests for the client-side app.  You need to have Python
 eggs for `selenium` and `nose` installed.  Run the tests with:
 
-    JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
+    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
+Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis one will only work properly in a properly configured Travis CI build environment.
 
 # Cutting a JBrowse release
 
