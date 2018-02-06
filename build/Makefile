@@ -151,7 +151,7 @@ release-min-test: release-min
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 superclean: clean
-	git clean -fdxq --exclude=plugins
+	git clean -fdxq --exclude=./plugins
 
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
