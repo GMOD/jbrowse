@@ -1386,7 +1386,7 @@
    that can display feature data that is specified directly in
    configuration.  This is mostly used to implement the support for
    `addFeatures` in the JBrowse URL, but some administrators and
-   developers may find it conventient as well to define feature data
+   developers may find it convenient as well to define feature data
    directly in the JBrowse configuration.
 
  * `flatfile-to-json.pl` now supports a `--trackType` option that can
