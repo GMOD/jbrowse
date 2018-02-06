@@ -3,7 +3,7 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
 
         constructor: function () {
 
-            Array.prototype.clean = function(deleteValue) {
+            Array.prototype.removeNullsFromArray = function(deleteValue) {
                 for (var i = 0; i < this.length; i++) {
                     if (this[i] == deleteValue) {
                         this.splice(i, 1);
@@ -106,7 +106,6 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     dotObject.str(propertyName, queryParams[queryParam], feature);
                     featuresArray[featureIndex] = feature ;
                 }
-                // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
             });
 
 
@@ -140,7 +139,7 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
             if(featuresArray.length>0){
                 config.stores = config.stores ? config.stores : {};
                 config.stores.url = config.stores.url ? config.stores.url : {};
-                config.stores.url.features = featuresArray.clean(null);
+                config.stores.url.features = featuresArray.removeNullsFromArray(null);
             }
         }
     });

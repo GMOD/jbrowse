@@ -153,3 +153,4 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
 
     });
 });
+
