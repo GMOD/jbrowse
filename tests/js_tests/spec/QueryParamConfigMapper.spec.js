@@ -1,9 +1,10 @@
 require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryParamConfigMapper, ioQuery) {
 
     describe("QueryParamConfigMapper", function () {
+        var mapper = QueryParamConfigMapper();
+        expect(mapper).toBeTruthy();
+
         it("should interpret addStores properly", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = 'addStores.store1.type=HMLFeatures&addStores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
             var queryParams = ioQuery.queryToObject(queryString);
@@ -15,8 +16,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("tests addBookmarks, addStores, and addTracks", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = 'addStores.store1.type=JBrowse/Store/SeqFeature/GFF3&addStores.store1.urlTemplate=http://localhost/volvox.gff3&addTracks.store1.label=genes&addTracks.store1.type=JBrowse/View/Track/HTMLFeatures&highlight=&addBookmarks.bookmark1.start=3000&addBookmarks.bookmark1.end=4000&addBookmarks.bookmark1.ref=ctgA';
             var config = {};
             var queryParams = ioQuery.queryToObject(queryString);
@@ -37,8 +36,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("convert JSON into URL for large nested string", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = 'store1.style.view.className=bestGff3';
             var inputJson = {};
             runs(function () {
@@ -50,8 +47,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
 
 
         it("convert JSON into URL", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var inputJson = {
                 'addStores': {
                     'stores': {
@@ -71,8 +66,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
 
 
         it("test multiple nested ingest", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = 'addStores.stores.store1.type=HMLFeatures&addStores.stores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
             var answer = {
@@ -92,8 +85,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("test multiple nested views", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = 'addStores.store1.type=HMLFeatures&addStores.store1.urlTemplate=http://abc.com/test.gff';
             var config = {};
             var answer = {
@@ -112,8 +103,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("decode real addTracks JSON into URL", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryObject = {"addTracks":{"store1":{"label":"BLAST++Results","category":"0.+Reference+Assembly","type":"WebApollo/View/Track/DraggableBLASTFeatures","store":"url","style":{"renderClassName":"gray-center-30pct","subfeatureClasses":{"match_part":"blast-match_part"}}}}};
             runs(function () {
                 var url = mapper.generateUrl(queryObject);
@@ -123,8 +112,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("properly encode addTracks URL into JSON", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = 'addTracks.store1.label=BLAST++Results&addTracks.store1.category=0.+Reference+Assembly&addTracks.store1.type=WebApollo/View/Track/DraggableBLASTFeatures&addTracks.store1.style.renderClassName=gray-center-30pct&addTracks.store1.style.subfeatureClasses.match_part=blast-match_part';
             var config = {};
             var queryParams = ioQuery.queryToObject(queryString);
@@ -136,8 +123,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("properly encode addFeatures URL into JSON", function () {
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = "addFeatures.1.seq_id=scf7180000394085&addFeatures.1.start=914360&addFeatures.1.end=914389&addFeatures.1.strand=1&addFeatures.1.name=HSP";
             queryString += "&addFeatures.2.seq_id=scf7180000394085&addFeatures.2.start=917599&addFeatures.2.end=917628&addFeatures.2.strand=1&addFeatures.2.name=HSP";
             var config = {};
@@ -152,8 +137,6 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
         });
 
         it("put addTracks and addFeatures together", function(){
-            var mapper = QueryParamConfigMapper();
-            expect(mapper).toBeTruthy();
             var queryString = "addFeatures.1.seq_id=scf7180000394085&addFeatures.1.start=914360&addFeatures.1.end=914389&addFeatures.1.strand=1&addFeatures.1.name=HSP";
             queryString += "&addFeatures.2.seq_id=scf7180000394085&addFeatures.2.start=917599&addFeatures.2.end=917628&addFeatures.2.strand=1&addFeatures.2.name=HSP";
             queryString += '&addTracks.store1.label=BLAST++Results&addTracks.store1.category=0.+Reference+Assembly&addTracks.store1.type=WebApollo/View/Track/DraggableBLASTFeatures&addTracks.store1.style.renderClassName=gray-center-30pct&addTracks.store1.style.subfeatureClasses.match_part=blast-match_part';
