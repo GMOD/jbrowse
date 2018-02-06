@@ -58,6 +58,10 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
             var queryNameArray, storeName, propertyName, internalStore ;
             var storeTracks = {};
             var storeBookmarks = {};
+
+            var featuresArray = [] ;
+            var featureIndex ;
+
             Object.keys(queryParams).forEach(function (queryParam) {
                 if (queryParam.indexOf('addStores\.') == 0) {
                     queryNameArray = queryParam.split("\.");
@@ -84,10 +88,27 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     dotObject.str(propertyName, queryParams[queryParam], internalStore);
                     dotObject.str(storeName, internalStore, storeBookmarks)
                 }
+                else if (queryParam.indexOf('addFeatures\.') == 0) {
+                    queryNameArray = queryParam.split("\.");
+                    featureIndex = queryNameArray[1];
+
+                    propertyName = queryNameArray.slice(2).join('.');
+
+                    var feature = featuresArray[featureIndex];
+                    feature = feature ? feature  : {};
+                    dotObject.str(propertyName, queryParams[queryParam], feature);
+                    featuresArray[featureIndex] = feature ;
+
+                    // internalStore= storeBookmarks[storeName] ? storeBookmarks[storeName] : {};
+                    // propertyName = queryNameArray.slice(2).join('.');
+                    // dotObject.str(propertyName, queryParams[queryParam], internalStore);
+                    // dotObject.str(storeName, internalStore, storeBookmarks)
+                }
 
                 // TODO: implement addFeatures?
                 // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
             });
+
 
             // convert to an array
             if (storeTracks) {
@@ -114,6 +135,12 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     // explicitly try to handle loc strings?
                     config.bookmarks.features.push(storeBookmark);
                 }
+            }
+
+            if(featuresArray.length>0){
+                config.stores = config.stores ? config.stores : {};
+                config.stores.url = config.stores.url ? config.stores.url : {};
+                config.stores.url.features = featuresArray;
             }
         }
     });
