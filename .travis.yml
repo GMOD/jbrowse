@@ -34,7 +34,7 @@ script:
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
 - make -f build/Makefile release;
 - rm -rf JBrowse-*/;
-- unzip JBrowse-$RELEASE_VERSION.zip;
+- unzip -q JBrowse-$RELEASE_VERSION.zip;
 - cp -r tests/ JBrowse-$RELEASE_VERSION/;
 - cd JBrowse-$RELEASE_VERSION/
 - ./setup.sh legacy;

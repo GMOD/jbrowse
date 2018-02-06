@@ -84,7 +84,8 @@ plugins-min: release-normal
 		node $(BASEDIR)/src/dojo/dojo.js load=build \
 			--require "$(JSDIR)/init.js" \
 			--profile "$$pdir/js/$$pname" \
-			--releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+			--releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built" \
+			2>&1 | grep -v '^warn'; \
 		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
 		mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname" "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
 		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
@@ -93,7 +94,12 @@ plugins-min: release-normal
 release-min: release-normal plugins-min
 
         # run the dojo build in the full dir to minify
-	node src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src";
+	node src/dojo/dojo.js \
+		load=build \
+		--require "$(JSDIR)/init.js" \
+		--profile "$(JSDIR)/JBrowse.profile.js" \
+		--releaseDir "$(RELEASE_FULL_DIR)/src" \
+		2>&1 | grep -v '^warn';
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
