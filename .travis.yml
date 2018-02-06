@@ -19,6 +19,7 @@ before_install:
 - mkdir geckodriver
 - tar -xzf geckodriver-v0.19.1-linux64.tar.gz -C geckodriver
 - export PATH=$PATH:$PWD/geckodriver
+- which geckodriver
 - cpanm --notest GD::Image Text::Markdown DateTime
 - npm install -g jshint
 - virtualenv ~/python
@@ -27,6 +28,7 @@ before_install:
 install:
 - bash setup.sh legacy
 script:
+- which geckodriver
 - jshint src/JBrowse/
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
