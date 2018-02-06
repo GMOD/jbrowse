@@ -100,22 +100,12 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                 else if (queryParam.indexOf('addFeatures\.') == 0) {
                     queryNameArray = queryParam.split("\.");
                     featureIndex = queryNameArray[1];
-
                     propertyName = queryNameArray.slice(2).join('.');
-
                     var feature = featuresArray[featureIndex];
                     feature = feature ? feature  : {};
                     dotObject.str(propertyName, queryParams[queryParam], feature);
-                    console.log('going to add feature:  '+JSON.stringify(feature)) ;
                     featuresArray[featureIndex] = feature ;
-
-                    // internalStore= storeBookmarks[storeName] ? storeBookmarks[storeName] : {};
-                    // propertyName = queryNameArray.slice(2).join('.');
-                    // dotObject.str(propertyName, queryParams[queryParam], internalStore);
-                    // dotObject.str(storeName, internalStore, storeBookmarks)
                 }
-
-                // TODO: implement addFeatures?
                 // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
             });
 
@@ -148,7 +138,6 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
             }
 
             if(featuresArray.length>0){
-                console.log('final featuresArray: '+ JSON.stringify(featuresArray));
                 config.stores = config.stores ? config.stores : {};
                 config.stores.url = config.stores.url ? config.stores.url : {};
                 config.stores.url.features = featuresArray.clean(null);
