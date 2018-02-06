@@ -36,8 +36,8 @@ script:
   - jshint src/JBrowse/
   - prove -j4 -Isrc/perl5 -lr tests/perl_tests
   - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html nosetests tests/selenium_tests/
-  # only run `make release` for builds on master, or on a tag
-  - if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" ]]; then make -f build/Makefile release; fi
+  # only run `make release` for builds on master, or on a tag, or on a pull request
+  - if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_PULL_REQUEST != "false" ]]; then make -f build/Makefile release; fi
 after_failure:
   - cat JBrowse-1.x.x-dev/setup.log 
   - find JBrowse-1.x.x-dev/extlib/lib/perl5

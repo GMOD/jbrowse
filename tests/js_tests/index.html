@@ -17,7 +17,11 @@
     require( { baseUrl: '../../src',
                packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
                             { name: 'lazyload',  main: 'lazyload' },
-                            'dgrid', 'dstore',
+                            'dgrid',
+                            'xstyle',
+                            'put-selector',
+                            'FileSaver',
+                            'dstore',
                             { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
                             'JBrowse'
                          ]
@@ -66,6 +70,7 @@
   <script type="text/javascript" src="spec/BEDTabix.spec.js"></script>
   <script type="text/javascript" src="spec/BED.spec.js"></script>
   <script type="text/javascript" src="spec/TwoBit.spec.js"></script>
+  <script type="text/javascript" src="spec/SequenceTrack.spec.js"></script>
 
   <!--<script type="text/javascript" src="spec/VCF.spec.js"></script>-->
 

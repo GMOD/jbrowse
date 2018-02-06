@@ -23,7 +23,7 @@ class JBrowseTest (object):
 
     # this "time dilation" factor hugely increases all our fixed waiting times when
     # running under Travis CI, because the Travis environment is much slower than a desktop.
-    time_dilation = 5 if os.getenv('CI','false') == 'true' else 1
+    time_dilation = 12 if os.getenv('CI','false') == 'true' else 1
 
     tracksel_type = 'Hierarchical'
 

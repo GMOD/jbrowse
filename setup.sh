@@ -27,6 +27,11 @@ function check_node(){
         echo "No 'npm' executable found, you must have a proper 'Node JS' installation to install JBrowse."
         exit 1
     fi
+    NPM_VERSION=`$npm_executable -v | cut -d\. -f1`
+    if [ $NPM_VERSION -lt 2 ]; then
+        echo "npm version 2 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+        exit 1
+    fi
     echo "Node installed";
 }
 

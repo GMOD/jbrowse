@@ -53,14 +53,22 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             fmt('Sequence and Quality', this._renderSeqQual( f ), f );
         }
 
+        var renameTags = { length_on_ref: 'seq_length_on_ref' };
         var additionalTags = array.filter(
             f.tags(), function(t) {
                 return ! {name:1,score:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
             }
-        ).sort();
+        )
+        .map( function(tagName) {
+            return [
+                renameTags[tagName] || tagName,
+                f.get(tagName)
+            ]
+        })
+        .sort( function(a,b) { return a[0].localeCompare(b[0]) })
 
         dojo.forEach( additionalTags, function(t) {
-                          fmt( t, f.get(t), f );
+            fmt( t[0], t[1], f );
         });
 
         // genotypes in a separate section
