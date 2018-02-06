@@ -59,7 +59,10 @@ release-electron-all: release-notest
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
 
-release-normal: superclean $(JS_SRCFILES)
+node_modules:
+	npm install
+
+release-normal: superclean $(JS_SRCFILES) node_modules
 	mkdir $(RELEASE_FULL_DIR);
 	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
@@ -148,21 +151,7 @@ release-min-test: release-min
 	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
 
 superclean: clean
-	-git clean -fdx --exclude=plugins/ \
-	    --exclude src/FileSaver/ \
-	    --exclude src/dbind/ \
-	    --exclude src/dgrid/ \
-	    --exclude src/dstore/ \
-	    --exclude src/dijit/ \
-	    --exclude src/dojo/ \
-	    --exclude src/dojox/ \
-	    --exclude src/jDataView/ \
-	    --exclude src/json-schema/ \
-	    --exclude src/jszlib/ \
-	    --exclude src/lazyload/ \
-	    --exclude src/put-selector/ \
-	    --exclude src/util/ \
-	    --exclude src/xstyle/ 
+	git clean -fdxq --exclude=plugins
 
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
