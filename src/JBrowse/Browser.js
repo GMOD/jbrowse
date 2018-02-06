@@ -322,9 +322,7 @@ initPlugins: function() {
 
         // fire the "all plugins done" deferred when all of the plugins are done loading
         (new DeferredList( pluginDeferreds ))
-            .then( function() {
-            deferred.resolve({success: true});
-        });
+            .then( function() { deferred.resolve({success: true}); });
 
         require( {
                      packages: array.map( plugins, function(p) {
