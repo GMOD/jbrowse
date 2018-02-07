@@ -130,6 +130,8 @@ release-min: release-normal plugins-min
 	    fi;\
 	done
 
+	cp -r $(RELEASE_MIN_DIR)/src/dojo/nls $(RELEASE_MIN_DIR)/src/nls;
+
 	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
 
         # zip it up
