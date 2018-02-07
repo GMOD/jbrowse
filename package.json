@@ -5,7 +5,9 @@
   "description": "JBrowse - Genome Browser (Client)",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "postinstall": "node utils/postinstall.js"
+    "postinstall": "node utils/postinstall.js",
+    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html",
+    "start": "./jb_run.js -p 8082"
   },
   "dependencies": {
     "app-root-path": "^2.0.1",
