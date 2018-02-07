@@ -58,4 +58,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: GMOD/jbrowse
+    perl: 5.26
     tags: true
