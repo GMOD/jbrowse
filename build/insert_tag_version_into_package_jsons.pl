@@ -4,14 +4,8 @@
 # this is a little script that parses the TRAVIS_TAG env variable and, if it is like "1.x.x-release",
 # inserts the version into the json files listed on the command line
 
-
 use strict;
 use warnings;
-
-use FindBin qw($RealBin);
-use lib "$RealBin/../src/perl5";
-
-use JBlibs;
 
 use JSON 2;
 
