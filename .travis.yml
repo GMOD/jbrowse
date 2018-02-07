@@ -17,7 +17,7 @@ cache:
   - "$HOME/perl5/"
   - node_modules/
   - "$HOME/python/"
-before_install:
+install:
 - wget https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz
 - mkdir ~/geckodriver
 - tar -xzf geckodriver-v0.19.1-linux64.tar.gz -C ~/geckodriver
@@ -27,8 +27,6 @@ before_install:
 - virtualenv ~/python
 - source ~/python/bin/activate
 - pip install nose selenium
-install:
-- bash setup.sh legacy
 script:
 - jshint src/JBrowse/
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
