@@ -29,11 +29,11 @@ install:
 - pip install nose selenium
 script:
 - jshint src/JBrowse/
+- if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
-- if [[ "x$TRAVIS_TAG" != "x" ]]; then build/insert_tag_version_into_package_jsons.pl src/JBrowse/package.json package.json; fi
 - |
-  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "continuous_deployment" || $TRAVIS_PULL_REQUEST != "false" ]]; then
+  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_PULL_REQUEST != "false" ]]; then
     make -f build/Makefile release;
     rm -rf JBrowse-*/;
     unzip -q JBrowse-$RELEASE_VERSION.zip;
@@ -58,5 +58,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: GMOD/jbrowse
-#    tags: true
-    branch: continuous_deployment
+    tags: true
