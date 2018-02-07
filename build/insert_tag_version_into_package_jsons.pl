@@ -9,7 +9,6 @@ use warnings;
 
 use JSON 2;
 
-local $/;
 
 my $release = $ENV{TRAVIS_TAG};
 $release =~ s/\-release$//
@@ -20,8 +19,13 @@ print "detected release tag $ENV{TRAVIS_TAG} for version $release\n";
 my $json = JSON->new->pretty->canonical;
 for my $filename (@ARGV) {
     print "inserting version $release into $filename\n";
-    my $j = $json->decode( <> );
+    my $j = do {
+        local $/;
+        open my $f, '<', $filename or die "$! reading $filename";
+        $json->decode( <$f> );
+    };
     $j->{version} = $release;
+    
     open my $f, '>', $filename or die "$! writing $filename";
     $f->print( $json->encode($j) );
 }
