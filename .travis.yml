@@ -25,7 +25,7 @@ install:
 - export PATH=$PATH:$HOME/geckodriver
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 - npm install -g jshint
-- if [[ ! -d ~/python ]]; then virtualenv ~/python; fi
+- if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
 - pip install nose selenium
 script:
