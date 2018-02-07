@@ -120,6 +120,7 @@ release-min: release-normal plugins-min
 			src/JBrowse \
 			src/perl5 \
 			src/dgrid/css \
+			src/jDataView \
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    if [ -d $$P ]; then \
