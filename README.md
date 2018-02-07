@@ -35,8 +35,7 @@ This allows JBrowse to be easily integrated into other applications.  `jb_setup.
 
 You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
 
-    make -f build/Makefile release-notest
-    make -f build/Makefile release # alternate build with full test suite
+    make -f build/Makefile release
 
 To build the Electron app (JBrowse desktop app), run the following
 
@@ -72,29 +71,25 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 
     MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
-Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis one will only work properly in a properly configured Travis CI build environment.
+Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis
+one will only work in a properly configured Travis CI build environment.
 
 # Cutting a JBrowse release
 
-1. Edit the JBrowse `package.json` file and change 'version' to the version you are releasing.  *Don't commit this change to the repository, it should stay as `dev` in git so that it shows up in analytics as a development version.*
+NOTE: Beginning in 1.12.4, 
 
-2. Build the release packages: `make -f build/Makefile release`.  The files produced during the build should not be committed to the repository either. There is also `make -f build/Makefile release-notest` for releases that don't need perl tests to be run. NOTE: you may need to use the command `ulimit -n 1000` to avoid "spawn EMFILE" build errors.
+1. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
+to create a release on GitHub under https://github.com/GMOD/jbrowse/releases
 
-3. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.
+1. Add release notes to the new release that Travis created.
 
-4. `scp` the release .zip files (min and full) to jbrowse.org.
+1. Write a blog post announcing the release, with links to the built releases on GitHub.
 
-5. Add them to the Wordpress Downloads list so that we can track how
-many times they are downloaded.
+1. Update the "Install" page on the site to point to the newest release.
 
-6. Write a blog post announcing the release.  The `release-notes.html`
-file made during the build might be useful for this.
+1. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
 
-7. Update the "Install" page on the site to point to the newest release.
-
-8. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
-
-9. Write an email announcing the release, sending to gmod-ajax,
+1. Write an email announcing the release, sending to gmod-ajax,
 jbrowse-dev.  If it is a major release, add gmod-announce and make a GMOD news item.
 
 As you can tell, this process could really use some more streamlining and automation.
