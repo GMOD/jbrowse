@@ -14,6 +14,7 @@ use JSON;
 use Pod::Usage;
 
 my $STORE_CLASS    = "JBrowse/Store/SeqFeature/BAM";
+my $BIGWIG_STORE_CLASS    = "JBrowse/Store/SeqFeature/BigWig";
 my $ALIGNMENT_TYPE = "JBrowse/View/Track/Alignments2";
 my $COVERAGE_TYPE  = "JBrowse/View/Track/SNPCoverage";
 
@@ -22,6 +23,7 @@ my $out_file;
 my $label;
 my $bam_url;
 my $key;
+my $bigwigCoverage = undef;
 my $coverage = 0;
 my $classname = undef;
 my $min_score = undef;
@@ -39,6 +41,7 @@ sub parse_options {
 		   "bam_url|u=s"	=> \$bam_url,
 		   "key|k=s"		=> \$key,
 		   "classname|c=s"	=> \$classname,
+		   "bigwigCoverage|b=s"	=> \$bigwigCoverage,
 		   "coverage|C"		=> \$coverage,
 		   "min_score|s=i"	=> \$min_score,
 		   "max_score|S=i"	=> \$max_score,
@@ -102,6 +105,12 @@ sub add_bam_track {
             }
             $bam_entry->{style}->{className} = $classname;
           }
+	  if ($bigwigCoverage) {
+            $bam_entry->{histograms} =  {
+		storeClass	=> $BIGWIG_STORE_CLASS,
+		urlTemplate	=> $bigwigCoverage
+	    };
+          }
 	}
 	else {
 		$bam_entry->{min_score} = $min_score;
@@ -146,6 +155,7 @@ add_bam_track.pl - add track configuration snippet(s) for BAM track(s)
 	--bam_url <url_to_bam_file>            \
 	[ --key <track_key> ]                  \
 	[ --classname <css_class> ]            \
+	[ --bigwigCoverage <url_to_bw_file> ]                       \
 	[ --coverage ]                         \
 	[ --min_score <min_score> ]            \
 	[ --max_score <max_score> ]            \
@@ -178,6 +188,10 @@ key (display name) for track [default: label value]
 =item --classname <classname>
 
 CSS class for display [default: bam]
+
+=item --bigwigCoverage <url>
+
+URL to BW file correlated to BAM file. Display coverage depth when zoomed out.
 
 =item --coverage
 
