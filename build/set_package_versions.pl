@@ -9,23 +9,22 @@ use warnings;
 
 use JSON 2;
 
-
-my $release = $ENV{TRAVIS_TAG};
-$release =~ s/\-release$//
-    or die "no TRAVIS_TAG env var defined or it's malformed. expecting something like '1.12.4-release'.";
-
-print "detected release tag $ENV{TRAVIS_TAG} for version $release\n";
+my $release = shift;
+$release =~ s/\-release$//;
+print "setting package versions to $release\n";
 
 my $json = JSON->new->pretty->canonical;
 for my $filename (@ARGV) {
     print "inserting version $release into $filename\n";
-    my $j = do {
+    my $text = do {
         local $/;
         open my $f, '<', $filename or die "$! reading $filename";
-        $json->decode( <$f> );
+        <$f>
     };
-    $j->{version} = $release;
+
+    $text =~ s/"version"\s*:\s*"[^"]+"/"version": "$release"/
+        or die "failed to insert version info $filename";
     
     open my $f, '>', $filename or die "$! writing $filename";
-    $f->print( $json->encode($j) );
+    $f->print( $text );
 }
