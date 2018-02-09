@@ -50,7 +50,7 @@ script:
   fi
 - ./setup.sh legacy;
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
-- ./jb_run.js -p 9000 &
+- utils/jb_run.js -p 9000 &
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 - cd $BUILD_DIR
 after_failure:
