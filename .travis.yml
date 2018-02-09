@@ -51,12 +51,20 @@ after_failure:
 - find JBrowse-*/extlib/lib/perl5
 - cat JBrowse-*/src/build-report.txt
 deploy:
-  provider: releases
+- provider: releases
   api_key:
     secure: BuOD7rqrcGKT3g0hVY5AGpJI/Kkko4DhSIYSUQ28sS2AOdoNyTD0t5doL/Kiq4BC41q198tbFFt1dnXGdo8YKpBSXO/uGUuuiGtMFHM++I84oLq20p49iyrenNZ4m/jy/Q4YtizIYLs83DVzVdQzhJ5hrTx6f+d1gc9EgaMeBF4=
   file: JBrowse-1.*.zip
   file_glob: true
   skip_cleanup: true
+  on:
+    repo: GMOD/jbrowse
+    perl: 5.26
+    tags: true
+- provider: npm
+  email: rbuels@gmail.com
+  api_key:
+    secure: mgvlVdeMAR35C69+NERuYK4YGwbBAQsnSXS7IJhn3CRNgbtWh2zqaVV8NbHWitD9RJmocTbkIe94MfD8HfI3zBAgIVewckQ0QWMyjAJuWJR2Zw91R309aIQpbsix4kNCP9RDDrtfzovptBJ6JS8UwEk5CsQ7Wfohctek59+UnyU=
   on:
     repo: GMOD/jbrowse
     perl: 5.26
