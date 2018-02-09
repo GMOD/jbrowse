@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # wrapper for selenium tests meant to increase the robustness of the Travis build.
 # if the selenium tests fail on the first run, runs them again to make sure it
