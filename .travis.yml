@@ -18,13 +18,13 @@ cache:
   - node_modules/
   - "$HOME/python/"
   - "$HOME/.nvm/"
-  - "~/geckodriver"
+  - "$HOME/geckodriver"
 install:
 - |
   if [[ ! -f ~/geckodriver/geckodriver ]]; then
-    rm -rf ~/geckodriver
-    mkdir ~/geckodriver
-    wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz | tar -xzf - -C ~/geckodriver
+    rm -rf ~/geckodriver;
+    mkdir ~/geckodriver;
+    wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz | tar -xzf - -C ~/geckodriver;
   done
 - export PATH=$PATH:$HOME/geckodriver
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
