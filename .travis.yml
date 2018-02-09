@@ -41,7 +41,7 @@ script:
 - BUILD_DIR=$PWD
 # if we are building for inclusion into the `dev` branch, run the minification and test against that
 - |
-  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_PULL_REQUEST != "false" ]]; then
+  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
     make -f build/Makefile release;
     rm -rf JBrowse-*/;
     unzip -q JBrowse-$RELEASE_VERSION.zip;
