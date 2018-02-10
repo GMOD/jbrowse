@@ -49,3 +49,4 @@ themes/*/css
 .vscode/
 *driver.log
 JBrowse-*/
+JBrowse-*.zip
