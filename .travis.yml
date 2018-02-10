@@ -76,5 +76,4 @@ deploy:
   on:
     repo: GMOD/jbrowse
     perl: 5.26
-    #tags: true
-    branch: continuous_deployment
+    tags: true
