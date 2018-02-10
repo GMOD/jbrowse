@@ -71,6 +71,7 @@ deploy:
 # upload regular non-minified version to npm
 - provider: npm
   email: rbuels@gmail.com
+  skip_cleanup: true
   api_key:
     secure: mgvlVdeMAR35C69+NERuYK4YGwbBAQsnSXS7IJhn3CRNgbtWh2zqaVV8NbHWitD9RJmocTbkIe94MfD8HfI3zBAgIVewckQ0QWMyjAJuWJR2Zw91R309aIQpbsix4kNCP9RDDrtfzovptBJ6JS8UwEk5CsQ7Wfohctek59+UnyU=
   on:
