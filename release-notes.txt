@@ -42,6 +42,10 @@
     running indefinitely and taking all available disk space.
     (pull #945, issue #946, @deepakunni3 and @rbuels)
 
+  * Fixed issue in which JBrowse crashed when negative numbers were supplied for highlight
+    coordinates in the URL. Thanks to @h2akim for reporting, and @cmdcolin for debugging help.
+    (issue #769, @rbuels)
+
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
 ## Minor improvements
