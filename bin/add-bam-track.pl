@@ -34,107 +34,107 @@ add_bam_track();
 exit;
 
 sub parse_options {
-	my $help;
-	GetOptions("in|i=s"		=> \$in_file,
-		   "out|o=s"		=> \$out_file,
-		   "label|l=s"		=> \$label,
-		   "bam_url|u=s"	=> \$bam_url,
-		   "key|k=s"		=> \$key,
-		   "classname|c=s"	=> \$classname,
-		   "bigwigCoverage|b=s"	=> \$bigwigCoverage,
-		   "coverage|C"		=> \$coverage,
-		   "min_score|s=i"	=> \$min_score,
-		   "max_score|S=i"	=> \$max_score,
-		   "help|h"		=> \$help);
+    my $help;
+    GetOptions("in|i=s"		=> \$in_file,
+           "out|o=s"		=> \$out_file,
+           "label|l=s"		=> \$label,
+           "bam_url|u=s"	=> \$bam_url,
+           "key|k=s"		=> \$key,
+           "classname|c=s"	=> \$classname,
+           "bigwigCoverage|b=s"	=> \$bigwigCoverage,
+           "coverage|C"		=> \$coverage,
+           "min_score|s=i"	=> \$min_score,
+           "max_score|S=i"	=> \$max_score,
+           "help|h"		=> \$help);
         pod2usage( -verbose => 2 ) if $help;
-	pod2usage("Missing label option") if !$label;
-	pod2usage("Missing bam_url option") if !$bam_url;
-	pod2usage("Missing min_score option") if $coverage && !defined $min_score;
-	pod2usage("Missing max_score option") if $coverage && !defined $max_score;
-	$key ||= $label;
+    pod2usage("Missing label option") if !$label;
+    pod2usage("Missing bam_url option") if !$bam_url;
+    pod2usage("Missing min_score option") if $coverage && !defined $min_score;
+    pod2usage("Missing max_score option") if $coverage && !defined $max_score;
+    $key ||= $label;
         $in_file  ||= 'data/trackList.json';
         $out_file ||= $in_file;
 }
 
 
 sub add_bam_track {
-	my $json = new JSON;
-	local $/;
-	my $in;
-	$in = new IO::File($in_file) or
-		die "Error reading input $in_file: $!";
-	my $track_list_contents = <$in>;
-	$in->close();
-	my $track_list = $json->decode($track_list_contents);
-	my $bam_entry;
-	my $index;
-	my $tracks = $track_list->{tracks};
-	for ($index = 0; $index < scalar(@{$tracks}); ++$index) {
-		my $track = $tracks->[$index];
-		if ($track->{label} eq $label) {
-			$bam_entry = $track;
-			last;
-		}
-	}
-	if (!$bam_entry) {
-		$bam_entry = !$coverage ? generate_new_bam_alignment_entry() :
-				generate_new_bam_coverage_entry();
-		push @{$track_list->{tracks}}, $bam_entry;
-	}
-	else {
-		if ($coverage) {
-			if ($bam_entry->{type} eq $ALIGNMENT_TYPE) {
-				$bam_entry = generate_new_bam_coverage_entry();
-				$tracks->[$index] = $bam_entry;
-			}
-		}
-		else {
-			if ($bam_entry->{type} eq $COVERAGE_TYPE) {
-				$bam_entry = generate_new_bam_alignment_entry();
-				$tracks->[$index] = $bam_entry;
-			}
-		}
-	}
-	$bam_entry->{label} = $label;
-	$bam_entry->{urlTemplate} = $bam_url;
-	$bam_entry->{key} = $key;
-	if (!$coverage) {
+    my $json = new JSON;
+    local $/;
+    my $in;
+    $in = new IO::File($in_file) or
+        die "Error reading input $in_file: $!";
+    my $track_list_contents = <$in>;
+    $in->close();
+    my $track_list = $json->decode($track_list_contents);
+    my $bam_entry;
+    my $index;
+    my $tracks = $track_list->{tracks};
+    for ($index = 0; $index < scalar(@{$tracks}); ++$index) {
+        my $track = $tracks->[$index];
+        if ($track->{label} eq $label) {
+            $bam_entry = $track;
+            last;
+        }
+    }
+    if (!$bam_entry) {
+        $bam_entry = !$coverage ? generate_new_bam_alignment_entry() :
+                generate_new_bam_coverage_entry();
+        push @{$track_list->{tracks}}, $bam_entry;
+    }
+    else {
+        if ($coverage) {
+            if ($bam_entry->{type} eq $ALIGNMENT_TYPE) {
+                $bam_entry = generate_new_bam_coverage_entry();
+                $tracks->[$index] = $bam_entry;
+            }
+        }
+        else {
+            if ($bam_entry->{type} eq $COVERAGE_TYPE) {
+                $bam_entry = generate_new_bam_alignment_entry();
+                $tracks->[$index] = $bam_entry;
+            }
+        }
+    }
+    $bam_entry->{label} = $label;
+    $bam_entry->{urlTemplate} = $bam_url;
+    $bam_entry->{key} = $key;
+    if (!$coverage) {
           if (defined $classname)  {
             if (! $bam_entry->{style}) {
               $bam_entry->{style} = {};
             }
             $bam_entry->{style}->{className} = $classname;
           }
-	  if ($bigwigCoverage) {
+      if ($bigwigCoverage) {
             $bam_entry->{histograms} =  {
-		storeClass	=> $BIGWIG_STORE_CLASS,
-		urlTemplate	=> $bigwigCoverage
-	    };
+        storeClass	=> $BIGWIG_STORE_CLASS,
+        urlTemplate	=> $bigwigCoverage
+        };
           }
-	}
-	else {
-		$bam_entry->{min_score} = $min_score;
-		$bam_entry->{max_score} = $max_score;
-	}
-	my $out;
-	$out = new IO::File($out_file, "w") or
-		die "Error writing output $out_file: $!";
-	print $out $json->pretty->encode($track_list);
-	$out->close();
+    }
+    else {
+        $bam_entry->{min_score} = $min_score;
+        $bam_entry->{max_score} = $max_score;
+    }
+    my $out;
+    $out = new IO::File($out_file, "w") or
+        die "Error writing output $out_file: $!";
+    print $out $json->pretty->encode($track_list);
+    $out->close();
 }
 
 sub generate_new_bam_alignment_entry {
-	return {
-		storeClass	=> $STORE_CLASS,
-		type		=> $ALIGNMENT_TYPE,
-	};
+    return {
+        storeClass	=> $STORE_CLASS,
+        type		=> $ALIGNMENT_TYPE,
+    };
 }
 
 sub generate_new_bam_coverage_entry {
-	return {
-		storeClass	=> $STORE_CLASS,
-		type		=> $COVERAGE_TYPE
-	};
+    return {
+        storeClass	=> $STORE_CLASS,
+        type		=> $COVERAGE_TYPE
+    };
 }
 
 __END__
@@ -149,17 +149,17 @@ add_bam_track.pl - add track configuration snippet(s) for BAM track(s)
 =head1 USAGE
 
   add_bam_track.pl
-	[ --in <input_trackList.json>  ]       \
+    [ --in <input_trackList.json>  ]       \
         [ --out <output_trackList.json>        \
-	--label <track_label>                  \
-	--bam_url <url_to_bam_file>            \
-	[ --key <track_key> ]                  \
-	[ --classname <css_class> ]            \
-	[ --bigwigCoverage <url_to_bw_file> ]                       \
-	[ --coverage ]                         \
-	[ --min_score <min_score> ]            \
-	[ --max_score <max_score> ]            \
-	[ --help ]
+    --label <track_label>                  \
+    --bam_url <url_to_bam_file>            \
+    [ --key <track_key> ]                  \
+    [ --classname <css_class> ]            \
+    [ --bigwigCoverage <url_to_bw_file> ]                       \
+    [ --coverage ]                         \
+    [ --min_score <min_score> ]            \
+    [ --max_score <max_score> ]            \
+    [ --help ]
 
 =head1 ARGUMENTS
 
