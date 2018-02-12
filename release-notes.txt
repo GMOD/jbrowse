@@ -46,6 +46,9 @@
     coordinates in the URL. Thanks to @h2akim for reporting, and @cmdcolin for debugging help.
     (issue #769, @rbuels)
 
+  * Add `--config` command-line option to `add-bw-track.pl` and `add-bam-track.pl`
+    scripts. Thanks to Chris Childers for suggesting this! (issue #620, @rbuels)
+
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
 ## Minor improvements
