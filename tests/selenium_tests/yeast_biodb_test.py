@@ -1,3 +1,4 @@
+import time
 import unittest
 from subprocess import check_call as call
 
@@ -73,18 +74,19 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
     def search_yal024c( self ):
 
         # check that a YAL024C feature label is not yet in the DOM
-        yal024_label_xpath = "//div[contains(@class,'feature-label')]//*[contains(.,'YAL024C')]"
+        yal024_label_xpath = "//div[contains(@class,'feature-label')]//div[contains(@class,'feature-name')][contains(text(),'YAL024C')]"
         self.assert_no_element( yal024_label_xpath )
 
         # Find the query box and put YAL024C into it and hit enter
         self.do_typed_query( 'YAL024C' )
+        time.sleep(1*JBrowseTest.time_dilation) # cannot seem to figure out a positive wait for an element that works here :-(
 
         # test that the YAL024C label appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding
         # genes track is now selected
         feature_labels = self.assert_elements( yal024_label_xpath )
-        assert feature_labels[0].text == 'YAL024C'
         assert len(feature_labels) == 1, "actually %d features match" % len(feature_labels)
+        assert feature_labels[0].text == 'YAL024C'
 
         # test that the track with YAL024C has appeared and has the correct track label
         track_labels = self.get_track_labels_containing( 'Protein-coding genes' )

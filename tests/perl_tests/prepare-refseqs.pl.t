@@ -20,7 +20,7 @@ my ( $stdout, $stderr ) = capture {
     system $^X, 'bin/prepare-refseqs.pl', (
         '--conf' => 'sample_data/raw/yeast_genbank.json',
         '--refs' => 'DOES NOT EXIST',
-        '--out'  => $tempdir
+        '--out'  => $tempdir,
         );
 };
 ok( ! $?, 'script succeeded for nonexistent ref' );
@@ -35,6 +35,7 @@ system $^X, 'bin/prepare-refseqs.pl', (
     '--fasta' => 'sample_data/raw/volvox/volvox.fa',
     '--out'   => $tempdir,
     '--nohash',
+    '--trackConfig' => '{ "foo": "bar" }'
    );
 
 my $output = slurp_tree( $tempdir );

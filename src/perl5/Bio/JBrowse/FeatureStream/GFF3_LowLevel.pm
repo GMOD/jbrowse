@@ -34,7 +34,7 @@ sub _to_hashref {
 
     my $a = delete $f->{attributes};
     my %h;
-    for my $key ( keys %$f) {
+    for my $key ( sort keys %$f) {
         my $lck = lc $key;
         my $v = $f->{$key};
         if( defined $v && ( ref($v) ne 'ARRAY' || @$v ) ) {

@@ -32,6 +32,18 @@ class VolvoxBiodbTest121 ( AbstractVolvoxBiodbTest, unittest.TestCase ):
 
         # test sequence track display
         self.sequence()
+    def wiggle( self ):
+
+        self.turn_on_track( 'Image - volvox' )
+
+        # see that we have an image track png in the DOM now
+        imagetrack_xpath =  "//div[contains(@class,'track')]//img[@class='image-track']"
+        imagetrack_png = self.assert_element( imagetrack_xpath )
+
+        self.turn_off_track( 'Image - volvox' )
+        # check that imagetrack png is not still in the DOM after the
+        # track is turned off
+        self.assert_no_element( imagetrack_xpath )
 
     def baseURL( self ):
         if not self.base_url:

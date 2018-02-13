@@ -1,11 +1,26 @@
 {
-  "name": "jbrowse",
+  "name": "@gmod/jbrowse",
   "main": "browser/main.js",
+  "version": "1.12.4-pre",
+  "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "postinstall": "bash postinstall.sh"
+    "postinstall": "node utils/postinstall.js",
+    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html",
+    "start": "./jb_run.js -p 8082"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "http://jbrowse.org",
+  "bugs": {
+    "url": "https://github.com/GMOD/jbrowse/issues",
+    "email": "gmod-ajax@lists.sourceforge.net"
+  },
+  "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
+    "app-root-path": "^2.0.1",
+    "async": "^2.5.0",
     "dgrid": "^1.1.0",
     "dijit": "^1.12.2",
     "dojo": "^1.12.2",
@@ -13,10 +28,15 @@
     "dojo-util": "^1.12.2",
     "dojox": "^1.12.2",
     "electron-screenshot": "^1.0.2",
+    "express": "^4.15.4",
     "filesaver.js": "^0.2.0",
+    "fs-extra": "^4.0.1",
     "jDataView": "git+https://github.com/rbuels/jdataview.git",
+    "jasmine-node": "^1.14.5",
     "json-schema": "git+https://github.com/kriszyp/json-schema.git",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
-    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd"
+    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
+    "node-getopt": "^0.2.3",
+    "shelljs": "^0.7.8"
   }
 }
