@@ -2,6 +2,8 @@
 
 It applies intron hats and a gradient 'tubular' look to features and subfeatures of CanvasFeatures tracks.
 
+![](img/example.png?raw=true)
+
 ### What it does:
 - draws intron hats and inverted hats for reverse direction features.
 - it applies a gradient 'tubular' look to features and subfeatures, inheriting the feature colors and properties.

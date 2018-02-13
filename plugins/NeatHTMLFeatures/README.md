@@ -4,6 +4,8 @@ It applies intron hats and a gradient 'tubular' look to features and subfeatures
 This is refactored from HTMLFeaturesEx.js implementation and the insertion/modification to DOM elements are done out-of-band,
 due to difference between HTMLFeatures and DragableHTMLFeatures feature DOMs.
 
+![](img/example.png?raw=true)
+
 ### What it does:
 - draws intron hats and inverted hats for reverse direction features.
 - it applies a gradient 'tubular' look to features and subfeatures, inheriting the feature colors and properties.
