@@ -356,7 +356,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks assembly SL2.40ch10 )));
     is( scalar( grep @{$trackdata->{$_}} == 0,
                 grep /^lf/,
-                keys %$trackdata
+                sort keys %$trackdata
                ),
         0,
         'no empty chunks in trackdata'
@@ -378,7 +378,7 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks foo chr10 )));
     is( scalar( grep @{$trackdata->{$_}} == 0,
                 grep /^lf/,
-                keys %$trackdata
+                sort keys %$trackdata
                ),
         0,
         'no empty chunks in trackdata'
@@ -389,13 +389,12 @@ for my $testfile ( "tests/data/au9_scaffold_subset.gff3", "tests/data/au9_scaffo
                        'Start',
                        'End',
                        'Strand',
-                       'Seq_id',
                        'Name',
-                       'Score'
-                       ],
-                   'isArrayAttr' => {
-                       }
-                   }
+                       'Score',
+                       'Seq_id'
+                   ],
+                   'isArrayAttr' => {}
+               }
                ) or diag explain $trackdata->{'trackData.jsonz'};
 
 }
@@ -415,7 +414,7 @@ QUANTGFF3:
     my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks quantgff3 ctgA )));
     is( scalar( grep @{$trackdata->{$_}} == 0,
                 grep /^lf/,
-                keys %$trackdata
+                sort keys %$trackdata
                ),
         0,
         'no empty chunks in trackdata'
@@ -427,16 +426,14 @@ QUANTGFF3:
                        'Start',
                        'End',
                        'Strand',
-                       'Source',
-                       'Seq_id',
                        'Name',
-                       'Type',
                        'Score',
-                       ],
-                   'isArrayAttr' => {
-                       }
-                   }
-               ) or diag explain $trackdata->{'trackData.jsonz'};
+                       'Seq_id',
+                       'Source',
+                       'Type'
+                   ],
+                   'isArrayAttr' => {}
+              }) or diag explain $trackdata->{'trackData.jsonz'};
 
 }
 

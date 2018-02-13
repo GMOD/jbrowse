@@ -286,6 +286,7 @@ sub trackList {
     my ( $self ) = @_;
     my $json_tracks = $self->{rootStore}->get( 'trackList.json', { tracks => [] } )->{tracks};
     my $conf_tracks = $self->_read_text_conf( 'tracks.conf' )->{tracks} || [];
+    @$conf_tracks = sort { $a->{label}    cmp $b->{label} } @$conf_tracks;
     return [ @$json_tracks, @$conf_tracks ];
 }
 

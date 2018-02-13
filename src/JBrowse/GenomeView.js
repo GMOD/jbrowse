@@ -82,7 +82,7 @@ constructor: function( args ) {
 
     // handle trackLabels option
     if (typeof browser.config.trackLabels !== 'undefined' && browser.config.trackLabels === "no-block") {
-        this.trackPadding = 35;
+        this.config.trackPadding = 35;
         this.topSpace = this.posHeight*3;
     }
 
@@ -2312,6 +2312,10 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
     // get the track class
     require( [ trackConfig.type ], function( class_ ) {
+        if(typeof class_ === "string") {
+            console.error("Failed to load module: "+trackConfig.type);
+            return;
+        }
         trackClass = class_;
         if( trackClass && store )
             makeTrack();

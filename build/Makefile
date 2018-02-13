@@ -21,18 +21,16 @@ UNZIP=unzip -q
 SHASUM=shasum
 
 
-all: docs bin/wig2png
+all: docs
 
 release-version.txt:
 	echo $(RELEASE_VERSION) > release-version.txt
 
-release: release-version.txt release-normal release-min release-normal-test release-min-test release-notes.html
+release: release-version.txt release-normal release-min release-notes.html
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
-release-notest: release-version.txt release-normal release-min release-notes.html
-	ls -lh *.zip
-	$(SHASUM) *.zip
+release-notest: release
 
 release-electron-darwin: release-notest
 	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
@@ -59,7 +57,10 @@ release-electron-all: release-notest
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
 
-release-normal: superclean $(JS_SRCFILES)
+node_modules:
+	npm install
+
+release-normal: superclean $(JS_SRCFILES) node_modules
 	mkdir $(RELEASE_FULL_DIR);
 	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
 	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
@@ -75,15 +76,6 @@ release-normal: superclean $(JS_SRCFILES)
         # zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
-release-normal-test: release-normal
-        # unzip to make sure we are looking at what's really in the releases
-	rm -rf $(RELEASE_FULL_DIR);
-	$(UNZIP) $(RELEASE_FULL).zip
-	cd $(RELEASE_FULL_DIR) \
-	  && ./setup.sh legacy \
-	  && prove -Isrc/perl5 -r -j3 tests/perl_tests;
-
-
 PLUGINS = $(wildcard $(PLUGINDIR)/*)
 
 plugins-min: release-normal
@@ -92,7 +84,8 @@ plugins-min: release-normal
 		node $(BASEDIR)/src/dojo/dojo.js load=build \
 			--require "$(JSDIR)/init.js" \
 			--profile "$$pdir/js/$$pname" \
-			--releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+			--releaseDir "$(RELEASE_FULL_DIR)/plugins/$$pname/built" \
+			2>&1 | grep -v '^warn'; \
 		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
 		mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname" "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
 		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
@@ -101,15 +94,19 @@ plugins-min: release-normal
 release-min: release-normal plugins-min
 
         # run the dojo build in the full dir to minify
-	node src/dojo/dojo.js load=build --require "$(JSDIR)/init.js" --profile "$(JSDIR)/JBrowse.profile.js" --releaseDir "$(RELEASE_FULL_DIR)/src";
+	node src/dojo/dojo.js \
+		load=build \
+		--require "$(JSDIR)/init.js" \
+		--profile "$(JSDIR)/JBrowse.profile.js" \
+		--releaseDir "$(RELEASE_FULL_DIR)/src" \
+		2>&1 | grep -v '^warn';
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
 	for P in src docs/jsdoc tests tests_extended build; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
-	for P in 	src/wig2png \
-			src/dojo/dojo.js \
+	for P in src/dojo/dojo.js \
 			`find src/ -name nls -and -type d -and -not -wholename '*/tests/*' | grep -v src/dojox/grid` \
 			src/dojo/resources \
 			src/dojox/grid \
@@ -123,6 +120,7 @@ release-min: release-normal plugins-min
 			src/JBrowse \
 			src/perl5 \
 			src/dgrid/css \
+			src/jDataView \
 	; do \
 	    mkdir -p `dirname $(RELEASE_MIN_DIR)$$P`; \
 	    if [ -d $$P ]; then \
@@ -132,47 +130,17 @@ release-min: release-normal plugins-min
 	    fi;\
 	done
 
-	mv $(RELEASE_MIN_DIR)/src/dojo/nls $(RELEASE_MIN_DIR)/src/nls;
+	cp -r $(RELEASE_MIN_DIR)/src/dojo/nls $(RELEASE_MIN_DIR)/src/nls;
 
 	find $(RELEASE_MIN_DIR) -name '*.uncompressed.js' -or -name '*.consoleStripped.js' -exec rm {} ';'
 
         # zip it up
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
-release-min-test: release-min
-        # unzip to make sure we are looking at what's really in the releases
-	rm -rf $(RELEASE_MIN_DIR);
-	$(UNZIP) $(RELEASE_MIN).zip
-	rm $(RELEASE_MIN_DIR)/sample_data/raw/volvox
-	cp -R docs tests* sample_data $(RELEASE_MIN_DIR);
-	cd $(RELEASE_MIN_DIR) && ./setup.sh legacy
-	cd $(RELEASE_MIN_DIR) && prove -Isrc/perl5 -r -j3 tests/perl_tests;
-
-bin/wig2png: src/wig2png/Makefile
-	$(MAKE) -C src/wig2png;
-src/wig2png/Makefile: src/wig2png/configure
-	cd src/wig2png && ./configure
-src/wig2png/configure: src/wig2png/configure.in
-	cd src/wig2png && autoconf
-
 superclean: clean
-	-git clean -fdx --exclude=plugins/ \
-	    --exclude src/FileSaver/ \
-	    --exclude src/dbind/ \
-	    --exclude src/dgrid/ \
-	    --exclude src/dstore/ \
-	    --exclude src/dijit/ \
-	    --exclude src/dojo/ \
-	    --exclude src/dojox/ \
-	    --exclude src/jDataView/ \
-	    --exclude src/json-schema/ \
-	    --exclude src/jszlib/ \
-	    --exclude src/lazyload/ \
-	    --exclude src/put-selector/ \
-	    --exclude src/util/ \
-	    --exclude src/xstyle/ 
+	git clean -fdxq --exclude=./plugins
 
 clean:
 	rm -rf docs/jsdoc *-min.js release-notes.html;
 
-.PHONY: all clean superclean jbrowse docs doc release release-min release-normal release-normal-test release-min-test plugins-min
+.PHONY: all clean superclean jbrowse docs doc release release-min release-normal plugins-min

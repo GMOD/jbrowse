@@ -267,7 +267,7 @@ ENDJS
     my $chromCol = $fields{chrom};
     my $startCol = $fields{txStart} || $fields{chromStart};
     my $endCol = $fields{txEnd} || $fields{chromEnd};
-    my @nameCols = grep defined, distinct( $fields{ $primaryNameColumn }, @fields{grep /^(name|id|alias)\d*$/i, keys %fields} );
+    my @nameCols = grep defined, distinct( $fields{ $primaryNameColumn }, @fields{grep /^(name|id|alias)\d*$/i, sort keys %fields} );
     my $compare = sub ($$) {
         $_[0]->[$chromCol] cmp $_[1]->[$chromCol]
             ||
@@ -408,7 +408,7 @@ sub makeConverter {
         }
     }
     # map remaining fields
-    foreach my $f (keys %fields) {
+    foreach my $f (sort keys %fields) {
         next if $skipFields{$f};
         push @headers, $f;
         push @indexMap, $fields{$f};
@@ -568,7 +568,7 @@ sub selectall {
 sub arrayref2hash {
     my ($aref, $fields) = @_;
     my %result;
-    foreach my $key (keys %$fields) {
+    foreach my $key (sort keys %$fields) {
         $result{$key} = $aref->[$fields->{$key}];
     }
     return \%result;
