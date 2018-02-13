@@ -42,6 +42,10 @@
     running indefinitely and taking all available disk space.
     (pull #945, issue #946, @deepakunni3 and @rbuels)
 
+  * Mitigate race condition that could sometimes cause duplicate tracks to be shown
+    when the browser is started with the `loc` query parameeter set to the name of
+    a feature. Thanks to Colin Diesh for the fix. (issue #567, @cmdcolin)
+
   * Fixed issue in which JBrowse crashed when negative numbers were supplied for highlight
     coordinates in the URL. Thanks to @h2akim for reporting, and @cmdcolin for debugging help.
     (issue #769, @rbuels)
