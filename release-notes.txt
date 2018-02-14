@@ -113,10 +113,6 @@
 
   * Improved documentation of the `CategoryURL` plugin. (pull #985, @enuggetry)
 
-  * Re-enabled and improved documentation and configurability of the gradient colors in the
-    `NeatCanvasFeatures` plugin. (issue #982, pull #985, @enuggetry)
-
-
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
 ## Minor improvements
