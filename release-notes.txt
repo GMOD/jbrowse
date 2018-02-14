@@ -52,6 +52,8 @@
   * Fixed a "cannot read property 'offsetLeft'" error when using touch screens without
     the old simple track selector active. (issue #893, @rbuels)
 
+  * Upgraded to use new Google Analytics API for usage reporting. (@rdhayes)
+
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
 ## Minor improvements
