@@ -1705,13 +1705,15 @@ _reportGoogleUsageStats: function( stats ) {
     // send pageviews and custom variables
     accounts.forEach(function(user,viewerNum) {
         if ( user == jbrowseUser) {
-            var rename = { ver: 'jbrowse-version' }
             var gaData = {};
-            'tracks-count refSeqs-count refSeqs-avgLen ver loadTime electron plugins'
-            .split(/\s+/)
-            .forEach( function(key) {
-                gaData[rename[key]||key] = stats[key];
+            var googleDimensions = 'tracks-count refSeqs-count refSeqs-avgLen ver loadTime electron plugins';
+            var googleMetrics = 'loadTime';
+
+            googleDimensions.split(/\s+/).forEach( function(key,index) {
+                gaData['dimension'+(index+1)] = stats[key];
             });
+
+            gaData.metric1 = Math.round(stats.loadTime*1000);
 
             analyticsScript += "ga('jbrowseTracker.send', 'pageview',"+JSON.stringify(gaData)+");";
         }
