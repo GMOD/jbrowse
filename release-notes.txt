@@ -14,7 +14,7 @@
   * Added a `--trackConfig` option to `prepare-refseqs.pl` to allow injecting
     refseq configuration variables at format time.  @erasche
 
-  * Added trackLabels: "no-block" config feature.  Moves track labels/menus 
+  * Added trackLabels: "no-block" config feature.  Moves track labels/menus
     above the features so as not to obscure the features. (issue #901, #490)
 
   * Make jbrowse npm installable. thanks to @cmdcolin & @enuggetry.
@@ -55,6 +55,8 @@
 
   * Fixed a "cannot read property 'offsetLeft'" error when using touch screens without
     the old simple track selector active. (issue #893, @rbuels)
+
+  * Upgraded to use new Google Analytics API for usage reporting. (@rdhayes)
 
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
@@ -105,9 +107,9 @@
 
   * Added subfeatureDetailLevel config item to make View details box
     only load subfeatures on demand (issue #861).
-   
+
   * Added ability to draw scatter plot from BigWig tracks. Thanks to
-    Keiran Raine for the contribution (issue #741). 
+    Keiran Raine for the contribution (issue #741).
 
   * Added a fullviewlink option for the URL bar to disable "View full
     link" attribute in embedded JBrowse. Thanks to Vivek Krishnakumar
@@ -147,7 +149,7 @@
     Eric Rasche for reporting (issue #673).
 
   * Fixed some issues where the Gene glyph would not layout some
-    features correctly. Thanks to Eric Rasche for reporting 
+    features correctly. Thanks to Eric Rasche for reporting
     (issue #686).
 
   * Fixed an issue with JBrowse Desktop where saving session would not
@@ -193,7 +195,7 @@
 
 ## Bug fixes
 
- * Fix RegexSearch plugin and NeatCanvasFeatures plugin - search track 
+ * Fix RegexSearch plugin and NeatCanvasFeatures plugin - search track
    loading failure (issue #676)
 
  * Fix compat_121.html to access /css directory
@@ -275,7 +277,7 @@
    pointing to important data, but this is uncommon (issue #563).
 
  * Allow falsey values to be used in browser.cookie.
- 
+
  * Fix minor issue where sometimes the length field of refSeqs.json
    was missing.
 
@@ -421,11 +423,11 @@
    chunkSizeLimit errors. Thanks to Richard Hayes for finding and
    debugging this issue (issue #486)!
 
- * Fixed a bug where the Variant popup boxes would not display 
+ * Fixed a bug where the Variant popup boxes would not display
    complete genotype information in previous 1.11.* versions.
    Thanks to Nando for reporting the bug and Colin Diesh for the
    bugfix (issue #488).
- 
+
  * Fixed a small error that occured when using variant type tracks
    with the REST API.
 
@@ -466,7 +468,7 @@
    menu or by using the in-memory adaptor. Big thanks to Andrew Warren
    for the contribution (issue #453).
 
- * Added a change to the highlight button to allow the user to more 
+ * Added a change to the highlight button to allow the user to more
    easily clear highlights. Thanks to Paul Hale for the suggestion
    and Colin Diesh for the fix (issue #445).
 
@@ -480,7 +482,7 @@
    original implementation and Colin Diesh for the fix (issue #461).
 
  * Changed the CanvasFeatures 'View details' pages to display the name
-   and description of features in the dialog box. Thanks to Colin 
+   and description of features in the dialog box. Thanks to Colin
    Diesh for the fix (issue #463).
 
  * Added a bugfix for non-compliant servers that add a trailing slash
@@ -566,7 +568,7 @@
    and Colin Diesh for the bugfix (issue #435)
 
  * Fixed a bug where gene features in GFF tracks would not have
-   arrowhead markers. Thanks to Colin Diesh for finding and fixing 
+   arrowhead markers. Thanks to Colin Diesh for finding and fixing
    this issue (issue #454)
 
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
