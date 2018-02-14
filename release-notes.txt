@@ -6,6 +6,15 @@
     unusable on Perl 5.18 and higher. Huge thanks to Colin Diesh for tracking
     this down. (issue #470, pull #912, @cmdcolin)
 
+  * Added code to calculate feature density histograms for Tabix-indexed GFF3
+    (`GFF3Tabix`) data sources. Thanks to @nathandunn for noticing and fixing
+    this! (pull #956, @nathandunn)
+
+  * Added a new "Hide unspliced reads" menu item to Alignments and Alignments2
+    tracks that filter out reads that have no `N`s in their CIGAR strings.
+    Thanks to Deepak Kunni and Nathan Dunn for their work on this.
+    (pull #921, @deepakunni3)
+
   * setup.sh now uses npm instead of Bower (which is deprecated) to install
     dependencies. @enuggetry
 
@@ -37,6 +46,17 @@
   * If a track has no `key` set in its track configuration, JBrowse will now look for
     a `key` in its track metadata, and use that if it is present. Thanks to Loraine
     Guéguen for the idea (issue #957, pull #958). @rbuels
+
+  * Fixed bug in `maker2jbrowse` script that allows `maker2jbrowse` to be installed
+    in system executable directories, and adds a `--sortMem` option.
+    (pull #877, @cmdcolin)
+
+  * Fixed a cosmetic/styling bug with malformed DOM structure in feature detail popup
+    dialogs.  Thanks to Erik Rasche for noticing and fixing this! (pull #882, @erasche)
+
+  * Added a configuration option that can disable JBrowse's behavior of updating the
+    browser's title text as the view changes. Thanks to Luka Jeran, Primož Hadalin,
+    and Nathan Dunn for this! (pull #904, @lukaw3d)
 
   * Suppress execution of biodb-to-json.pl on sample data while running setup.sh
     on MacOS High Sierra with stock Perl due to an issue with the stock Perl having
