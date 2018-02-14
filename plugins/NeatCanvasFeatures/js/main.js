@@ -1,8 +1,8 @@
 /*
  * NeatCanvasFeatures Plugin
- * Draws introns and paints gradient subfeatures. 
+ * Draws introns and paints gradient subfeatures.
  */
-/* 
+/*
     Created on : Nov 17, 2015
     Author     : EY
 */
@@ -42,7 +42,7 @@ return declare( JBrowsePlugin,
             if (typeof browser.config.classInterceptList === 'undefined') {
                 browser.config.classInterceptList = {};
             }
-            
+
             // override ProcessedTranscripts
             require(["dojo/_base/lang", "JBrowse/View/FeatureGlyph/ProcessedTranscript"], function(lang, ProcessedTranscript){
                 lang.extend(ProcessedTranscript, {
@@ -54,7 +54,7 @@ return declare( JBrowsePlugin,
             // override Segments
             require(["dojo/_base/lang", "JBrowse/View/FeatureGlyph/Segments"], function(lang, Segments){
                 lang.extend(Segments, {
-                    renderFeature: thisB.segments_renderFeature,                    
+                    renderFeature: thisB.segments_renderFeature,
                     renderIntrons: thisB.segments_renderIntrons
                 });
             });
@@ -66,14 +66,14 @@ return declare( JBrowsePlugin,
                     zeroPad: thisB.box_zeroPad
                 });
             });
-        });      
+        });
     },
     segments_renderFeature: function( context, fRect ) {
         //console.log("SegmentsEx.renderFeature fRect ");
-    
+
         if( this.track.displayMode !== 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
-        
+
         //this.renderConnector( context,  fRect );
         this.renderSegments( context, fRect );
         this.renderIntrons(context,fRect);
@@ -91,14 +91,14 @@ return declare( JBrowsePlugin,
         //console.dir(subparts);
         if (subparts.length <=1) return;
 
-        subparts.sort(function(a, b){ return a.get('start')-b.get('start'); });    
+        subparts.sort(function(a, b){ return a.get('start')-b.get('start'); });
 
         //test - set to 1 to display
         /*if (0) {
             for (var i = 0; i < subparts.length; ++i) {
                 console.log(subparts[i].get("type")+','+subparts[i].get("start")+','+subparts[i].get("end"));
         }*/
-        
+
         // find the gaps
         var viewInfo = fRect.viewInfo;
 
@@ -139,7 +139,7 @@ return declare( JBrowsePlugin,
                 context.lineWidth = 1;
                 context.strokeStyle = '#202020';
                 context.lineCap = 'square';
-                context.stroke();            
+                context.stroke();
 
             }
         }
@@ -149,7 +149,7 @@ return declare( JBrowsePlugin,
         //console.dir(feature);
         //console.dir(viewInfo);
 
-        
+
         var left  = viewInfo.block.bpToX( feature.get('start') );
         var width = viewInfo.block.bpToX( feature.get('end') ) - left;
         //left = Math.round( left );
@@ -166,9 +166,9 @@ return declare( JBrowsePlugin,
         // background
         var bgcolor = style( feature, 'color' );
         bgcolor = getColorHex(bgcolor);
-        
+
         var type = feature.get('type');
-        
+
         // is UTR
         if (typeof(type) !== "undefined" && type.indexOf('UTR') > -1) {
             context.fillStyle = "#fdfdfd";//this.colorShift(bgcolor,4.5);
@@ -178,16 +178,21 @@ return declare( JBrowsePlugin,
 
             // Create gradient
 
-            var grd = context.createLinearGradient(left, top, left, top+height);
+            if(this.gradient){
+                var grd = context.createLinearGradient(left, top, left, top+height);
 
-            // Add colors
-            grd.addColorStop(0.000, bgcolor);
-            grd.addColorStop(0.500,this.colorShift(bgcolor,2.5));
-            grd.addColorStop(0.999, bgcolor);
+                // Add colors
+                grd.addColorStop(0.000, bgcolor);
+                grd.addColorStop(0.500,this.colorShift(bgcolor,2.5));
+                grd.addColorStop(0.999, bgcolor);
 
-            // Fill with linear 
-            context.fillStyle = grd;
-           
+                // Fill with linear
+                context.fillStyle = grd;
+            }
+            else{
+                context.fillStyle = bgcolor;
+            }
+
         }
 
         if( bgcolor ) {
@@ -223,7 +228,7 @@ return declare( JBrowsePlugin,
                 context.strokeRect( left+lineWidth/2, top+lineWidth/2, width-lineWidth, height-lineWidth );
             }
             else {
-                
+
                 context.globalAlpha = lineWidth*2/width;
                 context.fillStyle = borderColor;
                 context.fillRect( left, top, Math.max(1,width), height );
@@ -238,20 +243,20 @@ return declare( JBrowsePlugin,
      * If color is not in #rrggbb format, just return the original value.
      */
     box_colorShift: function(color,shift) {
-        
+
         //console.log("color "+color);
         // check for correct formatting
         if (color.substring(0,1) !== "#" || color.length !== 7 ) return color;
-        
+
         var rstr = color.substring(1,3);
         var gstr = color.substring(3,5);
         var bstr = color.substring(5,7);
-        
+
         //console.log("color "+rstr+" "+gstr+" "+bstr);
-        
-        var r = parseInt(rstr, 16); 
-        var g = parseInt(gstr, 16); 
-        var b = parseInt(bstr, 16); 
+
+        var r = parseInt(rstr, 16);
+        var g = parseInt(gstr, 16);
+        var b = parseInt(bstr, 16);
         //console.log("dec color "+r+" "+g+" "+b);
         r += Math.round(r*shift);
         g += Math.round(g*shift);
@@ -269,9 +274,9 @@ return declare( JBrowsePlugin,
         var newcolor = "#"+rstr+gstr+bstr;
         //console.log("newcolor "+newcolor);
         return newcolor;
-        
+
     },
-    
+
     box_zeroPad: function(num) {
         var num1 = "00" + num.toString(16);
         var numstr = num1.substr(num1.length-2);
@@ -295,14 +300,14 @@ function getColorHex(color) {
 function rgbToHex(rgb) {
     if (rgb.indexOf("rgba") > -1)
         return rgbaToHex(rgb);
-    
+
     var rgbRegex = /^rgb\(\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*,\s*(-?\d+)(%?)\s*\)$/;
     var result, r, g, b, hex = "";
     if ( (result = rgbRegex.exec(rgb)) ) {
         r = componentFromStr(result[1], result[2]);
         g = componentFromStr(result[3], result[4]);
         b = componentFromStr(result[5], result[6]);
-    
+
         hex = "#" + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
     return hex;
@@ -314,7 +319,7 @@ function rgbaToHex(rgb) {
         r = componentFromStr(result[1], result[2]);
         g = componentFromStr(result[3], result[4]);
         b = componentFromStr(result[5], result[6]);
-    
+
         hex = "#" + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
     return hex;
