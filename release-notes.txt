@@ -6,6 +6,8 @@
     `master`, with `master` only being updated when a new release of JBrowse is published.
     (issue #975, @enuggetry)
 
+  * Update to dojo ecosystem to version 1.13.0
+
   * Implemented npm install of JBrowse and added automated deployment of JBrowse releases to
     GitHub releases and `npm`. Thanks to @abretaud, @nathandunn, @erasche, and @cmdcolin for
     valuable discussions. (issue #822, pull #979, pull #984, @rbuels)
