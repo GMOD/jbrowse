@@ -247,8 +247,7 @@ return declare( null, {
         for( var field in info ) {
             if( info.hasOwnProperty( field ) ) {
                     var i = info[field] = {
-                        values: info[field],
-                        toString: function() { return (this.values || []).join(','); }
+                        values: info[field]
                     };
                     var meta = this.getVCFMetaData( 'INFO', field );
                     if( meta )
