@@ -89,8 +89,8 @@ return declare( null, {
             end: line.end,
             seq_id: line.ref,
             description: this._makeDescriptionString( SO_term, ref, alt ),
-            type: SO_term,
-            reference_allele: ref
+            type:   SO_term,
+            reference_allele: ret ? null : ref
         };
 
         if( fields[2] !== null ) {
@@ -112,13 +112,21 @@ return declare( null, {
             };
         }
 
-        if( alt && alt[0] != '<' )
+        if( alt && alt[0] != '<' ) {
             featureData.alternative_alleles = {
                 meta: {
                     description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
                 },
                 values: alt
             };
+        } else if( alt && alt.indexOf('<') != -1 ) {
+            featureData.alternative_alleles = {
+                meta: {
+                    description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
+                },
+                values: alt
+            };
+        }
 
         // parse the info field and store its contents as attributes in featureData
         this._parseInfoField( featureData, fields );
@@ -231,7 +239,8 @@ return declare( null, {
         "DUP:TANDEM": { description: "Tandem duplication", so_term: 'copy_number_gain' },
         "DEL:ME": { description: "Deletion of mobile element relative to the reference" },
         "INS:ME": { description: "Insertion of a mobile element relative to the reference" },
-        "NON_REF": { description: "Represents any possible alternative allele at this location", so_term: "biological_region" }
+        "NON_REF": { description: "Represents any possible alternative allele at this location", so_term: 'sequence_variant' },
+        "*": { description: "Represents any possible alternative allele at this location", so_term: 'sequence_variant' }
     },
 
     /**
@@ -376,7 +385,7 @@ return declare( null, {
         if( ! alt )
             return 'no alternative alleles';
 
-        alt = alt.replace(/^<|>$/g,'');
+        alt = alt.replace(/<|>/g,'');
 
         var def = this.getVCFMetaData( 'alt', alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
