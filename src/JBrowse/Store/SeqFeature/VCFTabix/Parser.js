@@ -378,7 +378,7 @@ return declare( null, {
         if( ! alt )
             return 'no alternative alleles';
 
-        alt = alt.replace(/^|$/g,'');
+        alt = alt.replace(/^<|>$/g,'');
 
         var def = this.getVCFMetaData( 'alt', alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
