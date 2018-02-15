@@ -25,6 +25,14 @@ define([
            DGridDijitRegistry,
            Util
        ) {
+function escapeHtml(html)
+{
+    var text = document.createTextNode(html);
+    var div = document.createElement('div');
+    div.appendChild(text);
+    return div.innerHTML;
+}
+
 
 // make a DGrid that registers itself as a dijit widget
 var Grid = declare([DGrid,DGridDijitRegistry]);
@@ -188,7 +196,7 @@ return declare( null, {
             }
         }
 
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: val }, parent );
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: escapeHtml(val) }, parent );
         return 1;
     },
 

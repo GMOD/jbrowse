@@ -112,14 +112,7 @@ return declare( null, {
             };
         }
 
-        if( alt && alt[0] != '<' ) {
-            featureData.alternative_alleles = {
-                meta: {
-                    description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
-                },
-                values: alt
-            };
-        } else if( alt && alt.indexOf('<') != -1 ) {
+        if( alt ) {
             featureData.alternative_alleles = {
                 meta: {
                     description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
