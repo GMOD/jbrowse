@@ -230,7 +230,8 @@ return declare( null, {
         "CNV": { description: "Copy number variable region (may be both deletion and duplication)", so_term: 'copy_number_variation' },
         "DUP:TANDEM": { description: "Tandem duplication", so_term: 'copy_number_gain' },
         "DEL:ME": { description: "Deletion of mobile element relative to the reference" },
-        "INS:ME": { description: "Insertion of a mobile element relative to the reference" }
+        "INS:ME": { description: "Insertion of a mobile element relative to the reference" },
+        "NON_REF": { description: "Represents any possible alternative allele at this location", so_term: "biological_region" }
     },
 
     /**
@@ -360,7 +361,6 @@ return declare( null, {
                                                  return this._find_SO_term_from_alt_definitions( alt );
                                              }, this ),
                                   function( t ) { return t; } );
-
         if( types[0] )
             return types.join(',');
 
@@ -391,8 +391,11 @@ return declare( null, {
 
         // look for a definition with an SO type for this
         var def = (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
-        if( def && def.so_term )
+        if( def && def.so_term ) {
             return def.so_term;
+        } else if( def && (this._vcfReservedAltTypes[alt]||{}).so_term ) {
+            return this._vcfReservedAltTypes[alt].so_term;
+        }
 
         // try to look for a definition for a parent term if we can
         alt = alt.split(':');
