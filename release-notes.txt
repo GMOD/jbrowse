@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.12.4     2018-02-14 22:29:20 UTC
+
 ## Minor improvements
 
   * Fixed SEVERE performance regression that basically made flatfile-to-json.pl
