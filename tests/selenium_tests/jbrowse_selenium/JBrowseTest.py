@@ -35,7 +35,7 @@ class JBrowseTest (object):
         #self.browser = self._getChrome()
         self.browser = self._getBrowser()
         if self.base_url and self.data_dir: self.browser.get(self.base_url+self.data_dir)
-        else: 
+        else:
             base = self.baseURL()
             self.browser.get(
                 base + ( '&' if base.find('?') >= 0 else '?' )
@@ -105,7 +105,7 @@ class JBrowseTest (object):
     def assert_track( self, tracktext ):
         trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
         self._waits_for_element( trackPath )
-    
+
     def assert_no_element( self, expression ):
         self._waits_for_no_element( expression )
 
@@ -154,8 +154,8 @@ class JBrowseTest (object):
         self.assert_no_js_errors()
 
     def close_dialog( self, title ):
-        dialog = "//*[@class='dijitDialogTitle'][contains(text(),'%s')]/../span[contains(@class,'dijitDialogCloseIcon')]" % title 
-        
+        dialog = "//*[@class='dijitDialogTitle'][contains(text(),'%s')]/../span[contains(@class,'dijitDialogCloseIcon')]" % title
+
         self.assert_element(dialog).click()
         self.assert_no_element(dialog)
         self.wait_for_dialog_disappearance()
@@ -167,9 +167,9 @@ class JBrowseTest (object):
         #pass
 
     def track_menu_click( self, track_name, item_name ):
-        
+
         menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
-            % re.sub( '\W', '_', track_name.lower()) 
+            % re.sub( '\W', '_', track_name.lower())
 
         self.assert_element(menuButton).click()
 
@@ -177,7 +177,7 @@ class JBrowseTest (object):
 
     def menu_item_click( self, text ):
         menuItem = "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
-            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text 
+            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text
         self.assert_element(menuItem).click()
 
     def overview_rubberband( self, start_pct, end_pct ):
@@ -217,7 +217,7 @@ class JBrowseTest (object):
 
     def _waits_for_no_element( self, expression, time=5 ):
         WebDriverWait(self, time*self.time_dilation).until(lambda self: not self.does_element_exist(expression))
-    
+
     # Wait until faceted browser has narrowed results to one track
     def wait_until_one_track(self):
         WebDriverWait(self, 5*self.time_dilation).until(lambda self: self.is_one_row())
@@ -247,7 +247,7 @@ class JBrowseTest (object):
             return True
         except NoSuchElementException:
             return False
-   
+
     def select_refseq( self, name ):
         self.do_typed_query( name )
 
@@ -276,11 +276,11 @@ class JBrowseTest (object):
 
         self.assert_no_js_errors()
 
-    # waits for the title of the page to change, since it 
+    # waits for the title of the page to change, since it
     # gets updated after the scroll animation
     def waits_for_scroll ( self, location ):
         WebDriverWait(self, 5*self.time_dilation).until(lambda self: self.browser.title != location)
-    
+
 
     #Exists because onload() get trigered before JBrowse is ready
     def _waits_for_load(self):

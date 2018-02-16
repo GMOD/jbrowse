@@ -13,7 +13,7 @@ class VolvoxRestTest( JBrowseTest ):
     def setUp( self ):
         # Does not bother formatting, assumes it's been done through ./setup
         # The volvox_biodb_test.py test can be used to test formatting
-        
+
         t = threading.Thread(target=name_server.start_server, name='Backend')
         t.daemon = True
         t.start()
@@ -21,7 +21,7 @@ class VolvoxRestTest( JBrowseTest ):
         super( VolvoxRestTest, self ).setUp()
 
     def test_volvox( self ):
- 
+
         # select "ctgA from the dropdown
         self.select_refseq( 'ctgA' )
 
@@ -31,7 +31,7 @@ class VolvoxRestTest( JBrowseTest ):
 
         # test scrolling, make sure we get no js errors
         self.scroll()
-        
+
         # test sequence track display
         self.scroll_around()
 
