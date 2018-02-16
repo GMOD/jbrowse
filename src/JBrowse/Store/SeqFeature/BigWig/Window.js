@@ -21,8 +21,9 @@ return declare( null,
      * Explorer by Thomas Down.
      * @constructs
      */
-    constructor: function(bwg, cirTreeOffset, cirTreeLength, isSummary) {
+    constructor: function(bwg, cirTreeOffset, cirTreeLength, isSummary, autoSql) {
         this.bwg = bwg;
+        this.autoSql = autoSql;
         if( !( cirTreeOffset >= 0 ) )
             throw "invalid cirTreeOffset!";
         if( !( cirTreeLength > 0 ) )

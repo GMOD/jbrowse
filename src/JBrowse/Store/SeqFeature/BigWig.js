@@ -134,6 +134,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             this.totalSummaryOffset = data.getUint64();
             this.uncompressBufSize = data.getUint32();
 
+
             // dlog('bigType: ' + this.type);
             // dlog('chromTree at: ' + this.chromTreeOffset);
             // dlog('uncompress: ' + this.uncompressBufSize);
@@ -151,6 +152,19 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
                 this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
+
+            var string = "";
+            var c = 0;
+            data.getBytes(72);
+
+            
+            while(true) {
+                c = data.getChar();
+                if(c.charCodeAt() == 0) break;
+                string += c;
+            }
+            this.parseAutoSql(string);
+
 
             // parse the totalSummary if present (summary of all data in the file)
             if( this.totalSummaryOffset ) {
@@ -338,6 +352,29 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         }
         //console.log( 'using unzoomed level');
         return this.getUnzoomedView();
+    },
+
+    parseAutoSql: function(string) {
+        var res = string.split('\n');
+        this.autoSql = {
+            name: /table (\w+)/.exec(res[0])[1],
+            description: /"([\w\s]+)"/.exec(res[1])[1],
+            fields: []
+        };
+        var i = 3;
+        var field;
+        while(res[i].trim() != ')') {
+            if(field = /([\w\[\]0-9]+)\s*(\w+)\s*;\s*"(.*)"/.exec(res[i].trim())) {
+                this.autoSql.fields.push({
+                    type: field[1],
+                    name: field[2],
+                    description: field[3]
+                });
+            } else {
+                console.warn('autosql line not parsed', res[i]);
+            }
+            i++;
+        }
     },
 
 

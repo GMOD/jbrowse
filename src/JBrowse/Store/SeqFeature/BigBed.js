@@ -72,7 +72,7 @@ return declare(BigWig,
             if (nzl) {
                 cirLen = this.zoomLevels[0].dataOffset - this.unzoomedIndexOffset;
             }
-            this.unzoomedView = new Window( this, this.unzoomedIndexOffset, cirLen, false );
+            this.unzoomedView = new Window( this, this.unzoomedIndexOffset, cirLen, false, this.autoSql );
         }
         return this.unzoomedView;
     }

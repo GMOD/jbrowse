@@ -304,6 +304,20 @@ var RequestWorker = declare( null,
             } else if (chromId == this.chr && start <= this.max && end >= this.min) {
                 // Complex-BED?
                 // FIXME this is currently a bit of a hack to do Clever Things with ensGene.bb
+                var auto = this.window.autoSql;
+                for(var i = 0; i < auto.fields.length-3; i++) {
+                    featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                }
+                delete featureOpts.blockCount;
+                delete featureOpts.blockSizes;
+                delete featureOpts.thickStart;
+                delete featureOpts.thickEnd;
+                delete featureOpts.reserved;
+                delete featureOpts.chromStarts;
+                delete featureOpts.strand;
+                delete featureOpts.score;
+                delete featureOpts.name;
+                delete featureOpts.override_color;
 
                 var thickStart = bedColumns[3]|0;
                 var thickEnd   = bedColumns[4]|0;
@@ -311,13 +325,14 @@ var RequestWorker = declare( null,
                 var blockSizes = bedColumns[7].split(',');
                 var blockStarts = bedColumns[8].split(',');
 
-                var grp = {
+
+                var grp = dojo.mixin(featureOpts, {
                     id: bedColumns[0]+'_'+chromId+'_'+start+'_'+end,
                     type: 'mRNA',
                     notes: [],
-                    strand: featureOpts.orientation=="+"?1:-1,
+                    strand: featureOpts.orientation == "+"?1:-1,
                     subfeatures: []
-                };
+                });
 
                 if (bedColumns.length > 10) {
                     var geneId = bedColumns[9];
