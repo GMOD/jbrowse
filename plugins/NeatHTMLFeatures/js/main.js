@@ -33,13 +33,13 @@ return declare( JBrowsePlugin,
         var browser = this.browser;
 
         this.neat = 1;
-        this.gradient = 1;
-        if(typeof args.linearGradient != 'undefined' && args.linearGradient == 0) {
-            this.gradient = 0;
+        this.gradient = 0;
+        if(typeof args.gradient != 'undefined') {
+            this.gradient = args.gradient;
         }
-        if(typeof args.neatFeatures != 'undefined' && args.neatFeatures == 0) {
-            this.neat = 0;
-        }
+        //if(typeof args.neatFeatures != 'undefined' && args.neatFeatures == 0) {
+        //    this.neat = 0;
+        //}
 
         // trap the redraw event for handling resize
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
@@ -62,9 +62,9 @@ return declare( JBrowsePlugin,
                 var trackDiv = browser.view.oldRenderTrack(trackConfig);
                 
                 // this checks if per-track neatFeatures=1 is defined, then we "paint" introns on only the selected tracks
-                if(typeof trackConfig.neatFeatures !== 'undefined' && trackConfig.neatFeatures === 1) {
-                    dojo.addClass(trackDiv,"neat-track");
-                }
+                //if(typeof trackConfig.neatFeatures !== 'undefined' && trackConfig.neatFeatures === 1) {
+                //    dojo.addClass(trackDiv,"neat-track");
+                //}
                 //if(typeof trackConfig.linearGradient !== 'undefined' && trackConfig.linearGradient === 1) {
                 //    dojo.addClass(trackDiv,"neat-linear-shading");
                 //}

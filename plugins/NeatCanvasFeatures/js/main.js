@@ -31,10 +31,11 @@ return declare( JBrowsePlugin,
 
         var thisB = this;
         var browser = this.browser;
-
-        this.gradient = 1;
-        if(typeof args.gradientFeatures !== 'undefined' && args.gradientFeatures === 0) {
-            this.gradient = 0;
+        var config = this.browser.config;
+        
+        config.gradientNeatCanvas = 1;
+        if(typeof args.gradient !== 'undefined') {
+            config.gradientNeatCanvas = args.gradient;
         }
 
         // create function intercept after view initialization (because the view object doesn't exist before that)
@@ -148,7 +149,7 @@ return declare( JBrowsePlugin,
         //console.log("BoxEx.renderBox("+top+","+overallHeight+")");
         //console.dir(feature);
         //console.dir(viewInfo);
-
+        var config = this.browser.config;
         
         var left  = viewInfo.block.bpToX( feature.get('start') );
         var width = viewInfo.block.bpToX( feature.get('end') ) - left;
@@ -178,16 +179,20 @@ return declare( JBrowsePlugin,
 
             // Create gradient
 
-            var grd = context.createLinearGradient(left, top, left, top+height);
+            if (config.gradientNeatCanvas) {
+                var grd = context.createLinearGradient(left, top, left, top+height);
 
-            // Add colors
-            grd.addColorStop(0.000, bgcolor);
-            grd.addColorStop(0.500,this.colorShift(bgcolor,2.5));
-            grd.addColorStop(0.999, bgcolor);
+                // Add colors
+                grd.addColorStop(0.000, bgcolor);
+                grd.addColorStop(0.500,this.colorShift(bgcolor,2.5));
+                grd.addColorStop(0.999, bgcolor);
 
-            // Fill with linear 
-            context.fillStyle = grd;
-           
+                // Fill with linear 
+                context.fillStyle = grd;
+            }
+            else {
+                context.fillStyle = bgcolor;
+            }
         }
 
         if( bgcolor ) {

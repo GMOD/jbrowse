@@ -40,29 +40,12 @@ Add this to `web-apps/jbrowse/plugins/WebApollo/json/annot.json`:
 
 ### Config Options:
 Introns remain ON for all feature tracks.
-Neat Features are ON by default, but can be disabled.
-Linear Gradients are ON by default (and visible as part of neat features), but can be disabled on all tracks.
-
-NeatFeatures can be turned off globally in the config file by setting `neatFeatures = 0` in the plugin definition, for example:
+Gradients can be turned off globally in the config file by setting `gradient:0` in the plugin definition, for example:
 
     "plugins": [
         {
             "name": "NeatHTMLFeatures",
-            "neatFeatures": 0
+            "gradient": 0
         }
     ],
 
-When `neatFeatures = 0` (globally off) in the plugins definition, gradient features can be enabled on per track basis with `neatFeatures = 1` in the track configuration, for example:
-
-    "tracks": [
-        {
-            ...
-            "type" : "FeatureTrack",
-            "label" : "ReadingFrame",
-            "neatFeatures" : 1,
-            "linearGradient": 0,
-            ...
-        }
-    ]
-
-*note: the track-level `neatFeatures` option only applies when the plugin-level `neatFeatures=0`*
