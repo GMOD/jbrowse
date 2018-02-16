@@ -59,6 +59,7 @@ class JBrowseTest (object):
             options = webdriver.ChromeOptions()
             if os.getenv('CHROME_HEADLESS'):
                 options.add_argument('headless')
+                options.add_argument('disable-gpu')
             return webdriver.Chrome(chrome_options=options)
         elif browser == 'phantom' or browser == 'phantomjs':
             return webdriver.PhantomJS()
