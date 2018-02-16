@@ -62,7 +62,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # test combination tracks
         self.combination()
-        
+
     def canvasfeatures( self ):
 
         # turn on CanvasFeatures tracks and make sure they are created
@@ -74,7 +74,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_js_errors()
 
         self.turn_off_track('CanvasFeatures - mixed')
-        
+
         # test left-clicking on CanvasFeatures track
         self.do_typed_query( 'ctgA:1049..9000' )
         self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(), 'details')]")
@@ -185,7 +185,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # get the example alignments features
         feature_elements = self.assert_elements("//div[@id='track_malformed_alignments']//div[contains(@class,'plus-feature4')]")
-        time.sleep(1*JBrowseTest.time_dilation) # wait a second to make sure their click handlers are installed   
+        time.sleep(1*JBrowseTest.time_dilation) # wait a second to make sure their click handlers are installed
 
         # right-click one of them
         self.actionchains() \
