@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+# Release 1.12.4     2018-02-14 22:29:20 UTC
+
 ## Minor improvements
 
   * Fixed SEVERE performance regression that basically made flatfile-to-json.pl
@@ -112,10 +114,6 @@
     and implementation! (pull #972, @loraine-gueguen)
 
   * Improved documentation of the `CategoryURL` plugin. (pull #985, @enuggetry)
-
-  * Re-enabled and improved documentation and configurability of the gradient colors in the
-    `NeatCanvasFeatures` plugin. (issue #982, pull #985, @enuggetry)
-
 
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
