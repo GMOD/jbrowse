@@ -1165,6 +1165,14 @@ define( [
                         this.renderSubfeature( feature, featDiv,
                             subfeatures[i],
                             displayStart, displayEnd, block );
+
+                        var subfeature = subfeatures[i];
+                        var subtype = subfeature.get('type');
+                        console.log('handling a subfeagture ')
+                        console.log(subtype)
+                        if(subtype == 'mRNA'){
+                            this.handleSubFeatures(subfeature,featDiv,displayStart,displayEnd,block);
+                        }
                     }
                 }
             },
