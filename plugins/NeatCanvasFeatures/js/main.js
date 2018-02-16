@@ -94,6 +94,8 @@ return declare( JBrowsePlugin,
 
         subparts.sort(function(a, b){ return a.get('start')-b.get('start'); });    
 
+        renderOutrons(context,fRect,subparts,this);
+
         //test - set to 1 to display
         /*if (0) {
             for (var i = 0; i < subparts.length; ++i) {
@@ -142,6 +144,41 @@ return declare( JBrowsePlugin,
                 context.lineCap = 'square';
                 context.stroke();            
 
+            }
+        }
+        function renderOutrons(context,fRect,subparts,thisContext) {
+            var viewInfo = fRect.viewInfo;
+
+            // draw outtrons, if necessary
+            var connectorColor = thisContext.getStyle( fRect.f, 'connectorColor' );
+
+            if( connectorColor ) {
+                context.fillStyle = connectorColor;
+                //    console.log('feature l,w',fRect.rect.l,fRect.rect.w,fRect.description.text);
+
+                var connectorThickness = thisContext.getStyle( fRect.f, 'connectorThickness' );
+
+                // left outron
+                var x1 = viewInfo.block.bpToX( subparts[0].get('start'));
+                var w1 = x1 - fRect.rect.l;
+                if (w1 > 0) {
+                    context.fillRect(
+                        fRect.rect.l, // left
+                        Math.round(fRect.rect.t+(fRect.rect.h-connectorThickness)/2), // top
+                        w1, // width
+                        connectorThickness
+                    );
+                }
+                var x2 = viewInfo.block.bpToX(subparts[subparts.length-1].get('end'));
+                var w2 = fRect.rect.l+fRect.rect.w - x2;
+                if (w2 > 0) {
+                    context.fillRect(
+                        x2, // left
+                        Math.round(fRect.rect.t+(fRect.rect.h-connectorThickness)/2), // top
+                        w2, // width
+                        connectorThickness
+                    );
+                }
             }
         }
     },
