@@ -204,6 +204,21 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(),'Random XHR')]")
         self.turn_off_track( 'HTMLFeatures - Features with right-click menus' )
 
+    def click( self ):
+        self.turn_on_track('ChromHMM')
+
+        self.assert_elements("//div[@id='track_ChromeHMM']//canvas")
+        self.assert_no_js_errors()
+
+        # test left-clicking on CanvasFeatures track
+        self.do_typed_query( 'ctgA:20000..30000' )
+        self.assert_no_element("//*[@class='featureTooltip'][contains(text(), '15_Quies')]")
+        canvas = self.assert_element("//div[@id='track_ChromHMM']/canvas")
+        canvas.mouseover()
+        self.assert_element("//*[@class='featureTooltip'][contains(text(), '15_Quies')]")
+        self.turn_off_track('ChromHMM')
+
+
     def search_f15( self ):
 
         # check that a f15 feature label is not yet in the DOM
