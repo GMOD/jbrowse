@@ -11,6 +11,7 @@ addons:
     - libdb-dev
     - libgd2-noxpm-dev
   firefox: '58.0'
+  chrome: stable
 cache:
   directories:
   - extlib/
@@ -19,6 +20,7 @@ cache:
   - "$HOME/python/"
   - "$HOME/.nvm/"
   - "$HOME/geckodriver"
+  - "$HOME/chromedriver"
 install:
 - |
   if [[ ! -f ~/geckodriver/geckodriver ]]; then
@@ -27,6 +29,14 @@ install:
     wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz | tar -xzf - -C ~/geckodriver;
   fi
 - export PATH=$PATH:$HOME/geckodriver
+- |
+  if [[ ! -f ~/chromedriver/chromedriver ]]; then
+    rm -rf ~/chromedriver;
+    wget -N http://chromedriver.storage.googleapis.com/2.30/chromedriver_linux64.zip -P ~/chromedriver
+    unzip ~/chromedriver/chromedriver_linux64.zip -d ~/chromedriver
+    rm ~/chromedriver/chromedriver*.zip
+  fi
+- export PATH=$PATH:$HOME/chromedriver
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 - npm install -g jshint
 # only init the python virtualenv if it did not show up in our build cache
