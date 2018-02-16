@@ -57,7 +57,8 @@ class JBrowseTest (object):
             return webdriver.Firefox( firefox_profile = fp )
         elif browser == 'chrome':
             options = webdriver.ChromeOptions()
-            #options.add_argument('headless')
+            if os.getenv('CHROME_HEADLESS'):
+                options.add_argument('headless')
             return webdriver.Chrome(chrome_options=options)
         elif browser == 'phantom' or browser == 'phantomjs':
             return webdriver.PhantomJS()
