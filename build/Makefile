@@ -37,7 +37,7 @@ release-electron-darwin: release-notest
 	npm install
 	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64
 	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
-	
+
 release-electron-all: release-notest
 	echo "Building desktop packages..."
 	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
@@ -63,7 +63,7 @@ node_modules:
 release-normal: superclean $(JS_SRCFILES) node_modules
 	mkdir $(RELEASE_FULL_DIR);
 	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build;
+	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build $(RELEASE_FULL_DIR)/node_modules;
 
         # version-stamp Browser.js
 	# perl -i -pE 's!(?<=BUILD_SYSTEM_JBROWSE_VERSION);! = "$(RELEASE_VERSION)";!' $(JSDIR)/Browser.js;
@@ -103,7 +103,7 @@ release-min: release-normal plugins-min
 
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
-	for P in src docs/jsdoc tests tests_extended build; do \
+	for P in src docs/jsdoc tests tests_extended build node_modules; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
 	for P in src/dojo/dojo.js \

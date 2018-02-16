@@ -1,25 +1,24 @@
-# NeatCanvasFeatures - a JBrowse plugin.
+NeatCanvasFeatures is a JBrowse plugin.
 
 It applies intron hats and a gradient 'tubular' look to features and subfeatures of CanvasFeatures tracks.
 
-![](img/example.png?raw=true)
-
-### What it does:
+What it does:
 - draws intron hats and inverted hats for reverse direction features.
 - it applies a gradient 'tubular' look to features and subfeatures, inheriting the feature colors and properties.
 - modifies UTR to be a outlined box, inheriting the original color.
 - generally functional in stand-alone JBrowse.
 
-### Install / Activate:
-For JBrowse 1.11.6+, copy the `NeatCanvasFeatures` directory to the `plugins` directory.
-Add this to appropriate **trackList.json** under the plugins section (create one if it doesn't exist):
+Install / Activate:
 
-    "plugins": [ 
-         'NeatCanvasFeatures'
-     ],
+For JBrowse 1.11.6+, copy the NeatCanvasFeatures directory to the 'plugins' directory.
+Add this to appropriate trackList.json under the plugins section (create one if it doesn't exist):
 
-For Apollo 2.x, copy the NeatCanvasFeatures directory to the `web-apps/jbrowse/plugins` directory.
-Add this to `web-apps/jbrowse/plugins/WebApollo/json/annot.json`:
+   "plugins": [ 
+        'NeatCanvasFeatures'
+    ],
+
+For Apollo 2.x, copy the NeatCanvasFeatures directory to the web-apps/jbrowse/plugins directory.
+Add this to web-apps/jbrowse/plugins/WebApollo/json/annot.json:
 
     "plugins" : [
         {
@@ -30,7 +29,7 @@ Add this to `web-apps/jbrowse/plugins/WebApollo/json/annot.json`:
                "location" : "./plugins/NeatCanvasFeatures",
                "name" : "NeatCanvasFeatures"
         }
-    ],
+   ],
 
 ### Config Options:
 Gradient Features are ON for all Canvas tracks by default.

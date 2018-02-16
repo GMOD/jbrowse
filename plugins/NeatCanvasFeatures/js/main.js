@@ -72,7 +72,7 @@ return declare( JBrowsePlugin,
     segments_renderFeature: function( context, fRect ) {
         //console.log("SegmentsEx.renderFeature fRect ");
     
-        if( this.track.displayMode !== 'collapsed' )
+        if( this.track.displayMode != 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
         
         //this.renderConnector( context,  fRect );
@@ -126,7 +126,7 @@ return declare( JBrowsePlugin,
                 var _height = this._getFeatureHeight( viewInfo, subparts[i] );
                 if( ! _height )
                     return;
-                if( _height !== overallHeight )
+                if( _height != overallHeight )
                     top += Math.round( (overallHeight - _height)/2 );
 
                 var height = _height / 2;
@@ -198,7 +198,7 @@ return declare( JBrowsePlugin,
         var height = this._getFeatureHeight( viewInfo, feature );
         if( ! height )
             return;
-        if( height !== overallHeight )
+        if( height != overallHeight )
             top += Math.round( (overallHeight - height)/2 );
 
         // background
@@ -277,7 +277,7 @@ return declare( JBrowsePlugin,
     /**
      * Given color string in #rrggbb format, shift the color by shift %  ( i.e. .20 is 20% brighter, -.30 is 30% darker.
      * The new string is returned.
-     * If color is not in #rrggbb format, just return the original value.
+     * If color is not in #rrggbb format, just return the original value. 
      */
     box_colorShift: function(color,shift) {
         
@@ -387,7 +387,7 @@ function colourNameToHex(colour)  {
     "wheat":"#f5deb3","white":"#ffffff","whitesmoke":"#f5f5f5",
     "yellow":"#ffff00","yellowgreen":"#9acd32"};
 
-    if (typeof colours[colour.toLowerCase()] !== 'undefined')
+    if (typeof colours[colour.toLowerCase()] != 'undefined')
         return colours[colour.toLowerCase()];
 
     return "#000000";
