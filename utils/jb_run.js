@@ -44,7 +44,7 @@ app.use('/', express.static(
     {
         // set Content-Encoding: gzip on .jsonz and .gz files
         setHeaders(res,path,stat) {
-            if( /\.(txt|json|g)z$/.test(path) ) {
+            if( /\.(txt|json|g)z$/.test(path) && ! res.req.headers.range ) {
                 res.setHeader('Content-Encoding','gzip');
             }
         }
