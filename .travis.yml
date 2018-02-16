@@ -12,6 +12,9 @@ addons:
     - libgd2-noxpm-dev
   firefox: '58.0'
   chrome: stable
+env:
+  - GECKODRIVER_VERSION=0.19.1
+  - CHROMEDRIVER_VERSION=2.35
 cache:
   directories:
   - extlib/
@@ -19,24 +22,24 @@ cache:
   - node_modules/
   - "$HOME/python/"
   - "$HOME/.nvm/"
-  - "$HOME/geckodriver"
-  - "$HOME/chromedriver"
+  - "$HOME/geckodriver_$GECKODRIVER_VERSION"
+  - "$HOME/chromedriver_$CHROMEDRIVER_VERSION"
 install:
 - |
-  if [[ ! -f ~/geckodriver/geckodriver ]]; then
-    rm -rf ~/geckodriver;
-    mkdir ~/geckodriver;
-    wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz | tar -xzf - -C ~/geckodriver;
+  if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
+    rm -rf ~/geckodriver_$GECKODRIVER_VERSION;
+    mkdir ~/geckodriver_$GECKODRIVER_VERSION;
+    wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
   fi
-- export PATH=$PATH:$HOME/geckodriver
+- export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - |
-  if [[ ! -f ~/chromedriver/chromedriver ]]; then
-    rm -rf ~/chromedriver;
-    wget -N http://chromedriver.storage.googleapis.com/2.30/chromedriver_linux64.zip -P ~/chromedriver
-    unzip ~/chromedriver/chromedriver_linux64.zip -d ~/chromedriver
-    rm ~/chromedriver/chromedriver*.zip
+  if [[ ! -f ~/chromedriver_$CHROMEDRIVER_VERSION/chromedriver ]]; then
+    rm -rf ~/chromedriver_$CHROMEDRIVER_VERSION;
+    wget -N http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip -P ~/chromedriver_$CHROMEDRIVER_VERSION
+    unzip ~/chromedriver_$CHROMEDRIVER_VERSION/chromedriver_linux64.zip -d ~/chromedriver_$CHROMEDRIVER_VERSION
+    rm ~/chromedriver_$CHROMEDRIVER_VERSION/chromedriver*.zip
   fi
-- export PATH=$PATH:$HOME/chromedriver
+- export PATH=$PATH:$HOME/chromedriver_$CHROMEDRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 - npm install -g jshint
 # only init the python virtualenv if it did not show up in our build cache
