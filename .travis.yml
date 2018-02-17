@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 dist: trusty
 language: perl
 python: 2.7.10
