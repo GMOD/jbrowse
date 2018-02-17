@@ -512,7 +512,9 @@ define( [
                         if ( sourceSlot.layoutEnd > destLeft
                             && sourceSlot.feature.get('start') < destRight ) {
 
+                            // if(sourceBlock.parentNode){
                             sourceSlot.parentNode.removeChild(sourceSlot);
+                            // }
 
                             delete sourceBlock.featureNodes[ overlaps[i] ];
 
@@ -636,7 +638,16 @@ define( [
                                 render = this.renderFilter(feature);
 
                             if (render === 1) {
-                                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
+                                if(feature.get('type')=='gene'){
+                                    var subfeatures = feature.get('subfeatures');
+                                    for(var i in subfeatures){
+                                        var subfeature = subfeatures[i];
+                                        this.addFeatureToBlock( subfeature, subfeature.id , block, scale, labelScale, descriptionScale, containerStart, containerEnd );
+                                    }
+                                }
+                                else{
+                                    this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
+                                }
                             }
                         }
                     }
@@ -938,6 +949,18 @@ define( [
                 //featureStart and featureEnd indicate how far left or right
                 //the feature extends in bp space, including labels
                 //and arrowheads if applicable
+               // var featureType = feature.get('type');
+               // // TODO:  move to a list of 'super-types with a default of sub-types
+               // if(featureType=='gene'){
+               //     var subfeatures = feature.get('subfeatures');
+               //     if( subfeatures ) {
+               //         for (var i = 0; i < subfeatures.length; i++) {
+               //             this.renderFeature( subfeatures[i], uniqueId, block,scale,labelScale,descriptionScale,containerStart,containerEnd);
+               //         }
+               //     }
+               //     return ;
+               // }
+
 
                 var featureEnd = feature.get('end');
                 var featureStart = feature.get('start');
@@ -1168,9 +1191,10 @@ define( [
 
                         var subfeature = subfeatures[i];
                         var subtype = subfeature.get('type');
-                        console.log('handling a subfeagture ')
+                        console.log('handling a subfeagture ');
                         console.log(subtype)
                         if(subtype == 'mRNA'){
+                            console.log('inside');
                             this.handleSubFeatures(subfeature,featDiv,displayStart,displayEnd,block);
                         }
                     }
