@@ -26,6 +26,13 @@ var dirList = [
 async.each(dirList,
     function(item, cb){
         var src = appPath+"/node_modules/"+item.src;
+        
+        //if installed as a dependency of another module, some modules are installed into the local node_modules instead of the parent project's folder 
+        if (!fs.existsSync(src)){
+			src = modPath+"/node_modules/"+item.src;	
+			console.log('using src: ' + src)
+		}
+    
         var trg = modPath+"/src/"+item.trg;
 
         // delete the old dir from src dir and make a current copy
