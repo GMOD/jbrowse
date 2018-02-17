@@ -12,8 +12,6 @@ addons:
     - libgd2-noxpm-dev
   firefox: '58.0'
   chrome: stable
-env:
-  - GECKODRIVER_VERSION=0.19.1 CHROMEDRIVER_VERSION=2.35
 cache:
   directories:
   - extlib/
@@ -23,6 +21,10 @@ cache:
   - "$HOME/.nvm/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
   - "$HOME/chromedriver_$CHROMEDRIVER_VERSION"
+before_install:
+  # not using travis `env` for these because `env` is more for doing matrix builds with different environments
+  - export GECKODRIVER_VERSION=0.19.1
+  - export CHROMEDRIVER_VERSION=2.35
 install:
 - |
   if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
