@@ -13,8 +13,7 @@ addons:
   firefox: '58.0'
   chrome: stable
 env:
-  - GECKODRIVER_VERSION=0.19.1
-  - CHROMEDRIVER_VERSION=2.35
+  - GECKODRIVER_VERSION=0.19.1 CHROMEDRIVER_VERSION=2.35
 cache:
   directories:
   - extlib/
