@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 dist: trusty
 language: perl
 python: 2.7.10
@@ -11,7 +11,6 @@ addons:
     - libdb-dev
     - libgd2-noxpm-dev
   firefox: '58.0'
-  chrome: stable
 cache:
   directories:
   - extlib/
@@ -20,11 +19,9 @@ cache:
   - "$HOME/python/"
   - "$HOME/.nvm/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
-  - "$HOME/chromedriver_$CHROMEDRIVER_VERSION"
 before_install:
   # not using travis `env` for these because `env` is more for doing matrix builds with different environments
   - export GECKODRIVER_VERSION=0.19.1
-  - export CHROMEDRIVER_VERSION=2.35
 install:
 - |
   if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
@@ -33,14 +30,6 @@ install:
     wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
   fi
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
-- |
-  if [[ ! -f ~/chromedriver_$CHROMEDRIVER_VERSION/chromedriver ]]; then
-    rm -rf ~/chromedriver_$CHROMEDRIVER_VERSION;
-    wget -N http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip -P ~/chromedriver_$CHROMEDRIVER_VERSION
-    unzip ~/chromedriver_$CHROMEDRIVER_VERSION/chromedriver_linux64.zip -d ~/chromedriver_$CHROMEDRIVER_VERSION
-    rm ~/chromedriver_$CHROMEDRIVER_VERSION/chromedriver*.zip
-  fi
-- export PATH=$PATH:$HOME/chromedriver_$CHROMEDRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 - npm install -g jshint
 # only init the python virtualenv if it did not show up in our build cache
@@ -65,7 +54,6 @@ script:
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
 - phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
-- CHROME_HEADLESS=1 SELENIUM_BROWSER=chrome JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 - cd $BUILD_DIR
 after_failure:
