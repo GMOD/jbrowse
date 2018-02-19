@@ -145,7 +145,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
             value = array.map( splitter?value_parse.split(splitter):value_parse, function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex ) || gtIndex;
-                                   if(gtIndex == '.') { return '.' }
+                                   if(gtIndex == '.') { return 'no-call' }
                                    else if(gtIndex == 0) { return refseq; }
                                    else return alt ? alt[gtIndex-1] : gtIndex;
                                }).join( ' '+splitter+' ' );
