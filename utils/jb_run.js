@@ -13,8 +13,8 @@ var thisPath = process.cwd();
 var jbrowsePath = "./";
 
 // check if jbrowse is a module
-if (fs.pathExistsSync(thisPath+"/node_modules/jbrowse/utils")) {
-	jbrowsePath = "./node_modules/jbrowse";
+if (fs.pathExistsSync(thisPath+"/node_modules/@gmod/jbrowse/utils")) {
+	jbrowsePath = "./node_modules/@gmod/jbrowse";
 }
 
 // command line options
