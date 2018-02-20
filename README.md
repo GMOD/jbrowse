@@ -18,7 +18,7 @@ Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that se
     npm install
     ./jb_setup.js   (optional -- sets up demo files such as Volvox)
     ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
- 
+
 If you have installed the demo (with ./jb_setup.js), you can point your browser to
 http://localhost/jbrowse/index.html?data=sample_data/json/volvox
 and you should see the volvox example data.
@@ -74,9 +74,13 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis
 one will only work in a properly configured Travis CI build environment.
 
+# Manual testing
+
+JBrowse has a free open source account on [![Browserstack](/img/browserstack-logo-600x315.png)](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
+
 # Cutting a JBrowse release
 
-NOTE: Beginning in 1.12.4, 
+NOTE: Beginning in 1.12.4,
 
 1. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
 to create a release on GitHub under https://github.com/GMOD/jbrowse/releases
