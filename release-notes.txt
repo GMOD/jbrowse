@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Bug fixes
+
+  * Feature detail dialogs for variant tracks now correctly display "no-call" in
+    the genotype details table for "./." alleles.  Thanks to @carrere for reporting
+    it, and @cmdcolin for the fix. (issue #980, pull #990, @cmdcolin)
+
 # Release 1.12.4     2018-02-14 22:29:20 UTC
 
 ## Minor improvements
