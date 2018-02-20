@@ -76,6 +76,8 @@ one will only work in a properly configured Travis CI build environment.
 
 # Manual testing
 
+<img style="display: block; margin: 1em auto" src="img/browserstack-logo-600x315.png" width="200" alt="Browserstack"/>
+
 JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
 
 # Cutting a JBrowse release
