@@ -27,6 +27,7 @@ define( [
             'dijit/MenuItem',
             'dijit/MenuSeparator',
             'dojox/form/TriStateCheckBox',
+            'dojox/html/entities',
             'JBrowse/Util',
             'JBrowse/Store/LazyTrie',
             'JBrowse/Store/Names/LazyTrieDojoData',
@@ -83,6 +84,7 @@ define( [
             dijitMenuItem,
             dijitMenuSeparator,
             dojoxTriStateCheckBox,
+            dojoxHtmlEntities,
             Util,
             LazyTrie,
             NamesLazyTrieDojoDataStore,
@@ -429,6 +431,8 @@ fatalError: function( error ) {
             error = error+'';
             if( ! /\.$/.exec(error) )
                 error = error + '.';
+
+            error = dojoxHtmlEntities.encode(error);
         }
         return error;
     }
