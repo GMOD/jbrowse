@@ -6,14 +6,15 @@
 
 set +e
 
-nosetests --stop .
+NOSEOPTS="--verbose --stop"
+nosetests $NOSEOPTS .
 FIRST_RUN_STATUS=$?
 
 if [[ $FIRST_RUN_STATUS -ne 0 ]]; then
     echo
     echo ============= FIRST SELENIUM RUN FAILED, RETRYING TO MAKE SURE ===============
     echo
-    nosetests --stop .
+    nosetests $NOSEOPTS .
     SECOND_RUN_STATUS=$?
     if [[ $SECOND_RUN_STATUS -ne 0 ]]; then
         echo ============= SELENIUM TEST FAILED ON SECOND RUN ==============
