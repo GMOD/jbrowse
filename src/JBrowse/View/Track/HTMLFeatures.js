@@ -707,14 +707,36 @@ define( [
              */
             addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                          containerStart, containerEnd ) {
-                var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
-                    containerStart, containerEnd );
-                if( ! featDiv )
-                    return null;
+                var thisB = this;
+                if( feature.get('type') == 'gene') {
+                    var d = dojo.create('div');
+                    var feats = feature.get('subfeatures');
+                    if(!feats) {
+                        return null;
+                    }
+                    var featDivs = feats.map(function( feat ) {
+                        return thisB.renderFeature(feat, uniqueId + '_' + feat.get('id'), block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                    });
+                    featDivs.forEach(function( featDiv ) {
+                        d.appendChild( featDiv );
+                    });
+                    block.domNode.appendChild( d );
+                    if( this.config.style.centerChildrenVertically ) {
+                        featDivs.forEach(function( featDiv ) {
+                            thisB._centerChildrenVertically( featDiv );
+                        });
+                    }
+                    return d;
+                } else {
+                    var featDiv = this.renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
+                        containerStart, containerEnd );
+                    if( ! featDiv )
+                        return null;
 
-                block.domNode.appendChild( featDiv );
-                if( this.config.style.centerChildrenVertically )
-                    this._centerChildrenVertically( featDiv );
+                    block.domNode.appendChild( featDiv );
+                    if( this.config.style.centerChildrenVertically )
+                        this._centerChildrenVertically( featDiv );
+                }
                 return featDiv;
             },
 
@@ -960,7 +982,6 @@ define( [
                //     }
                //     return ;
                // }
-
 
                 var featureEnd = feature.get('end');
                 var featureStart = feature.get('start');
