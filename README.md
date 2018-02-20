@@ -76,7 +76,7 @@ one will only work in a properly configured Travis CI build environment.
 
 # Manual testing
 
-JBrowse has a free open source account on [![Browserstack](/img/browserstack-logo-600x315.png)](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
+JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
 
 # Cutting a JBrowse release
 
