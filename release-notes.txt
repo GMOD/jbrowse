@@ -11,6 +11,11 @@
   * Changed the default color for HTMLFeatures features to be a darker gray that
     is easier to see. Many thanks to @colindaven for the fix! (pull #980, @colindaven)
 
+  * When users click on an item in the dropdown autocompletion for the browser search
+    box, the browser will go directly to that item immediately, eliminating the extra
+    step of the user having to click "Go". Many thanks to @enuggetry for noticing the
+    opportunity for this nice usability enhancement! (issue #616, pull #1001, @rbuels)
+
 ## Bug fixes
 
   * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
