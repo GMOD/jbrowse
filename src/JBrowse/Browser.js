@@ -3126,7 +3126,11 @@ createNavBox: function( parent ) {
          dropDownProto.onClick = function( node ) {
              if( dojo.hasClass(node, 'moreMatches' ) )
                  return null;
-             return oldOnClick.apply( this, arguments );
+
+
+            var ret = oldOnClick.apply( this, arguments );
+            thisB.navigateTo(thisB.locationBox.get('value'))
+            return ret;
          };
     }).call(this);
 
