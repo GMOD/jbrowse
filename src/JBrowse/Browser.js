@@ -2171,7 +2171,7 @@ _configDefaults: function() {
         },
 
         highlightSearchedRegions: false,
-        highResolutionMode: 'disabled'
+        highResolutionMode: 'auto'
     };
 },
 
