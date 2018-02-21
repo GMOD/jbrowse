@@ -16,6 +16,12 @@
     step of the user having to click "Go". Many thanks to @enuggetry for noticing the
     opportunity for this nice usability enhancement! (issue #616, pull #1001, @rbuels)
 
+  * The global `highResolutionMode` configuration is now set to `auto`, meaning that
+    JBrowse by default will now auto-detect high-DPI displays (Apple Retina displays
+    and the like) and draw canvas-based tracks more clearly on them. This capability
+    has been present in the JBrowse code for a long time, but has been turned off
+    by default. (@rbuels)
+
 ## Bug fixes
 
   * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
