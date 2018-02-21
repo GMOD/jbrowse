@@ -1,6 +1,25 @@
 {{$NEXT}}
 
+## Minor improvements
+
+  * Safari versions 10 and 11 will now see buttons for downloading feature FASTA
+    sequences, as well as other sequences. These were turned off for all Safari
+    browsers back when no version of Safari could download a client-generated file,
+    but Safari 10 and 11 support it now. Thanks to @kkara for noticing the button
+    was missing and prodding us to look into it. (issue #714, @rbuels)
+
+  * Changed the default color for HTMLFeatures features to be a darker gray that
+    is easier to see. Many thanks to @colindaven for the fix! (pull #980, @colindaven)
+
 ## Bug fixes
+
+  * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
+    noticing and reporting it! (issue #602, @rbuels)
+
+  * Fixed the broken demo track data source in the modENCODE sample data. Thanks
+    to @cmdcolin for the fix! (pull #999, @cmdcolin)
+
+  *
 
   * Feature detail dialogs for variant tracks now correctly display "no-call" in
     the genotype details table for "./." alleles.  Thanks to @carrere for reporting
