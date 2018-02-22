@@ -515,7 +515,7 @@ Util = {
                                                     ctx.msBackingStorePixelRatio ||
                                                     ctx.oBackingStorePixelRatio ||
                                                     ctx.backingStorePixelRatio || 1;
-            ratio = devicePixelRatio / backingStoreRatio;
+            ratio = Math.ceil( devicePixelRatio / backingStoreRatio );
         }
         else if( highResolutionMode=='disabled' ) {
             ratio = 1;
