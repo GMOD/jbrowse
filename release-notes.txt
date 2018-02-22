@@ -22,6 +22,12 @@
     has been present in the JBrowse code for a long time, but has been turned off
     by default. (@rbuels)
 
+  * Added support for two new configuration variables for SNPCoverage tracks:
+    `indicatorProp` and `indicatorDepth`, which set the minimum proportion (indicatorProp)
+    and minimum depth (indicatorDepth) of alternative alleles required to render the
+    SNP indicator below a SNPCoverage track. Big thanks to Nathan Haigh for the idea
+    and implementation! (pull #951, @nathanhaigh)
+
 ## Bug fixes
 
   * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
