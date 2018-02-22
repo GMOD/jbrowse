@@ -16,6 +16,12 @@
     step of the user having to click "Go". Many thanks to @enuggetry for noticing the
     opportunity for this nice usability enhancement! (issue #616, pull #1001, @rbuels)
 
+  * Added support for two new configuration variables for SNPCoverage tracks:
+    `indicatorProp` and `indicatorDepth`, which set the minimum proportion (indicatorProp)
+    and minimum depth (indicatorDepth) of alternative alleles required to render the
+    SNP indicator below a SNPCoverage track. Big thanks to Nathan Haigh for the idea
+    and implementation! (pull #951, @nathanhaigh)
+
 ## Bug fixes
 
   * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for

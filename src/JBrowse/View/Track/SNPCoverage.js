@@ -147,8 +147,8 @@ return declare( [WiggleXY, AlignmentsMixin],
             drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
         });
 
-        var indicator_min_height_prop = this.config.indicatorProp;
-        var indicator_min_height = this.config.indicatorDepth;
+        var indicatorMinHeightProp = this.config.indicatorProp;
+        var indicatorMinHeight = this.config.indicatorDepth;
 
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
@@ -157,7 +157,7 @@ return declare( [WiggleXY, AlignmentsMixin],
 
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
             score.forEach( function( count, category ) {
-                if ( !{reference:true,skip:true,deletion:true}[category] && count >= indicator_min_height_prop*totalHeight && count >= indicator_min_height ) {
+                if ( !{reference:true,skip:true,deletion:true}[category] && count >= indicatorMinHeightProp*totalHeight && count >= indicatorMinHeight ) {
                     snpContext.save();
                     if( thisB.browser.config.highResolutionMode != 'disabled' )
                         snpContext.scale(ratio, 1);
