@@ -89,6 +89,7 @@ plugins-min: release-normal
 		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
 		mv "$(RELEASE_FULL_DIR)/plugins/$$pname/built/$$pname" "$(RELEASE_FULL_DIR)/plugins/$$pname/js"; \
 		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/built"; \
+		rm -rf "$(RELEASE_FULL_DIR)/plugins/$$pname/.git"; \
 	done
 
 release-min: release-normal plugins-min
