@@ -397,8 +397,7 @@ sub writeRefSeqsJSON {
                                                $old->[$i] = delete $refs{$old->[$i]->{name}};
                                            }
                                        }
-                                       my @reforder = ($originalorder and @$originalorder)?@$originalorder:sort keys %refs;
-                                       foreach my $name (@reforder) {
+                                       foreach my $name (($originalorder && @$originalorder) ? @$originalorder : sort keys %refs) {
                                            if( not exists $refs{$name}{length} ) {
                                                $refs{$name}{length} = $refs{$name}{end}+0 - $refs{$name}{start}+0;
                                            }
