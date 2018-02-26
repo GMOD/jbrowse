@@ -65,7 +65,7 @@ constructor: function( args ) {
     var stripeWidth = args.stripeWidth;
     var refseq = args.refSeq;
     var zoomLevel = args.zoomLevel;
-    
+    this.desiredTracks = {};
     // keep a reference to the main browser object
     this.browser = browser;
     this.setFeatureFilterParentComponent( this.browser );
@@ -82,7 +82,7 @@ constructor: function( args ) {
 
     // handle trackLabels option
     if (typeof browser.config.trackLabels !== 'undefined' && browser.config.trackLabels === "no-block") {
-        this.trackPadding = 35;
+        this.config.trackPadding = 35;
         this.topSpace = this.posHeight*3;
     }
 
@@ -1114,6 +1114,7 @@ setLocation: function(refseq, startbp, endbp) {
         endbp = refseq.end;
 
     function removeTrack( track ) {
+        delete thisB.desiredTracks[track.name];
         if (track.div && track.div.parentNode)
             track.div.parentNode.removeChild(track.div);
     };
@@ -2081,9 +2082,10 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
 showTracks: function( trackConfigs ) {
     // filter out any track configs that are already displayed
     var needed = dojo.filter( trackConfigs, function(conf) {
-        return this._getTracks( [conf.label] ).length == 0;
+        return this._getTracks( [conf.label] ).length == 0 && !this.desiredTracks[conf.label];
     },this);
     if( ! needed.length ) return;
+    array.forEach(trackConfigs, function(ret) { this.desiredTracks[ret.label] = true; }, this);
 
     // insert the track configs into the trackDndWidget ( the widget
     // will call create() on the confs to render them)
@@ -2146,6 +2148,7 @@ hideTracks: function( /**Array[String]*/ trackConfigs ) {
         return this._getTracks( [conf.label] ).length != 0;
     },this);
     if( ! displayed.length ) return;
+    array.forEach(trackConfigs, function(ret) { delete this.desiredTracks[ret.label]; }, this);
 
     // remove the track configs from the trackDndWidget ( the widget
     // will call create() on the confs to render them )
@@ -2309,6 +2312,10 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
     // get the track class
     require( [ trackConfig.type ], function( class_ ) {
+        if(typeof class_ === "string") {
+            console.error("Failed to load module: "+trackConfig.type);
+            return;
+        }
         trackClass = class_;
         if( trackClass && store )
             makeTrack();

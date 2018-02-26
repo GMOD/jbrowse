@@ -6,34 +6,36 @@ import unittest
 
 from selenium                          import webdriver
 from selenium.webdriver                import ActionChains
+from selenium.webdriver.common.by      import By
 from selenium.webdriver.common.keys    import Keys
-from selenium.webdriver.support.wait   import WebDriverWait
 from selenium.common.exceptions        import NoSuchElementException
 from selenium.webdriver.support.ui     import Select
+from selenium.webdriver.support.wait   import WebDriverWait
+from selenium.webdriver.support        import expected_conditions as EC
 
 import track_selectors
+
 
 class JBrowseTest (object):
 
     data_dir = None
     base_url = None
 
+    # this "time dilation" factor hugely increases all our fixed waiting times when
+    # running under Travis CI, because the Travis environment is much slower than a desktop.
+    time_dilation = 12 if os.getenv('CI','false') == 'true' else 1
+
     tracksel_type = 'Hierarchical'
 
     ## TestCase override - use instead of constructor
     def setUp( self ):
 
-        self.track_selector = getattr( track_selectors, '%sTrackSelector' % self.tracksel_type )( self )
+        self.track_selector = getattr( track_selectors, '%sTrackSelector' % self.tracksel_type )( self, self.time_dilation )
 
-        fp = webdriver.FirefoxProfile()
-
-        fp.set_preference("browser.download.folderList",2)
-        fp.set_preference("browser.download.manager.showWhenStarting",False)
-        fp.set_preference("browser.download.dir", os.getcwd())
-        fp.set_preference("browser.helperApps.neverAsk.saveToDisk","application/x-bedgraph,application/x-wiggle,application/x-bed")
-        self.browser = webdriver.Firefox( firefox_profile = fp )
+        #self.browser = self._getChrome()
+        self.browser = self._getBrowser()
         if self.base_url and self.data_dir: self.browser.get(self.base_url+self.data_dir)
-        else: 
+        else:
             base = self.baseURL()
             self.browser.get(
                 base + ( '&' if base.find('?') >= 0 else '?' )
@@ -41,6 +43,35 @@ class JBrowseTest (object):
             )
         self.addCleanup(self.browser.quit)
         self._waits_for_load()
+
+    def _getBrowser( self ):
+        browser = os.getenv('SELENIUM_BROWSER','Firefox').lower()
+        if browser == 'firefox':
+            fp = webdriver.FirefoxProfile()
+
+            fp.set_preference("browser.download.folderList",2)
+            fp.set_preference("browser.download.manager.showWhenStarting",False)
+            fp.set_preference("browser.download.dir", os.getcwd())
+            fp.set_preference("browser.helperApps.neverAsk.saveToDisk","application/x-bedgraph,application/x-wiggle,application/x-bed")
+            fp.set_preference('webdriver.log.driver.ignore',True)
+            return webdriver.Firefox( firefox_profile = fp )
+        elif browser == 'chrome':
+            options = webdriver.ChromeOptions()
+            if os.getenv('CHROME_HEADLESS'):
+                options.add_argument('headless')
+                options.add_argument('disable-gpu')
+            return webdriver.Chrome(chrome_options=options)
+        elif browser == 'phantom' or browser == 'phantomjs':
+            return webdriver.PhantomJS()
+        elif browser == 'travis_saucelabs':
+            username = os.environ["SAUCE_USERNAME"]
+            access_key = os.environ["SAUCE_ACCESS_KEY"]
+            capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
+            hub_url = "%s:%s@localhost:4445" % (username, access_key)
+            return webdriver.Remote(desired_capabilities=capabilities, command_executor="https://%s/wd/hub" % hub_url)
+        else:
+            raise Exception('invalid browser name', 'invalid browser name "%s"' % browser)
+
 
     def baseURL( self ):
         if not self.base_url:
@@ -50,11 +81,11 @@ class JBrowseTest (object):
 
     ## convenience methods for us
 
-    def assert_element( self, expression , time=5):
-        self._waits_for_element( expression, time )
+    def assert_element(self, expression , time=5):
+        self._waits_for_element(expression, time*self.time_dilation)
         try:
             if expression.find('/') >= 0:
-                el = self.browser.find_element_by_xpath( expression )
+                el = self.browser.find_element_by_xpath(expression)
             else:
                 el = self.browser.find_element_by_css_selector( expression )
         except NoSuchElementException:
@@ -62,9 +93,9 @@ class JBrowseTest (object):
         return el
 
     def assert_elements( self, expression ):
-        self._waits_for_elements( expression )
+        self._waits_for_elements( expression, 3*self.time_dilation )
         try:
-            if expression.find('/') >= 0:
+            if '/' in expression:
                 el = self.browser.find_elements_by_xpath( expression )
             else:
                 el = self.browser.find_elements_by_css_selector( expression )
@@ -75,7 +106,7 @@ class JBrowseTest (object):
     def assert_track( self, tracktext ):
         trackPath = "//div[contains(@class,'track-label')][contains(.,'%s')]" %tracktext
         self._waits_for_element( trackPath )
-    
+
     def assert_no_element( self, expression ):
         self._waits_for_no_element( expression )
 
@@ -117,23 +148,29 @@ class JBrowseTest (object):
         self.track_menu_click( track_name, 'Save')
 
         # test view export
-        self.assert_element("//label[contains(.,'%s')]" % region ).click()
-        self.assert_element("//label[contains(.,'%s')]" % file_format ).click()
-        self.assert_element("//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button ).click()
+        self.assert_element("//div[@id='exportDialog']//label[contains(.,'%s')]" % region ).click()
+        self.assert_element("//div[@id='exportDialog']//label[contains(.,'%s')]" % file_format ).click()
+        self.assert_element("//div[@id='exportDialog']//*[contains(@class,'dijitButton')]//*[contains(@class,'dijitButtonText')][contains(.,'%s')]" % button ).click()
+        self.wait_for_dialog_disappearance()
         self.assert_no_js_errors()
 
     def close_dialog( self, title ):
-        dialog = "//div[@class='dijitDialogTitleBar'][contains(@title,'%s')]/span[contains(@class,'dijitDialogCloseIcon')]" % title 
+        dialog = "//*[@class='dijitDialogTitle'][contains(text(),'%s')]/../span[contains(@class,'dijitDialogCloseIcon')]" % title
 
         self.assert_element(dialog).click()
         self.assert_no_element(dialog)
+        self.wait_for_dialog_disappearance()
         self.assert_no_js_errors()
 
+    def wait_for_dialog_disappearance( self, t=5):
+        #WebDriverWait(self, t).until(lambda self: not self.browser.find_element_by_css_selector( '.dijitDialogUnderlayWrapper').is_displayed())
+        time.sleep(1*self.time_dilation)
+        #pass
 
     def track_menu_click( self, track_name, item_name ):
-        
+
         menuButton =  "//div[contains(@class,'track_%s')]//div[contains(@class,'track-label')]//div[contains(@class,'track-menu-button')]" \
-            % re.sub( '\W', '_', track_name.lower()) 
+            % re.sub( '\W', '_', track_name.lower())
 
         self.assert_element(menuButton).click()
 
@@ -141,7 +178,7 @@ class JBrowseTest (object):
 
     def menu_item_click( self, text ):
         menuItem = "//div[contains(@class,'dijitMenuPopup')][not(contains(@style,'display: none'))] \
-            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text 
+            //td[contains(@class,'dijitMenuItemLabel')][contains(.,'%s')]" % text
         self.assert_element(menuItem).click()
 
     def overview_rubberband( self, start_pct, end_pct ):
@@ -173,18 +210,18 @@ class JBrowseTest (object):
     def get_track_labels_containing( self, string ):
         return self.assert_elements( "//span[contains(@class,'track-label-text')][contains(.,'%s')]" % string )
 
-    def _waits_for_elements( self, expression ):
-        WebDriverWait(self, 5).until(lambda self: self.do_elements_exist(expression))
+    def _waits_for_elements( self, expression, time=5):
+        WebDriverWait(self, time*self.time_dilation).until(lambda self: self.do_elements_exist(expression))
 
     def _waits_for_element( self, expression, time=5 ):
-        WebDriverWait(self, time).until(lambda self: self.does_element_exist(expression))
+        WebDriverWait(self, time*self.time_dilation).until(lambda self: self.does_element_exist(expression))
 
-    def _waits_for_no_element( self, expression ):
-        WebDriverWait(self, 5).until(lambda self: not self.does_element_exist(expression))
-    
+    def _waits_for_no_element( self, expression, time=5 ):
+        WebDriverWait(self, time*self.time_dilation).until(lambda self: not self.does_element_exist(expression))
+
     # Wait until faceted browser has narrowed results to one track
     def wait_until_one_track(self):
-        WebDriverWait(self, 5).until(lambda self: self.is_one_row())
+        WebDriverWait(self, 5*self.time_dilation).until(lambda self: self.is_one_row())
 
     # Return true/false if faceted browser narrowed down to one track
     def is_one_row(self):
@@ -211,7 +248,7 @@ class JBrowseTest (object):
             return True
         except NoSuchElementException:
             return False
-   
+
     def select_refseq( self, name ):
         self.do_typed_query( name )
 
@@ -240,21 +277,19 @@ class JBrowseTest (object):
 
         self.assert_no_js_errors()
 
-    # waits for the title of the page to change, since it 
+    # waits for the title of the page to change, since it
     # gets updated after the scroll animation
     def waits_for_scroll ( self, location ):
-        WebDriverWait(self, 5).until(lambda self: self.browser.title != location)
-    
+        WebDriverWait(self, 5*self.time_dilation).until(lambda self: self.browser.title != location)
+
 
     #Exists because onload() get trigered before JBrowse is ready
     def _waits_for_load(self):
-        WebDriverWait(self, 5).until(lambda self: self.browser.current_url.find("data=") >= 0 or self.browser.current_url.find("js_tests") >= 0)
-        if self.browser.current_url.find("data=nonexistent"): #account for the test for bad data
+        WebDriverWait(self.browser, 5*self.time_dilation).until(lambda self: "data=" in self.current_url or "js_tests")
+        if "data=nonexistent" in self.browser.current_url: #account for the test for bad data
             pass
-        elif self.browser.current_url.find("js_tests"): #account for jasmine tests
+        elif "js_tests" in self.browser.current_url: #account for jasmine tests
             pass
         else:
-            # Page title is initially "JBrowse",
-            # so wait for it to change
             self.waits_for_scroll("JBrowse")
 

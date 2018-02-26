@@ -321,7 +321,17 @@ return declare(
         else {
             var thisB = this;
             this.glyphsBeingLoaded[glyphClassName] = [callback];
+
+
             require( [glyphClassName], function( GlyphClass ) {
+                         if( typeof GlyphClass == 'string' ) {
+                             thisB.fatalError = "could not load glyph "+glyphClassName;
+                             thisB.redraw();
+                             return;
+                         }
+                         // if this require came back after we are already destroyed, just ignore it
+                         if( thisB.destroyed )
+                             return;
 
                          glyph = thisB.glyphsLoaded[glyphClassName] =
                              new GlyphClass({ track: thisB, config: thisB.config, browser: thisB.browser });

@@ -758,7 +758,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                     parent.addChild( new class_( menuConf ) );
                 }
             } catch(e) {
-                console.error('failed to render menu item: '+e);
+                console.error('failed to render menu item '+key,e);
             }
         }
         return parent;

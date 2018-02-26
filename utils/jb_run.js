@@ -13,8 +13,8 @@ var thisPath = process.cwd();
 var jbrowsePath = "./";
 
 // check if jbrowse is a module
-if (fs.pathExistsSync(thisPath+"/node_modules/jbrowse/utils")) {
-	jbrowsePath = "./node_modules/jbrowse";
+if (fs.pathExistsSync(thisPath+"/node_modules/@gmod/jbrowse/utils")) {
+	jbrowsePath = "./node_modules/@gmod/jbrowse";
 }
 
 // command line options
@@ -25,7 +25,7 @@ var getopt = new getopt([
 getopt.bindHelp();     // bind option 'help' to default action
 opt = getopt.parseSystem(); // parse command line
 
-var port = 80;
+var port = 8080;
 
 var setPort = opt.options['port'];
 if (typeof setPort !== 'undefined') {
@@ -38,7 +38,18 @@ var app = express();
 var dispPort = "";
 if (port !== 80) dispPort = ":"+port;
 
-app.use('/', express.static(jbrowsePath));
+
+app.use('/', express.static(
+    jbrowsePath,
+    {
+        // set Content-Encoding: gzip on .jsonz and .gz files
+        setHeaders(res,path,stat) {
+            if( /\.(txt|json|g)z$/.test(path) && ! res.req.headers.range ) {
+                res.setHeader('Content-Encoding','gzip');
+            }
+        }
+    }
+));
 
 app.listen(port, function () {
     console.log('JBrowse is running on port %s',port);

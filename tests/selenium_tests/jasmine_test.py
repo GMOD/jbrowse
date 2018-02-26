@@ -1,7 +1,9 @@
 import unittest
 from jbrowse_selenium import JBrowseTest
 
-class JasmineTest( JBrowseTest ):
+from selenium.webdriver.support.wait   import WebDriverWait
+
+class JasmineTest( JBrowseTest, unittest.TestCase ):
 
     def baseURL( self ):
         if not self.base_url:
@@ -13,9 +15,6 @@ class JasmineTest( JBrowseTest ):
         super( JasmineTest, self ).setUp()
 
     def test_jasmine( self ):
-        self.assert_element(".duration", 30)
-        self.assert_no_element(".failingAlert")
+        WebDriverWait(self, 30*self.time_dilation).until(lambda self: self.does_element_exist('.symbolSummary') and not self.does_element_exist('.symbolSummary .pending'))
+        self.assert_no_element('.failingAlert')
         self.assert_no_js_errors()
-
-class Jasmine_Test( JasmineTest, unittest.TestCase ):
-    pass

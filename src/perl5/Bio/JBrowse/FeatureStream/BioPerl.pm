@@ -41,7 +41,7 @@ sub _bp_to_hashref {
             delete $h{$_};
         }
     }
-    for ( keys %h ) {
+    for ( sort keys %h ) {
         if( ! defined $h{$_} ) {
             delete $h{$_};
         } else {
@@ -58,7 +58,7 @@ sub _bp_to_hashref {
         push @{ $h{ $lctag } ||= [] }, $f->get_tag_values($tag);
     }
 
-    for ( keys %h ) {
+    for ( sort keys %h ) {
         $h{$_} = [ uniq grep { defined && ($_ ne '.') } @{$h{$_}} ];
         unless( @{$h{$_}} ) {
             delete $h{$_};

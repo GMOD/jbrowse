@@ -7,7 +7,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../src/perl5";
 use JBlibs;
 
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use File::Basename;
 use File::Spec::Functions;
 use File::Temp;
@@ -35,6 +35,15 @@ Output dir for formatted data.  Defaults to './data'.
 Take filenames from a MAKER master datastore index file
 (e.g. my_genome_master_datastore_index.log).
 
+=item --sortMem int
+
+Set --sortMem for flatfile-to-json.pl
+
+=item --compress
+
+Set --compress for flatfile-to-json.pl
+
+
 =item --no_names_index
 
 Do not call generate-names.pl at the end of the run to generate the names index.
@@ -43,16 +52,28 @@ Do not call generate-names.pl at the end of the run to generate the names index.
 
 Displays full help information.
 
+=back
+
 =cut
 
 my $dstore;
 my $help;
 my $outdir = 'data';
+my $sortmem = 1000000000;
 my $skip_generate_names;
+my $compress = 0;
+my $localbin = '';
+
+if($0 eq 'bin/maker2jbrowse') {
+    $localbin = 'bin/';
+}
+
 GetOptions(
     "ds_index|d=s" => \$dstore,
     "no_names_index" => \$skip_generate_names,
+    "compress" => \$compress,
     "help|?" => \$help,
+    "sortMem=i" => \$sortmem,
     "out|o=s" => \$outdir
    )
     or pod2usage( verbose => 2 );
@@ -80,12 +101,12 @@ if( $dstore ){
         my ($name) = $file =~ /([^\/]+)$/;
         my $gff = $base ? catfile( $base, $file, "$name.gff" ) : catfile( $file, "$name.gff" );
 
-	unless( -f $gff ){
-	    $name = uri_escape( $name, '.' );
-	    $gff = $base ? catfile( $base, $file, "$name.gff" ) : catfile( $file, "$name.gff" );
-	}
+    unless( -f $gff ){
+        $name = uri_escape( $name, '.' );
+        $gff = $base ? catfile( $base, $file, "$name.gff" ) : catfile( $file, "$name.gff" );
+    }
 
-	$file = $gff;
+    $file = $gff;
     }
 }
 else {
@@ -248,15 +269,22 @@ for my $gff3_file (@files){
         keys %t
     };
 
-    system 'bin/prepare-refseqs.pl', '--gff' => $gff3_file, @outdir,
-        and die "prepare-refseqs.pl failed with exit status $?";
+    my @command = (
+        $localbin . "prepare-refseqs.pl",
+        '--gff' => $gff3_file,
+        @outdir
+       );
+    if($compress) {
+        push(@command, "--compress");
+    }
+    system @command and die "prepare-refseqs.pl failed with exit status $?";
 
     for my $track ( @tracks_to_make ) {
 
-	if(!$commands{$track} && $track =~ /^([^\:]+)/ && $commands{$1}){
-	    @{$commands{$track}} = @{$commands{$1}}; #makes deep copy
-	    $commands{$track}[-1] =~ s/^([^\:]+)\:.*$/$1:$track/;
-	}
+        if(!$commands{$track} && $track =~ /^([^\:]+)/ && $commands{$1}){
+            @{$commands{$track}} = @{$commands{$1}}; #makes deep copy
+            $commands{$track}[-1] =~ s/^([^\:]+)\:.*$/$1:$track/;
+        }
 
         unless( $commands{$track} ) {
             warn "Don't know how to format $track tracks, skipping.\n";
@@ -264,18 +292,29 @@ for my $gff3_file (@files){
         }
 
         my @command = (
-            'bin/flatfile-to-json.pl',
+            $localbin . "flatfile-to-json.pl",
             '--trackLabel' => $track,
             '--gff' => $gff3_file,
+            '--sortMem' => $sortmem,
             @outdir,
             @{$commands{$track}}
            );
+        if($compress) {
+            push(@command, "--compress");
+        }
 
-        #print join(" ",@command)."\n";
         system @command and die "flatfile-to-json.pl failed with exit status $?";
     }
 }
 
 unless( $skip_generate_names ) {
-    system 'bin/generate-names.pl', @outdir;
+
+    my @command = (
+        $localbin . "generate-names.pl",
+        @outdir
+       );
+    if($compress) {
+        push(@command, "--compress");
+    }
+    system @command and die "generate-names.pl failed with exit status $?";
 }

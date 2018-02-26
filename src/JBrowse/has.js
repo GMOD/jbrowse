@@ -33,7 +33,7 @@ define([ 'dojo/has', 'dojo/sniff' ],
            has.add( 'save-generated-files', function() {
                         var canSave = false;
                         try {
-                            canSave = Blob && !( has('ie') < 10 ) && ! has('safari');
+                            canSave = Blob && !( has('ie') < 10 ) && !( has('safari') < 10 )
                         } catch(e) {}
                         return canSave;
            },true);
