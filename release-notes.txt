@@ -11,6 +11,13 @@
   * Changed the default color for HTMLFeatures features to be a darker gray that
     is easier to see. Many thanks to @colindaven for the fix! (pull #980, @colindaven)
 
+  * Feature tracks now support a `showNoteInAttributes` flag that force the feature's
+    `Notes` attribute to be displayed as a regular attribute in the feature detail
+    popup. This is to support the case in which users want the blue description text
+    on a feature to be different from the feature's `Notes` attribute, but still display
+    the `Notes` attribute in the detail dialog. Thanks to @loraine-gueguen and @cmdcolin
+    for the idea and the implementation. (pull #885, @cmdcolin)
+
   * When users click on an item in the dropdown autocompletion for the browser search
     box, the browser will go directly to that item immediately, eliminating the extra
     step of the user having to click "Go". Many thanks to @enuggetry for noticing the
