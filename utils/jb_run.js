@@ -25,7 +25,7 @@ var getopt = new getopt([
 getopt.bindHelp();     // bind option 'help' to default action
 opt = getopt.parseSystem(); // parse command line
 
-var port = 8080;
+var port = 3000;
 
 var setPort = opt.options['port'];
 if (typeof setPort !== 'undefined') {
