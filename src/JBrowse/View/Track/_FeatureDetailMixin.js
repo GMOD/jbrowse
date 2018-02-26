@@ -135,7 +135,11 @@ return declare( FeatureDescriptionMixin, {
 
     // render any additional tags as just key/value
     _renderAdditionalTagsDetail: function( track, f, featDiv, container ) {
+        var thisB = this;
         var additionalTags = array.filter( f.tags(), function(t) {
+            if(thisB.config.showNoteInAttributes && t.toLowerCase()=='note'){
+                return true ;
+            }
             return ! this._isReservedTag( t );
         },this);
 

@@ -194,6 +194,8 @@
          ],
          "category" : "Transcripts",
          "subfeatures" : true,
+         "style": {"description": "customdescription"},
+         "showNoteInAttributes": true,
          "onClick": "{exampleFeatureClick}"
       },
       {
