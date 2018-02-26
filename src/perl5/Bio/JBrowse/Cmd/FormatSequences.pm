@@ -53,7 +53,7 @@ sub option_definitions {(
     "trackConfig=s",
     "help|h|?",
     "nohash",
-    "unsorted"
+    "noSort"
 )}
 
 sub run {
@@ -182,7 +182,7 @@ sub exportFAI {
     # TODO - consider whether to add accept_ref functionality
     # TODO - currently just assumes that there is a '.fai' file present-- we could make one if needed
     my %refSeqs;
-    my $unsorted = $self->opt('unsorted');
+    my $unsorted = $self->opt('noSort');
     my @originalorder;
     my $fai = "$indexed_fasta.fai";
     open FAI, "<$fai" or die "Unable to read from $fai: $!\n";
@@ -249,7 +249,7 @@ sub exportFASTA {
     }
 
     my %refSeqs;
-    my $unsorted = $self->opt('unsorted');
+    my $unsorted = $self->opt('noSort');
     my @originalorder;
     for my $fasta ( @$files ) {
         my $gzip = $fasta =~ /\.gz(ip)?$/i ? ':gzip' : '';

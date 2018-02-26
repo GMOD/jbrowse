@@ -47,14 +47,14 @@ is_deeply( $output,
 ;
 
 
-## check basic formatting with --unsorted
+## check basic formatting with --noSort
 
 $tempdir = File::Temp->newdir;
 
 system $^X, 'bin/prepare-refseqs.pl', (
     '--fasta' => 'sample_data/raw/random_contigs.fa',
     '--out'   => $tempdir,
-    '--unsorted',
+    '--noSort',
    );
 
 my $output = slurp_tree( $tempdir );

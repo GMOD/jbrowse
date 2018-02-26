@@ -67,10 +67,10 @@ sequences.
 A FASTA file (which should already have an accompaning '.fai' file)
 from which to load reference sequences.
 
-=item --unsorted
+=item --noSort
 
-If using gff or FASTA input, generate the json file in the same order
-as the input file.
+If using GFF or FASTA input, preserve the order of the reference
+sequences (sorts alphabetically by default).
 
 =item --conf <file>
 
