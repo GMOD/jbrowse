@@ -61,9 +61,11 @@ sub flatten_to_feature {
     # numify end
     $f[2] += 0;
     # convert strand to 1/0/-1/undef if necessary, and numify it
-    no warnings 'uninitialized';
-    $f[3] = { '+' => 1, '-' => -1 }->{$f[3]} || $f[3] || undef;
-    $f[3] += 0;
+    {
+        no warnings 'uninitialized', 'numeric';
+        $f[3] = { '+' => 1, '-' => -1 }->{$f[3]} || $f[3] || undef;
+        $f[3] += 0;
+    }
     return \@f;
 }
 

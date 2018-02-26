@@ -1,4 +1,15 @@
-define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dotObject) {
+/**
+ * This library interprets options passed in via dot-notation instead of JSON in the Query URL.
+ * The implementation is both for readability and security in some systems, esp. tomcat where
+ * passing JSON in the Query URL is both bad-form and potentially insecure.
+ *
+ * This is the dot-object library: https://www.npmjs.com/package/dot-object
+ *
+ * Usage is depicted here:
+ * http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
+ *
+ */
+define(['dojo/_base/declare','dojo/_base/array', 'JBrowse/Util/dot-object'], function (declare, array, dotObject) {
     return declare(null, {
 
         constructor: function () {
@@ -58,8 +69,12 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
             var queryNameArray, storeName, propertyName, internalStore ;
             var storeTracks = {};
             var storeBookmarks = {};
+
+            var featuresArray = [] ;
+            var featureIndex ;
+
             Object.keys(queryParams).forEach(function (queryParam) {
-                if (queryParam.indexOf('addStore\.') == 0) {
+                if (queryParam.indexOf('addStores\.') == 0) {
                     queryNameArray = queryParam.split("\.");
                     propertyName = queryNameArray.slice(1).join('.');
                     dotObject.str('stores.'+propertyName, queryParams[queryParam], config)
@@ -84,10 +99,17 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     dotObject.str(propertyName, queryParams[queryParam], internalStore);
                     dotObject.str(storeName, internalStore, storeBookmarks)
                 }
-
-                // TODO: implement addFeatures?
-                // http://gmod.org/wiki/JBrowse_Configuration_Guide#addFeatures
+                else if (queryParam.indexOf('addFeatures\.') == 0) {
+                    queryNameArray = queryParam.split("\.");
+                    featureIndex = queryNameArray[1];
+                    propertyName = queryNameArray.slice(2).join('.');
+                    var feature = featuresArray[featureIndex];
+                    feature = feature ? feature  : {};
+                    dotObject.str(propertyName, queryParams[queryParam], feature);
+                    featuresArray[featureIndex] = feature ;
+                }
             });
+
 
             // convert to an array
             if (storeTracks) {
@@ -114,6 +136,14 @@ define(['dojo/_base/declare', 'JBrowse/Util/dot-object'], function (declare, dot
                     // explicitly try to handle loc strings?
                     config.bookmarks.features.push(storeBookmark);
                 }
+            }
+
+            if(featuresArray.length>0){
+                config.stores = config.stores ? config.stores : {};
+                config.stores.url = config.stores.url ? config.stores.url : {};
+                config.stores.url.features = array.filter(featuresArray, function(el){
+                    return el!=null
+                });
             }
         }
     });

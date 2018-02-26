@@ -3,12 +3,13 @@ require([
             'dojo/_base/declare',
             'dojo/_base/array',
             'JBrowse/Browser',
+            'JBrowse/FeatureFiltererMixin',
             'JBrowse/Store/SeqFeature/BAM',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature/_MismatchesMixin',
             'JBrowse/View/Track/_AlignmentsMixin',
             'JBrowse/Model/SimpleFeature'
-        ], function( aspect, declare, array, Browser, BAMStore, XHRBlob, MismatchesMixin, AlignmentsMixin, SimpleFeature ) {
+        ], function( aspect, declare, array, Browser, FeatureFiltererMixin, BAMStore, XHRBlob, MismatchesMixin, AlignmentsMixin, SimpleFeature ) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -35,7 +36,7 @@ describe( 'BAM mismatches test', function() {
                   }
               });
               //Use Config workaround
-              var MismatchParser=declare([Config,MismatchesMixin]);
+              var MismatchParser = declare([Config, MismatchesMixin, FeatureFiltererMixin]);
 
 
               it('getMismatches test', function() {
@@ -286,9 +287,9 @@ describe( 'BAM mismatch test', function() {
                   }
               });
               //Use Config workaround
-              var MismatchParser = declare([Config, MismatchesMixin]);
+              var MismatchParser = declare([Config, MismatchesMixin, FeatureFiltererMixin]);
               //Use Config workaround
-              var AlignmentParser = declare([Config, AlignmentsMixin]);
+              var AlignmentParser = declare([Config, AlignmentsMixin, FeatureFiltererMixin]);
 
 
               it('resultTable test', function() {
