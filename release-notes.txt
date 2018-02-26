@@ -11,6 +11,19 @@
   * Changed the default color for HTMLFeatures features to be a darker gray that
     is easier to see. Many thanks to @colindaven for the fix! (pull #980, @colindaven)
 
+  * Added the ability to manually specify a reference sequence ordering in the
+    configuration. Users can now set `refSeqOrder: "by_list"` and then set
+    `refSeqOrderList: "ctgX,ctgY,ctgZ"` to manually specify an ordering.
+    Thanks to @dsenalik, @liub1993, @wkpalan, and @cmdcolin for valuable
+    discussions about this, and @rdhayes for the prototype implementation.
+    (issue #867, issue #919, pull #1007, @rdhayes)
+
+  * Added a `--noSort` option to `prepare-refseqs.pl` that preserves the reference
+    sequence ordering in the input file, instead of sorting the reference sequences
+    alphabetically in the JSON. Thanks to @dsenalik for the prototype implementation
+    of this, and @cmdcolin and @rdhayes for valuable discussions.
+    (issue #925, pull #924, pull #1007, @dsenalik)
+
   * Feature tracks now support a `showNoteInAttributes` flag that force the feature's
     `Notes` attribute to be displayed as a regular attribute in the feature detail
     popup. This is to support the case in which users want the blue description text
