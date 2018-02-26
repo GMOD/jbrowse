@@ -4,8 +4,8 @@
 
 Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
 
-The `master` branch is always in line with the latest release however it is not minified JS. Accepted
-features are merged into the `dev` branch following acceptance of an item submitted via pull request.
+The `master` branch is always in line with the latest release however it is not minified JS. Features
+are merged into the `dev` branch following acceptance of an item submitted via pull request.
 
 # Install from github repo (development)
 
