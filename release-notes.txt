@@ -78,6 +78,9 @@
     the genotype details table for "./." alleles.  Thanks to @carrere for reporting
     it, and @cmdcolin for the fix. (issue #980, pull #990, @cmdcolin)
 
+  * Fix parsing of the END field in VCF tracks, enabling things like CNV and deletion
+    variants to be visualized from variant tracks. (pull #847, @cmdcolin)
+
 # Release 1.12.4     2018-02-14 22:29:20 UTC
 
 ## Minor improvements
