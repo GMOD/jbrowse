@@ -9,6 +9,7 @@ define([
            'dojo/dom-construct',
            'dojo/dom-class',
            'dstore/Memory',
+           'dojox/html/entities',
            'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry',
            'JBrowse/Util'
@@ -21,18 +22,11 @@ define([
            domConstruct,
            domClass,
            MemoryStore,
+           dojoxHtmlEntities,
            DGrid,
            DGridDijitRegistry,
            Util
        ) {
-function escapeHtml(html)
-{
-    var text = document.createTextNode(html);
-    var div = document.createElement('div');
-    div.appendChild(text);
-    return div.innerHTML;
-}
-
 
 // make a DGrid that registers itself as a dijit widget
 var Grid = declare([DGrid,DGridDijitRegistry]);
@@ -196,7 +190,7 @@ return declare( null, {
             }
         }
 
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: escapeHtml(val) }, parent );
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: dojoxHtmlEntities.encode(val) }, parent );
         return 1;
     },
 

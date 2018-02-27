@@ -25,7 +25,7 @@ define([
            domClass,
            all,
            when,
-        dojoxHtmlEntities,
+           dojoxHtmlEntities,
            Util,
            FeatureDetailMixin,
            NamedFeatureFiltersMixin,
