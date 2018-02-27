@@ -57,7 +57,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 "url": function( track, feature ) {
                     return track.browser.makeCurrentViewURL(
                         { loc: track._nextSegmentViewLoc( feature, 0.8 ),
-                          highlight: feature.get('next_segment_position_highlight'),
+                          highlight: feature.get('next_segment_position'),
                           tracklist: 0
                         });
                 },
@@ -73,7 +73,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 "url": function( track, feature ) {
                     return track.browser.makeCurrentViewURL(
                         { loc: track._nextSegmentViewLoc( feature ),
-                          highlight: feature.get('next_segment_position_highlight')
+                          highlight: feature.get('next_segment_position')
                         });
                 },
                 "action": "newWindow",

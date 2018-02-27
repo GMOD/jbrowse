@@ -64,8 +64,7 @@ var Feature = Util.fastDeclare(
                        'multi_segment_next_segment_reversed',
                        'multi_segment_first',
                        'multi_segment_last',
-                       'next_segment_position',
-                       'next_segment_position_highlight'
+                       'next_segment_position'
                      );
         }
         tags = tags.concat( this._tagList || [] );
@@ -211,14 +210,7 @@ var Feature = Util.fastDeclare(
     next_segment_position: function() {
         var nextSegment = this.file.indexToChr[this._get('_next_refid')];
         if( nextSegment )
-            return nextSegment.name+':'+parseInt(this._get('_next_pos')+1);
-        else
-            return undefined;
-    },
-    next_segment_position_highlight: function() {
-        var nextSegment = this.file.indexToChr[this._get('_next_refid')];
-        if( nextSegment )
-            return nextSegment.name+':'+parseInt(this._get('_next_pos')+1)+".."+this._get('_next_pos');
+            return nextSegment.name+':'+(parseInt(this._get('_next_pos'))+1);
         else
             return undefined;
     },
