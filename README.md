@@ -4,8 +4,8 @@
 
 Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
 
-It is generally recommended that installing from the master branch is for development purposes.
-One reason is because the development version has a much slower initial load than the Release package.  Also, since the master branch code is ''in development'' for the next JBrowse release, it may contain bugs.
+The `master` branch is always in line with the latest release however it is not minified JS. Features
+are merged into the `dev` branch following acceptance of an item submitted via pull request.
 
 # Install from github repo (development)
 
@@ -18,10 +18,12 @@ Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that se
     npm install
     ./jb_setup.js   (optional -- sets up demo files such as Volvox)
     ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
- 
+
 If you have installed the demo (with ./jb_setup.js), you can point your browser to
 http://localhost/jbrowse/index.html?data=sample_data/json/volvox
 and you should see the volvox example data.
+
+`jb_run.js` will default to a non-privileged port (8080), this can be overridden with the `-p` option.
 
 Now you can simply edit files and your changes will be available in the browser (the build step is not required).
 
@@ -74,9 +76,15 @@ eggs for `selenium` and `nose` installed.  Run the tests with:
 Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis
 one will only work in a properly configured Travis CI build environment.
 
+# Manual testing
+
+<img style="display: block; margin: 1em auto" src="img/browserstack-logo-600x315.png" width="200" alt="Browserstack"/>
+
+JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
+
 # Cutting a JBrowse release
 
-NOTE: Beginning in 1.12.4, 
+NOTE: Beginning in 1.12.4,
 
 1. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
 to create a release on GitHub under https://github.com/GMOD/jbrowse/releases

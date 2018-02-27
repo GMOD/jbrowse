@@ -2,9 +2,86 @@
 
 ## Minor improvements
 
+  * Safari versions 10 and 11 will now see buttons for downloading feature FASTA
+    sequences, as well as other sequences. These were turned off for all Safari
+    browsers back when no version of Safari could download a client-generated file,
+    but Safari 10 and 11 support it now. Thanks to @kkara for noticing the button
+    was missing and prodding us to look into it. (issue #714, @rbuels)
+
+  * Changed the default color for HTMLFeatures features to be a darker gray that
+    is easier to see. Many thanks to @colindaven for the fix! (pull #980, @colindaven)
+
+  * Added the ability to manually specify a reference sequence ordering in the
+    configuration. Users can now set `refSeqOrder: "by_list"` and then set
+    `refSeqOrderList: "ctgX,ctgY,ctgZ"` to manually specify an ordering.
+    Thanks to @dsenalik, @liub1993, @wkpalan, and @cmdcolin for valuable
+    discussions about this, and @rdhayes for the prototype implementation.
+    (issue #867, issue #919, pull #1007, @rdhayes)
+
+  * Added a `--noSort` option to `prepare-refseqs.pl` that preserves the reference
+    sequence ordering in the input file, instead of sorting the reference sequences
+    alphabetically in the JSON. Thanks to @dsenalik for the prototype implementation
+    of this, and @cmdcolin and @rdhayes for valuable discussions.
+    (issue #925, pull #924, pull #1007, @dsenalik)
+
+  * Feature tracks now support a `showNoteInAttributes` flag that force the feature's
+    `Notes` attribute to be displayed as a regular attribute in the feature detail
+    popup. This is to support the case in which users want the blue description text
+    on a feature to be different from the feature's `Notes` attribute, but still display
+    the `Notes` attribute in the detail dialog. Thanks to @loraine-gueguen and @cmdcolin
+    for the idea and the implementation. (pull #885, @cmdcolin)
+
+  * When users click on an item in the dropdown autocompletion for the browser search
+    box, the browser will go directly to that item immediately, eliminating the extra
+    step of the user having to click "Go". Many thanks to @enuggetry for noticing the
+    opportunity for this nice usability enhancement! (issue #616, pull #1001, @rbuels)
+
+  * The global `highResolutionMode` configuration is now set to `auto`, meaning that
+    JBrowse by default will now auto-detect high-DPI displays (Apple Retina displays
+    and the like) and draw canvas-based tracks more clearly on them. This capability
+    has been present in the JBrowse code for a long time, but has been turned off
+    by default. (@rbuels)
+
+  * Added support for two new configuration variables for SNPCoverage tracks:
+    `indicatorProp` and `indicatorDepth`, which set the minimum proportion (indicatorProp)
+    and minimum depth (indicatorDepth) of alternative alleles required to render the
+    SNP indicator below a SNPCoverage track. Big thanks to Nathan Haigh for the idea
+    and implementation! (pull #951, @nathanhaigh)
+
+  * Added a basic loading screen for when the page is initially loading (pull #1008,
+    @cmdcolin)
+
+## Bug fixes
+
+  * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
+    noticing and reporting it! (issue #602, @rbuels)
+
+  * Fixed the broken demo track data source in the modENCODE sample data. Thanks
+    to @cmdcolin for the fix! (pull #999, @cmdcolin)
+
+  * Fixed bug in which dragging an Alignments or Alignments2 track into a combination
+    track caused the combination track to crash. (issue #771, @cmdcolin)
+
+  * Feature detail dialogs for variant tracks now correctly display "no-call" in
+    the genotype details table for "./." alleles.  Thanks to @carrere for reporting
+    it, and @cmdcolin for the fix. (issue #980, pull #990, @cmdcolin)
+
+# Release 1.12.4     2018-02-14 22:29:20 UTC
+
+## Minor improvements
+
   * Fixed SEVERE performance regression that basically made flatfile-to-json.pl
     unusable on Perl 5.18 and higher. Huge thanks to Colin Diesh for tracking
-    this down. (issue #470, @cmdcolin)
+    this down. (issue #470, pull #912, @cmdcolin)
+
+  * Added code to calculate feature density histograms for Tabix-indexed GFF3
+    (`GFF3Tabix`) data sources. Thanks to @nathandunn for noticing and fixing
+    this! (pull #956, @nathandunn)
+
+  * Added a new "Hide unspliced reads" menu item to Alignments and Alignments2
+    tracks that filter out reads that have no `N`s in their CIGAR strings.
+    Thanks to Deepak Kunni and Nathan Dunn for their work on this.
+    (pull #921, @deepakunni3)
 
   * setup.sh now uses npm instead of Bower (which is deprecated) to install
     dependencies. @enuggetry
@@ -12,20 +89,23 @@
   * Removed legacy `wig-to-json.pl` and `bam-to-json.pl` scripts.  @rbuels
 
   * Added a `--trackConfig` option to `prepare-refseqs.pl` to allow injecting
-    refseq configuration variables at format time.  @erasche
+    refseq configuration variables at format time. (pull #884, @erasche)
 
-  * Added trackLabels: "no-block" config feature.  Moves track labels/menus 
+  * Added trackLabels: "no-block" config feature.  Moves track labels/menus
     above the features so as not to obscure the features. (issue #901, #490)
 
-  * Make jbrowse npm installable. thanks to @cmdcolin & @enuggetry.
+  * Added a `--category` option to `add-bw-track.pl` and `add-bam-track.pl` to
+    set the new track's category. Thanks to @loraine-gueguen for the implementation!
+    (pull #911, @loraine-gueguen)
 
-  * Change "Length on ref" to "Seq length on ref" in Alignments feature detail boxes,
-    so that the length on the reference appears next to the sequence length. Thanks to
-    @colindaven for the suggestion!
+  * Made jbrowse installable using `npm`. @cmdcolin and @enuggetry.
 
-  * implement express server for jbrowse for quick launch (jb_run.js).  @enuggetry.
+  * Implemented a built-in node.js Express server `jb_run.js` for quick JBrowse launching.
+    @enuggetry
 
-  * jb_setup.js @enuggetry.
+  * Added an `--unsorted` option to `prepare-refseqs.pl` that formats reference sequences
+    in the same order in which they appear in the input sequence file.  Thanks to
+    @dsenalik for the suggestion and implementation! (pull #924, @dsenalik)
 
   * Allows for dot-notation instead of JSON (pull #952) for addTracks, addBookmarks,
     and addStores. https://github.com/GMOD/jbrowse/pull/952. Address security concerns
@@ -33,7 +113,18 @@
 
   * If a track has no `key` set in its track configuration, JBrowse will now look for
     a `key` in its track metadata, and use that if it is present. Thanks to Loraine
-    Guéguen for the idea (issue #957). @rbuels
+    Guéguen for the idea (issue #957, pull #958). @rbuels
+
+  * Fixed bug in `maker2jbrowse` script that allows `maker2jbrowse` to be installed
+    in system executable directories, and adds a `--sortMem` option.
+    (pull #877, @cmdcolin)
+
+  * Fixed a cosmetic/styling bug with malformed DOM structure in feature detail popup
+    dialogs.  Thanks to Erik Rasche for noticing and fixing this! (pull #882, @erasche)
+
+  * Added a configuration option that can disable JBrowse's behavior of updating the
+    browser's title text as the view changes. Thanks to Luka Jeran, Primož Hadalin,
+    and Nathan Dunn for this! (pull #904, @lukaw3d)
 
   * Suppress execution of biodb-to-json.pl on sample data while running setup.sh
     on MacOS High Sierra with stock Perl due to an issue with the stock Perl having
@@ -55,6 +146,40 @@
 
   * Fixed a "cannot read property 'offsetLeft'" error when using touch screens without
     the old simple track selector active. (issue #893, @rbuels)
+
+  * Upgraded to use new Google Analytics API for usage reporting. (@rdhayes)
+
+  * Fixed bug in which start/stop codons were sometimes not displayed in the sequence
+    track at certain zoom levels (issue #858, pull req #859, @cmdcolin)
+
+  * Fixed a regression in which the `defaultTracks` configuration variable was no longer
+    respected when set to a comma-separated list. (issue #892, pull #896, @rdhayes)
+
+  * Made a cosmetic change to Alignments track detail popups, changing "Length on ref" to
+    be displayed as "Seq length on ref", so that it is displayed more usefully next to
+    "Seq length".  Thanks to @colindaven for the suggestion and implementation!
+    (pull #939, @colindaven)
+
+  * Improved the error messages displayed when a JBrowse glyph class fails to load. Thanks
+    to @scottcain and @cmdcolin for tracking down the issue and improving the error
+    handling! (issue #968, @cmdcolin)
+
+  * Added support for an `addFeatures` URL query parameter that can inject features from
+    the URL query string. (issue #976, @nathandunn)
+
+  * Changed the project's `git` workflow to utilize a `dev` branch that is separate from
+    `master`, with `master` only being updated when a new release of JBrowse is published.
+    (issue #975, @enuggetry)
+
+  * Implemented automated deployment of JBrowse releases to GitHub releases and `npm`.
+    Thanks to @abretaud, @nathandunn, @erasche, and @cmdcolin for valuable discussions.
+    (issue #822, pull #979, pull #984, @rbuels)
+
+  * Added a `--bigwigCoverage` option to `add-bam-track.pl` to support configuring pregenerated
+    coverage histograms from the command line.  Thanks to @loraine-gueguen for the suggestion
+    and implementation! (pull #972, @loraine-gueguen)
+
+  * Improved documentation of the `CategoryURL` plugin. (pull #985, @enuggetry)
 
 # Release 1.12.3     2017-05-02 19:20:01 America/Los_Angeles
 
@@ -105,9 +230,9 @@
 
   * Added subfeatureDetailLevel config item to make View details box
     only load subfeatures on demand (issue #861).
-   
+
   * Added ability to draw scatter plot from BigWig tracks. Thanks to
-    Keiran Raine for the contribution (issue #741). 
+    Keiran Raine for the contribution (issue #741).
 
   * Added a fullviewlink option for the URL bar to disable "View full
     link" attribute in embedded JBrowse. Thanks to Vivek Krishnakumar
@@ -147,7 +272,7 @@
     Eric Rasche for reporting (issue #673).
 
   * Fixed some issues where the Gene glyph would not layout some
-    features correctly. Thanks to Eric Rasche for reporting 
+    features correctly. Thanks to Eric Rasche for reporting
     (issue #686).
 
   * Fixed an issue with JBrowse Desktop where saving session would not
@@ -193,7 +318,7 @@
 
 ## Bug fixes
 
- * Fix RegexSearch plugin and NeatCanvasFeatures plugin - search track 
+ * Fix RegexSearch plugin and NeatCanvasFeatures plugin - search track
    loading failure (issue #676)
 
  * Fix compat_121.html to access /css directory
@@ -275,7 +400,7 @@
    pointing to important data, but this is uncommon (issue #563).
 
  * Allow falsey values to be used in browser.cookie.
- 
+
  * Fix minor issue where sometimes the length field of refSeqs.json
    was missing.
 
@@ -421,11 +546,11 @@
    chunkSizeLimit errors. Thanks to Richard Hayes for finding and
    debugging this issue (issue #486)!
 
- * Fixed a bug where the Variant popup boxes would not display 
+ * Fixed a bug where the Variant popup boxes would not display
    complete genotype information in previous 1.11.* versions.
    Thanks to Nando for reporting the bug and Colin Diesh for the
    bugfix (issue #488).
- 
+
  * Fixed a small error that occured when using variant type tracks
    with the REST API.
 
@@ -466,7 +591,7 @@
    menu or by using the in-memory adaptor. Big thanks to Andrew Warren
    for the contribution (issue #453).
 
- * Added a change to the highlight button to allow the user to more 
+ * Added a change to the highlight button to allow the user to more
    easily clear highlights. Thanks to Paul Hale for the suggestion
    and Colin Diesh for the fix (issue #445).
 
@@ -480,7 +605,7 @@
    original implementation and Colin Diesh for the fix (issue #461).
 
  * Changed the CanvasFeatures 'View details' pages to display the name
-   and description of features in the dialog box. Thanks to Colin 
+   and description of features in the dialog box. Thanks to Colin
    Diesh for the fix (issue #463).
 
  * Added a bugfix for non-compliant servers that add a trailing slash
@@ -566,7 +691,7 @@
    and Colin Diesh for the bugfix (issue #435)
 
  * Fixed a bug where gene features in GFF tracks would not have
-   arrowhead markers. Thanks to Colin Diesh for finding and fixing 
+   arrowhead markers. Thanks to Colin Diesh for finding and fixing
    this issue (issue #454)
 
 # Release 1.11.2     2014-02-10 19:11:33 EST5EDT
