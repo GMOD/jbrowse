@@ -109,16 +109,23 @@
 
                    // create a JBrowse global variable holding the JBrowse instance
                    JBrowse = new Browser( config );
+
                    require.on('error', function(error) {
                        JBrowse.fatalError('Failed to load resource: '+error.info[0]);
                    });
+
+                   JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('LoadingScreen')); });
         });
     </script>
 
   </head>
 
   <body>
-    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;">
+	  <div id="LoadingScreen" style="padding: 50px;">
+		<h1>Loading...</h1>
+	  </div>
+	</div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
 </html>
