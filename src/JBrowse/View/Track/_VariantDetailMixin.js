@@ -11,6 +11,7 @@ define([
            'dojo/dom-class',
            'dojo/promise/all',
            'dojo/when',
+           'dojox/html/entities',
            'JBrowse/Util',
            'JBrowse/View/Track/_FeatureDetailMixin',
            'JBrowse/View/Track/_NamedFeatureFiltersMixin',
@@ -24,6 +25,7 @@ define([
            domClass,
            all,
            when,
+        dojoxHtmlEntities,
            Util,
            FeatureDetailMixin,
            NamedFeatureFiltersMixin,
@@ -141,16 +143,15 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             var value_parse = value.values[0];
 
             var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
-            if(alt) {
-                alt = alt[0].split(','); // force split on alt alleles
-            }
+            alt = alt[0].split(','); // force split on alt alleles
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
-            value = array.map( splitter?value_parse.split(splitter):value_parse, function( gtIndex ) {
+            value = array.map( splitter ? value_parse.split(splitter) : value_parse, function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex ) || gtIndex;
                                    if(gtIndex == '.') { return 'no-call' }
                                    else if(gtIndex == 0) { return refseq; }
                                    else return alt ? alt[gtIndex-1] : gtIndex;
                                }).join( ' '+splitter+' ' );
+            value = dojoxHtmlEntities.encode(value);
         }
         return value;
     },
