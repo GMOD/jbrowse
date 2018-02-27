@@ -84,14 +84,13 @@ return declare( null, {
         var alt = fields[4];
 
         var SO_term = this._find_SO_term( ref, alt );
-        var ret = (fields[7]||'').match(/END=(\d+)/);
         var featureData = {
-            start:  line.start,
-            end:    ret ? +ret[1] : line.start+ref.length,
+            start: line.start,
+            end: line.end,
             seq_id: line.ref,
             description: this._makeDescriptionString( SO_term, ref, alt ),
-            type:   SO_term,
-            reference_allele:    ref
+            type: SO_term,
+            reference_allele: ref
         };
 
         if( fields[2] !== null ) {
