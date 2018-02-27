@@ -35,6 +35,9 @@
     SNP indicator below a SNPCoverage track. Big thanks to Nathan Haigh for the idea
     and implementation! (pull #951, @nathanhaigh)
 
+  * Added a basic loading screen for when the page is initially loading (pull #1008,
+    @cmdcolin)
+
 ## Bug fixes
 
   * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
