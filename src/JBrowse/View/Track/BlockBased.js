@@ -115,7 +115,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
      */
     _defaultConfig: function() {
         return {
-            maxFeatureSizeForUnderlyingRefSeq: 250000
+            maxFeatureSizeForUnderlyingRefSeq: 250000,
+            subfeatureDetailLevel: 2
         };
     },
 

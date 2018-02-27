@@ -38,7 +38,7 @@
 
   * The global `highResolutionMode` configuration is now set to `auto`, meaning that
     JBrowse by default will now auto-detect high-DPI displays (Apple Retina displays
-    and the like) and draw canvas-based tracks more clearly on them. This capability
+    and similar) and draw canvas-based tracks more clearly on them. This capability
     has been present in the JBrowse code for a long time, but has been turned off
     by default. (@rbuels)
 
@@ -50,6 +50,18 @@
 
   * Added a basic loading screen for when the page is initially loading (pull #1008,
     @cmdcolin)
+
+  * The `subfeatureDetailLevel` configuration variable for tracks now defaults to a value
+    of 2, meaning that the builtin JBrowse default feature detail popup dialogs will only
+    show one level of subfeatures by default. Most feature tracks have only one level of
+    subfeatures anyway, but for very complex data (like gene models with many transcripts,
+    each with many introns and exons), this new default will prevent a rather confusing
+    problem some users were seeing in which JBrowse would seem to 'hang' when clicking a
+    gene model to see its details. Thanks to @cmdcolin for the original implementation of the
+    `subfeatureDetailLevel` configuration variable, @kshefchek for a good bug report that
+    shows it, and @nathandunn and @selewis for valuable discussions.
+    (issue #559, pull #1010, @rbuels)
+
 
 ## Bug fixes
 
