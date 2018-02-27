@@ -189,8 +189,7 @@ return declare( null, {
                 return keys.length;
             }
         }
-
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: dojoxHtmlEntities.encode(val) }, parent );
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: dojoxHtmlEntities.encode(''+val) }, parent );
         return 1;
     },
 

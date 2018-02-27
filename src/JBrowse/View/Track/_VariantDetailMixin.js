@@ -11,7 +11,6 @@ define([
            'dojo/dom-class',
            'dojo/promise/all',
            'dojo/when',
-           'dojox/html/entities',
            'JBrowse/Util',
            'JBrowse/View/Track/_FeatureDetailMixin',
            'JBrowse/View/Track/_NamedFeatureFiltersMixin',
@@ -25,7 +24,6 @@ define([
            domClass,
            all,
            when,
-           dojoxHtmlEntities,
            Util,
            FeatureDetailMixin,
            NamedFeatureFiltersMixin,
@@ -151,7 +149,6 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                    else if(gtIndex == 0) { return refseq; }
                                    else return alt ? alt[gtIndex-1] : gtIndex;
                                }).join( ' '+splitter+' ' );
-            value = dojoxHtmlEntities.encode(value);
         }
         return value;
     },
