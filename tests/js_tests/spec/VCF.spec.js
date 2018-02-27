@@ -38,7 +38,7 @@ describe('VCF store', function() {
 
   });
 
-  it('parses END field', function() {
+  it('no newline in VCF genotypes', function() {
          var store = new VCFStore({
              browser: new Browser({unitTestMode: true}),
              config: {
@@ -59,16 +59,43 @@ describe('VCF store', function() {
                            function(e) { console.error(e.stack||''+e); }
                           );
          runs(function() {
-                  features.length
                   var gt = features[0].get('genotypes');
                   var names = Object.keys(gt);
                   var last = names[names.length-1];
-                  console.log(last.match("\n"));
                   expect(last.match("\n")).toEqual(null);
-                  expect(features.length).toEqual( 42 );
          });
 
   });
+
+  it('parses END field', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../data/vcf.end.gz',
+                 baseUrl: '.'
+             },
+             refSeq: { name: '1', start: 0, end: 50000 }
+         });
+
+         var features = [];
+         waitsFor( function() { return features.done; } );
+         store.getFeatures({ ref: '1',
+                             start: 0,
+                             end: 5000
+                           },
+                           function(f) { features.push( f ); },
+                           function( ) { features.done = true; },
+                           function(e) { console.error(e.stack||''+e); }
+                          );
+         runs(function() {
+                  var f0 = features[0];
+                  console.log(features);
+                  console.log(f0);
+                  expect(features.length).toEqual( 2 );
+         });
+
+  });
+
 
 
 });
