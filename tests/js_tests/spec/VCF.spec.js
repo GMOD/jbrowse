@@ -10,9 +10,9 @@ require([
         ) {
 describe('VCF store', function() {
 
-  
 
-  it('reads big dbsnp', function() {
+
+  xit('reads big dbsnp', function() {
          var store = new VCFStore({
              browser: new Browser({unitTestMode: true}),
              config: {
@@ -37,6 +37,39 @@ describe('VCF store', function() {
          });
 
   });
+
+  it('parses END field', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../../docs/tutorial/data_files/volvox.test.vcf.gz',
+                 baseUrl: '.'
+             },
+             refSeq: { name: 'ctgA', start: 0, end: 50000 }
+         });
+
+         var features = [];
+         waitsFor( function() { return features.done; } );
+         store.getFeatures({ ref: 'ctgA',
+                             start: 0,
+                             end: 7000
+                           },
+                           function(f) { features.push( f ); },
+                           function( ) { features.done = true; },
+                           function(e) { console.error(e.stack||''+e); }
+                          );
+         runs(function() {
+                  features.length
+                  var gt = features[0].get('genotypes');
+                  var names = Object.keys(gt);
+                  var last = names[names.length-1];
+                  console.log(last.match("\n"));
+                  expect(last.match("\n")).toEqual(null);
+                  expect(features.length).toEqual( 42 );
+         });
+
+  });
+
 
 });
 });
