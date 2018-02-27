@@ -909,6 +909,11 @@ a.dialog-new-window {
     margin-bottom: 0.8em;
 }
 
+.feature-detail .subfeature-load-button {
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
 .feature-detail .fastaView {
     padding: 0;
     border: 1px solid #aaa;
