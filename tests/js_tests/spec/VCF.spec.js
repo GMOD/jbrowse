@@ -88,9 +88,8 @@ describe('VCF store', function() {
                            function(e) { console.error(e.stack||''+e); }
                           );
          runs(function() {
-                  var f0 = features[0];
-                  console.log(features);
-                  console.log(f0);
+                  expect(features[0].get('end')).toEqual(4388);
+                  expect(features[1].get('end')).toEqual(4600);
                   expect(features.length).toEqual( 2 );
          });
 
