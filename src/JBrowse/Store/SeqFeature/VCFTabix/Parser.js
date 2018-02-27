@@ -89,8 +89,8 @@ return declare( null, {
             end: line.end,
             seq_id: line.ref,
             description: this._makeDescriptionString( SO_term, ref, alt ),
-            type:   SO_term,
-            reference_allele: ret ? null : ref
+            type: SO_term,
+            reference_allele: ref
         };
 
         if( fields[2] !== null ) {

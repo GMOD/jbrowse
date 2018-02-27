@@ -122,7 +122,6 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 37 );
-                  expect(features[0].get('reference_allele')).toEqual(null);
                   expect(features[0].get('alternative_alleles').values).toEqual('<NON_REF>');
          });
   });
