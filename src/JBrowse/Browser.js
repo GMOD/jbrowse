@@ -2222,6 +2222,16 @@ addRefseqs: function( refSeqs ) {
                 order = refSeqs;
             }
             else {
+                // if refSeqOrder 'by_list' and config parameter refSeqOrderList exists,
+                // split that into an array as an override to default refSeqs.json order
+                if( this.config.refSeqOrder == 'by_list' && this.config.refSeqOrderList ) {
+                    if( lang.isArray( this.config.refSeqOrderList ) ) {
+                        return this.config.refSeqOrderList;
+                    }
+                    else if( typeof this.config.refSeqOrderList === 'string' ) {
+                        return this.config.refSeqOrderList.split(/\s*,\s*/);
+                    }
+                }
                 order = refSeqs.slice(0);
                 order.sort(
                     this.config.refSeqOrder == 'length' || this.config.refSeqOrder == 'length ascending'
