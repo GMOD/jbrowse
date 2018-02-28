@@ -153,17 +153,21 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
-            var string = "";
-            var c = 0;
-            data.getBytes(72);
+            if(this.bigBed) {
+                var string = "";
+                var c = 0;
+                data.getBytes(72);
 
-            
-            while(true) {
-                c = data.getChar();
-                if(c.charCodeAt() == 0) break;
-                string += c;
+                
+                while(true) {
+                    c = data.getChar();
+                    if(c.charCodeAt() == 0) break;
+                    string += c;
+                }
+                if(string) {
+                    this.parseAutoSql(string);
+                }
             }
-            this.parseAutoSql(string);
 
 
             // parse the totalSummary if present (summary of all data in the file)

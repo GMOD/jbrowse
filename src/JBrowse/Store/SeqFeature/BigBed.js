@@ -17,9 +17,12 @@ define( [
 return declare(BigWig,
 
  /**
-  * @lends JBrowse.Store.BigWig
+  * @lends JBrowse.Store.SeqFeature.BigBed
   */
 {
+    constructor: funtion() {
+        this.bigBed = true;
+    },
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
         var chrName = this.browser.regularizeReferenceName( query.ref );
