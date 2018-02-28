@@ -67,11 +67,16 @@ return declare( JBrowsePlugin,
                     zeroPad: thisB.box_zeroPad
                 });
             });
+            // override CanvasFeatures
+            require(["dojo/_base/lang", "JBrowse/View/Track/CanvasFeatures"], function(lang, CanvasFeatures){
+                lang.extend(CanvasFeatures, {
+                    getRenderingContext2: getRenderingContext,
+                    getRenderingContext: thisB.canvasfeature_getRenderingContext
+                });
+            });
         });      
     },
     segments_renderFeature: function( context, fRect ) {
-        //console.log("SegmentsEx.renderFeature fRect ");
-    
         if( this.track.displayMode !== 'collapsed' )
             context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
         
@@ -84,7 +89,6 @@ return declare( JBrowsePlugin,
     },
 
     segments_renderIntrons: function( context, fRect ) {
-        //console.log("SegmentsEx.renderIntrons()");
         // get the parts and sort them
         var subparts = this._getSubparts( fRect.f );
 
@@ -183,9 +187,6 @@ return declare( JBrowsePlugin,
         }
     },
     box_renderBox: function( context, viewInfo, feature, top, overallHeight, parentFeature, style ) {
-        //console.log("BoxEx.renderBox("+top+","+overallHeight+")");
-        //console.dir(feature);
-        //console.dir(viewInfo);
         var config = this.browser.config;
         
         var left  = viewInfo.block.bpToX( feature.get('start') );
@@ -207,6 +208,12 @@ return declare( JBrowsePlugin,
         
         var type = feature.get('type');
         
+        let isAlignment = false;
+        if (typeof(context.trackConfig) !== 'undefined' && typeof(context.trackConfig.glyph) === 'string') {
+            if (context.trackConfig.glyph.indexOf('Alignment') > -1)
+                isAlignment = true;
+        } 
+        
         // is UTR
         if (typeof(type) !== "undefined" && type.indexOf('UTR') > -1) {
             context.fillStyle = "#fdfdfd";//this.colorShift(bgcolor,4.5);
@@ -216,7 +223,7 @@ return declare( JBrowsePlugin,
 
             // Create gradient
 
-            if (config.gradientNeatCanvas) {
+            if (config.gradientNeatCanvas && !isAlignment) {
                 var grd = context.createLinearGradient(left, top, left, top+height);
 
                 // Add colors
@@ -318,6 +325,11 @@ return declare( JBrowsePlugin,
         var num1 = "00" + num.toString(16);
         var numstr = num1.substr(num1.length-2);
         return numstr;
+    },
+    canvasfeature_getRenderingContext: function(viewArgs) {
+        var ctx = this.getRenderingContext2(viewArgs);
+        ctx.trackConfig = this.config;
+        return ctx;
     }
 });
 });
