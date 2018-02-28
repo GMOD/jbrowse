@@ -85,6 +85,11 @@
   * Fix parsing of the END field in VCF tracks, enabling things like CNV and deletion
     variants to be visualized from variant tracks. (pull #847, @cmdcolin)
 
+  * Fixed a long-standing bug in JBrowse configuration template parsing that
+    prevented use of dot-notation nested variable names, e.g. `{foo.bar}`, in
+    JBrowse configuration. Big thanks to @wuroger for finding this bug.
+    (issue #1012, @rbuels)
+
 # Release 1.12.4     2018-02-14 22:29:20 UTC
 
 ## Minor improvements
