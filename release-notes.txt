@@ -68,6 +68,10 @@
   * Fixed a security issue with JBrowse error messages. Thanks to @GrainGenes for
     noticing and reporting it! (issue #602, @rbuels)
 
+  * Fixed an off-by-one error in the "Next segment position" field of BAM features.
+    Thanks to @keiranmraine for reporting it, and @rdhayes for tracking down the fix!
+    (issue #907, pull #986, @rdhayes)
+
   * Fixed the broken demo track data source in the modENCODE sample data. Thanks
     to @cmdcolin for the fix! (pull #999, @cmdcolin)
 
