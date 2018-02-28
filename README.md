@@ -82,22 +82,19 @@ one will only work in a properly configured Travis CI build environment.
 
 JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
 
-# Cutting a JBrowse release
+# Making a JBrowse release
 
 NOTE: Beginning in 1.12.4,
 
 1. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
 to create a release on GitHub under https://github.com/GMOD/jbrowse/releases
 
-1. Add release notes to the new release that Travis created.
+1. Add release notes to the new GitHub release that Travis created. Can just paste these from release-notes.txt, which is in Markdown format.
 
-1. Write a blog post announcing the release, with links to the built releases on GitHub.
-
-1. Update the "Install" page on the site to point to the newest release.
+1. Write a blog post announcing the release, with links to the built releases on GitHub. The SHA1 sums of the built release files can be seen near the end of the Travis build log, and the HTML version of the release notes can be gotten by running `make -f build/Makefile release-notes.html`.
 
 1. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
 
-1. Write an email announcing the release, sending to gmod-ajax,
-jbrowse-dev.  If it is a major release, add gmod-announce and make a GMOD news item.
+1. Write an email announcing the release, sending to gmod-ajax. If it is a major release, add gmod-announce and make a GMOD news item.
 
 As you can tell, this process could really use some more streamlining and automation.
