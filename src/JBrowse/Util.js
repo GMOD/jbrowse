@@ -118,8 +118,9 @@ Util = {
     fillTemplate: function( template, fillWith ) {
         return template.replace( /\{([\w\s\.]+)\}/g,
                                  function( match, varname ) {
+                                     varname = varname.replace(/\s+/g,''); // remove all whitespace
                                      var fill = lang.getObject( varname, false, fillWith );
-                                     if((fill = fillWith[varname]) !== undefined ) {
+                                     if(fill !== undefined ) {
                                          if( typeof fill == 'function' )
                                              return fill( varname );
                                          else
