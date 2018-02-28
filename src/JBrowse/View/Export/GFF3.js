@@ -92,6 +92,7 @@ return declare( ExportBase,
      * @returns {String} GFF3 string representation of the feature
      */
     formatFeature: function( feature, parentID ) {
+        console.log("formatFeature");
         var fields = dojo.map(
                 [ feature.get('seq_id') || this.refSeq.name ]
                 .concat( dojo.map( this.gff3_field_names.slice(1,8), function(field) {
