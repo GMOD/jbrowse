@@ -245,29 +245,12 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
 
     // feature label
     renderLabel: function( context, fRect ) {
-        if( fRect.label ) {
-            context.font = fRect.label.font;
-            context.fillStyle = fRect.label.fill;
-            context.textBaseline = fRect.label.baseline;
-            context.fillText( fRect.label.text,
-                              fRect.l+(fRect.label.xOffset||0),
-                              fRect.t+(fRect.label.yOffset||0)
-                            );
-        }
+
     },
 
     // feature description
     renderDescription: function( context, fRect ) {
-        if( fRect.description ) {
-            context.font = fRect.description.font;
-            context.fillStyle = fRect.description.fill;
-            context.textBaseline = fRect.description.baseline;
-            context.fillText(
-                fRect.description.text,
-                fRect.l+(fRect.description.xOffset||0),
-                fRect.t + (fRect.description.yOffset||0)
-            );
-        }
+
     },
 
     // strand arrowhead
@@ -337,6 +320,14 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                                   0,
                                   fRect.t+(fRect.label.yOffset||0)
                                 );
+            } else {
+                context.font = fRect.label.font;
+                context.fillStyle = fRect.label.fill;
+                context.textBaseline = fRect.label.baseline;
+                context.fillText( fRect.label.text,
+                                  minLeft+(fRect.label.xOffset||0),
+                                  fRect.t+(fRect.label.yOffset||0)
+                                );
             }
         }
         if( fRect.description ) {
@@ -347,6 +338,15 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                 context.fillText(
                     fRect.description.text,
                     0,
+                    fRect.t + (fRect.description.yOffset||0)
+                );
+            } else {
+                context.font = fRect.description.font;
+                context.fillStyle = fRect.description.fill;
+                context.textBaseline = fRect.description.baseline;
+                context.fillText(
+                    fRect.description.text,
+                    minLeft+(fRect.description.xOffset||0),
                     fRect.t + (fRect.description.yOffset||0)
                 );
             }
