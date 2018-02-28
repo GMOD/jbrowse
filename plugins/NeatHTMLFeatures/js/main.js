@@ -33,7 +33,7 @@ return declare( JBrowsePlugin,
         var browser = this.browser;
 
         this.neat = 1;
-        this.gradient = 0;
+        this.gradient = 1;
         if(typeof args.gradient != 'undefined') {
             this.gradient = args.gradient;
         }
@@ -207,11 +207,13 @@ return declare( JBrowsePlugin,
         // insert the outrons
         var height = "100%";
         
+        // construct leading outie
+        
         var x1 = 0; //subNodes[0];
         var w1 = subNodes[0].left; //fRect.rect.l;
 
         if (w1 > 1) {
-            var str = "";
+            let str = "";
             str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
             str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
             str += "left: "+x1+"px;width: "+w1+"px;height: "+height+"'>";
@@ -220,15 +222,22 @@ return declare( JBrowsePlugin,
             domConstruct.place(str, featureNode);
         }
         
+        // construct trailing outie
+        
         var x2 = subNodes[subNodes.length-1].left + subNodes[subNodes.length-1].width;
         var w2 = featureNode.offsetWidth - x2;
         
         if (w2 > 1) {
+            let str = "";
             str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
             str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
             str += "left: "+x2+"px;width: "+w2+"px;height: "+height+"'>";
             str += "<polyline class='neat-intron' points='0,50 100,50' shape-rendering='optimizeQuality' />";
             str += "</svg>";
+            
+            //console.log("x2,w2",x2,w2,featureNode);
+            //console.log(str);
+            
             domConstruct.place(str, featureNode);
         }
     },
