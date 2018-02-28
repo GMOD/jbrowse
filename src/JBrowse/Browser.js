@@ -1,5 +1,3 @@
-var _gaq = _gaq || []; // global task queue for Google Analytics
-
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
@@ -141,7 +139,7 @@ constructor: function(params) {
     this.globalKeyboardShortcuts = {};
 
     this.config = params || {};
-    
+
     // if we're in the unit tests, stop here and don't do any more initialization
     if( this.config.unitTestMode )
         return;
@@ -154,7 +152,7 @@ constructor: function(params) {
 
     // start the initialization process
     var thisB = this;
-	
+
     dojo.addOnLoad( function() {
         thisB.loadConfig().then( function() {
 
@@ -534,7 +532,7 @@ loadRefSeqs: function() {
             request(this.config.refSeqs.url, {
                 handleAs: 'text',
                 headers: {
-                    'X-Requested-With': null 
+                    'X-Requested-With': null
                 }
             } )
                 .then( function(o) {
@@ -1674,25 +1672,60 @@ reportUsageStats: function() {
 
 // phones home to google analytics
 _reportGoogleUsageStats: function( stats ) {
-    _gaq.push.apply( _gaq, [
-        ['_setAccount', 'UA-7115575-2'],
-        ['_setDomainName', 'none'],
-        ['_setAllowLinker', true],
-        ['_setCustomVar', 1, 'tracks-count', stats['tracks-count'], 3 ],
-        ['_setCustomVar', 2, 'refSeqs-count', stats['refSeqs-count'], 3 ],
-        ['_setCustomVar', 3, 'refSeqs-avgLen', stats['refSeqs-avgLen'], 3 ],
-        ['_setCustomVar', 4, 'jbrowse-version', stats['ver'], 3 ],
-        ['_setCustomVar', 5, 'loadTime', stats['loadTime'], 3 ],
-        ['_trackPageview']
-    ]);
+    var thisB = this;
+    // jbrowse.org account always
+    var jbrowseUser = 'UA-7115575-2'
+    var accounts = [ jbrowseUser ];
 
-    var ga = document.createElement('script');
-    ga.type = 'text/javascript';
-    ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www')
-             + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(ga, s);
+    // add any custom Google Analytics accounts from config (comma-separated or array)
+    if( this.config.googleAnalytics ) {
+        var userAccounts = this.config.googleAnalytics.accounts;
+        if( accounts && ! lang.isArray(userAccounts) ) {
+            userAccounts = userAccounts.replace(/^\s*|\s*$/,'').split(/\s*,\s*/)
+        }
+        accounts.push.apply( accounts, userAccounts );
+    }
+
+    var analyticsScript = "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ ";
+    analyticsScript += "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), ";
+    analyticsScript += "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) ";
+    analyticsScript += "})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
+
+    // set up users
+    accounts.forEach(function(user,trackerNum) {
+        // if we're adding jbrowse.org user, also include new dimension references (replacing ga.js custom variables)
+        if ( user == jbrowseUser) {
+            analyticsScript += "ga('create', '"+user+"', 'auto', 'jbrowseTracker');";
+        }
+        else {
+            analyticsScript += "ga('create', '"+user+"', 'auto', 'customTracker"+trackerNum+"');";
+        }
+    });
+
+    // send pageviews and custom variables
+    accounts.forEach(function(user,viewerNum) {
+        if ( user == jbrowseUser) {
+            var gaData = {};
+            var googleDimensions = 'tracks-count refSeqs-count refSeqs-avgLen ver loadTime electron plugins';
+            var googleMetrics = 'loadTime';
+
+            googleDimensions.split(/\s+/).forEach( function(key,index) {
+                gaData['dimension'+(index+1)] = stats[key];
+            });
+
+            gaData.metric1 = Math.round(stats.loadTime*1000);
+
+            analyticsScript += "ga('jbrowseTracker.send', 'pageview',"+JSON.stringify(gaData)+");";
+        }
+        else {
+            analyticsScript += "ga('customTracker"+viewerNum+".send', 'pageview');";
+        }
+    });
+
+    var analyticsScriptNode = document.createElement('script');
+    analyticsScriptNode.innerHTML = analyticsScript;
+
+    document.getElementsByTagName('head')[0].appendChild(analyticsScriptNode);
 },
 
 // phones home to custom analytics at jbrowse.org
@@ -2368,49 +2401,40 @@ showRegion: function( location ) {
 navigateTo: function(loc) {
     var thisB = this;
     this.afterMilestone( 'initView', function() {
-        thisB.afterMilestone( 'loadNames', function() {
-            // lastly, try to search our feature names for it
-            thisB.searchNames( loc )
-                .then( function( found ) {
-                    if( found )
-                        return;
+        // lastly, try to search our feature names for it
+        thisB.searchNames( loc )
+           .then( function( found ) {
+                      if( found )
+                          return;
 
-                    // if it's a foo:123..456 location, go there
-                    if(!thisB.callLocation(loc)){return;}
+                      // if it's a foo:123..456 location, go there
+                      var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
+                      // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
+                      if( location && ("start" in location) && ("end" in location)) {
+                          thisB.navigateToLocation( location );
+                          return;
+                      }
+                      // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
+                      else {
+                          if( typeof loc != 'string')
+                              loc = loc.ref;
 
-                    new InfoDialog(
-                    {
-                        title: 'Not found',
-                        content: 'Not found: <span class="locString">'+loc+'</span>',
-                        className: 'notfound-dialog'
-                    }).show();
-                });
+                          // is it just the name of one of our ref seqs?
+                          var ref = thisB.findReferenceSequence( loc );
+                          if( ref ) {
+                              thisB.navigateToLocation( { ref: ref.name } );
+                              return;
+                          }
+                      }
 
-            // called by default
-            thisB.callLocation(loc);
-        });
+                      new InfoDialog(
+                          {
+                              title: 'Not found',
+                              content: 'Not found: <span class="locString">'+loc+'</span>',
+                              className: 'notfound-dialog'
+                          }).show();
+                  });
     });
-},
-
-callLocation: function(loc){
-    var thisB=this;
-    var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
-    // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
-    if( location && ("start" in location) && ("end" in location)) {
-        thisB.navigateToLocation( location );
-        return false;
-    }
-    // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
-    else {
-        if( typeof loc != 'string')
-            loc = loc.ref;
-        // is it just the name of one of our ref seqs?
-        var ref = thisB.findReferenceSequence( loc );
-        if( ref ) {
-            thisB.navigateToLocation( { ref: ref.name } );
-            return false;
-        }
-    }
 },
 
 findReferenceSequence: function( name ) {

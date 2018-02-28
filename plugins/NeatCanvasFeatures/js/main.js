@@ -284,7 +284,7 @@ return declare( JBrowsePlugin,
     /**
      * Given color string in #rrggbb format, shift the color by shift %  ( i.e. .20 is 20% brighter, -.30 is 30% darker.
      * The new string is returned.
-     * If color is not in #rrggbb format, just return the original value.
+     * If color is not in #rrggbb format, just return the original value. 
      */
     box_colorShift: function(color,shift) {
         
