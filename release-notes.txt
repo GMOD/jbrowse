@@ -62,6 +62,9 @@
     shows it, and @nathandunn and @selewis for valuable discussions.
     (issue #559, pull #1010, @rbuels)
 
+  * Add ability for the CanvasFeatures feature labels to stay visible on the screen.
+    (pull #971, @cmdcolin)
+
 
 ## Bug fixes
 
