@@ -19,9 +19,9 @@ cache:
   - "$HOME/python/"
   - "$HOME/.nvm/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
-before_install:
-  # not using travis `env` for these because `env` is more for doing matrix builds with different environments
-  - export GECKODRIVER_VERSION=0.19.1
+env:
+    global:
+        - GECKODRIVER_VERSION=0.19.1
 install:
 - |
   if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
