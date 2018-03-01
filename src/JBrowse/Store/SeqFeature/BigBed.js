@@ -20,7 +20,7 @@ return declare(BigWig,
   * @lends JBrowse.Store.SeqFeature.BigBed
   */
 {
-    constructor: funtion() {
+    constructor: function() {
         this.bigBed = true;
     },
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {

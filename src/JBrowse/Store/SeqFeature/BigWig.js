@@ -97,6 +97,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _load: function() {
+        var thisB = this;
         this._read( 0, 2000, lang.hitch( this, function( bytes ) {
             if( ! bytes ) {
                 this._failAllDeferred( 'BBI header not readable' );
@@ -153,22 +154,19 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
             }
 
-            if(this.bigBed) {
-                var string = "";
-                var c = 0;
-                data.getBytes(72);
 
-                
-                while(true) {
-                    c = data.getChar();
-                    if(c.charCodeAt() == 0) break;
-                    string += c;
-                }
-                if(string) {
-                    this.parseAutoSql(string);
-                }
+            // parse the autoSql if present (bigbed)
+            if( this.asOffset ) {
+                (function() {
+                     var d = this.newDataView( bytes, this.asOffset );
+                     var string = "";
+                     var c;
+                     while((c = d.getChar()) && c.charCodeAt() != 0) {
+                         string += c;
+                     }
+                     thisB.parseAutoSql(string);
+                 }).call(this);
             }
-
 
             // parse the totalSummary if present (summary of all data in the file)
             if( this.totalSummaryOffset ) {
