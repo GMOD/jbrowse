@@ -189,7 +189,7 @@ var RequestWorker = declare( null,
 
         var f = new SimpleFeature({
             data: data,
-            id: id
+            id: id ? id : data.start + '_' + data.end + '_' + data.score
         });
 
         this.features.push(f);
@@ -285,13 +285,13 @@ var RequestWorker = declare( null,
 
             var bedColumns = rest.split('\t');
             if (bedColumns.length > 0) {
-                featureOpts.name = bedColumns[0];
+                featureOpts.name = bedColumns[0] == '.' ? null : bedColumns[0];
             }
             if (bedColumns.length > 1) {
-                featureOpts.score = parseInt( bedColumns[1] );
+                featureOpts.score = +bedColumns[1];
             }
             if (bedColumns.length > 2) {
-                featureOpts.strand = bedColumns[2];
+                featureOpts.strand = {'-': -1, '+': 1}[bedColumns[2]];
             }
             if (bedColumns.length > 5) {
                 var color = bedColumns[5];
@@ -299,7 +299,6 @@ var RequestWorker = declare( null,
                     featureOpts.override_color = 'rgb(' + color + ')';
                 }
             }
-            console.log(featureOpts);
 
             if (bedColumns.length < 9) {
                 if (chromId == this.chr) {
@@ -310,7 +309,7 @@ var RequestWorker = declare( null,
                 // FIXME this is currently a bit of a hack to do Clever Things with ensGene.bb
                 var auto = this.window.autoSql;
                 for(var i = 0; i < auto.fields.length-3; i++) {
-                    if(bedColumns[i] != '-') {
+                    if(bedColumns[i] != '.') {
                         featureOpts[auto.fields[i+3].name] = bedColumns[i];
                     }
                 }
@@ -332,7 +331,7 @@ var RequestWorker = declare( null,
                 var grp = dojo.mixin(featureOpts, {
                     id: bedColumns[0] + '_' + chromId + '_' + start + '_' + end,
                     type: 'mRNA',
-                    strand: {'-': -1, '+': 1}[featureOpts.strand],
+                    strand: featureOpts.strand,
                     subfeatures: []
                 });
 
