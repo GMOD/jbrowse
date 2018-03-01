@@ -360,7 +360,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         var res = string.split('\n');
         this.autoSql = {
             name: /table (\w+)/.exec(res[0])[1],
-            description: /"([\w\s]+)"/.exec(res[1])[1],
+            description: /"(.*)"/.exec(res[1])[1],
             fields: []
         };
         var i = 3;

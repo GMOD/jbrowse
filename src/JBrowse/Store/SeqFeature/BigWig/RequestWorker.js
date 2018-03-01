@@ -299,6 +299,7 @@ var RequestWorker = declare( null,
                     featureOpts.override_color = 'rgb(' + color + ')';
                 }
             }
+            console.log(featureOpts);
 
             if (bedColumns.length < 9) {
                 if (chromId == this.chr) {
