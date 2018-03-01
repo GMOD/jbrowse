@@ -19,9 +19,9 @@ cache:
   - "$HOME/python/"
   - "$HOME/.nvm/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
-before_install:
-  # not using travis `env` for these because `env` is more for doing matrix builds with different environments
-  - export GECKODRIVER_VERSION=0.19.1
+env:
+    global:
+        - GECKODRIVER_VERSION=0.19.1
 install:
 - |
   if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
@@ -38,6 +38,7 @@ install:
 - pip install nose selenium
 script:
 - jshint src/JBrowse/
+# these versions *should* already be set in version control, but set them again here just in case
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
