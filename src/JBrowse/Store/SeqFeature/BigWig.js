@@ -31,7 +31,7 @@ define( [
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
  /**
-  * @lends JBrowse.Store.BigWig
+  * @lends JBrowse.Store.SeqFeature.BigWig
   */
 {
 

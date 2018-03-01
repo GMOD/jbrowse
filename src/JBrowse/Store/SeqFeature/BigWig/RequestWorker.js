@@ -176,17 +176,20 @@ var RequestWorker = declare( null,
     createFeature: function(fmin, fmax, opts) {
         // dlog('createFeature(' + fmin +', ' + fmax + ', '+opts.score+')');
 
-        var data = { start: fmin,
-                     end: fmax,
-                     source: this.source
-                   };
+        var data = {
+            start: fmin,
+            end: fmax
+        };
 
         for( var k in opts )
             data[k] = opts[k];
 
+        var id = data.id;
+        delete data.id;
+
         var f = new SimpleFeature({
             data: data,
-            id: fmin+'_'+fmax
+            id: id
         });
 
         this.features.push(f);
@@ -282,13 +285,13 @@ var RequestWorker = declare( null,
 
             var bedColumns = rest.split('\t');
             if (bedColumns.length > 0) {
-                featureOpts.label = bedColumns[0];
+                featureOpts.name = bedColumns[0];
             }
             if (bedColumns.length > 1) {
                 featureOpts.score = parseInt( bedColumns[1] );
             }
             if (bedColumns.length > 2) {
-                featureOpts.orientation = bedColumns[2];
+                featureOpts.strand = bedColumns[2];
             }
             if (bedColumns.length > 5) {
                 var color = bedColumns[5];
@@ -306,7 +309,9 @@ var RequestWorker = declare( null,
                 // FIXME this is currently a bit of a hack to do Clever Things with ensGene.bb
                 var auto = this.window.autoSql;
                 for(var i = 0; i < auto.fields.length-3; i++) {
-                    featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                    if(bedColumns[i] != '-') {
+                        featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                    }
                 }
                 delete featureOpts.blockCount;
                 delete featureOpts.blockSizes;
@@ -314,32 +319,21 @@ var RequestWorker = declare( null,
                 delete featureOpts.thickEnd;
                 delete featureOpts.reserved;
                 delete featureOpts.chromStarts;
-                delete featureOpts.strand;
-                delete featureOpts.score;
-                delete featureOpts.name;
                 delete featureOpts.override_color;
 
-                var thickStart = bedColumns[3]|0;
-                var thickEnd   = bedColumns[4]|0;
-                var blockCount = bedColumns[6]|0;
+                var thickStart = bedColumns[3] | 0;
+                var thickEnd  = bedColumns[4] | 0;
+                var blockCount = bedColumns[6] | 0;
                 var blockSizes = bedColumns[7].split(',');
                 var blockStarts = bedColumns[8].split(',');
 
 
                 var grp = dojo.mixin(featureOpts, {
-                    id: bedColumns[0]+'_'+chromId+'_'+start+'_'+end,
+                    id: bedColumns[0] + '_' + chromId + '_' + start + '_' + end,
                     type: 'mRNA',
-                    notes: [],
-                    strand: featureOpts.orientation == "+"?1:-1,
+                    strand: {'-': -1, '+': 1}[featureOpts.strand],
                     subfeatures: []
                 });
-
-                if (bedColumns.length > 10) {
-                    var geneId = bedColumns[9];
-                    var geneName = bedColumns[10];
-                    grp.name = geneName;
-                    grp.id = geneId;
-                }
 
                 var ts = new Range(thickStart, thickEnd);
 
