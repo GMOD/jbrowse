@@ -53,7 +53,6 @@ define( [
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/text!./package.json',
-            'dojo/domReady!'
         ],
         function(
             declare,
@@ -316,58 +315,8 @@ initPlugins: function() {
                 p.css = resolved+"/css";
         },this);
 
-        var pluginDeferreds = array.map( plugins, function(p) {
-            return new Deferred();
-        });
+        deferred.resolve({success:true});
 
-        // fire the "all plugins done" deferred when all of the plugins are done loading
-        (new DeferredList( pluginDeferreds ))
-            .then( function() { deferred.resolve({success: true}); });
-
-        require( {
-                     packages: array.map( plugins, function(p) {
-                                              return {
-                                                  name: p.name,
-                                                  location: p.js
-                                              };
-                                          }, this )
-                 },
-                 array.map( plugins, function(p) { return p.name; } ),
-                 dojo.hitch( this, function() {
-                     array.forEach( arguments, function( pluginClass, i ) {
-                             var plugin = plugins[i];
-                             var thisPluginDone = pluginDeferreds[i];
-                             if( typeof pluginClass == 'string' ) {
-                                 console.error("could not load plugin "+plugin.name+": "+pluginClass);
-                             } else {
-                                 // make the plugin's arguments out of
-                                 // its little obj in 'plugins', and
-                                 // also anything in the top-level
-                                 // conf under its plugin name
-                                 var args = dojo.mixin(
-                                     dojo.clone( plugins[i] ),
-                                     { config: this.config[ plugin.name ]||{} });
-                                 args.browser = this;
-                                 args = dojo.mixin( args, { browser: this } );
-
-                                 // load its css
-                                 var cssLoaded = this._loadCSS(
-                                     { url: plugin.css+'/main.css' }
-                                 );
-                                 cssLoaded.then( function() {
-                                     thisPluginDone.resolve({success:true});
-                                 });
-
-                                 // give the plugin access to the CSS
-                                 // promise so it can know when its
-                                 // CSS is ready
-                                 args.cssLoaded = cssLoaded;
-
-                                 // instantiate the plugin
-                                 this.plugins[ plugin.name ] = new pluginClass( args );
-                             }
-                         }, this );
-                  }));
     });
 },
 
@@ -609,7 +558,9 @@ loadNames: function() {
             var thisB = this;
             if( type.indexOf('/') == -1 )
                 type = 'JBrowse/Store/Names/'+type;
-            require ([type], function (CLASS){
+            console.log(type);
+            require (['JBrowse/Store/Names/Hash'], function (CLASS){
+                console.log(CLASS);
                 thisB.nameStore = new CLASS( dojo.mixin({ browser: thisB }, conf) );
                 deferred.resolve({success: true});
             });
@@ -2342,7 +2293,7 @@ createTrackList: function() {
             tl_class = 'JBrowse/View/TrackList/'+tl_class;
 
         // load all the classes we need
-        require( [ tl_class ],
+        require( [ 'JBrowse/View/TrackList/Hierarchical' ],
                  dojo.hitch( this, function( trackListClass ) {
                      // instantiate the tracklist and the track metadata object
                      this.trackListView = new trackListClass(

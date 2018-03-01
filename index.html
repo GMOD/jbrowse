@@ -4,17 +4,21 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="css/genome.css">
+
+    <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
     <script type="text/javascript">
+        window.onerror=function(msg){
+            if( document.body )
+                document.body.setAttribute("JSError",msg);
+        }
     </script>
-    <script type="text/javascript" src="src/dojo/dojo.js"></script>
-    <script type="text/javascript" src="src/JBrowse/init.js"></script>
   </head>
 
   <body>
     <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;">
 	  <div id="LoadingScreen" style="padding: 50px;">
 		<h1>Loading...</h1>
-      </div>
+	  </div>
 	</div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
