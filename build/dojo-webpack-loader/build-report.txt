@@ -1,0 +1,17 @@
+Build started: Thu Mar 01 2018 13:31:14 GMT-0800 (PST)
+Build application version: 1.13.0 (5d624ec)
+Messages:
+info(107) Package Version:
+	package: dojo; version: 1.13.0
+	package: util; version: 1.13.0
+warn(209) Missing or empty package.json.
+	filename: /Users/rbuels/dev/jbrowse/node_modules/dojo-util/build/package.json
+warn(226) A package without a profile could throw errors or warnings.
+	package: dojo-util
+Layer Contents:
+
+
+Process finished normally
+	errors: 0
+	warnings: 2
+	build time: 0.036 seconds
