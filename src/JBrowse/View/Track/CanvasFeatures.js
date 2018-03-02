@@ -323,7 +323,7 @@ return declare(
             this.glyphsBeingLoaded[glyphClassName] = [callback];
 
 
-            require( [glyphClassName], function( GlyphClass ) {
+            dojo.global.require( [glyphClassName], function( GlyphClass ) {
                          if( typeof GlyphClass == 'string' ) {
                              thisB.fatalError = "could not load glyph "+glyphClassName;
                              thisB.redraw();
