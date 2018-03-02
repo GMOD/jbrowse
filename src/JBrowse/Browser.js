@@ -271,6 +271,12 @@ initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
 
+        // FIXME: 1.x PLUGIN LOADING DISABLED
+        console.warn('JBrowse 1.x plugin loader disabled, no plugins can be loaded')
+        deferred.resolve({success:true});
+        return;
+        /////////////////////////////////
+
         var plugins = this.config.plugins || this.config.Plugins || {};
 
         // coerce plugins to array of objects
@@ -297,7 +303,7 @@ initPlugins: function() {
             return typeof p == 'object' ? p : { 'name': p };
         });
 
-        if( ! plugins ) {
+        if( ! plugins.length ) {
             deferred.resolve({success: true});
             return;
         }
@@ -320,8 +326,58 @@ initPlugins: function() {
                 p.css = resolved+"/css";
         },this);
 
-        deferred.resolve({success:true});
+        var pluginDeferreds = array.map( plugins, function(p) {
+            return new Deferred();
+        });
 
+        // fire the "all plugins done" deferred when all of the plugins are done loading
+        (new DeferredList( pluginDeferreds ))
+            .then( function() { deferred.resolve({success: true}); });
+
+        dojo.global.require( {
+                     packages: array.map( plugins, function(p) {
+                                              return {
+                                                  name: p.name,
+                                                  location: p.js
+                                              };
+                                          }, this )
+                 },
+                 array.map( plugins, function(p) { return p.name; } ),
+                 dojo.hitch( this, function() {
+                     array.forEach( arguments, function( pluginClass, i ) {
+                             var plugin = plugins[i];
+                             var thisPluginDone = pluginDeferreds[i];
+                             if( typeof pluginClass == 'string' ) {
+                                 console.error("could not load plugin "+plugin.name+": "+pluginClass);
+                             } else {
+                                 // make the plugin's arguments out of
+                                 // its little obj in 'plugins', and
+                                 // also anything in the top-level
+                                 // conf under its plugin name
+                                 var args = dojo.mixin(
+                                     dojo.clone( plugins[i] ),
+                                     { config: this.config[ plugin.name ]||{} });
+                                 args.browser = this;
+                                 args = dojo.mixin( args, { browser: this } );
+
+                                 // load its css
+                                 var cssLoaded = this._loadCSS(
+                                     { url: plugin.css+'/main.css' }
+                                 );
+                                 cssLoaded.then( function() {
+                                     thisPluginDone.resolve({success:true});
+                                 });
+
+                                 // give the plugin access to the CSS
+                                 // promise so it can know when its
+                                 // CSS is ready
+                                 args.cssLoaded = cssLoaded;
+
+                                 // instantiate the plugin
+                                 this.plugins[ plugin.name ] = new pluginClass( args );
+                             }
+                         }, this );
+                  }));
     });
 },
 
@@ -563,9 +619,7 @@ loadNames: function() {
             var thisB = this;
             if( type.indexOf('/') == -1 )
                 type = 'JBrowse/Store/Names/'+type;
-            console.log(type);
-            require (['JBrowse/Store/Names/Hash'], function (CLASS){
-                console.log(CLASS);
+            dojo.global.require ([type], function (CLASS){
                 thisB.nameStore = new CLASS( dojo.mixin({ browser: thisB }, conf) );
                 deferred.resolve({success: true});
             });
@@ -2298,7 +2352,7 @@ createTrackList: function() {
             tl_class = 'JBrowse/View/TrackList/'+tl_class;
 
         // load all the classes we need
-        require( [ 'JBrowse/View/TrackList/Hierarchical' ],
+        dojo.global.require( [ tl_class ],
                  dojo.hitch( this, function( trackListClass ) {
                      // instantiate the tracklist and the track metadata object
                      this.trackListView = new trackListClass(
