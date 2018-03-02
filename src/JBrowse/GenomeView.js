@@ -2311,7 +2311,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
         });
 
     // get the track class
-    require( [ trackConfig.type ], function( class_ ) {
+    dojo.global.require( [ trackConfig.type ], function( class_ ) {
         if(typeof class_ === "string") {
             console.error("Failed to load module: "+trackConfig.type);
             return;

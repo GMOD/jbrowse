@@ -1743,7 +1743,7 @@ getStore: function( storeName, callback ) {
         return;
     }
 
-    require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
+    dojo.global.require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
                  var storeArgs = {};
                  dojo.mixin( storeArgs, conf );
                  dojo.mixin( storeArgs,
