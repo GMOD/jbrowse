@@ -98,7 +98,8 @@ function (
     window.JBrowse = new Browser( config );
 
     require.on('error', function(error) {
-        window.JBrowse.fatalError('Failed to load resource: '+error.info[0]);
+        let errString = error.info && error.info[0] && error.info[0].mid ? error.info.map(({mid})=>mid).join(', ') : error;
+        window.JBrowse.fatalError('Failed to load resource: '+errString);
     });
 
     window.JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('LoadingScreen')); });

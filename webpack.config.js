@@ -28,6 +28,16 @@ module.exports = {
             /^dojox\/gfx\/renderer!/,
             "dojox/gfx/canvas"
         ),
+
+        new webpack.NormalModuleReplacementPlugin(/^dojo\/text!/, function(data) {
+            data.request = data.request.replace(/^dojo\/text!/, "!!raw-loader!");
+        }),
+
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common' // Specify the common bundle's name.
+        })
+
+        // new webpack.optimize.UglifyJsPlugin({minimize: true})
     ],
     output: {
         filename: '[name].bundle.js',

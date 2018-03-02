@@ -51,8 +51,9 @@ module.exports = function(env) {
             },
             {
                 name: 'jDataView',
-                location: env.dojoRoot + '/jDataView',
-                lib: '.'
+                location: env.dojoRoot + '/jDataView/src',
+                lib: '.',
+                main: 'jdataview'
             },
             {
                 name: 'FileSaver',
