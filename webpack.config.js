@@ -10,7 +10,7 @@ module.exports = {
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
             environment: {
-                dojoRoot: "node_modules"
+                dojoRoot: "../node_modules"
             },
             buildEnvironment: {
                 dojoRoot: "node_modules"

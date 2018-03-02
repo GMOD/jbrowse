@@ -6,17 +6,14 @@ module.exports = function(env) {
 			{
 				name: 'dojo',
 				location: env.dojoRoot + '/dojo',
-				lib: '.'
 			},
 			{
 				name: 'dijit',
 				location: env.dojoRoot + '/dijit',
-				lib: '.'
 			},
 			{
 				name: 'dojox',
 				location: env.dojoRoot + '/dojox',
-				lib: '.'
 			},
             {
                 name: 'JBrowse',
@@ -60,7 +57,7 @@ module.exports = function(env) {
                 location: env.dojoRoot + '/filesaver.js',
                 lib: '.'
             }
-		],
+        ],
 
 		async: true
 	};
