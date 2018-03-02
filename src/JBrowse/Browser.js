@@ -114,6 +114,11 @@ define( [
 
 var dojof = Util.dojof;
 
+require.on('error', function(error) {
+    let errString = error.info && error.info[0] && error.info[0].mid ? error.info.map(({mid})=>mid).join(', ') : error;
+    window.JBrowse.fatalError('Failed to load resource: '+errString);
+});
+
 /**
  * Construct a new Browser object.
  * @class This class is the main interface between JBrowse and embedders
@@ -1738,7 +1743,7 @@ getStore: function( storeName, callback ) {
         return;
     }
 
-    dojo.global.require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
+    require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
                  var storeArgs = {};
                  dojo.mixin( storeArgs, conf );
                  dojo.mixin( storeArgs,

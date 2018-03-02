@@ -18,6 +18,8 @@ module.exports = {
             locales: ["en"]
         }),
 
+        //new DojoWebpackPlugin.ScopedRequirePlugin(),
+
         new CopyWebpackPlugin([{
             context: "node_modules",
             from: "dojo/resources/blank.gif",

@@ -3,15 +3,6 @@ require([
     'JBrowse/QueryParamConfigMapper',
     'dojo/io-query',
     'dojo/json',
-    'JBrowse/ConfigAdaptor/conf',
-    'JBrowse/View/TrackList/Hierarchical',
-    'JBrowse/Store/TrackMetaData',
-    'JBrowse/Store/Names/Hash',
-    'JBrowse/View/Track/CanvasFeatures',
-    'JBrowse/View/Track/HTMLFeatures',
-    'JBrowse/View/Track/Sequence',
-    'JBrowse/View/Track/HTMLVariants',
-    'JBrowse/View/Track/CanvasVariants'
 ],
 function (
     Browser,
