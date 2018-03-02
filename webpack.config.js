@@ -10,7 +10,7 @@ module.exports = {
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
             environment: {
-                dojoRoot: "dist"
+                dojoRoot: "node_modules"
             },
             buildEnvironment: {
                 dojoRoot: "node_modules"
@@ -41,6 +41,14 @@ module.exports = {
 
         // new webpack.optimize.UglifyJsPlugin({minimize: true})
     ],
+    module: {
+        rules: [
+            {
+                test: path.resolve('src/JBrowse/main.js'),
+                use: [{ loader: path.resolve('build/glob-loader.js') }]
+            }
+        ]
+    },
     output: {
         filename: '[name].bundle.js',
         chunkFilename: '[name].bundle.js',

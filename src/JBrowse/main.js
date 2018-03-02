@@ -3,6 +3,9 @@ require([
     'JBrowse/QueryParamConfigMapper',
     'dojo/io-query',
     'dojo/json',
+
+//! webpackRequireGlob('JBrowse/**/*.js')
+
 ],
 function (
     Browser,
