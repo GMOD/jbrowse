@@ -35,10 +35,6 @@ module.exports = {
             data.request = data.request.replace(/^dojo\/text!/, "!!raw-loader!");
         }),
 
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'common' // Specify the common bundle's name.
-        })
-
         // new webpack.optimize.UglifyJsPlugin({minimize: true})
     ],
     module: {
