@@ -47,12 +47,6 @@ module.exports = function(env) {
                 main: 'lazyload'
             },
             {
-                name: 'jDataView',
-                location: env.dojoRoot + '/jDataView/src',
-                lib: '.',
-                main: 'jdataview'
-            },
-            {
                 name: 'FileSaver',
                 location: env.dojoRoot + '/filesaver.js',
                 lib: '.'

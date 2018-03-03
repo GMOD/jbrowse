@@ -1,15 +1,16 @@
 const glob = require('glob')
 
 const blacklist = {};
+// `
+// JBrowse/Model/TabixIndex
+// JBrowse/Store/TabixIndexedFile
+// JBrowse/Store/SeqFeature/BigWig
+// JBrowse/Store/SeqFeature/VCFTabix
+// JBrowse/Store/BigWig
+// JBrowse/Store/SeqFeature/GFF3Tabix
+// JBrowse/Store/SeqFeature/BEDTabix
+// `+
 `
-JBrowse/Model/DataView
-JBrowse/Model/TabixIndex
-JBrowse/Store/TabixIndexedFile
-JBrowse/Store/SeqFeature/BigWig
-JBrowse/Store/SeqFeature/VCFTabix
-JBrowse/Store/BigWig
-JBrowse/Store/SeqFeature/GFF3Tabix
-JBrowse/Store/SeqFeature/BEDTabix
 JBrowse/main2
 JBrowse/main
 `
