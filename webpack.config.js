@@ -6,6 +6,7 @@ const webpack = require("webpack");
 
 module.exports = {
     entry: "src/JBrowse/main",
+    devtool: 'eval-source-map',
     plugins: [
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
@@ -17,8 +18,6 @@ module.exports = {
             },
             locales: ["en"]
         }),
-
-        //new DojoWebpackPlugin.ScopedRequirePlugin(),
 
         new CopyWebpackPlugin([{
             context: "node_modules",
