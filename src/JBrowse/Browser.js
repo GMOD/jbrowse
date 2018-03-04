@@ -53,6 +53,11 @@ define( [
             'dijit/focus',
             'lazyload', // for dynamic CSS loading
             'dojo/text!./package.json',
+
+
+            // extras for webpack
+            'dojox/data/CsvStore',
+            'dojox/data/JsonRestStore'
         ],
         function(
             declare,
@@ -2307,7 +2312,7 @@ initTrackMetadata: function( callback ) {
                                     });
 
 
-        require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
+        dojo.global.require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
                                                dojo.map( metaDataSourceClasses, function(c) { return c.class_; } ) ),
                  dojo.hitch(this,function( MetaDataStore ) {
                      var mdStores = [];

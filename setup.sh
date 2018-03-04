@@ -48,7 +48,7 @@ if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
 elif ! [ -f "src/dojo/dojo.js" ]; then
     echo "Dojo does not exist, installing" ;
     check_node;
-    npm install;
+    npm install --only=production
 fi
 echo "done"
 

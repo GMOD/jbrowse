@@ -20,7 +20,6 @@
   "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
     "app-root-path": "^2.0.1",
-    "async": "^2.5.0",
     "dgrid": "^1.1.0",
     "dijit": "^1.12.2",
     "dojo": "^1.12.2",

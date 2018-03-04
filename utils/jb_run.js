@@ -7,7 +7,6 @@
 var express = require('express');
 var getopt = require('node-getopt');
 var fs = require("fs-extra");
-var shelljs = require("shelljs");
 
 var thisPath = process.cwd();
 var jbrowsePath = "./";
