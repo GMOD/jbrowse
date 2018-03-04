@@ -1,3 +1,6 @@
+const path = require('path')
+const glob = require('glob')
+
 module.exports = function(env) {
 
     dojoConfig = {
@@ -51,9 +54,17 @@ module.exports = function(env) {
                 location: env.dojoRoot + '/filesaver.js',
                 lib: '.'
             }
-        ],
+        ]
+        .concat(
+            glob.sync('plugins/*/')
+            .map( plugindir => ({
+                name: path.basename(plugindir),
+                location: plugindir+'js'
+            }))
+        )
+        ,
 
 		async: true
-	};
+    };
 	return dojoConfig;
 };

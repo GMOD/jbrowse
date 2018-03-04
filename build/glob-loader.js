@@ -1,4 +1,5 @@
 const glob = require('glob')
+const path = require('path')
 
 const blacklist = {};
 // `
@@ -14,26 +15,37 @@ const blacklist = {};
 JBrowse/main2
 JBrowse/main
 `
-.trim().split(/\s+/).forEach(mid => blacklist[`src/${mid}.js`] = 1)
+.trim().split(/\s+/).forEach(mid => blacklist[mid] = 1)
 
 const format = 'AMD';
+
+const mids =
+    glob.sync('src/JBrowse/**/*.js').map(f=>f.replace('src/','').replace('.js',''))
+    .concat(
+        glob.sync('plugins/*/js/**/*.js')
+        .filter( f => ! /\.profile\.js/.test(f) )
+        .map( f => {
+            let mid = f.replace('plugins/','').replace('.js','').replace('/js/','/')
+            console.log(`build/glob-loader: adding plugin module ${mid}`)
+            return mid
+        })
+    );
 
 // tiny Webpack Loader that replaces "//! webpackRequireGlob" expressions with a big bunch of requires
 module.exports = function(content,map,meta) {
     return content.replace(
-        /\/\/\s*!\s*webpackRequireGlob\s*\(([^\)]+)\)/,
-        function (match, globExpression) {
-            globExpression = globExpression.trim().replace(/^['"]|["']$/g,'')
-            let files = glob.sync('src/'+globExpression)
-            return files.map( (filename,i) => {
+        '//!! glob-loader, please include every JBrowse and plugin module here',
+        function (match) {
+            return mids.map( (mid,i) => {
                 let blacklisted = '';
-                if (blacklist[filename]) {
+                if (blacklist[mid]) {
                     blacklisted = '//BLACKLISTED '
-                    console.log(`build/glob-loader: SKIPPING blacklisted module ${filename}`)
+                    console.log(`build/glob-loader: skipping blacklisted module ${mid}`)
                 }
                 let code =
-                    format === 'CommonJS' ? `${blacklisted}var __webpackRequireGlob${i} = require('${filename.replace('src/JBrowse/','./').replace('.js','')}') // ${filename}` :
-                                            `${blacklisted} '${filename.replace('src/','').replace('.js','')}',`
+                    format === 'CommonJS' ? `${blacklisted}var __webpackRequireGlob${i} = require('./${mid}') // ${mid}` :
+                                            `${blacklisted} '${mid}',`
+                //console.log(code)
                 return code
             }).join('\n')
         }

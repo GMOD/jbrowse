@@ -271,12 +271,6 @@ initPlugins: function() {
     return this._milestoneFunction( 'initPlugins', function( deferred ) {
         this.plugins = {};
 
-        // FIXME: 1.x PLUGIN LOADING DISABLED
-        console.warn('JBrowse 1.x plugin loader disabled, no plugins can be loaded')
-        deferred.resolve({success:true});
-        return;
-        /////////////////////////////////
-
         var plugins = this.config.plugins || this.config.Plugins || {};
 
         // coerce plugins to array of objects
@@ -318,6 +312,9 @@ initPlugins: function() {
             // figure out js path
             if( !( 'js' in p ))
                 p.js = p.location+"/js"; //URL resolution for this is taken care of by the JS loader
+            else
+                console.error("WARNING: plugin "+p.name+" is probably nonfunctional, the `js` configuration parameter is no longer supported");
+
             if( p.js.charAt(0) != '/' && ! /^https?:/i.test( p.js ) )
                 p.js = '../'+p.js;
 
@@ -334,15 +331,8 @@ initPlugins: function() {
         (new DeferredList( pluginDeferreds ))
             .then( function() { deferred.resolve({success: true}); });
 
-        dojo.global.require( {
-                     packages: array.map( plugins, function(p) {
-                                              return {
-                                                  name: p.name,
-                                                  location: p.js
-                                              };
-                                          }, this )
-                 },
-                 array.map( plugins, function(p) { return p.name; } ),
+        dojo.global.require(
+                 array.map( plugins, function(p) { return p.name+'/main' } ),
                  dojo.hitch( this, function() {
                      array.forEach( arguments, function( pluginClass, i ) {
                              var plugin = plugins[i];
