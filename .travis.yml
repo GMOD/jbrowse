@@ -45,7 +45,7 @@ script:
 # if we are building for inclusion into the `dev` branch, run the minification and test against that
 - |
   if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
-    make -f build/Makefile release;
+    make -f build/Makefile;
     rm -rf JBrowse-*/;
     unzip -q JBrowse-$RELEASE_VERSION.zip;
     cp -r tests/ JBrowse-$RELEASE_VERSION/;

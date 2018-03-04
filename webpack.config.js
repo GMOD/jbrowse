@@ -1,12 +1,12 @@
-const DojoWebpackPlugin = require("dojo-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const DojoWebpackPlugin = require("dojo-webpack-plugin")
+const CopyWebpackPlugin = require("copy-webpack-plugin")
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const path = require("path");
 const webpack = require("webpack");
 
-module.exports = {
+var webpackConf = {
     entry: "src/JBrowse/main",
-    devtool: 'eval-source-map',
     plugins: [
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
@@ -34,8 +34,8 @@ module.exports = {
             data.request = data.request.replace(/^dojo\/text!/, "!!raw-loader!");
         }),
 
-        // new webpack.optimize.UglifyJsPlugin({minimize: true})
-    ],
+        process.env.JBROWSE_BUILD_MIN ? new UglifyJsPlugin() : null
+    ].filter( p => !!p),
     module: {
         rules: [
             {
@@ -57,4 +57,12 @@ module.exports = {
         process: false,
         global: false
     }
-};
+}
+
+if(process.env.JBROWSE_BUILD_MIN) {
+    webpackConf.plugins.push( new UglifyJsPlugin())
+} else {
+    webpackConf.devtool = 'eval-source-map'
+}
+
+module.exports = webpackConf
