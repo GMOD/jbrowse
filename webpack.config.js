@@ -6,7 +6,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const path = require("path");
 const webpack = require("webpack");
 
-const DEBUG = !process.argv.includes('--release');
+const DEBUG = !process.argv.includes('--release') && !process.env.JBROWSE_BUILD_MIN;
 const VERBOSE = process.argv.includes('--verbose');
 const AUTOPREFIXER_BROWSERS = [
     'Android 2.3',
@@ -53,11 +53,21 @@ var webpackConf = {
         }),
 
         extractSass,
-
-        process.env.JBROWSE_BUILD_MIN ? new UglifyJsPlugin() : null
-    ].filter( p => !!p),
+    ],
     module: {
         rules: [
+
+            {
+                test: /\.js$/,
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                  loader: 'babel-loader',
+                  options: {
+                    presets: ['@babel/preset-env'], //< NOTE: respects package.json->browserslist
+                    cacheDirectory: true
+                  }
+                }
+            },
             {
                 test: path.resolve('src/JBrowse/main.js'),
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
@@ -90,10 +100,10 @@ var webpackConf = {
 
 }
 
-if(process.env.JBROWSE_BUILD_MIN) {
-    webpackConf.plugins.push( new UglifyJsPlugin())
-} else {
+if (DEBUG) {
     webpackConf.devtool = 'eval-source-map'
+} else {
+    webpackConf.plugins.push( new UglifyJsPlugin({ parallel: 4 }))
 }
 
 module.exports = webpackConf

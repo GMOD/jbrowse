@@ -38,6 +38,10 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "ajv": "^6.2.1",
+    "babel-loader": "^8.0.0-beta.0",
     "copy-webpack-plugin": "4.1.1",
     "css-loader": "^0.28.10",
     "dojo-webpack-plugin": "2.3.3",
@@ -47,6 +51,12 @@
     "style-loader": "^0.20.2",
     "uglifyjs-webpack-plugin": "^1.2.2",
     "url-loader": "0.5.7",
-    "webpack": "3.10.0"
-  }
+    "webpack": "^3.10.0"
+  },
+  "browserslist": [
+    "> 0.3%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead"
+  ]
 }
