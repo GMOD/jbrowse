@@ -28,7 +28,6 @@ _Inline
 .DS_Store
 blib
 pm_to_blib
-bower_components
 src/dojo-themes
 themes/*/css
 .sass-cache
