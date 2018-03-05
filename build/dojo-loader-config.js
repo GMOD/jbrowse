@@ -34,11 +34,6 @@ module.exports = function(env) {
                 lib: '.'
             },
             {
-                name: 'json-schema',
-                location: env.dojoRoot + '/json-schema',
-                lib: '.'
-            },
-            {
                 name: 'jszlib',
                 location: env.dojoRoot + '/jszlib',
                 lib: '.'
