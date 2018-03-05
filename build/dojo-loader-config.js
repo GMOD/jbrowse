@@ -44,12 +44,6 @@ module.exports = function(env) {
                 lib: '.'
             },
             {
-                name: 'lazyload',
-                location: env.dojoRoot + '/lazyload',
-                lib: 'lazyload',
-                main: 'lazyload'
-            },
-            {
                 name: 'FileSaver',
                 location: env.dojoRoot + '/filesaver.js',
                 lib: '.'

@@ -33,7 +33,6 @@
     "jasmine-node": "^1.14.5",
     "json-schema": "git+https://github.com/kriszyp/json-schema.git",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
-    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
     "node-getopt": "^0.2.3",
     "shelljs": "^0.7.8"
   },

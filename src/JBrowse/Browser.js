@@ -51,7 +51,7 @@ define( [
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
-            'lazyload', // for dynamic CSS loading
+            '../lazyload.js', // for dynamic CSS loading
             'dojo/text!./package.json',
 
 
