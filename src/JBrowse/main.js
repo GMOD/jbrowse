@@ -1,3 +1,5 @@
+import '../../css/genome.css'
+
 require([
     'JBrowse/Browser',
     'JBrowse/QueryParamConfigMapper',
