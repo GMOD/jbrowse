@@ -55,84 +55,85 @@ return declare( JBrowsePlugin,
                 id: "hidetitles-btn",
                 width: "24px",
                 onClick: dojo.hitch( thisB, function(event) {
-                    thisB.browser.showTrackLabels("toggle");
+                    thisB.showTrackLabels("toggle");
                     dojo.stopEvent(event);
                 })
-            }, dojo.create('button',{},navBox));   //thisB.browser.navBox));
- 
+            }, dojo.create('button', {}, navBox));
+
             if(queryParams.tracklabels == 0 || thisB.browser.config.show_tracklabels == 0) {
                 query('.track-label').style('visibility', 'hidden')
-                dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");       // if shown, hide
+                dojo.attr(thisB.browser.hideTitlesButton.domNode, "hidden-titles", "");
             }
         });
+        if(thisB.browser.config.show_tracklabels == 0) {
+            dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
+                thisB.showTrackLabels("hide");
+            });
+        }
 
-        /* show or hide track labels
-         * showTrackLabels(param)
-         * @param {string} function "show", "hide", "toggle", or "hide-if"
-         * "hide-if" rehides if already hidden.
-         * @returns {undefined}
-         */
-        this.browser.showTrackLabels = function(fn) {
+        dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
+            thisB.showTrackLabels("hide-if");
+        });
+    },
 
-            // does the hide/show button exists yet?
-            if (dojo.byId('hidetitles-btn')==null) return;
+    /* show or hide track labels
+     * showTrackLabels(param)
+     * @param {string} function "show", "hide", "toggle", or "hide-if"
+     * "hide-if" rehides if already hidden.
+     * @returns {undefined}
+     */
+    showTrackLabels: function(fn) {
+        var direction = 1;
+        var button = dom.byId("hidetitled-btn");
 
+        if (fn=="show") {
+            if(button) dojo.removeAttr(button,"hidden-titles");
+            direction = 1;
+        }
+        if (fn=="hide") {
+            if(button) dojo.attr(button,"hidden-titles","");
+            direction = -1;
+        }
+        if (fn=="hide-if") {
+            if (button && dojo.hasAttr(button,"hidden-titles")) direction = -1;
+            else return;
+        }
 
-            var direction = 1;
-
-            if (fn=="show") {
-                dojo.removeAttr(dom.byId("hidetitles-btn"),"hidden-titles");
+        if (fn=="toggle"){
+            if (button && dojo.hasAttr(button,"hidden-titles")) {     // if hidden, show
+                dojo.removeAttr(button,"hidden-titles");
                 direction = 1;
             }
-            if (fn=="hide") {
-                dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");
+            else {
+                if(button) dojo.attr(button,"hidden-titles","");       // if shown, hide
                 direction = -1;
             }
-            if (fn=="hide-if") {
-                if (dojo.hasAttr(dom.byId("hidetitles-btn"),"hidden-titles")) direction = -1;
-                else return;
-            }
+        }
+        // protect Hide button from clicks during animation
+        if(button) dojo.attr(button,"disabled","");
+        setTimeout(function(){
+            if(button) dojo.removeAttr(button,"disabled");
+        }, 200);
 
-            if (fn=="toggle"){
-                if (dojo.hasAttr(dom.byId("hidetitles-btn"),"hidden-titles")) {     // if hidden, show
-                    dojo.removeAttr(dom.byId("hidetitles-btn"),"hidden-titles");
-                    direction = 1;
-                }
-                else {
-                    dojo.attr(dom.byId("hidetitles-btn"),"hidden-titles","");       // if shown, hide
-                    direction = -1;
-                }
-            }
-            // protect Hide button from clicks durng animation
-            dojo.attr(dom.byId("hidetitles-btn"),"disabled","");
-            setTimeout(function(){
-                dojo.removeAttr(dom.byId("hidetitles-btn"),"disabled");
+        if(direction==-1) {
+            setTimeout(function() {
+                query('.track-label').style('visibility', 'hidden')
             }, 200);
-
-            if(direction==-1) {
-                setTimeout(function() {
-                    query('.track-label').style('visibility', 'hidden')
-                }, 200);
-            } else {
-                query('.track-label').style('visibility', 'visible')
-            }
-            // slide em
-            query(".track-label").forEach(function(node, index, arr){
-                var w = domGeom.getMarginBox(node).w;
-                coreFx.slideTo({
-                  node: node,
-                  duration: 200,
-                  top: domGeom.getMarginBox(node).t.toString(),
-                  left: (domGeom.getMarginBox(node).l + (w*direction) ).toString(),
-                  unit: "px"
-                }).play();
-            });
-        };
-        // trap the redraw event for handling resize, scroll and zoom events
-        dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
-            // hide track labels if necessary
-            thisB.browser.showTrackLabels("hide-if");
+        } else {
+            query('.track-label').style('visibility', 'visible')
+        }
+        // slide em
+        query(".track-label").forEach(function(node, index, arr){
+            var w = domGeom.getMarginBox(node).w;
+            coreFx.slideTo({
+              node: node,
+              duration: 200,
+              top: domGeom.getMarginBox(node).t.toString(),
+              left: (domGeom.getMarginBox(node).l + (w*direction) ).toString(),
+              unit: "px"
+            }).play();
         });
+
     }
 
 });
