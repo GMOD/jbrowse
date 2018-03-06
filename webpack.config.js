@@ -76,6 +76,13 @@ var webpackConf = {
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
             },
             {
+                // we need to set webpackConf.node.global to false for dojo,
+                // but the `buffer` node module absolutely needs the `global` object
+                // present. so we shim here to provide it an empty object
+                test: /node_modules\/buffer\//,
+                use: 'imports-loader?global=>{}'
+            },
+            {
                 test:/\.s?css$/,
                 use: extractSass.extract({
                     use:['css-loader', 'sass-loader']
