@@ -34,7 +34,7 @@ var webpackConf = {
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
             environment: {
-                dojoRoot: "../node_modules"
+                dojoRoot: "../dist"
             },
             buildEnvironment: {
                 dojoRoot: "node_modules"
