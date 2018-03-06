@@ -2,6 +2,7 @@ const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const path = require("path")
 const glob = require('glob')
@@ -28,6 +29,8 @@ var webpackConf = {
         main: "src/JBrowse/main",
     },
     plugins: [
+        new CleanWebpackPlugin(['dist']),
+
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
             environment: {
