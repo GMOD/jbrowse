@@ -104,7 +104,7 @@ var webpackConf = {
 }
 
 if (DEBUG) {
-    webpackConf.devtool = 'eval-source-map'
+    webpackConf.devtool = 'source-map'
     webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
     webpackConf.plugins.push( new webpack.optimize.AggressiveMergingPlugin() )
 } else {
