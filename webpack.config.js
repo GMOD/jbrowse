@@ -106,6 +106,7 @@ var webpackConf = {
 if (DEBUG) {
     webpackConf.devtool = 'eval-source-map'
     webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
+    webpackConf.plugins.push( new webpack.optimize.AggressiveMergingPlugin() )
 } else {
     webpackConf.plugins.push( new UglifyJsPlugin({ parallel: 4 }))
 }
