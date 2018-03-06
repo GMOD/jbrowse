@@ -1,10 +1,11 @@
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin")
 
-const path = require("path");
-const webpack = require("webpack");
+const path = require("path")
+const glob = require('glob')
+const webpack = require("webpack")
 
 const DEBUG = !process.argv.includes('--release') && !process.env.JBROWSE_BUILD_MIN;
 const VERBOSE = process.argv.includes('--verbose');
@@ -24,7 +25,9 @@ const extractSass = new ExtractTextPlugin({
 });
 
 var webpackConf = {
-    entry: "src/JBrowse/main",
+    entry: {
+        main: "src/JBrowse/main",
+    },
     plugins: [
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
@@ -57,7 +60,6 @@ var webpackConf = {
     ],
     module: {
         rules: [
-
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
@@ -70,7 +72,7 @@ var webpackConf = {
                 }
             },
             {
-                test: path.resolve('src/JBrowse/main.js'),
+                test: /src\/JBrowse\/main.js|tests\/js_tests\/main.js/,
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
             },
             {
@@ -103,6 +105,7 @@ var webpackConf = {
 
 if (DEBUG) {
     webpackConf.devtool = 'eval-source-map'
+    webpackConf.entry.run_jasmine = 'tests/js_tests/main.js'
 } else {
     webpackConf.plugins.push( new UglifyJsPlugin({ parallel: 4 }))
 }
