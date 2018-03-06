@@ -57,11 +57,9 @@ node_modules:
 
 release-dev: $(JS_SRCFILES) node_modules
 	rm -rf dist
-	npm run build
-
 	mkdir $(RELEASE_FULL_DIR);
 	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/build $(RELEASE_FULL_DIR)/node_modules;
+	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/node_modules;
 
 	# zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
