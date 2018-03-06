@@ -7,8 +7,7 @@ const path = require("path")
 const glob = require('glob')
 const webpack = require("webpack")
 
-const DEBUG = !process.argv.includes('--release') && !process.env.JBROWSE_BUILD_MIN;
-const VERBOSE = process.argv.includes('--verbose');
+const DEBUG = !process.env.JBROWSE_BUILD_MIN;
 const AUTOPREFIXER_BROWSERS = [
     'Android 2.3',
     'Android >= 4',
