@@ -83,7 +83,8 @@ echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from s
 if [ -f "src/JBrowse/Browser.js" ]; then
     echo "Installing javascript dependencies and building with Webpack ..."
     (
-        check_node;
+        check_node
+        set -e
         npm install
         npm run build
     ) >>setup.log 2>&1;
