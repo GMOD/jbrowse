@@ -85,7 +85,7 @@ if [ -f "src/JBrowse/Browser.js" ]; then
     (
         check_node;
         npm install
-        JBROWSE_BUILD_MIN=1 npm run build
+        npm run build
     ) >>setup.log 2>&1;
     echo "done with node install and build"
 else
