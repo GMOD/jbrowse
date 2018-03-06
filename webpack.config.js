@@ -107,7 +107,7 @@ var webpackConf = {
     },
     node: {
         process: false,
-        global: false
+        global: false // needed for dojo
     },
 
 }
