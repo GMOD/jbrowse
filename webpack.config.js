@@ -34,7 +34,8 @@ var webpackConf = {
             buildEnvironment: {
                 dojoRoot: "node_modules"
             },
-            locales: ["en"]
+            locales: ["en"],
+            loader: path.resolve('./build/dojo-webpack-plugin-loader/dojo/dojo.js')
         }),
 
         new CopyWebpackPlugin([{
