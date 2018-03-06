@@ -1,3 +1,5 @@
+__webpack_public_path__ = '../../dist/'
+
 require(
    ['dojo/ready','JBrowse/Browser'],
    function( ready,Browser ) {
