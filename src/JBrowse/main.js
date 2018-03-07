@@ -1,4 +1,5 @@
-import '../../css/genome.css'
+//import '../../css/genome.css'
+import 'babel-polyfill'
 
 require([
     'JBrowse/Browser',

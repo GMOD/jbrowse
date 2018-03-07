@@ -84,12 +84,12 @@ var webpackConf = {
                 test: /node_modules\/buffer\//,
                 use: 'imports-loader?global=>{}'
             },
-            {
-                test:/\.s?css$/,
-                use: extractSass.extract({
-                    use:['css-loader', 'sass-loader']
-                })
-            },
+            // {
+            //     test:/\.s?css$/,
+            //     use: extractSass.extract({
+            //         use:['css-loader', 'sass-loader']
+            //     })
+            // },
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2)$/,
                 use: 'url-loader?limit=10000',

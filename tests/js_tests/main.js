@@ -1,7 +1,12 @@
 __webpack_public_path__ = '../../dist/'
 
+import 'babel-polyfill'
+
 require(
-   ['dojo/ready','JBrowse/Browser'],
+   [
+       'dojo/ready',
+       'JBrowse/Browser'
+    ],
    function( ready,Browser ) {
 
     var jasmine = window.jasmine;
