@@ -31,7 +31,7 @@
     "filesaver.js": "^0.2.0",
     "fs-extra": "^4.0.1",
     "jasmine-node": "^1.14.5",
-    "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
+    "jszlib": "git+https://github.com/cmdcolin/jszlib.git#c966ceac3b283d2248764c09e07a4b268edd5032",
     "node-getopt": "^0.2.3",
     "shelljs": "^0.7.8",
     "util-deprecate": "^1.0.2"
