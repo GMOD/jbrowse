@@ -59,7 +59,7 @@ release-dev: $(JS_SRCFILES) node_modules
 	rm -rf dist
 	mkdir $(RELEASE_FULL_DIR);
 	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/node_modules;
+	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/node_modules $(RELEASE_FULL_DIR)/extlib;
 
 	# zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
@@ -67,7 +67,7 @@ release-dev: $(JS_SRCFILES) node_modules
 release-min: $(JS_SRCFILES) node_modules
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
-	for P in src browser css docs/jsdoc tests build node_modules dist; do \
+	for P in src browser css docs/jsdoc tests build node_modules extlib dist; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
 
@@ -89,6 +89,6 @@ release-min: $(JS_SRCFILES) node_modules
 	$(ZIP) $(RELEASE_MIN).zip $(RELEASE_MIN)/;
 
 clean:
-	git clean -fdxq --exclude=./plugins
+	git clean -ffdxq --exclude=/plugins/ --exclude=/node_modules/ --exclude=/extlib/
 
 .PHONY: all clean jbrowse docs doc release release-min release-dev plugins-min
