@@ -87,7 +87,7 @@ if [ -f "src/JBrowse/Browser.js" ]; then
         set -e
         npm install
         npm run build
-    ) >>setup.log 2>&1;
+    ) 2>&1 | tee setup.log;
     echo "done with node install and build"
 else
     echo "Minimal release detected, skipping node and Webpack build"
