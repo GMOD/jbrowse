@@ -26,7 +26,7 @@ const mids =
         .filter( f => ! /\.profile\.js/.test(f) )
         .map( f => {
             let mid = f.replace('plugins/','').replace('.js','').replace('/js/','/')
-            console.log(`build/glob-loader: adding plugin module ${mid}`)
+            console.log(`JBrowse build/glob-loader: adding plugin module ${mid}`)
             return mid
         })
     );
@@ -40,7 +40,7 @@ module.exports = function(content,map,meta) {
                 let blacklisted = '';
                 if (blacklist[mid]) {
                     blacklisted = '//BLACKLISTED '
-                    console.log(`build/glob-loader: skipping blacklisted module ${mid}`)
+                    console.log(`JBrowse build/glob-loader: skipping blacklisted module ${mid}`)
                 }
                 let code =
                     format === 'CommonJS' ? `${blacklisted}var __webpackRequireGlob${i} = require('./${mid}') // ${mid}` :
