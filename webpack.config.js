@@ -86,6 +86,20 @@ var webpackConf = {
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2)$/,
                 use: 'url-loader?limit=10000',
+            },
+            {
+                // regex replace all JBrowse plugin JS to just remove any use of dojo/domReady!
+                test: filepath => filepath.indexOf(__dirname+'/plugins')===0 && /\.js$/.test(filepath),
+                use: {
+                    loader: 'regexp-replace-loader',
+                    options: {
+                        match: {
+                            pattern: '["`\']dojo/domReady!?["\'`]\s*,?',
+                            flags: 'g'
+                        },
+                        replaceWith: ''
+                    }
+                }
             }
         ]
     },
