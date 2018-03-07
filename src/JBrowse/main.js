@@ -1,4 +1,3 @@
-//import '../../css/genome.css'
 import 'babel-polyfill'
 
 require([
@@ -6,6 +5,7 @@ require([
     'JBrowse/QueryParamConfigMapper',
     'dojo/io-query',
     'dojo/json',
+    'css!../../css/genome.css',
 
     // instruct build/glob-loader.js to insert includes for every bit of JBrowse and plugin code
     //!! glob-loader, please include every JBrowse and plugin module here

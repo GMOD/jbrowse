@@ -1,7 +1,6 @@
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const path = require("path")
@@ -19,10 +18,6 @@ const AUTOPREFIXER_BROWSERS = [
     'Opera >= 12',
     'Safari >= 7.1',
   ];
-
-const extractSass = new ExtractTextPlugin({
-    filename: "[name].css"
-});
 
 var webpackConf = {
     entry: {
@@ -58,7 +53,11 @@ var webpackConf = {
             data.request = data.request.replace(/^dojo\/text!/, "!!raw-loader!");
         }),
 
-        extractSass,
+        new webpack.NormalModuleReplacementPlugin(
+            /^css!/, function(data) {
+                data.request = data.request.replace(/^css!/, "!style-loader!css-loader!sass-loader!")
+            }
+        ),
     ],
     module: {
         rules: [
@@ -84,12 +83,6 @@ var webpackConf = {
                 test: /node_modules\/buffer\//,
                 use: 'imports-loader?global=>{}'
             },
-            // {
-            //     test:/\.s?css$/,
-            //     use: extractSass.extract({
-            //         use:['css-loader', 'sass-loader']
-            //     })
-            // },
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2)$/,
                 use: 'url-loader?limit=10000',
