@@ -308,25 +308,16 @@ initPlugins: function() {
         }
 
         // set default locations for each plugin
-        array.forEach( plugins, function(p) {
-            if( !( 'location' in p ))
-                p.location = 'plugins/'+p.name;
+        plugins.forEach( p => {
+            // find the entry in the dojoConfig for this plugin
+            let configEntry = dojoConfig.packages.find(c => c.name === p.name)
+            if( ! configEntry )
+                this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
 
-            var resolved = this.resolveUrl( p.location );
-
-            // figure out js path
-            if( !( 'js' in p ))
-                p.js = p.location+"/js"; //URL resolution for this is taken care of by the JS loader
-            else
-                console.error("WARNING: plugin "+p.name+" is probably nonfunctional, the `js` configuration parameter is no longer supported");
-
-            if( p.js.charAt(0) != '/' && ! /^https?:/i.test( p.js ) )
-                p.js = '../'+p.js;
-
-            // figure out css path
-            if( !( 'css' in p ))
-                p.css = resolved+"/css";
-        },this);
+            p.location = configEntry.location
+            p.css = configEntry.pluginDir+'css'
+            p.js = configEntry.location
+        });
 
         var pluginDeferreds = array.map( plugins, function(p) {
             return new Deferred();

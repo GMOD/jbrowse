@@ -1,6 +1,8 @@
 const path = require('path')
 const glob = require('glob')
 
+const {getPluginName} = require('./plugin-util')
+
 module.exports = function(env) {
 
     dojoConfig = {
@@ -46,9 +48,13 @@ module.exports = function(env) {
         ]
         .concat(
             glob.sync('plugins/*/')
-            .map( plugindir => ({
-                name: path.basename(plugindir),
-                location: plugindir+'js'
+            .concat(
+                glob.sync('node_modules/**/*-jbrowse-plugin/')
+            )
+            .map( pluginDir => ({
+                name: getPluginName(pluginDir),
+                pluginDir,
+                location: pluginDir+'js'
             }))
         )
         ,
