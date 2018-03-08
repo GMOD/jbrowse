@@ -64,6 +64,11 @@
     shows it, and @nathandunn and @selewis for valuable discussions.
     (issue #559, pull #1010, @rbuels)
 
+  * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
+    `enableCollapsedMouseover` option is useful when features do not overlap e.g. chromosome
+    segmentation and `disableCollapsedClick` is useful when the collapsed features are very
+    dense. Thanks to @rdhayes for tips (pull #870, @cmdcolin)
+
 
 ## Bug fixes
 
