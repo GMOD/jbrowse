@@ -59,10 +59,6 @@ script:
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 - cd $BUILD_DIR
-after_failure:
-- cat JBrowse-*/setup.log
-- find JBrowse-*/extlib/lib/perl5
-- cat JBrowse-*/src/build-report.txt
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases
