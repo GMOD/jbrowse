@@ -1,10 +1,18 @@
 {{$NEXT}}
 
- * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
+## Major improvements
+
+
+
+## Minor Improvements
+
+  * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
     `enableCollapsedMouseover` option is useful when features do not overlap e.g. chromosome
     segmentation and `disableCollapsedClick` is useful when the collapsed features are very
     dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
 
+  * Removed JBrowse 1.2.1 compatibility support. Please use JBrowse 1.12.5 or earlier
+    if you still have old data formatted with JBrowse 1.2.1. (@rbuels)
 
 # Release 1.12.5     2018-02-28 20:08:35 UTC
 

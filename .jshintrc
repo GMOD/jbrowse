@@ -8,6 +8,7 @@
     "browser": true,
     "dojo": true,
     "evil": true,     // allow eval
+    "esversion": 6,
     "laxbreak": true,
     "laxcomma": true,
     "loopfunc": true,
@@ -17,7 +18,7 @@
     "shadow": true,
     "maxerr": 250,
     "sub": true,
-    "predef": [ "require", "define", "electronRequire" ],
+    "predef": [ "require", "define", "electronRequire", "cjsRequire", "dojoConfig" ],
     "maxcomplexity": 40,
     "indent": 2,
     "undef": true,

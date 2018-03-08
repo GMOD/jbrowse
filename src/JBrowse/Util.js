@@ -248,7 +248,7 @@ Util = {
 
     loadJS: function( paths ) {
         var d = new Deferred();
-        require( paths, function() {
+        dojo.global.require( paths, function() {
             var modules = Array.prototype.slice.call( arguments );
 
             // check the loaded modules for success

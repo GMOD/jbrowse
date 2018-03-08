@@ -1,17 +1,25 @@
+const jDataViewOld = cjsRequire('../../jdataview-1.1-patch.X')
+const deprecate = cjsRequire('util-deprecate')
+
 /**
  * Subclass of jDataView with a getUint64 method.
  */
 define([
-           'jDataView'
-       ],
-       function( jDataView ) {
+
+], function(
+
+) {
 
 var DataView = function() {
-    jDataView.apply( this, arguments );
-};
+    jDataViewOld.apply( this, arguments );
+}
+
+// jDataView, in the version that JBrowse is using it, does not conform to the DataView API as
+// it was eventually settled. We need to move away from using it.
+DataView = deprecate(DataView,'JBrowse/Model/DataView is deprecated, please migrate to something else');
 
 try {
-    DataView.prototype = new jDataView( new ArrayBuffer([1]), 0, 1 );
+    DataView.prototype = new jDataViewOld( new ArrayBuffer([1]), 0, 1 );
 } catch(e) {
     console.error(e);
 }
