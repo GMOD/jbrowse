@@ -2,7 +2,14 @@
 
 ## Major improvements
 
-
+  * JBrowse now uses a Webpack-based build system, which is going to enable us
+    to make much more effective use of the huge JavaScript ecosystem that has
+    grown up in recent years, as well as to use newer versions of JavaScript
+    itself while still maintaining compatibility with older web browsers. The way
+    JBrowse plugins are loaded has changed significantly, although we think that
+    most users of plugins will not experience any problems. Authors and users of
+    JBrowse plugins will want to read the [blog post](http://jbrowse.org/TODO_PUT_BLOG_LINK_HERE)
+    for further details on changes to plugin loading.
 
 ## Minor Improvements
 
