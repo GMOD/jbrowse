@@ -58,7 +58,7 @@ script:
     ./setup.sh;
     prove -Isrc/perl5 -r -j3 tests/perl_tests;
     cd $BUILD_DIR;
-    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html ../tests/selenium_tests/travis_wrapper.sh;
+    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh;
   fi
 deploy:
 # upload both minified and non-minified builds to GitHub releases
