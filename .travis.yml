@@ -51,6 +51,7 @@ script:
     cp -r tests/ JBrowse-$RELEASE_VERSION/;
     cd JBrowse-$RELEASE_VERSION/;
     npm install --only=production;
+    npm install --no-save phantomjs-prebuilt;
   fi
 - ./setup.sh legacy;
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
