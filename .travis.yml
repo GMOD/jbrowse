@@ -49,7 +49,7 @@ script:
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
 - |
-  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "dojo-webpack-plugin" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
+  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
     make -f build/Makefile;
     rm -rf JBrowse-*/;
     unzip -q JBrowse-$RELEASE_VERSION.zip;
