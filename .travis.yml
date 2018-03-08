@@ -50,6 +50,7 @@ script:
     unzip -q JBrowse-$RELEASE_VERSION.zip;
     cp -r tests/ JBrowse-$RELEASE_VERSION/;
     cd JBrowse-$RELEASE_VERSION/;
+    npm install --only=production;
   fi
 - ./setup.sh legacy;
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
