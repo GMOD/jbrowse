@@ -32,8 +32,9 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
     parseLine: function() {
         var i = this.inherited( arguments );
         if( i ) {
+            var ret = i.fields[7].match(/^END=(\d+)|;END=(\d+)/);
             i.start--;
-            i.end = i.start + i.fields[3].length;
+            i.end = ret ? (+ret[1] || +ret[2]) : i.start + i.fields[3].length;
         }
         return i;
     }

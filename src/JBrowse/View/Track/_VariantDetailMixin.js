@@ -141,11 +141,15 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             var value_parse = value.values[0];
 
             var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
-            alt=alt[0].split(','); // force split on alt alleles
+            if(alt) {
+                alt = alt[0].split(','); // force split on alt alleles
+            }
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
             value = array.map( splitter?value_parse.split(splitter):value_parse, function( gtIndex ) {
-                                   gtIndex = parseInt( gtIndex );
-                                   return gtIndex ? ( alt ? alt[gtIndex-1] : gtIndex ) : refseq;
+                                   gtIndex = parseInt( gtIndex ) || gtIndex;
+                                   if(gtIndex == '.') { return 'no-call' }
+                                   else if(gtIndex == 0) { return refseq; }
+                                   else return alt ? alt[gtIndex-1] : gtIndex;
                                }).join( ' '+splitter+' ' );
         }
         return value;

@@ -595,10 +595,6 @@ renderResultsTrack: function() {
                 thisB.div.style.height = thisB.height + "px";
             };
 
-            // destroy the makeTrackLabel function of the results track, so that to the user it is exactly the same as the outer track
-
-            thisB.resultsTrack.makeTrackLabel = function() {};
-
             // setViewInfo on results track
             thisB.resultsTrack.setViewInfo (thisB.genomeView, resultsHeightUpdate,
                                             thisB.numBlocks, thisB.resultsDiv, thisB.widthPct, thisB.widthPx, thisB.scale);

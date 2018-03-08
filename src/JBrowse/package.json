@@ -1,6 +1,6 @@
 {
     "name": "JBrowse",
-    "version": "1.x.x",
+    "version": "1.12.6-alpha.0",
     "copyright":"© 2007-2017 The Evolutionary Software Foundation",
     "main": "main",
     "dependencies": {

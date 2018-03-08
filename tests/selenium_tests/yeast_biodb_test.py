@@ -79,7 +79,7 @@ class AbstractYeastBiodbTest ( JBrowseTest ):
 
         # Find the query box and put YAL024C into it and hit enter
         self.do_typed_query( 'YAL024C' )
-        time.sleep(1) # cannot seem to figure out a positive wait for an element that works here :-(
+        time.sleep(1*JBrowseTest.time_dilation) # cannot seem to figure out a positive wait for an element that works here :-(
 
         # test that the YAL024C label appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding

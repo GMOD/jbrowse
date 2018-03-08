@@ -46,6 +46,26 @@ is_deeply( $output,
 #    or diag explain $output
 ;
 
+
+## check basic formatting with --noSort
+
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--fasta' => 'sample_data/raw/random_contigs.fa',
+    '--out'   => $tempdir,
+    '--noSort',
+   );
+
+my $output = slurp_tree( $tempdir );
+is_deeply( $output,
+           slurp_tree('tests/data/random_contigs_formatted_refseqs'),
+           'got the right random contigs formatted sequence',
+          )
+#    or diag explain $output
+;
+
+
 ## check genbank formatting
 $tempdir = File::Temp->newdir;
 

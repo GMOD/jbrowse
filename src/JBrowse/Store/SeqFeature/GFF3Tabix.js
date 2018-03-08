@@ -134,6 +134,78 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }, errorCallback );
     },
 
+
+    getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
+
+        var thisB = this ;
+
+        var numBins, basesPerBin;
+        if( query.numBins ) {
+            numBins = query.numBins;
+            basesPerBin = (query.end - query.start)/numBins;
+        }
+        else if( query.basesPerBin ) {
+            basesPerBin = query.basesPerBin || query.ref.basesPerBin;
+            numBins = Math.ceil( (query.end-query.start)/basesPerBin );
+        }
+        else {
+            throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities');
+        }
+
+        var statEntry = (function( basesPerBin, stats ) {
+            for (var i = 0; i < stats.length; i++) {
+                if( stats[i].basesPerBin >= basesPerBin ) {
+                    return stats[i];
+                }
+            }
+            return undefined;
+        })( basesPerBin, [] );
+
+        var stats = {};
+        stats.basesPerBin = basesPerBin ;
+
+        stats.scoreMax = 0 ;
+        stats.max = 0 ;
+        var firstServerBin = Math.floor( query.start / basesPerBin);
+        var histogram = [];
+        var binRatio = 1 / basesPerBin;
+
+        var binStart, binEnd ;
+
+		for(var bin = 0 ; bin < numBins ; bin++){
+			histogram[bin] = 0;
+		}
+
+
+        thisB.getHeader().then( function() {
+            thisB.indexedData.getLines(
+                query.ref || thisB.refSeq.name,
+                query.start,
+                query.end,
+                function( line ) {
+                    // var feat = thisB.lineToFeature(line);
+					// if(!feat.attributes.parent) // only count if has NO parent
+                    var start = line.start ;
+                    var binValue = Math.round( (start - query.start )* binRatio)   ;
+
+					// in case it extends over the end, just push it on the end
+					binValue = binValue >=0 ? binValue : 0 ;
+					binValue = binValue < histogram.length ? binValue : histogram.length -1  ;
+
+					histogram[binValue] += 1;
+					if(histogram[binValue] > stats.max){
+						stats.max = histogram[binValue];
+					}
+                },
+                function() {
+					successCallback({ bins: histogram, stats: stats});
+                },
+                errorCallback
+            );
+        }, errorCallback );
+
+    },
+
     lineToFeature: function( line ) {
         var attributes = GFF3.parse_attributes( line.fields[8] );
         var ref    = line.fields[0];

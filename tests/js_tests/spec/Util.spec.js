@@ -16,6 +16,20 @@ function testAll( func, inOut ) {
                    });
 }
 
+describe( 'Util.fillTemplate', function() {
+
+    testAll( Util.fillTemplate, [
+                       [ ['{bar}',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], 'someurl' ],
+                       [ ['{ bar}',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], 'someurl' ],
+                       [ ['{ bar  }',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], 'someurl' ],
+                       [ ['{bar  }',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], 'someurl' ],
+                       [ ['{baz.foo}',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], '42' ],
+                       [ ['{ baz.  foo }',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], '42' ],
+                       [ ['{ baz.foo}',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], '42' ],
+                       [ ['{baz.foo }',{ 'bar': 'someurl', 'baz': { 'foo': 42 } }], '42' ],
+             ]);
+});
+
 describe( 'Util.basename', function() {
 
     testAll( Util.basename, [

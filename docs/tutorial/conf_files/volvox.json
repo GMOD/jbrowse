@@ -186,7 +186,7 @@
       {
          "track" : "Transcript",
          "description" : 1,
-         "style": { "color": "#E32A3A" },
+         "style": { "color": "#E32A3A", "description": "customdescription" },
          "key" : "CanvasFeatures - transcripts",
          "trackType": "JBrowse/View/Track/CanvasFeatures",
          "feature" : [
@@ -194,6 +194,7 @@
          ],
          "category" : "Transcripts",
          "subfeatures" : true,
+         "showNoteInAttributes": true,
          "onClick": "{exampleFeatureClick}"
       },
       {

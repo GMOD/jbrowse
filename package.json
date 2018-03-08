@@ -1,12 +1,23 @@
 {
-  "name": "jbrowse",
+  "name": "@gmod/jbrowse",
   "main": "browser/main.js",
-  "version": "1.12.4-SNAPSHOT",
-  "description": "JBrowse - Genome Browser (Client)",
+  "version": "1.12.6-alpha.0",
+  "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "postinstall": "node utils/postinstall.js"
+    "postinstall": "node utils/postinstall.js",
+    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html",
+    "start": "./jb_run.js -p 8082"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "http://jbrowse.org",
+  "bugs": {
+    "url": "https://github.com/GMOD/jbrowse/issues",
+    "email": "gmod-ajax@lists.sourceforge.net"
+  },
+  "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
     "app-root-path": "^2.0.1",
     "async": "^2.5.0",

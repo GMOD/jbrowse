@@ -208,9 +208,11 @@ var Feature = Util.fastDeclare(
         return cigar;
     },
     next_segment_position: function() {
+        // NOTE: next_segment_position is a JBrowse location string, so
+        // it is in 1-based coordinates. Thus, we add 1 to the position.
         var nextSegment = this.file.indexToChr[this._get('_next_refid')];
         if( nextSegment )
-            return nextSegment.name+':'+this._get('_next_pos');
+            return nextSegment.name+':'+(parseInt(this._get('_next_pos'))+1);
         else
             return undefined;
     },

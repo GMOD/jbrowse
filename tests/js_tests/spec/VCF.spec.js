@@ -10,9 +10,9 @@ require([
         ) {
 describe('VCF store', function() {
 
-  
 
-  it('reads big dbsnp', function() {
+
+  xit('reads big dbsnp', function() {
          var store = new VCFStore({
              browser: new Browser({unitTestMode: true}),
              config: {
@@ -37,6 +37,65 @@ describe('VCF store', function() {
          });
 
   });
+
+  it('no newline in VCF genotypes', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../../docs/tutorial/data_files/volvox.test.vcf.gz',
+                 baseUrl: '.'
+             },
+             refSeq: { name: 'ctgA', start: 0, end: 50000 }
+         });
+
+         var features = [];
+         waitsFor( function() { return features.done; } );
+         store.getFeatures({ ref: 'ctgA',
+                             start: 0,
+                             end: 7000
+                           },
+                           function(f) { features.push( f ); },
+                           function( ) { features.done = true; },
+                           function(e) { console.error(e.stack||''+e); }
+                          );
+         runs(function() {
+                  var gt = features[0].get('genotypes');
+                  var names = Object.keys(gt);
+                  var last = names[names.length-1];
+                  expect(last.match("\n")).toEqual(null);
+         });
+
+  });
+
+  it('parses END field', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../data/vcf.end.gz',
+                 baseUrl: '.'
+             },
+             refSeq: { name: '1', start: 0, end: 50000 }
+         });
+
+         var features = [];
+         waitsFor( function() { return features.done; } );
+         store.getFeatures({ ref: '1',
+                             start: 0,
+                             end: 5000
+                           },
+                           function(f) { features.push( f ); },
+                           function( ) { features.done = true; },
+                           function(e) { console.error(e.stack||''+e); }
+                          );
+         runs(function() {
+                  expect(features[0].get('end')).toEqual(4388);
+                  expect(features[1].get('end')).toEqual(4600);
+                  expect(features.length).toEqual( 2 );
+         });
+
+  });
+
+
 
 });
 });

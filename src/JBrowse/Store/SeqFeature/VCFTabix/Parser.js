@@ -28,6 +28,8 @@ return declare( null, {
         var lineIterator = new TextIterator.FromBytes({ bytes: headerBytes });
         var line;
         while(( line = lineIterator.getline() )) {
+
+            line = line.replace(/\n$/, "");
             // only interested in meta and header lines
             if( line[0] != '#' )
                 continue;
@@ -83,12 +85,12 @@ return declare( null, {
 
         var SO_term = this._find_SO_term( ref, alt );
         var featureData = {
-            start:  line.start,
-            end:    line.start+ref.length,
+            start: line.start,
+            end: line.end,
             seq_id: line.ref,
             description: this._makeDescriptionString( SO_term, ref, alt ),
-            type:   SO_term,
-            reference_allele:    ref
+            type: SO_term,
+            reference_allele: ref
         };
 
         if( fields[2] !== null ) {
@@ -244,8 +246,7 @@ return declare( null, {
         for( var field in info ) {
             if( info.hasOwnProperty( field ) ) {
                     var i = info[field] = {
-                        values: info[field],
-                        toString: function() { return (this.values || []).join(','); }
+                        values: info[field]
                     };
                     var meta = this.getVCFMetaData( 'INFO', field );
                     if( meta )

@@ -117,6 +117,9 @@ return declare(
             lang.clone( this.inherited(arguments) ),
             {
             maxFeatureScreenDensity: 0.5,
+            enableCollapsedMouseover: false,
+            disableCollapsedClick: false,
+
 
             // default glyph class to use
             glyph: lang.hitch( this, 'guessGlyphType' ),
@@ -321,8 +324,14 @@ return declare(
         else {
             var thisB = this;
             this.glyphsBeingLoaded[glyphClassName] = [callback];
-            require( [glyphClassName], function( GlyphClass ) {
 
+
+            require( [glyphClassName], function( GlyphClass ) {
+                         if( typeof GlyphClass == 'string' ) {
+                             thisB.fatalError = "could not load glyph "+glyphClassName;
+                             thisB.redraw();
+                             return;
+                         }
                          // if this require came back after we are already destroyed, just ignore it
                          if( thisB.destroyed )
                              return;
@@ -698,9 +707,10 @@ return declare(
         }
 
         this._attachMouseOverEvents( );
-
-        // connect up the event handlers
-        this._connectEventHandlers( block );
+        if( this.displayMode != 'collapsed' || !this.config.disableCollapsedClick ) {
+            // connect up the event handlers
+            this._connectEventHandlers( block );
+        }
 
         this.updateStaticElements( { x: this.browser.view.getX() } );
     },
@@ -709,7 +719,7 @@ return declare(
         var gv = this.browser.view;
         var thisB = this;
 
-        if( this.displayMode == 'collapsed' ) {
+        if( this.displayMode == 'collapsed' && !this.config.enableCollapsedMouseover) {
             if( this._mouseoverEvent ) {
                 this._mouseoverEvent.remove();
                 delete this._mouseoverEvent;
@@ -719,7 +729,7 @@ return declare(
                 this._mouseoutEvent.remove();
                 delete this._mouseoutEvent;
             }
-        } else {
+        } else if( this.displayMode != 'collapsed' || this.config.enableCollapsedMouseover ) {
             if( !this._mouseoverEvent ) {
                 this._mouseoverEvent = this.own( on( this.staticCanvas, 'mousemove', function( evt ) {
                     evt = domEvent.fix( evt );

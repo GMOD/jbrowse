@@ -119,7 +119,8 @@ return declare( FeatureDescriptionMixin, {
             }
             else if(layer >= track.config.subfeatureDetailLevel) {
                 var b = domConstruct.create('button', {
-                    innerHTML: 'Load subfeatures...'
+                    className: 'subfeature-load-button',
+                    innerHTML: 'Show subfeatures...'
                 }, container);
                 on(b, 'click', function() {
                     thisB._subfeaturesDetail( track, subfeatures, container, f, layer + 1 );
@@ -135,7 +136,11 @@ return declare( FeatureDescriptionMixin, {
 
     // render any additional tags as just key/value
     _renderAdditionalTagsDetail: function( track, f, featDiv, container ) {
+        var thisB = this;
         var additionalTags = array.filter( f.tags(), function(t) {
+            if(thisB.config.showNoteInAttributes && t.toLowerCase()=='note'){
+                return true ;
+            }
             return ! this._isReservedTag( t );
         },this);
 

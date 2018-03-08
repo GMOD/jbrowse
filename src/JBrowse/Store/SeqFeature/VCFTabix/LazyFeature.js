@@ -95,7 +95,7 @@ var Feature = Util.fastDeclare(
         }
 
         // add a toString to it that serializes it to JSON without its metadata
-        bySample.toString = this._stringifySample;
+        //bySample.toString = this._stringifySample;
 
         return bySample;
     },

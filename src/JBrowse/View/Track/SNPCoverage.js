@@ -22,7 +22,9 @@ return declare( [WiggleXY, AlignmentsMixin],
         this.store = new SNPCoverageStore(
             { store: this.store,
               config: {
-                  mismatchScale: this.config.mismatchScale
+                  mismatchScale: this.config.mismatchScale,
+                  indicatorProp: this.config.indicatorProp,
+                  indicatorDepth: this.config.indicatorDepth
               },
               browser: this.browser,
               filter: function( f ) {
@@ -39,6 +41,8 @@ return declare( [WiggleXY, AlignmentsMixin],
                 min_score: 0,
 
                 mismatchScale: 1/10,
+                indicatorProp: 0.5,
+                indicatorDepth: 1,
 
                 hideDuplicateReads: true,
                 logScaleOption: false,
@@ -143,6 +147,9 @@ return declare( [WiggleXY, AlignmentsMixin],
             drawRectangle( 'reference', toY( score.total() ), originY-toY( score.get('reference'))+1, fRect);
         });
 
+        var indicatorMinHeightProp = this.config.indicatorProp;
+        var indicatorMinHeight = this.config.indicatorDepth;
+
         dojo.forEach( features, function(f,i) {
             var fRect = featureRects[i];
             var score = f.get('score');
@@ -150,7 +157,7 @@ return declare( [WiggleXY, AlignmentsMixin],
 
             // draw indicators of SNPs if base coverage is greater than 50% of total coverage
             score.forEach( function( count, category ) {
-                if ( !{reference:true,skip:true,deletion:true}[category] && count > 0.5*totalHeight ) {
+                if ( !{reference:true,skip:true,deletion:true}[category] && count >= indicatorMinHeightProp*totalHeight && count >= indicatorMinHeight ) {
                     snpContext.save();
                     if( thisB.browser.config.highResolutionMode != 'disabled' )
                         snpContext.scale(ratio, 1);
