@@ -315,7 +315,7 @@ initPlugins: function() {
                 this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
 
             p.location = configEntry.location
-            p.css = configEntry.pluginDir+'css'
+            p.css = configEntry.pluginDir+configEntry.css
             p.js = configEntry.location
         });
 

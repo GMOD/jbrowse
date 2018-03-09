@@ -1,25 +1,39 @@
 const path = require('path')
 const fs = require('fs')
 
-// given a plugin directory path, fetch or infer the plugin's name
-module.exports = {
+// fetch the "jbrowsePlugin" section from pluginDir/package.json
+// if present. returns empty object if not present
+function _getPackageDefinitionPluginSection(pluginDir) {
+   let packageDefFile = path.resolve(pluginDir,'package.json')
+   if (fs.existsSync(packageDefFile)) {
+       let packageDef = require(packageDefFile)
+       if (packageDef.jbrowsePlugin) {
+           return packageDef.jbrowsePlugin
+       }
+   }
 
-    getPluginName(pluginDir) {
+   return {}
+}
 
-        // if it has a package.json file, try to read that and
-        // take the plugin name from that
-        let packageDefFile = path.resolve(pluginDir,'package.json')
-        if (fs.existsSync(packageDefFile)) {
-            let packageDef = require(packageDefFile)
-            if (packageDef.jbrowse && packageDef.jbrowse.pluginName) {
-                return packageDef.jbrowse.pluginName
-            }
-        }
+// get the plugin configuration for the given plugin dir by reading the plugin's
+// package.json and applying defaults for any missing keys
+function getPluginConfig(pluginDir) {
 
-        // otherwise, it's the basename of the plugin directory,
-        // minus any '-jbrowse-plugin' suffix
-        return path.basename(pluginDir)
-            .replace(/-jbrowse-plugin\/?/,'')
+    let pluginDef = _getPackageDefinitionPluginSection(pluginDir)
+
+    let defaultConfig = {
+        name: path.basename(pluginDir).replace(/-jbrowse-plugin\/?/,''),
+        css: 'css',
+        js: 'js',
+        location: pluginDir+'js',
+        pluginDir
     }
 
+    let config = Object.assign(defaultConfig,pluginDef)
+
+    return config
+}
+
+module.exports = {
+    getPluginConfig,
 }
