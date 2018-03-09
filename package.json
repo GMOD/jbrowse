@@ -9,6 +9,10 @@
     "start": "./jb_run.js -p 8082",
     "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js"
   },
+  "bin": {
+    "jb_run.js": "utils/jb_run.js",
+    "jb_setup.js": "utils/jb_setup.js"
+  },
   "publishConfig": {
     "access": "public"
   },
