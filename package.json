@@ -5,9 +5,9 @@
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "postinstall": "node utils/postinstall.js",
     "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html",
-    "start": "./jb_run.js -p 8082"
+    "start": "./jb_run.js -p 8082",
+    "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js"
   },
   "publishConfig": {
     "access": "public"
@@ -19,24 +19,47 @@
   },
   "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
-    "app-root-path": "^2.0.1",
-    "async": "^2.5.0",
+    "express": "^4.15.4",
+    "fs-extra": "^4.0.1",
+    "node-getopt": "^0.2.3",
+    "shelljs": "^0.7.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "ajv": "^6.2.1",
+    "babel-loader": "^8.0.0-beta.0",
+    "babel-polyfill": "^6.26.0",
+    "clean-webpack-plugin": "^0.1.18",
+    "copy-webpack-plugin": "4.1.1",
+    "css-loader": "^0.28.10",
     "dgrid": "^1.1.0",
     "dijit": "^1.12.2",
     "dojo": "^1.12.2",
     "dojo-dstore": "^1.1.1",
     "dojo-util": "^1.12.2",
+    "dojo-webpack-plugin": "^2.6.0",
     "dojox": "^1.12.2",
     "electron-screenshot": "^1.0.2",
-    "express": "^4.15.4",
+    "extract-text-webpack-plugin": "^3.0.2",
     "filesaver.js": "^0.2.0",
-    "fs-extra": "^4.0.1",
-    "jDataView": "git+https://github.com/rbuels/jdataview.git",
+    "imports-loader": "^0.8.0",
     "jasmine-node": "^1.14.5",
-    "json-schema": "git+https://github.com/kriszyp/json-schema.git",
-    "jszlib": "git+https://github.com/cmdcolin/jszlib.git",
-    "lazyload": "git+https://github.com/cmdcolin/lazyload.git#amd",
-    "node-getopt": "^0.2.3",
-    "shelljs": "^0.7.8"
-  }
+    "jszlib": "git+https://github.com/cmdcolin/jszlib.git#c966ceac3b283d2248764c09e07a4b268edd5032",
+    "node-sass": "^4.7.2",
+    "phantomjs-prebuilt": "^2.1.16",
+    "regexp-replace-loader": "^1.0.1",
+    "sass-loader": "^6.0.7",
+    "style-loader": "^0.20.2",
+    "uglifyjs-webpack-plugin": "^1.2.2",
+    "url-loader": "0.5.7",
+    "util-deprecate": "^1.0.2",
+    "webpack": "^3.10.0"
+  },
+  "browserslist": [
+    "> 0.3%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead"
+  ]
 }

@@ -18,7 +18,7 @@ require([
             GFF3TabixStore
         ) {
 
-describe( 'GFF3 store', function() {
+describe( 'GFF3 tabix store', function() {
    it( 'can parse volvox_tabix.gff3.gz', function() {
            var p = new GFF3TabixStore({
                                      browser: new Browser({ unitTestMode: true }),

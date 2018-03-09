@@ -2251,6 +2251,7 @@ jasmine.Spec.prototype.fail = function (e) {
     message: e ? jasmine.util.formatException(e) : 'Exception',
     trace: { stack: e.stack }
   });
+  console.error(e);
   this.results_.addResult(expectationResult);
 };
 

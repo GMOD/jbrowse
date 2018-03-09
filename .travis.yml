@@ -42,25 +42,24 @@ script:
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
-# if we are building for inclusion into the `dev` branch, run the minification and test against that
-- |
-  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
-    make -f build/Makefile release;
-    rm -rf JBrowse-*/;
-    unzip -q JBrowse-$RELEASE_VERSION.zip;
-    cp -r tests/ JBrowse-$RELEASE_VERSION/;
-    cd JBrowse-$RELEASE_VERSION/;
-  fi
-- ./setup.sh legacy;
+- ./setup.sh
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
-- phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
+- node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
-- cd $BUILD_DIR
-after_failure:
-- cat JBrowse-*/setup.log
-- find JBrowse-*/extlib/lib/perl5
-- cat JBrowse-*/src/build-report.txt
+# if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
+- |
+  if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
+    make -f build/Makefile;
+    rm -rf JBrowse-*/;
+    unzip -q JBrowse-$RELEASE_VERSION.zip;
+    cd JBrowse-$RELEASE_VERSION/;
+    cp -r ../tests/ .;
+    ./setup.sh;
+    prove -Isrc/perl5 -r -j3 tests/perl_tests;
+    cd $BUILD_DIR;
+    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh;
+  fi
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases

@@ -1,10 +1,44 @@
 {{$NEXT}}
 
- * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
+## Major improvements
+
+  * JBrowse now uses a Webpack-based build system, which is going to enable us
+    to make much more effective use of the huge JavaScript ecosystem that has
+    grown up in recent years, as well as to use newer versions of JavaScript
+    itself while still maintaining compatibility with older web browsers.
+
+  * The way JBrowse plugins are discovered and loaded has changed significantly,
+    although we think that most users of plugins will not experience any problems.
+    If you use JBrowse plugins other than the "stock" ones that come with JBrowse,
+    you must now use the `dev` release of JBrowse, and re-run `setup.sh` every time
+    you add or remove a plugin. (issue #981, @rbuels)
+
+  * JBrowse plugins can now be published and installed with NPM! Simply publish your
+    plugin to npm and make sure its name ends with "-jbrowse-plugin". For example,
+    if you have a plugin named "foo", publish it to npm as "foo-jbrowse-plugin".
+    However, if your plugin is named MyAwesomePlugin, which is not compatible with
+    npmjs.org's naming conventions, you will want to publish it as something like
+    "myawesome-jbrowse-plugin" and add a configuration stanza to its package.json
+    file telling JBrowse its real plugin name, e.g.
+    ```
+    {
+        ...
+        "jbrowse": {
+            "pluginName": "MyAwesomePlugin"
+        },
+        ...
+    }
+    ```
+
+## Minor Improvements
+
+  * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
     `enableCollapsedMouseover` option is useful when features do not overlap e.g. chromosome
     segmentation and `disableCollapsedClick` is useful when the collapsed features are very
     dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
 
+  * Removed JBrowse 1.2.1 compatibility support. Please use JBrowse 1.12.5 or earlier
+    if you still have old data formatted with JBrowse 1.2.1. (@rbuels)
 
 # Release 1.12.5     2018-02-28 20:08:35 UTC
 

@@ -10,8 +10,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     data_dir = 'sample_data/json/volvox'
 
     def setUp( self ):
-        call( "rm -rf sample_data/json/volvox/", shell=True )
-        call( "./setup.sh" )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):

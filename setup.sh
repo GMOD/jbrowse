@@ -32,26 +32,8 @@ function check_node(){
         echo "npm version 2 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
-    echo "Node installed";
+    echo "Node installed at $node_executable with npm $NPM_VERSION";
 }
-
-echo > setup.log;
-
-echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
-
-# if src/dojo/dojo.js exists, but that is the only file in that directory (or other directories don't exist)
-# OR
-# if dev we don't care
-echo  -n "Installing javascript dependencies ..."
-if [ -f "src/dojo/dojo.js" ] && ! [ -f "src/dojo/_firebug/firebug.js" ]; then
-    echo "Detected precompiled version." ;
-elif ! [ -f "src/dojo/dojo.js" ]; then
-    echo "Dojo does not exist, installing" ;
-    check_node;
-    npm install;
-fi
-echo "done"
-
 
 # log information about this system
 echo -n "Gathering system information ..."
@@ -93,6 +75,22 @@ if [ $? -eq 0 ]; then
         echo ===============================================================
         echo;
     fi
+fi
+
+echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
+
+# if we are running in a development build, then run npm install and run the webpack build.
+if [ -f "src/JBrowse/Browser.js" ]; then
+    echo "Installing javascript dependencies and building with Webpack ..."
+    (
+        check_node
+        set -e
+        npm install
+        npm run build
+    ) 2>&1 | tee setup.log;
+    echo "done with node install and build"
+else
+    echo "Minimal release detected, skipping node and Webpack build"
 fi
 
 echo  -n "Installing Perl prerequisites ..."

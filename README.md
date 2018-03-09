@@ -37,7 +37,7 @@ This allows JBrowse to be easily integrated into other applications.  `jb_setup.
 
 You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
 
-    make -f build/Makefile release
+    make -f build/Makefile
 
 To build the Electron app (JBrowse desktop app), run the following
 
@@ -80,7 +80,7 @@ one will only work in a properly configured Travis CI build environment.
 
 <img style="display: block; margin: 1em auto" src="img/browserstack-logo-600x315.png" width="200" alt="Browserstack"/>
 
-JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for the login and password.
+JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for access.
 
 # Making a JBrowse release
 
