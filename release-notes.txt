@@ -40,6 +40,9 @@
   * Removed JBrowse 1.2.1 compatibility support. Please use JBrowse 1.12.5 or earlier
     if you still have old data formatted with JBrowse 1.2.1. (@rbuels)
 
+  * For `npm` installs of JBrowse, jb_run.js and jb_setup.js are now installed into
+    the standard `node_modules/.bin` location. (issue #1021, @rbuels)
+
 # Release 1.12.5     2018-02-28 20:08:35 UTC
 
 ## Minor improvements
