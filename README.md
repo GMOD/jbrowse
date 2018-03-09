@@ -2,22 +2,23 @@
 
 # Installing JBrowse
 
-Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
+Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official releases are available.
 
-The `master` branch is always in line with the latest release however it is not minified JS. Features
-are merged into the `dev` branch following acceptance of an item submitted via pull request.
+# Install from github repo (for developers)
 
-# Install from github repo (development)
+The `master` branch is always in line with the latest release. Features
+are merged into the `dev` branch as they are completed.
 
-Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
+`jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
 
 *If you are using a 3rd party webserver, you should clone JBrowse into your web root*
 
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     npm install
-    ./jb_setup.js   (optional -- sets up demo files such as Volvox)
-    ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
+    npm run build
+    utils/jb_setup.js   (optional -- sets up demo files such as Volvox)
+    utils/jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
 
 If you have installed the demo (with ./jb_setup.js), you can point your browser to
 http://localhost/jbrowse/index.html?data=sample_data/json/volvox
@@ -25,7 +26,8 @@ and you should see the volvox example data.
 
 `jb_run.js` will default to a non-privileged port (8080), this can be overridden with the `-p` option.
 
-Now you can simply edit files and your changes will be available in the browser (the build step is not required).
+When you edit JavaScript files, you must re-run the webpack build with `npm run build`, or you can
+keep webpack running in "watch" mode by running it like `npm run build -- -w`
 
 # Installing as an npm module
 
