@@ -51,9 +51,13 @@ define( [
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
             'dijit/focus',
-            'lazyload', // for dynamic CSS loading
+            '../lazyload.js', // for dynamic CSS loading
             'dojo/text!./package.json',
-            'dojo/domReady!'
+
+
+            // extras for webpack
+            'dojox/data/CsvStore',
+            'dojox/data/JsonRestStore'
         ],
         function(
             declare,
@@ -114,6 +118,11 @@ define( [
 
 
 var dojof = Util.dojof;
+
+require.on('error', function(error) {
+    let errString = error.info && error.info[0] && error.info[0].mid ? error.info.map(({mid})=>mid).join(', ') : error;
+    window.JBrowse.fatalError('Failed to load resource: '+errString);
+});
 
 /**
  * Construct a new Browser object.
@@ -293,28 +302,22 @@ initPlugins: function() {
             return typeof p == 'object' ? p : { 'name': p };
         });
 
-        if( ! plugins ) {
+        if( ! plugins.length ) {
             deferred.resolve({success: true});
             return;
         }
 
         // set default locations for each plugin
-        array.forEach( plugins, function(p) {
-            if( !( 'location' in p ))
-                p.location = 'plugins/'+p.name;
+        plugins.forEach( p => {
+            // find the entry in the dojoConfig for this plugin
+            let configEntry = dojoConfig.packages.find(c => c.name === p.name)
+            if( ! configEntry )
+                this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
 
-            var resolved = this.resolveUrl( p.location );
-
-            // figure out js path
-            if( !( 'js' in p ))
-                p.js = p.location+"/js"; //URL resolution for this is taken care of by the JS loader
-            if( p.js.charAt(0) != '/' && ! /^https?:/i.test( p.js ) )
-                p.js = '../'+p.js;
-
-            // figure out css path
-            if( !( 'css' in p ))
-                p.css = resolved+"/css";
-        },this);
+            p.location = configEntry.location
+            p.css = configEntry.pluginDir+'css'
+            p.js = configEntry.location
+        });
 
         var pluginDeferreds = array.map( plugins, function(p) {
             return new Deferred();
@@ -324,15 +327,8 @@ initPlugins: function() {
         (new DeferredList( pluginDeferreds ))
             .then( function() { deferred.resolve({success: true}); });
 
-        require( {
-                     packages: array.map( plugins, function(p) {
-                                              return {
-                                                  name: p.name,
-                                                  location: p.js
-                                              };
-                                          }, this )
-                 },
-                 array.map( plugins, function(p) { return p.name; } ),
+        dojo.global.require(
+                 array.map( plugins, function(p) { return p.name+'/main' } ),
                  dojo.hitch( this, function() {
                      array.forEach( arguments, function( pluginClass, i ) {
                              var plugin = plugins[i];
@@ -609,7 +605,7 @@ loadNames: function() {
             var thisB = this;
             if( type.indexOf('/') == -1 )
                 type = 'JBrowse/Store/Names/'+type;
-            require ([type], function (CLASS){
+            dojo.global.require ([type], function (CLASS){
                 thisB.nameStore = new CLASS( dojo.mixin({ browser: thisB }, conf) );
                 deferred.resolve({success: true});
             });
@@ -1787,7 +1783,7 @@ getStore: function( storeName, callback ) {
         return;
     }
 
-    require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
+    dojo.global.require( [ storeClassName ], dojo.hitch( this, function( storeClass ) {
                  var storeArgs = {};
                  dojo.mixin( storeArgs, conf );
                  dojo.mixin( storeArgs,
@@ -2307,7 +2303,7 @@ initTrackMetadata: function( callback ) {
                                     });
 
 
-        require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
+        dojo.global.require( Array.prototype.concat.apply( ['JBrowse/Store/TrackMetaData'],
                                                dojo.map( metaDataSourceClasses, function(c) { return c.class_; } ) ),
                  dojo.hitch(this,function( MetaDataStore ) {
                      var mdStores = [];
@@ -2342,7 +2338,7 @@ createTrackList: function() {
             tl_class = 'JBrowse/View/TrackList/'+tl_class;
 
         // load all the classes we need
-        require( [ tl_class ],
+        dojo.global.require( [ tl_class ],
                  dojo.hitch( this, function( trackListClass ) {
                      // instantiate the tracklist and the track metadata object
                      this.trackListView = new trackListClass(

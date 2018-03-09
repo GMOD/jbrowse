@@ -1,5 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-  "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
   <meta charset="utf-8">
@@ -7,73 +5,14 @@
 
   <link rel="shortcut icon" type="image/png" href="lib/jasmine-1.2.0/jasmine_favicon.png">
   <link rel="stylesheet" type="text/css" href="lib/jasmine-1.2.0/jasmine.css">
+
   <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine.js"></script>
   <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine-html.js"></script>
 
-  <!-- include source files here... -->
-  <script type="text/javascript" src="../../src/dojo/dojo.js" data-dojo-config="async: 1" ></script>
-
   <script type="text/javascript">
-    require( { baseUrl: '../../src',
-               packages: [ 'dojo', 'dijit', 'dojox', 'jszlib',
-                            { name: 'lazyload',  main: 'lazyload' },
-                            'dgrid',
-                            'xstyle',
-                            'put-selector',
-                            'FileSaver',
-                            'dstore',
-                            { name: 'jDataView', location: 'jDataView/src', main: 'jdataview' },
-                            'JBrowse'
-                         ]
-              },
-              ['dojo/ready','JBrowse/Browser'],
-              function( ready,Browser ) {
 
-      var jasmineEnv = jasmine.getEnv();
-      jasmineEnv.updateInterval = 1000;
-
-      var htmlReporter = new jasmine.HtmlReporter();
-
-      jasmineEnv.addReporter(htmlReporter);
-
-      jasmineEnv.specFilter = function(spec) {
-        return htmlReporter.specFilter(spec);
-      };
-      ready( function() {execJasmine();});
-      function execJasmine() {
-        jasmineEnv.execute();
-      }
-    });
   </script>
-
-  <!-- include spec files here... -->
-  <script type="text/javascript" src="spec/ExportGFF3.spec.js"></script>
-  <script type="text/javascript" src="spec/QueryParamConfigMapper.spec.js"></script>
-  <script type="text/javascript" src="spec/LazyArray.spec.js"></script>
-  <script type="text/javascript" src="spec/FeatureLayout.spec.js"></script>
-  <script type="text/javascript" src="spec/BigWig.spec.js"></script>
-  <script type="text/javascript" src="spec/ConfigManager.spec.js"></script>
-  <script type="text/javascript" src="spec/BAM.spec.js"></script>
-  <script type="text/javascript" src="spec/RemoteBinaryFile.spec.js"></script>
-  <script type="text/javascript" src="spec/Util.spec.js"></script>
-  <script type="text/javascript" src="spec/AddFiles.spec.js"></script>
-  <script type="text/javascript" src="spec/GBrowseParser.spec.js"></script>
-  <script type="text/javascript" src="spec/NestedFrequencyTable.spec.js"></script>
-  <script type="text/javascript" src="spec/TabixIndex.spec.js"></script>
-  <script type="text/javascript" src="spec/TabixIndexedFile.spec.js"></script>
-  <script type="text/javascript" src="spec/RESTStore.spec.js"></script>
-  <script type="text/javascript" src="spec/RegularizeRefSeqs.spec.js"></script>
-  <script type="text/javascript" src="spec/GFF3.spec.js"></script>
-  <script type="text/javascript" src="spec/SPARQLStore.spec.js"></script>
-  <script type="text/javascript" src="spec/SequenceChunkStore.spec.js"></script>
-  <script type="text/javascript" src="spec/GFF3Tabix.spec.js"></script>
-  <script type="text/javascript" src="spec/BEDTabix.spec.js"></script>
-  <script type="text/javascript" src="spec/BED.spec.js"></script>
-  <script type="text/javascript" src="spec/TwoBit.spec.js"></script>
-  <script type="text/javascript" src="spec/SequenceTrack.spec.js"></script>
-
-  <script type="text/javascript" src="spec/VCF.spec.js"></script>
-
+  <script type="text/javascript" src="../../dist/run_jasmine.bundle.js"></script>
 
 </head>
 

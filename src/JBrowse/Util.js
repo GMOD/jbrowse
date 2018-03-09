@@ -118,8 +118,9 @@ Util = {
     fillTemplate: function( template, fillWith ) {
         return template.replace( /\{([\w\s\.]+)\}/g,
                                  function( match, varname ) {
+                                     varname = varname.replace(/\s+/g,''); // remove all whitespace
                                      var fill = lang.getObject( varname, false, fillWith );
-                                     if((fill = fillWith[varname]) !== undefined ) {
+                                     if(fill !== undefined ) {
                                          if( typeof fill == 'function' )
                                              return fill( varname );
                                          else
@@ -247,7 +248,7 @@ Util = {
 
     loadJS: function( paths ) {
         var d = new Deferred();
-        require( paths, function() {
+        dojo.global.require( paths, function() {
             var modules = Array.prototype.slice.call( arguments );
 
             // check the loaded modules for success
