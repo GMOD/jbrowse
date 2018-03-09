@@ -17,8 +17,8 @@ are merged into the `dev` branch as they are completed.
     cd jbrowse
     npm install
     npm run build
-    utils/jb_setup.js   (optional -- sets up demo files such as Volvox)
-    utils/jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
+    ./setup.sh        # (recommended -- sets up demo files such as Volvox)a
+    utils/jb_run.js   # (optional -- begin serving JBrowse with built-in mini web server)
 
 If you have installed the demo (with ./jb_setup.js), you can point your browser to
 http://localhost/jbrowse/index.html?data=sample_data/json/volvox
