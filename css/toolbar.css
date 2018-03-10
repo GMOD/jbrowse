@@ -3,7 +3,7 @@
     Created on : Jun 19, 2015, 6:37:30 PM
     Author     : Eric Y
 */
-.jbrowse #location-info {
+#location-info {
     display: inline-block;
     border:0px solid #bbb;
     padding: 3px 3px 3px 3px;
@@ -15,28 +15,28 @@
     min-width: 40ex;
 }
 
-.jbrowse #search-box {
+#search-box {
     margin-right: 10px;
 }
-.jbrowse .separate-location-box {
-    float: right;
-}
+.separate-location-box { float: right; }
 
 /* location box */
-.jbrowse div[id=widget_location] {
-    margin-left:3px !important;
+div[id=widget_location] {
+  margin-left:3px !important;
 }
 
-.jbrowse #widget_location {
+#widget_location {
+/*    width: 18ex !important;*/
     padding-top: 2px;
 }
 
-.jbrowse span1[widgetid=search-go-btn] {
-    position:relative;
-    left: -3px;
+span1[widgetid=search-go-btn] {
+	position:relative;
+	left: -3px;
 }
 
-.jbrowse div[widgetid=highlight-btn] {
-    position:relative;
-    top: 1px;
+/* highlight button */
+div[widgetid=highlight-btn] {
+  position:relative;
+  top: 1px;
 }

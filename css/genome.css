@@ -1,10 +1,10 @@
 /* main application CSS styles */
 
 @import url("../node_modules/dijit/themes/tundra/tundra.css");
+@import url("../node_modules/dojo/resources/dojo.css");
 @import url("../node_modules/dgrid/css/dgrid.css");
 
 @import url("main.css");
-@import url("dojobase.css");
 @import url("sequence.css");
 @import url("protein.css");
 @import url("menubar.css");

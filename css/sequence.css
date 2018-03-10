@@ -1,9 +1,8 @@
-.jbrowse table.sequence {
+table.sequence {
     border-collapse: collapse;
-    margin: 0px;
 }
 
-.jbrowse div.sequence_blur {
+div.sequence_blur {
     /* background: url('../img/sequence_blur.png') #eee repeat-x; */
     background: #f5f5f5;
     background: rgba( 50, 50, 50, 0.16 );
@@ -14,7 +13,7 @@
     text-align: center;
     position: relative;
 }
-.jbrowse .sequence_blur > span {
+.sequence_blur > span {
     top: 50%;
     position: absolute;
     width: 100%;
@@ -23,81 +22,76 @@
     margin-top: -8px;
 }
 
-.jbrowse table.sequence .highlighted {
+table.sequence .highlighted {
     background: #ff0;
 }
-.jbrowse table.sequence .revcom {
+table.sequence .revcom {
     color: red;
 }
-.jbrowse table.sequence .base, table.sequence > tr, table.translatedSequence > tr, table.translatedSequence  {
+table.sequence .base, table.sequence > tr, table.translatedSequence > tr, table.translatedSequence  {
     height: 14px;
     line-height: 14px;
 }
 
-.jbrowse table.sequence.big .base {
+table.sequence.big .base {
     border-right: 1px solid #333;
 }
 
-.jbrowse .translatedSequence {
+.translatedSequence {
     position: relative;
     border-width: 0px;
     border-collapse: collapse;
     overflow: visible;
 }
-.jbrowse .translatedSequence table {
+.translatedSequence table {
     z-index: 10;
-    margin: 0px;
 }
 
-.jbrowse .translatedSequence.frame0 {
+.translatedSequence.frame0 {
     background-color: #929292;
 }
 
-.jbrowse .translatedSequence.frame1 {
+.translatedSequence.frame1 {
     background-color: #B0B0B0;
 }
 
-.jbrowse .translatedSequence.frame2 {
+.translatedSequence.frame2 {
     background-color: #E0E0E0;
 }
-.jbrowse .translatedSequence td.aminoAcid {
+.translatedSequence td.aminoAcid {
     text-align: center;
     z-index: 2000;
-    padding: 0px;
-    border: 0px;
 
     color: black;
     font-family: Courier New,monospace;
     font-weight: bold;
     text-shadow: white 0px 0px 1px;
 }
-.jbrowse .translatedSequence.big, .translatedSequence.big td.aminoAcid {
+.translatedSequence.big, .translatedSequence.big td.aminoAcid {
     border-right: 1px solid #777;
 }
 
-.jbrowse .translatedSequence.frame2 td.aminoAcid {
+.translatedSequence.frame2 td.aminoAcid {
     border-right-color: #979797;
 }
-.jbrowse .translatedSequence.frame1 td.aminoAcid {
+.translatedSequence.frame1 td.aminoAcid {
     border-right-color: #6d6d6d;
 }
-.jbrowse .translatedSequence.frame0 td.aminoAcid {
+.translatedSequence.frame0 td.aminoAcid {
     border-right-color: #5f5f5f;
 }
 
-.jbrowse .translatedSequence td.aminoAcid_stop {
+.translatedSequence td.aminoAcid_stop {
     background-color: #FF0000;
 }
 
-.jbrowse .translatedSequence td.aminoAcid_start {
+.translatedSequence td.aminoAcid_start {
     background-color: #00FF00;
 }
 
-.jbrowse td.base {
+td.base {
     text-align: center;
     z-index: 2000;
-    padding: 0px;
-    border: 0px;
 }
 .base {
     color: black;
@@ -129,6 +123,6 @@
     background-color: #999; 
 }
 
-.jbrowse .sequence.nocolor .base {
+.sequence.nocolor .base {
     background-color: #ddd;
 }
