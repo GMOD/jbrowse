@@ -15,7 +15,7 @@
 
 	If you are looking for a baseline stylesheet using tables for grid layout, you will
 	need to supply your own layout rules to override the ones in this stylesheet.
-	
+
 	Applications using Dojo will function correctly without including this
 	file, but it should provide sane defaults for many common things that page
 	authors often need to set up manually.
@@ -46,7 +46,7 @@ body {
 
 /*****************************************************************************************/
 
-/* 
+/*
 	Begin Dojo additions.
 
 	Style definitions, based loosely on the Dijit Tundra theme.
@@ -54,9 +54,9 @@ body {
 	by Richard Rutter (http://24ways.org/2006/compose-to-a-vertical-rhythm)
 
 	If changing the font size, make sure you do it in both
-	percent and px (% for IE, px for everything else). 
+	percent and px (% for IE, px for everything else).
 	% value based on default size of 16px (in most browsers).
-	So if you want the default size to be 14px, set the 
+	So if you want the default size to be 14px, set the
 	% to 87% (14 / 16 = 0.875).
 
 	Typical values:
@@ -71,65 +71,65 @@ body {
 */
 
 /* Headings */
-.jbrowse h1, .dijitPopup h1 {
-	font-size: 1.5em; 
+h1 {
+	font-size: 1.5em;
 	font-weight: normal;
-	line-height: 1em; 
+	line-height: 1em;
 	margin-top: 1em;
 	margin-bottom:0;
 }
 
-.jbrowse h2 { 
-	font-size: 1.1667em; 
-	font-weight: bold; 
-	line-height: 1.286em; 
-	margin-top: 1.929em; 
+h2 {
+	font-size: 1.1667em;
+	font-weight: bold;
+	line-height: 1.286em;
+	margin-top: 1.929em;
 	margin-bottom:0.643em;
 }
 
-.jbrowse h3, h4, h5, h6 {
-	font-size: 1em; 
-	font-weight: bold; 
-	line-height: 1.5em; 
-	margin-top: 1.5em; 
+h3, h4, h5, h6 {
+	font-size: 1em;
+	font-weight: bold;
+	line-height: 1.5em;
+	margin-top: 1.5em;
 	margin-bottom: 0;
 }
 
 /* paragraphs, quotes and lists */
-.jbrowse p { 
-	font-size: 1em; 
-	margin-top: 1.5em; 
-	margin-bottom: 1.5em; 
+p {
+	font-size: 1em;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
 	line-height: 1.5em;
 }
 
-.jbrowse blockquote { 
-	font-size: 0.916em; 
-	margin-top: 3.272em; 
-	margin-bottom: 3.272em; 
-	line-height: 1.636em; 
-	padding: 1.636em; 
-	border-top: 1px solid #ccc; 
+blockquote {
+	font-size: 0.916em;
+	margin-top: 3.272em;
+	margin-bottom: 3.272em;
+	line-height: 1.636em;
+	padding: 1.636em;
+	border-top: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
 }
 
-.jbrowse ol li, ul li { 
-	font-size: 1em; 
-	line-height: 1.5em; 
+ol li, ul li {
+	font-size: 1em;
+	line-height: 1.5em;
 	margin: 0;
 }
 
 /* pre and code */
-.jbrowse pre, code { 
+pre, code {
 	font-size:115%;
 	*font-size:100%;
-	font-family: Courier, "Courier New"; 
-	background-color: #efefef; 
+	font-family: Courier, "Courier New";
+	background-color: #efefef;
 	border: 1px solid #ccc;
 }
 
-.jbrowse pre { 
-	border-width: 1px 0; 
+pre {
+	border-width: 1px 0;
 	padding: 1.5em;
 }
 
@@ -144,28 +144,28 @@ body {
 	These definitions make tabular data look presentable, particularly when presented
 	inline with paragraphs.
 */
-.jbrowse table {  font-size:100%; }
+table {  font-size:100%; }
 
-.jbrowse .dojoTabular { 
-	border-collapse: collapse; 
-	border-spacing: 0; 
-	border: 1px solid #ccc; 
+.dojoTabular {
+	border-collapse: collapse;
+	border-spacing: 0;
+	border: 1px solid #ccc;
 	margin: 0 1.5em;
 }
 
-.jbrowse .dojoTabular th { 
-	text-align: center; 
+.dojoTabular th {
+	text-align: center;
 	font-weight: bold;
 }
 
-.jbrowse .dojoTabular thead,
-.jbrowse .dojoTabular tfoot { 
-	background-color: #efefef; 
-	border: 1px solid #ccc; 
-	border-width: 1px 0; 
+.dojoTabular thead,
+.dojoTabular tfoot {
+	background-color: #efefef;
+	border: 1px solid #ccc;
+	border-width: 1px 0;
 }
 
-.jbrowse .dojoTabular th,
-.jbrowse .dojoTabular td { 
+.dojoTabular th,
+.dojoTabular td {
 	padding: 0.25em 0.5em;
 }

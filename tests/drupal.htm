@@ -5,6 +5,13 @@
 <link rel="shortcut icon" href="./drupal/TripalLogo.png" type="image/png">
 <meta name="Generator" content="Drupal 7 (http://drupal.org)">
   <title>Lorem ipsum | Tripal 2 Dev</title>
+    <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        window.onerror=function(msg){
+            if( document.body )
+                document.body.setAttribute("JSError",msg);
+        }
+    </script>
   <style type="text/css" media="all">
 @import url("http://knowpulse.usask.ca/jbrowse/embedded-JBrowse/drupal_theme/system/system.base.css");
 @import url("http://knowpulse.usask.ca/jbrowse/embedded-JBrowse/drupal_theme/system/system.menus.css");
@@ -63,110 +70,6 @@ jQuery.extend(Drupal.settings, {"basePath":"\/jbrowse\/embedded-JBrowse\/drupal_
 </script>
 <script type="text/javascript" src="chrome-extension://hdokiejnpimakedhajhdlcegeplioahd/xhrExtension.js"></script>
 
-     <link rel="stylesheet" type="text/css" href="../css/genome.css">
-    <script type="text/javascript">
-            // jshint unused: false
-            var dojoConfig = {
-                async: true,
-                baseUrl: '../src',
-                has: {
-                    'host-node': false // Prevent dojo from being fooled by Electron
-                }
-            };
-            // Move Electron's require out before loading Dojo
-            if(window.process&&process.versions&&process.versions.electron) {
-                window.electronRequire = require;
-                delete window.require;
-            }
-    </script>
-    <script type="text/javascript" src="../src/dojo/dojo.js"></script>
-    <script type="text/javascript" src="../src/JBrowse/init.js"></script>
-    <script type="text/javascript">
-        window.onerror=function(msg){
-            if( document.body )
-                document.body.setAttribute("JSError",msg);
-        }
-
-        // puts the main Browser object in this for convenience.  feel
-        // free to move it into function scope if you want to keep it
-        // out of the global namespace
-        var JBrowse;
-        require(['JBrowse/Browser', 'dojo/io-query', 'dojo/json' ],
-             function (Browser,ioQuery,JSON) {
-                   // the initial configuration of this JBrowse
-                   // instance
-
-                   // NOTE: this initial config is the same as any
-                   // other JBrowse config in any other file.  this
-                   // one just sets defaults from URL query params.
-                   // If you are embedding JBrowse in some other app,
-                   // you might as well just set this initial config
-                   // to something like { include: '../my/dynamic/conf.json' },
-                   // or you could put the entire
-                   // dynamically-generated JBrowse config here.
-
-                   // parse the query vars in the page URL
-                   var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
-
-                   var config = {
-                       containerID: "GenomeBrowser",
-                       baseUrl: "../",
-                       browserRoot: "../",
-
-                       dataRoot: queryParams.data,
-                       queryParams: queryParams,
-                       location: queryParams.loc,
-                       forceTracks: queryParams.tracks,
-                       initialHighlight: queryParams.highlight,
-                       show_nav: queryParams.nav,
-                       show_tracklist: queryParams.tracklist,
-                       show_overview: queryParams.overview,
-                       show_menu: queryParams.menu,
-                       show_tracklabels: queryParams.tracklabels,
-                       highResolutionMode: queryParams.highres,
-                       stores: { url: { type: "JBrowse/Store/SeqFeature/FromConfig", features: [] } },
-                       bookmarks: { },
-                       makeFullViewURL: function( browser ) {
-
-                           // the URL for the 'Full view' link
-                           // in embedded mode should be the current
-                           // view URL, except with 'nav', 'tracklist',
-                           // and 'overview' parameters forced to 1.
-
-                           return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
-                       },
-                       updateBrowserURL: true
-                   };
-
-                   //if there is ?addFeatures in the query params,
-                   //define a store for data from the URL
-                   if( queryParams.addFeatures ) {
-                       config.stores.url.features = JSON.parse( queryParams.addFeatures );
-                   }
-
-                   // if there is ?addTracks in the query params, add
-                   // those track configurations to our initial
-                   // configuration
-                   if( queryParams.addTracks ) {
-                       config.tracks = JSON.parse( queryParams.addTracks );
-                   }
-
-                   // if there is ?addBookmarks, add those to configuration
-                   if( queryParams.addBookmarks ) {
-                       config.bookmarks.features = JSON.parse( queryParams.addBookmarks );
-                   }
-
-                   // if there is ?addStores in the query params, add
-                   // those store configurations to our initial
-                   // configuration
-                   if( queryParams.addStores ) {
-                       config.stores = JSON.parse( queryParams.addStores );
-                   }
-
-                   // create a JBrowse global variable holding the JBrowse instance
-                   JBrowse = new Browser( config );
-        });
-    </script>
 
     </head>
 <body class="html front logged-in one-sidebar sidebar-first page-node page-node- page-node-2002045 node-type-page" data-gr-c-s-loaded="true">
@@ -264,9 +167,14 @@ jQuery.extend(Drupal.settings, {"basePath":"\/jbrowse\/embedded-JBrowse\/drupal_
       <p>Vestibulum at mi enim. Vivamus elementum sit amet mi eget elementum. Sed vel est at mauris ornare molestie nec suscipit nulla. Duis et cursus erat, et malesuada tellus. In semper vitae nisi mollis consequat. Aenean tincidunt augue lectus, at vehicula ante lobortis a. Fusce at elit dignissim, rhoncus purus quis, malesuada tellus. Nam id consectetur eros, in gravida arcu. Integer libero erat, imperdiet et volutpat sit amet, imperdiet sed nisi. Aliquam et iaculis sem. Morbi pulvinar erat in nisi convallis sodales. Morbi facilisis in felis ut dignissim. In blandit sed neque id consequat. Nunc efficitur fringilla malesuada. Aenean faucibus massa neque, a vulputate metus volutpat non. Donec interdum vitae turpis et auctor.</p>
       <p>Ut vel accumsan libero. Nunc sodales nisi et accumsan euismod. Integer fermentum magna id urna interdum, sed hendrerit tortor pellentesque. Nulla a vehicula ipsum. Donec sed luctus sapien. Ut at augue imperdiet, aliquam risus eu, cursus nisi. Sed diam ipsum, rhoncus id elit nec, eleifend condimentum nisi. Suspendisse non erat vitae mauris maximus dapibus gravida sit amet sem. Phasellus diam lorem, viverra in nunc id, sollicitudin semper massa. Aenean ornare ipsum mauris, vel tempor ipsum dictum accumsan. Duis consectetur lacinia eros, id varius diam sodales a. Vestibulum sed massa in mi fringilla tincidunt et at nibh. Quisque dictum maximus leo, nec pretium nunc lacinia sed.</p>
 
-
-    <div class="jbrowse" id="GenomeBrowser" style="height: 600px; width: 100%; padding: 0; border: 0;"></div>
+    <div class="jbrowse" id="GenomeBrowser" style="height: 600px; width: 100%; padding: 0; border: 0;">
+	  <div id="LoadingScreen" style="padding: 50px;">
+		<h1>Loading...</h1>
+	  </div>
+	</div>
     <div style="display: none">JBrowseDefaultMainPage</div>
+
+
 
 
     </div>
@@ -305,3 +213,4 @@ jQuery.extend(Drupal.settings, {"basePath":"\/jbrowse\/embedded-JBrowse\/drupal_
 
 </div></div> <!-- /#page, /#page-wrapper -->
 </body></html>
+

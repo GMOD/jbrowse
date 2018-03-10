@@ -3,10 +3,17 @@ html, body {
     width: 100%;
     padding: 0;
     border: 0;
+}
+#GenomeBrowser {
     font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
-
+.dijitDialog .detail h2{
+    font-weight: bold;
+}
+.jbrowse label {
+    font-weight: inherit;
+}
 
 .tundra .dijitDialogTitleBar {
     padding-right: 25px;

@@ -1,0 +1,25 @@
+/* main application CSS styles */
+.jbrowse {
+    @import "../node_modules/dijit/themes/tundra/tundra.css";
+    @import "../node_modules/dgrid/css/dgrid.css";
+    @import "dojobase";
+    @import "main";
+    @import "sequence";
+    @import "protein";
+    @import "menubar";
+    @import "toolbar";
+    @import "icons";
+    @import "tristate";
+    @import "file_dialog";
+    @import "combination_tracks";
+    @import "export_dialog";
+
+    /* CSS styles for the various types of feature glyphs */
+    @import "track_styles";
+    @import "hierarchical_track_selector";
+    @import "faceted_track_selector";
+
+
+    /* CSS styles specifically for MAKER output */
+    @import "maker";
+}
