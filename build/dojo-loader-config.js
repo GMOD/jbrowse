@@ -1,7 +1,5 @@
-const path = require('path')
-const glob = require('glob')
 
-const {getPluginConfig} = require('./plugin-util')
+const {getPluginConfig,findPluginDirectories} = require('./plugin-util')
 
 module.exports = function(env) {
 
@@ -47,19 +45,13 @@ module.exports = function(env) {
             }
         ]
         .concat(
-            glob.sync('plugins/*/')
-            .concat(
-                glob.sync('node_modules/*-jbrowse-plugin/')
-            )
-            .concat(
-                glob.sync('node_modules/@*/*-jbrowse-plugin/')
-            )
-            .map( getPluginConfig )
+            findPluginDirectories('.')
+            .map( dir => getPluginConfig(dir,'.') )
         )
         ,
 
 		async: true
     }
 
-	return dojoConfig
+    return dojoConfig
 };

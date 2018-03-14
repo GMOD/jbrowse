@@ -1,7 +1,7 @@
 const glob = require('glob')
 const path = require('path')
 
-const {getPluginConfig} = require('./plugin-util')
+const {getPluginConfig,findPluginDirectories} = require('./plugin-util')
 
 const blacklist = {};
 `
@@ -24,16 +24,14 @@ const JBrowseModuleIds =
 log(`building ${JBrowseModuleIds.length} JBrowse modules`)
 
 const pluginModuleIds =
-    glob.sync('plugins/*/') // local plugins
-    .concat(glob.sync('node_modules/*-jbrowse-plugin/')) // unscoped modules
-    .concat(glob.sync('node_modules/@*/*-jbrowse-plugin/')) // scoped modules
+    findPluginDirectories('.')
     .map( pluginDir => {
         let pluginName = getPluginConfig(pluginDir).name
         return glob.sync(pluginDir+'/js/**/*.js')
             .map( f => {
                 let mid = f.replace(pluginDir,pluginName+'/')
                     .replace('.js','')
-                    .replace('/js/','/')
+                    .replace('/js/','')
                 return mid
             })
     })

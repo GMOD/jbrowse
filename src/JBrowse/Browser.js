@@ -312,8 +312,7 @@ initPlugins: function() {
             // find the entry in the dojoConfig for this plugin
             let configEntry = dojoConfig.packages.find(c => c.name === p.name)
             if( configEntry ) {
-                p.location = configEntry.location
-                p.css = configEntry.pluginDir+configEntry.css
+                p.css = configEntry.pluginDir+'/'+configEntry.css
                 p.js = configEntry.location
             } else {
                 this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
