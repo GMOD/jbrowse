@@ -32,16 +32,22 @@
 
 ## Minor Improvements
 
-  * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
-    `enableCollapsedMouseover` option is useful when features do not overlap e.g. chromosome
-    segmentation and `disableCollapsedClick` is useful when the collapsed features are very
-    dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
+  * Added `disableCollapsedClick` and `enableCollapsedMouseover` track configuration options.
+    The `enableCollapsedMouseover` option is useful when features do not overlap e.g.
+    chromosome segmentation and `disableCollapsedClick` is useful when the collapsed features
+    are very dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
 
   * Removed JBrowse 1.2.1 compatibility. Please use JBrowse 1.12.5 or earlier
     if you still have old data formatted with JBrowse 1.2.1. (@rbuels)
 
   * For `npm` installations of JBrowse, jb_run.js and jb_setup.js are now installed into
     the standard `node_modules/.bin` location. (issue #1021, @rbuels)
+
+## Bug fixes
+
+  * Fixed a bug in which adding setting `tracklabels=0` in the URL failed to hide
+    track labels when `nav=0` was also set in the URL. Thanks to Vaneet Lotay for reporting
+    the problem, and @cmdcolin for the fix. (issue #1017, pull #1018, @cmdcolin)
 
 # Release 1.12.5     2018-02-28 20:08:35 UTC
 
