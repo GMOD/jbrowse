@@ -1,5 +1,5 @@
 
-const {getPluginConfig,findPluginDirectories} = require('./plugin-util')
+const {findPlugins} = require('./plugin-util')
 
 module.exports = function(env) {
 
@@ -45,8 +45,7 @@ module.exports = function(env) {
             }
         ]
         .concat(
-            findPluginDirectories('.')
-            .map( dir => getPluginConfig(dir,'.') )
+            findPlugins('.')
         )
         ,
 

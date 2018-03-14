@@ -42,9 +42,32 @@ function findPluginDirectories(baseDir) {
         .concat(
             glob.sync(path.resolve(baseDir,'node_modules/@*/*-jbrowse-plugin/'))
         )
+
+
+}
+
+function findPlugins(baseDir) {
+    let pluginConfigs = findPluginDirectories(baseDir)
+        .map( dir => getPluginConfig(dir,baseDir) )
+
+    // check for duplicate plugin names
+    const duplicates = []
+    const seen = {}
+    pluginConfigs.forEach(conf => {
+        if (seen[conf.name])
+            duplicates.push(conf.name)
+
+        seen[conf.name] = true
+    })
+
+    if (duplicates.length)
+        throw new Error(`multiple plugins found with the name(s) ${duplicates}, please check installed plugins`)
+
+    return pluginConfigs
 }
 
 module.exports = {
+    findPlugins,
     getPluginConfig,
     findPluginDirectories,
 }
