@@ -10,10 +10,10 @@
   * The way JBrowse plugins are discovered and loaded has changed significantly,
     although we think that most users of plugins will not experience any problems.
     If you use JBrowse plugins other than the "stock" ones that come with JBrowse,
-    you must now use the `dev` release of JBrowse, and re-run `setup.sh` every time
-    you add or remove a plugin. (issue #981, @rbuels)
+    you must now use the `dev` release of JBrowse, and re-run either `setup.sh` or
+    `npm run build` every time you add or remove a plugin. (issue #981, @rbuels)
 
-  * JBrowse plugins can now be published and installed with NPM! Simply publish your
+  * JBrowse plugins can now be published and installed with NPM. Simply publish your
     plugin to npm and make sure its name ends with "-jbrowse-plugin". For example,
     if you have a plugin named "foo", publish it to npm as "foo-jbrowse-plugin".
     However, if your plugin is named MyAwesomePlugin, which is not compatible with
@@ -37,10 +37,10 @@
     segmentation and `disableCollapsedClick` is useful when the collapsed features are very
     dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
 
-  * Removed JBrowse 1.2.1 compatibility support. Please use JBrowse 1.12.5 or earlier
+  * Removed JBrowse 1.2.1 compatibility. Please use JBrowse 1.12.5 or earlier
     if you still have old data formatted with JBrowse 1.2.1. (@rbuels)
 
-  * For `npm` installs of JBrowse, jb_run.js and jb_setup.js are now installed into
+  * For `npm` installations of JBrowse, jb_run.js and jb_setup.js are now installed into
     the standard `node_modules/.bin` location. (issue #1021, @rbuels)
 
 # Release 1.12.5     2018-02-28 20:08:35 UTC
