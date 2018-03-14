@@ -95,11 +95,6 @@ function (
     // create a JBrowse global variable holding the JBrowse instance
     window.JBrowse = new Browser( config );
 
-    require.on('error', function(error) {
-        let errString = error.info && error.info[0] && error.info[0].mid ? error.info.map(({mid})=>mid).join(', ') : error;
-        window.JBrowse.fatalError('Failed to load resource: '+errString);
-    });
-
     window.JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('LoadingScreen')); });
 });
 
