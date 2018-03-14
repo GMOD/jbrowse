@@ -70,7 +70,6 @@ return declare( JBrowsePlugin,
                 thisB.showTrackLabels("hide");
             });
         }
-
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
             thisB.showTrackLabels("hide-if");
         });
@@ -84,7 +83,7 @@ return declare( JBrowsePlugin,
      */
     showTrackLabels: function(fn) {
         var direction = 1;
-        var button = dom.byId("hidetitled-btn");
+        var button = dom.byId("hidetitles-btn");
 
         if (fn=="show") {
             if(button) dojo.removeAttr(button,"hidden-titles");
@@ -100,13 +99,15 @@ return declare( JBrowsePlugin,
         }
 
         if (fn=="toggle"){
-            if (button && dojo.hasAttr(button,"hidden-titles")) {     // if hidden, show
-                dojo.removeAttr(button,"hidden-titles");
-                direction = 1;
-            }
-            else {
-                if(button) dojo.attr(button,"hidden-titles","");       // if shown, hide
-                direction = -1;
+            if (button) {
+                if(dojo.hasAttr(button,"hidden-titles")) {     // if hidden, show
+                    dojo.removeAttr(button,"hidden-titles");
+                    direction = 1;
+                }
+                else {
+                    dojo.attr(button,"hidden-titles","");       // if shown, hide
+                    direction = -1;
+                }
             }
         }
         // protect Hide button from clicks during animation
