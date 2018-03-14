@@ -1,0 +1,189 @@
+<html>
+<head>
+    <title>JBrowse feature rendering outside of browser</title>
+
+    <link rel="stylesheet" type="text/css" href="css/genome.css">
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
+
+    <script>
+
+
+        var feature_data1 = {
+            data: {
+                'type': 'mRNA',
+                'start': 5975,
+                'end': 9744,
+                'score': 0.84,
+                'strand': 1,
+                'name': 'au9.g1002.t1',
+                'uniqueID': 'globallyUniqueString3',
+                'subfeatures': [
+                    { 'type': 'five_prime_UTR', 'start': 5975, 'end': 6109, 'score': 0.98, 'strand': 1 },
+                    { 'type': 'start_codon', 'start': 6110, 'end': 6112, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 6110, 'end': 6148, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 6615, 'end': 6683, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 6758, 'end': 7040, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 7142, 'end': 7319, 'score': 1, 'strand': 1, 'phase': 2 },
+                    { 'type': 'CDS', 'start': 7411, 'end': 7687, 'score': 1, 'strand': 1, 'phase': 1 },
+                    { 'type': 'CDS', 'start': 7748, 'end': 7850, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 7953, 'end': 8098, 'score': 1, 'strand': 1, 'phase': 2 },
+                    { 'type': 'CDS', 'start': 8166, 'end': 8320, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 8419, 'end': 8614, 'score': 1, 'strand': 1, 'phase': 1 },
+                    { 'type': 'CDS', 'start': 8708, 'end': 8811, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 8927, 'end': 9239, 'score': 1, 'strand': 1, 'phase': 1 },
+                    { 'type': 'CDS', 'start': 9414, 'end': 9494, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'stop_codon', 'start': 9492, 'end': 9494, 'strand': 1, 'phase': 0 },
+                    { 'type': 'three_prime_UTR', 'start': 9495, 'end': 9744, 'score': 0.86, 'strand': 1 }
+                ]
+            }
+        };
+        var feature_data2 = {
+            data: {
+                'type': 'mRNA',
+                'start': 5975,
+                'end': 10744,
+                'score': 0.84,
+                'strand': 1,
+                'name': 'au9.g1002.t2',
+                'uniqueID': 'globallyUniqueString4',
+                'subfeatures': [
+                    { 'type': 'five_prime_UTR', 'start': 5975, 'end': 6109, 'score': 0.98, 'strand': 1 },
+                    { 'type': 'start_codon', 'start': 6110, 'end': 6112, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 6110, 'end': 6148, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 6615, 'end': 6683, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 6758, 'end': 7040, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 7142, 'end': 7319, 'score': 1, 'strand': 1, 'phase': 2 },
+                    { 'type': 'CDS', 'start': 7411, 'end': 7687, 'score': 1, 'strand': 1, 'phase': 1 },
+                    { 'type': 'CDS', 'start': 7748, 'end': 7850, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 7953, 'end': 8098, 'score': 1, 'strand': 1, 'phase': 2 },
+                    { 'type': 'CDS', 'start': 8166, 'end': 8320, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 8419, 'end': 8614, 'score': 1, 'strand': 1, 'phase': 1 },
+                    { 'type': 'CDS', 'start': 8708, 'end': 8811, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'CDS', 'start': 8927, 'end': 9239, 'score': 1, 'strand': 1, 'phase': 1 },
+                    { 'type': 'CDS', 'start': 9414, 'end': 9494, 'score': 1, 'strand': 1, 'phase': 0 },
+                    { 'type': 'stop_codon', 'start': 9492, 'end': 9484, 'strand': 1, 'phase': 0 },
+                    { 'type': 'three_prime_UTR', 'start': 9485, 'end': 10744, 'score': 0.86, 'strand': 1 }
+                ]
+            }
+        };
+        // Require bare bones jbrowse components without using the main browser object
+        require([
+                    'dojo/cookie',
+                    'dojo/dom',
+                    'dojo/dom-construct',
+                    'JBrowse/Browser',
+                    'JBrowse/View/Track/HTMLFeatures',
+                    'JBrowse/Store/SeqFeature/NCList',
+                    'JBrowse/Model/SimpleFeature',
+                    'JBrowse/View/GranularRectLayout',
+                    'JBrowse/Store/Sequence/StaticChunked'
+                ],
+                function(cookie, dom, domConstruct, Browser, HTMLFeatures, NCList, SimpleFeature, Layout, StaticChunkedSequence) {
+                    var features = [
+                        new SimpleFeature(feature_data1),
+                        new SimpleFeature(feature_data2)
+                    ];
+
+
+                    // manually initialize a new HTMLFeatures track (similar to a trackList.json config)
+                    var trackConfig = {
+                        style: {
+                            className: 'feature'
+                        },
+                        storeClass: 'JBrowse/Store/SeqFeature/NCList',
+                        type: 'FeatureTrack',
+                        label: 'Testing',
+                        showLabels: true,
+                        onClick: {
+                            label: 'Feature name {name}\nFeature start {start}\nFeature end {end}',
+                            url: 'http://google.com/?q={name}',
+                            action: 'navigateTo'
+                        },
+                        menuTemplate: null
+                    };
+
+                    // Initialize jbrowse instance in unittestmode so that it doesn't actually draw the browser to screen
+                    var browser = new Browser({unitTestMode: true});
+                    browser.view = {};
+
+                    var mmin = 1000000000;
+                    var mmax = -1000000000;
+
+                    // Set the range of visible regions according to the features that we have
+                    features.forEach(function(feature) {
+                        if (feature.get('start') < mmin) {
+                            mmin = feature.get('start');
+                        }
+                        if (feature.get('end') > mmax) {
+                            mmax = feature.get('end');
+                        }
+                    });
+                    browser.view.minVisible = function() { return mmin; };
+                    browser.view.maxVisible = function() { return mmax; };
+                    browser.view.visibleRegion = function() { return { start: mmin, end: mmax }; };
+
+
+                    var track = new HTMLFeatures({
+                        config: trackConfig,
+                        store: NCList,
+                        browser: browser
+                    });
+                    var block = {};
+                    block.featureLayout = new Layout(mmin, mmax);
+                    block.featureNodes = [];
+                    block.startBase = mmin - (mmax - mmin) * 0.1;
+                    block.endBase = mmax + (mmax - mmin) * 0.1;
+                    block.domNode = dom.byId('display');
+                    track.refSeq = {};
+                    track.refSeq.name = 'ctgA';
+                    track.blocks = [block];
+                    track.label = dom.byId('label');
+                    track.measureStyles();
+                    track.genomeView = { dragging: false };
+
+                    features.forEach(function(feature) {
+                        var simplefeature = new SimpleFeature(feature);
+                        var featNode = track.renderFeature(simplefeature, simplefeature.get('name'), block, 0.02, 0.01, 0.01, block.startBase, block.endBase);
+                        if (featNode) {
+                            block.domNode.appendChild(featNode);
+                            track._centerChildrenVertically(featNode);
+                            track._makeClickHandler(track.config.onClick, featNode);
+                        }
+                    });
+                    track.updateStaticElements({ x: 0, y: 0, width: 2000, height: 100 });
+
+                    // manually initialize a new sequence track to grab reference sequence data
+                    var trackConfig2 = {
+                        storeClass: 'JBrowse/Store/Sequence/StaticChunked',
+                        chunkSize: 20000,
+                        urlTemplate: 'jbrowse/sample_data/json/volvox/seq/{refseq_dirpath}/{refseq}-',
+                        label: 'DNA',
+                        type: 'SequenceTrack',
+                        browser: browser
+                    };
+
+                    // Fake existence of jbrowse object
+                    var track2 = new StaticChunkedSequence(trackConfig2);
+                    track2.refSeq = {};
+                    track2.refSeq.name = 'ctgA';
+                    track2.getReferenceSequence({ ref: 'ctgA', start: 0, end: 1000}, dojo.hitch(this, function(seq) {
+                                dom.byId('sequence').innerHTML = '>ctgA:1-1000' + '<br>' + seq;
+                            })
+                    );
+                });
+
+    </script>
+
+</head>
+<body>
+<div style="top:0px">
+    <h1>JBrowse feature rendering outside of browser</h1>
+    <div id="display" style="margin:50px;position:absolute;width:75%;"></div>
+</div>
+<div style="position:absolute;top:200px;width:100%">
+    <h1>JBrowse sequence store access outside of browser</h1>
+    <div id="sequence" style="margin:50px;word-wrap:break-word;width:75%;"></div>
+</div>
+</body>
+</html>

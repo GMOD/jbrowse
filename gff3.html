@@ -1,0 +1,304 @@
+<html>
+<head>
+    <title>JBrowse - Retrieve data outside of browser</title>
+
+    <link rel="stylesheet" type="text/css" href="css/genome.css">
+    <script type="text/javascript" src="src/dojo/dojo.js" data-dojo-config="async: 1, baseUrl: './src'"></script>
+    <script type="text/javascript" src="src/JBrowse/init.js"></script>
+    <style>
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+
+    <script>
+
+
+        // Require bare bones jbrowse components without using the main browser object
+        require([
+                    'dojo/io-query',
+                    'dojo/dom',
+                    'dojo/json',
+                    'JBrowse/Browser',
+                    'JBrowse/View/Track/HTMLFeatures',
+                    'JBrowse/Util',
+                    'JBrowse/Util/GFF3',
+                    'JBrowse/Store/SeqFeature/NCList',
+                    'JBrowse/Model/SimpleFeature',
+                    'JBrowse/View/GranularRectLayout',
+                    'JBrowse/View/Export',
+                    'JBrowse/Store/Sequence/StaticChunked',
+                    'JBrowse/View/Export/GFF3'
+                ],
+                function (ioQuery,
+                          dom,
+                          dojoJson,
+                          Browser,
+                          HTMLFeatures,
+                          Util,
+                          GFF3Util,
+                          NCList,
+                          SimpleFeature,
+                          Layout,
+                          ExportMixin,
+                          StaticChunkedSequence,
+                          GFF3Mixin) {
+                    var queryParams = ioQuery.queryToObject(window.location.search.slice(1));
+
+                    var config = {
+                        containerID: "GenomeBrowser",
+                        dataRoot: queryParams.data,
+                        lookupSymbol: queryParams.lookupSymbol,
+                        queryParams: queryParams,
+                        location: queryParams.loc,
+                        updateBrowserURL: true
+                    };
+
+
+                    var getGFF = function (conf, region, callback) {
+                        var conf = dojo.mixin({
+                            storeClass: 'JBrowse/Store/SeqFeature/NCList'
+                        }, conf);
+                        var store = new NCList(conf);
+                        store.refSeq = {};
+                        store.refSeq.name = region.refseq;
+                        var exp = new dojo.declare([ExportMixin, GFF3Mixin])({store: store});
+
+                        // Fake existence of jbrowse object
+                        return exp.exportRegion({ref: region.refseq, start: region.start, end: region.end}, callback);
+                    };
+
+
+                    // Initialize jbrowse instance in unittestmode so that it doesn't actually draw the browser to screen
+                    var browser = new Browser({unitTestMode: true});
+
+
+//                    console.log(config.location);
+                    var region = Util.parseLocString(config.location);
+                    region.refseq = region.ref;
+                    region.lookupSymbol = config.lookupSymbol;
+//                    console.log(region);
+//                    console.log(config.dataRoot);
+
+                    var prefix = 'http://agrjbrowse.s3-website-us-east-1.amazonaws.com';
+
+//    http://agrjbrowse.s3-website-us-east-1.amazonaws.com/zfin/zebrafish/tracks/All%20Genes/1/trackData.jsonz
+                    var dataMappings = {
+                                'data/Danio rerio': '/zfin/zebrafish'
+                                , 'data/MGI': '/MGI/mouse'
+                                , 'data/Caenorhabditis elegans': 'WormBase/c_elegans_PRJNA13758'
+                                , 'data/Drosophila melanogaster': 'FlyBase/fruitfly'
+                                , 'data/Saccharomyces cerevisiae': 'SGD/yeast'
+                            }
+                    ;
+
+//    Caenorhabditis elegans -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Caenorhabditis elegans/
+//├── Danio rerio -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Danio rerio/
+//├── Drosophila melanogaster -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Drosophila melanogaster/
+//├── FlyBase -> /home/ubuntu/AGR-jbrowse/jbrowse/data/FlyBase/
+//├── functions.conf -> /home/ubuntu/AGR-jbrowse/jbrowse/data/functions.conf
+//├── Homo sapiens -> /home/ubuntu/AGR-jbrowse/jbrowse/data/human
+//├── Mus musculus -> /home/ubuntu/AGR-jbrowse/jbrowse/data/MGI/
+//├── Rattus norvegicus -> /home/ubuntu/AGR-jbrowse/jbrowse/data/RGD
+//├── Saccharomyces cerevisiae -> /home/ubuntu/AGR-jbrowse/jbrowse/data/Saccharomyces cerevisiae/
+//├── SGD -> /home/ubuntu/AGR-jbrowse/jbrowse/data/SGD
+//├── WormBase -> /home/ubuntu/AGR-jbrowse/jbrowse/data/WormBase/
+//└── zfin -> /home/ubuntu/AGR-jbrowse/jbrowse/data/zfin/
+
+                    var dataRoot = dataMappings[config.dataRoot];
+
+                    getGFF({
+                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
+                        label: 'Genes',
+                        browser: browser
+                    }, region, function (features) {
+                        document.getElementById('gff').innerHTML = features;
+                    });
+
+                    var parseJSON= function(features,region,callback){
+                        // TODO: create a separate function
+                        var jsonFeatures = [] ;
+                        var splitFeatures = features.split('\n');
+//                        console.log('region in scope: '+JSON.stringify(region));
+
+                        for(f in splitFeatures){
+                            var line = splitFeatures[f];
+                            if(line && line.indexOf('#')!==0){
+                                // let's get a single gene and substring everything else
+                                var feature = GFF3Util.parse_feature(line);
+                                feature.name = feature.attributes.Name[0];
+                                feature.uniqueID = feature.attributes.ID[0];
+                                if(feature.attributes.parentID){
+                                    feature.parent = feature.attributes.parentID[0] ;
+                                }
+
+                                // if its a gene, then include it
+//                                if(!feature.attributes.Parent ){
+                                if(feature.type=='gene' ) {
+                                }
+                                else
+                                if(feature.type=='mRNA' ){
+                                    feature.subfeatures=[];
+//                                    if(region.lookupSymbol ){
+//                                        console.log('comparing: '+feature.attributes.ID + ' vs ' + region.lookupSymbol + ' = ' + (feature.attributes.ID==region.lookupSymbol));
+//                                        if(feature.attributes.ID==region.lookupSymbol || feature.attributes.Name==region.lookupSymbol){
+//                                            console.log('matched!: '+feature.attributes.ID + ' vs ' + region.lookupSymbol);
+//                                            jsonFeatures.push(feature);
+//                                        }
+//                                    }
+//                                    else{
+                                        jsonFeatures.push(feature);
+//                                    }
+                                }
+                                // if we are a child object, we iterate through the top-level genes for a match
+                                else{
+                                    // TODO: create an index for this at some point
+                                    var parentID = feature.attributes.Parent ;
+                                    // let's find the parent!
+                                    for(j in jsonFeatures){
+                                        parentFeature = jsonFeatures[j];
+//                                        console.log('finding PARENT: '+ (typeof parentFeature.attributes.ID[0]) + ' vs ' + (typeof parentID) + ' = ' + (parentFeature.attributes.ID==parentID));
+                                        if(parentFeature.attributes.ID[0]===parentID[0]){
+                                            parentFeature.subfeatures.push(feature);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                        return callback(jsonFeatures);
+                    };
+
+                    getGFF({
+                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
+                        label: 'Genes',
+                        browser: browser
+                    }, region, function(features){
+                        parseJSON(features,region, function (jsonFeatures) {
+//                            console.log('parsing features: '+jsonFeatures);
+                            document.getElementById('renderedJSON').innerHTML = JSON.stringify(jsonFeatures);
+                        })
+                    });
+
+
+
+                    getGFF({
+                        urlTemplate: prefix + dataRoot + '/tracks/All%20Genes/{refseq}/trackData.jsonz',
+                        label: 'Genes',
+                        browser: browser
+                    }, region, function(features){
+                        parseJSON(features,region, function (jsonFeatures) {
+
+                            var renderedFeatures = [ ] ;
+//                            console.log('rendering '+jsonFeatures.length + ' features');
+                            for(j in jsonFeatures){
+                                featureData = { data: jsonFeatures[j] };
+//                                console.log('rendering this one '+JSON.stringify(featureData));
+                                renderedFeatures.push(new SimpleFeature(featureData));
+                            }
+
+                            // manually initialize a new HTMLFeatures track (similar to a trackList.json config)
+                            var trackConfig = {
+                                style: {
+                                    className: 'feature'
+                                },
+                                storeClass: 'JBrowse/Store/SeqFeature/NCList',
+                                type: 'FeatureTrack',
+                                label: 'Testing',
+                                showLabels: true,
+                                onClick: {
+                                    label: 'Feature name {name}\nFeature start {start}\nFeature end {end}',
+                                    url: 'http://google.com/?q={name}',
+                                    action: 'navigateTo'
+                                },
+                                menuTemplate: null
+                            };
+
+                            var browser = new Browser({unitTestMode: true});
+                            browser.view = {};
+
+                            var mmin = 1000000000;
+                            var mmax = -1000000000;
+                            // Set the range of visible regions according to the features that we have
+                            renderedFeatures.forEach(function(feature) {
+                                if (feature.get('start') < mmin) {
+                                    mmin = feature.get('start');
+                                }
+                                if (feature.get('end') > mmax) {
+                                    mmax = feature.get('end');
+                                }
+                            });
+                            browser.view.minVisible = function() { return mmin; };
+                            browser.view.maxVisible = function() { return mmax; };
+                            browser.view.visibleRegion = function() { return { start: mmin, end: mmax }; };
+
+
+                            var track = new HTMLFeatures({
+                                config: trackConfig,
+                                store: NCList,
+                                browser: browser
+                            });
+                            var block = {};
+                            block.featureLayout = new Layout(mmin, mmax);
+                            block.featureNodes = [];
+                            block.startBase = mmin - (mmax - mmin) * 0.1;
+                            block.endBase = mmax + (mmax - mmin) * 0.1;
+                            block.domNode = dom.byId('display');
+                            track.refSeq = {};
+                            track.refSeq.name = 'ctgA';
+                            track.blocks = [block];
+                            track.label = dom.byId('label');
+                            track.measureStyles();
+                            track.genomeView = { dragging: false };
+
+                            renderedFeatures.forEach(function(feature) {
+                                var simplefeature = new SimpleFeature(feature);
+                                var featNode = track.renderFeature(simplefeature, simplefeature.get('name'), block, 0.02, 0.01, 0.01, block.startBase, block.endBase);
+                                if (featNode) {
+                                    block.domNode.appendChild(featNode);
+                                    track._centerChildrenVertically(featNode);
+                                    track._makeClickHandler(track.config.onClick, featNode);
+                                }
+                            });
+                            track.updateStaticElements({ x: 0, y: 0, width: 2000, height: 100 });
+
+                            var layedOutElements = document.getElementsByClassName("feature-label");
+                            var maxTop = 0 ;
+                            for(i in layedOutElements){
+                                if(layedOutElements[i].style ){
+                                    var topString = layedOutElements[i].style.top;
+                                    var topInt = Number(topString.substring(0,topString.length-2));
+                                    if(topInt>maxTop){
+                                        maxTop = topInt ;
+                                    }
+
+                                }
+                            }
+                            console.log('max top: '+ maxTop);
+                            document.getElementById('display').style.height=  (maxTop+50)+'px';
+                            document.getElementById('wrapper').style.height=  (maxTop+70)+'px';
+
+                            return maxTop;
+
+                        })
+                    });
+
+                });
+
+    </script>
+
+</head>
+<body>
+<div id="wrapper" style="top:0px;height:200px;">
+    <h1>JBrowse feature rendering outside of browser</h1>
+    <!--?<div id="display" style="margin:50px;position:absolute;width:75%;"></div>-->
+    <div id="display" style="margin:50px;position:absolute;width:75%;height:200px;"></div>
+</div>
+<h1>Rendered JSON</h1>
+<pre id="renderedJSON"></pre>
+<h1>JBrowse gff store access outside of browser</h1>
+<pre id="gff"></pre>
+</body>
+</html> 
+

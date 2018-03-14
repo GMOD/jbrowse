@@ -1,0 +1,17 @@
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/AntisenseRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/BareNoncodingGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/ExonTranscript.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/LabelFloatBox.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/LincRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/MiRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/NcRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/NoncodingGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/PiRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/PreMiRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/PseudoGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/RRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/ScRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/SnoRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/SnRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/TRNAGene.js
+ln -s /home/ubuntu/git/website-genome-browsers/jbrowse/jbrowse/src/JBrowse/View/FeatureGlyph/WBGene.js
