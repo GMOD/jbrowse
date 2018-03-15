@@ -3,9 +3,6 @@
 
 # Release 1.13.0     2018-03-15 01:32:20 UTC
 
-
-# Release 1.13.0     2018-03-14 21:29:40 UTC
-
 ## Major improvements
 
   * JBrowse now uses a Webpack-based build system, which greatly speeds up JBrowse's
