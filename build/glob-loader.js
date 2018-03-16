@@ -43,6 +43,7 @@ const pluginModuleIds =
 pluginModuleIds.forEach( mid => log(`adding plugin module ${mid}`) )
 
 const mids = JBrowseModuleIds.concat(pluginModuleIds)
+log(`discovered a total of ${mids.length} modules`)
 
 // tiny Webpack Loader that replaces "//! webpackRequireGlob" expressions with a big bunch of requires
 module.exports = function(content,map,meta) {
