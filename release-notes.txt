@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Minor improvements
+
+  * Plugins that don't need CSS can now set `jbrowsePlugin.css` to `false` in their
+    package.json files to prevent JBrowse trying to load their css/main.css file,
+    if they don't use any CSS. (@rbuels)
 
 # Release 1.13.0     2018-03-15 01:32:20 UTC
 

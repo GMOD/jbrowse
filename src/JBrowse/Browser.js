@@ -312,7 +312,7 @@ initPlugins: function() {
             // find the entry in the dojoConfig for this plugin
             let configEntry = dojoConfig.packages.find(c => c.name === p.name)
             if( configEntry ) {
-                p.css = configEntry.pluginDir+'/'+configEntry.css
+                p.css = configEntry.css ? configEntry.pluginDir+'/'+configEntry.css : false
                 p.js = configEntry.location
             } else {
                 this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
@@ -347,9 +347,13 @@ initPlugins: function() {
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 var cssLoaded = this._loadCSS(
-                                     { url: plugin.css+'/main.css' }
-                                 );
+                                 var cssLoaded;
+                                 if (plugin.css) {
+                                    cssLoaded = this._loadCSS({ url: plugin.css+'/main.css' })
+                                 } else {
+                                    cssLoaded = new Deferred()
+                                    cssLoaded.resolve()
+                                 }
                                  cssLoaded.then( function() {
                                      thisPluginDone.resolve({success:true});
                                  });
