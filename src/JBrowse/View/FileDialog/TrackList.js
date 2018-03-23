@@ -146,8 +146,6 @@ _updateDisplay: function() {
     } else {
         var table = dom.create('table', { innerHTML: '<tr class="head"><th>Name</th><th>Display</th><th></th></tr>'}, this.domNode );
 
-        var trackTypes = this.browser.getTrackTypes();
-
         for( var n in this.trackConfs ) {
             var t = this.trackConfs[n];
             var r = dom.create('tr', {}, table );
@@ -155,15 +153,15 @@ _updateDisplay: function() {
                 value: t.key,
                 onChange: function() { t.key = this.get('value'); }
             }).placeAt( dom.create('td',{ className: 'name' }, r ) );
+
+            var typeOptions = this.fileDialog._trackTypeOptions(n,t);
+
             new Select({
-                    options: array.map( trackTypes.knownTrackTypes, function( t ) {
-                                            var l = trackTypes.trackTypeLabels[t]
-                                                || t.replace('JBrowse/View/Track/','').replace(/\//g, ' ');
-                                            return { label: l, value: t };
-                                        }),
-                    value: t.type,
+                    options: typeOptions,
+                    value: typeOptions.find(o => JSON.parse(o.value).type === t.type),
                     onChange: function() {
-                        t.type = this.get('value');
+                        var conf = JSON.parse(this.get('value'))
+                        Object.assign(t,conf)
                     }
             }).placeAt( dom.create('td',{ className: 'type' }, r ) );
 

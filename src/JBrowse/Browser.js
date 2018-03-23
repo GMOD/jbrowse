@@ -1320,8 +1320,8 @@ openFasta: function() {
           function loadNewRefSeq(refSeqs, tracks) {
               replaceBrowser(function() {
                   var newBrowser = new thisB.constructor({
-                      refSeqs: { data: refSeqs },
-                      refSeqOrder: results.refSeqOrder
+                      refSeqs: { data: refSeqs, seqType: 'protein' },
+                      refSeqOrder: results.refSeqOrder,
                   });
                   newBrowser.afterMilestone('completely initialized', function() {
                       array.forEach( tracks, function( conf ) {

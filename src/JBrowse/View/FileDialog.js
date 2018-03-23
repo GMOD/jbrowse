@@ -274,10 +274,27 @@ return declare( null, {
         var rl = new ResourceList({ dialog: this });
         return rl;
     },
+
     _makeTrackListControl: function() {
         var tl = new TrackList({ browser: this.browser, fileDialog: this });
         this.trackList = tl;
         return tl;
-    }
+    },
+
+    _trackTypeOptions: function(trackName,trackConf) {
+        var trackTypes = this.browser.getTrackTypes();
+
+        return array.map( trackTypes.knownTrackTypes, function( type ) {
+            var label = trackTypes.trackTypeLabels[type]
+                || type.replace('JBrowse/View/Track/','').replace(/\//g, ' ');
+            return {
+                label,
+                value: JSON.stringify({
+                    type,
+                    seqType: 'protein'
+                })
+            };
+        })
+    },
 });
 });

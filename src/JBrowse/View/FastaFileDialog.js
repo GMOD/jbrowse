@@ -36,31 +36,40 @@ return declare( FileDialog, {
     },
 
 
+    _makeSortChoices: function(actionBar) {
+        this.refSeqOrderChoice =
+            [
+                new RadioButton({
+                    id: 'sortAlpha',
+                    value: 'sortAlpha',
+                    checked: true
+                }),
+                new RadioButton({
+                    id: 'sortLength',
+                    value: 'sortLength'
+                }),
+                new RadioButton({
+                    id: 'noSort',
+                    value: 'noSort'
+                })
+            ];
+
+        var aux = dom.create('div',{className:'aux sort-choices'},actionBar);
+        this.refSeqOrderChoice[0].placeAt(aux);
+        dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs by name' }, aux ),
+        this.refSeqOrderChoice[1].placeAt(aux);
+        dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by length' }, aux );
+        this.refSeqOrderChoice[2].placeAt(aux);
+        dom.create('label', { "for": 'noSort', innerHTML: 'Use order from file' }, aux );
+    },
+
     _makeActionBar: function( openCallback, cancelCallback ) {
         var actionBar = dom.create(
             'div', {
                 className: 'dijitDialogPaneActionBar'
             });
-        var disChoices = this.refSeqOrderChoice = [
-            new RadioButton({ id: 'sortAlpha',
-                              value: 'sortAlpha',
-                               checked: true
-                             }),
-            new RadioButton({ id: 'sortLength',
-                              value: 'sortLength'
-                            }),
-            new RadioButton({ id: 'noSort',
-                              value: 'noSort'
-                            })
-        ];
 
-        var aux = dom.create('div',{className:'aux'},actionBar);
-        disChoices[0].placeAt(aux);
-        dom.create('label', { "for": 'sortAlpha', innerHTML: 'Sort refseqs by name' }, aux ),
-        disChoices[1].placeAt(aux);
-        dom.create('label', { "for": 'sortLength', innerHTML: 'Sort refseqs by length' }, aux );
-        disChoices[2].placeAt(aux);
-        dom.create('label', { "for": 'noSort', innerHTML: 'Use order from file' }, aux );
+        this._makeSortChoices(actionBar)
 
         new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: dojo.hitch( this, function() {
