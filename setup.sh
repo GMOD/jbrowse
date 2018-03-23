@@ -27,12 +27,16 @@ function check_node(){
         echo "No 'npm' executable found, you must have a proper 'Node JS' installation to install JBrowse."
         exit 1
     fi
-    NPM_VERSION=`$npm_executable -v | cut -d\. -f1`
-    if [ $NPM_VERSION -lt 2 ]; then
-        echo "npm version 2 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+    NODE_VERSION=`$node_executable -v`
+    NODE_MAJOR_VERSION=`$node_executable -v | perl -ae '/v(\\d+)/ && print "\$1\\n"'`
+    NODE_MINOR_VERSION=`$node_executable -v | perl -ae '/v\\d+\.(\\d+)/ && print "\$1\\n"'`
+    NPM_VERSION=`$npm_executable -v`
+    NPM_MAJOR_VERSION=`$npm_executable -v | cut -d\. -f1`
+    if [[ $NODE_MAJOR_VERSION < 6 || $NPM_MAJOR_VERSION < 4 ]]; then
+        echo "node version 6 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
-    echo "Node installed at $node_executable with npm $NPM_VERSION";
+    echo "Node $NODE_VERSION installed at $node_executable with npm $NPM_VERSION";
 }
 
 # log information about this system
@@ -83,8 +87,8 @@ echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from s
 if [ -f "src/JBrowse/Browser.js" ]; then
     echo "Installing javascript dependencies and building with Webpack ..."
     (
-        check_node
         set -e
+        check_node
         npm install
         npm run build
     ) 2>&1 | tee setup.log;
