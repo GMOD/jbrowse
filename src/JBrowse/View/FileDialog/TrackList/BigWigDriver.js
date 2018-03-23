@@ -34,7 +34,6 @@ return declare( null, {
             return false;
     },
 
-    // try to merge any singleton BAM and BAI stores.  currently can only do this if there is one of each
     finalizeConfiguration: function( configs ) {
     },
 

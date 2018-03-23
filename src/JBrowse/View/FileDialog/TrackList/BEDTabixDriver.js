@@ -8,11 +8,13 @@ return declare( IndexedFileDriver,  {
     name: 'BED+Tabix',
     storeType: 'JBrowse/Store/SeqFeature/BEDTabix',
 
-    fileExtension: 'bed.gz',
+    fileType: "bed.gz",
+
+    fileExtensions: ['bed.gz'],
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'bed.gz.tbi',
+    indexExtensions: ['bed.gz.tbi'],
     indexConfKey: 'tbi',
     indexUrlConfKey: 'tbiUrlTemplate'
 });

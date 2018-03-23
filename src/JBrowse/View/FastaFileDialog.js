@@ -62,31 +62,40 @@ return declare( FileDialog, {
         disChoices[2].placeAt(aux);
         dom.create('label', { "for": 'noSort', innerHTML: 'Use order from file' }, aux );
 
-        new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
+        this.cancelButton = new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
                      onClick: dojo.hitch( this, function() {
                                               cancelCallback && cancelCallback();
                                               this.dialog.hide();
                                           })
                    })
-            .placeAt( actionBar );
+       this.cancelButton.placeAt( actionBar );
 
-        new Button({ iconClass: 'dijitIconFolderOpen',
+        this.openButton = new Button({ iconClass: 'dijitIconFolderOpen',
                      label: 'Open',
-                     onClick: dojo.hitch( this, function() {
-                         openCallback && openCallback({
-                             trackConfs: this.trackList.getTrackConfigurations(),
-                             refSeqOrder: this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
-                                          this.refSeqOrderChoice[1].checked ? "length descending" :
-                                          undefined
-                         });
-                         this.dialog.hide();
-                     })
+                     onClick: () => {
+                         this._executeOpen(openCallback)
+                         this.dialog.hide()
+                     }
                    })
-            .placeAt( actionBar );
+       this.openButton.placeAt( actionBar );
 
         return { domNode: actionBar };
-    }
+    },
 
+    _executeOpen: async function(openCallback) {
+        if (!openCallback) return
+
+        let trackConfs = this.trackList.getTrackConfigurations()
+
+        let refSeqOrder =   this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
+                            this.refSeqOrderChoice[1].checked ? "length descending" :
+                                                                undefined
+
+        openCallback({
+            trackConfs,
+            refSeqOrder
+        })
+    }
 
 });
 });

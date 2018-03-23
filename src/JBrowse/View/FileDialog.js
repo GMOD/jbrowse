@@ -95,27 +95,33 @@ return declare( null, {
         disChoices[1].placeAt(aux);
         dom.create('label', { "for": 'addToTrackList', innerHTML: 'Add to tracks' }, aux );
 
+        this.cancelButton = new Button(
+            {
+                iconClass: 'dijitIconDelete', label: 'Cancel',
+                onClick: () => {
+                    if (cancelCallback) cancelCallback()
+                    this.dialog.hide()
+                }
+            })
 
-        new Button({ iconClass: 'dijitIconDelete', label: 'Cancel',
-                     onClick: dojo.hitch( this, function() {
-                                              cancelCallback && cancelCallback();
-                                              this.dialog.hide();
-                                          })
-                   })
-            .placeAt( actionBar );
-        new Button({ iconClass: 'dijitIconFolderOpen',
-                     label: 'Open',
-                     onClick: dojo.hitch( this, function() {
-                         openCallback && openCallback({
-                             trackConfs: this.trackList.getTrackConfigurations(),
-                             trackDisposition: this.trackDispositionChoice[0].checked ? this.trackDispositionChoice[0].value :
-                                               this.trackDispositionChoice[1].checked ? this.trackDispositionChoice[1].value :
-                                                                                        undefined
-                         });
-                         this.dialog.hide();
-                     })
-                   })
-            .placeAt( actionBar );
+        this.cancelButton.placeAt( actionBar )
+
+        this.openButton = new Button(
+            {
+                iconClass: 'dijitIconFolderOpen',
+                label: 'Open',
+                onClick: () => {
+                    openCallback && openCallback({
+                        trackConfs: this.trackList.getTrackConfigurations(),
+                        trackDisposition: this.trackDispositionChoice[0].checked ? this.trackDispositionChoice[0].value :
+                                          this.trackDispositionChoice[1].checked ? this.trackDispositionChoice[1].value :
+                                                                                   undefined
+                    })
+                    this.dialog.hide()
+                }
+        })
+
+        this.openButton.placeAt( actionBar );
 
         return { domNode: actionBar };
     },
@@ -155,8 +161,11 @@ return declare( null, {
         });
 
         // connect the resource list to the track list
-        dojo.connect( resourceListControl, 'onChange', function( resources ) {
-            trackListControl.update( resources );
+        dojo.connect( resourceListControl, 'onChange', resources => {
+            this.openButton.set('disabled',true)
+            trackListControl.update( resources )
+            .then(() => {}, err => console.error(err)) // just console log any errors
+            .then(() => this.openButton.set('disabled',false))
         });
 
         var div = function( attr, children ) {

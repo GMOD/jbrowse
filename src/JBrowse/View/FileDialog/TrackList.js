@@ -35,47 +35,44 @@ getTrackConfigurations: function() {
     return Util.dojof.values( this.trackConfs || {} );
 },
 
-update: function( resources ) {
+update: async function( resources ) {
     this.storeConfs = {};
     this.trackConfs = {};
 
-    this._makeStoreConfs( resources );
+    await this._makeStoreConfs( resources );
 
     // make some track configurations from the store configurations
-    this._makeTrackConfs();
+    await this._makeTrackConfs();
 
     this._updateDisplay();
 },
 
-_makeStoreConfs: function( resources ) {
+_makeStoreConfs: async function( resources ) {
     // when called, rebuild the store and track configurations that we are going to add
-    this.storeConfs = this.storeConfs || {};
+    this.storeConfs = this.storeConfs || {}
 
-    var typeDrivers = this.fileDialog.getFileTypeDrivers();
+    let typeDrivers = this.fileDialog.getFileTypeDrivers()
 
     // anneal the given resources into a set of data store
     // configurations by offering each file to each type driver in
     // turn until no more are being accepted
-    var lastLength = 0;
-    while( resources.length && resources.length != lastLength ) {
-        resources = array.filter( resources, function( resource ) {
-            return ! array.some( typeDrivers, function( typeDriver ) {
-               return typeDriver.tryResource( this.storeConfs, resource );
-            },this);
-        },this);
+    let lastLength = 0;
+    while(resources.length && resources.length != lastLength) {
 
-        lastLength = resources.length;
+        resources = resources.filter( resource =>
+            ! typeDrivers.some( drv => drv.tryResource( this.storeConfs, resource ))
+        )
+
+        lastLength = resources.length
     }
 
-    array.forEach( typeDrivers, function( typeDriver ) {
-        typeDriver.finalizeConfiguration( this.storeConfs );
-    },this);
+    typeDrivers.forEach(drv => drv.finalizeConfiguration(this.storeConfs))
 
     if( resources.length )
-        console.warn( "Not all resources could be assigned to tracks.  Unused resources:", resources );
+        console.warn( "Not all resources could be assigned to tracks. Unused resources:", resources );
 },
 
-_makeTrackConfs: function() {
+_makeTrackConfs: async function() {
     // object that maps store type -> default track type to use for the store
     var typeMap = this.browser.getTrackTypes().trackTypeDefaults;
 

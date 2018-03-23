@@ -7,11 +7,13 @@ return declare( IndexedFileDriver,  {
     name: 'VCF+Tabix',
     storeType: 'JBrowse/Store/SeqFeature/VCFTabix',
 
-    fileExtension: 'vcf.gz',
+    fileType: 'vcf.gz',
+
+    fileExtensions: ['vcf.gz'],
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'vcf.gz.tbi',
+    indexExtensions: ['vcf.gz.tbi'],
     indexConfKey: 'tbi',
     indexUrlConfKey: 'tbiUrlTemplate'
 });

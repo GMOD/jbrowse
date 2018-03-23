@@ -7,11 +7,13 @@ return declare( IndexedFileDriver,  {
     name: 'GFF3+Tabix',
     storeType: 'JBrowse/Store/SeqFeature/GFF3Tabix',
 
-    fileExtension: 'gff3.gz',
+    fileType: 'gff3.gz',
+
+    fileExtensions: ['gff3.gz'],
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'gff3.gz.tbi',
+    indexExtensions: ['gff3.gz.tbi'],
     indexConfKey: 'tbi',
     indexUrlConfKey: 'tbiUrlTemplate'
 

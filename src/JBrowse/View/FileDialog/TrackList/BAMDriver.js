@@ -7,11 +7,13 @@ return declare( IndexedFileDriver,  {
     name: 'BAM',
     storeType: 'JBrowse/Store/SeqFeature/BAM',
 
-    fileExtension: 'bam',
+    fileType: 'bam',
+
+    fileExtensions: ['bam'],
     fileConfKey: 'bam',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'bam.bai',
+    indexExtensions: ['bam.bai','bai'],
     indexConfKey: 'bai',
     indexUrlConfKey: 'baiUrlTemplate'
 });

@@ -7,18 +7,16 @@ return declare( IndexedFileDriver,  {
     name: 'FASTA',
     storeType: 'JBrowse/Store/SeqFeature/IndexedFasta',
 
-    fileExtension: 'fasta',
+    fileType: 'fasta',
+
+    fileExtensions: ['fasta','fa'],
     fileConfKey: 'fasta',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'fai',
+    indexExtensions: ['fai'],
     indexConfKey: 'fai',
     indexUrlConfKey: 'faiUrlTemplate',
 
-
-    tryResource: function(configs, resource) {
-        this.inherited(arguments);
-    },
     finalizeConfiguration: function(configs) {
         this.inherited(arguments);
         for(var i in configs) {
