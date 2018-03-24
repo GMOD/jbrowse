@@ -63,7 +63,7 @@ script:
   fi
 - set +e
 after_failure:
-- cat JBrowse-*/setup.log
+- cat setup.log
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases
