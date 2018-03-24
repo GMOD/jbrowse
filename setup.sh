@@ -6,7 +6,12 @@ done_message () {
             echo $1;
         fi
     else
-        echo " failed.  See setup.log file for error messages." $2
+        echo " failed.  See setup.log file for error messages." $2;
+        if [[ "x$3" != "x" ]]; then
+            echo "setup cannot continue, aborting.";
+            tail -200 setup.log;
+            exit 1;
+        fi
     fi
 }
 
@@ -86,9 +91,9 @@ if [ -f "src/JBrowse/Browser.js" ]; then
         set -e
         check_node
         npm install
-        npm run buld
+        npm run build
     ) >>setup.log 2>&1;
-    done_message "" ""
+    done_message "" "" "FAILURE NOT ALLOWED"
 else
     echo "Minimal release, skipping node and Webpack build"
 fi
