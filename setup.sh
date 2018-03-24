@@ -37,7 +37,7 @@ function check_node(){
     NODE_MINOR_VERSION=`$node_executable -v | perl -ae '/v\\d+\.(\\d+)/ && print "\$1\\n"'`
     NPM_VERSION=`$npm_executable -v`
     NPM_MAJOR_VERSION=`$npm_executable -v | cut -d\. -f1`
-    if [[ $NODE_MAJOR_VERSION < 6 || $NPM_MAJOR_VERSION < 4 ]]; then
+    if [[ $NODE_MAJOR_VERSION < 6 || $NPM_MAJOR_VERSION < 3 ]]; then
         echo "node version 6 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
