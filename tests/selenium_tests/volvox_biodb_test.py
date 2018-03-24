@@ -10,8 +10,6 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
     data_dir = 'sample_data/json/volvox'
 
     def setUp( self ):
-        call( "rm -rf sample_data/json/volvox/", shell=True )
-        call( "./setup.sh" )
         super( AbstractVolvoxBiodbTest, self ).setUp()
 
     def test_volvox( self ):
@@ -203,6 +201,21 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # check that the dialog closed
         self.assert_no_element("//*[@class='dijitDialogTitle'][contains(text(),'Random XHR')]")
         self.turn_off_track( 'HTMLFeatures - Features with right-click menus' )
+
+    def click( self ):
+        self.turn_on_track('ChromHMM')
+
+        self.assert_elements("//div[@id='track_ChromeHMM']//canvas")
+        self.assert_no_js_errors()
+
+        # test left-clicking on CanvasFeatures track
+        self.do_typed_query( 'ctgA:20000..30000' )
+        self.assert_no_element("//*[@class='featureTooltip'][contains(text(), '15_Quies')]")
+        canvas = self.assert_element("//div[@id='track_ChromHMM']/canvas")
+        canvas.mouseover()
+        self.assert_element("//*[@class='featureTooltip'][contains(text(), '15_Quies')]")
+        self.turn_off_track('ChromHMM')
+
 
     def search_f15( self ):
 

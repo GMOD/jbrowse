@@ -2311,7 +2311,7 @@ renderTrack: function( /**Object*/ trackConfig ) {
         });
 
     // get the track class
-    require( [ trackConfig.type ], function( class_ ) {
+    dojo.global.require( [ trackConfig.type ], function( class_ ) {
         if(typeof class_ === "string") {
             console.error("Failed to load module: "+trackConfig.type);
             return;
@@ -2324,14 +2324,14 @@ renderTrack: function( /**Object*/ trackConfig ) {
     return trackDiv;
 },
 /**
- * 
+ *
  * @param {type} track
  * @param {type} state
  * @returns {undefined}
  */
 setTrackFocus: function(track,state) {
     var thisB = this;
-    
+
     if (state === 1) {
         if (this.focusTrack !== null) {
 

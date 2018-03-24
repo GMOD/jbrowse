@@ -625,7 +625,7 @@ renderResultsTrack: function() {
         };
 
         // Loads the track class from the specified path
-        require([trackClassName], function(tc) {
+        dojo.global.require([trackClassName], function(tc) {
                     trackClass = tc;
                     if(trackClass) makeTrack();
                 });

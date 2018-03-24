@@ -6,7 +6,7 @@
 
 set +e
 
-NOSEOPTS="--verbose --stop"
+NOSEOPTS="--verbose --stop $NOSEOPTS"
 nosetests $NOSEOPTS .
 FIRST_RUN_STATUS=$?
 

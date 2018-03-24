@@ -256,7 +256,7 @@ div.helix-hist {
 
     position:absolute;
     height: 13px;
-    background-image: url('img/glyph-diamond.png');
+    background-image: url('../img/glyph-diamond.png');
     background-repeat: repeat-x;
     cursor: pointer;
 }
