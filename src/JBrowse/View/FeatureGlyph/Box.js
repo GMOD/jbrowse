@@ -301,45 +301,26 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
 
         // if the feature is within the view
         if (!(fMin > vMax || fMax < vMin)) {
-            let fRectLeft = fRect.l+bpToPx(block.startBase)- bpToPx(vMin)
+            let fRectLeft = fRect.l+bpToPx(block.startBase-vMin)
+
+            function renderText(fLabelRecord) {
+                let labelLeft = fRectLeft+(fLabelRecord.xOffset||0);
+                let maxLabelLeft = fRectLeft+fRect.w-fLabelRecord.w;
+                context.font = fLabelRecord.font;
+                context.fillStyle = fLabelRecord.fill;
+                context.textBaseline = fLabelRecord.baseline;
+                context.fillText(
+                    fLabelRecord.text,
+                    Math.min(Math.max(0,labelLeft),maxLabelLeft),
+                    fRect.t+(fLabelRecord.yOffset||0)
+                );
+            }
 
             if (fRect.label) {
-                let labelLeft = fRectLeft+(fRect.label.xOffset||0);
-
-                // use canvas clipping to ensure the label
-                // does not protrude past the right side of the feature's rect
-                context.save()
-                context.beginPath()
-                context.rect(labelLeft,0,fRectLeft+fRect.w-labelLeft,1000)
-                context.clip()
-                context.font = fRect.label.font;
-                context.fillStyle = fRect.label.fill;
-                context.textBaseline = fRect.label.baseline;
-                context.fillText(
-                    fRect.label.text,
-                    Math.max(0,labelLeft),
-                    fRect.t+(fRect.label.yOffset||0)
-                );
-                context.restore()
+                renderText(fRect.label)
             }
-            if( fRect.description ) {
-                // use canvas clipping to ensure the description
-                // does not protrude past the right side of the feature's rect
-                let descLeft = fRectLeft+(fRect.description.xOffset||0);
-                context.save()
-                context.beginPath()
-                context.rect(descLeft,0,fRectLeft+fRect.w-descLeft,1000)
-                context.clip()
-
-                context.font = fRect.description.font;
-                context.fillStyle = fRect.description.fill;
-                context.textBaseline = fRect.description.baseline;
-                context.fillText(
-                    fRect.description.text,
-                    Math.max(0,descLeft),
-                    fRect.t + (fRect.description.yOffset||0)
-                );
-                context.restore()
+            if (fRect.description) {
+                renderText(fRect.description)
             }
         }
     }
