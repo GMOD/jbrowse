@@ -40,7 +40,6 @@ install:
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 - npm install -g jshint mocha
-- npm install electron spectron
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
@@ -53,6 +52,7 @@ script:
 - set -e
 - ./setup.sh
 - yarn lint
+- npm install electron spectron
 - xvfb-run mocha tests/electron_tests
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
