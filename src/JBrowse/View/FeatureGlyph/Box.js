@@ -304,7 +304,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             let fRectLeft = fRect.l+bpToPx(block.startBase-vMin)
 
             let clamp = (val,min,max) => Math.min(Math.max(val,min),max)
-            function renderText(fLabelRecord) {
+            let renderText = fLabelRecord => {
                 let maxLabelLeft = fRectLeft+fRect.w-fLabelRecord.w
                 let labelTop = fRect.t+(fLabelRecord.yOffset||0)
                 let labelLeft = fRectLeft+(fLabelRecord.xOffset||0)
