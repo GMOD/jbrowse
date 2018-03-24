@@ -18,6 +18,10 @@
     contains a '/' character. Thanks to @dytk2134 for pointing this out, and @cmdcolin
     for the fix! (issue #1023, @cmdcolin)
 
+  * Fixed a bug in which the viewing location would not be preserved across page reloads
+    if `generate-names.pl` had not been run, or a names store had not otherwise
+    been defined. Thanks to @cmdcolin for the bug report. (issue #1016, @rbuels)
+
 # Release 1.13.0     2018-03-15 01:32:20 UTC
 
 ## Major improvements
