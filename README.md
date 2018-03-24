@@ -35,21 +35,10 @@ This allows JBrowse to be easily integrated into other applications.  `jb_setup.
 
     npm install GMOD/jbrowse
 
-# Generating Packaged Builds
+# Contributing
 
-You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
-
-    make -f build/Makefile
-
-To build the Electron app (JBrowse desktop app), run the following
-
-    npm install -g electron-packager
-    make -f build/Makefile release-electron-all
-
-To run the Electron app in debug mode run the following
-
-    npm install -g electron
-    electron browser/main.js
+Looking for places to contribute to the codebase?
+[Check out the "help wanted" label](https://github.com/GMOD/jbrowse/labels/help%20wanted).
 
 # Running the developer test suites
 
@@ -83,6 +72,23 @@ one will only work in a properly configured Travis CI build environment.
 <img style="display: block; margin: 1em auto" src="img/browserstack-logo-600x315.png" width="200" alt="Browserstack"/>
 
 JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for access.
+
+# Generating Packaged Builds
+
+You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
+
+    make -f build/Makefile
+
+To build the Electron app (JBrowse desktop app), run the following
+
+    npm install -g electron-packager
+    make -f build/Makefile release-electron-all
+
+To run the Electron app in debug mode run the following
+
+    npm install -g electron
+    electron browser/main.js
+
 
 # Making a JBrowse release
 
