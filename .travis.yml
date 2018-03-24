@@ -53,7 +53,7 @@ script:
 - set -e
 - ./setup.sh
 - yarn lint
-- tests/electron_tests/travis.sh
+- xvfb-run tests/electron_tests/travis.sh
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
