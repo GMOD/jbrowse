@@ -7,7 +7,7 @@
     if they don't use any CSS. (@rbuels)
 
   * Add ability for the CanvasFeatures feature labels to stay visible on the screen.
-    (pull #971, @cmdcolin)
+    (issue #390, pull #971, @cmdcolin, @rbuels)
 
 # Release 1.13.0     2018-03-15 01:32:20 UTC
 
