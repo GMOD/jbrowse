@@ -29,11 +29,12 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.40",
-    "@babel/preset-env": "^7.0.0-beta.40",
     "ajv": "^6.2.1",
-    "babel-loader": "^8.0.0-beta.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "clean-webpack-plugin": "^0.1.18",
     "copy-webpack-plugin": "4.1.1",
     "css-loader": "^0.28.10",
@@ -59,11 +60,5 @@
     "url-loader": "0.5.7",
     "util-deprecate": "^1.0.2",
     "webpack": "3.10.0"
-  },
-  "browserslist": [
-    "> 0.3%",
-    "last 2 versions",
-    "Firefox ESR",
-    "not dead"
-  ]
+  }
 }

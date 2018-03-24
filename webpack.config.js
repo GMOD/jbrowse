@@ -67,7 +67,6 @@ var webpackConf = {
                 use: {
                   loader: 'babel-loader',
                   options: {
-                    presets: ['@babel/preset-env'], //< NOTE: respects package.json->browserslist
                     cacheDirectory: true
                   }
                 }
