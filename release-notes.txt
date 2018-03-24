@@ -9,6 +9,9 @@
     package.json files to prevent JBrowse trying to load their css/main.css file,
     if they don't use any CSS. (@rbuels)
 
+  * Add ability for the CanvasFeatures feature labels to stay visible on the screen.
+    (issue #390, pull #971, @cmdcolin, @rbuels)
+
 ## Bug fixes
 
   * Fixed a bug with plugin loading that was preventing some plugins from working
