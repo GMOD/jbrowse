@@ -199,8 +199,10 @@ return declare(
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         this.inherited( arguments );
-        this.staticCanvas = domConstruct.create('canvas', { style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }}, trackDiv);
-        this.staticCanvas.height = this.staticCanvas.offsetHeight;
+        this.staticCanvas = domConstruct.create('canvas', { className: 'static-canvas', style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }}, trackDiv);
+        let ctx = this.staticCanvas.getContext('2d')
+        let ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
+        this.staticCanvas.height = this.staticCanvas.offsetHeight*ratio;
 
         this._makeLabelTooltip( );
     },
@@ -406,6 +408,24 @@ return declare(
         }
     },
 
+    _scaleCanvas(c,pxWidth=c.width,pxHeight=c.height) {
+        let ctx = c.getContext('2d')
+
+        let ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
+
+        c.width = pxWidth * ratio;
+        c.height = pxHeight * ratio;
+
+        c.style.width = pxWidth + 'px';
+        c.style.height = pxHeight + 'px';
+
+        // now scale the context to counter
+        // the fact that we've manually scaled
+        // our canvas element
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(ratio, ratio);
+    },
+
     _drawHistograms: function( viewArgs, histData ) {
 
         var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : histData.stats.max;
@@ -448,25 +468,8 @@ return declare(
         this.heightUpdate( height, viewArgs.blockIndex );
         var ctx = c.getContext('2d');
 
-        // finally query the various pixel ratios
-        var ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
-        // upscale canvas if the two ratios don't match
-        if ( this.browser.config.highResolutionMode != 'disabled' && ratio >= 1 )
-        {
-            var oldWidth = c.width;
-            var oldHeight = c.height;
-
-            c.width = oldWidth * ratio;
-            c.height = oldHeight * ratio;
-
-            c.style.width = oldWidth + 'px';
-            c.style.height = oldHeight + 'px';
-
-            // now scale the context to counter
-            // the fact that we've manually scaled
-            // our canvas element
-            ctx.scale(ratio, ratio);
-        }
+        // scale the canvas to work well with the various device pixel ratios
+        this._scaleCanvas(c)
 
         ctx.fillStyle = this.config.histograms.color;
         for( var i = 0; i<features.length; i++ ) {
@@ -630,27 +633,8 @@ return declare(
                                                 block.domNode
                                             );
                                         var ctx = c.getContext('2d');
-
-                                        // finally query the various pixel ratios
-                                        var ratio = Util.getResolution( ctx, thisB.browser.config.highResolutionMode );
-                                        // upscale canvas if the two ratios don't match
-                                        if ( thisB.browser.config.highResolutionMode != 'disabled' && ratio >= 1 ) {
-
-                                            var oldWidth = c.width;
-                                            var oldHeight = c.height;
-
-                                            c.width = oldWidth * ratio;
-                                            c.height = oldHeight * ratio;
-
-                                            c.style.width = oldWidth + 'px';
-                                            c.style.height = oldHeight + 'px';
-
-                                            // now scale the context to counter
-                                            // the fact that we've manually scaled
-                                            // our canvas element
-                                            ctx.scale(ratio, ratio);
-                                        }
-
+                                        // scale the canvas to work well with the various device pixel ratios
+                                        thisB._scaleCanvas(c)
 
 
                                         if( block.maxHeightExceeded )
@@ -1013,9 +997,12 @@ return declare(
 
         if( coords.hasOwnProperty("x") ) {
             var context = this.staticCanvas.getContext('2d');
-
-            this.staticCanvas.width = this.browser.view.elem.clientWidth;
+            let ratio = Util.getResolution( context, this.browser.config.highResolutionMode );
+            this.staticCanvas.width = this.browser.view.elem.clientWidth*ratio;
+            this.staticCanvas.style.width = this.browser.view.elem.clientWidth + "px";
             this.staticCanvas.style.left = coords.x + "px";
+            context.setTransform(1,0,0,1,0,0)
+            context.scale(ratio,ratio)
             context.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
 
             var minVisible = this.browser.view.minVisible();
@@ -1042,8 +1029,10 @@ return declare(
 
     heightUpdate: function( height, blockIndex ) {
         this.inherited( arguments );
-        if( this.staticCanvas )
-            this.staticCanvas.height = this.staticCanvas.offsetHeight;
+        if( this.staticCanvas ) {
+            let ratio = Util.getResolution( this.staticCanvas.getContext('2d'), this.browser.config.highResolutionMode );
+            this.staticCanvas.height = this.staticCanvas.offsetHeight*ratio;
+        }
     },
 
     destroy: function() {

@@ -278,14 +278,15 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         var vMax = viewArgs.maxVisible;
         var block = fRect.viewInfo.block;
 
-        if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
-            return;
+        // if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
+        //     return;
 
-        var scale = block.scale;
+        //var scale = block.scale;
         var bpToPx = viewArgs.bpToPx;
-        var lWidth = viewArgs.lWidth;
-        var labelBp = lWidth / scale;
+        //var lWidth = viewArgs.lWidth;
+        //var labelBp = lWidth / scale;
         var feature = fRect.f;
+
         var fMin = feature.get('start');
         var fMax = feature.get('end');
 
@@ -306,9 +307,9 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             }
         }
 
-        var fLabelWidth = fRect.label ? fRect.label.w : 0;
-        var fDescriptionWidth = fRect.description ? fRect.description.w : 0;
-        var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
+        //var fLabelWidth = fRect.label ? fRect.label.w : 0;
+        //var fDescriptionWidth = fRect.description ? fRect.description.w : 0;
+        //var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
         var minLeft = bpToPx( fMin ) - bpToPx( vMin );
 
         if( fRect.label ) {
