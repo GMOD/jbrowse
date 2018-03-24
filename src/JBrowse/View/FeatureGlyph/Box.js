@@ -303,17 +303,22 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         if (!(fMin > vMax || fMax < vMin)) {
             let fRectLeft = fRect.l+bpToPx(block.startBase-vMin)
 
+            let clamp = (val,min,max) => Math.min(Math.max(val,min),max)
             function renderText(fLabelRecord) {
-                let labelLeft = fRectLeft+(fLabelRecord.xOffset||0);
-                let maxLabelLeft = fRectLeft+fRect.w-fLabelRecord.w;
-                context.font = fLabelRecord.font;
-                context.fillStyle = fLabelRecord.fill;
-                context.textBaseline = fLabelRecord.baseline;
+                let maxLabelLeft = fRectLeft+fRect.w-fLabelRecord.w
+                let labelTop = fRect.t+(fLabelRecord.yOffset||0)
+                let labelLeft = fRectLeft+(fLabelRecord.xOffset||0)
+                labelLeft = clamp(labelLeft,0,maxLabelLeft)
+
+                context.font = fLabelRecord.font
+                context.fillStyle = fLabelRecord.fill
+                context.textBaseline = fLabelRecord.baseline
+                context.clearRect(labelLeft,labelTop,fLabelRecord.w,fLabelRecord.h)
                 context.fillText(
                     fLabelRecord.text,
-                    Math.min(Math.max(0,labelLeft),maxLabelLeft),
-                    fRect.t+(fLabelRecord.yOffset||0)
-                );
+                    labelLeft,
+                    labelTop
+                )
             }
 
             if (fRect.label) {
