@@ -31,8 +31,8 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.40",
-    "@babel/preset-env": "^7.0.0-beta.40",
+    "@babel/core": "7.0.0-beta.40",
+    "@babel/preset-env": "7.0.0-beta.40",
     "ajv": "^6.2.1",
     "babel-loader": "^8.0.0-beta.0",
     "babel-polyfill": "^6.26.0",
@@ -44,7 +44,7 @@
     "dojo": "1.13.0",
     "dojo-dstore": "^1.1.1",
     "dojo-util": "1.13.0",
-    "dojo-webpack-plugin": "^2.6.0",
+    "dojo-webpack-plugin": "2.6.0",
     "dojox": "1.13.0",
     "electron-screenshot": "^1.0.2",
     "extract-text-webpack-plugin": "^3.0.2",
