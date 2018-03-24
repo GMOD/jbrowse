@@ -6,7 +6,12 @@ done_message () {
             echo $1;
         fi
     else
-        echo " failed.  See setup.log file for error messages." $2
+        echo " failed.  See setup.log file for error messages." $2;
+        if [[ "x$3" != "x" ]]; then
+            echo "setup cannot continue, aborting.";
+            tail -200 setup.log;
+            exit 1;
+        fi
     fi
 }
 
@@ -50,7 +55,7 @@ echo -n "Gathering system information ..."
     grep MemTotal /proc/meminfo;
     echo; echo;
 ) >>setup.log 2>&1;
-echo "done"
+done_message "" ""
 
 # check Mac OS version
 SUPPRESS_BIODB_TO_JSON=0
@@ -85,16 +90,16 @@ echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from s
 
 # if we are running in a development build, then run npm install and run the webpack build.
 if [ -f "src/JBrowse/Browser.js" ]; then
-    echo "Installing javascript dependencies and building with Webpack ..."
+    echo -n "Installing node.js dependencies and building with webpack ..."
     (
         set -e
         check_node
         npm install
         npm run build
-    ) 2>&1 | tee setup.log;
-    echo "done with node install and build"
+    ) >>setup.log 2>&1;
+    done_message "" "" "FAILURE NOT ALLOWED"
 else
-    echo "Minimal release detected, skipping node and Webpack build"
+    echo "Minimal release, skipping node and Webpack build"
 fi
 
 echo  -n "Installing Perl prerequisites ..."
@@ -174,5 +179,5 @@ echo -n "Formatting Yeast example data ...";
     bin/add-json.pl '{ "dataset_id": "yeast" }' sample_data/json/yeast/trackList.json
     bin/add-json.pl '{ "dataset_id": "yeast",  "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/yeast/trackList.json
     bin/generate-names.pl --dir sample_data/json/yeast/;
-) >>setup.log 2>&1
+) >>setup.log 2>&1;
 done_message "To see the yeast example data, browse to http://your.jbrowse.root/index.html?data=sample_data/json/yeast.";

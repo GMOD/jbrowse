@@ -5,7 +5,7 @@
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html",
+    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:3000/tests/js_tests/index.html",
     "start": "./jb_run.js -p 8082",
     "watch": "watch 'npm run build' src/JBrowse",
     "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js",
@@ -40,12 +40,12 @@
     "copy-webpack-plugin": "4.1.1",
     "css-loader": "^0.28.10",
     "dgrid": "^1.1.0",
-    "dijit": "^1.12.2",
-    "dojo": "^1.12.2",
+    "dijit": "1.13.0",
+    "dojo": "1.13.0",
     "dojo-dstore": "^1.1.1",
-    "dojo-util": "^1.12.2",
+    "dojo-util": "1.13.0",
     "dojo-webpack-plugin": "^2.6.0",
-    "dojox": "^1.12.2",
+    "dojox": "1.13.0",
     "electron-screenshot": "^1.0.2",
     "extract-text-webpack-plugin": "^3.0.2",
     "filesaver.js": "^0.2.0",
@@ -64,8 +64,8 @@
     "webpack": "^3.10.0"
   },
   "browserslist": [
-    "> 0.3%",
-    "last 2 versions",
+    "> 0.2%",
+    "last 4 versions",
     "Firefox ESR",
     "not dead"
   ]
