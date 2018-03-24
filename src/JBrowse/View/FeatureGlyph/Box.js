@@ -301,11 +301,17 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
 
         // if the feature is within the view
         if (!(fMin > vMax || fMax < vMin)) {
-            let fRectLeft = fRect.l+bpToPx(block.startBase)
+            let fRectLeft = fRect.l+bpToPx(block.startBase)- bpToPx(vMin)
 
             if (fRect.label) {
-                // if feature overlaps the left side of the frame, draw the label flush on the left side
-                let labelLeft = fRectLeft - bpToPx( vMin )+(fRect.label.xOffset||0);
+                let labelLeft = fRectLeft+(fRect.label.xOffset||0);
+
+                // use canvas clipping to ensure the label
+                // does not protrude past the right side of the feature's rect
+                context.save()
+                context.beginPath()
+                context.rect(labelLeft,0,fRectLeft+fRect.w-labelLeft,1000)
+                context.clip()
                 context.font = fRect.label.font;
                 context.fillStyle = fRect.label.fill;
                 context.textBaseline = fRect.label.baseline;
@@ -314,9 +320,17 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                     Math.max(0,labelLeft),
                     fRect.t+(fRect.label.yOffset||0)
                 );
+                context.restore()
             }
             if( fRect.description ) {
-                let descLeft = fRectLeft - bpToPx(vMin)+(fRect.description.xOffset||0);
+                // use canvas clipping to ensure the description
+                // does not protrude past the right side of the feature's rect
+                let descLeft = fRectLeft+(fRect.description.xOffset||0);
+                context.save()
+                context.beginPath()
+                context.rect(descLeft,0,fRectLeft+fRect.w-descLeft,1000)
+                context.clip()
+
                 context.font = fRect.description.font;
                 context.fillStyle = fRect.description.fill;
                 context.textBaseline = fRect.description.baseline;
@@ -325,6 +339,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                     Math.max(0,descLeft),
                     fRect.t + (fRect.description.yOffset||0)
                 );
+                context.restore()
             }
         }
     }
