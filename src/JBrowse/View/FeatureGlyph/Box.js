@@ -243,17 +243,15 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         }
     },
 
-    // feature label
+    // feature label is handled by updateStaticElements
     renderLabel: function( context, fRect ) {
-
     },
 
-    // feature description
+    // feature description is handled by updateStaticElements
     renderDescription: function( context, fRect ) {
-
     },
 
-    // strand arrowhead
+    // strand arrowhead is sometimes drawn normally, sometimes *also* as a static element
     renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fRect.rect.l+fRect.rect.w <= context.canvas.width ) {
@@ -273,22 +271,16 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         }
     },
 
-    updateStaticElements: function( context, fRect, viewArgs ) {
-        var vMin = viewArgs.minVisible;
-        var vMax = viewArgs.maxVisible;
-        var block = fRect.viewInfo.block;
+    updateStaticElements( context, fRect, viewArgs ) {
+        let vMin = viewArgs.minVisible
+        let vMax = viewArgs.maxVisible
+        let block = fRect.viewInfo.block
 
-        // if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
-        //     return;
+        let bpToPx = viewArgs.bpToPx
+        let feature = fRect.f
 
-        //var scale = block.scale;
-        var bpToPx = viewArgs.bpToPx;
-        //var lWidth = viewArgs.lWidth;
-        //var labelBp = lWidth / scale;
-        var feature = fRect.f;
-
-        var fMin = feature.get('start');
-        var fMax = feature.get('end');
+        let fMin = feature.get('start')
+        let fMax = feature.get('end')
 
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fMax >= vMax && fMin <= vMax ) {
@@ -307,47 +299,30 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             }
         }
 
-        //var fLabelWidth = fRect.label ? fRect.label.w : 0;
-        //var fDescriptionWidth = fRect.description ? fRect.description.w : 0;
-        //var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
-        var minLeft = bpToPx( fMin ) - bpToPx( vMin );
+        // if the feature is within the view
+        if (!(fMin > vMax || fMax < vMin)) {
+            let fRectLeft = fRect.l+bpToPx(block.startBase)
 
-        if( fRect.label ) {
-            if( fMin <= vMin && fMax > vMin) {
+            if (fRect.label) {
+                // if feature overlaps the left side of the frame, draw the label flush on the left side
+                let labelLeft = fRectLeft - bpToPx( vMin )+(fRect.label.xOffset||0);
                 context.font = fRect.label.font;
                 context.fillStyle = fRect.label.fill;
                 context.textBaseline = fRect.label.baseline;
-                context.fillText( fRect.label.text,
-                                  0,
-                                  fRect.t+(fRect.label.yOffset||0)
-                                );
-            } else {
-                context.font = fRect.label.font;
-                context.fillStyle = fRect.label.fill;
-                context.textBaseline = fRect.label.baseline;
-                context.fillText( fRect.label.text,
-                                  minLeft+(fRect.label.xOffset||0),
-                                  fRect.t+(fRect.label.yOffset||0)
-                                );
-            }
-        }
-        if( fRect.description ) {
-            if( fMin <= vMin && fMax > vMin) {
-                context.font = fRect.description.font;
-                context.fillStyle = fRect.description.fill;
-                context.textBaseline = fRect.description.baseline;
                 context.fillText(
-                    fRect.description.text,
-                    0,
-                    fRect.t + (fRect.description.yOffset||0)
+                    fRect.label.text,
+                    Math.max(0,labelLeft),
+                    fRect.t+(fRect.label.yOffset||0)
                 );
-            } else {
+            }
+            if( fRect.description ) {
+                let descLeft = fRectLeft - bpToPx(vMin)+(fRect.description.xOffset||0);
                 context.font = fRect.description.font;
                 context.fillStyle = fRect.description.fill;
                 context.textBaseline = fRect.description.baseline;
                 context.fillText(
                     fRect.description.text,
-                    minLeft+(fRect.description.xOffset||0),
+                    Math.max(0,descLeft),
                     fRect.t + (fRect.description.yOffset||0)
                 );
             }
