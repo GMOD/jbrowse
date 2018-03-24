@@ -2,9 +2,25 @@
 
 ## Minor improvements
 
+  * Added a check in the `setup.sh` script for NodeJS >= 6 and NPM >= 4.
+    (issue #1026, @rbuels)
+
   * Plugins that don't need CSS can now set `jbrowsePlugin.css` to `false` in their
     package.json files to prevent JBrowse trying to load their css/main.css file,
     if they don't use any CSS. (@rbuels)
+
+## Bug fixes
+
+  * Fixed a bug with plugin loading that was preventing some plugins from working
+    correctly. (issue #1025, @rbuels)
+
+  * `flatfile-to-json.pl` will now refuse to format a track if the trackLabel
+    contains a '/' character. Thanks to @dytk2134 for pointing this out, and @cmdcolin
+    for the fix! (issue #1023, @cmdcolin)
+
+  * Fixed a bug in which the viewing location would not be preserved across page reloads
+    if `generate-names.pl` had not been run, or a names store had not otherwise
+    been defined. Thanks to @cmdcolin for the bug report. (issue #1016, @rbuels)
 
 # Release 1.13.0     2018-03-15 01:32:20 UTC
 

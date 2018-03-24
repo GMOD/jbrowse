@@ -68,15 +68,18 @@ sub run {
     my ( $self ) = @_;
 
     Pod::Usage::pod2usage( "Must provide a --trackLabel parameter." ) unless defined $self->opt('trackLabel');
-    unless( defined $self->opt('gff') || 
-	    defined $self->opt('bed') || 
-	    defined $self->opt('gbk') || 
-	    defined $self->opt('bam') 
+    unless( defined $self->opt('gff') ||
+	    defined $self->opt('bed') ||
+	    defined $self->opt('gbk') ||
+	    defined $self->opt('bam')
 	) {
         Pod::Usage::pod2usage( "You must supply either a --gff or --bed or --gbk parameter." )
     }
 
     $self->opt('bam') and die "BAM support has been moved to a separate program: bam-to-json.pl\n";
+    if($self->opt('trackLabel') =~ /\//) {
+        die "ERROR: trackLabel cannot contain slashes, use --key which can contain slashes\n";
+    }
 
     if( ! $self->opt('nclChunk') ) {
         # default chunk size is 50KiB
