@@ -311,12 +311,12 @@ initPlugins: function() {
         plugins.forEach( p => {
             // find the entry in the dojoConfig for this plugin
             let configEntry = dojoConfig.packages.find(c => c.name === p.name)
-            if( ! configEntry )
+            if( configEntry ) {
+                p.css = configEntry.css ? configEntry.pluginDir+'/'+configEntry.css : false
+                p.js = configEntry.location
+            } else {
                 this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
-
-            p.location = configEntry.location
-            p.css = configEntry.pluginDir+'css'
-            p.js = configEntry.location
+            }
         });
 
         var pluginDeferreds = array.map( plugins, function(p) {
@@ -347,9 +347,13 @@ initPlugins: function() {
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 var cssLoaded = this._loadCSS(
-                                     { url: plugin.css+'/main.css' }
-                                 );
+                                 var cssLoaded;
+                                 if (plugin.css) {
+                                    cssLoaded = this._loadCSS({ url: plugin.css+'/main.css' })
+                                 } else {
+                                    cssLoaded = new Deferred()
+                                    cssLoaded.resolve()
+                                 }
                                  cssLoaded.then( function() {
                                      thisPluginDone.resolve({success:true});
                                  });

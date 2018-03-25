@@ -21,7 +21,7 @@ UNZIP=unzip -q
 SHASUM=shasum
 
 
-all: clean release-dev release-min
+all: clean release
 
 release: release-dev release-min release-notes.html
 	ls -lh *.zip

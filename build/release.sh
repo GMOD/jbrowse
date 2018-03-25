@@ -60,4 +60,5 @@ build/set_package_versions.pl $ALPHA_VERSION src/JBrowse/package.json package.js
 git commit -m "start next release cycle as $ALPHA_VERSION" release-notes.txt src/JBrowse/package.json package.json
 
 # finally, push everything to the remote
-echo git push origin dev $VERSION-release:master
+echo ****** AND NOW IF THAT ALL LOOKS FINE, YOU SHOULD RUN ******
+echo git push --tags origin dev $VERSION-release:master

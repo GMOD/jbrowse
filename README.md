@@ -2,22 +2,23 @@
 
 # Installing JBrowse
 
-Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official release are available.
+Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official releases are available.
 
-The `master` branch is always in line with the latest release however it is not minified JS. Features
-are merged into the `dev` branch following acceptance of an item submitted via pull request.
+# Install from github repo (for developers)
 
-# Install from github repo (development)
+The `master` branch is always in line with the latest release. Features
+are merged into the `dev` branch as they are completed.
 
-Note: `jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
+`jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
 
 *If you are using a 3rd party webserver, you should clone JBrowse into your web root*
 
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     npm install
-    ./jb_setup.js   (optional -- sets up demo files such as Volvox)
-    ./jb_run.js     (optional -- begin serving JBrowse with built-in mini web server)
+    npm run build
+    ./setup.sh        # (recommended -- sets up demo files such as Volvox)a
+    utils/jb_run.js   # (optional -- begin serving JBrowse with built-in mini web server)
 
 If you have installed the demo (with ./jb_setup.js), you can point your browser to
 http://localhost/jbrowse/index.html?data=sample_data/json/volvox
@@ -25,7 +26,8 @@ and you should see the volvox example data.
 
 `jb_run.js` will default to a non-privileged port (8080), this can be overridden with the `-p` option.
 
-Now you can simply edit files and your changes will be available in the browser (the build step is not required).
+When you edit JavaScript files, you must re-run the webpack build with `npm run build`, or you can
+keep webpack running in "watch" mode by running it like `npm run build -- -w`
 
 # Installing as an npm module
 
@@ -33,21 +35,10 @@ This allows JBrowse to be easily integrated into other applications.  `jb_setup.
 
     npm install GMOD/jbrowse
 
-# Generating Packaged Builds
+# Contributing
 
-You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
-
-    make -f build/Makefile
-
-To build the Electron app (JBrowse desktop app), run the following
-
-    npm install -g electron-packager
-    make -f build/Makefile release-electron-all
-
-To run the Electron app in debug mode run the following
-
-    npm install -g electron
-    electron browser/main.js
+Looking for places to contribute to the codebase?
+[Check out the "help wanted" label](https://github.com/GMOD/jbrowse/labels/help%20wanted).
 
 # Running the developer test suites
 
@@ -81,6 +72,23 @@ one will only work in a properly configured Travis CI build environment.
 <img style="display: block; margin: 1em auto" src="img/browserstack-logo-600x315.png" width="200" alt="Browserstack"/>
 
 JBrowse has a free open source account on [Browserstack](http://browserstack.com/) for manual testing.  Contact @rbuels for access.
+
+# Generating Packaged Builds
+
+You can also optionally run build steps to create the minimized codebase. Extra perl dependencies Text::Markdown and DateTime are required to run the build step.
+
+    make -f build/Makefile
+
+To build the Electron app (JBrowse desktop app), run the following
+
+    npm install -g electron-packager
+    make -f build/Makefile release-electron-all
+
+To run the Electron app in debug mode run the following
+
+    npm install -g electron
+    electron browser/main.js
+
 
 # Making a JBrowse release
 

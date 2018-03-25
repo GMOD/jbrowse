@@ -1,7 +1,7 @@
 const glob = require('glob')
 const path = require('path')
 
-const {getPluginName} = require('./plugin-util')
+const {findPlugins} = require('./plugin-util')
 
 const blacklist = {};
 `
@@ -24,18 +24,16 @@ const JBrowseModuleIds =
 log(`building ${JBrowseModuleIds.length} JBrowse modules`)
 
 const pluginModuleIds =
-    glob.sync('plugins/*/') // local plugins
-    .concat(glob.sync('node_modules/*-jbrowse-plugin/')) // unscoped modules
-    .concat(glob.sync('node_modules/@*/*-jbrowse-plugin/')) // scoped modules
-    .map( pluginDir => {
-        let pluginName = getPluginName(pluginDir)
-        return glob.sync(pluginDir+'/js/**/*.js')
-        .map( f => {
-            let mid = f.replace(pluginDir,pluginName+'/')
-                .replace('.js','')
-                .replace('/js/','/')
-            return mid
-        })
+    findPlugins('.')
+    .map( pluginConf => {
+        let pluginName = pluginConf.name
+        return glob.sync(pluginConf.pluginDir+'/js/**/*.js')
+            .map( f => {
+                let mid = f.replace(pluginConf.pluginDir,pluginName+'/')
+                    .replace('.js','')
+                    .replace('/js/','')
+                return mid
+            })
     })
     .reduce((a,b) => a.concat(b), [])
     .reverse()
@@ -45,6 +43,7 @@ const pluginModuleIds =
 pluginModuleIds.forEach( mid => log(`adding plugin module ${mid}`) )
 
 const mids = JBrowseModuleIds.concat(pluginModuleIds)
+log(`discovered a total of ${mids.length} modules`)
 
 // tiny Webpack Loader that replaces "//! webpackRequireGlob" expressions with a big bunch of requires
 module.exports = function(content,map,meta) {

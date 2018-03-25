@@ -1,25 +1,60 @@
 {{$NEXT}}
 
+## Minor improvements
+
+  * Added a check in the `setup.sh` script for NodeJS >= 6 and NPM >= 4.
+    (issue #1026, @rbuels)
+
+  * Plugins that don't need CSS can now set `jbrowsePlugin.css` to `false` in their
+    package.json files to prevent JBrowse trying to load their css/main.css file,
+    if they don't use any CSS. (@rbuels)
+
+## Bug fixes
+
+  * Fixed a bug with plugin loading that was preventing some plugins from working
+    correctly. (issue #1025, @rbuels)
+
+  * `flatfile-to-json.pl` will now refuse to format a track if the trackLabel
+    contains a '/' character. Thanks to @dytk2134 for pointing this out, and @cmdcolin
+    for the fix! (issue #1023, @cmdcolin)
+
+  * Fixed a bug in which the viewing location would not be preserved across page reloads
+    if `generate-names.pl` had not been run, or a names store had not otherwise
+    been defined. Thanks to @cmdcolin for the bug report. (issue #1016, @rbuels)
+
+# Release 1.13.0     2018-03-15 01:32:20 UTC
+
 ## Major improvements
 
-  * JBrowse now uses a Webpack-based build system, which is going to enable us
-    to make much more effective use of the huge JavaScript ecosystem that has
-    grown up in recent years, as well as to use newer versions of JavaScript
-    itself while still maintaining compatibility with older web browsers.
+  * JBrowse now uses a Webpack-based build system, which greatly speeds up JBrowse's
+    initial loading time. Going forward, this change will also enable us to make
+    much more effective use of the huge node.js ecosystem that has grown up in
+    recent years, as well as to use newer versions of JavaScript itself while
+    still maintaining compatibility with older web browsers.
 
-  * The way JBrowse plugins are discovered and loaded has changed significantly,
-    although we think that most users of plugins will not experience any problems.
-    If you use JBrowse plugins other than the "stock" ones that come with JBrowse,
-    you must now use the `dev` release of JBrowse, and re-run `setup.sh` every time
-    you add or remove a plugin. (issue #981, @rbuels)
+  * Behind the scenes, the way JBrowse plugins are discovered and loaded has also
+    changed significantly. The most visible consequence of this change is that
+    installations that use plugins must now use the JBrowse-1.13.0-dev.zip release
+    (or check out the `master` branch from GitHub), and must re-run the webpack build
+    (most easily by running `setup.sh`) every time a plugin is added or removed from
+    JBrowse. Although we think that most users of plugins will not experience any
+    problems, we recommend that installations that make use of plugins other than the
+    standard built-in plugins (Neat*Features, RegexSearch, etc) test the compatibility
+    of their plugins thoroughly before deploying this release, and report any problems
+    either to the JBrowse issue tracker on GitHub, or to the gmod-ajax mailing list.
 
-  * JBrowse plugins can now be published and installed with NPM! Simply publish your
-    plugin to npm and make sure its name ends with "-jbrowse-plugin". For example,
-    if you have a plugin named "foo", publish it to npm as "foo-jbrowse-plugin".
-    However, if your plugin is named MyAwesomePlugin, which is not compatible with
-    npmjs.org's naming conventions, you will want to publish it as something like
-    "myawesome-jbrowse-plugin" and add a configuration stanza to its package.json
-    file telling JBrowse its real plugin name, e.g.
+  * Again, concisely: if you use JBrowse plugins other than the "stock" ones that
+    come with JBrowse, you must now use the `dev` release of JBrowse, and re-run either
+    `setup.sh` or `npm run build` every time you add or remove a plugin.
+    (issue #981, @rbuels)
+
+  * JBrowse plugins can now be published and installed with NPM. Simply publish your
+    plugin using the standard `npm publish` machinery, and make sure its package name
+    ends with "-jbrowse-plugin". For example, if you have a plugin named "foo", publish
+    it to npm as "foo-jbrowse-plugin". However, if your plugin is named MyAwesomePlugin,
+    which is not compatible with npmjs.org's naming conventions, you will want to publish
+    it as something like "myawesome-jbrowse-plugin" and add a configuration stanza to its
+    package.json file telling JBrowse its real plugin name. Example:
     ```
     {
         ...
@@ -32,13 +67,22 @@
 
 ## Minor Improvements
 
-  * Add `disableCollapsedClick` and `enableCollapsedMouseover` options. The
-    `enableCollapsedMouseover` option is useful when features do not overlap e.g. chromosome
-    segmentation and `disableCollapsedClick` is useful when the collapsed features are very
-    dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
+  * Added `disableCollapsedClick` and `enableCollapsedMouseover` track configuration options.
+    The `enableCollapsedMouseover` option is useful when features do not overlap e.g.
+    chromosome segmentation and `disableCollapsedClick` is useful when the collapsed features
+    are very dense. Thanks to @rdhayes for tips (issue #544, pull #870, @cmdcolin)
 
-  * Removed JBrowse 1.2.1 compatibility support. Please use JBrowse 1.12.5 or earlier
+  * Removed JBrowse 1.2.1 compatibility. Please use JBrowse 1.12.5 or earlier
     if you still have old data formatted with JBrowse 1.2.1. (@rbuels)
+
+  * For `npm` installations of JBrowse, jb_run.js and jb_setup.js are now installed into
+    the standard `node_modules/.bin` location. (issue #1021, @rbuels)
+
+## Bug fixes
+
+  * Fixed a bug in which adding setting `tracklabels=0` in the URL failed to hide
+    track labels when `nav=0` was also set in the URL. Thanks to Vaneet Lotay for reporting
+    the problem, and @cmdcolin for the fix. (issue #1017, pull #1018, @cmdcolin)
 
 # Release 1.12.5     2018-02-28 20:08:35 UTC
 

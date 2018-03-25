@@ -94,10 +94,10 @@ var webpackConf = {
                     loader: 'regexp-replace-loader',
                     options: {
                         match: {
-                            pattern: '["`\']dojo/domReady!?["\'`]\s*,?',
+                            pattern: '["`\']dojo/domReady!?["\'`]\s*',
                             flags: 'g'
                         },
-                        replaceWith: ''
+                        replaceWith: '"JBrowse/has"'
                     }
                 }
             }
