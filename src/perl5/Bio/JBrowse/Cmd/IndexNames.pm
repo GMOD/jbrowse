@@ -20,6 +20,7 @@ use File::Temp ();
 use List::Util ();
 
 use GenomeDB ();
+use Bio::GFF3::LowLevel qw/gff3_parse_feature/;
 use Bio::JBrowse::HashStore ();
 
 sub option_defaults {(
@@ -196,12 +197,12 @@ sub make_file_record {
     my ( $self, $track, $file ) = @_;
     -f $file or die "$file not found\n";
     -r $file or die "$file not readable\n";
-    my $gzipped = $file =~ /\.(txt|json|g)z$/;
-    my $type = $file =~ /\.txtz?$/      ? 'txt'  :
-               $file =~ /\.jsonz?$/     ? 'json' :
-               $file =~ /\.vcf(\.gz)?$/ ? 'vcf'  :
-               $file =~ /\.gff3?(\.gz)?$/ ? 'gff'  :
-                                           undef;
+    my $gzipped = $file =~ /\.(txt|json|g)z(\.\d+)?$/;
+    my $type = $file =~ /\.txtz?$/                ? 'txt'  :
+               $file =~ /\.jsonz?$/               ? 'json' :
+               $file =~ /\.vcf(\.gz)?$/           ? 'vcf'  :
+               $file =~ /\.gff3?(\.gz)?(\.\d+)?$/ ? 'gff'  :
+                                                    undef;
 
     if( $type ) {
         return { gzipped => $gzipped, fullpath => $file, type => $type, trackName => $track->{label} };
@@ -300,7 +301,7 @@ sub make_name_record_stream {
                     compress => 0,
                     verbose => 0);
 
-        # initialize the track hash with an index 
+        # initialize the track hash with an index
         foreach (@{$temp_store->meta->{track_names}}) {
             $trackHash{$_}=$trackNum++;
         }
@@ -378,10 +379,10 @@ sub find_names_files {
                 warn "VCF file '$path' not found, or not readable.  Skipping.\n";
             }
         }
-        
+
         # try to detect GFF3 tracks and index their GFF3 files
         if( $track->{storeClass}
-            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.gff3?\.gz/
+            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.gff3?\.gz(\.\d+)?/
              || $track->{storeClass} =~ /GFF3Tabix$/ )
             ) {
             my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
@@ -489,7 +490,7 @@ sub do_hash_operation {
             # don't insert duplicate locations
             no warnings 'uninitialized';
             if( ! grep {
-                      $record->[1] == $_->[1] && $record->[3] eq $_->[3] && $record->[4] == $_->[4] && $record->[5] == $_->[5] 
+                      $record->[1] == $_->[1] && $record->[3] eq $_->[3] && $record->[4] == $_->[4] && $record->[5] == $_->[5]
                   } @$exact
               ) {
                 push @$exact, $record;
@@ -576,17 +577,38 @@ sub make_names_iterator {
         my $input_fh = $self->open_names_file( $file_record );
         no warnings 'uninitialized';
         return sub {
+
+            # find the next feature in the file that has a name
             my $line;
-            while( ($line = <$input_fh>) =~ /^#/ ) {}
-            return unless $line;
+            my $feature;
+            my @names;
+            while(my $line = <$input_fh>) {
+                if( $line !~ /^#/ ) {
+                    chomp $line;
+                    $feature = gff3_parse_feature($line);
+                    my $Name = $feature->{attributes}{Name} || [];
+                    my $ID = $feature->{attributes}{ID} || [];
+                    @names = $Name->[0] ? @$Name : @$ID;
+                    last if scalar @names;
+                }
+            }
 
+            # end the stream by returning undef if there are no more features
+            return unless $feature;
+
+            # keep stats
             $self->{stats}{name_input_records}++;
-            $self->{stats}{total_namerec_bytes} += length $line;
+            $self->{stats}{total_namerec_bytes} += length $line + 1;
 
-            my ( $ref, $start, $end, $attributes) = (split "\t", $line)[0,3,4,-1];
-            $start--;
-            my ($name) = $attributes=~/ID=([^;]+)/;
-            return [[$name],$file_record->{trackName},$name,$ref, $start, $end];
+            my $names = $feature->{attributes}{Name} || $feature->{attributes}{ID};
+            return [
+                \@names,
+                $file_record->{trackName},
+                $names->[0],
+                $feature->{seq_id},
+                $feature->{start}-1,
+                $feature->{end}+0
+            ];
         };
     }
     else {
