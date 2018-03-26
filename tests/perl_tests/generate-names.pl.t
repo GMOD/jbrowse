@@ -29,7 +29,9 @@ my $tempdir = new_volvox_sandbox();
 my $temp2 = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
 my ( $stdout ) = run_with (
     '--out'   => "$tempdir",
+#    '--out'   => 'tests/data/volvox_formatted_names', # uncomment to rewrite test known-good data
     '--workdir' => $temp2,
+#    '--verbose',
     '--hashBits' => 16,
     '--completionLimit' => 15
     );
@@ -83,6 +85,9 @@ sub new_volvox_sandbox {
           ) or die $!;
     copy( 'sample_data/raw/volvox/volvox.test.vcf.gz',
           "$tempdir/volvox.test.vcf.gz"
+          ) or die $!;
+    copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
+          "$tempdir/volvox.sort.gff3.gz.1"
           ) or die $!;
     rmtree( "$tempdir/names" );
     return $tempdir;
