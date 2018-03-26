@@ -70,7 +70,7 @@ return declare( JBrowsePlugin,
             // override CanvasFeatures
             require(["dojo/_base/lang", "JBrowse/View/Track/CanvasFeatures"], function(lang, CanvasFeatures){
                 lang.extend(CanvasFeatures, {
-                    getRenderingContext2: getRenderingContext,
+                    getRenderingContext2: CanvasFeatures.prototype.getRenderingContext,
                     getRenderingContext: thisB.canvasfeature_getRenderingContext
                 });
             });
