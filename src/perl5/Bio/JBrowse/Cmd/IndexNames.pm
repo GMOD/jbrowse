@@ -200,6 +200,7 @@ sub make_file_record {
     my $type = $file =~ /\.txtz?$/      ? 'txt'  :
                $file =~ /\.jsonz?$/     ? 'json' :
                $file =~ /\.vcf(\.gz)?$/ ? 'vcf'  :
+               $file =~ /\.gff3?(\.gz)?$/ ? 'gff'  :
                                            undef;
 
     if( $type ) {
@@ -375,6 +376,20 @@ sub find_names_files {
             }
             else {
                 warn "VCF file '$path' not found, or not readable.  Skipping.\n";
+            }
+        }
+        
+        # try to detect GFF3 tracks and index their GFF3 files
+        if( $track->{storeClass}
+            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.gff3?\.gz/
+             || $track->{storeClass} =~ /GFF3Tabix$/ )
+            ) {
+            my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
+            if( -r $path ) {
+                push @files, $self->make_file_record( $track, $path );
+            }
+            else {
+                warn "GFF file '$path' not found, or not readable.  Skipping.\n";
             }
         }
 
@@ -555,6 +570,23 @@ sub make_names_iterator {
             my ( $ref, $start, $name, $basevar ) = split "\t", $line, 5;
             $start--;
             return [[$name],$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
+        };
+    }
+    elsif( $file_record->{type} eq 'gff' ) {
+        my $input_fh = $self->open_names_file( $file_record );
+        no warnings 'uninitialized';
+        return sub {
+            my $line;
+            while( ($line = <$input_fh>) =~ /^#/ ) {}
+            return unless $line;
+
+            $self->{stats}{name_input_records}++;
+            $self->{stats}{total_namerec_bytes} += length $line;
+
+            my ( $ref, $start, $end, $attributes) = (split "\t", $line)[0,3,4,-1];
+            $start--;
+            my ($name) = $attributes=~/ID=([^;]+)/;
+            return [[$name],$file_record->{trackName},$name,$ref, $start, $end];
         };
     }
     else {
