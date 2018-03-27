@@ -9,7 +9,6 @@ define([
            'dojo/dom-construct',
            'dojo/dom-class',
            'dstore/Memory',
-           'dojox/html/entities',
            'dgrid/OnDemandGrid',
            'dgrid/extensions/DijitRegistry',
            'JBrowse/Util'
@@ -22,7 +21,6 @@ define([
            domConstruct,
            domClass,
            MemoryStore,
-           dojoxHtmlEntities,
            DGrid,
            DGridDijitRegistry,
            Util
@@ -189,7 +187,8 @@ return declare( null, {
                 return keys.length;
             }
         }
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: dojoxHtmlEntities.encode(''+val) }, parent );
+
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: val }, parent );
         return 1;
     },
 
