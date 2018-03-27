@@ -45,7 +45,12 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
         return container;
     },
-
+    renderDetailValue: function( parent, title, val, f, class_ ) {
+        if(title == "alternative_alleles") {
+            val = Util.escapeHTML(val);
+        }
+        return this.inherited(arguments, [parent,title,val,f,class_]);
+    },
     _isReservedTag: function( t ) {
         return this.inherited(arguments) || {genotypes:1}[t.toLowerCase()];
     },
