@@ -14,6 +14,12 @@
 
 ## Bug fixes
 
+  * Updated `NeatCanvasFeatures` and `NeatHTMLFeatures` plugins to support a `gradient`
+    configuration variable, fix rendering of outrons, restore their default
+    gradient-drawing behavior, disable gradients by default on Alignments and
+    Alignments2 track types, and clean up their documentation. (issue #931, issue #982,
+    issue #985, issue #931, issue #992, pull #1011, @enuggetry)
+
   * Fixed a bug with plugin loading that was preventing some plugins from working
     correctly. (issue #1025, @rbuels)
 
