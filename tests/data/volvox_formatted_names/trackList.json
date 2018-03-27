@@ -343,6 +343,19 @@
          },
          "type" : "FeatureTrack",
          "urlTemplate" : "tracks/bam_simulated/{refseq}/trackData.json"
+      },
+      {
+         "category" : "Miscellaneous",
+         "key" : "GFF3Tabix - volvox.gff3 in-memory adaptor",
+         "label" : "volvox_gff3_tabix",
+         "maxFeatureScreenDensity" : 0.05,
+         "metadata" : {
+            "description" : "This is just all the features in the volvox.gff3 test file, displayed using GFF3 and tabix"
+         },
+         "storeClass" : "JBrowse/Store/SeqFeature/GFF3Tabix",
+         "tbiUrlTemplate" : "volvox.sort.gff3.gz.tbi",
+         "type" : "CanvasFeatures",
+         "urlTemplate" : "volvox.sort.gff3.gz.1"
       }
    ]
 }

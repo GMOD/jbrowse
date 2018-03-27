@@ -20,6 +20,7 @@ use File::Temp ();
 use List::Util ();
 
 use GenomeDB ();
+use Bio::GFF3::LowLevel qw/gff3_parse_feature/;
 use Bio::JBrowse::HashStore ();
 
 sub option_defaults {(
@@ -196,14 +197,20 @@ sub make_file_record {
     my ( $self, $track, $file ) = @_;
     -f $file or die "$file not found\n";
     -r $file or die "$file not readable\n";
-    my $gzipped = $file =~ /\.(txt|json|g)z$/;
-    my $type = $file =~ /\.txtz?$/      ? 'txt'  :
-               $file =~ /\.jsonz?$/     ? 'json' :
-               $file =~ /\.vcf(\.gz)?$/ ? 'vcf'  :
-                                           undef;
+    my $gzipped = $file =~ /\.(txt|json|g)z(\.\d+)?$/;
+    my $type = $file =~ /\.txtz?$/                ? 'txt'  :
+               $file =~ /\.jsonz?$/               ? 'json' :
+               $file =~ /\.vcf(\.gz)?$/           ? 'vcf'  :
+               $file =~ /\.gff3?(\.gz)?(\.\d+)?$/ ? 'gff'  :
+                                                    undef;
 
     if( $type ) {
-        return { gzipped => $gzipped, fullpath => $file, type => $type, trackName => $track->{label} };
+        return {
+            gzipped => $gzipped,
+            fullpath => $file,
+            type => $type,
+            trackName => $track->{label}
+        };
     }
     return;
 }
@@ -299,7 +306,7 @@ sub make_name_record_stream {
                     compress => 0,
                     verbose => 0);
 
-        # initialize the track hash with an index 
+        # initialize the track hash with an index
         foreach (@{$temp_store->meta->{track_names}}) {
             $trackHash{$_}=$trackNum++;
         }
@@ -316,6 +323,8 @@ sub make_name_record_stream {
                 $name_records_iterator = $self->make_names_iterator( $file );
                 $name_records_iterator->();
             } or return;
+
+            # expand each name record into its aliases
             my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
             foreach my $alias ( @aliases ) {
                     my $track = $nameinfo->[1];
@@ -378,6 +387,20 @@ sub find_names_files {
             }
         }
 
+        # try to detect GFF3 tracks and index their GFF3 files
+        if( $track->{storeClass}
+            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.gff3?\.gz(\.\d+)?/
+             || $track->{storeClass} =~ /GFF3Tabix$/ )
+            ) {
+            my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
+            if( -r $path ) {
+                push @files, $self->make_file_record( $track, $path );
+            }
+            else {
+                warn "GFF file '$path' not found, or not readable.  Skipping.\n";
+            }
+        }
+
     }
 
     return \@files;
@@ -417,11 +440,9 @@ sub make_operation_stream {
     }
 
     return sub {
-        unless( @operation_buffer ) {
-            if( my $name_record = $record_stream->() ) {
-                #$self->{stats}{namerecs_converted_to_operations}++;
-                push @operation_buffer, $self->make_operations( $name_record );
-            }
+        while( @operation_buffer and my $name_record = $record_stream->() ) {
+            #$self->{stats}{namerecs_converted_to_operations}++;
+            push @operation_buffer, $self->make_operations( $name_record );
         }
         return shift @operation_buffer;
     };
@@ -430,6 +451,8 @@ sub make_operation_stream {
 my $OP_ADD_EXACT  = 1;
 my $OP_ADD_PREFIX = 2;
 
+# given a name record, return zero or more operations to perform on the hash store
+# to load it into the store
 sub make_operations {
     my ( $self, $record ) = @_;
 
@@ -440,6 +463,14 @@ sub make_operations {
             $self->{already_warned_about_blank_name_records} = 1;
         }
         return;
+    }
+
+    # if the name of the thing is the same as its reference
+    # sequence (i.e. this is a reference sequence),
+    # then skip it, because we treat ref seqs separately.
+    {
+        no warnings 'uninitialized';
+        return if $record->[0] eq $record->[3];
     }
 
     my @ops = ( [ $lc_name, $OP_ADD_EXACT, $record ] );
@@ -474,7 +505,7 @@ sub do_hash_operation {
             # don't insert duplicate locations
             no warnings 'uninitialized';
             if( ! grep {
-                      $record->[1] == $_->[1] && $record->[3] eq $_->[3] && $record->[4] == $_->[4] && $record->[5] == $_->[5] 
+                      $record->[1] == $_->[1] && $record->[3] eq $_->[3] && $record->[4] == $_->[4] && $record->[5] == $_->[5]
                   } @$exact
               ) {
                 push @$exact, $record;
@@ -506,9 +537,9 @@ sub do_hash_operation {
     }
 }
 
-# each of these takes an input filename and returns a subroutine that
-# returns name records until there are no more, for either names.txt
-# files or old-style names.json files
+# each of these takes an input filename containing names to be indexed,
+# and returns a subroutine that, when called repeatedly, returns name
+# records until there are no more (returning undef to signal the end)
 sub make_names_iterator {
     my ( $self, $file_record ) = @_;
     if( $file_record->{type} eq 'txt' ) {
@@ -555,6 +586,44 @@ sub make_names_iterator {
             my ( $ref, $start, $name, $basevar ) = split "\t", $line, 5;
             $start--;
             return [[$name],$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
+        };
+    }
+    elsif( $file_record->{type} eq 'gff' ) {
+        my $input_fh = $self->open_names_file( $file_record );
+        no warnings 'uninitialized';
+        return sub {
+
+            # find the next feature in the file that has a name
+            my $line;
+            my $feature;
+            my @names;
+            while(my $line = <$input_fh>) {
+                if( $line !~ /^#/ ) {
+                    chomp $line;
+                    $feature = gff3_parse_feature($line);
+                    my $Name = $feature->{attributes}{Name} || [];
+                    my $ID = $feature->{attributes}{ID} || [];
+                    @names = $Name->[0] ? @$Name : @$ID;
+                    last if scalar @names;
+                }
+            }
+
+            # end the stream by returning undef if there are no more features
+            return unless $feature;
+
+            # keep stats
+            $self->{stats}{name_input_records}++;
+            $self->{stats}{total_namerec_bytes} += length $line + 1;
+
+            my $names = $feature->{attributes}{Name} || $feature->{attributes}{ID};
+            return [
+                \@names,
+                $file_record->{trackName},
+                $names->[0],
+                $feature->{seq_id},
+                $feature->{start}-1,
+                $feature->{end}+0
+            ];
         };
     }
     else {
