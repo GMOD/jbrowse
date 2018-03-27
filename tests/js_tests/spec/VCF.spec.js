@@ -44,7 +44,7 @@ describe('VCF store', function() {
          var store = new VCFStore({
              browser: new Browser({unitTestMode: true}),
              config: {
-                 urlTemplate: '../data/gvcf.vcf.gz',
+                 urlTemplate: '../../docs/tutorial/data_files/gvcf.vcf.gz',
                  baseUrl: '.'
              },
              refSeq: { name: '1', start: 0, end: 5000 }
@@ -52,7 +52,7 @@ describe('VCF store', function() {
 
          var features = [];
          waitsFor( function() { return features.done; } );
-         store.getFeatures({ ref: '1',
+         store.getFeatures({ ref: 'ctgA',
                              start: 0,
                              end: 5000
                            },
