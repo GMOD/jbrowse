@@ -29,7 +29,6 @@ my $tempdir = new_volvox_sandbox();
 my $temp2 = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
 my ( $stdout ) = run_with (
     '--out'   => "$tempdir",
-#    '--out'   => 'tests/data/volvox_formatted_names', # uncomment to rewrite test known-good data
     '--workdir' => $temp2,
 #    '--verbose',
     '--hashBits' => 16,
@@ -42,6 +41,8 @@ my ( $stdout ) = run_with (
     #    or diag explain read_names($tempdir);
     #diag explain $got->{'c12/9.json'}{apple2}{exact};
     #diag explain $expected->{'c12/9.json'}{apple2}{exact};
+
+    # dircopy( $tempdir, 'tests/data/volvox_formatted_names') # uncomment to rewrite expected data
 }
 
 #system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
