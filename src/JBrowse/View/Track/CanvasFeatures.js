@@ -656,6 +656,7 @@ return declare(
     },
 
     startZoom: function() {
+        this.zooming = true
         this.inherited( arguments );
 
         array.forEach( this.blocks, function(b) {
@@ -674,6 +675,7 @@ return declare(
 
         this.clear();
         this.inherited( arguments );
+        this.zooming = false
     },
 
     renderClickMap: function( args, fRects ) {
@@ -1014,8 +1016,8 @@ return declare(
                 lWidth: this.label.offsetWidth
             };
 
-            array.forEach( this.blocks, function(block) {
-                if( !block || !block.fRectIndex )
+            this.blocks.forEach(block => {
+                if( !block || !block.fRectIndex || this.zooming )
                     return;
 
                 var idx = block.fRectIndex.byID;
@@ -1023,7 +1025,7 @@ return declare(
                      var fRect = idx[id];
                      fRect.glyph.updateStaticElements( context, fRect, viewArgs );
                 }
-            }, this );
+            });
         }
     },
 
