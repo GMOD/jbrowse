@@ -205,7 +205,12 @@ sub make_file_record {
                                                     undef;
 
     if( $type ) {
-        return { gzipped => $gzipped, fullpath => $file, type => $type, trackName => $track->{label} };
+        return {
+            gzipped => $gzipped,
+            fullpath => $file,
+            type => $type,
+            trackName => $track->{label}
+        };
     }
     return;
 }
@@ -318,6 +323,8 @@ sub make_name_record_stream {
                 $name_records_iterator = $self->make_names_iterator( $file );
                 $name_records_iterator->();
             } or return;
+
+            # expand each name record into its aliases
             my @aliases = map { ref($_) ? @$_ : $_ }  @{$nameinfo->[0]};
             foreach my $alias ( @aliases ) {
                     my $track = $nameinfo->[1];
@@ -433,11 +440,9 @@ sub make_operation_stream {
     }
 
     return sub {
-        unless( @operation_buffer ) {
-            if( my $name_record = $record_stream->() ) {
-                #$self->{stats}{namerecs_converted_to_operations}++;
-                push @operation_buffer, $self->make_operations( $name_record );
-            }
+        while( @operation_buffer and my $name_record = $record_stream->() ) {
+            #$self->{stats}{namerecs_converted_to_operations}++;
+            push @operation_buffer, $self->make_operations( $name_record );
         }
         return shift @operation_buffer;
     };
@@ -446,6 +451,8 @@ sub make_operation_stream {
 my $OP_ADD_EXACT  = 1;
 my $OP_ADD_PREFIX = 2;
 
+# given a name record, return zero or more operations to perform on the hash store
+# to load it into the store
 sub make_operations {
     my ( $self, $record ) = @_;
 
@@ -456,6 +463,14 @@ sub make_operations {
             $self->{already_warned_about_blank_name_records} = 1;
         }
         return;
+    }
+
+    # if the name of the thing is the same as its reference
+    # sequence (i.e. this is a reference sequence),
+    # then skip it, because we treat ref seqs separately.
+    {
+        no warnings 'uninitialized';
+        return if $record->[0] eq $record->[3];
     }
 
     my @ops = ( [ $lc_name, $OP_ADD_EXACT, $record ] );
@@ -522,9 +537,9 @@ sub do_hash_operation {
     }
 }
 
-# each of these takes an input filename and returns a subroutine that
-# returns name records until there are no more, for either names.txt
-# files or old-style names.json files
+# each of these takes an input filename containing names to be indexed,
+# and returns a subroutine that, when called repeatedly, returns name
+# records until there are no more (returning undef to signal the end)
 sub make_names_iterator {
     my ( $self, $file_record ) = @_;
     if( $file_record->{type} eq 'txt' ) {
