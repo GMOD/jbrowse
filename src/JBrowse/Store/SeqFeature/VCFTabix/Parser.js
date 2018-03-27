@@ -3,6 +3,7 @@ define([
            'dojo/_base/array',
            'dojo/json',
            'JBrowse/Util/TextIterator',
+           'JBrowse/Util',
            'JBrowse/Digest/Crc32',
            './LazyFeature'
        ],
@@ -11,6 +12,7 @@ define([
            array,
            JSON,
            TextIterator,
+           Util,
            Digest,
            LazyFeature
        ) {

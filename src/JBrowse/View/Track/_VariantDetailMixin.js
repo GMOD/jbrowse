@@ -113,7 +113,12 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                            descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
                                        }
                                        return descriptions;
-                                   })()
+                                   })(),
+                    renderCell: {
+                        "GT": function( field, value, node, options ) {
+                            thisB.renderDetailValue( node, '', Util.escapeHTML(value), f, '' );
+                        }
+                    }
                 }
             );
         };
