@@ -65,6 +65,7 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         # turn on CanvasFeatures tracks and make sure they are created
         self.do_typed_query( 'Apple1' )
+        self.click_search_disambiguation('CanvasFeatures','Go')
         self.turn_on_track('CanvasFeatures - Protein-coding genes')
 
         self.assert_elements("//div[@id='track_Genes']//canvas")
@@ -225,6 +226,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         self.assert_no_element( xpath )
 
         self.do_typed_query( "f15" )
+
+        # click "Go" on the first row
+        self.click_search_disambiguation('HTMLFeatures','Go')
 
         # test that f15 appeared in the DOM (TODO: check that it's
         # actually centered in the window), and that the protein-coding

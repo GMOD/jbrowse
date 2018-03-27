@@ -30,6 +30,7 @@ my $temp2 = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
 my ( $stdout ) = run_with (
     '--out'   => "$tempdir",
     '--workdir' => $temp2,
+#    '--verbose',
     '--hashBits' => 16,
     '--completionLimit' => 15
     );
@@ -40,6 +41,8 @@ my ( $stdout ) = run_with (
     #    or diag explain read_names($tempdir);
     #diag explain $got->{'c12/9.json'}{apple2}{exact};
     #diag explain $expected->{'c12/9.json'}{apple2}{exact};
+
+    # dircopy( $tempdir, 'tests/data/volvox_formatted_names') # uncomment to rewrite expected data
 }
 
 #system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
@@ -83,6 +86,9 @@ sub new_volvox_sandbox {
           ) or die $!;
     copy( 'sample_data/raw/volvox/volvox.test.vcf.gz',
           "$tempdir/volvox.test.vcf.gz"
+          ) or die $!;
+    copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
+          "$tempdir/volvox.sort.gff3.gz.1"
           ) or die $!;
     rmtree( "$tempdir/names" );
     return $tempdir;

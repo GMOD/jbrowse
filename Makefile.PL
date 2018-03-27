@@ -52,6 +52,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Bio::Annotation::SimpleValue" => 0,
     "Bio::FeatureIO" => 0,
+    "Bio::GFF3::LowLevel" => "1.8",
     "Bio::GFF3::LowLevel::Parser" => "1.8",
     "Bio::Index::Fasta" => 0,
     "Bio::OntologyIO" => 0,
