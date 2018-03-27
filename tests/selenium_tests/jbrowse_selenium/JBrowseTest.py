@@ -41,7 +41,10 @@ class JBrowseTest (object):
                 base + ( '&' if base.find('?') >= 0 else '?' )
                 + ( "data="+self.data_dir if self.data_dir else "" )
             )
-        #self.addCleanup(self.browser.quit)
+
+        if not os.getenv('DEBUG'):
+            self.addCleanup(self.browser.quit)
+
         self._waits_for_load()
 
     def _getBrowser( self ):
@@ -255,6 +258,7 @@ class JBrowseTest (object):
             return False
 
     def click_search_disambiguation( self, trackName, buttonText):
+        self.wait_for_dialog_appearance()
         xpath = (
                   '//*[contains(@class,"dijitDialogPaneContent")]'
                   '//td[contains(@class,"field-tracks")][contains(.,"%s")]'
