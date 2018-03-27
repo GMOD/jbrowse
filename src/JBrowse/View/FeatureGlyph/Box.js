@@ -313,7 +313,17 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                 context.font = fLabelRecord.font
                 context.fillStyle = fLabelRecord.fill
                 context.textBaseline = fLabelRecord.baseline
-                context.clearRect(labelLeft,labelTop,fLabelRecord.w,fLabelRecord.h)
+
+                let clearTop;
+                if (fLabelRecord.baseline === 'bottom') {
+                    clearTop = labelTop-fLabelRecord.h
+                } else if (fLabelRecord.baseline === 'top') {
+                    clearTop = labelTop
+                } else if (fLabelRecord.baseline === 'middle') {
+                    clearTop = labelTop-fLabelRecord.h/2
+                }
+                if (clearTop) context.clearRect(labelLeft,clearTop,fLabelRecord.w,fLabelRecord.h)
+
                 context.fillText(
                     fLabelRecord.text,
                     labelLeft,
