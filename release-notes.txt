@@ -12,6 +12,10 @@
   * Add ability for the CanvasFeatures feature labels to stay visible on the screen.
     (issue #390, pull #971, @cmdcolin, @rbuels)
 
+  * `generate-names.pl` now supports indexing GFF3 files, enabling better use of
+    GFF3Tabix tracks. Thanks to @billzt for the initial implementation!
+    (issue #780, pull #900, @rbuels)
+
 ## Bug fixes
 
   * Fixed a bug with plugin loading that was preventing some plugins from working
