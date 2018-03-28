@@ -7,7 +7,10 @@ const path = require("path")
 const glob = require('glob')
 const webpack = require("webpack")
 
-const DEBUG = !process.env.JBROWSE_BUILD_MIN;
+// if JBROWSE_BUILD_MIN env var is 1 or true, then we also minimize the JS
+// and forego generating source maps
+const DEBUG = ! [1,'1','true'].includes(process.env.JBROWSE_BUILD_MIN)
+
 const AUTOPREFIXER_BROWSERS = [
     'Android 2.3',
     'Android >= 4',
