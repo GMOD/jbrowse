@@ -134,6 +134,7 @@ echo -n "Formatting Volvox example data ...";
     fi
 
     cat \
+        docs/tutorial/data_files/volvox_microarray.bw.conf \
         docs/tutorial/data_files/volvox_sine.bw.conf \
         docs/tutorial/data_files/volvox-sorted.bam.conf \
         docs/tutorial/data_files/volvox-sorted.bam.coverage.conf \
