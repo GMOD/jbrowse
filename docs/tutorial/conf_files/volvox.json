@@ -223,7 +223,7 @@
    },
    "db_args" : {
       "-adaptor" : "memory",
-      "-dir" : "docs/tutorial/data_files"
+      "-dir" : "docs/tutorial/data_files/volvox.gff3"
    },
    "description" : "Volvox Example Database",
    "db_adaptor" : "Bio::DB::SeqFeature::Store"
