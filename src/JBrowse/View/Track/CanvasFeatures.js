@@ -208,7 +208,23 @@ return declare(
     },
 
     guessGlyphType: function(feature) {
-        return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript', 'transcript': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
+        // first try to guess by its SO type
+        let guess = {
+            'gene': 'Gene',
+            'mRNA': 'ProcessedTranscript',
+            'transcript': 'ProcessedTranscript'
+        }[feature.get('type')]
+
+        // otherwise, make it Segments if it has children, or a Box if it doesn't
+        if (!guess) {
+            let children = feature.children()
+            if(children && children.length)
+                guess = 'Segments'
+            else
+                guess = 'Box'
+        }
+
+        return 'JBrowse/View/FeatureGlyph/'+guess
     },
 
     fillBlock: function( args ) {

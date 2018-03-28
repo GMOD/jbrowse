@@ -2,6 +2,11 @@
 
 ## Minor improvements
 
+  * CanvasFeatures tracks, when guessing which glyph to show for a feature in a track
+    that does not specify glyphs in its configuration, will now use a Segments glyph
+    instead of a Box glyph if the feature in question has subfeatures, and is not
+    otherwise recognized as a gene or processed transcript. @rbuels
+
   * Added a check in the `setup.sh` script for NodeJS >= 6 and NPM >= 3.
     (issue #1026, @rbuels)
 
