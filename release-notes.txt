@@ -19,6 +19,8 @@
     GFF3Tabix tracks. Thanks to @billzt for the initial implementation!
     (issue #780, pull #900, @rbuels)
 
+  * CanvasFeatures `ProcessedTranscript` and `Gene` glyphs now support a "style&rarr;utrHeightPercent" configuration variable that sets the percentage of the overall feature's height that a UTR have. This was previously hardcoded to 65, now it is customizable, defaulting to its old value of 65. @rbuels
+
 ## Bug fixes
 
   * Updated `NeatCanvasFeatures` and `NeatHTMLFeatures` plugins to support a `gradient`
