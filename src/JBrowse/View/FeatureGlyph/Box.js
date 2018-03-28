@@ -301,7 +301,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
 
         // if the feature is within the view
         if (!(fMin > vMax || fMax < vMin)) {
-            let fRectLeft = fRect.l+bpToPx(block.startBase-vMin)
+            let fRectLeft = fRect.l+bpToPx(block.startBase-vMin+1)
 
             let clamp = (val,min,max) => Math.min(Math.max(val,min),max)
             let renderText = fLabelRecord => {
