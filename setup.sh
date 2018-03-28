@@ -132,20 +132,23 @@ echo -n "Formatting Volvox example data ...";
     else
         bin/biodb-to-json.pl -v --conf docs/tutorial/conf_files/volvox.json --out sample_data/json/volvox;
     fi
-    cat docs/tutorial/data_files/volvox_microarray.bw.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox_sine.bw.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox-sorted.bam.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox-sorted.bam.coverage.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox-paired.bam.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox.vcf.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox_fromconfig.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox.gff3.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox.gtf.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox.sort.gff3.gz.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox.bw.gff3.gz.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/volvox.sort.bed.gz.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/gvcf.vcf.gz.conf >> sample_data/json/volvox/tracks.conf
-    cat docs/tutorial/data_files/bookmarks.conf >> sample_data/json/volvox/tracks.conf
+
+    cat \
+        docs/tutorial/data_files/volvox_sine.bw.conf \
+        docs/tutorial/data_files/volvox-sorted.bam.conf \
+        docs/tutorial/data_files/volvox-sorted.bam.coverage.conf \
+        docs/tutorial/data_files/volvox-paired.bam.conf \
+        docs/tutorial/data_files/volvox.vcf.conf \
+        docs/tutorial/data_files/volvox_fromconfig.conf \
+        docs/tutorial/data_files/volvox.gff3.conf \
+        docs/tutorial/data_files/volvox.gtf.conf \
+        docs/tutorial/data_files/volvox.sort.gff3.gz.conf \
+        docs/tutorial/data_files/volvox.bw.gff3.gz.conf \
+        docs/tutorial/data_files/volvox.sort.bed.gz.conf \
+        docs/tutorial/data_files/gvcf.vcf.gz.conf \
+        docs/tutorial/data_files/bookmarks.conf \
+    >> sample_data/json/volvox/tracks.conf
+
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
     bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
     bin/flatfile-to-json.pl --bed docs/tutorial/data_files/volvox_segment.bed --out sample_data/json/volvox --trackLabel ChromHMM --trackType CanvasFeatures --clientConfig '{"color": "{chromHMM}", "strandArrow": false}' --config '{"displayMode": "collapsed", "enableCollapsedMouseover": true, "category": "Miscellaneous" }';
