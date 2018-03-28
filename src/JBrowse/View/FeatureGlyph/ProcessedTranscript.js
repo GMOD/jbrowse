@@ -34,7 +34,9 @@ _defaultConfig: function() {
 
             impliedUTRs: false,
 
-            inferCdsParts: false
+            inferCdsParts: false,
+            subSubParts: () => true, // render sub-subparts by default
+
         });
 },
 

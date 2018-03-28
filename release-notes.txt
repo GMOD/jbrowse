@@ -2,6 +2,11 @@
 
 ## Minor improvements
 
+  * Gene, ProcessedTranscript, and Segments glyphs can now render third-level subfeatures
+    (such as `stop_codon_read_through` features) as simple boxes that draw on top of the
+    main segment glyph. Thanks to @mpoelchau for pointing out the need for this!
+    (issue #584, @rbuels)
+
   * CanvasFeatures tracks, when guessing which glyph to show for a feature in a track
     that does not specify glyphs in its configuration, will now use a Segments glyph
     instead of a Box glyph if the feature in question has subfeatures, and is not
