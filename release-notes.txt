@@ -2,7 +2,7 @@
 
 ## Minor improvements
 
-  * Added a check in the `setup.sh` script for NodeJS >= 6 and NPM >= 4.
+  * Added a check in the `setup.sh` script for NodeJS >= 6 and NPM >= 3.
     (issue #1026, @rbuels)
 
   * Plugins that don't need CSS can now set `jbrowsePlugin.css` to `false` in their
