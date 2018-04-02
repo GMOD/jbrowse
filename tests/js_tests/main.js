@@ -51,4 +51,6 @@ cjsRequire('./spec/BED.spec.js')
 cjsRequire('./spec/TwoBit.spec.js')
 cjsRequire('./spec/SequenceTrack.spec.js')
 cjsRequire('./spec/VCF.spec.js')
+cjsRequire('./spec/BigBed.spec.js')
+
 
