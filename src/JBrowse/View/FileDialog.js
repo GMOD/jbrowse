@@ -144,7 +144,7 @@ return declare( null, {
             on( localFilesControl.uploader, 'click', function() {
                 var dialog = electronRequire('electron').remote.dialog;
                 var ret;
-                if(process.env.SPECTRON) {
+                if(window.process.env.SPECTRON) {
                     ret = ["docs/tutorial/data_files/volvox.fa"];
                 } else {
                     ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
