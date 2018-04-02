@@ -12,11 +12,11 @@ test.beforeEach(async t => {
       requireName: 'electronRequire'
   });
 
-  await t.context.app.start();
+  return t.context.app.start();
 });
 
 test.afterEach.always(async t => {
-  await t.context.app.stop();
+  return t.context.app.stop();
 });
 
 test('shows window', async t => {
@@ -47,6 +47,5 @@ test('checks previous sessions', async t => {
   await app.client.waitUntilWindowLoaded();
   var text = await app.client.getText("#previousSessions");
   t.true(t!=null);
-  console.error(text);
 });
 
