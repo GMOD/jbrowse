@@ -19,7 +19,7 @@ test.afterEach.always(async t => {
   await t.context.app.stop();
 });
 
-test(async t => {
+test('shows window', async t => {
   const app = t.context.app;
   await app.client.waitUntilWindowLoaded();
 
@@ -34,7 +34,7 @@ test(async t => {
   t.true(height > 0);
 });
 
-test(async t => {
+test('checks welcome text and opens fasta', async t => {
   const app = t.context.app;
   await app.client.waitUntilWindowLoaded();
   var text = await app.client.getText("#welcome");
@@ -43,7 +43,7 @@ test(async t => {
   await app.client.click("#openFile");
   await app.client.click("#dijit_form_Button_1");
 });
-test(async t => {
+test('checks previous sessions', async t => {
   const app = t.context.app;
   await app.client.waitUntilWindowLoaded();
   var text = await app.client.getText("#previousSessions");
