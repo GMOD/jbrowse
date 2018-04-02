@@ -214,3 +214,18 @@ a.dialog-new-window {
     margin: 0.8em 4em 0.5em 0.7em;
 }
 
+
+
+.about-dialog .loaded-plugins {
+    text-align: left;
+}
+
+.about-dialog .loaded-plugins li {
+    margin: 0em;
+}
+
+.about-dialog .plugins-list {
+    max-height: 100px;
+    overflow: auto;
+}
+
