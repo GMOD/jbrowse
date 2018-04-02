@@ -12,12 +12,15 @@
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#ffffff">
 
-    <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
     <script type="text/javascript">
         window.onerror=function(msg){
             if( document.body )
                 document.body.setAttribute("JSError",msg);
         }
+		if(window.process&&process.versions&&process.versions.electron) {
+			window.electronRequire = require;
+			delete window.require;
+		}
     </script>
     <style>
         html, body, div.jbrowse {
@@ -27,6 +30,7 @@
             width: 100%;
         }
     </style>
+    <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
   </head>
 
   <body>

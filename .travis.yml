@@ -39,7 +39,7 @@ install:
   fi
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
-- npm install -g jshint mocha
+- npm install -g jshint
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
@@ -52,8 +52,8 @@ script:
 - set -e
 - ./setup.sh
 - yarn lint
-- npm install electron spectron
-- xvfb-run mocha tests/electron_tests
+- npm install electron spectron ava
+- xvfb-run node_modules/.bin/ava --timeout=30s tests/electron_tests
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
