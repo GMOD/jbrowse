@@ -20,7 +20,7 @@ test.afterEach.always(async t => {
 });
 
 test('shows window', async t => {
-  const app = t.context.app;
+  let app = t.context.app;
   await app.client.waitUntilWindowLoaded();
 
   const win = app.browserWindow;
@@ -39,12 +39,8 @@ test('shows window', async t => {
   await app.client.click("#newOpen");
   await app.client.click("#openFile");
   await app.client.click("#dijit_form_Button_1");
-});
-
-
-test('checks previous sessions', async t => {
-  const app = t.context.app;
-  await app.client.waitUntilWindowLoaded();
+  await app.restart()
+  await app.client.waitUntilWindowLoaded()
   var text = await app.client.getText("#previousSessions");
   t.true(t!=null);
 });
