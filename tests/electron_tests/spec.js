@@ -5,43 +5,42 @@ import path from 'path';
 
 
 test.beforeEach(async t => {
-  t.context.app = new Application({
-      path: electronPath,
-      args: [path.join(__dirname, '../..')],
-      env: {SPECTRON: '1'},
-      requireName: 'electronRequire'
-  });
+    t.context.app = new Application({
+        path: electronPath,
+        args: [path.join(__dirname, '../..')],
+        env: {SPECTRON: '1'},
+        requireName: 'electronRequire'
+    });
 
-  return t.context.app.start();
+    await t.context.app.start();
 });
 
 test.afterEach.always(async t => {
-  return t.context.app.stop();
+    await t.context.app.stop();
 });
 
 test('shows window', async t => {
-  let app = t.context.app;
-  await app.client.waitUntilWindowLoaded();
+    const app = t.context.app;
+    await app.client.waitUntilWindowLoaded();
 
-  const win = app.browserWindow;
-  t.is(await app.client.getWindowCount(), 1);
-  t.false(await win.isMinimized());
-  t.false(await win.isDevToolsOpened());
-  t.true(await win.isVisible());
+    const win = app.browserWindow;
+    t.is(await app.client.getWindowCount(), 1);
+    t.false(await win.isMinimized());
+    t.false(await win.isDevToolsOpened());
+    t.true(await win.isVisible());
 
-  const {width, height} = await win.getBounds();
-  t.true(width > 0);
-  t.true(height > 0);
+    const {width, height} = await win.getBounds();
+    t.true(width > 0);
+    t.true(height > 0);
 
-
-  var text = await app.client.getText("#welcome");
-  t.is(text.substr(0,12), "Your JBrowse");
-  await app.client.click("#newOpen");
-  await app.client.click("#openFile");
-  await app.client.click("#dijit_form_Button_1");
-  await app.restart()
-  await app.client.waitUntilWindowLoaded()
-  var text = await app.client.getText("#previousSessions");
-  t.true(t!=null);
+    var text = await app.client.getText("#welcome");
+    t.is(text.substr(0,12), "Your JBrowse");
+    await app.client.click("#newOpen");
+    await app.client.click("#openFile");
+    await app.client.click("#dijit_form_Button_1");
+    await app.restart()
+    await app.client.waitUntilWindowLoaded()
+    text = await app.client.getText("#previousSessionsTable");
+    t.true(text != null);
 });
 

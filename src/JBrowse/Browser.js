@@ -508,7 +508,7 @@ loadSessions: function() {
 
     var path = app.getPath('userData') + "/sessions.json";
     var obj = JSON.parse( fs.readFileSync( path, 'utf8' ) );
-    var table = dojo.create( 'table', { style: { overflow: 'hidden', width: '90%' } }, dojo.byId('previousSessions') );
+    var table = dojo.create( 'table', { id: 'previousSessionsTable', style: { overflow: 'hidden', width: '90%' } }, dojo.byId('previousSessions') );
     var thisB = this;
 
     if( ! obj.length ) {
