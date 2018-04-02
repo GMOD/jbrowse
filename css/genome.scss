@@ -36,7 +36,41 @@ html, body {
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 
 
-    @import "dialog"
+    @import "dialog";
     @import "file_dialog";
     @import "export_dialog";
+}
+
+.base {
+    color: black;
+    font-family: Courier New,monospace;
+    font-weight: bold;
+    text-shadow: white 0px 0px 1px;
+}
+
+/* colors for bases must be specified as hex or rgb/hsl strings, no named colors such as 'red' */
+.base_n {
+    background-color: #C6C6C6;
+}
+.base_a {
+    background-color: #00BF00;
+}
+.base_c {
+    background-color: #4747ff;
+}
+.base_t {
+    background-color: #f00;
+}
+.base_g {
+    background-color: #d5bb04;
+}
+.base_reference {
+    background-color: #bbb;
+}
+.base_deletion {
+    background-color: #999;
+}
+
+.sequence.nocolor .base {
+    background-color: #ddd;
 }
