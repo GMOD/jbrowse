@@ -35,6 +35,8 @@ install:
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
+script:
+- jshint src/JBrowse/
 - pip install nose selenium
 # these versions *should* already be set in version control, but set them again here just in case
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json; fi
