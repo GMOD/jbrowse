@@ -74,3 +74,17 @@ html, body {
 .sequence.nocolor .base {
     background-color: #ddd;
 }
+
+/* added to document.body */
+.featureTooltip {
+    background: #FFFEF0;
+    border: 1px solid #aaa;
+    padding: 2px;
+    font-family: Courier New, monospace;
+    font-weight: bold;
+    cursor: default;
+
+    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
+}
