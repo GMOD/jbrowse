@@ -1,5 +1,13 @@
-/* main application CSS styles */
-.jbrowse {
+html, body {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+}
+
+.jbrowse {/* main application CSS styles */
     @import "../node_modules/dijit/themes/tundra/tundra.css";
     @import "../node_modules/dgrid/css/dgrid.css";
     @import "dojobase";
