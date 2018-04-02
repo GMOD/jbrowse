@@ -3,11 +3,12 @@ html, body {
     width: 100%;
     padding: 0;
     border: 0;
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
 }
 
 .jbrowse {/* main application CSS styles */
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+
     @import "../node_modules/dijit/themes/tundra/tundra.css";
     @import "../node_modules/dgrid/css/dgrid.css";
     @import "dojobase";
@@ -18,9 +19,7 @@ html, body {
     @import "toolbar";
     @import "icons";
     @import "tristate";
-    @import "file_dialog";
     @import "combination_tracks";
-    @import "export_dialog";
 
     /* CSS styles for the various types of feature glyphs */
     @import "track_styles";
@@ -30,4 +29,14 @@ html, body {
 
     /* CSS styles specifically for MAKER output */
     @import "maker";
+}
+
+.dijitDialog {
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+
+
+    @import "dialog"
+    @import "file_dialog";
+    @import "export_dialog";
 }
