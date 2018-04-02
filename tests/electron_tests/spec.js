@@ -32,17 +32,16 @@ test('shows window', async t => {
   const {width, height} = await win.getBounds();
   t.true(width > 0);
   t.true(height > 0);
-});
 
-test('checks welcome text and opens fasta', async t => {
-  const app = t.context.app;
-  await app.client.waitUntilWindowLoaded();
+
   var text = await app.client.getText("#welcome");
   t.is(text.substr(0,12), "Your JBrowse");
   await app.client.click("#newOpen");
   await app.client.click("#openFile");
   await app.client.click("#dijit_form_Button_1");
 });
+
+
 test('checks previous sessions', async t => {
   const app = t.context.app;
   await app.client.waitUntilWindowLoaded();
