@@ -42,8 +42,6 @@ require([
                                       }
                                       return false;
                                   });
-                      console.log(edenIndex);
-
                       expect( edenIndex ).toBe( 0 );
                       expect( features[edenIndex].get('subfeatures').length ).toEqual( 8 );
                   });
