@@ -5,8 +5,8 @@
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:3000/tests/js_tests/index.html",
-    "start": "./jb_run.js -p 8082",
+    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
+    "start": "utils/jb_run.js -p 8082",
     "watch": "watch 'npm run build' src/JBrowse plugins tests/js_tests",
     "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "hint": "jshint src/JBrowse/"
@@ -26,16 +26,16 @@
   "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
     "@gmod/gff": "file:../gff",
+    "babel-preset-es2015-without-strict": "^0.0.4",
     "express": "^4.15.4",
     "fs-extra": "^4.0.1",
     "node-getopt": "^0.2.3",
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
-    "@babel/core": "7.0.0-beta.40",
-    "@babel/preset-env": "7.0.0-beta.40",
     "ajv": "^6.2.1",
-    "babel-loader": "^8.0.0-beta.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
     "clean-webpack-plugin": "^0.1.18",
     "copy-webpack-plugin": "4.1.1",
@@ -62,12 +62,7 @@
     "url-loader": "0.5.7",
     "util-deprecate": "^1.0.2",
     "watch": "^1.0.2",
-    "webpack": "^3.10.0"
-  },
-  "browserslist": [
-    "> 0.2%",
-    "last 4 versions",
-    "Firefox ESR",
-    "not dead"
-  ]
+    "webpack": "^3.10.0",
+    "yarn": "^1.5.1"
+  }
 }

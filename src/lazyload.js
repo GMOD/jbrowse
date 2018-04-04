@@ -390,7 +390,7 @@ LazyLoad = (function (doc) {
     }
 
   };
-})(this.document);
+})(document);
 
 
 return LazyLoad; });

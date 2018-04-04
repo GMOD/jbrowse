@@ -36,3 +36,5 @@ themes/*/css
 JBrowse-*/
 JBrowse-*.zip
 dist/
+npm-debug.log
+yarn-error.log

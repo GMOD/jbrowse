@@ -70,7 +70,7 @@ var webpackConf = {
                 use: {
                   loader: 'babel-loader',
                   options: {
-                    presets: ['@babel/preset-env'], //< NOTE: respects package.json->browserslist
+                    presets: ['es2015-without-strict'],
                     cacheDirectory: true
                   }
                 }
