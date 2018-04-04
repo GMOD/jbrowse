@@ -112,8 +112,9 @@ if [ -f "src/JBrowse/Browser.js" ]; then
     (
         set -e
         check_node
-        npm install
-        npm run build
+        npm install yarn
+        node_modules/.bin/yarn install
+        node_modules/.bin/yarn build
     ) >>setup.log 2>&1;
     done_message "" "" "FAILURE NOT ALLOWED"
 else
