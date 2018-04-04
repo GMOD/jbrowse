@@ -1,3 +1,5 @@
+import gff from '@gmod/gff'
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
@@ -8,8 +10,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
-            'JBrowse/Model/XHRBlob',
-            './GFF3/Parser'
+            'JBrowse/Model/XHRBlob'
         ],
         function(
             declare,
@@ -22,7 +23,6 @@ define( [
             DeferredStats,
             GlobalStatsEstimationMixin,
             XHRBlob,
-            Parser
         ) {
 
 return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
@@ -41,59 +41,61 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         this._loadFeatures();
     },
 
-    _loadFeatures: function() {
-        var thisB = this;
+    _loadFeatures() {
         var features = this.bareFeatures = [];
 
         var featuresSorted = true;
         var seenRefs = this.refSeqs = {};
-        var parser = new Parser(
-            {
-                featureCallback: function(fs) {
-                    array.forEach( fs, function( feature ) {
-                                       var prevFeature = features[ features.length-1 ];
-                                       var regRefName = thisB.browser.regularizeReferenceName( feature.seq_id );
-                                       if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
-                                           featuresSorted = false;
-                                       if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
-                                           featuresSorted = false;
 
-                                       if( !( regRefName in seenRefs ))
-                                           seenRefs[ regRefName ] = features.length;
 
-                                       features.push( feature );
-                                   });
-                },
-                endCallback:     function()  {
-                    if( ! featuresSorted ) {
-                        features.sort( thisB._compareFeatureData );
-                        // need to rebuild the refseq index if changing the sort order
-                        thisB._rebuildRefSeqs( features );
-                    }
+        function addFeature(fs) {
+            array.forEach( fs, function( feature ) {
+                               var prevFeature = features[ features.length-1 ];
+                               var regRefName = thisB.browser.regularizeReferenceName( feature.seq_id );
+                               if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
+                                   featuresSorted = false;
+                               if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
+                                   featuresSorted = false;
 
-                    thisB._estimateGlobalStats()
-                         .then( function( stats ) {
-                                    thisB.globalStats = stats;
-                                    thisB._deferred.stats.resolve();
-                                });
+                               if( !( regRefName in seenRefs ))
+                                   seenRefs[ regRefName ] = features.length;
 
-                    thisB._deferred.features.resolve( features );
-                }
-            });
-        var fail = lang.hitch( this, '_failAllDeferred' );
+                               features.push( feature );
+                           });
+        }
+
+        function endFeatures()  {
+            if( ! featuresSorted ) {
+                features.sort( thisB._compareFeatureData );
+                // need to rebuild the refseq index if changing the sort order
+                thisB._rebuildRefSeqs( features );
+            }
+
+            thisB._estimateGlobalStats()
+                 .then( function( stats ) {
+                            thisB.globalStats = stats;
+                            thisB._deferred.stats.resolve();
+                        });
+
+            thisB._deferred.features.resolve( features );
+        }
+
+        var parseStream = gff.parseStream({
+                parseFeatures: true,
+                parseSequences: false,
+            })
+            .on('data', addFeature)
+            .on('end', endFeatures)
+            .on('error', fail)
+
+        var fail = this._failAllDeferred.bind(this)
+
         // parse the whole file and store it
         this.data.fetchLines(
-            function( line ) {
-                try {
-                    parser.addLine(line);
-                } catch(e) {
-                    fail('Error parsing GFF3.');
-                    throw e;
-                }
-            },
-            lang.hitch( parser, 'finish' ),
+            line => parseStream.write.bind(parseStream),
+            parseStream.end.bind(parseStream),
             fail
-        );
+        )
     },
 
     _rebuildRefSeqs: function( features ) {

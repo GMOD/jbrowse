@@ -4,8 +4,6 @@ require([
             'dojo/request/xhr',
             'JBrowse/Browser',
             'JBrowse/Model/XHRBlob',
-            'JBrowse/Util/GFF3',
-            'JBrowse/Store/SeqFeature/GFF3/Parser',
             'JBrowse/Store/SeqFeature/GFF3Tabix'
         ], function(
             array,
@@ -13,8 +11,6 @@ require([
             xhr,
             Browser,
             XHRBlob,
-            GFF3,
-            Parser,
             GFF3TabixStore
         ) {
 
