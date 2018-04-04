@@ -17,8 +17,8 @@ define( [
              VariantDetailsMixin
          ) {
 return declare( [ HTMLFeatures, VariantDetailsMixin ], {
-    _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._variantsFilterTrackMenuOptions() ])
+    _trackMenuOptions: function _trackMenuOptions() {
+        return all([ this.inherited(_trackMenuOptions, arguments), this._variantsFilterTrackMenuOptions() ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift( { type: 'dijit/MenuSeparator' } );

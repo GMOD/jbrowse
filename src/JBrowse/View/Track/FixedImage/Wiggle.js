@@ -20,13 +20,13 @@ var Wiggle = declare( [ FixedImage, YScaleMixin ],
     constructor: function() {
     },
 
-    updateStaticElements: function( coords ) {
-        this.inherited( arguments );
+    updateStaticElements: function updateStaticElements( coords ) {
+        this.inherited(updateStaticElements,  arguments );
         this.updateYScaleFromViewDimensions( coords );
     },
 
-    makeImageLoadHandler: function( img, blockIndex, blockWidth, composeCallback ) {
-        return this.inherited( arguments,
+    makeImageLoadHandler: function makeImageLoadHandler( img, blockIndex, blockWidth, composeCallback ) {
+        return this.inherited(makeImageLoadHandler,  arguments,
                                [ img,
                                  blockIndex,
                                  blockWidth,

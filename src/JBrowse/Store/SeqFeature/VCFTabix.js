@@ -29,8 +29,8 @@ define([
 // files don't actually have an end coordinate, so we have to make it
 // here.  also convert coordinates to interbase.
 var VCFIndexedFile = declare( TabixIndexedFile, {
-    parseLine: function() {
-        var i = this.inherited( arguments );
+    parseLine: function parseLine() {
+        var i = this.inherited(parseLine,  arguments );
         if( i ) {
             var ret = i.fields[7].match(/^END=(\d+)|;END=(\d+)/);
             i.start--;

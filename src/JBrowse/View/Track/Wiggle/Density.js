@@ -18,9 +18,9 @@ return declare( WiggleBase,
 
 {
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 maxExportSpan: 500000,
                 style: {

@@ -22,9 +22,9 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         this._embeddedImagePromises = {};
     },
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return this._mergeConfigs(
-            this.inherited(arguments),
+            this.inherited(_defaultConfig, arguments),
             {
                 style: {
                     maxDescriptionLength: 70,
@@ -110,8 +110,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         return fRect;
     },
 
-    layoutFeature: function( viewArgs, layout, feature ) {
-        var rect = this.inherited( arguments );
+    layoutFeature: function layoutFeature( viewArgs, layout, feature ) {
+        var rect = this.inherited(layoutFeature,  arguments );
         if( ! rect ) return rect;
 
         // need to set the top of the inner rect

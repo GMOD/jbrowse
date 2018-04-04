@@ -45,14 +45,14 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
         return container;
     },
-    renderDetailValue: function( parent, title, val, f, class_ ) {
+    renderDetailValue: function renderDetailValue( parent, title, val, f, class_ ) {
         if(title == "alternative_alleles") {
             val = Util.escapeHTML(val);
         }
-        return this.inherited(arguments, [parent,title,val,f,class_]);
+        return this.inherited(renderDetailValue, arguments, [parent,title,val,f,class_]);
     },
-    _isReservedTag: function( t ) {
-        return this.inherited(arguments) || {genotypes:1}[t.toLowerCase()];
+    _isReservedTag: function _isReservedTag( t ) {
+        return this.inherited(_isReservedTag, arguments) || {genotypes:1}[t.toLowerCase()];
     },
 
     _renderGenotypes: function( parentElement, track, f, featDiv  ) {
@@ -235,9 +235,12 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
 
     // filters for VCF sites
-    _getNamedFeatureFilters: function() {
+    _getNamedFeatureFilters: function _getNamedFeatureFilters() {
         var thisB = this;
-        return all([ this.store.getVCFHeader && this.store.getVCFHeader(), this.inherited(arguments) ])
+        return all([
+                this.store.getVCFHeader && this.store.getVCFHeader(),
+                this.inherited(_getNamedFeatureFilters, arguments)
+            ])
             .then( function() {
                        if( arguments[0][0] )
                            return thisB._makeVCFFilters.apply( thisB, arguments[0] );

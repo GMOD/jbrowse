@@ -19,9 +19,9 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
  * @extends JBrowse.View.Track.WiggleBase
  */
 {
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 style: {
                     pos_color: 'blue',
@@ -33,9 +33,9 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         );
     },
 
-        _trackMenuOptions: function() {
+    _trackMenuOptions: function _trackMenuOptions() {
         var track = this;
-        var options = this.inherited(arguments) || [];
+        var options = this.inherited(_trackMenuOptions, arguments) || [];
 
         options.push({
             label: 'No fill',
@@ -87,8 +87,8 @@ var XYPlot = declare( [WiggleBase, YScaleMixin],
         }), errorCallback );
     },
 
-    updateStaticElements: function( coords ) {
-        this.inherited( arguments );
+    updateStaticElements: function updateStaticElements( coords ) {
+        this.inherited(updateStaticElements,  arguments );
         this.updateYScaleFromViewDimensions( coords );
     },
 

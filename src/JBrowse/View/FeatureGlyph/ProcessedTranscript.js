@@ -18,9 +18,9 @@ define([
        ) {
 
 return declare( SegmentsGlyph, {
-_defaultConfig: function() {
+_defaultConfig: function _defaultConfig() {
     return this._mergeConfigs(
-        this.inherited(arguments),
+        this.inherited(_defaultConfig, arguments),
         {
             style: {
                 utrColor: function( feature, variable, glyph, track ) {
@@ -233,18 +233,18 @@ _isUTR: function( feature ) {
     return /(\bUTR|_UTR|untranslated[_\s]region)\b/.test( feature.get('type') || '' );
 },
 
-getStyle: function( feature, name ) {
+getStyle: function getStyle( feature, name ) {
     if( name == 'color' ) {
         if( this._isUTR( feature ) ) {
             return this.getStyle( feature, 'utrColor' );
         }
     }
 
-    return this.inherited(arguments);
+    return this.inherited(getStyle, arguments);
 },
 
-_getFeatureHeight: function( viewInfo, feature ) {
-    var height = this.inherited( arguments );
+_getFeatureHeight: function _getFeatureHeight( viewInfo, feature ) {
+    var height = this.inherited(_getFeatureHeight,  arguments );
 
     if( this._isUTR( feature ) )
         return height*this.getStyle(feature,'utrHeightPercent')/100;

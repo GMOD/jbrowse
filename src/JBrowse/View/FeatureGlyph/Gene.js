@@ -15,9 +15,9 @@ define([
 
 return declare( BoxGlyph, {
 
-_defaultConfig: function() {
+_defaultConfig: function _defaultConfig() {
     return this._mergeConfigs(
-        this.inherited(arguments),
+        this.inherited(_defaultConfig, arguments),
         {
             transcriptType: 'mRNA',
             style: {
@@ -116,8 +116,8 @@ _getFeatureRectangle: function( viewArgs, feature ) {
     return fRect;
 },
 
-layoutFeature: function( viewInfo, layout, feature ) {
-    var fRect = this.inherited( arguments );
+layoutFeature: function layoutFeature( viewInfo, layout, feature ) {
+    var fRect = this.inherited(layoutFeature,  arguments );
     if( fRect )
         array.forEach( fRect.subRects, function( subrect ) {
                            subrect.t += fRect.t;
@@ -139,8 +139,8 @@ renderFeature: function( context, fRect ) {
     this.renderDescription( context, fRect );
 },
 
-updateStaticElements: function( context, fRect, viewArgs ) {
-    this.inherited( arguments );
+updateStaticElements: function updateStaticElements( context, fRect, viewArgs ) {
+    this.inherited(updateStaticElements,  arguments );
 
     var subRects = fRect.subRects;
     for( var i = 0; i < subRects.length; i++ ) {

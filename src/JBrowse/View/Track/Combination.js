@@ -187,11 +187,13 @@ constructor: function( args ) {
 
 },
 
-setViewInfo: function( genomeView, heightUpdate, numBlocks,
-                       trackDiv,
-                       widthPct, widthPx, scale) {
+setViewInfo: function setViewInfo(
+    genomeView, heightUpdate, numBlocks,
+    trackDiv,
+    widthPct, widthPx, scale
+) {
 
-    this.inherited( arguments );
+    this.inherited(setViewInfo,  arguments );
     domClass.add( this.div, 'combination_track empty' );
 
     this.scale = scale;
@@ -686,36 +688,36 @@ refresh: function(track) {
      this.makeTrackMenu();
 },
 
-clear: function() {
-    this.inherited(arguments);
+clear: function clear() {
+    this.inherited(clear, arguments);
     if(this.resultsTrack && !this.onlyRefreshOuter) {
         this.resultsTrack.clear();
     }
 },
 
-hideAll: function() {
-    this.inherited(arguments);
+hideAll: function hideAll() {
+    this.inherited(hideAll, arguments);
     if(this.resultsTrack && !this.onlyRefreshOuter) {
         this.resultsTrack.hideAll();
     }
 },
 
-hideRegion: function( location ) {
-    this.inherited(arguments);
+hideRegion: function hideRegion( location ) {
+    this.inherited(hideRegion, arguments);
     if(this.resultsTrack && !this.onlyRefreshOuter) {
         this.resultsTrack.hideRegion( location );
     }
 },
 
-sizeInit: function( numBlocks, widthPct, blockDelta ) {
-    this.inherited(arguments);
+sizeInit: function sizeInit( numBlocks, widthPct, blockDelta ) {
+    this.inherited(sizeInit, arguments);
     if(this.resultsTrack && !this.onlyRefreshOuter) {
         this.resultsTrack.sizeInit( numBlocks, widthPct, blockDelta);
     }
 },
 
 // Extends the BlockBased track's showRange function.
-showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
+showRange: function showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
 
     this.range = {f: first, l: last, st: startBase,
                   b: bpPerBlock, sc: scale,
@@ -752,15 +754,15 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
         }
     }
     // Run the method from BlockBased.js
-    this.inherited(arguments);
+    this.inherited(showRange, arguments);
     // Make sure the height of this track is right
     this.heightUpdate(this.height);
     this.div.style.height = this.height + "px";
 },
 
 // If moveBlocks is called on this track, should be called on the results track as well
-moveBlocks: function(delta) {
-    this.inherited(arguments);
+moveBlocks: function moveBlocks(delta) {
+    this.inherited(moveBlocks, arguments);
     if(this.resultsTrack)
         this.resultsTrack.moveBlocks(delta);
 },
@@ -789,8 +791,8 @@ endZoom: function(destScale, destBlockBases) {
 },
 
 //  updateStaticElements passed down to resultsTrack
-updateStaticElements: function(args) {
-  this.inherited(arguments);
+updateStaticElements: function updateStaticElements(args) {
+  this.inherited(updateStaticElements, arguments);
   if(this.resultsTrack)
         this.resultsTrack.updateStaticElements(args);
 },
@@ -824,13 +826,13 @@ getClassIndex: function(type) {
 },
 
 // Adds options to the track context menu
-_trackMenuOptions: function() {
+_trackMenuOptions: function _trackMenuOptions() {
 
     // Allows the combination track to "mimic" the menu options of its results track
     var resultsTrackOptions = ( this.resultsTrackMenuOptions || function() { return undefined; } ).call( this.resultsTrack );
     resultsTrackOptions = resultsTrackOptions || [];
 
-    var inheritedOptions = this.inherited( arguments );
+    var inheritedOptions = this.inherited(_trackMenuOptions,  arguments );
     var inheritedLabels = inheritedOptions.map( function( menuItem ) {
         return menuItem.label;
     });
@@ -841,9 +843,6 @@ _trackMenuOptions: function() {
       }
     }
     var o = inheritedOptions.concat( resultsTrackOptions );
-
-    //var o = this.inherited(arguments);
-
 
     var combTrack = this;
 

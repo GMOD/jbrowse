@@ -43,7 +43,7 @@ var FileBlob = declare( null,
                               // only return a partial line at the end
                               // if we are not operating on a slice of
                               // the file
-                              returnPartialRecord: !this.end
+                              returnPartialRecord: !thisB.end
                             });
                         var line;
                         while(( line = lineIterator.getline() )) {

@@ -87,9 +87,9 @@ define( [
              * Returns object holding the default configuration for HTML-based feature tracks.
              * @private
              */
-            _defaultConfig: function() {
+            _defaultConfig: function _defaultConfig() {
                 return Util.deepUpdate(
-                    lang.clone( this.inherited(arguments) ),
+                    lang.clone( this.inherited(_defaultConfig, arguments) ),
                     {
                         maxFeatureScreenDensity: 0.5,
 
@@ -237,8 +237,8 @@ define( [
                 this.clear();
             },
 
-            updateStaticElements: function( coords ) {
-                this.inherited( arguments );
+            updateStaticElements: function updateStaticElements( coords ) {
+                this.inherited(updateStaticElements,  arguments );
                 this.updateYScaleFromViewDimensions( coords );
                 this.updateFeatureLabelPositions( coords );
                 this.updateFeatureArrowPositions( coords );
@@ -451,12 +451,12 @@ define( [
                 }
             },
 
-            destroy: function() {
+            destroy: function destroy() {
                 this._clearLayout();
-                this.inherited(arguments);
+                this.inherited(destroy, arguments);
             },
 
-            cleanupBlock: function(block) {
+            cleanupBlock: function cleanupBlock(block) {
                 if( block ) {
                     // discard the layout for this range
                     if ( this.layout )
@@ -479,7 +479,7 @@ define( [
                         }
                 }
 
-                this.inherited( arguments );
+                this.inherited(cleanupBlock,  arguments );
             },
 
             /**
@@ -708,8 +708,8 @@ define( [
             },
 
 
-            fillBlockTimeout: function( blockIndex, block ) {
-                this.inherited( arguments );
+            fillBlockTimeout: function fillBlockTimeout( blockIndex, block ) {
+                this.inherited(fillBlockTimeout,  arguments );
                 block.featureNodes = {};
             },
 
@@ -908,9 +908,9 @@ define( [
                 }
             },
 
-            hideAll: function() {
+            hideAll: function hideAll() {
                 this._clearLayout();
-                return this.inherited(arguments);
+                return this.inherited(hideAll, arguments);
             },
 
             getFeatDiv: function( feature )  {
@@ -1365,9 +1365,9 @@ define( [
                 delete this.layout;
             },
 
-            clear: function() {
+            clear: function clear() {
                 delete this.layout;
-                this.inherited( arguments );
+                this.inherited(clear,  arguments );
             },
 
             /**
@@ -1375,17 +1375,17 @@ define( [
              *   clearing layout here, and relying on superclass BlockBased.changed() call and
              *   standard _changedCallback function passed in track constructor to trigger relayout
              */
-            changed: function() {
+            changed: function changed() {
                 this._clearLayout();
-                this.inherited(arguments);
+                this.inherited(changed, arguments);
             },
 
             _exportFormats: function() {
                 return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
             },
 
-            _trackMenuOptions: function() {
-                var o = this.inherited(arguments);
+            _trackMenuOptions: function _trackMenuOptions() {
+                var o = this.inherited(_trackMenuOptions, arguments);
                 var track = this;
 
                 o.push.apply(

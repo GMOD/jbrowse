@@ -287,8 +287,8 @@ return declare( null, {
         }));
     },
 
-    _trackMenuOptions: function() {
-        var opts = this.inherited(arguments);
+    _trackMenuOptions: function _trackMenuOptions() {
+        var opts = this.inherited(_trackMenuOptions, arguments);
 
         if( ! this.config.noExport )
             // add a "Save track data as" option to the track menu

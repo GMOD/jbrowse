@@ -17,9 +17,9 @@ define( [
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         var c = Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 glyph: 'JBrowse/View/FeatureGlyph/Alignment',
                 maxFeatureGlyphExpansion: 0,
@@ -107,7 +107,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             });
     },
 
-    _trackMenuOptions: function() {
+    _trackMenuOptions: function _trackMenuOptions() {
         var track=this;
         var displayOptions=[];
 
@@ -133,7 +133,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 }
             });
         }
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
+        return all([ this.inherited(_trackMenuOptions, arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );

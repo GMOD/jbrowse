@@ -47,7 +47,7 @@ return declare( ActionBarDialog,
             .placeAt( actionBar );
     },
 
-    show: function( callback ) {
+    show: function show( callback ) {
         var thisB = this;
 
         dojo.addClass( this.domNode, 'setHighlightDialog' );
@@ -67,7 +67,7 @@ return declare( ActionBarDialog,
                      this.highlightInput.domNode
                  ] );
 
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
     },
 
     getLocation: function() {
@@ -75,8 +75,8 @@ return declare( ActionBarDialog,
         return new Location( this.highlightInput.get('value') );
     },
 
-    hide: function() {
-        this.inherited(arguments);
+    hide: function hide() {
+        this.inherited(hide, arguments);
         window.setTimeout( dojo.hitch( this, 'destroyRecursive' ), 500 );
     }
 });

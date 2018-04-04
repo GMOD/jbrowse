@@ -61,12 +61,12 @@ return declare( ActionBarDialog,
             .placeAt( actionBar );
     },
 
-    show: function( callback ) {
+    show: function show( callback ) {
         dojo.addClass( this.domNode, 'fileDialog' );
 
         var remoteURLsControl = this._makeRemoteURLsControl();
         var localFilesControl = this._makeLocalFileControl();
-        
+
         var div = function( attr, children ) {
             var d = dom.create('div', attr );
             array.forEach( children, dojo.hitch( d, 'appendChild' ));
@@ -78,7 +78,7 @@ return declare( ActionBarDialog,
                 dom.create( 'div', { className: 'files', id: 'data_dir', innerHTML: '<b>Result</b>:<br/><div id="data_dir_list"></div>' } )
         ];
         this.set( 'content', content );
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
     },
 
     _makeRemoteURLsControl: function() {
@@ -107,7 +107,7 @@ return declare( ActionBarDialog,
             console.log(self.input.value);
             dojo.byId('data_dir_list').innerHTML = self.input.value;
             thisB.datadir = self.input.value;
-        }); 
+        });
         var checkFrequency = 900;
         var checkForChange = function() {
             // compare with all whitespace changed to commas so that
@@ -166,8 +166,8 @@ return declare( ActionBarDialog,
         return { domNode: container };
     },
 
-    hide: function() {
-        this.inherited(arguments);
+    hide: function hide() {
+        this.inherited(hide, arguments);
         window.setTimeout( dojo.hitch( this, 'destroyRecursive' ), 500 );
     }
 });

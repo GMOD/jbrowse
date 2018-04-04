@@ -21,17 +21,17 @@ define( [
 
 return declare( FileDialog, {
 
-    constructor: function( args ) {
-        this.inherited(arguments);
+    constructor: function constructor( args ) {
+        this.inherited(constructor, arguments);
         this._fileTypeDrivers = [ new IndexedFASTADriver(), new TwoBitDriver() ];
         return this;
     },
 
 
 
-    show: function( args ) {
+    show: function show( args ) {
         args.introMsg = "Select a FASTA file (.fa), indexed FASTA (.fa and .fai), or twobit (.2bit) file";
-        this.inherited(arguments);
+        this.inherited(show, arguments);
         this.dialog.set('title', 'Open sequence file');
     },
 

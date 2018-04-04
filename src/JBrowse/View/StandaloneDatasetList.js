@@ -12,8 +12,8 @@ return declare( _WidgetBase, {
 
    baseClass: 'jbrowseStandaloneDatasetSelector',
 
-   buildRendering: function() {
-       this.inherited(arguments);
+   buildRendering: function buildRendering() {
+       this.inherited(buildRendering, arguments);
 
        var bdy = this.domNode;
        var h2  = bdy.appendChild( document.createElement('h2') );

@@ -24,7 +24,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v0',JB_json_v1,
      * @param {Object} load_args the arguments that were passed to <code>load()</code>
      * @returns {Object} v1-compliant configuration
      */
-    regularize_conf: function( o, load_args ) {
+    regularize_conf: function regularize_conf( o, load_args ) {
 
         // transform Ye Olde Confige to conform to format version 1
         o = { tracks: o };
@@ -40,7 +40,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v0',JB_json_v1,
                           }
                       });
 
-        return this.inherited( arguments, [o, load_args] );
+        return this.inherited(regularize_conf,  arguments, [o, load_args] );
     },
 
     /**
@@ -49,9 +49,9 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v0',JB_json_v1,
      * @param {String} conf_text the text in the conf file
      * @returns {Object} parsed JSON
      */
-    parse_conf: function( conf_text ) {
+    parse_conf: function parse_conf( conf_text ) {
         conf_text.replace( /^[^\{]+/, '' );
-        return this.inherited( arguments, [conf_text] );
+        return this.inherited(parse_conf,  arguments, [conf_text] );
     }
 });
 });

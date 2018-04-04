@@ -50,11 +50,11 @@ return declare( null, {
               });
     },
 
-    _getNamedFeatureFilters: function() {
+    _getNamedFeatureFilters: function _getNamedFeatureFilters() {
         return {};
         // return lang.mixin(
         //     {},
-        //     this.inherited(arguments),
+        //     this.inherited(_getNamedFeatureFilters, arguments),
         //     {
 
         //     });

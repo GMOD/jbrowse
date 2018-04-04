@@ -43,12 +43,12 @@ return declare( ActionBarDialog,
             .placeAt( actionBar);
     },
 
-    show: function( callback ) {
+    show: function show( callback ) {
         this.callback = callback || function() {};
 
         this.set('content', this.message );
 
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
 
         focus.focus( this.closeButtonNode );
     }

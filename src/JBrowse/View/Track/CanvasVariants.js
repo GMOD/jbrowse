@@ -20,16 +20,16 @@ define( [
          ) {
 return declare( [ CanvasFeatures, VariantDetailsMixin ], {
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 style: { color: 'green' }
             });
     },
 
-    _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._variantsFilterTrackMenuOptions() ])
+    _trackMenuOptions: function _trackMenuOptions() {
+        return all([ this.inherited(_trackMenuOptions, arguments), this._variantsFilterTrackMenuOptions() ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift( { type: 'dijit/MenuSeparator' } );

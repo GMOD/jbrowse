@@ -9,8 +9,8 @@ require([
 describe( "tabix-indexed file", function() {
 
 var VCFIndexedFile = declare( TabixIndexedFile, {
-    parseItem: function() {
-        var i = this.inherited( arguments );
+    parseItem: function parseItem() {
+        var i = this.inherited(parseItem,  arguments );
         if( i ) {
             i.start--;
             i.end = i.start + i.fields[3].length;

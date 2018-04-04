@@ -61,7 +61,7 @@ return declare( ActionBarDialog,
             .placeAt( actionBar );
     },
 
-    show: function( callback ) {
+    show: function show( callback ) {
         dojo.addClass( this.domNode, 'fileDialog' );
 
 
@@ -114,11 +114,11 @@ return declare( ActionBarDialog,
                 dom.create( 'div', { className: 'files', id: 'plugins_list', innerHTML: 'Plugins:<br/>' } )
         ];
         this.set( 'content', content );
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
     },
 
-    hide: function() {
-        this.inherited(arguments);
+    hide: function hide() {
+        this.inherited(hide, arguments);
         window.setTimeout( dojo.hitch( this, 'destroyRecursive' ), 500 );
     }
 });

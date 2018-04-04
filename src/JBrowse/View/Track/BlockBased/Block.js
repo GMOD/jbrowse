@@ -31,10 +31,10 @@ return declare( Destroyable, {
         return this.startBase+'..'+this.endBase;
     },
 
-    destroy: function() {
+    destroy: function destroy() {
         if( this.domNode )
             Util.removeAttribute( this.domNode, 'block' );
-        this.inherited( arguments );
+        this.inherited(destroy,  arguments );
     }
 });
 });

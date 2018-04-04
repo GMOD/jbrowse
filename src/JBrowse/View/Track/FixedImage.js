@@ -117,8 +117,8 @@ return declare( BlockBased,
         this.clear();
     },
 
-    clear: function() {
-        this.inherited( arguments );
+    clear: function clear() {
+        this.inherited(clear, arguments);
     },
 
     transfer: function(sourceBlock, destBlock, scale,

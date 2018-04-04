@@ -466,8 +466,8 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         return pixelValues;
     },
 
-    setViewInfo: function() {
-        this.inherited(arguments);
+    setViewInfo: function setViewInfo() {
+        this.inherited(setViewInfo, arguments);
         this._makeScoreDisplay();
     },
 
@@ -583,9 +583,9 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
         return [{name: 'bedGraph', label: 'bedGraph', fileExt: 'bedgraph'}, {name: 'Wiggle', label: 'Wiggle', fileExt: 'wig'}, {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'} ];
     },
 
-    _trackMenuOptions: function() {
+    _trackMenuOptions: function _trackMenuOptions() {
         var track = this;
-        var options = this.inherited(arguments) || [];
+        var options = this.inherited(_trackMenuOptions, arguments) || [];
 
         options.push({
             label: 'Change height',

@@ -48,7 +48,7 @@ return declare( ActionBarDialog, {
         }).placeAt(actionBar);
     },
 
-    show: function( callback ) {
+    show: function show( callback ) {
         dojo.addClass( this.domNode, 'setTrackHeightDialog' );
 
         this.heightSpinner = new NumberSpinner({
@@ -63,11 +63,11 @@ return declare( ActionBarDialog, {
                      dom.create( 'span', { innerHTML: ' pixels' } )
                  ] );
 
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
     },
 
-    hide: function() {
-        this.inherited(arguments);
+    hide: function hide() {
+        this.inherited(hide, arguments);
         window.setTimeout( dojo.hitch( this, 'destroyRecursive' ), 500 );
     }
 });

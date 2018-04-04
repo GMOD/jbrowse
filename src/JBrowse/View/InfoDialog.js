@@ -28,9 +28,9 @@ return declare( ActionBarDialog,
             .placeAt( actionBar);
     },
 
-    show: function() {
+    show: function show() {
 
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
 
         var thisB = this;
 
@@ -62,8 +62,8 @@ return declare( ActionBarDialog,
             this.hide();
     },
 
-    hide: function() {
-        this.inherited(arguments);
+    hide: function hide() {
+        this.inherited(hide, arguments);
 
         array.forEach( this._extraEvents, function( e ) {
                           e.remove();

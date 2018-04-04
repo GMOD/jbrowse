@@ -68,8 +68,8 @@ return declare(
                                 lang.hitch( this, 'deleteTracks' ));
     },
 
-    buildRendering: function() {
-        this.inherited('buildRendering',arguments);
+    buildRendering: function buildRendering() {
+        this.inherited(buildRendering, arguments);
 
         var topPane = new ContentPane({ className: 'header' });
         this.addChild( topPane );
@@ -88,8 +88,8 @@ return declare(
         this._updateTextFilterControl();
     },
 
-    startup: function() {
-        this.inherited('startup', arguments );
+    startup: function startup() {
+        this.inherited(startup, arguments );
 
         var tracks = [];
         var thisB = this;
@@ -298,8 +298,8 @@ return declare(
     },
 
 
-    _textFilter: function() {
-        this.inherited(arguments);
+    _textFilter: function _textFilter() {
+        this.inherited(_textFilter, arguments);
         this._updateAllTitles();
     },
 

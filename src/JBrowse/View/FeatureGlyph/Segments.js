@@ -10,9 +10,9 @@ define([
        ) {
 
 return declare( BoxGlyph, {
-_defaultConfig: function() {
+_defaultConfig: function _defaultConfig() {
     return this._mergeConfigs(
-        this.inherited(arguments),
+        this.inherited(_defaultConfig, arguments),
         {
             style: {
                 connectorColor: '#333',

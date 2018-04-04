@@ -33,9 +33,9 @@ return declare( [WiggleXY, AlignmentsMixin],
             });
     },
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 autoscale: 'local',
                 min_score: 0,
@@ -280,8 +280,8 @@ return declare( [WiggleXY, AlignmentsMixin],
         }
     },
 
-    _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+    _trackMenuOptions: function _trackMenuOptions() {
+        return all([ this.inherited(_trackMenuOptions, arguments), this._alignmentsFilterTrackMenuOptions() ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );

@@ -112,9 +112,9 @@ return declare(
         this._setupEventHandlers();
     },
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return Util.deepUpdate(
-            lang.clone( this.inherited(arguments) ),
+            lang.clone( this.inherited(_defaultConfig, arguments) ),
             {
             maxFeatureScreenDensity: 0.5,
             enableCollapsedMouseover: false,
@@ -197,8 +197,8 @@ return declare(
         });
     },
 
-    setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
-        this.inherited( arguments );
+    setViewInfo: function setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
+        this.inherited(setViewInfo,  arguments );
         this.staticCanvas = domConstruct.create('canvas', { className: 'static-canvas', style: { height: "100%", cursor: "default", position: "absolute", zIndex: 15 }}, trackDiv);
         let ctx = this.staticCanvas.getContext('2d')
         let ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
@@ -291,7 +291,7 @@ return declare(
 
     // override the base error handler to try to draw histograms if
     // it's a data overflow error and we know how to draw histograms
-    _handleError: function( error, viewArgs ) {
+    _handleError: function _handleError( error, viewArgs ) {
 
         if( typeof error == 'object'
             && error instanceof Errors.DataOverflow
@@ -300,7 +300,7 @@ return declare(
               this.fillHistograms( viewArgs );
         }
         else
-            this.inherited(arguments);
+            this.inherited(_handleError, arguments);
     },
 
     // create the layout if we need to, and if we can
@@ -321,9 +321,9 @@ return declare(
         delete this.layout;
     },
 
-    hideAll: function() {
+    hideAll: function hideAll() {
         this._clearLayout();
-        return this.inherited( arguments );
+        return this.inherited(hideAll,  arguments );
     },
 
     /**
@@ -671,9 +671,9 @@ return declare(
                               );
     },
 
-    startZoom: function() {
+    startZoom: function startZoom() {
         this.zooming = true
-        this.inherited( arguments );
+        this.inherited(startZoom,  arguments );
 
         array.forEach( this.blocks, function(b) {
             try {
@@ -682,7 +682,7 @@ return declare(
         });
     },
 
-    endZoom: function() {
+    endZoom: function endZoom() {
         array.forEach( this.blocks, function(b) {
             try {
                 delete b.featureCanvas.style.width;
@@ -690,7 +690,7 @@ return declare(
         });
 
         this.clear();
-        this.inherited( arguments );
+        this.inherited(endZoom,  arguments );
         this.zooming = false
     },
 
@@ -937,8 +937,8 @@ return declare(
         this.lastMouseover = feature;
     },
 
-    cleanupBlock: function(block) {
-        this.inherited( arguments );
+    cleanupBlock: function cleanupBlock(block) {
+        this.inherited(cleanupBlock,  arguments );
 
         // garbage collect the layout
         if ( block && this.layout )
@@ -950,8 +950,8 @@ return declare(
         fRect.glyph.renderFeature( context, fRect );
     },
 
-    _trackMenuOptions: function () {
-        var opts = this.inherited(arguments);
+    _trackMenuOptions: function _trackMenuOptions() {
+        var opts = this.inherited(_trackMenuOptions, arguments);
         var thisB = this;
 
         var displayModeList = ["normal", "compact", "collapsed"];
@@ -1008,8 +1008,8 @@ return declare(
         return [ {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'}, {name: 'BED', label: 'BED', fileExt: 'bed'}, { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' } ];
     },
 
-    updateStaticElements: function( coords ) {
-        this.inherited( arguments );
+    updateStaticElements: function updateStaticElements( coords ) {
+        this.inherited(updateStaticElements,  arguments );
 
         this.updateYScaleFromViewDimensions( coords );
 
@@ -1045,15 +1045,15 @@ return declare(
         }
     },
 
-    heightUpdate: function( height, blockIndex ) {
-        this.inherited( arguments );
+    heightUpdate: function heightUpdate( height, blockIndex ) {
+        this.inherited(heightUpdate,  arguments );
         if( this.staticCanvas ) {
             let ratio = Util.getResolution( this.staticCanvas.getContext('2d'), this.browser.config.highResolutionMode );
             this.staticCanvas.height = this.staticCanvas.offsetHeight*ratio;
         }
     },
 
-    destroy: function() {
+    destroy: function destroy() {
         this.destroyed = true;
 
         domConstruct.destroy( this.staticCanvas );
@@ -1061,7 +1061,7 @@ return declare(
 
         delete this.layout;
         delete this.glyphsLoaded;
-        this.inherited( arguments );
+        this.inherited(destroy,  arguments );
     }
 });
 });

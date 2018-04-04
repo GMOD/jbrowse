@@ -160,11 +160,11 @@ return declare( ActionBarDialog, {
             .placeAt( actionBar );
     },
 
-    show: function ( callback ) {
+    show: function show( callback ) {
         this.callback = callback || function() {};
         this.set( 'title', "Add sequence search track");
         this.set( 'content', this._dialogContent() );
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
         focus.focus( this.closeButtonNode );
     }
 

@@ -16,11 +16,11 @@ return declare( IndexedFileDriver,  {
     indexUrlConfKey: 'faiUrlTemplate',
 
 
-    tryResource: function(configs, resource) {
-        this.inherited(arguments);
+    tryResource: function tryResource(configs, resource) {
+        this.inherited(tryResource, arguments);
     },
-    finalizeConfiguration: function(configs) {
-        this.inherited(arguments);
+    finalizeConfiguration: function finalizeConfiguration(configs) {
+        this.inherited(finalizeConfiguration, arguments);
         for(var i in configs) {
             var config = configs[i];
             if( !config.fai && !config.blob ) {

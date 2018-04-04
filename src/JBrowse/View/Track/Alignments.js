@@ -20,9 +20,9 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
  * @lends JBrowse.View.Track.Alignments
  */
 {
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return Util.deepUpdate(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 maxFeatureScreenDensity: 1.5,
                 layoutPitchY: 4,
@@ -50,9 +50,9 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
         );
     },
 
-    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
+    renderFeature: function renderFeature( feature, uniqueId, block, scale, labelScale, descriptionScale,
                              containerStart, containerEnd  ) {
-        var featDiv = this.inherited( arguments );
+        var featDiv = this.inherited(renderFeature,  arguments );
         if( ! featDiv )
             return null;
 
@@ -72,10 +72,10 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
     },
 
 
-    handleSubFeatures: function( feature, featDiv,
+    handleSubFeatures: function handleSubFeatures( feature, featDiv,
                                  displayStart, displayEnd, block )  {
         if( this.config.style.showSubfeatures )  {
-            this.inherited(arguments);
+            this.inherited(handleSubFeatures, arguments);
         }
     },
 
@@ -170,8 +170,11 @@ return declare( [ HTMLFeatures, AlignmentsMixin],
         return result;
     },
 
-    _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+    _trackMenuOptions: function _trackMenuOptions() {
+        return all([
+                this.inherited(_trackMenuOptions, arguments),
+                this._alignmentsFilterTrackMenuOptions()
+            ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );

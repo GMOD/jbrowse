@@ -61,10 +61,12 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         this.clear();
     },
 
-    setViewInfo:function(genomeView, heightUpdate, numBlocks,
-                         trackDiv,
-                         widthPct, widthPx, scale) {
-        this.inherited( arguments );
+    setViewInfo: function setViewInfo(
+        genomeView, heightUpdate, numBlocks,
+        trackDiv,
+        widthPct, widthPx, scale
+    ) {
+        this.inherited(setViewInfo,  arguments );
         this.show();
     },
 
@@ -319,9 +321,9 @@ return declare( [BlockBased, ExportMixin, CodonTable],
         return result;
   },
 
-    _trackMenuOptions: function() {
+    _trackMenuOptions: function _trackMenuOptions() {
         var track = this;
-        var o = this.inherited(arguments);
+        var o = this.inherited(_trackMenuOptions, arguments);
         o.push( { type: 'dijit/MenuSeparator' } );
         o.push.apply( o,
             [

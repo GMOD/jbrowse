@@ -149,8 +149,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
 
     // filters for BAM alignments according to some flags
-    _getNamedFeatureFilters: function() {
-        return lang.mixin( {}, this.inherited( arguments ),
+    _getNamedFeatureFilters: function _getNamedFeatureFilters() {
+        return lang.mixin( {}, this.inherited(_getNamedFeatureFilters,  arguments ),
             {
                 hideDuplicateReads: {
                     desc: 'Hide PCR/Optical duplicate reads',
@@ -243,7 +243,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             }, parentElement );
             return;
         }
-        
+
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
         var start = feat.get('start');
@@ -264,7 +264,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     mismatchesAtCurrentPosition.push(mismatch);
                 }
             }
- 
+
             mismatchesAtCurrentPosition.sort(function(a,b) {
                 if(a.type == "insertion") return -1;
                 else if(a.type == "deletion") return 1;

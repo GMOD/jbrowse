@@ -26,9 +26,9 @@ define([
             this.searchParams = args.searchParams;
         },
 
-        _defaultConfig: function() {
+        _defaultConfig: function _defaultConfig() {
             return Util.deepUpdate(
-                dojo.clone( this.inherited(arguments) ),
+                dojo.clone( this.inherited(_defaultConfig, arguments) ),
                 {
                     regionSizeLimit: 200000 // 200kb
                 });
@@ -134,7 +134,7 @@ define([
 
             return translated;
         },
-        
+
 
         escapeString: function( str ) {
             return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");

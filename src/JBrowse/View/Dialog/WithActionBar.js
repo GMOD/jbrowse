@@ -27,9 +27,9 @@ return declare( dijitDialog,
     _fillActionBar: function( actionBar ) {
     },
 
-    show: function( callback ) {
+    show: function show( callback ) {
         this._addActionBar();
-        this.inherited( arguments );
+        this.inherited(show,  arguments );
         var titleDims = domGeom.position( this.titleBar );
         this.domNode.style.width = titleDims.w + 'px';
     }

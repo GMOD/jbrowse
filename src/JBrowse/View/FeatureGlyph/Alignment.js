@@ -22,9 +22,9 @@ return declare( [BoxGlyph,MismatchesMixin], {
 
     },
 
-    _defaultConfig: function() {
+    _defaultConfig: function _defaultConfig() {
         return this._mergeConfigs(
-            dojo.clone( this.inherited(arguments) ),
+            dojo.clone( this.inherited(_defaultConfig, arguments) ),
             {
                 //maxFeatureScreenDensity: 400
                 style: {
@@ -104,9 +104,9 @@ return declare( [BoxGlyph,MismatchesMixin], {
         );
     },
 
-    renderFeature: function( context, fRect ) {
+    renderFeature: function renderFeature( context, fRect ) {
 
-        this.inherited( arguments );
+        this.inherited(renderFeature,  arguments );
 
         // draw some mismatches if the feature is more than 3px wide:
         //     draw everything if zoomed in past 0.2 px/bp, otherwise
