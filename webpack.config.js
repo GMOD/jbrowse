@@ -70,7 +70,7 @@ var webpackConf = {
                 use: {
                   loader: 'babel-loader',
                   options: {
-                    presets: ['env'],
+                    presets: ['es2015-without-strict'],
                     cacheDirectory: true
                   }
                 }
