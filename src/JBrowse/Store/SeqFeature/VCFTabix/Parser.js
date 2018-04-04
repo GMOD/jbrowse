@@ -3,6 +3,7 @@ define([
            'dojo/_base/array',
            'dojo/json',
            'JBrowse/Util/TextIterator',
+           'JBrowse/Util',
            'JBrowse/Digest/Crc32',
            './LazyFeature'
        ],
@@ -11,6 +12,7 @@ define([
            array,
            JSON,
            TextIterator,
+           Util,
            Digest,
            LazyFeature
        ) {
@@ -112,13 +114,14 @@ return declare( null, {
             };
         }
 
-        if( alt && alt[0] != '<' )
+        if( alt ) {
             featureData.alternative_alleles = {
                 meta: {
                     description: 'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples'
                 },
                 values: alt
             };
+        }
 
         // parse the info field and store its contents as attributes in featureData
         this._parseInfoField( featureData, fields );
@@ -230,7 +233,9 @@ return declare( null, {
         "CNV": { description: "Copy number variable region (may be both deletion and duplication)", so_term: 'copy_number_variation' },
         "DUP:TANDEM": { description: "Tandem duplication", so_term: 'copy_number_gain' },
         "DEL:ME": { description: "Deletion of mobile element relative to the reference" },
-        "INS:ME": { description: "Insertion of a mobile element relative to the reference" }
+        "INS:ME": { description: "Insertion of a mobile element relative to the reference" },
+        "NON_REF": { description: "Represents any possible alternative allele at this location", so_term: 'sequence_variant' },
+        "*": { description: "Represents any possible alternative allele at this location", so_term: 'sequence_variant' }
     },
 
     /**
@@ -360,7 +365,6 @@ return declare( null, {
                                                  return this._find_SO_term_from_alt_definitions( alt );
                                              }, this ),
                                   function( t ) { return t; } );
-
         if( types[0] )
             return types.join(',');
 
@@ -376,7 +380,7 @@ return declare( null, {
         if( ! alt )
             return 'no alternative alleles';
 
-        alt = alt.replace(/^<|>$/g,'');
+        alt = alt.replace(/<|>/g,'');
 
         var def = this.getVCFMetaData( 'alt', alt );
         return def && def.description ? alt+' - '+def.description : SO_term+" "+ref+" -> "+ alt;
@@ -391,8 +395,11 @@ return declare( null, {
 
         // look for a definition with an SO type for this
         var def = (this.header.alt||{})[alt] || this._vcfReservedAltTypes[alt];
-        if( def && def.so_term )
+        if( def && def.so_term ) {
             return def.so_term;
+        } else if( def && (this._vcfReservedAltTypes[alt]||{}).so_term ) {
+            return this._vcfReservedAltTypes[alt].so_term;
+        }
 
         // try to look for a definition for a parent term if we can
         alt = alt.split(':');

@@ -68,6 +68,11 @@ sub new_volvox_sandbox {
     copy( 'sample_data/raw/volvox/volvox.test.vcf.gz',
           "$tempdir/volvox.test.vcf.gz"
           ) or die $!;
+    copy(
+        'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
+        "$tempdir/volvox.sort.gff3.gz.1"
+    ) or die $!;
+
     rmtree( "$tempdir/names" );
     return $tempdir;
 }

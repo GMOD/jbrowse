@@ -243,34 +243,15 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         }
     },
 
-    // feature label
+    // feature label is handled by updateStaticElements
     renderLabel: function( context, fRect ) {
-        if( fRect.label ) {
-            context.font = fRect.label.font;
-            context.fillStyle = fRect.label.fill;
-            context.textBaseline = fRect.label.baseline;
-            context.fillText( fRect.label.text,
-                              fRect.l+(fRect.label.xOffset||0),
-                              fRect.t+(fRect.label.yOffset||0)
-                            );
-        }
     },
 
-    // feature description
+    // feature description is handled by updateStaticElements
     renderDescription: function( context, fRect ) {
-        if( fRect.description ) {
-            context.font = fRect.description.font;
-            context.fillStyle = fRect.description.fill;
-            context.textBaseline = fRect.description.baseline;
-            context.fillText(
-                fRect.description.text,
-                fRect.l+(fRect.description.xOffset||0),
-                fRect.t + (fRect.description.yOffset||0)
-            );
-        }
     },
 
-    // strand arrowhead
+    // strand arrowhead is sometimes drawn normally, sometimes *also* as a static element
     renderArrowhead: function( context, fRect ) {
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fRect.rect.l+fRect.rect.w <= context.canvas.width ) {
@@ -290,21 +271,16 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         }
     },
 
-    updateStaticElements: function( context, fRect, viewArgs ) {
-        var vMin = viewArgs.minVisible;
-        var vMax = viewArgs.maxVisible;
-        var block = fRect.viewInfo.block;
+    updateStaticElements( context, fRect, viewArgs ) {
+        let vMin = viewArgs.minVisible
+        let vMax = viewArgs.maxVisible
+        let block = fRect.viewInfo.block
 
-        if( !( block.containsBp( vMin ) || block.containsBp( vMax ) ) )
-            return;
+        let bpToPx = viewArgs.bpToPx
+        let feature = fRect.f
 
-        var scale = block.scale;
-        var bpToPx = viewArgs.bpToPx;
-        var lWidth = viewArgs.lWidth;
-        var labelBp = lWidth / scale;
-        var feature = fRect.f;
-        var fMin = feature.get('start');
-        var fMax = feature.get('end');
+        let fMin = feature.get('start')
+        let fMax = feature.get('end')
 
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fMax >= vMax && fMin <= vMax ) {
@@ -323,11 +299,45 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             }
         }
 
-        var fLabelWidth = fRect.label ? fRect.label.w : 0;
-        var fDescriptionWidth = fRect.description ? fRect.description.w : 0;
-        var maxLeft = bpToPx( fMax ) - Math.max(fLabelWidth, fDescriptionWidth) - bpToPx( vMin );
-        var minLeft = bpToPx( fMin ) - bpToPx( vMin );
+        // if the feature is within the view
+        if (!(fMin > vMax || fMax < vMin)) {
+            let fRectLeft = fRect.l+bpToPx(block.startBase-vMin+1)
 
+            let clamp = (val,min,max) => Math.min(Math.max(val,min),max)
+            let renderText = fLabelRecord => {
+                let maxLabelLeft = fRectLeft+fRect.w-fLabelRecord.w
+                let labelTop = fRect.t+(fLabelRecord.yOffset||0)
+                let labelLeft = fRectLeft+(fLabelRecord.xOffset||0)
+                labelLeft = clamp(labelLeft,0,maxLabelLeft)
+
+                context.font = fLabelRecord.font
+                context.fillStyle = fLabelRecord.fill
+                context.textBaseline = fLabelRecord.baseline
+
+                let clearTop;
+                if (fLabelRecord.baseline === 'bottom') {
+                    clearTop = labelTop-fLabelRecord.h
+                } else if (fLabelRecord.baseline === 'top') {
+                    clearTop = labelTop
+                } else if (fLabelRecord.baseline === 'middle') {
+                    clearTop = labelTop-fLabelRecord.h/2
+                }
+                if (clearTop) context.clearRect(labelLeft,clearTop,fLabelRecord.w,fLabelRecord.h)
+
+                context.fillText(
+                    fLabelRecord.text,
+                    labelLeft,
+                    labelTop
+                )
+            }
+
+            if (fRect.label) {
+                renderText(fRect.label)
+            }
+            if (fRect.description) {
+                renderText(fRect.description)
+            }
+        }
     }
 
 });

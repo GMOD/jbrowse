@@ -50,7 +50,7 @@ script:
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
-- ./setup.sh
+- set -e; ./setup.sh; set +e
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
 - set -e
