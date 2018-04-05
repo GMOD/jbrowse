@@ -42,45 +42,46 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
     },
 
     _loadFeatures() {
-        var features = this.bareFeatures = [];
+        const features = this.bareFeatures = [];
 
-        var featuresSorted = true;
-        var seenRefs = this.refSeqs = {};
+        let featuresSorted = true;
+        const seenRefs = this.refSeqs = {};
 
+        let addFeature = fs => {
+            fs.forEach( feature => {
+                var prevFeature = features[ features.length-1 ];
+                var regRefName = this.browser.regularizeReferenceName( feature.seq_id );
+                if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
+                    featuresSorted = false;
+                if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
+                    featuresSorted = false;
 
-        function addFeature(fs) {
-            array.forEach( fs, function( feature ) {
-                               var prevFeature = features[ features.length-1 ];
-                               var regRefName = thisB.browser.regularizeReferenceName( feature.seq_id );
-                               if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
-                                   featuresSorted = false;
-                               if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
-                                   featuresSorted = false;
+                if( !( regRefName in seenRefs ))
+                    seenRefs[ regRefName ] = features.length;
 
-                               if( !( regRefName in seenRefs ))
-                                   seenRefs[ regRefName ] = features.length;
-
-                               features.push( feature );
-                           });
+                features.push( feature );
+            });
         }
 
-        function endFeatures()  {
+        let endFeatures = () => {
             if( ! featuresSorted ) {
-                features.sort( thisB._compareFeatureData );
+                features.sort( this._compareFeatureData );
                 // need to rebuild the refseq index if changing the sort order
-                thisB._rebuildRefSeqs( features );
+                this._rebuildRefSeqs( features );
             }
 
-            thisB._estimateGlobalStats()
-                 .then( function( stats ) {
-                            thisB.globalStats = stats;
-                            thisB._deferred.stats.resolve();
-                        });
+            this._estimateGlobalStats()
+                 .then( stats => {
+                    this.globalStats = stats;
+                    this._deferred.stats.resolve();
+                 })
 
-            thisB._deferred.features.resolve( features );
+            this._deferred.features.resolve( features );
         }
 
-        var parseStream = gff.parseStream({
+        const fail = this._failAllDeferred.bind(this)
+
+        const parseStream = gff.parseStream({
                 parseFeatures: true,
                 parseSequences: false,
             })
@@ -88,12 +89,10 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
             .on('end', endFeatures)
             .on('error', fail)
 
-        var fail = this._failAllDeferred.bind(this)
-
         // parse the whole file and store it
         this.data.fetchLines(
-            line => parseStream.write.bind(parseStream),
-            parseStream.end.bind(parseStream),
+            line => parseStream.write(line),
+            () => parseStream.end(),
             fail
         )
     },
