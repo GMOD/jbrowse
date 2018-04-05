@@ -753,20 +753,6 @@ initView: function() {
             this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
               new dijitMenuItem(
                   {
-                      id: 'menubar_dataset_conf',
-                      label: "Open plugin",
-                      iconClass: 'dijitIconConfigure',
-                      onClick: function() {
-                            new PreferencesDialog({
-                                    browser: thisObj,
-                                    setCallback: dojo.hitch( thisObj, 'openConfig' )
-                                }).show();
-                            }
-                  }
-            ));
-            this.addGlobalMenuItem(this.config.classicMenu ? 'file':'dataset',
-              new dijitMenuItem(
-                  {
                       id: 'menubar_dataset_save',
                       label: "Save session",
                       iconClass: 'dijitIconSave',

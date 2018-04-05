@@ -19,6 +19,7 @@ RELEASE_DESKTOP_LINUX = $(RELEASE_NAME)-desktop-linux
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
 SHASUM=shasum
+ELECTRON_VERSION=1.8.4
 
 
 all: clean release
@@ -27,27 +28,30 @@ release: release-dev release-min release-notes.html
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
-release-electron-darwin: release
-	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
-	npm install
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64
+release-electron-setup:
+	echo "Setting up electron"
+	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
+
+release-electron-darwin: clean release release-electron-setup
+	echo "Building mac electron"
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --electron-version=$(ELECTRON_VERSION)
 	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
 
-release-electron-all: release
-	echo "Building desktop packages..."
-	cd $(RELEASE_MIN)&&./setup.sh legacy&&cd ..
-	npm install
-	# build all versions
-	#   electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --arch=x64
-	# build specific versions
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --arch=x64
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=win32 --arch=ia32
-	# zap files that cause problems on windows (because of colons in filenames)
-	find JBrowseDesktop-win32-ia32 -type f -name "*.3pm" -delete &> /dev/null
-	# zip packages
-	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
-	$(ZIP) $(RELEASE_DESKTOP_WIN).zip JBrowseDesktop-win32-ia32
-	#	$(ZIP) $(RELEASE_DESKTOP_LINUX).zip JBrowseDesktop-linux-x64
+release-electron-win32: clean release release-electron-setup
+	echo "Building win32 electron"
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=win32 --electron-version=$(ELECTRON_VERSION)
+	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-win32-x64
+
+
+release-electron-linux: clean release release-electron-setup
+	echo "Building linux electron"
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=linux --electron-version=$(ELECTRON_VERSION)
+	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-linux-x64
+
+
+release-electron-all: clean release release-electron-setup
+	echo "Building desktop packages"
+	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --electron-version=$(ELECTRON_VERSION)
 
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
