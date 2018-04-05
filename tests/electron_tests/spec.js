@@ -42,5 +42,6 @@ test('shows window', async t => {
     await app.client.waitUntilWindowLoaded()
     text = await app.client.getText("#previousSessionsTable");
     t.true(text != null);
+    await app.client.click("#previousSessionsTable");
 });
 
