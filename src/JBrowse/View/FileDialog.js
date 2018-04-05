@@ -145,7 +145,7 @@ return declare( null, {
                 var dialog = electronRequire('electron').remote.dialog;
                 var ret;
                 if(window.process.env.SPECTRON) {
-                    ret = ["docs/tutorial/data_files/volvox.fa"];
+                    ret = [window.process.cwd()+"/docs/tutorial/data_files/volvox.fa"];
                 } else {
                     ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
                 }
