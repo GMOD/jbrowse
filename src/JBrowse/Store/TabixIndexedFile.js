@@ -183,12 +183,13 @@ return declare( null, {
 
     parseItem: function( iterator ) {
         var metaChar = this.index.metaChar;
-        var line, item;
+        var line, item, fileOffset;
         do {
+            fileOffset = iterator.getOffset();
             line = iterator.getline();
         } while( line && (    line.charAt(0) == metaChar // meta line, skip
                            || line.charAt( line.length - 1 ) != "\n" // no newline at the end, incomplete
-                           || ! ( item = this.tryParseLine( line ) )   // line could not be parsed
+                           || ! ( item = this.tryParseLine( line, fileOffset ) )   // line could not be parsed
                          )
                );
 
@@ -198,16 +199,16 @@ return declare( null, {
         return null;
     },
 
-    tryParseLine: function( line ) {
+    tryParseLine: function( line, fileOffset ) {
         try {
-            return this.parseLine( line );
+            return this.parseLine( line, fileOffset );
         } catch(e) {
             //console.warn('parse failed: "'+line+'"');
             return null;
         }
     },
 
-    parseLine: function( line ) {
+    parseLine: function( line, fileOffset ) {
         var fields = line.split( "\t" );
         fields[fields.length-1] = fields[fields.length-1].replace(/\n$/,''); // trim off the newline
         var item = { // note: index column numbers are 1-based
@@ -215,7 +216,8 @@ return declare( null, {
             _regularizedRef: this.browser.regularizeReferenceName( fields[this.index.columnNumbers.ref-1] ),
             start: parseInt(fields[this.index.columnNumbers.start-1]),
             end:   parseInt(fields[this.index.columnNumbers.end-1]),
-            fields: fields
+            fields: fields,
+            fileOffset: fileOffset,
         };
         return item;
     }
