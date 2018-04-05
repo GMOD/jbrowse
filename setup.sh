@@ -164,6 +164,7 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/gvcf.vcf.gz.conf \
         docs/tutorial/data_files/bookmarks.conf \
         docs/tutorial/data_files/volvox.subsubparts.gff3.conf \
+        docs/tutorial/data_files/volvox-long-reads.fastq.sorted.bam.conf \
     >> sample_data/json/volvox/tracks.conf
 
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
