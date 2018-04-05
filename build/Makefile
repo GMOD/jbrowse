@@ -31,27 +31,27 @@ release: release-dev release-min release-notes.html
 release-electron-setup:
 	echo "Setting up electron"
 	cd $(RELEASE_MIN)&&./setup.sh&&cd ..
+	cp -R browser $(RELEASE_MIN)
 
 release-electron-darwin: clean release release-electron-setup
 	echo "Building mac electron"
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=darwin --electron-version=$(ELECTRON_VERSION)
-	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-darwin-x64
+	electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --electron-version=$(ELECTRON_VERSION)
+	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
 release-electron-win32: clean release release-electron-setup
 	echo "Building win32 electron"
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=win32 --electron-version=$(ELECTRON_VERSION)
-	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-win32-x64
+	electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --electron-version=$(ELECTRON_VERSION)
+	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
 
 release-electron-linux: clean release release-electron-setup
 	echo "Building linux electron"
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=linux --electron-version=$(ELECTRON_VERSION)
-	$(ZIP) $(RELEASE_DESKTOP_OSX).zip JBrowseDesktop-linux-x64
+	electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --electron-version=$(ELECTRON_VERSION)
+	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
 
 
-release-electron-all: clean release release-electron-setup
+release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux
 	echo "Building desktop packages"
-	electron-packager $(RELEASE_MIN) JBrowseDesktop --platform=all --electron-version=$(ELECTRON_VERSION)
 
 release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
