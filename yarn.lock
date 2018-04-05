@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@gmod/gff@../gff":
+  version "0.1.0"
+  dependencies:
+    babel-runtime "^6.26.0"
+    es6-promisify "^6.0.0"
+    tmp-promise "^1.0.4"
+    typical "^2.6.1"
+
 "@gmod/gff@file:../gff":
   version "0.1.0"
   dependencies:
