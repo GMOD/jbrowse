@@ -54,7 +54,7 @@ script:
 - ./setup.sh
 - yarn lint
 - npm install electron spectron ava
-- xvfb-run node_modules/.bin/ava --timeout=30s tests/electron_tests
+- xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
