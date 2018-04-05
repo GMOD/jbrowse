@@ -299,28 +299,26 @@ var RequestWorker = declare( null,
                     featureOpts.override_color = 'rgb(' + color + ')';
                 }
             }
+            var auto = this.window.autoSql;
+            for(var i = 0; i < auto.fields.length-3; i++) {
+                if(bedColumns[i] != '.') {
+                    featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                }
+            }
+            delete featureOpts.blockCount;
+            delete featureOpts.blockSizes;
+            delete featureOpts.thickStart;
+            delete featureOpts.thickEnd;
+            delete featureOpts.reserved;
+            delete featureOpts.chromStarts;
+            delete featureOpts.override_color;
+
 
             if (bedColumns.length < 9) {
                 if (chromId == this.chr) {
                     this.maybeCreateFeature( start, end, featureOpts);
                 }
             } else if (chromId == this.chr && start <= this.max && end >= this.min) {
-                // Complex-BED?
-                // FIXME this is currently a bit of a hack to do Clever Things with ensGene.bb
-                var auto = this.window.autoSql;
-                for(var i = 0; i < auto.fields.length-3; i++) {
-                    if(bedColumns[i] != '.') {
-                        featureOpts[auto.fields[i+3].name] = bedColumns[i];
-                    }
-                }
-                delete featureOpts.blockCount;
-                delete featureOpts.blockSizes;
-                delete featureOpts.thickStart;
-                delete featureOpts.thickEnd;
-                delete featureOpts.reserved;
-                delete featureOpts.chromStarts;
-                delete featureOpts.override_color;
-
                 var thickStart = bedColumns[3] | 0;
                 var thickEnd  = bedColumns[4] | 0;
                 var blockCount = bedColumns[6] | 0;
