@@ -2,8 +2,9 @@
 # yarn lockfile v1
 
 
-"@gmod/gff@../gff":
-  version "0.1.0"
+"@gmod/gff@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@gmod/gff/-/gff-1.0.0.tgz#02e57bb462e0cdd61f2b3a60804c2a81c2032eeb"
   dependencies:
     babel-runtime "^6.26.0"
     es6-promisify "^6.0.0"
