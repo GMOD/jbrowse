@@ -184,11 +184,13 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
     },
 
     _featureData: function( data ) {
-        var f = lang.mixin( {}, data );
+        const f = lang.mixin( {}, data );
         delete f.child_features;
         delete f.derived_features;
         delete f.attributes;
         f.start -= 1; // convert to interbase
+        f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined }[data.strand];
+
         for( var a in data.attributes ) {
             f[ a.toLowerCase() ] = data.attributes[a].join(',');
         }
