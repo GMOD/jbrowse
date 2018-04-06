@@ -23,7 +23,7 @@ describe( 'GFF3 tabix store', function() {
                 refSeq: { name: 'ctgA', start: 0, end: 50001 }
             });
 
-            const [rangeStart,rangeEnd] = [1055,9900]
+            const [rangeStart,rangeEnd] = [1055,2500]
 
             var features = [];
             p.getFeatures(
@@ -35,7 +35,7 @@ describe( 'GFF3 tabix store', function() {
 
             waitsFor( function() { return features.done; } );
             runs( function() {
-                expect( features.length ).toEqual( 29 );
+                expect( features.length ).toEqual( 12 );
                 //console.log(JSON.stringify(features,undefined,2))
 
                 // check that every top-level feature overlaps the fetched range
@@ -48,6 +48,8 @@ describe( 'GFF3 tabix store', function() {
                 expect(features.filter(isEden).length).toEqual(1)
                 let eden = features.find(isEden)
 
+                // we should still get all the subfeatures of EDEN, some of which lie
+                // entirely outside of the queried range
                 expect(JSON.stringify(eden)).toEqual(JSON.stringify(
                     {
                         "data": {

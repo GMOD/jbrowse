@@ -95,7 +95,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         return this._parsedHeader
     },
 
-    _getFeatures(query, featureCallback, finishedCallback, errorCallback) {
+    _getFeatures(query, featureCallback, finishedCallback, errorCallback,allowRedispatch=true) {
         this.getHeader().then(
             () => {
                 const lines = []
@@ -114,7 +114,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                 if (lineRecord.fields[8])
                                     lineRecord.fields[8] += `;fileOffset=${lineRecord.fileOffset}`
                                 else
-                                    lineRecord.fields[8] = `;fileOffset=${lineRecord.fileOffset}`
+                                    lineRecord.fields[8] = `fileOffset=${lineRecord.fileOffset}`
                                 return lineRecord.fields.join('\t')
                             })
                             .join('\n')
@@ -127,9 +127,32 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                 parseSequences: false,
                             })
 
-                        // TODO: if any of the features protrude out of this range,
-                        // redo the fetch to fetch the max span of the features, so
-                        // that we have a better chance of getting all the child features
+                        // If this is the first fetch, check whether
+                        // any of the features protrude out of the queried range.
+                        // If it is, redo the fetch to fetch the max span of the features, so
+                        // that we will get all of the child features of the top-level features.
+                        // This assumes that child features will always fall within the span
+                        // of the parent feature, which isn't true in the general case, but
+                        // this should work for most use cases
+                        if (allowRedispatch && features.length) {
+                            let minStart = Infinity
+                            let maxEnd = -Infinity
+                            features.forEach( featureLocs => featureLocs.forEach( featureLoc => {
+                                if (featureLoc.start < minStart) minStart = featureLoc.start
+                                if (featureLoc.end > maxEnd) maxEnd = featureLoc.end
+                            }))
+                            if (maxEnd > query.end || minStart < query.start) {
+                                let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
+                                // make a new feature callback to only return top-level features
+                                // in the original query range
+                                let newFeatureCallback = feature => {
+                                    if (feature.get('start') < query.end && feature.get('end') > query.start)
+                                        featureCallback(feature)
+                                }
+                                this._getFeatures(newQuery,newFeatureCallback,finishedCallback,errorCallback,false)
+                                return
+                            }
+                        }
 
                         features.forEach( feature =>
                             this._formatFeatures(feature).forEach(featureCallback)
