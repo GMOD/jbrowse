@@ -20,6 +20,12 @@ return declare(BigWig,
   * @lends JBrowse.Store.SeqFeature.BigBed
   */
 {
+    constructor: function(args) {
+        if(args) {
+            this.groupFeatures = args.groupFeatures;
+        }
+    },
+
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
         var chrName = this.browser.regularizeReferenceName( query.ref );
@@ -33,8 +39,8 @@ return declare(BigWig,
             return;
         }
 
-        v.readWigData( chrName, min, max, dojo.hitch( this, function( features ) {
-            if(this.config.groupFeatures) {
+        v.readWigData( chrName, min, max, (features) => {
+            if(this.groupFeatures) {
                 var genes = {};
                 array.forEach( features || [], function(feature) {
                     var id = feature.get('geneId');
@@ -61,7 +67,7 @@ return declare(BigWig,
                 array.forEach( features || [], featureCallback );
             }
             endCallback();
-        }), errorCallback );
+        }, errorCallback );
     },
 
     getView: function() {
