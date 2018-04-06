@@ -3,6 +3,7 @@ define( [
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/Deferred',
+            'JBrowse/Util',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -16,6 +17,7 @@ define( [
             lang,
             array,
             Deferred,
+            Util,
             SimpleFeature,
             SeqFeatureStore,
             DeferredFeatures,
@@ -173,15 +175,6 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         return f;
     },
 
-    // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
-    _flattenOneLevel: function( ar ) {
-        var r = [];
-        for( var i = 0; i<ar.length; i++ ) {
-            r.push.apply( r, ar[i] );
-        }
-        return r;
-    },
-
     _featureData: function( data ) {
         var f = lang.mixin( {}, data );
         delete f.child_features;
@@ -191,7 +184,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         for( var a in data.attributes ) {
             f[ a.toLowerCase() ] = data.attributes[a].join(',');
         }
-        var sub = array.map( this._flattenOneLevel( data.child_features ), this._featureData, this );
+        var sub = array.map( Util.flattenOneLevel( data.child_features ), this._featureData, this );
         if( sub.length )
             f.subfeatures = sub;
 

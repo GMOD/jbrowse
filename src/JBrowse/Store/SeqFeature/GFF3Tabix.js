@@ -5,6 +5,7 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
+           'JBrowse/Util',
            'JBrowse/Model/SimpleFeature',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
@@ -18,6 +19,7 @@ define([
            lang,
            array,
            Deferred,
+           Util,
            SimpleFeature,
            SeqFeatureStore,
            DeferredStatsMixin,
@@ -239,14 +241,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         )
     },
 
-       // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
-    _flattenOneLevel( ar ) {
-        const r = [];
-        for (let i = 0; i < ar.length; i +=1) {
-            r.push(...ar[i])
-        }
-        return r;
-    },
+
 
     _featureData(data) {
         const f = Object.assign({}, data )
@@ -263,7 +258,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         delete f.attributes
         // the SimpleFeature constructor takes care of recursively inflating subfeatures
         if (data.child_features && data.child_features.length) {
-            f.subfeatures = this._flattenOneLevel(
+            f.subfeatures = Util.flattenOneLevel(
                 data.child_features
                 .map( childLocs =>
                     childLocs.map(childLoc =>
