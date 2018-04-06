@@ -32,6 +32,7 @@ define([
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 {
+    supportsFeatureTransforms: true,
 
     constructor( args ) {
         var tbiBlob = args.tbi ||
@@ -160,7 +161,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                             })
 
                         features.forEach( feature =>
-                            this._formatFeatures(feature).forEach(featureCallback)
+                            this.applyFeatureTransforms(
+                                this._formatFeatures(feature)
+                            )
+                            .forEach(featureCallback)
                         )
                         finishedCallback()
                     },
