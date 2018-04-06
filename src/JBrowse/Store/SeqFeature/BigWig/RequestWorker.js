@@ -300,9 +300,11 @@ var RequestWorker = declare( null,
                 }
             }
             var auto = this.window.autoSql;
-            for(var i = 0; i < auto.fields.length-3; i++) {
-                if(bedColumns[i] != '.') {
-                    featureOpts[auto.fields[i+3].name] = bedColumns[i];
+            if(auto) {
+                for(var i = 0; i < auto.fields.length-3; i++) {
+                    if(bedColumns[i] != '.') {
+                        featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                    }
                 }
             }
             delete featureOpts.blockCount;
