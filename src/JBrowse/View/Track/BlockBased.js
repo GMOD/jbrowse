@@ -171,7 +171,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     makeTrackLabel: function() {
-        
+
         var params = {
                 className: "track-label dojoDndHandle",
                 id: "label_" + this.name,
@@ -179,11 +179,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                     position: 'absolute'
                 }
             };
-        
+
         if (typeof this.browser.config.trackLabels !== 'undefined' && this.browser.config.trackLabels==='no-block') {
             params.style.top = "-30px";
         }
-        
+
         var labelDiv = dojo.create(
             'div', params ,this.div);
 
@@ -1204,11 +1204,11 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                                     background: color
                                 }
                             }, args.block.domNode );
-                            
+
         this.postRenderHighlight(highlight);
 
         if( label ) {
-            /* 
+            /*
             //  vertical text, has bugs
             if( trimLeft <= 0 ) {
                 domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
@@ -1228,7 +1228,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         }
     },
     postRenderHighlight: function(node) {
-        
+
     }
 
 });

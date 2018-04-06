@@ -374,57 +374,56 @@ return declare(
                 this.key + ' <span class="feature-density">('
                     + this.config.histograms.description
                     + ')</span>'
-            );
+            )
         }
         else {
-            this.setLabel( this.key );
+            this.setLabel(this.key)
         }
 
-        var numBins = this.config.histograms.binsPerBlock || 25;
-        var blockSizeBp = Math.abs( args.rightBase - args.leftBase );
-        var basesPerBin = blockSizeBp / numBins;
-        var query = {
+        const numBins = this.config.histograms.binsPerBlock || 25
+        const blockSizeBp = Math.abs( args.rightBase - args.leftBase )
+        const basesPerBin = blockSizeBp / numBins
+        const query = {
             ref:   this.refSeq.name,
             start: args.leftBase,
             end:   args.rightBase,
             basesPerSpan: basesPerBin,
             basesPerBin: basesPerBin
-        };
+        }
 
-        if( !this.config.histograms.store&&this.store.getRegionFeatureDensities ) {
+        if (!this.config.histograms.store && this.store.getRegionFeatureDensities) {
             this.store.getRegionFeatureDensities(
                 query,
-                lang.hitch( this, '_drawHistograms', args )
-            );
+                this._drawHistograms.bind(this,args),
+            )
         } else {
-            var thisB = this;
-            var histData = { features: [], stats: {} };
-            var handleError = lang.hitch( this, '_handleError' );
+            const histData = { features: [], stats: {} }
+            const handleError = this._handleError.bind(this)
             this.browser.getStore(
                 this.config.histograms.store,
-                function( histStore ) {
+                histStore => {
                     histStore.getGlobalStats(
-                        function( stats ) {
-                            histData.stats.max = stats.scoreMax;
+                        stats => {
+                            histData.stats.max = stats.scoreMax
                             histStore.getFeatures(
                                 query,
-                                function( feature ) {
-                                    histData.features.push( feature );
+                                feature => {
+                                    histData.features.push(feature)
                                 },
-                                function() {
-                                    thisB._drawHistograms( args, histData );
-                                    args.finishCallback();
+                                () => {
+                                    this._drawHistograms(args, histData)
+                                    args.finishCallback()
                                 },
                                 handleError
-                            );
+                            )
                         },
                         handleError
-                    );
-                });
+                    )
+                })
         }
     },
 
-    _scaleCanvas(c,pxWidth=c.width,pxHeight=c.height) {
+    _scaleCanvas(c, pxWidth = c.width, pxHeight = c.height) {
         let ctx = c.getContext('2d')
 
         let ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
@@ -540,135 +539,133 @@ return declare(
     },
 
     fillFeatures: function( args ) {
-        var thisB = this;
+        var blockIndex = args.blockIndex
+        var block = args.block
+        var blockWidthPx = block.domNode.offsetWidth
+        var scale = args.scale
+        var leftBase = args.leftBase
+        var rightBase = args.rightBase
+        var finishCallback = args.finishCallback
 
-        var blockIndex = args.blockIndex;
-        var block = args.block;
-        var blockWidthPx = block.domNode.offsetWidth;
-        var scale = args.scale;
-        var leftBase = args.leftBase;
-        var rightBase = args.rightBase;
-        var finishCallback = args.finishCallback;
-
-        var fRects = [];
+        const fRects = []
 
         // count of how many features are queued up to be laid out
-        var featuresInProgress = 0;
+        let featuresInProgress = 0
         // promise that resolved when all the features have gotten laid out by their glyphs
-        var featuresLaidOut = new Deferred();
+        const featuresLaidOut = new Deferred()
         // flag that tells when all features have been read from the
         // store (not necessarily laid out yet)
-        var allFeaturesRead = false;
+        let allFeaturesRead = false
 
-        var errorCallback = dojo.hitch( thisB, function( e ) {
-            this._handleError( e, args );
-            finishCallback(e);
-        });
+        const errorCallback = e => {
+            this._handleError(e, args)
+            finishCallback(e)
+        }
 
-        var layout = this._getLayout( scale );
+        const layout = this._getLayout( scale )
 
         // query for a slightly larger region than the block, so that
         // we can draw any pieces of glyphs that overlap this block,
         // but the feature of which does not actually lie in the block
         // (long labels that extend outside the feature's bounds, for
         // example)
-        var bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale );
+        const bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale )
 
-        var region = { ref: this.refSeq.name,
-                       start: Math.max( 0, leftBase - bpExpansion ),
-                       end: rightBase + bpExpansion
-                     };
-        this.store.getFeatures( region,
-                                function( feature ) {
-                                    if( thisB.destroyed || ! thisB.filterFeature( feature ) )
-                                        return;
-                                    fRects.push( null ); // put a placeholder in the fRects array
-                                    featuresInProgress++;
-                                    var rectNumber = fRects.length-1;
+        const region = {
+            ref: this.refSeq.name,
+            start: Math.max( 0, leftBase - bpExpansion ),
+            end: rightBase + bpExpansion
+        }
 
-                                    // get the appropriate glyph object to render this feature
-                                    thisB.getGlyph(
-                                        args,
-                                        feature,
-                                        function( glyph ) {
-                                            // have the glyph attempt
-                                            // to add a rendering of
-                                            // this feature to the
-                                            // layout
-                                            var fRect = glyph.layoutFeature(
-                                                args,
-                                                layout,
-                                                feature
-                                            );
-                                            if( fRect === null ) {
-                                                // could not lay out, would exceed our configured maxHeight
-                                                // mark the block as exceeding the max height
-                                                block.maxHeightExceeded = true;
-                                            }
-                                            else {
-                                                // laid out successfully
-                                                if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
-                                                    fRects[rectNumber] = fRect;
-                                            }
+        const featCallback = feature => {
+            if( this.destroyed || ! this.filterFeature( feature ) )
+                return
+            fRects.push(null) // put a placeholder in the fRects array
+            featuresInProgress++
+            var rectNumber = fRects.length-1
 
-                                            // this might happen after all the features have been sent from the store
-                                            if( ! --featuresInProgress && allFeaturesRead ) {
-                                                featuresLaidOut.resolve();
-                                            }
-                                        },
-                                        errorCallback
-                                    );
+            // get the appropriate glyph object to render this feature
+            this.getGlyph(
+                args,
+                feature,
+                glyph => {
+                    // have the glyph attempt
+                    // to add a rendering of
+                    // this feature to the
+                    // layout
+                    var fRect = glyph.layoutFeature(
+                        args,
+                        layout,
+                        feature
+                    );
+                    if( fRect === null ) {
+                        // could not lay out, would exceed our configured maxHeight
+                        // mark the block as exceeding the max height
+                        block.maxHeightExceeded = true;
+                    }
+                    else {
+                        // laid out successfully
+                        if( !( fRect.l >= blockWidthPx || fRect.l+fRect.w < 0 ) )
+                            fRects[rectNumber] = fRect;
+                    }
+
+                    // this might happen after all the features have been sent from the store
+                    if( ! --featuresInProgress && allFeaturesRead ) {
+                        featuresLaidOut.resolve();
+                    }
+                },
+                errorCallback
+            )
+        }
+
+        this.store.getFeatures(
+            region,
+            featCallback,
+            // callback when all features sent
+            () => {
+                if( this.destroyed )
+                    return
+
+                allFeaturesRead = true
+                if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
+                    featuresLaidOut.resolve()
+                }
+
+                featuresLaidOut.then( () => {
+                    const totalHeight = layout.getTotalHeight()
+                    const c = block.featureCanvas =
+                        domConstruct.create(
+                            'canvas',
+                            { height: totalHeight,
+                                width:  block.domNode.offsetWidth+1,
+                                style: {
+                                    cursor: 'default',
+                                    height: totalHeight+'px',
+                                    position: 'absolute'
                                 },
+                                innerHTML: 'Your web browser cannot display this type of track.',
+                                className: 'canvas-track'
+                            },
+                            block.domNode
+                        )
+                    const ctx = c.getContext('2d')
+                    // scale the canvas to work well with the various device pixel ratios
+                    this._scaleCanvas(c)
 
-                                // callback when all features sent
-                                function () {
-                                    if( thisB.destroyed )
-                                        return;
+                    if (block.maxHeightExceeded)
+                        this.markBlockHeightOverflow(block)
 
-                                    allFeaturesRead = true;
-                                    if( ! featuresInProgress && ! featuresLaidOut.isFulfilled() ) {
-                                        featuresLaidOut.resolve();
-                                    }
+                    this.heightUpdate(totalHeight, blockIndex)
 
-                                    featuresLaidOut.then( function() {
+                    this.renderFeatures(args, fRects)
 
-                                        var totalHeight = layout.getTotalHeight();
-                                        var c = block.featureCanvas =
-                                            domConstruct.create(
-                                                'canvas',
-                                                { height: totalHeight,
-                                                  width:  block.domNode.offsetWidth+1,
-                                                  style: {
-                                                      cursor: 'default',
-                                                      height: totalHeight+'px',
-                                                      position: 'absolute'
-                                                  },
-                                                  innerHTML: 'Your web browser cannot display this type of track.',
-                                                  className: 'canvas-track'
-                                                },
-                                                block.domNode
-                                            );
-                                        var ctx = c.getContext('2d');
-                                        // scale the canvas to work well with the various device pixel ratios
-                                        thisB._scaleCanvas(c)
+                    this.renderClickMap(args, fRects)
 
-
-                                        if( block.maxHeightExceeded )
-                                            thisB.markBlockHeightOverflow( block );
-
-                                        thisB.heightUpdate( totalHeight,
-                                                            blockIndex );
-
-
-                                        thisB.renderFeatures( args, fRects );
-
-                                        thisB.renderClickMap( args, fRects );
-
-                                        finishCallback();
-                                    });
-                                },
-                                errorCallback
-                              );
+                    finishCallback()
+                })
+            },
+            errorCallback
+        )
     },
 
     startZoom: function() {
