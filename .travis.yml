@@ -1,5 +1,9 @@
+osx_image: xcode8.3
 sudo: false
 dist: trusty
+os:
+  - linux
+  - osx
 language: perl
 python: 2.7.10
 perl:
@@ -74,7 +78,6 @@ script:
     npm install -g electron-packager
     make -f build/Makefile release-electron-all
   fi
-- set +e
 after_failure:
 - cat setup.log
 deploy:
