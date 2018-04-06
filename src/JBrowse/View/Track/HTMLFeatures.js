@@ -628,12 +628,16 @@ define( [
                         // var filter = this.browser.view.featureFilter;
                         if( this.filterFeature( feature ) )  {
 
-                            //todo: adapt filterFeature instead of renderFeature
-
-                            // hook point
+                            // deprecated Apollo hook point
                             var render = 1;
-                            if (typeof this.renderFilter === 'function')
+                            if (typeof this.renderFilter === 'function') {
+                                // deprecation warning
+                                if (!this._warnedAboutRenderFilterDeprecation) {
+                                    console.warn('the HTMLFeatures.renderFilter is deprecated, please use the existing feature filtering functionality (addFeatureFilter)')
+                                    this._warnedAboutRenderFilterDeprecation = true
+                                }
                                 render = this.renderFilter(feature);
+                            }
 
                             if (render === 1) {
                                 this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
