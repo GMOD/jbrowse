@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * `prepare-refseqs.pl` now accepts a `--gff-sizes` option to allow defining reference
+   sequence sizes from the `##sequence-region` directives in a GFF3 file. @rbuels
+
 ## Bug fixes
 
  * Fix a bug in which saving exported data to a file was nonfunctional for some export
