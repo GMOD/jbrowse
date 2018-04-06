@@ -95,7 +95,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         return this._parsedHeader
     },
 
-    _getFeatures(query, featureCallback, finishedCallback, errorCallback,allowRedispatch=true) {
+    _getFeatures(query, featureCallback, finishedCallback, errorCallback, allowRedispatch = true) {
         this.getHeader().then(
             () => {
                 const lines = []
@@ -105,13 +105,41 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     query.end,
                     line => lines.push(line),
                     () => {
+                        // If this is the first fetch (allowRedispatch is true), check whether
+                        // any of the features protrude out of the queried range.
+                        // If it is, redo the fetch to fetch the max span of the features, so
+                        // that we will get all of the child features of the top-level features.
+                        // This assumes that child features will always fall within the span
+                        // of the parent feature, which isn't true in the general case, but
+                        // this should work for most use cases
+                        if (allowRedispatch && lines.length) {
+                            let minStart = Infinity
+                            let maxEnd = -Infinity
+                            lines.forEach( line => {
+                                let start = line.start-1 // tabix indexes are 1-based
+                                if (start < minStart) minStart = start
+                                if (line.end > maxEnd) maxEnd = line.end
+                            })
+                            if (maxEnd > query.end || minStart < query.start) {
+                                let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
+                                // make a new feature callback to only return top-level features
+                                // in the original query range
+                                let newFeatureCallback = feature => {
+                                    if (feature.get('start') < query.end && feature.get('end') > query.start)
+                                        featureCallback(feature)
+                                }
+                                this._getFeatures(newQuery,newFeatureCallback,finishedCallback,errorCallback,false)
+                                return
+                            }
+                        }
+
                         // decorate each of the lines with a _fileOffset attribute
                         const gff3 = lines
                             .map(lineRecord => {
                                 // add a fileOffset attr to each gff3 line sayings its offset in
                                 // the file, we can use this later to synthesize a unique ID for
                                 // features that don't have one
-                                if (lineRecord.fields[8]) {
+                                if (lineRecord.fields[8] &&  lineRecord.fields[8] !== '.') {
                                      if (!lineRecord.fields[8].includes('_tabixFileOffset'))
                                         lineRecord.fields[8] += `;_tabixFileOffset=${lineRecord.fileOffset}`
                                 } else {
@@ -128,33 +156,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                 parseDirectives: false,
                                 parseSequences: false,
                             })
-
-                        // If this is the first fetch, check whether
-                        // any of the features protrude out of the queried range.
-                        // If it is, redo the fetch to fetch the max span of the features, so
-                        // that we will get all of the child features of the top-level features.
-                        // This assumes that child features will always fall within the span
-                        // of the parent feature, which isn't true in the general case, but
-                        // this should work for most use cases
-                        if (allowRedispatch && features.length) {
-                            let minStart = Infinity
-                            let maxEnd = -Infinity
-                            features.forEach( featureLocs => featureLocs.forEach( featureLoc => {
-                                if (featureLoc.start < minStart) minStart = featureLoc.start
-                                if (featureLoc.end > maxEnd) maxEnd = featureLoc.end
-                            }))
-                            if (maxEnd > query.end || minStart < query.start) {
-                                let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
-                                // make a new feature callback to only return top-level features
-                                // in the original query range
-                                let newFeatureCallback = feature => {
-                                    if (feature.get('start') < query.end && feature.get('end') > query.start)
-                                        featureCallback(feature)
-                                }
-                                this._getFeatures(newQuery,newFeatureCallback,finishedCallback,errorCallback,false)
-                                return
-                            }
-                        }
 
                         features.forEach( feature =>
                             this._formatFeatures(feature).forEach(featureCallback)
