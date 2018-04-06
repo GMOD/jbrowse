@@ -127,7 +127,6 @@ require([
 
             waitsFor( function() { return features.done; } );
             runs( function() {
-                console.log(features);
                 expect( features.length ).toEqual( 51 );
                 expect(features[0].get('name')).toEqual('MICAL3');
                 expect(features[0].get('type')).toEqual('gene');
