@@ -326,12 +326,12 @@ var RequestWorker = declare( null,
                 var blockCount = bedColumns[6] | 0;
                 var blockSizes = bedColumns[7].split(',');
                 var blockStarts = bedColumns[8].split(',');
+                console.log(featureOpts);
 
 
                 var grp = dojo.mixin(featureOpts, {
                     id: bedColumns[0] + '_' + chromId + '_' + start + '_' + end,
                     type: 'mRNA',
-                    strand: featureOpts.strand,
                     subfeatures: []
                 });
 

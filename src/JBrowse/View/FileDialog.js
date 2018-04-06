@@ -41,6 +41,7 @@ define( [
             BEDTabixDriver,
             GFF3TabixDriver,
             BEDDriver,
+            BigBedDriver,
             ResourceList,
             TrackList,
             Util
