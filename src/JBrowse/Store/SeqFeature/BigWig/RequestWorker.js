@@ -282,8 +282,15 @@ var RequestWorker = declare( null,
             }
 
             var featureOpts = {};
-
             var bedColumns = rest.split('\t');
+            var auto = this.window.autoSql;
+            if(auto) {
+                for(var i = 0; i < auto.fields.length-3; i++) {
+                    if(bedColumns[i] != '.') {
+                        featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                    }
+                }
+            }
             if (bedColumns.length > 0) {
                 featureOpts.name = bedColumns[0] == '.' ? null : bedColumns[0];
             }
@@ -299,14 +306,7 @@ var RequestWorker = declare( null,
                     featureOpts.override_color = 'rgb(' + color + ')';
                 }
             }
-            var auto = this.window.autoSql;
-            if(auto) {
-                for(var i = 0; i < auto.fields.length-3; i++) {
-                    if(bedColumns[i] != '.') {
-                        featureOpts[auto.fields[i+3].name] = bedColumns[i];
-                    }
-                }
-            }
+
             delete featureOpts.blockCount;
             delete featureOpts.blockSizes;
             delete featureOpts.thickStart;
@@ -326,8 +326,6 @@ var RequestWorker = declare( null,
                 var blockCount = bedColumns[6] | 0;
                 var blockSizes = bedColumns[7].split(',');
                 var blockStarts = bedColumns[8].split(',');
-                console.log(featureOpts);
-
 
                 var grp = dojo.mixin(featureOpts, {
                     id: bedColumns[0] + '_' + chromId + '_' + start + '_' + end,
