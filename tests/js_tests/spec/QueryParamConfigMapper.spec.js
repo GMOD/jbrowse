@@ -2,7 +2,9 @@ require(['JBrowse/QueryParamConfigMapper', 'dojo/io-query'], function (QueryPara
 
     describe("QueryParamConfigMapper", function () {
         var mapper = QueryParamConfigMapper();
-        expect(mapper).toBeTruthy();
+        it('should construct', () => {
+            expect(mapper).toBeTruthy();
+        })
 
         it("should interpret addStores properly", function () {
             var queryString = 'addStores.store1.type=HMLFeatures&addStores.store1.urlTemplate=http://abc.com/test.gff';
