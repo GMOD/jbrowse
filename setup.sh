@@ -159,6 +159,7 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/volvox.gff3.conf \
         docs/tutorial/data_files/volvox.gtf.conf \
         docs/tutorial/data_files/volvox.sort.gff3.gz.conf \
+        docs/tutorial/data_files/volvox.sort.gff3.gz.htmlfeatures.conf \
         docs/tutorial/data_files/volvox.bw.gff3.gz.conf \
         docs/tutorial/data_files/volvox.sort.bed.gz.conf \
         docs/tutorial/data_files/gvcf.vcf.gz.conf \
