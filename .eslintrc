@@ -1,0 +1,10 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+  ],
+  "plugins": [
+  ],
+  "rules": {
+    "no-underscore-dangle": 0
+  }
+}

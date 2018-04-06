@@ -9,7 +9,8 @@
     "start": "utils/jb_run.js -p 8082",
     "watch": "watch 'npm run build' src/JBrowse plugins tests/js_tests",
     "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js",
-    "hint": "jshint src/JBrowse/"
+    "hint": "npm run lint",
+    "lint": "eslint src/JBrowse test/js_tests"
   },
   "bin": {
     "jb_run.js": "utils/jb_run.js",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "ajv": "^6.2.1",
     "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.2",
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015-without-strict": "^0.0.4",
@@ -48,6 +50,9 @@
     "dojo-webpack-plugin": "^2.7.1",
     "dojox": "1.13.0",
     "electron-screenshot": "^1.0.2",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "filesaver.js": "^0.2.0",
     "imports-loader": "^0.8.0",
