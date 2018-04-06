@@ -5,6 +5,9 @@
  * Improve the calculation of feature density for GFF3Tabix and add new one for GFF3 in-memory.
    Thanks to @hkmoon for the suggestion! (issue #1039, issue #913, @cmdcolin)
 
+  * Re-enabled JBrowse Desktop builds based on automatically building on Travis-CI
+    (issue #1028, @cmdcolin)
+
 # Release 1.14.0     2018-04-18 15:14:58 UTC
 
 ## Major improvements
