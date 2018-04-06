@@ -621,30 +621,32 @@ define( [
 
                 var curTrack = this;
 
-                var featCallback = dojo.hitch(this,function( feature ) {
-                    var uniqueId = feature.id();
-                    if( ! this._featureIsRendered( uniqueId ) ) {
-                        /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                        // var filter = this.browser.view.featureFilter;
-                        if( this.filterFeature( feature ) )  {
+                var featCallback = feature => {
+                    // feature rendering, adding to block, centering refactored into addFeatureToBlock()
 
-                            // deprecated Apollo hook point
-                            var render = 1;
-                            if (typeof this.renderFilter === 'function') {
-                                // deprecation warning
-                                if (!this._warnedAboutRenderFilterDeprecation) {
-                                    console.warn('the HTMLFeatures.renderFilter is deprecated, please use the existing feature filtering functionality (addFeatureFilter)')
-                                    this._warnedAboutRenderFilterDeprecation = true
-                                }
-                                render = this.renderFilter(feature);
-                            }
+                    const uniqueId = feature.id()
 
-                            if (render === 1) {
-                                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
-                            }
+                    if (this._featureIsRendered(uniqueId)) return
+
+                    if (!this.filterFeature(feature)) return
+
+                    // deprecated Apollo hook point, need to schedule this block for removal
+                    if (typeof this.renderFilter === 'function') {
+                        // deprecation warning
+                        if (!this._warnedAboutRenderFilterDeprecation) {
+                            console.warn('the HTMLFeatures.renderFilter is deprecated, please use the existing feature filtering functionality (addFeatureFilter)')
+                            this._warnedAboutRenderFilterDeprecation = true
                         }
+
+                        let render = this.renderFilter(feature)
+                        if (render === 1)
+                            this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd )
+                        return
                     }
-                });
+
+                    // normal case
+                    this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd )
+                }
 
                 this.store.getFeatures( { ref: this.refSeq.name,
                         start: leftBase,
