@@ -111,10 +111,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                                 // add a fileOffset attr to each gff3 line sayings its offset in
                                 // the file, we can use this later to synthesize a unique ID for
                                 // features that don't have one
-                                if (lineRecord.fields[8])
-                                    lineRecord.fields[8] += `;fileOffset=${lineRecord.fileOffset}`
-                                else
-                                    lineRecord.fields[8] = `fileOffset=${lineRecord.fileOffset}`
+                                if (lineRecord.fields[8]) {
+                                     if (!lineRecord.fields[8].includes('_tabixFileOffset'))
+                                        lineRecord.fields[8] += `;_tabixFileOffset=${lineRecord.fileOffset}`
+                                } else {
+                                    lineRecord.fields[8] = `_tabixFileOffset=${lineRecord.fileOffset}`
+                                }
                                 return lineRecord.fields.join('\t')
                             })
                             .join('\n')
@@ -255,14 +257,19 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         for (var a in data.attributes) {
             f[a.toLowerCase()] = data.attributes[a].join(',')
         }
-        delete f.fileoffset
+        f.uniqueID = `offset-${f._tabixfileoffset}`
+        delete f._tabixfileoffset
         delete f.attributes
-        var sub = this._flattenOneLevel(
-            data.child_features
-            .map( child => this._formatFeatures(child) )
-        )
-        if (sub.length) {
-            f.subfeatures = sub
+        // the SimpleFeature constructor takes care of recursively inflating subfeatures
+        if (data.child_features && data.child_features.length) {
+            f.subfeatures = this._flattenOneLevel(
+                data.child_features
+                .map( childLocs =>
+                    childLocs.map(childLoc =>
+                        this._featureData(childLoc)
+                    )
+                )
+            )
         }
 
         return f;
@@ -276,7 +283,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _formatFeatures( featureLocs ) {
         const features = []
         featureLocs.forEach((featureLoc, locIndex) => {
-            let ids = featureLoc.attributes.ID || [`offset-${featureLoc.attributes.fileOffset[0]}`]
+            let ids = featureLoc.attributes.ID || [`offset-${featureLoc.attributes._tabixFileOffset[0]}`]
             ids.forEach((id,idIndex) => {
                 var f = new SimpleFeature({
                     data: this._featureData( featureLoc ),
