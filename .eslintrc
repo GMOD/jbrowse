@@ -4,7 +4,21 @@
   ],
   "plugins": [
   ],
+  "env": {
+      "browser": true,
+      "amd": true,
+      "es6": true
+  },
+  "globals": {
+    "dojo": true,
+    "dijit": true,
+    "dojox": true,
+    "electronRequire": true,
+    "cjsRequire": true,
+    "dojoConfig": true
+  },
   "rules": {
-    "no-underscore-dangle": 0
+    "no-underscore-dangle": 0,
+    "no-undef": "error"
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-env node */
 require('babel-polyfill')
 
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
