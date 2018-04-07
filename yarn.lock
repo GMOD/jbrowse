@@ -1634,9 +1634,9 @@ dojo-util@1.13.0:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/dojo-util/-/dojo-util-1.13.0.tgz#58e74023d4848e1eedeeaac485337fcaffaed61e"
 
-dojo-webpack-plugin@^2.7.1:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/dojo-webpack-plugin/-/dojo-webpack-plugin-2.7.1.tgz#39799cc207e31bf19c137620ac857cbb49a6657d"
+dojo-webpack-plugin@^2.7.2:
+  version "2.7.2"
+  resolved "https://registry.yarnpkg.com/dojo-webpack-plugin/-/dojo-webpack-plugin-2.7.2.tgz#23f5d18bbc2ebaae29223f485ac7760d5a29bd4b"
   dependencies:
     file-loader "0.9.0"
     loader-utils "1.1.0"

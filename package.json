@@ -47,7 +47,7 @@
     "dojo": "1.13.0",
     "dojo-dstore": "^1.1.1",
     "dojo-util": "1.13.0",
-    "dojo-webpack-plugin": "^2.7.1",
+    "dojo-webpack-plugin": "^2.7.2",
     "dojox": "1.13.0",
     "electron-screenshot": "^1.0.2",
     "eslint": "^4.19.1",
