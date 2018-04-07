@@ -159,12 +159,15 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                 break;
 
             if( checkEnd( f ) ) {
-                featureCallback( f );
+                this.applyFeatureTransforms([f])
+                    .forEach(featureCallback)
             }
         }
 
         finishCallback();
     },
+
+    supportsFeatureTransforms: true,
 
     _formatFeature: function( data ) {
         var f = new SimpleFeature({
