@@ -21,6 +21,21 @@
    Stores that support `topLevelFeatures` currently are: GFF3Tabix, GFF3, BED, BEDTabix,
    GTF, and REST (issue #974, issue #969, @rbuels)
 
+ * JBrowse can now accept additional configuration from a `data-config` attribute on its
+   container element. This is useful for embedding JBrowse in other sites, particularly
+   in cases where the JBrowse assets and configuration are stored or referenced from a
+   different location from the page displaying the embedded JBrowse. For example:
+        ```html
+            <div class="jbrowse"
+                 data-config='"baseUrl": "../jbrowse"'
+                 id="GenomeBrowser"
+                 style="height: 600px; width: 100%; padding: 0; border: 0;"
+            >
+            </div>
+        ```
+   would tell JBrowse to look for its configuration and assets at the relative base URL
+   "../jbrowse". @rbuels
+
 ## Bug fixes
 
  * Fix a bug in which saving exported data to a file was nonfunctional for some export
