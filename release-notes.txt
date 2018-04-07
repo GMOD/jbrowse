@@ -13,10 +13,13 @@
    Now you can set `topLevelFeatures = mRNA` in the track configuration, and the track will
    display only "mRNA" features on the top level, ignoring any other existing top-level features,
    and ignoring the containing "gene" features. This helps address what seems to be a common
-   pain point of having to "filter" tabix-formatted GFF3 before using it with Apollo. Thanks
-   to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions. Stores that support
-   `topLevelFeatures` currently are: GFF3Tabix and GFF3 (issue #974, issue #969, @rbuels)
-
+   pain point of having to "filter" tabix-formatted GFF3 before using it with Apollo. One
+   important caveat is that users that configure tracks to use an "out of band" source of
+   feature density or coverage data, like a separate wiggle file that shows feature density,
+   will have to make sure that the density data is correct for this filter setting if they
+   use it. Thanks to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions.
+   Stores that support `topLevelFeatures` currently are: GFF3Tabix and GFF3.
+   (issue #974, issue #969, @rbuels)
 
 
 ## Bug fixes
