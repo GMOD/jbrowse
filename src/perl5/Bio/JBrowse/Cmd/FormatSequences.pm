@@ -44,6 +44,7 @@ sub option_definitions {(
     "indexed_fasta=s",
     "twobit=s",
     "sizes=s@",
+    "gff-sizes=s@",
     "refs=s",
     "reftypes=s",
     "compress",
@@ -63,8 +64,14 @@ sub run {
 
     $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
 
-    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --twobit, --sizes, --gff, or --conf option' )
-        unless $self->opt('gff') || $self->opt('conf') || $self->opt('fasta') || $self->opt('indexed_fasta') || $self->opt('sizes') || $self->opt('twobit');
+    Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --twobit, --sizes, --gff, --gff-sizes, or --conf option' )
+        unless $self->opt('gff') ||
+            $self->opt('conf') ||
+            $self->opt('fasta') ||
+            $self->opt('indexed_fasta') ||
+            $self->opt('sizes') ||
+            $self->opt('twobit') ||
+            $self->opt('gff-sizes');
 
     {
         my $chunkSize = $self->opt('chunksize');
@@ -97,11 +104,8 @@ sub run {
     elsif ( $self->opt('gff') ) {
         my $db;
         my $gff = $self->opt('gff');
-        my $gzip = '';
-        if( $gff =~ /\.gz$/ ) {
-            $gzip = ':gzip';
-        }
-        open my $fh, "<$gzip", $gff or die "$! reading GFF file $gff";
+
+        my $fh = $self->_openFile($gff);
         while ( <$fh> ) {
             if( /^##FASTA\s*$/i ) {
                 # start of the sequence block, pass the filehandle to our fasta database
@@ -137,7 +141,6 @@ sub run {
         $self->writeTrackEntry();
     }
     elsif( $self->opt('sizes') ) {
-
         my %refseqs;
         for my $sizefile ( @{$self->opt('sizes')} ) {
             open my $f, '<', $sizefile or warn "$! opening file $sizefile, skipping";
@@ -156,9 +159,49 @@ sub run {
                 };
             }
         }
-
         $self->writeRefSeqsJSON( \%refseqs );
     }
+    elsif( $self->opt('gff-sizes') ) {
+        my %refseqs;
+        for my $sizefile ( @{$self->opt('gff-sizes')} ) {
+            my $f = $self->_openFile( $sizefile );
+
+            while( my $line = <$f> ) {
+                next unless $line =~ /^##sequence-region/;
+                chomp $line;
+                my ( undef, $name, $start, $end ) = split /\s+/,$line,4;
+                s/^\s+|\s+$//g for $name, $start, $end;
+
+                $refseqs{$name} = {
+                    name   => $name,
+                    start  => $start-1,
+                    end    => $end+0,
+                    length => $end+0,
+                };
+            }
+        }
+        $self->writeRefSeqsJSON( \%refseqs );
+    }
+}
+
+sub _openFile {
+    my ( $self, $filepath ) = @_;
+    my $fh;
+    my $gzip = '';
+    if( $filepath =~ /\.gz$/ ) {
+        eval {
+            require IO::Uncompress::Gunzip;
+            $fh = IO::Uncompress::Gunzip->new( $filepath, -MultiStream => 1 )
+                or die "IO::Uncompress::Gunzip failed: $IO::Uncompress::Gunzip::GunzipError\n";
+        };
+        if( !$fh ) {
+            open $fh, "<:gzip", $filepath or die "$! reading file $filepath";
+        }
+    }
+    else {
+        open $fh, "<", $filepath or die "$! reading file $filepath";
+    }
+    return $fh;
 }
 
 sub trackLabel {

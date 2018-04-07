@@ -28,7 +28,7 @@ define( [
             dijitButton,
             dijitRadioButton,
             dijitDialog,
-            saveAs
+            FileSaver
         ) {
 
 /**
@@ -249,7 +249,7 @@ return declare( null, {
                           },
 
     _fileDownload: function( args ) {
-        saveAs(new Blob([args.data], {type: args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain'}), args.filename);
+        FileSaver.saveAs(new Blob([args.data], {type: args.format ? 'application/x-'+args.format.toLowerCase() : 'text/plain'}), args.filename);
         // We will need to check whether this breaks the WebApollo plugin.
     },
 

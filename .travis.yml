@@ -19,10 +19,18 @@ cache:
   - "$HOME/python/"
   - "$HOME/.nvm/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
+  - travis_phantomjs
+before_install:
 env:
     global:
         - GECKODRIVER_VERSION=0.19.1
+        - PHANTOMJS_VERSION=2.1.1
 install:
+- "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
+- "phantomjs --version"
 - |
   if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
     rm -rf ~/geckodriver_$GECKODRIVER_VERSION;
@@ -31,21 +39,20 @@ install:
   fi
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
-- npm install -g jshint
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
 - pip install nose selenium
 script:
-- jshint src/JBrowse/
 # these versions *should* already be set in version control, but set them again here just in case
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
-- set -e; ./setup.sh; set +e
+- set -e
+- ./setup.sh
+- yarn lint
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
-- set -e
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too

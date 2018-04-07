@@ -1,8 +1,11 @@
+import gff from '@gmod/gff'
+
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
+           'JBrowse/Util',
            'JBrowse/Model/SimpleFeature',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
@@ -10,14 +13,13 @@ define([
            'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
-           'JBrowse/Store/SeqFeature/GFF3/Parser',
-           'JBrowse/Util/GFF3'
        ],
        function(
            declare,
            lang,
            array,
            Deferred,
+           Util,
            SimpleFeature,
            SeqFeatureStore,
            DeferredStatsMixin,
@@ -26,27 +28,24 @@ define([
            GlobalStatsEstimationMixin,
            XHRBlob,
            Parser,
-           GFF3
        ) {
-
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 {
+    supportsFeatureTransforms: true,
 
-    constructor: function( args ) {
-        var thisB = this;
-
+    constructor( args ) {
         var tbiBlob = args.tbi ||
             new XHRBlob(
                 this.resolveUrl(
                     this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
                 )
-            );
+            )
 
         var fileBlob = args.file ||
             new XHRBlob(
                 this.resolveUrl( this.getConf('urlTemplate',[]) )
-            );
+            )
 
         this.indexedData = new TabixIndexedFile(
             {
@@ -54,221 +53,247 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 file: fileBlob,
                 browser: this.browser,
                 chunkSizeLimit: args.chunkSizeLimit || 1000000
-            });
+            })
 
-
-
-
+        // start our global stats estimation
         this.getHeader()
-            .then( function( header ) {
-                       thisB._deferred.features.resolve({success:true});
-                       thisB._estimateGlobalStats()
-                            .then(
-                                function( stats ) {
-                                    thisB.globalStats = stats;
-                                    thisB._deferred.stats.resolve( stats );
-                                },
-                                lang.hitch( thisB, '_failAllDeferred' )
-                            );
-                   },
-                   lang.hitch( thisB, '_failAllDeferred' )
-                 );
+            .then(
+                header => {
+                    this._deferred.features.resolve({ success: true })
+                    this._estimateGlobalStats()
+                        .then(
+                            stats => {
+                                this.globalStats = stats;
+                                this._deferred.stats.resolve( stats )
+                            },
+                            err => this._failAllDeferred(err)
+                        )
+                },
+                err => this._failAllDeferred(err)
+            )
     },
 
-    getHeader: function() {
-        var thisB = this;
-        return this._parsedHeader || ( this._parsedHeader = function() {
-            var d = new Deferred();
-            var reject = lang.hitch( d, 'reject' );
+    getHeader() {
+        if (this._parsedHeader) return this._parsedHeader
 
-            thisB.indexedData.indexLoaded.then( function() {
-                var maxFetch = thisB.indexedData.index.firstDataLine
-                    ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1
-                    : null;
+        this._parsedHeader = new Deferred()
+        const reject = this._parsedHeader.reject.bind(this._parsedHeader)
 
-                thisB.indexedData.data.read(
+        this.indexedData.indexLoaded
+            .then( () => {
+                const maxFetch = this.indexedData.index.firstDataLine
+                    ? this.indexedData.index.firstDataLine.block + this.indexedData.data.blockSize - 1
+                    : null
+
+                this.indexedData.data.read(
                     0,
                     maxFetch,
-                    function( bytes ) {
-                        d.resolve( thisB.header );
-                    },
+                    bytes => this._parsedHeader.resolve( this.header ),
                     reject
                 );
-             },
-             reject
-            );
+            },
+            reject
+        )
 
-            return d;
-        }.call(this));
+        return this._parsedHeader
     },
 
-    _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
-        var thisB = this;
-        var f=featureCallback;
-        var parser = new Parser(
-            {
-                featureCallback: function(fs) {
-                    array.forEach( fs, function( feature ) {
-                                       var feat = thisB._formatFeature(feature);
-                                       f(feat);
-                                   });
-                },
-                endCallback: function() {
-                    finishedCallback();
-                }
-            });
+    _getFeatures(query, featureCallback, finishedCallback, errorCallback, allowRedispatch = true) {
+        this.getHeader().then(
+            () => {
+                const lines = []
+                this.indexedData.getLines(
+                    query.ref || this.refSeq.name,
+                    query.start,
+                    query.end,
+                    line => lines.push(line),
+                    () => {
+                        // If this is the first fetch (allowRedispatch is true), check whether
+                        // any of the features protrude out of the queried range.
+                        // If it is, redo the fetch to fetch the max span of the features, so
+                        // that we will get all of the child features of the top-level features.
+                        // This assumes that child features will always fall within the span
+                        // of the parent feature, which isn't true in the general case, but
+                        // this should work for most use cases
+                        if (allowRedispatch && lines.length) {
+                            let minStart = Infinity
+                            let maxEnd = -Infinity
+                            lines.forEach( line => {
+                                let start = line.start-1 // tabix indexes are 1-based
+                                if (start < minStart) minStart = start
+                                if (line.end > maxEnd) maxEnd = line.end
+                            })
+                            if (maxEnd > query.end || minStart < query.start) {
+                                let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
+                                // make a new feature callback to only return top-level features
+                                // in the original query range
+                                let newFeatureCallback = feature => {
+                                    if (feature.get('start') < query.end && feature.get('end') > query.start)
+                                        featureCallback(feature)
+                                }
+                                this._getFeatures(newQuery,newFeatureCallback,finishedCallback,errorCallback,false)
+                                return
+                            }
+                        }
 
-        thisB.getHeader().then( function() {
-            thisB.indexedData.getLines(
-                query.ref || thisB.refSeq.name,
-                query.start,
-                query.end,
-                function( line ) {
-                    parser._buffer_feature( thisB.lineToFeature(line) );
-                },
-                function() {
-                    parser.finish();
-                },
-                errorCallback
-            );
-        }, errorCallback );
+                        // decorate each of the lines with a _fileOffset attribute
+                        const gff3 = lines
+                            .map(lineRecord => {
+                                // add a fileOffset attr to each gff3 line sayings its offset in
+                                // the file, we can use this later to synthesize a unique ID for
+                                // features that don't have one
+                                if (lineRecord.fields[8] &&  lineRecord.fields[8] !== '.') {
+                                     if (!lineRecord.fields[8].includes('_tabixFileOffset'))
+                                        lineRecord.fields[8] += `;_tabixFileOffset=${lineRecord.fileOffset}`
+                                } else {
+                                    lineRecord.fields[8] = `_tabixFileOffset=${lineRecord.fileOffset}`
+                                }
+                                return lineRecord.fields.join('\t')
+                            })
+                            .join('\n')
+                        const features = gff.parseStringSync(
+                            gff3,
+                            {
+                                parseFeatures: true,
+                                parseComments: false,
+                                parseDirectives: false,
+                                parseSequences: false,
+                            })
+
+                        features.forEach( feature =>
+                            this.applyFeatureTransforms(
+                                this._formatFeatures(feature)
+                            )
+                            .forEach(featureCallback)
+                        )
+                        finishedCallback()
+                    },
+                    errorCallback
+                )
+            },
+            errorCallback
+        )
     },
 
+    getRegionFeatureDensities(query, successCallback, errorCallback) {
+        let numBins
+        let basesPerBin
 
-    getRegionFeatureDensities: function( query, successCallback, errorCallback ) {
-
-        var thisB = this ;
-
-        var numBins, basesPerBin;
-        if( query.numBins ) {
+        if (query.numBins) {
             numBins = query.numBins;
-            basesPerBin = (query.end - query.start)/numBins;
-        }
-        else if( query.basesPerBin ) {
-            basesPerBin = query.basesPerBin || query.ref.basesPerBin;
-            numBins = Math.ceil( (query.end-query.start)/basesPerBin );
-        }
-        else {
-            throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities');
+            basesPerBin = (query.end - query.start)/numBins
+        } else if (query.basesPerBin) {
+            basesPerBin = query.basesPerBin || query.ref.basesPerBin
+            numBins = Math.ceil((query.end-query.start)/basesPerBin)
+        } else {
+            throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities')
         }
 
-        var statEntry = (function( basesPerBin, stats ) {
+        const statEntry = (function (basesPerBin, stats) {
             for (var i = 0; i < stats.length; i++) {
-                if( stats[i].basesPerBin >= basesPerBin ) {
-                    return stats[i];
+                if (stats[i].basesPerBin >= basesPerBin) {
+                    return stats[i]
                 }
             }
-            return undefined;
-        })( basesPerBin, [] );
+            return undefined
+        })(basesPerBin, [])
 
-        var stats = {};
-        stats.basesPerBin = basesPerBin ;
+        const stats = {}
+        stats.basesPerBin = basesPerBin
 
-        stats.scoreMax = 0 ;
-        stats.max = 0 ;
-        var firstServerBin = Math.floor( query.start / basesPerBin);
-        var histogram = [];
-        var binRatio = 1 / basesPerBin;
+        stats.scoreMax = 0
+        stats.max = 0
+        const firstServerBin = Math.floor( query.start / basesPerBin)
+        const histogram = []
+        const binRatio = 1 / basesPerBin
 
-        var binStart, binEnd ;
+        let binStart
+        let binEnd
 
-		for(var bin = 0 ; bin < numBins ; bin++){
-			histogram[bin] = 0;
+		for (var bin = 0 ; bin < numBins ; bin++) {
+			histogram[bin] = 0
 		}
 
+        this.getHeader().then(
+            () => {
+                this.indexedData.getLines(
+                    query.ref || this.refSeq.name,
+                    query.start,
+                    query.end,
+                    line => {
+                        // var feat = this.lineToFeature(line);
+                        // if(!feat.attributes.parent) // only count if has NO parent
+                        const start = line.start ;
+                        let binValue = Math.round( (start - query.start )* binRatio)
 
-        thisB.getHeader().then( function() {
-            thisB.indexedData.getLines(
-                query.ref || thisB.refSeq.name,
-                query.start,
-                query.end,
-                function( line ) {
-                    // var feat = thisB.lineToFeature(line);
-					// if(!feat.attributes.parent) // only count if has NO parent
-                    var start = line.start ;
-                    var binValue = Math.round( (start - query.start )* binRatio)   ;
+                        // in case it extends over the end, just push it on the end
+                        binValue = binValue >= 0 ? binValue : 0 ;
+                        binValue = binValue < histogram.length ? binValue : histogram.length -1
 
-					// in case it extends over the end, just push it on the end
-					binValue = binValue >=0 ? binValue : 0 ;
-					binValue = binValue < histogram.length ? binValue : histogram.length -1  ;
-
-					histogram[binValue] += 1;
-					if(histogram[binValue] > stats.max){
-						stats.max = histogram[binValue];
-					}
-                },
-                function() {
-					successCallback({ bins: histogram, stats: stats});
-                },
-                errorCallback
-            );
-        }, errorCallback );
-
-    },
-
-    lineToFeature: function( line ) {
-        var attributes = GFF3.parse_attributes( line.fields[8] );
-        var ref    = line.fields[0];
-        var source = line.fields[1];
-        var type   = line.fields[2];
-        var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
-        var remove_id;
-        if( !attributes.ID ) {
-            attributes.ID = [line.fields.join('/')];
-            remove_id = true;
-        }
-        var featureData = {
-            start:  line.start,
-            end:    line.end,
-            strand: strand,
-            child_features: [],
-            seq_id: line.ref,
-            attributes: attributes,
-            type:   type,
-            source: source,
-            remove_id: remove_id
-        };
-
-        return featureData;
-    },
-
-    // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
-    _flattenOneLevel: function( ar ) {
-        var r = [];
-        for( var i = 0; i<ar.length; i++ ) {
-            r.push.apply( r, ar[i] );
-        }
-        return r;
+                        histogram[binValue] += 1
+                        if (histogram[binValue] > stats.max) {
+                            stats.max = histogram[binValue]
+                        }
+                    },
+                    () => {
+                        successCallback({ bins: histogram, stats: stats})
+                    },
+                    errorCallback
+                );
+            },
+            errorCallback
+        )
     },
 
 
-    _featureData: function( data ) {
-        var f = lang.mixin( {}, data );
-        delete f.child_features;
-        delete f.data;
-        delete f.derived_features;
-        f.start -= 1; // convert to interbase
-        for( var a in data.attributes ) {
-            f[ a.toLowerCase() ] = data.attributes[a].join(',');
+
+    _featureData(data) {
+        const f = Object.assign({}, data )
+        delete f.child_features
+        delete f.data
+        delete f.derived_features
+        f.start -= 1 // convert to interbase
+        f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined}[f.strand] // convert strand
+        for (var a in data.attributes) {
+            f[a.toLowerCase()] = data.attributes[a].join(',')
         }
-        if(f.remove_id) {
-            delete f.remove_id;
-            delete f.id;
+        f.uniqueID = `offset-${f._tabixfileoffset}`
+        delete f._tabixfileoffset
+        delete f.attributes
+        // the SimpleFeature constructor takes care of recursively inflating subfeatures
+        if (data.child_features && data.child_features.length) {
+            f.subfeatures = Util.flattenOneLevel(
+                data.child_features
+                .map( childLocs =>
+                    childLocs.map(childLoc =>
+                        this._featureData(childLoc)
+                    )
+                )
+            )
         }
-        delete f.attributes;
-        var sub = array.map( this._flattenOneLevel( data.child_features ), this._featureData, this );
-        if( sub.length )
-            f.subfeatures = sub;
 
         return f;
     },
-    _formatFeature: function( data ) {
-        var f = new SimpleFeature({
-            data: this._featureData( data ),
-            id: (data.attributes.ID||[])[0]
-        });
-        f._reg_seq_id = this.browser.regularizeReferenceName( data.seq_id );
-        return f;
+
+    /**
+     * A GFF3 feature is an arrayref of that feature's locations. Because a single feature could be
+     * in multiple locations. To match that with the JBrowse feature model, we treat each of those
+     * locations as a separate feature, and disambiguate them by appending an index to their ID
+     */
+    _formatFeatures( featureLocs ) {
+        const features = []
+        featureLocs.forEach((featureLoc, locIndex) => {
+            let ids = featureLoc.attributes.ID || [`offset-${featureLoc.attributes._tabixFileOffset[0]}`]
+            ids.forEach((id,idIndex) => {
+                var f = new SimpleFeature({
+                    data: this._featureData( featureLoc ),
+                    id: idIndex === 0 ? id : `${id}-${idIndex+1}`
+                });
+                f._reg_seq_id = this.browser.regularizeReferenceName(featureLoc.seq_id)
+                features.push(f)
+            })
+        })
+        return features
     },
 
     /**
@@ -279,11 +304,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
      * smart enough to regularize reference sequence names, while
      * others are not.
      */
-    hasRefSeq: function( seqName, callback, errorCallback ) {
+    hasRefSeq( seqName, callback, errorCallback ) {
         return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
     },
 
-    saveStore: function() {
+    saveStore() {
         return {
             urlTemplate: this.config.file.url,
             tbiUrlTemplate: this.config.tbi.url

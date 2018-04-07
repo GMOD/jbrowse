@@ -525,82 +525,29 @@ Util = {
             ratio = highResolutionMode;
         }
         return ratio>=1?ratio:1;
-    }
+    },
 
+    /**
+     * flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
+     * @param {Array} ar
+     */
+    flattenOneLevel( ar ) {
+        const r = [];
+        for (let i = 0; i < ar.length; i +=1) {
+            r.push(...ar[i])
+        }
+        return r;
+    },
 };
 
     return Util;
 });
 
-if (!Array.prototype.map) {
-  Array.prototype.map = function(fun /*, thisp */)
-  {
-    "use strict";
-
-    if (this === void 0 || this === null)
-      throw new TypeError();
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-    if (typeof fun !== "function")
-      throw new TypeError();
-
-    var res = new Array(len);
-    var thisp = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in t)
-        res[i] = fun.call(thisp, t[i], i, t);
-    }
-
-    return res;
-  };
-}
-
-if (!Array.prototype.indexOf) {
-  Array.prototype.indexOf = function(searchElement /*, fromIndex */)
-  {
-    "use strict";
-
-    if (this === void 0 || this === null)
-      throw new TypeError();
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-    if (len === 0)
-      return -1;
-
-    var n = 0;
-    if (arguments.length > 0)
-    {
-      n = Number(arguments[1]);
-      if (n !== n) // shortcut for verifying if it's NaN
-        n = 0;
-      else if (n !== 0 && n !== (1 / 0) && n !== -(1 / 0))
-        n = (n > 0 || -1) * Math.floor(Math.abs(n));
-    }
-
-    if (n >= len)
-      return -1;
-
-    var k = n >= 0
-          ? n
-          : Math.max(len - Math.abs(n), 0);
-
-    for (; k < len; k++)
-    {
-      if (k in t && t[k] === searchElement)
-        return k;
-    }
-    return -1;
-  };
-}
-
 
 
 /*
 
-Copyright (c) 2007-2010 The Evolutionary Software Foundation
+Copyright (c) 2007-2018 The Evolutionary Software Foundation
 
 Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
 

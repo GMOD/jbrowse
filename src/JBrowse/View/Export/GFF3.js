@@ -1,10 +1,11 @@
+import gff from '@gmod/gff'
+
 define([ 'dojo/_base/declare',
          'dojo/_base/lang',
          'dojo/_base/array',
-         'JBrowse/View/Export',
-         'JBrowse/Util/GFF3'
+         'JBrowse/View/Export'
        ],
-       function( declare, lang, array, ExportBase, UtilGFF3 ) {
+       function( declare, lang, array, ExportBase ) {
 
 return declare( ExportBase,
  /**
@@ -100,7 +101,7 @@ return declare( ExportBase,
                        ),
             function( data ) {
                 var dt = typeof data;
-                return this._gff3_escape( dt == 'string' || dt == 'number' ? data : '.' );
+                return gff.util.escapeColumn( dt == 'string' || dt == 'number' ? data : '.' );
             },
             this
         );
@@ -197,27 +198,19 @@ return declare( ExportBase,
                 continue;
             }
             var valstring = val.hasOwnProperty( 'toString' )
-                                ? this._gff3_escape( val.toString() ) :
+                                ? gff.util.escape( val.toString() ) :
                             val.values
                                 ? function(val) {
                                     return val instanceof Array
                                         ? array.map( val, lang.hitch(this,'_gff3_escape') ).join(',')
-                                        : this._gff3_escape( val );
+                                        : gff.util.escape( val );
                                   }.call(this,val.values) :
                             val instanceof Array
                                 ? array.map( val, lang.hitch(this,'_gff3_escape') ).join(',')
-                                : this._gff3_escape( val );
-            attrOrder.push( this._gff3_escape( tag )+'='+valstring);
+                                : gff.util.escape( val );
+            attrOrder.push( gff.util.escape( tag )+'='+valstring);
         }
         return attrOrder.join(';') || '.';
-    },
-
-    /**
-     * @returns always an escaped string representation of the passed value
-     * @private
-     */
-    _gff3_escape: function( val ) {
-        return (''+val).replace(/[\n\r\t\;\=%&,\x00-\x1f\x7f-\xff]+/g, UtilGFF3.escape );
     }
 });
 
