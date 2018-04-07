@@ -1,21 +1,21 @@
-.tundra .dijitDialogPaneContent {
+.dijitDialogPaneContent {
     border-top: 1px solid #acacac;
     font-family: sans-serif;
 }
-.tundra .dijitDialogTitleBar {
+.dijitDialogTitleBar {
     padding-right: 25px;
 }
 /* styles for the about JBrowse dialog */
-.about-dialog .default_about {
+.default_about {
     text-align: center;
 }
-.about-dialog .default_about * {
+.default_about * {
     margin: 0.5em 0;
 }
-.about-dialog .default_about h1 {
+.default_about h1 {
     margin-top: 0;
 }
-.about-dialog div.powered_by {
+div.powered_by {
     margin-top: 0.5em;
     text-align: center;
 }
@@ -216,15 +216,15 @@ a.dialog-new-window {
 
 
 
-.about-dialog .loaded-plugins {
+.loaded-plugins {
     text-align: left;
 }
 
-.about-dialog .loaded-plugins li {
+.loaded-plugins li {
     margin: 0em;
 }
 
-.about-dialog .plugins-list {
+.plugins-list {
     max-height: 100px;
     overflow: auto;
 }

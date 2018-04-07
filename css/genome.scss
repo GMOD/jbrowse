@@ -4,6 +4,7 @@ html, body {
     padding: 0;
     border: 0;
 }
+@import "track_styles";
 
 .jbrowse {/* main application CSS styles */
     font-size: 12px;
@@ -22,7 +23,6 @@ html, body {
     @import "combination_tracks";
 
     /* CSS styles for the various types of feature glyphs */
-    @import "track_styles";
     @import "hierarchical_track_selector";
     @import "faceted_track_selector";
 
@@ -34,11 +34,22 @@ html, body {
 .dijitDialog {
     font-size: 12px;
     font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+    @import "../node_modules/dijit/themes/tundra/tundra.css";
+    @import "dojobase";
 
 
     @import "dialog";
     @import "file_dialog";
     @import "export_dialog";
+    @import "main";
+}
+
+.dijitMenu {
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+    @import "../node_modules/dijit/themes/tundra/tundra.css";
+    @import "dojobase";
+    @import "main";
 }
 
 .base {

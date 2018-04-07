@@ -42,7 +42,7 @@
     border-right-width: 1px;
 }
 
-.tundra input {
+input {
     outline: none;
 }
 
@@ -85,7 +85,7 @@ fieldset > legend {
     color: #333;
 }
 
-.tundra .dijitDialogCloseIcon {
+.dijitDialogCloseIcon {
     height: 25px;
     width:  25px;
     top:    0px;
@@ -94,7 +94,7 @@ fieldset > legend {
 
     border-left: 1px inset #fcfcfc;
 }
-.tundra .dijitDialogCloseIcon:hover {
+.dijitDialogCloseIcon:hover {
     background-position: -93px 6px;
     border-left-color: #ccc;
 }
@@ -508,7 +508,7 @@ div.track-label .feature-density {
     font-size: 90%;
     font-weight: normal;
 }
-.tundra div.track-label:hover .track-menu-button div {
+div.track-label:hover .track-menu-button div {
     height: 8px;
     width: 8px;
     position: absolute;
@@ -517,17 +517,17 @@ div.track-label .feature-density {
     background: url("../img/spriteArrows.png") no-repeat -28px 0;
 }
 
-.tundra div.track-label:hover .track-menu-button:hover {
+div.track-label:hover .track-menu-button:hover {
     background-color: rgba( 0, 0, 100, 0.05 );
     border-left-color: #ccc;
 }
-.tundra div.track-label .track-close-button {
+div.track-label .track-close-button {
     background: url("../node_modules/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
-.tundra div.track-label .track-close-button:hover {
+div.track-label .track-close-button:hover {
     background-image: url("../node_modules/dijit/themes/tundra/images/tabCloseHover.png");
 }
-.tundra div.track-label:hover .track-menu-button:hover div {
+div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
 }
 div.track-label:hover {
@@ -798,7 +798,7 @@ div.block:hover > div.message {
     font-weight: bold;
 }
 
-.tundra .sharePane input {
+.sharePane input {
     border: 1px solid #ccc;
 }
 
