@@ -239,7 +239,7 @@ _validateConfig: function( c ) {
     if( ! c.tracks )
         c.tracks = [];
     if( ! c.baseUrl ) {
-        this._fatalError( 'Must provide a <code>baseUrl</code> in configuration' );
+        this._fatalError( 'Must provide a `baseUrl` in configuration' );
     }
     if( this.hasFatalErrors )
         throw "Errors in configuration, cannot start.";
