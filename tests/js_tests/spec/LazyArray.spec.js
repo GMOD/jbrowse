@@ -23,7 +23,7 @@ function () {
                  expect(this.callback).wasNotCalled();
              });
 
-        waitsFor(() => this.callback.callCount);
+        waitsFor(() => this.callback.callCount === 1);
 
         runs(function() {
                  expect(this.callback).wasCalledWith(0, "zero", undefined);
@@ -37,7 +37,7 @@ function () {
                  expect(this.callback).wasNotCalled();
              });
 
-        waitsFor(() => this.callback.callCount);
+        waitsFor(() => this.callback.callCount === 1);
 
         runs(function() {
                  expect(this.callback).wasCalledWith(5, "five", undefined);
@@ -51,7 +51,7 @@ function () {
                  expect(this.callback).wasNotCalled();
              });
 
-        waitsFor(() => this.callback.callCount);
+        waitsFor(() => this.callback.callCount === 5);
 
         // how do we handle the fact that the async calls can return
         // in any order?
