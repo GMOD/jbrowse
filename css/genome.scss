@@ -39,10 +39,10 @@ html, body {
 
 
     @import "dialog";
-    @import "file_dialog";
     @import "export_dialog";
     @import "main";
 }
+@import "file_dialog";
 
 .dijitMenu {
     font-size: 12px;
