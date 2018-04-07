@@ -14,8 +14,10 @@
    display only "mRNA" features on the top level, ignoring any other existing top-level features,
    and ignoring the containing "gene" features. This helps address what seems to be a common
    pain point of having to "filter" tabix-formatted GFF3 before using it with Apollo. Thanks
-   to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions. (issue #974,
-   issue #969, @rbuels)
+   to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions. Stores that support
+   `topLevelFeatures` currently are: GFF3Tabix and GFF3 (issue #974, issue #969, @rbuels)
+
+
 
 ## Bug fixes
 
