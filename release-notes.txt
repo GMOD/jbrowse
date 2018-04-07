@@ -19,8 +19,7 @@
    will have to make sure that the density data is correct for this filter setting if they
    use it. Thanks to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions.
    Stores that support `topLevelFeatures` currently are: GFF3Tabix, GFF3, BED, BEDTabix,
-   GTF
-   (issue #974, issue #969, @rbuels)
+   GTF, and REST (issue #974, issue #969, @rbuels)
 
 ## Bug fixes
 
