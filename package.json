@@ -26,13 +26,13 @@
   },
   "license": "(LGPL-2.1 OR Artistic-2.0)",
   "dependencies": {
-    "@gmod/gff": "^1.1.1",
     "express": "^4.15.4",
     "fs-extra": "^4.0.1",
     "node-getopt": "^0.2.3",
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
+    "@gmod/gff": "^1.1.1",
     "ajv": "^6.2.1",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
