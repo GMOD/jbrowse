@@ -60,7 +60,7 @@ check_node () {
 }
 
 # we are starting a new setup. clear the log file
-rm setup.log
+rm -f setup.log
 
 # log information about this system
 log_echo -n "Gathering system information ..."
