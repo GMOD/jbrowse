@@ -18,7 +18,7 @@
    feature density or coverage data, like a separate wiggle file that shows feature density,
    will have to make sure that the density data is correct for this filter setting if they
    use it. Thanks to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions.
-   Stores that support `topLevelFeatures` currently are: GFF3Tabix, GFF3, BED,
+   Stores that support `topLevelFeatures` currently are: GFF3Tabix, GFF3, BED, BEDTabix
    (issue #974, issue #969, @rbuels)
 
 ## Bug fixes

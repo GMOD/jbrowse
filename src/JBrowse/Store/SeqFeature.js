@@ -199,6 +199,7 @@ return declare( Store,
 
     /**
      * Apply all of this store's registered transform functions to the set of features
+     * @param {Array[feature]} features
      */
     applyFeatureTransforms: function(features) {
         let resultFeatures = features
