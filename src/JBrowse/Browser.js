@@ -2700,13 +2700,6 @@ makeShareLink: function () {
                 previewLink.href = shareURL;
 
                 sharePane.show();
-
-                var lp = dojo.position( button.domNode );
-                dojo.style( sharePane.domNode, {
-                               top: (lp.y+lp.h) + 'px',
-                               right: 0,
-                               left: ''
-                            });
                 URLinput.focus();
                 URLinput.select();
                 copyReminder.style.display = 'block';
