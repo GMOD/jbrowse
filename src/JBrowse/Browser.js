@@ -533,7 +533,7 @@ loadRefSeqs: function() {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            request(this.config.refSeqs.url, {
+            request(this.resolveUrl(this.config.refSeqs.url), {
                 handleAs: 'text',
                 headers: {
                     'X-Requested-With': null
