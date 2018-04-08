@@ -204,6 +204,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
     renderInitial: function() {
         this.containerElem = dojo.create( 'div', {
             id: 'faceted_tracksel',
+            className: 'jbrowse',
             style: {
                 left: '-95%',
                 width: '95%',
