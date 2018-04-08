@@ -3,6 +3,8 @@ define(
         'dojo/_base/declare',
         'dojo/_base/array',
         'dojo/_base/lang',
+        'dojo/Deferred',
+        'dojo/promise/all',
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
         'JBrowse/Util',
@@ -13,6 +15,8 @@ define(
         declare,
         array,
         lang,
+        Deferred,
+        all,
         TitlePane,
         ContentPane,
         Util,
@@ -34,6 +38,10 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
        this.browser = args.browser;
        this.tracksActive = {};
        this.config = args;
+
+       this.storeReady = new Deferred()
+       this.gridReady = new Deferred()
+       this.ready = all([this.storeReady,this.gridReady])
 
        // construct the discriminator for whether we will display a
        // facet selector for this facet
@@ -99,14 +107,17 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
                              });
                          });
            });
+
+
+           this._updateFacetCounts()
+           this._updateMatchCount()
+           this.storeReady.resolve()
+
+           dojo.connect( this.trackDataStore, 'onFetchSuccess', this, () => {
+                this._updateGridSelections()
+                this._updateMatchCount()
+           });
        });
-
-       this.trackDataStore.onReady( this, '_updateFacetCounts' ); // just once at start
-       this.trackDataStore.onReady( this, '_updateMatchCount' ); // just once at start
-
-       dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateGridSelections' );
-       dojo.connect( this.trackDataStore, 'onFetchSuccess', this, '_updateMatchCount' );
-
     },
 
     /**
@@ -158,6 +169,25 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         var retval = callback.call( this );
         dojo.forEach( suppressFlags, function(f) {this.suppress[f] = false;}, this);
         return retval;
+    },
+
+    _suppressAsync: function( suppressFlags, callback ) {
+        if( typeof suppressFlags == 'string')
+            suppressFlags = [suppressFlags];
+        if( !this.suppress)
+            this.suppress = {};
+        dojo.forEach( suppressFlags, function(f) {this.suppress[f] = true; }, this);
+        return callback.call( this )
+            .then(
+                retval => {
+                    suppressFlags.forEach( f => this.suppress[f] = false )
+                    return retval;
+                },
+                err => {
+                    suppressFlags.forEach( f => this.suppress[f] = false )
+                    console.error(err)
+                }
+            )
     },
 
     /**
@@ -293,6 +323,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         this.centerPane.addChild( this.dataGrid );
 
         this.mainContainer.startup();
+        this.gridReady.resolve()
     },
 
     /** do something in a timeout to avoid blocking the UI */
@@ -783,25 +814,27 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
      * @private
      */
     _updateGridSelections: function() {
-        // keep selection events from firing while we mess with the
-        // grid
-        this._ifNotSuppressed('gridUpdate', function(){
-            this._suppress('selectionEvents', function() {
-                this.dataGrid.selection.deselectAll();
+        this.ready.then(() => {
+            // keep selection events from firing while we mess with the
+            // grid
+            this._ifNotSuppressed(['gridUpdate','selectionEvents'], function(){
+                this._suppress('selectionEvents', function() {
+                    this.dataGrid.selection.deselectAll();
 
-                // check the boxes that should be checked, based on our
-                // internal memory of what tracks should be on.
-                for( var i= 0; i < Math.min( this.dataGrid.get('rowCount'), this.dataGrid.get('rowsPerPage') ); i++ ) {
-                    var item = this.dataGrid.getItem( i );
-                    if( item ) {
-                        var label = this.dataGrid.store.getIdentity( item );
-                        if( this.tracksActive[label] )
-                            this.dataGrid.rowSelectCell.toggleRow( i, true );
+                    // check the boxes that should be checked, based on our
+                    // internal memory of what tracks should be on.
+                    for( var i= 0; i < Math.min( this.dataGrid.get('rowCount'), this.dataGrid.get('rowsPerPage') ); i++ ) {
+                        var item = this.dataGrid.getItem( i );
+                        if( item ) {
+                            var label = this.dataGrid.store.getIdentity( item );
+                            if( this.tracksActive[label] )
+                                this.dataGrid.rowSelectCell.toggleRow( i, true );
+                        }
                     }
-                }
 
+                });
             });
-        });
+        })
     },
 
     /**
