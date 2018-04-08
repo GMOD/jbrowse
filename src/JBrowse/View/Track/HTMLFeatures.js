@@ -868,16 +868,18 @@ define( [
             },
 
             measureStyles: function() {
+                let container = this.browser.container
+
                 //determine dimensions of labels (height, per-character width)
                 var heightTest = document.createElement("div");
                 heightTest.className = "feature-label";
                 heightTest.style.height = "auto";
                 heightTest.style.visibility = "hidden";
                 heightTest.appendChild(document.createTextNode("1234567890"));
-                document.body.appendChild(heightTest);
+                container.appendChild(heightTest);
                 this.labelHeight = heightTest.clientHeight;
                 this.labelWidth = heightTest.clientWidth / 10;
-                document.body.removeChild(heightTest);
+                container.removeChild(heightTest);
 
                 //measure the height of glyphs
                 var glyphBox;
@@ -891,18 +893,18 @@ define( [
                     heightTest.style.cssText = this.config.style.featureCss;
                 heightTest.style.visibility = "hidden";
                 if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
-                document.body.appendChild(heightTest);
+                container.appendChild(heightTest);
                 glyphBox = domGeom.getMarginBox(heightTest);
                 this.glyphHeight = Math.round(glyphBox.h);
                 this.padding = this.defaultPadding + glyphBox.w;
-                document.body.removeChild(heightTest);
+                container.removeChild(heightTest);
 
                 //determine the width of the arrowhead, if any
                 if (this.config.style.arrowheadClass) {
                     var ah = document.createElement("div");
                     ah.className = "plus-" + this.config.style.arrowheadClass;
                     if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
-                    document.body.appendChild(ah);
+                    container.appendChild(ah);
                     glyphBox = domGeom.position(ah);
                     this.plusArrowWidth = glyphBox.w;
                     this.plusArrowHeight = glyphBox.h;
@@ -910,7 +912,7 @@ define( [
                     glyphBox = domGeom.position(ah);
                     this.minusArrowWidth = glyphBox.w;
                     this.minusArrowHeight = glyphBox.h;
-                    document.body.removeChild(ah);
+                    container.removeChild(ah);
                 }
             },
 
