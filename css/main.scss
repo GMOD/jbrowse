@@ -155,27 +155,33 @@ div.vertical_scrollbar .vertical_position_marker {
     padding-top: 3px;
     position: relative;
     text-align: center;
-}
-#navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect, #navbox .dojoxTriStateCheckBox {
-    height: 20px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+
+    * {
+        font-size: 12px;
+        font-family: sans-serif;
+    }
+
+    .dijitButton, .dijitToggleButton, .dijitTextBox, .dijitSelect, .dojoxTriStateCheckBox {
+        height: 20px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+    }
+
+    .dijitSelectLabel {
+        padding: 0 2px;
+    }
+
+    .dijitInputField {
+        padding-left: 3%
+    }
+
+    .dijitArrowButton {
+        width: 15px
+    }
 }
 
-#navbox .dijitSelectLabel {
-    padding: 0 2px;
-}
-
-#navbox .dijitTextBox .dijitInputField {
-    padding-left: 2px;
-}
-
-#navbox * {
-    font-size: 12px;
-    font-family: sans-serif;
-}
 
 .moreMatches {
     font-style: italic;
