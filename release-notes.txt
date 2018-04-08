@@ -44,6 +44,8 @@
  * Fix a bug in which subfeatures were not always fetched correctly when using the GFF3Tabix
    store (issue #780, @rbuels)
 
+ * Fixed several bugs with specific cases of relative URLs used in configuration. @rbuels
+
 # Release 1.13.1     2018-03-28 23:49:27 UTC
 
 ## Minor improvements

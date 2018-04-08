@@ -349,7 +349,9 @@ initPlugins: function() {
                                  // load its css
                                  var cssLoaded;
                                  if (plugin.css) {
-                                    cssLoaded = this._loadCSS({ url: plugin.css+'/main.css' })
+                                    cssLoaded = this._loadCSS({
+                                        url: this.resolveUrl(plugin.css + '/main.css')
+                                    })
                                  } else {
                                     cssLoaded = new Deferred()
                                     cssLoaded.resolve()
@@ -375,9 +377,7 @@ initPlugins: function() {
  * Resolve a URL relative to the browserRoot.
  */
 resolveUrl: function( url ) {
-    var browserRoot = this.config.browserRoot || "";
-    if( browserRoot && browserRoot.charAt( browserRoot.length - 1 ) != '/' )
-        browserRoot += '/';
+    var browserRoot = this.config.browserRoot || this.config.baseUrl || "";
 
     return Util.resolveUrl( browserRoot, url );
 },
