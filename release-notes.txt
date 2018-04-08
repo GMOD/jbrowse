@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+## Major improvements
+
+ * JBrowse now behaves much better when embedded in a webpage without using an iframe.
+   See tests/drupal.htm in the JBrowse code for an example of this usage. Thanks to
+   @laceysanderson for her patiently championing this feature all the way through the
+   long road to completion! (issue #777, pull #844, @cmdcolin)
+
 ## Minor improvements
 
  * `prepare-refseqs.pl` now accepts a `--gff-sizes` option to allow defining reference
