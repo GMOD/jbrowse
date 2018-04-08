@@ -60,7 +60,7 @@ check_node () {
 }
 
 # we are starting a new setup. clear the log file
-rm setup.log
+rm -f setup.log
 
 # log information about this system
 log_echo -n "Gathering system information ..."
@@ -112,8 +112,9 @@ if [ -f "src/JBrowse/Browser.js" ]; then
     (
         set -e
         check_node
-        npm install
-        npm run build
+        npm install yarn
+        node_modules/.bin/yarn install
+        node_modules/.bin/yarn build
     ) >>setup.log 2>&1;
     done_message "" "" "FAILURE NOT ALLOWED"
 else
@@ -158,6 +159,7 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/volvox.gff3.conf \
         docs/tutorial/data_files/volvox.gtf.conf \
         docs/tutorial/data_files/volvox.sort.gff3.gz.conf \
+        docs/tutorial/data_files/volvox.sort.gff3.gz.htmlfeatures.conf \
         docs/tutorial/data_files/volvox.bw.gff3.gz.conf \
         docs/tutorial/data_files/volvox.sort.bed.gz.conf \
         docs/tutorial/data_files/gvcf.vcf.gz.conf \
@@ -168,7 +170,7 @@ log_echo -n "Formatting Volvox example data ...";
     >> sample_data/json/volvox/tracks.conf
 
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
-    bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "NeatHTMLFeatures","NeatCanvasFeatures","HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
+    bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
     bin/flatfile-to-json.pl --bed docs/tutorial/data_files/volvox_segment.bed --out sample_data/json/volvox --trackLabel ChromHMM --trackType CanvasFeatures --clientConfig '{"color": "{chromHMM}", "strandArrow": false}' --config '{"displayMode": "collapsed", "enableCollapsedMouseover": true, "category": "Miscellaneous" }';
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 

@@ -159,6 +159,98 @@ is_deeply( $output->{"seq/refSeqs.json"},
                }
            ]) or diag explain $output;
 
+## check formatting from --gff-sizes
+$tempdir = File::Temp->newdir;
+
+system $^X, 'bin/prepare-refseqs.pl', (
+    '--gff-sizes' => 'tests/data/tomato_sequence_regions.gff3',
+    '--out'   => $tempdir,
+   );
+
+$output = slurp_tree( $tempdir );
+
+is_deeply( $output->{"seq/refSeqs.json"},
+  [
+     {
+       'end' => 20852292,
+       'length' => 20852292,
+       'name' => 'SL3.0ch00',
+       'start' => 0
+     },
+     {
+       'end' => 98455869,
+       'length' => 98455869,
+       'name' => 'SL3.0ch01',
+       'start' => 0
+     },
+     {
+       'end' => 55977580,
+       'length' => 55977580,
+       'name' => 'SL3.0ch02',
+       'start' => 0
+     },
+     {
+       'end' => 72290146,
+      'length' => 72290146,
+      'name' => 'SL3.0ch03',
+      'start' => 0
+    },
+    {
+      'end' => 66557038,
+      'length' => 66557038,
+      'name' => 'SL3.0ch04',
+      'start' => 0
+    },
+    {
+      'end' => 66723567,
+      'length' => 66723567,
+      'name' => 'SL3.0ch05',
+      'start' => 0
+    },
+    {
+      'end' => 49794276,
+      'length' => 49794276,
+      'name' => 'SL3.0ch06',
+      'start' => 0
+    },
+    {
+      'end' => 68175699,
+      'length' => 68175699,
+      'name' => 'SL3.0ch07',
+      'start' => 0
+    },
+    {
+      'end' => 65987440,
+      'length' => 65987440,
+      'name' => 'SL3.0ch08',
+      'start' => 0
+    },
+    {
+      'end' => 72906345,
+      'length' => 72906345,
+      'name' => 'SL3.0ch09',
+      'start' => 0
+    },
+    {
+      'end' => 65633393,
+      'length' => 65633393,
+      'name' => 'SL3.0ch10',
+      'start' => 0
+    },
+    {
+      'end' => 56597135,
+      'length' => 56597135,
+      'name' => 'SL3.0ch11',
+      'start' => 0
+    },
+    {
+      'end' => 68126176,
+      'length' => 68126176,
+      'name' => 'SL3.0ch12',
+      'start' => 0
+    }
+  ]) or diag explain $output;
+
 ## test formatting from a Bio::DB::SeqFeature::Store with a
 ## biodb-to-json.pl conf file
 

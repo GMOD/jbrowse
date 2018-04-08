@@ -1,0 +1,21 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+  ],
+  "plugins": [
+  ],
+  "env": {
+      "browser": true,
+      "amd": true,
+      "es6": true,
+      "jasmine": true
+  },
+  "globals": {
+    "__webpack_public_path__": true,
+    "cjsRequire": true
+  },
+  "rules": {
+    "no-underscore-dangle": 0,
+    "no-undef": "error"
+  }
+}

@@ -8,19 +8,15 @@ define( [
             'dojo/_base/array',
             'dojo/_base/lang',
             'JBrowse/Util/TextIterator',
-            'JBrowse/Util/GFF3'
         ],
         function (
             declare,
             array,
             lang,
             TextIterator,
-            GFF3
         ) {
 
-
 var bed_feature_names = 'seq_id start end name score strand'.split(" ");
-
 
 return declare( null, {
 
@@ -97,6 +93,15 @@ return declare( null, {
         }
     },
 
+    unescape(s) {
+        if( s === null )
+            return null;
+
+        return s.replace( /%([0-9A-Fa-f]{2})/g, function( match, seq ) {
+                                return String.fromCharCode( parseInt( seq, 16 ) );
+                            });
+    },
+
     parse_feature: function( line ) {
         var f = array.map( line.split("\t"), function(a) {
             if( a == '.' ) {
@@ -106,7 +111,7 @@ return declare( null, {
         });
 
         // unescape only the ref and source columns
-        f[0] = GFF3.unescape( f[0] );
+        f[0] = this.unescape( f[0] );
 
         var parsed = {};
         for( var i = 0; i < bed_feature_names.length; i++ ) {

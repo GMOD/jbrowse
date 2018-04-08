@@ -1,0 +1,16 @@
+{
+  "env": {
+      "browser": true,
+      "amd": true,
+      "es6": true
+  },
+  "globals": {
+    "dojo": true,
+    "dijit": true,
+    "dojox": true,
+    "electronRequire": true,
+    "cjsRequire": true,
+    "dojoConfig": true,
+    "__webpack_public_path__": true
+  }
+}

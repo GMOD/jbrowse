@@ -1,0 +1,18 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+  ],
+  "plugins": [
+  ],
+  "env": {
+      "browser": true,
+      "amd": true,
+      "es6": true
+  },
+  "globals": {
+  },
+  "rules": {
+    "no-underscore-dangle": 0,
+    "no-undef": "error"
+  }
+}

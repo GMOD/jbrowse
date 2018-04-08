@@ -1,3 +1,6 @@
+/* eslint-env node */
+require('babel-polyfill')
+
 const DojoWebpackPlugin = require("dojo-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
@@ -70,7 +73,7 @@ var webpackConf = {
                 use: {
                   loader: 'babel-loader',
                   options: {
-                    presets: ['@babel/preset-env'], //< NOTE: respects package.json->browserslist
+                    presets: ['es2015-without-strict'],
                     cacheDirectory: true
                   }
                 }
@@ -79,13 +82,20 @@ var webpackConf = {
                 test: /src\/JBrowse\/main.js|tests\/js_tests\/main.js/,
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
             },
-            {
-                // we need to set webpackConf.node.global to false for dojo,
-                // but the `buffer` node module absolutely needs the `global` object
-                // present. so we shim here to provide it an empty object
-                test: /node_modules\/buffer\//,
-                use: 'imports-loader?global=>{}'
-            },
+            // {
+            //     // we need to set webpackConf.node.global to false for dojo,
+            //     // but the `buffer` node module absolutely needs the `global` object
+            //     // present. so we shim here to provide it an empty object
+            //     test: /node_modules\/(buffer|process-nextick-args|readable-stream)\//,
+            //     use: 'imports-loader?global=>{},process=>{browser: true}'
+            // },
+            // {
+            //     // we need to set webpackConf.node.global to false for dojo,
+            //     // but the `buffer` node module absolutely needs the `global` object
+            //     // present. so we shim here to provide it an empty object
+            //     test: /node_modules\/(dojo|dijit|dojox|dojo-util)\/.+\.js$/,
+            //     use: 'imports-loader?global=>window,process=>false,this=>window'
+            // },
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2)$/,
                 use: 'url-loader?limit=10000',
@@ -115,10 +125,10 @@ var webpackConf = {
     resolveLoader: {
         modules: ["node_modules"]
     },
-    node: {
-        process: false,
-        global: false // needed for dojo
-    },
+    // node: {
+    //     process: false,
+    //     global: false // needed for dojo
+    // },
 
 }
 

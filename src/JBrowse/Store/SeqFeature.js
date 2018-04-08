@@ -1,10 +1,11 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
+            'JBrowse/Util',
             'JBrowse/Store',
             'JBrowse/Store/LRUCache'
         ],
-        function( declare, lang, Store, LRUCache ) {
+        function( declare, lang, Util, Store, LRUCache ) {
 
 /**
  * Base class for JBrowse data backends that hold sequences and
@@ -19,8 +20,55 @@ return declare( Store,
 {
 
     constructor: function( args ) {
-        this.globalStats = {};
+        this.globalStats = {}
         this.storeTimeout = args.storeTimeout || 500;
+        this._featureTransforms = args.featureTransforms || []
+
+        // TODO: at some point, might want to implement support for a
+        // general transform function people can apply to stores
+        //this._configureGeneralFeaturesTransform()
+
+        // install `config.topLevelFeatures` transform if necessary
+        this._configureTopLevelFeaturesTransform()
+    },
+
+    /**
+     * If the `topLevelFeatures` configuration variable is set on this
+     * store, creates and installs a feature transform function to
+     * implement it.
+     */
+    _configureTopLevelFeaturesTransform: function() {
+        const confVal = this.getConf('topLevelFeatures',[this])
+        if (!confVal) return
+
+        if (typeof confVal === 'function') {
+            this._topLevelFeaturesTransform = confVal
+        } else {
+            let typesList
+            if (Array.isArray(confVal)) {
+                typesList = confVal
+            } else if (typeof confVal === 'string') {
+                typesList = confVal.trim().split(/\s*,\s*/)
+            } else {
+                throw new Error('invalid topLevelFeatures configuration value',confVal)
+            }
+            if (typesList.length)
+                this._topLevelFeaturesTransform = features => {
+                    let resultFeatures = []
+                    features.forEach( feature => {
+                        resultFeatures.push(...this._findSubfeaturesWithTypes(typesList,feature))
+                    })
+                    return resultFeatures
+                }
+        }
+
+        if (this._topLevelFeaturesTransform) {
+            try {
+                this.addFeatureTransform(this._topLevelFeaturesTransform)
+            } catch(e) {
+                throw new Error(`store class ${this.getConf('type')} does not support topLevelFeatures configuration`)
+            }
+        }
     },
 
     _evalConf: function( confVal, confKey ) {
@@ -140,6 +188,65 @@ return declare( Store,
         endCallback();
     },
 
+    /**
+     * Add a transformation function to be applied to features read from the store.
+     */
+    addFeatureTransform: function(transformFunction) {
+        if (!this.supportsFeatureTransforms)
+            throw new Error('store class '+this.getConf('type')+' does not support feature transforms')
+        this._featureTransforms.push(transformFunction)
+    },
+
+    /**
+     * Apply all of this store's registered transform functions to the set of features
+     * @param {Array[feature]} features
+     */
+    applyFeatureTransforms: function(features) {
+        let resultFeatures = features
+        this._featureTransforms.forEach(transformFunction => {
+            resultFeatures = transformFunction(resultFeatures)
+        })
+        return resultFeatures
+    },
+
+    /**
+     * Apply the topLevelFeatures configuration to possibly extract
+     * subfeature from this feature, and run the given callback on
+     * each of the new top-level features.
+     *
+     * @param {Array[SimpleFeature|LazyFeature|*]} features
+     * @private
+     */
+    _applyTopLevelFeaturesTransform(features) {
+        return Util.flattenOneLevel(
+            features.map( feature =>
+                this._topLevelFeaturesTransform(feature)
+            )
+        )
+    },
+
+    /**
+     * traverse the subfeature hierarchy of the given feature,
+     * return an array of features whose types are in the given list
+     * @param {Array[string]} types
+     * @param {SimpleFeature|LazyFeature|*} feature
+     * @private
+     */
+    _findSubfeaturesWithTypes(types, feature) {
+        if (types.includes(feature.get('type')))
+            return [feature]
+        else {
+            let children = feature.children()
+            if (children && children.length) {
+                const matchingFeatures = []
+                children.forEach(childFeature =>
+                    matchingFeatures.push(...this._findSubfeaturesWithTypes(types,childFeature))
+                )
+                return matchingFeatures
+            }
+            else return []
+        }
+    },
 
     /**
      * Given a plain query object, call back with a single sequence

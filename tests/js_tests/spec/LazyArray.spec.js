@@ -23,7 +23,7 @@ function () {
                  expect(this.callback).wasNotCalled();
              });
 
-        waits(500);
+        waitsFor(() => this.callback.callCount === 1);
 
         runs(function() {
                  expect(this.callback).wasCalledWith(0, "zero", undefined);
@@ -37,7 +37,7 @@ function () {
                  expect(this.callback).wasNotCalled();
              });
 
-        waits(500);
+        waitsFor(() => this.callback.callCount === 1);
 
         runs(function() {
                  expect(this.callback).wasCalledWith(5, "five", undefined);
@@ -51,22 +51,26 @@ function () {
                  expect(this.callback).wasNotCalled();
              });
 
-        waits(500);
+        waitsFor(() => this.callback.callCount === 5);
 
         // how do we handle the fact that the async calls can return
         // in any order?
         // OTOH, when you reload the data should be cached
         runs(function() {
                  expect(this.callback.callCount).toEqual(5);
-                 expect(this.callback.argsForCall[0]).toEqual(
+                 let callsSorted =
+                    this.callback.argsForCall
+                        .sort((a,b) => a[0]-b[0])
+
+                 expect(callsSorted[0]).toEqual(
                      [3, "three", undefined]);
-                 expect(this.callback.argsForCall[1]).toEqual(
+                 expect(callsSorted[1]).toEqual(
                      [4, "four", undefined]);
-                 expect(this.callback.argsForCall[2]).toEqual(
+                 expect(callsSorted[2]).toEqual(
                      [5, "five", undefined]);
-                 expect(this.callback.argsForCall[3]).toEqual(
+                 expect(callsSorted[3]).toEqual(
                      [6, "six", undefined]);
-                 expect(this.callback.argsForCall[4]).toEqual(
+                 expect(callsSorted[4]).toEqual(
                      [7, "seven", undefined]);
 
                  var cb2 = jasmine.createSpy();

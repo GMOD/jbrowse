@@ -1,5 +1,33 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * `prepare-refseqs.pl` now accepts a `--gff-sizes` option to allow defining reference
+   sequence sizes from the `##sequence-region` directives in a GFF3 file. @rbuels
+
+ * Some store types now support a `topLevelFeatures` configuration variable, which allows
+   tracks to treat certain types of features as 'top-level', even the actual track data
+   has them as children of other features. One common use case for this would be if
+   you have gene models in a GFF3 structured as gene&rarr;mRNA&rarr;exon/CDS/UTR, but you want to
+   display the "mRNA" features as top-level, i.e. ignore the gene container that they are in.
+   Now you can set `topLevelFeatures = mRNA` in the track configuration, and the track will
+   display only "mRNA" features on the top level, ignoring any other existing top-level features,
+   and ignoring the containing "gene" features. This helps address what seems to be a common
+   pain point of having to "filter" tabix-formatted GFF3 before using it with Apollo. One
+   important caveat is that users that configure tracks to use an "out of band" source of
+   feature density or coverage data, like a separate wiggle file that shows feature density,
+   will have to make sure that the density data is correct for this filter setting if they
+   use it. Thanks to @Yating-L, @nathandunn, and @cmdcolin for valuable discussions.
+   Stores that support `topLevelFeatures` currently are: GFF3Tabix, GFF3, BED, BEDTabix,
+   GTF, and REST (issue #974, issue #969, @rbuels)
+
+## Bug fixes
+
+ * Fix a bug in which saving exported data to a file was nonfunctional for some export
+   data types. @rbuels
+
+ * Fix a bug in which subfeatures were not always fetched correctly when using the GFF3Tabix
+   store (issue #780, @rbuels)
 
 # Release 1.13.1     2018-03-28 23:49:27 UTC
 

@@ -27,7 +27,7 @@ define([
             Parser
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, Parser ], {
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ], {
 
     constructor: function( args ) {
         var thisB = this;
@@ -73,7 +73,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         );
     },
 
-
     /**fetch and parse the Header line */
     getHeader: function() {
         var thisB = this;
@@ -103,17 +102,18 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             }.call(this));
     },
     _getFeatures: function(query, featureCallback, finishCallback, errorCallback){
-        var thisB = this;
-        thisB.getHeader().then(function(){
-            thisB.indexedData.getLines(
-                query.ref || thisB.refSeq.name,
+        this.getHeader().then(() => {
+            this.indexedData.getLines(
+                query.ref || this.refSeq.name,
                 query.start,
                 query.end,
-                function( line ) {
-                    var f = thisB.lineToFeature(line);
-                    thisB.config.featureCallback ?
-                        featureCallback(thisB.config.featureCallback(f, thisB)) :
-                        featureCallback(f);
+                line => {
+                    this.applyFeatureTransforms([this.lineToFeature(line)])
+                    .forEach( f => {
+                        if(this.config.featureCallback)
+                          f = this.config.featureCallback(f)
+                        featureCallback(f)
+                    })
                 },
                 finishCallback,
                 errorCallback
@@ -122,7 +122,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }, errorCallback);
     },
 
-
+    supportsFeatureTransforms: true,
 
     _featureData: function( data ) {
         var f = lang.mixin( {}, data );

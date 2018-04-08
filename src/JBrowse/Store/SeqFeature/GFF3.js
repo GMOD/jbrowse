@@ -1,28 +1,30 @@
+import gff from '@gmod/gff'
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
             'dojo/Deferred',
+            'JBrowse/Util',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
-            'JBrowse/Model/XHRBlob',
-            './GFF3/Parser'
+            'JBrowse/Model/XHRBlob'
         ],
         function(
             declare,
             lang,
             array,
             Deferred,
+            Util,
             SimpleFeature,
             SeqFeatureStore,
             DeferredFeatures,
             DeferredStats,
             GlobalStatsEstimationMixin,
             XHRBlob,
-            Parser
         ) {
 
 return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
@@ -41,59 +43,60 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         this._loadFeatures();
     },
 
-    _loadFeatures: function() {
-        var thisB = this;
-        var features = this.bareFeatures = [];
+    _loadFeatures() {
+        const features = this.bareFeatures = [];
 
-        var featuresSorted = true;
-        var seenRefs = this.refSeqs = {};
-        var parser = new Parser(
-            {
-                featureCallback: function(fs) {
-                    array.forEach( fs, function( feature ) {
-                                       var prevFeature = features[ features.length-1 ];
-                                       var regRefName = thisB.browser.regularizeReferenceName( feature.seq_id );
-                                       if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
-                                           featuresSorted = false;
-                                       if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
-                                           featuresSorted = false;
+        let featuresSorted = true;
+        const seenRefs = this.refSeqs = {};
 
-                                       if( !( regRefName in seenRefs ))
-                                           seenRefs[ regRefName ] = features.length;
+        let addFeature = fs => {
+            fs.forEach( feature => {
+                var prevFeature = features[ features.length-1 ];
+                var regRefName = this.browser.regularizeReferenceName( feature.seq_id );
+                if( regRefName in seenRefs && prevFeature && prevFeature.seq_id != feature.seq_id )
+                    featuresSorted = false;
+                if( prevFeature && prevFeature.seq_id == feature.seq_id && feature.start < prevFeature.start )
+                    featuresSorted = false;
 
-                                       features.push( feature );
-                                   });
-                },
-                endCallback:     function()  {
-                    if( ! featuresSorted ) {
-                        features.sort( thisB._compareFeatureData );
-                        // need to rebuild the refseq index if changing the sort order
-                        thisB._rebuildRefSeqs( features );
-                    }
+                if( !( regRefName in seenRefs ))
+                    seenRefs[ regRefName ] = features.length;
 
-                    thisB._estimateGlobalStats()
-                         .then( function( stats ) {
-                                    thisB.globalStats = stats;
-                                    thisB._deferred.stats.resolve();
-                                });
-
-                    thisB._deferred.features.resolve( features );
-                }
+                features.push( feature );
             });
-        var fail = lang.hitch( this, '_failAllDeferred' );
+        }
+
+        let endFeatures = () => {
+            if( ! featuresSorted ) {
+                features.sort( this._compareFeatureData );
+                // need to rebuild the refseq index if changing the sort order
+                this._rebuildRefSeqs( features );
+            }
+
+            this._estimateGlobalStats()
+                 .then( stats => {
+                    this.globalStats = stats;
+                    this._deferred.stats.resolve();
+                 })
+
+            this._deferred.features.resolve( features );
+        }
+
+        const fail = this._failAllDeferred.bind(this)
+
+        const parseStream = gff.parseStream({
+                parseFeatures: true,
+                parseSequences: false,
+            })
+            .on('data', addFeature)
+            .on('end', endFeatures)
+            .on('error', fail)
+
         // parse the whole file and store it
         this.data.fetchLines(
-            function( line ) {
-                try {
-                    parser.addLine(line);
-                } catch(e) {
-                    fail('Error parsing GFF3.');
-                    throw e;
-                }
-            },
-            lang.hitch( parser, 'finish' ),
+            line => parseStream.write(line),
+            () => parseStream.end(),
             fail
-        );
+        )
     },
 
     _rebuildRefSeqs: function( features ) {
@@ -157,12 +160,14 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                 break;
 
             if( checkEnd( f ) ) {
-                featureCallback( f );
+                this.applyFeatureTransforms([f]).forEach(featureCallback)
             }
         }
 
         finishCallback();
     },
+
+    supportsFeatureTransforms: true,
 
     _formatFeature: function( data ) {
         var f = new SimpleFeature({
@@ -173,25 +178,18 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         return f;
     },
 
-    // flatten array like [ [1,2], [3,4] ] to [ 1,2,3,4 ]
-    _flattenOneLevel: function( ar ) {
-        var r = [];
-        for( var i = 0; i<ar.length; i++ ) {
-            r.push.apply( r, ar[i] );
-        }
-        return r;
-    },
-
     _featureData: function( data ) {
-        var f = lang.mixin( {}, data );
+        const f = lang.mixin( {}, data );
         delete f.child_features;
         delete f.derived_features;
         delete f.attributes;
         f.start -= 1; // convert to interbase
+        f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined }[data.strand];
+
         for( var a in data.attributes ) {
             f[ a.toLowerCase() ] = data.attributes[a].join(',');
         }
-        var sub = array.map( this._flattenOneLevel( data.child_features ), this._featureData, this );
+        var sub = array.map( Util.flattenOneLevel( data.child_features ), this._featureData, this );
         if( sub.length )
             f.subfeatures = sub;
 
