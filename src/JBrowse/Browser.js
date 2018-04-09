@@ -188,6 +188,9 @@ constructor: function(params) {
                            thisB.refSeq = thisB.allRefs[initialLoc.ref];
                        }
 
+                       // before we init the view, make sure that our container has nonzero height and width
+                       thisB.ensureNonzeroContainerDimensions()
+
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
                            if( initialLocString )
@@ -416,6 +419,23 @@ welcomeScreen: function( container, error ) {
             } catch(e) {}
         });
     });
+},
+
+/**
+ * Make sure the browser container has nonzero container dimensions.  If not,
+ * set some hardcoded dimensions and log a warning.
+ */
+ensureNonzeroContainerDimensions() {
+    const containerWidth = this.container.offsetWidth
+    const containerHeight = this.container.offsetHeight
+    if (!containerWidth) {
+        console.warn(`JBrowse container element #${this.config.containerID} has no width, please set one with CSS. Setting fallback width of 640 pixels`)
+        this.container.style.width = '640px'
+    }
+    if (!containerHeight) {
+        console.warn(`JBrowse container element #${this.config.containerID} has no height, please set one with CSS. Setting fallback height of 480 pixels`)
+        this.container.style.height = '480px'
+    }
 },
 
 /**
