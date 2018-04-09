@@ -104,14 +104,21 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
     // recursively find all the stylesheets that are loaded in the
     // current browsing session, traversing imports and such
     _getStyleSheets: function( inSheets ) {
-        var outSheets = [];
-        array.forEach( inSheets, function( sheet ) {
-            outSheets.push( sheet );
-            array.forEach( sheet.cssRules || sheet.rules, function( rule ) {
-                if( rule.styleSheet )
-                    outSheets.push.apply( outSheets, this._getStyleSheets( [rule.styleSheet] ) );
-            },this);
-        },this);
+        var outSheets = []
+        array.forEach(inSheets, sheet => {
+            try {
+                let rules = sheet.cssRules || sheet.rules
+                let includedSheets = [sheet]
+                array.forEach(rules, rule => {
+                    if (rule.styleSheet)
+                         includedSheets.push(...this._getStyleSheets([rule.styleSheet]))
+                })
+                outSheets.push(...includedSheets)
+            } catch(e) {
+                //console.warn('could not read stylesheet',sheet)
+            }
+        })
+
         return outSheets;
     },
 
@@ -139,7 +146,10 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         }
                     });
                 });
-            } catch(e) { /* catch errors from cross-domain stylesheets */ }
+            } catch(e) {
+                console.error(e)
+                 /* catch errors from cross-domain stylesheets */
+            }
 
             return colors;
         }.call(this);
@@ -243,7 +253,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             }, parentElement );
             return;
         }
-        
+
         var mismatches = track._getMismatches(feat);
         var seq = feat.get('seq');
         var start = feat.get('start');
@@ -264,7 +274,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                     mismatchesAtCurrentPosition.push(mismatch);
                 }
             }
- 
+
             mismatchesAtCurrentPosition.sort(function(a,b) {
                 if(a.type == "insertion") return -1;
                 else if(a.type == "deletion") return 1;
