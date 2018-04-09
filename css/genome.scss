@@ -1,22 +1,39 @@
 
-.jbrowse {/* main application CSS styles */
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+/* base CSS environment, with dojo and some resetting */
+.jbrowse, .dijitDialog, .dijitMenu {
 
+    table, tbody, th, tr, td {
+        background: none;
+        color: inherit;
+    }
     tr, td, table {
-        margin:0;
-        border:0;
-        padding:0;
-        line-height:normal;
+        margin: 0;
+        border: 0;
+        padding: 0;
+        line-height: normal;
     }
     label {
         font-weight: inherit;
     }
 
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+
     @import "../node_modules/dijit/themes/tundra/tundra.css";
     @import "../node_modules/dgrid/css/dgrid.css";
     @import "dojobase";
+}
+
+.dijitDialog {
+    @import "dialog";
+    @import "export_dialog";
+    @import "file_dialog";
+}
+
+/* main application CSS styles */
+.jbrowse {
     @import "main";
+
     @import "track_styles";
     @import "sequence";
     @import "protein";
@@ -30,77 +47,7 @@
     @import "hierarchical_track_selector";
     @import "faceted_track_selector";
 
-
     /* CSS styles specifically for MAKER output */
     @import "maker";
 }
 
-.dijitDialog {
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
-    @import "../node_modules/dijit/themes/tundra/tundra.css";
-    @import "dojobase";
-
-
-    @import "dialog";
-    @import "export_dialog";
-    @import "main";
-
-    @import "file_dialog";
-}
-
-.dijitMenu {
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
-    @import "../node_modules/dijit/themes/tundra/tundra.css";
-    @import "dojobase";
-    @import "main";
-}
-
-.base {
-    color: black;
-    font-family: Courier New,monospace;
-    font-weight: bold;
-    text-shadow: white 0px 0px 1px;
-}
-
-/* colors for bases must be specified as hex or rgb/hsl strings, no named colors such as 'red' */
-.base_n {
-    background-color: #C6C6C6;
-}
-.base_a {
-    background-color: #00BF00;
-}
-.base_c {
-    background-color: #4747ff;
-}
-.base_t {
-    background-color: #f00;
-}
-.base_g {
-    background-color: #d5bb04;
-}
-.base_reference {
-    background-color: #bbb;
-}
-.base_deletion {
-    background-color: #999;
-}
-
-.sequence.nocolor .base {
-    background-color: #ddd;
-}
-
-/* added to document.body */
-.featureTooltip {
-    background: #FFFEF0;
-    border: 1px solid #aaa;
-    padding: 2px;
-    font-family: Courier New, monospace;
-    font-weight: bold;
-    cursor: default;
-
-    -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-    box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
-}

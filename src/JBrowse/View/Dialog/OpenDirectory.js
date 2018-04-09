@@ -62,11 +62,11 @@ return declare( ActionBarDialog,
     },
 
     show: function( callback ) {
-        dojo.addClass( this.domNode, 'fileDialog' );
+        dojo.addClass( this.domNode, 'jbrowse fileDialog' );
 
         var remoteURLsControl = this._makeRemoteURLsControl();
         var localFilesControl = this._makeLocalFileControl();
-        
+
         var div = function( attr, children ) {
             var d = dom.create('div', attr );
             array.forEach( children, dojo.hitch( d, 'appendChild' ));
@@ -107,7 +107,7 @@ return declare( ActionBarDialog,
             console.log(self.input.value);
             dojo.byId('data_dir_list').innerHTML = self.input.value;
             thisB.datadir = self.input.value;
-        }); 
+        });
         var checkFrequency = 900;
         var checkForChange = function() {
             // compare with all whitespace changed to commas so that

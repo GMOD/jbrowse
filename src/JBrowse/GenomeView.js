@@ -1373,7 +1373,7 @@ drawBasePairLabel: function ( args ){
         this.basePairLabels[name] = dojo.create( 'div', {
             className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
             style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
-        }, document.body );
+        }, this.browser.container);
     }
 
     var label = this.basePairLabels[name];
