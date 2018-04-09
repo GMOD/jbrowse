@@ -59,7 +59,6 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
 return declare( [Component,FeatureFiltererMixin], {
 
 constructor: function( args ) {
-    console.log(">>> view constructor");
     var browser = args.browser;
     var elem = args.elem;
     var stripeWidth = args.stripeWidth;
