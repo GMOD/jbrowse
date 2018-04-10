@@ -2,6 +2,9 @@
 /* base CSS environment, with dojo and some resetting */
 .jbrowse, .dijitDialog, .dijitMenu {
 
+    font-size: 12px;
+    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
+
     table, tbody, th, tr, td {
         background: none;
         color: inherit;
@@ -16,9 +19,6 @@
         font-weight: inherit;
     }
 
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
-
     @import "../node_modules/dijit/themes/tundra/tundra.css";
     @import "../node_modules/dgrid/css/dgrid.css";
     @import "dojobase";
@@ -26,6 +26,8 @@
 }
 
 .dijitDialog {
+    line-height: 17px;
+
     @import "dialog";
     @import "export_dialog";
     @import "file_dialog";
@@ -33,6 +35,8 @@
 
 /* main application CSS styles */
 .jbrowse {
+    line-height: 1;
+
     @import "main";
 
     @import "track_styles";
