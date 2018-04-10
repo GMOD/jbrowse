@@ -472,13 +472,12 @@ div.generic_parent-hist {
 .wiggleValueDisplay {
     border: 1px solid #aaa;
     padding: 2px;
-    background: #FFFEF0;
 
     -moz-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
     -webkit-box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
     box-shadow: 4px 4px 10px 2px rgba( 80, 80, 80, 0.3 );
 
-    * {
+    &,* {
         background: #FFFEF0;
         font-family: Courier New, monospace;
         font-weight: bold;
