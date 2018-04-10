@@ -357,9 +357,10 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     parseAutoSql: function(string) {
+        string = string.trim();
         var res = string.split('\n');
         this.autoSql = {
-            name: /table (\w+)/.exec(res[0])[1],
+            name: /table\s+(\w+)/.exec(res[0])[1],
             description: /"(.*)"/.exec(res[1])[1],
             fields: []
         };
