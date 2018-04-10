@@ -552,6 +552,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 this.scoreDisplay.flag.style.top  = cPos.y+'px';
                 this.scoreDisplay.pole.style.left = evt.clientX+'px';
                 this.scoreDisplay.pole.style.height = cPos.h+'px';
+                this.scoreDisplay.pole.style.top  = cPos.y+'px';
             }
         }
     },
