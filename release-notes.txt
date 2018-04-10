@@ -43,6 +43,8 @@
    would tell JBrowse to look for its configuration and assets at the relative base URL
    "../jbrowse". @rbuels
 
+ * JBrowse now has a favicon! (issue #973, @rbuels)
+
 ## Bug fixes
 
  * Fix a bug in which saving exported data to a file was nonfunctional for some export
