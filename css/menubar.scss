@@ -2,13 +2,23 @@
 div.menuBar {
     padding: 1px 0;
     height: 25px;
-}
-.menuBar {
+
     background: #396494;
     text-align: right;
-}
-.menuBar a {
-    color: white;
+
+    line-height: 1;
+
+    a {
+        color: white;
+    }
+
+    .dataset-name {
+        font-size: 110%;
+        color: white;
+        font-style: italic;
+        padding-right: 1em;
+        padding-top: 3px;
+    }
 }
 div.topLink {
     position: absolute;

@@ -9,6 +9,9 @@
 
 ## Minor improvements
 
+ * The current dataset name is now displayed in the top right portion of the menu bar.
+   (issue #767, @rbuels)
+
  * `prepare-refseqs.pl` now accepts a `--gff-sizes` option to allow defining reference
    sequence sizes from the `##sequence-region` directives in a GFF3 file. @rbuels
 

@@ -935,6 +935,18 @@ initView: function() {
                                   );
 
             this.renderGlobalMenu( 'help', {}, menuBar );
+
+            if (!this.config.classicMenu) {
+                let datasetName = lang.getObject(`config.datasets.${this.config.dataset_id}.name`, false, this)
+                this.menuBarDatasetName = dojo.create('div', {
+                    className: 'dataset-name',
+                    innerHTML: datasetName,
+                    title: 'name of current dataset',
+                    style: {
+                        display: datasetName ? 'inline-block' : 'none'
+                    }
+                }, menuBar );
+            }
         }
 
         if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview && !Util.isElectron() ) {
