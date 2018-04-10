@@ -1,6 +1,28 @@
+.dijitDialogCloseIcon {
+    height: 25px;
+    width:  25px;
+    top:    0px;
+    right:  0px;
+    background: url("../img/commonIconsEnabled.png") no-repeat -73px 6px;
+
+    border-left: 1px inset #fcfcfc;
+}
+.dijitDialogCloseIcon:hover {
+    background-position: -93px 6px;
+    border-left-color: #ccc;
+}
+.dijitDialogCloseIcon:focus {
+    outline: none;
+}
+
+.dijitDialogPaneActionBar {
+    text-align: center;
+    clear: both;
+    padding-top: 1em;
+}
+
 .dijitDialogPaneContent {
     border-top: 1px solid #acacac;
-    font-family: sans-serif;
 }
 .dijitDialogTitleBar {
     padding-right: 25px;
@@ -174,7 +196,6 @@ a.dialog-new-window {
 .detail .value {
     display: inline-block;
     vertical-align: top;
-    font-family: sans-serif;
     padding: 0 0.7em;
     line-height: 1.8;
 }
