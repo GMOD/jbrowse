@@ -3,11 +3,11 @@ div.menuBar {
     padding: 1px 0;
     height: 25px;
 }
-.tundra .menuBar {
+.menuBar {
     background: #396494;
     text-align: right;
 }
-.tundra .menuBar a {
+.menuBar a {
     color: white;
 }
 div.topLink {
@@ -54,19 +54,19 @@ a.topLink, a.topLink * {
     outline: none;
     vertical-align: top;
 }
-.tundra .menuBar .dijitButtonNode {
+.menuBar .dijitButtonNode {
     background: transparent;
 }
 
-.tundra .menuBar .dijitButtonNode {
+.menuBar .dijitButtonNode {
     border: 2px outset rgba( 120, 120, 120, 0.2 );
 }
-.tundra .menuBar .dijitButtonHover .dijitButtonNode,
-.tundra .menuBar .dijitDropDownButtonHover .dijitButtonNode {
+.menuBar .dijitButtonHover .dijitButtonNode,
+.menuBar .dijitDropDownButtonHover .dijitButtonNode {
     background: rgba( 255, 255, 255, 0.07 );
 }
-.tundra .menuBar .dijitButtonActive .dijitButtonNode,
-.tundra .menuBar .dijitDropDownButtonActive .dijitButtonNode {
+.menuBar .dijitButtonActive .dijitButtonNode,
+.menuBar .dijitDropDownButtonActive .dijitButtonNode {
     border: 2px inset rgba( 120, 120, 120, 0.2 );
 }
 
@@ -117,28 +117,28 @@ a.topLink, a.topLink * {
     background: url("../img/spriteArrows.png") no-repeat scroll -56px center;
 }
 
-.tundra .globalMenu .dijitMenuItem td {
+.globalMenu .dijitMenuItem td {
     padding: 0.5em 2px 0.5em 5px;
 }
 
-.tundra .menuBar > .menu .dijitButtonNode {
+.menuBar > .menu .dijitButtonNode {
     border: none;
 }
-.tundra .menuBar > .menu.dijitDropDownButton,
-.tundra .menuBar > .menu.dijitDropDownButton * {
+.menuBar > .menu.dijitDropDownButton,
+.menuBar > .menu.dijitDropDownButton * {
     margin: 0;
     padding: 0;
     line-height: 25px;
 }
-.tundra .menuBar > .menu.dijitDropDownButton .dijitButtonNode {
+.menuBar > .menu.dijitDropDownButton .dijitButtonNode {
     padding: 0 1em 0 0.7em;
     text-align: left;
 }
 
-.tundra .menuBar > .menu .dijitDropDownButtonHover .dijitButtonNode {
+.menuBar > .menu .dijitDropDownButtonHover .dijitButtonNode {
     background: rgba( 255, 255, 255, 0.07 );
 }
-.tundra .menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
+.menuBar > .menu .dijitDropDownButtonActive .dijitButtonNode {
     border: none;
 }
 

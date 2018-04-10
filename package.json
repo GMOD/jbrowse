@@ -7,7 +7,7 @@
   "scripts": {
     "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
     "start": "utils/jb_run.js -p 8082",
-    "watch": "watch --wait=15 'npm run build' src/JBrowse plugins tests/js_tests",
+    "watch": "watch --wait=15 'npm run build' src/JBrowse plugins tests/js_tests css",
     "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "hint": "npm run lint",
     "lint": "eslint src/JBrowse test/js_tests"

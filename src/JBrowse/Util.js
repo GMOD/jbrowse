@@ -1,3 +1,5 @@
+const url = cjsRequire('url')
+
 /**
  * Miscellaneous utility functions.
  */
@@ -217,33 +219,8 @@ Util = {
         return d;
     },
 
-    // from http://bugs.dojotoolkit.org/ticket/5794
     resolveUrl: function(baseUrl, relativeUrl) {
-        // summary:
-        // This takes a base url and a relative url and resolves the target url.
-        // For example:
-        // resolveUrl("http://www.domain.com/path1/path2","../path3") ->"http://www.domain.com/path1/path3"
-        //
-
-        //Handle a filepath on the system
-        if ( this.isElectron() && relativeUrl[0]=="/" ) return relativeUrl;
-        if ( relativeUrl.match(/\w+:\/\//) )
-            return relativeUrl;
-        if ( relativeUrl.charAt(0)=='/' ) {
-            baseUrl = baseUrl.match(/.*\/\/[^\/]*/);
-            return (baseUrl ? baseUrl[0] : '') + relativeUrl;
-        }
-        // remove the query string from the base, if any
-        baseUrl = baseUrl.replace(/\?.*$/,'');
-        //TODO: handle protocol relative urls:  ://www.domain.com
-        baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*$/)[0].length);// clean off the trailing path
-        if (relativeUrl == '.')
-            return baseUrl;
-        while (baseUrl && relativeUrl.substring(0,3) == '../') {
-            baseUrl = baseUrl.substring(0,baseUrl.length - baseUrl.match(/[^\/]*\/$/)[0].length);
-            relativeUrl = relativeUrl.substring(3);
-        }
-        return baseUrl + relativeUrl;
+        return url.resolve(baseUrl, relativeUrl)
     },
 
     loadJS: function( paths ) {

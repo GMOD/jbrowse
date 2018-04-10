@@ -5,7 +5,7 @@ require([
     'JBrowse/QueryParamConfigMapper',
     'dojo/io-query',
     'dojo/json',
-    'css!../../css/genome.css',
+    'css!../../css/genome.scss',
 
     // instruct build/glob-loader.js to insert includes for every bit of JBrowse and plugin code
     //!! glob-loader, please include every JBrowse and plugin module here
@@ -63,38 +63,52 @@ function (
         updateBrowserURL: true
     };
 
-    //if there is ?addFeatures in the query params,
-    //define a store for data from the URL
-    if( queryParams.addFeatures ) {
-        config.stores.url.features = JSON.parse( queryParams.addFeatures );
-    }
+    window.addEventListener('load', () => {
+        // see if we can load some configuration from the data-config attribute of our container
+        try {
+            let elementConfig = document.getElementById(config.containerID).getAttribute('data-config')
+            if (elementConfig) {
+                if (!/^\s*{/.test(elementConfig)) elementConfig = `{${elementConfig}}`
+                elementConfig = JSON.parse(elementConfig)
+                config = Object.assign({},config,elementConfig)
+            }
+        } catch(e) {
+            console.error(e)
+        }
 
-    // if there is ?addTracks in the query params, add
-    // those track configurations to our initial
-    // configuration
-    if( queryParams.addTracks ) {
-        config.tracks = JSON.parse( queryParams.addTracks );
-    }
+        //if there is ?addFeatures in the query params,
+        //define a store for data from the URL
+        if( queryParams.addFeatures ) {
+            config.stores.url.features = JSON.parse( queryParams.addFeatures );
+        }
 
-    // if there is ?addBookmarks, add those to configuration
-    if( queryParams.addBookmarks ) {
-        config.bookmarks.features = JSON.parse( queryParams.addBookmarks );
-    }
+        // if there is ?addTracks in the query params, add
+        // those track configurations to our initial
+        // configuration
+        if( queryParams.addTracks ) {
+            config.tracks = JSON.parse( queryParams.addTracks );
+        }
 
-    // if there is ?addStores in the query params, add
-    // those store configurations to our initial
-    // configuration
-    if( queryParams.addStores ) {
-        config.stores = JSON.parse( queryParams.addStores );
-    }
+        // if there is ?addBookmarks, add those to configuration
+        if( queryParams.addBookmarks ) {
+            config.bookmarks.features = JSON.parse( queryParams.addBookmarks );
+        }
 
-    // this handles dot notation versions of addTracks, addBookmarks, and addStores
-    // see config doc for details
-    QueryParamConfigMapper().handleQueryParams(config,queryParams);
+        // if there is ?addStores in the query params, add
+        // those store configurations to our initial
+        // configuration
+        if( queryParams.addStores ) {
+            config.stores = JSON.parse( queryParams.addStores );
+        }
 
-    // create a JBrowse global variable holding the JBrowse instance
-    window.JBrowse = new Browser( config );
+        // this handles dot notation versions of addTracks, addBookmarks, and addStores
+        // see config doc for details
+        QueryParamConfigMapper().handleQueryParams(config,queryParams);
 
-    window.JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('LoadingScreen')); });
+        // create a JBrowse global variable holding the JBrowse instance
+        window.JBrowse = new Browser( config );
+
+        window.JBrowse.afterMilestone('loadRefSeqs', function() { dojo.destroy(dojo.byId('LoadingScreen')); });
+    })
 });
 

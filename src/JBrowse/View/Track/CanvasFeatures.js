@@ -759,7 +759,7 @@ return declare(
                     display: 'none',
                     zIndex: 19
                 }
-            }, document.body );
+            }, this.browser.container );
         domConstruct.create(
             'span', {
                 className: 'tooltipLabel',

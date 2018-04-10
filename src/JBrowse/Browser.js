@@ -188,6 +188,9 @@ constructor: function(params) {
                            thisB.refSeq = thisB.allRefs[initialLoc.ref];
                        }
 
+                       // before we init the view, make sure that our container has nonzero height and width
+                       thisB.ensureNonzeroContainerDimensions()
+
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
                            if( initialLocString )
@@ -349,7 +352,9 @@ initPlugins: function() {
                                  // load its css
                                  var cssLoaded;
                                  if (plugin.css) {
-                                    cssLoaded = this._loadCSS({ url: plugin.css+'/main.css' })
+                                    cssLoaded = this._loadCSS({
+                                        url: this.resolveUrl(plugin.css + '/main.css')
+                                    })
                                  } else {
                                     cssLoaded = new Deferred()
                                     cssLoaded.resolve()
@@ -375,9 +380,7 @@ initPlugins: function() {
  * Resolve a URL relative to the browserRoot.
  */
 resolveUrl: function( url ) {
-    var browserRoot = this.config.browserRoot || "";
-    if( browserRoot && browserRoot.charAt( browserRoot.length - 1 ) != '/' )
-        browserRoot += '/';
+    var browserRoot = this.config.browserRoot || this.config.baseUrl || "";
 
     return Util.resolveUrl( browserRoot, url );
 },
@@ -409,13 +412,30 @@ welcomeScreen: function( container, error ) {
 
 
 
-        request( 'sample_data/json/volvox/successfully_run' ).then( function() {
+        request(this.resolveUrl('sample_data/json/volvox/successfully_run')).then( function() {
             try {
                 document.getElementById('volvox_data_placeholder')
                    .innerHTML = 'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
             } catch(e) {}
         });
     });
+},
+
+/**
+ * Make sure the browser container has nonzero container dimensions.  If not,
+ * set some hardcoded dimensions and log a warning.
+ */
+ensureNonzeroContainerDimensions() {
+    const containerWidth = this.container.offsetWidth
+    const containerHeight = this.container.offsetHeight
+    if (!containerWidth) {
+        console.warn(`JBrowse container element #${this.config.containerID} has no width, please set one with CSS. Setting fallback width of 640 pixels`)
+        this.container.style.width = '640px'
+    }
+    if (!containerHeight) {
+        console.warn(`JBrowse container element #${this.config.containerID} has no height, please set one with CSS. Setting fallback height of 480 pixels`)
+        this.container.style.height = '480px'
+    }
 },
 
 /**
@@ -533,7 +553,7 @@ loadRefSeqs: function() {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            request(this.config.refSeqs.url, {
+            request(this.resolveUrl(this.config.refSeqs.url), {
                 handleAs: 'text',
                 headers: {
                     'X-Requested-With': null
@@ -2700,13 +2720,6 @@ makeShareLink: function () {
                 previewLink.href = shareURL;
 
                 sharePane.show();
-
-                var lp = dojo.position( button.domNode );
-                dojo.style( sharePane.domNode, {
-                               top: (lp.y+lp.h) + 'px',
-                               right: 0,
-                               left: ''
-                            });
                 URLinput.focus();
                 URLinput.select();
                 copyReminder.style.display = 'block';
