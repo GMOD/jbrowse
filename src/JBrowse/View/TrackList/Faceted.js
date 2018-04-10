@@ -236,7 +236,7 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
         dojo.query('div.topLink a[title="Track selector help"]',this.topPane.domNode)
             .forEach(function(helplink){
                 var helpdialog = new dijit.Dialog({
-                    "class": 'help_dialog',
+                    "class": 'jbrowse help_dialog',
                     refocus: false,
                     draggable: false,
                     title: 'Track Selection',
