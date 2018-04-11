@@ -96,10 +96,10 @@ require([
             waitsFor( function() { return features.done; } );
             runs( function() {
                 expect( features.length ).toEqual( 14 );
-                expect(features[0].get('geneSymbol')).toEqual('PRPS1L1');
+                expect(features[0].get('geneSymbol').values).toEqual('PRPS1L1');
                 expect(features[0].get('name')).toEqual('uc003stz.1');
                 expect(features[0].get('strand')).toEqual(-1);
-                expect(features[13].get('geneSymbol')).toEqual('HDAC9');
+                expect(features[13].get('geneSymbol').values).toEqual('HDAC9');
                 expect(features[13].get('name')).toEqual('uc003suk.1');
                 expect(features[13].get('strand')).toEqual(1);
             });
