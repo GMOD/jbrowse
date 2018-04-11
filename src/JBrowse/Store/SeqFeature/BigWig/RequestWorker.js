@@ -287,7 +287,16 @@ var RequestWorker = declare( null,
             if(auto) {
                 for(var i = 0; i < auto.fields.length-3; i++) {
                     if(bedColumns[i] != '.') {
-                        featureOpts[auto.fields[i+3].name] = bedColumns[i];
+                        let autoField = auto.fields[i+3]
+                        if (autoField.description) {
+                            featureOpts[autoField.name] = {
+                                meta: autoField,
+                                values: bedColumns[i]
+                            }
+                        }
+                        else {
+                            featureOpts[autoField.name] = bedColumns[i]
+                        }
                     }
                 }
             }
