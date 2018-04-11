@@ -987,7 +987,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         type = type.replace(/Dialog/,'');
         var featureName = context.feature && (context.feature.get('name')||context.feature.get('id'));
         var dialogOpts = {
-            "class": "jbrowse popup-dialog popup-dialog-"+type,
+            "class": "popup-dialog popup-dialog-"+type,
             title: spec.title || spec.label || ( featureName ? featureName +' details' : "Details"),
             style: dojo.clone( spec.style || {} )
         };
