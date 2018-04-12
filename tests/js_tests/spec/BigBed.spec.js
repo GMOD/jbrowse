@@ -1,3 +1,5 @@
+const expectedFeatureData = cjsRequire('../../data/human_bigbed/ENST00000610940.4.json')
+
 require([
             'dojo/_base/array',
             'JBrowse/Browser',
@@ -106,33 +108,47 @@ require([
         });
     });
 
-    describe( 'BigBed GENCODE bed12+4 and autosql with groupfeatures', function() {
+    describe( 'BigBed GENCODE bed12+4 and autosql', function() {
         var browser = new Browser({ unitTestMode: true });
         var b = new BigBed({
             browser: browser,
-            groupFeatures: true,
             blob: new XHRBlob('../data/human_bigbed/gencode.bb')
         });
 
         it('constructs', function(){ expect(b).toBeTruthy(); });
 
-        it('accesses gencode bigbed', function(){
-            var features = [];
+        it('accesses gencode bigbed', () => {
+            const features = [];
             b.getFeatures(
                 { ref: 'chr1', start: 18000000, end: 19000000 },
-                function(f) { features.push(f); },
-                function() { features.done = true },
-                function(e) { console.error(e.stack||''+e); }
+                f => features.push(f),
+                () => { features.done = true },
+                e => { console.error(e.stack||''+e); }
             );
 
-            waitsFor( function() { return features.done; } );
-            runs( function() {
-                expect( features.length ).toEqual( 51 );
-                expect(features[0].get('name')).toEqual('MICAL3');
-                expect(features[0].get('type')).toEqual('gene');
-                expect(features[0].children().length).toEqual(3);
+            waitsFor( () => features.done );
+            runs( () => {
+                expect( features.length ).toEqual( 114 )
+                let featureData = JSON.parse(JSON.stringify(features[88], undefined, 2))
+                deleteUniqueIDSerial(featureData)
+                deleteUniqueIDSerial(expectedFeatureData)
+                expect(featureData).toEqual(expectedFeatureData)
             });
         });
     });
 
 });
+
+// recursively delete the unique serial numbers in all the _uniqueID properties of an
+// object containing feature data
+function deleteUniqueIDSerial(featureData) {
+    Object.entries(featureData).forEach(([name,val]) => {
+        if (name === '_uniqueID') {
+            featureData[name] = val.replace(/_\d+$/,'_(serial redacted)')
+        } else if (Array.isArray(val)) {
+            val.forEach(v => deleteUniqueIDSerial(v))
+        } else if (typeof val === 'object') {
+            deleteUniqueIDSerial(val)
+        }
+    })
+}

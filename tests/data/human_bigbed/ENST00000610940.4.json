@@ -1,0 +1,285 @@
+{
+  "data": {
+    "start": 18912776,
+    "end": 18936553,
+    "name": "ENST00000610940.4",
+    "score": 1000,
+    "strand": -1,
+    "geneId": {
+      "meta": {
+        "type": "string",
+        "name": "geneId",
+        "description": "Gene ID"
+      },
+      "values": "ENSG00000100033.16"
+    },
+    "geneName": {
+      "meta": {
+        "type": "string",
+        "name": "geneName",
+        "description": "Gene name"
+      },
+      "values": "PRODH"
+    },
+    "method": {
+      "meta": {
+        "type": "string",
+        "name": "method",
+        "description": "Transcript type"
+      },
+      "values": "protein_coding"
+    },
+    "geneBioType": {
+      "meta": {
+        "type": "string",
+        "name": "geneBioType",
+        "description": "Gene Biotype"
+      },
+      "values": "protein_coding"
+    },
+    "tags": {
+      "meta": {
+        "type": "string",
+        "name": "tags",
+        "description": "Transcript attributes"
+      },
+      "values": "basic,appris_principal_3,CCDS"
+    },
+    "type": "mRNA",
+    "subfeatures": [
+      {
+        "data": {
+          "start": 18912776,
+          "end": 18913362,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_616"
+      },
+      {
+        "data": {
+          "start": 18913177,
+          "end": 18913362,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_617"
+      },
+      {
+        "data": {
+          "start": 18913437,
+          "end": 18913526,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_618"
+      },
+      {
+        "data": {
+          "start": 18913437,
+          "end": 18913526,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_619"
+      },
+      {
+        "data": {
+          "start": 18916889,
+          "end": 18916988,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_620"
+      },
+      {
+        "data": {
+          "start": 18916889,
+          "end": 18916988,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_621"
+      },
+      {
+        "data": {
+          "start": 18918315,
+          "end": 18918491,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_622"
+      },
+      {
+        "data": {
+          "start": 18918315,
+          "end": 18918491,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_623"
+      },
+      {
+        "data": {
+          "start": 18919450,
+          "end": 18919597,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_624"
+      },
+      {
+        "data": {
+          "start": 18919450,
+          "end": 18919597,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_625"
+      },
+      {
+        "data": {
+          "start": 18919705,
+          "end": 18919798,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_626"
+      },
+      {
+        "data": {
+          "start": 18919705,
+          "end": 18919798,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_627"
+      },
+      {
+        "data": {
+          "start": 18921341,
+          "end": 18921423,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_628"
+      },
+      {
+        "data": {
+          "start": 18921341,
+          "end": 18921423,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_629"
+      },
+      {
+        "data": {
+          "start": 18922324,
+          "end": 18922404,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_630"
+      },
+      {
+        "data": {
+          "start": 18922324,
+          "end": 18922404,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_631"
+      },
+      {
+        "data": {
+          "start": 18922816,
+          "end": 18922933,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_632"
+      },
+      {
+        "data": {
+          "start": 18922816,
+          "end": 18922933,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_633"
+      },
+      {
+        "data": {
+          "start": 18923114,
+          "end": 18923179,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_634"
+      },
+      {
+        "data": {
+          "start": 18923114,
+          "end": 18923179,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_635"
+      },
+      {
+        "data": {
+          "start": 18925050,
+          "end": 18925200,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_636"
+      },
+      {
+        "data": {
+          "start": 18925050,
+          "end": 18925200,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_637"
+      },
+      {
+        "data": {
+          "start": 18925687,
+          "end": 18925722,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_638"
+      },
+      {
+        "data": {
+          "start": 18925687,
+          "end": 18925722,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_639"
+      },
+      {
+        "data": {
+          "start": 18930989,
+          "end": 18931198,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_640"
+      },
+      {
+        "data": {
+          "start": 18930989,
+          "end": 18931198,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_641"
+      },
+      {
+        "data": {
+          "start": 18936014,
+          "end": 18936327,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_642"
+      },
+      {
+        "data": {
+          "start": 18936014,
+          "end": 18936287,
+          "type": "CDS"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_643"
+      },
+      {
+        "data": {
+          "start": 18936389,
+          "end": 18936553,
+          "type": "exon"
+        },
+        "_uniqueID": "ENST00000610940.4_0_18912776_18936553_644"
+      }
+    ]
+  },
+  "_uniqueID": "ENST00000610940.4_0_18912776_18936553"
+}
