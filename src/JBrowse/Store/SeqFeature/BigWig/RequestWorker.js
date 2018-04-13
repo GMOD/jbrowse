@@ -368,9 +368,7 @@ var RequestWorker = declare( null,
         // include ucsc-style names as well as jbrowse-style names
         const featureData = {
             start: start,
-            chromStart: start,
             end: end,
-            chromEnd: end,
             subfeatures: []
         }
 
