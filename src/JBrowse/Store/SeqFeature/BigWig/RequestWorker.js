@@ -1,3 +1,5 @@
+const snakeCase = cjsRequire('snake-case')
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
@@ -387,7 +389,7 @@ var RequestWorker = declare( null,
                     columnVal = isNaN(num) ? columnVal : num
                 }
 
-                featureData[autoField.name] = columnVal
+                featureData[snakeCase(autoField.name)] = columnVal
             }
         }
 
@@ -395,7 +397,10 @@ var RequestWorker = declare( null,
             featureData.strand = {'-': -1, '+': 1}[featureData.strand]
         }
 
-        const {blockCount, blockSizes, blockStarts, chromStarts, thickStart, thickEnd} = featureData
+        const blockCount = featureData.block_count
+        const blockSizes = featureData.block_sizes
+        const blockStarts = featureData.block_starts
+        const chromStarts = featureData.chrom_starts
 
         if (blockCount) {
             const starts = (chromStarts || blockStarts || '').split(',')
@@ -411,10 +416,6 @@ var RequestWorker = declare( null,
                     type: 'block'
                 })
             }
-        }
-
-        if (thickStart && thickEnd) {
-            featureData.subfeatures.push({start: thickStart, end: thickEnd, type: 'thick' })
         }
 
         return featureData

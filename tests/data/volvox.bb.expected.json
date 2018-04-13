@@ -1,246 +1,206 @@
 [
-  {
-    "data": {
-      "start": 1049,
-      "end": 9000,
-      "chromStart": 1049,
-      "chromEnd": 9000,
-      "subfeatures": [
-        {
-          "data": {
-            "start": 1049,
-            "end": 1500,
-            "type": "block"
+    {
+      "data": {
+        "start": 1049,
+        "end": 9000,
+        "subfeatures": [
+          {
+            "data": {
+              "start": 1049,
+              "end": 1500,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_1"
           },
-          "_uniqueID": "1049_9000_1000_1"
-        },
-        {
-          "data": {
-            "start": 2999,
-            "end": 3902,
-            "type": "block"
+          {
+            "data": {
+              "start": 2999,
+              "end": 3902,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_2"
           },
-          "_uniqueID": "1049_9000_1000_2"
-        },
-        {
-          "data": {
-            "start": 4999,
-            "end": 5500,
-            "type": "block"
+          {
+            "data": {
+              "start": 4999,
+              "end": 5500,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_3"
           },
-          "_uniqueID": "1049_9000_1000_3"
-        },
-        {
-          "data": {
-            "start": 6999,
-            "end": 9000,
-            "type": "block"
-          },
-          "_uniqueID": "1049_9000_1000_4"
-        },
-        {
-          "data": {
-            "start": 1200,
-            "end": 7608,
-            "type": "thick"
-          },
-          "_uniqueID": "1049_9000_1000_5"
-        }
-      ],
-      "name": "EDEN.1",
-      "score": 1000,
-      "strand": 1,
-      "thickStart": 1200,
-      "thickEnd": 7608,
-      "reserved": null,
-      "blockCount": 4,
-      "blockSizes": "451,903,501,2001",
-      "chromStarts": "0,1950,3950,5950",
-      "geneId": "EDEN",
-      "geneName": "EDEN",
-      "method": "-",
-      "geneBioType": "-",
-      "tags": "-"
+          {
+            "data": {
+              "start": 6999,
+              "end": 9000,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_4"
+          }
+        ],
+        "name": "EDEN.1",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 1200,
+        "thick_end": 7608,
+        "reserved": "0,0,0",
+        "block_count": 4,
+        "block_sizes": "451,903,501,2001",
+        "chrom_starts": "0,1950,3950,5950",
+        "gene_id": "EDEN",
+        "gene_name": "EDEN",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "1049_9000_1000"
     },
-    "_uniqueID": "1049_9000_1000"
-  },
-  {
-    "data": {
-      "start": 1049,
-      "end": 9000,
-      "chromStart": 1049,
-      "chromEnd": 9000,
-      "subfeatures": [
-        {
-          "data": {
-            "start": 1049,
-            "end": 1500,
-            "type": "block"
+    {
+      "data": {
+        "start": 1049,
+        "end": 9000,
+        "subfeatures": [
+          {
+            "data": {
+              "start": 1049,
+              "end": 1500,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_5"
           },
-          "_uniqueID": "1049_9000_1000_6"
-        },
-        {
-          "data": {
-            "start": 4999,
-            "end": 5500,
-            "type": "block"
+          {
+            "data": {
+              "start": 4999,
+              "end": 5500,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_6"
           },
-          "_uniqueID": "1049_9000_1000_7"
-        },
-        {
-          "data": {
-            "start": 6999,
-            "end": 9000,
-            "type": "block"
-          },
-          "_uniqueID": "1049_9000_1000_8"
-        },
-        {
-          "data": {
-            "start": 1200,
-            "end": 7608,
-            "type": "thick"
-          },
-          "_uniqueID": "1049_9000_1000_9"
-        }
-      ],
-      "name": "EDEN.2",
-      "score": 1000,
-      "strand": 1,
-      "thickStart": 1200,
-      "thickEnd": 7608,
-      "reserved": null,
-      "blockCount": 3,
-      "blockSizes": "451,501,2001",
-      "chromStarts": "0,3950,5950",
-      "geneId": "EDEN",
-      "geneName": "EDEN",
-      "method": "-",
-      "geneBioType": "-",
-      "tags": "-"
+          {
+            "data": {
+              "start": 6999,
+              "end": 9000,
+              "type": "block"
+            },
+            "_uniqueID": "1049_9000_1000_7"
+          }
+        ],
+        "name": "EDEN.2",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 1200,
+        "thick_end": 7608,
+        "reserved": "0,0,0",
+        "block_count": 3,
+        "block_sizes": "451,501,2001",
+        "chrom_starts": "0,3950,5950",
+        "gene_id": "EDEN",
+        "gene_name": "EDEN",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "1049_9000_1000"
     },
-    "_uniqueID": "1049_9000_1000"
-  },
-  {
-    "data": {
-      "start": 1299,
-      "end": 9000,
-      "chromStart": 1299,
-      "chromEnd": 9000,
-      "subfeatures": [
-        {
-          "data": {
-            "start": 1299,
-            "end": 1500,
-            "type": "block"
+    {
+      "data": {
+        "start": 1299,
+        "end": 9000,
+        "subfeatures": [
+          {
+            "data": {
+              "start": 1299,
+              "end": 1500,
+              "type": "block"
+            },
+            "_uniqueID": "1299_9000_1000_8"
           },
-          "_uniqueID": "1299_9000_1000_10"
-        },
-        {
-          "data": {
-            "start": 2999,
-            "end": 3902,
-            "type": "block"
+          {
+            "data": {
+              "start": 2999,
+              "end": 3902,
+              "type": "block"
+            },
+            "_uniqueID": "1299_9000_1000_9"
           },
-          "_uniqueID": "1299_9000_1000_11"
-        },
-        {
-          "data": {
-            "start": 4999,
-            "end": 5500,
-            "type": "block"
+          {
+            "data": {
+              "start": 4999,
+              "end": 5500,
+              "type": "block"
+            },
+            "_uniqueID": "1299_9000_1000_10"
           },
-          "_uniqueID": "1299_9000_1000_12"
-        },
-        {
-          "data": {
-            "start": 6999,
-            "end": 9000,
-            "type": "block"
-          },
-          "_uniqueID": "1299_9000_1000_13"
-        },
-        {
-          "data": {
-            "start": 3300,
-            "end": 7600,
-            "type": "thick"
-          },
-          "_uniqueID": "1299_9000_1000_14"
-        }
-      ],
-      "name": "EDEN.3",
-      "score": 1000,
-      "strand": 1,
-      "thickStart": 3300,
-      "thickEnd": 7600,
-      "reserved": null,
-      "blockCount": 4,
-      "blockSizes": "201,903,501,2001",
-      "chromStarts": "0,1700,3700,5700",
-      "geneId": "EDEN",
-      "geneName": "EDEN",
-      "method": "-",
-      "geneBioType": "-",
-      "tags": "-"
+          {
+            "data": {
+              "start": 6999,
+              "end": 9000,
+              "type": "block"
+            },
+            "_uniqueID": "1299_9000_1000_11"
+          }
+        ],
+        "name": "EDEN.3",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 3300,
+        "thick_end": 7600,
+        "reserved": "0,0,0",
+        "block_count": 4,
+        "block_sizes": "201,903,501,2001",
+        "chrom_starts": "0,1700,3700,5700",
+        "gene_id": "EDEN",
+        "gene_name": "EDEN",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "1299_9000_1000"
     },
-    "_uniqueID": "1299_9000_1000"
-  },
-  {
-    "data": {
-      "start": 17399,
-      "end": 23000,
-      "chromStart": 17399,
-      "chromEnd": 23000,
-      "subfeatures": [
-        {
-          "data": {
-            "start": 17399,
-            "end": 18800,
-            "type": "block"
+    {
+      "data": {
+        "start": 17399,
+        "end": 23000,
+        "subfeatures": [
+          {
+            "data": {
+              "start": 17399,
+              "end": 18800,
+              "type": "block"
+            },
+            "_uniqueID": "17399_23000_1000_12"
           },
-          "_uniqueID": "17399_23000_1000_15"
-        },
-        {
-          "data": {
-            "start": 18999,
-            "end": 19500,
-            "type": "block"
+          {
+            "data": {
+              "start": 18999,
+              "end": 19500,
+              "type": "block"
+            },
+            "_uniqueID": "17399_23000_1000_13"
           },
-          "_uniqueID": "17399_23000_1000_16"
-        },
-        {
-          "data": {
-            "start": 20999,
-            "end": 23000,
-            "type": "block"
-          },
-          "_uniqueID": "17399_23000_1000_17"
-        },
-        {
-          "data": {
-            "start": 17999,
-            "end": 21200,
-            "type": "thick"
-          },
-          "_uniqueID": "17399_23000_1000_18"
-        }
-      ],
-      "name": "rna-Apple3",
-      "score": 1000,
-      "strand": 1,
-      "thickStart": 17999,
-      "thickEnd": 21200,
-      "reserved": null,
-      "blockCount": 3,
-      "blockSizes": "1401,501,2001",
-      "chromStarts": "0,1600,3600",
-      "geneId": "rna-Apple3",
-      "geneName": "rna-Apple3",
-      "method": "-",
-      "geneBioType": "-",
-      "tags": "-"
-    },
-    "_uniqueID": "17399_23000_1000"
-  }
-]
+          {
+            "data": {
+              "start": 20999,
+              "end": 23000,
+              "type": "block"
+            },
+            "_uniqueID": "17399_23000_1000_14"
+          }
+        ],
+        "name": "rna-Apple3",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 17999,
+        "thick_end": 21200,
+        "reserved": "0,0,0",
+        "block_count": 3,
+        "block_sizes": "1401,501,2001",
+        "chrom_starts": "0,1600,3600",
+        "gene_id": "rna-Apple3",
+        "gene_name": "rna-Apple3",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "17399_23000_1000"
+    }
+  ]
