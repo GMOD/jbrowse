@@ -379,8 +379,13 @@ var RequestWorker = declare( null,
             if (bedColumns[i] !== '.' && bedColumns[i] !== '') {
                 const autoField = asql.fields[i]
                 let columnVal = bedColumns[i-3]
-                if (['uint', 'int', 'float', 'long'].includes(autoField.type))
-                    columnVal = Number(columnVal)
+                if (['uint', 'int', 'float', 'long'].includes(autoField.type)) {
+                    let num = Number(columnVal)
+                    // if the number parse results in NaN, somebody probably
+                    // listed the type erroneously as numeric, so don't use
+                    // the parsed number
+                    columnVal = isNaN(num) ? columnVal : num
+                }
 
                 featureData[autoField.name] = columnVal
             }
