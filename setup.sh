@@ -84,23 +84,23 @@ if [ $? -eq 0 ]; then
     have_db=`perl -MConfig=myconfig -e 'print myconfig' | grep -- -ldb`
     if [[ $product_version =~ ^10.13 && x$have_db = 'x' ]]; then
         SUPPRESS_BIODB_TO_JSON=1;
-        echo;
-        echo ===============================================================
-        echo "** MacOS High Sierra with broken system Perl detected. **";
-        echo "biodb-to-json.pl does not work on MacOS High Sierra with the stock system Perl.";
-        echo "The setup will not run biodb-to-json.pl for its sample data: Volvox and Yeast.";
-        echo "To re-enable formatting on your High Sierra machine, install a Perl with a working BerkeleyDB."
-        echo;
-        echo "If you use Homebrew, an easy way to install a working Perl would be:"
-        echo;
-        echo "    brew install berkeley-db; brew install --build-from-source perl"
-        echo;
-        echo "Then delete the external perl libraries and run setup.sh again:"
-        echo;
-        echo "    rm -rf extlibs/; ./setup.sh"
-        echo;
-        echo ===============================================================
-        echo;
+        log_echo;
+        log_echo ===============================================================
+        log_echo "** MacOS High Sierra with broken system Perl detected. **";
+        log_echo "biodb-to-json.pl does not work on MacOS High Sierra with the stock system Perl.";
+        log_echo "The setup will not run biodb-to-json.pl for its sample data: Volvox and Yeast.";
+        log_echo "To re-enable formatting on your High Sierra machine, install a Perl with a working BerkeleyDB."
+        log_echo;
+        log_echo "If you use Homebrew, an easy way to install a working Perl would be:"
+        log_echo;
+        log_echo "    brew install berkeley-db; brew install --build-from-source perl"
+        log_echo;
+        log_echo "Then delete the external perl libraries and run setup.sh again:"
+        log_echo;
+        log_echo "    rm -rf extlibs/; ./setup.sh"
+        log_echo;
+        log_echo ===============================================================
+        log_echo;
     fi
 fi
 
