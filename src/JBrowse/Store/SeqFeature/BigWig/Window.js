@@ -2,9 +2,10 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'dojo/_base/array',
+            'JBrowse/Store/LRUCache',
             './RequestWorker'
         ],
-        function( declare, lang, array, RequestWorker ) {
+        function( declare, lang, array, LRUCache, RequestWorker ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
 
@@ -32,6 +33,23 @@ return declare( null,
         this.cirTreeOffset = cirTreeOffset;
         this.cirTreeLength = cirTreeLength;
         this.isSummary = isSummary;
+
+        function countFeatures(features) {
+            if (!features) return 0
+            let total = features.length
+            features.forEach( feature => {
+                total += countFeatures(feature.children())
+            })
+            return total
+        }
+        this.featureCache = new LRUCache({
+            name: 'feature cache',
+            fillCallback: (query, callback) => {
+                this.readWigDataById(...query, callback, err => {console.error(err)})
+            },
+            sizeFunction: countFeatures,
+            maxSize: 100000 // cache for up to 10000 features
+        });
     },
 
     BED_COLOR_REGEXP: /^[0-9]+,[0-9]+,[0-9]+/,
@@ -46,8 +64,17 @@ return declare( null,
             // dlog('Chroms=' + miniJSONify(this.bwg.refsByName));
             callback([]);
         } else {
-            this.readWigDataById( chr.id, min, max, callback, errorCallback );
+            this.readWigDataByIdWithCache( chr.id, min, max, callback, errorCallback );
         }
+    },
+
+    readWigDataByIdWithCache(chr, min, max, callback, errorCallback) {
+        this.featureCache.get([chr, min, max], (result,error) => {
+            if (error)
+                errorCallback(error)
+            else
+                callback(result)
+        })
     },
 
     readWigDataById: function(chr, min, max, callback, errorCallback ) {
