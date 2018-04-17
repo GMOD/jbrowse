@@ -2,29 +2,20 @@ __webpack_public_path__ = '../../dist/'
 
 import 'babel-polyfill'
 
-require(
-   [
-       'dojo/ready',
-       'JBrowse/Browser'
-    ],
-   function( ready,Browser ) {
-
-    var jasmine = window.jasmine;
+var jasmine = window.jasmine;
 var jasmineEnv = jasmine.getEnv();
 jasmineEnv.updateInterval = 1000;
 
 var htmlReporter = new jasmine.HtmlReporter();
 
 jasmineEnv.addReporter(htmlReporter);
-
 jasmineEnv.specFilter = function(spec) {
-return htmlReporter.specFilter(spec);
-};
-ready( function() {execJasmine();});
-function execJasmine() {
-jasmineEnv.execute();
+    return htmlReporter.specFilter(spec);
 }
-});
+
+window.addEventListener("load", function (event) {
+    jasmineEnv.execute()
+})
 
 cjsRequire('./spec/ExportGFF3.spec.js')
 cjsRequire('./spec/QueryParamConfigMapper.spec.js')
@@ -51,4 +42,6 @@ cjsRequire('./spec/BED.spec.js')
 cjsRequire('./spec/TwoBit.spec.js')
 cjsRequire('./spec/SequenceTrack.spec.js')
 cjsRequire('./spec/VCF.spec.js')
+cjsRequire('./spec/BigBed.spec.js')
+
 

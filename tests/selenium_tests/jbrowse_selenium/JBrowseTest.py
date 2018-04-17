@@ -41,7 +41,10 @@ class JBrowseTest (object):
                 base + ( '&' if base.find('?') >= 0 else '?' )
                 + ( "data="+self.data_dir if self.data_dir else "" )
             )
-        self.addCleanup(self.browser.quit)
+
+        if not os.getenv('DEBUG'):
+            self.addCleanup(self.browser.quit)
+
         self._waits_for_load()
 
     def _getBrowser( self ):
@@ -66,7 +69,7 @@ class JBrowseTest (object):
         elif browser == 'travis_saucelabs':
             username = os.environ["SAUCE_USERNAME"]
             access_key = os.environ["SAUCE_ACCESS_KEY"]
-            capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
+            #capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
             hub_url = "%s:%s@localhost:4445" % (username, access_key)
             return webdriver.Remote(desired_capabilities=capabilities, command_executor="https://%s/wd/hub" % hub_url)
         else:
@@ -162,6 +165,11 @@ class JBrowseTest (object):
         self.wait_for_dialog_disappearance()
         self.assert_no_js_errors()
 
+    def wait_for_dialog_appearance( self, t=5):
+        #WebDriverWait(self, t).until(lambda self: not self.browser.find_element_by_css_selector( '.dijitDialogUnderlayWrapper').is_displayed())
+        time.sleep(1*self.time_dilation)
+        #pass
+
     def wait_for_dialog_disappearance( self, t=5):
         #WebDriverWait(self, t).until(lambda self: not self.browser.find_element_by_css_selector( '.dijitDialogUnderlayWrapper').is_displayed())
         time.sleep(1*self.time_dilation)
@@ -248,6 +256,19 @@ class JBrowseTest (object):
             return True
         except NoSuchElementException:
             return False
+
+    def click_search_disambiguation( self, trackName, buttonText):
+        self.wait_for_dialog_appearance()
+        xpath = (
+                  '//*[contains(@class,"dijitDialogPaneContent")]'
+                  '//td[contains(@class,"field-tracks")][contains(.,"%s")]'
+                  '/../td[contains(@class,"goButtonColumn")]'
+                  '//*[contains(@class,"dijitButton")][contains(.,"%s")]'
+                ) % (trackName, buttonText)
+        #print(xpath)
+        self.assert_element(xpath).click()
+        self.wait_for_dialog_disappearance()
+
 
     def select_refseq( self, name ):
         self.do_typed_query( name )

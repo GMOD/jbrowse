@@ -59,7 +59,6 @@ var locationThumbMover = declare( dndMove.constrainedMoveable, {
 return declare( [Component,FeatureFiltererMixin], {
 
 constructor: function( args ) {
-    console.log(">>> view constructor");
     var browser = args.browser;
     var elem = args.elem;
     var stripeWidth = args.stripeWidth;
@@ -318,7 +317,7 @@ _renderVerticalScrollBar: function() {
         'div',
         {
             className: 'vertical_scrollbar',
-            style: { position: 'fixed',
+            style: { position: 'absolute',
                      right: '0px',
                      bottom: '0px',
                      height: '100%',
@@ -326,7 +325,7 @@ _renderVerticalScrollBar: function() {
                      zIndex: 1000
                    }
         },
-        this.elem
+        this.browser.container
     );
 
     var positionMarker = dojo.create(
@@ -1374,7 +1373,7 @@ drawBasePairLabel: function ( args ){
         this.basePairLabels[name] = dojo.create( 'div', {
             className: 'basePairLabel'+(args.className ? ' '+args.className : '' ),
             style: { top: scaleTrackPos.y + scaleTrackPos.h - 3 + 'px' }
-        }, document.body );
+        }, this.browser.container);
     }
 
     var label = this.basePairLabels[name];

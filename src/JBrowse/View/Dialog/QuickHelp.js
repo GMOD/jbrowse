@@ -22,7 +22,7 @@ return declare( InfoDialog, {
 
     _makeDefaultContent: function() {
         return    ''
-                + '<div class="help_dialog">'
+                + '<div class="jbrowse help_dialog">'
                 + '<div class="main" style="float: left; width: 49%;">'
 
                 + '<dl>'

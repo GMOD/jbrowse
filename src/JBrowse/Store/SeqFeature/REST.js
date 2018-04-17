@@ -309,15 +309,19 @@ return declare( SeqFeatureStore,
     },
 
     _makeFeatures: function( featureCallback, endCallback, errorCallback, featureData ) {
-        var features;
+        let features
         if( featureData && ( features = featureData.features ) ) {
-            for( var i = 0; i < features.length; i++ ) {
-                featureCallback( this._makeFeature( features[i] ) );
+            for( let i = 0; i < features.length; i++ ) {
+                let f = this._makeFeature(features[i])
+                this.applyFeatureTransforms([f])
+                    .forEach(featureCallback)
             }
         }
 
         endCallback();
     },
+
+    supportsFeatureTransforms: true,
 
     _parseInt: function( data ) {
         array.forEach(['start','end','strand'], function( field ) {

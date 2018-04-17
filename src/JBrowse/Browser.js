@@ -188,6 +188,9 @@ constructor: function(params) {
                            thisB.refSeq = thisB.allRefs[initialLoc.ref];
                        }
 
+                       // before we init the view, make sure that our container has nonzero height and width
+                       thisB.ensureNonzeroContainerDimensions()
+
                        thisB.initView().then( function() {
                            Touch.loadTouch(); // init touch device support
                            if( initialLocString )
@@ -311,12 +314,12 @@ initPlugins: function() {
         plugins.forEach( p => {
             // find the entry in the dojoConfig for this plugin
             let configEntry = dojoConfig.packages.find(c => c.name === p.name)
-            if( ! configEntry )
+            if( configEntry ) {
+                p.css = configEntry.css ? configEntry.pluginDir+'/'+configEntry.css : false
+                p.js = configEntry.location
+            } else {
                 this.fatalError(`plugin ${p.name} not found, please ensure the plugin was included in this JBrowse build`)
-
-            p.location = configEntry.location
-            p.css = configEntry.pluginDir+'css'
-            p.js = configEntry.location
+            }
         });
 
         var pluginDeferreds = array.map( plugins, function(p) {
@@ -347,9 +350,15 @@ initPlugins: function() {
                                  args = dojo.mixin( args, { browser: this } );
 
                                  // load its css
-                                 var cssLoaded = this._loadCSS(
-                                     { url: plugin.css+'/main.css' }
-                                 );
+                                 var cssLoaded;
+                                 if (plugin.css) {
+                                    cssLoaded = this._loadCSS({
+                                        url: this.resolveUrl(plugin.css + '/main.css')
+                                    })
+                                 } else {
+                                    cssLoaded = new Deferred()
+                                    cssLoaded.resolve()
+                                 }
                                  cssLoaded.then( function() {
                                      thisPluginDone.resolve({success:true});
                                  });
@@ -371,9 +380,7 @@ initPlugins: function() {
  * Resolve a URL relative to the browserRoot.
  */
 resolveUrl: function( url ) {
-    var browserRoot = this.config.browserRoot || "";
-    if( browserRoot && browserRoot.charAt( browserRoot.length - 1 ) != '/' )
-        browserRoot += '/';
+    var browserRoot = this.config.browserRoot || this.config.baseUrl || "";
 
     return Util.resolveUrl( browserRoot, url );
 },
@@ -405,13 +412,30 @@ welcomeScreen: function( container, error ) {
 
 
 
-        request( 'sample_data/json/volvox/successfully_run' ).then( function() {
+        request(this.resolveUrl('sample_data/json/volvox/successfully_run')).then( function() {
             try {
                 document.getElementById('volvox_data_placeholder')
                    .innerHTML = 'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
             } catch(e) {}
         });
     });
+},
+
+/**
+ * Make sure the browser container has nonzero container dimensions.  If not,
+ * set some hardcoded dimensions and log a warning.
+ */
+ensureNonzeroContainerDimensions() {
+    const containerWidth = this.container.offsetWidth
+    const containerHeight = this.container.offsetHeight
+    if (!containerWidth) {
+        console.warn(`JBrowse container element #${this.config.containerID} has no width, please set one with CSS. Setting fallback width of 640 pixels`)
+        this.container.style.width = '640px'
+    }
+    if (!containerHeight) {
+        console.warn(`JBrowse container element #${this.config.containerID} has no height, please set one with CSS. Setting fallback height of 480 pixels`)
+        this.container.style.height = '480px'
+    }
 },
 
 /**
@@ -529,7 +553,7 @@ loadRefSeqs: function() {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
-            request(this.config.refSeqs.url, {
+            request(this.resolveUrl(this.config.refSeqs.url), {
                 handleAs: 'text',
                 headers: {
                     'X-Requested-With': null
@@ -911,6 +935,18 @@ initView: function() {
                                   );
 
             this.renderGlobalMenu( 'help', {}, menuBar );
+
+            if (!this.config.classicMenu) {
+                let datasetName = lang.getObject(`config.datasets.${this.config.dataset_id}.name`, false, this)
+                this.menuBarDatasetName = dojo.create('div', {
+                    className: 'dataset-name',
+                    innerHTML: datasetName,
+                    title: 'name of current dataset',
+                    style: {
+                        display: datasetName ? 'inline-block' : 'none'
+                    }
+                }, menuBar );
+            }
         }
 
         if( this.config.show_nav && this.config.show_tracklist && this.config.show_overview && !Util.isElectron() ) {
@@ -1458,6 +1494,7 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'        : 'JBrowse/View/Track/CanvasFeatures',
+                'JBrowse/Store/SeqFeature/BigBed'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/GFF3Tabix'   : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BED'         : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BEDTabix'    : 'JBrowse/View/Track/CanvasFeatures',
@@ -1573,7 +1610,7 @@ makeGlobalMenu: function( menuName ) {
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
-    dojo.addClass( menu.domNode, 'globalMenu' );
+    dojo.addClass( menu.domNode, 'jbrowse globalMenu' );
     dojo.addClass( menu.domNode, menuName );
     menu.startup();
     return menu;
@@ -2696,13 +2733,6 @@ makeShareLink: function () {
                 previewLink.href = shareURL;
 
                 sharePane.show();
-
-                var lp = dojo.position( button.domNode );
-                dojo.style( sharePane.domNode, {
-                               top: (lp.y+lp.h) + 'px',
-                               right: 0,
-                               left: ''
-                            });
                 URLinput.focus();
                 URLinput.select();
                 copyReminder.style.display = 'block';

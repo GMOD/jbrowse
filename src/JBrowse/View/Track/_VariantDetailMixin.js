@@ -45,7 +45,12 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
 
         return container;
     },
-
+    renderDetailValue: function( parent, title, val, f, class_ ) {
+        if(title == "alternative_alleles") {
+            val = Util.escapeHTML(val);
+        }
+        return this.inherited(arguments, [parent,title,val,f,class_]);
+    },
     _isReservedTag: function( t ) {
         return this.inherited(arguments) || {genotypes:1}[t.toLowerCase()];
     },
@@ -113,7 +118,12 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                            descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
                                        }
                                        return descriptions;
-                                   })()
+                                   })(),
+                    renderCell: {
+                        "GT": function( field, value, node, options ) {
+                            thisB.renderDetailValue( node, '', Util.escapeHTML(value), f, '' );
+                        }
+                    }
                 }
             );
         };
@@ -141,11 +151,9 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
             var value_parse = value.values[0];
 
             var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
-            if(alt) {
-                alt = alt[0].split(','); // force split on alt alleles
-            }
+            alt = alt[0].split(','); // force split on alt alleles
             var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
-            value = array.map( splitter?value_parse.split(splitter):value_parse, function( gtIndex ) {
+            value = array.map( splitter ? value_parse.split(splitter) : value_parse, function( gtIndex ) {
                                    gtIndex = parseInt( gtIndex ) || gtIndex;
                                    if(gtIndex == '.') { return 'no-call' }
                                    else if(gtIndex == 0) { return refseq; }

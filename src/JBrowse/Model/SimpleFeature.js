@@ -89,6 +89,12 @@ var SimpleFeature = Util.fastDeclare({
      */
     children: function() {
         return this.get('subfeatures');
+    },
+
+    toJSON: function() {
+        const d = Object.assign({},this)
+        delete d._parent
+        return d
     }
 
 });

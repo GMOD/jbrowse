@@ -17,6 +17,7 @@ define( [
             './FileDialog/TrackList/BEDTabixDriver',
             './FileDialog/TrackList/GFF3TabixDriver',
             './FileDialog/TrackList/BEDDriver',
+            './FileDialog/TrackList/BigBedDriver',
             './FileDialog/ResourceList',
             './FileDialog/TrackList',
             'JBrowse/Util'
@@ -40,6 +41,7 @@ define( [
             BEDTabixDriver,
             GFF3TabixDriver,
             BEDDriver,
+            BigBedDriver,
             ResourceList,
             TrackList,
             Util
@@ -62,7 +64,8 @@ return declare( null, {
             new VCFTabixDriver(),
             new BEDTabixDriver(),
             new GFF3TabixDriver(),
-            new BEDDriver()
+            new BEDDriver(),
+            new BigBedDriver()
         ];
     },
 

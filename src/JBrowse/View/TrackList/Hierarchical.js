@@ -69,7 +69,7 @@ return declare(
     },
 
     buildRendering: function() {
-        this.inherited(arguments);
+        this.inherited('buildRendering',arguments);
 
         var topPane = new ContentPane({ className: 'header' });
         this.addChild( topPane );
@@ -89,7 +89,7 @@ return declare(
     },
 
     startup: function() {
-        this.inherited( arguments );
+        this.inherited('startup', arguments );
 
         var tracks = [];
         var thisB = this;
@@ -185,11 +185,11 @@ return declare(
                 }, category.pane.containerNode );
 
             var checkBoxProps = { type: 'checkbox', className: 'check' };
-            
+
             // hook point
             if (typeof thisB.extendCheckbox === 'function')
                 var checkBoxProps = thisB.extendCheckbox(checkBoxProps,trackConf);
-            
+
             var checkbox = dom.create('input', checkBoxProps, labelNode );
             var trackLabel = trackConf.label;
             var checkListener;
@@ -205,7 +205,7 @@ return declare(
     },
     // called when item checkbox is clicked.
     itemClick: function(checkbox,trackConf) {
-        
+
         this.browser.publish( '/jbrowse/v1/v/tracks/'+(checkbox.checked ? 'show' : 'hide'), [trackConf] );
     },
 

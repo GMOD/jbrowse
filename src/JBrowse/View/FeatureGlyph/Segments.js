@@ -1,13 +1,11 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/lang',
-           'dojo/_base/array',
+           'dojo/_base/Color',
            'JBrowse/View/FeatureGlyph/Box'
        ],
        function(
            declare,
-           lang,
-           array,
+           Color,
            BoxGlyph
        ) {
 
@@ -21,7 +19,9 @@ _defaultConfig: function() {
                 connectorThickness: 1,
                 borderColor: 'rgba( 0, 0, 0, 0.3 )'
             },
-            subParts: function() { return true; } // accept all subparts by default
+            subParts: () => true, // accept all subparts by default
+
+            subSubParts: () => true, // render sub-subparts by default
         });
 },
 
@@ -51,74 +51,92 @@ renderConnector: function( context, fRect ) {
     }
 },
 
-renderSegments: function( context, fRect ) {
-    var subparts = this._getSubparts( fRect.f );
-    if( ! subparts.length ) return;
+renderSegments( context, fRect ) {
+    let subparts = this._getSubparts( fRect.f );
+    if (!subparts.length) return;
 
-    var thisB = this;
-    var parentFeature = fRect.f;
-    function style( feature, stylename ) {
-        if( stylename == 'height' )
-            return thisB._getFeatureHeight( fRect.viewInfo, feature );
+    let parentFeature = fRect.f;
+    let styleFunc = (feature, stylename) => {
+        if (stylename === 'height')
+            return this._getFeatureHeight( fRect.viewInfo, feature );
 
-        return thisB.getStyle( feature, stylename ) || thisB.getStyle( parentFeature, stylename );
+        return this.getStyle(feature, stylename) || this.getStyle(parentFeature, stylename);
     }
 
-    for( var i = 0; i < subparts.length; ++i ) {
-        this.renderBox( context, fRect.viewInfo, subparts[i], fRect.t, fRect.rect.h, fRect.f, style );
+    for(let i = 0; i < subparts.length; ++i) {
+        this.renderSegment(context, fRect.viewInfo, subparts[i], fRect.t, fRect.rect.h, fRect.f, styleFunc);
     }
 },
 
-_getSubparts: function( f ) {
-    var c = f.children();
-    if( ! c ) return [];
+renderSegment(context, viewInfo, segmentFeature, topPx, heightPx, parentFeature, styleFunc) {
 
-    var filtered = [];
-    for( var i = 0; i<c.length; i++ )
-        if( this._filterSubpart( c[i] ) )
-            filtered.push( c[i] );
+    this.renderBox(context, viewInfo, segmentFeature, topPx, heightPx, parentFeature, styleFunc);
+    // if we have sub-subparts (stop codons and the like), draw them as shaded boxes
+    let subsubParts = this._getSubSubparts(segmentFeature)
+    if (subsubParts.length) {
+        let subsubStyleFunc = (feature,stylename) => {
+            // use a subSubParts-specific style if one is configured
+            let subsubSpecificStyle = styleFunc(feature,`subSubPart_${stylename}`)
+            if (subsubSpecificStyle) return subsubSpecificStyle
 
-    return filtered;
-},
-
-_filterSubpart: function( f ) {
-    return ( this._subpartsFilter || (this._subpartsFilter = this._makeSubpartsFilter()) )(f);
-},
-
-// make a function that will filter subpart features according to the
-// sub_parts conf var
-_makeSubpartsFilter: function( f ) {
-    var filter = this.getConf( 'subParts' );
-
-    if( typeof filter == 'string' )
-        // convert to array
-        filter = filter.split( /\s*,\s*/ );
-
-    if( typeof filter == 'object' ) {
-        // lowercase and make into a function
-        if( lang.isArray( filter ) )
-            filter = function() {
-                var f = {};
-                array.forEach( filter, function(t) { f[t.toLowerCase()] = true; } );
-                return f;
-            }.call(this);
-        else
-            filter = function() {
-                var f = {};
-                for( var t in filter ) {
-                    f[t.toLowerCase()] = filter[t];
+            // otherwise use the main style and darken it somewhat
+            let style = styleFunc(feature,stylename)
+            if (style && (stylename.includes('color') || stylename.includes('Color'))) {
+                let originalColor = Color.fromString(style)
+                if (originalColor) {
+                    style = String(Color.blendColors(originalColor,Color.fromArray([0,0,0,1]),0.25))
                 }
-                return f;
-            }.call(this);
-        return function(feature) {
-            return filter[ (feature.get('type')||'').toLowerCase() ];
-        };
+            }
+
+            return style
+        }
+
+        subsubParts.forEach( subsubFeature => {
+            this.renderBox(context, viewInfo, subsubFeature, topPx, heightPx, segmentFeature, subsubStyleFunc)
+        })
     }
-    else
-        filter = function() { return true; }
+},
 
-    return filter;
-}
+_getSubparts( feature ) {
+    let children = feature.children() || []
+    return children.filter(this._filterSubpart.bind(this))
+},
 
+_getSubSubparts( feature ) {
+    let children = feature.children() || []
+    return children.filter(this._filterSubSubpart.bind(this))
+},
+
+_filterSubpart(feature) {
+    if (!this._subpartsFilter)
+        this._subpartsFilter = this._makeSubpartsFilter('subParts')
+    return this._subpartsFilter(feature)
+},
+
+_filterSubSubpart( feature ) {
+    if (!this._subSubpartsFilter)
+        this._subSubpartsFilter = this._makeSubpartsFilter('subSubParts')
+
+    return this._subSubpartsFilter(feature)
+},
+
+// make a function that will filter features features according to the
+// subParts conf var
+_makeSubpartsFilter(confKey = 'subParts') {
+    let filter = this.getConf( confKey );
+
+    if (typeof filter == 'string')
+        // convert to array
+        filter = filter.split( /\s*,\s*/ )
+
+    if (Array.isArray(filter)) {
+        let typeNames = filter.map(typeName => typeName.toLowerCase())
+        return feature => typeNames.includes(feature.get('type').toLowerCase())
+    } else if (typeof filter === 'function') {
+        return filter
+    } else {
+        return () => true
+    }
+  }
 });
 });

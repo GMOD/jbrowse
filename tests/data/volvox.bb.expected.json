@@ -1,0 +1,122 @@
+[
+    {
+      "data": {
+        "start": 1049,
+        "end": 9000,
+        "name": "EDEN.1",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 1200,
+        "thick_end": 7608,
+        "reserved": "0,0,0",
+        "block_count": 4,
+        "block_sizes": [
+          451,
+          903,
+          501,
+          2001
+        ],
+        "chrom_starts": [
+          0,
+          1950,
+          3950,
+          5950
+        ],
+        "gene_id": "EDEN",
+        "gene_name": "EDEN",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "1049_9000_1000"
+    },
+    {
+      "data": {
+        "start": 1049,
+        "end": 9000,
+        "name": "EDEN.2",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 1200,
+        "thick_end": 7608,
+        "reserved": "0,0,0",
+        "block_count": 3,
+        "block_sizes": [
+          451,
+          501,
+          2001
+        ],
+        "chrom_starts": [
+          0,
+          3950,
+          5950
+        ],
+        "gene_id": "EDEN",
+        "gene_name": "EDEN",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "1049_9000_1000"
+    },
+    {
+      "data": {
+        "start": 1299,
+        "end": 9000,
+        "name": "EDEN.3",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 3300,
+        "thick_end": 7600,
+        "reserved": "0,0,0",
+        "block_count": 4,
+        "block_sizes": [
+          201,
+          903,
+          501,
+          2001
+        ],
+        "chrom_starts": [
+          0,
+          1700,
+          3700,
+          5700
+        ],
+        "gene_id": "EDEN",
+        "gene_name": "EDEN",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "1299_9000_1000"
+    },
+    {
+      "data": {
+        "start": 17399,
+        "end": 23000,
+        "name": "rna-Apple3",
+        "score": 1000,
+        "strand": 1,
+        "thick_start": 17999,
+        "thick_end": 21200,
+        "reserved": "0,0,0",
+        "block_count": 3,
+        "block_sizes": [
+          1401,
+          501,
+          2001
+        ],
+        "chrom_starts": [
+          0,
+          1600,
+          3600
+        ],
+        "gene_id": "rna-Apple3",
+        "gene_name": "rna-Apple3",
+        "method": "-",
+        "gene_bio_type": "-",
+        "tags": "-"
+      },
+      "_uniqueID": "17399_23000_1000"
+    }
+  ]

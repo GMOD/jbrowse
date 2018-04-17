@@ -621,26 +621,32 @@ define( [
 
                 var curTrack = this;
 
-                var featCallback = dojo.hitch(this,function( feature ) {
-                    var uniqueId = feature.id();
-                    if( ! this._featureIsRendered( uniqueId ) ) {
-                        /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                        // var filter = this.browser.view.featureFilter;
-                        if( this.filterFeature( feature ) )  {
+                var featCallback = feature => {
+                    // feature rendering, adding to block, centering refactored into addFeatureToBlock()
 
-                            //todo: adapt filterFeature instead of renderFeature
+                    const uniqueId = feature.id()
 
-                            // hook point
-                            var render = 1;
-                            if (typeof this.renderFilter === 'function')
-                                render = this.renderFilter(feature);
+                    if (this._featureIsRendered(uniqueId)) return
 
-                            if (render === 1) {
-                                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
-                            }
+                    if (!this.filterFeature(feature)) return
+
+                    // deprecated Apollo hook point, need to schedule this block for removal
+                    if (typeof this.renderFilter === 'function') {
+                        // deprecation warning
+                        if (!this._warnedAboutRenderFilterDeprecation) {
+                            console.warn('the HTMLFeatures.renderFilter is deprecated, please use the existing feature filtering functionality (addFeatureFilter)')
+                            this._warnedAboutRenderFilterDeprecation = true
                         }
+
+                        let render = this.renderFilter(feature)
+                        if (render === 1)
+                            this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd )
+                        return
                     }
-                });
+
+                    // normal case
+                    this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd )
+                }
 
                 this.store.getFeatures( { ref: this.refSeq.name,
                         start: leftBase,
@@ -862,16 +868,18 @@ define( [
             },
 
             measureStyles: function() {
+                let container = this.browser.container
+
                 //determine dimensions of labels (height, per-character width)
                 var heightTest = document.createElement("div");
                 heightTest.className = "feature-label";
                 heightTest.style.height = "auto";
                 heightTest.style.visibility = "hidden";
                 heightTest.appendChild(document.createTextNode("1234567890"));
-                document.body.appendChild(heightTest);
+                container.appendChild(heightTest);
                 this.labelHeight = heightTest.clientHeight;
                 this.labelWidth = heightTest.clientWidth / 10;
-                document.body.removeChild(heightTest);
+                container.removeChild(heightTest);
 
                 //measure the height of glyphs
                 var glyphBox;
@@ -885,18 +893,18 @@ define( [
                     heightTest.style.cssText = this.config.style.featureCss;
                 heightTest.style.visibility = "hidden";
                 if (Util.is_ie6) heightTest.appendChild(document.createComment("foo"));
-                document.body.appendChild(heightTest);
+                container.appendChild(heightTest);
                 glyphBox = domGeom.getMarginBox(heightTest);
                 this.glyphHeight = Math.round(glyphBox.h);
                 this.padding = this.defaultPadding + glyphBox.w;
-                document.body.removeChild(heightTest);
+                container.removeChild(heightTest);
 
                 //determine the width of the arrowhead, if any
                 if (this.config.style.arrowheadClass) {
                     var ah = document.createElement("div");
                     ah.className = "plus-" + this.config.style.arrowheadClass;
                     if (Util.is_ie6) ah.appendChild(document.createComment("foo"));
-                    document.body.appendChild(ah);
+                    container.appendChild(ah);
                     glyphBox = domGeom.position(ah);
                     this.plusArrowWidth = glyphBox.w;
                     this.plusArrowHeight = glyphBox.h;
@@ -904,7 +912,7 @@ define( [
                     glyphBox = domGeom.position(ah);
                     this.minusArrowWidth = glyphBox.w;
                     this.minusArrowHeight = glyphBox.h;
-                    document.body.removeChild(ah);
+                    container.removeChild(ah);
                 }
             },
 

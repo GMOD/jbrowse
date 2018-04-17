@@ -4,6 +4,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>JBrowse</title>
 
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="mask-icon" href="img/favicons/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="theme-color" content="#ffffff">
+
     <script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
     <script type="text/javascript">
         window.onerror=function(msg){
@@ -11,10 +19,18 @@
                 document.body.setAttribute("JSError",msg);
         }
     </script>
+    <style>
+        html, body, div.jbrowse {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
   </head>
 
   <body>
-    <div id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;">
+    <div class="jbrowse" id="GenomeBrowser">
 	  <div id="LoadingScreen" style="padding: 50px;">
 		<h1>Loading...</h1>
 	  </div>

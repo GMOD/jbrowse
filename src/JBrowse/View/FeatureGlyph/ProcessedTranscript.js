@@ -25,14 +25,18 @@ _defaultConfig: function() {
             style: {
                 utrColor: function( feature, variable, glyph, track ) {
                     return glyph._utrColor( glyph.getStyle( feature.parent(), 'color' ) ).toString();
-                }
+                },
+
+                utrHeightPercent: 65
             },
 
             subParts: 'CDS, UTR, five_prime_UTR, three_prime_UTR',
 
             impliedUTRs: false,
 
-            inferCdsParts: false
+            inferCdsParts: false,
+            subSubParts: () => true, // render sub-subparts by default
+
         });
 },
 
@@ -243,7 +247,7 @@ _getFeatureHeight: function( viewInfo, feature ) {
     var height = this.inherited( arguments );
 
     if( this._isUTR( feature ) )
-        return height*0.65;
+        return height*this.getStyle(feature,'utrHeightPercent')/100;
 
     return height;
 }

@@ -31,7 +31,7 @@ define( [
 return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
  /**
-  * @lends JBrowse.Store.BigWig
+  * @lends JBrowse.Store.SeqFeature.BigWig
   */
 {
 
@@ -97,7 +97,8 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
     },
 
     _load: function() {
-        this._read( 0, 512, lang.hitch( this, function( bytes ) {
+        var thisB = this;
+        this._read( 0, 2000, lang.hitch( this, function( bytes ) {
             if( ! bytes ) {
                 this._failAllDeferred( 'BBI header not readable' );
                 return;
@@ -113,7 +114,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
                 data = this.newDataView( bytes );
                 if( data.getInt32() != this.BIG_WIG_MAGIC && magic != this.BIG_BED_MAGIC) {
                     console.error('Not a BigWig or BigBed file');
-                    this._deferred.reject('Not a BigWig or BigBed file');
+                    this._failAllDeferred('Not a BigWig or BigBed file');
                     return;
                 }
             }
@@ -134,6 +135,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             this.totalSummaryOffset = data.getUint64();
             this.uncompressBufSize = data.getUint32();
 
+
             // dlog('bigType: ' + this.type);
             // dlog('chromTree at: ' + this.chromTreeOffset);
             // dlog('uncompress: ' + this.uncompressBufSize);
@@ -150,6 +152,20 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
 
                 //          dlog('zoom(' + zl + '): reduction=' + zlReduction + '; data=' + zlData + '; index=' + zlIndex);
                 this.zoomLevels.push({reductionLevel: zlReduction, dataOffset: zlData, indexOffset: zlIndex});
+            }
+
+
+            // parse the autoSql if present (bigbed)
+            if( this.asOffset ) {
+                (function() {
+                     var d = this.newDataView( bytes, this.asOffset );
+                     var string = "";
+                     var c;
+                     while((c = d.getChar()) && c.charCodeAt() != 0) {
+                         string += c;
+                     }
+                     thisB.parseAutoSql(string);
+                 }).call(this);
             }
 
             // parse the totalSummary if present (summary of all data in the file)
@@ -302,7 +318,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
             if (nzl) {
                 cirLen = this.zoomLevels[0].dataOffset - this.unzoomedIndexOffset;
             }
-            this.unzoomedView = new Window( this, this.unzoomedIndexOffset, cirLen, false );
+            this.unzoomedView = new Window( this, this.unzoomedIndexOffset, cirLen, false, this.autoSql );
         }
         return this.unzoomedView;
     },
@@ -338,6 +354,41 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         }
         //console.log( 'using unzoomed level');
         return this.getUnzoomedView();
+    },
+
+    getTagMetadata(tagName) {
+        if (this.autoSql) {
+            const lcTagName = tagName.replace(/_/g,'').toLowerCase()
+            const fieldDefinition = this.autoSql.fields.find(
+                field => field.name.toLowerCase() === lcTagName
+            )
+            if (fieldDefinition)
+                return fieldDefinition
+        }
+    },
+
+    parseAutoSql: function(string) {
+        string = string.trim();
+        var res = string.split('\n');
+        this.autoSql = {
+            name: /table\s+(\w+)/.exec(res[0])[1],
+            description: /"(.*)"/.exec(res[1])[1],
+            fields: []
+        };
+        var i = 3;
+        var field;
+        while(res[i].trim() != ')') {
+            if(field = /([\w\[\]0-9]+)\s*(\w+)\s*;\s*"(.*)"/.exec(res[i].trim())) {
+                this.autoSql.fields.push({
+                    type: field[1],
+                    name: field[2],
+                    description: field[3]
+                });
+            } else {
+                console.warn('autosql line not parsed', res[i]);
+            }
+            i++;
+        }
     },
 
 

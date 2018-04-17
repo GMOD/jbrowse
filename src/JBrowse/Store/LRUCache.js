@@ -186,15 +186,23 @@ return declare( null,
         }
 
         // make a cache record for it
+        let size;
+        try {
+            size = this._size(value)
+        } catch(e) {
+            e.message = `Error calculating item size: ${e.message}`
+            console.error(e)
+            size = 1
+        }
         var record = {
             value: value,
             key: inKey,
             keyString: keyString,
-            size: this._size( value )
+            size: size
         };
 
         if( record.size > this.maxSize ) {
-            this._warn( 'cannot fit', keyString, '('+Util.addCommas(record.size) + ' > ' + Util.addCommas(this.maxSize)+')' );
+            this._warn( 'Cache cannot fit', keyString, '('+Util.addCommas(record.size) + ' > ' + Util.addCommas(this.maxSize)+')' );
             return;
         }
 

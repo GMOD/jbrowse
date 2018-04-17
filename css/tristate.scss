@@ -1,21 +1,21 @@
 /* TriStateCheckBox
- * 
+ *
  * Styling TriStateCheckBox mainly includes:
- * 
+ *
  * 1. Containers
  * 		.dojoxTriStateCheckBox|.dojoxTriStateCheckBoxIcon - for border, padding, width|height and background image
- * 
+ *
  * 2. Checked state
  * 		.dojoxTriStateCheckBoxChecked - for checked background-color|image
  * 		.dojoxTriStateCheckBoxMixed - for mixed background-color|image
- * 
+ *
  * 3. Hover state
  * 		.dojoxTriStateCheckBoxHover|.dojoxTriStateCheckBoxCheckedHover|.dojoxTriStateCheckBoxMixedHover - for background image
- * 
+ *
  * 4. Disabled state
  * 		.dojoxTriStateCheckBoxDisabled|.dojoxTriStateCheckBoxCheckedDisabled|.dojoxTriStateCheckBoxMixedDisabled - for background image
  */
-.tundra .dojoxTriStateCheckBox,  .dojoxTriStateCheckBoxIcon {
+.dojoxTriStateCheckBox,  .dojoxTriStateCheckBoxIcon {
   background-image: url('../img/tristate.png');
   /* checkbox sprite image */
 
@@ -25,51 +25,51 @@
   margin: 0 2px 0 0;
   padding: 5px 5px 5px 5px;
 }
-.dj_ie6 .tundra .dojoxTriStateCheckBox, .dj_ie6  .dojoxTriStateCheckBoxIcon {
+.dj_ie6 .dojoxTriStateCheckBox, .dj_ie6  .dojoxTriStateCheckBoxIcon {
   background-image: url('../img/tristate.png');
   /* checkbox sprite image */
 
 }
-.tundra .dojoxTriStateCheckBox{
+.dojoxTriStateCheckBox{
   /* unchecked */
 
   background-position: -30px;
 }
-.tundra .dojoxTriStateCheckBoxChecked{
+.dojoxTriStateCheckBoxChecked{
   /* checked */
   background-position: 0px;
 }
-.tundra .dojoxTriStateCheckBoxMixed {
+.dojoxTriStateCheckBoxMixed {
   /* mixed */
 
   background-position: -90px;
 }
-.tundra .dojoxTriStateCheckBoxDisabled {
+.dojoxTriStateCheckBoxDisabled {
   /* disabled and unchecked */
 
   background-position: -30px;
 }
-.tundra .dojoxTriStateCheckBoxCheckedDisabled {
+.dojoxTriStateCheckBoxCheckedDisabled {
   /* disabled and checked */
 
   background-position: 0px;
 }
-.tundra .dojoxTriStateCheckBoxMixedDisabled {
+.dojoxTriStateCheckBoxMixedDisabled {
   /* disabled and mixed */
 
   background-position: -90px;
 }
-.tundra .dojoxTriStateCheckBoxHover {
+.dojoxTriStateCheckBoxHover {
   /* hovering over and unchecked */
 
   background-position: -60px;
 }
-.tundra .dojoxTriStateCheckBoxCheckedHover {
+.dojoxTriStateCheckBoxCheckedHover {
   /* hovering over and checked */
 
   background-position: 0px;
 }
-.tundra .dojoxTriStateCheckBoxMixedHover {
+.dojoxTriStateCheckBoxMixedHover {
   /* hovering over and mixed */
 
   background-position: -120px;
@@ -88,7 +88,7 @@
 }
 
 .dijit_a11y .dojoxTriStateCheckBoxDisabled .dojoxTriStateCheckBoxInner{
-  /* focused or hovering over */ 
+  /* focused or hovering over */
   opacity: 0.5;
 }
 
@@ -108,7 +108,7 @@
 
 .dijit_a11y .dojoxTriStateCheckBoxInner{
   /* inner text */
-  
+
   visibility: visible;
   display: block;
 }

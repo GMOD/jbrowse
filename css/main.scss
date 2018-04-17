@@ -1,41 +1,13 @@
-html, body {
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    border: 0;
-    font-size: 12px;
-    font-family: Univers,Trebuchet MS,Helvetica,Arial,sans-serif;
-}
 
 
-.tundra .dijitDialogTitleBar {
-    padding-right: 25px;
-}
+
 
 .jbrowseStandaloneDatasetSelector {
     margin-left: 2em;
     font-size: 120%;
 }
 
-/* styles for the about JBrowse dialog */
-.about-dialog .default_about {
-    text-align: center;
-}
-.about-dialog .default_about * {
-    margin: 0.5em 0;
-}
-.about-dialog .default_about h1 {
-    margin-top: 0;
-}
-.about-dialog div.powered_by {
-    margin-top: 0.5em;
-    text-align: center;
-}
 
-/* styles for the highlight-setting dialog */
-.setHighlightDialog label {
-    padding-right: 0.5em;
-}
 
 .track .global_highlight {
     position: absolute;
@@ -70,7 +42,7 @@ html, body {
     border-right-width: 1px;
 }
 
-.tundra input {
+input {
     outline: none;
 }
 
@@ -111,43 +83,6 @@ fieldset > legend {
 }
 .dijitComboBoxMenu .multipleLocations {
     color: #333;
-}
-
-/* location choice dialog */
-.locationChoiceDialog div.prompt {
-    margin: 0.3em 1em 1em 1em;
-}
-.locationChoiceDialog .dgrid-row .dijitButton {
-    margin: 0 0.5em;
-}
-.locationChoiceDialog .goButtonColumn,
-.locationChoiceDialog .showButtonColumn {
-    text-align: center;
-    white-space: nowrap;
-}
-
-
-.tundra .dijitDialogCloseIcon {
-    height: 25px;
-    width:  25px;
-    top:    0px;
-    right:  0px;
-    background: url("../img/commonIconsEnabled.png") no-repeat -73px 6px;
-
-    border-left: 1px inset #fcfcfc;
-}
-.tundra .dijitDialogCloseIcon:hover {
-    background-position: -93px 6px;
-    border-left-color: #ccc;
-}
-.dijitDialogCloseIcon:focus {
-    outline: none;
-}
-
-.dijitDialogPaneActionBar {
-    text-align: center;
-    clear: both;
-    padding-top: 1em;
 }
 
 .nav {
@@ -197,27 +132,33 @@ div.vertical_scrollbar .vertical_position_marker {
     padding-top: 3px;
     position: relative;
     text-align: center;
-}
-#navbox .dijitButton, #navbox .dijitToggleButton, #navbox .dijitTextBox, #navbox .dijitSelect, #navbox .dojoxTriStateCheckBox {
-    height: 20px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+
+    * {
+        font-size: 12px;
+        font-family: sans-serif;
+    }
+
+    .dijitButton, .dijitToggleButton, .dijitTextBox, .dijitSelect, .dojoxTriStateCheckBox {
+        height: 20px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+    }
+
+    .dijitSelectLabel {
+        padding: 0 2px;
+    }
+
+    .dijitInputField {
+        padding-left: 3%
+    }
+
+    .dijitArrowButton {
+        width: 15px
+    }
 }
 
-#navbox .dijitSelectLabel {
-    padding: 0 2px;
-}
-
-#navbox .dijitTextBox .dijitInputField {
-    padding-left: 2px;
-}
-
-#navbox * {
-    font-size: 12px;
-    font-family: sans-serif;
-}
 
 .moreMatches {
     font-style: italic;
@@ -478,10 +419,6 @@ div.tracklist-label.collapsed {
 /* NOTE: browsers that don't support rgba colors will fall back to all
    track labels being #bcbcbc */
 
-.notfound-dialog .message {
-    margin: 1em;
-    text-align: center;
-}
 
 .track .loading {
     background: #fafafa;
@@ -554,7 +491,7 @@ div.track-label .feature-density {
     font-size: 90%;
     font-weight: normal;
 }
-.tundra div.track-label:hover .track-menu-button div {
+div.track-label:hover .track-menu-button div {
     height: 8px;
     width: 8px;
     position: absolute;
@@ -563,17 +500,17 @@ div.track-label .feature-density {
     background: url("../img/spriteArrows.png") no-repeat -28px 0;
 }
 
-.tundra div.track-label:hover .track-menu-button:hover {
+div.track-label:hover .track-menu-button:hover {
     background-color: rgba( 0, 0, 100, 0.05 );
     border-left-color: #ccc;
 }
-.tundra div.track-label .track-close-button {
+div.track-label .track-close-button {
     background: url("../node_modules/dijit/themes/tundra/images/tabClose.png") no-repeat 40% 50%;
 }
-.tundra div.track-label .track-close-button:hover {
+div.track-label .track-close-button:hover {
     background-image: url("../node_modules/dijit/themes/tundra/images/tabCloseHover.png");
 }
-.tundra div.track-label:hover .track-menu-button:hover div {
+div.track-label:hover .track-menu-button:hover div {
     background-position-x: 0px;
 }
 div.track-label:hover {
@@ -784,27 +721,6 @@ input.nav {
     font-size: 9px !important;
 }
 
-.help_dialog ul {
-    padding-left: 0;
-}
-.help_dialog div.main {
-}
-.help_dialog div.main > dl {
-    width: 90%;
-    margin: 0 auto 1em auto;
-}
-.help_dialog dt {
-    font-weight: bold;
-    margin-top: 1em;
-}
-.help_dialog dd {
-    margin-left: 2em;
-}
-.help_dialog dl dl.searchexample dt,
-.help_dialog span.example {
-    font-weight: normal;
-    font-family: monospace;
-}
 
 .fatal_error {
     font-size: 14px;
@@ -851,161 +767,6 @@ div.block:hover > div.message {
     z-index: 30000;
 }
 
-.tundra .dijitDialogPaneContent {
-    border-top: 1px solid #acacac;
-    font-family: sans-serif;
-}
-
-/* styles dealing with popups launched by clicking on features */
-.popup-dialog-iframe .dijitDialogPaneContent {
-    padding: 0;
-}
-
-/* styles for popup dialogs */
-a.dialog-new-window {
-    padding-left: 1em;
-    font-size: 90%;
-}
-
-/* styles for popup feature detail dialogs from tracks */
-.feature-detail {
-    width: 50em;
-    color: #333;
-}
-.feature-detail .genotype_summary {
-    padding: 1em;
-}
-.feature-detail .genotype_summary table {
-    border-collapse: collapse;
-}
-.feature-detail .genotype_summary td {
-    padding: 0 1em;
-}
-.feature-detail .genotype_summary td.total {
-    font-weight: bold;
-    border-top: 1px solid #444;
-}
-.feature-detail .genotype_summary td.count, .feature-detail .genotype_summary td.pct {
-    text-align: right;
-}
-.feature-detail .genotype_summary td.category.level_1 {
-    padding-left: 2em;
-}
-.feature-detail .genotype_summary td.category.level_2 {
-    padding-left: 3em;
-}
-.feature-detail .genotype_summary td.category.level_3 {
-    padding-left: 4em;
-}
-.feature-detail .genotype_summary td.category.level_4 {
-    padding-left: 5em;
-}
-
-.feature-detail .subfeature-detail {
-    background: #fafafa;
-    background: rgba( 0, 0, 0, 0.1 );
-    border: 1px outset #B9B9B9;
-    padding: 0.6em;
-    margin-bottom: 0.8em;
-}
-
-.feature-detail .subfeature-load-button {
-    margin-top: 15px;
-    margin-left: 10px;
-}
-
-.feature-detail .fastaView {
-    padding: 0;
-    border: 1px solid #aaa;
-}
-
-.feature-detail .fastaView .dijitToolbar {
-    text-align: right;
-}
-.feature-detail .fastaView textarea {
-    padding: 1em 1.5em;
-    margin: 0;
-    border: none;
-}
-
-
-.feature-detail div.core {
-    font-size: 110%;
-}
-
-.feature-detail div.core h2.sectiontitle {
-    margin-top: 0;
-}
-.feature-detail h2.sectiontitle {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 1em 0 0.7em 0;
-}
-
-.detail .value_container {
-    display: inline-block;
-    max-height: 20em;
-    overflow-y: auto;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-.detail .value_container.big, .detail .value_container.dgrid {
-    border: 1px solid rgba(0,0,50,0.1);
-    margin-left: 1em;
-    margin-top: 0.3em;
-}
-
-.detail .multi_value .value {
-    border: 1px solid #ddd;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-}
-
-.detail .value {
-    display: inline-block;
-    vertical-align: top;
-    font-family: sans-serif;
-    padding: 0 0.7em;
-    line-height: 1.8;
-}
-.detail .field {
-    margin: 0;
-    display: inline-block;
-    min-width: 90px;
-    vertical-align: top;
-    padding: 2px 0.5em;
-    background: rgba( 50, 85, 255,0.1 );
-    border-bottom: 1px solid #D2D4E4;
-    border-bottom-color: rgba( 0, 0, 0, 0.1 );
-    font-size: 1.1667em;
-}
-/* field names that have tooltips */
-.detail .field[title], .detail .dgrid-cell[title] {
-    background: rgba( 255,245,50,0.3 );
-}
-.detail .field[title]:hover, .detail .dgrid-cell[title]:hover {
-    background: rgba( 255,255,50,0.7 );
-}
-/*
- force long sequences in feature and alignment detail dialogs to
- wrap at 45em
-*/
-.detail .value.seq,
- .detail .value.sequence {
-    word-wrap: break-word;
-    width: 45em;
-}
-
-.detail .field_container {
-    margin-left: 1em;
-    margin-bottom: 2px;
-}
-.detail hr {
-    margin: 0.8em 4em 0.5em 0.7em;
-}
 
 .sharePane input {
     padding: 1px 0 2px 1px;
@@ -1020,7 +781,7 @@ a.dialog-new-window {
     font-weight: bold;
 }
 
-.tundra .sharePane input {
+.sharePane input {
     border: 1px solid #ccc;
 }
 
@@ -1082,18 +843,5 @@ table.baseQuality td {
 .baseQuality span.qual {
     display: block;
     text-align: center;
-}
-
-.about-dialog .loaded-plugins {
-    text-align: left;
-}
-
-.about-dialog .loaded-plugins li {
-    margin: 0em;
-}
-
-.about-dialog .plugins-list {
-    max-height: 100px;
-    overflow: auto;
 }
 

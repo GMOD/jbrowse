@@ -76,6 +76,9 @@ return declare('JBrowse.Store.LazyTrie', null,
                              trie.deferred.callee.apply(trie, trie.deferred);
                              delete trie.deferred;
                          }
+                     },
+                     error: error => {
+                         this.error = error;
                      }
                     });
     },
@@ -148,6 +151,10 @@ return declare('JBrowse.Store.LazyTrie', null,
 
     exactMatch: function(key, callback, notfoundCallback ) {
         notfoundCallback = notfoundCallback || function() {};
+        if (this.error) {
+            notfoundCallback()
+            return
+        }
 
         var trie = this;
         this.findNode(key,
@@ -162,6 +169,11 @@ return declare('JBrowse.Store.LazyTrie', null,
     findNode: function(query, foundCallback, notfoundCallback ) {
         notfoundCallback = notfoundCallback || function() {};
 
+        if (this.error) {
+            notfoundCallback()
+            return
+        }
+
         var trie = this;
         this.findPath(query, function(path) {
                           var node = trie.root;
@@ -173,6 +185,10 @@ return declare('JBrowse.Store.LazyTrie', null,
     },
 
     findPath: function(query, foundCallback, notfoundCallback) {
+        if (this.error) {
+            notfoundCallback()
+            return
+        }
 
         notfoundCallback = notfoundCallback || function() {};
 
@@ -203,7 +219,8 @@ return declare('JBrowse.Store.LazyTrie', null,
                              load: function(o) {
                                  node[childIndex] = o;
                                  trie.findPath(query, foundCallback);
-                             }
+                             },
+                             error: err => { this.error = err }
                             });
                 return;
             }

@@ -24,9 +24,11 @@ prepare-refseqs.pl - format reference sequences for use by JBrowse
    # OR:
        prepare-refseqs.pl --twobit <file>  [options]
    # OR:
-       prepare-refseqs.pl --conf <JBrowse config file>  [options]
+       prepare-refseqs.pl --conf <biodb config file>  [options]
    # OR:
        prepare-refseqs.pl --sizes <sizes file>  [options]
+   # OR:
+       prepare-refseqs.pl --gff-sizes <gff file>  [options]
 
 =head1 DESCRIPTION
 
@@ -39,8 +41,8 @@ You can use a GFF file to describe the reference sequences; or you can
 use a JBrowse config file (pointing to a BioPerl database) or a FASTA
 file, together with a list of refseq names or a list of refseq IDs.
 If you use a GFF file, it should contain ##sequence-region lines as
-described in the GFF specs, and/or it should be GFF version 3 with an
-embedded FASTA section.
+described in the GFF specs (for --gff-sizes), and/or it should be GFF
+version 3 with an embedded FASTA section (for --gff).
 
 If you use a JBrowse config file or FASTA file, you can either provide
 a (comma-separated) list of refseq names, or (if the names aren't
@@ -51,21 +53,6 @@ database will be used.
 =head1 OPTIONS
 
 =over 4
-
-=item --gff <file>
-
-Get reference sequences from a GFF3 file with embedded sequence
-information.
-
-=item --fasta <file>
-
-A FASTA file, optionally gzipped from which to load reference
-sequences.
-
-=item --indexed_fasta <file>
-
-A FASTA file (which should already have an accompaning '.fai' file)
-from which to load reference sequences.
 
 =item --noSort
 

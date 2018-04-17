@@ -62,8 +62,7 @@ return declare( ActionBarDialog,
     },
 
     show: function( callback ) {
-        dojo.addClass( this.domNode, 'fileDialog' );
-
+        dojo.addClass( this.domNode, 'jbrowse fileDialog' );
 
         var container = dom.create('div', { className: 'localFilesControl', style: { width: '100%' } });
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
