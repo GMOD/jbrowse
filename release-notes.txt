@@ -8,20 +8,21 @@
    long road to completion! (issue #777, pull #844, @cmdcolin)
 
  * There is a new BigBed store type, for opening BigBed files.  An example BigBed track configuration:
-    ```
-    storeClass = JBrowse/Store/SeqFeature/BigBed
-    type = CanvasFeatures
-    urlTemplate = gencode.bb
-    style.label = gene_name,name,id
-    style.description = gene_bio_type
-    ```
+    <pre>
+        [tracks.GENCODE]
+        storeClass = JBrowse/Store/SeqFeature/BigBed
+        type = CanvasFeatures
+        urlTemplate = gencode.bb
+        style.label = gene_name,name,id
+        style.description = gene_bio_type
+    </pre>
 
  * JBrowse now has much better support for UCSC-style BED and BigBed features, via the new BED
    glyph type for CanvasFeatures. Rather than rendering a complex feature hierarchy like many
    of the other CanvasFeatures glyphs, the BED glyph draws sub-blocks with thick and thin regions,
    for compatibility with the UCSC browser. CanvasFeatures will automatically use the
    `JBrowse/View/FeatureGlyph/UCSC/BED` glyph type if a feature has no subfeatures, but has
-   'blockCount' or `thickStart` attributes. This means that, in practice, a BigBed file will
+   `blockCount` or `thickStart` attributes. This means that, in practice, a BigBed file will
    display very well with just the default configuration. Also for compatibility with the UCSC
    browser, JBrowse will set a BED feature's background color if one is included in the
    feature data (turn this off by setting `itemRgb = false`).
