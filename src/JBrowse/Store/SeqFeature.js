@@ -51,6 +51,15 @@ return declare( Store,
     },
 
     /**
+     * Get a metadata object, if one is available, for the
+     * given feature tag name
+     * @param {string} tagName
+     * @returns {object} containing 'description' member, and optionally anything else
+     */
+    getTagMetadata(tagName) {
+    },
+
+    /**
      * If the `topLevelFeatures` configuration variable is set on this
      * store, creates and installs a feature transform function to
      * implement it.

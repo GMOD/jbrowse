@@ -31,7 +31,7 @@ var Grid = declare([DGrid,DGridDijitRegistry]);
 
 return declare( null, {
 
-    renderDetailField: function( parentElement, title, val, f, class_ ) {
+    renderDetailField: function( parentElement, title, val, f, class_, externalFieldMeta = {} ) {
         if( val === null || val === undefined )
             return '';
 
@@ -61,7 +61,7 @@ return declare( null, {
         // attr on the field name so that it shows on mouseover, and
         // using the values as the new field value.
         var fieldMeta;
-        if( typeof val == 'object' && !lang.isArray(val) && ('values' in val) ) {
+        if( typeof val == 'object' && !Array.isArray(val) && ('values' in val) ) {
             fieldMeta = (val.meta||{}).description;
             // join the description if it is an array
             if( lang.isArray( fieldMeta ) )
@@ -69,6 +69,10 @@ return declare( null, {
 
             val = val.values;
         }
+        else {
+            fieldMeta = externalFieldMeta.description
+        }
+
         if(( fieldSpecificFormatter = this.config['fmtDetailDescription_'+title] ) && f) {
             fieldMeta = fieldSpecificFormatter(fieldMeta);
         }

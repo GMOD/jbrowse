@@ -150,10 +150,10 @@ return declare( FeatureDescriptionMixin, {
                 { className: 'additional',
                   innerHTML: '<h2 class="sectiontitle">Attributes</h2>'
                 },
-                container );
-            array.forEach( additionalTags.sort(), function(t) {
-                this.renderDetailField( atElement, t, f.get(t), f );
-            }, this );
+                container )
+            additionalTags.sort().forEach( t => {
+                this.renderDetailField( atElement, t, f.get(t), f, undefined, track.store.getTagMetadata(t))
+            })
         }
     },
 

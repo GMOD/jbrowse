@@ -356,6 +356,17 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
         return this.getUnzoomedView();
     },
 
+    getTagMetadata(tagName) {
+        if (this.autoSql) {
+            const lcTagName = tagName.replace(/_/g,'').toLowerCase()
+            const fieldDefinition = this.autoSql.fields.find(
+                field => field.name.toLowerCase() === lcTagName
+            )
+            if (fieldDefinition)
+                return fieldDefinition
+        }
+    },
+
     parseAutoSql: function(string) {
         string = string.trim();
         var res = string.split('\n');
