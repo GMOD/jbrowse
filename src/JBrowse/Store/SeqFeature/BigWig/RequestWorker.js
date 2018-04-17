@@ -376,17 +376,27 @@ var RequestWorker = declare( null,
 
         const bedColumns = rest.split('\t')
         const asql = this.window.autoSql || defaultAutoSql
-        // first three columns (chrom,start,end) are not included
+        const numericTypes = ['uint', 'int', 'float', 'long']
+        // first three columns (chrom,start,end) are not included in bigBed
         for (let i = 3; i < asql.fields.length; i++) {
-            if (bedColumns[i] !== '.' && bedColumns[i] !== '') {
+            if (bedColumns[i-3] !== '.' && bedColumns[i-3] !== '') {
                 const autoField = asql.fields[i]
                 let columnVal = bedColumns[i-3]
-                if (['uint', 'int', 'float', 'long'].includes(autoField.type)) {
+                if (numericTypes.includes(autoField.type)) {
                     let num = Number(columnVal)
                     // if the number parse results in NaN, somebody probably
                     // listed the type erroneously as numeric, so don't use
                     // the parsed number
                     columnVal = isNaN(num) ? columnVal : num
+                } else {
+                    // parse array values
+                    const match = /^(\w+)\[/.exec(autoField.type)
+                    if (match) {
+                        columnVal = columnVal.split(',')
+                        if (columnVal[columnVal.length-1] === '') columnVal.pop()
+                        if (numericTypes.includes(match[1]))
+                            columnVal = columnVal.map(str => Number(str))
+                    }
                 }
 
                 featureData[snakeCase(autoField.name)] = columnVal
@@ -395,27 +405,6 @@ var RequestWorker = declare( null,
 
         if (featureData.strand) {
             featureData.strand = {'-': -1, '+': 1}[featureData.strand]
-        }
-
-        const blockCount = featureData.block_count
-        const blockSizes = featureData.block_sizes
-        const blockStarts = featureData.block_starts
-        const chromStarts = featureData.chrom_starts
-
-        if (blockCount) {
-            const starts = (chromStarts || blockStarts || '').split(',')
-            const sizes = blockSizes.split(',')
-            const blocksOffset = start
-
-            for (let b = 0; b < blockCount; b += 1) {
-                let bmin = (starts[b]|0) + blocksOffset
-                let bmax = bmin + (sizes[b]|0)
-                featureData.subfeatures.push({
-                    start: bmin,
-                    end: bmax,
-                    type: 'block'
-                })
-            }
         }
 
         return featureData
