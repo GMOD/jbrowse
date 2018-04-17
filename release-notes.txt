@@ -68,6 +68,9 @@
 
  * JBrowse now has a favicon! (issue #973, @rbuels)
 
+ * Added additional caching code to SequenceChunks and NCList stores, reducing duplicate
+   network requests and increasing performance in some circumstances (pull #855, @cmdcolin)
+
 ## Bug fixes
 
  * Fix a bug in which saving exported data to a file was nonfunctional for some export
