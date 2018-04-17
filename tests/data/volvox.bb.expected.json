@@ -28,7 +28,7 @@
         "gene_bio_type": "-",
         "tags": "-"
       },
-      "_uniqueID": "1049_9000_1000"
+      "_uniqueID": "bb-94"
     },
     {
       "data": {
@@ -57,7 +57,7 @@
         "gene_bio_type": "-",
         "tags": "-"
       },
-      "_uniqueID": "1049_9000_1000"
+      "_uniqueID": "bb-179"
     },
     {
       "data": {
@@ -88,7 +88,7 @@
         "gene_bio_type": "-",
         "tags": "-"
       },
-      "_uniqueID": "1299_9000_1000"
+      "_uniqueID": "bb-273"
     },
     {
       "data": {
@@ -117,6 +117,6 @@
         "gene_bio_type": "-",
         "tags": "-"
       },
-      "_uniqueID": "17399_23000_1000"
+      "_uniqueID": "bb-377"
     }
   ]

@@ -356,6 +356,7 @@ var RequestWorker = declare( null,
             }
 
             const featureData = this.parseBedText(start, end, rest)
+            featureData.id = `bb-${startOffset + offset}`
             this.maybeCreateFeature(start,end,featureData)
         }
     },
