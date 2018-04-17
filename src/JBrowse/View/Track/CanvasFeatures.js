@@ -218,8 +218,10 @@ return declare(
         // otherwise, make it Segments if it has children, or a Box if it doesn't
         if (!guess) {
             let children = feature.children()
-            if(children && children.length)
+            if (children && children.length)
                 guess = 'Segments'
+            else if (feature.get('block_count') || feature.get('thick_start'))
+                guess = 'UCSC/BED'
             else
                 guess = 'Box'
         }

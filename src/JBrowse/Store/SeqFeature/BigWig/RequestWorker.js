@@ -1,3 +1,5 @@
+const snakeCase = cjsRequire('snake-case')
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
@@ -24,6 +26,73 @@ define( [
         ) {
 
 var dlog = function(){ console.log.apply(console, arguments); };
+
+const defaultAutoSql = {
+    name: 'BigBED file',
+    description: 'this file has no associated autoSQL',
+    fields: [
+        {
+            type: 'string',
+            name: 'chrom',
+            description: 'Name of chromosome ',
+        },
+        {
+            type: 'uint',
+            name: 'chromStart',
+            description: 'Start position (first base is 0).',
+        },
+        {
+            type: 'uint',
+            name: 'chromEnd',
+            description: 'End position plus one (chromEnd – chromStart = size).',
+        },
+        {
+            type: 'string',
+            name: 'name',
+            description: 'Name of feature.',
+        },
+        {
+            type: 'float',
+            name: 'score',
+            description: 'A number between 0 and 1000 that controls shading of item (0 if unused).',
+        },
+        {
+            type: 'string',
+            name: 'strand',
+            description: '+ or – (or . for unknown).',
+        },
+        {
+            type: 'uint',
+            name: 'thickStart',
+            description: 'Start position where feature is drawn as thicker line; used for CDS start for genes.',
+        },
+        {
+            type: 'uint',
+            name: 'thickEnd',
+            description: 'Position where thicker part of feature ends.',
+        },
+        {
+            type: 'string',
+            name: 'itemRgb',
+            description: 'Comma-separated list of red, green, blue values from 0-255 (0 if unused).',
+        },
+        {
+            type: 'uint',
+            name: 'blockCount',
+            description: 'For multipart items, the number of blocks; corresponds to exons for genes.',
+        },
+        {
+            type: 'string',
+            name: 'blockSizes',
+            description: 'Comma-separated list of block sizes.',
+        },
+        {
+            type: 'string',
+            name: 'chromStarts',
+            description: 'Comma-separated list of block starts relative to chromStart.',
+        },
+    ]
+}
 
 var RequestWorker = declare( null,
  /**
@@ -176,16 +245,20 @@ var RequestWorker = declare( null,
     createFeature: function(fmin, fmax, opts) {
         // dlog('createFeature(' + fmin +', ' + fmax + ', '+opts.score+')');
 
-        var data = { start: fmin,
-                     end: fmax,
-                     source: this.source
-                   };
+        var data = {
+            start: fmin,
+            end: fmax
+        };
 
         for( var k in opts )
             data[k] = opts[k];
 
+        var id = data.id;
+        delete data.id;
+
         var f = new SimpleFeature({
-            data: data
+            data: data,
+            id: id ? id : data.start + '_' + data.end + '_' + data.score
         });
 
         this.features.push(f);
@@ -262,102 +335,86 @@ var RequestWorker = declare( null,
         var data = this.window.bwg.newDataView( bytes, startOffset );
 
         var offset = 0;
-        while (offset < bytes.length) {
-            var chromId = data.getUint32( offset );
-            var start = data.getInt32( offset+4 );
-            var end = data.getInt32( offset+8 );
+        while (offset < bytes.byteLength) {
+            const chromId = data.getUint32(offset);
+            const start = data.getInt32(offset+4);
+            const end = data.getInt32(offset+8);
             offset += 12;
-            var rest = '';
-            while( offset < bytes.length ) {
-                var ch = data.getUint8( offset++ );
-                if (ch != 0) {
+            if (chromId !== this.chr) {
+                console.warn('BigBed block is out of current range')
+                return
+            }
+
+            let rest = '';
+            while (offset < bytes.byteLength) {
+                let ch = data.getUint8( offset++ );
+                if (ch !== 0) {
                     rest += String.fromCharCode(ch);
                 } else {
                     break;
                 }
             }
 
-            var featureOpts = {};
+            const featureData = this.parseBedText(start, end, rest)
+            this.maybeCreateFeature(start,end,featureData)
+        }
+    },
 
-            var bedColumns = rest.split('\t');
-            if (bedColumns.length > 0) {
-                featureOpts.label = bedColumns[0];
-            }
-            if (bedColumns.length > 1) {
-                featureOpts.score = parseInt( bedColumns[1] );
-            }
-            if (bedColumns.length > 2) {
-                featureOpts.orientation = bedColumns[2];
-            }
-            if (bedColumns.length > 5) {
-                var color = bedColumns[5];
-                if (this.window.BED_COLOR_REGEXP.test(color)) {
-                    featureOpts.override_color = 'rgb(' + color + ')';
-                }
-            }
+    /**
+     * parse the `rest` field of a binary bed data section, using
+     * the autosql schema defined for this file
+     *
+     * @returns {Object} feature data with native BED field names
+     */
+    parseBedText: function(start, end, rest) {
+        // include ucsc-style names as well as jbrowse-style names
+        const featureData = {
+            start: start,
+            end: end,
+        }
 
-            if (bedColumns.length < 9) {
-                if (chromId == this.chr) {
-                    this.maybeCreateFeature( start, end, featureOpts);
-                }
-            } else if (chromId == this.chr && start <= this.max && end >= this.min) {
-                // Complex-BED?
-                // FIXME this is currently a bit of a hack to do Clever Things with ensGene.bb
+        const bedColumns = rest.split('\t')
+        const asql = this.window.autoSql || defaultAutoSql
+        const numericTypes = ['uint', 'int', 'float', 'long']
+        // first three columns (chrom,start,end) are not included in bigBed
+        for (let i = 3; i < asql.fields.length; i++) {
+            if (bedColumns[i-3] !== '.' && bedColumns[i-3] !== '') {
+                const autoField = asql.fields[i]
+                let columnVal = bedColumns[i-3]
 
-                var thickStart = bedColumns[3]|0;
-                var thickEnd   = bedColumns[4]|0;
-                var blockCount = bedColumns[6]|0;
-                var blockSizes = bedColumns[7].split(',');
-                var blockStarts = bedColumns[8].split(',');
-
-                featureOpts.type = 'bb-transcript';
-                var grp = new SimpleFeature();
-                grp.id = bedColumns[0];
-                grp.type = 'bb-transcript';
-                grp.notes = [];
-                featureOpts.groups = [grp];
-
-                if (bedColumns.length > 10) {
-                    var geneId = bedColumns[9];
-                    var geneName = bedColumns[10];
-                    var gg = new SimpleFeature();
-                    gg.id = geneId;
-                    gg.label = geneName;
-                    gg.type = 'gene';
-                    featureOpts.groups.push(gg);
-                }
-
-                var spans = null;
-                for (var b = 0; b < blockCount; ++b) {
-                    var bmin = (blockStarts[b]|0) + start;
-                    var bmax = bmin + (blockSizes[b]|0);
-                    var span = new Range(bmin, bmax);
-                    if (spans) {
-                        spans = spans.union( span );
-                    } else {
-                        spans = span;
+                // for speed, cache some of the tests we need inside the autofield definition
+                if (!autoField._requestWorkerCache) {
+                    const match = /^(\w+)\[/.exec(autoField.type)
+                    autoField._requestWorkerCache = {
+                        isNumeric: numericTypes.includes(autoField.type),
+                        isArray: !!match,
+                        arrayIsNumeric: match && numericTypes.includes(match[1])
                     }
                 }
 
-                var tsList = spans.ranges();
-                for (var s = 0; s < tsList.length; ++s) {
-                    var ts = tsList[s];
-                    this.createFeature( ts.min(), ts.max(), featureOpts);
+                if (autoField._requestWorkerCache.isNumeric) {
+                    let num = Number(columnVal)
+                    // if the number parse results in NaN, somebody probably
+                    // listed the type erroneously as numeric, so don't use
+                    // the parsed number
+                    columnVal = isNaN(num) ? columnVal : num
+                } else if(autoField._requestWorkerCache.isArray) {
+                    // parse array values
+                    columnVal = columnVal.split(',')
+                    if (columnVal[columnVal.length-1] === '') columnVal.pop()
+                    if (autoField._requestWorkerCache.arrayIsNumeric)
+                        columnVal = columnVal.map(str => Number(str))
                 }
 
-                if (thickEnd > thickStart) {
-                    var tl = spans.intersection( new Range(thickStart, thickEnd) );
-                    if (tl) {
-                        featureOpts.type = 'bb-translation';
-                        var tlList = tl.ranges();
-                        for (var s = 0; s < tlList.length; ++s) {
-                            var ts = tlList[s];
-                            this.createFeature( ts.min(), ts.max(), featureOpts);
-                        }
-                    }
-                }
+                featureData[snakeCase(autoField.name)] = columnVal
             }
         }
+
+        if (featureData.strand) {
+            featureData.strand = {'-': -1, '+': 1}[featureData.strand]
+        }
+
+        return featureData
     },
 
     readFeatures: function() {

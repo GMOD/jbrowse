@@ -24,12 +24,39 @@ return declare( Store,
         this.storeTimeout = args.storeTimeout || 500;
         this._featureTransforms = args.featureTransforms || []
 
-        // TODO: at some point, might want to implement support for a
-        // general transform function people can apply to stores
-        //this._configureGeneralFeaturesTransform()
+        // install general transform function if defined
+        this._configureFeaturesTransforms()
+    },
+
+    _configureFeaturesTransforms: function() {
+        let featureTransform = this.getConf('featureTransform')
+        if (typeof featureTransform === 'string') {
+            featureTransform = this.getPredefinedFeatureTransform(featureTransform)
+        }
+
+        if (featureTransform) {
+            this.addFeatureTransform(featureTransform)
+        }
 
         // install `config.topLevelFeatures` transform if necessary
         this._configureTopLevelFeaturesTransform()
+    },
+
+    /**
+     * get a predefined feature transform function by name, or undef if no
+     * transform by that name is defined
+     * @param {string} name
+     */
+    getPredefinedFeatureTransform(name) {
+    },
+
+    /**
+     * Get a metadata object, if one is available, for the
+     * given feature tag name
+     * @param {string} tagName
+     * @returns {object} containing 'description' member, and optionally anything else
+     */
+    getTagMetadata(tagName) {
     },
 
     /**
@@ -204,7 +231,7 @@ return declare( Store,
     applyFeatureTransforms: function(features) {
         let resultFeatures = features
         this._featureTransforms.forEach(transformFunction => {
-            resultFeatures = transformFunction(resultFeatures)
+            resultFeatures = transformFunction.call(this,resultFeatures,this)
         })
         return resultFeatures
     },

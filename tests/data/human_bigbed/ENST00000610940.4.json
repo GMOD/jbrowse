@@ -1,0 +1,53 @@
+{
+    "data": {
+      "start": 18912776,
+      "end": 18936553,
+      "name": "ENST00000610940.4",
+      "score": 1000,
+      "strand": -1,
+      "thick_start": 18913177,
+      "thick_end": 18936287,
+      "reserved": "0,0,0",
+      "block_count": 15,
+      "block_sizes": [
+        586,
+        89,
+        99,
+        176,
+        147,
+        93,
+        82,
+        80,
+        117,
+        65,
+        150,
+        35,
+        209,
+        313,
+        164
+      ],
+      "chrom_starts": [
+        0,
+        661,
+        4113,
+        5539,
+        6674,
+        6929,
+        8565,
+        9548,
+        10040,
+        10338,
+        12274,
+        12911,
+        18213,
+        23238,
+        23613
+      ],
+      "gene_id": "ENSG00000100033.16",
+      "gene_name": "PRODH",
+      "method": "protein_coding",
+      "gene_bio_type": "protein_coding",
+      "tags": "basic,appris_principal_3,CCDS"
+    },
+    "_uniqueID": "18912776_18936553_1000"
+  }

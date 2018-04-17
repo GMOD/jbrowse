@@ -1494,6 +1494,7 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'        : 'JBrowse/View/Track/CanvasFeatures',
+                'JBrowse/Store/SeqFeature/BigBed'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/GFF3Tabix'   : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BED'         : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BEDTabix'    : 'JBrowse/View/Track/CanvasFeatures',
