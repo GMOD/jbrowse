@@ -1,12 +1,10 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/Color',
-           'JBrowse/View/FeatureGlyph/Segments'
+           'JBrowse/View/FeatureGlyph/Segments',
        ],
        function(
            declare,
-           Color,
-           SegmentsGlyph
+           SegmentsGlyph,
        ) {
 
 return declare( SegmentsGlyph, {
