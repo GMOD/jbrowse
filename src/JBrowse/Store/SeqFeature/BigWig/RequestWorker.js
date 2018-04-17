@@ -371,7 +371,6 @@ var RequestWorker = declare( null,
         const featureData = {
             start: start,
             end: end,
-            subfeatures: []
         }
 
         const bedColumns = rest.split('\t')

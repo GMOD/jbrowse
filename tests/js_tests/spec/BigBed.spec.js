@@ -37,9 +37,9 @@ require([
             waitsFor( function() { return features.done; } )
             runs( function() {
                 deleteUniqueIDSerial(expectedFeatureData)
+                // console.log(JSON.stringify(features,undefined,2))
                 const featureData = JSON.parse(JSON.stringify(features))
                 deleteUniqueIDSerial(featureData)
-
                 expect(featureData).toEqual(expectedFeatureData)
             })
         })
@@ -153,7 +153,7 @@ require([
             runs( () => {
                 expect( features.length ).toEqual( 114 )
                 let featureData = JSON.parse(JSON.stringify(features[88], undefined, 2))
-                console.log(JSON.stringify(features[88],undefined,2))
+                // console.log(JSON.stringify(features[88],undefined,2))
                 deleteUniqueIDSerial(featureData)
                 deleteUniqueIDSerial(expectedFeatureData)
                 expect(featureData).toEqual(expectedFeatureData)
