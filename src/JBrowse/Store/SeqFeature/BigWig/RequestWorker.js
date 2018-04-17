@@ -381,21 +381,29 @@ var RequestWorker = declare( null,
             if (bedColumns[i-3] !== '.' && bedColumns[i-3] !== '') {
                 const autoField = asql.fields[i]
                 let columnVal = bedColumns[i-3]
-                if (numericTypes.includes(autoField.type)) {
+
+                // for speed, cache some of the tests we need inside the autofield definition
+                if (!autoField._requestWorkerCache) {
+                    const match = /^(\w+)\[/.exec(autoField.type)
+                    autoField._requestWorkerCache = {
+                        isNumeric: numericTypes.includes(autoField.type),
+                        isArray: !!match,
+                        arrayIsNumeric: match && numericTypes.includes(match[1])
+                    }
+                }
+
+                if (autoField._requestWorkerCache.isNumeric) {
                     let num = Number(columnVal)
                     // if the number parse results in NaN, somebody probably
                     // listed the type erroneously as numeric, so don't use
                     // the parsed number
                     columnVal = isNaN(num) ? columnVal : num
-                } else {
+                } else if(autoField._requestWorkerCache.isArray) {
                     // parse array values
-                    const match = /^(\w+)\[/.exec(autoField.type)
-                    if (match) {
-                        columnVal = columnVal.split(',')
-                        if (columnVal[columnVal.length-1] === '') columnVal.pop()
-                        if (numericTypes.includes(match[1]))
-                            columnVal = columnVal.map(str => Number(str))
-                    }
+                    columnVal = columnVal.split(',')
+                    if (columnVal[columnVal.length-1] === '') columnVal.pop()
+                    if (autoField._requestWorkerCache.arrayIsNumeric)
+                        columnVal = columnVal.map(str => Number(str))
                 }
 
                 featureData[snakeCase(autoField.name)] = columnVal
