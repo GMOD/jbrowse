@@ -48,7 +48,7 @@ return declare( null,
                 this.readWigDataById(...query, callback, err => {console.error(err)})
             },
             sizeFunction: countFeatures,
-            maxSize: 100000 // cache for up to 10000 features
+            maxSize: 500000 // cache up to 50000 features and subfeatures
         });
     },
 
