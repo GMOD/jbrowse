@@ -75,8 +75,8 @@ a.topLink, a.topLink * {
     text-decoration: none;
 }
 
-.menuBar .dijitButtonHover .dijitButtonNode,
-.menuBar .dijitDropDownButtonHover .dijitButtonNode {
+.menuBar .dijitButtonHover,
+.menuBar .dijitDropDownButtonHover {
     background: rgba( 255, 255, 255, 0.07 );
 }
 .menuBar .dijitButtonActive .dijitButtonNode,
