@@ -2,38 +2,41 @@
 
 # Installing JBrowse
 
-Users of JBrowse should get it from the main JBrowse site at http://jbrowse.org/install where official releases are available.
+To install jbrowse, most users should visit http://jbrowse.org/install and download a zip file such as JBrowse-1.13.0.zip. See instructions at https://jbrowse.org/code/latest-release/docs/tutorial/ for a tutorial on setting up a sample instance.
 
-# Install from github repo (for developers)
 
-The `master` branch is always in line with the latest release. Features
-are merged into the `dev` branch as they are completed.
+# Install JBrowse from GitHub (for developers)
 
-`jb_run.js` is a built-in [express](https://expressjs.com/) server that serves JBrowse.  However, any webserver like Apache or NGINX can be used.
-
-*If you are using a 3rd party webserver, you should clone JBrowse into your web root*
+To install from GitHub, you can simply clone the repo and run the setup.sh script
 
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
-    npm install
-    npm run build
-    ./setup.sh        # (recommended -- sets up demo files such as Volvox)a
-    utils/jb_run.js   # (optional -- begin serving JBrowse with built-in mini web server)
+    ./setup.sh
+    
+At this point, if you are in the web root of your Apache or nginx folder, you can access it as http://localhost/jbrowse/?data=sample_data/json/volvox
 
-If you have installed the demo (with ./jb_setup.js), you can point your browser to
-http://localhost/jbrowse/index.html?data=sample_data/json/volvox
-and you should see the volvox example data.
+Alternatively, run `utils/jb_run.js -p 3000` and access http://localhost:3000/index.html?data=sample_data/json/volvox
+ to see the code running from a small express.js server.
 
-`jb_run.js` will default to a non-privileged port (8080), this can be overridden with the `-p` option.
+*Note: you should avoid using sudo tasks like ./setup.sh and instead use chown/chmod on folders to your own user as necessary.*
 
-When you edit JavaScript files, you must re-run the webpack build with `npm run build`, or you can
-keep webpack running in "watch" mode by running it like `npm run build -- -w`
+*Also note: After editing a file, you must re-run the webpack build with `npm run build` or you can keep webpack running in "watch" mode by running  `npm run watch`.*
+
+*Also also note: git clone by default checks out the dev branch of jbrowse. The master branch contains the latest stable release*
 
 # Installing as an npm module
 
-This allows JBrowse to be easily integrated into other applications.  `jb_setup.js` and `jb_run.js` are copied into the application root and can be used to install the demo files and serve JBrowse, respectively.
+To install jbrowse from NPM directly, you can run.
 
     npm install GMOD/jbrowse
+
+To setup a simple instance, you can use
+
+    node_modules/.bin/jb_setup.js
+    node_modules/.bin/jb_run.js
+    
+Then visit http://localhost:3000/?data=sample_data/json/volvox
+
 
 # Contributing
 
@@ -42,29 +45,14 @@ Looking for places to contribute to the codebase?
 
 # Running the developer test suites
 
-## Server-side Perl
-
-Tests for the server-side Perl code.  You must have the JBrowse Perl
-module prerequisites installed for them to work.  Run with:
+The Travis-CI suite runs Perl, JavaScript, and Selenium automated tests. To run locally, you can use
 
     prove -Isrc/perl5 -lr tests
-
-## Client-side Unit Tests
-
-Point your browser at `http://my.dev.machine/jbrowse/tests/js_tests/index.html`
-
-You can also run them from phantomJS using
-
-    phantomjs tests/js_tests/run-jasmine.js http://my.dev.machine/jbrowse/tests/js_tests/index.html
-
-## Client-side Integration Tests
-
-Integration tests for the client-side app.  You need to have Python
-eggs for `selenium` and `nose` installed.  Run the tests with:
-
+    phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html
+    pip install selenium nose
     MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 
-Supported browsers are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis
+Supported browsers for SELENIUM_BROWSER are 'firefox', 'chrome', 'phantom', and 'travis_saucelabs'.  The Sauce Labs + Travis
 one will only work in a properly configured Travis CI build environment.
 
 # Manual testing
