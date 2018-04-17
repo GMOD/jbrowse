@@ -1610,7 +1610,7 @@ makeGlobalMenu: function( menuName ) {
     dojo.forEach( items, function( item ) {
         menu.addChild( item );
     });
-    dojo.addClass( menu.domNode, 'globalMenu' );
+    dojo.addClass( menu.domNode, 'jbrowse globalMenu' );
     dojo.addClass( menu.domNode, menuName );
     menu.startup();
     return menu;
