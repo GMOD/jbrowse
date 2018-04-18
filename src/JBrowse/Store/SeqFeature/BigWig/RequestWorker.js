@@ -247,7 +247,8 @@ var RequestWorker = declare( null,
 
         var data = {
             start: fmin,
-            end: fmax
+            end: fmax,
+            source: this.source
         };
 
         for( var k in opts )
