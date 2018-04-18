@@ -7,8 +7,8 @@
   "scripts": {
     "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
     "start": "utils/jb_run.js -p 8082",
-    "watch": "watch --wait=15 'npm run build' src/JBrowse plugins tests/js_tests css",
-    "build": "node node_modules/webpack/bin/webpack.js --config webpack.config.js",
+    "watch": "webpack -w",
+    "build": "webpack",
     "hint": "npm run lint",
     "lint": "eslint src/JBrowse test/js_tests"
   },
@@ -67,7 +67,6 @@
     "uglifyjs-webpack-plugin": "^1.2.2",
     "url-loader": "0.5.7",
     "util-deprecate": "^1.0.2",
-    "watch": "^1.0.2",
     "webpack": "^3.10.0",
     "yarn": "^1.5.1"
   }
