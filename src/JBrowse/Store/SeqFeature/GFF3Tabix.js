@@ -221,11 +221,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     query.start,
                     query.end,
                     line => {
-                        const start = line.start ;
-                        const end = line.end ;
-                        console.log(line);
-                        let binValue = Math.round( (start - query.start )* binRatio)
-                        let binValueEnd = Math.round( (end - query.start )* binRatio)
+                        let binValue = Math.round( (line.start - query.start )* binRatio)
+                        let binValueEnd = Math.round( (line.end - query.start )* binRatio)
 
                         for(let bin = binValue; bin < binValueEnd; bin++) {
                             histogram[bin] += 1
