@@ -12,7 +12,7 @@ To install from GitHub, you can simply clone the repo and run the setup.sh scrip
     git clone https://github.com/GMOD/jbrowse
     cd jbrowse
     ./setup.sh
-    
+
 At this point, if you are in the web root of your Apache or nginx folder, you can access it as http://localhost/jbrowse/?data=sample_data/json/volvox
 
 Alternatively, run `utils/jb_run.js -p 3000` and access http://localhost:3000/index.html?data=sample_data/json/volvox
@@ -34,7 +34,7 @@ To setup a simple instance, you can use
 
     node_modules/.bin/jb_setup.js
     node_modules/.bin/jb_run.js
-    
+
 Then visit http://localhost:3000/?data=sample_data/json/volvox
 
 
@@ -82,12 +82,12 @@ To run the Electron app in debug mode run the following
 
 NOTE: Beginning in 1.12.4,
 
-1. Make a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
+1. Run `build/release.sh $newReleaseVersion $nextReleaseVersion-alpha.0`, check its work, and then run the `git push` command it suggests to you. This makes a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
 to create a release on GitHub under https://github.com/GMOD/jbrowse/releases
 
 1. Add release notes to the new GitHub release that Travis created. Can just paste these from release-notes.txt, which is in Markdown format.
 
-1. Write a blog post announcing the release, with links to the built releases on GitHub. The SHA1 sums of the built release files can be seen near the end of the Travis build log, and the HTML version of the release notes can be gotten by running `make -f build/Makefile release-notes.html`.
+1. Write a blog post on jbrowse.org announcing the release, with links to the built releases on GitHub. The SHA1 sums of the built release files can be seen near the end of the Travis build log, and the HTML version of the release notes can be gotten by running `make -f build/Makefile release-notes.html`.
 
 1. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
 
