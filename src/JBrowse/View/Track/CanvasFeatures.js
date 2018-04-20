@@ -215,7 +215,9 @@ return declare(
             'transcript': 'ProcessedTranscript'
         }[feature.get('type')]
 
-        // otherwise, make it Segments if it has children, or a Box if it doesn't
+        // otherwise, make it Segments if it has children,
+        // a BED if it has block_count/thick_start,
+        // or a Box otherwise
         if (!guess) {
             let children = feature.children()
             if (children && children.length)
