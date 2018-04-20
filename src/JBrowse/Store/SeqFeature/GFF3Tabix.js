@@ -221,18 +221,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     query.start,
                     query.end,
                     line => {
-                        // var feat = this.lineToFeature(line);
-                        // if(!feat.attributes.parent) // only count if has NO parent
-                        const start = line.start ;
-                        let binValue = Math.round( (start - query.start )* binRatio)
+                        let binValue = Math.round( (line.start - query.start )* binRatio)
+                        let binValueEnd = Math.round( (line.end - query.start )* binRatio)
 
-                        // in case it extends over the end, just push it on the end
-                        binValue = binValue >= 0 ? binValue : 0 ;
-                        binValue = binValue < histogram.length ? binValue : histogram.length -1
-
-                        histogram[binValue] += 1
-                        if (histogram[binValue] > stats.max) {
-                            stats.max = histogram[binValue]
+                        for(let bin = binValue; bin < binValueEnd; bin++) {
+                            histogram[bin] += 1
+                            if (histogram[bin] > stats.max) {
+                                stats.max = histogram[bin]
+                            }
                         }
                     },
                     () => {
