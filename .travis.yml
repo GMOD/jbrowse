@@ -10,7 +10,6 @@ addons:
     packages:
     - libdb-dev
     - libgd2-noxpm-dev
-    - wine1.6
   firefox: '58.0'
 cache:
   directories:
