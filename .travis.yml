@@ -44,7 +44,6 @@ install:
   fi
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
-- npm install -g jshint
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
