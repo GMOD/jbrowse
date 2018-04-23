@@ -5,6 +5,8 @@ import path from 'path';
 import os from 'os';
 var tmp = require('tmp');
 var tmpobj = tmp.dirSync();
+const fakeDialog = require('spectron-fake-dialog');
+
 
 test.beforeEach(async t => {
     t.context.app = new Application({
@@ -13,8 +15,13 @@ test.beforeEach(async t => {
         env: {SPECTRON: '1'},
         requireName: 'electronRequire'
     });
+    fakeDialog.apply(t.context.app);
 
-    await t.context.app.start();
+    console.error(process.cwd()+"/docs/tutorial/data_files/volvox.fa");
+    await t.context.app.start()
+        .then(() =>
+          fakeDialog.mock([ { method: 'showOpenDialog', value: [process.cwd()+"/docs/tutorial/data_files/volvox.fa"] } ])
+        );
 });
 
 test.afterEach.always(async t => {

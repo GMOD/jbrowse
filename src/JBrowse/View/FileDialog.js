@@ -143,12 +143,7 @@ return declare( null, {
         else {
             on( localFilesControl.uploader, 'click', function() {
                 var dialog = electronRequire('electron').remote.dialog;
-                var ret;
-                if(window.process.env.SPECTRON) {
-                    ret = [window.process.cwd()+"/docs/tutorial/data_files/volvox.fa"];
-                } else {
-                    ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
-                }
+                var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
                 if( ret ) {
                     var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });
                     resourceListControl.addURLs( paths );

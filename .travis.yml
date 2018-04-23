@@ -56,7 +56,7 @@ script:
 - set -e
 - ./setup.sh
 - yarn lint
-- npm install electron spectron ava optimist tmp
+- npm install electron spectron ava optimist tmp spectron-fake-dialog
 - xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
