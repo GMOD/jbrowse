@@ -482,7 +482,7 @@ fatalError: function( error ) {
                         var errors_div = dojo.byId('fatal_error_list');
                         dojo.create('div', { className: 'error', innerHTML: formatError(error)+'' }, errors_div );
                     }
-                    request( 'sample_data/json/volvox/successfully_run' ).then( function() {
+                    request( thisB.resolveUrl('sample_data/json/volvox/successfully_run') ).then( function() {
                            try {
                                dojo.byId('volvox_data_placeholder').innerHTML = 'However, it appears you have successfully run <code>./setup.sh</code>, so you can see the <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
                            } catch(e) {}
