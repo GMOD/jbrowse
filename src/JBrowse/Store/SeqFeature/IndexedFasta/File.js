@@ -37,7 +37,7 @@ return declare( null,
 
     _readFAI: function( successCallback, failCallback ) {
         this.fai.fetch( dojo.hitch( this, function(text) {
-            if (!text) {
+            if (!text.byteLength) {
                 failCallback("No data read from FASTA index (FAI) file");
                 return;
             }

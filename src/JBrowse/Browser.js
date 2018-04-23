@@ -546,6 +546,8 @@ loadRefSeqs: function() {
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
+                }, function(error) {
+                    deferred.reject(error);
                 });
             return;
         }
