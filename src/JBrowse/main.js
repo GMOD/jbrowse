@@ -2,6 +2,7 @@ import 'babel-polyfill'
 
 require([
     'JBrowse/Browser',
+    'JBrowse/Util',
     'JBrowse/QueryParamConfigMapper',
     'dojo/io-query',
     'dojo/json',
@@ -13,6 +14,7 @@ require([
 ],
 function (
     Browser,
+    Util,
     QueryParamConfigMapper,
     ioQuery,
     JSON,
@@ -60,7 +62,8 @@ function (
 
             return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
         },
-        updateBrowserURL: true
+        updateBrowserURL: true,
+        electronData: queryParams.electronData || (Util.isElectron() && electronRequire('electron').remote.app.getPath('userData'))
     };
 
     window.addEventListener('load', () => {

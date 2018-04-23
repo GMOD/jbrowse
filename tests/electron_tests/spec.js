@@ -2,12 +2,14 @@ import test from 'ava';
 import {Application} from 'spectron';
 import electronPath from 'electron';
 import path from 'path';
-
+import os from 'os';
+var tmp = require('tmp');
+var tmpobj = tmp.dirSync();
 
 test.beforeEach(async t => {
     t.context.app = new Application({
         path: electronPath,
-        args: [path.join(__dirname, '../..')],
+        args: [path.join(__dirname, '../..'), '--electronData', tmpobj.name],
         env: {SPECTRON: '1'},
         requireName: 'electronRequire'
     });
@@ -51,5 +53,11 @@ test('shows window', async t => {
     await app.client.waitUntilWindowLoaded()
     text = await app.client.getText("#previousSessionsTable");
     t.true(text != null);
+    await app.client.click("#previousSessionsTable");
+    var tracklabel = app.client.element( "//label[contains(@class,'tracklist-label')]/span[contains(.,'FASTA')]");
+    await tracklabel.click();
+    var trackPath = "//div[contains(@class,'track-label')][contains(.,'FASTA')]";
+    var track = app.client.element(trackPath);
+    console.log(track);
 });
 

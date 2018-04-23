@@ -505,9 +505,8 @@ fatalError: function( error ) {
 loadSessions: function() {
     var fs = electronRequire('fs');
     var app = electronRequire('electron').remote.app;
-
-    var path = app.getPath('userData') + "/sessions.json";
-    var obj = JSON.parse( fs.readFileSync( path, 'utf8' ) );
+    console.log(this.config);
+    var obj = JSON.parse( fs.readFileSync( this.config.electronData + '/sessions.json', 'utf8' ) );
     var table = dojo.create( 'table', { id: 'previousSessionsTable', style: { overflow: 'hidden', width: '90%' } }, dojo.byId('previousSessions') );
     var thisB = this;
 
@@ -1106,8 +1105,7 @@ renderDatasetSelect: function( parent ) {
 
 saveSessionDir: function( directory ) {
     var fs = electronRequire('fs');
-    var app = electronRequire('electron').remote.app;
-    var path = app.getPath('userData')+"/sessions.json";
+    var path = this.config.electronData + '/sessions.json';
     var obj = [];
 
     try {
@@ -1116,7 +1114,7 @@ saveSessionDir: function( directory ) {
     catch(e) {}
 
     var dir = Util.replacePath( directory );
-    if( array.every(obj, function(elt) { return elt.session!=dir; }) )
+    if( array.every(obj, function(elt) { return elt.session != dir; }) )
         obj.push({ session: dir });
 
     fs.writeFileSync(path, JSON.stringify( obj, null, 2 ), 'utf8');
@@ -1240,14 +1238,14 @@ openFastaElectron: function() {
                     refSeqOrder: results.refSeqOrder
                 };
 
-                // fix dix to be user data if we are accessing a url for fasta
-                var dir = app.getPath('userData')+"/"+confs[0].label;
+                // fix dir to be user data if we are accessing a url for fasta
+                var dir = this.config.electronData + '/' + confs[0].label;
 
 
                 try {
                     fs.existsSync(dir) || fs.mkdirSync(dir);
                     fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2));
-                    fs.closeSync( fs.openSync( dir+"/tracks.conf", 'w' ) );
+                    fs.closeSync( fs.openSync( dir + "/tracks.conf", 'w' ) );
                     this.saveSessionDir( dir );
                     window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                 } catch(e) { alert(e); }
@@ -1273,7 +1271,7 @@ openFastaElectron: function() {
                         refSeqOrder: results.refSeqOrder
                     };
                     try {
-                        var dir = app.getPath('userData')+"/"+confs[0].label;
+                        var dir = thisB.config.electronData + '/' + confs[0].label;
                         fs.existsSync(dir) || fs.mkdirSync(dir);
                         fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
                         fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
@@ -1311,10 +1309,10 @@ openFastaElectron: function() {
                         refSeqOrder: results.refSeqOrder
                     };
                     try {
-                        var dir = app.getPath('userData')+"/"+confs[0].label;
+                        var dir = thisB.config.electronData + '/' + confs[0].label;
                         fs.existsSync(dir) || fs.mkdirSync(dir);
-                        fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
-                        fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
+                        fs.writeFileSync(dir + '/trackList.json', JSON.stringify(trackList, null, 2));
+                        fs.closeSync(fs.openSync( dir + '/tracks.conf', 'w' ));
                         thisB.saveSessionDir( dir );
                         window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                     } catch(e) { alert(e); }
