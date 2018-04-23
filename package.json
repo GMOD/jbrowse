@@ -49,7 +49,6 @@
     "dojo-util": "1.13.0",
     "dojo-webpack-plugin": "^2.7.2",
     "dojox": "1.13.0",
-    "electron-screenshot": "^1.0.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.10.0",
