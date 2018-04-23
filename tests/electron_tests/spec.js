@@ -51,13 +51,14 @@ test('shows window', async t => {
     await sleep(5000);
     await app.restart()
     await app.client.waitUntilWindowLoaded()
-    text = await app.client.getText("#previousSessionsTable");
-    t.true(text != null);
-    await app.client.click("#previousSessionsTable");
-    var tracklabel = app.client.element( "//label[contains(@class,'tracklist-label')]/span[contains(.,'FASTA')]");
-    await tracklabel.click();
-    var trackPath = "//div[contains(@class,'track-label')][contains(.,'FASTA')]";
-    var track = app.client.element(trackPath);
-    console.log(track);
+    //text = await app.client.getText("#previousSessionsTable");
+    //t.true(text != null);
+    var session = await app.client.element('//*[@id="previousSessionsTable"]/tr/td[2]/a').click();
+    await sleep(5000);
+
+    var tracklabel = await app.client.element('//label[contains(@class, "tracklist-label")]/span').click();
+    await sleep(1000);
+    var trackPath = await app.client.element('//div[contains(@class,"track-label")][contains(.,"FASTA")]');
+    t.true(trackPath != null);
 });
 

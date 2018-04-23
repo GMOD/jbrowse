@@ -505,7 +505,6 @@ fatalError: function( error ) {
 loadSessions: function() {
     var fs = electronRequire('fs');
     var app = electronRequire('electron').remote.app;
-    console.log(this.config);
     var obj = JSON.parse( fs.readFileSync( this.config.electronData + '/sessions.json', 'utf8' ) );
     var table = dojo.create( 'table', { id: 'previousSessionsTable', style: { overflow: 'hidden', width: '90%' } }, dojo.byId('previousSessions') );
     var thisB = this;
@@ -1153,7 +1152,9 @@ openConfig: function( plugins ) {
 
     try {
         fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
-    } catch(e) { console.log("Failed to save trackList.json"); }
+    } catch(e) {
+        console.error("Failed to save trackList.json");
+    }
     window.location.reload();
 },
 
@@ -1239,8 +1240,9 @@ openFastaElectron: function() {
                 };
 
                 // fix dir to be user data if we are accessing a url for fasta
-                var dir = this.config.electronData + '/' + confs[0].label;
-
+                var dir = this.config.electronData;
+                fs.existsSync(dir) || fs.mkdirSync(dir); // make base folder exist first before subdir
+                dir += '/' + confs[0].label;
 
                 try {
                     fs.existsSync(dir) || fs.mkdirSync(dir);
@@ -1271,7 +1273,9 @@ openFastaElectron: function() {
                         refSeqOrder: results.refSeqOrder
                     };
                     try {
-                        var dir = thisB.config.electronData + '/' + confs[0].label;
+                        var dir = thisB.config.electronData;
+                        fs.existsSync(dir) || fs.mkdirSync(dir); // make base folder exist first before subdir
+                        dir += '/' + confs[0].label;
                         fs.existsSync(dir) || fs.mkdirSync(dir);
                         fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
                         fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
