@@ -17,7 +17,6 @@ test.beforeEach(async t => {
     });
     fakeDialog.apply(t.context.app);
 
-    console.error(process.cwd()+"/docs/tutorial/data_files/volvox.fa");
     await t.context.app.start()
         .then(() =>
           fakeDialog.mock([ { method: 'showOpenDialog', value: [process.cwd()+"/docs/tutorial/data_files/volvox.fa"] } ])

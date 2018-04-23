@@ -412,7 +412,7 @@ welcomeScreen: function( container, error ) {
 
 
 
-        request(this.resolveUrl('sample_data/json/volvox/successfully_run')).then( function() {
+        request(thisB.resolveUrl('sample_data/json/volvox/successfully_run')).then( function() {
             try {
                 document.getElementById('volvox_data_placeholder')
                    .innerHTML = 'The example dataset is also available. View <a href="?data=sample_data/json/volvox">Volvox test data here</a>.';
