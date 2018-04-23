@@ -232,9 +232,9 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         let binStart
         let binEnd
 
-		for (var bin = 0 ; bin < numBins ; bin++) {
-			histogram[bin] = 0
-		}
+        for (var bin = 0 ; bin < numBins ; bin++) {
+            histogram[bin] = 0
+        }
 
         this._getFeatures(query,
             feat => {

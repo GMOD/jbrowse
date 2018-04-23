@@ -13,20 +13,20 @@ return declare(null,
 {
 
     constructor: function( args ) {
-        
+
         if (typeof args === 'undefined') {
             this.width = 78;
             return;
         };
-        
+
         this.width       = args.width || 78;
         this.htmlMaxRows = args.htmlMaxRows || 15;
         this.track = args.track;
         this.canSaveFiles = args.track &&  args.track._canSaveFiles && args.track._canSaveFiles();
-        
-	// hook point
-	if (typeof this.initData === 'function')        
-		this.initData(args);
+
+    // hook point
+    if (typeof this.initData === 'function')
+        this.initData(args);
     },
     renderHTML: function( region, seq, parent ) {
         var thisB = this;
@@ -37,11 +37,11 @@ return declare(null,
         if( this.canSaveFiles ) {
             var toolbar = new Toolbar().placeAt( container );
             var thisB = this;
-            
-	    // hook point
-	if (typeof thisB.addButtons === 'function')        
+
+        // hook point
+    if (typeof thisB.addButtons === 'function')
             thisB.addButtons(region, seq, toolbar);
-                              
+
             toolbar.addChild( new Button(
                                   { iconClass: 'dijitIconSave',
                                     label: 'FASTA',

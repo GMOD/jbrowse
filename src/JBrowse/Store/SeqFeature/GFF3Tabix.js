@@ -210,9 +210,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         let binStart
         let binEnd
 
-		for (var bin = 0 ; bin < numBins ; bin++) {
-			histogram[bin] = 0
-		}
+        for (var bin = 0 ; bin < numBins ; bin++) {
+            histogram[bin] = 0
+        }
 
         this.getHeader().then(
             () => {

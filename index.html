@@ -17,10 +17,10 @@
             if( document.body )
                 document.body.setAttribute("JSError",msg);
         }
-		if(window.process&&process.versions&&process.versions.electron) {
-			window.electronRequire = require;
-			delete window.require;
-		}
+        if(window.process&&process.versions&&process.versions.electron) {
+            window.electronRequire = require;
+            delete window.require;
+        }
     </script>
     <style>
         html, body, div.jbrowse {
@@ -35,10 +35,10 @@
 
   <body>
     <div class="jbrowse" id="GenomeBrowser">
-	  <div id="LoadingScreen" style="padding: 50px;">
-		<h1>Loading...</h1>
-	  </div>
-	</div>
+      <div id="LoadingScreen" style="padding: 50px;">
+        <h1>Loading...</h1>
+      </div>
+    </div>
     <div style="display: none">JBrowseDefaultMainPage</div>
   </body>
 </html>
