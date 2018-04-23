@@ -505,7 +505,9 @@ fatalError: function( error ) {
 loadSessions: function() {
     var fs = electronRequire('fs');
     var app = electronRequire('electron').remote.app;
-    var obj = JSON.parse( fs.readFileSync( this.config.electronData + '/sessions.json', 'utf8' ) );
+    var path = this.config.electronData + '/sessions.json';
+
+    var obj = JSON.parse( fs.readFileSync( path, 'utf8' ) );
     var table = dojo.create( 'table', { id: 'previousSessionsTable', style: { overflow: 'hidden', width: '90%' } }, dojo.byId('previousSessions') );
     var thisB = this;
 
