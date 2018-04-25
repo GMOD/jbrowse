@@ -47,8 +47,11 @@ test('shows window', async t => {
     var text = await app.client.getText("#welcome");
     t.is(text.substr(0,7), "Welcome");
     await app.client.click("#newOpen");
-    await app.client.click("#openFile");
-    await app.client.click("#dijit_form_Button_1_label");
+    //await app.client.click("#openFile");
+    // fails
+    // await app.client.element('//input[@type="file"]').click();
+    await app.client.click("#dojox_form_Uploader_0");
+    await app.client.element('//span[contains(text(),"Open")]').click();
     // debugging commands
     //    var x = await app.client.getMainProcessLogs()
     //    var y = await app.client.getRenderProcessLogs()
