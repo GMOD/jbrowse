@@ -138,21 +138,14 @@ return declare( null, {
         var actionBar           = this._makeActionBar( args.openCallback, args.cancelCallback );
 
         // connect the local files control to the resource list
-        if( !Util.isElectron() ) {
-            dojo.connect( localFilesControl.uploader, 'onChange', function() {
+        dojo.connect( localFilesControl.uploader, 'onChange', function() {
+            if(Util.isElectron()) {
+                const arr = [...localFilesControl.uploader._files].map((file) => Util.replace(file.path));
+                resourceListControl.addURLs(arr);
+            } else {
                 resourceListControl.addLocalFiles( localFilesControl.uploader._files );
-            });
-        }
-        else {
-            on( localFilesControl.uploader, 'click', function() {
-                var dialog = electronRequire('electron').remote.dialog;
-                var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
-                if( ret ) {
-                    var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });
-                    resourceListControl.addURLs( paths );
-                }
-            });
-        }
+            }
+        });
 
         // connect the remote URLs control to the resource list
         dojo.connect( remoteURLsControl, 'onChange', function( urls ) {
@@ -195,10 +188,18 @@ return declare( null, {
 
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
         var fileBox;
-        if( Util.isElectron() ) {
-            fileBox = dom.create('input', { type: 'button', value: 'Select files...', id: 'openFile' }, dragArea );
-        }
-        else {
+//        if( Util.isElectron() ) {
+//            fileBox = dom.create('input', { type: 'button', value: 'Select files...', id: 'openFile' }, dragArea );
+//            dragArea.ondragover = document.ondrop = (ev) => {
+//                ev.preventDefault()
+//            }
+//
+//            dragArea.ondrop = (ev) => {
+//                fileBox.files = ev.dataTransfer.files;
+//                ev.preventDefault();
+//            }
+//        }
+//        else {
             fileBox = new dojox.form.Uploader({
                 multiple: true
             });
@@ -215,7 +216,7 @@ return declare( null, {
                     }, dragArea
                 );
             }
-        }
+//        }
 
 
 
