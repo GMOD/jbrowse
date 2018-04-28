@@ -104,35 +104,53 @@ a.topLink, a.topLink * {
 
 
 /* dataset selector */
-.menuBar > .menu, .menuBar > .dataset_select {
+.menuBar > .menu, .menuBar  > .dijitComboBox {
     float: left;
     font-size: 120%;
     color: white;
-}
-.menuBar > .dataset_select {
-    margin: 1px 0 0 1px;
-    font-weight: bold;
-    height: 100%;
     background: transparent;
+    height: 100%;
     border: none;
-
-    .dijitSelectLabel {
-        padding: 0 0.5em;
-        vertical-align: middle;
-    }
-
-    &.dijitSelectHover td {
-        color: white;
-    }
-    .dijitButtonContents {
-        background: transparent;
-        border-color: transparent;
+}
+.menuBar > .dijitComboBox {
+    > .dijitInputContainer {
+        height: 100%;
     }
     .dijitArrowButton {
-        padding: 0;
+        padding: 0 3px 0 2px;
+        height: 100%;
 
         .dijitArrowButtonInner {
             background: url("../img/spriteArrows.png") no-repeat scroll -56px center;
+            margin-top: 4px;
+        }
+
+        &:hover {
+            background: rgba(255,255,255,0.2)
+        }
+    }
+    .dataset_select {
+        font-weight: bold;
+        background: transparent;
+        border: none;
+        color: inherit;
+        font-size: inherit;
+        font-style: italic;
+        height: 100%;
+        padding-bottom: 1px;
+        padding-left: 3px;
+
+        .dijitSelectLabel {
+            padding: 0 0.5em;
+            vertical-align: middle;
+        }
+
+        &.dijitSelectHover td {
+            color: white;
+        }
+        .dijitButtonContents {
+            background: transparent;
+            border-color: transparent;
         }
     }
 }

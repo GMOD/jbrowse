@@ -2,6 +2,10 @@
 
 ## Minor improvements
 
+ * The dropdown dataset selector in "classic menu" mode is now a type-ahead combo box, enabling
+   fast searching through large numbers of datasets. Thanks to @keiranmraine for the suggestion!
+   (issue #752, @rbuels)
+
  * Improve the calculation of feature density for GFF3Tabix and add new one for GFF3 in-memory.
    Thanks to @hkmoon for the suggestion! (issue #1039, issue #913, @cmdcolin)
 
