@@ -115,20 +115,26 @@ a.topLink, a.topLink * {
     height: 100%;
     background: transparent;
     border: none;
-}
-.menuBar > .dataset_select .dijitSelectLabel {
-    padding: 0 0.5em;
-    vertical-align: middle;
-}
-.menuBar > .dataset_select.dijitSelectHover td {
-    color: white;
-}
-.menuBar > .dataset_select .dijitButtonContents {
-    background: transparent;
-    border-color: transparent;
-}
-.menuBar > .dataset_select .dijitArrowButtonInner {
-    background: url("../img/spriteArrows.png") no-repeat scroll -56px center;
+
+    .dijitSelectLabel {
+        padding: 0 0.5em;
+        vertical-align: middle;
+    }
+
+    &.dijitSelectHover td {
+        color: white;
+    }
+    .dijitButtonContents {
+        background: transparent;
+        border-color: transparent;
+    }
+    .dijitArrowButton {
+        padding: 0;
+
+        .dijitArrowButtonInner {
+            background: url("../img/spriteArrows.png") no-repeat scroll -56px center;
+        }
+    }
 }
 
 &.globalMenu .dijitMenuItem td {
