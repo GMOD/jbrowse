@@ -6,6 +6,10 @@
    fast searching through large numbers of datasets. Thanks to @keiranmraine for the suggestion!
    (issue #752, @rbuels)
 
+ * There is now a new event named `/jbrowse/v1/n/tracks/redrawFinished` that fires after the
+   view is refreshed, when all of the visible tracks are finished drawing (or have errored).
+   Thanks to @scottcain for suggesting this. (issue #1027, @rbuels)
+
  * Improve the calculation of feature density for GFF3Tabix and add new one for GFF3 in-memory.
    Thanks to @hkmoon for the suggestion! (issue #1039, issue #913, @cmdcolin)
 
