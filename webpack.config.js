@@ -110,7 +110,7 @@ var webpackConf = {
     },
     resolveLoader: {
         modules: ["node_modules"]
-    },
+    }
 }
 
 if (DEBUG) {

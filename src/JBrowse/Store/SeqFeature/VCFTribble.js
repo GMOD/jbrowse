@@ -5,7 +5,7 @@ define([
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Store/DeferredFeaturesMixin',
-           'JBrowse/Store/TabixIndexedFile',
+           'JBrowse/Store/TribbleIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
            './VCF/Parser'
@@ -17,7 +17,7 @@ define([
            SeqFeatureStore,
            DeferredStatsMixin,
            DeferredFeaturesMixin,
-           TabixIndexedFile,
+           TribbleIndexedFile,
            GlobalStatsEstimationMixin,
            XHRBlob,
            VCFParser
@@ -28,7 +28,7 @@ define([
 // bit so that the range filtering in TabixIndexedFile will work.  VCF
 // files don't actually have an end coordinate, so we have to make it
 // here.  also convert coordinates to interbase.
-var VCFIndexedFile = declare( TabixIndexedFile, {
+var TribbleIndexedVCFFile = declare( TribbleIndexedFile, {
     parseLine: function() {
         var i = this.inherited( arguments );
         if( i ) {
@@ -37,6 +37,14 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
             i.end = ret ? (+ret[1] || +ret[2]) : i.start + i.fields[3].length;
         }
         return i;
+    },
+
+    getColumnNumbers: function() {
+        return {
+            ref: 1,
+            start: 2,
+            end: -1
+        }
     }
 });
 
@@ -46,10 +54,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     constructor: function( args ) {
         var thisB = this;
 
-        var tbiBlob = args.tbi ||
+        var idxBlob = args.idx ||
             new XHRBlob(
                 this.resolveUrl(
-                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+                    this.getConf('idxUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.idx'
                 )
             );
 
@@ -58,9 +66,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 this.resolveUrl( this.getConf('urlTemplate',[]) )
             );
 
-        this.indexedData = new VCFIndexedFile(
+        this.indexedData = new TribbleIndexedVCFFile(
             {
-                tbi: tbiBlob,
+                idx: idxBlob,
                 file: fileBlob,
                 browser: this.browser,
                 chunkSizeLimit: args.chunkSizeLimit || 1000000
@@ -86,50 +94,48 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     /** fetch and parse the VCF header lines */
     getVCFHeader: function() {
-        var thisB = this;
-        return this._parsedHeader || ( this._parsedHeader = function() {
-            var d = new Deferred();
-            var reject = lang.hitch( d, 'reject' );
+        if (!this._parsedHeader) {
+            this._parsedHeader = new Deferred()
+            var reject = this._parsedHeader.reject.bind(this._parsedHeader)
 
-            thisB.indexedData.indexLoaded.then( function() {
-                var maxFetch = thisB.indexedData.index.firstDataLine
-                    ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1
-                    : null;
+            this.indexedData.indexLoaded.then(
+                () => {
+                    const maxFetch = this.indexedData.index.data.firstDataOffset
+                        ? this.indexedData.index.data.firstDataOffset-1
+                        : null;
 
-                thisB.indexedData.data.read(
-                    0,
-                    maxFetch,
-                    function( bytes ) {
-                        thisB.parseHeader( new Uint8Array( bytes ) );
-                        d.resolve( thisB.header );
-                    },
-                    reject
-                );
-             },
-             reject
+                    this.indexedData.data.read(
+                        0,
+                        maxFetch,
+                        bytes => {
+                            this.parseHeader( new Uint8Array( bytes ) );
+                            this._parsedHeader.resolve( this.header );
+                        },
+                        reject
+                    );
+                },
+                reject
             );
-
-            return d;
-        }.call(this));
+        }
+        return this._parsedHeader
     },
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
-        var thisB = this;
-        thisB.getVCFHeader().then( function() {
-            thisB.indexedData.getLines(
-                query.ref || thisB.refSeq.name,
+        this.getVCFHeader().then( () => {
+            this.indexedData.getLines(
+                query.ref || this.refSeq.name,
                 query.start,
                 query.end,
-                function( line ) {
-                    var f = thisB.lineToFeature( line );
+                line => {
+                    var f = this.lineToFeature( line )
                     //console.log(f);
-                    featureCallback( f );
+                    featureCallback( f )
                     //return f;
                 },
                 finishedCallback,
                 errorCallback
             );
-        }, errorCallback );
+        }, errorCallback )
     },
 
     /**
@@ -144,11 +150,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
     },
 
-
     saveStore: function() {
         return {
             urlTemplate: this.config.file.url,
-            tbiUrlTemplate: this.config.tbi.url
+            idxUrlTemplate: this.config.idx.url
         };
     }
 
