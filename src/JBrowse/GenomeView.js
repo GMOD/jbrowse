@@ -2304,20 +2304,17 @@ renderTrack: function( /**Object*/ trackConfig ) {
 
     // get the store
     this.browser.getStore( trackConfig.store, function( s ) {
-            store = s;
-            if( trackClass && store )
-                makeTrack();
-        });
-
-    // get the track class
-    dojo.global.require( [ trackConfig.type ], function( class_ ) {
-        if(typeof class_ === "string") {
-            console.error("Failed to load module: "+trackConfig.type);
-            return;
-        }
-        trackClass = class_;
-        if( trackClass && store )
+        store = s;
+        // get the track class
+        var trackType = trackConfig.type || thisB.browser.getTrackTypes().trackTypeDefaults[store.config.type]
+        dojo.global.require( [ trackType ], function( class_ ) {
+            if(typeof class_ === "string") {
+                console.error("Failed to load module: "+trackConfig.type);
+                return;
+            }
+            trackClass = class_;
             makeTrack();
+        });
     });
 
     return trackDiv;
