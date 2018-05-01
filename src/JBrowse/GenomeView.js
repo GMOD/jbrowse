@@ -2032,7 +2032,7 @@ trackHeightUpdate: function(trackName, height) {
     this.updateStaticElements({ height: this.getHeight() });
 },
 
-showVisibleBlocks: function(updateHeight, pos, startX, endX) {
+showVisibleBlocks: function(updateHeight, pos, startX, endX, finishCallback) {
     if (pos === undefined) pos = this.getPosition();
     if (startX === undefined) startX = pos.x - (this.drawMargin * this.getWidth());
     if (endX === undefined) endX = pos.x + ((1 + this.drawMargin) * this.getWidth());
@@ -2050,27 +2050,51 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX) {
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
+    let showingPromises = []
     this.overviewTrackIterate(function(track, view) {
-                                  track.showRange(0, view.overviewStripes - 1,
-                                                  view.ref.start-1, view.overviewStripeBases,
-                                                  view.overviewBox.w /
-                                                  (view.ref.end - view.ref.start));
-                      });
+        showingPromises.push( new Promise((resolve,reject) => {
+            track.showRange(
+                0,
+                view.overviewStripes - 1,
+                view.ref.start-1,
+                view.overviewStripeBases,
+                view.overviewBox.w / (view.ref.end - view.ref.start),
+                undefined,
+                undefined,
+                resolve,
+            )
+        }))
+    })
     this.trackIterate(function(track, view) {
-                          track.showRange(leftVisible, rightVisible,
-                                          startBase, bpPerBlock,
-                                          view.pxPerBp,
-                                          containerStart, containerEnd);
-                      });
+        showingPromises.push( new Promise((resolve,reject) => {
+            track.showRange(
+                leftVisible,
+                rightVisible,
+                startBase,
+                bpPerBlock,
+                view.pxPerBp,
+                containerStart,
+                containerEnd,
+                resolve,
+            )
+        }))
+    })
 
     this.updateStaticElements({
-                                  height: this.getHeight(),
-                                  width: this.getWidth(),
-                                  x: this.getX(),
-                                  y: this.getY()
-                              });
+        height: this.getHeight(),
+        width: this.getWidth(),
+        x: this.getX(),
+        y: this.getY()
+    })
 
-    this.browser.publish( '/jbrowse/v1/n/tracks/redraw' );
+    this.browser.publish( '/jbrowse/v1/n/tracks/redraw' )
+
+    const after = () => {
+        if (finishCallback) finishCallback()
+        this.browser.publish( '/jbrowse/v1/n/tracks/redrawFinished' )
+    }
+    Promise.all(showingPromises)
+        .then(after, after)
 },
 
 /**

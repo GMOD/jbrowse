@@ -273,7 +273,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
 
     showRange: function(first, last, startBase, bpPerBlock, scale,
-                        containerStart, containerEnd) {
+                        containerStart, containerEnd, finishCallback) {
 
         if( this.fatalError ) {
             this.showFatalError( this.fatalError );
@@ -296,18 +296,27 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         var i, leftBase;
         var maxHeight = 0;
+        var blockShowingPromises = [];
         //fill left, including existing blocks (to get their heights)
         for (i = lastAttached; i >= first; i--) {
             leftBase = startBase + (bpPerBlock * (i - first));
-            this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
-                            containerStart, containerEnd);
+            blockShowingPromises.push( new Promise((resolve,reject) => {
+                this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+                    containerStart, containerEnd, resolve);
+            }))
         }
         //fill right
         for (i = lastAttached + 1; i <= last; i++) {
             leftBase = startBase + (bpPerBlock * (i - first));
-            this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
-                            containerStart, containerEnd);
+            blockShowingPromises.push( new Promise((resolve,reject) => {
+                this._showBlock(i, leftBase, leftBase + bpPerBlock, scale,
+                    containerStart, containerEnd, resolve);
+            }))
         }
+        // if we have a finishing callback, call it when we have finished all our _showBlock calls
+        if( finishCallback )
+            Promise.all(blockShowingPromises)
+                .then(finishCallback, finishCallback)
 
         //detach left blocks
         var destBlock = this.blocks[first];
@@ -514,14 +523,16 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
     },
 
     _showBlock: function(blockIndex, startBase, endBase, scale,
-                         containerStart, containerEnd) {
+                         containerStart, containerEnd, finishCallback) {
         if ( this.empty || this.fatalError ) {
             this.heightUpdate( this.labelHeight );
+            if (finishCallback) finishCallback();
             return;
         }
 
         if (this.blocks[blockIndex]) {
             this.heightUpdate(this.blockHeights[blockIndex], blockIndex);
+            if (finishCallback) finishCallback();
             return;
         }
 
@@ -553,6 +564,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
 
         if( this.fatalError ) {
             this.fillBlockError( blockIndex, block );
+            if (finishCallback) finishCallback();
             return;
         }
 
@@ -564,6 +576,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         var finish = function() {
             if( block && loadMessage.parentNode )
                 block.domNode.removeChild( loadMessage );
+            if( finishCallback )
+                finishCallback()
         };
 
         var viewargs = {
