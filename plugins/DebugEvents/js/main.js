@@ -51,86 +51,89 @@ return declare( JBrowsePlugin,
         this.browser.afterMilestone( 'createTrack', function() {
             console.log("Milestone: createTrack");
         });
-        
-        
+
+
         dojo.subscribe("/jbrowse/v1/v/tracks/new", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/new",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/show", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/show",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/show", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/show",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/hide", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/hide",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/hide", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/hide",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/hide", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/hide",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/new", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/new",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/new", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/new",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/replace", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/replace",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/replace", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/replace",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/replace", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/replace",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/delete", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/delete",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/delete", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/delete",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/delete", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/delete",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/pin", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/pin",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/pin", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/pin",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/pin", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/pin",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/v/tracks/unpin", function(data){
             console.log("Event: /jbrowse/v1/v/tracks/unpin",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/c/tracks/unpin", function(data){
             console.log("Event: /jbrowse/v1/c/tracks/unpin",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/unpin", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/unpin",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/visibleChanged", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/visibleChanged",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/navigate", function(data){
             console.log("Event: /jbrowse/v1/n/navigate",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/globalHighlightChanged", function(data){
             console.log("Event: /jbrowse/v1/n/globalHighlightChanged",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/redraw",data);
-        });        
+        });
+        dojo.subscribe("/jbrowse/v1/n/tracks/redrawFinished", function(data){
+            console.log("Event: /jbrowse/v1/n/tracks/redrawFinished",data);
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/focus", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/focus",data);
-        });        
+        });
         dojo.subscribe("/jbrowse/v1/n/tracks/unfocus", function(data){
             console.log("Event: /jbrowse/v1/n/tracks/unfocus",data);
-        });        
+        });
     }
 
 
