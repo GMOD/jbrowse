@@ -54,7 +54,7 @@ sub _load_includes {
     my ( $self, $config, $upstreamConf ) = @_;
     $config = dclone($config);
     my $sourceUrl = $config->{sourceUrl} || $config->{baseUrl};
-    $sourceUrl = dirname($sourceUrl) if -f $sourceUrl;
+    $sourceUrl = dirname($sourceUrl) if $sourceUrl && -f $sourceUrl;
 
     my $newUpstreamConf = $self->_merge_configs( dclone($upstreamConf || {}), $config );
     my @includes = $self->_regularize_includes( $config->{include} );
@@ -135,8 +135,9 @@ sub _load_include {
     # instantiate the adaptor and load the config
     my $type = $self->_get_config_type( $include );
     my $path = File::Spec->rel2abs( $include->{url}, $baseUrl );
+    return {} unless -f $path;
     my $data = $type eq 'conf'
-        ? Bio::JBrowse::ConfigurationFile->new( path => $path )
+        ? Bio::JBrowse::ConfigurationFile->new( path => $path )->to_hashref
         : slurpJSON( $path );
     $data->{sourceUrl} = $path;
     return $data;

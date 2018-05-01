@@ -13,7 +13,7 @@ use_ok( 'Bio::JBrowse::ConfigurationManager' );
 my $config = Bio::JBrowse::ConfigurationManager
   ->new(
       conf => {
-        include => [ 'tests/data/conf/includes.json' ],
+        include => [ 'tests/data/conf/includes.json', 'tests/data/conf/tracks.conf' ],
         baseUrl => '.',
         overrideMe => 'rootConfig',
         foo => 1,
@@ -31,7 +31,7 @@ is($config->{overrideMe}, 'rootConfig');
 is($config->{override2}, 'no_includes.json');
 is($config->{zoz}, 42);
 
-is(@{$config->{tracks}}, 4);
+is(@{$config->{tracks}}, 6);
 
 is($config->{tracks}[1]{label}, 'zaz');
 is($config->{tracks}[1]{honk}, 'beep');
