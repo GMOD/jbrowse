@@ -33,16 +33,16 @@ is($config->{zoz}, 42);
 
 is(@{$config->{tracks}}, 6);
 
-is($config->{tracks}[1]{label}, 'zaz');
-is($config->{tracks}[1]{honk}, 'beep');
-is($config->{tracks}[1]{noinclude}, 'also here');
-is($config->{tracks}[1]{root}, 'root!');
-is($config->{tracks}[1]{quux}, 'foo');
+is($config->{tracks}[4]{label}, 'zaz');
+is($config->{tracks}[4]{honk}, 'beep');
+is($config->{tracks}[4]{noinclude}, 'also here');
+is($config->{tracks}[4]{root}, 'root!');
+is($config->{tracks}[4]{quux}, 'foo');
 
-is($config->{tracks}[2]{label}, 'includes');
-is($config->{tracks}[3]{label}, 'noinclude');
-is($config->{tracks}[0]{label}, 'zoo');
+is($config->{tracks}[0]{label}, 'includes');
+is($config->{tracks}[1]{label}, 'noinclude');
+is($config->{tracks}[5]{label}, 'zoo');
 
-#print Dumper($config);
+# print Dumper($config);
 
 done_testing;

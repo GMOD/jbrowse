@@ -1,0 +1,3 @@
+[["f07"],"ExampleFeatures","f07","ctgB",1658,1984]
+[["f06"],"ExampleFeatures","f06","ctgB",3013,6130]
+[["f05"],"ExampleFeatures","f05","ctgB",4714,5968]

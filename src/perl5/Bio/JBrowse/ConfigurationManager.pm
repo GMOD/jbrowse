@@ -42,6 +42,10 @@ sub get_final_config {
     # that values in the boot config override the others
     my $finalConf = $self->_merge_configs( $includedConfig, $bootstrapConf );
 
+    $finalConf->{tracks} ||= [];
+    # sort the tracks by label so they are always in a stable order
+    @{$finalConf->{tracks}} = sort { $a->{label} cmp $b->{label} } @{$finalConf->{tracks}};
+
     return $finalConf;
 }
 

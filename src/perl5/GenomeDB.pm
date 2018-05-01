@@ -287,7 +287,8 @@ sub trackList {
         baseUrl => "$self->{dataDir}",
         include => [ $trackListPath, 'tracks.conf' ],
     })->get_final_config;
-    my $tracks = $conf->{tracks};
+    my $tracks = $conf->{tracks} || [];
+    @$tracks = sort { $a->{label} cmp $b->{label} } @$tracks;
     return $tracks;
 }
 
