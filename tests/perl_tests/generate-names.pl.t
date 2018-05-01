@@ -36,13 +36,12 @@ my ( $stdout ) = run_with (
     );
 {
     my $got = read_names($tempdir);
+    # dircopy( $tempdir, 'tests/data/volvox_formatted_names'); # uncomment to rewrite expected data
     my $expected = read_names('tests/data/volvox_formatted_names');
     is_deeply( $got, $expected, 'got right data from volvox test data run' );
     #    or diag explain read_names($tempdir);
     #diag explain $got->{'c12/9.json'}{apple2}{exact};
     #diag explain $expected->{'c12/9.json'}{apple2}{exact};
-
-    # dircopy( $tempdir, 'tests/data/volvox_formatted_names') # uncomment to rewrite expected data
 }
 
 #system "echo TEMPDIR IS $tempdir; cat $tempdir/names/2be/0.json; echo;";
@@ -51,7 +50,7 @@ run_with(
     '--workdir' => $temp2,
     '--hashBits' => 16,
     '--incremental',
-    '--safeMode',
+    '--safeMode', #< note that --safeMode does not actually do anything
     '--tracks' => 'ExampleFeatures,NameTest',
     '--completionLimit' => 15
     );
