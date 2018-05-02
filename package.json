@@ -79,6 +79,6 @@
     "url-loader": "0.5.7",
     "util-deprecate": "^1.0.2",
     "webpack": "^3.10.0",
-    "yarn": "^1.5.1"
+    "yarn": "^1.6.0"
   }
 }
