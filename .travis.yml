@@ -13,6 +13,7 @@ addons:
   firefox: '58.0'
 cache:
   directories:
+  - "$HOME/.electron/"
   - extlib/
   - "$HOME/perl5/"
   - node_modules/
