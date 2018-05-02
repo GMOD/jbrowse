@@ -515,6 +515,35 @@ Util = {
         }
         return r;
     },
+
+    /**
+     * Coerce a value of unknown type to a boolean, treating string 'true'
+     * and 'false' as the values they indicate, and string numbers as
+     * numbers.
+     * @private
+     */
+    coerceBoolean: function(val) {
+        if( typeof val == 'string' ) {
+            val = val.toLowerCase();
+            if( val == 'true' ) {
+                return true;
+            }
+            else if( val == 'false' )
+                return false;
+            else
+                return parseInt(val);
+        }
+        else if( typeof val == 'boolean' ) {
+            return val;
+        }
+        else if( typeof val == 'number' ) {
+            return !!val;
+        }
+        else {
+            return true;
+        }
+    },
+
 };
 
     return Util;

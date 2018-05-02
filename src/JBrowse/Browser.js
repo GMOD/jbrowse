@@ -1257,7 +1257,7 @@ openFastaElectron: function() {
                     window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
                 } catch(e) { alert(e); }
             }
-            else if( confs[0].store.blob ) {
+            else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
                 var f2bit = Util.replacePath( confs[0].store.blob.url );
 
                 var refseqs = new TwoBit({'browser': this, 'urlTemplate': f2bit });
@@ -1333,76 +1333,49 @@ openFastaElectron: function() {
 },
 
 openFasta: function() {
-    var thisB=this;
     this.fastaFileDialog = this.fastaFileDialog || new FastaFileDialog({browser: this});
 
-    var replaceBrowser = function (newBrowserGenerator) {
-        thisB.teardown()
-        newBrowserGenerator()
-    }
-
     this.fastaFileDialog.show ({
-        openCallback: dojo.hitch(this, function(results) {
-          var confs = results.trackConfs || [];
-          function loadNewRefSeq(refSeqs, tracks) {
-              replaceBrowser(function() {
-                  var newBrowser = new thisB.constructor({
-                      refSeqs: { data: refSeqs },
-                      refSeqOrder: results.refSeqOrder
-                  });
-                  newBrowser.afterMilestone('completely initialized', function() {
-                      array.forEach( tracks, function( conf ) {
-                          var storeConf = conf.store;
-                          if( storeConf && typeof storeConf == 'object' ) {
-                              delete conf.store;
-                              storeConf.name = 'refseqs'; // important to make it the refseq store
-                              conf.store = this.addStoreConfig( storeConf.name, storeConf );
-                          }
-                      }, newBrowser);
-                      newBrowser.publish( '/jbrowse/v1/v/tracks/new', tracks );
-                  });
-              });
-          }
-          if( confs.length ) {
-            if( confs[0].store.fasta && confs[0].store.fai ) {
-                new IndexedFasta({
-                    browser: this,
-                    fai: confs[0].store.fai,
-                    fasta: confs[0].store.fasta
-                })
-                .getRefSeqs(
-                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
-                    function(error) { alert('Error getting refSeq: '+error); }
-                );
-            }
-            else if( confs[0].store.blob ) {
-                new TwoBit({
-                    browser: this,
-                    blob: confs[0].store.blob
-                })
-                .getRefSeqs(
-                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
-                    function(error) { alert('Error getting refSeq: '+error); }
-                );
-            }
-            else if( confs[0].store.fasta ) {
-                if( confs[0].store.fasta.size > 100000000 ) {
-                   if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
-                       return;
-                   }
-                }
-                new UnindexedFasta({
-                    browser: this,
-                    fasta: confs[0].store.fasta
-                })
-                .getRefSeqs(
-                    function(refSeqs) { loadNewRefSeq( refSeqs, confs ); },
-                    function(error) { alert('Error getting refSeq: '+error); }
-                );
-            }
+        openCallback: results => {
+            return new Promise((resolve,reject) => {
+                const trackConfigs = results.trackConfs || []
+                const [conf] = trackConfigs
+                if (!conf) return reject('no track configs')
+                const storeConf = conf.store
+                if (!storeConf) return reject('no store config')
 
-          }
-        })
+                dojo.global.require( [storeConf.type], (storeClass) => {
+                  if( /\/Unindexed/i.test(storeConf.type) && storeConf.fasta && storeConf.fasta.size > 100000000 ) {
+                      alert('Unindexed file too large. You must have an index file (.fai) for sequence files larger than 100 MB.')
+                      return reject('sequence file too large')
+                  }
+
+                  const store = new storeClass(
+                      Object.assign({ browser: this }, storeConf)
+                  )
+                  .getRefSeqs(
+                      refSeqs => {
+                          this.teardown()
+                          var newBrowser = new this.constructor({
+                              refSeqs: { data: refSeqs },
+                              refSeqOrder: results.refSeqOrder
+                          })
+                          newBrowser.afterMilestone('completely initialized', () => {
+                              storeConf.name = 'refseqs' // important to make it the refseq store
+                              newBrowser.addStoreConfig( storeConf.name, storeConf )
+                              conf.store = 'refseqs'
+                              newBrowser.publish( '/jbrowse/v1/v/tracks/new', [conf] )
+                          })
+                          resolve()
+                      },
+                      error => {
+                          this.fatalError('Error getting refSeq: '+error)
+                          reject(error)
+                      }
+                  );
+                })
+            })
+        }
       });
 },
 
@@ -2092,9 +2065,12 @@ loadConfig: function () {
                                this._addTrackConfigs( tracks );
 
                                // coerce some config keys to boolean
-                               dojo.forEach( ['show_tracklist','show_nav','show_overview','show_menu', 'show_fullviewlink', 'show_tracklabels', 'update_browser_title'], function(v) {
-                                                 this.config[v] = this._coerceBoolean( this.config[v] );
-                                             },this);
+                               [
+                                   'show_tracklist','show_nav','show_overview','show_menu',
+                                   'show_fullviewlink', 'show_tracklabels', 'update_browser_title'
+                               ].forEach( v => {
+                                   this.config[v] = Util.coerceBoolean( this.config[v] );
+                               })
 
                                // set empty tracks array if we have none
                                if( ! this.config.tracks )
@@ -2202,34 +2178,6 @@ _configDefaults: function() {
         highlightSearchedRegions: false,
         highResolutionMode: 'auto'
     };
-},
-
-/**
- * Coerce a value of unknown type to a boolean, treating string 'true'
- * and 'false' as the values they indicate, and string numbers as
- * numbers.
- * @private
- */
-_coerceBoolean: function(val) {
-    if( typeof val == 'string' ) {
-        val = val.toLowerCase();
-        if( val == 'true' ) {
-            return true;
-        }
-        else if( val == 'false' )
-            return false;
-        else
-            return parseInt(val);
-    }
-    else if( typeof val == 'boolean' ) {
-        return val;
-    }
-    else if( typeof val == 'number' ) {
-        return !!val;
-    }
-    else {
-        return true;
-    }
 },
 
 /**
