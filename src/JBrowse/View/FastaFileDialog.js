@@ -70,19 +70,22 @@ return declare( FileDialog, {
                    })
             .placeAt( actionBar );
 
-        new Button({ iconClass: 'dijitIconFolderOpen',
-                     label: 'Open',
-                     onClick: dojo.hitch( this, function() {
-                         openCallback && openCallback({
-                             trackConfs: this.trackList.getTrackConfigurations(),
-                             refSeqOrder: this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
-                                          this.refSeqOrderChoice[1].checked ? "length descending" :
-                                          undefined
-                         });
-                         this.dialog.hide();
-                     })
-                   })
-            .placeAt( actionBar );
+        new Button({
+            iconClass: 'dijitIconFolderOpen',
+            label: 'Open',
+            onClick: () => {
+                if (openCallback) {
+                    openCallback({
+                        trackConfs: this.trackList.getTrackConfigurations(),
+                        refSeqOrder: this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
+                                    this.refSeqOrderChoice[1].checked ? "length descending" :
+                                    undefined
+                    })
+                    .then( () => this.dialog.hide(), err => { console.error(err) } )
+                }
+            }
+        })
+        .placeAt( actionBar );
 
         return { domNode: actionBar };
     }

@@ -1341,50 +1341,49 @@ openFastaElectron: function() {
 },
 
 openFasta: function() {
-    var thisB=this;
     this.fastaFileDialog = this.fastaFileDialog || new FastaFileDialog({browser: this});
 
     this.fastaFileDialog.show ({
-        openCallback: dojo.hitch(this, function(results) {
-          const trackConfigs = results.trackConfs || []
-          const [conf] = trackConfigs
-          if (!conf) return
-          const storeConf = conf.store
-          if (!storeConf) return
+        openCallback: results => {
+            return new Promise((resolve,reject) => {
+                const trackConfigs = results.trackConfs || []
+                const [conf] = trackConfigs
+                if (!conf) return reject('no track configs')
+                const storeConf = conf.store
+                if (!storeConf) return reject('no store config')
 
-          dojo.global.require( [storeConf.type], (storeClass) => {
-            if( /\/Unindexed/i.test(storeConf.type) && storeConf.fasta && storeConf.fasta.size > 100000000 ) {
-                if(!confirm(
-                    'Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyway?'
-                )) {
-                    window.location.reload();
-                    return;
-                }
-             }
+                dojo.global.require( [storeConf.type], (storeClass) => {
+                  if( /\/Unindexed/i.test(storeConf.type) && storeConf.fasta && storeConf.fasta.size > 100000000 ) {
+                      alert('Unindexed file too large. You must have an index file (.fai) for sequence files larger than 100 MB.')
+                      return reject('sequence file too large')
+                  }
 
-            const store = new storeClass(
-                Object.assign({ browser: this }, storeConf)
-            )
-            .getRefSeqs(
-                refSeqs => {
-                    this.teardown()
-                    var newBrowser = new thisB.constructor({
-                        refSeqs: { data: refSeqs },
-                        refSeqOrder: results.refSeqOrder
-                    })
-                    newBrowser.afterMilestone('completely initialized', () => {
-                        storeConf.name = 'refseqs' // important to make it the refseq store
-                        newBrowser.addStoreConfig( storeConf.name, storeConf )
-                        conf.store = 'refseqs'
-                        newBrowser.publish( '/jbrowse/v1/v/tracks/new', [conf] )
-                     })
-                },
-                error => {
-                    thisB.fatalError('Error getting refSeq: '+error)
-                }
-            );
-          })
-        })
+                  const store = new storeClass(
+                      Object.assign({ browser: this }, storeConf)
+                  )
+                  .getRefSeqs(
+                      refSeqs => {
+                          this.teardown()
+                          var newBrowser = new this.constructor({
+                              refSeqs: { data: refSeqs },
+                              refSeqOrder: results.refSeqOrder
+                          })
+                          newBrowser.afterMilestone('completely initialized', () => {
+                              storeConf.name = 'refseqs' // important to make it the refseq store
+                              newBrowser.addStoreConfig( storeConf.name, storeConf )
+                              conf.store = 'refseqs'
+                              newBrowser.publish( '/jbrowse/v1/v/tracks/new', [conf] )
+                          })
+                          resolve()
+                      },
+                      error => {
+                          this.fatalError('Error getting refSeq: '+error)
+                          reject(error)
+                      }
+                  );
+                })
+            })
+        }
       });
 },
 
