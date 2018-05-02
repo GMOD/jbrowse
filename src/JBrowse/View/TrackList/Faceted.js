@@ -321,6 +321,12 @@ return declare( 'JBrowse.View.TrackList.Faceted', null,
 
         this.dataGrid = this.renderGrid();
         this.dataGrid.set('region','center');
+
+        // code around a dijit bug with width calculation in IE.
+        // doesn't seem to harm other browsers, the width gets overwritten anyway
+        // by dijit's calculations.
+        this.dataGrid.domNode.style.width = '500px'
+
         this.centerPane.addChild( this.dataGrid );
 
         this.mainContainer.startup();
