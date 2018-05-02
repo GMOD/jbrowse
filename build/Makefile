@@ -24,7 +24,7 @@ ELECTRON_VERSION=1.8.4
 
 all: clean release
 
-release: release-dev release-min release-electron-all release-notes.html
+release: release-dev release-min release-notes.html
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
