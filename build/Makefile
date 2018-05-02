@@ -33,22 +33,20 @@ release-electron-setup:
 	cd $(RELEASE_MIN) && cp -r ../node_modules ../extlib . && ./setup.sh && cd ..
 	cp -R browser $(RELEASE_MIN)
 
-release-electron-darwin: clean release release-electron-setup
+release-electron-darwin: clean release-min release-electron-setup
 	echo "Building mac electron"
 	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --electron-version=$(ELECTRON_VERSION)
 	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
-release-electron-win32: clean release release-electron-setup
+release-electron-win32: clean release-min release-electron-setup
 	echo "Building win32 electron"
 	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --electron-version=$(ELECTRON_VERSION)
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
-
-release-electron-linux: clean release release-electron-setup
+release-electron-linux: clean release-min release-electron-setup
 	echo "Building linux electron"
 	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --electron-version=$(ELECTRON_VERSION)
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
-
 
 release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux
 	echo "Building desktop packages"
@@ -68,7 +66,7 @@ release-dev: $(JS_SRCFILES) node_modules
 	# zip up the dev release
 	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
 
-release-min: $(JS_SRCFILES) node_modules
+release-min: release-dev
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
 	for P in src browser css docs/jsdoc tests build node_modules extlib dist; do \
