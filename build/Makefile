@@ -35,17 +35,17 @@ release-electron-setup:
 
 release-electron-darwin: clean release-min release-electron-setup
 	echo "Building mac electron"
-	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --electron-version=$(ELECTRON_VERSION)
+	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --electron-version=$(ELECTRON_VERSION) --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
 release-electron-win32: clean release-min release-electron-setup
 	echo "Building win32 electron"
-	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --electron-version=$(ELECTRON_VERSION)
+	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --electron-version=$(ELECTRON_VERSION) --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
 release-electron-linux: clean release-min release-electron-setup
 	echo "Building linux electron"
-	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --electron-version=$(ELECTRON_VERSION)
+	npx electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --electron-version=$(ELECTRON_VERSION) --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
 
 release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux
