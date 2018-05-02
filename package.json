@@ -5,7 +5,12 @@
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "test": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
+    "test": "npm run test-phantom",
+    "test-all": "npm run build && npm run test-phantom && npm run test-perl && npm run test-electron && npm run test-selenium",
+    "test-phantom": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
+    "test-electron": "ava --timeout=60s tests/electron_tests",
+    "test-perl": "prove -Isrc/perl5 -j8 -lr tests/perl_tests/",
+    "test-selenium": "SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost:8082/index.html' nosetests --verbose tests/selenium_tests/",
     "start": "utils/jb_run.js -p 8082",
     "watch": "webpack -w",
     "build": "webpack",
