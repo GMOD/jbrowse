@@ -99,6 +99,8 @@ return declare( null, {
                         { label: "BigBed",      value: "bb"     },
                         { label: "FASTA index", value: "fai"    },
                         { label: "VCF+bgzip",   value: "vcf.gz" },
+                        { label: "VCF",         value: "vcf"    },
+                        { label: "IGV/GATK Index", value: "idx" },
                         { label: "BED+bgzip",   value: "bed.gz" },
                         { label: "BED",         value: "bed"    },
                         { label: "GFF3+bgzip",  value: "gff3.gz"},
@@ -160,6 +162,8 @@ return declare( null, {
                 /\.(fa|fasta)$/i.test( name )   ? 'fasta'  :
                 /\.2bit$/i.test( name )         ? '2bit'   :
                 /\.fai$/i.test( name )          ? 'fai'    :
+                /\.idx$/i.test( name )          ? 'idx'    :
+                /\.vcf$/i.test( name )          ? 'vcf'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
                 /\.bed$/i.test( name )          ? 'bed'    :

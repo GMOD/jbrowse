@@ -8,7 +8,7 @@ define([
            'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
-           './VCFTabix/Parser'
+           './VCF/Parser'
        ],
        function(
            declare,

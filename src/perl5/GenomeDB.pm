@@ -38,7 +38,7 @@ use Hash::Merge ();
 
 use JsonFileStorage;
 
-use Bio::JBrowse::ConfigurationFile;
+use Bio::JBrowse::ConfigurationManager;
 
 my $defaultTracklist = {
                         formatVersion => 1,
@@ -177,10 +177,9 @@ override the existing settings for that track.
 sub getTrack {
     my ($self, $trackLabel, $config, $key, $jsclass ) = @_;
 
-    my $trackList = $self->{rootStore}->get($trackListPath,
-                                            $defaultTracklist);
+    my $trackList = $self->trackList();
     my ( $trackDesc ) = my @selected =
-        grep { $_->{label} eq $trackLabel } @{$trackList->{tracks}};
+        grep { $_->{label} eq $trackLabel } @$trackList;
 
     return unless @selected;
 
@@ -284,16 +283,13 @@ Return an arrayref of track definition hashrefs similar to:
 
 sub trackList {
     my ( $self ) = @_;
-    my $json_tracks = $self->{rootStore}->get( 'trackList.json', { tracks => [] } )->{tracks};
-    my $conf_tracks = $self->_read_text_conf( 'tracks.conf' )->{tracks} || [];
-    @$conf_tracks = sort { $a->{label}    cmp $b->{label} } @$conf_tracks;
-    return [ @$json_tracks, @$conf_tracks ];
-}
-
-sub _read_text_conf {
-    my ( $self, $path ) = @_;
-    $path = File::Spec->catfile( $self->{dataDir}, $path );
-    return Bio::JBrowse::ConfigurationFile->new( path => $path )->to_hashref;
+    my $conf = Bio::JBrowse::ConfigurationManager->new( conf => {
+        baseUrl => "$self->{dataDir}",
+        include => [ $trackListPath, 'tracks.conf' ],
+    })->get_final_config;
+    my $tracks = $conf->{tracks} || [];
+    @$tracks = sort { $a->{label} cmp $b->{label} } @$tracks;
+    return $tracks;
 }
 
 =head2 CORS_htaccess

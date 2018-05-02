@@ -21,7 +21,7 @@ return declare( null, {
             // go through the configs and see if there is one for an index that seems to match
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[ this.indexConfKey ] ? c[ this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
+                if( Util.basename( c[this.indexConfKey] ? c[this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
                     // it's a match, put it in
                     c[this.fileConfKey] = this._makeBlob( resource );
                     return true;
@@ -99,15 +99,17 @@ return declare( null, {
         var singletonFileCount = 0;
         for( var n in configs ) {
             var conf = configs[n];
-            if( (conf.bai || conf[this.indexUrlConfKey]) && ! ( conf.bam || conf[this.fileUrlConfKey] ) ) {
-                // singleton Index
-                singletonIndexCount++;
-                singletonIndexes[n] = conf;
-            }
-            else if(( conf.bam || conf[this.fileUrlConfKey] ) && ! ( conf.bai || conf[this.indexUrlConfKey]) ) {
-                // singleton File
-                singletonFileCount++;
-                singletonFiles[n] = conf;
+            if( conf.type === this.storeType ) {
+                if( (conf[this.indexConfKey] || conf[this.indexUrlConfKey]) && ! ( conf[this.fileConfKey] || conf[this.fileUrlConfKey] ) ) {
+                    // singleton Index
+                    singletonIndexCount++;
+                    singletonIndexes[n] = conf;
+                }
+                else if(( conf[this.fileConfKey] || conf[this.fileUrlConfKey] ) && ! ( conf[this.indexConfKey] || conf[this.indexUrlConfKey]) ) {
+                    // singleton File
+                    singletonFileCount++;
+                    singletonFiles[n] = conf;
+                }
             }
         }
 
@@ -118,8 +120,8 @@ return declare( null, {
                 for( var fileName in singletonFiles ) {
                     if( singletonIndexes[indexName][this.indexUrlConfKey] )
                         singletonFiles[fileName][this.indexUrlConfKey] = singletonIndexes[indexName][this.indexUrlConfKey];
-                    if( singletonIndexes[indexName].bai )
-                        singletonFiles[fileName].bai = singletonIndexes[indexName].bai;
+                    if( singletonIndexes[indexName][this.indexConfKey] )
+                        singletonFiles[fileName][this.indexConfKey] = singletonIndexes[indexName][this.indexConfKey];
 
                     delete configs[indexName];
                 }

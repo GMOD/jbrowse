@@ -57,7 +57,7 @@ system $^X, 'bin/prepare-refseqs.pl', (
     '--noSort',
    );
 
-my $output = slurp_tree( $tempdir );
+$output = slurp_tree( $tempdir );
 is_deeply( $output,
            slurp_tree('tests/data/random_contigs_formatted_refseqs'),
            'got the right random contigs formatted sequence',

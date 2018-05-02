@@ -715,7 +715,7 @@ sizeInit: function( numBlocks, widthPct, blockDelta ) {
 },
 
 // Extends the BlockBased track's showRange function.
-showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
+showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd, finishCallback) {
 
     this.range = {f: first, l: last, st: startBase,
                   b: bpPerBlock, sc: scale,
@@ -743,7 +743,7 @@ showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, c
           if(reloadedStores.length && reloadedStores.indexOf(this._visible().store) != -1) {
               this.resultsTrack.clear();
           }
-          this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+          this.resultsTrack.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd, finishCallback);
         }),
         this.errorCallback);
 

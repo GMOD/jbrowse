@@ -18,6 +18,7 @@ define( [
             'dijit/layout/BorderContainer',
             'dijit/Dialog',
             'dijit/form/ComboBox',
+            'dojo/store/Memory',
             'dijit/form/Button',
             'dijit/form/Select',
             'dijit/form/ToggleButton',
@@ -79,6 +80,7 @@ define( [
             dijitBorderContainer,
             dijitDialog,
             dijitComboBox,
+            dojoMemoryStore,
             dijitButton,
             dijitSelectBox,
             dijitToggleButton,
@@ -1057,26 +1059,27 @@ renderDatasetSelect: function( parent ) {
         var datasetChoices = [];
         for( var id in dsconfig ) {
             if( ! /^_/.test(id) )
-                datasetChoices.push( dojo.mixin({ id: id }, dsconfig[id] ) );
+                datasetChoices.push( Object.assign({ id: id }, dsconfig[id] ) );
         }
 
-        new dijitSelectBox(
+        const combobox = new dijitComboBox(
             {
                 name: 'dataset',
                 className: 'dataset_select',
-                value: this.config.dataset_id,
-                options: array.map(
-                    datasetChoices,
-                    function( dataset ) {
-                        return { label: dataset.name, value: dataset.id };
-                    }),
-                onChange: dojo.hitch(this, function( dsID ) {
-                                         var ds = (this.config.datasets||{})[dsID];
-                                         if( ds )
-                                             window.location = ds.url;
-                                         return false;
-                                     })
-            }).placeAt( parent );
+                value: this.config.datasets[this.config.dataset_id].name,
+                store: new dojoMemoryStore({
+                    data: datasetChoices,
+                }),
+                onChange: dsName => {
+                    if (!dsName) return false
+                    const dsID = datasetChoices.find(d => d.name === dsName).id
+                    const ds = (this.config.datasets||{})[dsID]
+                    if (ds) window.location = ds.url
+                    return false
+                },
+            })
+        combobox.placeAt( parent )
+        combobox.focusNode.onclick = function() { this.select() }
     }
     else {
         if( this.config.datasets && this.config.dataset_id ) {
@@ -1485,6 +1488,7 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/NCList'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
+                'JBrowse/Store/SeqFeature/VCFTribble'  : 'JBrowse/View/Track/CanvasVariants',
                 'JBrowse/Store/SeqFeature/GFF3'        : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigBed'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/GFF3Tabix'   : 'JBrowse/View/Track/CanvasFeatures',
