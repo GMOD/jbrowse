@@ -95,23 +95,23 @@
     }
 
     /* Track selector title bar */
-    _top {
+    #faceted_tracksel_top {
         border-bottom: 1px solid #ccc;
         padding: 5px;
     }
-    _top {
+    #faceted_tracksel_top {
         background: #396494;
     }
-    _top .topLink {
+    #faceted_tracksel_top .topLink {
         color: white;
     }
 
-    _top > * {
+    #faceted_tracksel_top > * {
         display: inline-block;
         vertical-align: middle;
         margin-left: 5px;
     }
-    _top .title {
+    #faceted_tracksel_top .title {
         padding: 0;
         width: 185px;
 
@@ -149,7 +149,7 @@
     }
 
 
-    _top div.topLink {
+    #faceted_tracksel_top div.topLink {
         position: absolute;
         top: 0;
         right: 0;
