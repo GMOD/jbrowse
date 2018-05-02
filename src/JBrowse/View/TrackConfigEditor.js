@@ -108,6 +108,7 @@ return declare( null, {
                     realChange();
                     previousText = textArea.value;
                 }
+                // TODO: do not renew this timeout if the dialog is destroyed
                 window.setTimeout( checkForChange, checkFrequency );
             }
         };

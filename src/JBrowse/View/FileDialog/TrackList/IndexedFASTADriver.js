@@ -1,11 +1,12 @@
 define([
            'dojo/_base/declare',
-           './_IndexedFileDriver'
+           './_OptionallyIndexedFileDriver'
        ],
-       function( declare, IndexedFileDriver ) {
-return declare( IndexedFileDriver,  {
+       function( declare, OptionallyIndexedFileDriver ) {
+return declare( OptionallyIndexedFileDriver,  {
     name: 'FASTA',
     storeType: 'JBrowse/Store/SeqFeature/IndexedFasta',
+    unindexedStoreType: 'JBrowse/Store/SeqFeature/UnindexedFasta',
 
     fileExtension: 'fasta',
     fileConfKey: 'fasta',
@@ -14,21 +15,5 @@ return declare( IndexedFileDriver,  {
     indexExtension: 'fai',
     indexConfKey: 'fai',
     indexUrlConfKey: 'faiUrlTemplate',
-
-
-    tryResource: function(configs, resource) {
-        this.inherited(arguments);
-    },
-    finalizeConfiguration: function(configs) {
-        this.inherited(arguments);
-        for(var i in configs) {
-            var config = configs[i];
-            if( !config.fai && !config.blob ) {
-                // if no fai, change to UnindexedFasta
-                config.type = "JBrowse/Store/SeqFeature/UnindexedFasta";
-            }
-        }
-    }
 });
-
 });
