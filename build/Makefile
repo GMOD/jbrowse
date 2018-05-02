@@ -24,7 +24,7 @@ ELECTRON_VERSION=1.8.4
 
 all: clean release
 
-release: release-dev release-min release-notes.html
+release: release-dev release-min release-electron-all release-notes.html
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
@@ -57,7 +57,7 @@ release-notes.html: release-notes.txt
 	build/format_release_notes.pl $< > $@
 
 node_modules:
-	npm install
+	yarn install
 
 release-dev: $(JS_SRCFILES) node_modules
 	rm -rf dist
@@ -95,4 +95,4 @@ release-min: $(JS_SRCFILES) node_modules
 clean:
 	git clean -ffdxq --exclude=/plugins/ --exclude=/node_modules/ --exclude=/extlib/
 
-.PHONY: all clean jbrowse docs doc release release-min release-dev plugins-min
+.PHONY: all clean jbrowse docs doc release release-min release-dev plugins-min release-electron-all release-electron-linux release-electron-win32 release-electron-darwin
