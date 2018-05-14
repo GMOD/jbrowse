@@ -140,7 +140,7 @@ return declare( null, {
         // connect the local files control to the resource list
         dojo.connect( localFilesControl.uploader, 'onChange', function() {
             if(Util.isElectron()) {
-                const arr = [...localFilesControl.uploader._files].map((file) => Util.replace(file.path));
+                const arr = [...localFilesControl.uploader._files].map((file) => Util.replacePath(file.path));
                 resourceListControl.addURLs(arr);
             } else {
                 resourceListControl.addLocalFiles( localFilesControl.uploader._files );
