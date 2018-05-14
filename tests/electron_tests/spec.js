@@ -45,7 +45,7 @@ test('shows window', async t => {
     t.true(height > 0);
 
     var text = await app.client.getText("#welcome");
-    t.is(text.substr(0,12), "Your JBrowse");
+    t.is(text.substr(0,7), "Welcome");
     await app.client.click("#newOpen");
     await app.client.click("#openFile");
     await app.client.click("#dijit_form_Button_1_label");
@@ -59,7 +59,7 @@ test('shows window', async t => {
     await app.client.waitUntilWindowLoaded()
     //text = await app.client.getText("#previousSessionsTable");
     //t.true(text != null);
-    var session = await app.client.element('//*[@id="previousSessionsTable"]/tr/td[2]/a').click();
+    var session = await app.client.element('//*[@id="previousSessionsTable"]/tr/td[1]/a').click();
     await sleep(5000);
 
     var tracklabel = await app.client.element('//label[contains(@class, "tracklist-label")]/span').click();
