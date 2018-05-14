@@ -168,6 +168,8 @@ constructor: function(params) {
 
     dojo.addOnLoad( function() {
         if(Util.isElectron() && !thisB.config.dataRoot) {
+            dojo.addClass(document.body, "jbrowse");
+            dojo.addClass(document.body, thisB.config.theme || "tundra");
             thisB.welcomeScreen(document.body);
             return;
         }
