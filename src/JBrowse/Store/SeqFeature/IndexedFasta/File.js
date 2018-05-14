@@ -1,17 +1,9 @@
 define( [
             'dojo/_base/declare',
-            'dojo/_base/array',
-            'JBrowse/has',
-            'JBrowse/Util',
-            'JBrowse/Errors',
             'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
-            array,
-            has,
-            Util,
-            Errors,
             SimpleFeature
             ) {
 
@@ -78,7 +70,7 @@ return declare( null,
         var offset = this._fai_offset(refindex, s);
         var readlen = this._fai_offset(refindex, max) - offset;
 
-        
+
 
         this.data.read(offset, readlen,
             function (data) {
