@@ -188,37 +188,23 @@ return declare( null, {
 
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
         var fileBox;
-//        if( Util.isElectron() ) {
-//            fileBox = dom.create('input', { type: 'button', value: 'Select files...', id: 'openFile' }, dragArea );
-//            dragArea.ondragover = document.ondrop = (ev) => {
-//                ev.preventDefault()
-//            }
-//
-//            dragArea.ondrop = (ev) => {
-//                fileBox.files = ev.dataTransfer.files;
-//                ev.preventDefault();
-//            }
-//        }
-//        else {
-            fileBox = new dojox.form.Uploader({
-                multiple: true
-            });
-            fileBox.placeAt( dragArea );
-            if( this.browserSupports.dnd ) {
-                // let the uploader process any files dragged into the dialog
-                fileBox.addDropTarget( this.dialog.domNode );
 
-                // add a message saying you can drag files in
-                dom.create(
-                    'div', {
-                        className: 'dragMessage',
-                        innerHTML: 'Select or drag files here.'
-                    }, dragArea
-                );
-            }
-//        }
+        fileBox = new dojox.form.Uploader({
+            multiple: true
+        });
+        fileBox.placeAt( dragArea );
+        if( this.browserSupports.dnd ) {
+            // let the uploader process any files dragged into the dialog
+            fileBox.addDropTarget( this.dialog.domNode );
 
-
+            // add a message saying you can drag files in
+            dom.create(
+                'div', {
+                    className: 'dragMessage',
+                    innerHTML: 'Select or drag files here.'
+                }, dragArea
+            );
+        }
 
         // little elements used to show pipeline-like connections between the controls
         dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );
