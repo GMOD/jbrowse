@@ -397,7 +397,7 @@ welcomeScreen: function( container, error ) {
     require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function(Welcome) {
         container.innerHTML = Welcome
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
-        dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
+        dojo.byId('welcome').innerHTML="Welcome! To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
 
         on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
         on( dojo.byId('newOpenDirectory'), 'click', function() {
@@ -410,9 +410,12 @@ welcomeScreen: function( container, error ) {
 
         try {
             thisB.loadSessions();
-        } catch(e) { console.log(e); }
+        } catch(e) {
+            console.error(e);
+        }
 
         if( error ) {
+            console.log(error);
             var errors_div = dojo.byId('fatal_error_list');
             dojo.create('div', { className: 'error', innerHTML: error }, errors_div );
         }
@@ -1119,8 +1122,9 @@ saveSessionDir: function( directory ) {
 
     try {
         var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
+    } catch(e) {
+        console.error(e);
     }
-    catch(e) {}
 
     var dir = Util.replacePath( directory );
     if( array.every(obj, function(elt) { return elt.session != dir; }) )
@@ -1163,7 +1167,7 @@ openConfig: function( plugins ) {
     try {
         fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
     } catch(e) {
-        console.error("Failed to save trackList.json");
+        console.error("Failed to save trackList.json", e);
     }
     window.location.reload();
 },
@@ -1213,7 +1217,10 @@ saveData: function() {
     };
     try {
         fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
-    } catch(e) { alert('Unable to save track data'); }
+    } catch(e) {
+        alert('Unable to save track data');
+        console.error(e);
+    }
 },
 
 
@@ -1260,7 +1267,10 @@ openFastaElectron: function() {
                     fs.closeSync( fs.openSync( dir + "/tracks.conf", 'w' ) );
                     this.saveSessionDir( dir );
                     window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                } catch(e) { alert(e); }
+                } catch(e) {
+                    alert('Failed to save session');
+                    console.error(e);
+                }
             }
             else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
                 var f2bit = Util.replacePath( confs[0].store.blob.url );
@@ -1291,7 +1301,10 @@ openFastaElectron: function() {
                         fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
                         thisB.saveSessionDir( dir );
                         window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                    } catch(e) { alert(e); }
+                    } catch(e) {
+                        alert('Failed to save session');
+                        console.error(e);
+                    }
                 }, function(err) { console.error('error', err); });
             }
             else {
@@ -1329,7 +1342,10 @@ openFastaElectron: function() {
                         fs.closeSync(fs.openSync( dir + '/tracks.conf', 'w' ));
                         thisB.saveSessionDir( dir );
                         window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                    } catch(e) { alert(e); }
+                    } catch(e) {
+                        alert('Failed to save session');
+                        console.error(e);
+                    }
                 }, function(err) { console.error('error', err); });
             }
           }
@@ -2940,7 +2956,7 @@ cookie: function(keyWithoutId,value) {
     }
     else if( value!=null ) {
         try {
-        return localStorage.setItem(keyWithId, value);
+            return localStorage.setItem(keyWithId, value);
         }
         catch(e) {
         }
