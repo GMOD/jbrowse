@@ -167,10 +167,15 @@ constructor: function(params) {
     var thisB = this;
 
     dojo.addOnLoad( function() {
+        if(Util.isElectron() && !thisB.config.dataRoot) {
+            thisB.welcomeScreen(document.body);
+            return;
+        }
         thisB.loadConfig().then( function() {
 
             thisB.container = dojo.byId( thisB.config.containerID );
             thisB.container.onselectstart = function() { return false; };
+
 
             // initialize our highlight if one was set in the config
             if( thisB.config.initialHighlight && thisB.config.initialHighlight != "/" )
