@@ -5,7 +5,6 @@ import path from 'path';
 import os from 'os';
 var tmp = require('tmp');
 var tmpobj = tmp.dirSync();
-const fakeDialog = require('spectron-fake-dialog');
 
 
 test.beforeEach(async t => {
@@ -15,12 +14,6 @@ test.beforeEach(async t => {
         env: {SPECTRON: '1'},
         requireName: 'electronRequire'
     });
-    fakeDialog.apply(t.context.app);
-
-    await t.context.app.start()
-        .then(() =>
-          fakeDialog.mock([ { method: 'showOpenDialog', value: [process.cwd()+"/docs/tutorial/data_files/volvox.fa"] } ])
-        );
 });
 
 test.afterEach.always(async t => {
@@ -49,14 +42,19 @@ test('shows window', async t => {
     await app.client.click("#newOpen");
     //await app.client.click("#openFile");
     // fails
-    // await app.client.element('//input[@type="file"]').click();
-    await app.client.click("#dojox_form_Uploader_0");
+    // ')
+    var elt = await app.client.element('//input[@type="file"]').click();
+    await app.client.executeScript("alert('test')");
+
+    //await app.client.click("#dojox_form_Uploader_0");
+    //executor.executeScript("arguments[0].click();", ele);
+
     await app.client.element('//span[contains(text(),"Open")]').click();
     // debugging commands
-    //    var x = await app.client.getMainProcessLogs()
-    //    var y = await app.client.getRenderProcessLogs()
-    //    console.error(x);
-    //    console.error(y);
+    // var x = await app.client.getMainProcessLogs()
+    // var y = await app.client.getRenderProcessLogs()
+    // console.error(x);
+    // console.error(y);
     await sleep(5000);
     await app.restart()
     await app.client.waitUntilWindowLoaded()
