@@ -14,6 +14,7 @@ test.beforeEach(async t => {
         env: {SPECTRON: '1'},
         requireName: 'electronRequire'
     });
+    await t.context.app.start();
 });
 
 test.afterEach.always(async t => {
@@ -42,12 +43,8 @@ test('shows window', async t => {
     await app.client.click("#newOpen");
     t.true(true);
     //await app.client.click("#openFile");
-    // var elt = await app.client.element('//input[@type="file"]').click();
-    // await app.client.executeScript("alert('test')");
-
+    //await app.client.element('//input[@type="file"]').click();
     //await app.client.click("#dojox_form_Uploader_0");
-    //executor.executeScript("arguments[0].click();", ele);
-
     //await app.client.element('//span[contains(text(),"Open")]').click();
     // debugging commands
     // var x = await app.client.getMainProcessLogs()
