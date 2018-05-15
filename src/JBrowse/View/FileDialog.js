@@ -8,7 +8,6 @@ define( [
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'dijit/Dialog',
-            'dojox/form/Uploader',
             './FileDialog/TrackList/BAMDriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
@@ -33,7 +32,6 @@ define( [
             RadioButton,
             dom,
             Dialog,
-            Uploaded,
             BAMDriver,
             BigWigDriver,
             GFF3Driver,
@@ -140,6 +138,7 @@ return declare( null, {
         // connect the local files control to the resource list
         dojo.connect( localFilesControl.uploader, 'onChange', function() {
             if(Util.isElectron()) {
+                console.log(localFilesControl.uploader._files);
                 const arr = [...localFilesControl.uploader._files].map((file) => Util.replacePath(file.path));
                 resourceListControl.addURLs(arr);
             } else {
@@ -189,22 +188,21 @@ return declare( null, {
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
         var fileBox;
 
-        fileBox = new dojox.form.Uploader({
-            multiple: true
-        });
-        fileBox.placeAt( dragArea );
-        if( this.browserSupports.dnd ) {
-            // let the uploader process any files dragged into the dialog
-            fileBox.addDropTarget( this.dialog.domNode );
+        fileBox = dom.create('input', {type: 'file', multiple: true});
+        dom.place(fileBox, dragArea);
+        // if( this.browserSupports.dnd ) {
+        //     console.log('HERERERE');
+        //     // let the uploader process any files dragged into the dialog
+        //     fileBox.addDropTarget( this.dialog.domNode );
 
-            // add a message saying you can drag files in
-            dom.create(
-                'div', {
-                    className: 'dragMessage',
-                    innerHTML: 'Select or drag files here.'
-                }, dragArea
-            );
-        }
+        //     // add a message saying you can drag files in
+        //     dom.create(
+        //         'div', {
+        //             className: 'dragMessage',
+        //             innerHTML: 'Select or drag files here.'
+        //         }, dragArea
+        //     );
+        // }
 
         // little elements used to show pipeline-like connections between the controls
         dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );

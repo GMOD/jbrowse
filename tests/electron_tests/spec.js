@@ -6,7 +6,6 @@ import os from 'os';
 var tmp = require('tmp');
 var tmpobj = tmp.dirSync();
 
-
 test.beforeEach(async t => {
     t.context.app = new Application({
         path: electronPath,
@@ -41,27 +40,30 @@ test('shows window', async t => {
     var text = await app.client.getText("#welcome");
     t.is(text.substr(0,7), "Welcome");
     await app.client.click("#newOpen");
-    t.true(true);
     //await app.client.click("#openFile");
-    //await app.client.element('//input[@type="file"]').click();
-    //await app.client.click("#dojox_form_Uploader_0");
-    //await app.client.element('//span[contains(text(),"Open")]').click();
+    await app.client.element('//textarea').click();
+    await app.client.keys(process.cwd()+'/docs/tutorial/data_files/volvox.fa');
+    await sleep(1000);
+    await app.client.element('//span[text()="Open"]').click();
+    await sleep(1000);
+
     // debugging commands
     // var x = await app.client.getMainProcessLogs()
     // var y = await app.client.getRenderProcessLogs()
     // console.error(x);
     // console.error(y);
-    //await sleep(5000);
-    //await app.restart()
-    //await app.client.waitUntilWindowLoaded()
-    //text = await app.client.getText("#previousSessionsTable");
-    //t.true(text != null);
-    //var session = await app.client.element('//*[@id="previousSessionsTable"]/tr/td[1]/a').click();
-    //await sleep(5000);
 
-    //var tracklabel = await app.client.element('//label[contains(@class, "tracklist-label")]/span').click();
-    //await sleep(1000);
-    //var trackPath = await app.client.element('//div[contains(@class,"track-label")][contains(.,"FASTA")]');
-    //t.true(trackPath != null);
+    await app.restart();
+    await app.client.waitUntilWindowLoaded();
+    text = await app.client.getText("#previousSessionsTable");
+    t.true(text != null);
+    var session = await app.client.element('//*[@id="previousSessionsTable"]/tr/td[1]/a').click();
+    await sleep(5000);
+
+    var trackPath = await app.client.element('//div[contains(@class,"track-label")]');
+    t.true(trackPath.value == null);
+    var tracklabel = await app.client.element('//label[contains(@class, "tracklist-label")]/span').click();
+    trackPath = await app.client.element('//div[contains(@class,"track-label")]');
+    t.true(trackPath.value != null);
 });
 
