@@ -399,7 +399,7 @@ welcomeScreen: function( container, error ) {
     require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function(Welcome) {
         container.innerHTML = Welcome
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
-        dojo.byId('welcome').innerHTML="Welcome! To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
+        dojo.byId('welcome').innerHTML="Welcome! To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file or an existing data directory";
 
         on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
         on( dojo.byId('newOpenDirectory'), 'click', function() {
