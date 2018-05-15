@@ -40,12 +40,13 @@ test('shows window', async t => {
     var text = await app.client.getText("#welcome");
     t.is(text.substr(0,7), "Welcome");
     await app.client.click("#newOpen");
-    //await app.client.click("#openFile");
+    await sleep(5000);
     await app.client.element('//textarea').click();
+    await sleep(5000);
     await app.client.keys(process.cwd()+'/docs/tutorial/data_files/volvox.fa');
-    await sleep(1000);
+    await sleep(5000);
     await app.client.element('//span[text()="Open"]').click();
-    await sleep(1000);
+    await sleep(5000);
 
     // debugging commands
     // var x = await app.client.getMainProcessLogs()
