@@ -13,7 +13,8 @@ app.on('ready', function() {
         center: true,
         title: 'JBrowseDesktop',
         width: 1024,
-        height: 768
+        height: 768,
+        icon: require('path').resolve(__dirname, 'icons/jbrowse.png')
     });
     var queryString = Object.keys(argv).map(key => key + '=' + argv[key]).join('&');
 
