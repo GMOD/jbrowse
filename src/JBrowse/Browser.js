@@ -48,6 +48,9 @@ define( [
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
+            'JBrowse/Store/SeqFeature/UnindexedFasta',
+            'JBrowse/Store/SeqFeature/IndexedFasta',
+            'JBrowse/Store/SeqFeature/TwoBit',
             'dijit/focus',
             '../lazyload.js', // for dynamic CSS loading
             'dojo/text!./package.json',
@@ -107,6 +110,9 @@ define( [
             SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
+            UnindexedFasta,
+            IndexedFasta,
+            TwoBit,
             dijitFocus,
             LazyLoad,
             packagejson
@@ -546,8 +552,14 @@ loadRefSeqs: function() {
     var thisB = this;
     return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
         // load our ref seqs
-        if( typeof this.config.refSeqs == 'string' )
-            this.config.refSeqs = { url: this.config.refSeqs };
+        if( typeof this.config.refSeqs == 'string' ) {
+            // assume this.config.refSeqs is a url if it is string
+            this.config.refSeqs = {
+                url: this.config.refSeqs
+            };
+        }
+
+        // check refseq urls
         if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fai$/) ) {
             new IndexedFasta({browser: this, faiUrlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
@@ -557,15 +569,19 @@ loadRefSeqs: function() {
                     deferred.reject(error);
                 });
             return;
-        }
-        if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.2bit$/) ) {
-            new TwoBit({browser: this, faiUrlTemplate: this.config.refSeqs.url})
+        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.2bit$/) ) {
+            new TwoBit({browser: this, urlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
                 });
-        }
-        else if( 'data' in this.config.refSeqs ) {
+        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fa$/) ) {
+            new UnindexedFasta({browser: this, urlTemplate: this.config.refSeqs.url})
+                .getRefSeqs(function(refSeqs) {
+                    thisB.addRefseqs(refSeqs);
+                    deferred.resolve({success:true});
+                });
+        } else if( 'data' in this.config.refSeqs ) {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
@@ -1261,13 +1277,14 @@ openFastaElectron: function() {
                     var fai = Util.replacePath( confs[0].store.fai.url );
                     trackList.tracks[0].storeClass= 'JBrowse/Store/SeqFeature/IndexedFasta';
                     trackList.tracks[0].urlTemplate = fasta;
-                    trackList.tracks[0].urlTemplate = fai;
+                    trackList.tracks[0].faiUrlTemplate = fai;
                     trackList.refSeqs = fai;
                 }
                 else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
                     var f2bit = Util.replacePath( confs[0].store.blob.url );
                     trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/TwoBit';
                     trackList.tracks[0].urlTemplate = f2bit;
+                    trackList.refSeqs = f2bit;
                 }
                 else {
                     var fasta = Util.replacePath( confs[0].store.fasta.url );
@@ -1281,7 +1298,7 @@ openFastaElectron: function() {
                         console.error(e);
                     }
                     trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/UnindexedFasta';
-                    trackList.urlTemplate = fasta;
+                    trackList.tracks[0].urlTemplate = fasta;
                     trackList.refSeqs = fasta;
                 }
 
