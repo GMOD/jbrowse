@@ -40,9 +40,6 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/FastaFileDialog',
-            'JBrowse/Store/SeqFeature/IndexedFasta',
-            'JBrowse/Store/SeqFeature/UnindexedFasta',
-            'JBrowse/Store/SeqFeature/TwoBit',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -102,9 +99,6 @@ define( [
             InfoDialog,
             FileDialog,
             FastaFileDialog,
-            IndexedFasta,
-            UnindexedFasta,
-            TwoBit,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -1247,28 +1241,49 @@ openFastaElectron: function() {
 
     this.fastaFileDialog.show ({
         openCallback: dojo.hitch(this, function(results) {
-          var confs = results.trackConfs || [];
-
-          if( confs.length ) {
-            if( confs[0].store.fasta && confs[0].store.fai ) {
-                var fasta = Util.replacePath( confs[0].store.fasta.url );
-                var fai = Util.replacePath( confs[0].store.fai.url );
-
+            var confs = results.trackConfs || [];
+            if( confs.length ) {
                 var trackList = {
                     tracks: [{
                         label: confs[0].label,
                         key: confs[0].key,
                         type: "SequenceTrack",
                         category: "Reference sequence",
-                        storeClass: 'JBrowse/Store/SeqFeature/IndexedFasta',
                         useAsRefSeqStore: true,
-                        chunkSize: 20000,
-                        urlTemplate: fasta,
-                        faiUrlTemplate: fai
+                        chunkSize: 20000
                     }],
                     refSeqs: fai,
                     refSeqOrder: results.refSeqOrder
                 };
+
+                if( confs[0].store.fasta && confs[0].store.fai ) {
+                    var fasta = Util.replacePath( confs[0].store.fasta.url );
+                    var fai = Util.replacePath( confs[0].store.fai.url );
+                    trackList.tracks[0].storeClass= 'JBrowse/Store/SeqFeature/IndexedFasta';
+                    trackList.tracks[0].urlTemplate = fasta;
+                    trackList.tracks[0].urlTemplate = fai;
+                    trackList.refSeqs = fai;
+                }
+                else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
+                    var f2bit = Util.replacePath( confs[0].store.blob.url );
+                    trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/TwoBit';
+                    trackList.tracks[0].urlTemplate = f2bit;
+                }
+                else {
+                    var fasta = Util.replacePath( confs[0].store.fasta.url );
+                    try {
+                        var stats = fs.statSync( fasta );
+                        if(stats.size > 100000000) {
+                            alert('Unindexed file too large. You must have an index file (.fai) for sequence files larger than 100 MB.')
+                            return;
+                        }
+                    } catch(e) {
+                        console.error(e);
+                    }
+                    trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/UnindexedFasta';
+                    trackList.urlTemplate = fasta;
+                    trackList.refSeqs = fasta;
+                }
 
                 // fix dir to be user data if we are accessing a url for fasta
                 var dir = this.config.electronData;
@@ -1286,83 +1301,6 @@ openFastaElectron: function() {
                     console.error(e);
                 }
             }
-            else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
-                var f2bit = Util.replacePath( confs[0].store.blob.url );
-
-                var refseqs = new TwoBit({'browser': this, 'urlTemplate': f2bit });
-                var thisB = this;
-                refseqs.getRefSeqs( function(res) {
-                    var trackList = {
-                        tracks: [{
-                            label: confs[0].label,
-                            key: confs[0].key,
-                            type: "SequenceTrack",
-                            category: "Reference sequence",
-                            useAsRefSeqStore: true,
-                            storeClass: 'JBrowse/Store/SeqFeature/TwoBit',
-                            chunkSize: 20000,
-                            urlTemplate: f2bit
-                        }],
-                        refSeqs: { data: res },
-                        refSeqOrder: results.refSeqOrder
-                    };
-                    try {
-                        var dir = thisB.config.electronData;
-                        fs.existsSync(dir) || fs.mkdirSync(dir); // make base folder exist first before subdir
-                        dir += '/' + confs[0].label;
-                        fs.existsSync(dir) || fs.mkdirSync(dir);
-                        fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
-                        fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
-                        thisB.saveSessionDir( dir );
-                        window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                    } catch(e) {
-                        alert('Failed to save session');
-                        console.error(e);
-                    }
-                }, function(err) { console.error('error', err); });
-            }
-            else {
-                var fasta = Util.replacePath( confs[0].store.fasta.url );
-                try {
-                    var stats = fs.statSync( fasta );
-                    if(stats.size>100000000) {
-                       if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
-                           return;
-                       }
-                    }
-                } catch(e) { /* */ }
-
-                var refseqs = new UnindexedFasta ({'browser': this, 'urlTemplate': fasta });
-                var thisB = this;
-                refseqs.getRefSeqs( function(res) {
-                    var trackList = {
-                        tracks: [{
-                            label: confs[0].label,
-                            key: confs[0].key,
-                            type: "SequenceTrack",
-                            category: "Reference sequence",
-                            useAsRefSeqStore: true,
-                            storeClass: 'JBrowse/Store/SeqFeature/UnindexedFasta',
-                            chunkSize: 20000,
-                            urlTemplate: fasta
-                        }],
-                        refSeqs: { data: res },
-                        refSeqOrder: results.refSeqOrder
-                    };
-                    try {
-                        var dir = thisB.config.electronData + '/' + confs[0].label;
-                        fs.existsSync(dir) || fs.mkdirSync(dir);
-                        fs.writeFileSync(dir + '/trackList.json', JSON.stringify(trackList, null, 2));
-                        fs.closeSync(fs.openSync( dir + '/tracks.conf', 'w' ));
-                        thisB.saveSessionDir( dir );
-                        window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                    } catch(e) {
-                        alert('Failed to save session');
-                        console.error(e);
-                    }
-                }, function(err) { console.error('error', err); });
-            }
-          }
         })
     });
 },
