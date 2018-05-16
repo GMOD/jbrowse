@@ -2624,22 +2624,22 @@ makeSnapLink: function () {
 
     // make the share link
     var button = new dijitButton({
-            className: 'share',
-            innerHTML: 'Screenshot',
-            title: 'share this view',
-            onClick: function() {
-                var fs = electronRequire('fs');
-                var screenshot = electronRequire('electron-screenshot')
-                var dialog = electronRequire('electron').remote.dialog;
-                dialog.showSaveDialog(function (fileName) {
-                    screenshot({
-                      filename: fileName,
-                      delay: 1
-                    }, function() { console.log('Saved screenshot',fileName); });
-                });
-            }
+        className: 'share',
+        innerHTML: 'Screenshot',
+        title: 'share this view',
+        onClick: function() {
+            var fs = electronRequire('fs');
+            var screenshot = electronRequire('electron-screenshot')
+            var dialog = electronRequire('electron').remote.dialog;
+            dialog.showSaveDialog(function (fileName) {
+                screenshot({
+                  filename: fileName,
+                  defaultPath: "*/screenshot.png",
+                  delay: 1
+                }, function() { console.log('Saved screenshot',fileName); });
+            });
         }
-    );
+    });
 
     return button.domNode;
 },
