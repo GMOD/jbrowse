@@ -557,6 +557,13 @@ loadRefSeqs: function() {
                 });
             return;
         }
+        if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.2bit$/) ) {
+            new TwoBit({browser: this, faiUrlTemplate: this.config.refSeqs.url})
+                .getRefSeqs(function(refSeqs) {
+                    thisB.addRefseqs(refSeqs);
+                    deferred.resolve({success:true});
+                });
+        }
         else if( 'data' in this.config.refSeqs ) {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
