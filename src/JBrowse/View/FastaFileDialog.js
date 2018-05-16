@@ -3,7 +3,6 @@ define( [
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dojo/dom-construct',
-            'dojo/query',
             'JBrowse/View/FileDialog',
             './FileDialog/TrackList/IndexedFASTADriver',
             './FileDialog/TrackList/TwoBitDriver'
@@ -13,7 +12,6 @@ define( [
             Button,
             RadioButton,
             dom,
-            query,
             FileDialog,
             IndexedFASTADriver,
             TwoBitDriver
