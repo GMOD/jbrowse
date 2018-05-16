@@ -2629,14 +2629,11 @@ makeSnapLink: function () {
         title: 'share this view',
         onClick: function() {
             var fs = electronRequire('fs');
-            var screenshot = electronRequire('electron-screenshot')
-            var dialog = electronRequire('electron').remote.dialog;
-            dialog.showSaveDialog(function (fileName) {
-                screenshot({
-                  filename: fileName,
-                  defaultPath: "*/screenshot.png",
-                  delay: 1
-                }, function() { console.log('Saved screenshot',fileName); });
+            var remote = electronRequire('electron').remote;
+            remote.dialog.showSaveDialog({ defaultPath: "*/screenshot.png" }, (fileName) => {
+                if(fileName) {
+                    remote.getCurrentWindow().capturePage((img) => fs.writeFileSync(fileName, img.toPNG()))
+                }
             });
         }
     });
