@@ -112,7 +112,7 @@ if [ -f "src/JBrowse/Browser.js" ]; then
     (
         set -e
         check_node
-        npm install yarn
+        [[ -f node_modules/.bin/yarn ]] || npm install yarn
         node_modules/.bin/yarn install
         node_modules/.bin/yarn build
     ) >>setup.log 2>&1;
