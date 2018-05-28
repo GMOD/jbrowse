@@ -22,6 +22,7 @@ my $out_file;
 my $label;
 my $bw_url;
 my $key;
+my $additional_config;
 my $category = undef;
 my $plot = 0;
 my $bicolor_pivot = "zero";
@@ -44,6 +45,7 @@ sub parse_options {
            "bw_url|u=s"		=> \$bw_url,
            "key|k=s"		=> \$key,
            "category=s"	=> \$category,
+           "config=s"         => \$additional_config,
            "plot|P"		=> \$plot,
            "bicolor_pivot|b=s"	=> \$bicolor_pivot,
            "pos_color|c=s"	=> \$pos_color,
@@ -121,6 +123,13 @@ sub add_bw_track {
     }
     else {
         delete $bw_entry->{category};
+    }
+    if ($additional_config) {
+        my $conf = $json->decode( $additional_config );
+        unless ( $conf && ref $conf eq 'HASH') {
+            die "invalid --config option, --config must be valid JSON";
+        }
+        %$bw_entry = (%$bw_entry, %$conf)
     }
     if (defined $min_score) {
         $bw_entry->{min_score} = $min_score;
