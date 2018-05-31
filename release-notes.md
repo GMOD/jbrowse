@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed the `--config` option for `add-bw-track.pl`.  Although documented in the script's POD,
+   it was not actually being processed. Thanks to @loraine-gueguen for noticing it, and for
+   contributing the fix! (issue #1063, pull #1064, @loraine-gueguen)
 
 # Release 1.14.1     2018-05-02 22:04:33 UTC
 
