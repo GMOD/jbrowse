@@ -27,6 +27,9 @@
    dataset-selection page. Many thanks to @srobb1 for noticing this and reporting it!
    (issue #1057, @rbuels)
 
+ * JSON syntax errors in the new configuration loading code now have better error messages.
+   Thanks to @billzt for pointing out the need for this! (issue #1061, @rbuels)
+
 # Release 1.14.1     2018-05-02 22:04:33 UTC
 
 ## Minor improvements
