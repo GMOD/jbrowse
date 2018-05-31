@@ -6,6 +6,9 @@
    it was not actually being processed. Thanks to @loraine-gueguen for noticing it, and for
    contributing the fix! (issue #1063, pull #1064, @loraine-gueguen)
 
+ * Fixed a bug in which setup.sh failed if run twice in a row under some circumstances.
+   (pull #1053, @cmdcolin)
+
 # Release 1.14.1     2018-05-02 22:04:33 UTC
 
 ## Minor improvements
