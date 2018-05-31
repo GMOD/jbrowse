@@ -19,11 +19,6 @@ return declare( ExportBase,
      */
     constructor: function( args ) {
         this._idCounter = 0;
-
-        this.print( "##gff-version 3\n");
-        if( this.refSeq )
-            this.print( "##sequence-region "+this.refSeq.name+" "+(this.refSeq.start+1)+" "+this.refSeq.end+"\n" );
-
         this.lastSync = 0;
     },
 
@@ -86,6 +81,11 @@ return declare( ExportBase,
         return this._gff3_reserved_attributes_by_lcname[ fieldname.toLowerCase() ];
     },
 
+    exportRegion(region, callback) {
+        this.print( "##gff-version 3\n");
+        this.print( `##sequence-region ${region.ref} ${region.start+1} ${region.end}\n` );
+        this.inherited(arguments)
+    },
 
     /**
      * Format a feature into a string.

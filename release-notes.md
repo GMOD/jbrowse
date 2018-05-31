@@ -11,6 +11,10 @@
    ```
    Thanks to @srobb1 for pointing out the need for this. (issue #1059, @rbuels)
 
+ * When exporting GFF3 from the 'Save track data' menu, the `##sequence-region` pragma now
+   specifies the exact sequence region that was exported from the UI. Thanks to @mwdavis2
+   for pointing this out! (issue #905, @rbuels)
+
 ## Bug fixes
 
  * Fixed the `--config` option for `add-bw-track.pl`.  Although documented in the script's POD,
