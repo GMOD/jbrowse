@@ -12,6 +12,10 @@
  * Fixed a bug in which setup.sh did not accept nodejs version 10 as sufficiently recent.
    (pull #1048, @cmdcolin)
 
+ * Fixed a bug in which the "Loading..." message erroneously appeared at the top of the
+   dataset-selection page. Many thanks to @srobb1 for noticing this and reporting it!
+   (issue #1057, @rbuels)
+
 # Release 1.14.1     2018-05-02 22:04:33 UTC
 
 ## Minor improvements

@@ -467,6 +467,7 @@ fatalError: function( error ) {
             && this.config.datasets
             && ! this.config.datasets._DEFAULT_EXAMPLES
           ) {
+            dojo.empty(this.container)
             new StandaloneDatasetList({ datasets: this.config.datasets })
                   .placeAt( this.container );
         } else {
