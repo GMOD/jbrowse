@@ -9,6 +9,9 @@
  * Fixed a bug in which setup.sh failed if run twice in a row under some circumstances.
    (pull #1053, @cmdcolin)
 
+ * Fixed a bug in which setup.sh did not accept nodejs version 10 as sufficiently recent.
+   (pull #1048, @cmdcolin)
+
 # Release 1.14.1     2018-05-02 22:04:33 UTC
 
 ## Minor improvements
