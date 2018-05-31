@@ -51,7 +51,7 @@ release-electron-linux: clean release-min release-electron-setup
 release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux
 	echo "Building desktop packages"
 
-release-notes.html: release-notes.txt
+release-notes.html: release-notes.md
 	build/format_release_notes.pl $< > $@
 
 node_modules:
