@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added a `datasetSelectorWidth` configuration key that sets the width of the dataset
+   selector. The width defaults to `15em`. Example setting in tracks.conf:
+   ```
+   [GENERAL]
+   classicMenu = true
+   datasetSelectorWidth = 20em
+   ```
+   Thanks to @srobb1 for pointing out the need for this. (issue #1059, @rbuels)
+
 ## Bug fixes
 
  * Fixed the `--config` option for `add-bw-track.pl`.  Although documented in the script's POD,
