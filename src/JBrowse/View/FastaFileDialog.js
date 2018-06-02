@@ -78,7 +78,7 @@ return declare( FileDialog, {
                         refSeqOrder: this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
                                     this.refSeqOrderChoice[1].checked ? "length descending" :
                                     undefined
-                    })
+                    }).then( () => this.dialog.hide(), err => { console.error(err) } )
                 }
             }
         })
