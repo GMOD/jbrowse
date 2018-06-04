@@ -15,6 +15,9 @@
    specifies the exact sequence region that was exported from the UI. Thanks to @mwdavis2
    for pointing this out! (issue #905, @rbuels)
 
+ * Improved the welcome screen for the desktop version of JBrowse
+   (issue #1045, pull #1050, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed the `--config` option for `add-bw-track.pl`.  Although documented in the script's POD,
