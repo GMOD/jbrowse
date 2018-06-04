@@ -40,9 +40,6 @@ define( [
             'JBrowse/View/InfoDialog',
             'JBrowse/View/FileDialog',
             'JBrowse/View/FastaFileDialog',
-            'JBrowse/Store/SeqFeature/IndexedFasta',
-            'JBrowse/Store/SeqFeature/UnindexedFasta',
-            'JBrowse/Store/SeqFeature/TwoBit',
             'JBrowse/Model/Location',
             'JBrowse/View/LocationChoiceDialog',
             'JBrowse/View/Dialog/SetHighlight',
@@ -51,6 +48,9 @@ define( [
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
+            'JBrowse/Store/SeqFeature/UnindexedFasta',
+            'JBrowse/Store/SeqFeature/IndexedFasta',
+            'JBrowse/Store/SeqFeature/TwoBit',
             'dijit/focus',
             '../lazyload.js', // for dynamic CSS loading
             'dojo/text!./package.json',
@@ -102,9 +102,6 @@ define( [
             InfoDialog,
             FileDialog,
             FastaFileDialog,
-            IndexedFasta,
-            UnindexedFasta,
-            TwoBit,
             Location,
             LocationChoiceDialog,
             SetHighlightDialog,
@@ -113,6 +110,9 @@ define( [
             SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
+            UnindexedFasta,
+            IndexedFasta,
+            TwoBit,
             dijitFocus,
             LazyLoad,
             packagejson
@@ -167,10 +167,17 @@ constructor: function(params) {
     var thisB = this;
 
     dojo.addOnLoad( function() {
+        if(Util.isElectron() && !thisB.config.dataRoot) {
+            dojo.addClass(document.body, "jbrowse");
+            dojo.addClass(document.body, thisB.config.theme || "tundra");
+            thisB.welcomeScreen(document.body);
+            return;
+        }
         thisB.loadConfig().then( function() {
 
             thisB.container = dojo.byId( thisB.config.containerID );
             thisB.container.onselectstart = function() { return false; };
+
 
             // initialize our highlight if one was set in the config
             if( thisB.config.initialHighlight && thisB.config.initialHighlight != "/" )
@@ -392,7 +399,7 @@ welcomeScreen: function( container, error ) {
     require(['dojo/text!JBrowse/View/Resource/Welcome.html'], function(Welcome) {
         container.innerHTML = Welcome
         var topPane = dojo.create( 'div',{ style: {overflow: 'hidden'}}, thisB.container );
-        dojo.byId('welcome').innerHTML="Your JBrowse is "+(Util.isElectron()?"running in Desktop mode":"on the web")+". To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file";
+        dojo.byId('welcome').innerHTML="Welcome! To get started with <i>JBrowse-"+thisB.version+"</i>, select a sequence file or an existing data directory";
 
         on( dojo.byId('newOpen'), 'click', dojo.hitch( thisB, 'openFastaElectron' ));
         on( dojo.byId('newOpenDirectory'), 'click', function() {
@@ -405,9 +412,12 @@ welcomeScreen: function( container, error ) {
 
         try {
             thisB.loadSessions();
-        } catch(e) { console.log(e); }
+        } catch(e) {
+            console.error(e);
+        }
 
         if( error ) {
+            console.log(error);
             var errors_div = dojo.byId('fatal_error_list');
             dojo.create('div', { className: 'error', innerHTML: error }, errors_div );
         }
@@ -521,7 +531,7 @@ loadSessions: function() {
     array.forEach( obj, function( session ) {
         var tr = dojo.create( 'tr', {}, table );
         var url = window.location.href.split('?')[0] + "?data=" + Util.replacePath( session.session );
-        dojo.create('td', {
+        dojo.create('div', {
             "class": "dijitIconDelete",
             onclick: function(e) {
                 if( confirm( "This will simply delete your session from the list, it won't remove any data files. Are you sure you want to continue?" ) ) {
@@ -542,8 +552,14 @@ loadRefSeqs: function() {
     var thisB = this;
     return this._milestoneFunction( 'loadRefSeqs', function( deferred ) {
         // load our ref seqs
-        if( typeof this.config.refSeqs == 'string' )
-            this.config.refSeqs = { url: this.config.refSeqs };
+        if( typeof this.config.refSeqs == 'string' ) {
+            // assume this.config.refSeqs is a url if it is string
+            this.config.refSeqs = {
+                url: this.config.refSeqs
+            };
+        }
+
+        // check refseq urls
         if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fai$/) ) {
             new IndexedFasta({browser: this, faiUrlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
@@ -553,8 +569,19 @@ loadRefSeqs: function() {
                     deferred.reject(error);
                 });
             return;
-        }
-        else if( 'data' in this.config.refSeqs ) {
+        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.2bit$/) ) {
+            new TwoBit({browser: this, urlTemplate: this.config.refSeqs.url})
+                .getRefSeqs(function(refSeqs) {
+                    thisB.addRefseqs(refSeqs);
+                    deferred.resolve({success:true});
+                });
+        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fa$/) ) {
+            new UnindexedFasta({browser: this, urlTemplate: this.config.refSeqs.url})
+                .getRefSeqs(function(refSeqs) {
+                    thisB.addRefseqs(refSeqs);
+                    deferred.resolve({success:true});
+                });
+        } else if( 'data' in this.config.refSeqs ) {
             this.addRefseqs( this.config.refSeqs.data );
             deferred.resolve({success:true});
         } else {
@@ -1119,8 +1146,9 @@ saveSessionDir: function( directory ) {
 
     try {
         var obj = JSON.parse( fs.readFileSync(path, 'utf8') );
+    } catch(e) {
+        console.error(e);
     }
-    catch(e) {}
 
     var dir = Util.replacePath( directory );
     if( array.every(obj, function(elt) { return elt.session != dir; }) )
@@ -1163,7 +1191,7 @@ openConfig: function( plugins ) {
     try {
         fs.writeFileSync( dir + "/trackList.json", JSON.stringify(trackList, null, 2) );
     } catch(e) {
-        console.error("Failed to save trackList.json");
+        console.error("Failed to save trackList.json", e);
     }
     window.location.reload();
 },
@@ -1213,7 +1241,10 @@ saveData: function() {
     };
     try {
         fs.writeFileSync( Util.unReplacePath(dir) + "/trackList.json", JSON.stringify(minTrackList, null, 2) );
-    } catch(e) { alert('Unable to save track data'); }
+    } catch(e) {
+        alert('Unable to save track data');
+        console.error(e);
+    }
 },
 
 
@@ -1226,28 +1257,50 @@ openFastaElectron: function() {
 
     this.fastaFileDialog.show ({
         openCallback: dojo.hitch(this, function(results) {
-          var confs = results.trackConfs || [];
-
-          if( confs.length ) {
-            if( confs[0].store.fasta && confs[0].store.fai ) {
-                var fasta = Util.replacePath( confs[0].store.fasta.url );
-                var fai = Util.replacePath( confs[0].store.fai.url );
-
+            var confs = results.trackConfs || [];
+            if( confs.length ) {
                 var trackList = {
                     tracks: [{
                         label: confs[0].label,
                         key: confs[0].key,
                         type: "SequenceTrack",
                         category: "Reference sequence",
-                        storeClass: 'JBrowse/Store/SeqFeature/IndexedFasta',
                         useAsRefSeqStore: true,
-                        chunkSize: 20000,
-                        urlTemplate: fasta,
-                        faiUrlTemplate: fai
+                        chunkSize: 20000
                     }],
                     refSeqs: fai,
                     refSeqOrder: results.refSeqOrder
                 };
+
+                if( confs[0].store.fasta && confs[0].store.fai ) {
+                    var fasta = Util.replacePath( confs[0].store.fasta.url );
+                    var fai = Util.replacePath( confs[0].store.fai.url );
+                    trackList.tracks[0].storeClass= 'JBrowse/Store/SeqFeature/IndexedFasta';
+                    trackList.tracks[0].urlTemplate = fasta;
+                    trackList.tracks[0].faiUrlTemplate = fai;
+                    trackList.refSeqs = fai;
+                }
+                else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
+                    var f2bit = Util.replacePath( confs[0].store.blob.url );
+                    trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/TwoBit';
+                    trackList.tracks[0].urlTemplate = f2bit;
+                    trackList.refSeqs = f2bit;
+                }
+                else {
+                    var fasta = Util.replacePath( confs[0].store.fasta.url );
+                    try {
+                        var stats = fs.statSync( fasta );
+                        if(stats.size > 100000000) {
+                            alert('Unindexed file too large. You must have an index file (.fai) for sequence files larger than 100 MB.')
+                            return;
+                        }
+                    } catch(e) {
+                        console.error(e);
+                    }
+                    trackList.tracks[0].storeClass = 'JBrowse/Store/SeqFeature/UnindexedFasta';
+                    trackList.tracks[0].urlTemplate = fasta;
+                    trackList.refSeqs = fasta;
+                }
 
                 // fix dir to be user data if we are accessing a url for fasta
                 var dir = this.config.electronData;
@@ -1260,79 +1313,11 @@ openFastaElectron: function() {
                     fs.closeSync( fs.openSync( dir + "/tracks.conf", 'w' ) );
                     this.saveSessionDir( dir );
                     window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                } catch(e) { alert(e); }
+                } catch(e) {
+                    alert('Failed to save session');
+                    console.error(e);
+                }
             }
-            else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/TwoBit' ) {
-                var f2bit = Util.replacePath( confs[0].store.blob.url );
-
-                var refseqs = new TwoBit({'browser': this, 'urlTemplate': f2bit });
-                var thisB = this;
-                refseqs.getRefSeqs( function(res) {
-                    var trackList = {
-                        tracks: [{
-                            label: confs[0].label,
-                            key: confs[0].key,
-                            type: "SequenceTrack",
-                            category: "Reference sequence",
-                            useAsRefSeqStore: true,
-                            storeClass: 'JBrowse/Store/SeqFeature/TwoBit',
-                            chunkSize: 20000,
-                            urlTemplate: f2bit
-                        }],
-                        refSeqs: { data: res },
-                        refSeqOrder: results.refSeqOrder
-                    };
-                    try {
-                        var dir = thisB.config.electronData;
-                        fs.existsSync(dir) || fs.mkdirSync(dir); // make base folder exist first before subdir
-                        dir += '/' + confs[0].label;
-                        fs.existsSync(dir) || fs.mkdirSync(dir);
-                        fs.writeFileSync(dir + "/trackList.json", JSON.stringify(trackList, null, 2));
-                        fs.closeSync(fs.openSync( dir+"/tracks.conf", 'w' ));
-                        thisB.saveSessionDir( dir );
-                        window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                    } catch(e) { alert(e); }
-                }, function(err) { console.error('error', err); });
-            }
-            else {
-                var fasta = Util.replacePath( confs[0].store.fasta.url );
-                try {
-                    var stats = fs.statSync( fasta );
-                    if(stats.size>100000000) {
-                       if(!confirm('Warning: you are opening a non-indexed fasta larger than 100MB. It is recommended to load a fasta (.fa) and the fasta index (.fai) to provide speedier loading. Do you wish to continue anyways?')) {
-                           return;
-                       }
-                    }
-                } catch(e) { /* */ }
-
-                var refseqs = new UnindexedFasta ({'browser': this, 'urlTemplate': fasta });
-                var thisB = this;
-                refseqs.getRefSeqs( function(res) {
-                    var trackList = {
-                        tracks: [{
-                            label: confs[0].label,
-                            key: confs[0].key,
-                            type: "SequenceTrack",
-                            category: "Reference sequence",
-                            useAsRefSeqStore: true,
-                            storeClass: 'JBrowse/Store/SeqFeature/UnindexedFasta',
-                            chunkSize: 20000,
-                            urlTemplate: fasta
-                        }],
-                        refSeqs: { data: res },
-                        refSeqOrder: results.refSeqOrder
-                    };
-                    try {
-                        var dir = thisB.config.electronData + '/' + confs[0].label;
-                        fs.existsSync(dir) || fs.mkdirSync(dir);
-                        fs.writeFileSync(dir + '/trackList.json', JSON.stringify(trackList, null, 2));
-                        fs.closeSync(fs.openSync( dir + '/tracks.conf', 'w' ));
-                        thisB.saveSessionDir( dir );
-                        window.location = window.location.href.split('?')[0] + "?data=" + Util.replacePath( dir );
-                    } catch(e) { alert(e); }
-                }, function(err) { console.error('error', err); });
-            }
-          }
         })
     });
 },
@@ -2644,22 +2629,19 @@ makeSnapLink: function () {
 
     // make the share link
     var button = new dijitButton({
-            className: 'share',
-            innerHTML: 'Screenshot',
-            title: 'share this view',
-            onClick: function() {
-                var fs = electronRequire('fs');
-                var screenshot = electronRequire('electron-screenshot')
-                var dialog = electronRequire('electron').remote.dialog;
-                dialog.showSaveDialog(function (fileName) {
-                    screenshot({
-                      filename: fileName,
-                      delay: 1
-                    }, function() { console.log('Saved screenshot',fileName); });
-                });
-            }
+        className: 'share',
+        innerHTML: 'Screenshot',
+        title: 'share this view',
+        onClick: function() {
+            var fs = electronRequire('fs');
+            var remote = electronRequire('electron').remote;
+            remote.dialog.showSaveDialog({ defaultPath: "*/screenshot.png" }, (fileName) => {
+                if(fileName) {
+                    remote.getCurrentWindow().capturePage((img) => fs.writeFileSync(fileName, img.toPNG()))
+                }
+            });
         }
-    );
+    });
 
     return button.domNode;
 },
@@ -2940,7 +2922,7 @@ cookie: function(keyWithoutId,value) {
     }
     else if( value!=null ) {
         try {
-        return localStorage.setItem(keyWithId, value);
+            return localStorage.setItem(keyWithId, value);
         }
         catch(e) {
         }

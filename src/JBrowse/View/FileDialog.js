@@ -138,21 +138,14 @@ return declare( null, {
         var actionBar           = this._makeActionBar( args.openCallback, args.cancelCallback );
 
         // connect the local files control to the resource list
-        if( !Util.isElectron() ) {
-            dojo.connect( localFilesControl.uploader, 'onChange', function() {
+        dojo.connect( localFilesControl.uploader, 'onChange', function() {
+            if(Util.isElectron()) {
+                const arr = [...localFilesControl.uploader._files].map((file) => Util.replacePath(file.path));
+                resourceListControl.addURLs(arr);
+            } else {
                 resourceListControl.addLocalFiles( localFilesControl.uploader._files );
-            });
-        }
-        else {
-            on( localFilesControl.uploader, 'click', function() {
-                var dialog = electronRequire('electron').remote.dialog;
-                var ret = dialog.showOpenDialog({ properties: [ 'openFile','multiSelections' ]});
-                if( ret ) {
-                    var paths = array.map( ret, function(replace) { return Util.replacePath(replace); });
-                    resourceListControl.addURLs( paths );
-                }
-            });
-        }
+            }
+        });
 
         // connect the remote URLs control to the resource list
         dojo.connect( remoteURLsControl, 'onChange', function( urls ) {
@@ -195,29 +188,23 @@ return declare( null, {
 
         var dragArea = dom.create('div', { className: 'dragArea' }, container );
         var fileBox;
-        if( Util.isElectron() ) {
-            fileBox = dom.create('input', { type: 'button', value: 'Select files...', id: 'openFile' }, dragArea );
+
+        fileBox = new dojox.form.Uploader({
+            multiple: true
+        });
+        fileBox.placeAt( dragArea );
+        if( this.browserSupports.dnd ) {
+            // let the uploader process any files dragged into the dialog
+            fileBox.addDropTarget( this.dialog.domNode );
+
+            // add a message saying you can drag files in
+            dom.create(
+                'div', {
+                    className: 'dragMessage',
+                    innerHTML: 'Select or drag files here.'
+                }, dragArea
+            );
         }
-        else {
-            fileBox = new dojox.form.Uploader({
-                multiple: true
-            });
-            fileBox.placeAt( dragArea );
-            if( this.browserSupports.dnd ) {
-                // let the uploader process any files dragged into the dialog
-                fileBox.addDropTarget( this.dialog.domNode );
-
-                // add a message saying you can drag files in
-                dom.create(
-                    'div', {
-                        className: 'dragMessage',
-                        innerHTML: 'Select or drag files here.'
-                    }, dragArea
-                );
-            }
-        }
-
-
 
         // little elements used to show pipeline-like connections between the controls
         dom.create( 'div', { className: 'connector', innerHTML: '&nbsp;'}, container );

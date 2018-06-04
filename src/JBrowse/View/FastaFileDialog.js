@@ -3,7 +3,6 @@ define( [
             'dijit/form/Button',
             'dijit/form/RadioButton',
             'dojo/dom-construct',
-            'dojo/query',
             'JBrowse/View/FileDialog',
             './FileDialog/TrackList/IndexedFASTADriver',
             './FileDialog/TrackList/TwoBitDriver'
@@ -13,7 +12,6 @@ define( [
             Button,
             RadioButton,
             dom,
-            query,
             FileDialog,
             IndexedFASTADriver,
             TwoBitDriver
@@ -80,8 +78,11 @@ return declare( FileDialog, {
                         refSeqOrder: this.refSeqOrderChoice[0].checked ? "alphabetic descending" :
                                     this.refSeqOrderChoice[1].checked ? "length descending" :
                                     undefined
+<<<<<<< HEAD
                     })
-                    .then( () => this.dialog.hide(), err => { console.error(err) } )
+=======
+                    }).then( () => this.dialog.hide(), err => { console.error(err) } )
+>>>>>>> e366bac5e355f2bc98b42faffd4cbc2a2ada2428
                 }
             }
         })

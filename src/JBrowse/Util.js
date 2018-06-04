@@ -220,6 +220,7 @@ Util = {
     },
 
     resolveUrl: function(baseUrl, relativeUrl) {
+        if(relativeUrl[0] == '/' && this.isElectron()) return relativeUrl;
         return url.resolve(baseUrl, relativeUrl)
     },
 

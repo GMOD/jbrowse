@@ -62,7 +62,7 @@ return declare( ActionBarDialog,
     },
 
     show: function( callback ) {
-        dojo.addClass( this.domNode, 'jbrowse fileDialog' );
+        dojo.addClass( this.domNode, 'fileDialog' );
 
         var remoteURLsControl = this._makeRemoteURLsControl();
         var localFilesControl = this._makeLocalFileControl();
