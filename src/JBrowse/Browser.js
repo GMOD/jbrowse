@@ -477,6 +477,7 @@ fatalError: function( error ) {
             && this.config.datasets
             && ! this.config.datasets._DEFAULT_EXAMPLES
           ) {
+            dojo.empty(this.container)
             new StandaloneDatasetList({ datasets: this.config.datasets })
                   .placeAt( this.container );
         } else {
@@ -1107,6 +1108,10 @@ renderDatasetSelect: function( parent ) {
             })
         combobox.placeAt( parent )
         combobox.focusNode.onclick = function() { this.select() }
+        if (this.config.datasetSelectorWidth) {
+            combobox.domNode.style.width = this.config.datasetSelectorWidth
+            combobox.focusNode.style.width = this.config.datasetSelectorWidth
+        }
     }
     else {
         if( this.config.datasets && this.config.dataset_id ) {

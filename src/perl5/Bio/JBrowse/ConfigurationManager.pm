@@ -29,7 +29,9 @@ sub slurpJSON {
         <$f>
     };
 
-    return JSON->new->decode($text)
+    my $json = eval { JSON->new->decode($text) };
+    die "syntax error in $file: $@" if $@;
+    return $json;
 }
 
 sub get_final_config {

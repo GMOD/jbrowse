@@ -45,4 +45,25 @@ is($config->{tracks}[5]{label}, 'zoo');
 
 # print Dumper($config);
 
+{
+    eval {
+        my $errorConfig = Bio::JBrowse::ConfigurationManager
+        ->new(
+            conf => {
+                include => [ 'tests/data/conf/malformed.json' ],
+                baseUrl => '.',
+                overrideMe => 'rootConfig',
+                foo => 1,
+                tracks => [
+                    { label => "zoo", zonk => "quux"},
+                    { label => "zaz", honk => "beep" => root => "root!"}
+                ]
+            })
+        ->get_final_config;
+    };
+    my $error = $@;
+    like($error, qr/^syntax error in/, 'thrown error is explicitly a syntax error');
+    like($error, qr/malformed\.json\b/, 'thrown error contains malformed JSON file name');
+}
+
 done_testing;

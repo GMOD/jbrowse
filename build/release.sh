@@ -37,27 +37,27 @@ fi
 set -x
 
 # datestamp the release notes
-build/datestamp_release_notes.pl $VERSION release-notes.txt > release-notes.txt.new
-mv release-notes.txt.new release-notes.txt
+build/datestamp_release_notes.pl $VERSION release-notes.md > release-notes.md.new
+mv release-notes.md.new release-notes.md
 
 # update the versions in the package.json files
 build/set_package_versions.pl $VERSION src/JBrowse/package.json package.json
 
 # commit the release notes and package.jsons
-git commit -m "release $VERSION" release-notes.txt src/JBrowse/package.json package.json
+git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json
 
 # make a tag and update master
 git tag $VERSION-release
 
 # add a {{$NEXT}} marker
-( echo '{{$NEXT}}'; echo; echo; cat release-notes.txt) > release-notes.txt.new
-mv release-notes.txt.new release-notes.txt
+( echo '{{$NEXT}}'; echo; echo; cat release-notes.md) > release-notes.md.new
+mv release-notes.md.new release-notes.md
 
 # update the package.json files with alpha versions
 build/set_package_versions.pl $ALPHA_VERSION src/JBrowse/package.json package.json
 
 # commit the alpha versions
-git commit -m "start next release cycle as $ALPHA_VERSION" release-notes.txt src/JBrowse/package.json package.json
+git commit -m "start next release cycle as $ALPHA_VERSION" release-notes.md src/JBrowse/package.json package.json
 
 # finally, push everything to the remote
 echo

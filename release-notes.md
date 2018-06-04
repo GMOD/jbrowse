@@ -1,5 +1,38 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added a `datasetSelectorWidth` configuration key that sets the width of the dataset
+   selector. The width defaults to `15em`. Example setting in tracks.conf:
+   ```
+   [GENERAL]
+   classicMenu = true
+   datasetSelectorWidth = 20em
+   ```
+   Thanks to @srobb1 for pointing out the need for this. (issue #1059, @rbuels)
+
+ * When exporting GFF3 from the 'Save track data' menu, the `##sequence-region` pragma now
+   specifies the exact sequence region that was exported from the UI. Thanks to @mwdavis2
+   for pointing this out! (issue #905, @rbuels)
+
+## Bug fixes
+
+ * Fixed the `--config` option for `add-bw-track.pl`.  Although documented in the script's POD,
+   it was not actually being processed. Thanks to @loraine-gueguen for noticing it, and for
+   contributing the fix! (issue #1063, pull #1064, @loraine-gueguen)
+
+ * Fixed a bug in which setup.sh failed if run twice in a row under some circumstances.
+   (pull #1053, @cmdcolin)
+
+ * Fixed a bug in which setup.sh did not accept nodejs version 10 as sufficiently recent.
+   (pull #1048, @cmdcolin)
+
+ * Fixed a bug in which the "Loading..." message erroneously appeared at the top of the
+   dataset-selection page. Many thanks to @srobb1 for noticing this and reporting it!
+   (issue #1057, @rbuels)
+
+ * JSON syntax errors in the new configuration loading code now have better error messages.
+   Thanks to @billzt for pointing out the need for this! (issue #1061, @rbuels)
 
 # Release 1.14.1     2018-05-02 22:04:33 UTC
 
