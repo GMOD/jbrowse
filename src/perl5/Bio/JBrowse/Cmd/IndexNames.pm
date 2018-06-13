@@ -603,7 +603,7 @@ sub make_names_iterator {
                     $feature = gff3_parse_feature($line);
                     my $Name = $feature->{attributes}{Name} || [];
                     my $ID = $feature->{attributes}{ID} || [];
-                    @names = $Name->[0] ? @$Name : @$ID;
+                    @names = $Name->[0] ? (@$Name, @$ID) : @$ID;
                     last if scalar @names;
                 }
             }
