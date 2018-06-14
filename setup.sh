@@ -1,4 +1,7 @@
 #!/bin/bash
+
+echo "Installing JBrowse with added option: $1"
+
 done_message () {
     if [ $? == 0 ]; then
         echo " done."
@@ -52,6 +55,10 @@ elif ! [ -f "src/dojo/dojo.js" ]; then
 fi
 echo "done"
 
+if [[ "$1" == "no-perl" ]] ; then
+    echo "Perl tools not installing.  Install finished";
+    exit 0 ;
+fi
 
 # log information about this system
 echo -n "Gathering system information ..."
@@ -107,6 +114,11 @@ fi;
   bin/cpanm -v --notest -l extlib/ --installdeps . < /dev/null;
 ) >>setup.log 2>&1;
 done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
+
+if [[ $1 == "no-samples" ]] ; then
+    echo "Not installing samples.  Install finished";
+    exit 0 ;
+fi
 
 echo
 echo -n "Formatting Volvox example data ...";
