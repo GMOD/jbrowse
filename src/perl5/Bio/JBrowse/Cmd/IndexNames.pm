@@ -440,9 +440,11 @@ sub make_operation_stream {
     }
 
     return sub {
-        while( @operation_buffer and my $name_record = $record_stream->() ) {
-            #$self->{stats}{namerecs_converted_to_operations}++;
-            push @operation_buffer, $self->make_operations( $name_record );
+        unless( @operation_buffer ) {
+            if( my $name_record = $record_stream->() ) {
+                #$self->{stats}{namerecs_converted_to_operations}++;
+                push @operation_buffer, $self->make_operations( $name_record );
+            }
         }
         return shift @operation_buffer;
     };
