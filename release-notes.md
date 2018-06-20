@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
+   @scottcain for reporting (issue #1058, @cmdcolin).
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 
