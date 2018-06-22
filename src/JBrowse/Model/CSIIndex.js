@@ -1,19 +1,13 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/array',
-           'dojo/_base/Deferred',
-           'JBrowse/has',
-           'JBrowse/Model/DataView',
            'JBrowse/Util',
+           'JBrowse/Model/TabixIndex',
            'JBrowse/Model/BGZip/VirtualOffset'
        ],
        function(
            declare,
-           array,
-           Deferred,
-           has,
-           jDataView,
            Util,
+           TabixIndex,
            VirtualOffset
        ) {
 
@@ -41,28 +35,7 @@ var Chunk = Util.fastDeclare({
     }
 });
 
-return declare( null, {
-
-    constructor: function( args ) {
-        this.browser = args.browser;
-        this.blob = args.blob;
-        this.load();
-    },
-
-    load: function() {
-        var thisB = this;
-        return this._loaded = this._loaded || function() {
-            var d = new Deferred();
-            if( ! has('typed-arrays') )
-                d.reject( 'This web browser lacks support for JavaScript typed arrays.' );
-            else
-                this.blob.fetch( function( data) {
-                                     thisB._parseIndex( data, d );
-                                 }, dojo.hitch( d, 'reject' ) );
-            return d;
-        }.call(this);
-    },
-
+return declare( TabixIndex, {
     // fetch and parse the index
     _parseIndex: function( bytes, deferred ) {
 
@@ -94,8 +67,6 @@ return declare( null, {
         // read sequence dictionary
         this._refIDToName = new Array( refCount );
         this._refNameToID = {};
-//         var nameSectionLength = data.getInt32();
-        //
         this._parseAux( aux );
 
         // read the per-reference-sequence indexes
@@ -123,18 +94,9 @@ return declare( null, {
         deferred.resolve({ success: true });
     },
 
-    _findFirstData: function( virtualOffset ) {
-        var fdl = this.firstDataLine;
-        this.firstDataLine = fdl ? fdl.compareTo( virtualOffset ) > 0 ? virtualOffset
-                                                                      : fdl
-                                 : virtualOffset;
-    },
 
     _parseAux: function(aux) {
         var data = new jDataView(new Uint8Array(aux).buffer, 0, undefined,true);
-
-        //var offset = 28;
-//        var ret = data.getInt32();
         var ret = data.getInt32();
         this.columnNumbers = {
             ref:   data.getInt32(),
@@ -148,54 +110,6 @@ return declare( null, {
 
         this._parseNameBytes( data.getBytes( nameSectionLength, undefined, false ) );
     },
-
-
-    _parseNameBytes: function( namesBytes ) {
-        var offset = 0;
-
-        function getChar() {
-            var b = namesBytes[ offset++ ];
-            return b ? String.fromCharCode( b ) : null;
-        }
-
-        function getString() {
-            var c, s = '';
-            while(( c = getChar() ))
-                s += c;
-            return s.length ? s : null;
-        }
-
-        var refName, refID = 0;
-        for( ; refName = getString(); refID++ ) {
-            this._refIDToName[refID] = refName;
-            this._refNameToID[ this.browser.regularizeReferenceName( refName ) ] = refID;
-        }
-    },
-
-    /**
-     * Interrogate whether a store has data for a given reference
-     * sequence.  Calls the given callback with either true or false.
-     *
-     * Implemented as a binary interrogation because some stores are
-     * smart enough to regularize reference sequence names, while
-     * others are not.
-     */
-    hasRefSeq: function( seqName, callback, errorCallback ) {
-       var thisB = this;
-       seqName = thisB.browser.regularizeReferenceName( seqName );
-       thisB.load().then( function() {
-           if( seqName in thisB._refNameToID ) {
-               callback(true);
-               return;
-           }
-           callback( false );
-       });
-   },
-
-   getRefId: function( refName ) {
-       refName = this.browser.regularizeReferenceName( refName );
-       return this._refNameToID[refName];
-   },
 
    TAD_LIDX_SHIFT: 14,
 
