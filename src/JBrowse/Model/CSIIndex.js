@@ -85,6 +85,8 @@ return declare( null, {
         this.minShift = data.getInt32();
         this.depth = data.getInt32();
         var l_aux = data.getInt32();
+
+
         var aux = data.getBytes( l_aux, undefined, false );
         var refCount = data.getInt32();
 
@@ -93,18 +95,18 @@ return declare( null, {
         this._refIDToName = new Array( refCount );
         this._refNameToID = {};
 //         var nameSectionLength = data.getInt32();
-        this._parseNameBytes( aux );
+        //
+        this._parseAux( aux );
 
         // read the per-reference-sequence indexes
         this._indices = new Array( refCount );
         for (var i = 0; i < refCount; ++i) {
             // the binning index
             var binCount = data.getInt32();
-            console.log(binCount);
             var idx = this._indices[i] = { binIndex: {} };
             for (var j = 0; j < binCount; ++j) {
                 var bin        = data.getInt32();
-                var loffset = data.getBytes(8);
+                var loffset = new VirtualOffset( data.getBytes(8) );
                 var chunkCount = data.getInt32();
                 var chunks = new Array( chunkCount );
                 for (var k = 0; k < chunkCount; ++k) {
@@ -128,28 +130,30 @@ return declare( null, {
                                  : virtualOffset;
     },
 
-    _parseTabixAux: function( bytes ) {
-        var data = new jDataView( new Uint16Array(bytes).buffer, 0, undefined, true );
-        var refCount = data.getInt32();
-        this.presetType = data.getInt32();
+    _parseAux: function(aux) {
+        var data = new jDataView(new Uint8Array(aux).buffer, 0, undefined,true);
+
+        //var offset = 28;
+//        var ret = data.getInt32();
+        var ret = data.getInt32();
         this.columnNumbers = {
             ref:   data.getInt32(),
             start: data.getInt32(),
             end:   data.getInt32()
         };
+        console.log(ret,this.columnNumbers);
         this.metaValue = data.getInt32();
         this.metaChar = this.metaValue ? String.fromCharCode( this.metaValue ) : null;
         this.skipLines = data.getInt32();
-
-        // read sequence dictionary
-        this._refIDToName = new Array( refCount );
-        this._refNameToID = {};
         var nameSectionLength = data.getInt32();
+        console.log(nameSectionLength);
+
         this._parseNameBytes( data.getBytes( nameSectionLength, undefined, false ) );
     },
-    _parseNameBytes: function(namesBytes) {
-        var offset = 28;
 
+
+    _parseNameBytes: function( namesBytes ) {
+        var offset = 0;
 
         function getChar() {
             var b = namesBytes[ offset++ ];
@@ -168,6 +172,7 @@ return declare( null, {
             this._refIDToName[refID] = refName;
             this._refNameToID[ this.browser.regularizeReferenceName( refName ) ] = refID;
         }
+        console.log(this._refIDToName,this._refNameToID);
     },
 
     /**
@@ -210,7 +215,6 @@ return declare( null, {
             binIndex   = indexes.binIndex;
 
        var bins = this._reg2bins(beg, end, this.minShift, this.depth);
-       console.log(bins);
     // var linearCount = data.getInt32();
             // var linear = idx.linearIndex = new Array( linearCount );
             // for (var k = 0; k < linearCount; ++k) {
@@ -233,7 +237,7 @@ return declare( null, {
        for (i = n_off = 0; i < bins.length; ++i)
            if (( chunks = binIndex[ bins[i] ] ))
                for (var j = 0; j < chunks.length; ++j)
-                   if( min_off.compareTo( chunks[j].maxv ) < 0 )
+                   //if( min_off.compareTo( chunks[j].maxv ) < 0 )
                        off[n_off++] = new Chunk( chunks[j].minv, chunks[j].maxv, chunks[j].bin );
 
        if( ! off.length )
