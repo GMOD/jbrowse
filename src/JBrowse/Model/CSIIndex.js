@@ -1,12 +1,14 @@
 define([
            'dojo/_base/declare',
            'JBrowse/Util',
+           'JBrowse/Model/DataView',
            'JBrowse/Model/TabixIndex',
            'JBrowse/Model/BGZip/VirtualOffset'
        ],
        function(
            declare,
            Util,
+           jDataView,
            TabixIndex,
            VirtualOffset
        ) {
