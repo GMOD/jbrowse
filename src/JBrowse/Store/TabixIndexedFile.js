@@ -27,7 +27,6 @@ return declare( null, {
 
     constructor: function( args ) {
         this.browser = args.browser;
-        console.log(args);
         if(args.tbi) {
             this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
         } else if(args.csi) {

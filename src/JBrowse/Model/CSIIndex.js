@@ -141,12 +141,10 @@ return declare( null, {
             start: data.getInt32(),
             end:   data.getInt32()
         };
-        console.log(ret,this.columnNumbers);
         this.metaValue = data.getInt32();
         this.metaChar = this.metaValue ? String.fromCharCode( this.metaValue ) : null;
         this.skipLines = data.getInt32();
         var nameSectionLength = data.getInt32();
-        console.log(nameSectionLength);
 
         this._parseNameBytes( data.getBytes( nameSectionLength, undefined, false ) );
     },
@@ -172,7 +170,6 @@ return declare( null, {
             this._refIDToName[refID] = refName;
             this._refNameToID[ this.browser.regularizeReferenceName( refName ) ] = refID;
         }
-        console.log(this._refIDToName,this._refNameToID);
     },
 
     /**
