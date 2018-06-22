@@ -70,17 +70,26 @@ return declare( null, {
        var data = new jDataView( bytes, 0, undefined, this._littleEndian );
 
        // check TBI magic numbers
-       if( data.getInt32() != 21578324 /* "TBI\1" */) {
+       var d = data.getInt32();
+       if( d == 21578324 /* "TBI\1" */) {
+           this.tbi = true;
+       } else if( d == 21582659 /* "CSI\1" */) {
+           this.csi = true;
+       } else {
            // try the other endianness if no magic
            this._littleEndian = false;
            data = new jDataView( bytes, 0, undefined, this._littleEndian );
-           if( data.getInt32() != 21578324 /* "TBI\1" */) {
+           d = data.getInt32();
+           if( d != 21578324 /* "TBI\1" */) {
+               this.tbi = true;
+           } else if( d == 21582659 /* "CSI\1" */) {
+               this.csi = true;
+           } else {
                console.error('Not a TBI file');
                deferred.reject('Not a TBI file');
                return;
            }
        }
-
        // number of reference sequences in the index
        var refCount = data.getInt32();
        this.presetType = data.getInt32();
