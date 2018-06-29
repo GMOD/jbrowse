@@ -35,7 +35,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     supportsFeatureTransforms: true,
 
     constructor( args ) {
-        this.dontRedispatch = (this.config.dontRedispatch||"").split( /\s*,\s*/ );
+        this.dontRedispatch = (args.dontRedispatch||"").split( /\s*,\s*/ );
         var tbiBlob = args.tbi ||
             new XHRBlob(
                 this.resolveUrl(
