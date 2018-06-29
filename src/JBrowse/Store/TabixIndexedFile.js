@@ -44,6 +44,25 @@ return declare( null, {
             thisB._fetch.apply( thisB, args );
         }, errorCallback);
     },
+    fetchSize: function( ref, min, max, finishCallback, errorCallback ) {
+        errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
+
+        var chunks = this.index.blocksForRange( ref, min, max);
+        if ( ! chunks ) {
+            errorCallback('Error in index fetch ('+[ref,min,max].join(',')+')');
+            return;
+        }
+
+
+        // check the chunks for any that are over the size limit.  if
+        // any are, don't fetch any of them
+        let totalSize = 0;
+        for( var i = 0; i<chunks.length; i++ ) {
+            var size = chunks[i].fetchedSize();
+            totalSize += size;
+        }
+        finishCallback(totalSize);
+    },
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
         errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
