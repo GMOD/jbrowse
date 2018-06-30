@@ -35,6 +35,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     supportsFeatureTransforms: true,
 
     constructor( args ) {
+        this.dontRedispatch = (args.dontRedispatch||"").split( /\s*,\s*/ );
         var tbiBlob = args.tbi ||
             new XHRBlob(
                 this.resolveUrl(
@@ -119,9 +120,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                             let minStart = Infinity
                             let maxEnd = -Infinity
                             lines.forEach( line => {
-                                let start = line.start-1 // tabix indexes are 1-based
-                                if (start < minStart) minStart = start
-                                if (line.end > maxEnd) maxEnd = line.end
+                                if(!this.dontRedispatch.includes(line.fields[2])) {
+                                    let start = line.start-1 // tabix indexes are 1-based
+                                    if (start < minStart) minStart = start
+                                    if (line.end > maxEnd) maxEnd = line.end
+                                }
                             })
                             if (maxEnd > query.end || minStart < query.start) {
                                 let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
