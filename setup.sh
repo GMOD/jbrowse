@@ -27,20 +27,22 @@ log_echo () {
 }
 
 check_node () {
+    set +e
     node_executable=$(which node)
     npm_executable=$(which npm)
     if ! [ -x "$node_executable" ] ; then
         nodejs_executable=$(which nodejs)
         if ! [ -x "$nodejs_executable" ] ; then
-            echo "No 'node' or 'nodejs' executable found, you must install 'Node JS' to install JBrowse."
+            echo "No 'node' executable found. JBrowse expects node version 6 or later. Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
             exit 1
         else
             echo "Creating an alias 'node' for 'nodejs'"
             node_executable="$nodejs_executable"
         fi
     fi
+    set -e
     if ! [ -x "$npm_executable" ] ; then
-        echo "No 'npm' executable found, you must have a proper 'Node JS' installation to install JBrowse."
+        echo "No 'npm' executable found. JBrowse expects npm version 3 or later. Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
     NODE_VERSION=`$node_executable -v`
