@@ -404,7 +404,7 @@ return declare( [BlockBasedTrack,ExportMixin, DetailStatsMixin ], {
                 var store = f.source;
                 var fRect = featureRects[i];
                 var jEnd = fRect.r;
-                var score = f.get(scoreType)||f.get('score');
+                var score = scoreType?f.get(scoreType):f.get('score');
                 for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
                     if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
                         /* Note: if the feature is from a different store, the condition should fail,
