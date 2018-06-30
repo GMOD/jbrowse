@@ -2171,6 +2171,15 @@ _configDefaults: function() {
 },
 
 /**
+ * get the numerical ID number of the given reference sequence name.  required for CRAM files, which
+ * only operate on reference sequence ID numbers.
+ * @param {string} refSeqName
+ */
+getRefSeqNumber(refSeqName) {
+    return this.refSeqNumericalIds[refSeqName]
+},
+
+/**
  * @param refSeqs {Array} array of refseq records to add to the browser
  */
 addRefseqs: function( refSeqs ) {
@@ -2180,6 +2189,12 @@ addRefseqs: function( refSeqs ) {
         this.allRefs[r.name] = r;
     },this);
 
+    // maintain a mapping of name => numerical ID for use by
+    // getRefSeqNumber(name), which is required for CRAM support >:-{
+    this.refSeqNumericalIds = {}
+    refSeqs.forEach( (ref,id) => {
+        this.refSeqNumericalIds[ref.name] = id
+    })
 
     // generate refSeqOrder
     this.refSeqOrder =
