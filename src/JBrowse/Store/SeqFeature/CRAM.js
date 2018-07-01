@@ -1,5 +1,4 @@
 const { IndexedCramFile, CraiIndex } = require('@gmod/cram/src')
-const { Buffer } = require('buffer')
 
 define( [
             'dojo/_base/declare',
@@ -7,7 +6,6 @@ define( [
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
-            'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
         function(
@@ -16,49 +14,8 @@ define( [
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             GlobalStatsEstimationMixin,
-            XHRBlob,
             SimpleFeature,
         ) {
-
-
-// wrapper class to make old JBrowse *Blob data access classes work with
-// the new-style filehandle API expected by the cram code
-
-class BlobWrapper {
-    constructor(oldStyleBlob) {
-        this.blob = oldStyleBlob
-    }
-
-    read(buffer, offset = 0, length, position) {
-        return new Promise((resolve,reject) => {
-            this.blob.read(
-                position,
-                length,
-                dataArrayBuffer => {
-                    const data = Buffer.from(dataArrayBuffer)
-                    data.copy(buffer, offset)
-                    resolve()
-                },
-                reject,
-            )
-        })
-    }
-
-    readFile() {
-        return new Promise((resolve, reject) => {
-            this.blob.fetch( dataArrayBuffer => {
-                resolve(Buffer.from(dataArrayBuffer))
-            }, reject)
-        })
-    }
-
-    stat() {
-        return new Promise((resolve, reject) => {
-            this.blob.stat(resolve, reject)
-        })
-    }
-}
-
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 
@@ -75,21 +32,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     constructor: function( args ) {
         const cramArgs = {}
         if (args.cram)
-            cramArgs.cramFilehandle = new BlobWrapper(args.cram)
+            cramArgs.cram = new BlobWrapper(args.cram)
         else if (args.urlTemplate)
-            cramArgs.cramFilehandle = new BlobWrapper(new XHRBlob(args.urlTemplate || 'data.cram'))
+            cramArgs.cramUrl = args.urlTemplate || 'data.cram'
         else throw new Error('must provide either `cram` or `urlTemplate`')
 
         if (args.crai)
             cramArgs.index = new CraiIndex({ filehandle: new BlobWrapper(args.crai)})
         else if (args.craiUrlTemplate)
-            cramArgs.index = new CraiIndex({filehandle: new BlobWrapper(new XHRBlob(args.craiUrlTemplate))})
+            cramArgs.index = new CraiIndex({url: args.craiUrlTemplate})
         else throw new Error('no index provided, must provide a CRAM index')
         // TODO: need to add .csi index support
 
         this.cram = new IndexedCramFile(cramArgs)
 
-        this.source = cramArgs.cramFilehandle.url || cramArgs.cramFilehandle.filename
+        this.source = cramArgs.cramUrl || cramArgs.cram.filename
 
         this._deferred.features.resolve({success:true});
 
