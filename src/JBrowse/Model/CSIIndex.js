@@ -12,7 +12,12 @@ define([
            TabixIndex,
            VirtualOffset
        ) {
-
+function lshift(num, bits) {
+    return num * Math.pow(2, bits);
+}
+function rshift(num, bits) {
+    return Math.floor(num / Math.pow(2,bits));
+}
 // inner class representing a chunk
 var Chunk = Util.fastDeclare({
     constructor: function(minv,maxv,bin) {
@@ -197,11 +202,13 @@ return declare( TabixIndex, {
         }
         return 0;
     },
+
+
     _reg2bins: function(beg, end, min_shift, depth) {
+        let l, t, n, s = min_shift + lshift(depth,1) + depth;
         let bins = [];
-        let l, t, n, s = min_shift + depth*3;
-        for (--end, l = n = t = 0; l <= depth; s -= 3, t += 1<<l*3, ++l) {
-            let b = t + (beg>>s), e = t + (end>>s), i;
+        for (--end, l = n = t = 0; l <= depth; s -= 3, t += lshift(1,lshift(l,1)+l), ++l) {
+            let b = t + rshift(beg,s), e = t + rshift(end,s), n = e - b + 1, i;
             for (i = b; i <= e; ++i) bins[n++] = i;
         }
         return bins;
