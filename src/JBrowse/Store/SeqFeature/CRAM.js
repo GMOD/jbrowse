@@ -74,11 +74,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
      */
     constructor: function( args ) {
         const cramArgs = {}
+
+        let dataBlob
         if (args.cram)
-            cramArgs.cramFilehandle = new BlobWrapper(args.cram)
+            dataBlob = args.cram
         else if (args.urlTemplate)
-            cramArgs.cramFilehandle = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram')))
+            dataBlob = new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram'))
         else throw new Error('must provide either `cram` or `urlTemplate`')
+        cramArgs.cramFilehandle = new BlobWrapper(dataBlob)
 
         if (args.crai)
             cramArgs.index = new CraiIndex({ filehandle: new BlobWrapper(args.crai)})
@@ -89,11 +92,15 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
         this.cram = new IndexedCramFile(cramArgs)
 
-        this.source = cramArgs.cramFilehandle.url || cramArgs.cramFilehandle.filename
+        this.source = ( dataBlob.url  ? dataBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
+                        dataBlob.blob ? dataBlob.blob.name : undefined ) || undefined;
 
-        this._deferred.features.resolve({success:true});
 
-        this._estimateGlobalStats()
+        this.cram.hasDataForReferenceSequence(0)
+            .then( () => {
+                this._deferred.features.resolve({success:true});
+            })
+            .then( () => this._estimateGlobalStats())
             .then( stats => {
                 this.globalStats = stats;
                 this._deferred.stats.resolve({success:true});
@@ -135,27 +142,40 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }
 
         this.cram.getFeaturesForRange(refSeqNumber, query.start, query.end)
-            .then(features => {
-                features.forEach( feature => {
-                    const data = {
-                        name: feature.readName,
-                        start: feature.alignmentStart,
-                        end: feature.alignmentStart+feature.readLength,
-                        read_features: feature.readFeatures,
-                        mapping_quality: feature.mappingQuality,
-                        flags: feature.flags,
-                        cramFlags: feature.compressionFlags,
-                    }
-                    Object.assign(data,feature.tags || {})
-                    featCallback(new SimpleFeature({
-                        data,
-                        id: `${data.name}/${data.start}/${feature.mate && feature.mate.readName}`
-                    }))
+            .then(records => {
+                records.forEach( record => {
+                    featCallback( this._cramRecordToFeature(record))
                 })
 
                 endCallback()
             })
             .catch(errorCallback)
+    },
+
+    _cramRecordToFeature(feature) {
+        const data = {
+            name: feature.readName,
+            start: feature.alignmentStart-1,
+            end: feature.alignmentStart+feature.readLength-1,
+            read_features: feature.readFeatures,
+            type: 'match',
+            MQ: feature.mappingQuality,
+            flags: feature.flags,
+            cramFlags: feature.compressionFlags,
+            strand: feature.isReverseComplemented() ? -1 : 1,
+
+            qc_failed: feature.isFailedQc(),
+            secondary_alignment: feature.isSecondary(),
+            supplementary_alignment: feature.isSupplementary(),
+            multi_segment_template: feature.isPaired(),
+            multi_segment_all_aligned: feature.isProperlyPaired(),
+            unmapped: feature.isSegmentUnmapped(),
+        }
+        Object.assign(data,feature.tags || {})
+        return new SimpleFeature({
+            data,
+            id: feature.uniqueId
+        })
     },
 
     saveStore: function() {
