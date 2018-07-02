@@ -18,6 +18,7 @@ define([
            BAMUtil
        ) {
 
+var dlog = function(){ console.error.apply(console, arguments); };
 var readInt   = BAMUtil.readInt;
 var readVirtualOffset = BAMUtil.readVirtualOffset;
 
