@@ -34,13 +34,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         if (args.cram)
             cramArgs.cram = new BlobWrapper(args.cram)
         else if (args.urlTemplate)
-            cramArgs.cramUrl = args.urlTemplate || 'data.cram'
+            cramArgs.cramUrl = this.resolveUrl(args.urlTemplate || 'data.cram')
         else throw new Error('must provide either `cram` or `urlTemplate`')
 
         if (args.crai)
             cramArgs.index = new CraiIndex({ filehandle: new BlobWrapper(args.crai)})
         else if (args.craiUrlTemplate)
-            cramArgs.index = new CraiIndex({url: args.craiUrlTemplate})
+            cramArgs.index = new CraiIndex({url: this.resolveUrl(args.craiUrlTemplate)})
         else throw new Error('no index provided, must provide a CRAM index')
         // TODO: need to add .csi index support
 
