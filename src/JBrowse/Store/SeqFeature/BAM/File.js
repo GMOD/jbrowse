@@ -194,7 +194,7 @@ var BamFile = declare( null,
             return this.join(', ');
         };
 
-        //console.log( chr, min, max, chunks.toString() );
+        console.log( chr, min, max, chunks );
 
         try {
             this._fetchChunkFeatures(
