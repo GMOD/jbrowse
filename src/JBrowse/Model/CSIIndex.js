@@ -3,15 +3,22 @@ define([
            'JBrowse/Util',
            'JBrowse/Model/DataView',
            'JBrowse/Model/TabixIndex',
-           'JBrowse/Model/BGZip/VirtualOffset'
+           'JBrowse/Model/BGZip/VirtualOffset',
+           'JBrowse/Store/SeqFeature/BAM/Util'
        ],
        function(
            declare,
            Util,
            jDataView,
            TabixIndex,
-           VirtualOffset
+           VirtualOffset,
+           BAMUtil
        ) {
+
+var readInt   = BAMUtil.readInt;
+var readVirtualOffset = BAMUtil.readVirtualOffset;
+
+
 function lshift(num, bits) {
     return num * Math.pow(2, bits);
 }
@@ -38,7 +45,7 @@ var Chunk = Util.fastDeclare({
         return this.compareTo( b );
     },
     fetchedSize: function() {
-        return this.maxv.block + (1<<16) - this.minv.block + 1;
+        return this.maxv.block + lshift(1,16) - this.minv.block + 1;
     }
 });
 
@@ -151,6 +158,7 @@ return declare( TabixIndex, {
 
        if( n_off == 0 )
            return [];
+       console.log(beg,end,n_off,'n_off');
 
        var off = [];
 
@@ -178,24 +186,10 @@ return declare( TabixIndex, {
        }
        n_off = l + 1;
 
-       // resolve overlaps between adjacent blocks; this may happen due to the merge in indexing
-       for (i = 1; i < n_off; ++i)
-           if ( off[i-1].maxv.compareTo(off[i].minv) >= 0 )
-               off[i-1].maxv = off[i].minv;
-       // merge adjacent blocks
-       for (i = 1, l = 0; i < n_off; ++i) {
-           if( off[l].maxv.block == off[i].minv.block )
-               off[l].maxv = off[i].maxv;
-           else {
-               ++l;
-               off[l].minv = off[i].minv;
-               off[l].maxv = off[i].maxv;
-           }
-       }
-       n_off = l + 1;
-
-       return off.slice( 0, n_off );
+      return off.slice( 0, n_off );
    },
+
+
 
     /* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
     _reg2bin: function(beg, end, min_shift, depth) {
@@ -208,9 +202,9 @@ return declare( TabixIndex, {
 
 
     _reg2bins: function(beg, end, min_shift, depth) {
-        let l, t, n, s = min_shift + lshift(depth,1) + depth;
+        let l, t, n, s = min_shift + depth*3;
         let bins = [];
-        for (--end, l = n = t = 0; l <= depth; s -= 3, t += lshift(1,lshift(l,1)+l), ++l) {
+        for (--end, l = n = t = 0; l <= depth; s -= 3, t += lshift(1,l*3), ++l) {
             let b = t + rshift(beg,s), e = t + rshift(end,s), n = e - b + 1, i;
             for (i = b; i <= e; ++i) bins[n++] = i;
         }

@@ -29,22 +29,6 @@ var BAM_MAGIC = 21840194;
 
 var dlog = function(){ console.error.apply(console, arguments); };
 
-var Chunk = Util.fastDeclare({
-    constructor: function(minv,maxv,bin) {
-        this.minv = minv;
-        this.maxv = maxv;
-        this.bin = bin;
-    },
-    toUniqueString: function() {
-        return this.minv+'..'+this.maxv+' (bin '+this.bin+')';
-    },
-    toString: function() {
-        return this.toUniqueString();
-    },
-    fetchedSize: function() {
-        return this.maxv.block + (1<<16) - this.minv.block + 1;
-    }
-});
 
 var readInt   = BAMUtil.readInt;
 var readVirtualOffset = BAMUtil.readVirtualOffset;
@@ -194,7 +178,6 @@ var BamFile = declare( null,
             return this.join(', ');
         };
 
-        console.log( chr, min, max, chunks );
 
         try {
             this._fetchChunkFeatures(
