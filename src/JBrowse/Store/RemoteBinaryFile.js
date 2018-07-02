@@ -35,7 +35,7 @@ return declare( null,
         this._fetchCount = 0;
         this._arrayCopyCount = 0;
 
-        this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 32768;
+        this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 32768*8;
         this.chunkCache = new LRUCache({
             name: args.name + ' chunk cache',
             fillCallback: dojo.hitch( this, '_fetch' ),
@@ -284,7 +284,12 @@ return declare( null,
         // if (this.opts.credentials) {
         //     req.withCredentials = true;
         //  }
-        req.send('');
+        try {
+            req.send('');
+        } catch(error) {
+            debugger;
+            throw error
+        }
     },
 
     _errorString: function( req, url ) {
@@ -292,6 +297,10 @@ return declare( null,
             return req.status+' ('+req.statusText+') when attempting to fetch '+url;
         else
             return 'Unable to fetch '+url;
+    },
+
+    getTotalSize(url) {
+        return this.totalSizes[url]
     },
 
     /**
