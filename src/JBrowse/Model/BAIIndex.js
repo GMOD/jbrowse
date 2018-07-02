@@ -1,17 +1,26 @@
 define([
            'dojo/_base/declare',
+           'JBrowse/has',
            'JBrowse/Util',
            'JBrowse/Model/DataView',
            'JBrowse/Model/TabixIndex',
-           'JBrowse/Model/BGZip/VirtualOffset'
+           'JBrowse/Model/BGZip/VirtualOffset',
+           'JBrowse/Store/SeqFeature/BAM/Util'
+
        ],
        function(
            declare,
+           has,
            Util,
            jDataView,
            TabixIndex,
-           VirtualOffset
+           VirtualOffset,
+           BAMUtil
        ) {
+
+var readInt   = BAMUtil.readInt;
+var readVirtualOffset = BAMUtil.readVirtualOffset;
+
 
 var BAI_MAGIC = 21578050;
 
@@ -47,64 +56,60 @@ var Chunk = Util.fastDeclare({
 
 return declare( TabixIndex, {
 
-    _parseIndex: function( successCallback, failCallback ) {
-        // Do we really need to fetch the whole thing? :-(
-        this.bai.fetch( dojo.hitch( this, function(header) {
-            if (!header) {
-                dlog("No data read from BAM index (BAI) file");
-                failCallback("No data read from BAM index (BAI) file");
-                return;
-            }
+    _parseIndex: function( header, deferred ) {
+        if (!header) {
+            dlog("No data read from BAM index (BAI) file");
+            deferred.reject("No data read from BAM index (BAI) file");
+            return;
+        }
 
-            if( ! has('typed-arrays') ) {
-                dlog('Web browser does not support typed arrays');
-                failCallback('Web browser does not support typed arrays');
-                return;
-            }
+        if( ! has('typed-arrays') ) {
+            dlog('Web browser does not support typed arrays');
+            deferred.reject('Web browser does not support typed arrays');
+            return;
+        }
 
-            var uncba = new Uint8Array(header);
-            if( readInt(uncba, 0) != BAI_MAGIC) {
-                dlog('Not a BAI file');
-                failCallback('Not a BAI file');
-                return;
-            }
+        var uncba = new Uint8Array(header);
+        if( readInt(uncba, 0) != BAI_MAGIC) {
+            dlog('Not a BAI file');
+            deferred.reject('Not a BAI file');
+            return;
+        }
 
-            var nref = readInt(uncba, 4);
+        var nref = readInt(uncba, 4);
 
-            this.indices = [];
+        this.indices = [];
 
-            var p = 8;
+        var p = 8;
 
-            for (var ref = 0; ref < nref; ++ref) {
-                var blockStart = p;
-                var nbin = readInt(uncba, p); p += 4;
-                for (var b = 0; b < nbin; ++b) {
-                    var bin = readInt(uncba, p);
-                    var nchnk = readInt(uncba, p+4);
-                    p += 8;
-                   for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
-                            var vo = readVirtualOffset( uncba, p );
-                            this._findMinAlignment( vo );
-                            p += 16;
-                        }
-                    }
-                    var nintv = readInt(uncba, p); p += 4;
-                    // as we're going through the linear index, figure out
-                    // the smallest virtual offset in the indexes, which
-                    // tells us where the BAM header ends
-                    this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
-
-                    p += nintv * 8;
-                    if( nbin > 0 || nintv > 0 ) {
-                        this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
-                    }
+        for (var ref = 0; ref < nref; ++ref) {
+            var blockStart = p;
+            var nbin = readInt(uncba, p); p += 4;
+            for (var b = 0; b < nbin; ++b) {
+                var bin = readInt(uncba, p);
+                var nchnk = readInt(uncba, p+4);
+                p += 8;
+                for( var chunkNum = 0; chunkNum < nchnk; chunkNum++ ) {
+                    var vo = readVirtualOffset( uncba, p );
+                    this._findMinAlignment( vo );
+                    p += 16;
                 }
+            }
+            var nintv = readInt(uncba, p); p += 4;
+            // as we're going through the linear index, figure out
+            // the smallest virtual offset in the indexes, which
+            // tells us where the BAM header ends
+            this._findMinAlignment( nintv ? readVirtualOffset(uncba,p) : null );
 
-                this.empty = ! this.indices.length;
+            p += nintv * 8;
+            if( nbin > 0 || nintv > 0 ) {
+                this.indices[ref] = new Uint8Array(header, blockStart, p - blockStart);
+            }
+        }
 
-                successCallback( this.indices, this.minAlignmentVO );
-            }), failCallback );
-        },
+        this.empty = ! this.indices.length;
+        deferred.resolve();
+    },
 
 
 
@@ -284,6 +289,10 @@ return declare( TabixIndex, {
     },
 
 
+    _findMinAlignment: function( candidate ) {
+        if( candidate && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( candidate ) < 0 ) )
+            this.minAlignmentVO = candidate;
+    },
     /* calculate bin given an alignment covering [beg,end) (zero-based, half-close-half-open) */
     _reg2bin: function( beg, end ) {
         --end;

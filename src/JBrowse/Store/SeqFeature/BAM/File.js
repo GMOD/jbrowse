@@ -91,10 +91,6 @@ var BamFile = declare( null,
     },
 
 
-    _findMinAlignment: function( candidate ) {
-        if( candidate && ( ! this.minAlignmentVO || this.minAlignmentVO.cmp( candidate ) < 0 ) )
-            this.minAlignmentVO = candidate;
-    },
 
     _readBAMheader: function( successCallback, failCallback ) {
         var thisB = this;
