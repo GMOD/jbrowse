@@ -172,6 +172,7 @@ var BamFile = declare( null,
                 errorCallback( new Errors.Fatal('Error in index fetch') );
             }
         }
+        console.log('fetch',chr,min,max,chunks);
 
         // toString function is used by the cache for making cache keys
         chunks.toString = function() {
