@@ -45,8 +45,6 @@ var Chunk = Util.fastDeclare({
 return declare( TabixIndex, {
     // fetch and parse the index
     _parseIndex: function( bytes, deferred ) {
-        console.log('parseIndex');
-
         this._littleEndian = true;
         var data = new jDataView( bytes, 0, undefined, this._littleEndian );
 
@@ -66,6 +64,7 @@ return declare( TabixIndex, {
         this.minShift = data.getInt32();
         this.depth = data.getInt32();
         var l_aux = data.getInt32();
+        var aux = data.getBytes( l_aux, undefined, false );
         var refCount = data.getInt32();
 
 
@@ -74,7 +73,6 @@ return declare( TabixIndex, {
         this._refNameToID = {};
 
         if (l_aux) {
-            var aux = data.getBytes( l_aux, undefined, false );
             this._parseAux( aux );
         }
 
@@ -105,7 +103,6 @@ return declare( TabixIndex, {
 
 
     _parseAux: function(aux) {
-        console.log('parseAux',aux);
         var data = new jDataView(new Uint8Array(aux).buffer, 0, undefined,true);
         var ret = data.getInt32();
         this.columnNumbers = {
@@ -123,11 +120,14 @@ return declare( TabixIndex, {
 
    TAD_LIDX_SHIFT: 14,
 
-   blocksForRange: function( refName, beg, end ) {
+   blocksForRange: function( refName, beg, end, refNameIsID ) {
        if( beg < 0 )
            beg = 0;
 
-       var tid = this.getRefId( refName );
+       var tid;
+       if(refNameIsID) tid = refName;
+       else tid = this.getRefId( refName );
+
        var indexes = this._indices[tid];
        if( ! indexes )
            return [];

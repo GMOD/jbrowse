@@ -47,6 +47,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                        );
 
         var csiBlob, baiBlob;
+        var browser = args.browser;
 
         if(this.config.csiUrlTemplate) {
             csiBlob = args.csi ||
@@ -68,6 +69,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                 store: this,
                 data: bamBlob,
                 bai: baiBlob,
+                browser: browser,
                 csi: csiBlob,
                 chunkSizeLimit: args.chunkSizeLimit
         });
@@ -126,7 +128,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
     saveStore: function() {
         return {
             urlTemplate: this.config.bam.url,
-            baiUrlTemplate: this.config.bai.url
+            csiUrlTemplate: (this.config.csi||{}).url,
+            baiUrlTemplate: (this.config.bai||{}).url
         };
     }
 

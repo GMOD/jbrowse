@@ -67,7 +67,6 @@ var BamFile = declare( null,
     constructor: function( args ) {
         this.store = args.store;
         this.data  = args.data;
-        console.log('here',args);
 
         if(args.bai) {
             this.index = new BAIIndex({ blob: args.bai, browser: args.browser });
@@ -184,7 +183,7 @@ var BamFile = declare( null,
         if( !( chrId >= 0 ) ) {
             chunks = [];
         } else {
-            chunks = this.index.blocksForRange(chrId, min, max);
+            chunks = this.index.blocksForRange(chrId, min, max, true);
             if (!chunks) {
                 errorCallback( new Errors.Fatal('Error in index fetch') );
             }
