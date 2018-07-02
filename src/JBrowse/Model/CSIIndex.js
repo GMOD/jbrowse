@@ -45,6 +45,7 @@ var Chunk = Util.fastDeclare({
 return declare( TabixIndex, {
     // fetch and parse the index
     _parseIndex: function( bytes, deferred ) {
+        console.log('parseIndex');
 
         this._littleEndian = true;
         var data = new jDataView( bytes, 0, undefined, this._littleEndian );
@@ -65,16 +66,17 @@ return declare( TabixIndex, {
         this.minShift = data.getInt32();
         this.depth = data.getInt32();
         var l_aux = data.getInt32();
-
-
-        var aux = data.getBytes( l_aux, undefined, false );
         var refCount = data.getInt32();
 
 
         // read sequence dictionary
         this._refIDToName = new Array( refCount );
         this._refNameToID = {};
-        this._parseAux( aux );
+
+        if (l_aux) {
+            var aux = data.getBytes( l_aux, undefined, false );
+            this._parseAux( aux );
+        }
 
         // read the per-reference-sequence indexes
         this._indices = new Array( refCount );
@@ -103,6 +105,7 @@ return declare( TabixIndex, {
 
 
     _parseAux: function(aux) {
+        console.log('parseAux',aux);
         var data = new jDataView(new Uint8Array(aux).buffer, 0, undefined,true);
         var ret = data.getInt32();
         this.columnNumbers = {

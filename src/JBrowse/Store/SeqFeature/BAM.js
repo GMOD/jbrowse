@@ -46,16 +46,29 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                          )
                        );
 
-        var baiBlob = args.bai ||
-            new XHRBlob( this.resolveUrl(
-                             args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
-                         )
-                       );
+        var csiBlob, baiBlob;
+
+        if(this.config.csiUrlTemplate) {
+            csiBlob = args.csi ||
+                new XHRBlob(
+                    this.resolveUrl(
+                        this.getConf('csiUrlTemplate',[])
+                    )
+                );
+        } else {
+            baiBlob = args.bai ||
+                new XHRBlob( this.resolveUrl(
+                    args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
+                )
+            );
+        }
+
 
         this.bam = new BAMFile({
                 store: this,
                 data: bamBlob,
                 bai: baiBlob,
+                csi: csiBlob,
                 chunkSizeLimit: args.chunkSizeLimit
         });
 

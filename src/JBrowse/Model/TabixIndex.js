@@ -51,7 +51,9 @@ return declare( null, {
 
    load: function() {
        var thisB = this;
+       console.log('load');
        return this._loaded = this._loaded || function() {
+           console.log('load2');
            var d = new Deferred();
            if( ! has('typed-arrays') )
                d.reject( 'This web browser lacks support for JavaScript typed arrays.' );
