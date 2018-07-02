@@ -143,7 +143,6 @@ return declare( TabixIndex, {
             binIndex   = indexes.binIndex;
 
        var bins = this._reg2bins(beg, end, this.minShift, this.depth);
-       console.log(refName,beg,end,bins,'bins');
     // var linearCount = data.getInt32();
             // var linear = idx.linearIndex = new Array( linearCount );
             // for (var k = 0; k < linearCount; ++k) {
@@ -159,7 +158,6 @@ return declare( TabixIndex, {
 
        if( n_off == 0 )
            return [];
-       console.log(beg,end,n_off,'n_off');
 
        var off = [];
 
