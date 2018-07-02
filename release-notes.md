@@ -5,6 +5,9 @@
  * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
    @scottcain for reporting (issue #1058, @cmdcolin).
 
+ * Fixed a bug in which duplicate BAM features would sometimes not be shown separately in the
+   view if they contain the same data. (@rbuels)
+
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 
 ## Minor improvements
