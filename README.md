@@ -4,6 +4,9 @@
 
 To install jbrowse, most users should visit http://jbrowse.org/install and download a zip file such as JBrowse-1.13.0.zip. See instructions at https://jbrowse.org/code/latest-release/docs/tutorial/ for a tutorial on setting up a sample instance.
 
+Once you have an instance up and running, http://gmod.org/wiki/JBrowse_Configuration_Guide is the comprehensive reference guide to
+JBrowse configuration.
+
 
 # Install JBrowse from GitHub (for developers)
 
