@@ -40,6 +40,12 @@ return declare( null, {
             mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarOps ) );
         }
 
+        // parse the CRAM read features if it has them
+        var cramReadFeatures = feature.get('cram_read_features')
+        if( cramReadFeatures ) {
+            mismatches.push.apply( mismatches, this._cramReadFeaturesToMismatches(feature,cramReadFeatures) )
+        }
+
         // parse the MD tag if it has one
         var mdString = feature.get( this.mdAttributeName );
         if( mdString )  {
@@ -52,7 +58,7 @@ return declare( null, {
             mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
         }
 
-        
+
 
 
         // uniqify the mismatches
@@ -74,6 +80,45 @@ return declare( null, {
         return array.map( cigar.toUpperCase().match(/\d+\D/g), function( op ) {
            return [ op.match(/\D/)[0], parseInt( op ) ];
         });
+    },
+
+    _cramReadFeaturesToMismatches(feature, readFeatures) {
+        const mismatches = []
+        readFeatures.forEach(({code,pos,data,sub,ref}) => {
+            if (code === 'X') {
+                // substitution
+                mismatches.push({
+                    start: pos-1,
+                    length: 1,
+                    base: sub,
+                    altbase: ref,
+                    type: 'mismatch',
+                })
+            } else if (code === 'I') {
+                // insertion
+            } else if (code === 'N') {
+                // reference skip
+            } else if (code === 'S') {
+                // soft clip
+            } else if (code === 'P') {
+                // padding
+            } else if (code === 'H') {
+                // hard clip
+            } else if (code === 'D') {
+                // deletion
+            } else if( code === 'b') {
+                // stretch of bases
+            } else if (code === 'q') {
+                // stretch of qual scores
+            } else if (code === 'B') {
+                // a pair of [base, qual]
+            } else if (code === 'i') {
+                // single-base insertion
+            } else if (code === 'Q') {
+                // single quality value
+            }
+        })
+        return mismatches
     },
 
     _cigarToMismatches: function( feature, ops ) {

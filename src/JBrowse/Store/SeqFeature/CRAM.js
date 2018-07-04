@@ -90,11 +90,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         else throw new Error('no index provided, must provide a CRAM index')
         // TODO: need to add .csi index support
 
+        cramArgs.seqFetch = this._seqFetch.bind(this)
+
         this.cram = new IndexedCramFile(cramArgs)
 
         this.source = ( dataBlob.url  ? dataBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
                         dataBlob.blob ? dataBlob.blob.name : undefined ) || undefined;
-
 
         this.cram.hasDataForReferenceSequence(0)
             .then( () => {
@@ -105,8 +106,57 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 this.globalStats = stats;
                 this._deferred.stats.resolve({success:true});
             })
+            .catch(err => {
+                this._deferred.features.reject(err)
+                this._deferred.stats.reject(err)
+            })
 
         this.storeTimeout = args.storeTimeout || 3000;
+    },
+
+    _getRefSeqStore() {
+        return new Promise((resolve,reject) => {
+            this.browser.getStore('refseqs',resolve,reject)
+        })
+    },
+
+    // used by the CRAM backend to fetch a region of the underlying reference
+    // sequence.  needed for some of its calculations
+    async _seqFetch(seqId, start, end) {
+        start -= 1 // convert to interbase
+
+        const refSeqStore = await this._getRefSeqStore()
+        if (!refSeqStore) return undefined
+        const refName = this._refIdToName(seqId)
+        if (!refName) return undefined
+
+        const seqChunks = await new Promise((resolve,reject) => {
+            let features = []
+            refSeqStore.getFeatures(
+                {ref: refName, start: start-1, end},
+                f => features.push(f),
+                () => resolve(features),
+                reject
+            )
+        })
+
+        const trimmed = []
+        seqChunks
+        .sort((a,b) => a.get('start') - b.get('start'))
+        .forEach( (chunk,i) => {
+            let chunkStart = chunk.get('start')
+            let chunkEnd = chunk.get('end')
+            let trimStart = Math.max(start - chunkStart, 0)
+            let trimEnd = Math.min(end - chunkStart, chunkEnd-chunkStart)
+            let trimLength = trimEnd - trimStart
+            let chunkSeq = chunk.get('seq') || chunk.get('residues')
+            trimmed.push(chunkSeq.substr(trimStart,trimLength))
+        })
+
+        const sequence = trimmed.join('')
+        if (sequence.length !== (end-start))
+            throw new Error('sequence fetch sanity check failed')
+        return sequence
     },
 
     _refNameToId(refName) {
@@ -162,12 +212,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             name: feature.readName,
             start: feature.alignmentStart-1,
             end: feature.alignmentStart+feature.readLength-1,
-            read_features: feature.readFeatures,
+            cram_read_features: feature.readFeatures,
             type: 'match',
             MQ: feature.mappingQuality,
-            flags: feature.flags,
-            cramFlags: feature.compressionFlags,
+            flags: `0x${feature.flags.toString(16)}`,
+            cramFlags: `0x${feature.cramFlags.toString(16)}`,
             strand: feature.isReverseComplemented() ? -1 : 1,
+            qual: (feature.qualityScores || []).map(q => q+33).join(' '),
+            seq: feature.readBases,
 
             qc_failed: feature.isFailedQc(),
             secondary_alignment: feature.isSecondary(),
