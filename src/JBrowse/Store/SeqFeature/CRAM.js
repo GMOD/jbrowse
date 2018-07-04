@@ -113,6 +113,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         return this.browser.getRefSeqNumber(refName)
     },
 
+    _refIdToName(refId) {
+        let ref = this.browser.getRefSeqById(refId)
+        return ref ? ref.name : undefined
+    },
+
     /**
      * Interrogate whether a store has data for a given reference
      * sequence.  Calls the given callback with either true or false.
@@ -170,6 +175,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             multi_segment_template: feature.isPaired(),
             multi_segment_all_aligned: feature.isProperlyPaired(),
             unmapped: feature.isSegmentUnmapped(),
+            next_seq_id: feature.mate ? this._refIdToName(feature.mate.sequenceID) : undefined,
+            next_segment_position: feature.mate
+                ? ( this._refIdToName(feature.mate.sequenceID)+':'+feature.mate.alignmentStart) : undefined,
         }
         Object.assign(data,feature.tags || {})
         return new SimpleFeature({

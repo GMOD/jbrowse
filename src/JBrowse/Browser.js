@@ -2176,25 +2176,31 @@ _configDefaults: function() {
  * @param {string} refSeqName
  */
 getRefSeqNumber(refSeqName) {
-    return this.refSeqNumericalIds[refSeqName]
+    return this.allRefs[refSeqName].id
+},
+
+/**
+ * get a reference sequence by its numerical id number. used mostly by CRAM stores.
+ * @param {number} id
+ */
+getRefSeqById(id) {
+    return this.refSeqsById[id]
 },
 
 /**
  * @param refSeqs {Array} array of refseq records to add to the browser
  */
 addRefseqs: function( refSeqs ) {
-    var allrefs = this.allRefs = this.allRefs || {};
+    if (!this.allRefs) this.allRefs = {}
 
-    dojo.forEach( refSeqs, function(r) {
+    refSeqs.forEach((r, id) => {
+        // save the original index of the reference for
+        // use with CRAM and other numerical-refseq-id stores
+        r.id = id
         this.allRefs[r.name] = r;
-    },this);
-
-    // maintain a mapping of name => numerical ID for use by
-    // getRefSeqNumber(name), which is required for CRAM support >:-{
-    this.refSeqNumericalIds = {}
-    refSeqs.forEach( (ref,id) => {
-        this.refSeqNumericalIds[ref.name] = id
     })
+
+    this.refSeqsById = refSeqs
 
     // generate refSeqOrder
     this.refSeqOrder =
