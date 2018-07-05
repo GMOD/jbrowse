@@ -159,5 +159,36 @@ describe('VCF store', function() {
 
 
 
+  it('reads a CSI index', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../data/fake_large_chromosome/test.vcf.gz',
+                 csiUrlTemplate: '../data/fake_large_chromosome/test.vcf.gz.csi',
+                 baseUrl: '.'
+             },
+             refSeq: { name: '1', start:1206808844, end: 1206851071 }
+         });
+
+         var features = [];
+         waitsFor( function() { return features.done; } );
+         store.getFeatures({ ref: '1',
+                             start: 1206808844,
+                             end: 12068510710
+                           },
+                           function(f) { features.push( f ); },
+                           function( ) { features.done = true; },
+                           function(e) { console.error(e.stack||''+e); }
+                          );
+         runs(function() {
+                  expect(features.length).toEqual( 111 );
+         });
+
+
+
+  });
+
+
+
 });
 });

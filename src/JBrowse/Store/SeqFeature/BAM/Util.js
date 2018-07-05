@@ -22,14 +22,20 @@ var VirtualOffset = Util.fastDeclare({
  * @lends JBrowse.Store.SeqFeature.BAM.Util
  * Package of utility functions used in various places in the BAM code.
  */
+function lshift(num, bits) {
+    return num * Math.pow(2, bits);
+}
+function rshift(num, bits) {
+    return Math.floor(num / Math.pow(2,bits));
+}
 var Utils = {
 
     readInt: function(ba, offset) {
-        return (ba[offset + 3] << 24) | (ba[offset + 2] << 16) | (ba[offset + 1] << 8) | (ba[offset]);
+        return lshift(ba[offset + 3], 24) | lshift(ba[offset + 2], 16) | lshift(ba[offset + 1], 8) | (ba[offset]);
     },
 
     readShort: function(ba, offset) {
-        return (ba[offset + 1] << 8) | (ba[offset]);
+        return lshift(ba[offset + 1], 8) | (ba[offset]);
     },
 
     readByte: function(ba, offset) {
@@ -52,7 +58,7 @@ var Utils = {
             + (ba[offset+4] & 0xff) * 0x10000
             + (ba[offset+3] & 0xff) * 0x100
             + (ba[offset+2] & 0xff);
-        var bint = (ba[offset+1] << 8) | ba[offset];
+        var bint = lshift(ba[offset+1], 8) | ba[offset];
         if (block == 0 && bint == 0) {
             return null;  // Should only happen in the linear index?
         } else {

@@ -51,7 +51,7 @@ return declare( null, {
 
         var maybeRecordStats = function( interval, stats, error ) {
             if( error ) {
-                if( error.isInstanceOf(Errors.DataOverflow) ) {
+                if( error.isInstanceOf && error.isInstanceOf(Errors.DataOverflow) ) {
                      console.log( 'Store statistics found chunkSizeLimit error, using empty: '+(this.source||this.name) );
                      deferred.resolve( { featureDensity: 0, error: 'global stats estimation found chunkSizeError' } );
                 }
