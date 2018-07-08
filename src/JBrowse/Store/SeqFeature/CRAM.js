@@ -97,6 +97,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         this.source = ( dataBlob.url  ? dataBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
                         dataBlob.blob ? dataBlob.blob.name : undefined ) || undefined;
 
+        // pre-download the index before running the statistics estimation so that the stats
+        // estimation doesn't time out
         this.cram.hasDataForReferenceSequence(0)
             .then( () => {
                 this._deferred.features.resolve({success:true});
@@ -208,10 +210,23 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     },
 
     _cramRecordToFeature(feature) {
+        // calculate the overall span on the ref,
+        // based on the read features
+        let lengthOnRef = feature.readLength
+        if( feature.readFeatures)
+            feature.readFeatures.forEach(({code, data}) => {
+                if( code === 'D' || code === 'N') lengthOnRef += data
+                else if (code === 'H' || code === 'S')
+                    lengthOnRef -= data
+                else if (code === 'I' || code === 'i')
+                    lengthOnRef -= data.length
+                else if (code === 'P') throw new Error('"P" read features not yet supported')
+            })
+
         const data = {
             name: feature.readName,
             start: feature.alignmentStart-1,
-            end: feature.alignmentStart+feature.readLength-1,
+            end: feature.alignmentStart-1+lengthOnRef,
             cram_read_features: feature.readFeatures,
             type: 'match',
             MQ: feature.mappingQuality,

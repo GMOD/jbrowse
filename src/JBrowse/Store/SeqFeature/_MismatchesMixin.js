@@ -98,6 +98,12 @@ return declare( null, {
                 // insertion
             } else if (code === 'N') {
                 // reference skip
+                mismatches.push({
+                    type: 'skip',
+                    length: data,
+                    start: pos-1,
+                    base: 'N',
+                })
             } else if (code === 'S') {
                 // soft clip
             } else if (code === 'P') {
@@ -106,6 +112,12 @@ return declare( null, {
                 // hard clip
             } else if (code === 'D') {
                 // deletion
+                mismatches.push({
+                    type: 'deletion',
+                    length: data,
+                    start: pos-1,
+                    base: '*',
+                })
             } else if( code === 'b') {
                 // stretch of bases
             } else if (code === 'q') {
