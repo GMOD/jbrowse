@@ -1,5 +1,7 @@
-const { IndexedCramFile, CraiIndex } = require('@gmod/cram/src')
-const { Buffer } = require('buffer')
+const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram/src')
+const { Buffer } = cjsRequire('buffer')
+
+const LazyCRAMFeature = cjsRequire('./CRAM/LazyFeature')
 
 define( [
             'dojo/_base/declare',
@@ -8,7 +10,6 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
-            'JBrowse/Model/SimpleFeature',
         ],
         function(
             declare,
@@ -17,7 +18,6 @@ define( [
             DeferredFeaturesMixin,
             GlobalStatsEstimationMixin,
             XHRBlob,
-            SimpleFeature,
         ) {
 
 
@@ -209,7 +209,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             .catch(errorCallback)
     },
 
-    _cramRecordToFeature(feature) {
+    _cramRecordToFeature(record) {
+        return new LazyCRAMFeature(this, record)
+    },
+
+    _cramRecordToFeatureOld(feature) {
         // calculate the overall span on the ref,
         // based on the read features
         let lengthOnRef = feature.readLength
@@ -235,6 +239,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             strand: feature.isReverseComplemented() ? -1 : 1,
             qual: (feature.qualityScores || []).map(q => q+33).join(' '),
             seq: feature.readBases,
+            read_features_string: JSON.stringify(feature.readFeatures,null,' '),
 
             qc_failed: feature.isFailedQc(),
             secondary_alignment: feature.isSecondary(),
