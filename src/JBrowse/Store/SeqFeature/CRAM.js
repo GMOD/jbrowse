@@ -1,5 +1,5 @@
-const { IndexedCramFile, CraiIndex } = require('@gmod/cram/src')
-const { Buffer } = require('buffer')
+const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram/src')
+const { Buffer } = cjsRequire('buffer')
 
 define( [
             'dojo/_base/declare',
