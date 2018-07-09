@@ -129,7 +129,7 @@ function (
                                         locstring: Util.assembleLocString(elt.multipleLocations[j]),
                                         location: elt.multipleLocations[j],
                                         label: elt.name,
-                                        description: elt.multipleLocations[j].tracks[0].label,
+                                        description: this.browser.trackConfigsByName[elt.multipleLocations[j].tracks[0].label].key,
                                         tracks: elt.multipleLocations[j].tracks[0]
                                     });
                                 }
@@ -139,7 +139,7 @@ function (
                                     locstring: Util.assembleLocString(elt.location),
                                     location: elt.location,
                                     label: elt.location.objectName,
-                                    description: elt.location.tracks[0].label,
+                                    description: this.browser.trackConfigsByName[elt.location.tracks[0].label].key,
                                     tracks: elt.location.tracks[0]
                                 });
                             }
