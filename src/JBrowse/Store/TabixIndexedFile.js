@@ -7,7 +7,8 @@ define([
            'JBrowse/Errors',
            'JBrowse/Model/XHRBlob',
            'JBrowse/Model/BGZip/BGZBlob',
-           'JBrowse/Model/TabixIndex'
+           'JBrowse/Model/TabixIndex',
+           'JBrowse/Model/CSIIndex'
        ],
        function(
            declare,
@@ -18,14 +19,20 @@ define([
            Errors,
            XHRBlob,
            BGZBlob,
-           TabixIndex
+           TabixIndex,
+           CSIIndex
        ) {
 
 return declare( null, {
 
     constructor: function( args ) {
         this.browser = args.browser;
-        this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
+        if(args.tbi) {
+            this.index = new TabixIndex({ blob: new BGZBlob( args.tbi ), browser: args.browser } );
+        } else if(args.csi) {
+            this.index = new CSIIndex({ blob: new BGZBlob( args.csi ), browser: args.browser } );
+        }
+
         this.data  = new BGZBlob( args.file );
         this.indexLoaded = this.index.load();
 

@@ -1,12 +1,28 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added support for the CSI index format for VCF and BAM files! This format enables genomes
+   with individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
+   use the `csiUrlTemplate` config to point to the file. Thanks to Keiran Raine for initial
+   report and Nathan S Watson-Haigh for catching a bug in the initial implementation!
+   (issue #926, pull #1086, @cmdcolin)
+
+ * Added a `dontRedispatch` option for GFF3Tabix stores. Example: set `dontRedispatch=region`
+   if there are `region` biotype features in the GFF that do not have subfeatures which will
+   speed up loading times significantly (issue #1076, pull #1084, @cmdcolin)
+
+ * Add auto-lower-casing to the feature.get('...') function, commonly used for callback
+   customizations. Now, for example, feature.get('ID') works as well as feature.get('id').
+   Thanks to @nvteja for motivating this! (issue #1068, pull #1074, @cmdcolin)
+
+ * Added cache-busting for track config files which actively prevents stale configuration files
+   from being loaded (pull #1080, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
    @scottcain for reporting (issue #1058, @cmdcolin).
-
- * Fixed a bug in which duplicate BAM features would sometimes not be shown separately in the
-   view if they contain the same data. (@rbuels)
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 

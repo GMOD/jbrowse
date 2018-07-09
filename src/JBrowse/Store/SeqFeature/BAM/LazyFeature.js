@@ -27,8 +27,6 @@ var Feature = Util.fastDeclare(
             byteArray: args.bytes.byteArray
         };
 
-        this.featureNumber = args.featureNumber // feature number within the block
-
         this._coreParse();
     },
 
@@ -102,10 +100,7 @@ var Feature = Util.fastDeclare(
     },
 
     id: function() {
-        // the guaranteed unique ID of the feature is the byte
-        // offset in the file of the block that it is in,
-        // plus the sequential number of this feature's place in the block.
-        return `${this.bytes.start}-${this.featureNumber}`
+        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start')+'/'+this._get('multi_segment_next_segment_reversed');
     },
 
     multi_segment_all_aligned: function() {

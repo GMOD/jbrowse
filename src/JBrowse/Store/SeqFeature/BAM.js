@@ -46,16 +46,31 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
                          )
                        );
 
-        var baiBlob = args.bai ||
-            new XHRBlob( this.resolveUrl(
-                             args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
-                         )
-                       );
+        var csiBlob, baiBlob;
+        var browser = args.browser;
+
+        if(this.config.csiUrlTemplate) {
+            csiBlob = args.csi ||
+                new XHRBlob(
+                    this.resolveUrl(
+                        this.getConf('csiUrlTemplate',[])
+                    )
+                );
+        } else {
+            baiBlob = args.bai ||
+                new XHRBlob( this.resolveUrl(
+                    args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
+                )
+            );
+        }
+
 
         this.bam = new BAMFile({
                 store: this,
                 data: bamBlob,
                 bai: baiBlob,
+                browser: browser,
+                csi: csiBlob,
                 chunkSizeLimit: args.chunkSizeLimit
         });
 
@@ -113,7 +128,8 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
     saveStore: function() {
         return {
             urlTemplate: this.config.bam.url,
-            baiUrlTemplate: this.config.bai.url
+            csiUrlTemplate: (this.config.csi||{}).url,
+            baiUrlTemplate: (this.config.bai||{}).url
         };
     }
 
