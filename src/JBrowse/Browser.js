@@ -47,6 +47,7 @@ define( [
             'JBrowse/View/Dialog/OpenDirectory',
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
+            'JBrowse/View/Dialog/Search',
             'JBrowse/View/StandaloneDatasetList',
             'JBrowse/Store/SeqFeature/UnindexedFasta',
             'JBrowse/Store/SeqFeature/IndexedFasta',
@@ -109,6 +110,7 @@ define( [
             OpenDirectoryDialog,
             SetTrackHeightDialog,
             HelpDialog,
+            SearchDialog,
             StandaloneDatasetList,
             UnindexedFasta,
             IndexedFasta,
@@ -915,6 +917,22 @@ initView: function() {
                                 track.trackHeightChanged=true;
                                 track.updateUserStyles({ height: height });
                             });
+                        }
+                    }).show();
+                }
+            }));
+
+            // add a global menu item for resizing all visible quantitative tracks
+            this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                label: 'Search',
+                id: 'menubar_search',
+                title: 'Search for features',
+                onClick: function() {
+                    new SearchDialog({
+                        browser: thisObj,
+                        prompt: 'Search for features',
+                        setCallback: function( res ) {
+                            console.log(res);
                         }
                     }).show();
                 }
