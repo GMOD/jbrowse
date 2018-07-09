@@ -53,7 +53,7 @@ function (
                     innerHTML: this.prompt
                 }, container);
                 var subcontainer = dojo.create('div', { style: { 'padding': '20px' } }, container);
-                dojo.create('img', { width: '16px', src: 'img/iconwiki.png', style: { 'padding-right': '5px' } }, subcontainer);
+                dojo.create('img', { width: '16px', src: 'img/search.png', style: { 'padding-right': '5px' } }, subcontainer);
                 this.searchBox = new TextBox({intermediateChanges: true}).placeAt(subcontainer);
                 dojo.create('label', {style: {marginLeft: '20px'}, for: 'exact_match', innerHTML: 'Exact?'}, subcontainer);
                 this.exactCheckbox = dojo.create('input', {type: 'checkbox', id: 'exact_match'}, subcontainer);
