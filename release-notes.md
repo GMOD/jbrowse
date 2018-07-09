@@ -3,9 +3,10 @@
 ## Minor improvements
 
  * Added support for the CSI index format for VCF and BAM files! This format enables genomes
-   with chromosomes longer than a gigabase to be used in JBrowse. To enable, use the
-   `csiUrlTemplate` config to point to the file. Thanks to Keiran Raine and others for
-   motivating this! (issue #926, pull #1086, @cmdcolin)
+   with individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
+   use the `csiUrlTemplate` config to point to the file. Thanks to Keiran Raine for initial
+   report and Nathan S Watson-Haigh for catching a bug in the initial implementation!
+   (issue #926, pull #1086, @cmdcolin)
 
  * Added a `dontRedispatch` option for GFF3Tabix stores. Example: set `dontRedispatch=region`
    if there are `region` biotype features in the GFF that do not have subfeatures which will
