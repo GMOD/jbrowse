@@ -134,7 +134,6 @@ function (
                                     });
                                 }
                             } else {
-                                console.log(elt)
                                 grid.push({
                                     locstring: Util.assembleLocString(elt.location),
                                     location: elt.location,
