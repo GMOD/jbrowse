@@ -105,6 +105,8 @@ return declare( TabixIndex, {
             // the linear index
 
         }
+
+        this.minAlignmentVO = this.firstDataLine;
         deferred.resolve({ success: true });
     },
 
