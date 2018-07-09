@@ -133,6 +133,15 @@ function (
                                         tracks: elt.multipleLocations[j].tracks[0]
                                     });
                                 }
+                            } else {
+                                console.log(elt)
+                                grid.push({
+                                    locstring: Util.assembleLocString(elt.location),
+                                    location: elt.location,
+                                    label: elt.location.objectName,
+                                    description: elt.location.tracks[0].label,
+                                    tracks: elt.location.tracks[0]
+                                });
                             }
                         }
                     }
