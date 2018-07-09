@@ -290,8 +290,7 @@ var BamFile = declare( null,
                     var feature = new BAMFeature({
                         store: this.store,
                         file: this,
-                        bytes: { byteArray: ba, start: blockStart, end: blockEnd },
-                        featureNumber: featureCount,
+                        bytes: { byteArray: ba, start: blockStart, end: blockEnd }
                      });
                     sink.push(feature);
                     featureCount++;
