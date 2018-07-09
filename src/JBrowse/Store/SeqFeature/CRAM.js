@@ -91,6 +91,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         // TODO: need to add .csi index support
 
         cramArgs.seqFetch = this._seqFetch.bind(this)
+        cramArgs.checkSequenceMD5 = false
 
         this.cram = new IndexedCramFile(cramArgs)
 
@@ -125,7 +126,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     // used by the CRAM backend to fetch a region of the underlying reference
     // sequence.  needed for some of its calculations
     async _seqFetch(seqId, start, end) {
-        start -= 1 // convert to interbase
+        start -= 1 // convert from 1-based closed to interbase
 
         const refSeqStore = await this._getRefSeqStore()
         if (!refSeqStore) return undefined
@@ -198,7 +199,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             return
         }
 
-        this.cram.getFeaturesForRange(refSeqNumber, query.start, query.end)
+        this.cram.getFeaturesForRange(refSeqNumber, query.start+1, query.end)
             .then(records => {
                 records.forEach( record => {
                     featCallback( this._cramRecordToFeature(record))
@@ -209,47 +210,34 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             .catch(errorCallback)
     },
 
-    _cramRecordToFeature(feature) {
-        // calculate the overall span on the ref,
-        // based on the read features
-        let lengthOnRef = feature.readLength
-        if( feature.readFeatures)
-            feature.readFeatures.forEach(({code, data}) => {
-                if( code === 'D' || code === 'N') lengthOnRef += data
-                else if (code === 'H' || code === 'S')
-                    lengthOnRef -= data
-                else if (code === 'I' || code === 'i')
-                    lengthOnRef -= data.length
-                else if (code === 'P') throw new Error('"P" read features not yet supported')
-            })
-
+    _cramRecordToFeature(record) {
         const data = {
-            name: feature.readName,
-            start: feature.alignmentStart-1,
-            end: feature.alignmentStart-1+lengthOnRef,
-            cram_read_features: feature.readFeatures,
+            name: record.readName,
+            start: record.alignmentStart-1,
+            end: record.alignmentStart+record.lengthOnRef()-1,
+            cram_read_features: record.readFeatures,
             type: 'match',
-            MQ: feature.mappingQuality,
-            flags: `0x${feature.flags.toString(16)}`,
-            cramFlags: `0x${feature.cramFlags.toString(16)}`,
-            strand: feature.isReverseComplemented() ? -1 : 1,
-            qual: (feature.qualityScores || []).map(q => q+33).join(' '),
-            seq: feature.readBases,
+            MQ: record.mappingQuality,
+            flags: `0x${record.flags.toString(16)}`,
+            cramFlags: `0x${record.cramFlags.toString(16)}`,
+            strand: record.isReverseComplemented() ? -1 : 1,
+            qual: (record.qualityScores || []).map(q => q+33).join(' '),
+            seq: record.readBases,
 
-            qc_failed: feature.isFailedQc(),
-            secondary_alignment: feature.isSecondary(),
-            supplementary_alignment: feature.isSupplementary(),
-            multi_segment_template: feature.isPaired(),
-            multi_segment_all_aligned: feature.isProperlyPaired(),
-            unmapped: feature.isSegmentUnmapped(),
-            next_seq_id: feature.mate ? this._refIdToName(feature.mate.sequenceID) : undefined,
-            next_segment_position: feature.mate
-                ? ( this._refIdToName(feature.mate.sequenceID)+':'+feature.mate.alignmentStart) : undefined,
+            qc_failed: record.isFailedQc(),
+            secondary_alignment: record.isSecondary(),
+            supplementary_alignment: record.isSupplementary(),
+            multi_segment_template: record.isPaired(),
+            multi_segment_all_aligned: record.isProperlyPaired(),
+            unmapped: record.isSegmentUnmapped(),
+            next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceID) : undefined,
+            next_segment_position: record.mate
+                ? ( this._refIdToName(record.mate.sequenceID)+':'+record.mate.alignmentStart) : undefined,
         }
-        Object.assign(data,feature.tags || {})
+        Object.assign(data,record.tags || {})
         return new SimpleFeature({
             data,
-            id: feature.uniqueId
+            id: record.uniqueId
         })
     },
 
