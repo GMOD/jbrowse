@@ -96,8 +96,7 @@ function (
                 onClick: dojo.hitch(dialog, 'hide')
             }).placeAt(this.actionBar);
 
-            var numresults = dojo.create('div', { id: 'numResults', style: {margin: '10px'} }, container);
-            var errResults = dojo.create('div', { id: 'errResults', style: {margin: '10px', color: 'red'} }, container);
+            this.errResults = dojo.create('div', { id: 'errResults', style: {margin: '10px', color: 'red'} }, container);
             dialog.set('content', [ container, this.actionBar ]);
             dialog.show();
 
@@ -120,7 +119,7 @@ function (
                 Promise.all(promises).then((res) => {
                     var grid = [];
                     for(var i = 0; i < res.length; i++) {
-                        elt = res[i];
+                        var elt = res[i];
                         if(elt.length) {
                             elt = elt[0];
                             if(elt.multipleLocations) {
@@ -147,15 +146,14 @@ function (
                     var g = this.locationListView.grid;
                     (g.store || g.collection).setData(grid);
                     this.locationListView.grid.refresh();
-                    errResults.innerHTML = '';
+                    this.errResults.innerHTML = '';
                 });
             }, (err) => {
                 console.error(err);
                 var g = this.locationListView.grid;
                 (g.store || g.collection).setData([]);
                 this.locationListView.grid.refresh();
-                numresults.innerHTML = '';
-                errResults.innerHTML = 'Error: ' + err;
+                this.errResults.innerHTML = 'Error: ' + err;
             });
         }
     });
