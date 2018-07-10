@@ -40,8 +40,6 @@ return declare( SeqFeatureStore,
         }
 
         this.baseUrl      = args.baseUrl;
-        //this.config.baseUrl = args.baseUrl;
-        console.log(this.baseUrl,'aaa');
         this.seqChunkSize = args.seqChunkSize;
     },
 
