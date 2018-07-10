@@ -279,10 +279,20 @@ Util = {
             locstring = tokens[1];
         }
 
-        tokens = locstring.match( /^\s*(-?[\d,]+)\s*\.\.+\s*(-?[\d,]+)/ );
+        var rangeRegex= new RegExp([
+          /^\s*/         // optional whitespace preceeding range
+          ,/(-?[\d,]+)/  // first number, possibly negative, and thousand separator (",") safe
+          ,/\s*/         // optional whitespace
+          ,/(\.\.+|-)/   // range separator of 2 or more dots OR single hyphen
+          ,/\s*/         // optional whitespace
+          ,/(-?[\d,]+)/  // second number, possibly negative, and thousand separator (",") safe
+        ].map(function(r) {return r.source}).join(''));
+
+        tokens = locstring.match(rangeRegex);
+
         if( tokens ) { // range of two numbers?
             location.start = parseCoord( tokens[1] )-1;
-            location.end = parseCoord( tokens[2] );
+            location.end = parseCoord( tokens[3] );
 
             // reverse the numbers if necessary
             if( location.start > location.end ) {

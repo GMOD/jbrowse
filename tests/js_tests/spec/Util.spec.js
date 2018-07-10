@@ -68,7 +68,9 @@ describe( 'Util.parseLocString', function() {
                  [ ['3000 ( 42 ) '], { start: 2999, end: 2999, extra: ' 42 ' } ],
                  [ [' higgleplonk: 3000 ( 42 ) '], { ref: 'higgleplonk', start: 2999, end: 2999, extra: ' 42 ' } ],
                  [ ['234324x#21: 3000 ( 42 ) '], { ref: '234324x#21', start: 2999, end: 2999, extra: ' 42 ' } ],
-                 [ ['ctgA:3000'], { ref: 'ctgA', start: 2999, end: 2999 } ]
+                 [ ['ctgA:3000'], { ref: 'ctgA', start: 2999, end: 2999 } ],
+                 [ ['ctgA:3000-4000 (42 kb)'], { ref: 'ctgA', start: 2999, end: 4000, extra: '42 kb' } ],
+                 [ ['ctgA:3000-4000'], { ref: 'ctgA', start: 2999, end: 4000 } ]
              ]);
 
 });
