@@ -228,7 +228,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             secondary_alignment: record.isSecondary(),
             supplementary_alignment: record.isSupplementary(),
             multi_segment_template: record.isPaired(),
-            multi_segment_all_aligned: record.isProperlyPaired(),
+            multi_segment_all_correctly_aligned: record.isProperlyPaired(),
+            multi_segment_next_segment_unmapped: record.isMateUnmapped(),
             unmapped: record.isSegmentUnmapped(),
             next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceID) : undefined,
             next_segment_position: record.mate

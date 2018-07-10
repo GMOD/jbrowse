@@ -83,12 +83,14 @@ return declare( null, {
     },
 
     _cramReadFeaturesToMismatches(feature, readFeatures) {
+        const start = feature.get('start')
         const mismatches = []
-        readFeatures.forEach(({code,pos,data,sub,ref}) => {
+        readFeatures.forEach(({code,refPos,data,sub,ref}) => {
+            refPos = refPos - 1 - start
             if (code === 'X') {
                 // substitution
                 mismatches.push({
-                    start: pos-1,
+                    start: refPos,
                     length: 1,
                     base: sub,
                     altbase: ref,
@@ -96,12 +98,18 @@ return declare( null, {
                 })
             } else if (code === 'I') {
                 // insertion
+               mismatches.push({
+                   start: refPos,
+                   type: 'insertion',
+                   base: ''+data.length,
+                   length: data.length,
+                });
             } else if (code === 'N') {
                 // reference skip
                 mismatches.push({
                     type: 'skip',
                     length: data,
-                    start: pos-1,
+                    start: refPos,
                     base: 'N',
                 })
             } else if (code === 'S') {
@@ -115,7 +123,7 @@ return declare( null, {
                 mismatches.push({
                     type: 'deletion',
                     length: data,
-                    start: pos-1,
+                    start: refPos,
                     base: '*',
                 })
             } else if( code === 'b') {
@@ -126,6 +134,13 @@ return declare( null, {
                 // a pair of [base, qual]
             } else if (code === 'i') {
                 // single-base insertion
+                // insertion
+               mismatches.push({
+                start: refPos,
+                type: 'insertion',
+                base: data,
+                length: 1,
+             });
             } else if (code === 'Q') {
                 // single quality value
             }
