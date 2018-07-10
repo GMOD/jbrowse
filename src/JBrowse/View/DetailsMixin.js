@@ -131,9 +131,15 @@ return declare( null, {
         else if( valType == 'undefined' || val === null )
             return 0;
         else if( lang.isArray( val ) ) {
-            var vals = array.map( val, function(v) {
-                       return this.renderDetailValue( parent, title, v, f, class_ );
-                   }, this );
+            parent.style.width = '90%'
+            var vals = val.map( v => {
+                const itemContainer = domConstruct.create('div', {
+                    className: 'value_container '+class_,
+                    style: { width: '100%' },
+                }, parent );
+                this.renderDetailValue( itemContainer, title, v, f, class_ );
+                return itemContainer
+            })
             if( vals.length > 1 )
                 domClass.add( parent, 'multi_value' );
             if( vals.length > 10 )
