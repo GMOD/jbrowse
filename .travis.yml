@@ -56,7 +56,6 @@ script:
 - ./setup.sh
 - yarn lint
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
-- utils/jb_run.js -p 8000 -s jbrowse
 - utils/jb_run.js -p 9000 & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests
@@ -74,6 +73,7 @@ script:
     cd $BUILD_DIR;
     MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh;
   fi
+- utils/jb_run.js -p 8000 -s jbrowse &
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
 - set +e
 after_failure:
