@@ -283,7 +283,7 @@ Util = {
           /^\s*/         // optional whitespace preceeding range
           ,/(-?[\d,]+)/  // first number, possibly negative, and thousand separator (",") safe
           ,/\s*/         // optional whitespace
-          ,/(\.\.+|-)/   // range separator of 2 or more dots OR single hyphen
+          ,/(\.{2,}|-+)/ // range separator of 2 or more dots OR 1 or more hyphen
           ,/\s*/         // optional whitespace
           ,/(-?[\d,]+)/  // second number, possibly negative, and thousand separator (",") safe
         ].map(function(r) {return r.source}).join(''));
