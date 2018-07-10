@@ -34,12 +34,14 @@ return declare( SeqFeatureStore,
  */
     constructor: function(args) {
         this.compress     = args.compress;
-        this.urlTemplate  = args.urlTemplate;
+        this.urlTemplate  = this.getConf('urlTemplate',[]);
         if( ! this.urlTemplate ) {
             throw "no urlTemplate provided, cannot open sequence store";
         }
 
         this.baseUrl      = args.baseUrl;
+        //this.config.baseUrl = args.baseUrl;
+        console.log(this.baseUrl,'aaa');
         this.seqChunkSize = args.seqChunkSize;
     },
 
