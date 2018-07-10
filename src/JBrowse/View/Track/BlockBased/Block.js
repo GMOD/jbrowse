@@ -28,7 +28,7 @@ return declare( Destroyable, {
     },
 
     toString: function() {
-        return this.startBase+'-'+this.endBase;
+        return this.startBase+'..'+this.endBase;
     },
 
     destroy: function() {
