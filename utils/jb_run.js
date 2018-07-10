@@ -18,14 +18,14 @@ if (fs.pathExistsSync(thisPath+"/node_modules/@gmod/jbrowse/utils")) {
 
 // command line options
 var getopt = new getopt([
-    ['p' , 'port=NUMBER' , 'listening port'],
-    ['h' , 'help'        , 'display this help']
+    ['p', 'port=NUMBER' , 'listening port'],
+    ['s', 'suburi=STRING', 'sub-URI path'],
+    ['h', 'help', 'display this help']
 ]);              // create Getopt instance
 getopt.bindHelp();     // bind option 'help' to default action
 opt = getopt.parseSystem(); // parse command line
 
 var port = 3000;
-
 var setPort = opt.options['port'];
 if (typeof setPort !== 'undefined') {
     port = setPort;
@@ -38,7 +38,7 @@ var dispPort = "";
 if (port !== 80) dispPort = ":"+port;
 
 
-app.use('/', express.static(
+app.use('/'+(opt.options['suburi']||''), express.static(
     jbrowsePath,
     {
         // set Content-Encoding: gzip on .jsonz and .gz files
