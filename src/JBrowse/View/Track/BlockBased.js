@@ -1167,7 +1167,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                 function( books ) {
                     array.forEach( books.features, function( bookmark ) {
                         if( bookmark.ref != this.refSeq.name ) return;
-                        var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
+                        var loc = new Location( bookmark.refseq+":"+bookmark.start+"-"+bookmark.end );
                         this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
                     }, thisB);
                 },
@@ -1179,7 +1179,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         else {
             array.forEach( bookmarks.features, function( bookmark ) {
                 if( bookmark.ref != this.refSeq.name ) return;
-                var loc = new Location( bookmark.refseq+":"+bookmark.start+".."+bookmark.end );
+                var loc = new Location( bookmark.refseq+":"+bookmark.start+"-"+bookmark.end );
                 this.renderRegionHighlight( args, loc, bookmark.color, renderLabels?bookmark.label:null, renderLabels?bookmark.rlabel:null );
             }, this);
         }

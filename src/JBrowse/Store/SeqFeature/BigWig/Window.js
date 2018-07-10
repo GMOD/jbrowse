@@ -55,7 +55,7 @@ return declare( null,
     BED_COLOR_REGEXP: /^[0-9]+,[0-9]+,[0-9]+/,
 
     readWigData: function(chrName, min, max, callback, errorCallback ) {
-        // console.log( 'reading wig data from '+chrName+':'+min+'..'+max);
+        // console.log( 'reading wig data from '+chrName+':'+min+'-'+max);
         var chr = this.bwg.refsByName[chrName];
         if ( ! chr ) {
             // Not an error because some .bwgs won't have data for all chromosomes.

@@ -14,10 +14,10 @@ var Chunk = Util.fastDeclare({
         lang.mixin( this, values );
     },
     toString: function() {
-        return this.url+" (bytes "+this.start+".."+this.end+")";
+        return this.url+" (bytes "+this.start+"-"+this.end+")";
     },
     toUniqueString: function() {
-        return this.url+" (bytes "+this.start+".."+this.end+")";
+        return this.url+" (bytes "+this.start+"-"+this.end+")";
     }
 });
 

@@ -357,7 +357,7 @@ Util = {
         if( 'start' in location ) {
             s += (Math.round(location.start)+1).toFixed(0).toLocaleString();
             if( 'end' in location )
-                s+= '..';
+                s+= '-';
         }
         if( 'end' in location )
             s += Math.round(location.end).toFixed(0).toLocaleString();

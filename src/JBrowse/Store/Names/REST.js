@@ -42,7 +42,7 @@ return declare( null,
                 var dat = data[i];
                 dat.label = dat.name + (
                     dat.location ? ( '<span class="locString">'
-                                     +dat.location.ref+":"+dat.location.start+".."+dat.location.end
+                                     +dat.location.ref+":"+dat.location.start+"-"+dat.location.end
                                      +" ("+dat.name+")"
                                      + "</span>"
                                     )
