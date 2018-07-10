@@ -106,7 +106,7 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-log_echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
+log_echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have been removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
 
 # if we are running in a development build, then run npm install and run the webpack build.
 if [ -f "src/JBrowse/Browser.js" ]; then
