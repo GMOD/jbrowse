@@ -1,9 +1,9 @@
 define([
            'dojo/_base/declare',
-           './_IndexedFileDriver'
+           './_MultiIndexedFileDriver'
        ],
-       function( declare, IndexedFileDriver ) {
-return declare( IndexedFileDriver,  {
+       function( declare, MultiIndexedFileDriver ) {
+return declare( MultiIndexedFileDriver,  {
     name: 'VCF+Tabix',
     storeType: 'JBrowse/Store/SeqFeature/VCFTabix',
 
@@ -11,9 +11,15 @@ return declare( IndexedFileDriver,  {
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'vcf.gz.tbi',
-    indexConfKey: 'tbi',
-    indexUrlConfKey: 'tbiUrlTemplate'
+    indexTypes: [{
+        indexExtension: 'vcf.gz.tbi',
+        indexConfKey: 'tbi',
+        indexUrlConfKey: 'tbiUrlTemplate'
+    }, {
+        indexExtension: 'vcf.gz.csi',
+        indexConfKey: 'csi',
+        indexUrlConfKey: 'csiUrlTemplate'
+    }]
 });
 
 });

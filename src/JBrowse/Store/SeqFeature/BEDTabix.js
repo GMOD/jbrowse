@@ -33,7 +33,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         var thisB = this;
         var csiBlob, tbiBlob;
 
-        if(this.config.csiUrlTemplate) {
+        if(args.csi || this.config.csiUrlTemplate) {
             csiBlob = args.csi ||
                 new XHRBlob(
                     this.resolveUrl(
