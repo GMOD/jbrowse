@@ -120,7 +120,8 @@ return declare( null, {
 
     confIsValid: function( conf ) {
         var valid = false;
-        for(var i in this.indexTypes) {
+        for(var m in this.indexTypes) {
+            var index = this.indexTypes[m];
             valid |= (conf[this.fileConfKey] || conf[this.fileUrlConfKey]) && ( conf[index.indexConfKey] || conf[index.indexUrlConfKey] || conf[this.fileUrlConfKey] );
         }
         return valid;
