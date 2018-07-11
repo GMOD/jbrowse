@@ -21,7 +21,8 @@ return declare( null, {
             // go through the configs and see if there is one for an index that seems to match
             for( var n in configs ) {
                 var c = configs[n];
-                for(const index in this.indexTypes) {
+                for(const m in this.indexTypes) {
+                    var index = this.indexTypes[m];
                     if( Util.basename( c[index.indexConfKey] ? c[index.indexConfKey ].url || c[index.indexConfKey].blob.name : c[index.indexUrlConfKey], '.'+index.indexExtension ) == basename ) {
                         // it's a match, put it in
                         c[this.fileConfKey] = this._makeBlob( resource );
@@ -33,7 +34,8 @@ return declare( null, {
             basename = Util.basename( basename, '.'+this.fileExtension );
             for( var n in configs ) {
                 var c = configs[n];
-                for(const index in this.indexTypes) {
+                for(const m in this.indexTypes) {
+                    var index = this.indexTypes[m];
                     if( Util.basename( c[index.indexConfKey] ? c[index.indexConfKey].url || c[index.indexConfKey].blob.name : c[index.indexUrlConfKey], '.'+index.indexExtension ) == basename ) {
                         // it's a match, put it in
                         c[this.fileConfKey] = this._makeBlob( resource );
@@ -54,7 +56,8 @@ return declare( null, {
 
             return true;
         } else {
-            for(const index in this.indexTypes) {
+            for(const m in this.indexTypes) {
+                var index = this.indexTypes[m];
                 if( resource.type == index.indexExtension ) {
                     var basename = Util.basename(
                         resource.file ? resource.file.name :
@@ -101,6 +104,7 @@ return declare( null, {
 
     // try to merge any singleton file and index stores.  currently can only do this if there is one of each
     finalizeConfiguration: function( configs ) {
+        console.log(configs);
 
     },
 

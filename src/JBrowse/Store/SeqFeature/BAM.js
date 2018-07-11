@@ -49,7 +49,7 @@ var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesM
         var csiBlob, baiBlob;
         var browser = args.browser;
 
-        if(this.config.csiUrlTemplate) {
+        if(args.csi || this.config.csiUrlTemplate) {
             csiBlob = args.csi ||
                 new XHRBlob(
                     this.resolveUrl(

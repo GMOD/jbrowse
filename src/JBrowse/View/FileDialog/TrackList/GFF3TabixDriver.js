@@ -10,15 +10,14 @@ return declare( MultiIndexedFileDriver,  {
     fileExtension: 'gff3.gz',
     fileConfKey: 'file',
     fileUrlConfKey: 'urlTemplate',
-
-    indexType: [{
-        ext: 'gff3.gz.tbi',
-        confKey: 'tbi',
-        urlConfKey: 'tbiUrlTemplate'
+    indexTypes: [{
+        indexExtension: 'gff3.gz.tbi',
+        indexConfKey: 'tbi',
+        indexUrlConfKey: 'tbiUrlTemplate'
     }, {
-        ext: 'gff3.gz.csi',
-        confKey: 'csi',
-        urlConfKey: 'csiUrlTemplate'
+        indexExtension: 'gff3.gz.csi',
+        indexConfKey: 'csi',
+        indexUrlConfKey: 'csiUrlTemplate'
     }]
 });
 

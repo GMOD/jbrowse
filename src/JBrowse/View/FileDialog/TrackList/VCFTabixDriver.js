@@ -12,13 +12,13 @@ return declare( MultiIndexedFileDriver,  {
     fileUrlConfKey: 'urlTemplate',
 
     indexTypes: [{
-        ext: 'vcf.gz.tbi',
-        confKey: 'tbi',
-        urlConfKey: 'tbiUrlTemplate'
+        indexExtension: 'vcf.gz.tbi',
+        indexConfKey: 'tbi',
+        indexUrlConfKey: 'tbiUrlTemplate'
     }, {
-        ext: 'vcf.gz.csi',
-        confKey: 'csi',
-        urlConfKey: 'csiUrlTemplate'
+        indexExtension: 'vcf.gz.csi',
+        indexConfKey: 'csi',
+        indexUrlConfKey: 'csiUrlTemplate'
     }]
 });
 
