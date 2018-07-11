@@ -104,8 +104,64 @@ return declare( null, {
 
     // try to merge any singleton file and index stores.  currently can only do this if there is one of each
     finalizeConfiguration: function( configs ) {
-        console.log(configs);
+        var singletonIndexes = {};
+        var singletonIndexCount = 0;
+        var singletonFiles = {};
+        var singletonFileCount = 0;
+        for( var n in configs ) {
+            var conf = configs[n];
+            if( conf.type === this.storeType ) {
+                var flag = false;
+                for (const m in this.indexTypes) {
+                    const index = this.indexTypes[m];
+                    flag |= !!(conf[index.indexConfKey] || conf[index.indexUrlConfKey]);
+                }
+                if (flag && !(conf[this.fileConfKey]||conf[this.fileUrlConfKey])) {
+                    singletonIndexCount++;
+                    singletonIndexes[n] = conf;
+                }
 
+                flag = true;
+                for (const m in this.indexTypes) {
+                    const index = this.indexTypes[m];
+                    flag &=  !(conf[index.indexConfKey] || conf[index.indexUrlConfKey])
+                }
+                if (flag && !!(conf[this.fileConfKey] || conf[this.fileUrlConfKey])) {
+                    singletonFileCount++;
+                    singletonFiles[n] = conf;
+                }
+            }
+        }
+
+        // if we have a single File and single Index left at the end,
+        // stick them together and we'll see what happens
+        if( singletonFileCount == 1 && singletonIndexCount == 1 ) {
+            for( var indexName in singletonIndexes ) {
+                for( var fileName in singletonFiles ) {
+                    for( const m in this.indexTypes) {
+                        const index = this.indexTypes[m];
+                        if( singletonIndexes[indexName][index.indexUrlConfKey] )
+                            singletonFiles[fileName][index.indexUrlConfKey] = singletonIndexes[indexName][index.indexUrlConfKey];
+                        if( singletonIndexes[indexName][index.indexConfKey] )
+                            singletonFiles[fileName][index.indexConfKey] = singletonIndexes[indexName][index.indexConfKey];
+
+                        delete configs[indexName];
+                    }
+                }
+            }
+        }
+
+        // delete any remaining singleton Indexes, since they don't have
+        // a hope of working
+        for( var indexName in singletonIndexes ) {
+            delete configs[indexName];
+        }
+
+        // delete any remaining singleton Files, unless they are URLs
+        for( var fileName in singletonFiles ) {
+            if( ! configs[fileName][this.fileUrlConfKey] )
+                delete configs[fileName];
+        }
     },
 
     _makeBlob: function( resource ) {
