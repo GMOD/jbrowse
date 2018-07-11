@@ -24,6 +24,13 @@ describe( 'FileDialog BAM driver', function() {
                       expect( confs.foo.bam.blob.name ).toEqual( 'zee.bam' );
                   });
 
+              it( 'can match a simple BAM file with its CSI XHRBlob', function( ) {
+                      var confs = { foo: { csi: { url: 'zee.bam.csi'} } };
+                      expect( (new BAMDriver()).tryResource( confs, { type: 'bam', file: { name: 'zee.bam'} } ) )
+                          .toBeTruthy();
+                      expect( confs.foo.bam.blob.name ).toEqual( 'zee.bam' );
+                  });
+
 
           });
 
