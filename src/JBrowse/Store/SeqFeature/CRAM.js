@@ -214,7 +214,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         const data = {
             name: record.readName,
             start: record.alignmentStart-1,
-            end: record.alignmentStart+record.lengthOnRef()-1,
+            end: record.alignmentStart+record.lengthOnRef-1,
             cram_read_features: record.readFeatures,
             type: 'match',
             MQ: record.mappingQuality,
