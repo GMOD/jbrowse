@@ -170,12 +170,13 @@ return declare( null, {
                 /\.vcf$/i.test( name )          ? 'vcf'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
+                /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                 /\.bed$/i.test( name )          ? 'bed'    :
                 /\.(bb|bigbed)$/i.test( name )  ? 'bb'     :
-                /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                 /\.gff3?\.gz.tbi$/i.test( name )? 'gff3.gz.tbi' :
                 /\.vcf.gz.tbi$/i.test( name )   ? 'vcf.gz.tbi'  :
-                /\.bed.gz.tbi$/i.test( name )   ? 'bed.gz.csi'  :
+                /\.bed.gz.tbi$/i.test( name )   ? 'bed.gz.tbi'  :
+                /\.bed.gz.csi/i.test( name )    ? 'bed.gz.csi'  :
                 /\.gff3?\.gz.csi$/i.test( name )? 'gff3.gz.csi'  :
                 /\.vcf.gz.csi$/i.test( name )   ? 'vcf.gz.csi'  :
                 /\.bam.csi$/i.test( name )      ? 'bam.csi'  :
