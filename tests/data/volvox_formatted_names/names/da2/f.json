@@ -1,1 +1,1 @@
-{"fakesnp":{"exact":[["FakeSNP",10,"FakeSNP","ctgA",999,1000],["FakeSNP",12,"FakeSNP","ctgA",999,1000]],"prefix":[]}}
+{"fakesnp":{"prefix":["FakeSNP1"],"exact":[["FakeSNP",10,"FakeSNP","ctgA",999,1000],["FakeSNP",12,"FakeSNP","ctgA",999,1000]]}}
