@@ -26,7 +26,7 @@
  * Added indexing of both Name and ID from GFF3Tabix files from generate-names.pl. Thanks to
    @billzt for the implementation! (issue #1069)
 
- * Made the color of the thyamine (T) residue more orangey than yellow to help visibility.
+ * Made the color of the guanine (G) residue more orangey than yellow to help visibility.
    Thanks to Keiran Raine for the implementation! (issue #1079)
 
 ## Bug fixes
