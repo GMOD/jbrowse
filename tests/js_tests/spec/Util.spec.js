@@ -72,7 +72,14 @@ describe( 'Util.parseLocString', function() {
                  [ ['ctgA:3000-4000 (42 kb)'], { ref: 'ctgA', start: 2999, end: 4000, extra: '42 kb' } ],
                  [ ['ctgA:3000-4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
                  [ ['ctgA:3000...4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
-                 [ ['ctgA:3000--4000'], { ref: 'ctgA', start: 2999, end: 4000 } ]
+                 [ ['ctgA:3000--4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['ctgA:3,000..4,000.0'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['HLA-A*01:01:01:01:3000-4000'], { ref: 'HLA-A*01:01:01:01', start: 2999, end: 4000 } ],
+                 [ ['HLA-A*01:01:01:01:3000'], { ref: 'HLA-A*01:01:01:01', start: 2999, end: 3000 } ],
+//                 [ ['HLA-A*01:01:01:01:'], { ref: 'HLA-A*01:01:01:01', start: 0, end: 1 } ],
+                 [ ['ctgA:3000-4000:50-100'], { ref: 'ctgA:3000-4000', start: 49, end: 100 } ],
+                 [ ['ctgA:3000-4000:50'], { ref: 'ctgA:3000-4000', start: 49, end: 50 } ],
+//                 [ ['ctgA:3000-4000:'], { ref: 'ctgA:3000-4000', start: 49, end: 50 } ]
              ]);
 
 });
