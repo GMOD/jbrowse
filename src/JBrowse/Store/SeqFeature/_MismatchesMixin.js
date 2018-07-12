@@ -114,6 +114,14 @@ return declare( null, {
                 })
             } else if (code === 'S') {
                 // soft clip
+                const len = data.length
+                mismatches.push({
+                    start: refPos,
+                    type: 'softclip',
+                    base: 'S'+len,
+                    cliplen: len,
+                    length: 1,
+                })
             } else if (code === 'P') {
                 // padding
             } else if (code === 'H') {

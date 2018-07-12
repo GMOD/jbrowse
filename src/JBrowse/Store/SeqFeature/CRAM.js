@@ -87,6 +87,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             cramArgs.index = new CraiIndex({ filehandle: new BlobWrapper(args.crai)})
         else if (args.craiUrlTemplate)
             cramArgs.index = new CraiIndex({filehandle: new BlobWrapper(new XHRBlob(this.resolveUrl(args.craiUrlTemplate)))})
+        else if (args.urlTemplate)
+            cramArgs.index = new CraiIndex({filehandle: new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.crai')))})
         else throw new Error('no index provided, must provide a CRAM index')
         // TODO: need to add .csi index support
 
@@ -199,7 +201,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             return
         }
 
-        this.cram.getFeaturesForRange(refSeqNumber, query.start+1, query.end)
+        this.cram.getRecordsForRange(refSeqNumber, query.start+1, query.end)
             .then(records => {
                 records.forEach( record => {
                     featCallback( this._cramRecordToFeature(record))
@@ -223,6 +225,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             strand: record.isReverseComplemented() ? -1 : 1,
             qual: (record.qualityScores || []).map(q => q+33).join(' '),
             seq: record.readBases,
+            seq_id: this._refIdToName(record.sequenceId),
 
             qc_failed: record.isFailedQc(),
             secondary_alignment: record.isSecondary(),
@@ -231,9 +234,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             multi_segment_all_correctly_aligned: record.isProperlyPaired(),
             multi_segment_next_segment_unmapped: record.isMateUnmapped(),
             unmapped: record.isSegmentUnmapped(),
-            next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceID) : undefined,
+            next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceId) : undefined,
             next_segment_position: record.mate
-                ? ( this._refIdToName(record.mate.sequenceID)+':'+record.mate.alignmentStart) : undefined,
+                ? ( this._refIdToName(record.mate.sequenceId)+':'+record.mate.alignmentStart) : undefined,
         }
         Object.assign(data,record.tags || {})
         return new SimpleFeature({
