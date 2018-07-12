@@ -19,7 +19,7 @@ due to difference between HTMLFeatures and DragableHTMLFeatures feature DOMs.
 For JBrowse 1.11.6+, copy the NeatHTMLFeatures directory to the 'plugins' directory.
 Add this to appropriate trackList.json under the plugins section (create one if it doesn't exist):
 
-    "plugins": [ 
+    "plugins": [
         'NeatHTMLFeatures'
     ],
 
@@ -31,10 +31,10 @@ Add this to `web-apps/jbrowse/plugins/WebApollo/json/annot.json`:
          "location" : "./plugins/WebApollo",
          "name" : "WebApollo"
       },
-	  {
-		 "location" : "./plugins/NeatHTMLFeatures",
-		 "name" : "NeatHTMLFeatures"
-	  }
+      {
+         "location" : "./plugins/NeatHTMLFeatures",
+         "name" : "NeatHTMLFeatures"
+      }
     ],
 
 
