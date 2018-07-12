@@ -201,11 +201,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             return
         }
 
-        this.cram.getRecordsForRange(refSeqNumber, query.start+1, query.end)
+        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end)
             .then(records => {
-                records.forEach( record => {
-                    featCallback( this._cramRecordToFeature(record))
-                })
+                for (let i = 0; i < records.length; i+= 1) {
+                    featCallback(this._cramRecordToFeature(records[i]))
+                }
 
                 endCallback()
             })
@@ -233,6 +233,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             multi_segment_template: record.isPaired(),
             multi_segment_all_correctly_aligned: record.isProperlyPaired(),
             multi_segment_next_segment_unmapped: record.isMateUnmapped(),
+            multi_segment_first: record.isRead1(),
+            multi_segment_last: record.isRead2(),
+            multi_segment_next_segment_reversed: record.isMateReverseComplemented(),
             unmapped: record.isSegmentUnmapped(),
             next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceId) : undefined,
             next_segment_position: record.mate

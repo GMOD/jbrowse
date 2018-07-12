@@ -126,6 +126,14 @@ return declare( null, {
                 // padding
             } else if (code === 'H') {
                 // hard clip
+                const len = data.length
+                mismatches.push({
+                    start: refPos,
+                    type: 'hardclip',
+                    base: 'H'+len,
+                    cliplen: len,
+                    length: 1,
+                })
             } else if (code === 'D') {
                 // deletion
                 mismatches.push({
