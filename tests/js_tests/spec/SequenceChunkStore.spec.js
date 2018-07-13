@@ -9,8 +9,11 @@ describe( 'sequence chunk store', function() {
                   s = new ChunkStore({
                                          browser: new Browser({ unitTestMode: true }),
                                          refSeq: { name: 'ctgA', start: 1, end: 500001 },
-                                         urlTemplate: "../../../sample_data/json/volvox/seq/{refseq_dirpath}/{refseq}-",
-                                         seqChunkSize: 20000
+                                         config: {
+                                             baseUrl: '.',
+                                             urlTemplate: "../../sample_data/json/volvox/seq/{refseq_dirpath}/{refseq}-",
+                                             seqChunkSize: 20000
+                                         }
                                    });
               });
 

@@ -394,6 +394,33 @@ describe( 'GFF3 tabix store', function() {
                 expect( eden.children()[0].children().length ).toEqual( 6 );
             });
    });
+   it('reads a CSI index', function() {
+         var store = new GFF3TabixStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../data/fake_large_chromosome/test.gff3.gz',
+                 csiUrlTemplate: '../data/fake_large_chromosome/test.gff3.gz.csi',
+                 baseUrl: '.'
+             },
+             refSeq: { name: '1', start:0, end: 1248055161 }
+         });
+
+         const [rangeStart,rangeEnd] = [1000001055,1000002500]
+
+         var features = [];
+         waitsFor( function() { return features.done; } );
+         store.getFeatures({ ref: '1',
+                             start: rangeStart,
+                             end: rangeEnd
+                           },
+                           function(f) { features.push( f ); },
+                           function( ) { features.done = true; },
+                           function(e) { console.error(e.stack||''+e); }
+                          );
+         runs(function() {
+                  expect(features.length).toEqual( 12 );
+         });
+   });
 });
 
 });

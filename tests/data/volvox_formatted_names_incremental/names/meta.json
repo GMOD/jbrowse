@@ -1,1 +1,1 @@
-{"track_names":["ExampleFeatures","NameTest","Alignments","CDS","Clones","EST","Genes","Motifs","ReadingFrame","Transcript","snps","volvox-sorted-vcf","volvox_gff3_tabix","volvox_vcf_test"],"lowercase_keys":1,"format":"json","hash_bits":16,"compress":0}
+{"format":"json","lowercase_keys":1,"hash_bits":16,"track_names":["ExampleFeatures","NameTest","Alignments","CDS","Clones","EST","Genes","Motifs","ReadingFrame","Transcript","snps","volvox-sorted-vcf","volvox_gff3_tabix","volvox_vcf_test"],"compress":0}

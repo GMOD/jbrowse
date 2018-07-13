@@ -19,12 +19,11 @@ RELEASE_DESKTOP_LINUX = $(RELEASE_NAME)-desktop-linux
 ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
 SHASUM=shasum
-ELECTRON_VERSION=1.8.4
 
 
 all: clean release
 
-release: release-dev release-min release-notes.html
+release: release-dev release-min release-electron-all release-notes.html
 	ls -lh *.zip
 	$(SHASUM) *.zip
 
@@ -35,17 +34,17 @@ release-electron-setup:
 
 release-electron-darwin: clean release-min release-electron-setup
 	echo "Building mac electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --electron-version=$(ELECTRON_VERSION) --icon=browser/icons/jbrowse
+	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
 release-electron-win32: clean release-min release-electron-setup
 	echo "Building win32 electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --electron-version=$(ELECTRON_VERSION) --icon=browser/icons/jbrowse
+	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
 release-electron-linux: clean release-min release-electron-setup
 	echo "Building linux electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --electron-version=$(ELECTRON_VERSION) --icon=browser/icons/jbrowse
+	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
 
 release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux

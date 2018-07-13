@@ -31,13 +31,23 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     constructor: function( args ) {
         var thisB = this;
+        var csiBlob, tbiBlob;
 
-        var tbiBlob = args.tbi ||
-            new XHRBlob(
-                this.resolveUrl(
-                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
-                )
-            );
+        if(args.csi || this.config.csiUrlTemplate) {
+            csiBlob = args.csi ||
+                new XHRBlob(
+                    this.resolveUrl(
+                        this.getConf('csiUrlTemplate',[])
+                    )
+                );
+        } else {
+            tbiBlob = args.tbi ||
+                new XHRBlob(
+                    this.resolveUrl(
+                        this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+                    )
+                );
+        }
 
         var fileBlob = args.file ||
             new XHRBlob(
@@ -47,6 +57,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         this.indexedData = new TabixIndexedFile(
             {
                 tbi: tbiBlob,
+                csi: csiBlob,
                 file: fileBlob,
                 browser: this.browser,
                 chunkSizeLimit: args.chunkSizeLimit || 1000000
@@ -182,7 +193,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     saveStore: function() {
         return {
             urlTemplate: this.config.file.url,
-            tbiUrlTemplate: this.config.tbi.url
+            tbiUrlTemplate: ((this.config.tbi)||{}).url,
+            csiUrlTemplate: ((this.config.csi)||{}).url
         };
     }
 

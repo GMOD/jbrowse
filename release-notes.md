@@ -2,11 +2,20 @@
 
 ## Minor improvements
 
- * Added support for the CSI index format for VCF and BAM files! This format enables genomes
-   with individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
-   use the `csiUrlTemplate` config to point to the file. Thanks to Keiran Raine for initial
-   report and Nathan S Watson-Haigh for catching a bug in the initial implementation!
-   (issue #926, pull #1086, @cmdcolin)
+ * Re-enabled JBrowse Desktop builds for releases! The Windows, Mac, and Linux binaries for
+   JBrowse Desktop are uploaded automatically to GitHub releases page. JBrowse Desktop is a
+   standalone app that can be used without a web server, similar to IGV or IGB (@cmdcolin)
+
+ * Added support for the CSI index format for tabix VCF/BED/GFF and BAM files! This allows
+   individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
+   use the `csiUrlTemplate` config to point to the file. The "Open track" dialog also allows
+   CSI to be used. Thanks to Keiran Raine for initial report and Nathan S Watson-Haigh for
+   catching a bug in the initial implementation! (issue #926, pull #1086, @cmdcolin)
+
+ * Added a new search dialog box via the View->Search features menubar. It will search the
+   currently configured store for features. You can also configure the dialog class in the
+   configuration with `names.dialog` entry, or disable search dialog with `disableSearch`.
+   Thanks to #GCCBOSC hackathon for idea and feedback (pull #1101, @cmdcolin).
 
  * Added a `dontRedispatch` option for GFF3Tabix stores. Example: set `dontRedispatch=region`
    if there are `region` biotype features in the GFF that do not have subfeatures which will
@@ -19,10 +28,18 @@
  * Added cache-busting for track config files which actively prevents stale configuration files
    from being loaded (pull #1080, @cmdcolin)
 
+ * Added indexing of both Name and ID from GFF3Tabix files from generate-names.pl. Thanks to
+   @billzt for the implementation! (issue #1069)
+
+ * Made the color of the guanine (G) residue more orangey than yellow to help visibility.
+   Thanks to Keiran Raine for the implementation! (issue #1079)
+
 ## Bug fixes
 
  * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
-   @scottcain for reporting (issue #1058, @cmdcolin).
+   @scottcain for reporting (issue #1058, @cmdcolin)
+
+ * Fix the error checking in setup.sh if no node is installed at all (pull #1083, @cmdcolin)
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 

@@ -920,6 +920,23 @@ initView: function() {
                 }
             }));
 
+            if (!this.config.disableSearch) {
+                this.addGlobalMenuItem( 'view', new dijitMenuItem({
+                    label: 'Search features',
+                    id: 'menubar_search',
+                    title: 'Search for features',
+                    onClick: () => {
+                        var conf = dojo.mixin( dojo.clone( this.config.names || {} ),
+                                               this.config.autocomplete || {} );
+
+                        var type = conf.dialog || 'JBrowse/View/Dialog/Search';
+                        dojo.global.require ([type], CLASS => {
+                            new CLASS(dojo.mixin({ browser: this }, conf)).show();
+                        });
+                    }
+                }));
+            }
+
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 
             // make the options menu
