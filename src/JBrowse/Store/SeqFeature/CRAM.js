@@ -291,7 +291,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             end: record.alignmentStart+record.lengthOnRef-1,
             cram_read_features: record.readFeatures,
             type: 'match',
-            MQ: record.mappingQuality,
+            mapping_quality: record.mappingQuality,
             flags: `0x${record.flags.toString(16)}`,
             cramFlags: `0x${record.cramFlags.toString(16)}`,
             strand: record.isReverseComplemented() ? -1 : 1,
@@ -312,8 +312,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceId) : undefined,
             next_segment_position: record.mate
                 ? ( this._refIdToName(record.mate.sequenceId)+':'+record.mate.alignmentStart) : undefined,
+            tags: record.tags,
         }
-        Object.assign(data,record.tags || {})
         return new SimpleFeature({
             data,
             id: record.uniqueId
