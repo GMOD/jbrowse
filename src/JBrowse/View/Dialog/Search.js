@@ -98,6 +98,10 @@ function (
 
             this.errResults = dojo.create('div', { id: 'errResults', style: {margin: '10px', color: 'red'} }, container);
             dialog.set('content', [ container, this.actionBar ]);
+
+            var g = this.locationListView.grid;
+            (g.store || g.collection).setData([]);
+            g.refresh();
             dialog.show();
 
             aspect.after(dialog, 'hide', dojo.hitch(this, function () {
@@ -145,14 +149,14 @@ function (
                     }
                     var g = this.locationListView.grid;
                     (g.store || g.collection).setData(grid);
-                    this.locationListView.grid.refresh();
+                    g.refresh();
                     this.errResults.innerHTML = '';
                 });
             }, (err) => {
                 console.error(err);
                 var g = this.locationListView.grid;
                 (g.store || g.collection).setData([]);
-                this.locationListView.grid.refresh();
+                g.refresh();
                 this.errResults.innerHTML = 'Error: ' + err;
             });
         }
