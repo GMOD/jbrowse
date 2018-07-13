@@ -61,14 +61,25 @@ describe( 'Util.parseLocString', function() {
                  [ ['ctgA^:3,000..4,000.0 (42 kb)'], { ref: 'ctgA^', start: 2999, end: 4000, extra: '42 kb'} ],
                  [ ['ziggy234.1:3,000..4,000.0 (42 kb)'], { ref: 'ziggy234.1', start: 2999, end: 4000, extra: '42 kb' } ],
                  [ ['3,000..4,000.0 (42 kb)'], { start: 2999, end: 4000, extra: '42 kb' } ],
-                 [ ['3,000'], { start: 2999, end: 2999 } ],
-                 [ ['  3000 (42kb) '], { start: 2999, end: 2999, extra: '42kb' } ],
-                 [ ['  3000 (42) '], { start: 2999, end: 2999, extra: '42' } ],
-                 [ ['  3000 ( 42 ) '], { start: 2999, end: 2999, extra: ' 42 ' } ],
-                 [ ['3000 ( 42 ) '], { start: 2999, end: 2999, extra: ' 42 ' } ],
-                 [ [' higgleplonk: 3000 ( 42 ) '], { ref: 'higgleplonk', start: 2999, end: 2999, extra: ' 42 ' } ],
-                 [ ['234324x#21: 3000 ( 42 ) '], { ref: '234324x#21', start: 2999, end: 2999, extra: ' 42 ' } ],
-                 [ ['ctgA:3000'], { ref: 'ctgA', start: 2999, end: 2999 } ]
+                 [ ['3,000'], { start: 2999, end: 3000 } ],
+                 [ ['  3000 (42kb) '], { start: 2999, end: 3000, extra: '42kb' } ],
+                 [ ['  3000 (42) '], { start: 2999, end: 3000, extra: '42' } ],
+                 [ ['  3000 ( 42 ) '], { start: 2999, end: 3000, extra: ' 42 ' } ],
+                 [ ['3000 ( 42 ) '], { start: 2999, end: 3000, extra: ' 42 ' } ],
+                 [ [' higgleplonk: 3000 ( 42 ) '], { ref: 'higgleplonk', start: 2999, end: 3000, extra: ' 42 ' } ],
+                 [ ['234324x#21: 3000 ( 42 ) '], { ref: '234324x#21', start: 2999, end: 3000, extra: ' 42 ' } ],
+                 [ ['ctgA:3000'], { ref: 'ctgA', start: 2999, end: 3000 } ],
+                 [ ['ctgA:3000-4000 (42 kb)'], { ref: 'ctgA', start: 2999, end: 4000, extra: '42 kb' } ],
+                 [ ['ctgA:3000-4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['ctgA:3000...4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['ctgA:3000--4000'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['ctgA:3,000..4,000.0'], { ref: 'ctgA', start: 2999, end: 4000 } ],
+                 [ ['HLA-A*01:01:01:01:3000-4000'], { ref: 'HLA-A*01:01:01:01', start: 2999, end: 4000 } ],
+                 [ ['HLA-A*01:01:01:01:3000'], { ref: 'HLA-A*01:01:01:01', start: 2999, end: 3000 } ],
+//                 [ ['HLA-A*01:01:01:01:'], { ref: 'HLA-A*01:01:01:01', start: 0, end: 1 } ],
+                 [ ['ctgA:3000-4000:50-100'], { ref: 'ctgA:3000-4000', start: 49, end: 100 } ],
+                 [ ['ctgA:3000-4000:50'], { ref: 'ctgA:3000-4000', start: 49, end: 50 } ],
+//                 [ ['ctgA:3000-4000:'], { ref: 'ctgA:3000-4000', start: 49, end: 50 } ]
              ]);
 
 });
