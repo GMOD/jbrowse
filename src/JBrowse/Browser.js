@@ -927,14 +927,14 @@ initView: function() {
                 label: 'Search',
                 id: 'menubar_search',
                 title: 'Search for features',
-                onClick: function() {
-                    new SearchDialog({
-                        browser: thisObj,
-                        prompt: 'Search for features',
-                        setCallback: function( res ) {
-                            console.log(res);
-                        }
-                    }).show();
+                onClick: () => {
+                    var conf = dojo.mixin( dojo.clone( this.config.names || {} ),
+                                           this.config.autocomplete || {} );
+
+                    var type = conf.dialog || 'JBrowse/View/Dialog/Search';
+                    dojo.global.require ([type], CLASS => {
+                        new CLASS(dojo.mixin({ browser: this }, conf)).show();
+                    });
                 }
             }));
 
