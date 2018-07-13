@@ -32,9 +32,9 @@ function (
         constructor: function (args) {
             this.browser = args.browser;
             this.config = dojo.clone(args.config || {});
-            this.locationChoices = [{label: 'Search results...', description: ' ', start: 0, end: 100, ref: 'ctgA'}];
+            this.locationChoices = [{label: 'Search results...', description: ' ', start: 0, end: 100, ref: 'chr'}];
             this.title = args.title || 'Choose location';
-            this.prompt = args.prompt;
+            this.prompt = args.prompt || 'Search for features';
             this.goCallback = args.goCallback;
             this.showCallback = args.showCallback;
         },
