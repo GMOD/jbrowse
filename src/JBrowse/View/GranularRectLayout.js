@@ -161,7 +161,7 @@ return declare( null,
             var row = bitmap[y];
             if( row )
                 for( var x = pLeft; x <= pRight; ++x ) {
-                    delete row[x];
+                    row[x] = undefined
                 }
         }
     },
