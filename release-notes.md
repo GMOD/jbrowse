@@ -11,7 +11,7 @@
  * Added a new search dialog box via the View->Search features menubar. It will search the
    currently configured store for features. You can also configure the dialog class in the
    configuration with `names.dialog` entry, or disable search dialog with `disableSearch`.
-   Thanks to #GCCBOSC hackathon for idea and feedback (pull #1101, @cmdcolin).
+   Thanks to the #GCCBOSC hackathon for the idea and feedback (pull #1101, @cmdcolin).
 
 ## Minor improvements
 
