@@ -103,11 +103,15 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         // pre-download the index before running the statistics estimation so that the stats
         // estimation doesn't time out
         this.cram.hasDataForReferenceSequence(0)
-            .then( () => {
+            .then(() => this.cram.cram.getSamHeader())
+            .then(samHeader => {
+                this._setSamHeader(samHeader)
+            })
+            .then(() => {
                 this._deferred.features.resolve({success:true});
             })
-            .then( () => this._estimateGlobalStats())
-            .then( stats => {
+            .then(() => this._estimateGlobalStats())
+            .then(stats => {
                 this.globalStats = stats;
                 this._deferred.stats.resolve({success:true});
             })
@@ -117,6 +121,51 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
+    },
+
+    // process the parsed SAM header from the cram file
+    _setSamHeader(samHeader) {
+        this._samHeader = {}
+
+        // use the @SQ lines in the header to figure out the
+        // mapping between ref seq ID numbers and names
+        const refSeqIdToName = []
+        const refSeqNameToId = {}
+        const sqLines = samHeader.filter(l => l.tag === 'SQ')
+        sqLines.forEach((sqLine, seqId) => {
+            sqLine.data.forEach(item => {
+                if (item.tag === 'SN') {
+                    // this is the seq name
+                    const seqName = item.value
+                    refSeqNameToId[seqName] = seqId
+                    refSeqIdToName[seqId] = seqName
+                }
+            })
+        })
+        if (refSeqIdToName.length) {
+            this._samHeader.refSeqIdToName = refSeqIdToName
+            this._samHeader.refSeqNameToId = refSeqNameToId
+        }
+    },
+
+    _refNameToId(refName) {
+        // use info from the SAM header if possible, but fall back to using
+        // the ref seq order from when the browser's refseqs were loaded
+        if (this._samHeader.refSeqNameToId)
+            return this._samHeader.refSeqNameToId[refName]
+        else
+            return this.browser.getRefSeqNumber(refName)
+    },
+
+    _refIdToName(refId) {
+        // use info from the SAM header if possible, but fall back to using
+        // the ref seq order from when the browser's refseqs were loaded
+        if (this._samHeader.refSeqIdToName) {
+            return this._samHeader.refSeqIdToName[refId]
+        } else {
+            let ref = this.browser.getRefSeqById(refId)
+            return ref ? ref.name : undefined
+        }
     },
 
     _getRefSeqStore() {
@@ -162,15 +211,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         if (sequence.length !== (end-start))
             throw new Error('sequence fetch sanity check failed')
         return sequence
-    },
-
-    _refNameToId(refName) {
-        return this.browser.getRefSeqNumber(refName)
-    },
-
-    _refIdToName(refId) {
-        let ref = this.browser.getRefSeqById(refId)
-        return ref ? ref.name : undefined
     },
 
     /**
