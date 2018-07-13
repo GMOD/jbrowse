@@ -114,6 +114,10 @@ return declare( FeatureDescriptionMixin, {
         var thisB = this;
         var subfeatures = f.get('subfeatures');
         if( subfeatures && subfeatures.length ) {
+            if( f.get('strand') == -1 ) {
+                // Feature is on the oposite strand, lets reverse the order of the subfeatures according to their start position
+                subfeatures.sort(function( a, b ) { return b.get('start')-a.get('start') });
+            }
             if( !(track.config.subfeatureDetailLevel != null) || layer < track.config.subfeatureDetailLevel ) {
                 this._subfeaturesDetail( track, subfeatures, container, f, layer + 1 );
             }
