@@ -116,12 +116,12 @@ function (
             if (!this.exactCheckbox.checked) {
                 loc += "*";
             }
-            function handleError() {
+            function handleError(error) {
                 console.error(error);
                 var g = this.locationListView.grid;
                 (g.store || g.collection).setData([]);
                 g.refresh();
-                this.errResults.innerHTML = 'Error: ' + err;
+                this.errResults.innerHTML = 'Error: failed to load results';
                 this.numResults.innerHTML = '';
             }
             this.browser.nameStore.query({ name: loc }).then((nameMatches) => {
