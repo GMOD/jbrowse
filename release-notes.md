@@ -1,10 +1,6 @@
 {{$NEXT}}
 
-## Minor improvements
-
- * Re-enabled JBrowse Desktop builds for releases! The Windows, Mac, and Linux binaries for
-   JBrowse Desktop are uploaded automatically to GitHub releases page. JBrowse Desktop is a
-   standalone app that can be used without a web server, similar to IGV or IGB (@cmdcolin)
+## Major improvements
 
  * Added support for the CSI index format for tabix VCF/BED/GFF and BAM files! This allows
    individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
@@ -16,6 +12,12 @@
    currently configured store for features. You can also configure the dialog class in the
    configuration with `names.dialog` entry, or disable search dialog with `disableSearch`.
    Thanks to #GCCBOSC hackathon for idea and feedback (pull #1101, @cmdcolin).
+
+## Minor improvements
+
+ * Re-enabled JBrowse Desktop builds for releases! The Windows, Mac, and Linux binaries for
+   JBrowse Desktop are uploaded automatically to GitHub releases page. JBrowse Desktop is a
+   standalone app that can be used without a web server, similar to IGV or IGB (@cmdcolin)
 
  * Added a `dontRedispatch` option for GFF3Tabix stores. Example: set `dontRedispatch=region`
    if there are `region` biotype features in the GFF that do not have subfeatures which will
