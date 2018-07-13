@@ -95,7 +95,7 @@ deploy:
   email: rbuels@gmail.com
   skip_cleanup: true
   api_key:
-    secure: mgvlVdeMAR35C69+NERuYK4YGwbBAQsnSXS7IJhn3CRNgbtWh2zqaVV8NbHWitD9RJmocTbkIe94MfD8HfI3zBAgIVewckQ0QWMyjAJuWJR2Zw91R309aIQpbsix4kNCP9RDDrtfzovptBJ6JS8UwEk5CsQ7Wfohctek59+UnyU=
+    secure: "OpxHZGvyCFeG2CUpw4dHTz3kFBHJXeET2c4XxwKMxtL2FVt4W/zDLUV0gLQDFfsLlj+zjF62qtbHU8MajMw3aFLlTIdMIit+2s6H4D8kuBh5Q7pO5/gAykWtiwkJ3BudoYDGoDlB5kkakG4MPvvY26490hbmySCSgpsjetM91zE="
   on:
     repo: GMOD/jbrowse
     perl: 5.26
