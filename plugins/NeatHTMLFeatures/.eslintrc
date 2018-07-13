@@ -1,0 +1,28 @@
+{
+  "extends": "eslint-config-airbnb-es5",
+  "rules": {
+    "no-var": 0,
+    "no-console": 0,
+    "no-redeclare": 0,
+    "space-in-parens": ["error", "never"],
+    "object-shorthand": 0,
+    "indent": ["error", 4],
+    "max-len": ["error", 200, 4],
+    "vars-on-top": 0,
+    "no-unused-vars": [2, {"varsIgnorePattern": "profile"}],
+    "prefer-arrow-callback": 0,
+    "func-names": 0
+  },
+  "globals": {
+    "$": true,
+    "window": true,
+    "console": true,
+    "dojo": true,
+    "dijit": true,
+    "define": true,
+    "require": true
+  },
+  "env": {
+    "browser": true
+  }
+}
