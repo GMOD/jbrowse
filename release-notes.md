@@ -12,6 +12,11 @@
    CSI to be used. Thanks to Keiran Raine for initial report and Nathan S Watson-Haigh for
    catching a bug in the initial implementation! (issue #926, pull #1086, @cmdcolin)
 
+ * Added a new search dialog box via the View->Search features menubar. It will search the
+   currently configured store for features. You can also configure the dialog class in the
+   configuration with `names.dialog` entry, or disable search dialog with `disableSearch`.
+   Thanks to #GCCBOSC hackathon for idea and feedback (pull #1101, @cmdcolin).
+
  * Added a `dontRedispatch` option for GFF3Tabix stores. Example: set `dontRedispatch=region`
    if there are `region` biotype features in the GFF that do not have subfeatures which will
    speed up loading times significantly (issue #1076, pull #1084, @cmdcolin)
