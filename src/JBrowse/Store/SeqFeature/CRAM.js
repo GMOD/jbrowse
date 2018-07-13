@@ -1,7 +1,10 @@
+const LRU = cjsRequire('lru-cache')
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram/src')
 const { CramSizeLimitError } = cjsRequire('@gmod/cram/src/errors')
 
 const { Buffer } = cjsRequire('buffer')
+
+const cramIndexedFilesCache = LRU(5)
 
 define( [
             'dojo/_base/declare',
@@ -61,6 +64,11 @@ class BlobWrapper {
             this.blob.stat(resolve, reject)
         })
     }
+
+    toString() {
+        return ( this.blob.url  ? this.blob.url :
+                 this.blob.blob ? this.blob.blob.name : undefined ) || undefined;
+    }
 }
 
 
@@ -77,32 +85,39 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
      * @constructs
      */
     constructor: function( args ) {
-        const cramArgs = {}
 
         let dataBlob
         if (args.cram)
-            dataBlob = args.cram
+            dataBlob = new BlobWrapper(args.cram)
         else if (args.urlTemplate)
-            dataBlob = new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram'))
+            dataBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram')))
         else throw new Error('must provide either `cram` or `urlTemplate`')
-        cramArgs.cramFilehandle = new BlobWrapper(dataBlob)
 
+        let indexBlob
         if (args.crai)
-            cramArgs.index = new CraiIndex({ filehandle: new BlobWrapper(args.crai)})
+            indexBlob = new BlobWrapper(args.crai)
         else if (args.craiUrlTemplate)
-            cramArgs.index = new CraiIndex({filehandle: new BlobWrapper(new XHRBlob(this.resolveUrl(args.craiUrlTemplate)))})
+            indexBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.craiUrlTemplate)))
         else if (args.urlTemplate)
-            cramArgs.index = new CraiIndex({filehandle: new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.crai')))})
+            indexBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.crai')))
         else throw new Error('no index provided, must provide a CRAM index')
-        // TODO: need to add .csi index support
 
-        cramArgs.seqFetch = this._seqFetch.bind(this)
-        cramArgs.checkSequenceMD5 = false
+        this.source = dataBlob.toString().match( /\/([^/\#\?]+)($|[\#\?])/ )[1]
 
-        this.cram = new IndexedCramFile(cramArgs)
+        // LRU-cache the CRAM object so we don't have to re-download the
+        // index when we switch chromosomes
+        const cacheKey = `data: ${dataBlob}, index: ${indexBlob}`
+        this.cram = cramIndexedFilesCache.get(cacheKey)
+        if (!this.cram) {
+            this.cram = new IndexedCramFile({
+                cramFilehandle: dataBlob,
+                index: new CraiIndex({filehandle: indexBlob}),
+                seqFetch: this._seqFetch.bind(this),
+                checkSequenceMD5: false,
+            })
 
-        this.source = ( dataBlob.url  ? dataBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
-                        dataBlob.blob ? dataBlob.blob.name : undefined ) || undefined;
+            cramIndexedFilesCache.set(cacheKey, this.cram)
+        }
 
         // pre-download the index before running the statistics estimation so that the stats
         // estimation doesn't time out
@@ -256,7 +271,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             .catch(err => {
                 // map the CramSizeLimitError to JBrowse Errors.DataOverflow
                 if (err instanceof CramSizeLimitError) {
-                    err = new Errors.DataOverflow(err.msg)
+                    err = new Errors.DataOverflow(err)
                 }
 
                 errorCallback(err)
