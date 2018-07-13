@@ -228,7 +228,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
         const sequence = trimmed.join('')
         if (sequence.length !== (end-start))
-            throw new Error('sequence fetch sanity check failed')
+            throw new Error(`sequence fetch failed: fetching ${
+                (start-1).toLocaleString()}-${end.toLocaleString()
+                } only returned ${
+                    sequence.length.toLocaleString()
+                } bases, but should have returned ${
+                    (end-start).toLocaleString()
+                }`)
         return sequence
     },
 
