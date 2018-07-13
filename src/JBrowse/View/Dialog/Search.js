@@ -124,21 +124,23 @@ function (
                             elt = elt[0];
                             if(elt.multipleLocations) {
                                 for(var j = 0; j < elt.multipleLocations.length; j++) {
+                                    var track = elt.multipleLocations[j].tracks.length ? elt.multipleLocations[j].tracks[0] : {};
                                     grid.push({
                                         locstring: Util.assembleLocString(elt.multipleLocations[j]),
                                         location: elt.multipleLocations[j],
                                         label: elt.name,
-                                        description: this.browser.trackConfigsByName[elt.multipleLocations[j].tracks[0].label].key,
-                                        tracks: elt.multipleLocations[j].tracks[0]
+                                        description: track.key || track.label || 'Unknown track',
+                                        tracks: track
                                     });
                                 }
                             } else {
+                                var track = elt.location.tracks.length ? elt.location.tracks[0] : {};
                                 grid.push({
                                     locstring: Util.assembleLocString(elt.location),
                                     location: elt.location,
                                     label: elt.location.objectName,
-                                    description: this.browser.trackConfigsByName[elt.location.tracks[0].label].key,
-                                    tracks: elt.location.tracks[0]
+                                    description: track.key || track.label || 'Unknown track',
+                                    tracks: track
                                 });
                             }
                         }
