@@ -1,8 +1,11 @@
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram/src')
+const { CramSizeLimitError } = cjsRequire('@gmod/cram/src/errors')
+
 const { Buffer } = cjsRequire('buffer')
 
 define( [
             'dojo/_base/declare',
+            'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
@@ -12,6 +15,7 @@ define( [
         ],
         function(
             declare,
+            Errors,
             SeqFeatureStore,
             DeferredStatsMixin,
             DeferredFeaturesMixin,
@@ -249,7 +253,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
                 endCallback()
             })
-            .catch(errorCallback)
+            .catch(err => {
+                // map the CramSizeLimitError to JBrowse Errors.DataOverflow
+                if (err instanceof CramSizeLimitError) {
+                    err = new Errors.DataOverflow(err.msg)
+                }
+
+                errorCallback(err)
+            })
     },
 
     _cramRecordToFeature(record) {
