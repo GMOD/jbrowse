@@ -316,7 +316,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         }
         return new SimpleFeature({
             data,
-            id: record.uniqueId
+            id: (record.uniqueId + 1).toString(),
         })
     },
 
