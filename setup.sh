@@ -47,14 +47,14 @@ check_node () {
     fi
     NODE_VERSION=`$node_executable -v`
     NODE_MAJOR_VERSION=`$node_executable -v | cut -dv -f2 | cut -d. -f1`
-    NODE_MINOR_VERSION=`$node_executable -v | cut -d. -f1`
+    NODE_MINOR_VERSION=`$node_executable -v | cut -d. -f2`
     NPM_VERSION=`$npm_executable -v`
     NPM_MAJOR_VERSION=`$npm_executable -v | cut -d. -f1`
-    if [[ $NODE_MAJOR_VERSION -lt 6 ]]; then
-        echo "node $NODE_VERSION found, but node version 6 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+    if [[ $NODE_MAJOR_VERSION -lt 8 || ( $NODE_MAJOR_VERSION -eq 8 && $NODE_MINOR_VERSION -lt 3 ) ]]; then
+        echo "node $NODE_VERSION found, but node version 8.3 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
-    if [[ $NPM_MAJOR_VERSION < 3 ]]; then
+    if [[ $NPM_MAJOR_VERSION -lt 3 ]]; then
         echo "npm $NPM_VERSION found, but npm version 3 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
