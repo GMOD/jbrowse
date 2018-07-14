@@ -167,6 +167,7 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/bookmarks.conf \
         docs/tutorial/data_files/volvox.subsubparts.gff3.conf \
         docs/tutorial/data_files/volvox-long-reads.fastq.sorted.bam.conf \
+        docs/tutorial/data_files/volvox-long-reads.fastq.sorted.cram.conf \
         docs/tutorial/data_files/volvox.bb.conf >> sample_data/json/volvox/tracks.conf \
         docs/tutorial/data_files/volvox-sorted.cram.conf >> sample_data/json/volvox/tracks.conf \
     >> sample_data/json/volvox/tracks.conf
