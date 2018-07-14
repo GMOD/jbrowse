@@ -49,6 +49,9 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
         # test bam
         self.bam()
 
+        # test cram
+        self.cram()
+
         # test vcf
         self.vcf()
 
@@ -117,6 +120,12 @@ class AbstractVolvoxBiodbTest( JBrowseTest ):
 
         self.turn_off_track('volvox-sorted.bam')
         self.turn_off_track('volvox-sorted SNPs/Coverage')
+
+    def cram( self ):
+        self.do_typed_query('ctgA:18918..19070')
+        self.turn_on_track('volvox-sorted.cram')
+        self.assert_elements("//div[@id='track_volvox_sorted_cram']//canvas")
+        self.turn_off_track('volvox-sorted.cram')
 
     def export( self ):
         self.do_typed_query('ctgA')
