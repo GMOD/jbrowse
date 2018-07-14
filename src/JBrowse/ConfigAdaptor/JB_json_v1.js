@@ -213,6 +213,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                         /\/FixedImage/.test(trackConfig.type) ? 'JBrowse/Store/TiledImage/Fixed' +( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
                         /\.jsonz?$/i.test( urlTemplate )      ? 'JBrowse/Store/SeqFeature/NCList'+( trackConfig.backendVersion == 0 ? '_v0' : '' )  :
                         /\.bam$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/BAM'                                                      :
+                        /\.cram$/i.test( urlTemplate )         ? 'JBrowse/Store/SeqFeature/CRAM'                                                    :
                         /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
                         /\/Sequence$/.test(trackConfig.type)  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
                                                                  null

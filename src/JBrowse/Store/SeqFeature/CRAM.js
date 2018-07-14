@@ -102,7 +102,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             indexBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.crai')))
         else throw new Error('no index provided, must provide a CRAM index')
 
-        this.source = dataBlob.toString().match( /\/([^/\#\?]+)($|[\#\?])/ )[1]
+        this.source = dataBlob.toString()
 
         // LRU-cache the CRAM object so we don't have to re-download the
         // index when we switch chromosomes

@@ -1465,6 +1465,7 @@ getTrackTypes: function() {
             // map of store type -> default track type to use for the store
             trackTypeDefaults: {
                 'JBrowse/Store/SeqFeature/BAM'         : 'JBrowse/View/Track/Alignments2',
+                'JBrowse/Store/SeqFeature/CRAM'         : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',

@@ -15,7 +15,7 @@ var FileBlob = declare( null,
      * Blob of binary data fetched from a local file (with FileReader).
      *
      * Adapted by Robert Buels from the BlobFetchable object in the
-     * Dalliance Genome Explorer, which was is copyright Thomas Down
+     * Dalliance Genome Explorer, which is copyright Thomas Down
      * 2006-2011.
      * @constructs
      */
@@ -84,6 +84,17 @@ var FileBlob = declare( null,
             callback( that._stringToBuffer( reader.result ) );
         };
         reader.readAsBinaryString( this.blob );
+    },
+
+    stat(callback,failCallback) {
+        let stat
+        try {
+            stat = { size: this.blob.size }
+        } catch(e) {
+            failCallback(e)
+            return
+        }
+        callback(stat)
     },
 
     _stringToBuffer: function(result) {

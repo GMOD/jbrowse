@@ -10,6 +10,7 @@ define( [
             'dijit/Dialog',
             'dojox/form/Uploader',
             './FileDialog/TrackList/BAMDriver',
+            './FileDialog/TrackList/CRAMDriver',
             './FileDialog/TrackList/BigWigDriver',
             './FileDialog/TrackList/GFF3Driver',
             './FileDialog/TrackList/GTFDriver',
@@ -35,6 +36,7 @@ define( [
             Dialog,
             Uploaded,
             BAMDriver,
+            CRAMDriver,
             BigWigDriver,
             GFF3Driver,
             GTFDriver,
@@ -60,6 +62,7 @@ return declare( null, {
 
         this._fileTypeDrivers = [
             new BAMDriver(),
+            new CRAMDriver(),
             new BigWigDriver(),
             new GFF3Driver(),
             new GTFDriver(),
