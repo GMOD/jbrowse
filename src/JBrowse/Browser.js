@@ -2405,24 +2405,20 @@ navigateTo: function(loc) {
                       if( found )
                           return;
 
+                      // First check if loc is the name of a ref seq before attempting to parse the locstring for basepair location info
+                      var ref = thisB.findReferenceSequence( loc );
+                      if( ref ) {
+                          thisB.navigateToLocation( { ref: ref.name } );
+                          return;
+                      }
+
+                      // Not a known ref seq name - now lets parse the loc string
                       // if it's a foo:123..456 location, go there
                       var location = typeof loc == 'string' ? Util.parseLocString( loc ) :  loc;
                       // only call navigateToLocation() directly if location has start and end, otherwise try and fill in start/end from 'location' cookie
                       if( location && ("start" in location) && ("end" in location)) {
                           thisB.navigateToLocation( location );
                           return;
-                      }
-                      // otherwise, if it's just a word (or a location with only a ref property), try to figure out what it is
-                      else {
-                          if( typeof loc != 'string')
-                              loc = loc.ref;
-
-                          // is it just the name of one of our ref seqs?
-                          var ref = thisB.findReferenceSequence( loc );
-                          if( ref ) {
-                              thisB.navigateToLocation( { ref: ref.name } );
-                              return;
-                          }
                       }
 
                       new InfoDialog(
