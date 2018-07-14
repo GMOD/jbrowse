@@ -106,7 +106,7 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-log_echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
+log_echo "NOTE: Legacy scripts wig-to-json.pl and bam-to-json.pl have been removed from setup. Their functionality has been superseded by add-bam-track.pl and add-bw-track.pl. If you require the old versions, please use JBrowse 1.12.3 or earlier."
 
 # if we are running in a development build, then run npm install and run the webpack build.
 if [ -f "src/JBrowse/Browser.js" ]; then
@@ -171,7 +171,7 @@ log_echo -n "Formatting Volvox example data ...";
     >> sample_data/json/volvox/tracks.conf
 
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
-    bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "HideTrackLabels" ] }' sample_data/json/volvox/trackList.json
+    bin/add-json.pl '{ "dataset_id": "volvox", "plugins": [ "HideTrackLabels", "NeatCanvasFeatures", "NeatHTMLFeatures" ] }' sample_data/json/volvox/trackList.json
     bin/flatfile-to-json.pl --bed docs/tutorial/data_files/volvox_segment.bed --out sample_data/json/volvox --trackLabel ChromHMM --trackType CanvasFeatures --clientConfig '{"color": "{chromHMM}", "strandArrow": false}' --config '{"displayMode": "collapsed", "enableCollapsedMouseover": true, "category": "Miscellaneous" }';
     bin/generate-names.pl --safeMode -v --out sample_data/json/volvox;
 

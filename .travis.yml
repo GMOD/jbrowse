@@ -58,6 +58,8 @@ script:
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
+- utils/jb_run.js -p 8000 -s jbrowse & sleep 2
+- node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
 - xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
@@ -93,7 +95,7 @@ deploy:
   email: rbuels@gmail.com
   skip_cleanup: true
   api_key:
-    secure: mgvlVdeMAR35C69+NERuYK4YGwbBAQsnSXS7IJhn3CRNgbtWh2zqaVV8NbHWitD9RJmocTbkIe94MfD8HfI3zBAgIVewckQ0QWMyjAJuWJR2Zw91R309aIQpbsix4kNCP9RDDrtfzovptBJ6JS8UwEk5CsQ7Wfohctek59+UnyU=
+    secure: "OpxHZGvyCFeG2CUpw4dHTz3kFBHJXeET2c4XxwKMxtL2FVt4W/zDLUV0gLQDFfsLlj+zjF62qtbHU8MajMw3aFLlTIdMIit+2s6H4D8kuBh5Q7pO5/gAykWtiwkJ3BudoYDGoDlB5kkakG4MPvvY26490hbmySCSgpsjetM91zE="
   on:
     repo: GMOD/jbrowse
     perl: 5.26

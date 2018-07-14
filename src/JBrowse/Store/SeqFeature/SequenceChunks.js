@@ -34,7 +34,7 @@ return declare( SeqFeatureStore,
  */
     constructor: function(args) {
         this.compress     = args.compress;
-        this.urlTemplate  = args.urlTemplate;
+        this.urlTemplate  = this.getConf('urlTemplate',[]);
         if( ! this.urlTemplate ) {
             throw "no urlTemplate provided, cannot open sequence store";
         }

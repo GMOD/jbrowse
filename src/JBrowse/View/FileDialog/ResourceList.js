@@ -106,7 +106,11 @@ return declare( null, {
                         { label: "GFF3+bgzip",  value: "gff3.gz"},
                         { label: "Tabix index", value: "vcf.gz.tbi" },
                         { label: "Tabix index", value: "gff3.gz.tbi" },
-                        { label: "Tabix index", value: "bed.gz.tbi" }
+                        { label: "Tabix index", value: "bed.gz.tbi" },
+                        { label: "CSI index", value: "bed.gz.csi" },
+                        { label: "CSI index", value: "vcf.gz.csi" },
+                        { label: "CSI index", value: "gff3.gz.csi" },
+                        { label: "CSI index", value: "bam.csi" }
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
@@ -166,12 +170,16 @@ return declare( null, {
                 /\.vcf$/i.test( name )          ? 'vcf'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
+                /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                 /\.bed$/i.test( name )          ? 'bed'    :
                 /\.(bb|bigbed)$/i.test( name )  ? 'bb'     :
-                /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                 /\.gff3?\.gz.tbi$/i.test( name )? 'gff3.gz.tbi' :
                 /\.vcf.gz.tbi$/i.test( name )   ? 'vcf.gz.tbi'  :
                 /\.bed.gz.tbi$/i.test( name )   ? 'bed.gz.tbi'  :
+                /\.bed.gz.csi/i.test( name )    ? 'bed.gz.csi'  :
+                /\.gff3?\.gz.csi$/i.test( name )? 'gff3.gz.csi'  :
+                /\.vcf.gz.csi$/i.test( name )   ? 'vcf.gz.csi'  :
+                /\.bam.csi$/i.test( name )      ? 'bam.csi'  :
                                                   null
         );
     }
