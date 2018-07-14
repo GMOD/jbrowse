@@ -120,10 +120,10 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/cram@../cram-js/":
-  version "0.0.1"
+"@gmod/cram@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.0.0.tgz#b14ae308a8817e28f458a394b933db5728e049ea"
   dependencies:
-    babel-runtime "^6.26.0"
     buffer-crc32 "^0.2.13"
     cross-fetch "^2.1.0"
     es6-promisify "^6.0.0"
