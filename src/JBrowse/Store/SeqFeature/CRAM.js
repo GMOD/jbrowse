@@ -1,6 +1,6 @@
 const LRU = cjsRequire('lru-cache')
-const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram/src')
-const { CramSizeLimitError } = cjsRequire('@gmod/cram/src/errors')
+const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
+const { CramSizeLimitError } = cjsRequire('@gmod/cram/errors')
 
 const { Buffer } = cjsRequire('buffer')
 
