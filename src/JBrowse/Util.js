@@ -249,16 +249,16 @@ Util = {
     },
 
     parseLocString: function( locstring ) {
-        var inloc = locstring;
         if( typeof locstring != 'string' )
             return null;
+        locstring = locstring.trim();
 
         var location = {};
 
         // Strip out any extra info in parentheses?
         var extraRegex = new RegExp([
           /^\s*/                 // optional whitespace at start of locstring
-          ,/(.+?)/               // capture remaining characters, non-greedily, as the locstring without the "extra" info 
+          ,/(.+?)/               // capture remaining characters, non-greedily, as the locstring without the "extra" info
           ,/(\((.+?)\))?/        // capture the contents of the perentheses, if they exist, as the "extra" info
           ,/\s*$/                // optional whitespace at end locstring
         ].map(function(r) {return r.source}).join(''));
