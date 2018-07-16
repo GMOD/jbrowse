@@ -258,9 +258,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         f.start -= 1 // convert to interbase
         f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined}[f.strand] // convert strand
         for (var a in data.attributes) {
-            f[a.toLowerCase()] = data.attributes[a].join(',')
+            f[a] = data.attributes[a]
         }
         f.uniqueID = `offset-${f._tabixfileoffset}`
+
         delete f._tabixfileoffset
         delete f.attributes
         // the SimpleFeature constructor takes care of recursively inflating subfeatures
