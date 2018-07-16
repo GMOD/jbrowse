@@ -258,7 +258,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         f.start -= 1 // convert to interbase
         f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined}[f.strand] // convert strand
         for (var a in data.attributes) {
-            f[a] = data.attributes[a]
+            f[a.toLowerCase()] = data.attributes[a]
         }
         f.uniqueID = `offset-${f._tabixfileoffset}`
 
