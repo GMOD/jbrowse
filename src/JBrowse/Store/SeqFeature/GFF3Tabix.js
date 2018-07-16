@@ -229,31 +229,23 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             histogram[bin] = 0
         }
 
-        this.getHeader().then(
-            () => {
-                this.indexedData.getLines(
-                    query.ref || this.refSeq.name,
-                    query.start,
-                    query.end,
-                    line => {
-                        let binValue = Math.round( (line.start - query.start )* binRatio)
-                        let binValueEnd = Math.round( (line.end - query.start )* binRatio)
+        this._getFeatures(query,
+            feature => {
+                let binValue = Math.round( (feature.get('start') - query.start )* binRatio)
+                let binValueEnd = Math.round( (feature.get('end')- query.start )* binRatio)
 
-                        for(let bin = binValue; bin < binValueEnd; bin++) {
-                            histogram[bin] += 1
-                            if (histogram[bin] > stats.max) {
-                                stats.max = histogram[bin]
-                            }
-                        }
-                    },
-                    () => {
-                        successCallback({ bins: histogram, stats: stats})
-                    },
-                    errorCallback
-                );
+                for(let bin = binValue; bin <= binValueEnd; bin++) {
+                    histogram[bin] += 1
+                    if (histogram[bin] > stats.max) {
+                        stats.max = histogram[bin]
+                    }
+                }
+            },
+            () => {
+                successCallback({ bins: histogram, stats: stats})
             },
             errorCallback
-        )
+        );
     },
 
 
