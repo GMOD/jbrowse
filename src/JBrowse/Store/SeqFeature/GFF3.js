@@ -241,7 +241,7 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
                 let binValue = Math.round( (feat.get('start') - query.start )* binRatio)
                 let binValueEnd = Math.round( (feat.get('end') - query.start )* binRatio)
 
-                for(let bin = binValue; bin < binValueEnd; bin++) {
+                for(let bin = binValue; bin <= binValueEnd; bin++) {
                     histogram[bin] += 1
                     if (histogram[bin] > stats.max) {
                         stats.max = histogram[bin]
