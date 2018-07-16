@@ -36,12 +36,24 @@
  * Made the color of the guanine (G) residue more orangey than yellow to help visibility.
    Thanks to Keiran Raine for the implementation! (issue #1079)
 
+ * Refactored NeatCanvasFeatures and NeatHTMLFeatures as track types. You can enable the track
+   style on specific tracks instead of globally this way by modifying the track type to be
+   `NeatCanvasFeatures/View/Track/NeatFeatures` or `NeatHTMLFeatures/View/Track/NeatFeatures`.
+   (pull #889, @cmdcolin).
+
+
 ## Bug fixes
 
  * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
    @scottcain for reporting (issue #1058, @cmdcolin)
 
  * Fix the error checking in setup.sh if no node is installed at all (pull #1083, @cmdcolin)
+
+ * Fix calculation of histograms on GFF3 and GFF3Tabix stores. Thanks to @thomasvangurp for
+   the bug report and sample data! (issue #1103, @cmdcolin)
+
+ * Fix the representation of array-valued attributes in column 9 for GFF3Tabix. Thanks to
+   @loraine-gueguen for the bug report! (issue #1122, @cmdcolin)
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 
