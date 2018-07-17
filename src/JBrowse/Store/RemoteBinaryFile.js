@@ -248,7 +248,7 @@ return declare( null,
                     if(!this.totalSizes[request.url] && Util.isElectron()) {
                         try {
                             const fs = electronRequire("fs"); //Load the filesystem module
-                            var stats = fs.statSync('/'+Util.unReplacePath(request.url))
+                            var stats = fs.statSync(Util.unReplacePath(request.url))
                             this.totalSizes[request.url] = stats.size
                         } catch(e) {
                             console.error('Could not get size of file', request.url, e)

@@ -258,7 +258,7 @@ Util = {
         // Strip out any extra info in parentheses?
         var extraRegex = new RegExp([
           /^\s*/                 // optional whitespace at start of locstring
-          ,/(.+?)/               // capture remaining characters, non-greedily, as the locstring without the "extra" info 
+          ,/(.+?)/               // capture remaining characters, non-greedily, as the locstring without the "extra" info
           ,/(\((.+?)\))?/        // capture the contents of the perentheses, if they exist, as the "extra" info
           ,/\s*$/                // optional whitespace at end locstring
         ].map(function(r) {return r.source}).join(''));
@@ -494,8 +494,9 @@ Util = {
         return path.replace(/^(\w):/,"file:///$1:").replace(/\\/g, "/");
     },
     unReplacePath: function( path ) {
-        return path.replace(/^file:\/\/\//,"");
+        return path.replace(/^file:\/\//,"");
     },
+
     // back-compatible way to remove properties/attributes from DOM
     // nodes.  IE 7 and older do not support the `delete` operator on
     // DOM nodes.
