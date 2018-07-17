@@ -252,7 +252,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             var gContainer = dojo.create('div', {
                 className: 'renderTable',
                 innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-                  +'No sequence on feature, CRAM feature render alignments unimplemented</div>'
+                  +'No sequence on feature, cannot render alignment</div>'
             }, parentElement );
             return;
         }
