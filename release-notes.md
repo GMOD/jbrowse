@@ -49,6 +49,9 @@
    the HLA reference sequences in hg38. Thanks again to Nathan S Watson-Haigh for the
    implementation of this feature. (pull #1119, @nathanhaigh)
 
+ * Fix sensitivity to .gff.gz vs .gff3.gz in GFF3Tabix tracks opened via the  "Open track"
+   dialog for GFF3Tabix. (issue #1125, @cmdcolin)
+
 
 ## Bug fixes
 
