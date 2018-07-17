@@ -318,7 +318,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     saveStore: function() {
         return {
-            urlTemplate: this.config.bam.url,
+            urlTemplate: this.config.cram.url,
             craiUrlTemplate: this.config.crai.url
         };
     }
