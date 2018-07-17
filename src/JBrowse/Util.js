@@ -494,7 +494,8 @@ Util = {
         return path.replace(/^(\w):/,"file:///$1:").replace(/\\/g, "/");
     },
     unReplacePath: function( path ) {
-        return path.replace(/^file:\/\//,"");
+        path = path.replace(/^file:\/\//,"");
+        return process.platform === "win32" && path[0] == "/" ? path.substr(1) : path;
     },
 
     // back-compatible way to remove properties/attributes from DOM
