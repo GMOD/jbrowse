@@ -120,9 +120,9 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/cram@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.0.3.tgz#e7ed94aed11a2865ffc66f95028472e249aef139"
+"@gmod/cram@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.0.4.tgz#d25f5b0dad2b4462978fff82157ba451fdaa73f1"
   dependencies:
     buffer-crc32 "^0.2.13"
     cross-fetch "^2.1.0"
