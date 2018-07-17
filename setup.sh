@@ -54,7 +54,7 @@ check_node () {
         echo "node $NODE_VERSION found, but node version 6 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
-    if [[ $NPM_MAJOR_VERSION < 3 ]]; then
+    if [[ $NPM_MAJOR_VERSION -lt 3 ]]; then
         echo "npm $NPM_VERSION found, but npm version 3 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
@@ -115,7 +115,7 @@ if [ -f "src/JBrowse/Browser.js" ]; then
         set -e
         check_node
         [[ -f node_modules/.bin/yarn ]] || npm install yarn
-        node_modules/.bin/yarn install --ignore-engines
+        node_modules/.bin/yarn install
         node_modules/.bin/yarn build
     ) >>setup.log 2>&1;
     done_message "" "" "FAILURE NOT ALLOWED"
