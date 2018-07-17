@@ -233,7 +233,7 @@ return declare( null,
             callback( response, null, {nocache: nocache } );
         };
 
-        req.onreadystatechange = dojo.hitch( this, function() {
+        req.onreadystatechange = dojo.hitch( this, async function() {
             if (req.readyState == 4) {
                 if (Util.isElectron() || req.status == 200 || req.status == 206) {
 
@@ -245,6 +245,15 @@ return declare( null,
                         var match = contentRange.match(/\/(\d+)$/);
                         return match ? parseInt(match[1]) : undefined;
                     })();
+                    if(!this.totalSizes[request.url] && Util.isElectron()) {
+                        try {
+                            const fs = electronRequire("fs"); //Load the filesystem module
+                            var stats = fs.statSync('/'+Util.unReplacePath(request.url))
+                            this.totalSizes[request.url] = stats.size
+                        } catch(e) {
+                            console.error('Could not get size of file', request.url, e)
+                        }
+                    }
 
                     var response = req.response || req.mozResponseArrayBuffer || (function() {
                         try{
