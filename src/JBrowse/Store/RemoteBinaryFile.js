@@ -233,7 +233,7 @@ return declare( null,
             callback( response, null, {nocache: nocache } );
         };
 
-        req.onreadystatechange = dojo.hitch( this, async function() {
+        req.onreadystatechange = dojo.hitch( this, function() {
             if (req.readyState == 4) {
                 if (Util.isElectron() || req.status == 200 || req.status == 206) {
 
