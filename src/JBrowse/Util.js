@@ -495,6 +495,7 @@ Util = {
     },
     unReplacePath: function( path ) {
         path = path.replace(/^file:\/\//,"");
+        var process = window.process;
         return process.platform === "win32" && path[0] == "/" ? path.substr(1) : path;
     },
 
