@@ -40,26 +40,32 @@ return declare( null, {
             mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarOps ) );
         }
 
-        // parse the CRAM read features if it has them
+        // now let's look for CRAM or MD mismatches
         var cramReadFeatures = feature.get('cram_read_features')
+        var mdString = feature.get( this.mdAttributeName );
+
+        // if there is an MD tag or CRAM mismatches, mismatches and deletions from the
+        // CIGAR string are replaced by those from MD
+        if( this.config.renderAlignment &&
+            (
+                cramReadFeatures && cramReadFeatures.length ||
+                mdString
+            )
+        ) {
+            mismatches = mismatches.filter( m =>
+                !(m.type == "deletion" || m.type == "mismatch")
+            )
+        }
+
+        // parse the CRAM read features if it has them
         if( cramReadFeatures ) {
-            mismatches.push.apply( mismatches, this._cramReadFeaturesToMismatches(feature,cramReadFeatures) )
+            mismatches.push(...this._cramReadFeaturesToMismatches(feature,cramReadFeatures) )
         }
 
         // parse the MD tag if it has one
-        var mdString = feature.get( this.mdAttributeName );
         if( mdString )  {
-            // if there is an MD tag, mismatches and deletions from cigar string are replaced by MD
-            if( this.config.renderAlignment ) {
-                mismatches = array.filter( mismatches, function(m) {
-                    return !(m.type == "deletion" || m.type == "mismatch");
-                });
-            }
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
+            mismatches.push(...this._mdToMismatches( feature, mdString, cigarOps, mismatches ))
         }
-
-
-
 
         // uniqify the mismatches
         var seen = {};
