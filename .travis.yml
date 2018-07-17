@@ -25,14 +25,10 @@ env:
     global:
         - GECKODRIVER_VERSION=0.19.1
         - PHANTOMJS_VERSION=2.1.1
-        - NODE_JS_VERSION=8.3.0
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get -qq update
   - sudo apt-get install wine1.6
-  - curl -o ~/.nvm/nvm.sh https://raw.githubusercontent.com/creationix/nvm/v0.31.0/nvm.sh # update nvm
-  - nvm use $NODE_JS_VERSION || true
-  - source ~/.nvm/nvm.sh; nvm install $NODE_JS_VERSION; node --version
 install:
 - "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
 - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
