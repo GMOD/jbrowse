@@ -1,6 +1,7 @@
 require([
-            'JBrowse/View/FileDialog/TrackList/BAMDriver'
-        ], function( BAMDriver ) {
+            'JBrowse/View/FileDialog/TrackList/BAMDriver',
+            'JBrowse/View/FileDialog/TrackList/GFF3TabixDriver'
+        ], function( BAMDriver, GFF3TabixDriver ) {
 
 describe( 'FileDialog BAM driver', function() {
 
@@ -73,6 +74,23 @@ describe( 'FileDialog BAM driver', function() {
         expect( confs.foo.bam.blob.name ).toEqual( 'zee.bam' );
     });
 
+    it( 'GFF3 tabix file extension test with .gff3', function( ) {
+        var confs = { foo: { file: { blob: { name :'zee.gff3.gz'} } } };
+        var driver = new GFF3TabixDriver();
+        expect( driver.tryResource( confs, { type: 'gff3.gz.tbi', file: { name: 'zee.gff3.gz.tbi'} } ) ).toBeTruthy();
+        driver.finalizeConfiguration(confs);
+        expect( confs.foo.tbi.blob.name ).toEqual( 'zee.gff3.gz.tbi' );
+        expect( confs.foo.file.blob.name ).toEqual( 'zee.gff3.gz' );
+    });
+
+    it( 'GFF3 tabix file extension test with .gff', function( ) {
+        var confs = { foo: { file: { blob: { name :'zee.gff.gz'} } } };
+        var driver = new GFF3TabixDriver();
+        expect( driver.tryResource( confs, { type: 'gff3.gz.tbi', file: { name: 'zee.gff.gz.tbi'} } ) ).toBeTruthy();
+        driver.finalizeConfiguration(confs);
+        expect( confs.foo.tbi.blob.name ).toEqual( 'zee.gff.gz.tbi' );
+        expect( confs.foo.file.blob.name ).toEqual( 'zee.gff.gz' );
+    });
 });
 });
 
