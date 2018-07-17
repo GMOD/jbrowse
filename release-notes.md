@@ -41,7 +41,7 @@
    `NeatCanvasFeatures/View/Track/NeatFeatures` or `NeatHTMLFeatures/View/Track/NeatFeatures`.
    (pull #889, @cmdcolin).
 
- * In the location box, allow strings with format ctgA:1-100 e.g. with a hypen instead of ..
+ * In the location box, allow strings with format ctgA:1-100 e.g. with a hyphen instead of ..
    Thanks to Nathan S Watson-Haigh for the idea and implementation! The default display
    remains .. but - is allowed. (pull #1102, @nathanhaigh)
 
