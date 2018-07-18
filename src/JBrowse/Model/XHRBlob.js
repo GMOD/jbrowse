@@ -76,6 +76,20 @@ var XHRBlob = declare( FileBlob,
             success: callback,
             failure: failCallback
         });
+    },
+
+    stat: function(callback, failCallback) {
+        if( this._stat ) callback(this._stat)
+
+        this.read(0, 10, () => {
+            const size = globalCache.getTotalSize(this.url)
+            if (size) {
+                this._stat = { size }
+                callback(this._stat)
+            }
+            else
+                failCallback(new Error(`unable to determine total size of file at ${this.url}`))
+        }, failCallback)
     }
 });
 return XHRBlob;

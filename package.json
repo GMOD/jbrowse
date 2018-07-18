@@ -39,6 +39,7 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
+    "@gmod/cram": "^1.1.0",
     "@gmod/gff": "^1.1.1",
     "ajv": "^6.2.1",
     "ava": "^0.25.0",
@@ -67,6 +68,7 @@
     "imports-loader": "^0.8.0",
     "jasmine-node": "^1.14.5",
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git#c966ceac3b283d2248764c09e07a4b268edd5032",
+    "lru-cache": "^4.1.3",
     "node-sass": "^4.7.2",
     "phantomjs-prebuilt": "^2.1.16",
     "regexp-replace-loader": "^1.0.1",

@@ -245,17 +245,18 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
 
     _renderTable: function( parentElement, track, feat, featDiv  ) {
         var thisB = this;
-        if(!feat.get(this.config.mdAttribute || 'md')) {
+
+        var mismatches = track._getMismatches(feat);
+        var seq = feat.get('seq');
+        if(!seq) {
             var gContainer = dojo.create('div', {
                 className: 'renderTable',
                 innerHTML: '<h2 class="sectiontitle">Matches</h2><div style=\"font-family: Courier; white-space: pre;\">'
-                  +'No MD tag present</div>'
+                  +'No sequence on feature, cannot render alignment</div>'
             }, parentElement );
             return;
         }
 
-        var mismatches = track._getMismatches(feat);
-        var seq = feat.get('seq');
         var start = feat.get('start');
         var query_str = '', align_str = '', refer_str = '';
         var curr_mismatch = 0;

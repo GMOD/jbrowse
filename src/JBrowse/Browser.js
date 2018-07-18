@@ -1465,6 +1465,7 @@ getTrackTypes: function() {
             // map of store type -> default track type to use for the store
             trackTypeDefaults: {
                 'JBrowse/Store/SeqFeature/BAM'         : 'JBrowse/View/Track/Alignments2',
+                'JBrowse/Store/SeqFeature/CRAM'         : 'JBrowse/View/Track/Alignments2',
                 'JBrowse/Store/SeqFeature/NCList'      : 'JBrowse/View/Track/CanvasFeatures',
                 'JBrowse/Store/SeqFeature/BigWig'      : 'JBrowse/View/Track/Wiggle/XYPlot',
                 'JBrowse/Store/SeqFeature/VCFTabix'    : 'JBrowse/View/Track/CanvasVariants',
@@ -2188,15 +2189,36 @@ _configDefaults: function() {
 },
 
 /**
+ * get the numerical ID number of the given reference sequence name.  required for CRAM files, which
+ * only operate on reference sequence ID numbers.
+ * @param {string} refSeqName
+ */
+getRefSeqNumber(refSeqName) {
+    return this.allRefs[refSeqName].id
+},
+
+/**
+ * get a reference sequence by its numerical id number. used mostly by CRAM stores.
+ * @param {number} id
+ */
+getRefSeqById(id) {
+    return this.refSeqsById[id]
+},
+
+/**
  * @param refSeqs {Array} array of refseq records to add to the browser
  */
 addRefseqs: function( refSeqs ) {
-    var allrefs = this.allRefs = this.allRefs || {};
+    if (!this.allRefs) this.allRefs = {}
 
-    dojo.forEach( refSeqs, function(r) {
+    refSeqs.forEach((r, id) => {
+        // save the original index of the reference for
+        // use with CRAM and other numerical-refseq-id stores
+        r.id = id
         this.allRefs[r.name] = r;
-    },this);
+    })
 
+    this.refSeqsById = refSeqs
 
     // generate refSeqOrder
     this.refSeqOrder =

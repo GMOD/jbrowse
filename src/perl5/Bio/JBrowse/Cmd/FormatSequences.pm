@@ -142,6 +142,7 @@ sub run {
     }
     elsif( $self->opt('sizes') ) {
         my %refseqs;
+        my @order;
         for my $sizefile ( @{$self->opt('sizes')} ) {
             open my $f, '<', $sizefile or warn "$! opening file $sizefile, skipping";
             next unless $f;
@@ -151,6 +152,7 @@ sub run {
                 my ( $name, $length ) = split /\s+/,$line,2;
                 s/^\s+|\s+$//g for $name, $length;
 
+                push @order, $name unless $refseqs{$name};
                 $refseqs{$name} = {
                     name   => $name,
                     start  => 0,
@@ -159,10 +161,11 @@ sub run {
                 };
             }
         }
-        $self->writeRefSeqsJSON( \%refseqs );
+        $self->writeRefSeqsJSON( \%refseqs, \@order );
     }
     elsif( $self->opt('gff-sizes') ) {
         my %refseqs;
+        my @order;
         for my $sizefile ( @{$self->opt('gff-sizes')} ) {
             my $f = $self->_openFile( $sizefile );
 
@@ -172,6 +175,8 @@ sub run {
                 my ( undef, $name, $start, $end ) = split /\s+/,$line,4;
                 s/^\s+|\s+$//g for $name, $start, $end;
 
+                push @order, $name unless $refseqs{$name};
+
                 $refseqs{$name} = {
                     name   => $name,
                     start  => $start-1,
@@ -180,7 +185,7 @@ sub run {
                 };
             }
         }
-        $self->writeRefSeqsJSON( \%refseqs );
+        $self->writeRefSeqsJSON( \%refseqs, \@order );
     }
 }
 
@@ -261,12 +266,13 @@ sub exportTWOBIT {
     my $header = twobit_parse_header($fh);
     my $count = $header->{CNT};
 
-    my %toc;
+    my @toc;
     my %refSeqs;
-    twobit_populate_toc($fh, $count, \%toc, $header->{unpack});
+    twobit_populate_toc($fh, $count, \@toc, $header->{unpack});
 
-    for my $name (sort keys %toc) {
-        my $offset = $toc{$name};
+    for my $rec (@toc) {
+        my $name = $rec->{name};
+        my $offset = $rec->{offset};
         my $size = twobit_fetch_record($fh, $offset, $header->{unpack});
         $refSeqs{$name} = {
             name => $name,
@@ -279,7 +285,7 @@ sub exportTWOBIT {
     my $dir = catdir( $self->opt('out'), 'seq' );
     mkpath( $dir );
     copy( $twobit, $dir ) or die "Unable to copy $twobit to $dir: $!\n";
-    $self->writeRefSeqsJSON( \%refSeqs );
+    $self->writeRefSeqsJSON( \%refSeqs, [map $_->{name}, @toc] );
 }
 
 sub exportFASTA {
@@ -640,7 +646,8 @@ sub twobit_populate_toc {
 
         # Read and store offset
         sysread($fh, $raw, FOUR_BYTE);
-        $toc->{$name} = unpack($template, $raw);
+
+        push @$toc, { name => $name, offset => unpack($template, $raw) };
     }
 }
 

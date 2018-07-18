@@ -35,7 +35,7 @@ return declare( null,
         this._fetchCount = 0;
         this._arrayCopyCount = 0;
 
-        this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 32768;
+        this.minChunkSize = 'minChunkSize' in args ? args.minChunkSize : 32768*8;
         this.chunkCache = new LRUCache({
             name: args.name + ' chunk cache',
             fillCallback: dojo.hitch( this, '_fetch' ),
@@ -245,6 +245,15 @@ return declare( null,
                         var match = contentRange.match(/\/(\d+)$/);
                         return match ? parseInt(match[1]) : undefined;
                     })();
+                    if(!this.totalSizes[request.url] && Util.isElectron()) {
+                        try {
+                            const fs = electronRequire("fs"); //Load the filesystem module
+                            var stats = fs.statSync(Util.unReplacePath(request.url))
+                            this.totalSizes[request.url] = stats.size
+                        } catch(e) {
+                            console.error('Could not get size of file', request.url, e)
+                        }
+                    }
 
                     var response = req.response || req.mozResponseArrayBuffer || (function() {
                         try{
@@ -284,7 +293,12 @@ return declare( null,
         // if (this.opts.credentials) {
         //     req.withCredentials = true;
         //  }
-        req.send('');
+        try {
+            req.send('');
+        } catch(error) {
+            debugger;
+            throw error
+        }
     },
 
     _errorString: function( req, url ) {
@@ -292,6 +306,10 @@ return declare( null,
             return req.status+' ('+req.statusText+') when attempting to fetch '+url;
         else
             return 'Unable to fetch '+url;
+    },
+
+    getTotalSize(url) {
+        return this.totalSizes[url]
     },
 
     /**

@@ -18,12 +18,32 @@ return declare( null, {
     },
 
     _getSkipsAndDeletions: function( feature ) {
+        let mismatches = []
         // parse the CIGAR tag if it has one
         var cigarString = feature.get( this.cigarAttributeName );
         if( cigarString ) {
-            return this._cigarToSkipsAndDeletions( feature, this._parseCigar( cigarString ) );
+            mismatches = this._cigarToSkipsAndDeletions( feature, this._parseCigar( cigarString ) );
         }
-        return [];
+
+        var cramReadFeatures = feature.get('cram_read_features')
+        if( this.config.renderAlignment &&
+            cramReadFeatures &&
+            cramReadFeatures.length
+        ) {
+            mismatches = mismatches.filter( m =>
+                !(m.type == "deletion" || m.type == "mismatch")
+            )
+        }
+
+        // parse the CRAM read features if it has them
+        if( cramReadFeatures ) {
+            mismatches.push(
+                ...this._cramReadFeaturesToMismatches(feature,cramReadFeatures)
+                    .filter(m => m.type === 'skip' || m.type === 'deletion')
+            )
+        }
+
+        return mismatches
     },
 
     _getMismatches: function( feature ) {
@@ -40,20 +60,32 @@ return declare( null, {
             mismatches.push.apply( mismatches, this._cigarToMismatches( feature, cigarOps ) );
         }
 
-        // parse the MD tag if it has one
+        // now let's look for CRAM or MD mismatches
+        var cramReadFeatures = feature.get('cram_read_features')
         var mdString = feature.get( this.mdAttributeName );
-        if( mdString )  {
-            // if there is an MD tag, mismatches and deletions from cigar string are replaced by MD
-            if( this.config.renderAlignment ) {
-                mismatches = array.filter( mismatches, function(m) {
-                    return !(m.type == "deletion" || m.type == "mismatch");
-                });
-            }
-            mismatches.push.apply( mismatches, this._mdToMismatches( feature, mdString, cigarOps, mismatches ) );
+
+        // if there is an MD tag or CRAM mismatches, mismatches and deletions from the
+        // CIGAR string are replaced by those from MD
+        if( this.config.renderAlignment &&
+            (
+                cramReadFeatures && cramReadFeatures.length ||
+                mdString
+            )
+        ) {
+            mismatches = mismatches.filter( m =>
+                !(m.type == "deletion" || m.type == "mismatch")
+            )
         }
 
-        
+        // parse the CRAM read features if it has them
+        if( cramReadFeatures ) {
+            mismatches.push(...this._cramReadFeaturesToMismatches(feature,cramReadFeatures) )
+        }
 
+        // parse the MD tag if it has one
+        if( mdString )  {
+            mismatches.push(...this._mdToMismatches( feature, mdString, cigarOps, mismatches ))
+        }
 
         // uniqify the mismatches
         var seen = {};
@@ -74,6 +106,88 @@ return declare( null, {
         return array.map( cigar.toUpperCase().match(/\d+\D/g), function( op ) {
            return [ op.match(/\D/)[0], parseInt( op ) ];
         });
+    },
+
+    _cramReadFeaturesToMismatches(feature, readFeatures) {
+        const start = feature.get('start')
+        const mismatches = []
+        readFeatures.forEach(({code,refPos,data,sub,ref}) => {
+            refPos = refPos - 1 - start
+            if (code === 'X') {
+                // substitution
+                mismatches.push({
+                    start: refPos,
+                    length: 1,
+                    base: sub,
+                    altbase: ref,
+                    type: 'mismatch',
+                })
+            } else if (code === 'I') {
+                // insertion
+               mismatches.push({
+                   start: refPos,
+                   type: 'insertion',
+                   base: ''+data.length,
+                   length: data.length,
+                });
+            } else if (code === 'N') {
+                // reference skip
+                mismatches.push({
+                    type: 'skip',
+                    length: data,
+                    start: refPos,
+                    base: 'N',
+                })
+            } else if (code === 'S') {
+                // soft clip
+                const len = data.length
+                mismatches.push({
+                    start: refPos,
+                    type: 'softclip',
+                    base: 'S'+len,
+                    cliplen: len,
+                    length: 1,
+                })
+            } else if (code === 'P') {
+                // padding
+            } else if (code === 'H') {
+                // hard clip
+                const len = data.length
+                mismatches.push({
+                    start: refPos,
+                    type: 'hardclip',
+                    base: 'H'+len,
+                    cliplen: len,
+                    length: 1,
+                })
+            } else if (code === 'D') {
+                // deletion
+                mismatches.push({
+                    type: 'deletion',
+                    length: data,
+                    start: refPos,
+                    base: '*',
+                })
+            } else if( code === 'b') {
+                // stretch of bases
+            } else if (code === 'q') {
+                // stretch of qual scores
+            } else if (code === 'B') {
+                // a pair of [base, qual]
+            } else if (code === 'i') {
+                // single-base insertion
+                // insertion
+               mismatches.push({
+                start: refPos,
+                type: 'insertion',
+                base: data,
+                length: 1,
+             });
+            } else if (code === 'Q') {
+                // single quality value
+            }
+        })
+        return mismatches
     },
 
     _cigarToMismatches: function( feature, ops ) {

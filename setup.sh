@@ -54,7 +54,7 @@ check_node () {
         echo "node $NODE_VERSION found, but node version 6 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
-    if [[ $NPM_MAJOR_VERSION < 3 ]]; then
+    if [[ $NPM_MAJOR_VERSION -lt 3 ]]; then
         echo "npm $NPM_VERSION found, but npm version 3 or later must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
@@ -167,7 +167,9 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/bookmarks.conf \
         docs/tutorial/data_files/volvox.subsubparts.gff3.conf \
         docs/tutorial/data_files/volvox-long-reads.fastq.sorted.bam.conf \
+        docs/tutorial/data_files/volvox-long-reads.fastq.sorted.cram.conf \
         docs/tutorial/data_files/volvox.bb.conf >> sample_data/json/volvox/tracks.conf \
+        docs/tutorial/data_files/volvox-sorted.cram.conf >> sample_data/json/volvox/tracks.conf \
     >> sample_data/json/volvox/tracks.conf
 
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
