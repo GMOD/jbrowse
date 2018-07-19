@@ -43,9 +43,9 @@
    `NeatCanvasFeatures/View/Track/NeatFeatures` or `NeatHTMLFeatures/View/Track/NeatFeatures`.
    (pull #889, @cmdcolin).
 
- * In the location box, allow strings with format ctgA:1-100 e.g. with a hyphen instead of ..
-   Thanks to Nathan S Watson-Haigh for the idea and implementation! The default display
-   remains .. but - is allowed. (pull #1102, @nathanhaigh)
+ * In the location box, allow strings with format ctgA:1-100 e.g. with a hyphen instead of `..`.
+   Big thanks to Nathan S Watson-Haigh for the idea and implementation! The default display
+   remains `..` but `-` is allowed. (issue #1100, pull #1102, @nathanhaigh)
 
  * Allow sequences with a colon in their name to be used in the location box. This includes
    the HLA reference sequences in hg38. Thanks again to Nathan S Watson-Haigh for the
@@ -54,20 +54,29 @@
  * Fix sensitivity to .gff.gz vs .gff3.gz in GFF3Tabix tracks opened via the  "Open track"
    dialog for GFF3Tabix. (issue #1125, @cmdcolin)
 
+ * Feature detail dialog boxes now display subfeatures of features on the reverse strand in
+   upstream-to-downstream order, instead of in genomic coordinate order. Thanks to
+   @nathanhaigh for suggesting this and contributing the fix! (issue #1071, pull #1114, @nathanhaigh)
+
 ## Bug fixes
 
- * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
+* Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
    @scottcain for reporting (issue #1058, @cmdcolin)
 
- * Fix the error checking in setup.sh if no node is installed at all (pull #1083, @cmdcolin)
+* Fix the error checking in setup.sh if no node is installed at all (pull #1083, @cmdcolin)
 
- * Fix calculation of histograms on GFF3 and GFF3Tabix stores. Thanks to @thomasvangurp for
+* Fix calculation of histograms on GFF3 and GFF3Tabix stores. Thanks to @thomasvangurp for
    the bug report and sample data! (issue #1103, @cmdcolin)
 
- * Fix the representation of array-valued attributes in column 9 for GFF3Tabix. Thanks to
+* Fix the representation of array-valued attributes in column 9 for GFF3Tabix. Thanks to
    @loraine-gueguen for the bug report! (issue #1122, @cmdcolin)
 
- * Fixed a bug in which visibleRegion() in GenomeView.js sometimes returned a non-integer value for `end`, which interfered with some scripts and plugins. Thanks to @rdhayes for noticing and contributing the fix! (issue #491, @rdhayes)
+* Fixed a bug in which visibleRegion() in GenomeView.js sometimes returned a non-integer value for `end`, which interfered with some scripts and plugins. Thanks to @rdhayes for noticing and contributing the fix! (issue #491, @rdhayes)
+
+* Fixed bug where reference sequences with names containing the `:` character could not be switched to by typing their name in the search box. (issue #1118, pull #1119, @nathanhaigh)
+
+* Fixed `setup.sh` behavior when `node` is not installed, printing a decent error message. (issue #1082, pull #1083, @cmdcolin)
+
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 
