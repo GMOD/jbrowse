@@ -46,10 +46,10 @@ class LayoutRow {
         if (x < this.min) return undefined
         if (x >= this.max) return undefined
         const offset = x-this.offset
-        if (offset < 0)
-            debugger
-        if (offset >= this.bits.length)
-            debugger
+        // if (offset < 0)
+        //     debugger
+        // if (offset >= this.bits.length)
+        //     debugger
         return this.bits[offset]
     }
 
@@ -124,10 +124,10 @@ class LayoutRow {
         // set the bits in the bitmask
         const oLeft = left - this.offset
         const oRight = right - this.offset
-        if (oLeft < 0) debugger
-        if (oRight < 0) debugger
-        if (oRight <= oLeft) debugger
-        if (oRight > this.bits.length) debugger
+        // if (oLeft < 0) debugger
+        // if (oRight < 0) debugger
+        // if (oRight <= oLeft) debugger
+        // if (oRight > this.bits.length) debugger
 
         for (let x = oLeft; x < oRight; x += 1) {
             //if (this.bits[x] && this.bits[x].get('name') !== data.get('name')) debugger
@@ -177,13 +177,13 @@ class LayoutRow {
             // trim both sides
             const leftTrimAmount = this.min - this.offset
             const rightTrimAmount = this.bits.length - 1 - (this.max - this.offset)
-            if (rightTrimAmount <= 0) debugger
-            if (leftTrimAmount <= 0) debugger
+            // if (rightTrimAmount <= 0) debugger
+            // if (leftTrimAmount <= 0) debugger
             // this.log(`trim both sides, ${leftTrimAmount} from left, ${rightTrimAmount} from right`)
             this.bits = this.bits.slice(leftTrimAmount, this.bits.length - rightTrimAmount)
             this.offset += leftTrimAmount
-            if (this.offset > this.min) debugger
-            if (this.bits.length <= this.max - this.offset) debugger
+            // if (this.offset > this.min) debugger
+            // if (this.bits.length <= this.max - this.offset) debugger
         } else if (this.offset < this.min - minSizeToBotherWith) {
             // trim left side
             const desiredOffset = this.min - Math.floor(minSizeToBotherWith/2)
@@ -191,27 +191,27 @@ class LayoutRow {
             // this.log(`trim left side by ${trimAmount}`)
             this.bits.splice(0, trimAmount)
             this.offset += trimAmount
-            if (this.offset > this.min) debugger
-            if (this.bits.length <= this.max - this.offset) debugger
+            // if (this.offset > this.min) debugger
+            // if (this.bits.length <= this.max - this.offset) debugger
         } else if (this.bits.length > (this.max-this.offset+minSizeToBotherWith)) {
             // trim right side
             const desiredLength = this.max - this.offset + 1 + Math.floor(minSizeToBotherWith/2)
             // this.log(`trim right side by ${this.bits.length-desiredLength}`)
-            if (desiredLength > this.bits.length) debugger
+            // if (desiredLength > this.bits.length) debugger
             this.bits.length = desiredLength
-            if (this.offset > this.min) debugger
-            if (this.bits.length <= this.max - this.offset) debugger
+            // if (this.offset > this.min) debugger
+            // if (this.bits.length <= this.max - this.offset) debugger
         }
 
-        if (this.offset > this.min) debugger
-        if (this.bits.length <= this.max - this.offset) debugger
+        // if (this.offset > this.min) debugger
+        // if (this.bits.length <= this.max - this.offset) debugger
 
         // if range now enclosed in the new bounds, loop through and clear the bits
         const oLeft = Math.max(this.min, left) - this.offset
-        if (oLeft < 0) debugger
-        if (oLeft >= this.bits.length) debugger
-        if (oRight < 0) debugger
-        if (oRight >= this.bits.length) debugger
+        // if (oLeft < 0) debugger
+        // if (oLeft >= this.bits.length) debugger
+        // if (oRight < 0) debugger
+        // if (oRight >= this.bits.length) debugger
 
         const oRight = Math.min(right,this.max) - this.offset
         for (let x = oLeft; x >= 0 && x < oRight; x += 1) {
