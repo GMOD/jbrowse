@@ -23,7 +23,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             {
                 glyph: 'JBrowse/View/FeatureGlyph/Alignment',
                 maxFeatureGlyphExpansion: 0,
-                maxFeatureScreenDensity: 6,
+                maxFeatureScreenDensity: 15,
 
                 hideDuplicateReads: true,
                 hideQCFailingReads: true,
