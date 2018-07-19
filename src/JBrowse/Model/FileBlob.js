@@ -73,6 +73,15 @@ var FileBlob = declare( null,
     read: function( offset, length, callback, failCallback ) {
         var start = this.start + offset,
             end = start + length;
+
+        // short-circuit a read of 0 bytes here, because browsers
+        // actually sometimes crash if you try to read 0 bytes from
+        // a local file!
+        if (!length) {
+            callback(new ArrayBuffer())
+            return
+        }
+
         this.slice( offset, length )
             .fetch( callback, failCallback );
     },
