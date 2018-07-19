@@ -1250,7 +1250,7 @@ minVisible: function() {
  */
 maxVisible: function() {
     var mv = this.pxToBp(this.x + this.offset + this.getWidth());
-    var scrollbar = this.pxToBp( this.verticalScrollBarVisibleWidth() );
+    var scrollbar = Math.round(this.pxToBp( this.verticalScrollBarVisibleWidth() ));
     // if we are less than one pixel from the end of the ref
     // seq, just say we are at the end.
     if( mv > this.ref.end - this.pxToBp(1) )
