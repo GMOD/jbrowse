@@ -22,8 +22,8 @@
    standalone app that can be used without a web server, similar to IGV or IGB (@cmdcolin)
 
  * Added a `dontRedispatch` option for GFF3Tabix stores. Example: set `dontRedispatch=region`
-   if there are `region` biotype features in the GFF that do not have subfeatures which will
-   speed up loading times significantly (issue #1076, pull #1084, @cmdcolin)
+   if there are very large `region` biotype features in the GFF that do not have subfeatures
+   which will speed up loading times significantly (issue #1076, pull #1084, @cmdcolin)
 
  * Add auto-lower-casing to the feature.get('...') function, commonly used for callback
    customizations. Now, for example, feature.get('ID') works as well as feature.get('id').
