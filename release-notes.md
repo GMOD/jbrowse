@@ -60,6 +60,11 @@
 
 ## Bug fixes
 
+* Fixed a potential cross-site-scripting (XSS) vulnerability by disallowing `dataRoot` config
+  values or `?data=` URL parameters that point to a different server from the one serving
+  JBrowse. Users can disable this security check by setting `allowCrossOriginDataRoot = true`
+  in their configuration. (@cmdcolin, @rbuels)
+
 * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
    @scottcain for reporting (issue #1058, @cmdcolin)
 
