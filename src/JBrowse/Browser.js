@@ -1,3 +1,5 @@
+const url = cjsRequire('url')
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
@@ -2057,6 +2059,19 @@ reachedMilestone: function( name ) {
  */
 loadConfig: function () {
     return this._milestoneFunction( 'loadConfig', function( deferred ) {
+
+        // check the config.dataRoot parameter before loading, unless allowCrossSiteDataRoot is on.
+        // this prevents an XSS attack served from a malicious server that has CORS enabled. thanks to @cmdcolin
+        // for noticing this.
+        if (this.config.dataRoot !== 'data' && !this.config.allowCrossOriginDataRoot) {
+            const parsedDataRoot = url.parse(url.resolve(window.location.href,this.config.dataRoot))
+            if (parsedDataRoot.host) {
+                const currentParsed = url.parse(window.location.href)
+                if (parsedDataRoot.host !== currentParsed.host || parsedDataRoot.protocol !== currentParsed.protocol)
+                    throw new Error('Invalid JBrowse dataRoot setting. For security, absolute URLs are not allowed. Set `allowCrossOriginDataRoot` to true to disable this security check.')
+            }
+        }
+
         var c = new ConfigManager({ bootConfig: this.config, defaults: this._configDefaults(), browser: this });
         c.getFinalConfig()
          .then( dojo.hitch(this, function( finishedConfig ) {
