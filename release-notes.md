@@ -54,7 +54,6 @@
  * Fix sensitivity to .gff.gz vs .gff3.gz in GFF3Tabix tracks opened via the  "Open track"
    dialog for GFF3Tabix. (issue #1125, @cmdcolin)
 
-
 ## Bug fixes
 
  * Fixed a memory leak that was introduced in JBrowse 1.13.1 in generate-names.pl. Thanks to
@@ -67,6 +66,8 @@
 
  * Fix the representation of array-valued attributes in column 9 for GFF3Tabix. Thanks to
    @loraine-gueguen for the bug report! (issue #1122, @cmdcolin)
+
+ * Fixed a bug in which visibleRegion() in GenomeView.js sometimes returned a non-integer value for `end`, which interfered with some scripts and plugins. Thanks to @rdhayes for noticing and contributing the fix! (issue #491, @rdhayes)
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
 
