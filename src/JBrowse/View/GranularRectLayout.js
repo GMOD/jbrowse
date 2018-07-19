@@ -7,9 +7,10 @@
 */
 
 
+// minimum excess size of the array at which we garbage collect
+const minSizeToBotherWith = 10000
 
 // a single row in the layout
-const minSizeToBotherWith = 1
 class LayoutRow {
     constructor(rowNumber) {
         this.rowNumber = rowNumber
@@ -243,7 +244,7 @@ declare(null, {
             this.pitchX = Math.round(this.pitchX / 4) || 1
         }
 
-        console.log(`pitch: ${this.pitchX} / ${this.pitchY}`)
+        // console.log(`pitch: ${this.pitchX} / ${this.pitchY}`)
 
         this.bitmap = []
         this.rectangles = {}
