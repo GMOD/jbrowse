@@ -2,6 +2,8 @@
 
 ## Major improvements
 
+ * Added support for displaying alignments from CRAM files, using the new npm module [@gmod/cram](https://www.npmjs.com/package/@gmod/cram). Thanks to @keiranmraine, @cmdcolin, @nathanhaigh, and the authors of `htslib` and `htsjdk` for invaluable test data and suggestions during this major effort. (issue #546, pull #1120, @rbuels)
+
  * Added support for the CSI index format for tabix VCF/BED/GFF and BAM files! This allows
    individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
    use the `csiUrlTemplate` config to point to the file. The "Open track" dialog also allows
