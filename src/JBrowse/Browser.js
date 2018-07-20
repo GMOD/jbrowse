@@ -2063,7 +2063,7 @@ loadConfig: function () {
         // check the config.dataRoot parameter before loading, unless allowCrossSiteDataRoot is on.
         // this prevents an XSS attack served from a malicious server that has CORS enabled. thanks to @cmdcolin
         // for noticing this.
-        if (this.config.dataRoot !== 'data' && !this.config.allowCrossOriginDataRoot) {
+        if (this.config.dataRoot && this.config.dataRoot !== 'data' && !this.config.allowCrossOriginDataRoot) {
             const parsedDataRoot = url.parse(url.resolve(window.location.href,this.config.dataRoot))
             if (parsedDataRoot.host) {
                 const currentParsed = url.parse(window.location.href)
