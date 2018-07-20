@@ -3,12 +3,12 @@
 
 # Release 1.15.0     2018-07-20 00:24:49 UTC
 
-
-# Release 1.15.0     2018-07-19 22:17:59 UTC
-
 ## Major improvements
 
- * Added support for displaying alignments from CRAM files, using the new npm module [@gmod/cram](https://www.npmjs.com/package/@gmod/cram). Thanks to @keiranmraine, @cmdcolin, @nathanhaigh, and the authors of `htslib` and `htsjdk` for invaluable test data and suggestions during this major effort. (issue #546, pull #1120, @rbuels)
+ * Added support for displaying alignments from CRAM files, using the new npm module
+   [@gmod/cram](https://www.npmjs.com/package/@gmod/cram). Thanks to @keiranmraine, @cmdcolin,
+   @nathanhaigh, and the authors of `htslib` and `htsjdk` for invaluable test data and
+   suggestions during this major effort. (issue #546, pull #1120, @rbuels)
 
  * Added support for the CSI index format for tabix VCF/BED/GFF and BAM files! This allows
    individual chromosomes longer than ~537MB (2^29 bases) to be used in JBrowse. To enable,
@@ -82,11 +82,15 @@
 * Fix the representation of array-valued attributes in column 9 for GFF3Tabix. Thanks to
    @loraine-gueguen for the bug report! (issue #1122, @cmdcolin)
 
-* Fixed a bug in which visibleRegion() in GenomeView.js sometimes returned a non-integer value for `end`, which interfered with some scripts and plugins. Thanks to @rdhayes for noticing and contributing the fix! (issue #491, @rdhayes)
+* Fixed a bug in which visibleRegion() in GenomeView.js sometimes returned a non-integer value
+  for `end`, which interfered with some scripts and plugins. Thanks to @rdhayes for noticing and
+  contributing the fix! (issue #491, @rdhayes)
 
-* Fixed bug where reference sequences with names containing the `:` character could not be switched to by typing their name in the search box. (issue #1118, pull #1119, @nathanhaigh)
+* Fixed bug where reference sequences with names containing the `:` character could not be
+  switched to by typing their name in the search box. (issue #1118, pull #1119, @nathanhaigh)
 
-* Fixed `setup.sh` behavior when `node` is not installed, printing a decent error message. (issue #1082, pull #1083, @cmdcolin)
+* Fixed `setup.sh` behavior when `node` is not installed, printing a decent error message.
+  (issue #1082, pull #1083, @cmdcolin)
 
 
 # Release 1.14.2     2018-06-04 23:41:52 UTC
