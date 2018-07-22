@@ -65,7 +65,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
         var fileBlob = args.file ||
             new XHRBlob(
-                this.resolveUrl( this.getConf('urlTemplate',[]) )
+                this.resolveUrl( this.getConf('urlTemplate',[]) ),
+                { expectRanges: true }
             );
 
         this.indexedData = new VCFIndexedFile(

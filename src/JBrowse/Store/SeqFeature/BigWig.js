@@ -53,11 +53,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin, DeferredStatsMixin ],
      */
     constructor: function( args ) {
 
-        this.data = args.blob ||
-            new XHRBlob( this.resolveUrl(
-                             args.urlTemplate || 'data.bigwig'
-                         )
-                       );
+        this.data = args.blob || new XHRBlob( this.resolveUrl(args.urlTemplate || 'data.bigwig'), { expectRanges: true });
 
         this.name = args.name || ( this.data.url && new urlObj( this.data.url ).path.replace(/^.+\//,'') ) || 'anonymous';
 

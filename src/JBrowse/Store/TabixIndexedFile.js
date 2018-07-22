@@ -5,7 +5,6 @@ define([
            'JBrowse/Util/TextIterator',
            'JBrowse/Store/LRUCache',
            'JBrowse/Errors',
-           'JBrowse/Model/XHRBlob',
            'JBrowse/Model/BGZip/BGZBlob',
            'JBrowse/Model/TabixIndex',
            'JBrowse/Model/CSIIndex'
@@ -17,7 +16,6 @@ define([
            TextIterator,
            LRUCache,
            Errors,
-           XHRBlob,
            BGZBlob,
            TabixIndex,
            CSIIndex
@@ -136,15 +134,13 @@ return declare( null, {
     },
 
     _readChunkItems: function( chunk, callback ) {
-        var thisB = this;
         var items = [];
-
-        thisB.data.read(chunk.minv.block, chunk.maxv.block - chunk.minv.block + 1, function( data ) {
+        this.data.read(chunk.minv.block, chunk.maxv.block - chunk.minv.block + 1, ( data ) => {
             data = new Uint8Array(data);
             //console.log( 'reading chunk %d compressed, %d uncompressed', chunk.maxv.block-chunk.minv.block+65536, data.length );
             var lineIterator = new TextIterator.FromBytes({ bytes: data, offset: 0 });
             try {
-                thisB._parseItems(
+                this._parseItems(
                     lineIterator,
                     function(i) { items.push(i); },
                     function() { callback(items); }
