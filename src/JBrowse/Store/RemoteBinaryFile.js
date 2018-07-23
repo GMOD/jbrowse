@@ -242,11 +242,13 @@ return declare( null,
         };
 
         req.onreadystatechange = dojo.hitch( this, function() {
-            if (req.readyState == 4) {
+            if (req.readyState == 2) {
                 if(!Util.isElectron() && req.status == 200 && request.expectRanges == true) {
+                    req.abort();
                     callback(null, "Server responded with status 200 when status 206 is expected, which is malformed for byte-range request")
-                    return;
                 }
+            }
+            else if (req.readyState == 4) {
                 if (Util.isElectron() || req.status == 200 || req.status == 206) {
                     // if this response tells us the file's total size, remember that
                     this.totalSizes[request.url] = (function() {
