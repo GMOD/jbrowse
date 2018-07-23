@@ -32,9 +32,9 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
      * @constructs
      */
     constructor: function( args ) {
-        
-        var blob = args.blob || new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ) );
-        
+
+        var blob = args.blob || new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ), { expectRanges: true } );
+
         this.twoBit = new TwoBitFile({
             data: blob,
             store: this
@@ -75,7 +75,7 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
             };
         }
 
-        
+
         if( ! has( 'typed-arrays' ) ) {
             this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );
             return;

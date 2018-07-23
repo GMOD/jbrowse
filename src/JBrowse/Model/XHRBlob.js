@@ -61,7 +61,8 @@ var XHRBlob = declare( FileBlob,
             start: this.start,
             end: this.end,
             success: callback,
-            failure: failCallback
+            failure: failCallback,
+            range: this.opts.expectRanges
         });
     },
 
@@ -74,7 +75,8 @@ var XHRBlob = declare( FileBlob,
             start: start,
             end: end,
             success: callback,
-            failure: failCallback
+            failure: failCallback,
+            range: this.opts.expectRanges
         });
     },
 

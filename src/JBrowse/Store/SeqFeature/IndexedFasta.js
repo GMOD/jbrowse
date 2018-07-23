@@ -34,10 +34,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
      */
     constructor: function(args) {
         var fastaBlob = args.fasta ||
-            new XHRBlob( this.resolveUrl(
-                             args.urlTemplate || 'data.fasta'
-                         )
-                       );
+            new XHRBlob( this.resolveUrl(args.urlTemplate || 'data.fasta'), { expectRanges: true });
 
         var faiBlob = args.fai ||
             new XHRBlob( this.resolveUrl(

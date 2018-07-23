@@ -83,7 +83,7 @@ return declare( null,
                              }, this);
     },
 
-    _fetchChunks: function( url, start, end, callback, errorCallback ) {
+    _fetchChunks: function( url, start, end, callback, errorCallback, expectRanges ) {
         start = start || 0;
 
         // if we already know how big the file is, use that information for the end
@@ -105,19 +105,27 @@ return declare( null,
         // and where we don't, making records for chunks to fetch
         var goldenPath = [];
         if( typeof end != 'number' ) { // if we don't have an end coordinate, we just have to fetch the whole file
-            goldenPath.push({ key: new Chunk( { url: url, start: 0, end: undefined } ) });
+            goldenPath.push({
+                key: new Chunk({
+                    url: url,
+                    start: 0,
+                    end: undefined
+                })
+            });
         }
         else {
             for( var currOffset = start; currOffset <= end; currOffset = goldenPath[goldenPath.length-1].key.end+1 ) {
                 if( existingChunks[0] && existingChunks[0].key.start <= currOffset ) {
                     goldenPath.push( existingChunks.shift() );
                 } else {
-                    goldenPath.push({ key: new Chunk({
-                                          url: url,
-                                          start: currOffset,
-                                          end: existingChunks[0] ? existingChunks[0].key.start-1 : end
-                                      })
-                                    });
+                    goldenPath.push({
+                        key: new Chunk({
+                            url: url,
+                            start: currOffset,
+                            end: existingChunks[0] ? existingChunks[0].key.start-1 : end,
+                            expectRanges: expectRanges
+                        })
+                    });
                 }
             }
         }
@@ -192,7 +200,7 @@ return declare( null,
 
     _fetch: function( request, callback, attempt, truncatedLength ) {
 
-        this._log( 'fetch', request.url, request.start, request.end );
+        this._log( 'fetch', request.url, request.start, request.end, request.expectRanges );
         this._fetchCount++;
 
         attempt = attempt || 1;
@@ -234,9 +242,14 @@ return declare( null,
         };
 
         req.onreadystatechange = dojo.hitch( this, function() {
-            if (req.readyState == 4) {
+            if (req.readyState == 2) {
+                if(!Util.isElectron() && req.status == 200 && request.expectRanges == true) {
+                    req.abort();
+                    callback(null, "Server responded with status 200 when status 206 is expected, which is malformed for byte-range request")
+                }
+            }
+            else if (req.readyState == 4) {
                 if (Util.isElectron() || req.status == 200 || req.status == 206) {
-
                     // if this response tells us the file's total size, remember that
                     this.totalSizes[request.url] = (function() {
                         var contentRange = req.getResponseHeader('Content-Range');
@@ -370,7 +383,8 @@ return declare( null,
                          chunks
                  );
             }),
-            args.failure
+            args.failure,
+            args.range
         );
     },
 

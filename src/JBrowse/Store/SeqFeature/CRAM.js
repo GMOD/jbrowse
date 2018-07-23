@@ -90,7 +90,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         if (args.cram)
             dataBlob = new BlobWrapper(args.cram)
         else if (args.urlTemplate)
-            dataBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram')))
+            dataBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram'), { expectRanges: true }))
         else throw new Error('must provide either `cram` or `urlTemplate`')
 
         let indexBlob
