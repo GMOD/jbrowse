@@ -62,7 +62,8 @@ sub run {
 
     my $compress = $self->opt('compress');
 
-    $self->{storage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
+    $self->{refseqstorage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 0 } );
+    $self->{trackliststorage} = JsonFileStorage->new( $self->opt('out'), $self->opt('compress'), { pretty => 1 } );
 
     Pod::Usage::pod2usage( 'must provide either a --fasta, --indexed_fasta, --twobit, --sizes, --gff, --gff-sizes, or --conf option' )
         unless $self->opt('gff') ||
@@ -433,9 +434,9 @@ sub exportDB {
 sub writeRefSeqsJSON {
     my ( $self, $refseqs, $originalorder ) = @_;
 
-    mkpath( File::Spec->catdir($self->{storage}{outDir},'seq') );
+    mkpath( File::Spec->catdir($self->{refseqstorage}{outDir},'seq') );
 
-    $self->{storage}->modify( 'seq/refSeqs.json',
+    $self->{refseqstorage}->modify( 'seq/refSeqs.json',
                                    sub {
                                        #add new ref seqs while keeping the order
                                        #of the existing ref seqs
@@ -474,9 +475,9 @@ sub writeTrackEntry {
 
     my $seqTrackName = $self->trackLabel;
     unless( $self->opt('noseq') ) {
-        $self->{storage}->touch( 'tracks.conf' );
+        $self->{trackliststorage}->touch( 'tracks.conf' );
 
-        $self->{storage}->modify( 'trackList.json',
+        $self->{trackliststorage}->modify( 'trackList.json',
                                        sub {
                                            my $trackList = shift;
                                            unless (defined($trackList)) {
