@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Minor Improvements
+
+ * Add a internal code attribute for XHR requests that use byte-range requests so that if a
+   server does not support it, it returns immediately. Thanks to @theChinster for the
+   motivating example (pull #1134, @cmdcolin).
 
 # Release 1.15.0     2018-07-20 00:24:49 UTC
 
