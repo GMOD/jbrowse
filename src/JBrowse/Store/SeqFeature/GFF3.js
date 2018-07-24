@@ -185,9 +185,10 @@ return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEs
         delete f.attributes;
         f.start -= 1; // convert to interbase
         f.strand = {'+': 1, '-': -1, '.': 0, '?': undefined }[data.strand];
-
-        for( var a in data.attributes ) {
-            f[ a.toLowerCase() ] = data.attributes[a].join(',');
+        for (var a in data.attributes) {
+            let b = a.toLowerCase();
+            f[b] = data.attributes[a]
+            if(f[b].length == 1) f[b] = f[b][0]
         }
         var sub = array.map( Util.flattenOneLevel( data.child_features ), this._featureData, this );
         if( sub.length )
