@@ -260,18 +260,21 @@ _noRecursiveMerge: function( propName ) {
     return propName == 'datasets';
 },
 
+
 /**
  * Merges config object b into a.  a <- b
  * @private
  */
 _mergeConfigs: function( a, b ) {
+    console.log(a,b);
+    console.log(a.dataRoot,b.dataRoot);
     if( b === null )
         return null;
 
     if( a === null )
         a = {};
 
-    for (var prop in b) {
+    Object.keys(b).forEach(prop => {
         if( prop == 'tracks' && (prop in a) ) {
             a[prop] = this._mergeTrackConfigs( a[prop] || [], b[prop] || [] );
         }
@@ -280,10 +283,15 @@ _mergeConfigs: function( a, b ) {
                   && ("object" == typeof b[prop])
                   && ("object" == typeof a[prop]) ) {
             a[prop] = Util.deepUpdate( a[prop], b[prop] );
+        } else if(prop == 'dataRoot') {
+            if(typeof a[prop] == 'undefined' || a[prop] == 'data' && typeof b[prop] != 'undefined' ){
+                console.log(a[prop],b[prop])
+                a[prop] = b[prop];
+            }
         } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
-            a[prop] = b[prop];
+            a[prop] = b[prop]
         }
-    }
+    })
     return a;
 },
 
