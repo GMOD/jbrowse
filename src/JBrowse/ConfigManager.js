@@ -59,7 +59,7 @@ getFinalConfig: function() {
     return this.finalConfig || ( this.finalConfig = function() {
         var thisB = this;
         var bootstrapConf = this._applyDefaults( lang.clone( this.bootConfig ), this.defaults );
-        return this._loadIncludes( this._fillTemplates( bootstrapConf, bootstrapConf ) )
+        return this._loadIncludes( bootstrapConf )
             .then( function( includedConfig ) {
 
                        // merge the boot config *into* the included config last, so
