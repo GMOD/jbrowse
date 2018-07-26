@@ -94,5 +94,67 @@ describe("ConfigManager", function () {
                 expect(config.tracks[0].label).toEqual('zoo');
             });
     });
+
+    it( "should work with dataRoot specified in baseConfig", function() {
+            var m = new ConfigManager({
+                bootConfig: { dataRoot: 'notdefault' },
+                defaults: { dataRoot: 'data' },
+                browser: { fatalError: function(error) { throw error; } },
+                skipValidation: true
+            });
+            var config;
+            expect(m).toBeTruthy();
+            waitsFor( function() { return config; }, 1000 );
+            m.getFinalConfig().then( function(c) {
+                config = c;
+            });
+            runs(function() {
+                expect(config.dataRoot).toEqual('notdefault');
+            });
+    });
+
+
+    it( "should work with dataRoot not specified in baseConfig", function() {
+            var m = new ConfigManager({
+                bootConfig: { foo: 'a' },
+                defaults: { dataRoot: 'data' },
+                browser: { fatalError: function(error) { throw error; } },
+                skipValidation: true
+            });
+            var config;
+            expect(m).toBeTruthy();
+            waitsFor( function() { return config; }, 1000 );
+            m.getFinalConfig().then( function(c) {
+                config = c;
+            });
+            runs(function() {
+                expect(config.dataRoot).toEqual('data');
+            });
+    });
+
+
+    it( "should work with a config with dataRoot in it", function() {
+            var m = new ConfigManager({
+                bootConfig: {
+                    include: [ '../data/conf/dataRoot.json'],
+                },
+                defaults: { dataRoot: 'data' },
+                browser: { fatalError: function(error) { throw error; } },
+                skipValidation: true
+            });
+            var config;
+            expect(m).toBeTruthy();
+            waitsFor( function() { return config; }, 1000 );
+            m.getFinalConfig().then( function(c) {
+                config = c;
+            });
+            runs(function() {
+                expect(config.dataRoot).toEqual('notdefault');
+            });
+    });
+
+
+
+
 });
 });

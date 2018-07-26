@@ -266,15 +266,13 @@ _noRecursiveMerge: function( propName ) {
  * @private
  */
 _mergeConfigs: function( a, b ) {
-    console.log(a,b);
-    console.log(a.dataRoot,b.dataRoot);
     if( b === null )
         return null;
 
     if( a === null )
         a = {};
 
-    Object.keys(b).forEach(prop => {
+    for (var prop in b) {
         if( prop == 'tracks' && (prop in a) ) {
             a[prop] = this._mergeTrackConfigs( a[prop] || [], b[prop] || [] );
         }
@@ -285,13 +283,12 @@ _mergeConfigs: function( a, b ) {
             a[prop] = Util.deepUpdate( a[prop], b[prop] );
         } else if(prop == 'dataRoot') {
             if(typeof a[prop] == 'undefined' || a[prop] == 'data' && typeof b[prop] != 'undefined' ){
-                console.log(a[prop],b[prop])
                 a[prop] = b[prop];
             }
         } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
-            a[prop] = b[prop]
+            a[prop] = b[prop];
         }
-    })
+    }
     return a;
 },
 
