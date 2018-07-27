@@ -110,6 +110,9 @@ var webpackConf = {
     },
     resolveLoader: {
         modules: ["node_modules"]
+    },
+    resolve: {
+        symlinks: false
     }
 }
 
