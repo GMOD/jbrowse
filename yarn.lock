@@ -141,9 +141,9 @@
     tmp-promise "^1.0.4"
     typical "^2.6.1"
 
-"@gmod/twobit@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.0.1.tgz#445ccb4c70e50d7f21b8c8dc4d23fa2660804a69"
+"@gmod/twobit@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.0.2.tgz#6ce621ae952579e4c20abc12b7e95fd75918fe2c"
   dependencies:
     binary-parser "^1.3.2"
     fs-extra "^7.0.0"
