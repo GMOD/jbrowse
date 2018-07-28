@@ -71,12 +71,17 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        const regRef = this.browser.regularizeReferenceName(query.ref)
-        this.twoBit.getSequence(regRef, query.start, query.end)
+        let start = query.start
+        if (start < 0) {
+            start = 0
+        }
+        this.twoBit.getSequence(query.ref, start, query.end)
             .then(seq => {
-                featCallback(new SimpleFeature({
-                    data: { seq_id: query.ref, start: query.start, end: query.end, seq }
-                }))
+                if (seq !== undefined) {
+                    featCallback(new SimpleFeature({
+                        data: { seq_id: query.ref, start: start, end: query.end, seq }
+                    }))
+                }
                 endCallback()
             }, errorCallback)
     },
