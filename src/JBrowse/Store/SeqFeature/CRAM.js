@@ -6,6 +6,8 @@ const { Buffer } = cjsRequire('buffer')
 
 const cramIndexedFilesCache = LRU(5)
 
+const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
+
 define( [
             'dojo/_base/declare',
             'JBrowse/Errors',
@@ -27,51 +29,6 @@ define( [
             SimpleFeature,
         ) {
 
-
-// wrapper class to make old JBrowse *Blob data access classes work with
-// the new-style filehandle API expected by the cram code
-
-class BlobWrapper {
-    constructor(oldStyleBlob) {
-        this.blob = oldStyleBlob
-    }
-
-    read(buffer, offset = 0, length, position) {
-        return new Promise((resolve,reject) => {
-            this.blob.read(
-                position,
-                length,
-                dataArrayBuffer => {
-                    const data = Buffer.from(dataArrayBuffer)
-                    data.copy(buffer, offset)
-                    resolve()
-                },
-                reject,
-            )
-        })
-    }
-
-    readFile() {
-        return new Promise((resolve, reject) => {
-            this.blob.fetch( dataArrayBuffer => {
-                resolve(Buffer.from(dataArrayBuffer))
-            }, reject)
-        })
-    }
-
-    stat() {
-        return new Promise((resolve, reject) => {
-            this.blob.stat(resolve, reject)
-        })
-    }
-
-    toString() {
-        return ( this.blob.url  ? this.blob.url :
-                 this.blob.blob ? this.blob.blob.name : undefined ) || undefined;
-    }
-}
-
-
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 
 /**
@@ -88,18 +45,18 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
         let dataBlob
         if (args.cram)
-            dataBlob = new BlobWrapper(args.cram)
+            dataBlob = new BlobFilehandleWrapper(args.cram)
         else if (args.urlTemplate)
-            dataBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram'), { expectRanges: true }))
+            dataBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate || 'data.cram'), { expectRanges: true }))
         else throw new Error('must provide either `cram` or `urlTemplate`')
 
         let indexBlob
         if (args.crai)
-            indexBlob = new BlobWrapper(args.crai)
+            indexBlob = new BlobFilehandleWrapper(args.crai)
         else if (args.craiUrlTemplate)
-            indexBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.craiUrlTemplate)))
+            indexBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.craiUrlTemplate)))
         else if (args.urlTemplate)
-            indexBlob = new BlobWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.crai')))
+            indexBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.crai')))
         else throw new Error('no index provided, must provide a CRAM index')
 
         this.source = dataBlob.toString()

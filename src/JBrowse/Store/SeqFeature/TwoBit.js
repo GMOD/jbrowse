@@ -1,26 +1,20 @@
+const { TwoBitFile } = cjsRequire('@gmod/twobit')
+
+const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
+
 define( [
             'dojo/_base/declare',
-            'dojo/_base/array',
-            'dojo/_base/lang',
-            'dojo/Deferred',
-            'dojo/promise/all',
-            'JBrowse/has',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredFeaturesMixin',
-            './TwoBit/File'
+            'JBrowse/Model/SimpleFeature'
         ],
         function(
             declare,
-            array,
-            lang,
-            Deferred,
-            all,
-            has,
             XHRBlob,
             SeqFeatureStore,
             DeferredFeaturesMixin,
-            TwoBitFile
+            SimpleFeature,
         ) {
 
 return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
@@ -33,60 +27,15 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
      */
     constructor: function( args ) {
 
-        var blob = args.blob || new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ), { expectRanges: true } );
+        var blob = args.blob || new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ) );
 
         this.twoBit = new TwoBitFile({
-            data: blob,
-            store: this
+            filehandle: new BlobFilehandleWrapper(blob),
         });
 
-        if (!ArrayBuffer.prototype.slice) {
-            // ArrayBuffer slice added to ie11, shim for earlier http://stackoverflow.com/questions/21440050/arraybuffer-prototype-slice-shim-for-ie
-            ArrayBuffer.prototype.slice = function (begin, end) {
-                if (begin === void 0) {
-                    begin = 0;
-                }
-
-                if (end === void 0) {
-                    end = this.byteLength;
-                }
-
-                begin = Math.floor(begin);
-                end = Math.floor(end);
-                if (begin < 0) {
-                    begin += this.byteLength;
-                }
-                if (end < 0) {
-                    end += this.byteLength;
-                }
-                begin = Math.min(Math.max(0, begin), this.byteLength);
-                end = Math.min(Math.max(0, end), this.byteLength);
-
-                if (end - begin <= 0) {
-                    return new ArrayBuffer(0);
-                }
-
-                var result = new ArrayBuffer(end - begin);
-                var resultBytes = new Uint8Array(result);
-                var sourceBytes = new Uint8Array(this, begin, end - begin);
-
-                resultBytes.set(sourceBytes);
-                return result;
-            };
-        }
-
-
-        if( ! has( 'typed-arrays' ) ) {
-            this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );
-            return;
-        }
-
-        this.twoBit.init({
-            success: lang.hitch(this, function() {
-                this._deferred.features.resolve({success: true });
-            }),
-            failure: lang.hitch(this, '_failAllDeferred')
-        });
+        this.twoBit.getIndex().then(() => {
+            this._deferred.features.resolve({success: true})
+        }, this._failAllDeferred.bind(this))
     },
 
 
@@ -99,46 +48,37 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
      * others are not.
      */
     hasRefSeq: function( seqName, callback, errorCallback ) {
-        var thisB = this;
-        this._deferred.features.then( function() {
-            callback( seqName in thisB.twoBit.chrToIndex );
-        }, errorCallback );
+        this.twoBit.getSequenceSize(seqName)
+            .then(
+                size => {
+                    callback(size !== undefined)
+                },
+                errorCallback,
+            )
     },
-    getRefSeqs: function( featCallback, errorCallback ) {
-        var thisB = this;
-        this._deferred.features.then(
-            function() {
-                var keys = Object.keys(thisB.twoBit.chrToIndex);
-                var ret = [];
-                var promises = array.map(keys, function(name) {
-                    var def = new Deferred();
-                    thisB.twoBit._readSequenceHeader(name, function(ret) {
-                        def.resolve({
-                            name: name,
-                            length: ret.dnaSize,
-                            end: ret.dnaSize,
-                            start: 0
-                        });
-                    },
-                    function(err) {
-                        def.reject(err);
-                    });
-                    return def;
-                });
-
-                all(promises).then(function(refseqs) {
-                    featCallback(refseqs);
-                }, function(err) {
-                    errorCallback(err);
-                });
-            },
-            errorCallback
-        );
+    getRefSeqs: function( callback, errorCallback ) {
+        this.twoBit.getSequenceSizes()
+            .then(sizes => Object.entries(sizes).map(([name,length]) => {
+                return {
+                    name,
+                    length,
+                    end: length,
+                    start: 0,
+                }
+            }))
+            .then(callback, errorCallback)
     },
 
     // called by getFeatures from the DeferredFeaturesMixin
-    _getFeatures: function( query, callback, endCallback, errorCallback ) {
-        this.twoBit.fetch( query, callback, endCallback, errorCallback );
+    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+        const regRef = this.browser.regularizeReferenceName(query.ref)
+        this.twoBit.getSequence(regRef, query.start, query.end)
+            .then(seq => {
+                featCallback(new SimpleFeature({
+                    data: { seq_id: query.ref, start: query.start, end: query.end, seq }
+                }))
+                endCallback()
+            }, errorCallback)
     },
 
     saveStore: function() {
