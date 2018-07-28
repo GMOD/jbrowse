@@ -109,8 +109,13 @@ return declare( [BlockBased, ExportMixin, CodonTable],
                     }
                     args.finishCallback();
                 },
-                function() {
-                    args.finishCallback();
+                function(error) {
+                    if (args.errorCallback)
+                        args.errorCallback(error)
+                    else {
+                        console.error(error)
+                        args.finishCallback()
+                    }
                 }
             );
         }
