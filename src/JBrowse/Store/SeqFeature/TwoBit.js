@@ -27,11 +27,15 @@ return declare([ SeqFeatureStore, DeferredFeaturesMixin], {
      */
     constructor: function( args ) {
 
-        var blob = args.blob || new XHRBlob( this.resolveUrl( args.urlTemplate || 'data.2bit' ) );
+        var blob = args.blob ||
+            new XHRBlob(
+                this.resolveUrl(args.urlTemplate || 'data.2bit'),
+                { expectRanges: true },
+            )
 
         this.twoBit = new TwoBitFile({
             filehandle: new BlobFilehandleWrapper(blob),
-        });
+        })
 
         this.twoBit.getIndex().then(() => {
             this._deferred.features.resolve({success: true})
