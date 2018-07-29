@@ -141,12 +141,13 @@
     tmp-promise "^1.0.4"
     typical "^2.6.1"
 
-"@gmod/twobit@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.0.2.tgz#6ce621ae952579e4c20abc12b7e95fd75918fe2c"
+"@gmod/twobit@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.1.0.tgz#1b5fe1abd4ffd9c9f531186d10585521eb18d79c"
   dependencies:
     binary-parser "^1.3.2"
     fs-extra "^7.0.0"
+    long "^4.0.0"
     object.values "^1.0.4"
 
 "@ladjs/time-require@^0.1.4":
