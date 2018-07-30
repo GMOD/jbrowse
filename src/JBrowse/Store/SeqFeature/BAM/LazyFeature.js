@@ -101,7 +101,7 @@ var Feature = Util.fastDeclare(
     },
 
     id: function() {
-        return Crc32.crc32_raw(this.bytes.byteArray.slice(this.bytes.start, this.bytes.end));
+        return Crc32.crc32_raw(this.bytes.byteArray, this.bytes.start, this.bytes.end);
     },
 
     multi_segment_all_aligned: function() {
