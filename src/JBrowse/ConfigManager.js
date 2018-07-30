@@ -59,7 +59,7 @@ getFinalConfig: function() {
     return this.finalConfig || ( this.finalConfig = function() {
         var thisB = this;
         var bootstrapConf = this._applyDefaults( lang.clone( this.bootConfig ), this.defaults );
-        return this._loadIncludes( this._fillTemplates( bootstrapConf, bootstrapConf ) )
+        return this._loadIncludes( bootstrapConf )
             .then( function( includedConfig ) {
 
                        // merge the boot config *into* the included config last, so
@@ -260,6 +260,7 @@ _noRecursiveMerge: function( propName ) {
     return propName == 'datasets';
 },
 
+
 /**
  * Merges config object b into a.  a <- b
  * @private
@@ -280,7 +281,11 @@ _mergeConfigs: function( a, b ) {
                   && ("object" == typeof b[prop])
                   && ("object" == typeof a[prop]) ) {
             a[prop] = Util.deepUpdate( a[prop], b[prop] );
-        } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
+        } else if(prop == 'dataRoot') {
+            if(a[prop] === undefined || a[prop] == 'data' && b[prop] !== undefined ){
+                a[prop] = b[prop];
+            }
+        } else if( a[prop] === undefined || b[prop] !== undefined ){
             a[prop] = b[prop];
         }
     }
