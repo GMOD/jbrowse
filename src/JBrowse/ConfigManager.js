@@ -282,10 +282,10 @@ _mergeConfigs: function( a, b ) {
                   && ("object" == typeof a[prop]) ) {
             a[prop] = Util.deepUpdate( a[prop], b[prop] );
         } else if(prop == 'dataRoot') {
-            if(typeof a[prop] == 'undefined' || a[prop] == 'data' && typeof b[prop] != 'undefined' ){
+            if(a[prop] === undefined || a[prop] == 'data' && b[prop] !== undefined ){
                 a[prop] = b[prop];
             }
-        } else if( typeof a[prop] == 'undefined' || typeof b[prop] != 'undefined' ){
+        } else if( a[prop] === undefined || b[prop] !== undefined ){
             a[prop] = b[prop];
         }
     }
