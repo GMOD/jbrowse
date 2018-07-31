@@ -861,27 +861,45 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         var fmt = lang.hitch(this, 'renderDetailField', details );
         fmt( 'Name', this.key || this.name );
         var metadata = lang.clone( this.getMetadata() );
-        lang.mixin( metadata, additional );
         delete metadata.key;
         delete metadata.label;
         if( typeof metadata.conf == 'object' )
             delete metadata.conf;
-
+        if (this.browser && this.browser.config && this.browser.config.trackSelector && this.browser.config.trackSelector.renameFacets){
+           var metadataCopy = {};
+           for (var k in metadata){
+              key = this.browser.config.trackSelector.renameFacets[k] || k;
+              metadataCopy[key] = metadata[k];
+           }
+           metadata = metadataCopy;
+        }
         var md_keys = [];
-        for( var k in metadata )
+        for( var k in metadata ){
             md_keys.push(k);
-        // TODO: maybe do some intelligent sorting of the keys here?
-        array.forEach( md_keys, function(key) {
-                          fmt( Util.ucFirst(key), metadata[key] );
-                      });
-
+        }
+        md_keys.sort(function (a, b) {
+           return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+        for (var i = 0 ; i < md_keys.length ; i++ ){
+           var k = md_keys[i];
+           fmt(this.camelToTitleCase(k), metadata[k]);
+        }
+        for(var k in additional){
+           fmt(k, additional[k]);
+        }
         return details;
     },
 
+    camelToTitleCase: function(str){
+        if (str === str.toLowerCase()){
+            return Util.ucFirst(str.replace(/_/g, " "));
+        } else {
+            return str;
+        }
+    },
+
     getMetadata: function() {
-        return ( this.browser && this.browser.trackMetaDataStore ? this.browser.trackMetaDataStore.getItem(this.name) :
-                                          this.config.metadata ? this.config.metadata :
-                                                                 {} ) || {};
+        return this.config.metadata || this.browser && this.browser.trackMetaDataStore && this.browser.trackMetaDataStore.getItem(this.name) || {};
     },
 
     setPinned: function( p ) {
