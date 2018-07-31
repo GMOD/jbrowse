@@ -868,7 +868,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         if (this.browser && this.browser.config && this.browser.config.trackSelector && this.browser.config.trackSelector.renameFacets){
            var metadataCopy = {};
            for (var k in metadata){
-              key = this.browser.config.trackSelector.renameFacets[k] || k;
+              var key = this.browser.config.trackSelector.renameFacets[k] || k;
               metadataCopy[key] = metadata[k];
            }
            metadata = metadataCopy;
