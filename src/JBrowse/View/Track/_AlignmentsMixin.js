@@ -302,7 +302,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         align_str += ' ';
                         refer_str += '-';
                     }
-                    curr_pos += +mismatch.base;
+                    curr_pos += +mismatch.base||mismatch.base.length;
                     f = true;
                 }
                 else if(mismatch.type == "deletion") {
