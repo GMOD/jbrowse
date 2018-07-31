@@ -20,7 +20,7 @@ class CramSlightlyLazyFeature {
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_qual() { return (this.record.qualityScores || []).map(q => q+33).join(' ')}
     _get_seq() { return this.record.readBases}
-    _get_seq_id() { return this.this._refIdToName(this.record.sequenceId)}
+    _get_seq_id() { return this._store._refIdToName(this.record.sequenceId)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_secondary_alignment() { return this.record.isSecondary()}
     _get_supplementary_alignment() { return this.record.isSupplementary()}
@@ -31,23 +31,22 @@ class CramSlightlyLazyFeature {
     _get_multi_segment_last() { return this.record.isRead2()}
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
-    _get_next_seq_id() { return this.record.mate ? this.store._refIdToName(this.record.mate.sequenceId) : undefined }
+    _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
     _get_next_segment_position() { return this.record.mate
         ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
     _get_tags() { return this.record.tags }
     _get_seq() { return this.record.getReadBases() }
 
-    constructor(record) {
+    constructor(record, store) {
         this.record = record
+        this._store = store
     }
 
     tags() {
-        const tags = []
-        for(let t in this) {
-            if (/^_get_/.test(t))
-                tags.push(t)
-        }
-        return tags
+        const properties = Object.getOwnPropertyNames(CramSlightlyLazyFeature.prototype)
+        return properties
+            .filter(prop => /^_get_/.test(prop))
+            .map(methodName => methodName.replace('_get_',''))
     }
 
     id() {
@@ -340,7 +339,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     },
 
     _cramRecordToFeature(record) {
-        return new CramSlightlyLazyFeature(record)
+        return new CramSlightlyLazyFeature(record, this)
     },
 
     saveStore: function() {
