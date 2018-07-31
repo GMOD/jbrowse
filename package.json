@@ -39,7 +39,7 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
-    "@gmod/cram": "^1.1.0",
+    "@gmod/cram": "^1.2.0",
     "@gmod/gff": "^1.1.1",
     "ajv": "^6.2.1",
     "ava": "^0.25.0",

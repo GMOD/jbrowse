@@ -120,9 +120,9 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/cram@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.1.0.tgz#8263ea5250350ffc6c75952e7c93f32d92c43696"
+"@gmod/cram@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.2.0.tgz#0a08ba4fd8eac99651e83c3a02ad2926bea3ea3c"
   dependencies:
     babel-runtime "^6.26.0"
     buffer-crc32 "^0.2.13"
@@ -2731,12 +2731,6 @@ evp_bytestokey@^1.0.0, evp_bytestokey@^1.0.3:
     md5.js "^1.3.4"
     safe-buffer "^5.1.1"
 
-exec-sh@^0.2.0:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/exec-sh/-/exec-sh-0.2.2.tgz#2a5e7ffcbd7d0ba2755bdecb16e5a427dfbdec36"
-  dependencies:
-    merge "^1.2.0"
-
 execa@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/execa/-/execa-0.7.0.tgz#944becd34cc41ee32a63a9faf27ad5a65fc59777"
@@ -4534,10 +4528,6 @@ meow@^3.1.0, meow@^3.7.0:
 merge-descriptors@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/merge-descriptors/-/merge-descriptors-1.0.1.tgz#b00aaa556dd8b44568150ec9d1b953f3f90cbb61"
-
-merge@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/merge/-/merge-1.2.0.tgz#7531e39d4949c281a66b8c5a6e0265e8b05894da"
 
 methods@~1.1.2:
   version "1.1.2"
@@ -7322,13 +7312,6 @@ vm-browserify@0.0.4:
 "walkdir@>= 0.0.1":
   version "0.0.12"
   resolved "https://registry.yarnpkg.com/walkdir/-/walkdir-0.0.12.tgz#2f24f1ade64aab1e458591d4442c8868356e9281"
-
-watch@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/watch/-/watch-1.0.2.tgz#340a717bde765726fa0aa07d721e0147a551df0c"
-  dependencies:
-    exec-sh "^0.2.0"
-    minimist "^1.2.0"
 
 watchpack@^1.4.0:
   version "1.6.0"
