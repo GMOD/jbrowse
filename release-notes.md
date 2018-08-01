@@ -4,7 +4,7 @@
 
  * Add a internal code attribute for XHR requests that use byte-range headers so that if a
    server does not support it, an error is returned immediately. Thanks to @theChinster
-   for the motivating example (ssue #1131, pull #1134, @cmdcolin).
+   for the motivating example (ssue #1131, issue #1132, pull #1134, @cmdcolin).
 
  * Speed up TwoBit file processing with a robust implementation of the file spec. The
    improvements are contained in a new npm module [@gmod/twobit](https://www.npmjs.com/package/@gmod/twobit).
@@ -28,7 +28,7 @@
 
  * Fix long standing bug related to not being able to configure dataRoot in the config file.
    Now you can set dataRoot=mydirectory to make JBrowse load mydirectory instead of the
-   default `data` by default (issue #627, @cmdcolin).
+   default `data` by default (issue #627, pull #1144, @cmdcolin).
 
  * Added hashing of the BAM feature data to generate unique IDs in order to distinguish
    reads that have nearly identical information (same read name, start, end, seq, etc).
