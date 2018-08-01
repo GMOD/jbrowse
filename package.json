@@ -1,7 +1,7 @@
 {
   "name": "@gmod/jbrowse",
   "main": "browser/main.js",
-  "version": "1.15.1-alpha.0",
+  "version": "1.15.1",
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {

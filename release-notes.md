@@ -1,4 +1,4 @@
-{{$NEXT}}
+# Release 1.15.1     2018-08-01 23:59:52 UTC
 
 ## Minor Improvements
 
