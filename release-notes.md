@@ -4,7 +4,7 @@
 
  * Add a internal code attribute for XHR requests that use byte-range headers so that if a
    server does not support it, an error is returned immediately. Thanks to @theChinster
-   for the motivating example (ssue #1131, issue #1132, pull #1134, @cmdcolin).
+   for the motivating example (issue #1131, issue #1132, pull #1134, @cmdcolin).
 
  * Speed up TwoBit file processing with a robust implementation of the file spec. The
    improvements are contained in a new npm module [@gmod/twobit](https://www.npmjs.com/package/@gmod/twobit).
