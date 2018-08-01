@@ -1,9 +1,10 @@
 define( ['dojo/_base/array',
          'JBrowse/Util',
+         'JBrowse/Digest/Crc32',
          './Util',
          'JBrowse/Model/SimpleFeature'
         ],
-        function( array, Util, BAMUtil, SimpleFeature ) {
+        function( array, Util, Crc32, BAMUtil, SimpleFeature ) {
 
 var SEQRET_DECODER = ['=', 'A', 'C', 'x', 'G', 'x', 'x', 'x', 'T', 'x', 'x', 'x', 'x', 'x', 'x', 'N'];
 var CIGAR_DECODER  = ['M', 'I', 'D', 'N', 'S', 'H', 'P', '=', 'X', '?', '?', '?', '?', '?', '?', '?'];
@@ -100,7 +101,7 @@ var Feature = Util.fastDeclare(
     },
 
     id: function() {
-        return this._get('name')+'/'+this._get('md')+'/'+this._get('cigar')+'/'+this._get('start')+'/'+this._get('multi_segment_next_segment_reversed');
+        return Crc32.crc32_raw(this.bytes.byteArray, this.bytes.start, this.bytes.end);
     },
 
     multi_segment_all_aligned: function() {

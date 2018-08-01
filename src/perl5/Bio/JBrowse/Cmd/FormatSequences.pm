@@ -241,7 +241,7 @@ sub exportFAI {
             $refSeqs{$1} = {
                 name => $1,
                 start => 0,
-                end => $2,
+                end => $2+0,
                 offset => $3,
                 line_length => $4,
                 line_byte_length => $5

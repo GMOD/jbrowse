@@ -8,6 +8,63 @@ const cramIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
+class CramSlightlyLazyFeature {
+
+    _get_name() { return this.record.readName }
+    _get_start() { return this.record.alignmentStart-1 }
+    _get_end() { return this.record.alignmentStart+this.record.lengthOnRef-1 }
+    _get_cram_read_features() { return this.record.readFeatures }
+    _get_type() { return 'match'}
+    _get_mapping_quality() { return this.record.mappingQuality}
+    _get_flags() { return `0x${this.record.flags.toString(16)}`}
+    _get_cramFlags() { return `0x${this.record.cramFlags.toString(16)}`}
+    _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
+    _get_qual() { return (this.record.qualityScores || []).map(q => q+33).join(' ')}
+    _get_seq() { return this.record.readBases}
+    _get_seq_id() { return this._store._refIdToName(this.record.sequenceId)}
+    _get_qc_failed() { return this.record.isFailedQc()}
+    _get_secondary_alignment() { return this.record.isSecondary()}
+    _get_supplementary_alignment() { return this.record.isSupplementary()}
+    _get_multi_segment_template() { return this.record.isPaired()}
+    _get_multi_segment_all_correctly_aligned() { return this.record.isProperlyPaired()}
+    _get_multi_segment_next_segment_unmapped() { return this.record.isMateUnmapped()}
+    _get_multi_segment_first() { return this.record.isRead1()}
+    _get_multi_segment_last() { return this.record.isRead2()}
+    _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
+    _get_unmapped() { return this.record.isSegmentUnmapped()}
+    _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
+    _get_next_segment_position() { return this.record.mate
+        ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
+    _get_tags() { return this.record.tags }
+    _get_seq() { return this.record.getReadBases() }
+
+    constructor(record, store) {
+        this.record = record
+        this._store = store
+    }
+
+    tags() {
+        const properties = Object.getOwnPropertyNames(CramSlightlyLazyFeature.prototype)
+        return properties
+            .filter(prop => /^_get_/.test(prop))
+            .map(methodName => methodName.replace('_get_',''))
+    }
+
+    id() {
+        return this.record.uniqueId + 1
+    }
+
+    get(field) {
+        const methodName = `_get_${field.toLowerCase()}`
+        if (this[methodName]) return this[methodName]()
+        return undefined
+    }
+
+    parent() {}
+
+    children() {}
+}
+
 define( [
             'dojo/_base/declare',
             'JBrowse/Errors',
@@ -238,39 +295,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     },
 
     _cramRecordToFeature(record) {
-        const data = {
-            name: record.readName,
-            start: record.alignmentStart-1,
-            end: record.alignmentStart+record.lengthOnRef-1,
-            cram_read_features: record.readFeatures,
-            type: 'match',
-            mapping_quality: record.mappingQuality,
-            flags: `0x${record.flags.toString(16)}`,
-            cramFlags: `0x${record.cramFlags.toString(16)}`,
-            strand: record.isReverseComplemented() ? -1 : 1,
-            qual: (record.qualityScores || []).map(q => q+33).join(' '),
-            seq: record.readBases,
-            seq_id: this._refIdToName(record.sequenceId),
-
-            qc_failed: record.isFailedQc(),
-            secondary_alignment: record.isSecondary(),
-            supplementary_alignment: record.isSupplementary(),
-            multi_segment_template: record.isPaired(),
-            multi_segment_all_correctly_aligned: record.isProperlyPaired(),
-            multi_segment_next_segment_unmapped: record.isMateUnmapped(),
-            multi_segment_first: record.isRead1(),
-            multi_segment_last: record.isRead2(),
-            multi_segment_next_segment_reversed: record.isMateReverseComplemented(),
-            unmapped: record.isSegmentUnmapped(),
-            next_seq_id: record.mate ? this._refIdToName(record.mate.sequenceId) : undefined,
-            next_segment_position: record.mate
-                ? ( this._refIdToName(record.mate.sequenceId)+':'+record.mate.alignmentStart) : undefined,
-            tags: record.tags,
-        }
-        return new SimpleFeature({
-            data,
-            id: (record.uniqueId + 1).toString(),
-        })
+        return new CramSlightlyLazyFeature(record, this)
     },
 
     saveStore: function() {

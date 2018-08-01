@@ -18,6 +18,7 @@ cache:
   - node_modules/
   - "$HOME/python/"
   - "$HOME/.nvm/"
+  - "$HOME/.electron/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
   - travis_phantomjs
 before_install:

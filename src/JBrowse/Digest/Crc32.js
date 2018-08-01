@@ -22,9 +22,27 @@ var Crc32 = {
         return re;
     },
 
-    crc32: function( str, crc ) {
+    crc32_raw: function( bytes, start, end, crc = 0 ) {
+        var n = 0; //a number between 0 and 255
+        var x = 0; //a hex number
+        var table = Crc32.crc32Table;
+
+        crc = crc ^ (-1);
+        for( var i = start, iTop = end; i < iTop; i++ ) {
+            n = ( crc ^ bytes[i] ) & 0xFF;
+            x = "0x" + table.substr( n * 9, 8 );
+            crc = ( crc >>> 8 ) ^ x;
+        }
+        crc = crc ^ (-1);
+        //convert to unsigned 32-bit int if needed
+        if (crc < 0) {
+            crc += 4294967296;
+        }
+        return crc;
+    },
+
+    crc32: function( str, crc = 0 ) {
         var bytes = Crc32.stringToBytes(str);
-        if( crc == window.undefined ) crc = 0;
         var n = 0; //a number between 0 and 255
         var x = 0; //a hex number
         var table = Crc32.crc32Table;

@@ -56,7 +56,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
         var renameTags = { length_on_ref: 'seq_length_on_ref' };
         var additionalTags = array.filter(
             f.tags(), function(t) {
-                return ! {name:1,score:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
+                return ! {name:1,score:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1,cram_read_features:1}[t.toLowerCase()];
             }
         )
         .map( function(tagName) {
@@ -302,7 +302,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                         align_str += ' ';
                         refer_str += '-';
                     }
-                    curr_pos += +mismatch.base;
+                    curr_pos += +mismatch.base||mismatch.base.length;
                     f = true;
                 }
                 else if(mismatch.type == "deletion") {
