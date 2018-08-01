@@ -36,11 +36,10 @@ describe(".2bit data store with T_ko.2bit", function() {
             function() { done = true; });
 
         waitsFor( function() { return done; }, 2000);
-        runs(function(){ 
-            expect(t.twoBit.byteSwapped).toBe(true);
+        runs(function(){
             expect(features.length).toEqual(1);
-            expect(features[0].seq.length).toEqual(10000);
-            expect(features[0].seq).toEqual(pythonReaderOutput);
+            expect(features[0].get('seq').length).toEqual(10000);
+            expect(features[0].get('seq')).toEqual(pythonReaderOutput);
         });
     });
 
@@ -54,8 +53,6 @@ describe(".2bit data store with T_ko.2bit", function() {
                 console.log(feature);
             },
             function() { done = true; });
-
-        expect(t.twoBit.byteSwapped).toBe(true);
 
         waitsFor( function() { return done; }, 2000);
         runs(function(){ 
@@ -89,10 +86,9 @@ describe(".2bit data store with volvox.2bit", function() {
         waitsFor( function() { return done; }, 2000);
 
 
-        runs(function(){ 
-            expect(t2.twoBit.byteSwapped).toBe(true);
+        runs(function(){
             expect(features.length).toEqual(1);
-            expect(features[0].seq.length).toEqual(50000);
+            expect(features[0].get('seq').length).toEqual(50000);
         });
     });
 
@@ -107,13 +103,11 @@ describe(".2bit data store with volvox.2bit", function() {
             },
             function() { done = true; });
 
-        expect(t2.twoBit.byteSwapped).toBe(true);
-
         waitsFor( function() { return done; }, 2000);
-        runs(function(){ 
+        runs(function(){
             expect(features.length).toEqual(1);
-            expect(features[0].seq.length).toEqual(5000);
-            expect(features[0].seq).toEqual(seqFromFasta);
+            expect(features[0].get('seq').length).toEqual(5000);
+            expect(features[0].get('seq')).toEqual(seqFromFasta);
         });
     });
 
@@ -161,8 +155,8 @@ describe(".2bit data store with random data foo.2bit", function() {
         waitsFor( function() { return done; }, 2000);
         runs(function(){
             expect(features.length).toEqual(1);
-            expect(features[0].seq.length).toEqual(159);
-            expect(features[0].seq).toEqual(seqString);
+            expect(features[0].get('seq').length).toEqual(159);
+            expect(features[0].get('seq')).toEqual(seqString);
         });
     });
 
@@ -176,10 +170,10 @@ describe(".2bit data store with random data foo.2bit", function() {
             function(){ done = true; });
 
         waitsFor( function() { return done; }, 2000);
-        runs( function() { 
+        runs( function() {
             expect(features.length).toEqual(1);
-            expect(features[0].seq.length).toEqual(159);
-            expect(features[0].seq).toEqual(seqString);
+            expect(features[0].get('seq').length).toEqual(159);
+            expect(features[0].get('seq')).toEqual(seqString);
         });
 
     });

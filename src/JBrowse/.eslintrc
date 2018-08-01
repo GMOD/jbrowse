@@ -11,6 +11,7 @@
     "electronRequire": true,
     "cjsRequire": true,
     "dojoConfig": true,
-    "__webpack_public_path__": true
+    "__webpack_public_path__": true,
+    "module": true
   }
 }

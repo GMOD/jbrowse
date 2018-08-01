@@ -344,12 +344,12 @@ return declare( null,
         var start = args.start || 0;
         var end = args.end;
         if( start && !end )
-            throw "cannot specify a fetch start without a fetch end";
+            throw new Error("cannot specify a fetch start without a fetch end")
 
         if( start < 0 )
-            throw "start cannot be negative!";
+            throw new Error("start cannot be negative!")
         if( end < 0 )
-            throw "end cannot be negative!";
+            throw new Error("end cannot be negative!")
 
 
         if( ! args.success )
@@ -463,7 +463,7 @@ return declare( null,
     },
     _error: function() {
         console.error.apply( console,  arguments );
-        throw 'file error';
+        throw new Error('file error')
     }
 
 });
