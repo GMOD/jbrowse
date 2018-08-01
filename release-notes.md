@@ -8,15 +8,18 @@
 
  * Speed up TwoBit file processing with a robust implementation of the file spec. The
    improvements are contained in a new npm module [@gmod/twobit](https://www.npmjs.com/package/@gmod/twobit).
-   Thanks to @cmdcolin for some testing and motivating examples (issue #1116, pull #1146,
-   @rbuels).
+   Thanks to @cmdcolin for some testing and motivating examples. (issue #1116, pull #1146,
+   @rbuels)
 
  * Added feature.get('seq') to CRAM features which enables detailed comparison of the
-   read versus the reference with the renderAlignment configuration (issue #1126,
-   pull #1149, @rbuels).
+   read versus the reference with the renderAlignment configuration. (issue #1126,
+   pull #1149, @rbuels)
 
- * Added support for 1000genomes CRAM 2.0 codecs via updates to the @gmod/cram npm module
-   (@rbuels).
+ * Added support for 1000genomes CRAM 2.0 codecs via updates to the @gmod/cram npm module.
+   (@rbuels)
+
+ * Add some better formatting for rich metadata in the "About this track" dialog boxes for
+   tracks. Thanks to Wojtek Bażant for the idea and implementation! (pull #1148, @wbazant)
 
 ## Bug fixes
 
