@@ -2,14 +2,36 @@
 
 ## Minor Improvements
 
- * Add a internal code attribute for XHR requests that use byte-range requests so that if a
-   server does not support it, it returns immediately. Thanks to @theChinster for the
-   motivating example (pull #1134, @cmdcolin).
+ * Add a internal code attribute for XHR requests that use byte-range headers so that if a
+   server does not support it, an error is returned immediately. Thanks to @theChinster
+   for the motivating example (ssue #1131, pull #1134, @cmdcolin).
+
+ * Speed up TwoBit file processing with a robust implementation of the file spec. The
+   improvements are contained in a new npm module [@gmod/twobit](https://www.npmjs.com/package/@gmod/twobit).
+   Thanks to @cmdcolin for some testing and motivating examples (issue #1116, pull #1146,
+   @rbuels).
+
+ * Added feature.get('seq') to CRAM features which enables detailed comparison of the
+   read versus the reference with the renderAlignment configuration (issue #1126,
+   pull #1149, @rbuels).
+
+ * Added support for 1000genomes CRAM 2.0 codecs via updates to the @gmod/cram npm module
+   (@rbuels).
 
 ## Bug fixes
 
  * Fix bug where prepare-refseqs with indexed FASTA would allows scrolling past the end of
    the chromosome (@cmdcolin).
+
+ * Fix long standing bug related to not being able to configure dataRoot in the config file.
+   Now you can set dataRoot=mydirectory to make JBrowse load mydirectory instead of the
+   default `data` by default (issue #627, @cmdcolin).
+
+ * Added hashing of the BAM feature data to generate unique IDs in order to distinguish
+   reads that have nearly identical information (same read name, start, end, seq, etc).
+   If the reads literally have identical information in them JBrowse is still unable to
+   display but this generally seems to be due to limited use case such as secondary
+   alignments in RNA-seq (issue #1108, pull #1145, @cmdcolin)
 
 # Release 1.15.0     2018-07-20 00:24:49 UTC
 
