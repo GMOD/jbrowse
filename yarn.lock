@@ -120,9 +120,9 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/cram@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.1.0.tgz#8263ea5250350ffc6c75952e7c93f32d92c43696"
+"@gmod/cram@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.3.0.tgz#8297d6d6a01434dc08b12c94a7aef1d1b8e51651"
   dependencies:
     babel-runtime "^6.26.0"
     buffer-crc32 "^0.2.13"
@@ -141,9 +141,9 @@
     tmp-promise "^1.0.4"
     typical "^2.6.1"
 
-"@gmod/twobit@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.1.0.tgz#1b5fe1abd4ffd9c9f531186d10585521eb18d79c"
+"@gmod/twobit@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.1.1.tgz#6473f42b539ed7e738541b1af397b77f124ee926"
   dependencies:
     binary-parser "^1.3.2"
     fs-extra "^7.0.0"
