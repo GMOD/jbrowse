@@ -28,6 +28,7 @@ const AUTOPREFIXER_BROWSERS = [
 var webpackConf = {
     entry: {
         main: "src/JBrowse/main",
+        browser: "src/JBrowse/standalone"
     },
     plugins: [
         new CleanWebpackPlugin(['dist']),
