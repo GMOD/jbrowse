@@ -101,3 +101,10 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
+deployment:
+  website:
+    commands:
+      - git config --global user.email "colin.diesh@gmail.com"
+      - git config --global user.name "Colin Diesh"
+      - cd website && yarn && yarn build
+
