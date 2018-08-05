@@ -1,0 +1,12 @@
+body {
+   min-width: 650px;
+}
+
+@media only screen and (max-width: 1024px) {
+    .flexContainer {
+        flex-direction: column;
+    }
+}
+
+:link { color: #0000EE; }
+:visited { color: #551A8B; }

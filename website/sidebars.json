@@ -1,0 +1,16 @@
+{
+  "docs": {
+    "Configuration guide": [
+        "configuration_guide",
+        "installation",
+        "configuration_file_formats",
+        "reference_sequence",
+        "plugins",
+        "advanced_config",
+        "screenshots"
+    ],
+    "Tutorial": ["tutorial"],
+    "FAQ": ["faq"],
+    "Developers": ["data_formats"]
+  }
+}
