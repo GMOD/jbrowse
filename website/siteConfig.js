@@ -42,7 +42,8 @@ const siteConfig = {
   /* On page navigation for the current documentation page */
   onPageNav: 'separate',
   scripts: ['https://buttons.github.io/buttons.js'],
-  blogSidebarCount: 'ALL'
+  blogSidebarCount: 'ALL',
+  latestVersion: '1.15.0'
 };
 
 module.exports = siteConfig;

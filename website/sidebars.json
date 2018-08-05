@@ -1,6 +1,6 @@
 {
   "docs": {
-    "Configuration guide": [
+    "Configuration": [
         "configuration_guide",
         "installation",
         "configuration_file_formats",
@@ -10,6 +10,7 @@
         "screenshots"
     ],
     "Tutorial": ["tutorial"],
+    "JBrowse Desktop": ["jbrowse_desktop"],
     "FAQ": ["faq"],
     "Developers": ["data_formats"]
   }

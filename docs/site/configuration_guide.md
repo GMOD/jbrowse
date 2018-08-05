@@ -9,9 +9,9 @@ This page provides a comprehensive reference guide for configuring JBrowse. If y
 
 Note: this is a **reference guide**. It is not meant to be read from beginning to end. If this is your first time setting up JBrowse, you probably want to read the [Quick-start tutorial](http://jbrowse.org/code/latest-release/docs/tutorial/index.html) first, and then consult this guide when you need information on specific things you want to do with your JBrowse.
 
-Check out the new [JBrowse FAQ](faq) page for more tips on setup and configuration.
+Check out the new [JBrowse FAQ](faq.html) page for more tips on setup and configuration.
 
-Also see the [JBrowse Desktop](jbrowse_desktop) guide here.
+Also see the [JBrowse Desktop](jbrowse_desktop.html) guide here.
 
 # Formatting Feature Data
 
@@ -405,8 +405,8 @@ Feature tracks can be configured to display a context menu of options when a use
               "title": "function(track,feature,div) { return 'Random content snippet '+Math.random()+' title!'; }",
               "iconClass" : "dijitIconDatabase",
               "action": "contentDialog",
-              "content" : "function(track,feature,div) { return ' 
- \<h2\>{name}\<\/h2\> This is some test content about feature {name}!  This message brought to you by the number \<span style=\"font-size: 300%\"\>'+Math.round(Math.random()\*100)+'\<\/span\>.  
+              "content" : "function(track,feature,div) { return '
+ \<h2\>{name}\<\/h2\> This is some test content about feature {name}!  This message brought to you by the number \<span style=\"font-size: 300%\"\>'+Math.round(Math.random()\*100)+'\<\/span\>.
             },
             {
               "label" : "function(track,feature,div) { return 'Run a JS callback '+Math.random()+' title!'; }",

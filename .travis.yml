@@ -89,3 +89,9 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
+- provider: script
+  script: website/deploy.sh
+  skip_cleanup: true
+  on:
+    perl: 5.26
+    tags: true
