@@ -80,7 +80,7 @@ script:
     MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh;
   fi
 - set +e
-- cd website && yarn && yarn build
+- cd website && yarn && yarn build && scp -r build -i gratiotquest.pem ubuntu@ec2-18-218-239-245.us-east-2.compute.amazonaws.com:~/
 after_failure:
 - cat setup.log
 deploy:
