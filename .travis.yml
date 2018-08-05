@@ -12,13 +12,13 @@ addons:
     - libgd2-noxpm-dev
   firefox: '58.0'
 cache:
+  yarn: true
   directories:
   - extlib/
   - "$HOME/perl5/"
   - node_modules/
   - "$HOME/python/"
   - "$HOME/.nvm/"
-  - "$HOME/.electron/"
   - "$HOME/geckodriver_$GECKODRIVER_VERSION"
   - travis_phantomjs
 before_install:
