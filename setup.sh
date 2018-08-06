@@ -121,6 +121,8 @@ if [ -f "src/JBrowse/Browser.js" ]; then
     done_message "" "" "FAILURE NOT ALLOWED"
 else
     log_echo "Minimal release, skipping node and Webpack build"
+    [[ -f node_modules/.bin/yarn ]] || npm install yarn
+    node_modules/.bin/yarn install --production
 fi
 
 log_echo  -n "Installing Perl prerequisites ..."
