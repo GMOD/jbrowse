@@ -63,7 +63,7 @@ release-dev: $(JS_SRCFILES) node_modules
 release-min: release-dev
 	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
 
-	for P in src browser css docs/jsdoc tests build node_modules extlib dist; do \
+	for P in src browser css docs/jsdoc tests build node_modules extlib dist utils; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
 
