@@ -1,4 +1,3 @@
-const fetch = cjsRequire('cross-fetch')
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
 const globalCache = new HttpRangeFetcher({
     size: 50 * 1024, // 50MB
