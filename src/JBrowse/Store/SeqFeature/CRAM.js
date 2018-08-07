@@ -269,7 +269,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        //this.bam.fetch( query.ref ? query.ref : this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
         const seqName = query.ref || this.refSeq.name
         const refSeqNumber = this._refNameToId(seqName)
         if (refSeqNumber === undefined) {
