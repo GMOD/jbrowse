@@ -1,9 +1,10 @@
 const fetch = cjsRequire('cross-fetch')
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
 const globalCache = new HttpRangeFetcher({
-    size: 20 * 1024, // 20MB
+    size: 50 * 1024, // 50MB
     chunkSize: Math.pow(2,18), // 256KB
     aggregationTime: 50,
+
 })
 
 define( [ 'dojo/_base/declare',
