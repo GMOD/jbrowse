@@ -1,13 +1,15 @@
+const fetch = cjsRequire('cross-fetch')
+const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
+const globalCache = new HttpRangeFetcher({
+    size: 20 * 1024, // 20MB
+    chunkSize: Math.pow(2,18), // 256KB
+    aggregationTime: 50,
+})
+
 define( [ 'dojo/_base/declare',
           'JBrowse/Model/FileBlob',
-          'JBrowse/Store/RemoteBinaryFile'
         ],
-        function( declare, FileBlob, RemoteBinaryFileCache ) {
-var globalCache = new RemoteBinaryFileCache({
-    name: 'XHRBlob',
-    maxSize: 100000000 // 100MB of file cache
-});
-
+        function( declare, FileBlob  ) {
 var XHRBlob = declare( FileBlob,
 /**
  * @lends JBrowse.Model.XHRBlob.prototype
@@ -22,7 +24,7 @@ var XHRBlob = declare( FileBlob,
      * 2006-2011.
      * @constructs
      */
-    constructor: function(url, start, end, opts) {
+    constructor(url, start, end, opts) {
         if (!opts) {
             if (typeof start === 'object') {
                 opts = start;
@@ -40,7 +42,7 @@ var XHRBlob = declare( FileBlob,
         this.opts = opts;
     },
 
-    slice: function(s, l) {
+    slice(s, l) {
         var ns = this.start, ne = this.end;
         if (ns && s) {
             ns = ns + s;
@@ -55,43 +57,52 @@ var XHRBlob = declare( FileBlob,
         return new XHRBlob(this.url, ns, ne, this.opts);
     },
 
-    fetch: function( callback, failCallback ) {
-        globalCache.get({
-            url: this.url,
-            start: this.start,
-            end: this.end,
-            success: callback,
-            failure: failCallback,
-            range: this.opts.expectRanges
-        });
+    fetch( callback, failCallback ) {
+        const length = this.end === undefined ? undefined : this.end - this.start + 1
+        if (length < 0) debugger
+        globalCache.getRange(this.url, this.start, length)
+            .then(
+                this._getResponseArrayBuffer.bind(this,callback),
+                failCallback,
+            )
     },
 
-    read: function( offset, length, callback, failCallback ) {
-        var start = this.start + offset,
-            end = start + length;
-
-        globalCache.get({
-            url: this.url,
-            start: start,
-            end: end,
-            success: callback,
-            failure: failCallback,
-            range: this.opts.expectRanges
-        });
+    async fetchBufferPromise() {
+        const length = this.end === undefined ? undefined : this.end - this.start + 1
+        if (length < 0) debugger
+        const range = await globalCache.getRange(this.url, this.start, length)
+        return range.buffer
     },
 
-    stat: function(callback, failCallback) {
-        if( this._stat ) callback(this._stat)
+    _getResponseArrayBuffer(callback,{buffer}) {
+        if (buffer.buffer) {
+            const arrayBuffer = buffer.buffer.slice(
+                buffer.byteOffset, buffer.byteOffset + buffer.byteLength
+            )
+            callback(arrayBuffer)
+        } else throw new Error('could not convert response to ArrayBuffer')
 
-        this.read(0, 10, () => {
-            const size = globalCache.getTotalSize(this.url)
-            if (size) {
-                this._stat = { size }
-                callback(this._stat)
-            }
-            else
-                failCallback(new Error(`unable to determine total size of file at ${this.url}`))
-        }, failCallback)
+    },
+
+    read( offset, length, callback, failCallback ) {
+        globalCache.getRange(this.url, this.start + offset, length)
+            .then(
+                this._getResponseArrayBuffer.bind(this,callback),
+                failCallback,
+            )
+    },
+
+    async readBufferPromise(offset, length) {
+        const range = await globalCache.getRange(this.url, this.start + offset, length)
+        return range.buffer
+    },
+
+    stat(callback, failCallback) {
+        this.statPromise().then(callback, failCallback)
+    },
+
+    statPromise() {
+        return globalCache.stat(this.url)
     }
 });
 return XHRBlob;

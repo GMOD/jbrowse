@@ -116,7 +116,7 @@ var BamFile = declare( null,
         // have to do another request, because sometimes
         // minAlignment VO is just flat wrong.
         // if headLen is not too big, this will just be in the
-        // RemoteBinaryFile cache
+        // global file cache
         thisB.data.read( 0, start+refSeqBytes,
                          function(r) {
             var unc = BAMUtil.unbgzf(r);

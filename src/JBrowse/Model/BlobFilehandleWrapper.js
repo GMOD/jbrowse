@@ -9,33 +9,17 @@ class BlobFilehandleWrapper {
         this.blob = oldStyleBlob
     }
 
-    read(buffer, offset = 0, length, position) {
-        return new Promise((resolve,reject) => {
-            this.blob.read(
-                position,
-                length,
-                dataArrayBuffer => {
-                    const data = Buffer.from(dataArrayBuffer)
-                    data.copy(buffer, offset)
-                    resolve()
-                },
-                reject,
-            )
-        })
+    async read(buffer, offset = 0, length, position) {
+        const data = await this.blob.readBufferPromise(position, length)
+        data.copy(buffer, offset)
     }
 
-    readFile() {
-        return new Promise((resolve, reject) => {
-            this.blob.fetch( dataArrayBuffer => {
-                resolve(Buffer.from(dataArrayBuffer))
-            }, reject)
-        })
+    async readFile() {
+        return this.blob.fetchBufferPromise()
     }
 
     stat() {
-        return new Promise((resolve, reject) => {
-            this.blob.stat(resolve, reject)
-        })
+        return this.blob.statPromise()
     }
 
     toString() {
