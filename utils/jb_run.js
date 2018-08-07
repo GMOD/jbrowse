@@ -46,6 +46,7 @@ app.use('/'+(opt.options['suburi']||''), express.static(
             if( /\.(txt|json|g)z$/.test(path) && ! res.req.headers.range ) {
                 res.setHeader('Content-Encoding','gzip');
             }
+            res.setHeader('Cache-Control', 'public')
         }
     }
 ));
