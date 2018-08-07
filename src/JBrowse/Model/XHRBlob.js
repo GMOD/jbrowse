@@ -1,4 +1,5 @@
-const crossFetch = cjsRequire('cross-fetch')
+cjsRequire('whatwg-fetch')
+
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
 const { Buffer } = cjsRequire('buffer')
 
@@ -8,10 +9,9 @@ define( [ 'dojo/_base/declare',
         ],
         function( declare, Util, FileBlob  ) {
 
-
-function crossFetchBinaryRange(url, start, end) {
+function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
-    return crossFetch(url, {
+    return fetch(url, {
       method: 'GET',
       headers: { range: `bytes=${start}-${end}` },
     }).then(res => {
@@ -21,27 +21,41 @@ function crossFetchBinaryRange(url, start, end) {
           `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
         )
 
-      if (! Util.isElectron() && res.status === 200) {
-        // electron charmingly returns HTTP 200 for byte range requests.
+      // translate the Headers object into a regular key -> value object.
+      // will miss duplicate headers of course
+      const headers = {}
+      for (let entry of res.headers.entries()) {
+          headers[entry[0]] = entry[1]
+      }
+
+      if (Util.isElectron()) {
+        // electron charmingly returns HTTP 200 for byte range requests,
+        // and does not fill in content-range. so we will fill it in
+        try {
+            const fs = electronRequire("fs"); //Load the filesystem module
+            const stats = fs.statSync(Util.unReplacePath(url))
+            headers['content-range'] = `${start}-${end}/${stats.size}`
+          } catch(e) {
+            console.error('Could not get size of file', url, e)
+         }
+      } else if(res.status === 200) {
         throw new Error(
           `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
         )
       }
 
-      const bufPromise = res.buffer
-        ? res.buffer()
-        : res.arrayBuffer().then(arrayBuffer => Buffer.from(arrayBuffer))
       // return the response headers, and the data buffer
-      return bufPromise.then(buffer => ({
-        headers: res.headers.map,
-        requestDate,
-        responseDate,
-        buffer,
-      }))
+      return res.arrayBuffer()
+        .then(arrayBuffer => ({
+            headers,
+            requestDate,
+            responseDate,
+            buffer: Buffer.from(arrayBuffer),
+        }))
     })
   }
   const globalCache = new HttpRangeFetcher({
-      fetch: crossFetchBinaryRange,
+      fetch: fetchBinaryRange,
       size: 50 * 1024, // 50MB
       chunkSize: Math.pow(2,18), // 256KB
       aggregationTime: 50,
