@@ -86,7 +86,7 @@ var BamFile = declare( null,
         // BGZF block, assuming BGZF blocks are no bigger than 64KB.
         thisB.data.read(
             0,
-            thisB.index.minAlignmentVO ? thisB.index.minAlignmentVO.block + 65535 : null,
+            thisB.index.minAlignmentVO ? thisB.index.minAlignmentVO.block + 65535 : undefined,
             function(r) {
                 try {
                     var uncba;
