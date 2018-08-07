@@ -1,15 +1,53 @@
+const crossFetch = cjsRequire('cross-fetch')
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
-const globalCache = new HttpRangeFetcher({
-    size: 50 * 1024, // 50MB
-    chunkSize: Math.pow(2,18), // 256KB
-    aggregationTime: 50,
-
-})
+const { Buffer } = cjsRequire('buffer')
 
 define( [ 'dojo/_base/declare',
+          'JBrowse/Util',
           'JBrowse/Model/FileBlob',
         ],
-        function( declare, FileBlob  ) {
+        function( declare, Util, FileBlob  ) {
+
+
+function crossFetchBinaryRange(url, start, end) {
+    const requestDate = new Date()
+    return crossFetch(url, {
+      method: 'GET',
+      headers: { range: `bytes=${start}-${end}` },
+    }).then(res => {
+      const responseDate = new Date()
+      if (res.status !== 206 && res.status !== 200)
+        throw new Error(
+          `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
+        )
+
+      if (! Util.isElectron() && res.status === 200) {
+        // electron charmingly returns HTTP 200 for byte range requests.
+        throw new Error(
+          `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
+        )
+      }
+
+      const bufPromise = res.buffer
+        ? res.buffer()
+        : res.arrayBuffer().then(arrayBuffer => Buffer.from(arrayBuffer))
+      // return the response headers, and the data buffer
+      return bufPromise.then(buffer => ({
+        headers: res.headers.map,
+        requestDate,
+        responseDate,
+        buffer,
+      }))
+    })
+  }
+  const globalCache = new HttpRangeFetcher({
+      fetch: crossFetchBinaryRange,
+      size: 50 * 1024, // 50MB
+      chunkSize: Math.pow(2,18), // 256KB
+      aggregationTime: 50,
+  })
+
+
 var XHRBlob = declare( FileBlob,
 /**
  * @lends JBrowse.Model.XHRBlob.prototype
