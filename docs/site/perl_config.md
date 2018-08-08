@@ -1,3 +1,15 @@
+---
+id: perl_config
+title: Sample configuration bash script
+---
+
+
+A common way of preparing data for usage in JBrowse is running the perl pre-processing scripts. These are not CGI perl scripts, they simple transform some feature data into JSON format for JBrowse to statically consume.
+
+Here is an example script that prepares an instance of tomato genomic data
+
+
+```
 #!/usr/bin/env bash
 
 ## example script that fetches and formats large data from the tomato
@@ -109,3 +121,4 @@ bin/flatfile-to-json.pl $COMPRESS  \
 bin/generate-names.pl --out $OUT;
 
 echo "To see the formatted ITAG2.3 tomato genome, point your browser at http://your.jbrowse.root/index.html?data=sample_data/json/tomato";
+```

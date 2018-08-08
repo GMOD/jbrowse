@@ -13,9 +13,9 @@ However, there have been a HUGE number of smaller improvements and bugfixes, hav
 
 ## Files for download
 
-*   [JBrowse-1.12.4.zip](https://github.com/GMOD/jbrowse/releases/download/1.12.4-release/JBrowse-1.12.4.zip "download JBrowse-1.12.4.zip") - 5.7M
+*   [JBrowse-1.12.4.zip](https://github.com/GMOD/jbrowse/releases/download/1.12.4-release/JBrowse-1.12.4.zip) - 5.7M
 file SHA1 9c3b88d982ceb86de9999e49ddde631d6b41a28f
-*   [JBrowse-1.12.4-dev.zip](https://github.com/GMOD/jbrowse/releases/download/1.12.4-release/JBrowse-1.12.4-dev.zip "download JBrowse-1.12.4-dev.zip") - 30M
+*   [JBrowse-1.12.4-dev.zip](https://github.com/GMOD/jbrowse/releases/download/1.12.4-release/JBrowse-1.12.4-dev.zip) - 30M
 file SHA1 bb3fa872cbc57055712114e3e01cdcad6776a3b6
 
 ## Minor improvements

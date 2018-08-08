@@ -1,0 +1,63 @@
+---
+id: canvas_features
+title: CanvasFeatures
+---
+
+CanvasFeatures are an alternative to HTMLFeatures and display features on the genome, including genes using HTML5 canvases. They are faster than HTML features and are somewhat easier to configure since it can be done in the config instead of via CSS styling.
+
+The flatfile-to-json.pl by can output CanvasFeatures using the --trackType CanvasFeatures option
+
+For more info on loading with flatfile-to-json.pl see the[flatfile-to-json.pl](flatfile-to-json.pl) docs.
+
+
+
+## CanvasFeatures Configuration Options
+
+Introduced in JBrowse 1.10.0, the new JBrowse CanvasFeatures tracks are faster and easier to configure than HTMLFeatures tracks.
+
+|Option|Description|
+|------|-----------|
+|`maxHeight`|Maximum height, in pixels, that the track is allowed to grow to. When it reaches this height, features that stack higher than this will not be shown, and a "Max height reached" message will be displayed. Default 600 pixels.|
+|`style→showLabels`|If true, allows feature labels to be shown if features are not too dense on the screen. Default `true`.|
+|`style→showTooltips`|If true, allows feature name tooltips to be shown. Default true.|
+|`displayMode`|'normal', 'compact', or 'collapsed'. Sets the initial display mode of the track. Default 'normal'.|
+|`style→featureScale`|Minimum zoom scale (pixels/basepair) for displaying individual features in the track. Not set by default, and overrides the `maxFeatureScreenDensity`.|
+|`maxFeatureScreenDensity`|Maximum density of features to display on the screen. If this is exceeded, will display either feature density histograms (if available), or a "too many features to show" or "too much data to show" message. The units of this number are features per screen width in pixels. Defaults to 0.5. If increased to \~6 then it should pretty much always go away|
+|`glyph`|JS class name of the glyph to use for each feature. By default, it tries to guess for each feature based on its `type` attribute, and uses JBrowse/View/FeatureGlyph/Box if it cannot find something better. Can be a callback with signature (feature), returning a string class name.|
+|`menuTemplate`|Optional menu configuration for right-click menus on features. Can be as large and complicated as you want. See [Right-click_Context_Menus](#right-click-context-menus "wikilink") below. If set to null or false, disables feature right-click menus.|
+|`style→maxDescriptionLength`|Maximum length, in characters, of long feature descriptions, for glyphs that support them. Default 70.|
+|`style→color`|Basic color of features. Most glyphs interpret this as the fill color of the rectangle they draw. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default 'goldenrod'.|
+|`style→mouseovercolor`|Color of the overlay drawn on top of features when the mouse hovers over them. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default rgba(0,0,0,0.3), which is semi-transparent black.|
+|`style→borderColor`|Color of the borders drawn around boxes in glyphs. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default varies from glyph to glyph.|
+|`style→borderWidth`|Width of the borders drawn around boxes in glyphs. Default 0.5 if borderColor specified|
+|`style→height`|Height in pixels of glyphs. Default value varies from glyph to glyph.|
+|`style→marginBottom`|Margin space to leave below each feature when arranging them in the view. Default 2 pixels.|
+|`style→strandArrow`|If true, allow glyphs to draw strand arrowheads on features that are stranded. Default `true`.|
+|`style→label`|Comma-separated list of case-insensitive feature tags to use for showing the feature's label. The first one found will be used. Default 'name,id'.|
+|`style→textFont`|Font used for feature labels. Same format as CSS font rules. Default 'normal 12px Univers,Helvetica,Arial,sans-serif'.|
+|`style→textColor`|Color of feature labels. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default 'black'.|
+|`style→text2Color`|Color of feature descriptions. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default 'blue'.|
+|`style→text2Font`|Font used for feature descriptions. Same format as CSS font rules. Default 'normal 12px Univers,Helvetica,Arial,sans-serif'.|
+|`style→description`|Comma-separated list of case-insensitive feature tags to check for the feature's long description. The first one found will be used. Default 'note,description'. If blank no description is used.|
+|`style→connectorColor`|Color of the connecting line drawn between boxes in glyphs that draw segments (like the Segments, ProcessedTranscript, and Gene glyphs). Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default '\#333'.|
+|`style→connectorThickness`|Thickness in pixels of the connecting line drawn between boxes in glyphs that draw segments (like the Segments, ProcessedTranscript, and Gene glyphs). Default 1.|
+|`style→utrColor`|Color of UTR regions drawn by ProcessedTranscript and Gene glyphs. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Defaults to be a color that complements the current `style→color` value (calculated using a bit of color theory).|
+|`subParts`|Comma-separated list of feature `type` tags that will be drawn as subparts of parent features. Defaults to all features for Segments glyphs, and 'CDS, UTR, five_prime_UTR, three_prime_UTR' for ProcessedTranscript glyphs.|
+|`transcriptType`|For Gene glyphs, the feature `type` tag that indicates that a subfeature is a processed transcript. Defaults to 'mRNA'.|
+|`labelTranscripts`|For Gene glyphs, if true, draw a label with the transcript's name beside each transcript, if space permits. Default true.|
+|`style→transcriptLabelColor`|For Gene glyphs, the color of transcript name labels. Color syntax is the same as that used for CSS, specified at <http://dev.w3.org/csswg/css-color/>. Default 'black'.|
+|`style→transcriptLabelFont`|For Gene glyphs, the font used for transcript name labels. Same format as CSS font rules. Default 'normal 10px Univers,Helvetica,Arial,sans-serif'.|
+|`impliedUTRs`|Introduced in JBrowse 1.10.5. If true, indicates that UTRs are not present in the feature data, but should be inferred from the overlap of exon and CDS features in ProcessedTranscript and Gene glyphs. Default false. Can be a callback.|
+|`maxFeatureGlyphExpansion`|A factor to expand the glyphs by so that if subfeatures go outside the bounds of the parent feature, they will still be rendered. Default: 500bp/current scale.|
+|`inferCdsParts `|If a single CDS span covers the whole gene except the UTRs, then it is drawn as though it only covers the exon parts (not the introns). Default: false. Added in 1.12.3|
+|`disableCollapsedClick`|Disables the click action when track is collapsed. Default: false. Added in 1.13.0|
+|`enableCollapsedMouseover`|Enables the mouseover action when track is collapsed. Default: false. Added in 1.13.0. See the ChromHMM track in volvox sample browser for example of mouseover on the collapsed track|
+|`topLevelFeatures`|Specifies which feature types should be considered "top-level" for this track. For example, if you have a track with gene-\>mRNA-\>CDS features, but for some reason want to only display the mRNA features, you can set topLevelFeatures=mRNA. Can also be an array of string types, or a function callback that returns an array of types. Default: all features are displayed. Added in 1.14.0|
+|`ItemRgb`|If set to true, the RGB colors specified in BigBed or BED files will be used for the feature's background color. Default true. Added in 1.14.0|
+
+Note: the "compact" displayMode for CanvasFeatures tracks uses style-\>height and multiplies it by 0.35 to create the compact view. Therefore, if you adjust style-\>height to a smaller default value, then you can create "ultra compact" visualizations.
+
+### Customizing CanvasFeatures tracks with callbacks
+
+Unlike HTML-based feature tracks, canvas-based feature tracks don't use modify and create hooks. Instead, the `glyph` variable, and all of the `style` variables, support customization callbacks.
+

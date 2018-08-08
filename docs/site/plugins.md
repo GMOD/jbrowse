@@ -1,7 +1,35 @@
 ---
 id: plugins
-title: Plugin guide
+title: Installing and writing plugins
 ---
+# Plugins
+
+More than 40 third-party plugins are available that extend or change JBrowse's functionality. For a list of them, see <https://gmod.github.io/jbrowse-registry/>.
+
+## Installing Plugins
+
+Plugins can be manually copied into the JBrowse \`plugins\` directory. For example, if you had a plugin called MyAwesomePlugin, you would install it by copying it into the JBrowse-1.x.x/plugins/MyAwesomePlugin directory.
+
+**Note:** Beginning in JBrowse 1.13.0, you need to use the \`\*-dev.zip\` build of JBrowse if you use any plugins beyond the default ones, and any time you add or change a plugin, you must re-run `setup.sh` to build the plugin's code into JBrowse.
+
+Also note that plugins that are installed are not necessarily activated for every configuration in a JBrowse installation, they are just available.
+
+## Activating Plugins
+
+To activate a plugin, add a `plugins` configuration variable in your `jbrowse_conf.json` file in the top-level JBrowse directory, and add an entry telling JBrowse the names of the plugins to load.
+
+Example:
+
+
+      // array of strings (will look in JBrowse-1.x.x/plugins/MyAwesomePlugin)
+      "plugins": [ 'MyAwesomePlugin' ]
+
+or in the text .conf format:
+
+    plugins =
+        + MyAwesomePlugin
+        + PubAnnotation
+
 
 ## Writing JBrowse Plugins
 
@@ -51,5 +79,67 @@ return declare( JBrowsePlugin,
 ~~~~
 
 #### Example plugin directory contents
-```
+
+
+   plugins/MyPlugin/js
+   plugins/MyPlugin/js/main.js
+   plugins/MyPlugin/js/MyPlugin.profile.js
+   plugins/MyPlugin/css
+   plugins/MyPlugin/css/main.css
+   plugins/MyPlugin/img
+   plugins/MyPlugin/img/myimage.png
    plugins/MyPlugin/js
+
+The bin/new-plugin.pl will initialize a directory structure for you, e.g. run
+
+    bin/new-plugin.pl MyPlugin
+
+
+### Distributing plugins via npm
+
+Distributing a plugin via npm
+JBrowse 1.13.0 and higher can also use plugins that are distributed via npm. To distribute your plugin on npmjs.org, you just need to add a package.json file to the top-level directory of your plugin, and your plugin's npm package name must end in '-jbrowse-plugin'. Note that the plugin is named "my-jbrowse-plugin" on npm, and includes a "jbrowsePlugin"
+
+Here is an example package.json file for MyPlugin:
+
+	{
+	  "name": "my-jbrowse-plugin",
+	  "version": "1.0.0",
+	  "description": "JBrowse client plugin for adding amazing things",
+	  "main": "js/main.js",
+	  "author": "Josephina Example",
+	  "license": "SEE LICENSE FILE IN LICENSE.md",
+	  "dependencies": {
+	  },
+	  "devDependencies": {
+	  },
+	  "repository": {
+		"type": "git",
+		"url": "git+https://github.com/josephina/myplugin.git"
+	  },
+	  "keywords": [
+		"genome",
+		"jbrowse"
+	  ],
+	  "bugs": {
+		"url": "https://github.com/josephina/myplugin/issues"
+	  },
+	  "homepage": "https://github.com/josephina/myplugin#readme",
+	  "jbrowsePlugin": {
+		"name": "MyPlugin"
+	  }
+	}
+
+### Other useful classes
+
+Implementers of plugins can extend different parts of JBrowse. Three track lists are currently implemented: `JBrowse/View/TrackList/Simple`, `JBrowse/View/TrackList/Hierarchical`, and `JBrowse/View/TrackList/Faceted`.
+
+The Hierarchical and Faceted track lists use the track metadata store (`JBrowse/Store/TrackMetaData`), which is instantiated and kept by the Browser object, for access to track metadata (defined as specified in the “Data Sources” section). In particular, the category used by the hierarchical track selector is a piece of track metadata called “category”.
+
+The `JBrowse/GenomeView` class manages the main genome view, where the tracks are displayed (see Figure 1). It manages showing and hiding tracks, reordering them, scrolling and zooming, and so forth.
+
+Track objects query data from a feature store, and draw it in the GenomeView pane. The implementations are in `JBrowse/View/Track/` for which the base class is `JBrowse/View/Track/BlockBased`.
+
+CanvasFeatures tracks use various glyph subclasses, locatable in the `JBrowse/View/FeatureGlyph/` directory and inheriting from the base class `JBrowse/View/FeatureGlyph`.
+
+

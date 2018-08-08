@@ -1,17 +1,62 @@
 {
   "docs": {
-    "Configuration": [
-        "configuration_guide",
-        "installation",
-        "configuration_file_formats",
-        "reference_sequence",
-        "plugins",
-        "advanced_config",
-        "screenshots"
+    "Tutorial": [
+      "installation",
+      "tutorial",
+      "tutorial_classic"
     ],
-    "Tutorial": ["tutorial"],
+    "Configuring tracks": [
+      "reference_sequence",
+      "canvas_features",
+      "html_features",
+      "alignments",
+      "bigwig",
+      "variants"
+    ],
+    "Advanced configuration": [
+      "mouse_configs",
+      "configuration_file_formats",
+      "dataset_selector",
+      "track_selectors",
+      "track_metadata",
+      "global_options",
+      "compression",
+      "authentication"
+    ],
+    "Command line": [
+      "flatfile-to-json.pl",
+      "remove-track.pl",
+      "ucsc-to-json.pl",
+      "generate-names.pl",
+      "prepare-refseqs.pl",
+      "biodb-to-json.pl"
+    ],
     "JBrowse Desktop": ["jbrowse_desktop"],
-    "FAQ": ["faq"],
-    "Developers": ["data_formats"]
+    "FAQ": [
+      "faq_setup",
+      "faq_general",
+      "faq_customization",
+      "faq_troubleshooting",
+      "faq_other",
+      "faq_tips",
+      "faq_optimizations",
+      "faq_data_loading",
+      "faq_track_selector",
+      "faq_plugins"
+    ],
+    "Other topics": [
+      "url_strings",
+      "image_tracks",
+      "feature_coverage",
+      "screenshots",
+      "events",
+      "perl_config",
+      "data_formats",
+      "plugins",
+      "cors",
+      "sparql",
+      "data_export",
+      "usage_stats"
+    ]
   }
 }

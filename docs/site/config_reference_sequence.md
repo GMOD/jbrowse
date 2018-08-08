@@ -3,6 +3,12 @@ id: reference_sequence
 title: Reference sequence configuration
 ---
 
+
+The reference sequence track displays the genome sequence
+
+**For information on creating the reference sequence track, view [prepare-refseqs.pl](prepare_refseqs.md) in the config or the [indexed file tutorial](tutorial.md)**
+
+
 # Reference Sequences
 
 The reference sequences on which the browser will display annotations, and which provide a common coordinate system for all tracks. At a close enough zoom level, the sequence bases are visible in the "Reference Sequence" track.
@@ -47,9 +53,29 @@ Example (in data/tracks.conf)
       + bethsCrazyBananasContig
       + ctgAZed
 
-## prepare-refseqs.pl
+## Codon table
 
-This script is used to format sequence data for use by JBrowse, and must be run before adding other tracks. In addition to formatting the sequence data, this script creates a track called "DNA" that displays the reference sequence. The simplest way to use it is with the --fasta option, which uses a single sequence or set of reference sequences from a [FASTA](/Glossary#FASTA "wikilink") file:
+The Sequence track added support for using a specified codon table or partial codon table, with start or stop codons highlighted
 
-`bin/prepare-refseqs.pl --fasta <fasta file> [options]`
+|Option|Value|
+|------|-----|
+|`codonTable`|Specify a codon table or partial codon table. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonTable": { "AAA": "N" }. Available since 1.11.6|
+|`codonStarts`|Specify a set of start codons. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonStarts": [ "AAA" ]. Available since 1.12.0|
+|`codonStops`|Specify a set of stop codons. See <http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi>. Example "codonStops": [ "AAA" ]. Available since 1.12.0|
 
+Note that the colors of nucleotide bases rendered is controlled via CSS, so you can add custom CSS to a plugin or edit the jbrowse CSS to override it. The classes are
+
+`base_n,base_a,base_g,base_t,base_c`
+
+The amino acid track highlights can also be controlled via CSS. They can be either the letter "aminoAcid_m" for example or the "aminoAcid_start", "aminoAcid_stop" classes
+```
+.translatedSequence td.aminoAcid_start
+.translatedSequence td.aminoAcid_m
+.translatedSequence td.aminoAcid_k
+```
+
+## Other options
+
+|Option|Value|
+|------|-----|
+|`useAsRefSeqStore`|Make a given track specifically identified as a refseq store, and JBrowse will then use the store class specified on your track to retrieve the data for the FASTA in "View details" popups, etc.|

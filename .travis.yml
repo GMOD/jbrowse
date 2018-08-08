@@ -37,6 +37,8 @@ install:
 - source ~/python/bin/activate
 - pip install nose selenium
 script:
+- if [[ $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\]) ]]; then echo "Updating docs"; website/deploy.sh; fi;
+- if [[ $TRAVIS_COMMIT_MESSAGE =~ (\[update docs only\]) ]]; then echo "Updating docs only!"; website/deploy.sh; exit 0; fi;
 # these versions *should* already be set in version control, but set them again here just in case
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
