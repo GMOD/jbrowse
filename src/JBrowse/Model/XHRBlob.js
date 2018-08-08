@@ -1,12 +1,66 @@
+cjsRequire('whatwg-fetch')
+
+const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
+const { Buffer } = cjsRequire('buffer')
+
 define( [ 'dojo/_base/declare',
+          'JBrowse/Util',
           'JBrowse/Model/FileBlob',
-          'JBrowse/Store/RemoteBinaryFile'
         ],
-        function( declare, FileBlob, RemoteBinaryFileCache ) {
-var globalCache = new RemoteBinaryFileCache({
-    name: 'XHRBlob',
-    maxSize: 100000000 // 100MB of file cache
-});
+        function( declare, Util, FileBlob  ) {
+
+function fetchBinaryRange(url, start, end) {
+    const requestDate = new Date()
+    return fetch(url, {
+      method: 'GET',
+      headers: { range: `bytes=${start}-${end}` },
+    }).then(res => {
+      const responseDate = new Date()
+      if (res.status !== 206 && res.status !== 200)
+        throw new Error(
+          `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
+        )
+
+      // translate the Headers object into a regular key -> value object.
+      // will miss duplicate headers of course
+      const headers = {}
+      for (let entry of res.headers.entries()) {
+          headers[entry[0]] = entry[1]
+      }
+
+      if (Util.isElectron()) {
+        // electron charmingly returns HTTP 200 for byte range requests,
+        // and does not fill in content-range. so we will fill it in
+        try {
+            const fs = electronRequire("fs"); //Load the filesystem module
+            const stats = fs.statSync(Util.unReplacePath(url))
+            headers['content-range'] = `${start}-${end}/${stats.size}`
+          } catch(e) {
+            console.error('Could not get size of file', url, e)
+         }
+      } else if(res.status === 200) {
+        throw new Error(
+          `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,
+        )
+      }
+
+      // return the response headers, and the data buffer
+      return res.arrayBuffer()
+        .then(arrayBuffer => ({
+            headers,
+            requestDate,
+            responseDate,
+            buffer: Buffer.from(arrayBuffer),
+        }))
+    })
+  }
+  const globalCache = new HttpRangeFetcher({
+      fetch: fetchBinaryRange,
+      size: 50 * 1024, // 50MB
+      chunkSize: Math.pow(2,18), // 256KB
+      aggregationTime: 50,
+  })
+
 
 var XHRBlob = declare( FileBlob,
 /**
@@ -22,7 +76,7 @@ var XHRBlob = declare( FileBlob,
      * 2006-2011.
      * @constructs
      */
-    constructor: function(url, start, end, opts) {
+    constructor(url, start, end, opts) {
         if (!opts) {
             if (typeof start === 'object') {
                 opts = start;
@@ -40,7 +94,7 @@ var XHRBlob = declare( FileBlob,
         this.opts = opts;
     },
 
-    slice: function(s, l) {
+    slice(s, l) {
         var ns = this.start, ne = this.end;
         if (ns && s) {
             ns = ns + s;
@@ -55,43 +109,52 @@ var XHRBlob = declare( FileBlob,
         return new XHRBlob(this.url, ns, ne, this.opts);
     },
 
-    fetch: function( callback, failCallback ) {
-        globalCache.get({
-            url: this.url,
-            start: this.start,
-            end: this.end,
-            success: callback,
-            failure: failCallback,
-            range: this.opts.expectRanges
-        });
+    fetch( callback, failCallback ) {
+        const length = this.end === undefined ? undefined : this.end - this.start + 1
+        if (length < 0) debugger
+        globalCache.getRange(this.url, this.start, length)
+            .then(
+                this._getResponseArrayBuffer.bind(this,callback),
+                failCallback,
+            )
     },
 
-    read: function( offset, length, callback, failCallback ) {
-        var start = this.start + offset,
-            end = start + length;
-
-        globalCache.get({
-            url: this.url,
-            start: start,
-            end: end,
-            success: callback,
-            failure: failCallback,
-            range: this.opts.expectRanges
-        });
+    async fetchBufferPromise() {
+        const length = this.end === undefined ? undefined : this.end - this.start + 1
+        if (length < 0) debugger
+        const range = await globalCache.getRange(this.url, this.start, length)
+        return range.buffer
     },
 
-    stat: function(callback, failCallback) {
-        if( this._stat ) callback(this._stat)
+    _getResponseArrayBuffer(callback,{buffer}) {
+        if (buffer.buffer) {
+            const arrayBuffer = buffer.buffer.slice(
+                buffer.byteOffset, buffer.byteOffset + buffer.byteLength
+            )
+            callback(arrayBuffer)
+        } else throw new Error('could not convert response to ArrayBuffer')
 
-        this.read(0, 10, () => {
-            const size = globalCache.getTotalSize(this.url)
-            if (size) {
-                this._stat = { size }
-                callback(this._stat)
-            }
-            else
-                failCallback(new Error(`unable to determine total size of file at ${this.url}`))
-        }, failCallback)
+    },
+
+    read( offset, length, callback, failCallback ) {
+        globalCache.getRange(this.url, this.start + offset, length)
+            .then(
+                this._getResponseArrayBuffer.bind(this,callback),
+                failCallback,
+            )
+    },
+
+    async readBufferPromise(offset, length) {
+        const range = await globalCache.getRange(this.url, this.start + offset, length)
+        return range.buffer
+    },
+
+    stat(callback, failCallback) {
+        this.statPromise().then(callback, failCallback)
+    },
+
+    statPromise() {
+        return globalCache.stat(this.url)
     }
 });
 return XHRBlob;

@@ -169,7 +169,8 @@ return declare( [ SeqFeatureStore, MismatchesMixin ], {
                                         if( sequence ) {
                                             for( var base = leftBase; base <= rightBase; base++ ) {
                                                 var bin = binNumber( base );
-                                                coverageBins[bin].refBase = sequence[bin];
+                                                if (coverageBins[bin])
+                                                    coverageBins[bin].refBase = sequence[bin];
                                             }
                                         }
                                         makeFeatures();

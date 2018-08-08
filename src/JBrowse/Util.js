@@ -220,7 +220,11 @@ Util = {
     },
 
     resolveUrl: function(baseUrl, relativeUrl) {
-        if(this.isElectron() && relativeUrl[0] == '/') return relativeUrl;
+        if(this.isElectron()) {
+            // url.resolve does not correctly resolve absolute file urls
+            if (relativeUrl.substr(0,8) === 'file:///')
+                return relativeUrl
+        }
         return url.resolve(baseUrl, relativeUrl)
     },
 

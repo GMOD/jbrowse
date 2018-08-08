@@ -86,35 +86,39 @@ var FileBlob = declare( null,
             .fetch( callback, failCallback );
     },
 
+    readBufferPromise(offset,length) {
+        return new Promise((resolve,reject) => {
+            this.read(offset, length, data => {
+                resolve(window.Buffer.from(data))
+            }, reject)
+        })
+    },
+
     fetch: function( callback, failCallback ) {
-        var that = this,
-            reader = new FileReader();
-        reader.onloadend = function(ev) {
-            callback( that._stringToBuffer( reader.result ) );
-        };
-        reader.readAsBinaryString( this.blob );
+        try {
+            const reader = new FileReader()
+            reader.onloadend = ev => {
+                callback( reader.result )
+            }
+            reader.onerror = failCallback
+            reader.readAsArrayBuffer(this.blob)
+        } catch(e) { failCallback(e) }
+    },
+
+    fetchBufferPromise() {
+        return new Promise((resolve,reject) => {
+            this.fetch(data => {
+                resolve(window.Buffer.from(data))
+            }, reject)
+        })
     },
 
     stat(callback,failCallback) {
-        let stat
-        try {
-            stat = { size: this.blob.size }
-        } catch(e) {
-            failCallback(e)
-            return
-        }
-        callback(stat)
+        this.statPromise().then(callback, failCallback)
     },
 
-    _stringToBuffer: function(result) {
-        if( ! result || ! has('typed-arrays') )
-            return null;
-
-        var ba = new Uint8Array( result.length );
-        for ( var i = 0; i < ba.length; i++ ) {
-            ba[i] = result.charCodeAt(i);
-        }
-        return ba.buffer;
+    async statPromise() {
+        return { size: this.blob.size }
     }
 
 });

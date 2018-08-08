@@ -86,7 +86,7 @@ var BamFile = declare( null,
         // BGZF block, assuming BGZF blocks are no bigger than 64KB.
         thisB.data.read(
             0,
-            thisB.index.minAlignmentVO ? thisB.index.minAlignmentVO.block + 65535 : null,
+            thisB.index.minAlignmentVO ? thisB.index.minAlignmentVO.block + 65535 : undefined,
             function(r) {
                 try {
                     var uncba;
@@ -116,7 +116,7 @@ var BamFile = declare( null,
         // have to do another request, because sometimes
         // minAlignment VO is just flat wrong.
         // if headLen is not too big, this will just be in the
-        // RemoteBinaryFile cache
+        // global file cache
         thisB.data.read( 0, start+refSeqBytes,
                          function(r) {
             var unc = BAMUtil.unbgzf(r);
