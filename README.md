@@ -25,7 +25,7 @@ Alternatively, run `utils/jb_run.js -p 3000` and access http://localhost:3000/in
 
 *Also note: After editing a file, you must re-run the webpack build with `npm run build` or you can keep webpack running in "watch" mode by running  `npm run watch`.*
 
-*Also also note: git clone by default checks out the dev branch of jbrowse. The master branch contains the latest stable release*
+*Also also note: by default `git clone` will clone the master branch which contains the latest stable release. The latest development branch is called dev. Run `git checkout dev` after clone to retrieve this*
 
 # Installing as an npm module
 
