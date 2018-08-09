@@ -112,6 +112,13 @@ return declare( TabixIndex, {
         deferred.resolve();
     },
 
+    dummyBlockFeatureCount: function(refName) {
+        var tid = this.getRefId( refName );
+        var indexes = this.indices[tid];
+        console.log(indexes);
+        var ret = indexes.binIndex[this._bin_limit()+1];
+        return ret[ret.length-1].minv.offset;
+    },
 
     /**
      * Get an array of Chunk objects for the given ref seq id and range.
@@ -240,6 +247,9 @@ return declare( TabixIndex, {
         for (k = 585  + (beg>>17); k <= 585  + (end>>17); ++k) list.push(k);
         for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
         return list;
+    },
+    _bin_limit: function(min_shift, depth=5) {
+        return ((1 << (depth+1)*3) - 1) / 7;
     }
 
 });

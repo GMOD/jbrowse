@@ -7,7 +7,7 @@ define([
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/TabixIndexedFile',
-            'JBrowse/Store/SeqFeature/TabixGlobalStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
             './BED/Parser'
