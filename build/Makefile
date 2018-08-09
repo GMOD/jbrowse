@@ -6,8 +6,6 @@ JS_SRCFILES = $(shell find $(JSDIR) -type f -and -name '*.js')
 
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
-RELEASE_FULL = $(RELEASE_NAME)-dev
-RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_FULL)/
 RELEASE_MIN  = $(RELEASE_NAME)
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
@@ -50,18 +48,10 @@ release-notes.html: release-notes.md
 
 node_modules:
 	yarn install
-
-release-dev: $(JS_SRCFILES) node_modules
+release-min: node_modules
 	rm -rf dist
-	mkdir $(RELEASE_FULL_DIR);
-	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/node_modules $(RELEASE_FULL_DIR)/extlib;
-
-	# zip up the dev release
-	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
-
-release-min: release-dev
-	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
+	mkdir $(RELEASE_MIN);
+	cp -R `ls -1d * | grep -v $(RELEASE_MIN)` $(RELEASE_MIN_DIR);
 
 	for P in src browser css docs/jsdoc tests build node_modules extlib dist utils; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
