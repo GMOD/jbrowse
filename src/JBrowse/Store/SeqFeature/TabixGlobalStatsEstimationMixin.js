@@ -23,47 +23,12 @@ return declare( null, {
         var deferred = new Deferred();
 
         refseq = refseq || this.refSeq;
-        var timeout = this.storeTimeout || 3000;
+        console.log(this);
+        var featCount = this.indexedData.featureCount(refseq.name);
+        var density = featCount / (refseq.end - refseq.start);
+        console.log(density);
 
-        var startTime = new Date();
-
-        var statsFromInterval = function( length, callback ) {
-            var thisB = this;
-            console.log('here');
-            var sampleCenter = refseq.start*0.75 + refseq.end*0.25;
-            var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
-            var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
-            this.indexedData.fetchSize(refseq.name, start, end,
-                              function( f ) { callback.call(thisB, length, { featureDensity: f / 300/length }) },
-                              function( error ) {
-                                  console.error(error);
-                              })
-        }
-
-        var maybeRecordStats = function( interval, stats, error ) {
-            if( error ) {
-                if( error.isInstanceOf(Errors.DataOverflow) ) {
-                     console.log( 'Store statistics found chunkSizeLimit error, using empty: '+(this.source||this.name) );
-                     deferred.resolve( { featureDensity: 0, error: 'global stats estimation found chunkSizeError' } );
-                }
-                else {
-                    deferred.reject( error );
-                }
-            } else {
-                 var refLen = refseq.end - refseq.start;
-                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
-                     console.log( 'Store statistics: '+(this.source||this.name), stats );
-                     deferred.resolve( stats );
-                 } else if( ((new Date()) - startTime) < timeout ) {
-                     statsFromInterval.call( this, interval * 2, maybeRecordStats );
-                 } else {
-                     console.log( 'Store statistics timed out: '+(this.source||this.name) );
-                     deferred.resolve( { featureDensity: 0, error: 'global stats estimation timed out' } );
-                 }
-            }
-        };
-
-        statsFromInterval.call( this, 100, maybeRecordStats );
+        deferred.resolve({ featureDensity: density });
         return deferred;
     }
 
