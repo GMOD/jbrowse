@@ -33,7 +33,7 @@ return declare( null, {
             console.log(chr);
             var chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr];
             console.log(chrId);
-            featCount = this.bam.index.featureCount(chrId);
+            featCount = this.bam.index.featureCount(chrId, true);
         }
         var density = featCount / (refseq.end - refseq.start);
         console.log(density);

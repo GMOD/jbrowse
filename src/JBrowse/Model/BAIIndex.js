@@ -116,7 +116,6 @@ return declare( TabixIndex, {
         var index = this.indices[tid];
         var p = 4;
         var nbin = readInt(index, 0);
-        var intBinsL = [this._bin_limit()+1];
         var overlappingBins = function() {
             var intBins = {};
             var intBinsL = [this._bin_limit()+1];

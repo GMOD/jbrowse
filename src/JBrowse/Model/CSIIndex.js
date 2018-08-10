@@ -127,68 +127,81 @@ return declare( TabixIndex, {
         this._parseNameBytes( data.getBytes( nameSectionLength, undefined, false ) );
     },
 
-   TAD_LIDX_SHIFT: 14,
+    TAD_LIDX_SHIFT: 14,
 
-   blocksForRange: function( refName, beg, end, refNameIsID ) {
-       if( beg < 0 )
-           beg = 0;
+    featureCount: function(refName, refNameIsID) {
+        console.log(refName);
+        var tid;
+        if(refNameIsID) tid = refName;
+        else tid = this.getRefId( refName );
 
-       var tid;
-       if(refNameIsID) tid = refName;
-       else tid = this.getRefId( refName );
+        var indexes = this._indices[tid];
+        console.log(indexes);
+        var bl = this._bin_limit(this.minShift, this.depth);
+        console.log(bl);
+        var ret = indexes.binIndex[bl+1];
+        return ret[ret.length-1].minv.offset;
+    },
+    blocksForRange: function( refName, beg, end, refNameIsID ) {
+        if( beg < 0 )
+            beg = 0;
 
-       var indexes = this._indices[tid];
-       if( ! indexes )
-           return [];
+        var tid;
+        if(refNameIsID) tid = refName;
+        else tid = this.getRefId( refName );
 
-       var linearIndex = indexes.linearIndex,
-            binIndex   = indexes.binIndex;
+        var indexes = this._indices[tid];
+        if( ! indexes )
+            return [];
 
-       var bins = this._reg2bins(beg, end, this.minShift, this.depth);
-    // var linearCount = data.getInt32();
-            // var linear = idx.linearIndex = new Array( linearCount );
-            // for (var k = 0; k < linearCount; ++k) {
-            //     linear[k] = new VirtualOffset( data.getBytes(8) );
-            //     this._findFirstData( linear[k] );
-            // }
-       var min_off = new VirtualOffset( 0, 0 );
+        var linearIndex = indexes.linearIndex,
+             binIndex   = indexes.binIndex;
 
-       var i, l, n_off = 0;
-       for( i = 0; i < bins.length; ++i ) {
-           n_off += ( binIndex[ bins[i] ] || [] ).length;
-       }
+        var bins = this._reg2bins(beg, end, this.minShift, this.depth);
+     // var linearCount = data.getInt32();
+             // var linear = idx.linearIndex = new Array( linearCount );
+             // for (var k = 0; k < linearCount; ++k) {
+             //     linear[k] = new VirtualOffset( data.getBytes(8) );
+             //     this._findFirstData( linear[k] );
+             // }
+        var min_off = new VirtualOffset( 0, 0 );
 
-       if( n_off == 0 )
-           return [];
+        var i, l, n_off = 0;
+        for( i = 0; i < bins.length; ++i ) {
+            n_off += ( binIndex[ bins[i] ] || [] ).length;
+        }
 
-       var off = [];
+        if( n_off == 0 )
+            return [];
 
-       var chunks;
-       for (i = n_off = 0; i < bins.length; ++i)
-           if (( chunks = binIndex[ bins[i] ] ))
-               for (var j = 0; j < chunks.length; ++j)
-                   //if( min_off.compareTo( chunks[j].maxv ) < 0 )
-                       off[n_off++] = new Chunk( chunks[j].minv, chunks[j].maxv, chunks[j].bin );
+        var off = [];
 
-       if( ! off.length )
-           return [];
+        var chunks;
+        for (i = n_off = 0; i < bins.length; ++i)
+            if (( chunks = binIndex[ bins[i] ] ))
+                for (var j = 0; j < chunks.length; ++j)
+                    //if( min_off.compareTo( chunks[j].maxv ) < 0 )
+                        off[n_off++] = new Chunk( chunks[j].minv, chunks[j].maxv, chunks[j].bin );
 
-       off = off.sort( function(a,b) {
-                           return a.compareTo(b);
-                       });
+        if( ! off.length )
+            return [];
 
-       // resolve completely contained adjacent blocks
-       for (i = 1, l = 0; i < n_off; ++i) {
-           if( off[l].maxv.compareTo( off[i].maxv ) < 0 ) {
-               ++l;
-               off[l].minv = off[i].minv;
-               off[l].maxv = off[i].maxv;
-           }
-       }
-       n_off = l + 1;
+        off = off.sort( function(a,b) {
+                            return a.compareTo(b);
+                        });
 
-      return off.slice( 0, n_off );
-   },
+        // resolve completely contained adjacent blocks
+        for (i = 1, l = 0; i < n_off; ++i) {
+            if( off[l].maxv.compareTo( off[i].maxv ) < 0 ) {
+                ++l;
+                off[l].minv = off[i].minv;
+                off[l].maxv = off[i].maxv;
+            }
+        }
+        n_off = l + 1;
+
+       return off.slice( 0, n_off );
+    },
 
 
 
@@ -211,7 +224,9 @@ return declare( TabixIndex, {
             for (let i = b; i <= e; ++i) bins[n++] = i;
         }
         return bins;
+    },
+    _bin_limit: function(min_shift, depth=5) {
+        return ((1 << (depth+1)*3) - 1) / 7;
     }
-
 });
 });
