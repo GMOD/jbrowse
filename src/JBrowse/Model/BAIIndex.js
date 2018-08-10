@@ -133,7 +133,6 @@ return declare( TabixIndex, {
                 var cs = readVirtualOffset( index, p     );
                 var ce = readVirtualOffset( index, p + 8 );
                 var ch = new Chunk(cs, ce, bin);
-                console.log('here',ch.minv.offset);
                 return ch.minv.offset;
             } else {
                 p += nchnk * 16;

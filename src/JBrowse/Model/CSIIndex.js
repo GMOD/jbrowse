@@ -130,15 +130,12 @@ return declare( TabixIndex, {
     TAD_LIDX_SHIFT: 14,
 
     featureCount: function(refName, refNameIsID) {
-        console.log(refName);
         var tid;
         if(refNameIsID) tid = refName;
         else tid = this.getRefId( refName );
 
         var indexes = this._indices[tid];
-        console.log(indexes);
         var bl = this._bin_limit(this.minShift, this.depth);
-        console.log(bl);
         var ret = indexes.binIndex[bl+1];
         return ret[ret.length-1].minv.offset;
     },
