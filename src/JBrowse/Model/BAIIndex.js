@@ -113,10 +113,35 @@ return declare( TabixIndex, {
     },
 
     featureCount: function(tid) {
-        var indexes = this.indices[tid];
-        console.log(indexes);
-        var ret = indexes[indexes.length-1];//this._bin_limit()+1];
-        return ret[ret.length-1].minv.offset;
+        var index = this.indices[tid];
+        var p = 4;
+        var nbin = readInt(index, 0);
+        var intBinsL = [this._bin_limit()+1];
+        var overlappingBins = function() {
+            var intBins = {};
+            var intBinsL = [this._bin_limit()+1];
+            for (var i = 0; i < intBinsL.length; ++i) {
+                intBins[intBinsL[i]] = true;
+            }
+            return intBins;
+        }.call(this);
+        for (var b = 0; b < nbin; ++b) {
+            var bin   = readInt(index, p  );
+            var nchnk = readInt(index, p+4);
+            p += 8;
+            if( overlappingBins[bin] ) {
+                p += 16;
+                var cs = readVirtualOffset( index, p     );
+                var ce = readVirtualOffset( index, p + 8 );
+                var ch = new Chunk(cs, ce, bin);
+                console.log('here',ch.minv.offset);
+                return ch.minv.offset;
+            } else {
+                p += nchnk * 16;
+            }
+        }
+
+        return 0;
     },
 
     /**
