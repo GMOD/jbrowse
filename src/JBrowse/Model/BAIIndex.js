@@ -112,11 +112,10 @@ return declare( TabixIndex, {
         deferred.resolve();
     },
 
-    dummyBlockFeatureCount: function(refName) {
-        var tid = this.getRefId( refName );
+    featureCount: function(tid) {
         var indexes = this.indices[tid];
         console.log(indexes);
-        var ret = indexes.binIndex[this._bin_limit()+1];
+        var ret = indexes[indexes.length-1];//this._bin_limit()+1];
         return ret[ret.length-1].minv.offset;
     },
 

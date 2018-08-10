@@ -185,7 +185,7 @@ return declare( null, {
 
     TAD_LIDX_SHIFT: 14,
 
-    dummyBlockFeatureCount: function(refName) {
+    featureCount: function(refName) {
         var tid = this.getRefId( refName );
         var indexes = this._indices[tid];
         var ret = indexes.binIndex[this._bin_limit()+1];

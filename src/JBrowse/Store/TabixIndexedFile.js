@@ -45,7 +45,7 @@ return declare( null, {
         }, errorCallback);
     },
     featureCount: function(refSeq) {
-		return this.index.dummyBlockFeatureCount(refSeq);
+		return this.index.featureCount(refSeq);
 	},
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {

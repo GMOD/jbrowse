@@ -24,7 +24,17 @@ return declare( null, {
 
         refseq = refseq || this.refSeq;
         console.log(this);
-        var featCount = this.indexedData.featureCount(refseq.name);
+        var featCount;
+        if(this.indexedData) {
+            featCount = this.indexedData.featureCount(refseq.name);
+        } else if(this.bam) {
+            var chr = refseq.name;
+            chr = this.browser.regularizeReferenceName( chr );
+            console.log(chr);
+            var chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr];
+            console.log(chrId);
+            featCount = this.bam.index.featureCount(chrId);
+        }
         var density = featCount / (refseq.end - refseq.start);
         console.log(density);
 
