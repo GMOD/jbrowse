@@ -8,11 +8,12 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/Deferred',
-           'JBrowse/Errors'
+           'JBrowse/Errors',
+           'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin'
        ],
-       function( declare, array, Deferred, Errors ) {
+       function( declare, array, Deferred, Errors, GlobalStats ) {
 
-return declare( null, {
+return declare( GlobalStats, {
 
     /**
      * Fetch a region of the current reference sequence and use it to
@@ -20,8 +21,6 @@ return declare( null, {
      * @private
      */
     _estimateGlobalStats: function( refseq ) {
-        var deferred = new Deferred();
-
         refseq = refseq || this.refSeq;
         var featCount;
         if(this.indexedData) {
@@ -32,7 +31,11 @@ return declare( null, {
             var chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr];
             featCount = this.bam.index.featureCount(chrId, true);
         }
+        if(featCount == -1) {
+            return this.inherited(arguments);
+        }
         var density = featCount / (refseq.end - refseq.start);
+        var deferred = new Deferred();
         deferred.resolve({ featureDensity: density });
         return deferred;
     }

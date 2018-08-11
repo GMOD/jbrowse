@@ -189,7 +189,7 @@ return declare( null, {
         var tid = this.getRefId( refName );
         var indexes = this._indices[tid];
         var ret = indexes.binIndex[this._bin_limit()+1];
-        return ret[ret.length-1].minv.offset;
+        return ret ? ret[ret.length-1].minv.offset : -1;
     },
 
     blocksForRange: function( refName, beg, end ) {

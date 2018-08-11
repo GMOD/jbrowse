@@ -137,7 +137,7 @@ return declare( TabixIndex, {
         var indexes = this._indices[tid];
         var bl = this._bin_limit(this.minShift, this.depth);
         var ret = indexes.binIndex[bl+1];
-        return ret[ret.length-1].minv.offset;
+        return ret ? ret[ret.length-1].minv.offset : -1;
     },
     blocksForRange: function( refName, beg, end, refNameIsID ) {
         if( beg < 0 )

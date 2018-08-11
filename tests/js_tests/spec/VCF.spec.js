@@ -188,6 +188,65 @@ describe('VCF store', function() {
 
   });
 
+  it('reads VCF tabix with dummy', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../../docs/tutorial/data_files/volvox.filtered.vcf.gz',
+                 tbiUrlTemplate: '../data/volvox.filtered.vcf.gz.tbi.has_dummy',
+                 baseUrl: '.'
+             },
+             refSeq: { name: 'ctgA', start:0, end: 50000 }
+         });
+
+         var stats = {};
+         waitsFor( function() { return stats.done; } );
+         store.indexedData.index.load().then(()=> {
+             store._estimateGlobalStats({ name: 'ctgA',
+                             start: 0,
+                             end:50000
+                           }).then(function(f) {
+                               stats = f;
+                               stats.done = true;
+                           });
+         });
+         runs(function() {
+             console.log(stats);
+         });
+
+
+
+  });
+
+  it('reads VCF tabix without dummy', function() {
+         var store = new VCFStore({
+             browser: new Browser({unitTestMode: true}),
+             config: {
+                 urlTemplate: '../../docs/tutorial/data_files/volvox.filtered.vcf.gz',
+                 tbiUrlTemplate: '../data/volvox.filtered.vcf.gz.tbi.no_dummy',
+                 baseUrl: '.'
+             },
+             refSeq: { name: 'ctgA', start:0, end: 50000 }
+         });
+
+         var stats = {};
+         waitsFor( function() { return stats.done; } );
+         store.indexedData.index.load().then(()=> {
+             store._estimateGlobalStats({ name: 'ctgA',
+                             start: 0,
+                             end:50000
+                           }).then(function(f) {
+                               stats = f;
+                               stats.done = true;
+                           });
+         });
+         runs(function() {
+             console.log(stats);
+         });
+
+
+
+  });
 
   xit('large VCF header', function() {
          var store = new VCFStore({
