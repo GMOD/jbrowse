@@ -188,6 +188,7 @@ return declare( null, {
     featureCount: function(refName) {
         var tid = this.getRefId( refName );
         var indexes = this._indices[tid];
+        if(!indexes) return -1;
         var ret = indexes.binIndex[this._bin_limit()+1];
         return ret ? ret[ret.length-1].minv.offset : -1;
     },

@@ -114,6 +114,9 @@ return declare( TabixIndex, {
 
     featureCount: function(tid) {
         var index = this.indices[tid];
+        if (!index) {
+            return -1;
+        }
         var p = 4;
         var nbin = readInt(index, 0);
         var overlappingBins = function() {

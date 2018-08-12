@@ -47,7 +47,7 @@ describe('VCF store', function() {
                  urlTemplate: '../../docs/tutorial/data_files/gvcf.vcf.gz',
                  baseUrl: '.'
              },
-             refSeq: { name: '1', start: 0, end: 5000 }
+             refSeq: { name: 'ctgA', start: 0, end: 5000 }
          });
 
          var features = [];

@@ -135,6 +135,7 @@ return declare( TabixIndex, {
         else tid = this.getRefId( refName );
 
         var indexes = this._indices[tid];
+        if(!indexes) return -1;
         var bl = this._bin_limit(this.minShift, this.depth);
         var ret = indexes.binIndex[bl+1];
         return ret ? ret[ret.length-1].minv.offset : -1;
