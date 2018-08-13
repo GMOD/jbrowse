@@ -112,6 +112,38 @@ return declare( TabixIndex, {
         deferred.resolve();
     },
 
+    featureCount: function(tid) {
+        var index = this.indices[tid];
+        if (!index) {
+            return -1;
+        }
+        var p = 4;
+        var nbin = readInt(index, 0);
+        var overlappingBins = function() {
+            var intBins = {};
+            var intBinsL = [this._bin_limit()+1];
+            for (var i = 0; i < intBinsL.length; ++i) {
+                intBins[intBinsL[i]] = true;
+            }
+            return intBins;
+        }.call(this);
+        for (var b = 0; b < nbin; ++b) {
+            var bin   = readInt(index, p  );
+            var nchnk = readInt(index, p+4);
+            p += 8;
+            if( overlappingBins[bin] ) {
+                p += 16;
+                var cs = readVirtualOffset( index, p     );
+                var ce = readVirtualOffset( index, p + 8 );
+                var ch = new Chunk(cs, ce, bin);
+                return ch.minv.offset;
+            } else {
+                p += nchnk * 16;
+            }
+        }
+
+        return 0;
+    },
 
     /**
      * Get an array of Chunk objects for the given ref seq id and range.
@@ -240,6 +272,9 @@ return declare( TabixIndex, {
         for (k = 585  + (beg>>17); k <= 585  + (end>>17); ++k) list.push(k);
         for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list.push(k);
         return list;
+    },
+    _bin_limit: function(min_shift, depth=5) {
+        return ((1 << (depth+1)*3) - 1) / 7;
     }
 
 });
