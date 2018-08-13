@@ -6,8 +6,6 @@ JS_SRCFILES = $(shell find $(JSDIR) -type f -and -name '*.js')
 
 RELEASE_VERSION = $(shell node -e 'require("fs").readFile("$(JSDIR)/package.json", function(e,d){console.log(JSON.parse(d).version)})')
 RELEASE_NAME = JBrowse-$(RELEASE_VERSION)
-RELEASE_FULL = $(RELEASE_NAME)-dev
-RELEASE_FULL_DIR = $(BASEDIR)/$(RELEASE_FULL)/
 RELEASE_MIN  = $(RELEASE_NAME)
 RELEASE_MIN_DIR  = $(BASEDIR)/$(RELEASE_MIN)/
 
@@ -27,17 +25,17 @@ release-electron-setup:
 	cd $(RELEASE_MIN) && cp -r ../node_modules ../extlib . && ./setup.sh && cd ..
 	cp -R browser $(RELEASE_MIN)
 
-release-electron-darwin: clean release-min release-electron-setup
+release-electron-darwin: release-min release-electron-setup
 	echo "Building mac electron"
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
-release-electron-win32: clean release-min release-electron-setup
+release-electron-win32: release-min release-electron-setup
 	echo "Building win32 electron"
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
-release-electron-linux: clean release-min release-electron-setup
+release-electron-linux: release-min release-electron-setup
 	echo "Building linux electron"
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
@@ -50,18 +48,10 @@ release-notes.html: release-notes.md
 
 node_modules:
 	yarn install
-
-release-dev: $(JS_SRCFILES) node_modules
+release-min: node_modules
 	rm -rf dist
-	mkdir $(RELEASE_FULL_DIR);
-	cp -R `ls -1d * | grep -v $(RELEASE_FULL)` $(RELEASE_FULL_DIR);
-	rm -rf $(RELEASE_FULL_DIR)/src/*/.git $(RELEASE_FULL_DIR)/$(RELEASE_FULL) $(RELEASE_FULL_DIR)/src/util $(RELEASE_FULL_DIR)/node_modules $(RELEASE_FULL_DIR)/extlib;
-
-	# zip up the dev release
-	$(ZIP) $(RELEASE_FULL).zip $(RELEASE_FULL)/;
-
-release-min: release-dev
-	cp -a $(RELEASE_FULL_DIR) $(RELEASE_MIN_DIR);
+	mkdir $(RELEASE_MIN);
+	cp -R `ls -1d * | grep -v $(RELEASE_MIN)` $(RELEASE_MIN_DIR);
 
 	for P in src browser css docs/jsdoc tests build node_modules extlib dist utils; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
