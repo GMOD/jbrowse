@@ -25,17 +25,17 @@ release-electron-setup:
 	cd $(RELEASE_MIN) && cp -r ../node_modules ../extlib . && ./setup.sh && cd ..
 	cp -R browser $(RELEASE_MIN)
 
-release-electron-darwin: clean release-min release-electron-setup
+release-electron-darwin: release-min release-electron-setup
 	echo "Building mac electron"
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
-release-electron-win32: clean release-min release-electron-setup
+release-electron-win32: release-min release-electron-setup
 	echo "Building win32 electron"
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
-release-electron-linux: clean release-min release-electron-setup
+release-electron-linux: release-min release-electron-setup
 	echo "Building linux electron"
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
