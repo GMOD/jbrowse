@@ -1,5 +1,23 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Created "index stats estimation" which overrides the older "global stats estimation"
+   that randomly samples genomic regions of BAM, VCF, etc to find feature density. This
+   allows initial track load to be faster automatically. (issue #1092, pull #1167,
+   @cmdcolin)
+
+ * Removed the "full" or "dev" releases from the build. If you need a "dev" release, you
+   can simply download the JBrowse "source code" link from the GitHub releases page, or
+   use a git clone of the JBrowse repository. This will behave the same as the "dev"
+   release. (issue #1160, pull #1170, @cmdcolin)
+
+## Bug fixes
+
+ * Added a more robust HTML processing in Util.js. Thanks to @hkmoon for the idea and
+   implementation. (pull #1169, @hkmoon)
+
+ * Remove utils/jb_run.js from the minified release (issue #1161, issue #1160, @cmdcolin)
 
 # Release 1.15.1     2018-08-01 23:59:52 UTC
 
