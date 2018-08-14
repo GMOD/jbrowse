@@ -16,8 +16,8 @@ cache:
   yarn: true
   directories:
   - extlib/
-  - "$HOME/perl5/"
   - node_modules/
+  - "$HOME/perl5/"
   - "$HOME/python/"
   - "$HOME/.nvm/"
 env:
@@ -26,14 +26,10 @@ env:
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get -qq update
-  - sudo apt-get install wine1.6
+  - sudo apt-get install wine1.6 # this is for building windows electron images
 install:
-- |
-  if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
-    rm -rf ~/geckodriver_$GECKODRIVER_VERSION;
-    mkdir ~/geckodriver_$GECKODRIVER_VERSION;
-    wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
-  fi
+- mkdir ~/geckodriver_$GECKODRIVER_VERSION;
+- wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 # only init the python virtualenv if it did not show up in our build cache
