@@ -10,38 +10,26 @@ addons:
     packages:
     - libdb-dev
     - libgd2-noxpm-dev
+    - phantomjs
   firefox: '58.0'
 cache:
   yarn: true
   directories:
   - extlib/
-  - "$HOME/perl5/"
   - node_modules/
+  - "$HOME/perl5/"
   - "$HOME/python/"
   - "$HOME/.nvm/"
-  - "$HOME/geckodriver_$GECKODRIVER_VERSION"
-  - travis_phantomjs
-before_install:
 env:
     global:
         - GECKODRIVER_VERSION=0.19.1
-        - PHANTOMJS_VERSION=2.1.1
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get -qq update
-  - sudo apt-get install wine1.6
+  - sudo apt-get install wine1.6 # this is for building windows electron images
 install:
-- "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
-- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
-- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
-- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
-- "phantomjs --version"
-- |
-  if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
-    rm -rf ~/geckodriver_$GECKODRIVER_VERSION;
-    mkdir ~/geckodriver_$GECKODRIVER_VERSION;
-    wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
-  fi
+- mkdir ~/geckodriver_$GECKODRIVER_VERSION;
+- wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 - cpanm --notest GD::Image Text::Markdown DateTime JSON
 # only init the python virtualenv if it did not show up in our build cache

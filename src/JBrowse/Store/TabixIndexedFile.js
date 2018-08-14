@@ -44,6 +44,9 @@ return declare( null, {
             thisB._fetch.apply( thisB, args );
         }, errorCallback);
     },
+    featureCount: function(refSeq) {
+        return this.index.featureCount(refSeq);
+    },
 
     _fetch: function( ref, min, max, itemCallback, finishCallback, errorCallback ) {
         errorCallback = errorCallback || function(e) { console.error(e, e.stack); };
