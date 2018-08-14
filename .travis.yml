@@ -10,6 +10,7 @@ addons:
     packages:
     - libdb-dev
     - libgd2-noxpm-dev
+    - phantomjs
   firefox: '58.0'
 cache:
   yarn: true
@@ -19,23 +20,14 @@ cache:
   - node_modules/
   - "$HOME/python/"
   - "$HOME/.nvm/"
-  - "$HOME/geckodriver_$GECKODRIVER_VERSION"
-  - travis_phantomjs
-before_install:
 env:
     global:
         - GECKODRIVER_VERSION=0.19.1
-        - PHANTOMJS_VERSION=2.1.1
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get -qq update
   - sudo apt-get install wine1.6
 install:
-- "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
-- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
-- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
-- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
-- "phantomjs --version"
 - |
   if [[ ! -f ~/geckodriver_$GECKODRIVER_VERSION/geckodriver ]]; then
     rm -rf ~/geckodriver_$GECKODRIVER_VERSION;
