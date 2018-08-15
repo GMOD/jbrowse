@@ -420,7 +420,7 @@ Util = {
 
     assembleLocStringWithLength: function( def ) {
         var locString = Util.assembleLocString( def );
-        var length = def.length || def.end-def.start+1;
+        var length = def.length || def.end-def.start;
         return locString + ' ('+Util.humanReadableNumber( length )+'b)';
     },
 
