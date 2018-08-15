@@ -349,7 +349,7 @@ Util = {
         return bn;
     },
 
-    assembleLocString: function( loc_in ) {
+    assembleLocString: function( loc_in, useExtra = true ) {
         var s = '',
         types = { start: 'number', end: 'number', ref: 'string', strand: 'number' },
         location = {}
@@ -383,7 +383,7 @@ Util = {
             s += ({'1':' (+ strand)', '-1': ' (- strand)', '0': ' (no strand)' }[ location.strand || '' ]) || '';
 
         // add on any extra stuff if it was passed in
-        if( 'extra' in loc_in )
+        if( useExtra && 'extra' in loc_in )
             s += loc_in.extra;
 
         return s;

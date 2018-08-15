@@ -2898,7 +2898,7 @@ _updateRefSeqSelectBox: function() {
  * update the location and refseq cookies
  */
 _updateLocationCookies: function( location ) {
-    var locString = typeof location == 'string' ? location : Util.assembleLocString( location );
+    var locString = typeof location == 'string' ? location : Util.assembleLocString( location, false );
     var oldLocMap = dojo.fromJson( this.cookie('location') ) || { "_version": 1 };
     if( ! oldLocMap["_version"] )
         oldLocMap = this._migrateLocMap( oldLocMap );
