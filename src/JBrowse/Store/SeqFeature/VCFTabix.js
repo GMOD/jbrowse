@@ -18,7 +18,7 @@ define([
            DeferredStatsMixin,
            DeferredFeaturesMixin,
            TabixIndexedFile,
-           GlobalStatsEstimationMixin,
+           IndexedStatsEstimationMixin,
            XHRBlob,
            VCFParser
        ) {
@@ -40,7 +40,7 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
     }
 });
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, VCFParser ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, VCFParser ],
 {
 
     constructor: function( args ) {

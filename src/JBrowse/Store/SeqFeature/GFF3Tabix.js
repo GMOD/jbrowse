@@ -25,12 +25,12 @@ define([
            DeferredStatsMixin,
            DeferredFeaturesMixin,
            TabixIndexedFile,
-           GlobalStatsEstimationMixin,
+           IndexedStatsEstimationMixin,
            XHRBlob,
            Parser,
        ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ],
 {
     supportsFeatureTransforms: true,
 

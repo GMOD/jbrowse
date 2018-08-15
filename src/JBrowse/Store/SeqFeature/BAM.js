@@ -23,11 +23,11 @@ define( [
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             XHRBlob,
-            GlobalStatsEstimationMixin,
+            IndexedStatsEstimationMixin,
             BAMFile
         ) {
 
-var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
+var BAMStore = declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.BAM

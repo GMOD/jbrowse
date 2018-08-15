@@ -21,13 +21,13 @@ define([
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             TabixIndexedFile,
-            GlobalStatsEstimationMixin,
+            IndexedStatsEstimationMixin,
             XHRBlob,
             SimpleFeature,
             Parser
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ], {
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
 
     constructor: function( args ) {
         var thisB = this;
