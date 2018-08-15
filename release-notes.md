@@ -22,6 +22,9 @@
  * Fixes issue where navigating away from genome browser and returning would not remember
    the location. Thanks to Vaneet Lotay for reporting. (issue #1168, @cmdcolin)
 
+ * Fixes off-by-one in the display of the size of the genomic region being viewed. Thanks
+   to @sammyjava for the bug report! (issue #1176, @cmdcolin)
+
 # Release 1.15.1     2018-08-01 23:59:52 UTC
 
 ## Minor Improvements
