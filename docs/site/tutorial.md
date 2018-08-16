@@ -133,8 +133,9 @@ If you have troubles, send an email to gmod-ajax@lists.sourceforge.net or create
 
 ## Footnotes
 
-a) If you want to customize JBrowse's javascript or use plugins, use JBrowse-1.15.1-dev.zip instead of JBrowse-1.15.1.zip (e.g. the -dev version). The -dev version will download extra javascript dependencies and can recompile JBrowse using webpack, but the non-dev version cannot.
 
-b) If the folder was not called data, e.g. you had your files in /var/www/html/jbrowse/otherdata, then you can visit http://localhost/jbrowse/?data=otherdata (this automatically lends a way to have "multiple data directories" since you could navigate to different ?data= URL paths this way. the "dataset selector" configuration contains more details)
+a) If the folder was not called data, e.g. you had your files in /var/www/html/jbrowse/otherdata, then you can visit http://localhost/jbrowse/?data=otherdata (this automatically lends a way to have "multiple data directories" since you could navigate to different ?data= URL paths this way. the "dataset selector" configuration contains more details)
 
-c) The "configuration format" is called .conf, but JSON format is also allowed. See [configuration file formats](configuration_file_formats.md) guide for details.
+b) The "configuration format" is called .conf, but JSON format is also allowed. See [configuration file formats](configuration_file_formats.md) guide for details.
+
+c) If you are doing source code updates or using plugins, you must use a git clone or the "source code" release from GitHub pages. Also the "-dev" release from older versions is supplanted by using a git clone or "source code" release

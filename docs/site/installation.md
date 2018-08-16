@@ -37,17 +37,14 @@ On CentOS/RedHat
 ## Download JBrowse
 
 
-Download a JBrowse release from GitHub. The main release is JBrowse-1.15.1.zip
+Download a JBrowse release from GitHub
 
 
-    curl -O https://github.com/GMOD/jbrowse/releases/download/1.15.1-release/JBrowse-1.15.1.zip
-    unzip JBrowse-1.15.1.zip
-    sudo mv JBrowse-1.15.1 /var/www/html/jbrowse
-    cd /var/www/html
-    sudo chown `whoami` jbrowse
-    cd jbrowse
-    ./setup.sh # don't do sudo ./setup.sh
+{@inject: setup_snip}
+
+**IMPORTANT NOTE: if you are using JBrowse plugins, you must download the source codeor use git clone of https://github.com/GMOD/jbrowse instead of the minified release**
 
 
+Source code:
 
-**IMPORTANT NOTE: if you are using JBrowse plugins, you must download the source code e.g. https://github.com/GMOD/jbrowse/archive/1.15.1-release.tar.gz or use git clone of gmod/jbrowse instead of the minified release e.g. https://github.com/GMOD/jbrowse/releases/download/1.15.1-release/JBrowse-1.15.1.zip**
+ {@inject: download_snip}

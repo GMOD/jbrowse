@@ -26,8 +26,21 @@ const createVariableInjectionPlugin = variables => {
   };
 };
 
+const v = {
+    "version": "1.15.1"
+};
 const siteVariables = {
-  version: '1.15.1',
+    "version": v.version,
+    "setup_snip": [
+        `    curl -O https://github.com/GMOD/jbrowse/releases/download/${v.version}-release/JBrowse-${v.version}.zip`,
+        `    unzip JBrowse-${v.version}.zip`,
+        `    sudo mv JBrowse-${v.version} /var/www/html/jbrowse`,
+        '    cd /var/www/html',
+        '    sudo chown `whoami` jbrowse',
+        '    cd jbrowse',
+        '    ./setup.sh # don\'t do sudo ./setup.sh'
+    ].join('\n'),
+    "download_snip": `https://github.com/GMOD/jbrowse/archive/${v.version}-release.tar.gz`
 };
 
 
@@ -76,7 +89,7 @@ const siteConfig = {
   onPageNav: 'separate',
   scripts: ['https://buttons.github.io/buttons.js'],
   blogSidebarCount: 'ALL',
-  latestVersion: '1.15.0'
+  latestVersion: siteVariables.version
 };
 
 module.exports = siteConfig;

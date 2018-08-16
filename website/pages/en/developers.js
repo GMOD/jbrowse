@@ -29,8 +29,8 @@ class Index extends React.Component {
 
           <h3>Documentation</h3>
           <ul>
-            <li><a title="JBrowse Configuration Guide" href="/docs">Main documentation page</a></li>
-            <li><a title="JBrowse Configuration Guide" href="/docs/tutorial">Quick start tutorial</a></li>
+            <li><a href="/docs/installation.html">Main documentation page</a></li>
+            <li><a href="/docs/tutorial.html">Quick start tutorial</a></li>
           </ul>
           <h3>Gitter chatroom</h3>
           <p>Daily chat for coordination and Q&A occurs in the <a href="https://gitter.im/GMOD/jbrowse">Gitter</a> channel.</p>

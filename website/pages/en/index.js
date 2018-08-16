@@ -71,7 +71,7 @@ const HeaderInfo = props => (
     <h1>The JBrowse Genome Browser</h1>
     <p>JBrowse is a fast, scalable genome browser built completely with JavaScript and HTML5. It can run on your desktop, or be embedded in your website.</p>
 
-    <a href="blog/2018/08/01/jbrowse-1-15-1-index.html">Latest Release – JBrowse 1.15.1</a>
+    <a href="blog/">Latest Release – JBrowse {siteConfig.latestVersion}</a>
   </div>
 )
 
@@ -86,7 +86,7 @@ class Index extends React.Component {
         <div className="flexContainer" style={{display: 'flex'}}>
           <div>
             <HeaderInfo />
-            <iframe width="100%" height="600" src="https://jbrowse.org/code/JBrowse-1.15.1/?loc=ctgA%3A9892..32101&tracks=DNA%2CTranscript%2Cvolvox_microarray_bw_density%2Cvolvox_microarray_bw_xyplot%2Cvolvox-sorted-vcf%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox&tracklist=0"></iframe>
+            <iframe width="100%" height="600" src="https://jbrowse.org/code/latest-version/?loc=ctgA%3A9892..32101&tracks=DNA%2CTranscript%2Cvolvox_microarray_bw_density%2Cvolvox_microarray_bw_xyplot%2Cvolvox-sorted-vcf%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox&tracklist=0"></iframe>
             <div className="mainContainer">
               <FeatureCallout />
               <BrowserCompat />

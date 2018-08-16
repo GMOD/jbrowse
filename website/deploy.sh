@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 cd ${0%/*}
 yarn
 yarn build
