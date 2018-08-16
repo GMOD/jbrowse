@@ -12,7 +12,18 @@
    use a git clone of the JBrowse repository. This will behave the same as the "dev"
    release. (issue #1160, pull #1170, @cmdcolin)
 
- * JBrowse now uses a new binary-file caching and fetching backend based on the [http-range-fetcher](https://www.npmjs.com/package/http-range-fetcher) and [tenacious-fetch](https://www.npmjs.com/package/tenacious-fetch) npm modules. Users may see slightly higher performance when viewing indexed binary formats such as BAM, CRAM, 2bit, etc. (#1155, #1175, @rbuels)
+ * JBrowse now uses a new binary-file caching and fetching backend based on the
+   [http-range-fetcher](https://www.npmjs.com/package/http-range-fetcher) and
+   [tenacious-fetch](https://www.npmjs.com/package/tenacious-fetch) npm modules. Users
+   may see slightly higher performance when viewing indexed binary formats such as BAM,
+   CRAM, 2bit, etc. (issue #1155, issue #1175, pull #1165, @rbuels)
+
+ * Updated the main jbrowse.org website to use the docusaurus platform. The main docs
+   for the website are now moved from the GMOD.org server to jbrowse.org. You can find
+   the latest documentation in the header bar. We hope you will enjoy this upgrade!
+   There is also a new quick start guide based on setting up JBrowse with indexed file
+   formats. (issue #1153, issue #1137, pull #1173, @cmdcolin)
+
 
 ## Bug fixes
 
