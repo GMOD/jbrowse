@@ -95,3 +95,4 @@ deploy:
   on:
     perl: 5.26
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
+    all_branches: true
