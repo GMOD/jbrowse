@@ -1,4 +1,5 @@
 cjsRequire('whatwg-fetch')
+const tenaciousFetch = cjsRequire('tenacious-fetch').default
 
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
 const { Buffer } = cjsRequire('buffer')
@@ -11,9 +12,15 @@ define( [ 'dojo/_base/declare',
 
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
-    return fetch(url, {
+    return tenaciousFetch(url, {
       method: 'GET',
       headers: { range: `bytes=${start}-${end}` },
+      retries: 5,
+      retryDelay: 1000, // 1 sec, 2 sec, 3 sec
+      retryStatus: [500, 404, 503],
+      onRetry: ({retriesLeft, retryDelay}) => {
+        console.warn(`${url} bytes ${start}-${end} request failed, retrying (${retriesLeft} retries left)`)
+      }
     }).then(res => {
       const responseDate = new Date()
       if (res.status !== 206 && res.status !== 200)

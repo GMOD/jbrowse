@@ -6717,6 +6717,10 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
+tenacious-fetch@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tenacious-fetch/-/tenacious-fetch-2.1.0.tgz#1c8b882c3d1753b1bd836ca50e4f70d49d4fd550"
+
 term-size@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/term-size/-/term-size-1.2.0.tgz#458b83887f288fc56d6fffbfad262e26638efa69"
