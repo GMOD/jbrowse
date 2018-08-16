@@ -41,7 +41,7 @@ build/datestamp_release_notes.pl $VERSION release-notes.md > release-notes.md.ne
 mv release-notes.md.new release-notes.md
 
 # update the versions in the package.json files
-build/set_package_versions.pl $VERSION src/JBrowse/package.json package.json
+build/set_package_versions.pl $VERSION src/JBrowse/package.json package.json website/siteConfig.js
 
 # commit the release notes and package.jsons
 git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json website/siteConfig.js
