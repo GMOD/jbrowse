@@ -44,7 +44,7 @@ mv release-notes.md.new release-notes.md
 build/set_package_versions.pl $VERSION src/JBrowse/package.json package.json
 
 # commit the release notes and package.jsons
-git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json
+git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json website/siteConfig.js
 
 # make a tag and update master
 git tag $VERSION-release

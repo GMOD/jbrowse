@@ -88,11 +88,15 @@ NOTE: Beginning in 1.12.4,
 1. Run `build/release.sh $newReleaseVersion $nextReleaseVersion-alpha.0`, check its work, and then run the `git push` command it suggests to you. This makes a tag in the repository for the release, named, e.g. `1.6.3-release`.  This should cause Travis CI
 to create a release on GitHub under https://github.com/GMOD/jbrowse/releases
 
-1. Add release notes to the new GitHub release that Travis created. Can just paste these from release-notes.txt, which is in Markdown format.
+1. Add release notes to the new GitHub release that Travis created. Can just paste these from release-notes.md, which is in Markdown format.
 
-1. Write a blog post on jbrowse.org announcing the release, with links to the built releases on GitHub. The SHA1 sums of the built release files can be seen near the end of the Travis build log, and the HTML version of the release notes can be gotten by running `make -f build/Makefile release-notes.html`.
+1. Edit a file in website/blog/ folder with the date and release name in the blog title. Include notes from release-notes.md and links to files that were generated in the release page. The SHA1 sums of the built release files can be seen near the end of the Travis build log. Commit this blog post with "[update docs]" in the commit message
 
 1. Update the latest-release code checkout on the site, which the "Latest Release" demo on the jbrowse.org points to, to be an unzipped-and-set-up copy of the latest release.
+
+1. Write a twitter post for usejbrowse and JBrowseGossip with the announcement link to the blogpost
+
+1. Upload the release package to the website code directory, unzip and set the version as the latest
 
 1. Write an email announcing the release, sending to gmod-ajax. If it is a major release, add gmod-announce and make a GMOD news item.
 

@@ -24,7 +24,7 @@ for my $filename (@ARGV) {
 
     $text =~ s/"version"\s*:\s*"[^"]+"/"version": "$release"/
         or die "failed to insert version info $filename";
-    
+
     open my $f, '>', $filename or die "$! writing $filename";
     $f->print( $text );
 }

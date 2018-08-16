@@ -1,0 +1,55 @@
+---
+id: global_options
+title: Global configuration options
+---
+
+JBrowse supports some other configuration variables that customize the overall behavior of the browser. Each of these variables goes in the top level of JSON configuration files (i.e. jbrowse_conf.json), or in a `[general]` section in textual configuration files (i.e. jbrowse.conf), or outside of the "tracks" section in a trackList.json or tracks.conf.
+
+|Option|Description|
+|------|-----------|
+|`locationBoxLength`|The desired size, in characters of the location search box. If not set, the size of the location box is calculated to fit the largest location string that is likely to be produced, based on the length of the reference sequences and the length of their names. Added in JBrowse 1.7.0.|
+|`css`|Used to add additional CSS code to the browser at runtime. Can be an array of either strings containing CSS statements, or URLs for CSS stylesheets to load (`as json:{url: "/path/to/my.css"}`). CSS can of course also be added outside of JBrowse, at the level of the HTML page where JBrowse runs. Added in JBrowse 1.6.2.|
+|`theme`|Allows changing the graphical theme from the default Dijit "tundra" theme. Added in JBrowse 1.7.0. Intended primarily for use by plugin implementors or developers integrating JBrowse into a larger system.|
+|`defaultTracks`|Comma-separated list of track \*labels\* to show on initial load if a user has never visited this browser before. Example: "snps,genes,alignments".|
+|`forceTracks`|Comma-separated list of track \*labels\* to show on initial load, regardless of the user's saved settings, but which is overridden by the URL list. Example: "snps,genes,alignments".|
+|`defaultLocation`|Initial location to be shown for users who have never visited the browser before. Example: "ctgA:1234..5678".|
+|`view→trackPadding`|Spacing between tracks in the genome view, in pixels. Default 20. Added in JBrowse 1.10.10.|
+|`include`|Imports one or more other configuration files and merges their data with the file in which this appears. Can be either a string URL of a single file, or an array of string URLs.|
+|`initialHighlight`|If set, the given region will be highlighted when the browser loads. Example: "ctgA:1234..5678".|
+|`highResoutionMode`|Enable high-resolution canvas rendering. Can be "auto", "disabled", or a numeric specifying a scaling factor. Default "disabled". Added in JBrowse 1.11.4.|
+|`documentDomain`|Set the document.domain property which can assist when JBrowse is in embedded mode and needs to set the same-origin policy. Added in JBrowse 1.11.3.|
+|`shareLink`|Enable or disable the share link button. Default: true. Can be 0 or false.|
+|`shareURL`|A customized shareURL for the share link button. This can be helpful for an iframe embedding to have the share link point to the page embedding the iframe. A customized example could be "function(browser){ return 'http://myinstance.com/?loc='+browser.view.visibleRegionLocString(); }"|
+|`aboutThisBrowser→title`|Title for the "About" popup.|
+|`aboutThisBrowser→description`|Custom content for the "About" popup.|
+|`maxRecentTracks`|Max length of the recent tracks menu. Default: 10|
+|`show_tracklist`|Optionally turn off tracklist. &tracklist=0 in the URL also works. Default: true|
+|`show_nav`|Optionally turn off navigation bar. &nav=0 in the URL also works. Default: true|
+|`show_tracklabels`|Optionally turn off the track labels. Works when HideTrackLabels plugin is enables. Set &tracklabels=0 in the URL also works. Default: true|
+|`show_fullviewlink`|Optionally turn off the "Full-view" link in embedded mode. Set &fullviewlink=0 in the URL. Default: true|
+|`show_overview`|Optionally turn off the overview bar. &overview=0 in the URL also works. Default: true|
+|`show_menu`|Optionally turn off the menu bar. &menu=0 in the URL also works. Added in 1.11.6. Default: true.|
+|`containerID`|Set a prefix on cookies and identify the ID of the div holding JBrowse. Default: GenomeBrowser.|
+|`cookieSizeLimit`|Default: 1200|
+|`updateBrowserURL`|Enable updating the URL with current view. If you encounter security exceptions from cross domain updating the URL, try disabling. Default: true|
+|`view→maxPxPerBp`|Sets the maximum zoom level in pixels per basepair units. Default: 20|
+|`quickHelp→content`|Sets the content of the help dialog.|
+|`quickHelp→href`|Sets the content of the help dialog using XHR to retrieve content.|
+|`quickHelp→title`|Sets the title of the help dialog. Note: other dijit Dialog parameter can also be passed to quickHelp, these are just the basics.|
+|`exactReferenceSequenceNames`|Disables the regularizeReferenceSequence routine. Default: false|
+|`refSeqs`|A custom URL for your refSeqs.json file (or a webservice returning something in refSeqs.json format). Example: "http://mysite/refseqs.json". Can also be a URL for a FASTA index file in 1.12.0+.|
+|`alwaysOnTracks`|Comma-separated list of track \*labels\* to always show when the browser is opened. Example: "snps,genes,alignments".|
+|`classicMenu`|Boolean to use classic menu style (File) menu. Added in 1.12.0|
+|`hideGenomeOptions`|Boolean - Hide the options for opening a sequence file. Added in 1.12.0|
+|`noPluginsForAboutDialog `|Boolean - Hide the plugins from the about box. Added in 1.12.3|
+|`trackLabels`|Set "trackLabels": "no-block" to enable the trackLabels to be out of the way of the features. Added in 1.12.5|
+
+
+## Generic Track Configuration Options
+
+|Option|Description|
+|------|-----------|
+|`subfeatureDetailLevel `|Set the level of detail of the View details box. If set to 1, only displays one level of subfeatures for example. Default: 0 which displays all subfeature levels. Added in 1.12.3|
+|`storeTimeout`|Add timeout for calculating the feature track statistics. Mostly applicable to VCF and BAM file for when you get the error "Too many BAM features. BAM chunk size M bytes exceeds chunkSizeLimit of N"|
+
+
