@@ -53,7 +53,7 @@ release-min: node_modules
 	mkdir $(RELEASE_MIN);
 	cp -R `ls -1d * | grep -v $(RELEASE_MIN)` $(RELEASE_MIN_DIR);
 
-	for P in src browser css docs/jsdoc tests build node_modules extlib dist utils; do \
+	for P in src browser css docs/jsdoc tests build node_modules extlib dist utils website; do \
 	    rm -rf $(RELEASE_MIN_DIR)$$P; \
 	done;
 
