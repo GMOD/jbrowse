@@ -2,16 +2,26 @@ sudo: true
 dist: trusty
 language: perl
 python: 2.7.10
-perl:
-- '5.26'
-- '5.14'
-addons:
-  apt:
-    packages:
-    - libdb-dev
-    - libgd2-noxpm-dev
-    - phantomjs
-  firefox: '58.0'
+matrix:
+  include:
+    - name: "OS X"
+      os: osx
+      perl: 5.26
+    - name: "Linux"
+      perl:
+        - '5.26'
+        - '5.14'
+      addons:
+        apt:
+          packages:
+            - libdb-dev
+            - libgd2-noxpm-dev
+            - phantomjs
+        firefox: '58.0'
+      before_install:
+        - sudo dpkg --add-architecture i386
+        - sudo apt-get -qq update
+        - sudo apt-get install wine1.6 # this is for building windows electron images
 cache:
   yarn: true
   directories:
@@ -23,10 +33,6 @@ cache:
 env:
     global:
         - GECKODRIVER_VERSION=0.19.1
-before_install:
-  - sudo dpkg --add-architecture i386
-  - sudo apt-get -qq update
-  - sudo apt-get install wine1.6 # this is for building windows electron images
 install:
 - mkdir ~/geckodriver_$GECKODRIVER_VERSION;
 - wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
@@ -67,6 +73,7 @@ script:
 - set +e
 after_failure:
 - cat setup.log
+
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases
@@ -89,6 +96,7 @@ deploy:
     repo: GMOD/jbrowse
     perl: 5.26
     tags: true
+# deploy the website (blog and docs) if [update docs] is in the commit message
 - provider: script
   script: website/deploy.sh
   skip_cleanup: true
