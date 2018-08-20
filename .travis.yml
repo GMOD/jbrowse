@@ -7,7 +7,7 @@ matrix:
     - name: "OS X"
       os: osx
       before_install:
-        - sudo brew install perl cpanminus
+        - brew install perl cpanminus
     - name: "Linux - Perl 5.26"
       perl: 5.26
       addons:
