@@ -49,7 +49,8 @@ install:
 - mkdir ~/geckodriver_$GECKODRIVER_VERSION;
 - wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
-- cpanm --notest GD::Image Text::Markdown DateTime JSON
+# cpanm exits with nonzero exit code on os x sometimes?
+- cpanm --notest GD::Image Text::Markdown DateTime JSON || true
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
