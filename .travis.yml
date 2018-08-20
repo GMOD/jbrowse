@@ -2,15 +2,15 @@ sudo: true
 dist: trusty
 language: perl
 python: 2.7.10
+perl:
+  - '5.26'
+  - '5.14'
 matrix:
   include:
     - name: "OS X"
       os: osx
       perl: 5.26
     - name: "Linux"
-      perl:
-        - '5.26'
-        - '5.14'
       addons:
         apt:
           packages:
