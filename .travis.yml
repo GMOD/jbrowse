@@ -5,7 +5,7 @@ matrix:
     - name: "OS X"
       os: osx
       before_install:
-        - brew install perl cpanminus yarn libgd
+        - brew install perl cpanminus yarn libgd wine-stable
         - pip install virtualenv
       env:
         - RUN_SELENIUM=0
@@ -110,6 +110,7 @@ deploy:
   skip_cleanup: true
   on:
     repo: GMOD/jbrowse
+    os: osx
     perl: 5.26
     tags: true
 # upload regular non-minified version to npm
@@ -120,6 +121,7 @@ deploy:
     secure: "OpxHZGvyCFeG2CUpw4dHTz3kFBHJXeET2c4XxwKMxtL2FVt4W/zDLUV0gLQDFfsLlj+zjF62qtbHU8MajMw3aFLlTIdMIit+2s6H4D8kuBh5Q7pO5/gAykWtiwkJ3BudoYDGoDlB5kkakG4MPvvY26490hbmySCSgpsjetM91zE="
   on:
     repo: GMOD/jbrowse
+    os: linux
     perl: 5.26
     tags: true
 # deploy the website (blog and docs) if [update docs] is in the commit message
@@ -128,4 +130,5 @@ deploy:
   skip_cleanup: true
   on:
     perl: 5.26
+    os: linux
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
