@@ -5,6 +5,8 @@ matrix:
     - name: "OS X"
       os: osx
       before_install:
+        - brew update
+        - brew search wine
         - brew install perl cpanminus yarn libgd wine-stable
         - pip install virtualenv
       env:
