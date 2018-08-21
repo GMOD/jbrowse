@@ -81,7 +81,7 @@ script:
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - utils/jb_run.js -p 8000 -s jbrowse & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
-- if [ -n "$AVA_COMMAND" ]; then $AVA_COMMAND--timeout=60s tests/electron_tests; fi
+- if [ -n "$AVA_COMMAND" ]; then $AVA_COMMAND --timeout=60s tests/electron_tests; fi
 - if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh; fi
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
 - |
