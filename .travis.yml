@@ -92,7 +92,7 @@ script:
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
 - |
   if true; then # [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
-    PATH=$PWD/node_modules/.bin:$PATH make -f build/Makefile;
+    make -f build/Makefile;
     rm -rf JBrowse-*/;
     unzip -q JBrowse-$RELEASE_VERSION.zip;
     cd JBrowse-$RELEASE_VERSION/;

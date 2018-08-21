@@ -32,7 +32,8 @@ release-electron-darwin: release-min release-electron-setup
 
 release-electron-win32: release-min release-electron-setup
 	echo "Building win32 electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --icon=browser/icons/jbrowse
+	ls $$PWD/node_modules/.bin/wine
+	PATH=$$PWD/node_modules/.bin:$$PATH node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
 release-electron-linux: release-min release-electron-setup
@@ -40,7 +41,7 @@ release-electron-linux: release-min release-electron-setup
 	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --icon=browser/icons/jbrowse
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
 
-release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux
+release-electron-all: release-electron-win32  release-electron-darwin release-electron-linux
 	echo "Building desktop packages"
 
 release-notes.html: release-notes.md
