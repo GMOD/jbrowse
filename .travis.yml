@@ -7,6 +7,7 @@ matrix:
       before_install:
         - brew install perl cpanminus yarn libgd
         - pip install virtualenv
+        - alias xvfb-run=''
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
