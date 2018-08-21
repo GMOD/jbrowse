@@ -1,5 +1,3 @@
-sudo: true
-dist: trusty
 language: perl
 python: 2.7.10
 matrix:
@@ -7,9 +5,11 @@ matrix:
     - name: "OS X"
       os: osx
       before_install:
-        - brew install perl cpanminus yarn
+        - brew install perl cpanminus yarn libgd
         - pip install virtualenv
     - name: "Linux - Perl 5.26"
+      os: linux
+      dist: trusty
       perl: 5.26
       addons:
         apt:
@@ -18,12 +18,16 @@ matrix:
             - libgd2-noxpm-dev
             - phantomjs
         firefox: '58.0'
+      sudo: true
       before_install:
         - sudo dpkg --add-architecture i386
         - sudo apt-get -qq update
         - sudo apt-get install wine1.6 # this is for building windows electron images
     - name: "Linux - Perl 5.14"
+      os: linux
+      dist: trusty
       perl: 5.14
+      sudo: true
       addons:
         apt:
           packages:
@@ -51,7 +55,7 @@ install:
 - wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 # cpanm exits with nonzero exit code on os x sometimes?
-- cpanm --notest GD::Image Text::Markdown DateTime JSON || true
+- cpanm --notest GD::Image Text::Markdown DateTime JSON
 # only init the python virtualenv if it did not show up in our build cache
 - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 - source ~/python/bin/activate
