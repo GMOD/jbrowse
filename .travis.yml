@@ -7,7 +7,6 @@ matrix:
       before_install:
         - brew install perl cpanminus yarn libgd
         - pip install virtualenv
-        - alias xvfb-run=''
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
@@ -74,7 +73,7 @@ script:
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - utils/jb_run.js -p 8000 -s jbrowse & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
-- xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests
+- if which xvfb-run; then xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests; fi
 - MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
 - |
