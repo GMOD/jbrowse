@@ -7,6 +7,8 @@ matrix:
       before_install:
         - brew install perl cpanminus yarn libgd
         - pip install virtualenv
+      addons:
+        firefox: '58.0'
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
