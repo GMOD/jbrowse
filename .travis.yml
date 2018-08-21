@@ -6,10 +6,15 @@ matrix:
       os: osx
       before_install:
         - brew update
-        - brew install perl cpanminus yarn libgd wine
+        - brew install perl cpanminus yarn libgd
         - pip install virtualenv
+        - npm install wine-darwin@1.9.17-1
+        - ./node_modules/.bin/wine hostname
       env:
         - RUN_SELENIUM=0
+         # prevent wine popup dialogs about installing additional packages
+        - WINEDLLOVERRIDES="mscoree,mshtml="
+        - WINEDEBUG="-all"
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
