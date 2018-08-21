@@ -15,6 +15,7 @@ function fetchBinaryRange(url, start, end) {
     return tenaciousFetch(url, {
       method: 'GET',
       headers: { range: `bytes=${start}-${end}` },
+      credentials: 'same-origin',
       retries: 5,
       retryDelay: 1000, // 1 sec, 2 sec, 3 sec
       retryStatus: [500, 404, 503],
