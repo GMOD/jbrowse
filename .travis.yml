@@ -7,8 +7,8 @@ matrix:
       before_install:
         - brew install perl cpanminus yarn libgd
         - pip install virtualenv
-      addons:
-        firefox: '58.0'
+      env:
+        - RUN_SELENIUM=0
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
@@ -25,6 +25,9 @@ matrix:
         - sudo dpkg --add-architecture i386
         - sudo apt-get -qq update
         - sudo apt-get install wine1.6 # this is for building windows electron images
+      env:
+        - RUN_SELENIUM=1
+        - AVA_COMMAND="xvfb-run node_modules/.bin/ava"
     - name: "Linux - Perl 5.14"
       os: linux
       dist: trusty
@@ -41,6 +44,9 @@ matrix:
         - sudo dpkg --add-architecture i386
         - sudo apt-get -qq update
         - sudo apt-get install wine1.6 # this is for building windows electron images
+      env:
+        - RUN_SELENIUM=1
+        - AVA_COMMAND="xvfb-run node_modules/.bin/ava"
 cache:
   yarn: true
   directories:
@@ -75,8 +81,8 @@ script:
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
 - utils/jb_run.js -p 8000 -s jbrowse & sleep 2
 - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
-- if which xvfb-run; then xvfb-run node_modules/.bin/ava --timeout=60s tests/electron_tests; fi
-- MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh;
+- if [ -n "$AVA_COMMAND" ]; then $AVA_COMMAND--timeout=60s tests/electron_tests; fi
+- if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh; fi
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
 - |
   if [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
@@ -88,7 +94,7 @@ script:
     ./setup.sh;
     prove -Isrc/perl5 -r -j3 tests/perl_tests;
     cd $BUILD_DIR;
-    MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh;
+    if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh; fi
   fi
 - set +e
 after_failure:
