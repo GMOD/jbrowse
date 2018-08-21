@@ -7,7 +7,8 @@ matrix:
     - name: "OS X"
       os: osx
       before_install:
-        - brew install perl cpanminus pyenv-virtualenv
+        - brew install perl cpanminus
+        - pip install virtualenv
     - name: "Linux - Perl 5.26"
       perl: 5.26
       addons:
