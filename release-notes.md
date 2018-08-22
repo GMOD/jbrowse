@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed an issue with servers that use HTTP Basic Authentication on certain browsers,
+   notably some Chromium, Firefox 60 and earlier, and Safari. Thanks to Keiran Raine
+   for reporting and @cmdcolin for debugging. (issue #1186, @rbuels)
 
 # Release 1.15.2     2018-08-16 21:02:27 UTC
 
