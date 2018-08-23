@@ -13,6 +13,8 @@ ZIP=zip -q --symlinks -r
 UNZIP=unzip -q
 SHASUM=shasum
 
+ELECTRON_PACKAGE_OPTS = --overwrite --icon=browser/icons/jbrowse --ignore=/tests/ --ignore=/website/ --ignore=/src/perl5/ --ignore=/extlib/ --ignore=/docs/
+
 
 all: clean release
 
@@ -27,17 +29,17 @@ release-electron-setup:
 
 release-electron-darwin: release-min release-electron-setup
 	echo "Building mac electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin --icon=browser/icons/jbrowse
+	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=darwin $(ELECTRON_PACKAGE_OPTS)
 	$(ZIP) $(RELEASE_MIN)-desktop-darwin-x64.zip $(RELEASE_MIN)-desktop-darwin-x64
 
 release-electron-win32: release-min release-electron-setup
 	echo "Building win32 electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 --icon=browser/icons/jbrowse
+	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 $(ELECTRON_PACKAGE_OPTS)
 	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
 release-electron-linux: release-min release-electron-setup
 	echo "Building linux electron"
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux --icon=browser/icons/jbrowse
+	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=linux $(ELECTRON_PACKAGE_OPTS)
 	$(ZIP) $(RELEASE_MIN)-desktop-linux-x64.zip $(RELEASE_MIN)-desktop-linux-x64
 
 release-electron-all: release-electron-darwin release-electron-win32 release-electron-linux
