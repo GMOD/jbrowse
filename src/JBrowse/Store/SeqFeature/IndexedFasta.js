@@ -1,5 +1,5 @@
 const LRU = cjsRequire('lru-cache')
-const { IndexedFasta } = cjsRequire('@gmod/fasta')
+const { IndexedFasta } = cjsRequire('@gmod/indexedfasta')
 const { Buffer } = cjsRequire('buffer')
 
 const fastaIndexedFilesCache = LRU(5)
