@@ -80,7 +80,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
         this.fasta.getResiduesByName( this.refSeq.name, query.start, query.end ).then((seq) => {
-            featCallback(new SimpleFeature({data: {seq: seq }}))
+            featCallback(new SimpleFeature({data: {seq, start: query.start, end: query.end}}))
             endCallback()
         },
         errorCallback );
