@@ -1,3 +1,11 @@
+const LRU = cjsRequire('lru-cache')
+const { IndexedFasta } = cjsRequire('@gmod/fasta')
+const { Buffer } = cjsRequire('buffer')
+
+const fastaIndexedFilesCache = LRU(5)
+
+const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
+
 define( [ 'dojo/_base/declare',
           'dojo/_base/lang',
           'dojo/request',
@@ -7,8 +15,8 @@ define( [ 'dojo/_base/declare',
           'JBrowse/Util',
           'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
-          'JBrowse/Store/DeferredFeaturesMixin',
-          './IndexedFasta/File'
+          'JBrowse/Model/SimpleFeature',
+          'JBrowse/Store/DeferredFeaturesMixin'
         ],
         function(
             declare,
@@ -20,8 +28,8 @@ define( [ 'dojo/_base/declare',
             Util,
             Crc32,
             XHRBlob,
-            DeferredFeaturesMixin,
-            FASTAFile
+            SimpleFeature,
+            DeferredFeaturesMixin
         ) {
 
 return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
@@ -32,47 +40,57 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
      * served as static text files.
      * @constructs
      */
-    constructor: function(args) {
-        var fastaBlob = args.fasta ||
-            new XHRBlob( this.resolveUrl(args.urlTemplate || 'data.fasta'), { expectRanges: true });
+    constructor: async function(args) {
+        let dataBlob
+        if (args.fasta)
+            dataBlob = new BlobFilehandleWrapper(args.fasta)
+        else if (args.urlTemplate)
+            dataBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate), { expectRanges: true }))
+        else
+            dataBlob = new BlobFilehandleWrapper(new XHRBlob('data.fa', { expectRanges: true }))
 
-        var faiBlob = args.fai ||
-            new XHRBlob( this.resolveUrl(
-                             args.faiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.fai' : 'data.fasta.fai' )
-                         )
-                       );
-        this.index = {}
+        let indexBlob
+        if (args.fai)
+            indexBlob = new BlobFilehandleWrapper(args.fai)
+        else if (args.faiUrlTemplate)
+            indexBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.faiUrlTemplate)))
+        else if (args.urlTemplate)
+            indexBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.fai')))
+        else throw new Error('no index provided, must provide a FASTA index')
 
-        this.fasta = new FASTAFile({
-            store: this,
-            data: fastaBlob,
-            fai: faiBlob
-        });
+        this.source = dataBlob.toString()
 
-        this.fasta.init({
-            success: lang.hitch( this,
-                                 function() {
-                                     this._deferred.features.resolve({success:true});
-                                 }),
-            failure: lang.hitch( this, '_failAllDeferred' )
-        });
+        // LRU-cache the CRAM object so we don't have to re-download the
+        // index when we switch chromosomes
+        const cacheKey = `data: ${dataBlob}, index: ${indexBlob}`
+        this.fasta = fastaIndexedFilesCache.get(cacheKey)
+        if (!this.fasta) {
+            this.fasta = new IndexedFasta({
+                fasta: dataBlob,
+                fai: indexBlob
+            })
 
+            fastaIndexedFilesCache.set(cacheKey, this.cram)
+        }
+        this.fasta.getSequenceList().then(
+            () => this._deferred.features.resolve({success:true}),
+            () => this._failAllDeferred()
+        )
     },
 
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        this.fasta.fetch( this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
+        this.fasta.getResiduesByName( this.refSeq.name, query.start, query.end ).then((seq) => {
+            featCallback(new SimpleFeature({data: {seq: seq }}))
+            endCallback()
+        },
+        errorCallback );
     },
 
     getRefSeqs: function( featCallback, errorCallback ) {
-        var thisB=this;
-        this._deferred.features.then(
-            function() {
-                var keys = Object.keys(thisB.fasta.store.index);
-                var values = keys.map(function(v) { return thisB.fasta.store.index[v]; });
-                featCallback(values);
-            },
-            errorCallback
-        );
+        this.fasta.getSequenceSizes().then((seqs) => {
+            console.log(seqs);
+            featCallback(seqs);
+        }, errorCallback);
     },
     saveStore: function() {
         return {
