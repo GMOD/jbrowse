@@ -1,5 +1,5 @@
 const LRU = cjsRequire('lru-cache')
-const { IndexedFasta } = cjsRequire('@gmod/fasta')
+const { BgzipIndexedFasta } = cjsRequire('@gmod/fasta')
 const { Buffer } = cjsRequire('buffer')
 
 const fastaIndexedFilesCache = LRU(5)
@@ -8,31 +8,17 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 define( [ 'dojo/_base/declare',
           'dojo/_base/lang',
-          'dojo/request',
-          'dojo/promise/all',
-          'dojo/Deferred',
-          'JBrowse/Store/SeqFeature',
-          'JBrowse/Util',
-          'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
-          'JBrowse/Model/SimpleFeature',
-          'JBrowse/Store/DeferredFeaturesMixin'
+          'JBrowse/Store/SeqFeature/IndexedFasta'
         ],
         function(
             declare,
             lang,
-            request,
-            all,
-            Deferred,
-            SeqFeatureStore,
-            Util,
-            Crc32,
             XHRBlob,
-            SimpleFeature,
-            DeferredFeaturesMixin
+            IndexedFasta
         ) {
 
-return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
+return declare( IndexedFasta,
 {
 
     /**
@@ -58,6 +44,16 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
             indexBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.fai')))
         else throw new Error('no index provided, must provide a FASTA index')
 
+
+        let gziBlob
+        if(args.gzi)
+            gziBlob = new BlobFilehandleWrapper(args.gzi)
+        else if(args.gziUrlTemplate)
+            gziBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.gziUrlTemplate)))
+        else if (args.urlTemplate)
+            gziBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate+'.gzi')))
+        else throw new Error('no gzi index provided, must provide a GZI index')
+
         this.source = dataBlob.toString()
 
         // LRU-cache the CRAM object so we don't have to re-download the
@@ -65,9 +61,10 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         const cacheKey = `data: ${dataBlob}, index: ${indexBlob}`
         this.fasta = fastaIndexedFilesCache.get(cacheKey)
         if (!this.fasta) {
-            this.fasta = new IndexedFasta({
+            this.fasta = new BgzipIndexedFasta({
                 fasta: dataBlob,
-                fai: indexBlob
+                fai: indexBlob,
+                gzi: gziBlob
             })
 
             fastaIndexedFilesCache.set(cacheKey, this.fasta)
@@ -77,24 +74,11 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
             () => this._failAllDeferred()
         )
     },
-
-    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        this.fasta.getResiduesByName( this.refSeq.name, query.start, query.end ).then((seq) => {
-            featCallback(new SimpleFeature({data: {seq, start: query.start, end: query.end}}))
-            endCallback()
-        },
-        errorCallback );
-    },
-
-    getRefSeqs: function( featCallback, errorCallback ) {
-        this.fasta.getSequenceSizes().then((seqs) => {
-            featCallback(seqs);
-        }, errorCallback);
-    },
     saveStore: function() {
         return {
             urlTemplate: (this.config.file||this.config.blob).url,
-            faiUrlTemplate: this.config.fai.url
+            faiUrlTemplate: this.config.fai.url,
+            gziUrlTemplate: this.config.gzi.url
         };
     }
 
