@@ -1019,7 +1019,8 @@ initView: function() {
                   elem: this.viewElem,
                   config: this.config.view,
                   stripeWidth: 250,
-                  refSeq: this.refSeq
+                  refSeq: this.refSeq,
+                  zoomLevel: 1/200
                 });
 
         dojo.connect( this.view, "onFineMove",   this, "onFineMove"   );
