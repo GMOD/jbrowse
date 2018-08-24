@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Add ability to automatically deduce the storeClass and trackType of files based on
+   the file extension of urlTemplate. This allows very minimal configs where only
+   track label and urlTemplate can be specified. (pull #1189, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed an issue with servers that use HTTP Basic Authentication on certain browsers,
