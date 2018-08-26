@@ -29,6 +29,12 @@ Note: on Mac, you can alternatively use Homebrew and run \`brew cask
 install jbrowse\` which will download and place jbrowse in your
 Application directory
 
+Also note: On Linux, you will need libgconf
+
+    sudo apt install libgconf-2-4
+
+See this thread for details https://github.com/electron/electron/issues/1518
+
 ## Overview of JBrowse Desktop
 
 When you run JBrowse Desktop you will see a sort of "welcome screen"
