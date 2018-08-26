@@ -12,6 +12,9 @@
    notably some Chromium, Firefox 60 and earlier, and Safari. Thanks to Keiran Raine
    for reporting and @cmdcolin for debugging. (issue #1186, @rbuels)
 
+ * Fix issue where searching for reference sequence names would not be navigate to the
+   typed in reference sequence (issue #1193, @cmdcolin)
+
 # Release 1.15.2     2018-08-16 21:02:27 UTC
 
 ## Minor improvements
