@@ -8,6 +8,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/RegionStatsMixin',
             'JBrowse/Model/XHRBlob',
             './BED/Parser'
         ],
@@ -21,11 +22,12 @@ define( [
             DeferredFeatures,
             DeferredStats,
             GlobalStatsEstimationMixin,
+            RegionStatsMixin,
             XHRBlob,
             Parser
         ) {
 
-return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin ],
+return declare([ SeqFeatureStore, DeferredFeatures, DeferredStats, GlobalStatsEstimationMixin, RegionStatsMixin ],
 
  /**
   * @lends JBrowse.Store.SeqFeature.BED
