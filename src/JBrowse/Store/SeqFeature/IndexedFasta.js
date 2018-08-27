@@ -88,12 +88,28 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         },
         errorCallback );
     },
-
-    getRefSeqs: function( featCallback, errorCallback ) {
-        this.fasta.getSequenceSizes().then((seqs) => {
-            featCallback(seqs);
-        }, errorCallback);
+    hasRefSeq: function( seqName, callback, errorCallback ) {
+        this.fasta.getSequenceSize(seqName)
+            .then(
+                size => {
+                    callback(size !== undefined)
+                },
+                errorCallback,
+            )
     },
+    getRefSeqs: function( callback, errorCallback ) {
+        this.fasta.getSequenceSizes()
+            .then(sizes => Object.entries(sizes).map(([name,length]) => {
+                return {
+                    name,
+                    length,
+                    end: length,
+                    start: 0,
+                }
+            }))
+            .then(callback, errorCallback)
+    },
+
     saveStore: function() {
         return {
             urlTemplate: (this.config.file||this.config.blob).url,
