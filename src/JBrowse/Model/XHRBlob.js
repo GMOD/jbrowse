@@ -60,6 +60,8 @@ function fetchBinaryRange(url, start, end) {
             responseDate,
             buffer: Buffer.from(arrayBuffer),
         }))
+    }, res => {
+        throw new Error(`HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`)
     })
   }
   const globalCache = new HttpRangeFetcher({
