@@ -4,7 +4,10 @@ use warnings;
 use Text::Markdown 'markdown';
 
 my $release = "";
+my $line = 0;
 while(<>) {
+    $line += 1;
+    next if $line == 1 && /^# /;
     last if /^# /;
     next if /\{\{\$NEXT\}\}/;
     $release .= $_;

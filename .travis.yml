@@ -67,6 +67,8 @@ script:
 - set +e
 after_failure:
 - cat setup.log
+before_deploy:
+- export BODY=$(build/format_release_notes.pl < release-notes.md)
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases
@@ -74,6 +76,7 @@ deploy:
     secure: BuOD7rqrcGKT3g0hVY5AGpJI/Kkko4DhSIYSUQ28sS2AOdoNyTD0t5doL/Kiq4BC41q198tbFFt1dnXGdo8YKpBSXO/uGUuuiGtMFHM++I84oLq20p49iyrenNZ4m/jy/Q4YtizIYLs83DVzVdQzhJ5hrTx6f+d1gc9EgaMeBF4=
   file: JBrowse-1.*.zip
   file_glob: true
+  body: ${BODY}
   skip_cleanup: true
   on:
     repo: GMOD/jbrowse
