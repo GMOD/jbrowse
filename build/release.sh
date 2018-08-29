@@ -51,7 +51,7 @@ build/set_package_versions.pl $VERSION src/JBrowse/package.json package.json web
 
 # commit the release notes and package.jsons
 git add $BLOGPOST_FILENAME
-git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json website/siteConfig.js $BLOGPOST_FILENAME
+git commit -m "[update docs] release $VERSION" release-notes.md src/JBrowse/package.json package.json website/siteConfig.js $BLOGPOST_FILENAME
 
 # make a tag and update master
 git tag $VERSION-release
