@@ -4,7 +4,7 @@ set -e;
 
 VERSION=$1
 ALPHA_VERSION=$2
-NOTES=$3
+NOTES=`cat $3`
 
 # make sure we were given a version number
 if [[ $VERSION = '' || $ALPHA_VERSION = '' ]]; then
@@ -40,7 +40,7 @@ set -x
 # datestamp the release notes
 DATE=$(date +"%Y-%m-%d")
 BLOGPOST_FILENAME=website/blog/$(date +"%Y-%m-%d")-jbrowse-$(echo $VERSION | sed 's/\./-/g').md
-VERSION=$VERSION DATE=$DATE perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < build/blog_template.txt > $BLOGPOST_FILENAME
+VERSION=$VERSION DATE=$DATE NOTES=$NOTES perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < build/blog_template.txt > $BLOGPOST_FILENAME
 build/format_release_notes.pl < release-notes.md >> $BLOGPOST_FILENAME
 
 build/datestamp_release_notes.pl $VERSION release-notes.md > release-notes.md.new
