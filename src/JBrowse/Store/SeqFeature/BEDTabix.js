@@ -8,6 +8,7 @@ define([
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/TabixIndexedFile',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/RegionStatsMixin',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
             './BED/Parser'
@@ -22,12 +23,13 @@ define([
             DeferredFeaturesMixin,
             TabixIndexedFile,
             IndexedStatsEstimationMixin,
+            RegionStatsMixin,
             XHRBlob,
             SimpleFeature,
             Parser
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, RegionStatsMixin ], {
 
     constructor: function( args ) {
         var thisB = this;
