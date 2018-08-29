@@ -4,6 +4,7 @@ set -e;
 
 VERSION=$1
 ALPHA_VERSION=$2
+NOTES=$3
 
 # make sure we were given a version number
 if [[ $VERSION = '' || $ALPHA_VERSION = '' ]]; then
@@ -37,6 +38,11 @@ fi
 set -x
 
 # datestamp the release notes
+DATE=$(date +"%Y-%m-%d")
+BLOGPOST_FILENAME=website/blog/$(date +"%Y-%m-%d")-jbrowse-$(echo $VERSION | sed 's/\./-/g').md
+VERSION=$VERSION DATE=$DATE perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < build/blog_template.txt > $BLOGPOST_FILENAME
+build/format_release_notes.pl < release-notes.md >> $BLOGPOST_FILENAME
+
 build/datestamp_release_notes.pl $VERSION release-notes.md > release-notes.md.new
 mv release-notes.md.new release-notes.md
 
@@ -44,7 +50,8 @@ mv release-notes.md.new release-notes.md
 build/set_package_versions.pl $VERSION src/JBrowse/package.json package.json website/siteConfig.js
 
 # commit the release notes and package.jsons
-git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json website/siteConfig.js
+git add $BLOGPOST_FILENAME
+git commit -m "release $VERSION" release-notes.md src/JBrowse/package.json package.json website/siteConfig.js $BLOGPOST_FILENAME
 
 # make a tag and update master
 git tag $VERSION-release

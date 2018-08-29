@@ -6,6 +6,7 @@ use Text::Markdown 'markdown';
 my $release = "";
 while(<>) {
     last if /^# /;
+    next if /\{\{\$NEXT\}\}/;
     $release .= $_;
 }
 
