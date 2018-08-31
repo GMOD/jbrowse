@@ -1,11 +1,13 @@
 require([
     'JBrowse/View/FileDialog/TrackList/BAMDriver',
     'JBrowse/View/FileDialog/TrackList/GFF3TabixDriver',
-    'JBrowse/View/FileDialog/TrackList/IndexedFASTADriver'
+    'JBrowse/View/FileDialog/TrackList/IndexedFASTADriver',
+    'JBrowse/View/FileDialog/TrackList/BgzipIndexedFASTADriver'
 ], function(
     BAMDriver,
     GFF3TabixDriver,
-    IndexedFastaDriver
+    IndexedFastaDriver,
+    BgzipIndexedFastaDriver
 ) {
 
 describe( 'FileDialog drivers', function() {
@@ -121,12 +123,14 @@ describe( 'FileDialog drivers', function() {
 
     it( 'BGZIP FASTA file', function( ) {
         var confs = { foo: { fasta: { blob: { name :'zee.fa.gz'} } } };
-        var driver = new IndexedFastaDriver();
-        expect( driver.tryResource( confs, { type: 'fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
-        expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
+        var driver = new BgzipIndexedFastaDriver();
+        expect( driver.tryResource( confs, { type: 'gz.fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'gz.gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
         driver.finalizeConfiguration(confs);
-        expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.fai' );
-        expect( confs.foo.fasta.blob.name ).toEqual( 'zee.fa' );
+        console.log(confs)
+        expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
+        expect( confs.foo.gzi.blob.name ).toEqual( 'zee.fa.gz.gzi' );
+        expect( confs.foo.fasta.blob.name ).toEqual( 'zee.fa.gz' );
     });
 });
 });

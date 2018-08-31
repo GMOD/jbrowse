@@ -14,6 +14,7 @@ define( [
             RadioButton,
             dom,
             FileDialog,
+            BgzipIndexedFASTADriver,
             IndexedFASTADriver,
             TwoBitDriver
         ) {
