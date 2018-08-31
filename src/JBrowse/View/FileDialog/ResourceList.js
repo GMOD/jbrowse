@@ -96,7 +96,7 @@ return declare( null, {
                         { label: "BAM index",   value: "bam.bai"},
                         { label: "FASTA",       value: "fasta"  },
                         { label: "BGZIP FASTA", value: "bgzfa"  },
-                        { label: "BGZIP index", value: "gzi"  },
+                        { label: "GZI index",   value: "gzi"    },
                         { label: "2bit",        value: "2bit"   },
                         { label: "BigBed",      value: "bb"     },
                         { label: "FASTA index", value: "fai"    },
