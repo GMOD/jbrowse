@@ -52,6 +52,7 @@ define( [
             'JBrowse/View/StandaloneDatasetList',
             'JBrowse/Store/SeqFeature/UnindexedFasta',
             'JBrowse/Store/SeqFeature/IndexedFasta',
+            'JBrowse/Store/SeqFeature/BgzipIndexedFasta',
             'JBrowse/Store/SeqFeature/TwoBit',
             'dijit/focus',
             '../lazyload.js', // for dynamic CSS loading
@@ -114,6 +115,7 @@ define( [
             StandaloneDatasetList,
             UnindexedFasta,
             IndexedFasta,
+            BgzipIndexedFasta,
             TwoBit,
             dijitFocus,
             LazyLoad,
@@ -1291,6 +1293,16 @@ openFastaElectron: function() {
                     refSeqOrder: results.refSeqOrder
                 };
 
+                if( confs[0].store.fasta && confs[0].store.fai && confs[0].store.gzi) {
+                    var fasta = Util.replacePath( confs[0].store.bgzfa.url );
+                    var fai = Util.replacePath( confs[0].store.fai.url );
+                    var gzi = Util.replacePath( confs[0].store.gzi.url );
+                    trackList.tracks[0].storeClass= 'JBrowse/Store/SeqFeature/BgzipIndexedFasta';
+                    trackList.tracks[0].urlTemplate = fasta;
+                    trackList.tracks[0].faiUrlTemplate = fai;
+                    trackList.tracks[0].gziUrlTemplate = gzi;
+                    trackList.refSeqs = fai;
+                }
                 if( confs[0].store.fasta && confs[0].store.fai ) {
                     var fasta = Util.replacePath( confs[0].store.fasta.url );
                     var fai = Util.replacePath( confs[0].store.fai.url );
@@ -1358,6 +1370,7 @@ openFasta: function() {
                       alert('Unindexed file too large. You must have an index file (.fai) for sequence files larger than 100 MB.')
                       return reject('sequence file too large')
                   }
+                    console.log(storeConf)
 
                   const store = new storeClass(
                       Object.assign({ browser: this }, storeConf)
@@ -1481,6 +1494,7 @@ getTrackTypes: function() {
                 'JBrowse/Store/SeqFeature/StaticChunked' : 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/UnindexedFasta': 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/IndexedFasta'  : 'JBrowse/View/Track/Sequence',
+                'JBrowse/Store/SeqFeature/BgzipIndexedFasta'  : 'JBrowse/View/Track/Sequence',
                 'JBrowse/Store/SeqFeature/TwoBit'        : 'JBrowse/View/Track/Sequence'
             },
 
