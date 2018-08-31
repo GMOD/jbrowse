@@ -95,6 +95,8 @@ return declare( null, {
                         { label: "BAM",         value: "bam"    },
                         { label: "BAM index",   value: "bam.bai"},
                         { label: "FASTA",       value: "fasta"  },
+                        { label: "BGZIP FASTA", value: "bgzfa"  },
+                        { label: "BGZIP index", value: "gzi"  },
                         { label: "2bit",        value: "2bit"   },
                         { label: "BigBed",      value: "bb"     },
                         { label: "FASTA index", value: "fai"    },
@@ -166,12 +168,14 @@ return declare( null, {
                 /\.gtf?$/i.test( name )         ? 'gtf'    :
                 /\.(bw|bigwig)$/i.test( name )  ? 'bigwig' :
                 /\.(fa|fasta)$/i.test( name )   ? 'fasta'  :
+                /\.(fa|fasta)\.gz$/i.test( name ) ? 'bgzfa':
                 /\.2bit$/i.test( name )         ? '2bit'   :
                 /\.fai$/i.test( name )          ? 'fai'    :
                 /\.idx$/i.test( name )          ? 'idx'    :
                 /\.vcf$/i.test( name )          ? 'vcf'    :
                 /\.vcf\.gz$/i.test( name )      ? 'vcf.gz' :
                 /\.bed\.gz$/i.test( name )      ? 'bed.gz' :
+                /\.gzi$/i.test( name )          ? 'gzi'    :
                 /\.gff3?\.gz$/i.test( name )    ? 'gff3.gz':
                 /\.bed$/i.test( name )          ? 'bed'    :
                 /\.(bb|bigbed)$/i.test( name )  ? 'bb'     :

@@ -118,6 +118,16 @@ describe( 'FileDialog drivers', function() {
         driver.finalizeConfiguration(confs);
         expect( confs.foo.fasta.blob.name ).toEqual( 'zee.fa' );
     });
+
+    it( 'BGZIP FASTA file', function( ) {
+        var confs = { foo: { fasta: { blob: { name :'zee.fa.gz'} } } };
+        var driver = new IndexedFastaDriver();
+        expect( driver.tryResource( confs, { type: 'fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
+        driver.finalizeConfiguration(confs);
+        expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.fai' );
+        expect( confs.foo.fasta.blob.name ).toEqual( 'zee.fa' );
+    });
 });
 });
 
