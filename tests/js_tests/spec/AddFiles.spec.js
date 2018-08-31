@@ -124,8 +124,8 @@ describe( 'FileDialog drivers', function() {
     it( 'BGZIP FASTA file', function( ) {
         var confs = { foo: { bgzfa: { blob: { name :'zee.fa.gz'} } } };
         var driver = new BgzipIndexedFastaDriver();
-        expect( driver.tryResource( confs, { type: 'gz.fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
-        expect( driver.tryResource( confs, { type: 'gz.gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
         driver.finalizeConfiguration(confs);
         console.log(confs)
         expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
