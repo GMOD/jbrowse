@@ -10,7 +10,7 @@ return declare( null, {
 
     storeType: 'JBrowse/Store/SeqFeature/BgzipIndexedFasta',
     fileExtension: 'gz',
-    fileConfKey: 'fasta',
+    fileConfKey: 'bgzfa',
     fileUrlConfKey: 'urlTemplate',
 
     indexExtension: 'gz.fai',
@@ -23,14 +23,12 @@ return declare( null, {
 
 
     tryResource: function( configs, resource ) {
-        console.log(resource.type,this.fileExtension)
         if( resource.type == this.fileExtension ) {
             var basename = Util.basename(
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
                                 ''
             );
-            console.log('INITIAL',basename)
             if( !basename )
                 return false;
 
@@ -69,16 +67,12 @@ return declare( null, {
                                 ''
                 , '.'+this.indexExtension
             );
-            console.log('index',basename, this.indexExtension)
             if( !basename )
                 return false;
 
             // go through the configs and look for data files that match like zee.bam -> zee.bam.bai
             for( var n in configs ) {
                 var c = configs[n];
-
-                var x = Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], '.gz' )
-                console.log('x',x,c[this.fileConfKey]);
 
                 if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], '.gz' ) == basename ) {
                     // it's a match, put it in
@@ -103,7 +97,6 @@ return declare( null, {
                                 ''
                 , '.'+this.doubleIndexExtension
             );
-            console.log('doubleindex',basename)
             if( !basename )
                 return false;
 

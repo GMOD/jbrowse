@@ -122,7 +122,7 @@ describe( 'FileDialog drivers', function() {
     });
 
     it( 'BGZIP FASTA file', function( ) {
-        var confs = { foo: { fasta: { blob: { name :'zee.fa.gz'} } } };
+        var confs = { foo: { bgzfa: { blob: { name :'zee.fa.gz'} } } };
         var driver = new BgzipIndexedFastaDriver();
         expect( driver.tryResource( confs, { type: 'gz.fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
         expect( driver.tryResource( confs, { type: 'gz.gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
@@ -130,7 +130,7 @@ describe( 'FileDialog drivers', function() {
         console.log(confs)
         expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
         expect( confs.foo.gzi.blob.name ).toEqual( 'zee.fa.gz.gzi' );
-        expect( confs.foo.fasta.blob.name ).toEqual( 'zee.fa.gz' );
+        expect( confs.foo.bgzfa.blob.name ).toEqual( 'zee.fa.gz' );
     });
 });
 });
