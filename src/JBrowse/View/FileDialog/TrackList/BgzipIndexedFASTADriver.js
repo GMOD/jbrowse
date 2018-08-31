@@ -7,17 +7,19 @@ define([
        function( declare, Util, FileBlob, XHRBlob ) {
 var uniqCounter = 0;
 return declare( null, {
-
     storeType: 'JBrowse/Store/SeqFeature/BgzipIndexedFasta',
     fileExtension: 'gz',
+    fileExtensionMap: ['.fasta.gz', '.fa.gz'],
     fileConfKey: 'bgzfa',
     fileUrlConfKey: 'urlTemplate',
 
     indexExtension: 'gz.fai',
+    indexExtensionMap: ['.fasta.gz.fai', '.fa.gz.fai'],
     indexConfKey: 'fai',
     indexUrlConfKey: 'faiUrlTemplate',
 
     doubleIndexExtension: 'gz.gzi',
+    doubleIndexExtensionMap: ['.fasta.gz.gzi', '.fa.gz.gzi'],
     doubleIndexConfKey: 'gzi',
     doubleIndexUrlConfKey: 'gziUrlTemplate',
 
@@ -27,15 +29,17 @@ return declare( null, {
             var basename = Util.basename(
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
-                                ''
+                                '',
+                this.fileExtensionMap
             );
+			console.log(basename)
             if( !basename )
                 return false;
 
             // go through the configs and see if there is one for an index that seems to match
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[this.indexConfKey] ? c[this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], '.'+this.indexExtension ) == basename ) {
+                if( Util.basename( c[this.indexConfKey] ? c[this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], this.indexExtensionMap ) == basename ) {
                     // it's a match, put it in
                     c[this.fileConfKey] = this._makeBlob( resource );
                     return true;
@@ -44,7 +48,7 @@ return declare( null, {
 
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[this.doubleIndexConfKey] ? c[this.doubleIndexConfKey ].url || c[this.doubleIndexConfKey].blob.name : c[this.doubleIndexUrlConfKey], '.'+this.doubleIndexExtension ) == basename ) {
+                if( Util.basename( c[this.doubleIndexConfKey] ? c[this.doubleIndexConfKey ].url || c[this.doubleIndexConfKey].blob.name : c[this.doubleIndexUrlConfKey], this.doubleExtensionMap ) == basename ) {
                     // it's a match, put it in
                     c[this.fileConfKey] = this._makeBlob( resource );
                     return true;
@@ -65,7 +69,7 @@ return declare( null, {
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
                                 ''
-                , '.'+this.indexExtension
+                , this.indexExtensionMap
             );
             if( !basename )
                 return false;
@@ -74,7 +78,7 @@ return declare( null, {
             for( var n in configs ) {
                 var c = configs[n];
 
-                if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], '.gz' ) == basename ) {
+                if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], this.fileExtensionMap ) == basename ) {
                     // it's a match, put it in
                     c[this.indexConfKey] = this._makeBlob( resource );
                     return true;
@@ -95,7 +99,7 @@ return declare( null, {
                 resource.file ? resource.file.name :
                 resource.url  ? resource.url       :
                                 ''
-                , '.'+this.doubleIndexExtension
+                , this.doubleIndexExtensionMap
             );
             if( !basename )
                 return false;
@@ -103,7 +107,7 @@ return declare( null, {
             // go through the configs and look for data files that match like zee.bam -> zee.bam.bai
             for( var n in configs ) {
                 var c = configs[n];
-                if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], '.gz' ) == basename ) {
+                if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey].url || c[this.fileConfKey].blob.name : c[this.fileUrlConfKey], this.fileExtensionMap ) == basename ) {
                     // it's a match, put it in
                     c[this.doubleIndexConfKey] = this._makeBlob( resource );
                     return true;
