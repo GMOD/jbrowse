@@ -150,9 +150,9 @@
     tmp-promise "^1.0.4"
     typical "^2.6.1"
 
-"@gmod/indexedfasta@GMOD/indexedfasta-js":
-  version "0.0.1"
-  resolved "https://codeload.github.com/GMOD/indexedfasta-js/tar.gz/b16b8b6475d5bb4f1e53146c10d216f10eb7058f"
+"@gmod/indexedfasta@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@gmod/indexedfasta/-/indexedfasta-1.0.2.tgz#8f5bcdf60b6f3bb799dd0525b6155b9d0267466d"
   dependencies:
     "@gmod/bgzf-filehandle" "^1.0.0"
     util.promisify "^1.0.0"
