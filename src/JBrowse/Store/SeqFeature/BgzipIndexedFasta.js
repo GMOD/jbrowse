@@ -28,8 +28,8 @@ return declare( IndexedFasta,
      */
     constructor: function(args) {
         let dataBlob
-        if (args.fasta)
-            dataBlob = new BlobFilehandleWrapper(args.fasta)
+        if (args.bgzfa)
+            dataBlob = new BlobFilehandleWrapper(args.bgzfa)
         else if (args.urlTemplate)
             dataBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate), { expectRanges: true }))
         else
