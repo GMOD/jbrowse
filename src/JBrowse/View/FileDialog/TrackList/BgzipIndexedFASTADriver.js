@@ -14,7 +14,7 @@ return declare( null, {
     fileConfKey: 'bgzfa',
     fileUrlConfKey: 'urlTemplate',
 
-    indexExtension: 'fai',
+    indexExtension: 'fasta.gz.fai',
     indexExtensionMap: ['.fasta.gz.fai', '.fa.gz.fai'],
     indexConfKey: 'fai',
     indexUrlConfKey: 'faiUrlTemplate',
@@ -128,40 +128,42 @@ return declare( null, {
 
         for( var n in configs ) {
             var conf = configs[n];
-
-            var v1 = !!(conf[this.indexConfKey] || conf[this.indexUrlConfKey])
-            var v2 = !!(conf[this.fileConfKey] || conf[this.fileUrlConfKey])
-            var v3 = !!(conf[this.doubleIndexConfKey] || conf[this.doubleIndexUrlConfKey])
-            if(+v1+v2+v3 != 3) {
-                delete configs[n]
+            if( conf.type === this.storeType ) {
+                var v1 = (conf[this.indexConfKey] || conf[this.indexUrlConfKey])
+                var v2 = (conf[this.fileConfKey] || conf[this.fileUrlConfKey])
+                var v3 = (conf[this.doubleIndexConfKey] || conf[this.doubleIndexUrlConfKey])
+                if(!(v1 && v2 && v3)) {
+                    console.log(configs[n], configs, n)
+                    delete configs[n]
+                }
             }
         }
 
         // // if we have a single File and single Index left at the end,
         // // stick them together and we'll see what happens
         // if( singletonFileCount == 1 && singletonIndexCount == 1 ) {
-            // for( var indexName in singletonIndexes ) {
-                // for( var fileName in singletonFiles ) {
-                //     if( singletonIndexes[indexName][this.indexUrlConfKey] )
-                //         singletonFiles[fileName][this.indexUrlConfKey] = singletonIndexes[indexName][this.indexUrlConfKey];
-                //     if( singletonIndexes[indexName][this.indexConfKey] )
-                //         singletonFiles[fileName][this.indexConfKey] = singletonIndexes[indexName][this.indexConfKey];
+        //     for( var indexName in singletonIndexes ) {
+        //         for( var fileName in singletonFiles ) {
+        //             if( singletonIndexes[indexName][this.indexUrlConfKey] )
+        //                 singletonFiles[fileName][this.indexUrlConfKey] = singletonIndexes[indexName][this.indexUrlConfKey];
+        //             if( singletonIndexes[indexName][this.indexConfKey] )
+        //                 singletonFiles[fileName][this.indexConfKey] = singletonIndexes[indexName][this.indexConfKey];
 
-                //     delete configs[indexName];
-                // }
-            // }
+        //             delete configs[indexName];
+        //         }
+        //     }
         // }
 
         // // delete any remaining singleton Indexes, since they don't have
         // // a hope of working
         // for( var indexName in singletonIndexes ) {
-            // delete configs[indexName];
+        //     delete configs[indexName];
         // }
 
         // // delete any remaining singleton Files, unless they are URLs
         // for( var fileName in singletonFiles ) {
-            // if( ! configs[fileName][this.fileUrlConfKey] )
-                // delete configs[fileName];
+        //     if( ! configs[fileName][this.fileUrlConfKey] )
+        //         delete configs[fileName];
         // }
     },
 
