@@ -1293,7 +1293,7 @@ openFastaElectron: function() {
                     refSeqOrder: results.refSeqOrder
                 };
 
-                if( confs[0].store.fasta && confs[0].store.fai && confs[0].store.gzi) {
+                if( confs[0].store.bgzfa && confs[0].store.fai && confs[0].store.gzi) {
                     var fasta = Util.replacePath( confs[0].store.bgzfa.url );
                     var fai = Util.replacePath( confs[0].store.fai.url );
                     var gzi = Util.replacePath( confs[0].store.gzi.url );
@@ -1303,7 +1303,7 @@ openFastaElectron: function() {
                     trackList.tracks[0].gziUrlTemplate = gzi;
                     trackList.refSeqs = fai;
                 }
-                if( confs[0].store.fasta && confs[0].store.fai ) {
+                else if( confs[0].store.fasta && confs[0].store.fai ) {
                     var fasta = Util.replacePath( confs[0].store.fasta.url );
                     var fai = Util.replacePath( confs[0].store.fai.url );
                     trackList.tracks[0].storeClass= 'JBrowse/Store/SeqFeature/IndexedFasta';
