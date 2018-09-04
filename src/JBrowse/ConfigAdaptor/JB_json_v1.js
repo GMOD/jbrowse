@@ -223,6 +223,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                         /\.(bw|bigwig)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigWig'                                                   :
                         /\.(bb|bigbed)$/i.test( urlTemplate ) ? 'JBrowse/Store/SeqFeature/BigBed'                                                   :
                         /\.(fa|fasta)$/i.test( urlTemplate )  ? 'JBrowse/Store/SeqFeature/IndexedFasta'                                             :
+                        /\.(fa|fasta)\.gz$/i.test( urlTemplate )  ? 'JBrowse/Store/SeqFeature/BgzipIndexedFasta'                                             :
                         /\.2bit$/i.test( urlTemplate )        ? 'JBrowse/Store/SeqFeature/TwoBit'                                                   :
                         /\/Sequence$/.test(trackConfig.type)  ? 'JBrowse/Store/Sequence/StaticChunked'                                              :
                                                                  null
@@ -246,6 +247,7 @@ return declare('JBrowse.ConfigAdaptor.JB_json_v1',null,
                 if( (storeClass == 'JBrowse/Store/Sequence/StaticChunked' ||
                      storeClass == 'JBrowse/Store/Sequence/IndexedFasta' ||
                      storeClass == 'JBrowse/Store/SeqFeature/IndexedFasta' ||
+                     storeClass == 'JBrowse/Store/SeqFeature/BgzipIndexedFasta' ||
                      storeClass == 'JBrowse/Store/SeqFeature/TwoBit' ||
                      storeClass == 'JBrowse/Store/Sequence/TwoBit' ||
                      trackConfig.useAsRefSeqStore
