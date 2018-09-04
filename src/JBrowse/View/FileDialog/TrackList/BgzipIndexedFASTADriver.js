@@ -138,33 +138,6 @@ return declare( null, {
                 }
             }
         }
-
-        // // if we have a single File and single Index left at the end,
-        // // stick them together and we'll see what happens
-        // if( singletonFileCount == 1 && singletonIndexCount == 1 ) {
-        //     for( var indexName in singletonIndexes ) {
-        //         for( var fileName in singletonFiles ) {
-        //             if( singletonIndexes[indexName][this.indexUrlConfKey] )
-        //                 singletonFiles[fileName][this.indexUrlConfKey] = singletonIndexes[indexName][this.indexUrlConfKey];
-        //             if( singletonIndexes[indexName][this.indexConfKey] )
-        //                 singletonFiles[fileName][this.indexConfKey] = singletonIndexes[indexName][this.indexConfKey];
-
-        //             delete configs[indexName];
-        //         }
-        //     }
-        // }
-
-        // // delete any remaining singleton Indexes, since they don't have
-        // // a hope of working
-        // for( var indexName in singletonIndexes ) {
-        //     delete configs[indexName];
-        // }
-
-        // // delete any remaining singleton Files, unless they are URLs
-        // for( var fileName in singletonFiles ) {
-        //     if( ! configs[fileName][this.fileUrlConfKey] )
-        //         delete configs[fileName];
-        // }
     },
 
     _makeBlob: function( resource ) {

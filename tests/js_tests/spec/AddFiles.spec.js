@@ -127,7 +127,6 @@ describe( 'FileDialog drivers', function() {
         expect( driver.tryResource( confs, { type: 'fasta.gz.fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
         expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
         driver.finalizeConfiguration(confs);
-        console.log(confs)
         expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
         expect( confs.foo.gzi.blob.name ).toEqual( 'zee.fa.gz.gzi' );
         expect( confs.foo.bgzfa.blob.name ).toEqual( 'zee.fa.gz' );
