@@ -71,9 +71,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         // start our global stats estimation
-        this.getHeader()
+        this.indexedData.featureCount('nonexistent')
             .then(
-                header => {
+                () => {
                     this._deferred.features.resolve({ success: true })
                     this._estimateGlobalStats()
                         .then(
@@ -88,33 +88,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             )
     },
 
-    getHeader() {
-        if (this._parsedHeader) return this._parsedHeader
-
-        this._parsedHeader = new Deferred()
-        const reject = this._parsedHeader.reject.bind(this._parsedHeader)
-
-        this.indexedData.indexLoaded
-            .then( () => {
-                const maxFetch = this.indexedData.index.firstDataLine
-                    ? this.indexedData.index.firstDataLine.block + this.indexedData.data.blockSize - 1
-                    : null
-
-                this.indexedData.data.read(
-                    0,
-                    maxFetch,
-                    bytes => this._parsedHeader.resolve( this.header ),
-                    reject
-                );
-            },
-            reject
-        )
-
-        return this._parsedHeader
-    },
-
     _getFeatures(query, featureCallback, finishedCallback, errorCallback, allowRedispatch = true) {
-        this.getHeader().then(
+        this.indexedData.featureCount('nonexistent').then(
             () => {
                 const lines = []
                 this.indexedData.getLines(

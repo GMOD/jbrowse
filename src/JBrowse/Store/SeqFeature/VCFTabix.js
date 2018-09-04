@@ -1,3 +1,7 @@
+const promisify = cjsRequire('util.promisify')
+const zlib = cjsRequire('zlib')
+const gunzip = promisify(zlib.gunzip)
+
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
@@ -29,7 +33,7 @@ define([
 // files don't actually have an end coordinate, so we have to make it
 // here.  also convert coordinates to interbase.
 var VCFIndexedFile = declare( TabixIndexedFile, {
-    parseLine: function() {
+    parseLine() {
         var i = this.inherited( arguments );
         if( i ) {
             var ret = i.fields[7].match(/^END=(\d+)|;END=(\d+)/);
@@ -43,7 +47,7 @@ var VCFIndexedFile = declare( TabixIndexedFile, {
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, VCFParser ],
 {
 
-    constructor: function( args ) {
+    constructor( args ) {
         var thisB = this;
         var csiBlob, tbiBlob;
 
@@ -68,6 +72,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 this.resolveUrl( this.getConf('urlTemplate',[]) ),
                 { expectRanges: true }
             );
+
+        this.fileBlob = fileBlob
 
         this.indexedData = new VCFIndexedFile(
             {
@@ -97,35 +103,15 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     },
 
     /** fetch and parse the VCF header lines */
-    getVCFHeader: function() {
-        var thisB = this;
-        return this._parsedHeader || ( this._parsedHeader = function() {
-            var d = new Deferred();
-            var reject = lang.hitch( d, 'reject' );
-
-            thisB.indexedData.indexLoaded.then( function() {
-                var maxFetch = thisB.indexedData.index.firstDataLine
-                    ? thisB.indexedData.index.firstDataLine.block + thisB.indexedData.data.blockSize - 1
-                    : null;
-
-                thisB.indexedData.data.read(
-                    0,
-                    maxFetch,
-                    function( bytes ) {
-                        thisB.parseHeader( new Uint8Array( bytes ) );
-                        d.resolve( thisB.header );
-                    },
-                    reject
-                );
-             },
-             reject
-            );
-
-            return d;
-        }.call(this));
+    getVCFHeader() {
+        if (!this._parsedHeader) {
+            this._parsedHeader = this.indexedData.getHeader()
+                .then(headerBytes => this.parseHeader(headerBytes))
+        }
+        return this._parsedHeader
     },
 
-    _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
+    _getFeatures( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         thisB.getVCFHeader().then( function() {
             thisB.indexedData.getLines(
@@ -152,12 +138,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
      * smart enough to regularize reference sequence names, while
      * others are not.
      */
-    hasRefSeq: function( seqName, callback, errorCallback ) {
+    hasRefSeq( seqName, callback, errorCallback ) {
         return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
     },
 
 
-    saveStore: function() {
+    saveStore() {
         return {
             urlTemplate: this.config.file.url,
             tbiUrlTemplate: ((this.config.tbi)||{}).url,
