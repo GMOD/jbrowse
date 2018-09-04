@@ -58,7 +58,7 @@ return declare( IndexedFasta,
 
         // LRU-cache the CRAM object so we don't have to re-download the
         // index when we switch chromosomes
-        const cacheKey = `data: ${dataBlob}, index: ${indexBlob}`
+        const cacheKey = `data: ${dataBlob}, index: ${indexBlob}, gzi: ${gziBlob}`
         this.fasta = fastaIndexedFilesCache.get(cacheKey)
         if (!this.fasta) {
             this.fasta = new BgzipIndexedFasta({
