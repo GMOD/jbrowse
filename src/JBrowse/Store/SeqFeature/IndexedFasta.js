@@ -60,7 +60,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
         this.source = dataBlob.toString()
 
-        // LRU-cache the CRAM object so we don't have to re-download the
+        // LRU-cache the FASTA object so we don't have to re-download the
         // index when we switch chromosomes
         const cacheKey = `data: ${dataBlob}, index: ${indexBlob}`
         this.fasta = fastaIndexedFilesCache.get(cacheKey)
