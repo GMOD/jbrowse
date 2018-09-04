@@ -40,7 +40,7 @@ return declare( null, {
             for( var n in configs ) {
                 var c = configs[n];
                 if( Util.basename( c[this.indexConfKey] ? c[this.indexConfKey ].url || c[this.indexConfKey].blob.name : c[this.indexUrlConfKey], this.indexExtensionMap ) == basename ||
-                    Util.basename( c[this.doubleIndexConfKey] ? c[this.doubleIndexConfKey ].url || c[this.doubleIndexConfKey].blob.name : c[this.doubleIndexUrlConfKey], this.doubleExtensionMap ) == basename ) {
+                    Util.basename( c[this.doubleIndexConfKey] ? c[this.doubleIndexConfKey ].url || c[this.doubleIndexConfKey].blob.name : c[this.doubleIndexUrlConfKey], this.doubleIndexExtensionMap ) == basename ) {
 
                     // it's a match, put it in
                     c[this.fileConfKey] = this._makeBlob( resource );
@@ -70,7 +70,7 @@ return declare( null, {
             for( var n in configs ) {
                 var c = configs[n];
                 if( Util.basename( c[this.fileConfKey] ? c[this.fileConfKey ].url || c[this.fileConfKey].blob.name : c[this.fileConfKey], this.fileExtensionMap ) == basename ||
-                    Util.basename( c[this.doubleIndexConfKey] ? c[this.doubleIndexConfKey ].url || c[this.doubleIndexConfKey].blob.name : c[this.doubleIndexUrlConfKey], this.doubleExtensionMap ) == basename ) {
+                    Util.basename( c[this.doubleIndexConfKey] ? c[this.doubleIndexConfKey ].url || c[this.doubleIndexConfKey].blob.name : c[this.doubleIndexUrlConfKey], this.doubleIndexExtensionMap ) == basename ) {
 
                     // it's a match, put it in
                     c[this.indexConfKey] = this._makeBlob( resource );
@@ -133,7 +133,6 @@ return declare( null, {
                 var v2 = (conf[this.fileConfKey] || conf[this.fileUrlConfKey])
                 var v3 = (conf[this.doubleIndexConfKey] || conf[this.doubleIndexUrlConfKey])
                 if(!(v1 && v2 && v3)) {
-                    console.log(configs[n], configs, n)
                     delete configs[n]
                 }
             }

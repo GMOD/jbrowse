@@ -1370,7 +1370,6 @@ openFasta: function() {
                       alert('Unindexed file too large. You must have an index file (.fai) for sequence files larger than 100 MB.')
                       return reject('sequence file too large')
                   }
-                    console.log(storeConf)
 
                   const store = new storeClass(
                       Object.assign({ browser: this }, storeConf)
