@@ -3,10 +3,12 @@ const { TabixIndexedFile } = cjsRequire('@gmod/tabix')
 // this is basically just an adaptor to @gmod/tabix TabixIndexedFile now
 define([
            'dojo/_base/declare',
+           'JBrowse/Errors',
            'JBrowse/Model/BlobFilehandleWrapper'
        ],
        function(
            declare,
+           Errors,
            BlobFilehandleWrapper,
        ) {
 
@@ -32,30 +34,42 @@ return declare( null, {
         return this.data.getHeaderBuffer()
     },
 
-    featureCount(refSeq) {
-        return this.data.lineCount(refSeq);
+    featureCount(ref) {
+        const regularizeReferenceName = this.browser.regularizeReferenceName(ref)
+        return this.data.lineCount(regularizeReferenceName);
     },
 
     getLines( ref, min, max, itemCallback, finishCallback, errorCallback ) {
         this.data.getMetadata()
         .then( metadata => {
             const regularizeReferenceName = this.browser.regularizeReferenceName(ref)
-            return this.data.getLines(regularizeReferenceName, min, max, line => {
-                itemCallback(this.parseLine(metadata, line))
+            return this.data.getLines(regularizeReferenceName, min, max, (line, fileOffset) => {
+                itemCallback(this.parseLine(metadata, line, fileOffset))
             })
         })
-        .then(finishCallback, errorCallback || (e => { console.error(e, e.stack) }))
+        .then(finishCallback, error => {
+            if (errorCallback) {
+                if (error.message && error.message.indexOf('Too much data') >= 0) {
+                    error = new Errors.DataOverflow(error.message)
+                }
+                errorCallback(error)
+            } else
+                console.error(error)
+        })
     },
 
-    parseLine({columnNumbers}, line) {
+    parseLine({columnNumbers}, line, fileOffset) {
         const fields = line.split("\t")
+        if (!(fileOffset >= 0)) {
+            throw new Error(`invalid tabix file offset ${fileOffset}`)
+        }
         return { // note: index column numbers are 1-based
             ref: fields[columnNumbers.ref - 1],
             _regularizedRef: this.browser.regularizeReferenceName(fields[columnNumbers.ref - 1]),
             start: parseInt(fields[columnNumbers.start - 1]),
             end: parseInt(fields[columnNumbers.end - 1]),
             fields,
-            fileOffset: line.fileOffset,
+            fileOffset,
         }
     }
 

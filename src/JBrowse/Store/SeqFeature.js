@@ -79,7 +79,8 @@ return declare( Store,
             } else {
                 throw new Error('invalid topLevelFeatures configuration value',confVal)
             }
-            if (typesList.length)
+            if (typesList.length) {
+                this._topLevelFeatureTypes = typesList
                 this._topLevelFeaturesTransform = features => {
                     let resultFeatures = []
                     features.forEach( feature => {
@@ -87,6 +88,7 @@ return declare( Store,
                     })
                     return resultFeatures
                 }
+            }
         }
 
         if (this._topLevelFeaturesTransform) {
@@ -96,6 +98,15 @@ return declare( Store,
                 throw new Error(`store class ${this.getConf('type')} does not support topLevelFeatures configuration`)
             }
         }
+    },
+
+    _isTopLevelFeatureType(featureType) {
+        if (this._topLevelFeatureTypes) {
+            return this._topLevelFeatureTypes.includes(featureType)
+        } else if (this._topLevelFeaturesTransform) {
+            throw new Error('custom top-level feature transforms not supported in this use case')
+        }
+        return true
     },
 
     _evalConf: function( confVal, confKey ) {

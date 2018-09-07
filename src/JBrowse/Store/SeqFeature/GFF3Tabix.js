@@ -1,4 +1,4 @@
-import gff from '@gmod/gff'
+const gff = cjsRequire('@gmod/gff').default
 
 define([
            'dojo/_base/declare',
@@ -102,14 +102,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         if (allowRedispatch && lines.length) {
                             let minStart = Infinity
                             let maxEnd = -Infinity
-                            lines.forEach( line => {
-                                if(!this.dontRedispatch.includes(line.fields[2])) {
-                                    let start = line.start-1 // tabix indexes are 1-based
+                            lines.forEach(line => {
+                                const featureType = line.fields[2]
+                                // only expand redispatch range if the feature is not in dontRedispatch,
+                                // and is a top-level feature
+                                if(
+                                    !this.dontRedispatch.includes(featureType) &&
+                                    this._isTopLevelFeatureType(featureType)
+                                ) {
+                                    let start = line.start-1 // gff is 1-based
                                     if (start < minStart) minStart = start
                                     if (line.end > maxEnd) maxEnd = line.end
                                 }
                             })
                             if (maxEnd > query.end || minStart < query.start) {
+                                // console.log(`redispatching ${query.start}-${query.end} => ${minStart}-${maxEnd}`)
                                 let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
                                 // make a new feature callback to only return top-level features
                                 // in the original query range
@@ -223,7 +230,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
      * others are not.
      */
     hasRefSeq( seqName, callback, errorCallback ) {
-        return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
+        return this.indexedData.hasRefSeq( seqName, callback, errorCallback );
     },
 
     saveStore() {
