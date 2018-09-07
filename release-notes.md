@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+## Bug fixes
+
+ * Fixed a bug in which feature labels would sometimes be repeated across the view,
+   in the wrong locations. (@rbuels)
 
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
