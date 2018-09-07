@@ -2030,8 +2030,8 @@ afterMilestone: function( name, func, ctx ) {
         .then( function() {
                    try {
                        func.call( ctx || this );
-                   } catch( e ) {
-                       console.error( ''+e, e.stack, e );
+                   } catch (e) {
+                       console.error(e instanceof Error ? e : String(e), e.stack)
                    }
                });
 },
