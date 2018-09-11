@@ -182,6 +182,11 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 111 );
+                  features.forEach(feature => {
+                      expect(feature.get('end')).toBeGreaterThan(1206808843)
+                      expect(feature.get('start')).toBeLessThan(12068510711)
+                      expect(feature.get('seq_id')).toEqual('1')
+                  })
          });
 
 
