@@ -181,12 +181,12 @@ describe('VCF store', function() {
                            function(e) { console.error(e.stack||''+e); }
                           );
          runs(function() {
-                  expect(features.length).toEqual( 111 );
                   features.forEach(feature => {
                       expect(feature.get('end')).toBeGreaterThan(1206808843)
                       expect(feature.get('start')).toBeLessThan(12068510711)
                       expect(feature.get('seq_id')).toEqual('1')
                   })
+                  expect(features.length).toEqual( 37 );
          });
 
 
@@ -206,7 +206,7 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.index.load().then(()=> {
+         store.indexedData.featureCount('whatever').then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
                              start: 0,
                              end:50000
@@ -236,7 +236,7 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.index.load().then(()=> {
+         store.indexedData.featureCount('whatever').then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
                              start: 0,
                              end:50000
