@@ -136,6 +136,6 @@ If you have troubles, send an email to gmod-ajax@lists.sourceforge.net or create
 
 a) If the folder was not called data, e.g. you had your files in /var/www/html/jbrowse/otherdata, then you can visit http://localhost/jbrowse/?data=otherdata (this automatically lends a way to have "multiple data directories" since you could navigate to different ?data= URL paths this way. the "dataset selector" configuration contains more details)
 
-b) The "configuration format" is called .conf, but JSON format is also allowed. See [configuration file formats](configuration_file_formats.md) guide for details.
+b) The "configuration format" is called .conf, but JSON format is also allowed. See [configuration file formats](configuration_file_formats.html) guide for details.
 
 c) If you are doing source code updates or using plugins, you must use a git clone or the "source code" release from GitHub pages. Also the "-dev" release from older versions is supplanted by using a git clone or "source code" release

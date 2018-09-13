@@ -5,7 +5,7 @@ title: HTMLFeatures
 
 HTMLFeatures tracks display features on the genome, including things with parents and child features, using div elements. The flatfile-to-json.pl by default outputs HTMLFeatures tracks (also called FeatureTrack in the config file)
 
-For more info on loading with flatfile-to-json.pl see the[flatfile-to-json.pl](flatfile-to-json.pl) docs.
+For more info on loading with flatfile-to-json.pl see the[flatfile-to-json.pl](flatfile-to-json.pl.html) docs.
 
 ## HTMLFeatures Configuration Options
 
@@ -18,7 +18,7 @@ JBrowse HTMLFeatures tracks, the default legacy track type for range-based featu
 |`description`|Comma-separated list of fields in which to look for the description of a feature. Case-insensitive. If set to `false` or `null`, no feature description will be shown. Defaults to 'note, description'.|
 |`maxDescriptionLength`|Maximum length, in characters, for displayed feature descriptions.|
 |`minSubfeatureWidth`|Minimum width, in pixels, of the *top-level* feature for JBrowse to attempt to display its subfeatures. Default 6.|
-|`menuTemplate`|Optional menu configuration for right-click menus on features. Can be as large and complicated as you want. See [Customizing_Right-click_Context_Menus](#customizing-right-click-context-menus "wikilink") below. If set to null or false, disables feature right-click menus.|
+|`menuTemplate`|Optional menu configuration for right-click menus on features. Can be as large and complicated as you want. See [customizing right-click context menus](mouse_configs.html#customizing-right-click-context-menus). If set to null or false, disables feature right-click menus.|
 |`hooks→create`|JavaScript function that creates the parent feature HTML element and returns it. By default this is: `function(track,feature) { return document.createElement('div'); }`, which creates an HTML `div` element.|
 |`hooks→modify`|JavaScript function that can be used to modify the feature HTML element in any way desired. If set, the function is called with the track object, feature object, and feature HTML element as arguments (signature: `function(track, feature, featDiv)`).|
 |`style→featureScale`|Minimum zoom scale (pixels/basepair) for displaying individual features in the track. Not set by default, and overrides the `maxFeatureScreenDensity`.|
