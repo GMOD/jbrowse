@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added support for bgzipped indexed FASTA. To use, bgzip your FASTA with
+   `bgzip -i file.fa`, which generates file.fa.gz and file.fa.gzi and then use
+   `samtools faidx file.fa.gz`. If you specify the .fa.gz in the track config e.g.
+   `"urlTemplate": "file.fa.gz"` and have all three files in your data directory,
+   then they will automatically be detected (issue #1152, pull #1200, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
