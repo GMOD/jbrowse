@@ -1,6 +1,6 @@
 const React = require('react');
 
-const CompLibrary = require('../core/CompLibrary.js');
+const CompLibrary = require('../../core/CompLibrary.js');
 const MarkdownBlock = CompLibrary.MarkdownBlock; /* Used to read markdown */
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
@@ -79,6 +79,7 @@ const HeaderInfo = props => (
 
 class Index extends React.Component {
   render() {
+    let language = this.props.language || '';
     return (
       <Container className="mainContainer documentContainer postContainer">
         <div className="flexContainer" style={{display: 'flex'}}>

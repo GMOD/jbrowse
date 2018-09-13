@@ -1,6 +1,6 @@
 const React = require('react');
 
-const CompLibrary = require('../core/CompLibrary.js');
+const CompLibrary = require('../../core/CompLibrary.js');
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
 
@@ -15,10 +15,7 @@ class Help extends React.Component {
     let language = this.props.language || '';
     const supportLinks = [
       {
-        content: `Learn more using the [documentation on this site.](${docUrl(
-          'installation.html',
-          language
-        )})`,
+        content: `Learn more using the [documentation on this site.](/docs/installation.html)`,
         title: 'Browse Docs',
       },
       {
