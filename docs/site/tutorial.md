@@ -12,7 +12,7 @@ To begin, we'll pretend as though we are setting up the genome of *Volvox mythic
 
 
     mkdir data
-    curl http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox.fa > data/volvox.fa
+    curl -L http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox.fa > data/volvox.fa
 
 We are going to use samtools to create a "FASTA index" using their faidx command. FASTA indexing allows even very large FASTA files to be downloaded into JBrowse "on demand" e.g. only downloading the sequence required for a certain view.
 
@@ -47,13 +47,14 @@ At this point, you should be able to open up http://localhost/jbrowse/?data=data
 
 We will use the newly generated "gene annotation" file that was generated for Volvox mythicus
 
-    curl http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox.gff3 > data/volvox.gff3
+    curl -L http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox.gff3 > data/volvox.gff3
 
 When we are processing GFF3 for usage in JBrowse, we can aim to use GFF3Tabix format. Tabix allows random access to genomic regions similar to Indexed FASTA. We must first sort the GFF to prepare it for tabx
 
     sort -k1,1 -k4,4n data/volvox.gff3 > data/volvox.sorted.gff3
+    (grep ^"#" data/volvox.gff3; grep -v ^"#" data/volvox.gff3 | grep -v "^$" | grep "\t" | sort -k1,1 -k4,4n) > data/volvox.sorted.gff3
 
-Then run
+This command extracts the header then sorts the GFF without the header. You can also use GenomeTools with `gt gff3 -sortlines data/volvox.gff3 > data/volvox.sorted.gff3` if that is easier. Then run
 
     bgzip data/volvox.sorted.gff3
     tabix -p gff data/volvox.sorted.gff3.gz
@@ -72,7 +73,7 @@ If you have been given sequenced alignments, you can also create a Alignments tr
 
 For volvox, we are given a file
 
-    curl http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox-sorted.bam > data/volvox-sorted.bam
+    curl -L http://jbrowse.org/code/latest-release/docs/tutorial/data_files/volvox-sorted.bam > data/volvox-sorted.bam
 
 Note that this BAM file is already sorted. If your BAM is not sorted, it must be sorted to use in JBrowse. Next index this file
 

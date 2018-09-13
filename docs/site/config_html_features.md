@@ -5,7 +5,7 @@ title: HTMLFeatures
 
 HTMLFeatures tracks display features on the genome, including things with parents and child features, using div elements. The flatfile-to-json.pl by default outputs HTMLFeatures tracks (also called FeatureTrack in the config file)
 
-For more info on loading with flatfile-to-json.pl see the[flatfile-to-json.pl](flatfile-to-json.pl.html) docs.
+For more info on loading with flatfile-to-json.pl see the [flatfile-to-json.pl](flatfile-to-json.pl.html) docs.
 
 ## HTMLFeatures Configuration Options
 
