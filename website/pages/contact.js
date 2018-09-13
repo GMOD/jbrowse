@@ -1,6 +1,6 @@
 const React = require('react');
 
-const CompLibrary = require('../../core/CompLibrary.js');
+const CompLibrary = require('../core/CompLibrary.js');
 const MarkdownBlock = CompLibrary.MarkdownBlock; /* Used to read markdown */
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
@@ -19,7 +19,7 @@ class Index extends React.Component {
 
         <h3>Mailing list</h3>
         <a href="https://sourceforge.net/p/gmod/mailman/gmod-ajax/">gmod-ajax @ Sourceforge</a>
-        <p>Send a message to gmod-ajax@lists.sourceforge.net with questions</p> or <a href="https://sourceforge.net/projects/gmod/lists/gmod-ajax">subscribe</a> 
+        <p>Send a message to gmod-ajax@lists.sourceforge.net with questions</p> or <a href="https://sourceforge.net/projects/gmod/lists/gmod-ajax">subscribe</a>
         <h3>Chat</h3>
         <a href="https://gitter.im/GMOD/jbrowse">Gitter</a>
       </Container>

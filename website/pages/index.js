@@ -1,6 +1,6 @@
 const React = require('react');
 
-const CompLibrary = require('../../core/CompLibrary.js');
+const CompLibrary = require('../core/CompLibrary.js');
 const MarkdownBlock = CompLibrary.MarkdownBlock; /* Used to read markdown */
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
@@ -11,12 +11,12 @@ function imgUrl(img) {
   return siteConfig.baseUrl + 'img/' + img;
 }
 
-function docUrl(doc, language) {
-  return siteConfig.baseUrl + 'docs/' + (language ? language + '/' : '') + doc;
+function docUrl(doc) {
+  return siteConfig.baseUrl + 'docs/' + doc;
 }
 
-function pageUrl(page, language) {
-  return siteConfig.baseUrl + (language ? language + '/' : '') + page;
+function pageUrl(page) {
+  return siteConfig.baseUrl + page;
 }
 
 const FeatureCallout = props => (
@@ -46,7 +46,7 @@ const BrowserCompat = props => (
         <li>Microsoft Internet Explorer (11 and later)</li>
     </ul>
     <p>Server-side code, which is used only to pre-generate static data files (no CGI), requires only BioPerl and a few other CPAN modules. The result is a cross-platform AJAX genome browser that is easy to install, embed and customize.</p>
-    <p>JBrowse is a <a href="https://gmod.org">GMOD</a> project.</p>
+    <p>JBrowse is a <a href="http://gmod.org">GMOD</a> project.</p>
   </div>
 );
 
@@ -79,8 +79,6 @@ const HeaderInfo = props => (
 
 class Index extends React.Component {
   render() {
-    let language = this.props.language || '';
-
     return (
       <Container className="mainContainer documentContainer postContainer">
         <div className="flexContainer" style={{display: 'flex'}}>

@@ -19,7 +19,7 @@ class Footer extends React.Component {
           <div>
             <h5>Docs</h5>
             <a href={this.props.config.baseUrl + 'blog'}>Blog</a>
-            <a href={this.docUrl('tutorial.html', this.props.language)}>
+            <a href={this.docUrl('tutorial.html')}>
               Getting Started
             </a>
           </div>
@@ -35,7 +35,7 @@ class Footer extends React.Component {
           </div>
           <div>
             <h5>More</h5>
-            <a href="https://github.com/">GitHub</a>
+            <a href="https://github.com/GMOD/jbrowse">GitHub</a>
             <a
               className="github-button"
               href="https://github.com/GMOD/jbrowse"
