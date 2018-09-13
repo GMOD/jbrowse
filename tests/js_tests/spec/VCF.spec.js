@@ -201,17 +201,15 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.index.load().then(()=> {
-             store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+         store._estimateGlobalStats({ name: 'ctgA',
+                        start: 0,
+                        end:50000
+                    }).then(function(f) {
+                        stats = f;
+                        stats.done = true;
+                    });
          runs(function() {
-             console.log(stats);
+             expect(stats.featureDensity).toEqual( 0.0009 );
          });
 
 
@@ -231,17 +229,15 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.index.load().then(()=> {
-             store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
-         runs(function() {
-             console.log(stats);
+         store._estimateGlobalStats({ name: 'ctgA',
+                        start: 0,
+                        end:50000
+                    }).then(function(f) {
+                        stats = f;
+                        stats.done = true;
+                    });
+         runs(function() { 
+            expect(stats.featureDensity).toEqual( 0.0009375 );
          });
 
 
