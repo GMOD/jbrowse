@@ -5,6 +5,10 @@
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
    in the wrong locations. (@rbuels)
 
+ * Fix error where a chunk size limit error during histogram display would not be
+   displayed (@cmdcolin)
+
+
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
 ## Minor improvements

@@ -399,6 +399,10 @@ return declare(
             this.store.getRegionFeatureDensities(
                 query,
                 this._drawHistograms.bind(this,args),
+                (e) => {
+                    console.log(e)
+                    this._handleError(new Error(e.message), args)
+                }
             )
         } else {
             const histData = { features: [], stats: {} }
