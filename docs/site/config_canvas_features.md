@@ -7,7 +7,7 @@ CanvasFeatures are an alternative to HTMLFeatures and display features on the ge
 
 The flatfile-to-json.pl by can output CanvasFeatures using the --trackType CanvasFeatures option
 
-For more info on loading with flatfile-to-json.pl see the[flatfile-to-json.pl](flatfile-to-json.pl) docs.
+For more info on loading with flatfile-to-json.pl see the[flatfile-to-json.pl](flatfile-to-json.pl.html) docs.
 
 
 

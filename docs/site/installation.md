@@ -42,7 +42,7 @@ Download a JBrowse release from GitHub
 
 {@inject: setup_snip}
 
-**IMPORTANT NOTE: if you are using JBrowse plugins, you must download the source codeor use git clone of https://github.com/GMOD/jbrowse instead of the minified release**
+**IMPORTANT NOTE: if you are using JBrowse plugins, you must download the source code or use git clone of https://github.com/GMOD/jbrowse instead of the minified release. Then you must run ./setup.sh or npm run build/npm run watch when you are adding or building plugin code or the jbrowse source code**
 
 
 Source code:
