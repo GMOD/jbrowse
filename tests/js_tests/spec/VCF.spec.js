@@ -237,7 +237,7 @@ describe('VCF store', function() {
                         stats.done = true;
                     });
          runs(function() { 
-            expect(stats.featureDensity).toEqual( 0.0009375 );
+            expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
 
 
