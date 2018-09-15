@@ -168,9 +168,9 @@ return declare( null, {
                 /\.gff3?$/i.test( name )        ? 'gff3'   :
                 /\.gtf?$/i.test( name )         ? 'gtf'    :
                 /\.(bw|bigwig)$/i.test( name )  ? 'bigwig' :
-                /\.(fa|fasta)$/i.test( name )   ? 'fasta'  :
-                /\.(fa|fasta)\.gz$/i.test( name ) ? 'fasta.gz':
-                /\.(fa|fasta)\.gz\.fai$/i.test( name ) ? 'fasta.gz.fai':
+                /\.(fa|fasta|fna|mfa)$/i.test( name )   ? 'fasta'  :
+                /\.(fa|fasta|fna|mfa)\.gz$/i.test( name ) ? 'fasta.gz':
+                /\.(fa|fasta|fna|mfa)\.gz\.fai$/i.test( name ) ? 'fasta.gz.fai':
                 /\.2bit$/i.test( name )         ? '2bit'   :
                 /\.fai$/i.test( name )          ? 'fai'    :
                 /\.idx$/i.test( name )          ? 'idx'    :

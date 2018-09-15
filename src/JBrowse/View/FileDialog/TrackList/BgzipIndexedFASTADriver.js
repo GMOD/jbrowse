@@ -10,17 +10,17 @@ return declare( null, {
     name: 'BGZFASTA',
     storeType: 'JBrowse/Store/SeqFeature/BgzipIndexedFasta',
     fileExtension: 'fasta.gz',
-    fileExtensionMap: ['.fasta.gz', '.fa.gz'],
+    fileExtensionMap: ['.fasta.gz', '.fa.gz', '.fna.gz', '.mfa.gz'],
     fileConfKey: 'bgzfa',
     fileUrlConfKey: 'urlTemplate',
 
     indexExtension: 'fasta.gz.fai',
-    indexExtensionMap: ['.fasta.gz.fai', '.fa.gz.fai'],
+    indexExtensionMap: ['.fasta.gz.fai', '.fa.gz.fai', '.fna.gz.fai', '.mfa.gz.fai'],
     indexConfKey: 'fai',
     indexUrlConfKey: 'faiUrlTemplate',
 
     doubleIndexExtension: 'gzi',
-    doubleIndexExtensionMap: ['.fasta.gz.gzi', '.fa.gz.gzi'],
+    doubleIndexExtensionMap: ['.fasta.gz.gzi', '.fa.gz.gzi', '.fna.gz.gzi', '.mfa.gz.gzi'],
     doubleIndexConfKey: 'gzi',
     doubleIndexUrlConfKey: 'gziUrlTemplate',
 
