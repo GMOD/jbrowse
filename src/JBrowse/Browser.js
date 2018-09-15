@@ -1379,7 +1379,8 @@ openFasta: function() {
                           this.teardown()
                           var newBrowser = new this.constructor({
                               refSeqs: { data: refSeqs },
-                              refSeqOrder: results.refSeqOrder
+                              refSeqOrder: results.refSeqOrder,
+                              dataRoot: null
                           })
                           newBrowser.afterMilestone('completely initialized', () => {
                               storeConf.name = 'refseqs' // important to make it the refseq store
