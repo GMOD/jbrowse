@@ -9,16 +9,16 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class BamSlightlyLazyFeature {
 
-    _get_name() { return this.record.readName }
-    _get_start() { return this.record.alignmentStart-1 }
-    _get_end() { return this.record.alignmentStart+this.record.lengthOnRef-1 }
+    _get_name() { return this.record.get('name') }
+    _get_start() { return this.record.get('start') }
+    _get_end() { return this.record.get('end') }
     _get_type() { return 'match'}
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_read_group_id() { return this.record.readGroupId }
-    _get_qual() { return (this.record.qualityScores || []).map(q => q+33).join(' ')}
-    _get_seq() { return this.record.readBases}
+    _get_qual() { return this.record.get('qual')}
+    _get_cigar() { return this.record.get('cigar')}
     _get_seq_id() { return this._store._refIdToName(this.record.sequenceId)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_secondary_alignment() { return this.record.isSecondary()}
@@ -33,8 +33,9 @@ class BamSlightlyLazyFeature {
     _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
     _get_next_segment_position() { return this.record.mate
         ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
-    _get_tags() { return this.record.tags }
+    _get_tags() { console.log('tags'); return this.record.tags }
     _get_seq() { return this.record.getReadBases() }
+    _get_md() { return this.record.get('md') }
 
     constructor(record, store) {
         this.record = record
@@ -49,7 +50,7 @@ class BamSlightlyLazyFeature {
     }
 
     id() {
-        return this.record.uniqueId + 1
+        return this.record.get('id')
     }
 
     get(field) {
@@ -69,7 +70,7 @@ define( [
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
-            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
@@ -79,23 +80,12 @@ define( [
             SeqFeatureStore,
             DeferredStatsMixin,
             DeferredFeaturesMixin,
-            GlobalStatsEstimationMixin,
+            IndexedStatsEstimationMixin,
             XHRBlob,
             SimpleFeature,
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
-
-/**
- * @lends JBrowse.Store.SeqFeature.CRAM
- */
-{
-    /**
-     * Data backend for reading feature data directly from a
-     * web-accessible CRAM file.
-     *
-     * @constructs
-     */
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
     constructor: function( args ) {
 
         let dataBlob
@@ -120,7 +110,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
         this.source = dataBlob.toString()
 
-        // LRU-cache the CRAM object so we don't have to re-download the
+        // LRU-cache the BAM object so we don't have to re-download the
         // index when we switch chromosomes
         const cacheKey = `data: ${dataBlob}, index: ${csiBlob||baiBlob}`
         this.bam = bamIndexedFilesCache.get(cacheKey)
@@ -138,7 +128,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         // estimation doesn't time out
         this.bam.hasDataForReferenceSequence(0)
             .then(() => this.bam.getHeader())
-            .then(() => {
+            .then((header) => this._setSamHeader(header))
+            .then((res) => {
                 this._deferred.features.resolve({success:true});
             })
             .then(() => this._estimateGlobalStats())
@@ -154,101 +145,50 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         this.storeTimeout = args.storeTimeout || 3000;
     },
 
-//     // process the parsed SAM header from the cram file
-//     _setSamHeader(samHeader) {
-//         this._samHeader = {}
+    // process the parsed SAM header from the bam file
+    _setSamHeader(samHeader) {
+        this._samHeader = {}
 
-//         // use the @SQ lines in the header to figure out the
-//         // mapping between ref seq ID numbers and names
-//         const refSeqIdToName = []
-//         const refSeqNameToId = {}
-//         const sqLines = samHeader.filter(l => l.tag === 'SQ')
-//         sqLines.forEach((sqLine, seqId) => {
-//             sqLine.data.forEach(item => {
-//                 if (item.tag === 'SN') {
-//                     // this is the seq name
-//                     const seqName = item.value
-//                     refSeqNameToId[seqName] = seqId
-//                     refSeqIdToName[seqId] = seqName
-//                 }
-//             })
-//         })
-//         if (refSeqIdToName.length) {
-//             this._samHeader.refSeqIdToName = refSeqIdToName
-//             this._samHeader.refSeqNameToId = refSeqNameToId
-//         }
-//     },
+        // use the @SQ lines in the header to figure out the
+        // mapping between ref seq ID numbers and names
+        const refSeqIdToName = []
+        const refSeqNameToId = {}
+        const sqLines = samHeader.filter(l => l.tag === 'SQ')
+        sqLines.forEach((sqLine, seqId) => {
+            sqLine.data.forEach(item => {
+                if (item.tag === 'SN') {
+                    // this is the seq name
+                    const seqName = item.value
+                    refSeqNameToId[seqName] = seqId
+                    refSeqIdToName[seqId] = seqName
+                }
+            })
+        })
+        if (refSeqIdToName.length) {
+            this._samHeader.refSeqIdToName = refSeqIdToName
+            this._samHeader.refSeqNameToId = refSeqNameToId
+        }
+    },
 
-//     _refNameToId(refName) {
-//         // use info from the SAM header if possible, but fall back to using
-//         // the ref seq order from when the browser's refseqs were loaded
-//         if (this._samHeader.refSeqNameToId)
-//             return this._samHeader.refSeqNameToId[refName]
-//         else
-//             return this.browser.getRefSeqNumber(refName)
-//     },
+    _refNameToId(refName) {
+        // use info from the SAM header if possible, but fall back to using
+        // the ref seq order from when the browser's refseqs were loaded
+        if (this._samHeader.refSeqNameToId)
+            return this._samHeader.refSeqNameToId[refName]
+        else
+            return this.browser.getRefSeqNumber(refName)
+    },
 
-//     _refIdToName(refId) {
-//         // use info from the SAM header if possible, but fall back to using
-//         // the ref seq order from when the browser's refseqs were loaded
-//         if (this._samHeader.refSeqIdToName) {
-//             return this._samHeader.refSeqIdToName[refId]
-//         } else {
-//             let ref = this.browser.getRefSeqById(refId)
-//             return ref ? ref.name : undefined
-//         }
-//     },
-
-//     _getRefSeqStore() {
-//         return new Promise((resolve,reject) => {
-//             this.browser.getStore('refseqs',resolve,reject)
-//         })
-//     },
-
-    // used by the CRAM backend to fetch a region of the underlying reference
-    // sequence.  needed for some of its calculations
-    // async _seqFetch(seqId, start, end) {
-    //     start -= 1 // convert from 1-based closed to interbase
-
-    //     const refSeqStore = await this._getRefSeqStore()
-    //     if (!refSeqStore) return undefined
-    //     const refName = this._refIdToName(seqId)
-    //     if (!refName) return undefined
-
-    //     const seqChunks = await new Promise((resolve,reject) => {
-    //         let features = []
-    //         refSeqStore.getFeatures(
-    //             {ref: refName, start: start-1, end},
-    //             f => features.push(f),
-    //             () => resolve(features),
-    //             reject
-    //         )
-    //     })
-
-    //     const trimmed = []
-    //     seqChunks
-    //     .sort((a,b) => a.get('start') - b.get('start'))
-    //     .forEach( (chunk,i) => {
-    //         let chunkStart = chunk.get('start')
-    //         let chunkEnd = chunk.get('end')
-    //         let trimStart = Math.max(start - chunkStart, 0)
-    //         let trimEnd = Math.min(end - chunkStart, chunkEnd-chunkStart)
-    //         let trimLength = trimEnd - trimStart
-    //         let chunkSeq = chunk.get('seq') || chunk.get('residues')
-    //         trimmed.push(chunkSeq.substr(trimStart,trimLength))
-    //     })
-
-    //     const sequence = trimmed.join('')
-    //     if (sequence.length !== (end-start))
-    //         throw new Error(`sequence fetch failed: fetching ${
-    //             (start-1).toLocaleString()}-${end.toLocaleString()
-    //             } only returned ${
-    //                 sequence.length.toLocaleString()
-    //             } bases, but should have returned ${
-    //                 (end-start).toLocaleString()
-    //             }`)
-    //     return sequence
-    // },
+    _refIdToName(refId) {
+        // use info from the SAM header if possible, but fall back to using
+        // the ref seq order from when the browser's refseqs were loaded
+        if (this._samHeader.refSeqIdToName) {
+            return this._samHeader.refSeqIdToName[refId]
+        } else {
+            let ref = this.browser.getRefSeqById(refId)
+            return ref ? ref.name : undefined
+        }
+    },
 
     /**
      * Interrogate whether a store has data for a given reference
@@ -275,10 +215,10 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 endCallback()
             })
             .catch(err => {
-                // map the BamSizeLimitError to JBrowse Errors.DataOverflow
-                if (err instanceof BamSizeLimitError) {
-                    err = new Errors.DataOverflow(err)
-                }
+                // // map the BamSizeLimitError to JBrowse Errors.DataOverflow
+                // if (err instanceof BamSizeLimitError) {
+                //     err = new Errors.DataOverflow(err)
+                // }
 
                 errorCallback(err)
             })
@@ -290,9 +230,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     saveStore: function() {
         return {
-            urlTemplate: this.config.cram.url,
-            baiUrlTemplate: this.config.bai.url,
-            csiUrlTemplate: this.config.csi.url
+            urlTemplate: this.config.bam.url,
+            baiUrlTemplate: (this.config.bai||{}).url,
+            csiUrlTemplate: (this.config.csi||{}).url
         };
     }
 
