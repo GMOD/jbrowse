@@ -92,46 +92,52 @@ return declare(
         this.inherited('startup', arguments );
 
         var tracks = [];
-        var thisB = this;
         var categoryFacet = this.get('categoryFacet');
         var sorter;
         if(this.config.sortHierarchical) {
-            sorter=[ { attribute: categoryFacet.toLowerCase()},
-                     { attribute: 'key' },
-                     { attribute: 'label' }
-                   ];
+            sorter = [
+                { attribute: categoryFacet.toLowerCase() },
+                { attribute: 'key' },
+                { attribute: 'label' }
+            ];
         }
 
         // add initally collapsed categories to the local storage
-        var arr=(this.get('collapsedCategories')||"").split(",");
-        for(var i=0; i<arr.length;i++) {
-            lang.setObject('collapsed.'+arr[i],true,this.state);
+        var arr = (this.get('collapsedCategories') || "").split(",");
+        for(var i = 0; i < arr.length; i++) {
+            lang.setObject('collapsed.' + arr[i], true, this.state);
         }
         this._saveState();
 
-        this.get('trackMetaData').fetch(
-            { onItem: function(i) {
-                  if( i.conf )
-                      tracks.push( i );
-              },
-              onComplete: function() {
-                  // make a pane at the top to hold uncategorized tracks
-                  thisB.categories.Uncategorized =
-                      { pane: new ContentPane({ className: 'uncategorized' }).placeAt( thisB.containerNode ),
-                        tracks: {},
-                        categories: {}
-                      };
+        this.get('trackMetaData').fetch({
+            onItem: function(i) {
+                if( i.conf )
+                    tracks.push( i );
+            },
+            onComplete: () => {
+                // make a pane at the top to hold uncategorized tracks
+                this.categories.Uncategorized = {
+                    pane: new ContentPane({ className: 'uncategorized' }).placeAt( this.containerNode ),
+                    tracks: {},
+                    categories: {}
+                };
+                if(this.config.categoryOrder) {
+                    const order = this.config.categoryOrder.split(",").map(s => s.trim())
+                    tracks.sort((a, b) => {
+                        if(order.indexOf(a.category) == -1 || order.indexOf(b.category) == -1) return 1;
+                        return order.indexOf(a.category) - order.indexOf(b.category);
+                    });
+                }
 
-                  thisB.addTracks( tracks, true );
+                this.addTracks( tracks, true );
 
-                  // hide the uncategorized pane if it is empty
-                  if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
-                      //thisB.removeChild( thisB.categories.Uncategorized.pane );
-                      thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
-                  }
-              },
-              sort: sorter
-            });
+                // hide the uncategorized pane if it is empty
+                if( ! this.categories.Uncategorized.pane.containerNode.children.length ) {
+                    this.categories.Uncategorized.pane.domNode.style.display = 'none';
+                }
+            },
+            sort: sorter
+        });
     },
 
     addTracks: function( tracks, inStartup ) {
