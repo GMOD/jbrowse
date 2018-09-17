@@ -2050,6 +2050,9 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX, finishCallback) {
         Math.round(this.pxToBp(this.offset
                                + (this.stripeCount * this.stripeWidth)));
 
+    // Track update will be carried after the maxVisible has a value
+    if (!this.maxVisible()) return;
+    
     let showingPromises = []
     this.overviewTrackIterate(function(track, view) {
         showingPromises.push( new Promise((resolve,reject) => {
