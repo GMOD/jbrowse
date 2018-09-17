@@ -173,8 +173,8 @@ describe('VCF store', function() {
          var features = [];
          waitsFor( function() { return features.done; } );
          store.getFeatures({ ref: '1',
-                             start: 1206808844,
-                             end: 12068510710
+                             start: 1206810422,
+                             end: 1206849288
                            },
                            function(f) { features.push( f ); },
                            function( ) { features.done = true; },
@@ -187,6 +187,19 @@ describe('VCF store', function() {
                       expect(feature.get('seq_id')).toEqual('1')
                   })
                   expect(features.length).toEqual( 37 );
+                  expect(features[0].fields).toEqual([
+                      "1",
+                      "1206810423",
+                      null,
+                      "T",
+                      "A",
+                      "25",
+                      null,
+                      "DP=19;VDB=0.0404;AF1=0.5;AC1=1;DP4=3,7,3,6;MQ=37;FQ=28;PV4=1,1,1,0.27",
+                      "GT:PL:GQ",
+                      "0/1:55,0,73:58"
+                  ])
+
          });
 
 
@@ -206,21 +219,16 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.featureCount('whatever').then(()=> {
-             store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+         store._estimateGlobalStats({ name: 'ctgA',
+                        start: 0,
+                        end:50000
+                    }).then(function(f) {
+                        stats = f;
+                        stats.done = true;
+                    });
          runs(function() {
-             console.log(stats);
+             expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
-
-
-
   });
 
   it('reads VCF tabix without dummy', function() {
@@ -236,21 +244,16 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.featureCount('whatever').then(()=> {
-             store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+         store._estimateGlobalStats({ name: 'ctgA',
+                        start: 0,
+                        end:50000
+                    }).then(function(f) {
+                        stats = f;
+                        stats.done = true;
+                    });
          runs(function() {
-             console.log(stats);
+            expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
-
-
-
   });
 
   xit('large VCF header', function() {
