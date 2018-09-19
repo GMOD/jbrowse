@@ -181,6 +181,11 @@ describe('VCF store', function() {
                            function(e) { console.error(e.stack||''+e); }
                           );
          runs(function() {
+                  features.forEach(feature => {
+                      expect(feature.get('end')).toBeGreaterThan(1206808843)
+                      expect(feature.get('start')).toBeLessThan(12068510711)
+                      expect(feature.get('seq_id')).toEqual('1')
+                  })
                   expect(features.length).toEqual( 37 );
                   expect(features[0].fields).toEqual([
                       "1",
@@ -194,11 +199,6 @@ describe('VCF store', function() {
                       "GT:PL:GQ",
                       "0/1:55,0,73:58"
                   ])
-                  features.forEach(feature => {
-                      expect(feature.get('end')).toBeGreaterThan(1206808843)
-                      expect(feature.get('start')).toBeLessThan(12068510711)
-                      expect(feature.get('seq_id')).toEqual('1')
-                  })
          });
   });
 
@@ -217,13 +217,14 @@ describe('VCF store', function() {
          waitsFor( function() { return stats.done; } );
          store.indexedData.featureCount('whatever').then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+                            start: 0,
+                            end:50000
+                        }).then(function(f) {
+                            stats = f;
+                            stats.done = true;
+                        });
+
+         })
          runs(function() {
              expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
@@ -242,48 +243,63 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store.indexedData.featureCount('whatever').then(()=> {
-             store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
-         runs(function() {
+
+         store._estimateGlobalStats({ name: 'ctgA',
+                        start: 0,
+                        end:50000
+                    }).then(function(f) {
+                        stats = f;
+                        stats.done = true;
+                    });
+
+    runs(function() {
             expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
   });
 
-  xit('large VCF header', function() {
-         var store = new VCFStore({
-             browser: new Browser({unitTestMode: true}),
-             config: {
-                 urlTemplate: '../data/large_vcf_header/large_vcf_header.vcf.gz',
-                 baseUrl: '.'
-             },
-             refSeq: { name: 'LcChr1', start:0, end:1000 }
-         });
+  it('large VCF header fetches whole header', function() {
+    var store = new VCFStore({
+        browser: new Browser({unitTestMode: true}),
+        config: {
+            urlTemplate: '../data/large_vcf_header/large_vcf_header.vcf.gz',
+            baseUrl: '.'
+        },
+        refSeq: { name: 'LcChr1', start:0, end:1000 },
+    })
 
-         var features = [];
-         waitsFor( function() { return features.done; } );
-         store.getFeatures({ ref: 'LcChr1',
-                             start: 1,
-                             end: 10000
-                           },
-                           function(f) { features.push( f ); },
-                           function( ) { features.done = true; },
-                           function(e) { console.error(e.stack||''+e); }
-                          );
-         runs(function() {
-             var a = features[0].get('genotypes');
-             expect(Object.keys(a).length).toBeTruthy(); // expect non empty object
-         });
-  });
+    var parsedHeader
+    waitsFor(() => parsedHeader)
+    store.getVCFHeader().then( h => { parsedHeader = h })
+    runs(function() {
+        expect(parsedHeader.bcftools_callcommand[0]).toEqual("call -A -m -v 350_LcChr1.bcf")
+    });
+});
 
+it('large VCF header fetches features', function() {
+    var store = new VCFStore({
+        browser: new Browser({unitTestMode: true}),
+        config: {
+            urlTemplate: '../data/large_vcf_header/large_vcf_header.vcf.gz',
+            baseUrl: '.'
+        },
+        refSeq: { name: 'LcChr1', start:0, end:1000 }
+    });
 
-
+    var features = [];
+    waitsFor( function() { return features.done; } );
+    store.getFeatures({ ref: 'LcChr1',
+                        start: 1,
+                        end: 10000
+                      },
+                      function(f) { features.push( f ); },
+                      function( ) { features.done = true; },
+                      function(e) { console.error(e.stack||''+e); }
+                     );
+    runs(function() {
+        var a = features[0].get('genotypes');
+        expect(Object.keys(a).length).toBeTruthy(); // expect non empty object
+    });
+});
 
 });
 });

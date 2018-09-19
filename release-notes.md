@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * Added support for bgzipped indexed FASTA. To use, bgzip your FASTA with
+   `bgzip -i file.fa`, which generates file.fa.gz and file.fa.gzi and then use
+   `samtools faidx file.fa.gz`. If you specify the .fa.gz in the track config e.g.
+   `"urlTemplate": "file.fa.gz"` and have all three files in your data directory,
+   then they will automatically be detected (issue #1152, pull #1200, @cmdcolin)
+
+ * Allow fna and mfa file extensions for FASTA to be recognized by default in
+   the Open sequence dialog (issue #1205, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
@@ -8,6 +19,8 @@
  * Fix error where a chunk size limit error during histogram display would not be
    displayed (@cmdcolin)
 
+ * Fix issue where Open sequence dialog will open up the default "data" directory
+   instead of a blank instance (issue #1207, @cmdcolin)
 
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
