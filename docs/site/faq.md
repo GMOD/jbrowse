@@ -193,9 +193,7 @@ Note that with [Apollo](http://genomearchitect.org), you can output the
 data directories to some given directory and add the directories via the
 user interface.
 
-You can also setup the "dataset selector" see [\#What is the dataset
-selector](dataset_selector.md) and
-[JBrowse\_Configuration\_Guide\#Dataset\_Selector](JBrowse_Configuration_Guide#Dataset_Selector "wikilink")
+You can also setup the "dataset selector" see [dataset selector](dataset_selector.html) and [below](#what-is-the-dataset-selector)
 
 ## What is the dataset selector
 
@@ -207,7 +205,7 @@ trackList.json or tracks.conf on your data directory, and then in
 jbrowse.conf, add a list of all your datasets with the dataset\_ids that
 you listed in the genome's data directory.
 
-See <http://gmod.org/wiki/JBrowse_Configuration_Guide#Dataset_Selector>
+See [dataset selector](dataset_selector.html)
 
 ## How do I change the name that is displayed on my features
 
@@ -395,7 +393,7 @@ Note: when you add 1 method to menuTemplate, it overwrites 1 of the
 default elements in the default right-click menu. This is sort of a bug.
 If you want to "add" your method to the list, then create a "blank"
 menuTemplate items for the View details, etc. See
-[JBrowse\_Configuration\_Guide\#Customizing\_Right-click\_Context\_Menus](JBrowse_Configuration_Guide#Customizing_Right-click_Context_Menus "wikilink")
+[customizing right click context menus](mouse_configs.html#customizing-right-click-context-menus)
 for more details.
 
 ## How do I access data about my features in my callback or plugin
@@ -1541,7 +1539,7 @@ This is normally due to a module called mime\_magic being enabled on
 your Apache server. Two options for fixing this are 1. disable
 mime\_magic or 2. configuring custom file types with AddType in your
 apache configuration. See
-[JBrowse\_Configuration\_Guide\#Apache\_Configuration\_Note](JBrowse_Configuration_Guide#Apache_Configuration_Note "wikilink")
+[this Apache configuration note](alignments.html#apache-configuration-note)
 for recommended fixes.
 
 ## What is the error "invalid BGZF header" on my VCF files?

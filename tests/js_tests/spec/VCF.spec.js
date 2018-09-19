@@ -217,13 +217,14 @@ describe('VCF store', function() {
          waitsFor( function() { return stats.done; } );
          store.indexedData.featureCount('whatever').then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+                            start: 0,
+                            end:50000
+                        }).then(function(f) {
+                            stats = f;
+                            stats.done = true;
+                        });
+
+         })
          runs(function() {
              expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
