@@ -199,11 +199,7 @@ describe('VCF store', function() {
                       "GT:PL:GQ",
                       "0/1:55,0,73:58"
                   ])
-
          });
-
-
-
   });
 
   it('reads VCF tabix with dummy', function() {
@@ -219,13 +215,15 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
-         store._estimateGlobalStats({ name: 'ctgA',
-                        start: 0,
-                        end:50000
-                    }).then(function(f) {
-                        stats = f;
-                        stats.done = true;
-                    });
+         store.indexedData.featureCount('whatever').then(()=> {
+             store._estimateGlobalStats({ name: 'ctgA',
+                             start: 0,
+                             end:50000
+                           }).then(function(f) {
+                               stats = f;
+                               stats.done = true;
+                           });
+         });
          runs(function() {
              expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
@@ -244,6 +242,7 @@ describe('VCF store', function() {
 
          var stats = {};
          waitsFor( function() { return stats.done; } );
+
          store._estimateGlobalStats({ name: 'ctgA',
                         start: 0,
                         end:50000
@@ -251,7 +250,8 @@ describe('VCF store', function() {
                         stats = f;
                         stats.done = true;
                     });
-         runs(function() {
+
+    runs(function() {
             expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
   });
