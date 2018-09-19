@@ -22,11 +22,7 @@ return declare( GlobalStats, {
         } else if (this.bam) {
             const chr = this.browser.regularizeReferenceName(refseq.name)
             const chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr]
-            featCount = await this.bam.index.featureCount(chrId, true)
-        } else if (this.bam) {
-            const chr = this.browser.regularizeReferenceName(refseq.name)
-            const chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr]
-			featCount = await this.bam.index.lineCount(chrId, true)
+            featCount = await this.bam.index.lineCount(chrId, true)
         }
         if (featCount == -1) {
             return this.inherited('_estimateGlobalStats', arguments)
