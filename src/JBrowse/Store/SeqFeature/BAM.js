@@ -118,7 +118,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             this.bam = new BamFile({
                 bamFilehandle: dataBlob,
                 baiFilehandle: baiBlob,
-                csiFilehandle: csiBlob
+                csiFilehandle: csiBlob,
+                renameRefSeqs: n => this.browser.regularizeReferenceName(n)
             })
 
             bamIndexedFilesCache.set(cacheKey, this.bam)
@@ -204,7 +205,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        const seqName = query.ref || this.refSeq.name
+        let seqName = query.ref || this.refSeq.name
+        seqName = this.browser.regularizeReferenceName( seqName );
 
         this.bam.getRecordsForRange(seqName, query.start + 1, query.end)
             .then(records => {
