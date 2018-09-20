@@ -30,7 +30,7 @@ class BamSlightlyLazyFeature {
     _get_multi_segment_last() { return this.record.isRead2()}
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
-    _get_next_seq_id() { return this.record.mate ? this._store._refIdToName(this.record.mate.sequenceId) : undefined }
+    _get_next_seq_id() { return this._store._refIdToName(this.record._next_refid()) }
     _get_next_segment_position() { return this.record.mate
         ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
     _get_tags() { console.log('tags'); return this.record.tags }
@@ -119,7 +119,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 bamFilehandle: dataBlob,
                 baiFilehandle: baiBlob,
                 csiFilehandle: csiBlob,
-                renameRefSeqs: n => this.browser.regularizeReferenceName(n)
+                renameRefSeqs: n => this.browser.regularizeReferenceName(n),
+                fetchSizeLimit: 30000000
             })
 
             bamIndexedFilesCache.set(cacheKey, this.bam)
