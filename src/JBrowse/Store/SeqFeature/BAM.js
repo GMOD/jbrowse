@@ -209,9 +209,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
 
-        this.bam.getRecordsForRange(seqName, query.start + 1, query.end)
+        this.bam.getRecordsForRange(seqName, query.start, query.end)
             .then(records => {
-                for (let i = 0; i < records.length; i+= 1) {
+                for (let i = 0; i < records.length; i += 1) {
                     featCallback(this._bamRecordToFeature(records[i]))
                 }
 
