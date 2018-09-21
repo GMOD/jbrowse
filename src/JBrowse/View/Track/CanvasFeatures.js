@@ -314,8 +314,8 @@ return declare(
             // height and marginBottom (parseInt in case one or both are functions), or default to 3 if the
             // calculation didn't result in anything sensible.
             var pitchY = this.getConf('layoutPitchY') || 4;
-            this.layout = new Layout({ pitchX: 1/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.displayMode });
-            this._layoutpitchX = 1/scale;
+            this.layout = new Layout({ pitchX: 4/scale, pitchY: pitchY, maxHeight: this.getConf('maxHeight'), displayMode: this.displayMode });
+            this._layoutpitchX = 4/scale;
         }
 
         return this.layout;
