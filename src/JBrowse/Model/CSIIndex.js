@@ -3,20 +3,15 @@ define([
            'JBrowse/Util',
            'JBrowse/Model/DataView',
            'JBrowse/Model/TabixIndex',
-           'JBrowse/Model/BGZip/VirtualOffset',
-           'JBrowse/Store/SeqFeature/BAM/Util'
+           'JBrowse/Model/BGZip/VirtualOffset'
        ],
        function(
            declare,
            Util,
            jDataView,
            TabixIndex,
-           VirtualOffset,
-           BAMUtil
+           VirtualOffset
        ) {
-
-var readInt   = BAMUtil.readInt;
-var readVirtualOffset = BAMUtil.readVirtualOffset;
 
 
 function lshift(num, bits) {

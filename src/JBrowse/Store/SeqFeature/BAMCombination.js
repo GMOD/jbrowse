@@ -2,14 +2,14 @@ define([
         'dojo/_base/declare',
         'dojo/_base/array',
         'JBrowse/Store/SeqFeature/CombinationBase',
-        'JBrowse/Store/SeqFeature/BAM/LazyFeature'
+        'JBrowse/Model/SimpleFeature'
         ],
 
         function(
             declare,
             array,
             CombinationBaseStore,
-            BAMFeature
+            SimpleFeature
         ) {
 
     return declare([CombinationBaseStore], {
