@@ -19,11 +19,10 @@ class BamSlightlyLazyFeature {
     _get_read_group_id() { return this.record.readGroupId }
     _get_qual() { return this.record.get('qual')}
     _get_cigar() { return this.record.get('cigar')}
-    _get_seq_id() { return this._store._refIdToName(this.record.sequenceId)}
+    _get_seq_id() { return this._store._refIdToName(this.record._refID)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_duplicate() { return this.record.isDuplicate()}
     _get_secondary_alignment() { return this.record.isSecondary()}
-    _get_supplementary_alignment() { return this.record.isSupplementary()}
     _get_supplementary_alignment() { return this.record.isSupplementary()}
     _get_multi_segment_template() { return this.record.isPaired()}
     _get_multi_segment_all_correctly_aligned() { return this.record.isProperlyPaired()}
