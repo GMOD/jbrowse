@@ -22,6 +22,8 @@
  * Fix issue where Open sequence dialog will open up the default "data" directory
    instead of a blank instance (issue #1207, @cmdcolin)
 
+ * Add check for PCR duplicates for CRAM features (@cmdcolin)
+
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
 ## Minor improvements
