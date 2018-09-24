@@ -1,11 +1,13 @@
 require([
     'JBrowse/View/FileDialog/TrackList/BAMDriver',
     'JBrowse/View/FileDialog/TrackList/GFF3TabixDriver',
-    'JBrowse/View/FileDialog/TrackList/IndexedFASTADriver'
+    'JBrowse/View/FileDialog/TrackList/IndexedFASTADriver',
+    'JBrowse/View/FileDialog/TrackList/BgzipIndexedFASTADriver'
 ], function(
     BAMDriver,
     GFF3TabixDriver,
-    IndexedFastaDriver
+    IndexedFastaDriver,
+    BgzipIndexedFastaDriver
 ) {
 
 describe( 'FileDialog drivers', function() {
@@ -117,6 +119,39 @@ describe( 'FileDialog drivers', function() {
         var driver = new IndexedFastaDriver();
         driver.finalizeConfiguration(confs);
         expect( confs.foo.fasta.blob.name ).toEqual( 'zee.fa' );
+    });
+
+    it( 'BGZIP FASTA file variant 1', function( ) {
+        var confs = { foo: { bgzfa: { blob: { name :'zee.fa.gz'} } } };
+        var driver = new BgzipIndexedFastaDriver();
+        expect( driver.tryResource( confs, { type: 'fasta.gz.fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
+        driver.finalizeConfiguration(confs);
+        expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
+        expect( confs.foo.gzi.blob.name ).toEqual( 'zee.fa.gz.gzi' );
+        expect( confs.foo.bgzfa.blob.name ).toEqual( 'zee.fa.gz' );
+    });
+
+    it( 'BGZIP FASTA file variant 2', function( ) {
+        var confs = { foo: { fai: { blob: { name :'zee.fa.gz.fai'} } } };
+        var driver = new BgzipIndexedFastaDriver();
+        expect( driver.tryResource( confs, { type: 'fasta.gz', file: { name: 'zee.fa.gz'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
+        driver.finalizeConfiguration(confs);
+        expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
+        expect( confs.foo.gzi.blob.name ).toEqual( 'zee.fa.gz.gzi' );
+        expect( confs.foo.bgzfa.blob.name ).toEqual( 'zee.fa.gz' );
+    });
+
+    it( 'BGZIP FASTA file variant 3', function( ) {
+        var confs = { foo: { bgzfa: { blob: { name :'zee.fa.gz'} } } };
+        var driver = new BgzipIndexedFastaDriver();
+        expect( driver.tryResource( confs, { type: 'gzi', file: { name: 'zee.fa.gz.gzi'} } ) ).toBeTruthy();
+        expect( driver.tryResource( confs, { type: 'fasta.gz.fai', file: { name: 'zee.fa.gz.fai'} } ) ).toBeTruthy();
+        driver.finalizeConfiguration(confs);
+        expect( confs.foo.fai.blob.name ).toEqual( 'zee.fa.gz.fai' );
+        expect( confs.foo.gzi.blob.name ).toEqual( 'zee.fa.gz.gzi' );
+        expect( confs.foo.bgzfa.blob.name ).toEqual( 'zee.fa.gz' );
     });
 });
 });

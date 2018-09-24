@@ -144,7 +144,7 @@ function (
                                     });
                                 }
                             } else {
-                                var track = elt.location.tracks.length ? elt.location.tracks[0] : {};
+                                var track = (elt.location.tracks||[]).length ? elt.location.tracks[0] : {};
                                 grid.push({
                                     locstring: Util.assembleLocString(elt.location),
                                     location: elt.location,

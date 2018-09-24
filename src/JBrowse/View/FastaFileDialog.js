@@ -4,6 +4,7 @@ define( [
             'dijit/form/RadioButton',
             'dojo/dom-construct',
             'JBrowse/View/FileDialog',
+            './FileDialog/TrackList/BgzipIndexedFASTADriver',
             './FileDialog/TrackList/IndexedFASTADriver',
             './FileDialog/TrackList/TwoBitDriver'
         ],
@@ -13,6 +14,7 @@ define( [
             RadioButton,
             dom,
             FileDialog,
+            BgzipIndexedFASTADriver,
             IndexedFASTADriver,
             TwoBitDriver
         ) {
@@ -21,14 +23,14 @@ return declare( FileDialog, {
 
     constructor: function( args ) {
         this.inherited(arguments);
-        this._fileTypeDrivers = [ new IndexedFASTADriver(), new TwoBitDriver() ];
+        this._fileTypeDrivers = [ new BgzipIndexedFASTADriver(), new IndexedFASTADriver(), new TwoBitDriver() ];
         return this;
     },
 
 
 
     show: function( args ) {
-        args.introMsg = "Select a FASTA file (.fa), indexed FASTA (.fa and .fai), or twobit (.2bit) file";
+        args.introMsg = "Select a FASTA file (.fa), indexed FASTA (.fa and .fai), bgzip indexed FASTA (.fa, .fai, and .gzi) or twobit (.2bit) file";
         this.inherited(arguments);
         this.dialog.set('title', 'Open sequence file');
     },

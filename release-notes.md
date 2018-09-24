@@ -2,6 +2,49 @@
 
 ## Minor improvements
 
+ * Added support for bgzipped indexed FASTA. To use, bgzip your FASTA with
+   `bgzip -i file.fa`, which generates file.fa.gz and file.fa.gzi and then use
+   `samtools faidx file.fa.gz`. If you specify the .fa.gz in the track config e.g.
+   `"urlTemplate": "file.fa.gz"` and have all three files in your data directory,
+   then they will automatically be detected (issue #1152, pull #1200, @cmdcolin)
+
+ * Allow fna and mfa file extensions for FASTA to be recognized by default in
+   the Open sequence dialog (issue #1205, @cmdcolin)
+
+## Bug fixes
+
+ * Fixed a bug in which feature labels would sometimes be repeated across the view,
+   in the wrong locations. (@rbuels)
+
+ * Fix error where a chunk size limit error during histogram display would not be
+   displayed (@cmdcolin)
+
+ * Fix issue where Open sequence dialog will open up the default "data" directory
+   instead of a blank instance (issue #1207, @cmdcolin)
+
+ * Add check for PCR duplicates for CRAM features (@cmdcolin)
+
+# Release 1.15.3     2018-08-29 22:34:53 UTC
+
+## Minor improvements
+
+ * Add ability to automatically deduce the storeClass and trackType of files based on
+   the file extension of urlTemplate. This allows very minimal configs where only
+   track label and urlTemplate can be specified. (pull #1189, @cmdcolin)
+
+## Bug fixes
+
+ * Fixed an issue with servers that use HTTP Basic Authentication on certain browsers,
+   notably some Chromium, Firefox 60 and earlier, and Safari. Thanks to Keiran Raine
+   for reporting and @cmdcolin for debugging. (issue #1186, @rbuels)
+
+ * Fix issue where searching for reference sequence names would not be navigate to the
+   typed in reference sequence (issue #1193, @cmdcolin)
+
+# Release 1.15.2     2018-08-16 21:02:27 UTC
+
+## Minor improvements
+
  * Created "index stats estimation" which overrides the older "global stats estimation"
    that randomly samples genomic regions of BAM, VCF, etc to find feature density. This
    allows initial track load to be faster automatically. (issue #1092, pull #1167,
@@ -12,7 +55,18 @@
    use a git clone of the JBrowse repository. This will behave the same as the "dev"
    release. (issue #1160, pull #1170, @cmdcolin)
 
- * JBrowse now uses a new binary-file caching and fetching backend based on the [http-range-fetcher](https://www.npmjs.com/package/http-range-fetcher) and [tenacious-fetch](https://www.npmjs.com/package/tenacious-fetch) npm modules. Users may see slightly higher performance when viewing indexed binary formats such as BAM, CRAM, 2bit, etc. (#1155, #1175, @rbuels)
+ * JBrowse now uses a new binary-file caching and fetching backend based on the
+   [http-range-fetcher](https://www.npmjs.com/package/http-range-fetcher) and
+   [tenacious-fetch](https://www.npmjs.com/package/tenacious-fetch) npm modules. Users
+   may see slightly higher performance when viewing indexed binary formats such as BAM,
+   CRAM, 2bit, etc. (issue #1155, issue #1175, pull #1165, @rbuels)
+
+ * Updated the main jbrowse.org website to use the docusaurus platform. The main docs
+   for the website are now moved from the GMOD.org server to jbrowse.org. You can find
+   the latest documentation in the header bar. We hope you will enjoy this upgrade!
+   There is also a new quick start guide based on setting up JBrowse with indexed file
+   formats. (issue #1153, issue #1137, pull #1173, @cmdcolin)
+
 
 ## Bug fixes
 

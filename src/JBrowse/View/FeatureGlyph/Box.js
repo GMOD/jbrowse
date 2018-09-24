@@ -272,15 +272,17 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
     },
 
     updateStaticElements( context, fRect, viewArgs ) {
-        let vMin = viewArgs.minVisible
-        let vMax = viewArgs.maxVisible
-        let block = fRect.viewInfo.block
+        const vMin = viewArgs.minVisible
+        const vMax = viewArgs.maxVisible
+        const block = fRect.viewInfo.block
 
-        let bpToPx = viewArgs.bpToPx
-        let feature = fRect.f
+        const bpToPx = viewArgs.bpToPx
+        const feature = fRect.f
 
-        let fMin = feature.get('start')
-        let fMax = feature.get('end')
+        const fMin = feature.get('start')
+        const fMax = feature.get('end')
+        const bMin = block.startBase
+        const bMax = block.endBase
 
         if( fRect.strandArrow ) {
             if( fRect.strandArrow == 1 && fMax >= vMax && fMin <= vMax ) {
@@ -299,8 +301,8 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             }
         }
 
-        // if the feature is within the view
-        if (!(fMin > vMax || fMax < vMin)) {
+        // if the feature is within the view and within this block
+        if (fMin < vMax && fMax > vMin &&  fMin < bMax && fMax > bMin) {
             let fRectLeft = fRect.l+bpToPx(block.startBase-vMin+1)
 
             let clamp = (val,min,max) => Math.min(Math.max(val,min),max)

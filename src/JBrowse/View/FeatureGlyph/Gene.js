@@ -37,12 +37,15 @@ _ptGlyph: function() {
     return this.__ptGlyph || ( this.__ptGlyph = new ProcessedTranscriptGlyph({ track: this.track, browser: this.browser, config: this.config }) );
 },
 
-_getFeatureRectangle: function( viewArgs, feature ) {
+_getFeatureRectangle( viewArgs, feature ) {
 
-    // lay out rects for each of the subfeatures
+    // we need to lay out rects for each of the subfeatures
     var subArgs = lang.mixin( {}, viewArgs );
     subArgs.showDescriptions = subArgs.showLabels = false;
     var subfeatures = feature.children();
+
+    // if this gene weirdly has no subfeatures, just render as a box
+    if (!subfeatures || !subfeatures.length) return this.inherited(arguments)
 
     // get the rects for the children
     var padding = 1;
@@ -126,11 +129,13 @@ layoutFeature: function( viewInfo, layout, feature ) {
     return fRect;
 },
 
-renderFeature: function( context, fRect ) {
+renderFeature( context, fRect ) {
+    const subRects = fRect.subRects;
+    if (!subRects || subRects.length === 0) return this.inherited(arguments)
+
     if( fRect.viewInfo.displayMode != 'collapsed' )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w-Math.floor(fRect.l)+fRect.l), fRect.h );
 
-    var subRects = fRect.subRects;
     for( var i = 0; i < subRects.length; i++ ) {
         subRects[i].glyph.renderFeature( context, subRects[i] );
     }
@@ -142,7 +147,7 @@ renderFeature: function( context, fRect ) {
 updateStaticElements: function( context, fRect, viewArgs ) {
     this.inherited( arguments );
 
-    var subRects = fRect.subRects;
+    var subRects = fRect.subRects || [];
     for( var i = 0; i < subRects.length; i++ ) {
         subRects[i].glyph.updateStaticElements( context, subRects[i], viewArgs );
     }

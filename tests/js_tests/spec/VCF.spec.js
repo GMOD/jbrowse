@@ -182,6 +182,11 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 111 );
+                  features.forEach(feature => {
+                      expect(feature.get('end')).toBeGreaterThan(1206808843)
+                      expect(feature.get('start')).toBeLessThan(12068510711)
+                      expect(feature.get('seq_id')).toEqual('1')
+                  })
          });
 
 
@@ -203,15 +208,16 @@ describe('VCF store', function() {
          waitsFor( function() { return stats.done; } );
          store.indexedData.index.load().then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+                            start: 0,
+                            end:50000
+                        }).then(function(f) {
+                            stats = f;
+                            stats.done = true;
+                        });
+
+         })
          runs(function() {
-             console.log(stats);
+             expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
 
 
@@ -233,19 +239,17 @@ describe('VCF store', function() {
          waitsFor( function() { return stats.done; } );
          store.indexedData.index.load().then(()=> {
              store._estimateGlobalStats({ name: 'ctgA',
-                             start: 0,
-                             end:50000
-                           }).then(function(f) {
-                               stats = f;
-                               stats.done = true;
-                           });
-         });
+                            start: 0,
+                            end:50000
+                        }).then(function(f) {
+                            stats = f;
+                            stats.done = true;
+                        });
+
+         })
          runs(function() {
-             console.log(stats);
+            expect(stats.featureDensity).toBeCloseTo( 0.0009 );
          });
-
-
-
   });
 
   xit('large VCF header', function() {

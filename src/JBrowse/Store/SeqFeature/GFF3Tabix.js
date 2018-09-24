@@ -12,6 +12,7 @@ define([
            'JBrowse/Store/DeferredFeaturesMixin',
            'JBrowse/Store/TabixIndexedFile',
            'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
+           'JBrowse/Store/SeqFeature/RegionStatsMixin',
            'JBrowse/Model/XHRBlob',
        ],
        function(
@@ -26,11 +27,11 @@ define([
            DeferredFeaturesMixin,
            TabixIndexedFile,
            IndexedStatsEstimationMixin,
+           RegionStatsMixin,
            XHRBlob,
-           Parser,
        ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, RegionStatsMixin ],
 {
     supportsFeatureTransforms: true,
 
@@ -190,65 +191,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             errorCallback
         )
     },
-
-    getRegionFeatureDensities(query, successCallback, errorCallback) {
-        let numBins
-        let basesPerBin
-
-        if (query.numBins) {
-            numBins = query.numBins;
-            basesPerBin = (query.end - query.start)/numBins
-        } else if (query.basesPerBin) {
-            basesPerBin = query.basesPerBin || query.ref.basesPerBin
-            numBins = Math.ceil((query.end-query.start)/basesPerBin)
-        } else {
-            throw new Error('numBins or basesPerBin arg required for getRegionFeatureDensities')
-        }
-
-        const statEntry = (function (basesPerBin, stats) {
-            for (var i = 0; i < stats.length; i++) {
-                if (stats[i].basesPerBin >= basesPerBin) {
-                    return stats[i]
-                }
-            }
-            return undefined
-        })(basesPerBin, [])
-
-        const stats = {}
-        stats.basesPerBin = basesPerBin
-
-        stats.scoreMax = 0
-        stats.max = 0
-        const firstServerBin = Math.floor( query.start / basesPerBin)
-        const histogram = []
-        const binRatio = 1 / basesPerBin
-
-        let binStart
-        let binEnd
-
-        for (var bin = 0 ; bin < numBins ; bin++) {
-            histogram[bin] = 0
-        }
-
-        this._getFeatures(query,
-            feature => {
-                let binValue = Math.round( (feature.get('start') - query.start )* binRatio)
-                let binValueEnd = Math.round( (feature.get('end')- query.start )* binRatio)
-
-                for(let bin = binValue; bin <= binValueEnd; bin++) {
-                    histogram[bin] += 1
-                    if (histogram[bin] > stats.max) {
-                        stats.max = histogram[bin]
-                    }
-                }
-            },
-            () => {
-                successCallback({ bins: histogram, stats: stats})
-            },
-            errorCallback
-        );
-    },
-
 
 
     _featureData(data) {

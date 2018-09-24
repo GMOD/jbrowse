@@ -106,7 +106,8 @@ script:
 - set +e
 after_failure:
 - cat setup.log
-
+before_cache:
+- rm -f node_modules/.cache
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases
@@ -139,3 +140,4 @@ deploy:
     perl: 5.26
     os: linux
     condition: $TRAVIS_COMMIT_MESSAGE =~ (\[update docs\])
+    all_branches: true

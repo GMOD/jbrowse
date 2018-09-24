@@ -32,18 +32,7 @@
       "biodb-to-json.pl"
     ],
     "JBrowse Desktop": ["jbrowse_desktop"],
-    "FAQ": [
-      "faq_setup",
-      "faq_general",
-      "faq_customization",
-      "faq_troubleshooting",
-      "faq_other",
-      "faq_tips",
-      "faq_optimizations",
-      "faq_data_loading",
-      "faq_track_selector",
-      "faq_plugins"
-    ],
+    "FAQ": ["faq"],
     "Other topics": [
       "url_strings",
       "image_tracks",

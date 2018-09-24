@@ -1,0 +1,17 @@
+---
+layout: post
+title: JBrowse ${VERSION} maintenance release
+date: ${DATE}
+tags: ["News","Software releases"]
+---
+
+${NOTES}
+
+*   [JBrowse-${VERSION}.zip](https://github.com/GMOD/jbrowse/releases/download/${VERSION}-release/JBrowse-${VERSION}.zip) - minified release
+*   [JBrowse-${VERSION}-dev.zip](https://github.com/GMOD/jbrowse/archive/${VERSION}-release.zip) - use this if you modify jbrowse source code or use plugins
+*   [JBrowse-${VERSION}-desktop-win32-x64.zip](https://github.com/GMOD/jbrowse/releases/download/${VERSION}-release/JBrowse-${VERSION}-desktop-win32-x64.zip)
+*   [JBrowse-${VERSION}-desktop-linux-x64.zip](https://github.com/GMOD/jbrowse/releases/download/${VERSION}-release/JBrowse-${VERSION}-desktop-linux-x64.zip)
+*   [JBrowse-${VERSION}-desktop-darwin-x64.zip](https://github.com/GMOD/jbrowse/releases/download/${VERSION}-release/JBrowse-${VERSION}-desktop-darwin-x64.zip)
+
+
+

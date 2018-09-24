@@ -43,5 +43,6 @@ cjsRequire('./spec/TwoBit.spec.js')
 cjsRequire('./spec/SequenceTrack.spec.js')
 cjsRequire('./spec/VCF.spec.js')
 cjsRequire('./spec/BigBed.spec.js')
+cjsRequire('./spec/Hash.spec.js')
 
 
