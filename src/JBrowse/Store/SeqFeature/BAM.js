@@ -9,16 +9,16 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class BamSlightlyLazyFeature {
 
-    _get_name() { return this.record.get('name') }
-    _get_start() { return this.record.get('start') }
-    _get_end() { return this.record.get('end') }
+    _get_name() { return this.record._get('name') }
+    _get_start() { return this.record._get('start') }
+    _get_end() { return this.record._get('end') }
     _get_type() { return 'match'}
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_read_group_id() { return this.record.readGroupId }
-    _get_qual() { return this.record.get('qual')}
-    _get_cigar() { return this.record.get('cigar')}
+    _get_qual() { return this.record._get('qual')}
+    _get_cigar() { return this.record._get('cigar')}
     _get_seq_id() { return this._store._refIdToName(this.record._refID)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_duplicate() { return this.record.isDuplicate()}
@@ -32,11 +32,11 @@ class BamSlightlyLazyFeature {
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
     _get_next_seq_id() { return this._store._refIdToName(this.record._next_refid()) }
-    _get_next_segment_position() { return this.record.mate
-        ? ( this._store._refIdToName(this.record.mate.sequenceId)+':'+this.record.mate.alignmentStart) : undefined}
-    _get_tags() { console.log('tags'); return this.record.tags }
+    _get_next_segment_position() { return this.record.isPaired()
+        ? ( this._store._refIdToName(this.record._next_refid())+':'+(this.record._next_pos()+1)) : undefined}
+    _get_tags() { return this.record._tags() }
     _get_seq() { return this.record.getReadBases() }
-    _get_md() { return this.record.get('md') }
+    _get_md() { return this.record._get('md') }
 
     constructor(record, store) {
         this.record = record
