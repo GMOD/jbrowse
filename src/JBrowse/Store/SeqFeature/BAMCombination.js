@@ -9,7 +9,7 @@ define([
             declare,
             array,
             CombinationBaseStore,
-            SimpleFeature
+            BAMFeature
         ) {
 
     return declare([CombinationBaseStore], {
