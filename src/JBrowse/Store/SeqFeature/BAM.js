@@ -13,6 +13,7 @@ class BamSlightlyLazyFeature {
     _get_start() { return this.record._get('start') }
     _get_end() { return this.record._get('end') }
     _get_type() { return 'match'}
+    _get_score() { return this.record._get('mq')}
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
@@ -44,10 +45,7 @@ class BamSlightlyLazyFeature {
     }
 
     tags() {
-        const properties = Object.getOwnPropertyNames(BamSlightlyLazyFeature.prototype)
-        return properties
-            .filter(prop => /^_get_/.test(prop))
-            .map(methodName => methodName.replace('_get_',''))
+        return this._get_tags()
     }
 
     id() {
@@ -57,7 +55,7 @@ class BamSlightlyLazyFeature {
     get(field) {
         const methodName = `_get_${field.toLowerCase()}`
         if (this[methodName]) return this[methodName]()
-        return undefined
+        else return this.record.get(field)
     }
 
     parent() {}
