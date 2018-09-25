@@ -71,7 +71,6 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
-            'JBrowse/Model/SimpleFeature',
         ],
         function(
             declare,
@@ -81,7 +80,6 @@ define( [
             DeferredFeaturesMixin,
             IndexedStatsEstimationMixin,
             XHRBlob,
-            SimpleFeature,
         ) {
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
@@ -119,7 +117,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 baiFilehandle: baiBlob,
                 csiFilehandle: csiBlob,
                 renameRefSeqs: n => this.browser.regularizeReferenceName(n),
-                fetchSizeLimit: 30000000
+                fetchSizeLimit: 30000000 || args.fetchSizeLimit,
+                chunkSizeLimit: 10000000 || args.chunkSizeLimit
             })
 
             bamIndexedFilesCache.set(cacheKey, this.bam)
