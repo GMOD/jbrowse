@@ -17,6 +17,7 @@ matrix:
          # prevent wine popup dialogs about installing additional packages
         - WINEDLLOVERRIDES="mscoree,mshtml="
         - WINEDEBUG="-all"
+        - PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
