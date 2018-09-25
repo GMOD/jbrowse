@@ -7,7 +7,7 @@ matrix:
       before_install:
         - brew update
         - brew install perl cpanminus libgd
-        - brew install yarn --without-node
+        - curl -o- -L https://yarnpkg.com/install.sh | bash
         - pip install virtualenv
         - npm install wine-darwin@1.9.17-1
         - ./node_modules/.bin/wine hostname
