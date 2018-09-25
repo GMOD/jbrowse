@@ -62,8 +62,7 @@ release-min: node_modules
 	done;
 
 	rm -rf dist
-	grep build package.json
-	JBROWSE_BUILD_MIN=1 npm run build
+	JBROWSE_BUILD_MIN=1 yarn build
 	cp -r dist $(RELEASE_MIN_DIR)
 
 	for P in src/perl5 \
