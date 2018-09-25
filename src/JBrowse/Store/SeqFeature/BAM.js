@@ -127,7 +127,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
 
         // pre-download the index before running the statistics estimation so that the stats
         // estimation doesn't time out
-        this.bam.hasDataForReferenceSequence(0)
+        this.bam.hasRefSeq(0)
             .then(() => this.bam.getHeader())
             .then((header) => this._setSamHeader(header))
             .then((res) => {
@@ -199,7 +199,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         seqName = this.browser.regularizeReferenceName( seqName );
 
         this._deferred.stats
-        .then(() => this.bam.hasDataForReferenceSequence(seqName))
+        .then(() => this.bam.hasRefSeq(this._refNameToId(seqName)))
         .then(callback, errorCallback)
     },
 
