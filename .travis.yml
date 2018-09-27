@@ -7,7 +7,7 @@ matrix:
       before_install:
         - brew update
         - brew install perl cpanminus libgd
-        - curl -o- -L https://yarnpkg.com/install.sh | bash
+        # - curl -o- -L https://yarnpkg.com/install.sh | bash
         - pip install virtualenv
         - npm install wine-darwin@1.9.17-1
         - ./node_modules/.bin/wine hostname
@@ -84,7 +84,7 @@ script:
 - BUILD_DIR=$PWD
 - set -e
 - ./setup.sh
-# - yarn lint
+# - node_modules/.bin/yarn lint
 # - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 # - utils/jb_run.js -p 9000 & sleep 2
 # - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
