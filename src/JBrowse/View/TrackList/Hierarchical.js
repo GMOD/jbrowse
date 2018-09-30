@@ -5,10 +5,8 @@ define(['dojo/_base/declare',
         'dojo/query',
         'dojo/on',
         'dojo/json',
-
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
-
         'JBrowse/Util',
         './_TextFilterMixin'
        ],
@@ -20,10 +18,8 @@ define(['dojo/_base/declare',
            query,
            on,
            JSON,
-
            TitlePane,
            ContentPane,
-
            Util,
            _TextFilterMixin
        ) {
@@ -121,12 +117,14 @@ return declare(
                     tracks: {},
                     categories: {}
                 };
-                if(this.config.categoryOrder) {
+                if( this.config.categoryOrder ) {
                     const order = this.config.categoryOrder.split(",").map(s => s.trim())
-                    tracks.sort((a, b) => {
-                        if(order.indexOf(a.category) == -1 || order.indexOf(b.category) == -1) return 1;
+                    var unordered = tracks.filter(t => order.indexOf(t.category) === -1);
+                    var ordered = tracks.filter(t => order.indexOf(t.category) !== -1);
+                    ordered.sort((a, b) => {
                         return order.indexOf(a.category) - order.indexOf(b.category);
                     });
+                    tracks = ordered.concat(unordered)
                 }
 
                 this.addTracks( tracks, true );
