@@ -148,7 +148,8 @@ _updateDisplay: function() {
 
         var trackTypes = this.browser.getTrackTypes();
 
-        Object.values(this.trackConfs).forEach(t => {
+        Object.entries(this.trackConfs).forEach(([n, t]) => {
+            console.log(n, t)
             var r = dom.create('tr', {}, table );
             new TextBox({
                 value: t.key,
