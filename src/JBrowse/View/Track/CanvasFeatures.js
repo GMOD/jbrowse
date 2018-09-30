@@ -456,7 +456,7 @@ return declare(
             return
         }
 
-        var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : histData.stats.max;
+        var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : (histData.stats||{}).max;
 
         // don't do anything if we don't know the score max
         if( maxScore === undefined ) {
