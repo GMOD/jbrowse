@@ -24,6 +24,9 @@
 
  * Add check for PCR duplicates for CRAM features (@cmdcolin)
 
+ * Fix issue where editing the track names and types in the "Open track" dialog box
+   was not working when editing multiple tracks (issue #1217, @cmdcolin)
+
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
 ## Minor improvements
