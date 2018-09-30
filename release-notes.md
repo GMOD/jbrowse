@@ -11,6 +11,8 @@
  * Allow fna and mfa file extensions for FASTA to be recognized by default in
    the Open sequence dialog (issue #1205, @cmdcolin)
 
+ * Improve the layout slightly for dense features (issue #1210, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
