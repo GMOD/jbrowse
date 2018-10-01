@@ -148,8 +148,7 @@ _updateDisplay: function() {
 
         var trackTypes = this.browser.getTrackTypes();
 
-        for( var n in this.trackConfs ) {
-            var t = this.trackConfs[n];
+        Object.entries(this.trackConfs).forEach(([n, t]) => {
             var r = dom.create('tr', {}, table );
             new TextBox({
                 value: t.key,
@@ -162,24 +161,20 @@ _updateDisplay: function() {
                                             return { label: l, value: t };
                                         }),
                     value: t.type,
-                    onChange: function() {
-                        t.type = this.get('value');
-                    }
+                    onChange: function() { t.type = this.get('value'); }
             }).placeAt( dom.create('td',{ className: 'type' }, r ) );
 
             new Button({
                className: 'edit',
                title: 'edit configuration',
                innerHTML: 'Edit Configuration',
-               onClick: (function(track) {
-                   return function() {
-                       new TrackConfigEditor( track )
-                           .show( function( result) {
-                                dojo.mixin( track, result.conf );
-                                that._updateDisplay();
-                           });
-                   }
-               })(t)
+               onClick: function() {
+                   new TrackConfigEditor( t )
+                       .show( function( result) {
+                            dojo.mixin( t, result.conf );
+                            that._updateDisplay();
+                       });
+               }
             }).placeAt( dom.create('td', { className: 'edit' }, r ) );
 
             dojo.create('td',{
@@ -192,7 +187,7 @@ _updateDisplay: function() {
                 }, r);
 
             dom.create('td',{ className: 'type' }, r );
-        }
+        })
     }
 }
 
