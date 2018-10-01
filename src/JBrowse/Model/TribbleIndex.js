@@ -1,4 +1,4 @@
-const readTribbleIndex = cjsRequire('tribble-index').default
+const readTribbleIndex = cjsRequire('@gmod/tribble-index').default
 const Buffer = cjsRequire('buffer').Buffer
 
 define([
