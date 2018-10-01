@@ -117,7 +117,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 baiFilehandle: baiBlob,
                 csiFilehandle: csiBlob,
                 renameRefSeqs: n => this.browser.regularizeReferenceName(n),
-                fetchSizeLimit: 30000000 || args.fetchSizeLimit,
+                fetchSizeLimit: 100000000 || args.fetchSizeLimit,
                 chunkSizeLimit: 10000000 || args.chunkSizeLimit
             })
 
