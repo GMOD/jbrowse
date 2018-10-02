@@ -1,141 +1,117 @@
+const { TribbleIndexedFile } = cjsRequire('@gmod/tribble-index')
+const VCF = cjsRequire('@gmod/vcf')
+
 define([
            'dojo/_base/declare',
+           'JBrowse/Errors',
            'dojo/_base/lang',
-           'dojo/Deferred',
            'JBrowse/Store/SeqFeature',
            'JBrowse/Store/DeferredStatsMixin',
            'JBrowse/Store/DeferredFeaturesMixin',
-           'JBrowse/Store/TribbleIndexedFile',
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
-           './VCF/Parser'
+           'JBrowse/Model/BlobFilehandleWrapper',
+           'JBrowse/Model/SimpleFeature',
+           'JBrowse/Store/SeqFeature/VCF/FeatureMaker'
        ],
        function(
            declare,
+           Errors,
            lang,
-           Deferred,
            SeqFeatureStore,
            DeferredStatsMixin,
            DeferredFeaturesMixin,
-           TribbleIndexedFile,
            GlobalStatsEstimationMixin,
            XHRBlob,
-           VCFParser
+           BlobFilehandleWrapper,
+           SimpleFeature,
+           FeatureMaker
        ) {
 
-
-// subclass the TabixIndexedFile to modify the parsed items a little
-// bit so that the range filtering in TabixIndexedFile will work.  VCF
-// files don't actually have an end coordinate, so we have to make it
-// here.  also convert coordinates to interbase.
-var TribbleIndexedVCFFile = declare( TribbleIndexedFile, {
-    parseLine: function() {
-        var i = this.inherited( arguments );
-        if( i ) {
-            var ret = i.fields[7].match(/^END=(\d+)|;END=(\d+)/);
-            i.start--;
-            i.end = ret ? (+ret[1] || +ret[2]) : i.start + i.fields[3].length;
-        }
-        return i;
-    },
-
-    getColumnNumbers: function() {
-        return {
-            ref: 1,
-            start: 2,
-            end: -1
-        }
-    }
-});
-
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, VCFParser ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, FeatureMaker ],
 {
 
-    constructor: function( args ) {
+    constructor( args ) {
         var thisB = this;
 
         var idxBlob = args.idx ||
-            new XHRBlob(
-                this.resolveUrl(
-                    this.getConf('idxUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.idx'
+            new BlobFilehandleWrapper(
+                new XHRBlob(
+                    this.resolveUrl(
+                        this.getConf('idxUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.idx'
+                    )
                 )
             );
 
         var fileBlob = args.file ||
-            new XHRBlob(
-                this.resolveUrl( this.getConf('urlTemplate',[]) ), { expectRanges: true }
+            new BlobFilehandleWrapper(
+                new XHRBlob(
+                    this.resolveUrl(
+                        this.getConf('urlTemplate',[]) ), { expectRanges: true }
+                )
             );
 
-        this.indexedData = new TribbleIndexedVCFFile(
-            {
-                idx: idxBlob,
-                file: fileBlob,
-                browser: this.browser,
-                chunkSizeLimit: args.chunkSizeLimit || 1000000
-            });
-
-        this.getVCFHeader()
-            .then( function( header ) {
+        this.indexedData = new TribbleIndexedFile({
+            filehandle: fileBlob,
+            tribbleFilehandle: idxBlob,
+            oneBasedClosed: true,
+            chunkSizeLimit: args.chunkSizeLimit || 1000000,
+            renameRefSeqs: n => this.browser.regularizeReferenceName(n)
+        });
+        
+        this.getParser()
+            .then( function( parser ) {
                        thisB._deferred.features.resolve({success:true});
                        thisB._estimateGlobalStats()
-                            .then(
+                       .then(
                                 function( stats ) {
                                     thisB.globalStats = stats;
                                     thisB._deferred.stats.resolve( stats );
                                 },
                                 lang.hitch( thisB, '_failAllDeferred' )
-                            );
-                   },
+                                );
+                            },
                    lang.hitch( thisB, '_failAllDeferred' )
                  );
-
-        this.storeTimeout = args.storeTimeout || 3000;
+                 
+                 this.storeTimeout = args.storeTimeout || 3000;
     },
-
-    /** fetch and parse the VCF header lines */
-    getVCFHeader: function() {
-        if (!this._parsedHeader) {
-            this._parsedHeader = new Deferred()
-            var reject = this._parsedHeader.reject.bind(this._parsedHeader)
-
-            this.indexedData.indexLoaded.then(
-                () => {
-                    const maxFetch = this.indexedData.index.data.firstDataOffset
-                        ? this.indexedData.index.data.firstDataOffset-1
-                        : null;
-
-                    this.indexedData.data.read(
-                        0,
-                        maxFetch,
-                        bytes => {
-                            this.parseHeader( new Uint8Array( bytes ) );
-                            this._parsedHeader.resolve( this.header );
-                        },
-                        reject
-                    );
-                },
-                reject
-            );
+    
+    getParser() {
+        if (!this._parser) {
+            this._parser = this.indexedData.getHeader()
+            .then(header => new VCF({header: header}))
         }
-        return this._parsedHeader
+        return this._parser
     },
 
-    _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
-        this.getVCFHeader().then( () => {
-            this.indexedData.getLines(
-                query.ref || this.refSeq.name,
+    _getFeatures( query, featureCallback, finishedCallback, errorCallback ) {
+        var thisB = this;
+        thisB.getParser().then(parser => {
+            const regularizeReferenceName = this.browser.regularizeReferenceName(query.ref)
+            thisB.indexedData.getLines(
+                regularizeReferenceName,
                 query.start,
                 query.end,
                 line => {
-                    var f = this.lineToFeature( line )
-                    //console.log(f);
-                    featureCallback( f )
-                    //return f;
-                },
-                finishedCallback,
-                errorCallback
-            );
-        }, errorCallback )
+                    const variant = parser.parseLine(line)
+                    const protoF = this.variantToFeature(parser, variant)
+                    const f = new SimpleFeature({
+                        data: protoF});
+                    featureCallback(f)
+                }
+            )
+            .then(finishedCallback, error => {
+                if (errorCallback) {
+                    if (error.message && error.message.indexOf('Too much data') >= 0) {
+                        error = new Errors.DataOverflow(error.message)
+                    }
+                    errorCallback(error)
+                } else
+                    console.error(error)
+            })
+        })
+        .catch(errorCallback)
     },
 
     /**
