@@ -145,6 +145,13 @@
     pako "^1.0.6"
     util.promisify "^1.0.0"
 
+"@gmod/binary-parser@^1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@gmod/binary-parser/-/binary-parser-1.3.2.tgz#38ec31273b6666e7e8d7a2a1eafc1d30dc26854f"
+  integrity sha512-xubZDAfadtZTC26hTu58p7zwO0SxUWqemrMOf7Vxk/2kkauuUgvy7eKL9ZjCBQ2BzC8dFoV9s2BX7k3OCzgkwg==
+  dependencies:
+    long "^4.0.0"
+
 "@gmod/cram@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@gmod/cram/-/cram-1.3.0.tgz#8297d6d6a01434dc08b12c94a7aef1d1b8e51651"
@@ -186,21 +193,21 @@
     pako "1.0.6"
     util.promisify "^1.0.0"
 
-"@gmod/tribble-index@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@gmod/tribble-index/-/tribble-index-2.0.0.tgz#a47ff5a65bc4d4b5100be9bbf0e2e4cab816409a"
-  integrity sha512-kA/nDQF0jfGYNjh+ZYBvj20NN9ocoSERscXZS60xoNoA0Sttv+h+beWSkWJQa8i3zvnrMH3tqEGCPFZ5deFxQQ==
+"@gmod/tribble-index@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@gmod/tribble-index/-/tribble-index-2.0.1.tgz#a31b7267ca9f64e56de5a51105c772e853a0c8da"
+  integrity sha512-yzXgkbbIEKZkeNRFBLeU1OpYRg2ZsZnug6sILXVoj0DGQSKvsv1lc2rYcFTIQ7KhlxyXm61FMas8fobLhXGkRg==
   dependencies:
-    binary-parser "^1.3.2"
+    "@gmod/binary-parser" "^1.3.2"
     lru-cache "^4.1.3"
     util.promisify "^1.0.0"
 
-"@gmod/twobit@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.1.1.tgz#6473f42b539ed7e738541b1af397b77f124ee926"
-  integrity sha512-GLlukpBgnaSrAYbLAUb3+9gKy3kp727jUOx78bBlWPyJWDe0nCMruxMrPEt1cRQR+t5iqIbDZVYBDkYxK79tmQ==
+"@gmod/twobit@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@gmod/twobit/-/twobit-1.1.2.tgz#bd606014a85ed584a73a3afe74d00fd4ed6b6975"
+  integrity sha512-1cprJMuL1fMkicBFQ8H8dnGC37QzhFTTN/ANOWFKrpirZ3eC5Lid++QDegR429DljMWRukwYygTDXcJiWoieFA==
   dependencies:
-    binary-parser "^1.3.2"
+    "@gmod/binary-parser" "^1.3.2"
     fs-extra "^7.0.0"
     long "^4.0.0"
     object.values "^1.0.4"
