@@ -120,7 +120,7 @@
   dependencies:
     arrify "^1.0.1"
 
-"@gmod/bgzf-filehandle@^1.0.0":
+"@gmod/bgzf-filehandle@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@gmod/bgzf-filehandle/-/bgzf-filehandle-1.2.1.tgz#88368b3c6735a1d7c000e157af110c7668e88d4a"
   dependencies:
@@ -151,11 +151,12 @@
     tmp-promise "^1.0.4"
     typical "^2.6.1"
 
-"@gmod/indexedfasta@^1.0.2":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@gmod/indexedfasta/-/indexedfasta-1.0.7.tgz#165dd99258c7684ec5c95396ff8291ff2bb14524"
+"@gmod/tabix@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.0.1.tgz#11d696fb0a5a99c44642cbea7c8c1d7dd8024f6f"
   dependencies:
-    "@gmod/bgzf-filehandle" "^1.0.0"
+    "@gmod/bgzf-filehandle" "^1.2.1"
+    lru-cache "^4.1.3"
     util.promisify "^1.0.0"
 
 "@gmod/twobit@^1.1.1":
@@ -2132,10 +2133,11 @@ deepmerge@~2.0.1:
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
 
 define-properties@^1.1.2:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/define-properties/-/define-properties-1.1.3.tgz#cf88da6cbee26fe6db7094f61d870cbd84cee9f1"
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/define-properties/-/define-properties-1.1.2.tgz#83a73f2fea569898fb737193c8f873caf6d45c94"
   dependencies:
-    object-keys "^1.0.12"
+    foreach "^2.0.5"
+    object-keys "^1.0.8"
 
 define-property@^0.2.5:
   version "0.2.5"
@@ -3036,6 +3038,10 @@ for-own@^1.0.0:
   resolved "https://registry.yarnpkg.com/for-own/-/for-own-1.0.0.tgz#c63332f415cedc4b04dbfe70cf836494c53cb44b"
   dependencies:
     for-in "^1.0.1"
+
+foreach@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/foreach/-/foreach-2.0.5.tgz#0bee005018aeb260d0a3af3ae658dd0136ec1b99"
 
 forever-agent@~0.6.1:
   version "0.6.1"
@@ -4911,7 +4917,7 @@ object-copy@^0.1.0:
     define-property "^0.2.5"
     kind-of "^3.0.3"
 
-object-keys@^1.0.12:
+object-keys@^1.0.8:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.0.12.tgz#09c53855377575310cca62f55bb334abff7b3ed2"
 
@@ -7459,7 +7465,7 @@ yargs@~3.10.0:
     decamelize "^1.0.0"
     window-size "0.1.0"
 
-yarn@^1.6.0:
+yarn@^1.9.4:
   version "1.9.4"
   resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.9.4.tgz#3b82d8446b652775723900b470d966861976924b"
 

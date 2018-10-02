@@ -13,6 +13,16 @@
 
  * Improve the layout slightly for dense features (issue #1210, @cmdcolin)
 
+ * Added a `topLevelFeaturesPercent` configuration variable that can be used to
+   correct feature statistics estimates when `topLevelFeatures` is being used for
+   a track, or when it contains deeply-nested features. This configuration variable
+   is currently only used by BAM, BEDTabix, GFF3Tabix, and VCFTabix stores.
+   (issue #1147, pull #1209, @rbuels)
+
+ * Tabix-based data stores use a new storage backend based on the `@gmod/tabix` npm
+   module. Users should see some modest performance improvements for Tabix-based
+   tracks. (issue #1195, pull #1209, @rbuels)
+
 ## Bug fixes
 
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
@@ -28,6 +38,9 @@
 
  * Fix issue where editing the track names and types in the "Open track" dialog box
    was not working when editing multiple tracks (issue #1217, @cmdcolin)
+
+ * Fixed issue in which large VCF headers were not always correctly parsed by JBrowse
+   (issue #1139, pull #1209, @rbuels)
 
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 

@@ -20,24 +20,22 @@ return declare( GlobalStats, {
      * estimate the feature density of the store.
      * @private
      */
-    _estimateGlobalStats: function( refseq ) {
-        refseq = refseq || this.refSeq;
-        var featCount;
-        if(this.indexedData) {
-            featCount = this.indexedData.featureCount(refseq.name);
-        } else if(this.bam) {
-            var chr = refseq.name;
-            chr = this.browser.regularizeReferenceName( chr );
-            var chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr];
-            featCount = this.bam.index.featureCount(chrId, true);
+    async _estimateGlobalStats(refseq) {
+        refseq = refseq || this.refSeq
+        let featCount
+        if (this.indexedData) {
+            featCount = await this.indexedData.featureCount(refseq.name)
+        } else if (this.bam) {
+            const chr = this.browser.regularizeReferenceName(refseq.name)
+            const chrId = this.bam.chrToIndex && this.bam.chrToIndex[chr]
+            featCount = await this.bam.index.featureCount(chrId, true)
         }
-        if(featCount == -1) {
-            return this.inherited(arguments);
+        if (featCount == -1) {
+            return this.inherited('_estimateGlobalStats', arguments)
         }
-        var density = featCount / (refseq.end - refseq.start);
-        var deferred = new Deferred();
-        deferred.resolve({ featureDensity: density });
-        return deferred;
+        const correctionFactor = (this.getConf('topLevelFeaturesPercent') || 100) / 100
+        const featureDensity = featCount / (refseq.end - refseq.start) * correctionFactor
+        return { featureDensity }
     }
 
 });

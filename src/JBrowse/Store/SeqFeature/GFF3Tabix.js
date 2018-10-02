@@ -1,10 +1,7 @@
-import gff from '@gmod/gff'
+const gff = cjsRequire('@gmod/gff').default
 
 define([
            'dojo/_base/declare',
-           'dojo/_base/lang',
-           'dojo/_base/array',
-           'dojo/Deferred',
            'JBrowse/Util',
            'JBrowse/Model/SimpleFeature',
            'JBrowse/Store/SeqFeature',
@@ -17,9 +14,6 @@ define([
        ],
        function(
            declare,
-           lang,
-           array,
-           Deferred,
            Util,
            SimpleFeature,
            SeqFeatureStore,
@@ -71,9 +65,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         // start our global stats estimation
-        this.getHeader()
+        this.indexedData.featureCount('nonexistent')
             .then(
-                header => {
+                () => {
                     this._deferred.features.resolve({ success: true })
                     this._estimateGlobalStats()
                         .then(
@@ -88,33 +82,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             )
     },
 
-    getHeader() {
-        if (this._parsedHeader) return this._parsedHeader
-
-        this._parsedHeader = new Deferred()
-        const reject = this._parsedHeader.reject.bind(this._parsedHeader)
-
-        this.indexedData.indexLoaded
-            .then( () => {
-                const maxFetch = this.indexedData.index.firstDataLine
-                    ? this.indexedData.index.firstDataLine.block + this.indexedData.data.blockSize - 1
-                    : null
-
-                this.indexedData.data.read(
-                    0,
-                    maxFetch,
-                    bytes => this._parsedHeader.resolve( this.header ),
-                    reject
-                );
-            },
-            reject
-        )
-
-        return this._parsedHeader
-    },
-
     _getFeatures(query, featureCallback, finishedCallback, errorCallback, allowRedispatch = true) {
-        this.getHeader().then(
+        this.indexedData.featureCount('nonexistent').then(
             () => {
                 const lines = []
                 this.indexedData.getLines(
@@ -133,14 +102,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         if (allowRedispatch && lines.length) {
                             let minStart = Infinity
                             let maxEnd = -Infinity
-                            lines.forEach( line => {
-                                if(!this.dontRedispatch.includes(line.fields[2])) {
-                                    let start = line.start-1 // tabix indexes are 1-based
+                            lines.forEach(line => {
+                                const featureType = line.fields[2]
+                                // only expand redispatch range if the feature is not in dontRedispatch,
+                                // and is a top-level feature
+                                if(
+                                    !this.dontRedispatch.includes(featureType) &&
+                                    this._isTopLevelFeatureType(featureType)
+                                ) {
+                                    let start = line.start-1 // gff is 1-based
                                     if (start < minStart) minStart = start
                                     if (line.end > maxEnd) maxEnd = line.end
                                 }
                             })
                             if (maxEnd > query.end || minStart < query.start) {
+                                // console.log(`redispatching ${query.start}-${query.end} => ${minStart}-${maxEnd}`)
                                 let newQuery = Object.assign({},query,{ start: minStart, end: maxEnd })
                                 // make a new feature callback to only return top-level features
                                 // in the original query range
@@ -254,7 +230,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
      * others are not.
      */
     hasRefSeq( seqName, callback, errorCallback ) {
-        return this.indexedData.index.hasRefSeq( seqName, callback, errorCallback );
+        return this.indexedData.hasRefSeq( seqName, callback, errorCallback );
     },
 
     saveStore() {

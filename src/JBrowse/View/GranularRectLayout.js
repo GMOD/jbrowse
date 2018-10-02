@@ -9,6 +9,7 @@
 
 // minimum excess size of the array at which we garbage collect
 const minSizeToBotherWith = 10000
+const maxFeaturePitchWidth = 5000
 
 // a single row in the layout
 class LayoutRow {
@@ -128,6 +129,9 @@ class LayoutRow {
         // if (oRight < 0) debugger
         // if (oRight <= oLeft) debugger
         // if (oRight > this.bits.length) debugger
+        if ((oRight - oLeft) > maxFeaturePitchWidth) {
+            console.warn(`Layout X pitch set too low, feature spans ${oRight - oLeft} bits in a single row.`, rect, data)
+        }
 
         for (let x = oLeft; x < oRight; x += 1) {
             //if (this.bits[x] && this.bits[x].get('name') !== data.get('name')) debugger
@@ -332,7 +336,7 @@ declare(null, {
         const bitmap = this.bitmap
         const av = this._autovivifyRow
         const yEnd = rect.top + rect.h
-        if (rect.r - rect.l > 20000) {
+        if (rect.r - rect.l > maxFeaturePitchWidth) {
             // the rect is very big in relation to the view size, just
             // pretend, for the purposes of layout, that it extends
             // infinitely.  this will cause weird layout if a user

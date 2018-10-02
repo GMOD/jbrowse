@@ -38,9 +38,11 @@ return declare( null, {
                               function( f ) { features.push(f); },
                               function( error ) {
                                   features = array.filter( features, function(f) { return f.get('start') >= start && f.get('end') <= end; } );
+                                  const correctionFactor = (thisB.getConf('topLevelFeaturesPercent') || 100) / 100
                                   callback.call( thisB, length,
                                                  {
-                                                     featureDensity: features.length / length,
+                                                     featureDensity: features.length / length * correctionFactor,
+                                                     _correctionFactor: correctionFactor,
                                                      _statsSampleFeatures: features.length,
                                                      _statsSampleInterval: { ref: refseq.name, start: start, end: end, length: length }
                                                  });

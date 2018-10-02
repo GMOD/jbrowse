@@ -395,6 +395,7 @@ return declare(
             basesPerBin: basesPerBin
         }
 
+        const handleError = this._handleError.bind(this)
         if (!this.config.histograms.store && this.store.getRegionFeatureDensities) {
             this.store.getRegionFeatureDensities(
                 query,
@@ -406,7 +407,6 @@ return declare(
             )
         } else {
             const histData = { features: [], stats: {} }
-            const handleError = this._handleError.bind(this)
             this.browser.getStore(
                 this.config.histograms.store,
                 histStore => {
