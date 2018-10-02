@@ -77,7 +77,10 @@ return declare( FeatureDescriptionMixin, {
 
         this._renderAdditionalTagsDetail( track, f, featDiv, container );
 
-        this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
+        if (!this.config.hideSequenceBox) {
+            this._renderUnderlyingReferenceSequence( track, f, featDiv, container );
+        }
+
 
         this._renderSubfeaturesDetail( track, f, featDiv, container, layer||1 );
 
