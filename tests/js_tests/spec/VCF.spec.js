@@ -1,12 +1,12 @@
 require([
             'JBrowse/Browser',
             'JBrowse/Store/SeqFeature/VCFTabix',
-            'JBrowse/Model/XHRBlob'
+            'JBrowse/Store/SeqFeature/VCFTribble',
         ],
         function(
             Browser,
             VCFStore,
-            XHRBlob
+            VCFTribble,
         ) {
 describe('VCF store', function() {
 
@@ -62,7 +62,7 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 7 );
-                  expect(features[2].get('alternative_alleles').values).toEqual("TC,<*>");
+                  expect(features[2].get('alternative_alleles').values).toEqual([ "TC", "<*>" ]);
          });
 
 
@@ -122,7 +122,7 @@ describe('VCF store', function() {
                           );
          runs(function() {
                   expect(features.length).toEqual( 37 );
-                  expect(features[0].get('alternative_alleles').values).toEqual('<NON_REF>');
+                  expect(features[0].get('alternative_alleles').values).toEqual([ '<NON_REF>' ]);
          });
   });
 
@@ -187,18 +187,124 @@ describe('VCF store', function() {
                       expect(feature.get('seq_id')).toEqual('1')
                   })
                   expect(features.length).toEqual( 37 );
-                  expect(features[0].fields).toEqual([
-                      "1",
-                      "1206810423",
-                      null,
-                      "T",
-                      "A",
-                      "25",
-                      null,
-                      "DP=19;VDB=0.0404;AF1=0.5;AC1=1;DP4=3,7,3,6;MQ=37;FQ=28;PV4=1,1,1,0.27",
-                      "GT:PL:GQ",
-                      "0/1:55,0,73:58"
-                  ])
+                  expect(features[0].data).toEqual({
+                    "start":1206810422,
+                    "end":1206810423,
+                    "seq_id":"1",
+                    "description":"",
+                    "type":"SNV",
+                    "reference_allele":"T",
+                    "score":25,
+                    "alternative_alleles":{
+                      "meta":{
+                        "description":"VCF ALT field, list of alternate non-reference alleles called on at least one of the samples"
+                      },
+                      "values":[
+                        "A"
+                      ]
+                    },
+                    "DP":{
+                      "values":[
+                        19
+                      ],
+                      "meta":{
+                        "Number":1,
+                        "Type":"Integer",
+                        "Description":"Raw read depth"
+                      }
+                    },
+                    "VDB":{
+                      "values":[
+                        0.0404
+                      ],
+                      "meta":{
+                        "Number":1,
+                        "Type":"Float",
+                        "Description":"Variant Distance Bias"
+                      }
+                    },
+                    "AF1":{
+                      "values":[
+                        0.5
+                      ],
+                      "meta":{
+                        "Number":1,
+                        "Type":"Float",
+                        "Description":"Max-likelihood estimate of the first ALT allele frequency (assuming HWE)"
+                      }
+                    },
+                    "AC1":{
+                      "values":[
+                        1
+                      ],
+                      "meta":{
+                        "Number":1,
+                        "Type":"Float",
+                        "Description":"Max-likelihood estimate of the first ALT allele count (no HWE assumption)"
+                      }
+                    },
+                    "DP4":{
+                      "values":[
+                        3,
+                        7,
+                        3,
+                        6
+                      ],
+                      "meta":{
+                        "Number":4,
+                        "Type":"Integer",
+                        "Description":"# high-quality ref-forward bases, ref-reverse, alt-forward and alt-reverse bases"
+                      }
+                    },
+                    "MQ":{
+                      "values":[
+                        37
+                      ],
+                      "meta":{
+                        "Number":1,
+                        "Type":"Integer",
+                        "Description":"Root-mean-square mapping quality of covering reads"
+                      }
+                    },
+                    "FQ":{
+                      "values":[
+                        28
+                      ],
+                      "meta":{
+                        "Number":1,
+                        "Type":"Float",
+                        "Description":"Phred probability of all samples being the same"
+                      }
+                    },
+                    "PV4":{
+                      "values":[
+                        1,
+                        1,
+                        1,
+                        0.27
+                      ],
+                      "meta":{
+                        "Number":4,
+                        "Type":"Float",
+                        "Description":"P-values for strand bias, baseQ bias, mapQ bias and tail distance bias"
+                      }
+                    },
+                    "genotypes":{
+                      "sample_data/raw/volvox/volvox-sorted.bam":{
+                        "GT":[
+                          "0/1"
+                        ],
+                        "PL":[
+                          55,
+                          0,
+                          73
+                        ],
+                        "GQ":[
+                          58
+                        ]
+                      }
+                    }
+                  })
          });
   });
 
@@ -267,11 +373,17 @@ describe('VCF store', function() {
         refSeq: { name: 'LcChr1', start:0, end:1000 },
     })
 
+    var header
     var parsedHeader
+    waitsFor(() => header)
     waitsFor(() => parsedHeader)
-    store.getVCFHeader().then( h => { parsedHeader = h })
+    store.indexedData.getHeader().then( h => { header = h })
+    store.getParser()
+        .then(parser => parser.getMetadata('bcftools_callCommand'))
+        .then( h => { parsedHeader = h })
     runs(function() {
-        expect(parsedHeader.bcftools_callcommand[0]).toEqual("call -A -m -v 350_LcChr1.bcf")
+        expect(header.length).toEqual(5315655)
+        expect(parsedHeader).toEqual("call -A -m -v 350_LcChr1.bcf")
     });
 });
 
@@ -298,6 +410,38 @@ it('large VCF header fetches features', function() {
     runs(function() {
         var a = features[0].get('genotypes');
         expect(Object.keys(a).length).toBeTruthy(); // expect non empty object
+    });
+});
+
+it('can read a tribble-indexed file', function () {
+    const store = new VCFTribble({
+        browser: new Browser({ unitTestMode: true }),
+        config: {
+            urlTemplate: '../data/1801160099-N32519_26611_S51_56704.hard-filtered.vcf',
+            idxUrlTemplate: '../data/1801160099-N32519_26611_S51_56704.hard-filtered.vcf.idx',
+            baseUrl: '.',
+        }
+    });
+    var items = [];
+    store.getFeatures(
+        {
+            ref: '17',
+            start: 41200000,
+            end: 41290000,
+        },
+        i => { items.push(i) },
+        () => { items.done = true },
+        e => { console.error(e.stack||''+e) }
+    );
+
+    waitsFor(function () { return items.done; });
+    runs(function () {
+        expect(items.length).toEqual(9);
+        items.forEach(function (item, i) {
+            expect(item.data.seq_id).toEqual('17');
+            expect(item.data.start).toBeGreaterThan(41200000);
+            expect(item.data.start).toBeLessThan(41290000);
+        });
     });
 });
 
