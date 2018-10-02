@@ -33,7 +33,8 @@ return declare( GlobalStats, {
         if (featCount == -1) {
             return this.inherited('_estimateGlobalStats', arguments)
         }
-        const featureDensity = featCount / (refseq.end - refseq.start)
+        const correctionFactor = (this.getConf('topLevelFeaturesPercent') || 100) / 100
+        const featureDensity = featCount / (refseq.end - refseq.start) * correctionFactor
         return { featureDensity }
     }
 

@@ -67,6 +67,8 @@ script:
 - set +e
 after_failure:
 - cat setup.log
+before_cache:
+- rm -f node_modules/.cache
 deploy:
 # upload both minified and non-minified builds to GitHub releases
 - provider: releases

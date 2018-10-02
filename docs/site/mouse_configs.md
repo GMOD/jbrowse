@@ -55,6 +55,8 @@ fmtDetailValue_Name = function(name, feature) {
 
 4. The ability to remove a field from the popup was added. You can do this by returning null from a fmtDetailField\_\* and fmtMetaField\_\* callback;
 
+5. In 1.15.4 the ability to remove the sequence FASTA boxes from the View details popups was added by specifying hideSequenceBox: true to the config
+
 # Customizing Left-click Behavior
 
 Beginning with JBrowse 1.5.0, the left-clicking behavior of feature tracks (both HTMLFeatures and CanvasFeatures) is highly configurable. To make something happen when left-clicking features on a track, add an onClick option to the feature track's configuration.

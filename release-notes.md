@@ -11,16 +11,39 @@
  * Allow fna and mfa file extensions for FASTA to be recognized by default in
    the Open sequence dialog (issue #1205, @cmdcolin)
 
+ * Improve the layout slightly for dense features (issue #1210, @cmdcolin)
+
+ * Added a `topLevelFeaturesPercent` configuration variable that can be used to
+   correct feature statistics estimates when `topLevelFeatures` is being used for
+   a track, or when it contains deeply-nested features. This configuration variable
+   is currently only used by BAM, BEDTabix, GFF3Tabix, and VCFTabix stores.
+   (issue #1147, pull #1209, @rbuels)
+
+ * Tabix-based data stores use a new storage backend based on the `@gmod/tabix` npm
+   module. Users should see some modest performance improvements for Tabix-based
+   tracks. (issue #1195, pull #1209, @rbuels)
+
 ## Bug fixes
 
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
    in the wrong locations. (@rbuels)
 
- * Fix error where a chunk size limit error during histogram display would not be
+ * Fixed error where a chunk size limit error during histogram display would not be
    displayed (@cmdcolin)
 
- * Fix issue where Open sequence dialog will open up the default "data" directory
+ * Fixed issue where Open sequence dialog will open up the default "data" directory
    instead of a blank instance (issue #1207, @cmdcolin)
+
+ * Added check for PCR duplicates for CRAM features (@cmdcolin)
+
+ * Fixed issue where editing the track names and types in the "Open track" dialog box
+   was not working when editing multiple tracks (issue #1217, @cmdcolin)
+
+ * Fixed issue in which large VCF headers were not always correctly parsed by JBrowse
+   (issue #1139, pull #1209, @rbuels)
+
+ * Fixed issue where the histogram Y-scale bar would appear over features (issue
+   #1214, pull #1218, @cmdcolin)
 
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
