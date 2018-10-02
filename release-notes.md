@@ -28,19 +28,22 @@
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
    in the wrong locations. (@rbuels)
 
- * Fix error where a chunk size limit error during histogram display would not be
+ * Fixed error where a chunk size limit error during histogram display would not be
    displayed (@cmdcolin)
 
- * Fix issue where Open sequence dialog will open up the default "data" directory
+ * Fixed issue where Open sequence dialog will open up the default "data" directory
    instead of a blank instance (issue #1207, @cmdcolin)
 
- * Add check for PCR duplicates for CRAM features (@cmdcolin)
+ * Added check for PCR duplicates for CRAM features (@cmdcolin)
 
- * Fix issue where editing the track names and types in the "Open track" dialog box
+ * Fixed issue where editing the track names and types in the "Open track" dialog box
    was not working when editing multiple tracks (issue #1217, @cmdcolin)
 
  * Fixed issue in which large VCF headers were not always correctly parsed by JBrowse
    (issue #1139, pull #1209, @rbuels)
+
+ * Fixed issue where the histogram Y-scale bar would appear over features (issue
+   #1214, pull #1218, @cmdcolin)
 
 # Release 1.15.3     2018-08-29 22:34:53 UTC
 
