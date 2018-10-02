@@ -268,9 +268,11 @@ return declare(
                 if( renderArgs.showFeatures ) {
                     this.setLabel( this.key );
                     this.removeYScale();
+                    this.noYScale = true
                     this.fillFeatures( renderArgs );
                 }
                 else if( this.config.histograms.store || this.store.getRegionFeatureDensities ) {
+                    this.noYScale = false
                     this.fillHistograms( renderArgs );
                 }
                 else {
@@ -450,8 +452,11 @@ return declare(
     },
 
     _drawHistograms: function( viewArgs, histData ) {
+        if(this.noYScale) {
+            return
+        }
 
-        var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : histData.stats.max;
+        var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : (histData.stats||{}).max;
 
         // don't do anything if we don't know the score max
         if( maxScore === undefined ) {
