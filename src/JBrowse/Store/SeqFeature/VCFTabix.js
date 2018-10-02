@@ -1,6 +1,3 @@
-const promisify = cjsRequire('util.promisify')
-const zlib = cjsRequire('zlib')
-const gunzip = promisify(zlib.gunzip)
 const { TabixIndexedFile } = cjsRequire('@gmod/tabix')
 const VCF = cjsRequire('@gmod/vcf')
 
@@ -106,34 +103,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         }
         return this._parser
     },
-
-    // /** fetch and parse the VCF header lines */
-    // getVCFHeader() {
-    //     if (!this._parsedHeader) {
-    //         this._parsedHeader = this.indexedData.getHeader()
-    //         .then(headerBytes => this.parseHeader(headerBytes))
-    //     }        
-    //     return this._parsedHeader
-    // },    
-
-    // _getFeatures( query, featureCallback, finishedCallback, errorCallback ) {
-    //     var thisB = this;
-    //     thisB.getVCFHeader().then( function() {
-    //         thisB.indexedData.getLines(
-    //             query.ref || thisB.refSeq.name,
-    //             query.start,
-    //             query.end,
-    //             function( line ) {
-    //                 var f = thisB.lineToFeature( line );
-    //                 //console.log(f);
-    //                 featureCallback( f );
-    //                 //return f;
-    //             },    
-    //             finishedCallback,
-    //             errorCallback
-    //         );    
-    //     }, errorCallback );    
-    // },    
 
     _getFeatures( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
