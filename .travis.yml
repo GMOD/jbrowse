@@ -7,7 +7,6 @@ matrix:
       before_install:
         - brew update
         - brew install perl cpanminus libgd
-        # - curl -o- -L https://yarnpkg.com/install.sh | bash
         - pip install virtualenv
       before_script:
         - npm install wine-darwin@1.9.17-1
@@ -72,11 +71,11 @@ install:
 - wget -O - https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz | tar -xzf - -C ~/geckodriver_$GECKODRIVER_VERSION;
 - export PATH=$PATH:$HOME/geckodriver_$GECKODRIVER_VERSION
 # cpanm exits with nonzero exit code on os x sometimes?
-# - cpanm --notest GD::Image Text::Markdown DateTime JSON
+- cpanm --notest GD::Image Text::Markdown DateTime JSON
 # only init the python virtualenv if it did not show up in our build cache
-# - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
-# - source ~/python/bin/activate
-# - pip install nose selenium
+- if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
+- source ~/python/bin/activate
+- pip install nose selenium
 - ./setup.sh
 script:
 # these versions *should* already be set in version control, but set them again here just in case
@@ -84,23 +83,23 @@ script:
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
 - set -e
-# - node_modules/.bin/yarn lint
-# - prove -Isrc/perl5 -r -j3 tests/perl_tests;
-# - utils/jb_run.js -p 9000 & sleep 2
-# - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
-# - utils/jb_run.js -p 8000 -s jbrowse & sleep 2
-# - node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
-# - if [ -n "$AVA_COMMAND" ]; then $AVA_COMMAND --timeout=60s tests/electron_tests; fi
-# - if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh; fi
+- node_modules/.bin/yarn lint
+- prove -Isrc/perl5 -r -j3 tests/perl_tests;
+- utils/jb_run.js -p 9000 & sleep 2
+- node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:9000/tests/js_tests/index.html
+- utils/jb_run.js -p 8000 -s jbrowse & sleep 2
+- node_modules/.bin/phantomjs tests/js_tests/run-jasmine.js http://localhost:8000/jbrowse/tests/js_tests/index.html
+- if [ -n "$AVA_COMMAND" ]; then $AVA_COMMAND --timeout=60s tests/electron_tests; fi
+- if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh; fi
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
 - make -f build/Makefile;
 - rm -rf JBrowse-*/;
-# - unzip -q JBrowse-$RELEASE_VERSION.zip;
-# - cd JBrowse-$RELEASE_VERSION/;
-# - cp -r ../tests/ .;
-# - ./setup.sh;
-# - prove -Isrc/perl5 -r -j3 tests/perl_tests;
-# - cd $BUILD_DIR;
+- unzip -q JBrowse-$RELEASE_VERSION.zip;
+- cd JBrowse-$RELEASE_VERSION/;
+- cp -r ../tests/ .;
+- ./setup.sh;
+- prove -Isrc/perl5 -r -j3 tests/perl_tests;
+- cd $BUILD_DIR;
 - if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh; fi
 - set +e
 after_failure:
