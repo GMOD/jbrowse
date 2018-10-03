@@ -62,6 +62,8 @@ release-min: node_modules
 	done;
 
 	rm -rf dist
+	ls node_modules/.bin
+	echo $$PATH
 	JBROWSE_BUILD_MIN=1 yarn build
 	cp -r dist $(RELEASE_MIN_DIR)
 
