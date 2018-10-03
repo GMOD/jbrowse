@@ -17,7 +17,7 @@ matrix:
          # prevent wine popup dialogs about installing additional packages
         - WINEDLLOVERRIDES="mscoree,mshtml="
         - WINEDEBUG="-all"
-        - PATH="node_modules/.bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+        - PATH="$PWD/node_modules/.bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
     - name: "Linux - Perl 5.26"
       os: linux
       dist: trusty
@@ -83,7 +83,9 @@ script:
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
 - set -e
+- ls node_modules/.bin/wine
 - ./setup.sh
+- ls node_modules/.bin/wine
 # - node_modules/.bin/yarn lint
 # - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 # - utils/jb_run.js -p 9000 & sleep 2
@@ -93,18 +95,15 @@ script:
 # - if [ -n "$AVA_COMMAND" ]; then $AVA_COMMAND --timeout=60s tests/electron_tests; fi
 # - if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL=http://localhost:9000/index.html tests/selenium_tests/travis_wrapper.sh; fi
 # if we are building for inclusion into the `dev` branch, build the releases and test the minimal one too
-- |
-  if true; then # [[ "x$TRAVIS_TAG" != "x" || $TRAVIS_BRANCH = "master" || $TRAVIS_BRANCH = "dev" || $TRAVIS_PULL_REQUEST != "false" ]]; then
-    make -f build/Makefile;
-    rm -rf JBrowse-*/;
-    unzip -q JBrowse-$RELEASE_VERSION.zip;
-    cd JBrowse-$RELEASE_VERSION/;
-    cp -r ../tests/ .;
-    ./setup.sh;
-    prove -Isrc/perl5 -r -j3 tests/perl_tests;
-    cd $BUILD_DIR;
-    if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh; fi
-  fi
+- make -f build/Makefile;
+- rm -rf JBrowse-*/;
+# - unzip -q JBrowse-$RELEASE_VERSION.zip;
+# - cd JBrowse-$RELEASE_VERSION/;
+# - cp -r ../tests/ .;
+# - ./setup.sh;
+# - prove -Isrc/perl5 -r -j3 tests/perl_tests;
+# - cd $BUILD_DIR;
+- if [ "$RUN_SELENIUM" -eq 1 ]; then MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox NOSEOPTS="-I jasmine" JBROWSE_URL=http://localhost:9000/JBrowse-$RELEASE_VERSION/index.html tests/selenium_tests/travis_wrapper.sh; fi
 - set +e
 after_failure:
 - cat setup.log

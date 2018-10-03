@@ -34,10 +34,10 @@ release-electron-darwin: release-min release-electron-setup
 
 release-electron-win32: release-min release-electron-setup
 	echo "Building win32 electron"
-	ls $$PWD/node_modules/.bin/wine
-	PATH=$$PWD/node_modules/.bin:$$PATH node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 $(ELECTRON_PACKAGE_OPTS)
-	node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 $(ELECTRON_PACKAGE_OPTS)
-	$(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
+	-ls $$PWD/node_modules/.bin/wine
+	# PATH=$$PWD/node_modules/.bin:$$PATH node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 $(ELECTRON_PACKAGE_OPTS)
+	# node_modules/.bin/electron-packager $(RELEASE_MIN) $(RELEASE_MIN)-desktop --platform=win32 $(ELECTRON_PACKAGE_OPTS)
+	# $(ZIP) $(RELEASE_MIN)-desktop-win32-x64.zip $(RELEASE_MIN)-desktop-win32-x64
 
 release-electron-linux: release-min release-electron-setup
 	echo "Building linux electron"
