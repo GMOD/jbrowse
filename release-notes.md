@@ -23,6 +23,9 @@
    module. Users should see some modest performance improvements for Tabix-based
    tracks. (issue #1195, pull #1209, @rbuels)
 
+ * Add `hideSequenceBox` config to allow hiding the FASTA boxes in the View details
+   popups. Thanks to @andreamini for reporting (issue #1211, pull #1219, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed a bug in which feature labels would sometimes be repeated across the view,
