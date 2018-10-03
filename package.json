@@ -12,8 +12,8 @@
     "test-perl": "prove -Isrc/perl5 -j8 -lr tests/perl_tests/",
     "test-selenium": "SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost:8082/index.html' nosetests --verbose tests/selenium_tests/",
     "start": "utils/jb_run.js -p 8082",
-    "watch": "node_modules/.bin/webpack -w",
-    "build": "node_modules/.bin/webpack",
+    "watch": "webpack -w",
+    "build": "webpack",
     "build-electron": "electron-packager . JBrowse --overwrite --icon=browser/icons/jbrowse",
     "hint": "npm run lint",
     "lint": "eslint src/JBrowse test/js_tests"
