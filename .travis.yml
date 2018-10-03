@@ -9,9 +9,9 @@ matrix:
         - brew install perl cpanminus libgd
         # - curl -o- -L https://yarnpkg.com/install.sh | bash
         - pip install virtualenv
+      before_script:
         - npm install wine-darwin@1.9.17-1
-        - ./node_modules/.bin/wine hostname
-        - ls $PWD/node_modules/.bin/wine
+        - node_modules/.bin/wine hostname
       env:
         - RUN_SELENIUM=0
          # prevent wine popup dialogs about installing additional packages
@@ -77,15 +77,13 @@ install:
 # - if [[ ! -f ~/python/bin/activate ]]; then virtualenv ~/python; fi
 # - source ~/python/bin/activate
 # - pip install nose selenium
+- ./setup.sh
 script:
 # these versions *should* already be set in version control, but set them again here just in case
 - if [[ "x$TRAVIS_TAG" != "x" ]]; then build/set_package_versions.pl $TRAVIS_TAG src/JBrowse/package.json package.json website/siteConfig.js; fi
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
 - set -e
-- ls node_modules/.bin/wine
-- ./setup.sh
-- ls node_modules/.bin/wine
 # - node_modules/.bin/yarn lint
 # - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 # - utils/jb_run.js -p 9000 & sleep 2
