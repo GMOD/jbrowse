@@ -99,7 +99,7 @@ return declare(
         }
 
         // add initally collapsed categories to the local storage
-        var arr = (this.get('collapsedCategories') || "").split(",");
+        var arr = (this.get('collapsedCategories') || "").split(",").map(s => s.trim()).map(s => s.split("/").map(s => s.trim()).join('/'));
         for(var i = 0; i < arr.length; i++) {
             lang.setObject('collapsed.' + arr[i], true, this.state);
         }
@@ -118,11 +118,16 @@ return declare(
                     categories: {}
                 };
                 if( this.config.categoryOrder ) {
-                    const order = this.config.categoryOrder.split(",").map(s => s.trim())
-                    var unordered = tracks.filter(t => order.indexOf(t.category) === -1);
-                    var ordered = tracks.filter(t => order.indexOf(t.category) !== -1);
+                    const order = this.config.categoryOrder.split(",").map(s => s.trim()).map(s => s.split("/").map(s => s.trim()).join('/'))
+                    tracks.forEach(t => {
+                        if(t.category) {
+                            t.cat = t.category.trim().split('/').map(s=>s.trim()).join('/')
+                        }
+                    })
+                    var unordered = tracks.filter(t => order.indexOf(t.cat) === -1);
+                    var ordered = tracks.filter(t => order.indexOf(t.cat) !== -1);
                     ordered.sort((a, b) => {
-                        return order.indexOf(a.category) - order.indexOf(b.category);
+                        return order.indexOf(a.cat) - order.indexOf(b.cat);
                     });
                     tracks = ordered.concat(unordered)
                 }
