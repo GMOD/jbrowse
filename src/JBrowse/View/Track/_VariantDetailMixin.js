@@ -8,9 +8,7 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/dom-construct',
-           'dojo/dom-class',
            'dojo/promise/all',
-           'dojo/when',
            'JBrowse/Util',
            'JBrowse/View/Track/_FeatureDetailMixin',
            'JBrowse/View/Track/_NamedFeatureFiltersMixin',
@@ -21,9 +19,7 @@ define([
            array,
            lang,
            domConstruct,
-           domClass,
            all,
-           when,
            Util,
            FeatureDetailMixin,
            NamedFeatureFiltersMixin,
@@ -47,7 +43,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     },
     renderDetailValue: function( parent, title, val, f, class_ ) {
         if(title == "alternative_alleles") {
-            val = Util.escapeHTML(val);
+            val = Util.escapeHTML(val.join(','));
         }
         return this.inherited(arguments, [parent,title,val,f,class_]);
     },
@@ -55,7 +51,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         return this.inherited(arguments) || {genotypes:1}[t.toLowerCase()];
     },
 
-    _renderGenotypes: function( parentElement, track, f, featDiv  ) {
+    _renderGenotypes: function( parentElement, track, f ) {
         var thisB = this;
         var genotypes = f.get('genotypes');
         if( ! genotypes )
@@ -66,30 +62,26 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         if( ! gCount )
             return;
 
-        // get variants and coerce to an array
-        var alt = f.get('alternative_alleles');
-        if( alt &&  typeof alt == 'object' && 'values' in alt )
-            alt = alt.values;
-        if( alt && ! lang.isArray( alt ) )
-            alt = [alt];
+        var alt = f.get('alternative_alleles').values;
 
         var gContainer = domConstruct.create(
             'div',
-            { className: 'genotypes',
-              innerHTML: '<h2 class="sectiontitle">Genotypes ('
-                         + gCount + ')</h2>'
+            {
+                className: 'genotypes',
+                innerHTML: '<h2 class="sectiontitle">Genotypes (' + gCount + ')</h2>'
             },
-            parentElement );
+            parentElement
+        );
 
 
         function render( underlyingRefSeq ) {
-            var summaryElement = thisB._renderGenotypeSummary( gContainer, genotypes, alt, underlyingRefSeq );
+            thisB._renderGenotypeSummary( gContainer, genotypes, alt );
 
             var valueContainer = domConstruct.create(
                 'div',
-                {
-                    className: 'value_container genotypes'
-                }, gContainer );
+                { className: 'value_container genotypes' },
+                gContainer
+            );
 
             thisB.renderDetailValueGrid(
                 valueContainer,
@@ -103,7 +95,17 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                     var value = genotypes[k];
                     var item = { id: k };
                     for( var field in value ) {
-                        item[ field ] = thisB._mungeGenotypeVal( value[field], field, alt, underlyingRefSeq );
+                        item[field] = field === 'GT'
+                        ? thisB._mungeGenotypeVal(value[field], alt, underlyingRefSeq)
+                        : {
+                            meta: {
+                                description: [f.parser.getMetadata('FORMAT', field, 'Description')],
+                                id: [field],
+                                number: [f.parser.getMetadata('FORMAT', field, 'Number')],
+                                type: f.parser.getMetadata('FORMAT', field, 'Type')
+                            },
+                            values: value[field]
+                        }
                     }
                     return item;
                 },
@@ -115,7 +117,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                        var subValue = genotypes[keys[0]];
                                        var descriptions = {};
                                        for( var k in subValue ) {
-                                           descriptions[k] = subValue[k].meta && subValue[k].meta.description || null;
+                                           descriptions[k] = f.parser.getMetadata('FORMAT', k, 'Description') || null;
                                        }
                                        return descriptions;
                                    })(),
@@ -145,25 +147,23 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         });
     },
 
-    _mungeGenotypeVal: function( value, fieldname, alt, underlyingRefSeq ) {
-        if( fieldname == 'GT' ) {
-            // handle the GT field specially, translating the genotype indexes into the actual ALT strings
-            var value_parse = value.values[0];
+    _mungeGenotypeVal: function( values, alt, underlyingRefSeq ) {
+        // handle the GT field specially, translating the genotype indexes into the actual ALT strings
+        var value_parse = values[0];
 
-            var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
-            alt = alt[0].split(','); // force split on alt alleles
-            var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
-            value = array.map( splitter ? value_parse.split(splitter) : value_parse, function( gtIndex ) {
-                                   gtIndex = parseInt( gtIndex ) || gtIndex;
-                                   if(gtIndex == '.') { return 'no-call' }
-                                   else if(gtIndex == 0) { return refseq; }
-                                   else return alt ? alt[gtIndex-1] : gtIndex;
-                               }).join( ' '+splitter+' ' );
-        }
-        return value;
+        var splitter = (value_parse.match(/[\|\/]/g)||[])[0]; // only accept | and / splitters since . can mean no call
+        alt = alt[0].split(','); // force split on alt alleles
+        var refseq = underlyingRefSeq ? 'ref ('+underlyingRefSeq+')' : 'ref';
+        values = array.map( splitter ? value_parse.split(splitter) : value_parse, function( gtIndex ) {
+                                gtIndex = parseInt( gtIndex ) || gtIndex;
+                                if(gtIndex == '.') { return 'no-call' }
+                                else if(gtIndex == 0) { return refseq; }
+                                else return alt ? alt[gtIndex-1] : gtIndex;
+                            }).join( ' '+splitter+' ' );
+        return values;
     },
 
-    _renderGenotypeSummary: function( parentElement, genotypes, alt, underlyingRefSeq ) {
+    _renderGenotypeSummary: function( parentElement, genotypes, alt ) {
         if( ! genotypes )
             return;
 
@@ -171,12 +171,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         for( var gname in genotypes ) {
             if( genotypes.hasOwnProperty( gname ) ) {
                 // increment the appropriate count
-                var gt = genotypes[gname].GT;
-                if( typeof gt == 'object' && 'values' in gt )
-                    gt = gt.values[0];
-                if( typeof gt == 'string' )
-                    gt = gt.split(/\||\//);
-
+                var gt = genotypes[gname].GT[0].split(/\||\//);
                 if( lang.isArray( gt ) ) {
                     // if all zero, non-variant/hom-ref
                     if( array.every( gt, function( g ) { return parseInt(g) == 0; }) ) {
@@ -237,18 +232,19 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     // filters for VCF sites
     _getNamedFeatureFilters: function() {
         var thisB = this;
-        return all([ this.store.getVCFHeader && this.store.getVCFHeader(), this.inherited(arguments) ])
-            .then( function() {
-                       if( arguments[0][0] )
-                           return thisB._makeVCFFilters.apply( thisB, arguments[0] );
-                       else
-                           return arguments[0][1];
-                   });
+        return all([
+            this.store.getParser().then(parser => parser.getMetadata()),
+            this.inherited(arguments)
+        ])
+            .then( function( results ) {
+                if (results[0]) return thisB._makeVCFFilters.apply( thisB, results );
+                else return results[1];
+            });
     },
 
-    // given a parsed VCF header, make some appropriate named feature
+    // given VCF metadata, make some appropriate named feature
     // filters to filter its data
-    _makeVCFFilters: function( vcfHeader, inheritedFilters ) {
+    _makeVCFFilters: function( vcfMetadata, inheritedFilters ) {
         // wraps the callback to return true if there
         // is no filter attr
         function makeFilterFilter( condition ) {
@@ -284,8 +280,8 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                         })
                 }
             });
-        if( vcfHeader.filter ) {
-            for( var filterName in vcfHeader.filter ) {
+        if( vcfMetadata.FILTER ) {
+            for( var filterName in vcfMetadata.FILTER ) {
                 filters[filterName] = function( filterName, filterSpec ) {
                     return {
                         desc: 'Hide sites not passing filter "'+filterName+'"',
@@ -302,7 +298,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                                     });
                             })
                     };
-                }.call(this, filterName, vcfHeader.filter[filterName]);
+                }.call(this, filterName, vcfMetadata.FILTER[filterName]);
             }
         }
         return filters;

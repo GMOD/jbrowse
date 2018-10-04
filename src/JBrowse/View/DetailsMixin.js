@@ -62,7 +62,7 @@ return declare( null, {
         // using the values as the new field value.
         var fieldMeta;
         if( typeof val == 'object' && !Array.isArray(val) && ('values' in val) ) {
-            fieldMeta = (val.meta||{}).description;
+            fieldMeta = (val.meta||{}).description || (val.meta||{}).Description;
             // join the description if it is an array
             if( lang.isArray( fieldMeta ) )
                 fieldMeta = fieldMeta.join(', ');

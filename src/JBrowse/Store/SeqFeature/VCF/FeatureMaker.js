@@ -15,8 +15,11 @@ return declare(null, {
         const alt = variant.ALT;
         const start = variant.POS - 1;
         const end = variant.INFO['END']
-            ? Number(variant.INFO['END'])
-            : start + Math.max(...(alt.map(a => a.length)));
+            ? Number(variant.INFO['END'][0])
+            : start + Math.max(...(alt.map(a => {
+                if (a.match(/</)) return 1
+                return a.length
+            })));
         const [SO_term, description] = this._getSOTermAndDescription(
             parser,
             ref,
@@ -104,19 +107,53 @@ return declare(null, {
         };
 
         const soTerms = new Set()
-        const descriptions = new Set()
+        let descriptions = new Set()
         alt.forEach(a => {
-            const [soTerm, description] = this._getSOAndDescFromAltDefs(parser, ref, alt);
+            let [soTerm, description] = this._getSOAndDescFromAltDefs(parser, ref, a);
+            if (!soTerm) {
+                [soTerm, description] = this._getSOAndDescByExamination(ref, a);
+            }
             if (soTerm) {
                 soTerms.add(soTerm)
                 descriptions.add(description)
             }
         })
-        if (soTerms.size) {
-            return [[...soTerms].join(','), [...descriptions.join(',')]]
+        // Combine descriptions like ["SNV G -> A", "SNV G -> T"] to ["SNV G -> A,T"]
+        if (descriptions.size > 1) {
+            const prefixes = new Set();
+            [...descriptions].forEach(desc => {
+                const prefix = desc.match(/(\w+? \w+? -> )\w+/)
+                if (prefix && prefix[1]) prefixes.add(prefix[1])
+                else prefixes.add(desc)
+            });
+            const new_descs = [];
+            [...prefixes].forEach(prefix => {
+                const suffixes = [];
+                [...descriptions].forEach(desc => {
+                    if (desc.startsWith(prefix)) {
+                        suffixes.push(desc.slice(prefix.length))
+                    }
+                })
+                new_descs.push(prefix + suffixes.join(','))
+            })
+            descriptions = new_descs
         }
+        if (soTerms.size) {
+            return [[...soTerms].join(','), [...descriptions].join(',')]
+        }
+        else
+            return [null, null]
+    },
 
-        return this._getSOAndDescByExamination(ref, alt);
+    _altTypeToSO: {
+        DEL: 'deletion',
+        INS: 'insertion',
+        DUP: 'copy_number_gain',
+        INV: 'inversion',
+        CNV: 'copy_number_variation',
+        'DUP:TANDEM': 'copy_number_gain',
+        NON_REF: 'sequence_variant',
+        '*': 'sequence_variant',
     },
 
     _getSOAndDescFromAltDefs: function (parser, ref, alt) {
@@ -127,23 +164,14 @@ return declare(null, {
 
         alt = alt.replace(/^<|>$/g, ''); // trim off < and >
 
-        const _altTypeToSO = {
-            DEL: 'deletion',
-            INS: 'insertion',
-            DUP: 'copy_number_gain',
-            INV: 'inversion',
-            CNV: 'copy_number_variation',
-            'DUP:TANDEM': 'copy_number_gain',
-            NON_REF: 'sequence_variant',
-            '*': 'sequence_variant',
-        }
-
         // look for a definition with an SO type for this
-        const soTerm = _altTypeToSO[alt]
+        let soTerm = this._altTypeToSO[alt]
+        // if no SO term but ALT is in metadata, assume sequence_variant
+        if (!soTerm && parser.getMetadata('ALT', alt)) soTerm = 'sequence_variant'
         if (soTerm) {
-            let description = parser.getMetadata()['ALT'][soTerm]
-                ? alt + ' - ' + parser.getMetadata()['ALT'][soTerm]
-                : soTerm + " " + ref + " -> " + alt
+            let description = parser.getMetadata('ALT', alt, 'Description')
+                ? alt + ' - ' + parser.getMetadata('ALT', alt, 'Description')
+                : this._makeDescriptionString(soTerm, ref, alt)
             return [soTerm, description]
         }
 
@@ -153,37 +181,52 @@ return declare(null, {
             return this._getSOAndDescFromAltDefs(parser, ref, '<' + alt.slice(0, alt.length - 1).join(':') + '>');
         }
         else { // no parent
-            return null;
+            return [null, null];
         }
     },
 
     _getSOAndDescByExamination: function (ref, alt) {
-        const altLens = alt.map( a => {
-            return a.length
-        });
-        
-        const minAltLen = Math.min(...altLens);
-        const maxAltLen = Math.max(...altLens);
-
-        if (ref.length == 1 && minAltLen == 1 && maxAltLen == 1) {
+        if (ref.length == 1 && alt.length == 1) {
             // use SNV because SO definition of SNP says abundance must be at 
             // least 1% in population, and can't be sure we meet that
-            return ['SNV', ''];
+            return [
+                'SNV',
+                this._makeDescriptionString('SNV', ref, alt)
+            ];
          } 
 
-        if (ref.length == minAltLen && ref.length == maxAltLen)
-            if (alt.length == 1 && ref.split('').reverse().join('') == alt[0])
-                return ['inversion', ''];
+        if (ref.length == alt.length)
+            if (ref.split('').reverse().join('') == alt)
+                return [
+                    'inversion',
+                    this._makeDescriptionString('inversion', ref, alt)
+                ];
             else
-                return ['substitution', ''];
+                return [
+                    'substitution',
+                    this._makeDescriptionString('substitution', ref, alt)
+                ];
 
-        if (ref.length <= minAltLen && ref.length < maxAltLen)
-            return ['insertion', ''];
+        if (ref.length <= alt.length)
+            return [
+                'insertion',
+                this._makeDescriptionString('insertion', ref, alt)
+            ];
 
-        if (ref.length > minAltLen && ref.length >= maxAltLen)
-            return ['deletion', ''];
+        if (ref.length > alt.length)
+            return [
+                'deletion',
+                this._makeDescriptionString('deletion', ref, alt)
+            ];
 
-        return ['indel', ''];
+        return [
+            'indel',
+            this._makeDescriptionString('indel', ref, alt)
+        ];
+    },
+
+    _makeDescriptionString: function (soTerm, ref, alt) {
+        return soTerm + " " + ref + " -> " + alt
     }
 
 });
