@@ -42,7 +42,7 @@ script:
 - RELEASE_VERSION=`node -e 'require("fs").readFile("src/JBrowse/package.json", (e,d)=>console.log(JSON.parse(d).version))'`
 - BUILD_DIR=$PWD
 - set -e
-- ./setup.sh
+- JBROWSE_BUILD_MIN=0 ./setup.sh
 - yarn lint
 - prove -Isrc/perl5 -r -j3 tests/perl_tests;
 - utils/jb_run.js -p 9000 & sleep 2
