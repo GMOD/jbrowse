@@ -38,7 +38,7 @@ return declare(
 
     categoryFacet: 'category',
 
-    constructor: function( args ) {
+    constructor( args ) {
         this.categories = {};
         this.config=
             lang.mixin({
@@ -48,7 +48,7 @@ return declare(
 
         this._loadState();
     },
-    postCreate: function() {
+    postCreate() {
         this.placeAt( this.browser.container );
 
         // subscribe to commands coming from the the controller
@@ -64,7 +64,7 @@ return declare(
                                 lang.hitch( this, 'deleteTracks' ));
     },
 
-    buildRendering: function() {
+    buildRendering() {
         this.inherited('buildRendering',arguments);
 
         var topPane = new ContentPane({ className: 'header' });
@@ -83,8 +83,22 @@ return declare(
         );
         this._updateTextFilterControl();
     },
+    induceCategoryOrder(tracks, categoryOrder) {
+        const order = categoryOrder.split(",").map(s => s.trim()).map(s => s.split("/").map(s => s.trim()).join('/'))
+        tracks.forEach(t => {
+            if(t.category) {
+                t.cat = t.category.trim().split('/').map(s=>s.trim()).join('/')
+            }
+        })
+        var unordered = tracks.filter(t => order.indexOf(t.cat) === -1);
+        var ordered = tracks.filter(t => order.indexOf(t.cat) !== -1);
+        ordered.sort((a, b) => {
+            return order.indexOf(a.cat) - order.indexOf(b.cat);
+        });
+        return ordered.concat(unordered)
+    },
 
-    startup: function() {
+    startup() {
         this.inherited('startup', arguments );
 
         var tracks = [];
@@ -118,18 +132,7 @@ return declare(
                     categories: {}
                 };
                 if( this.config.categoryOrder ) {
-                    const order = this.config.categoryOrder.split(",").map(s => s.trim()).map(s => s.split("/").map(s => s.trim()).join('/'))
-                    tracks.forEach(t => {
-                        if(t.category) {
-                            t.cat = t.category.trim().split('/').map(s=>s.trim()).join('/')
-                        }
-                    })
-                    var unordered = tracks.filter(t => order.indexOf(t.cat) === -1);
-                    var ordered = tracks.filter(t => order.indexOf(t.cat) !== -1);
-                    ordered.sort((a, b) => {
-                        return order.indexOf(a.cat) - order.indexOf(b.cat);
-                    });
-                    tracks = ordered.concat(unordered)
+                    tracks = this.induceCategoryOrder(tracks, this.config.categoryOrder)
                 }
 
                 this.addTracks( tracks, true );

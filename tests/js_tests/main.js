@@ -44,5 +44,6 @@ cjsRequire('./spec/SequenceTrack.spec.js')
 cjsRequire('./spec/VCF.spec.js')
 cjsRequire('./spec/BigBed.spec.js')
 cjsRequire('./spec/Hash.spec.js')
+cjsRequire('./spec/Hierarchical.spec.js')
 
 
