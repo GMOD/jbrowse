@@ -95,6 +95,8 @@ script:
 - make -f build/Makefile;
 - rm -rf JBrowse-*/;
 - unzip -q JBrowse-$RELEASE_VERSION.zip;
+- ls
+- echo cd JBrowse-$RELEASE_VERSION/;
 - cd JBrowse-$RELEASE_VERSION/;
 - cp -r ../tests/ .;
 - ./setup.sh;
