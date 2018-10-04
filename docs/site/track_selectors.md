@@ -63,5 +63,6 @@ There are some other configuration variables that can be used to customize the d
 |Option|Value|
 |------|-----|
 |`trackSelector→sortHierarchical`|Can be true or false. If true, categories and tracks are sorted in alphabetical order. If false, tracks will be loaded specifically in the order that they are specified in the tracklist configuration files. Default:true. Added in JBrowse 1.11.5|
-|`trackSelector→collapsedCategories`|A comma separated list of categories from the trackList that will be collapsed initially. This helps when many tracks are loaded in the trackList but you want to collapse certain categories when the user first loads. If there are subcategories specified using slashes, don't use spaces around the slashes. Default:none. Added in JBrowse 1.11.5|
+|`trackSelector→collapsedCategories`|A comma separated list of categories from the trackList that will be collapsed initially. This helps when many tracks are loaded in the trackList but you want to collapse certain categories when the user first loads. If there are subcategories specified using slashes. Added in JBrowse 1.11.5|
+|`trackSelector→categoryOrder`|A comma separated list of categories which specifies their order. Note that if the there are nested subcategories e.g. the Quantitative/Density in the volvox example, then you can specify a subcategory and it makes the whole Quantitative section sort to the top. Example: categoryOrder=VCF,Transcripts,Quantitative/Density,BAM. Added in JBrowse 1.15.4|
 
