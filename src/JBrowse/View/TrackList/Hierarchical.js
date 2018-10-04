@@ -95,6 +95,7 @@ return declare(
         ordered.sort((a, b) => {
             return order.indexOf(a.cat) - order.indexOf(b.cat);
         });
+        tracks.forEach(t => delete t.cat)
         return ordered.concat(unordered)
     },
 
