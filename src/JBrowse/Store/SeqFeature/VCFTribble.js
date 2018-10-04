@@ -98,6 +98,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     const protoF = this.variantToFeature(parser, variant)
                     const f = new SimpleFeature({
                         data: protoF});
+                    f.parser = parser;
+                    // override SimpleFeature's get()
+                    f.get = function ( field ) {
+                        if (field in this.data) return this.data[field]
+                        else field = field.toLowerCase()
+                        if (field in this.data) return this.data[field]
+                        else return undefined
+                    }
                     featureCallback(f)
                 }
             )
