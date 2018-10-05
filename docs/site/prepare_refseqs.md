@@ -16,7 +16,7 @@ The simplest way to use it is with the --fasta option, which uses a single seque
 
     bin/prepare-refseqs.pl --fasta yourfile.fa
 
-Indexed file formats are becoming much better, so we also suggest you look at the [indexed file format tutorial](tutorial) and consider indexed fasta or 2bit
+Indexed file formats are becoming much better, so we also suggest you look at the [indexed file format tutorial](tutorial.html) and consider indexed fasta or 2bit
 
 
 This script is used to format sequence data for use by JBrowse, and must be run before adding other tracks. In addition to formatting the sequence data, this script creates a track called "DNA" that displays the reference sequence. The simplest way to use it is with the --fasta option, which uses a single sequence or set of reference sequences from a [FASTA](/Glossary#FASTA "wikilink") file:
