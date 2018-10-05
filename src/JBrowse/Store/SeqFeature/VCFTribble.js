@@ -55,7 +55,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             filehandle: fileBlob,
             tribbleFilehandle: idxBlob,
             oneBasedClosed: true,
-            chunkSizeLimit: args.chunkSizeLimit || 1000000,
+            chunkSizeLimit: args.chunkSizeLimit || 2000000,
             renameRefSeqs: n => this.browser.regularizeReferenceName(n)
         });
         
