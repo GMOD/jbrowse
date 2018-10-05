@@ -39,7 +39,7 @@ require([
             waitsFor(function() { return wigData; },1000);
             runs(function() {
                 expect(wigData.length).toBeGreaterThan(100);
-                dojo.forEach( wigData.slice(1,20), function(feature) {
+                wigData.slice(1,20).forEach((feature) => {
                     expect(feature.get('start')).toBeGreaterThan(0);
                     expect(feature.get('end')).toBeLessThan(10000);
                 });
@@ -56,7 +56,7 @@ require([
             waitsFor(function() { return wigData; },500);
             runs(function() {
                 expect(wigData.length).toEqual(2);
-                dojo.forEach( wigData, function(feature) {
+                wigData.forEach((feature) => {
                     expect(feature.get('start')).toBeGreaterThan( -1 );
                     expect(feature.get('end')).toBeLessThan( 40000 );
                 });
@@ -92,7 +92,7 @@ require([
             runs(function() {
                 expect(wigData.length).toBeGreaterThan(19);
                 expect(wigData.length).toBeLessThan(1000);
-                dojo.forEach( wigData, function(feature) {
+                wigData.forEach((feature) => {
                     expect(feature.get('start')).toBeGreaterThan(10000);
                     expect(feature.get('end')).toBeLessThan(30000);
                 });
@@ -211,7 +211,7 @@ require([
                              waitsFor(function() { return wigData; },1000);
                              runs(function() {
                                       expect(wigData.length).toBeGreaterThan(10000);
-                                      dojo.forEach( wigData.slice(0,20), function(feature) {
+                                      wigData.slice(0, 20).forEach((feature) => {
                                                         expect(feature.get('start')).toBeGreaterThan(0);
                                                         expect(feature.get('end')).toBeLessThan(100001);
                                                     });
@@ -229,7 +229,7 @@ require([
                              runs(function() {
                                       expect(wigData.length).toBeGreaterThan(19);
                                       expect(wigData.length).toBeLessThan(100);
-                                      dojo.forEach( wigData, function(feature) {
+                                      wigData.forEach((feature) => {
                                                         expect(feature.get('start')).toBeGreaterThan(80000);
                                                         expect(feature.get('end')).toBeLessThan(2050000);
                                                     });
@@ -258,7 +258,7 @@ require([
                              runs(function() {
                                       expect(wigData.length).toBeGreaterThan(19);
                                       expect(wigData.length).toBeLessThan(1000);
-                                      dojo.forEach( wigData, function(feature) {
+                                      wigData.forEach((feature) => {
                                                         expect(feature.get('start')).toBeGreaterThan(10000);
                                                         expect(feature.get('end')).toBeLessThan(30000);
                                                     });
