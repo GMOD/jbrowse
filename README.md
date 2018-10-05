@@ -51,7 +51,7 @@ Looking for places to contribute to the codebase?
 The Travis-CI suite runs Perl, JavaScript, and Selenium automated tests. To run locally, you can use
 
     prove -Isrc/perl5 -lr tests
-    phantomjs tests/js_tests/run-jasmine.js http://localhost/jbrowse/tests/js_tests/index.html
+    node tests/js_tests/run-puppeteer.js http://localhost/jbrowse/tests/js_tests/index.html
     pip install selenium nose
     MOZ_HEADLESS=1 SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost/jbrowse/index.html' nosetests
 

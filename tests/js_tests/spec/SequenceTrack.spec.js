@@ -1,3 +1,4 @@
+/*global dojo */
 require([
             'JBrowse/Browser',
             'JBrowse/View/Track/Sequence'
@@ -7,7 +8,7 @@ describe( 'sequence track', function() {
 
               it( 'test track rendering', function() {
                   var browser = new Browser({unitTestMode: true});
-                  
+
 
                   var output = dojo.create('div', {
                       style: {
