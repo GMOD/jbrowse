@@ -71,7 +71,21 @@ return declare(null, {
         }
 
         if (Object.keys(variant.SAMPLES).length) {
-            featureData.genotypes = variant.SAMPLES
+            featureData.genotypes = {}
+            Object.keys(variant.SAMPLES).forEach(sample => {
+                featureData.genotypes[sample] = {}
+                Object.keys(variant.SAMPLES[sample]).forEach(field => {
+                    featureData.genotypes[sample][field] = {
+                        meta: {
+                            description: [parser.getMetadata('FORMAT', field, 'Description')],
+                            id: [field],
+                            number: [parser.getMetadata('FORMAT', field, 'Number')],
+                            type: parser.getMetadata('FORMAT', field, 'Type')
+                        },
+                        values: variant.SAMPLES[sample][field]
+                    }
+                })
+            })
         }
 
         return featureData

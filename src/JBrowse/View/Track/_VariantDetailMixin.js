@@ -96,16 +96,8 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
                     var item = { id: k };
                     for( var field in value ) {
                         item[field] = field === 'GT'
-                        ? thisB._mungeGenotypeVal(value[field], alt, underlyingRefSeq)
-                        : {
-                            meta: {
-                                description: [f.parser.getMetadata('FORMAT', field, 'Description')],
-                                id: [field],
-                                number: [f.parser.getMetadata('FORMAT', field, 'Number')],
-                                type: f.parser.getMetadata('FORMAT', field, 'Type')
-                            },
-                            values: value[field]
-                        }
+                        ? thisB._mungeGenotypeVal(value[field].values, alt, underlyingRefSeq)
+                        : genotypes[k][field]
                     }
                     return item;
                 },
@@ -171,7 +163,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
         for( var gname in genotypes ) {
             if( genotypes.hasOwnProperty( gname ) ) {
                 // increment the appropriate count
-                var gt = genotypes[gname].GT[0].split(/\||\//);
+                var gt = genotypes[gname].GT.values[0].split(/\||\//);
                 if( lang.isArray( gt ) ) {
                     // if all zero, non-variant/hom-ref
                     if( array.every( gt, function( g ) { return parseInt(g) == 0; }) ) {
