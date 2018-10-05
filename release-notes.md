@@ -23,8 +23,13 @@
    module. Users should see some modest performance improvements for Tabix-based
    tracks. (issue #1195, pull #1209, @rbuels)
 
- * Add `hideSequenceBox` config to allow hiding the FASTA boxes in the View details
+ * Added `hideSequenceBox` config to allow hiding the FASTA boxes in the View details
    popups. Thanks to @andreamini for reporting (issue #1211, pull #1219, @cmdcolin)
+
+ * Added `categoryOrder` config to allow sorting the categories in the Hierarchical
+   track selector. For example, `categoryOrder=VCF,Quantitative/Density,BAM`. Note
+   that we specify a lowest level subcategory e.g. Quantitative/Density to sort the
+   parent category Quantitative to a position (issue #1203, pull #1208, @cmdcolin)
 
 ## Bug fixes
 
