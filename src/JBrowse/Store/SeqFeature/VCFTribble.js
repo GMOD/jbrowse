@@ -95,9 +95,11 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                 query.end,
                 line => {
                     const variant = parser.parseLine(line)
-                    const protoF = this.variantToFeature(parser, variant)
+                    const featureData = this.variantToFeature(parser, variant)
                     const f = new SimpleFeature({
-                        data: protoF});
+                        data: featureData,
+                        id: variant.CHROM + variant.POS + variant.REF + variant.ALT.join('')
+                    });
                     f.parser = parser;
                     // override SimpleFeature's get()
                     f.get = function ( field ) {

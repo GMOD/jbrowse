@@ -112,11 +112,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 regularizeReferenceName,
                 query.start,
                 query.end,
-                line => {
+                (line, fileOffset) => {
                     const variant = parser.parseLine(line)
-                    const protoF = this.variantToFeature(parser, variant)
+                    const featureData = this.variantToFeature(parser, variant)
                     const f = new SimpleFeature({
-                        data: protoF});
+                        data: featureData,
+                        id: String(fileOffset)
+                    });
                     f.parser = parser;
                     // override SimpleFeature's get()
                     f.get = function ( field ) {
