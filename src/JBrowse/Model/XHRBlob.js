@@ -146,7 +146,7 @@ var XHRBlob = declare( FileBlob,
 
     },
 
-    read( offset, length, callback, failCallback ) {
+    read( offset = 0, length, callback, failCallback ) {
         globalCache.getRange(this.url, this.start + offset, length)
             .then(
                 this._getResponseArrayBuffer.bind(this,callback),
@@ -154,7 +154,7 @@ var XHRBlob = declare( FileBlob,
             )
     },
 
-    async readBufferPromise(offset, length) {
+    async readBufferPromise(offset = 0, length) {
         const range = await globalCache.getRange(this.url, this.start + offset, length)
         return range.buffer
     },

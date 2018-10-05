@@ -1,5 +1,4 @@
 const { Buffer } = cjsRequire('buffer')
-
 /**
  * Wraps a XHRBlob or FileBlob in a new promise-based API (which is
  * the upcoming node fs.promises API) for use by newer code.
@@ -12,6 +11,7 @@ class BlobFilehandleWrapper {
     async read(buffer, offset = 0, length, position) {
         const data = await this.blob.readBufferPromise(position, length)
         data.copy(buffer, offset)
+        return data.length
     }
 
     async readFile() {

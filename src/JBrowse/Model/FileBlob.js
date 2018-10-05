@@ -54,7 +54,7 @@ var FileBlob = declare( null,
              }, failCallback );
     },
 
-    readLines: function( offset, length, lineCallback, endCallback, failCallback ) {
+    readLines: function( offset=0, length, lineCallback, endCallback, failCallback ) {
         var start = this.start + offset,
             end   = start + length;
         var skipFirst = offset != 0;
@@ -70,7 +70,7 @@ var FileBlob = declare( null,
                 }, endCallback, failCallback );
     },
 
-    read: function( offset, length, callback, failCallback ) {
+    read: function( offset=0, length, callback, failCallback ) {
         var start = this.start + offset,
             end = start + length;
 
