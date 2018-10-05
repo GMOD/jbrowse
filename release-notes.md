@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+## Minor improvements
+
+ * For users with the "dev" or compiling JBrowse from source code, the ./setup.sh
+   now performs a full webpack production build (pull #1223, @cmdcolin)
+
+ * Created new BAM parsing mechanism using the npm module [@gmod/bam](https://www.npmjs.com/package/@gmod/bam).
+   Users might see some modest performance improvements due to enhanced tooling.
+   Thanks to @rbuels and others for testing and feedback (pull #1215, issue #1178,
+   @cmdcolin)
 
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
