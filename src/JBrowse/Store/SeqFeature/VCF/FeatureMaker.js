@@ -16,10 +16,7 @@ return declare(null, {
         const start = variant.POS - 1;
         const end = variant.INFO['END']
             ? Number(variant.INFO['END'][0])
-            : start + Math.max(...(alt.map(a => {
-                if (a.match(/</)) return 1
-                return a.length
-            })));
+            : start + ref.length;
         const [SO_term, description] = this._getSOTermAndDescription(
             parser,
             ref,
