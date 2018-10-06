@@ -77,10 +77,10 @@ return declare(null, {
                 Object.keys(variant.SAMPLES[sample]).forEach(field => {
                     featureData.genotypes[sample][field] = {
                         meta: {
-                            description: [parser.getMetadata('FORMAT', field, 'Description')],
+                            Description: [parser.getMetadata('FORMAT', field, 'Description')],
                             id: [field],
-                            number: [parser.getMetadata('FORMAT', field, 'Number')],
-                            type: parser.getMetadata('FORMAT', field, 'Type')
+                            Number: parser.getMetadata('FORMAT', field, 'Number'),
+                            Type: parser.getMetadata('FORMAT', field, 'Type')
                         },
                         values: variant.SAMPLES[sample][field]
                     }

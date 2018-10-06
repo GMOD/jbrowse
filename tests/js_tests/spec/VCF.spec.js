@@ -187,124 +187,113 @@ describe('VCF store', function() {
                       expect(feature.get('seq_id')).toEqual('1')
                   })
                   expect(features.length).toEqual( 37 );
-                  expect(features[0].data).toEqual({
-                    "start":1206810422,
-                    "end":1206810423,
-                    "seq_id":"1",
-                    "description":"",
-                    "type":"SNV",
-                    "reference_allele":"T",
-                    "score":25,
-                    "alternative_alleles":{
-                      "meta":{
-                        "description":"VCF ALT field, list of alternate non-reference alleles called on at least one of the samples"
-                      },
-                      "values":[
-                        "A"
-                      ]
-                    },
-                    "DP":{
-                      "values":[
-                        19
-                      ],
-                      "meta":{
-                        "Number":1,
-                        "Type":"Integer",
-                        "Description":"Raw read depth"
-                      }
-                    },
-                    "VDB":{
-                      "values":[
-                        0.0404
-                      ],
-                      "meta":{
-                        "Number":1,
-                        "Type":"Float",
-                        "Description":"Variant Distance Bias"
-                      }
-                    },
-                    "AF1":{
-                      "values":[
-                        0.5
-                      ],
-                      "meta":{
-                        "Number":1,
-                        "Type":"Float",
-                        "Description":"Max-likelihood estimate of the first ALT allele frequency (assuming HWE)"
-                      }
-                    },
-                    "AC1":{
-                      "values":[
-                        1
-                      ],
-                      "meta":{
-                        "Number":1,
-                        "Type":"Float",
-                        "Description":"Max-likelihood estimate of the first ALT allele count (no HWE assumption)"
-                      }
-                    },
-                    "DP4":{
-                      "values":[
-                        3,
-                        7,
-                        3,
-                        6
-                      ],
-                      "meta":{
-                        "Number":4,
-                        "Type":"Integer",
-                        "Description":"# high-quality ref-forward bases, ref-reverse, alt-forward and alt-reverse bases"
-                      }
-                    },
-                    "MQ":{
-                      "values":[
-                        37
-                      ],
-                      "meta":{
-                        "Number":1,
-                        "Type":"Integer",
-                        "Description":"Root-mean-square mapping quality of covering reads"
-                      }
-                    },
-                    "FQ":{
-                      "values":[
-                        28
-                      ],
-                      "meta":{
-                        "Number":1,
-                        "Type":"Float",
-                        "Description":"Phred probability of all samples being the same"
-                      }
-                    },
-                    "PV4":{
-                      "values":[
-                        1,
-                        1,
-                        1,
-                        0.27
-                      ],
-                      "meta":{
-                        "Number":4,
-                        "Type":"Float",
-                        "Description":"P-values for strand bias, baseQ bias, mapQ bias and tail distance bias"
-                      }
-                    },
-                    "genotypes":{
-                      "sample_data/raw/volvox/volvox-sorted.bam":{
-                        "GT":[
-                          "0/1"
-                        ],
-                        "PL":[
-                          55,
-                          0,
-                          73
-                        ],
-                        "GQ":[
-                          58
-                        ]
-                      }
-                    }
-                  })
+          expect(features[0].data).toEqual({
+            start: 1206810422,
+            end: 1206810423,
+            seq_id: '1',
+            description: 'SNV T -> A',
+            type: 'SNV',
+            reference_allele: 'T',
+            score: 25,
+            alternative_alleles: {
+              meta: {
+                description:
+                  'VCF ALT field, list of alternate non-reference alleles called on at least one of the samples',
+              },
+              values: ['A'],
+            },
+            DP: {
+              values: [19],
+              meta: { Number: 1, Type: 'Integer', Description: 'Raw read depth' },
+            },
+            VDB: {
+              values: [0.0404],
+              meta: { Number: 1, Type: 'Float', Description: 'Variant Distance Bias' },
+            },
+            AF1: {
+              values: [0.5],
+              meta: {
+                Number: 1,
+                Type: 'Float',
+                Description:
+                  'Max-likelihood estimate of the first ALT allele frequency (assuming HWE)',
+              },
+            },
+            AC1: {
+              values: [1],
+              meta: {
+                Number: 1,
+                Type: 'Float',
+                Description:
+                  'Max-likelihood estimate of the first ALT allele count (no HWE assumption)',
+              },
+            },
+            DP4: {
+              values: [3, 7, 3, 6],
+              meta: {
+                Number: 4,
+                Type: 'Integer',
+                Description:
+                  '# high-quality ref-forward bases, ref-reverse, alt-forward and alt-reverse bases',
+              },
+            },
+            MQ: {
+              values: [37],
+              meta: {
+                Number: 1,
+                Type: 'Integer',
+                Description: 'Root-mean-square mapping quality of covering reads',
+              },
+            },
+            FQ: {
+              values: [28],
+              meta: {
+                Number: 1,
+                Type: 'Float',
+                Description: 'Phred probability of all samples being the same',
+              },
+            },
+            PV4: {
+              values: [1, 1, 1, 0.27],
+              meta: {
+                Number: 4,
+                Type: 'Float',
+                Description:
+                  'P-values for strand bias, baseQ bias, mapQ bias and tail distance bias',
+              },
+            },
+            genotypes: {
+              'sample_data/raw/volvox/volvox-sorted.bam': {
+                GT: {
+                  meta: {
+                    Description: ['Genotype'],
+                    id: ['GT'],
+                    Number: 1,
+                    Type: 'String',
+                  },
+                  values: ['0/1'],
+                },
+                PL: {
+                  meta: {
+                    Description: ['List of Phred-scaled genotype likelihoods'],
+                    id: ['PL'],
+                    Number: 'G',
+                    Type: 'Integer',
+                  },
+                  values: [55, 0, 73],
+                },
+                GQ: {
+                  meta: {
+                    Description: ['Genotype Quality'],
+                    id: ['GQ'],
+                    Number: 1,
+                    Type: 'Integer',
+                  },
+                  values: [58],
+                },
+              },
+            },
+          })
          });
   });
 
