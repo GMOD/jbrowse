@@ -1,13 +1,13 @@
 {
   "name": "@gmod/jbrowse",
   "main": "browser/main.js",
-  "version": "1.15.4-alpha.0",
+  "version": "1.15.5-alpha.0",
   "description": "JBrowse - client-side genome browser",
   "repository": "https://github.com/GMOD/jbrowse.git",
   "scripts": {
-    "test": "npm run test-phantom",
-    "test-all": "npm run build && npm run test-phantom && npm run test-perl && npm run test-electron && npm run test-selenium",
-    "test-phantom": "phantomjs tests/js_tests/run-jasmine.js http://localhost:8082/tests/js_tests/index.html",
+    "test": "npm run test-puppeteer",
+    "test-all": "npm run build && npm run test-puppeteer && npm run test-perl && npm run test-electron && npm run test-selenium",
+    "test-puppeteer": "node tests/js_tests/run-puppeteer.js http://localhost:8082/tests/js_tests/index.html",
     "test-electron": "ava --timeout=60s tests/electron_tests",
     "test-perl": "prove -Isrc/perl5 -j8 -lr tests/perl_tests/",
     "test-selenium": "SELENIUM_BROWSER=firefox JBROWSE_URL='http://localhost:8082/index.html' nosetests --verbose tests/selenium_tests/",
@@ -16,7 +16,7 @@
     "build": "webpack",
     "build-electron": "electron-packager . JBrowse --overwrite --icon=browser/icons/jbrowse",
     "hint": "npm run lint",
-    "lint": "eslint src/JBrowse test/js_tests"
+    "lint": "eslint src/JBrowse tests/js_tests/spec"
   },
   "bin": {
     "jb_run.js": "utils/jb_run.js",
@@ -39,6 +39,7 @@
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
+    "@gmod/bam": "^1.0.3",
     "@gmod/cram": "^1.3.0",
     "@gmod/gff": "^1.1.1",
     "@gmod/indexedfasta": "^1.0.2",
@@ -76,7 +77,7 @@
     "jszlib": "git+https://github.com/cmdcolin/jszlib.git#c966ceac3b283d2248764c09e07a4b268edd5032",
     "lru-cache": "^4.1.3",
     "node-sass": "^4.7.2",
-    "phantomjs-prebuilt": "^2.1.16",
+    "puppeteer": "^1.9.0",
     "regexp-replace-loader": "^1.0.1",
     "sass-loader": "^6.0.7",
     "snake-case": "^2.1.0",
@@ -89,6 +90,6 @@
     "util-deprecate": "^1.0.2",
     "webpack": "^3.10.0",
     "whatwg-fetch": "^2.0.4",
-    "yarn": "^1.9.4"
+    "yarn": "^1.10.1"
   }
 }

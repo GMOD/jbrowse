@@ -1,3 +1,4 @@
+/* global dojo */
 require([
             'dojo/aspect',
             'dojo/_base/declare',

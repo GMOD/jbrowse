@@ -2,6 +2,18 @@
 
 ## Minor improvements
 
+ * For users with the "dev" or compiling JBrowse from source code, the ./setup.sh
+   now performs a full webpack production build (pull #1223, @cmdcolin)
+
+ * Created new BAM parsing mechanism using the npm module [@gmod/bam](https://www.npmjs.com/package/@gmod/bam).
+   Users might see some modest performance improvements due to enhanced tooling.
+   Thanks to @rbuels and others for testing and feedback (pull #1215, issue #1178,
+   @cmdcolin)
+
+# Release 1.15.4     2018-10-05 13:02:55 UTC
+
+## Minor improvements
+
  * Added support for bgzipped indexed FASTA. To use, bgzip your FASTA with
    `bgzip -i file.fa`, which generates file.fa.gz and file.fa.gzi and then use
    `samtools faidx file.fa.gz`. If you specify the .fa.gz in the track config e.g.
@@ -22,6 +34,14 @@
  * Tabix-based data stores use a new storage backend based on the `@gmod/tabix` npm
    module. Users should see some modest performance improvements for Tabix-based
    tracks. (issue #1195, pull #1209, @rbuels)
+
+ * Added `hideSequenceBox` config to allow hiding the FASTA boxes in the View details
+   popups. Thanks to @andreamini for reporting (issue #1211, pull #1219, @cmdcolin)
+
+ * Added `categoryOrder` config to allow sorting the categories in the Hierarchical
+   track selector. For example, `categoryOrder=VCF,Quantitative/Density,BAM`. Note
+   that we specify a lowest level subcategory e.g. Quantitative/Density to sort the
+   parent category Quantitative to a position (issue #1203, pull #1208, @cmdcolin)
 
 ## Bug fixes
 

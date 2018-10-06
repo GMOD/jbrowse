@@ -1,5 +1,6 @@
 #!/bin/bash
 
+JBROWSE_BUILD_MIN=${JBROWSE_BUILD_MIN:=1}
 # check the exit status of the command, and print the last bit of the log if it fails
 done_message () {
     if [ $? == 0 ]; then
@@ -116,7 +117,7 @@ if [ -f "src/JBrowse/Browser.js" ]; then
         check_node
         [[ -f node_modules/.bin/yarn ]] || npm install yarn
         node_modules/.bin/yarn install
-        node_modules/.bin/yarn build
+        JBROWSE_BUILD_MIN=$JBROWSE_BUILD_MIN node_modules/.bin/yarn build
     ) >>setup.log 2>&1;
     done_message "" "" "FAILURE NOT ALLOWED"
 else

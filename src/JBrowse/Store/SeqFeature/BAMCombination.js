@@ -2,14 +2,12 @@ define([
         'dojo/_base/declare',
         'dojo/_base/array',
         'JBrowse/Store/SeqFeature/CombinationBase',
-        'JBrowse/Store/SeqFeature/BAM/LazyFeature'
         ],
 
         function(
             declare,
             array,
-            CombinationBaseStore,
-            BAMFeature
+            CombinationBaseStore
         ) {
 
     return declare([CombinationBaseStore], {
@@ -24,7 +22,7 @@ define([
 
         toSpan: function(features, query) {
             return features.map(function(feat) {
-                return new BAMFeature( feat.feature ? feat.feature : feat )
+                return Object.assign(Object.create(feat), feat)
             });
         },
 

@@ -5,10 +5,8 @@ define(['dojo/_base/declare',
         'dojo/query',
         'dojo/on',
         'dojo/json',
-
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
-
         'JBrowse/Util',
         './_TextFilterMixin'
        ],
@@ -20,10 +18,8 @@ define(['dojo/_base/declare',
            query,
            on,
            JSON,
-
            TitlePane,
            ContentPane,
-
            Util,
            _TextFilterMixin
        ) {
@@ -42,7 +38,7 @@ return declare(
 
     categoryFacet: 'category',
 
-    constructor: function( args ) {
+    constructor( args ) {
         this.categories = {};
         this.config=
             lang.mixin({
@@ -52,7 +48,7 @@ return declare(
 
         this._loadState();
     },
-    postCreate: function() {
+    postCreate() {
         this.placeAt( this.browser.container );
 
         // subscribe to commands coming from the the controller
@@ -68,7 +64,7 @@ return declare(
                                 lang.hitch( this, 'deleteTracks' ));
     },
 
-    buildRendering: function() {
+    buildRendering() {
         this.inherited('buildRendering',arguments);
 
         var topPane = new ContentPane({ className: 'header' });
@@ -87,51 +83,68 @@ return declare(
         );
         this._updateTextFilterControl();
     },
+    induceCategoryOrder(tracks, categoryOrder) {
+        const order = categoryOrder.split(",").map(s => s.trim()).map(s => s.split("/").map(s => s.trim()).join('/'))
+        tracks.forEach(t => {
+            if(t.category) {
+                t.cat = t.category.trim().split('/').map(s=>s.trim()).join('/')
+            }
+        })
+        var unordered = tracks.filter(t => order.indexOf(t.cat) === -1);
+        var ordered = tracks.filter(t => order.indexOf(t.cat) !== -1);
+        ordered.sort((a, b) => {
+            return order.indexOf(a.cat) - order.indexOf(b.cat);
+        });
+        tracks.forEach(t => delete t.cat)
+        return ordered.concat(unordered)
+    },
 
-    startup: function() {
+    startup() {
         this.inherited('startup', arguments );
 
         var tracks = [];
-        var thisB = this;
         var categoryFacet = this.get('categoryFacet');
         var sorter;
         if(this.config.sortHierarchical) {
-            sorter=[ { attribute: categoryFacet.toLowerCase()},
-                     { attribute: 'key' },
-                     { attribute: 'label' }
-                   ];
+            sorter = [
+                { attribute: categoryFacet.toLowerCase() },
+                { attribute: 'key' },
+                { attribute: 'label' }
+            ];
         }
 
         // add initally collapsed categories to the local storage
-        var arr=(this.get('collapsedCategories')||"").split(",");
-        for(var i=0; i<arr.length;i++) {
-            lang.setObject('collapsed.'+arr[i],true,this.state);
+        var arr = (this.get('collapsedCategories') || "").split(",").map(s => s.trim()).map(s => s.split("/").map(s => s.trim()).join('/'));
+        for(var i = 0; i < arr.length; i++) {
+            lang.setObject('collapsed.' + arr[i], true, this.state);
         }
         this._saveState();
 
-        this.get('trackMetaData').fetch(
-            { onItem: function(i) {
-                  if( i.conf )
-                      tracks.push( i );
-              },
-              onComplete: function() {
-                  // make a pane at the top to hold uncategorized tracks
-                  thisB.categories.Uncategorized =
-                      { pane: new ContentPane({ className: 'uncategorized' }).placeAt( thisB.containerNode ),
-                        tracks: {},
-                        categories: {}
-                      };
+        this.get('trackMetaData').fetch({
+            onItem: function(i) {
+                if( i.conf )
+                    tracks.push( i );
+            },
+            onComplete: () => {
+                // make a pane at the top to hold uncategorized tracks
+                this.categories.Uncategorized = {
+                    pane: new ContentPane({ className: 'uncategorized' }).placeAt( this.containerNode ),
+                    tracks: {},
+                    categories: {}
+                };
+                if( this.config.categoryOrder ) {
+                    tracks = this.induceCategoryOrder(tracks, this.config.categoryOrder)
+                }
 
-                  thisB.addTracks( tracks, true );
+                this.addTracks( tracks, true );
 
-                  // hide the uncategorized pane if it is empty
-                  if( ! thisB.categories.Uncategorized.pane.containerNode.children.length ) {
-                      //thisB.removeChild( thisB.categories.Uncategorized.pane );
-                      thisB.categories.Uncategorized.pane.domNode.style.display = 'none';
-                  }
-              },
-              sort: sorter
-            });
+                // hide the uncategorized pane if it is empty
+                if( ! this.categories.Uncategorized.pane.containerNode.children.length ) {
+                    this.categories.Uncategorized.pane.domNode.style.display = 'none';
+                }
+            },
+            sort: sorter
+        });
     },
 
     addTracks: function( tracks, inStartup ) {
