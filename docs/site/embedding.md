@@ -50,7 +50,9 @@ and `overview=0` hides the overview scale bar.
 
 ## Embedding directly in a `div`
 
-A more flexible way to embed JBrowse is by embedding it directly in a `div` in the parent document.
+JBrowse 1.14.0 and higher supports a more flexible way of embedding JBrowse by running it directly in a `div` inside another document.
+
+Example code for this:
 
 ```html
 <html>
@@ -80,7 +82,7 @@ A more flexible way to embed JBrowse is by embedding it directly in a `div` in t
 </html>
 ```
 
-which looks like this
+which looks like this when run
 
 <div style="padding: 0 1em; margin: 1em 0; border: 1px solid black">
   <h1>Lorem ipsum</h1>
@@ -92,13 +94,11 @@ which looks like this
 </div>
 <script type="text/javascript" src="../dist/main.bundle.js" charset="utf-8"></script>
 
-The biggest gotcha with this embedding method is that the relative path from the page to
-the JBrowse `*.bundle.js` files be `dist/` if you want to use a "stock" build of JBrowse.
-A simple way to accomplish that might be to configure a symlink in your site directory, for example by running `ln -s ../path/to/jbrowse/dist dist`, or by creating some kind of path alias in your web server configuration.
+The biggest gotcha with this embedding method is that the relative path from the page where you embed JBrowse to the JBrowse `*.bundle.js` files must be `dist/` if you want to use a "stock" build of JBrowse. A simple way to accomplish that might be to configure a symlink in your site directory, for example by running `ln -s  ./path/to/jbrowse/dist dist`, or by creating some kind of path alias in your web server configuration.
 
-The other option is to clone JBrowse from GitHub and run `setup.sh` with a nonstandard `JBROWSE_PUBLIC_PATH` environment variable set, which will configure JBrowse to serve its bundles from a different path. For example, if you wanted to lay out a site like:
+For JBrowse 1.15.5 or higher, the other option is to clone JBrowse from GitHub and run `setup.sh` with a nonstandard `JBROWSE_PUBLIC_PATH` environment variable set, which will configure JBrowse to serve its bundles from a different path. For example, if you had this site layout:
 
-```generic
+```text
 site_root
   |- docs
       |-  index.html (runs embedded jbrowse)
@@ -114,4 +114,4 @@ cd jbrowse
 JBROWSE_PUBLIC_PATH=/jbrowse/dist/ ./setup.sh
 ```
 
-Note the trailing slash on the value of `JBROWSE_PUBLIC_PATH`!
+Note the trailing slash on the value of JBROWSE_PUBLIC_PATH.
