@@ -109,7 +109,7 @@ you might run the following shell commands:
 
 ```sh
 cd site_root
-git clone https://github.com/GMOD/jbrowse.git
+git clone --depth 50 https://github.com/GMOD/jbrowse.git
 cd jbrowse
 JBROWSE_PUBLIC_PATH=/jbrowse/dist/ ./setup.sh
 ```
