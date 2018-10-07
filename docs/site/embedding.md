@@ -90,8 +90,28 @@ which looks like this
     </div>
   </div>
 </div>
-<script type="text/javascript" src="dist/main.bundle.js" charset="utf-8"></script>
+<script type="text/javascript" src="../dist/main.bundle.js" charset="utf-8"></script>
 
 The biggest gotcha with this embedding method is that the relative path from the page to
-the JBrowse `*.bundle.js` files must be `dist/`, so you might need to create a symbolic
-link, path alias, or similar construct.
+the JBrowse `*.bundle.js` files be `dist/` if you want to use a "stock" build of JBrowse.
+A simple way to accomplish that might be to configure a symlink in your site directory, for example by running `ln -s ../path/to/jbrowse/dist dist`, or by creating some kind of path alias in your web server configuration.
+
+The other option is to clone JBrowse from GitHub and run `setup.sh` with a nonstandard `JBROWSE_PUBLIC_PATH` environment variable set, which will configure JBrowse to serve its bundles from a different path. For example, if you wanted to lay out a site like:
+
+```generic
+site_root
+  |- docs
+      |-  index.html (runs embedded jbrowse)
+  |- jbrowse (jbrowse installation)
+```
+
+you might run the following shell commands:
+
+```sh
+cd site_root
+git clone https://github.com/GMOD/jbrowse.git
+cd jbrowse
+JBROWSE_PUBLIC_PATH=/jbrowse/dist/ ./setup.sh
+```
+
+Note the trailing slash on the value of `JBROWSE_PUBLIC_PATH`!
