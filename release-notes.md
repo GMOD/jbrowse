@@ -10,6 +10,9 @@
    Thanks to @rbuels and others for testing and feedback (pull #1215, issue #1178,
    @cmdcolin)
 
+ * setup.sh now supports setting a `JBROWSE_PUBLIC_PATH` environment variable for
+   more flexibility in iframeless embedding scenarios (issue #1213, @rbuels)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
