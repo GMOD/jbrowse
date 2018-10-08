@@ -133,7 +133,7 @@ var RequestWorker = declare( null,
         var maxCirBlockSpan = 4 +  (this.window.cirBlockSize * 32);   // Upper bound on size, based on a completely full leaf node.
         var spans;
         for (var i = 0; i < offset.length; ++i) {
-            var blockSpan = new Range(offset[i], Math.min(offset[i] + maxCirBlockSpan, this.window.cirTreeOffset + this.window.cirTreeLength));
+            var blockSpan = new Range(offset[i], offset[i] + maxCirBlockSpan);
             spans = spans ? spans.union( blockSpan ) : blockSpan;
         }
 
