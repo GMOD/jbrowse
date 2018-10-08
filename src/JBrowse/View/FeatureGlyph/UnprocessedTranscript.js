@@ -1,11 +1,11 @@
 define([
            'dojo/_base/declare',
-           'dojo/_base/Color',
+           'dojo/_base/lang',
            'JBrowse/View/FeatureGlyph/Segments'
        ],
        function(
            declare,
-           Color,
+           lang,
            Segments
        ) {
 

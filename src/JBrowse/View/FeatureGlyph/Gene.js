@@ -22,7 +22,7 @@ _defaultConfig: function() {
         this.inherited(arguments),
         {
             transcriptType: 'mRNA',
-            noncodingType: ['ncRNA','transcript', 'lnc_RNA', 'lncRNA'],
+            noncodingType: ['ncRNA','transcript', 'lnc_RNA', 'lncRNA', 'miRNA'],
             style: {
                 transcriptLabelFont: 'normal 10px Univers,Helvetica,Arial,sans-serif',
                 transcriptLabelColor: 'black',
