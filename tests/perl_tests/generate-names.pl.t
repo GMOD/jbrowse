@@ -69,6 +69,18 @@ run_with (
 my @files = glob("$tempdir/names/*");
 is( scalar @files, 17 , 'the dir has some stuff in it' );
 
+$tempdir = new_volvox_sandbox_tabix_nameattributes();
+run_with (
+    '--dir'   => "$tempdir",
+    '--tracks' => 'volvox_gff3_tabix'
+    );
+{
+    my $got = read_names($tempdir);
+    my $expected = read_names('tests/data/volvox_tabix_names');
+    is_deeply( $got, $expected, 'same data using tabix nameAttributes config' );
+    # or diag explain read_names($tempdir);
+}
+
 done_testing;
 
 sub read_names {
@@ -88,6 +100,20 @@ sub new_volvox_sandbox {
           ) or die $!;
     copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
           "$tempdir/volvox.sort.gff3.gz.1"
+          ) or die $!;
+    rmtree( "$tempdir/names" );
+    return $tempdir;
+}
+
+sub new_volvox_sandbox_tabix_nameattributes {
+    my $tempdir = File::Temp->newdir( CLEANUP => $ENV{KEEP_ALL} ? 0 : 1 );
+    print STDERR $tempdir."\n";
+    dircopy( 'tests/data/volvox_tabix_names', $tempdir );
+    copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.1',
+          "$tempdir/volvox.sort.gff3.gz.1"
+          ) or die $!;
+    copy( 'sample_data/raw/volvox/volvox.sort.gff3.gz.tbi',
+          "$tempdir/volvox.sort.gff3.gz.tbi"
           ) or die $!;
     rmtree( "$tempdir/names" );
     return $tempdir;
