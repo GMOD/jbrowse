@@ -585,7 +585,8 @@ sub make_names_iterator {
 
             my ( $ref, $start, $name, $basevar ) = split "\t", $line, 5;
             $start--;
-            return [[$name],$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
+            $name =
+            return [split ';', $name,$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
         };
     }
     elsif( $file_record->{type} eq 'gff' ) {
