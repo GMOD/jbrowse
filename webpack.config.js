@@ -14,17 +14,6 @@ const webpack = require("webpack")
 // and forego generating source maps
 const DEBUG = ! [1,'1','true'].includes(process.env.JBROWSE_BUILD_MIN)
 
-const AUTOPREFIXER_BROWSERS = [
-    'Android 2.3',
-    'Android >= 4',
-    'Chrome >= 35',
-    'Firefox >= 31',
-    'Explorer >= 9',
-    'iOS >= 7',
-    'Opera >= 12',
-    'Safari >= 7.1',
-  ];
-
 var webpackConf = {
     entry: {
         main: "src/JBrowse/main",
@@ -107,7 +96,7 @@ var webpackConf = {
         filename: '[name].bundle.js',
         chunkFilename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: 'dist/'
+        publicPath: process.env.JBROWSE_PUBLIC_PATH || 'dist/'
     },
     resolveLoader: {
         modules: ["node_modules"]
