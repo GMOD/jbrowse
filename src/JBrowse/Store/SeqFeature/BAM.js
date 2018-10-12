@@ -72,6 +72,7 @@ define( [
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
             'JBrowse/Model/XHRBlob',
+            'JBrowse/Model/SimpleFeature',
         ],
         function(
             declare,
@@ -81,6 +82,7 @@ define( [
             DeferredFeaturesMixin,
             IndexedStatsEstimationMixin,
             XHRBlob,
+            SimpleFeature
         ) {
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
@@ -208,11 +210,33 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
 
-        this.bam.getRecordsForRange(seqName, query.start, query.end)
+        this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: true})
             .then(records => {
-                for (let i = 0; i < records.length; i += 1) {
-                    featCallback(this._bamRecordToFeature(records[i]))
+                records.sort((a, b) => a.get('name').localeCompare(b.get('name')))
+                let recs = records.map(r => r.get('name'))
+                for(let i = 0; i < records.length-1; i++) {
+                    const r1 = records[i]
+                    const r2 = records[i+1]
+                    if(r1.get('name') == r2.get('name')) {
+                        featCallback(new SimpleFeature({
+                            id: r1.get('name'),
+                            data: {
+                                start: Math.min(r1.get('start'), r2.get('start')),
+                                end: Math.max(r1.get('end'), r2.get('end')),
+                                insert_size: r1.get('template_length'),
+                                type: 'match',
+                                subfeatures: [
+                                    { start: r1.get('start'), end: r1.get('end') },
+                                    { start: r2.get('start'), end: r2.get('end') }
+                                ]
+                            }
+                        }))
+                        i++;
+                    }
                 }
+                // for (let i = 0; i < records.length; i += 1) {
+                //     featCallback(this._bamRecordToFeature(records[i]))
+                // }
 
                 endCallback()
             })
