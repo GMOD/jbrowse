@@ -13,6 +13,11 @@
  * setup.sh now supports setting a `JBROWSE_PUBLIC_PATH` environment variable for
    more flexibility in iframeless embedding scenarios (issue #1213, @rbuels)
 
+## Bug fixes
+
+ * Fixed issue with getting feature density from BAM files via the index stats
+   estimation (issue #1233, @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
