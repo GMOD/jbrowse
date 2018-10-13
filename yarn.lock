@@ -135,9 +135,9 @@
     arrify "^1.0.1"
 
 "@gmod/bam@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.3.tgz#37cb3cdc30980dc275ef87364296f6aaa91aff4f"
-  integrity sha512-Q7DQVrne3zY8nFN5uJ0xzVZ77ynHCCIbRNPwsbC6qohNhWx7W8nuOx404TkhbwxX3A0iOzvtsPFcfujy5WJsWA==
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@gmod/bam/-/bam-1.0.4.tgz#1eea6a583c4ed0bdfbe4c27bb96c8a48057b2276"
+  integrity sha512-SFRW4x4LVwzhtmrXmeuSknn6ZFD3uj+/zMmJXIzwOSrhcNgkusQWJwx3BNycQjaiqd6LFnFlSTpIclQM9X9xnA==
   dependencies:
     "@gmod/bgzf-filehandle" "^1.2.1"
     buffer-crc32 "^0.2.13"
