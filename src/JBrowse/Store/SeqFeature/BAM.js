@@ -11,16 +11,17 @@ class PairedBamRead {
     id() {
         return Math.min(this.f1.id(), this.f2.id())
     }
-    children() {
-    }
     get(field) {
         if(field == 'start') {
 			return Math.min(this.f1.get('start'), this.f2.get('start'))
         } else if(field == 'end') {
 			return Math.max(this.f1.get('end'), this.f2.get('end'))
+        } else if(field == 'name') {
+            return this.f1.get('name')
         }
     }
     pairedFeature() { return true }
+    children() {}
 }
 
 class BamSlightlyLazyFeature {
@@ -249,7 +250,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             feat = pairCache[records[i]._get('name')]
                             if (feat) {
                                 feat.f2 = this._bamRecordToFeature(records[i])
-                                pairCache[records[i]._get('name')] = undefined
+                                delete pairCache[records[i]._get('name')]
                                 featCallback(feat)
                             }
                             else {
@@ -267,6 +268,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         featCallback(this._bamRecordToFeature(records[i]))
                     }
                 }
+                console.log(pairCache)
                 endCallback()
             })
             .catch(err => {
