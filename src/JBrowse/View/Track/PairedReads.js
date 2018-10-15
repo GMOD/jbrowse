@@ -18,17 +18,6 @@ return declare(CanvasFeatures, {
 			maxFeatureScreenDensity: 60,
 			showLabels: false
 		});
-	},
-
-	// override getLayout to access addRect method
-	_getLayout: function() {
-		var layout = this.inherited(arguments);
-		return declare.safeMixin(layout, {
-			addRect: function() {
-				this.pTotalHeight = this.maxHeight;
-				return 0;
-			}
-		});
 	}
 });
 });

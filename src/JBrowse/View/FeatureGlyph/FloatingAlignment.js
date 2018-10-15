@@ -10,7 +10,7 @@ function(
     lang,
     Alignment
 ) {
-return declare([Segments, Alignment], {
+return declare(Alignment, {
 
 renderFeature( context, fRect ) {
     this.renderConnector( context,  fRect );

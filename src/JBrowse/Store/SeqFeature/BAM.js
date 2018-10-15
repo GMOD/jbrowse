@@ -9,7 +9,7 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class PairedBamRead {
     id() {
-        return Math.min(+this.f1.id(), +this.f2.id())
+        return Math.min(this.f1.id(), this.f2.id())
     }
     children() {
     }
@@ -20,10 +20,10 @@ class PairedBamRead {
 			return Math.max(this.f1.get('end'), this.f2.get('end'))
         }
     }
+    pairedFeature() { return true }
 }
 
 class BamSlightlyLazyFeature {
-
     _get_name() { return this.record._get('name') }
     _get_start() { return this.record._get('start') }
     _get_end() { return this.record._get('end') }
@@ -77,6 +77,8 @@ class BamSlightlyLazyFeature {
     parent() {}
 
     children() {}
+
+    pairedFeature() { return false }
 }
 
 function canBePaired(alignment) {
@@ -247,18 +249,18 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     if (canBePaired(records[i])) {
                         feat = pairCache[records[i]._get('name')]
                         if (feat) {
-                            feat.f2 = records[i]
+                            feat.f2 = this._bamRecordToFeature(records[i])
                             pairCache[records[i]._get('name')] = undefined
                             featCallback(feat)
                         }
                         else {
                             feat = new PairedBamRead()
-                            feat.f1 = records[i]
+                            feat.f1 = this._bamRecordToFeature(records[i])
                             pairCache[records[i]._get('name')] = feat
                         }
                     }
                     else {
-                        featCallback(records[i])
+                        featCallback(this._bamRecordToFeature(records[i]))
                     }
                 }
                 endCallback()
