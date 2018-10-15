@@ -2,16 +2,18 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'JBrowse/View/Track/CanvasFeatures',
+            'JBrowse/View/Track/_PairedAlignmentsMixin',
             'JBrowse/Util'
         ],
         function(
             declare,
             lang,
             CanvasFeatures,
+            PairedAlignmentsMixin,
             Util,
         ) {
 
-return declare(CanvasFeatures, {
+return declare([CanvasFeatures, PairedAlignmentsMixin], {
     _defaultConfig: function() {
         return Util.deepUpdate(lang.clone(this.inherited(arguments)), {
             glyph: 'JBrowse/View/FeatureGlyph/PairedAlignment',
