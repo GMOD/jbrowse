@@ -171,6 +171,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
+        this.viewAsPairs = args.viewAsPairs || false;
     },
 
     // process the parsed SAM header from the bam file
@@ -236,30 +237,33 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         seqName = this.browser.regularizeReferenceName( seqName );
         const pairCache = {};
 
-        this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: true})
+        this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: this.viewAsPairs})
             .then(records => {
-                records.sort((a, b) => {
-                    return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
-                })
-
-
-
-                for(let i = 0; i < records.length-1; i++) {
-                    let feat
-                    if (canBePaired(records[i])) {
-                        feat = pairCache[records[i]._get('name')]
-                        if (feat) {
-                            feat.f2 = this._bamRecordToFeature(records[i])
-                            pairCache[records[i]._get('name')] = undefined
-                            featCallback(feat)
+                if(this.viewAsPairs) {
+                    records.sort((a, b) => {
+                        return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
+                    })
+                    for(let i = 0; i < records.length; i++) {
+                        let feat
+                        if (canBePaired(records[i])) {
+                            feat = pairCache[records[i]._get('name')]
+                            if (feat) {
+                                feat.f2 = this._bamRecordToFeature(records[i])
+                                pairCache[records[i]._get('name')] = undefined
+                                featCallback(feat)
+                            }
+                            else {
+                                feat = new PairedBamRead()
+                                feat.f1 = this._bamRecordToFeature(records[i])
+                                pairCache[records[i]._get('name')] = feat
+                            }
                         }
                         else {
-                            feat = new PairedBamRead()
-                            feat.f1 = this._bamRecordToFeature(records[i])
-                            pairCache[records[i]._get('name')] = feat
+                            featCallback(this._bamRecordToFeature(records[i]))
                         }
                     }
-                    else {
+                } else {
+                    for(let i = 0; i < records.length; i++) {
                         featCallback(this._bamRecordToFeature(records[i]))
                     }
                 }

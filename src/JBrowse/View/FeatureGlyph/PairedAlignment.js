@@ -120,7 +120,6 @@ _defaultConfig: function() {
                 border_color: null,
 
                 strandArrow: false,
-                showLabels: false,
 
                 height: 7,
                 marginBottom: 1,

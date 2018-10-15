@@ -107,7 +107,6 @@ return declare( [BoxGlyph,MismatchesMixin], {
     renderFeature: function( context, fRect ) {
 
         this.inherited( arguments );
-        console.log('here')
 
         // draw some mismatches if the feature is more than 3px wide:
         //     draw everything if zoomed in past 0.2 px/bp, otherwise
