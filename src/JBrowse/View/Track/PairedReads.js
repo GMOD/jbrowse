@@ -14,7 +14,7 @@ define( [
 return declare(CanvasFeatures, {
 	_defaultConfig: function() {
 		return Util.deepUpdate(lang.clone(this.inherited(arguments)), {
-			glyph: 'JBrowse/View/FeatureGlyph/PairedRead',
+			glyph: 'JBrowse/View/FeatureGlyph/PairedAlignment',
 			maxFeatureScreenDensity: 60,
 			showLabels: false
 		});

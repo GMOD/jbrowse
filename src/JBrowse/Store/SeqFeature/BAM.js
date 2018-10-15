@@ -7,6 +7,21 @@ const bamIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
+class PairedBamRead {
+    id() {
+        return Math.min(+this.f1.id(), +this.f2.id())
+    }
+    children() {
+    }
+    get(field) {
+        if(field == 'start') {
+			return Math.min(this.f1.get('start'), this.f2.get('start'))
+        } else if(field == 'end') {
+			return Math.max(this.f1.get('end'), this.f2.get('end'))
+        }
+    }
+}
+
 class BamSlightlyLazyFeature {
 
     _get_name() { return this.record._get('name') }
@@ -66,8 +81,8 @@ class BamSlightlyLazyFeature {
 
 function canBePaired(alignment) {
     return alignment.isPaired() &&
-        alignment.isMateMapped() &&
-        alignment.chr === alignment.mate.chr &&
+        !alignment.isMateUnmapped() &&
+        alignment._refID === alignment._next_refid() &&
         (alignment.isRead1() || alignment.isRead2()) &&
         !(alignment.isSecondary() || alignment.isSupplementary());
 }
@@ -212,7 +227,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         .then(() => this.bam.hasRefSeq(this._refNameToId(seqName)))
         .then(callback, errorCallback)
     },
-    ,
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures( query, featCallback, endCallback, errorCallback ) {
@@ -235,40 +249,18 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         if (feat) {
                             feat.f2 = records[i]
                             pairCache[records[i]._get('name')] = undefined
+                            featCallback(feat)
                         }
                         else {
-                            feat = { f1: records[i] }
-                            pairCache[alignment._get('name')] = feat
-                            featCallback(feat)
+                            feat = new PairedBamRead()
+                            feat.f1 = records[i]
+                            pairCache[records[i]._get('name')] = feat
                         }
                     }
                     else {
-                        featCallback(feat)
+                        featCallback(records[i])
                     }
-                    // const r1 = records[i]
-                    // const r2 = records[i+1]
-                    // if(r1.get('name') == r2.get('name')) {
-                    //     featCallback({ r1, r2 })
-                        // new SimpleFeature({
-                        //     id: r1.get('name'),
-                        //     data: {
-                        //         start: Math.min(r1.get('start'), r2.get('start')),
-                        //         end: Math.max(r1.get('end'), r2.get('end')),
-                        //         insert_size: r1.get('template_length'),
-                        //         type: 'match',
-                        //         subfeatures: [
-                        //             { start: r1.get('start'), end: r1.get('end') },
-                        //             { start: r2.get('start'), end: r2.get('end') }
-                        //         ]
-                        //     }
-                        // }))
-                        // i++;
-                    // }
                 }
-                // for (let i = 0; i < records.length; i += 1) {
-                //     featCallback(this._bamRecordToFeature(records[i]))
-                // }
-
                 endCallback()
             })
             .catch(err => {
