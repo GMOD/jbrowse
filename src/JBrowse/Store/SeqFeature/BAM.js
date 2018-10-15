@@ -64,6 +64,14 @@ class BamSlightlyLazyFeature {
     children() {}
 }
 
+function canBePaired(alignment) {
+    return alignment.isPaired() &&
+        alignment.isMateMapped() &&
+        alignment.chr === alignment.mate.chr &&
+        (alignment.isRead1() || alignment.isRead2()) &&
+        !(alignment.isSecondary() || alignment.isSupplementary());
+}
+
 define( [
             'dojo/_base/declare',
             'JBrowse/Errors',
@@ -86,7 +94,7 @@ define( [
         ) {
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
-    constructor: function( args ) {
+    constructor( args ) {
 
         let dataBlob
         if (args.bam)
@@ -197,42 +205,65 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
      * Interrogate whether a store has data for a given reference
      * sequence.  Calls the given callback with either true or false.
      */
-    hasRefSeq: function( seqName, callback, errorCallback ) {
+    hasRefSeq( seqName, callback, errorCallback ) {
         seqName = this.browser.regularizeReferenceName( seqName );
 
         this._deferred.stats
         .then(() => this.bam.hasRefSeq(this._refNameToId(seqName)))
         .then(callback, errorCallback)
     },
+    ,
 
     // called by getFeatures from the DeferredFeaturesMixin
-    _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+    _getFeatures( query, featCallback, endCallback, errorCallback ) {
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
+        const pairCache = {};
 
         this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: true})
             .then(records => {
-                records.sort((a, b) => a.get('name').localeCompare(b.get('name')))
-                let recs = records.map(r => r.get('name'))
+                records.sort((a, b) => {
+                    return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
+                })
+
+
+
                 for(let i = 0; i < records.length-1; i++) {
-                    const r1 = records[i]
-                    const r2 = records[i+1]
-                    if(r1.get('name') == r2.get('name')) {
-                        featCallback(new SimpleFeature({
-                            id: r1.get('name'),
-                            data: {
-                                start: Math.min(r1.get('start'), r2.get('start')),
-                                end: Math.max(r1.get('end'), r2.get('end')),
-                                insert_size: r1.get('template_length'),
-                                type: 'match',
-                                subfeatures: [
-                                    { start: r1.get('start'), end: r1.get('end') },
-                                    { start: r2.get('start'), end: r2.get('end') }
-                                ]
-                            }
-                        }))
-                        i++;
+                    let feat
+                    if (canBePaired(records[i])) {
+                        feat = pairCache[records[i]._get('name')]
+                        if (feat) {
+                            feat.f2 = records[i]
+                            pairCache[records[i]._get('name')] = undefined
+                        }
+                        else {
+                            feat = { f1: records[i] }
+                            pairCache[alignment._get('name')] = feat
+                            featCallback(feat)
+                        }
                     }
+                    else {
+                        featCallback(feat)
+                    }
+                    // const r1 = records[i]
+                    // const r2 = records[i+1]
+                    // if(r1.get('name') == r2.get('name')) {
+                    //     featCallback({ r1, r2 })
+                        // new SimpleFeature({
+                        //     id: r1.get('name'),
+                        //     data: {
+                        //         start: Math.min(r1.get('start'), r2.get('start')),
+                        //         end: Math.max(r1.get('end'), r2.get('end')),
+                        //         insert_size: r1.get('template_length'),
+                        //         type: 'match',
+                        //         subfeatures: [
+                        //             { start: r1.get('start'), end: r1.get('end') },
+                        //             { start: r2.get('start'), end: r2.get('end') }
+                        //         ]
+                        //     }
+                        // }))
+                        // i++;
+                    // }
                 }
                 // for (let i = 0; i < records.length; i += 1) {
                 //     featCallback(this._bamRecordToFeature(records[i]))
@@ -254,7 +285,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         return new BamSlightlyLazyFeature(record, this)
     },
 
-    saveStore: function() {
+    saveStore() {
         return {
             urlTemplate: this.config.bam.url,
             baiUrlTemplate: (this.config.bai||{}).url,
