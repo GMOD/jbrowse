@@ -45,7 +45,7 @@ renderConnector( context, fRect ) {
     }
 },
 
-_defaultConfig: function() {
+_defaultConfig() {
     return this._mergeConfigs(
         dojo.clone( this.inherited(arguments) ),
         {
@@ -128,6 +128,27 @@ _defaultConfig: function() {
             }
         }
     );
+},
+layoutFeature(viewArgs, layout, feature) {
+    var rect = this.inherited(arguments);
+    if (!rect) {
+        return rect;
+    }
+    if(this.config.readCloud) {
+        if(feature.pairedFeature()) {
+            var tlen = feature.f1.get('template_length')
+            var t = Math.abs(tlen)
+
+            // need to set the top of the inner rect
+            rect.rect.t = t / (this.config.scaleFactor||1);
+            rect.t = t / (this.config.scaleFactor||1);
+        } else {
+            rect.t = 0
+            rect.rect.t = 0
+        }
+    }
+
+    return rect;
 }
 
 });
