@@ -20,8 +20,17 @@ renderFeature( context, fRect ) {
     if(fRect.f.pairedFeature()) {
         this.renderConnector( context, fRect );
         this.renderSegments( context, fRect );
-        this._drawMismatches( context, fRect, fRect.f.f1, this._getMismatches( fRect.f.f1 ) );
-        this._drawMismatches( context, fRect, fRect.f.f2, this._getMismatches( fRect.f.f2 ) );
+        if( fRect.w > 2 ) {
+            if( fRect.viewInfo.scale > 0.2 ) {
+                this._drawMismatches( context, fRect, fRect.f.f1, this._getMismatches( fRect.f.f1 ) );
+                this._drawMismatches( context, fRect, fRect.f.f2, this._getMismatches( fRect.f.f2 ) );
+            }
+            else {
+                this._drawMismatches( context, fRect, fRect.f.f1, this._getSkipsAndDeletions( fRect.f.f1 ));
+                this._drawMismatches( context, fRect, fRect.f.f2, this._getSkipsAndDeletions( fRect.f.f2 ));
+            }
+        }
+
     } else {
         this.inherited(arguments)
     }
