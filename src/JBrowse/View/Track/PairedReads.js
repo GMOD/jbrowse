@@ -2,6 +2,7 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/_base/lang',
+            'dojo/promise/all',
             'JBrowse/View/Track/CanvasFeatures',
             'JBrowse/View/Track/_PairedAlignmentsMixin',
             'JBrowse/Util'
@@ -10,6 +11,7 @@ define( [
             declare,
             array,
             lang,
+            all,
             CanvasFeatures,
             PairedAlignmentsMixin,
             Util,
@@ -17,14 +19,10 @@ define( [
 
 return declare([CanvasFeatures, PairedAlignmentsMixin], {
     _defaultConfig: function() {
-        return Util.deepUpdate(lang.clone(this.inherited(arguments)), {
-            glyph: 'JBrowse/View/FeatureGlyph/PairedAlignment',
-            maxFeatureScreenDensity: 60,
-            readCloud: false,
-            style: {
-                showLabels: false
-            }
-        });
+        var c = this.inherited(arguments)
+        if(c.viewAsPairs) {
+            c.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
+        }
     },
     // override getLayout to access addRect method
     _getLayout: function() {
@@ -63,7 +61,7 @@ return declare([CanvasFeatures, PairedAlignmentsMixin], {
 
     // get the appropriate HTML color string to use for a given base
     // letter.  case insensitive.  'reference' gives the color to draw matches with the reference.
-    colorForBase: function( base ) {
+    colorForBase( base ) {
         // get the base colors out of CSS
         this._baseStyles = this._baseStyles || function() {
             var colors = {};
@@ -93,7 +91,41 @@ return declare([CanvasFeatures, PairedAlignmentsMixin], {
         }.call(this);
 
         return this._baseStyles[base] || '#999';
-    }
+    },
 
+    _trackMenuOptions() {
+        var displayOptions = [];
+        var thisB = this;
+
+        displayOptions.push({
+            label: 'View read cloud',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.readCloud,
+            onClick: function(event) {
+                thisB.config.readCloud = this.get('checked');
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        displayOptions.push({
+            label: 'View as pairs',
+            type: 'dijit/CheckedMenuItem',
+            checked: this.config.viewAsPairs,
+            onClick: function(event) {
+                console.log('this',thisB.config)
+                thisB.config.viewAsPairs = this.get('checked');
+                thisB.config.type = 'JBrowse/View/Track/Alignments2';
+                thisB.config.trackType = 'JBrowse/View/Track/Alignments2';
+                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/Alignment';
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        return all([ this.inherited(arguments), displayOptions ])
+            .then( function( options ) {
+                       var o = options.shift();
+                       options.unshift({ type: 'dijit/MenuSeparator' } );
+                       return o.concat.apply( o, options );
+                   });
+    }
 });
 });

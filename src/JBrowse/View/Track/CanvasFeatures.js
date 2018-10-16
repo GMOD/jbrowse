@@ -398,7 +398,8 @@ return declare(
             start: args.leftBase,
             end:   args.rightBase,
             basesPerSpan: basesPerBin,
-            basesPerBin: basesPerBin
+            basesPerBin: basesPerBin,
+            viewAsPairs: this.config.viewAsPairs
         }
 
         const handleError = this._handleError.bind(this)
@@ -591,7 +592,8 @@ return declare(
         const region = {
             ref: this.refSeq.name,
             start: Math.max( 0, leftBase - bpExpansion ),
-            end: rightBase + bpExpansion
+            end: rightBase + bpExpansion,
+            viewAsPairs: this.config.viewAsPairs
         }
 
         const featCallback = feature => {

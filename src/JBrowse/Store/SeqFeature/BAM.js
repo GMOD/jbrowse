@@ -172,7 +172,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
-        this.viewAsPairs = args.viewAsPairs || false;
     },
 
     // process the parsed SAM header from the bam file
@@ -238,9 +237,9 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         seqName = this.browser.regularizeReferenceName( seqName );
         const pairCache = {};
 
-        this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: this.viewAsPairs})
+        this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: query.viewAsPairs})
             .then(records => {
-                if(this.viewAsPairs) {
+                if(query.viewAsPairs) {
                     records.sort((a, b) => {
                         return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
                     })
