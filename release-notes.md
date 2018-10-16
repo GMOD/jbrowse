@@ -41,6 +41,9 @@
  * Added a config `datasetLinkToParentIframe` to make the dataset selector use
    window.parent for when jbrowse is in an iframe (pull #1248, @enuggetry)
 
+ * Improved error message that is displayed when a data file cannot be fetched
+   via CORS (@rbuels)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
