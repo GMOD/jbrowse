@@ -27,6 +27,7 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
      * @returns {HTMLElement} feature detail page HTML
      */
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        console.log('here')
         var container = dojo.create('div', {
             className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
             innerHTML: ''

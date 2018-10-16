@@ -268,7 +268,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         featCallback(this._bamRecordToFeature(records[i]))
                     }
                 }
-                console.log(pairCache)
+                console.log(query, Object.keys(pairCache).sort())
                 endCallback()
             })
             .catch(err => {
