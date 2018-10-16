@@ -13,7 +13,7 @@ function(
 return declare(Alignment, {
 
 renderFeature( context, fRect ) {
-    if( this.track.displayMode != 'collapsed' )
+    if( this.track.displayMode != 'collapsed' && !this.config.readCloud )
         context.clearRect( Math.floor(fRect.l), fRect.t, Math.ceil(fRect.w), fRect.h );
 
 
