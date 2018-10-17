@@ -13,6 +13,16 @@
  * setup.sh now supports setting a `JBROWSE_PUBLIC_PATH` environment variable for
    more flexibility in iframeless embedding scenarios (issue #1213, @rbuels)
 
+ * Added support for indexing arbitrary fields from GFF3Tabix files by setting
+   nameAttributes in the track config e.g. nameAttributes=name,id,customfield.
+   (issue #1115, pull #1222, @cmdcolin)
+
+ * Add support for generate-names to index VCF features that have multiple IDs in
+   the ID column (@cmdcolin)
+
+ * Fix parsing of certain bigBed files that were hanging on track startup
+   (issue #1226, pull #1229, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
