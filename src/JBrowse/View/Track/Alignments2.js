@@ -51,9 +51,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 }
             }
         );
-        if(c.viewAsPairs) {
-            c.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
-        }
         return c;
     },
 
@@ -143,6 +140,32 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         }
         return layout;
     },
+
+    fillBlock: function( args ) {
+        if(this.config.viewAsPairs) {
+            this.initial = new Promise((resolve, reject) => {
+                var reg = this.browser.view.visibleRegion()
+                const region = {
+                    ref: this.refSeq.name,
+                    start: Math.max( 0, reg.start ),
+                    end: reg.end,
+                    viewAsPairs: true
+                }
+                this.store.getPairedRanges(region, range => {
+                    region.start = range.min
+                    region.end = range.max
+                    this.store.getFeatures(region, function() {}, resolve, reject)
+                }, reject)
+            })
+            let supermethod = this.getInherited(arguments)
+            this.initial.then(() => {
+                supermethod.apply(this, [args])
+            })
+        } else {
+            this.inherited(arguments);
+        }
+    }
+
 
 });
 });

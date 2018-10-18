@@ -172,6 +172,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
+        this.featureCache = {}
     },
 
     // process the parsed SAM header from the bam file
@@ -246,38 +247,59 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     for(let i = 0; i < records.length; i++) {
                         let feat
                         if (canBePaired(records[i])) {
-                            feat = pairCache[records[i]._get('name')]
-                            if (feat) {
+                            let name = records[i]._get('name')
+                            feat = pairCache[name]
+                            if (feat && records[i].id() != feat.f1.id()) {
                                 feat.f2 = this._bamRecordToFeature(records[i])
-                                delete pairCache[records[i]._get('name')]
+                                delete pairCache[name]
+                                this.featureCache[name] = feat
                                 featCallback(feat)
                             }
                             else {
                                 feat = new PairedBamRead()
                                 feat.f1 = this._bamRecordToFeature(records[i])
-                                pairCache[records[i]._get('name')] = feat
+                                pairCache[name] = feat
                             }
                         }
                         else {
-                            featCallback(this._bamRecordToFeature(records[i]))
+                            let feat = this._bamRecordToFeature(records[i])
+                            featCallback(feat)
                         }
                     }
+                    Object.keys(this.featureCache).forEach(k => {
+                        featCallback(this.featureCache[k])
+                    })
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         featCallback(this._bamRecordToFeature(records[i]))
                     }
                 }
                 endCallback()
-            })
-            .catch(err => {
-                // // map the BamSizeLimitError to JBrowse Errors.DataOverflow
-                // if (err instanceof BamSizeLimitError) {
-                //     err = new Errors.DataOverflow(err)
-                // }
-
-                errorCallback(err)
-            })
+            }).catch(errorCallback)
     },
+
+
+    getPairedRanges( query, featCallback, errorCallback ) {
+        let seqName = query.ref || this.refSeq.name
+        seqName = this.browser.regularizeReferenceName( seqName );
+        this._deferred.features.then(() => {
+            this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: query.viewAsPairs})
+                .then(records => {
+                    let min = Infinity;
+                    let max = -Infinity;
+                    for(let i = 0; i < records.length; i++) {
+                        if(records[i]._get('start') < min) {
+                            min = records[i]._get('start')
+                        }
+                        if(records[i]._get('end') > max) {
+                            max = records[i]._get('end')
+                        }
+                    }
+                    featCallback({ min, max })
+                }).catch(errorCallback)
+        }, errorCallback)
+    },
+
 
     _bamRecordToFeature(record) {
         return new BamSlightlyLazyFeature(record, this)
