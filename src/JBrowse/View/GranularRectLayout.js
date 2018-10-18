@@ -9,7 +9,7 @@
 
 // minimum excess size of the array at which we garbage collect
 const minSizeToBotherWith = 10000
-const maxFeaturePitchWidth = 5000
+const maxFeaturePitchWidth = 20000
 
 // a single row in the layout
 class LayoutRow {
