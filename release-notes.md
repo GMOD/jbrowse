@@ -28,6 +28,9 @@
  * Fixed issue with getting feature density from BAM files via the index stats
    estimation (issue #1233, @cmdcolin)
 
+ * Fixed issue where some feature mouseovers where not working properly (issue
+   #1236, @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
