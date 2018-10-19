@@ -143,22 +143,25 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
     fillBlock: function( args ) {
         if(this.config.viewAsPairs) {
-            this.initial = new Promise((resolve, reject) => {
+            let supermethod = this.getInherited(arguments)
+            var initial = new Promise((resolve, reject) => {
                 var reg = this.browser.view.visibleRegion()
+                var len = reg.end - reg.start
                 const region = {
                     ref: this.refSeq.name,
                     start: Math.max( 0, reg.start ),
                     end: reg.end,
                     viewAsPairs: true
                 }
+                region.start = Math.max( 0, region.start )
+                region.end = region.end
+
                 this.store.getPairedRanges(region, range => {
-                    region.start = range.min
-                    region.end = range.max
+                    region.start = Math.max(0, Math.max(range.min, reg.start - len*4))
+                    region.end = Math.min(range.max, reg.end + len*4)
                     this.store.getFeatures(region, function() {}, resolve, reject)
                 }, reject)
-            })
-            let supermethod = this.getInherited(arguments)
-            this.initial.then(() => {
+            }).then(() => {
                 supermethod.apply(this, [args])
             })
         } else {
