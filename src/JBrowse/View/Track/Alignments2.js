@@ -17,6 +17,10 @@ define( [
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
+    constructor: function() {
+        this.fetchMap = {}
+    },
+
     _defaultConfig: function() {
         var c = Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -144,25 +148,24 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     fillBlock: function( args ) {
         if(this.config.viewAsPairs) {
             let supermethod = this.getInherited(arguments)
-            var initial = new Promise((resolve, reject) => {
-                var reg = this.browser.view.visibleRegion()
-                var len = reg.end - reg.start
-                console.log(len)
-                const region = {
-                    ref: this.refSeq.name,
-                    start: Math.max( 0, reg.start ),
-                    end: reg.end,
-                    viewAsPairs: true
-                }
-                region.start = Math.max( 0, region.start )
-                region.end = region.end
+            var reg = this.browser.view.visibleRegion()
+            var len = reg.end - reg.start
+            const region = {
+                ref: this.refSeq.name,
+                start: Math.max( 0, reg.start ),
+                end: reg.end,
+                viewAsPairs: true
+            }
 
-                this.store.getPairedRanges(region, range => {
-                    region.start = range.min
-                    region.end = range.max
-                    this.store.getFeatures(region, function() {}, resolve, reject)
-                }, reject)
-            }).then(() => {
+            const min = Math.max(0, region.start - len*4)
+            const max = region.end + len*4
+            const str = min + '_' + max
+            if(!this.fetchMap[str]) {
+                this.fetchMap[str] = new Promise((resolve, reject) => {
+                    this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, resolve, reject)
+                })
+            }
+            this.fetchMap[str].then(() => {
                 supermethod.apply(this, [args])
             })
         } else {

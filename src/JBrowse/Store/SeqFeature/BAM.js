@@ -237,6 +237,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
         const pairCache = {};
+        console.log(query)
 
         this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: query.viewAsPairs})
             .then(records => {
@@ -260,14 +261,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 pairCache[name] = feat
                             }
                         }
-                        else {
+                        else if(!(records[i].get('end') < query.start) && !(records[i].get('start') > query.end)){
                             let feat = this._bamRecordToFeature(records[i])
                             featCallback(feat)
                         }
                     }
-                    console.log(Object.keys(this.featureCache).length)
                     Object.entries(this.featureCache).forEach(([k, v]) => {
-                        if(v.get('end') - v.get('start') < 10000) {
+                        if(v.get('end') - v.get('start') < 10000 && (v.get('end') > query.start && v.get('start') < query.end)) {
                             featCallback(v)
                         }
                     })
