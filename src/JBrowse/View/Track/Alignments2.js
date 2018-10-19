@@ -147,6 +147,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             var initial = new Promise((resolve, reject) => {
                 var reg = this.browser.view.visibleRegion()
                 var len = reg.end - reg.start
+                console.log(len)
                 const region = {
                     ref: this.refSeq.name,
                     start: Math.max( 0, reg.start ),
@@ -157,8 +158,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 region.end = region.end
 
                 this.store.getPairedRanges(region, range => {
-                    region.start = Math.max(0, range.min - len)
-                    region.end = range.max + len
+                    region.start = range.min
+                    region.end = range.max
                     this.store.getFeatures(region, function() {}, resolve, reject)
                 }, reject)
             }).then(() => {

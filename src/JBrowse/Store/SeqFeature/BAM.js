@@ -251,7 +251,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             feat = pairCache[name]
                             if (feat && records[i].id() != feat.f1.id()) {
                                 feat.f2 = this._bamRecordToFeature(records[i])
-                                pairCache[name] = undefined
+                                delete pairCache[name]
                                 this.featureCache[name] = feat
                             }
                             else {
