@@ -157,8 +157,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 region.end = region.end
 
                 this.store.getPairedRanges(region, range => {
-                    region.start = Math.max(0, Math.max(range.min, reg.start - len*4))
-                    region.end = Math.min(range.max, reg.end + len*4)
+                    region.start = Math.max(0, range.min - len)
+                    region.end = range.max + len
                     this.store.getFeatures(region, function() {}, resolve, reject)
                 }, reject)
             }).then(() => {

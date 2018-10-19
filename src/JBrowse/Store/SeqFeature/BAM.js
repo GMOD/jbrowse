@@ -146,8 +146,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 baiFilehandle: baiBlob,
                 csiFilehandle: csiBlob,
                 renameRefSeqs: n => this.browser.regularizeReferenceName(n),
-                fetchSizeLimit: 100000000 || args.fetchSizeLimit,
-                chunkSizeLimit: 10000000 || args.chunkSizeLimit
+                fetchSizeLimit: args.fetchSizeLimit || 100000000,
+                chunkSizeLimit: args.chunkSizeLimit || 20000000
             })
 
             bamIndexedFilesCache.set(cacheKey, this.bam)
