@@ -1,16 +1,28 @@
 /* global dojo */
 require([
-            'dojo/aspect',
-            'dojo/_base/declare',
-            'dojo/_base/array',
-            'JBrowse/Browser',
-            'JBrowse/FeatureFiltererMixin',
-            'JBrowse/Store/SeqFeature/BAM',
-            'JBrowse/Model/XHRBlob',
-            'JBrowse/Store/SeqFeature/_MismatchesMixin',
-            'JBrowse/View/Track/_AlignmentsMixin',
-            'JBrowse/Model/SimpleFeature'
-        ], function( aspect, declare, array, Browser, FeatureFiltererMixin, BAMStore, XHRBlob, MismatchesMixin, AlignmentsMixin, SimpleFeature ) {
+    'dojo/aspect',
+    'dojo/_base/declare',
+    'dojo/_base/array',
+    'JBrowse/Browser',
+    'JBrowse/FeatureFiltererMixin',
+    'JBrowse/Store/SeqFeature/BAM',
+    'JBrowse/Model/XHRBlob',
+    'JBrowse/Store/SeqFeature/_MismatchesMixin',
+    'JBrowse/View/Track/_AlignmentsMixin',
+    'JBrowse/Model/SimpleFeature'
+],
+function(
+    aspect,
+    declare,
+    array,
+    Browser,
+    FeatureFiltererMixin,
+    BAMStore,
+    XHRBlob,
+    MismatchesMixin,
+    AlignmentsMixin,
+    SimpleFeature
+) {
 
 // function distinctBins( features ) {
 //     var bins = {};
@@ -234,6 +246,52 @@ describe( 'BAM with B tags', function() {
                                 //console.log( distinctBins(features) );
                             });
                   });
+});
+describe( 'BAM with paired end reads', function() {
+    var b;
+    beforeEach( function() {
+        b = new BAMStore({
+            browser: new Browser({ unitTestMode: true }),
+            bam: new XHRBlob('../data/paired-end-clip.bam'),
+            bai: new XHRBlob('../data/paired-end-clip.bam.bai')
+        });
+    });
+
+    it( 'constructs', function() {
+        expect(b).toBeTruthy();
+    });
+
+    it( 'loads some data', function() {
+        var loaded;
+        var features = [];
+        var done;
+        aspect.after( b, 'loadSuccess', function() {
+            loaded = true;
+        });
+        b.getFeatures({ ref: 'GK000001.2', start: 12664001, end: 12791400, viewAsPairs: true },
+            function( feat) {
+             /* init cache */
+            },
+            function() {
+                b.getFeatures({ ref: 'GK000001.2', start: 12745199, end: 12749298, viewAsPairs: true },
+                    function(feat) {
+                        features.push(feat)
+                    },
+                    function() {
+                        done = true
+                    }
+                )
+            }
+        );
+        waitsFor( function() { return done; }, 2000 );
+        runs( function() {
+            var f = features.filter(f => f.get('name') == 'HWI-EAS14X_10277_FC62BUY_4_119_16558_10601#0')[0]
+            console.log(f)
+            expect(f).toBeTruthy()
+            expect(f.get('start')).toEqual(12740733)
+            expect(f.get('end')).toEqual(12747377)
+        })
+    });
 });
 describe( 'BAM with tests/data/final.merged.sorted.rgid.mkdup.realign.recal.bam', function() {
               var b;
