@@ -6,6 +6,7 @@ const {findPlugins} = require('./plugin-util')
 const blacklist = {};
 `
 JBrowse/main
+JBrowse/standalone
 `
 .trim().split(/\s+/).forEach(mid => blacklist[mid] = 1)
 
@@ -59,7 +60,7 @@ module.exports = function(content,map,meta) {
                 let code =
                     format === 'CommonJS' ? `${blacklisted}var __webpackRequireGlob${i} = require('./${mid}') // ${mid}` :
                                             `${blacklisted} '${mid}',`
-                //console.log(code)
+                // console.log(code)
                 return code
             }).join('\n')
         }
