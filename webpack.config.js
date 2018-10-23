@@ -69,7 +69,7 @@ var webpackConf = {
                 }
             },
             {
-                test: /src\/JBrowse\/main.js|tests\/js_tests\/main.js/,
+                test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
             },
             {
