@@ -94,6 +94,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     border_color: null,
 
                     strandArrow: false,
+                    strandInlay: true,
 
                     height: 7,
                     marginBottom: 1,

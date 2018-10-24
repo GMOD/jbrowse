@@ -35,6 +35,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                     borderWidth: 0.5,
                     height: 11,
                     marginBottom: 2,
+                    strandInlay: false,
 
                     strandArrow: true,
 
@@ -216,6 +217,24 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         if( bgcolor ) {
             context.fillStyle = bgcolor;
             context.fillRect( left, top, Math.max(1,width), height );
+            if(this.config.style.strandInlay && width > 1) {
+                var arrowWidth = 8
+                if(feature.get('strand') === 1) {
+                    context.beginPath();
+                    context.moveTo(left+width, top)
+                    context.lineTo(left+width+arrowWidth, top+height/2)
+                    context.lineTo(left+width, top+height)
+                    context.closePath()
+                    context.fill()
+                } else if(feature.get('strand') === -1) {
+                    context.beginPath();
+                    context.moveTo(left, top)
+                    context.lineTo(left-arrowWidth, top+height/2)
+                    context.lineTo(left, top+height)
+                    context.closePath()
+                    context.fill()
+                }
+            }
         }
         else {
             context.clearRect( left, top, Math.max(1,width), height );
