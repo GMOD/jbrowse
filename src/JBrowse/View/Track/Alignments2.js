@@ -88,6 +88,15 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
 
         displayOptions.push({
+            label: 'View coverage',
+            type: 'dijit/RadioMenuItem',
+            group: 'g2',
+            onClick: function(event) {
+                thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+        displayOptions.push({
             label: 'View normal',
             type: 'dijit/RadioMenuItem',
             group: 'g2',

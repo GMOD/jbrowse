@@ -281,7 +281,21 @@ return declare( [WiggleXY, AlignmentsMixin],
     },
 
     _trackMenuOptions: function() {
-        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions() ])
+        var thisB = this;
+        var displayOptions = [];
+
+
+        displayOptions.push({
+            label: 'View alignments',
+            type: 'dijit/RadioMenuItem',
+            group: 'g2',
+            onClick: function(event) {
+                thisB.config.type = 'JBrowse/View/Track/Alignments2'
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
+
+        return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();
                        options.unshift({ type: 'dijit/MenuSeparator' } );

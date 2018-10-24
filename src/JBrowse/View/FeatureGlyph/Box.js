@@ -218,7 +218,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             context.fillStyle = bgcolor;
             context.fillRect( left, top, Math.max(1,width), height );
             if(this.config.style.strandInlay && width > 1) {
-                var arrowWidth = 8
+                var arrowWidth = 3
                 if(feature.get('strand') === 1) {
                     context.beginPath();
                     context.moveTo(left+width, top)
