@@ -18,7 +18,6 @@ function (
     QueryParamConfigMapper,
     ioQuery,
     JSON,
-    conf
 ) {
     // the initial configuration of this JBrowse
     // instance

@@ -25,10 +25,10 @@ var webpackConf = {
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
             environment: {
-                dojoRoot: "./dist"
+                dojoRoot: process.env.JBROWSE_PUBLIC_PATH || "./dist/"
             },
             buildEnvironment: {
-                dojoRoot: "node_modules"
+                dojoRoot: "node_modules/"
             },
             locales: ["en"],
             loader: path.resolve('./build/dojo-webpack-plugin-loader/dojo/dojo.js')
@@ -69,7 +69,7 @@ var webpackConf = {
                 }
             },
             {
-                test: /src\/JBrowse\/main.js|tests\/js_tests\/main.js/,
+                test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
             },
             {
