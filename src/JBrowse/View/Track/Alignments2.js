@@ -93,6 +93,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             group: 'g2',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
+                thisB.config.style.height = 200
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
@@ -120,6 +121,17 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
+        displayOptions.push({
+            label: 'View paired arcs',
+            type: 'dijit/RadioMenuItem',
+            group: 'g2',
+            onClick: function(event) {
+                thisB.config.viewAsPairs = true
+                thisB.config.readCloud = true
+                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedArc'
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
         displayOptions.push({
             label: 'View pairs as read cloud',
             type: 'dijit/RadioMenuItem',

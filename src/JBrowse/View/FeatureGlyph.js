@@ -76,28 +76,6 @@ return declare( Component, {
         context.fillStyle = this.getStyle( fRect.f, 'mouseovercolor' );
 
         context.fillRect( fRect.rect.l, fRect.t, fRect.rect.w, fRect.rect.h );
-        if(this.config.style.strandInlay) {
-            var arrowWidth = 3;
-            var top = fRect.t;
-            var height = fRect.rect.h;
-            var left = fRect.rect.l;
-            var width = fRect.rect.w;
-            if(feature.get('strand') === 1) {
-                context.beginPath();
-                context.moveTo(left+width, top)
-                context.lineTo(left+width+arrowWidth, top+height/2)
-                context.lineTo(left+width, top+height)
-                context.closePath()
-                context.fill()
-            } else if(feature.get('strand') === -1) {
-                context.beginPath();
-                context.moveTo(left, top)
-                context.lineTo(left-arrowWidth, top+height/2)
-                context.lineTo(left, top+height)
-                context.closePath()
-                context.fill()
-            }
-        }
     },
 
     /**

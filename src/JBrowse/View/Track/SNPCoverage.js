@@ -291,6 +291,7 @@ return declare( [WiggleXY, AlignmentsMixin],
             group: 'g2',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/Alignments2'
+                thisB.config.style.height = 7
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
