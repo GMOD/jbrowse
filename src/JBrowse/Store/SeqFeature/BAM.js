@@ -279,34 +279,12 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             }).catch(errorCallback)
     },
 
-
-    getPairedRanges( query, featCallback, errorCallback ) {
-        let seqName = query.ref || this.refSeq.name
-        seqName = this.browser.regularizeReferenceName( seqName );
-        this._deferred.features.then(() => {
-            this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: query.viewAsPairs})
-                .then(records => {
-                    let min = Infinity;
-                    let max = -Infinity;
-                    Object.entries(this.featureCache).forEach(([k, v]) => {
-                        if(v.get('start') > query.end) {
-                            delete this.featureCache[k]
-                        } else if(v.get('end') < query.start) {
-                            delete this.featureCache[k]
-                        }
-                    })
-                    for(let i = 0; i < records.length; i++) {
-                        if(records[i]._get('start') < min) {
-                            min = records[i]._get('start')
-                        }
-                        if(records[i]._get('end') > max) {
-                            max = records[i]._get('end')
-                        }
-                    }
-
-                    featCallback({ min, max })
-                }).catch(errorCallback)
-        }, errorCallback)
+    cleanFeatureCache(query) {
+        Object.entries(this.featureCache).forEach(([k, v]) => {
+            if((v.get('end') < query.start) || (v.get('start') > query.end)) {
+                delete this.featureCache[k]
+            }
+        })
     },
 
 

@@ -187,8 +187,14 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 })
             }
             this.fetchMap[str].then(() => {
-                supermethod.apply(this, [args])
-                this.store.cleanFeatureCache({ ref: this.refSeq.name, start: region.start, end: region.end })
+                let f = args.finishCallback
+                args.finishCallback = () => {
+                    f()
+                    setTimeout(() =>
+                        this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max }),
+                    1000)
+                }
+                supermethod.call(this, args)
             })
         } else {
             this.inherited(arguments);
