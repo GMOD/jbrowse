@@ -188,6 +188,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
             this.fetchMap[str].then(() => {
                 supermethod.apply(this, [args])
+                this.store.cleanFeatureCache({ ref: this.refSeq.name, start: region.start, end: region.end })
             })
         } else {
             this.inherited(arguments);
