@@ -29,6 +29,7 @@ class CramSlightlyLazyFeature {
     _get_supplementary_alignment() { return this.record.isSupplementary()}
     _get_multi_segment_template() { return this.record.isPaired()}
     _get_multi_segment_all_correctly_aligned() { return this.record.isProperlyPaired()}
+    _get_multi_segment_all_aligned() { return this.record.isProperlyPaired()}
     _get_multi_segment_next_segment_unmapped() { return this.record.isMateUnmapped()}
     _get_multi_segment_first() { return this.record.isRead1()}
     _get_multi_segment_last() { return this.record.isRead2()}
