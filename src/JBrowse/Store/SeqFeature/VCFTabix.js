@@ -12,7 +12,8 @@ define([
            'JBrowse/Model/XHRBlob',
            'JBrowse/Model/BlobFilehandleWrapper',
            'JBrowse/Model/SimpleFeature',
-           'JBrowse/Store/SeqFeature/VCF/FeatureMaker'
+           'JBrowse/Store/SeqFeature/VCF/FeatureMaker',
+           'JBrowse/Digest/Crc32',
        ],
        function(
            declare,
@@ -25,7 +26,8 @@ define([
            XHRBlob,
            BlobFilehandleWrapper,
            SimpleFeature,
-           FeatureMaker
+           FeatureMaker,
+           Crc32,
            ) {
 
 return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, FeatureMaker],
@@ -117,7 +119,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     const featureData = this.variantToFeature(parser, variant)
                     const f = new SimpleFeature({
                         data: featureData,
-                        id: String(fileOffset)
+                        id: Crc32.crc32(line)
                     });
                     f.parser = parser;
                     // override SimpleFeature's get()
