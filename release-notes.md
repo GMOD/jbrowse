@@ -23,6 +23,10 @@
  * Fix parsing of certain bigBed files that were hanging on track startup
    (issue #1226, pull #1229, @cmdcolin)
 
+ * Added ability to render non-coding transcript types to the default Gene glyph
+   which helps when a gene feature has a mix of coding and non-coding subfeatures
+   (issue #1106, pull #1230, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
