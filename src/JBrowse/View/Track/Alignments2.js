@@ -93,7 +93,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             group: 'g2',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
-                thisB.config.style.height = 200
+                thisB.config._oldAlignmentsHeight = thisB.config.style.height
+                thisB.config.style.height = thisB.config._oldSnpCoverageHeight
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
