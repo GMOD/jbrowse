@@ -212,6 +212,7 @@ return declare(
         let guess = {
             'gene': 'Gene',
             'mRNA': 'ProcessedTranscript',
+            'transcript': 'ProcessedTranscript',
             'ncRNA': 'UnprocessedTranscript',
             'lncRNA': 'UnprocessedTranscript',
             'lnc_RNA': 'UnprocessedTranscript',
