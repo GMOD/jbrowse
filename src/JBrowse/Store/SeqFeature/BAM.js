@@ -12,12 +12,15 @@ class PairedBamRead {
         return Math.min(this.f1.id(), this.f2.id())
     }
     get(field) {
+        return this._get(field.toLowerCase())
+    }
+    _get(field) {
         if(field === 'start') {
-            return Math.min(this.f1.get('start'), this.f2.get('start'))
+            return Math.min(this.f1._get('start'), this.f2._get('start'))
         } else if(field === 'end') {
-            return Math.max(this.f1.get('end'), this.f2.get('end'))
+            return Math.max(this.f1._get('end'), this.f2._get('end'))
         } else if(field === 'name') {
-            return this.f1.get('name')
+            return this.f1._get('name')
         }
     }
     pairedFeature() { return true }
@@ -69,6 +72,11 @@ class BamSlightlyLazyFeature {
         return this.record.get('id')
     }
 
+    _get(field) {
+        const methodName = `_get_${field}`
+        if (this[methodName]) return this[methodName]()
+        else return this.record._get(field)
+    }
     get(field) {
         const methodName = `_get_${field.toLowerCase()}`
         if (this[methodName]) return this[methodName]()
@@ -260,13 +268,13 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                                 pairCache[name] = feat
                             }
                         }
-                        else if(!(records[i].get('end') < query.start) && !(records[i].get('start') > query.end)){
+                        else if(!(records[i]._get('end') < query.start) && !(records[i]._get('start') > query.end)){
                             let feat = this._bamRecordToFeature(records[i])
                             featCallback(feat)
                         }
                     }
                     Object.entries(this.featureCache).forEach(([k, v]) => {
-                        if(v.get('end') - v.get('start') < 10000 && (v.get('end') > query.start && v.get('start') < query.end)) {
+                        if(v._get('end') - v._get('start') < 10000 && (v._get('end') > query.start && v._get('start') < query.end)) {
                             featCallback(v)
                         }
                     })
@@ -281,7 +289,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
 
     cleanFeatureCache(query) {
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v.get('end') < query.start) || (v.get('start') > query.end)) {
+            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
                 delete this.featureCache[k]
             }
         })
