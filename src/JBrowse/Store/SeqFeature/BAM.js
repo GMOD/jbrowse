@@ -12,11 +12,11 @@ class PairedBamRead {
         return Math.min(this.f1.id(), this.f2.id())
     }
     get(field) {
-        if(field == 'start') {
+        if(field === 'start') {
             return Math.min(this.f1.get('start'), this.f2.get('start'))
-        } else if(field == 'end') {
+        } else if(field === 'end') {
             return Math.max(this.f1.get('end'), this.f2.get('end'))
-        } else if(field == 'name') {
+        } else if(field === 'name') {
             return this.f1.get('name')
         }
     }
