@@ -55,6 +55,8 @@ Introduced in JBrowse 1.10.0, the new JBrowse CanvasFeatures tracks are faster a
 |`topLevelFeatures`|Specifies which feature types should be considered "top-level" for this track. For example, if you have a track with gene-\>mRNA-\>CDS features, but for some reason want to only display the mRNA features, you can set topLevelFeatures=mRNA. Can also be an array of string types, or a function callback that returns an array of types. Default: all features are displayed. Added in 1.14.0|
 |`topLevelFeaturesPercent`|Approximate percentage of features in the store that are top-level. Used to correct feature statistics estimates, which are used by JBrowse to decide when to display feature labels, and when to show feature density histograms. For example, topLevelFeaturesPercent=10 would say that only about 10% of features in the store are top-level, so adjust statistics estimates accordingly. Default 100, adding in 1.15.4.|
 |`ItemRgb`|If set to true, the RGB colors specified in BigBed or BED files will be used for the feature's background color. Default true. Added in 1.14.0|
+|`style→unprocessedTranscriptColor`|A color for the unprocessed transcript glyph. This is used when there is a mix of coding and non-coding transcripts in your GFF|
+|`noncodingType`|An array of non-coding feature types from column 3 of your GFF, default: ['ncRNA', 'lnc_RNA', 'lncRNA', 'miRNA']|
 
 Note: the "compact" displayMode for CanvasFeatures tracks uses style-\>height and multiplies it by 0.35 to create the compact view. Therefore, if you adjust style-\>height to a smaller default value, then you can create "ultra compact" visualizations.
 
