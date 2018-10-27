@@ -260,18 +260,24 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             if (feat) {
                                 if(records[i].isRead1()) {
                                     feat.read1 = this._bamRecordToFeature(records[i])
-                                } else {
+                                } else if(records[i].isRead2()) {
                                     feat.read2 = this._bamRecordToFeature(records[i])
+                                } else {
+                                    console.log('unable to pair read',records[i])
                                 }
-                                delete pairCache[name]
-                                this.featureCache[name] = feat
+                                if(feat.read1 && feat.read2) {
+                                    delete pairCache[name]
+                                    this.featureCache[name] = feat
+                                }
                             }
                             else {
                                 feat = new PairedBamRead()
                                 if(records[i].isRead1()) {
                                     feat.read1 = this._bamRecordToFeature(records[i])
-                                } else {
+                                } else if(records[i].isRead2()) {
                                     feat.read2 = this._bamRecordToFeature(records[i])
+                                } else {
+                                    console.log('unable to pair read', records[i])
                                 }
                                 pairCache[name] = feat
                             }
