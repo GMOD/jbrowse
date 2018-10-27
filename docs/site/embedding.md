@@ -90,7 +90,7 @@ Example code for this:
         "update_browser_title": false
       '
     >
-      <div class="LoadingScreen" style="padding: 50px;">
+      <div id="LoadingScreen" style="padding: 50px;">
         <h1>Loading...</h1>
       </div>
     </div>
@@ -118,7 +118,7 @@ which looks like this when run
     '
     style="height: 300px;width: 600px;padding: 0;margin-left: 5em;border: 1px solid #ccc"
   >
-    <div class="LoadingScreen" style="padding: 50px;">
+    <div id="LoadingScreen" style="padding: 50px;">
       <h1>Loading...</h1>
     </div>
   </div>
@@ -176,7 +176,7 @@ This could look like this:
   <div style="padding: 0 1em; margin: 1em 0; border: 1px solid black">
     <h1>Custom JBrowse Embedded in a <code>div</code></h1>
     <div class="jbrowse" id="GenomeBrowser">
-      <div class="LoadingScreen" style="padding: 50px;">
+      <div id="LoadingScreen" style="padding: 50px;">
         <h1>Loading...</h1>
       </div>
     </div>
