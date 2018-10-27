@@ -165,26 +165,25 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 hideDuplicateReads: {
                     desc: 'Hide PCR/Optical duplicate reads',
                     func: function( f ) {
-                        return ! f.get('duplicate');
+                        return !(f.get('duplicate') === true)
                     }
                 },
                 hideQCFailingReads: {
                     desc: 'Hide reads failing vendor QC',
                     func: function( f ) {
-                        return ! f.get('qc_failed');
+                        return !(f.get('qc_failed') === true)
                     }
                 },
                 hideSecondary: {
                     desc: 'Hide secondary alignments',
-
                     func: function( f ) {
-                        return ! f.get('secondary_alignment');
+                        return !(f.get('secondary_alignment') === true)
                     }
                 },
                 hideSupplementary: {
                     desc: 'Hide supplementary alignments',
                     func: function( f ) {
-                        return ! f.get('supplementary_alignment');
+                        return !(f.get('supplementary_alignment') === true)
                     }
                 },
                 hideMissingMatepairs: {
@@ -196,25 +195,25 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
                 hideUnmapped: {
                     desc: 'Hide unmapped reads',
                     func: function( f ) {
-                        return ! f.get('unmapped');
+                        return !(f.get('unmapped') === true)
                     }
                 },
                 hideForwardStrand: {
                     desc: 'Hide reads aligned to the forward strand',
                     func: function( f ) {
-                        return f.get('strand') != 1;
+                        return f.get('strand') !== 1;
                     }
                 },
                 hideReverseStrand: {
                     desc: 'Hide reads aligned to the reverse strand',
                     func: function( f ) {
-                        return f.get('strand') != -1;
+                        return f.get('strand') !== -1;
                     }
                 },
                 hideUnsplicedReads: {
                     desc: 'Hide unspliced reads',
                     func: function ( f ) {
-                        return f.get('cigar').indexOf("N") != -1;
+                        return (f.get('cigar') || '').indexOf('N') != -1;
                     }
                 }
             });

@@ -35,6 +35,9 @@
  * Fixed issue where some feature mouseovers where not working properly (issue
    #1236, @cmdcolin)
 
+ * Small fix for issue where SNPCoverage would crash on some feature filters
+   (issue #1241, @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
