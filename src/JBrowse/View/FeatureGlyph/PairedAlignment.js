@@ -22,12 +22,12 @@ renderFeature( context, fRect ) {
         this.renderSegments( context, fRect );
         if( fRect.w > 2 ) {
             if( fRect.viewInfo.scale > 0.2 ) {
-                this._drawMismatches( context, fRect, fRect.f.read1, this._getMismatches( fRect.f.read1 ) );
-                this._drawMismatches( context, fRect, fRect.f.read2, this._getMismatches( fRect.f.read2 ) );
+                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read1 ), fRect.f.read1 );
+                this._drawMismatches( context, fRect, this._getMismatches( fRect.f.read2 ), fRect.f.read2 );
             }
             else {
-                this._drawMismatches( context, fRect, fRect.f.read1, this._getSkipsAndDeletions( fRect.f.read1 ));
-                this._drawMismatches( context, fRect, fRect.f.read2, this._getSkipsAndDeletions( fRect.f.read2 ));
+                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read1 ), fRect.f.read1 );
+                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f.read2 ), fRect.f.read2 );
             }
         }
 
