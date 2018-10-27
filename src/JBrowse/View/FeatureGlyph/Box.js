@@ -36,6 +36,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
                     height: 11,
                     marginBottom: 2,
                     strandInlay: false,
+                    strandInlayWidth: 4,
 
                     strandArrow: true,
 
@@ -218,7 +219,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
             context.fillStyle = bgcolor;
             context.fillRect( left, top, Math.max(1,width), height );
             if(this.config.style.strandInlay && width > 1) {
-                var arrowWidth = 3
+                var arrowWidth = this.config.style.strandInlayWidth
                 if(feature.get('strand') === 1) {
                     context.beginPath();
                     context.moveTo(left+width, top)
@@ -364,7 +365,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         this.inherited(arguments)
         var feature = fRect.f
         if(this.config.style.strandInlay) {
-            var arrowWidth = 3
+            var arrowWidth = this.config.style.strandInlayWidth
             var top = fRect.t
             var height = fRect.rect.h
             var left = fRect.rect.l

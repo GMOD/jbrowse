@@ -9,18 +9,18 @@ const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 class PairedBamRead {
     id() {
-        return Math.min(this.f1.id(), this.f2.id())
+        return Math.min(this.read1.id(), this.read2.id())
     }
     get(field) {
         return this._get(field.toLowerCase())
     }
     _get(field) {
         if(field === 'start') {
-            return Math.min(this.f1._get('start'), this.f2._get('start'))
+            return Math.min(this.read1._get('start'), this.read2._get('start'))
         } else if(field === 'end') {
-            return Math.max(this.f1._get('end'), this.f2._get('end'))
+            return Math.max(this.read1._get('end'), this.read2._get('end'))
         } else if(field === 'name') {
-            return this.f1._get('name')
+            return this.read1._get('name')
         }
     }
     pairedFeature() { return true }
@@ -257,14 +257,22 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         if (canBePaired(records[i])) {
                             let name = records[i]._get('name')
                             feat = pairCache[name]
-                            if (feat && records[i].id() != feat.f1.id()) {
-                                feat.f2 = this._bamRecordToFeature(records[i])
+                            if (feat) {
+                                if(records[i].isRead1()) {
+                                    feat.read1 = this._bamRecordToFeature(records[i])
+                                } else {
+                                    feat.read2 = this._bamRecordToFeature(records[i])
+                                }
                                 delete pairCache[name]
                                 this.featureCache[name] = feat
                             }
                             else {
                                 feat = new PairedBamRead()
-                                feat.f1 = this._bamRecordToFeature(records[i])
+                                if(records[i].isRead1()) {
+                                    feat.read1 = this._bamRecordToFeature(records[i])
+                                } else {
+                                    feat.read2 = this._bamRecordToFeature(records[i])
+                                }
                                 pairCache[name] = feat
                             }
                         }

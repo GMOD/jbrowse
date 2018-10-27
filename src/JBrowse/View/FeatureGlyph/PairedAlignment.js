@@ -22,12 +22,12 @@ renderFeature( context, fRect ) {
         this.renderSegments( context, fRect );
         if( fRect.w > 2 ) {
             if( fRect.viewInfo.scale > 0.2 ) {
-                this._drawMismatches( context, fRect, fRect.f.f1, this._getMismatches( fRect.f.f1 ) );
-                this._drawMismatches( context, fRect, fRect.f.f2, this._getMismatches( fRect.f.f2 ) );
+                this._drawMismatches( context, fRect, fRect.f.read1, this._getMismatches( fRect.f.read1 ) );
+                this._drawMismatches( context, fRect, fRect.f.read2, this._getMismatches( fRect.f.read2 ) );
             }
             else {
-                this._drawMismatches( context, fRect, fRect.f.f1, this._getSkipsAndDeletions( fRect.f.f1 ));
-                this._drawMismatches( context, fRect, fRect.f.f2, this._getSkipsAndDeletions( fRect.f.f2 ));
+                this._drawMismatches( context, fRect, fRect.f.read1, this._getSkipsAndDeletions( fRect.f.read1 ));
+                this._drawMismatches( context, fRect, fRect.f.read2, this._getSkipsAndDeletions( fRect.f.read2 ));
             }
         }
 
@@ -37,8 +37,8 @@ renderFeature( context, fRect ) {
 },
 
 renderSegments( context, fRect ) {
-    this.renderBox(context, fRect.viewInfo, fRect.f.f1,  fRect.t, fRect.rect.h, fRect.f);
-    this.renderBox(context, fRect.viewInfo, fRect.f.f2,  fRect.t, fRect.rect.h, fRect.f);
+    this.renderBox(context, fRect.viewInfo, fRect.f.read1,  fRect.t, fRect.rect.h, fRect.f);
+    this.renderBox(context, fRect.viewInfo, fRect.f.read2,  fRect.t, fRect.rect.h, fRect.f);
 },
 
 renderConnector( context, fRect ) {
@@ -71,7 +71,7 @@ layoutFeature(viewArgs, layout, feature) {
     }
     if(this.config.readCloud) {
         if(feature.pairedFeature()) {
-            var tlen = feature.f1.get('template_length')
+            var tlen = feature.read1.get('template_length')
             var t = Math.abs(tlen)
 
             // need to set the top of the inner rect

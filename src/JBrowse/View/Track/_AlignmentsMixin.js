@@ -43,8 +43,8 @@ return declare([ MismatchesMixin, NamedFeatureFiltersMixin ], {
             }, container);
             var c1 = dojo.create('div', { className: 'detail feature-detail' }, flexContainer);
             var c2 = dojo.create('div', { className: 'detail feature-detail' }, flexContainer);
-            var ret = this.defaultAlignmentDetail(track, f.f1, c1)
-            var ret2 = this.defaultAlignmentDetail(track, f.f2, c2)
+            var ret = this.defaultAlignmentDetail(track, f.read1, c1)
+            var ret2 = this.defaultAlignmentDetail(track, f.read2, c2)
             dojo.place(ret, c1)
             dojo.place(ret2, c2)
             return container;
