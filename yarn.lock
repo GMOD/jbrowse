@@ -194,10 +194,10 @@
     "@gmod/bgzf-filehandle" "^1.0.0"
     util.promisify "^1.0.0"
 
-"@gmod/tabix@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.1.0.tgz#85d73f0f2c90b0b0ff63ad57efc6074c2a7e2749"
-  integrity sha512-mZh9QFA7mThqw09F1/2xe7QT1NLfJ+uX4tzySd8ZyfjM4LqFFVjoNU3oG5DLBsPKV8KU/5ugC+3F1p5mc0AxTw==
+"@gmod/tabix@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@gmod/tabix/-/tabix-1.1.2.tgz#b4516ddbd9976c34e497ded45819fc351555357b"
+  integrity sha512-EPpN/w2/3vNl3x2FkIGeGu/82NgIRbF3K0E5KXKojWzOfJU/HXElret/Rp4uvqu0zIhFjbBIChFx9feIf++QtA==
   dependencies:
     long "^4.0.0"
     lru-cache "^4.1.3"
