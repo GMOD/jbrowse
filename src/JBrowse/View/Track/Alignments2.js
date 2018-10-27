@@ -178,7 +178,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         if(this.config.viewAsPairs) {
             let supermethod = this.getInherited(arguments)
             var reg = this.browser.view.visibleRegion()
-            var len = reg.end - reg.start
+            var len = Math.max(reg.end - reg.start, 4000)
             const region = {
                 ref: this.refSeq.name,
                 start: Math.max( 0, reg.start ),

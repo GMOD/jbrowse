@@ -218,7 +218,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
         if( bgcolor ) {
             context.fillStyle = bgcolor;
             context.fillRect( left, top, Math.max(1,width), height );
-            if(this.config.style.strandInlay && width > 1) {
+            if(this.config.style.strandInlay && viewInfo.scale > 0.2 ) {
                 var arrowWidth = this.config.style.strandInlayWidth
                 if(feature.get('strand') === 1) {
                     context.beginPath();
@@ -364,7 +364,7 @@ return declare([ FeatureGlyph, FeatureLabelMixin], {
     mouseoverFeature( context, fRect ) {
         this.inherited(arguments)
         var feature = fRect.f
-        if(this.config.style.strandInlay) {
+        if(this.config.style.strandInlay && fRect.viewInfo.scale > 0.2) {
             var arrowWidth = this.config.style.strandInlayWidth
             var top = fRect.t
             var height = fRect.rect.h
