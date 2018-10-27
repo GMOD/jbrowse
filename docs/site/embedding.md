@@ -87,7 +87,8 @@ Example code for this:
         "show_nav": false,
         "show_tracklist": false,
         "show_overview": false,
-        "update_browser_title": false
+        "update_browser_title": false,
+        "updateBrowserURL": false
       '
     >
       <div id="LoadingScreen" style="padding: 50px;">
@@ -114,7 +115,8 @@ which looks like this when run
       "show_nav": false,
       "show_tracklist": false,
       "show_overview": false,
-      "update_browser_title": false
+      "update_browser_title": false,
+      "updateBrowserURL": false
     '
     style="height: 300px;width: 600px;padding: 0;margin-left: 5em;border: 1px solid #ccc"
   >
