@@ -115,15 +115,14 @@ return declare( [BoxGlyph,MismatchesMixin], {
         //     might be large enough to see)
         if( fRect.w > 2 ) {
             if( fRect.viewInfo.scale > 0.2 )
-                this._drawMismatches( context, fRect, this._getMismatches( fRect.f ) );
+                this._drawMismatches( context, fRect, fRect.f, this._getMismatches( fRect.f ) );
             else
-                this._drawMismatches( context, fRect, this._getSkipsAndDeletions( fRect.f ));
+                this._drawMismatches( context, fRect, fRect.f, this._getSkipsAndDeletions( fRect.f ));
         }
     },
 
     // draw both gaps and mismatches
-    _drawMismatches: function( context, fRect, mismatches ) {
-        var feature = fRect.f;
+    _drawMismatches: function( context, fRect, feature, mismatches ) {
         var block = fRect.viewInfo.block;
         var scale = block.scale;
 
