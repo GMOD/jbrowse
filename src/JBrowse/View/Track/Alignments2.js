@@ -16,11 +16,6 @@ define( [
         ) {
 
 return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
-
-    constructor: function() {
-        this.fetchMap = {}
-    },
-
     _defaultConfig: function() {
         var c = Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -172,9 +167,11 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         // workaround for the fact that initial load of JBrowse invokes fillBlock on nonsense regions
         // and then the cache cleanup can be invoked in ways that destroys visible features
         this.removeFeaturesFromCacheAfterDelay = this.removeFeaturesFromCacheAfterDelay || false
-        setTimeout(() => {
-            this.removeFeaturesFromCacheAfterDelay = true
-        }, 30000)
+        if(!this.removeFeaturesFromCacheAfterDelay) {
+            setTimeout(() => {
+                this.removeFeaturesFromCacheAfterDelay = true
+            }, 10000)
+        }
         if(this.config.viewAsPairs) {
             let supermethod = this.getInherited(arguments)
             var reg = this.browser.view.visibleRegion()
@@ -188,13 +185,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
             const min = Math.max(0, region.start - len*4)
             const max = region.end + len*4
-            const str = min + '_' + max
-            if(!this.fetchMap[str]) {
-                this.fetchMap[str] = new Promise((resolve, reject) => {
-                    this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, resolve, reject)
-                })
-            }
-            this.fetchMap[str].then(() => {
+            this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, () => {
                 if(this.removeFeaturesFromCacheAfterDelay) {
                     let f = args.finishCallback
                     args.finishCallback = () => {
@@ -203,6 +194,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     }
                 }
                 supermethod.call(this, args)
+            }, e => {
+                console.error(e)
             })
         } else {
             this.inherited(arguments);
