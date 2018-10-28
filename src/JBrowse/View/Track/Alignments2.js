@@ -190,7 +190,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                     let f = args.finishCallback
                     args.finishCallback = () => {
                         f()
-                        this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
+                        setTimeout(() => {
+                            this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
+                        }, 1000)
                     }
                 }
                 supermethod.call(this, args)
