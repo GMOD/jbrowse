@@ -23,6 +23,11 @@ class PairedBamRead {
             return this.read1._get('name')
         }
     }
+	getPairOrientation() {
+		const s1 = this.read1._get('strand') === 1 ? 'F1' : 'R1';
+		const s2 = this.read2._get('strand') === 1 ? 'F2' : 'R2';
+		return s1 + s2;
+	}
     pairedFeature() { return true }
     children() {}
 }
@@ -287,6 +292,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             featCallback(feat)
                         }
                     }
+                    console.log(Object.keys(this.featureCache).length)
                     Object.entries(this.featureCache).forEach(([k, v]) => {
                         if(v._get('end') - v._get('start') < 10000 && (v._get('end') > query.start && v._get('start') < query.end)) {
                             featCallback(v)

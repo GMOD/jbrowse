@@ -139,7 +139,31 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
-
+        displayOptions.push({
+            label: 'Color by pair orientation',
+            type: 'dijit/RadioMenuItem',
+            group: 'g2',
+            onClick: function(event) {
+                thisB.config.viewAsPairs = true
+                thisB.config.style.color = feat => {
+                    if(feat.pairedFeature()) {
+                        const ret = feat.getPairOrientation()
+                        if(ret == 'F1R2') {
+                            return 'green'
+                        } else if(ret == 'R1R2') {
+                            return 'red'
+                        } else if(ret == 'F1F2') {
+                            return 'purple'
+                        } else if(ret == 'R1F2') {
+                            return 'orange'
+                        }
+                    }
+                    return 'grey'
+                }
+                thisB.config.glyph = 'JBrowse/View/FeatureGlyph/PairedAlignment'
+                thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
+            }
+        });
         return all([ this.inherited(arguments), this._alignmentsFilterTrackMenuOptions(), displayOptions ])
             .then( function( options ) {
                        var o = options.shift();

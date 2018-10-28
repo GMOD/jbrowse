@@ -66,6 +66,8 @@ class CramSlightlyLazyFeature {
     parent() {}
 
     children() {}
+
+    pairedFeature() { return false }
 }
 
 define( [
