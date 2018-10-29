@@ -23,6 +23,10 @@
  * Fix parsing of certain bigBed files that were hanging on track startup
    (issue #1226, pull #1229, @cmdcolin)
 
+ * Added documentation on embedding JBrowse in an iframe and in a div, including
+   how to embed JBrowse using a custom JavaScript object as a configuration
+   (pull #1228, pull #1243, @rbuels and @garrettjstevens)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
@@ -30,6 +34,10 @@
 
  * Fixed issue where some feature mouseovers where not working properly (issue
    #1236, @cmdcolin)
+
+ * Fixed issue where instantiating JBrowse via `standalone.js` didn't work when
+   in a production build with JBROWSE_PUBLIC_PATH overridden (issue #1239,
+   @garrettjstevens)
 
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
