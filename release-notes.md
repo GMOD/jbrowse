@@ -38,6 +38,9 @@
  * Small fix for issue where SNPCoverage would crash on some feature filters
    (issue #1241, @cmdcolin)
 
+ * Fix issue where JBrowse Desktop was not able to access remote files (issue
+   #1234, pull #1245, @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
