@@ -13,8 +13,8 @@ define( [ 'dojo/_base/declare',
 
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
-    let fetch
-    if(Util.isElectron()) {
+    let mfetch
+    if(Util.isElectron() && url.slice(0, 4) === 'http') {
         mfetch = electronRequire('node-fetch')
     } else {
         mfetch = tenaciousFetch
