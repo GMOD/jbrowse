@@ -115,7 +115,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     const feature = new VCFFeature({
                         variant: variant,
                         parser: parser,
-                        id: variant.ID.length ?
+                        id: variant.ID ?
                             variant.ID[0] :
                             `chr${variant.CHROM}_pos${variant.POS}_ref${variant.REF}_alt${variant.ALT}`
                     })
