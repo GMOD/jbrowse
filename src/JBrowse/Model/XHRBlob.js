@@ -1,6 +1,7 @@
 cjsRequire('whatwg-fetch')
 const tenaciousFetch = cjsRequire('tenacious-fetch').default
 
+
 const { HttpRangeFetcher } = cjsRequire('http-range-fetcher')
 const { Buffer } = cjsRequire('buffer')
 
@@ -12,7 +13,13 @@ define( [ 'dojo/_base/declare',
 
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
-    return tenaciousFetch(url, {
+    let fetch
+    if(Util.isElectron()) {
+        mfetch = electronRequire('node-fetch')
+    } else {
+        mfetch = tenaciousFetch
+    }
+    return mfetch(url, {
       method: 'GET',
       headers: { range: `bytes=${start}-${end}` },
       credentials: 'same-origin',
