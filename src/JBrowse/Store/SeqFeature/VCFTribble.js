@@ -11,8 +11,7 @@ define([
            'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
            'JBrowse/Model/XHRBlob',
            'JBrowse/Model/BlobFilehandleWrapper',
-           'JBrowse/Model/SimpleFeature',
-           'JBrowse/Store/SeqFeature/VCF/FeatureMaker'
+           'JBrowse/Model/VCFFeature',
        ],
        function(
            declare,
@@ -24,11 +23,10 @@ define([
            GlobalStatsEstimationMixin,
            XHRBlob,
            BlobFilehandleWrapper,
-           SimpleFeature,
-           FeatureMaker
+           VCFFeature
        ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, FeatureMaker ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
 {
 
     constructor( args ) {
@@ -88,27 +86,21 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
     _getFeatures( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         thisB.getParser().then(parser => {
-            const regularizeReferenceName = this.browser.regularizeReferenceName(query.ref)
+            const regularizedReferenceName = this.browser.regularizeReferenceName(query.ref)
             thisB.indexedData.getLines(
-                regularizeReferenceName,
+                regularizedReferenceName,
                 query.start,
                 query.end,
                 line => {
                     const variant = parser.parseLine(line)
-                    const featureData = this.variantToFeature(parser, variant)
-                    const f = new SimpleFeature({
-                        data: featureData,
-                        id: variant.CHROM + variant.POS + variant.REF + variant.ALT.join('')
-                    });
-                    f.parser = parser;
-                    // override SimpleFeature's get()
-                    f.get = function ( field ) {
-                        if (field in this.data) return this.data[field]
-                        else field = field.toLowerCase()
-                        if (field in this.data) return this.data[field]
-                        else return undefined
-                    }
-                    featureCallback(f)
+                    const feature = new VCFFeature({
+                        variant: variant,
+                        parser: parser,
+                        id: variant.ID.length ?
+                            variant.ID[0] :
+                            `chr${variant.CHROM}_pos${variant.POS}_ref${variant.REF}_alt${variant.ALT}`
+                    })
+                    featureCallback(feature)
                 }
             )
             .then(finishedCallback, error => {
