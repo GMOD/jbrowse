@@ -19,6 +19,7 @@ define( [
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
+            'dijit/RadioMenuItem',
             'JBrowse/Util',
             'JBrowse/Component',
             'JBrowse/FeatureFiltererMixin',
@@ -49,6 +50,7 @@ define( [
                   dijitMenuItem,
                   dijitCheckedMenuItem,
                   dijitMenuSeparator,
+                  dijitRadioMenuItem,
                   Util,
                   Component,
                   FeatureFiltererMixin,
@@ -767,6 +769,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                     var class_ = {
                         'dijit/MenuItem':        dijitMenuItem,
                         'dijit/CheckedMenuItem': dijitCheckedMenuItem,
+                        'dijit/RadioMenuItem':   dijitRadioMenuItem,
                         'dijit/MenuSeparator':   dijitMenuSeparator
                     }[spec.type] || dijitMenuItem;
 

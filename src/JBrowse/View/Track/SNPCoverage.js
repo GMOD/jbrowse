@@ -287,8 +287,6 @@ return declare( [WiggleXY, AlignmentsMixin],
 
         displayOptions.push({
             label: 'View alignments',
-            type: 'dijit/RadioMenuItem',
-            group: 'g2',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/Alignments2'
                 thisB.config._oldSnpCoverageHeight = thisB.config.style.height

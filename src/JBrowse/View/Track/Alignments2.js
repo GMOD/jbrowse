@@ -83,11 +83,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             });
         }
 
-
         displayOptions.push({
             label: 'View coverage',
-            type: 'dijit/RadioMenuItem',
-            group: 'g2',
             onClick: function(event) {
                 thisB.config.type = 'JBrowse/View/Track/SNPCoverage'
                 thisB.config._oldAlignmentsHeight = thisB.config.style.height
@@ -95,10 +92,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 thisB.browser.publish('/jbrowse/v1/v/tracks/replace', [thisB.config]);
             }
         });
+
+        console.log(this.config.viewAsPairs == false && this.config.readCloud == false)
         displayOptions.push({
             label: 'View normal',
-            type: 'dijit/RadioMenuItem',
-            group: 'g2',
             onClick: function(event) {
                 thisB.config.viewAsPairs = false
                 thisB.config.readCloud = false
@@ -107,10 +104,10 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
+
+            console.log('t1',this.config.viewAsPairs == true && this.config.readCloud == false)
         displayOptions.push({
             label: 'View as pairs',
-            type: 'dijit/RadioMenuItem',
-            group: 'g2',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.readCloud = false
@@ -121,8 +118,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
 
         displayOptions.push({
             label: 'View paired arcs',
-            type: 'dijit/RadioMenuItem',
-            group: 'g2',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.readCloud = true
@@ -132,8 +127,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         });
         displayOptions.push({
             label: 'View pairs as read cloud',
-            type: 'dijit/RadioMenuItem',
-            group: 'g2',
             onClick: function(event) {
                 thisB.config.viewAsPairs = true
                 thisB.config.readCloud = true
