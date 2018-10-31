@@ -6,6 +6,22 @@ const { Buffer } = cjsRequire('buffer')
 const bamIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
+const MAX_INSERT_SIZE_FOR_STATS = 30000
+
+function percentile(arr, p) {
+    if (arr.length === 0) return 0;
+    if (typeof p !== 'number') throw new TypeError('p must be a number');
+    if (p <= 0) return arr[0];
+    if (p >= 1) return arr[arr.length - 1];
+
+    var index = arr.length * p,
+            lower = Math.floor(index),
+            upper = lower + 1,
+            weight = index % 1;
+
+    if (upper >= arr.length) return arr[lower];
+    return arr[lower] * (1 - weight) + arr[upper] * weight;
+}
 
 class PairedBamRead {
     id() {
@@ -23,6 +39,8 @@ class PairedBamRead {
             return this.read1._get('name')
         } else if(field === 'pair_orientation') {
             return this.read1._get('pair_orientation')
+        } else if(field === 'template_length') {
+            return this.read1._get('template_length')
         }
     }
     pairedFeature() { return true }
@@ -30,17 +48,12 @@ class PairedBamRead {
 }
 
 class BamSlightlyLazyFeature {
-    _get_name() { return this.record._get('name') }
-    _get_start() { return this.record._get('start') }
-    _get_end() { return this.record._get('end') }
     _get_type() { return 'match'}
     _get_score() { return this.record._get('mq')}
     _get_mapping_quality() { return this.record.mappingQuality}
     _get_flags() { return `0x${this.record.flags.toString(16)}`}
     _get_strand() { return this.record.isReverseComplemented() ? -1 : 1 }
     _get_read_group_id() { return this.record.readGroupId }
-    _get_qual() { return this.record._get('qual')}
-    _get_cigar() { return this.record._get('cigar')}
     _get_seq_id() { return this._store._refIdToName(this.record._refID)}
     _get_qc_failed() { return this.record.isFailedQc()}
     _get_duplicate() { return this.record.isDuplicate()}
@@ -60,7 +73,6 @@ class BamSlightlyLazyFeature {
         ? ( this._store._refIdToName(this.record._next_refid())+':'+(this.record._next_pos()+1)) : undefined}
     _get_tags() { return this.record._tags() }
     _get_seq() { return this.record.getReadBases() }
-    _get_md() { return this.record._get('md') }
 
     constructor(record, store) {
         this.record = record
@@ -312,6 +324,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         })
     },
 
+    getStatsForPairCache() {
+        var total = 0
+        var stddev = 0
+        var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
+        var upper = percentile(tlens, 0.995)
+        var lower = percentile(tlens, 0.005)
+        return { upper, lower }
+    },
 
     _bamRecordToFeature(record) {
         return new BamSlightlyLazyFeature(record, this)

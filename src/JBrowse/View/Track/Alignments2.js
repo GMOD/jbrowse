@@ -186,6 +186,9 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             const min = Math.max(0, region.start - len*4)
             const max = region.end + len*4
             this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, () => {
+                var stats = this.store.getStatsForPairCache()
+                this.upperPercentile = stats.upper
+                this.lowerPercentile = stats.lower
                 if(this.removeFeaturesFromCacheAfterDelay) {
                     let f = args.finishCallback
                     args.finishCallback = () => {
