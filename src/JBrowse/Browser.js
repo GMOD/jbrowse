@@ -1149,6 +1149,7 @@ renderDatasetSelect: function( parent ) {
         }
     }
     else {
+        let conf = this.config;
         if( this.config.datasets && this.config.dataset_id ) {
             this.addGlobalMenuItem( 'dataset',
                     new dijitMenuSeparator() );
@@ -1163,7 +1164,15 @@ renderDatasetSelect: function( parent ) {
                         id: 'menubar_dataset_bookmark_' + id,
                         label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
                         iconClass: 'dijitIconBookmark',
-                        onClick: dojo.hitch( dataset, function() { window.location = this.url } )
+                        onClick: dojo.hitch( dataset, function() { 
+
+                            // if datasetLinkToParent=true, link to parent of iframe.
+                            let link2Parent = conf.datasetLinkToParent || false;
+                            if (link2Parent)
+                                window.parent.location = this.url;
+                            else
+                                window.location = this.url;
+                        })
                     })
                   );
                 }
