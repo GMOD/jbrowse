@@ -56,6 +56,7 @@ class BamSlightlyLazyFeature {
     _get_multi_segment_first() { return this.record.isRead1()}
     _get_multi_segment_last() { return this.record.isRead2()}
     _get_multi_segment_next_segment_reversed() { return this.record.isMateReverseComplemented()}
+    _get_pair_orientation() { return this.record.getPairOrientation()}
     _get_unmapped() { return this.record.isSegmentUnmapped()}
     _get_next_seq_id() { return this._store._refIdToName(this.record._next_refid()) }
     _get_next_segment_position() { return this.record.isPaired()
@@ -292,7 +293,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                             featCallback(feat)
                         }
                     }
-                    console.log(Object.keys(this.featureCache).length)
                     Object.entries(this.featureCache).forEach(([k, v]) => {
                         if(v._get('end') - v._get('start') < 1000000 && (v._get('end') > query.start && v._get('start') < query.end)) {
                             featCallback(v)
