@@ -59,7 +59,7 @@ renderConnector( context, fRect ) {
 _defaultConfig() {
     return this._mergeConfigs(dojo.clone( this.inherited(arguments) ), {
         readCloudLog: true,
-        readCloudStretch: 50,
+        readCloudStretch: 20,
         style: {
             connectorColor: '#333',
             connectorThickness: 1,

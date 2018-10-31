@@ -11,6 +11,54 @@ define([
            MismatchesMixin
        ) {
 
+// adapted from igv.js, illumina standard --> <-- pairs are fr https://software.broadinstitute.org/software/igv/interpreting_pair_orientations
+var orientationTypes = {
+    "fr": {
+
+        "F1R2": "LR",
+        "F2R1": "LR",
+
+        "F1F2": "LL",
+        "F2F1": "LL",
+
+        "R1R2": "RR",
+        "R2R1": "RR",
+
+        "R1F2": "RL",
+        "R2F1": "RL"
+    },
+
+    "rf": {
+
+        "R1F2": "LR",
+        "R2F1": "LR",
+
+        "R1R2": "LL",
+        "R2R1": "LL",
+
+        "F1F2": "RR",
+        "F2F1": "RR",
+
+        "F1R2": "RL",
+        "F2R1": "RL"
+    },
+
+    "ff": {
+
+        "F2F1": "LR",
+        "R1R2": "LR",
+
+        "F2R1": "LL",
+        "R1F2": "LL",
+
+        "R2F1": "RR",
+        "F1R2": "RR",
+
+        "R2R1": "RL",
+        "F1F2": "RL"
+    }
+};
+
 return declare( [BoxGlyph,MismatchesMixin], {
 
     constructor: function() {
@@ -30,8 +78,14 @@ return declare( [BoxGlyph,MismatchesMixin], {
                 style: {
                     color: function( feature, path, glyph, track ) {
                       var strand = feature.get('strand');
-                      if(Math.abs(strand) != 1 && strand != '+' && strand != '-')
+                      if(Math.abs(strand) != 1 && strand != '+' && strand != '-') {
                         return track.colorForBase('reference');
+                      }
+                      else if(track.config.colorByOrientation) {
+                          const type = orientationTypes[track.config.orientationType]
+                          const orientation = type[feature.get('pair_orientation')]
+                          return {"LR": "grey", "RR": "navy", "RL": "teal", "LL": "green" }[orientation];
+                      }
                       else if(track.config.useXS) {
                         var xs = feature.get('xs')
                         var strand={'-':'color_rev_strand','+':'color_fwd_strand'}[xs];
@@ -99,7 +153,8 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     height: 7,
                     marginBottom: 1,
                     showMismatches: true,
-                    mismatchFont: 'bold 10px Courier New,monospace'
+                    mismatchFont: 'bold 10px Courier New,monospace',
+                    orientationType: 'fr'
                 }
             }
         );
