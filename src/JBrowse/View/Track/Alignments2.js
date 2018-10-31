@@ -93,7 +93,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
-        console.log(this.config.viewAsPairs == false && this.config.readCloud == false)
         displayOptions.push({
             label: 'View normal',
             onClick: function(event) {
@@ -104,8 +103,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
 
-
-            console.log('t1',this.config.viewAsPairs == true && this.config.readCloud == false)
         displayOptions.push({
             label: 'View as pairs',
             onClick: function(event) {

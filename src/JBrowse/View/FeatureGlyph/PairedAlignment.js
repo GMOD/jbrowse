@@ -10,6 +10,8 @@ function(
     lang,
     Alignment
 ) {
+
+
 return declare(Alignment, {
 
 renderFeature( context, fRect ) {

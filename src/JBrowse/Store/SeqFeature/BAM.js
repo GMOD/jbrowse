@@ -21,13 +21,10 @@ class PairedBamRead {
             return Math.max(this.read1._get('end'), this.read2._get('end'))
         } else if(field === 'name') {
             return this.read1._get('name')
+        } else if(field === 'pair_orientation') {
+            return this.read1._get('pair_orientation')
         }
     }
-	getPairOrientation() {
-		const s1 = this.read1._get('strand') === 1 ? 'F1' : 'R1';
-		const s2 = this.read2._get('strand') === 1 ? 'F2' : 'R2';
-		return s1 + s2;
-	}
     pairedFeature() { return true }
     children() {}
 }

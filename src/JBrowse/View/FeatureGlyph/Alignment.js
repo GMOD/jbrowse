@@ -11,7 +11,6 @@ define([
            MismatchesMixin
        ) {
 
-// adapted from igv.js, illumina standard --> <-- pairs are fr https://software.broadinstitute.org/software/igv/interpreting_pair_orientations
 var orientationTypes = {
     "fr": {
 
@@ -82,9 +81,15 @@ return declare( [BoxGlyph,MismatchesMixin], {
                         return track.colorForBase('reference');
                       }
                       else if(track.config.colorByOrientation) {
-                          const type = orientationTypes[track.config.orientationType]
-                          const orientation = type[feature.get('pair_orientation')]
-                          return {"LR": "grey", "RR": "navy", "RL": "teal", "LL": "green" }[orientation];
+                        const type = orientationTypes[track.config.orientationType]
+                        const orientation = type[feature.get('pair_orientation')]
+                        const map = {
+                            'LR': 'color_pair_lr',
+                            'RR': 'color_pair_rr',
+                            'RL': 'color_pair_rl',
+                            'LL': 'color_pair_ll'
+                        };
+                        return glyph.getStyle( feature, map[orientation] || 'color_nostrand' );
                       }
                       else if(track.config.useXS) {
                         var xs = feature.get('xs')
@@ -144,17 +149,20 @@ return declare( [BoxGlyph,MismatchesMixin], {
                     color_rev_missing_mate: '#1919D1',
                     color_fwd_diff_chr: '#000000',
                     color_rev_diff_chr: '#969696',
+                    color_pair_lr: 'grey',
+                    color_pair_rr: 'navy',
+                    color_pair_rl: 'teal',
+                    color_pair_ll: 'green',
                     color_nostrand: '#999999',
                     border_color: null,
 
                     strandArrow: false,
                     strandInlay: true,
-
                     height: 7,
                     marginBottom: 1,
                     showMismatches: true,
                     mismatchFont: 'bold 10px Courier New,monospace',
-                    orientationType: 'fr'
+                    orientationType: 'fr' // default illumina adapter sequence --> <--
                 }
             }
         );
