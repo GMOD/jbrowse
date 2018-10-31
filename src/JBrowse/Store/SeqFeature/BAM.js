@@ -325,12 +325,14 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
     },
 
     getStatsForPairCache() {
-        var total = 0
-        var stddev = 0
-        var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
-        var upper = percentile(tlens, 0.995)
-        var lower = percentile(tlens, 0.005)
-        return { upper, lower }
+        if(Object.keys(this.featureCache).length > 400) {
+            var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
+            return {
+                upper: percentile(tlens, 0.995),
+                lower:  percentile(tlens, 0.005)
+            }
+        }
+        return { upper: Infinity, lower: 0 }
     },
 
     _bamRecordToFeature(record) {
