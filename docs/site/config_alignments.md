@@ -60,6 +60,12 @@ The above track template infers that the storeClass is a BAM store. Not all trac
 |`cacheMismatches`|Cache mismatch calculations so that long reads are faster to browser. Default: false. Added in 1.12.3|
 |`renderAlignments`|Add a text display of the BAM alignment on a single line in the View details popup. Default: false|
 |`renderPrettyAlignments`|Add a text display of the BAM alignment using prettier "BLAST style" to the View details popup. Default: false|
+|`colorByOrientation`|Colors reads according to paired end orientations. See https://software.broadinstitute.org/software/igv/interpreting_pair_orientations for details. Default: false. Requires viewAsPairs to be true|
+|`orientationType`|Set the orientation pattern. Default is 'fr' according to illumina adapters that face each other. Other options are 'rf' and 'ff'.|
+|`viewAsPairs`|Applies algorithm to display paired end reads as a connected entity. Requires manually setting glyph=JBrowse/View/FeatureGlyph/PairedAlignment in config|
+|`readCloud`|Applies algorithm to display reads stratified on the y-axis according to the insert size. Requires manually setting glyph=JBrowse/View/FeatureGlyph/PairedAlignment in config|
+
+Also can set glyph=JBrowse/View/FeatureGlyph/PairedArc, requires having viewAsPairs being true
 
 ### Alignments2 coloring schemes
 
