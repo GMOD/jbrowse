@@ -1098,6 +1098,7 @@ slide: function(distance) {
 },
 
 setLocation: function(refseq, startbp, endbp) {
+    console.log('setLocation', refseq, startbp, endbp)
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
     if( typeof refseq == 'string' ) {

@@ -257,6 +257,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures( query, featCallback, endCallback, errorCallback ) {
+        console.log(query)
         let seqName = query.ref || this.refSeq.name
         seqName = this.browser.regularizeReferenceName( seqName );
         const pairCache = {};
