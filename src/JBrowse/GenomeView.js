@@ -1098,7 +1098,6 @@ slide: function(distance) {
 },
 
 setLocation: function(refseq, startbp, endbp) {
-    console.log('setLocation', refseq, startbp, endbp)
     if (startbp === undefined) startbp = this.minVisible();
     if (endbp === undefined) endbp = this.maxVisible();
     if( typeof refseq == 'string' ) {
@@ -2053,7 +2052,7 @@ showVisibleBlocks: function(updateHeight, pos, startX, endX, finishCallback) {
 
     // Track update will be carried after the maxVisible has a value
     if (!this.maxVisible()) return;
-    
+
     let showingPromises = []
     this.overviewTrackIterate(function(track, view) {
         showingPromises.push( new Promise((resolve,reject) => {

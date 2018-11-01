@@ -162,7 +162,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
         return layout;
     },
 
-    fillBlock: function( args ) {
+    fillFeatures: function( args ) {
         // workaround for the fact that initial load of JBrowse invokes fillBlock on nonsense regions
         // and then the cache cleanup can be invoked in ways that destroys visible features
         this.removeFeaturesFromCacheAfterDelay = this.removeFeaturesFromCacheAfterDelay || false
