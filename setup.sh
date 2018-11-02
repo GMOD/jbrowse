@@ -169,10 +169,10 @@ log_echo -n "Formatting Volvox example data ...";
         docs/tutorial/data_files/volvox.subsubparts.gff3.conf \
         docs/tutorial/data_files/volvox-long-reads.fastq.sorted.bam.conf \
         docs/tutorial/data_files/volvox-long-reads.fastq.sorted.cram.conf \
-        docs/tutorial/data_files/volvox.bb.conf >> sample_data/json/volvox/tracks.conf \
-        docs/tutorial/data_files/volvox-sorted.cram.conf >> sample_data/json/volvox/tracks.conf \
-        docs/tutorial/data_files/volvox-sv.bam.conf >> sample_data/json/volvox/tracks.conf \
-        docs/tutorial/data_files/volvox-sv.cram.conf >> sample_data/json/volvox/tracks.conf \
+        docs/tutorial/data_files/volvox.bb.conf \
+        docs/tutorial/data_files/volvox-sorted.cram.conf \
+        docs/tutorial/data_files/volvox-sv.bam.conf \
+        docs/tutorial/data_files/volvox-sv.cram.conf \
     >> sample_data/json/volvox/tracks.conf
 
     bin/add-json.pl '{ "dataset_id": "volvox", "include": [ "../../raw/volvox/functions.conf" ] }' sample_data/json/volvox/trackList.json
