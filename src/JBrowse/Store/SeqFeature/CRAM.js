@@ -50,6 +50,7 @@ class CramSlightlyLazyFeature {
     _get_secondary_alignment() { return this.record.isSecondary()}
     _get_duplicate() { return this.record.isDuplicate()}
     _get_supplementary_alignment() { return this.record.isSupplementary()}
+    _get_pair_orientation() { return this.record.getPairOrientation()}
     _get_multi_segment_template() { return this.record.isPaired()}
     _get_multi_segment_all_correctly_aligned() { return this.record.isProperlyPaired()}
     _get_multi_segment_all_aligned() { return this.record.isProperlyPaired()}
@@ -80,6 +81,11 @@ class CramSlightlyLazyFeature {
         return this.record.uniqueId + 1
     }
 
+    _get(field) {
+        const methodName = `_get_${field}`
+        if (this[methodName]) return this[methodName]()
+        return undefined
+    }
     get(field) {
         const methodName = `_get_${field.toLowerCase()}`
         if (this[methodName]) return this[methodName]()
@@ -91,6 +97,14 @@ class CramSlightlyLazyFeature {
     children() {}
 
     pairedFeature() { return false }
+}
+
+function canBePaired(alignment) {
+    return alignment.isPaired() &&
+        !alignment.isMateUnmapped() &&
+        alignment.sequenceId === alignment.mate.sequenceId &&
+        (alignment.isRead1() || alignment.isRead2()) &&
+        !(alignment.isSecondary() || alignment.isSupplementary());
 }
 
 define( [
@@ -184,6 +198,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
+        this.featureCache = {}
     },
 
     // process the parsed SAM header from the cram file
@@ -298,29 +313,29 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     // called by getFeatures from the DeferredFeaturesMixin
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+        const pairCache = {};
         const seqName = query.ref || this.refSeq.name
         const refSeqNumber = this._refNameToId(seqName)
         if (refSeqNumber === undefined) {
             endCallback()
             return
         }
-
         this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end, {viewAsPairs: query.viewAsPairs})
             .then(records => {
                 if(query.viewAsPairs) {
                     records.sort((a, b) => {
-                        return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
+                        return (a.readName < b.readName ? -1 : (a.readName > b.readName ? 1 : 0));
                     })
                     for(let i = 0; i < records.length; i++) {
                         let feat
                         if (canBePaired(records[i])) {
-                            let name = records[i]._get('name')
+                            let name = records[i].readName
                             feat = pairCache[name]
                             if (feat) {
                                 if(records[i].isRead1()) {
-                                    feat.read1 = this._bamRecordToFeature(records[i])
+                                    feat.read1 = this._cramRecordToFeature(records[i])
                                 } else if(records[i].isRead2()) {
-                                    feat.read2 = this._bamRecordToFeature(records[i])
+                                    feat.read2 = this._cramRecordToFeature(records[i])
                                 } else {
                                     console.log('unable to pair read',records[i])
                                 }
@@ -332,28 +347,30 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                             else {
                                 feat = new PairedCramRead()
                                 if(records[i].isRead1()) {
-                                    feat.read1 = this._bamRecordToFeature(records[i])
+                                    feat.read1 = this._cramRecordToFeature(records[i])
                                 } else if(records[i].isRead2()) {
-                                    feat.read2 = this._bamRecordToFeature(records[i])
+                                    feat.read2 = this._cramRecordToFeature(records[i])
                                 } else {
                                     console.log('unable to pair read', records[i])
                                 }
                                 pairCache[name] = feat
                             }
                         }
-                        else if(!(records[i]._get('end') < query.start) && !(records[i]._get('start') > query.end)){
-                            let feat = this._bamRecordToFeature(records[i])
+                        else if(!((records[i].alignmentStart+records[i].lengthOnRef-1) < query.start) && !(records[i].alignmentStart > query.end)){
+                            let feat = this._cramRecordToFeature(records[i])
                             featCallback(feat)
                         }
                     }
                     Object.entries(this.featureCache).forEach(([k, v]) => {
-                        if(v._get('end') - v._get('start') < 1000000 && (v._get('end') > query.start && v._get('start') < query.end)) {
+                        let end = v.get('end')
+                        let start = v.get('start')
+                        if(end - start < 1000000 && (end > query.start && start < query.end)) {
                             featCallback(v)
                         }
                     })
                 } else {
                     for(let i = 0; i < records.length; i++) {
-                        featCallback(this._bamRecordToFeature(records[i]))
+                        featCallback(this._cramRecordToFeature(records[i]))
                     }
                 }
                 endCallback()
@@ -368,7 +385,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
     cleanFeatureCache(query) {
         Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
+            if((v.get('end') < query.start) || (v.get('start') > query.end)) {
                 delete this.featureCache[k]
             }
         })
