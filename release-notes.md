@@ -27,6 +27,10 @@
    how to embed JBrowse using a custom JavaScript object as a configuration
    (pull #1228, pull #1243, @rbuels and @garrettjstevens)
 
+* Added ability to render non-coding transcript types to the default Gene glyph
+   which helps when a gene feature has a mix of coding and non-coding subfeatures
+   (issue #1106, pull #1230, @cmdcolin)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
@@ -38,6 +42,12 @@
  * Fixed issue where instantiating JBrowse via `standalone.js` didn't work when
    in a production build with JBROWSE_PUBLIC_PATH overridden (issue #1239,
    @garrettjstevens)
+
+* Small fix for issue where SNPCoverage would crash on some feature filters
+   (issue #1241, @cmdcolin)
+
+ * Fix issue where JBrowse Desktop was not able to access remote files (issue
+   #1234, pull #1245, @cmdcolin)
 
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
