@@ -1,13 +1,36 @@
 const LRU = cjsRequire('lru-cache')
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
-const { CramSizeLimitError } = cjsRequire('@gmod/cram/errors')
 
 const { Buffer } = cjsRequire('buffer')
 
 const cramIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
+const MAX_INSERT_SIZE_FOR_STATS = 30000
 
+class PairedCramRead {
+    id() {
+        return Math.min(this.read1.id(), this.read2.id())
+    }
+    get(field) {
+        return this._get(field.toLowerCase())
+    }
+    _get(field) {
+        if(field === 'start') {
+            return Math.min(this.read1._get('start'), this.read2._get('start'))
+        } else if(field === 'end') {
+            return Math.max(this.read1._get('end'), this.read2._get('end'))
+        } else if(field === 'name') {
+            return this.read1._get('name')
+        } else if(field === 'pair_orientation') {
+            return this.read1._get('pair_orientation')
+        } else if(field === 'template_length') {
+            return this.read1._get('template_length')
+        }
+    }
+    pairedFeature() { return true }
+    children() {}
+}
 class CramSlightlyLazyFeature {
 
     _get_name() { return this.record.readName }
@@ -72,6 +95,7 @@ class CramSlightlyLazyFeature {
 
 define( [
             'dojo/_base/declare',
+            'JBrowse/Util',
             'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
@@ -82,6 +106,7 @@ define( [
         ],
         function(
             declare,
+            Util,
             Errors,
             SeqFeatureStore,
             DeferredStatsMixin,
@@ -280,22 +305,83 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             return
         }
 
-        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end)
+        this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end, {viewAsPairs: query.viewAsPairs})
             .then(records => {
-                for (let i = 0; i < records.length; i+= 1) {
-                    featCallback(this._cramRecordToFeature(records[i]))
+                if(query.viewAsPairs) {
+                    records.sort((a, b) => {
+                        return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
+                    })
+                    for(let i = 0; i < records.length; i++) {
+                        let feat
+                        if (canBePaired(records[i])) {
+                            let name = records[i]._get('name')
+                            feat = pairCache[name]
+                            if (feat) {
+                                if(records[i].isRead1()) {
+                                    feat.read1 = this._bamRecordToFeature(records[i])
+                                } else if(records[i].isRead2()) {
+                                    feat.read2 = this._bamRecordToFeature(records[i])
+                                } else {
+                                    console.log('unable to pair read',records[i])
+                                }
+                                if(feat.read1 && feat.read2) {
+                                    delete pairCache[name]
+                                    this.featureCache[name] = feat
+                                }
+                            }
+                            else {
+                                feat = new PairedCramRead()
+                                if(records[i].isRead1()) {
+                                    feat.read1 = this._bamRecordToFeature(records[i])
+                                } else if(records[i].isRead2()) {
+                                    feat.read2 = this._bamRecordToFeature(records[i])
+                                } else {
+                                    console.log('unable to pair read', records[i])
+                                }
+                                pairCache[name] = feat
+                            }
+                        }
+                        else if(!(records[i]._get('end') < query.start) && !(records[i]._get('start') > query.end)){
+                            let feat = this._bamRecordToFeature(records[i])
+                            featCallback(feat)
+                        }
+                    }
+                    Object.entries(this.featureCache).forEach(([k, v]) => {
+                        if(v._get('end') - v._get('start') < 1000000 && (v._get('end') > query.start && v._get('start') < query.end)) {
+                            featCallback(v)
+                        }
+                    })
+                } else {
+                    for(let i = 0; i < records.length; i++) {
+                        featCallback(this._bamRecordToFeature(records[i]))
+                    }
                 }
-
                 endCallback()
             })
             .catch(err => {
                 // map the CramSizeLimitError to JBrowse Errors.DataOverflow
-                if (err instanceof CramSizeLimitError) {
-                    err = new Errors.DataOverflow(err)
-                }
+                console.error(err)
 
                 errorCallback(err)
             })
+    },
+
+    cleanFeatureCache(query) {
+        Object.entries(this.featureCache).forEach(([k, v]) => {
+            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
+                delete this.featureCache[k]
+            }
+        })
+    },
+    getStatsForPairCache() {
+        if(Object.keys(this.featureCache).length > 400) {
+            var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
+            return {
+                upper: Util.percentile(tlens, 0.995),
+                lower:  Util.percentile(tlens, 0.005)
+            }
+        }
+        return { upper: Infinity, lower: 0 }
     },
 
     _cramRecordToFeature(record) {

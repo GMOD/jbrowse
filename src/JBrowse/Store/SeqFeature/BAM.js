@@ -8,21 +8,6 @@ const bamIndexedFilesCache = LRU(5)
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 const MAX_INSERT_SIZE_FOR_STATS = 30000
 
-function percentile(arr, p) {
-    if (arr.length === 0) return 0;
-    if (typeof p !== 'number') throw new TypeError('p must be a number');
-    if (p <= 0) return arr[0];
-    if (p >= 1) return arr[arr.length - 1];
-
-    var index = arr.length * p,
-            lower = Math.floor(index),
-            upper = lower + 1,
-            weight = index % 1;
-
-    if (upper >= arr.length) return arr[lower];
-    return arr[lower] * (1 - weight) + arr[upper] * weight;
-}
-
 class PairedBamRead {
     id() {
         return Math.min(this.read1.id(), this.read2.id())
@@ -115,6 +100,7 @@ function canBePaired(alignment) {
 
 define( [
             'dojo/_base/declare',
+            'JBrowse/Util',
             'JBrowse/Errors',
             'JBrowse/Store/SeqFeature',
             'JBrowse/Store/DeferredStatsMixin',
@@ -125,6 +111,7 @@ define( [
         ],
         function(
             declare,
+            Util,
             Errors,
             SeqFeatureStore,
             DeferredStatsMixin,
@@ -328,8 +315,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         if(Object.keys(this.featureCache).length > 400) {
             var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
             return {
-                upper: percentile(tlens, 0.995),
-                lower:  percentile(tlens, 0.005)
+                upper: Util.percentile(tlens, 0.995),
+                lower:  Util.percentile(tlens, 0.005)
             }
         }
         return { upper: Infinity, lower: 0 }
