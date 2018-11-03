@@ -365,7 +365,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
                     Object.entries(this.featureCache).forEach(([k, v]) => {
                         let end = v.get('end')
                         let start = v.get('start')
-                        if(end - start < 1000000 && (end > query.start && start < query.end)) {
+                        if(end > query.start && start < query.end) {
                             featCallback(v)
                         }
                     })

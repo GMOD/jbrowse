@@ -113,17 +113,6 @@ var orientationTypes = {
                 drawFrom: drawFrom,
                 span: Math.abs(s - e)
             };
-        },
-        layoutFeature: function(viewArgs, layout, feature) {
-            var rect = this.inherited(arguments);
-            if (!rect) {
-                return rect;
-            }
-
-            var r = this.getRadius(feature, viewArgs.block);
-            rect.rect.t = Math.abs(r.r * 2);
-
-            return rect;
         }
     });
 });

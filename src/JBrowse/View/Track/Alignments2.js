@@ -151,7 +151,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     // override getLayout to access addRect method
     _getLayout: function() {
         var layout = this.inherited(arguments);
-        if(this.config.readCloud) {
+        if(this.config.readCloud || this.config.glyph == 'JBrowse/View/FeatureGlyph/PairedArc') {
             layout = declare.safeMixin(layout, {
                 addRect: function() {
                     this.pTotalHeight = this.maxHeight;
@@ -183,8 +183,8 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 viewAsPairs: true
             }
 
-            const min = Math.max(0, region.start - len*4)
-            const max = region.end + len*4
+            const min = Math.max(0, region.start - len*30)
+            const max = region.end + len*30
             this.store.getFeatures({ ref: this.refSeq.name, start: min, end: max, viewAsPairs: true }, () => { /* do nothing */}, () => {
                 var stats = this.store.getStatsForPairCache()
                 this.upperPercentile = stats.upper

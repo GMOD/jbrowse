@@ -290,7 +290,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                         }
                     }
                     Object.entries(this.featureCache).forEach(([k, v]) => {
-                        if(v._get('end') - v._get('start') < 1000000 && (v._get('end') > query.start && v._get('start') < query.end)) {
+                        if(v._get('end') > query.start && v._get('start') < query.end) {
                             featCallback(v)
                         }
                     })
