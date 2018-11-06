@@ -34,7 +34,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         var csiBlob, tbiBlob;
 
         if(args.csi || this.config.csiUrlTemplate) {
-            csiBlob = args.csi ||
+            csiBlob = new BlobFilehandleWrapper(args.csi) ||
                 new BlobFilehandleWrapper(
                     new XHRBlob(
                         this.resolveUrl(
@@ -43,7 +43,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                     )
                 );
         } else {
-            tbiBlob = args.tbi ||
+            tbiBlob = new BlobFilehandleWrapper(args.tbi) ||
                 new BlobFilehandleWrapper(
                     new XHRBlob(
                         this.resolveUrl(
@@ -53,7 +53,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
                 );
         }
 
-        var fileBlob = args.file ||
+        var fileBlob = args.file ? new BlobFilehandleWrapper(args.file) :
             new BlobFilehandleWrapper(
                 new XHRBlob(
                     this.resolveUrl( this.getConf('urlTemplate',[]) ),
