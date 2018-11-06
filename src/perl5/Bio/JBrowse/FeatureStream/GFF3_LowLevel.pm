@@ -61,7 +61,8 @@ sub _to_hashref {
         my $lck = lc $key;
         $lck =~ s/^\s+|\s+$//g;
         if( !$skip_attributes{$key} ) {
-            push @{ $h{$lck} ||= [] }, @{$a->{$key}};
+            my @vals = map { s/^\s+|\s+$//g; $_ } @{$a->{$key}};
+            push @{ $h{$lck} ||= [] }, @vals;
         }
     }
 
