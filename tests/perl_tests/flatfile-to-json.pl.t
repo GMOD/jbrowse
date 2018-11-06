@@ -3,7 +3,6 @@ use warnings;
 
 
 use JBlibs;
-
 use Test::More;
 use Test::Warn;
 
@@ -259,7 +258,7 @@ sub tempdir {
     is( scalar @{$cds_trackdata->{intervals}{nclist}[0][$index][0][$index_subfeature]}, 7, 'mRNA has 7 subfeatures' );
 }
 
-{   
+{
     # diag "testing options to set class name in trackList.json";
 
     my $tempdir = tempdir();
@@ -288,7 +287,7 @@ sub tempdir {
     ok( $trackList->{'tracks'}->[0]->{'style'}->{'className'} eq 'flingwibbit', "cssClassName set correctly");
 }
 
-{   
+{
     # diag "testing options to set track type in trackList.json";
 
     my $tempdir = tempdir();
@@ -436,5 +435,39 @@ QUANTGFF3:
               }) or diag explain $trackdata->{'trackData.jsonz'};
 
 }
+{
+    # test for whitespace trimming
+    my $tempdir = tempdir();
+    run_with (
+        '--out' => $tempdir,
+        '--gff' => catfile('tests','data','whitespace.gff3'),
+        '--trackLabel' => 'whitespace',
+        );
 
+
+    my $read_json = sub { slurp( $tempdir, @_ ) };
+    my $trackdata = FileSlurping::slurp_tree( catdir( $tempdir, qw( tracks whitespace ctgA )))->{'trackData.json'};
+    is( $trackdata->{featureCount}, 1, 'got right feature count' ) or diag explain $trackdata;
+
+    is_deeply($trackdata->{intervals}->{nclist}[0][4], ['val1','val2','val3'], 'array whitespace trimmed');
+    is_deeply($trackdata->{intervals}->{nclist}[0][8], 'blah', 'normal whitespace trimmed');
+
+    is_deeply( $trackdata->{intervals}{classes}[0],
+               {
+                   'attributes' => [
+                       'Start',
+                       'End',
+                       'Strand',
+                       'Multivalue',
+                       'Name',
+                       'Seq_id',
+                       'Source',
+                       'Testing',
+                       'Type'
+                   ],
+                   'isArrayAttr' => {
+                       'Multivalue' => 1
+                   }
+              }) or diag explain $trackdata->{intervals}{classes}[0];
+}
 done_testing;
