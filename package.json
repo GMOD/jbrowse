@@ -34,6 +34,7 @@
   "dependencies": {
     "express": "^4.15.4",
     "fs-extra": "^4.0.1",
+    "node-fetch": "^2.2.0",
     "node-getopt": "^0.2.3",
     "optimist": "^0.6.1",
     "shelljs": "^0.7.8"
@@ -64,7 +65,7 @@
     "dojo-util": "1.13.0",
     "dojo-webpack-plugin": "^2.7.2",
     "dojox": "1.13.0",
-    "electron": "^2.0.0",
+    "electron": "^3.0.0",
     "electron-packager": "^12.0.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -81,7 +82,7 @@
     "regexp-replace-loader": "^1.0.1",
     "sass-loader": "^6.0.7",
     "snake-case": "^2.1.0",
-    "spectron": "^3.8.0",
+    "spectron": "^5.0.0",
     "style-loader": "^0.20.2",
     "tenacious-fetch": "^2.1.0",
     "tmp": "^0.0.33",

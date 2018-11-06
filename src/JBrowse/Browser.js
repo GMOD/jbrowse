@@ -2197,6 +2197,7 @@ _configDefaults: function() {
         show_overview: true,
         show_fullviewlink: true,
         update_browser_title: true,
+        updateBrowserURL: true,
 
         refSeqs: "{dataRoot}/seq/refSeqs.json",
         include: [

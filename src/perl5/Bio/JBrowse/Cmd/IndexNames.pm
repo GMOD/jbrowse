@@ -203,10 +203,10 @@ sub make_file_record {
                $file =~ /\.vcf(\.gz)?$/           ? 'vcf'  :
                $file =~ /\.gff3?(\.gz)?(\.\d+)?$/ ? 'gff'  :
                                                     undef;
-
     if( $type ) {
         return {
             gzipped => $gzipped,
+            nameAttributes => $track->{nameAttributes},
             fullpath => $file,
             type => $type,
             trackName => $track->{label}
@@ -374,9 +374,8 @@ sub find_names_files {
         }
 
         # try to detect VCF tracks and index their VCF files
-        if( $track->{storeClass}
-            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.vcf\.gz/
-             || $track->{storeClass} =~ /VCFTabix$/ )
+        if( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.vcf\.gz/
+             || ($track->{storeClass}||'') =~ /VCFTabix$/
             ) {
             my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
             if( -r $path ) {
@@ -388,9 +387,8 @@ sub find_names_files {
         }
 
         # try to detect GFF3 tracks and index their GFF3 files
-        if( $track->{storeClass}
-            && ( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.gff3?\.gz(\.\d+)?/
-             || $track->{storeClass} =~ /GFF3Tabix$/ )
+        if( $track->{urlTemplate} && $track->{urlTemplate} =~ /\.gff3?\.gz(\.\d+)?/
+             || ($track->{storeClass}||'') =~ /GFF3Tabix$/
             ) {
             my $path = File::Spec->catfile( $self->opt('dir'), $track->{urlTemplate} );
             if( -r $path ) {
@@ -587,14 +585,14 @@ sub make_names_iterator {
 
             my ( $ref, $start, $name, $basevar ) = split "\t", $line, 5;
             $start--;
-            return [[$name],$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
+            my @names = split /\s*;\s*/, $name;
+            return [\@names,$file_record->{trackName},$name,$ref, $start, $start+length($basevar)];
         };
     }
     elsif( $file_record->{type} eq 'gff' ) {
         my $input_fh = $self->open_names_file( $file_record );
         no warnings 'uninitialized';
         return sub {
-
             # find the next feature in the file that has a name
             my $line;
             my $feature;
@@ -605,7 +603,18 @@ sub make_names_iterator {
                     $feature = gff3_parse_feature($line);
                     my $Name = $feature->{attributes}{Name} || [];
                     my $ID = $feature->{attributes}{ID} || [];
-                    @names = $Name->[0] ? (@$Name, @$ID) : @$ID;
+                    my $Alias = $feature->{attributes}{Alias} || [];
+                    my @fields;
+                    my @computedFields;
+                    if(ref(\$file_record->{nameAttributes}) eq 'ARRAY') {
+                        @fields = $file_record->{nameAttributes}
+                    } elsif(ref(\$file_record->{nameAttributes}) eq 'SCALAR') {
+                        @fields = split /\s*,\s*/, $file_record->{nameAttributes};
+                    }
+                    if(@fields) {
+                        @computedFields = map { $feature->{attributes}{$_} || [] } @fields;
+                    }
+                    @names = @fields ? @computedFields : $Name->[0] ? (@$Name, @$ID) : @$ID;
                     last if scalar @names;
                 }
             }

@@ -15,14 +15,13 @@ that can easily be run locally on Windows, Mac OS, or Linux.
 
 ## Installation
 
-At the most basic level, setting up JBrowse Desktop consists of:
+At the most basic level, to set up JBrowse Desktop:
 
-  - Downloading a zip file script from jbrowse.org e.g. from
-    <http://jbrowse.org/jbrowse-1-12-1/> and OSX and a Windows version
-    exists JBrowse-1.12.1-desktop-osx.zip and
-    JBrowse-1.12.1-desktop-win.zip
-  - After downloading unzip the file to somewhere. There is no official
-    uninstaller but you can move it to the Program files or Applications
+  - Download a zip file script from jbrowse.org e.g. from the latest release at
+    <http://jbrowse.org/blog/>. Linux, Windows, and Darwin variants are
+    available as `JBrowse-1.15.4-desktop-<system>-x64.zip`.
+  - After downloading, unzip the file to somewhere. There is no official
+    installer but you can move it to the Program files or Applications
     directory as needed.
 
 Note: on Mac, you can alternatively use Homebrew and run \`brew cask

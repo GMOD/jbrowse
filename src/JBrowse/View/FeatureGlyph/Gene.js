@@ -3,6 +3,7 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'JBrowse/View/FeatureGlyph/Box',
+           'JBrowse/View/FeatureGlyph/UnprocessedTranscript',
            'JBrowse/View/FeatureGlyph/ProcessedTranscript'
        ],
        function(
@@ -10,6 +11,7 @@ define([
            lang,
            array,
            BoxGlyph,
+           UnprocessedTranscript,
            ProcessedTranscriptGlyph
        ) {
 
@@ -20,6 +22,7 @@ _defaultConfig: function() {
         this.inherited(arguments),
         {
             transcriptType: 'mRNA',
+            noncodingType: ['ncRNA', 'lnc_RNA', 'lncRNA', 'miRNA'],
             style: {
                 transcriptLabelFont: 'normal 10px Univers,Helvetica,Arial,sans-serif',
                 transcriptLabelColor: 'black',
@@ -32,6 +35,9 @@ _defaultConfig: function() {
 
 _boxGlyph: function() {
     return this.__boxGlyph || ( this.__boxGlyph = new BoxGlyph({ track: this.track, browser: this.browser, config: this.config }) );
+},
+_ntGlyph: function() {
+    return this.__ntGlyph || ( this.__ntGlyph = new UnprocessedTranscript({ track: this.track, browser: this.browser, config: this.config }) );
 },
 _ptGlyph: function() {
     return this.__ptGlyph || ( this.__ptGlyph = new ProcessedTranscriptGlyph({ track: this.track, browser: this.browser, config: this.config }) );
@@ -67,10 +73,11 @@ _getFeatureRectangle( viewArgs, feature ) {
         fRect.r = -Infinity;
 
         var transcriptType = this.getConfForFeature( 'transcriptType', feature );
+        var noncodingType = this.getConfForFeature( 'noncodingType', feature );
         for( var i = 0; i < subfeatures.length; i++ ) {
             var subRect = ( subfeatures[i].get('type') == transcriptType
                             ? this._ptGlyph()
-                            : this._boxGlyph()
+                            : (noncodingType.includes(subfeatures[i].get('type')) ?  this._ntGlyph() : this._boxGlyph())
                           )._getFeatureRectangle( subArgs, subfeatures[i] );
 
             padding = i == subfeatures.length-1 ? 0 : 1;

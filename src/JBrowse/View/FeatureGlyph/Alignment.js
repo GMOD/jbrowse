@@ -33,7 +33,7 @@ return declare( [BoxGlyph,MismatchesMixin], {
                       if(Math.abs(strand) != 1 && strand != '+' && strand != '-')
                         return track.colorForBase('reference');
                       else if(track.config.useXS) {
-                        var xs = feature._get('xs')
+                        var xs = feature.get('xs')
                         var strand={'-':'color_rev_strand','+':'color_fwd_strand'}[xs];
                         if(!strand) strand='color_nostrand';
                         return glyph.getStyle( feature, strand );

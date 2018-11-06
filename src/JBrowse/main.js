@@ -18,7 +18,6 @@ function (
     QueryParamConfigMapper,
     ioQuery,
     JSON,
-    conf
 ) {
     // the initial configuration of this JBrowse
     // instance
@@ -62,7 +61,6 @@ function (
 
             return browser.makeCurrentViewURL({ nav: 1, tracklist: 1, overview: 1 });
         },
-        updateBrowserURL: true,
         electronData: queryParams.electronData || (Util.isElectron() && electronRequire('electron').remote.app.getPath('userData'))
     };
 

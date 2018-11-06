@@ -41,6 +41,12 @@ Note that generate-names.pl does not require any arguments. However, some option
 
 View bin/generate-names.pl --help for more options. Note that if you are getting 404 errors for names/root.json then JBrowse is falling back to the legacy names store (and failing) so it is likely that you need to retry generate-names.
 
-Note: by defeault, the Name, ID, and Alias fields are indexed by generate-names.pl because those are what are specified to be the "names" of the features when you run flatfile-to-json.pl, however, if you run flatfile-to-json.pl with --nameAttributes "name,id,alias,gene_id" for example, then it will also load the "gene_id" field as a name, and then you can re-run generate-names.pl and the gene_id can be searched for.
+## Indexing custom fields in GFF
+
+By defeault, the Name, ID, and Alias fields are indexed by generate-names.pl
+
+If you want to index more or different custom fields, you can run flatfile-to-json.pl (not generate-names.pl!) with --nameAttributes "name,id,alias,gene_id" for example, then it will also load the "gene_id" field as a name, and then you can re-run generate-names.pl and the gene_id can be searched for.
+
+Also note that if you have a GFF3Tabix track (which is not loaded via flatfile-to-json.pl) then you can add a nameAttributes=name,id,alias,gene_id to the config for example
 
 

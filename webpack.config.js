@@ -14,17 +14,6 @@ const webpack = require("webpack")
 // and forego generating source maps
 const DEBUG = ! [1,'1','true'].includes(process.env.JBROWSE_BUILD_MIN)
 
-const AUTOPREFIXER_BROWSERS = [
-    'Android 2.3',
-    'Android >= 4',
-    'Chrome >= 35',
-    'Firefox >= 31',
-    'Explorer >= 9',
-    'iOS >= 7',
-    'Opera >= 12',
-    'Safari >= 7.1',
-  ];
-
 var webpackConf = {
     entry: {
         main: "src/JBrowse/main",
@@ -36,10 +25,10 @@ var webpackConf = {
         new DojoWebpackPlugin({
             loaderConfig: require("./build/dojo-loader-config"),
             environment: {
-                dojoRoot: "./dist"
+                dojoRoot: process.env.JBROWSE_PUBLIC_PATH || "./dist/"
             },
             buildEnvironment: {
-                dojoRoot: "node_modules"
+                dojoRoot: "node_modules/"
             },
             locales: ["en"],
             loader: path.resolve('./build/dojo-webpack-plugin-loader/dojo/dojo.js')
@@ -80,7 +69,7 @@ var webpackConf = {
                 }
             },
             {
-                test: /src\/JBrowse\/main.js|tests\/js_tests\/main.js/,
+                test: /src\/JBrowse\/main.js|src\/JBrowse\/standalone.js|tests\/js_tests\/main.js/,
                 use: [{ loader: path.resolve('build/glob-loader.js') }]
             },
             {
@@ -107,7 +96,7 @@ var webpackConf = {
         filename: '[name].bundle.js',
         chunkFilename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: 'dist/'
+        publicPath: process.env.JBROWSE_PUBLIC_PATH || 'dist/'
     },
     resolveLoader: {
         modules: ["node_modules"]

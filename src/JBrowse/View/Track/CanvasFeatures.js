@@ -212,7 +212,11 @@ return declare(
         let guess = {
             'gene': 'Gene',
             'mRNA': 'ProcessedTranscript',
-            'transcript': 'ProcessedTranscript'
+            'transcript': 'ProcessedTranscript',
+            'ncRNA': 'UnprocessedTranscript',
+            'lncRNA': 'UnprocessedTranscript',
+            'lnc_RNA': 'UnprocessedTranscript',
+            'miRNA': 'UnprocessedTranscript'
         }[feature.get('type')]
 
         // otherwise, make it Segments if it has children,

@@ -4,20 +4,20 @@ const {findPlugins} = require('./plugin-util')
 module.exports = function(env) {
 
     dojoConfig = {
-		baseUrl: '.',
-		packages: [
-			{
-				name: 'dojo',
-				location: env.dojoRoot + '/dojo',
-			},
-			{
-				name: 'dijit',
-				location: env.dojoRoot + '/dijit',
-			},
-			{
-				name: 'dojox',
-				location: env.dojoRoot + '/dojox',
-			},
+        baseUrl: '.',
+        packages: [
+            {
+                name: 'dojo',
+                location: env.dojoRoot + 'dojo',
+            },
+            {
+                name: 'dijit',
+                location: env.dojoRoot + 'dijit',
+            },
+            {
+                name: 'dojox',
+                location: env.dojoRoot + 'dojox',
+            },
             {
                 name: 'JBrowse',
                 location: 'src/JBrowse',
@@ -25,22 +25,22 @@ module.exports = function(env) {
             },
             {
                 name: 'dgrid',
-                location: env.dojoRoot + '/dgrid',
+                location: env.dojoRoot + 'dgrid',
                 lib: '.'
             },
             {
                 name: 'dstore',
-                location: env.dojoRoot + '/dojo-dstore',
+                location: env.dojoRoot + 'dojo-dstore',
                 lib: '.'
             },
             {
                 name: 'jszlib',
-                location: env.dojoRoot + '/jszlib',
+                location: env.dojoRoot + 'jszlib',
                 lib: '.'
             },
             {
                 name: 'FileSaver',
-                location: env.dojoRoot + '/filesaver.js',
+                location: env.dojoRoot + 'filesaver.js',
                 lib: '.'
             }
         ]
@@ -49,7 +49,7 @@ module.exports = function(env) {
         )
         ,
 
-		async: true
+        async: true
     }
 
     return dojoConfig

@@ -14,6 +14,7 @@
       "variants"
     ],
     "Advanced configuration": [
+      "embedding",
       "mouse_configs",
       "configuration_file_formats",
       "dataset_selector",
