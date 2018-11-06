@@ -10,7 +10,6 @@ use strict;
 use warnings;
 
 use base 'Bio::JBrowse::FeatureStream';
-
 sub next_items {
     my ( $self ) = @_;
     while ( my $items = $self->{parser}->next_item ) {
@@ -60,6 +59,7 @@ sub _to_hashref {
     my %skip_attributes = ( Parent => 1 );
     for my $key ( sort keys %{ $a || {} } ) {
         my $lck = lc $key;
+        $lck =~ s/^\s+|\s+$//g;
         if( !$skip_attributes{$key} ) {
             push @{ $h{$lck} ||= [] }, @{$a->{$key}};
         }
