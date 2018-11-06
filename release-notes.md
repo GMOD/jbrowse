@@ -10,6 +10,49 @@
    Thanks to @rbuels and others for testing and feedback (pull #1215, issue #1178,
    @cmdcolin)
 
+ * setup.sh now supports setting a `JBROWSE_PUBLIC_PATH` environment variable for
+   more flexibility in iframeless embedding scenarios (issue #1213, @rbuels)
+
+ * Added support for indexing arbitrary fields from GFF3Tabix files by setting
+   nameAttributes in the track config e.g. nameAttributes=name,id,customfield.
+   (issue #1115, pull #1222, @cmdcolin)
+
+ * Add support for generate-names to index VCF features that have multiple IDs in
+   the ID column (@cmdcolin)
+
+ * Fix parsing of certain bigBed files that were hanging on track startup
+   (issue #1226, pull #1229, @cmdcolin)
+
+ * Added documentation on embedding JBrowse in an iframe and in a div, including
+   how to embed JBrowse using a custom JavaScript object as a configuration
+   (pull #1228, pull #1243, @rbuels and @garrettjstevens)
+
+* Added ability to render non-coding transcript types to the default Gene glyph
+   which helps when a gene feature has a mix of coding and non-coding subfeatures
+   (issue #1106, pull #1230, @cmdcolin)
+
+* Created new VCF parsing mechanism using the NPM module
+   [@gmod/vcf](https://www.npmjs.com/package/@gmod/vcf). Thanks to @cmdcolin and
+   others for testing and feedback (pull #1227, issue #1199, @garrettjstevens)
+
+## Bug fixes
+
+ * Fixed issue with getting feature density from BAM files via the index stats
+   estimation (issue #1233, @cmdcolin)
+
+ * Fixed issue where some feature mouseovers where not working properly (issue
+   #1236, @cmdcolin)
+
+ * Fixed issue where instantiating JBrowse via `standalone.js` didn't work when
+   in a production build with JBROWSE_PUBLIC_PATH overridden (issue #1239,
+   @garrettjstevens)
+
+* Small fix for issue where SNPCoverage would crash on some feature filters
+   (issue #1241, @cmdcolin)
+
+ * Fix issue where JBrowse Desktop was not able to access remote files (issue
+   #1234, pull #1245, @cmdcolin)
+
 # Release 1.15.4     2018-10-05 13:02:55 UTC
 
 ## Minor improvements
