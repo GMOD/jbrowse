@@ -62,7 +62,7 @@ return declare( null, {
         // using the values as the new field value.
         var fieldMeta;
         if( typeof val == 'object' && !Array.isArray(val) && ('values' in val) ) {
-            fieldMeta = (val.meta||{}).description;
+            fieldMeta = (val.meta||{}).description || (val.meta||{}).Description;
             // join the description if it is an array
             if( lang.isArray( fieldMeta ) )
                 fieldMeta = fieldMeta.join(', ');
@@ -102,7 +102,7 @@ return declare( null, {
     renderDetailValue: function( parent, title, val, f, class_ ) {
         var thisB = this;
 
-        if( !lang.isArray(val) && val.values )
+        if( !lang.isArray(val) && val && val.values )
             val = val.values;
 
         // if this object has a 'fmtDetailFooValue' function, delegate to that
@@ -124,6 +124,7 @@ return declare( null, {
         }
 
         var valType = typeof val;
+        if (valType == 'object' && val === null) val = ''
         if( typeof val.toHTML == 'function' )
             val = val.toHTML();
         if( valType == 'boolean' )

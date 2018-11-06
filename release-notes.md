@@ -31,6 +31,10 @@
    which helps when a gene feature has a mix of coding and non-coding subfeatures
    (issue #1106, pull #1230, @cmdcolin)
 
+* Created new VCF parsing mechanism using the NPM module
+   [@gmod/vcf](https://www.npmjs.com/package/@gmod/vcf). Thanks to @cmdcolin and
+   others for testing and feedback (pull #1227, issue #1199, @garrettjstevens)
+
 ## Bug fixes
 
  * Fixed issue with getting feature density from BAM files via the index stats
