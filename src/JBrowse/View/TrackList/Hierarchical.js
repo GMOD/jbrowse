@@ -67,19 +67,18 @@ return declare(
     buildRendering() {
         this.inherited('buildRendering',arguments);
 
-        var topPane = new ContentPane({ className: 'header' });
-        this.addChild( topPane );
+        var topPane = dom.create('div', { className: 'header' }, this.containerNode);
         dom.create(
             'h2',
             { className: 'title',
               innerHTML: 'Available Tracks'
             },
-            topPane.containerNode );
+            topPane );
 
         this._makeTextFilterNodes(
             dom.create('div',
                        { className: 'textfilterContainer' },
-                       topPane.containerNode )
+                       topPane )
         );
         this._updateTextFilterControl();
     },
