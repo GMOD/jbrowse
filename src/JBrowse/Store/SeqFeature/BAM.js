@@ -150,7 +150,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
-        this.featureCache = {}
     },
 
     // process the parsed SAM header from the bam file
@@ -220,7 +219,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             .then(records => {
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._bamRecordToFeature(f))
-                    this.pairReads(records, featCallback, endCallback, errorCallback)
+                    this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         featCallback(this._bamRecordToFeature(records[i]))
@@ -230,24 +229,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
             }).catch(errorCallback)
     },
 
-    cleanFeatureCache(query) {
-        Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v._get('end') < query.start) || (v._get('start') > query.end)) {
-                delete this.featureCache[k]
-            }
-        })
-    },
-
-    getStatsForPairCache() {
-        if(Object.keys(this.featureCache).length > 400) {
-            var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
-            return {
-                upper: Util.percentile(tlens, 0.995),
-                lower:  Util.percentile(tlens, 0.005)
-            }
-        }
-        return { upper: Infinity, lower: 0 }
-    },
 
     _bamRecordToFeature(record) {
         return new BamSlightlyLazyFeature(record, this)

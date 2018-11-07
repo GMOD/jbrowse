@@ -1,36 +1,11 @@
 const LRU = cjsRequire('lru-cache')
 const { IndexedCramFile, CraiIndex } = cjsRequire('@gmod/cram')
 
-const { Buffer } = cjsRequire('buffer')
-
 const cramIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 const MAX_INSERT_SIZE_FOR_STATS = 30000
 
-class PairedCramRead {
-    id() {
-        return Math.min(this.read1.id(), this.read2.id())
-    }
-    get(field) {
-        return this._get(field.toLowerCase())
-    }
-    _get(field) {
-        if(field === 'start') {
-            return Math.min(this.read1._get('start'), this.read2._get('start'))
-        } else if(field === 'end') {
-            return Math.max(this.read1._get('end'), this.read2._get('end'))
-        } else if(field === 'name') {
-            return this.read1._get('name')
-        } else if(field === 'pair_orientation') {
-            return this.read1._get('pair_orientation')
-        } else if(field === 'template_length') {
-            return this.read1._get('template_length')
-        }
-    }
-    pairedFeature() { return true }
-    children() {}
-}
 class CramSlightlyLazyFeature {
 
     _get_name() { return this.record.readName }
@@ -100,13 +75,6 @@ class CramSlightlyLazyFeature {
     pairedFeature() { return false }
 }
 
-function canBePaired(alignment) {
-    return alignment.isPaired() &&
-        !alignment.isMateUnmapped() &&
-        alignment.sequenceId === alignment.mate.sequenceId &&
-        (alignment.isRead1() || alignment.isRead2()) &&
-        !(alignment.isSecondary() || alignment.isSupplementary());
-}
 
 define( [
             'dojo/_base/declare',
@@ -116,6 +84,7 @@ define( [
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/_PairCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
@@ -127,11 +96,12 @@ define( [
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             GlobalStatsEstimationMixin,
+            PairCache,
             XHRBlob,
             SimpleFeature,
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ],
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin, PairCache ],
 
 /**
  * @lends JBrowse.Store.SeqFeature.CRAM
@@ -199,7 +169,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             })
 
         this.storeTimeout = args.storeTimeout || 3000;
-        this.featureCache = {}
     },
 
     // process the parsed SAM header from the cram file
@@ -325,7 +294,7 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
             .then(records => {
                 if(query.viewAsPairs) {
                     const recs = records.map(f => this._cramRecordToFeature(f))
-                    this.pairReads(records, featCallback, endCallback, errorCallback)
+                    this.pairFeatures(query, recs, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         featCallback(this._cramRecordToFeature(records[i]))
@@ -339,24 +308,6 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
 
                 errorCallback(err)
             })
-    },
-
-    cleanFeatureCache(query) {
-        Object.entries(this.featureCache).forEach(([k, v]) => {
-            if((v.get('end') < query.start) || (v.get('start') > query.end)) {
-                delete this.featureCache[k]
-            }
-        })
-    },
-    getStatsForPairCache() {
-        if(Object.keys(this.featureCache).length > 400) {
-            var tlens = Object.entries(this.featureCache).map(([k, v]) => Math.abs(v.get('template_length'))).filter(x => x < MAX_INSERT_SIZE_FOR_STATS).sort((a, b) => a - b)
-            return {
-                upper: Util.percentile(tlens, 0.995),
-                lower:  Util.percentile(tlens, 0.005)
-            }
-        }
-        return { upper: Infinity, lower: 0 }
     },
 
     _cramRecordToFeature(record) {

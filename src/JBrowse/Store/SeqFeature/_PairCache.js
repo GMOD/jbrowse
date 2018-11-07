@@ -23,11 +23,11 @@ class PairedRead {
 }
 
 function canBePaired(alignment) {
-    return alignment.isPaired() &&
-        !alignment.isMateUnmapped() &&
-        alignment._refID === alignment._next_refid() &&
-        (alignment.isRead1() || alignment.isRead2()) &&
-        !(alignment.isSecondary() || alignment.isSupplementary());
+    return alignment.get('multi_segment_template') &&
+        !alignment.get('multi_segment_next_segment_unmapped') &&
+        alignment.get('seq_id') === alignment.get('next_seq_id') &&
+        (alignment.get('multi_segment_first') || alignment.get('multi_segment_last')) &&
+        !(alignment.get('secondary_alignment') || alignment.get('supplementary_alignment'))
 }
 
 define( [
@@ -52,7 +52,7 @@ return declare(null, {
 
 
     // called by getFeatures from the DeferredFeaturesMixin
-    pairFeatures(features, featCallback, endCallback, errorCallback, featTransform) {
+    pairFeatures(query, records, featCallback, endCallback, errorCallback, featTransform) {
         const pairCache = {};
         for(let i = 0; i < records.length; i++) {
             let feat
@@ -60,9 +60,9 @@ return declare(null, {
                 let name = records[i]._get('name')
                 feat = pairCache[name]
                 if (feat) {
-                    if(records[i].isRead1()) {
+                    if(records[i].get('multi_segment_first')) {
                         feat.read1 = records[i]
-                    } else if(records[i].isRead2()) {
+                    } else if(records[i].get('multi_segment_last')) {
                         feat.read2 = records[i]
                     } else {
                         console.log('unable to pair read',records[i])
@@ -73,10 +73,10 @@ return declare(null, {
                     }
                 }
                 else {
-                    feat = new PairedBamRead()
-                    if(records[i].isRead1()) {
+                    feat = new PairedRead()
+                    if(records[i].get('multi_segment_first')) {
                         feat.read1 = records[i]
-                    } else if(records[i].isRead2()) {
+                    } else if(records[i].get('multi_segment_last')) {
                         feat.read2 = records[i]
                     } else {
                         console.log('unable to pair read', records[i])
