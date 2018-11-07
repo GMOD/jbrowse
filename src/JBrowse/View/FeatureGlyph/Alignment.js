@@ -80,12 +80,12 @@ return declare( [BoxGlyph,MismatchesMixin], {
                       if(Math.abs(strand) != 1 && strand != '+' && strand != '-') {
                         return track.colorForBase('reference');
                       }
-                      else if(track.upperPercentile < Math.abs(feature.get('template_length'))) {
-                        return 'red'
-                      } else if(track.lowerPercentile > Math.abs(feature.get('template_length'))) {
-                        return 'pink'
-                      }
                       else if(track.config.colorByOrientation) {
+                        if(track.upperPercentile < Math.abs(feature.get('template_length'))) {
+                          return 'red'
+                        } else if(track.lowerPercentile > Math.abs(feature.get('template_length'))) {
+                          return 'pink'
+                        }
                         const type = orientationTypes[track.config.orientationType]
                         const orientation = type[feature.get('pair_orientation')]
                         const map = {

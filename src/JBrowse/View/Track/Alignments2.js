@@ -132,7 +132,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
             }
         });
         displayOptions.push({
-            label: 'Color by pair orientation',
+            label: 'Color by pair orientation and insert size',
             type: 'dijit/CheckedMenuItem',
             checked: this.config.colorByOrientation,
             onClick: function(event) {
