@@ -223,10 +223,10 @@
     long "^4.0.0"
     object.values "^1.0.4"
 
-"@gmod/vcf@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@gmod/vcf/-/vcf-1.0.4.tgz#bf58bb9b3df33d621665dfc1a2d7ad0dcbc13ab8"
-  integrity sha512-B/eGsSYKs1UuvjOMIiXzK/Io0Mad4yzn+xV9nbvhSOnToGn81vo7jH9ROyAZFmnw+2giZ+ik2+iDu2BlK4MBKQ==
+"@gmod/vcf@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@gmod/vcf/-/vcf-2.0.0.tgz#0deb7d513d4f6097890cd8d2a8bce05c09926a3c"
+  integrity sha512-gh/skF4FyzvllKbde8c86dkucvY2CjwPACOHwtsEzAQwxsBjldxjNW7Lz+fbR2jOvlNhfs0AwsHAeWvXJvEQbQ==
   dependencies:
     npm-watch "^0.3.0"
 

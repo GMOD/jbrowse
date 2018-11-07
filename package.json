@@ -47,7 +47,7 @@
     "@gmod/tabix": "^1.1.2",
     "@gmod/tribble-index": "^2.0.1",
     "@gmod/twobit": "^1.1.2",
-    "@gmod/vcf": "^1.0.4",
+    "@gmod/vcf": "^2.0.0",
     "ajv": "^6.2.1",
     "ava": "^0.25.0",
     "babel-core": "^6.26.0",
