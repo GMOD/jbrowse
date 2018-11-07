@@ -29,7 +29,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         if (args.blob)
             dataBlob = new BlobFilehandleWrapper(args.blob)
         else if (args.urlTemplate)
-            dataBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate), { expectRanges: true }))
+            dataBlob = new BlobFilehandleWrapper(new XHRBlob(this.resolveUrl(args.urlTemplate)))
 
         this.source = dataBlob.toString()
         this.data = dataBlob
@@ -37,7 +37,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
         this.init({
             success: () => this._deferred.features.resolve({success:true}),
-            error: () => this._failAllDeferred()
+            failure: () => this._failAllDeferred()
         })
     },
 
@@ -76,8 +76,12 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         var fasta = this.data;
         var successCallback = args.success || function() {};
         var failCallback = args.failure || function(e) { console.error(e, e.stack); };
-        this.parseFile(fasta, data => {
-            data.split('\n').forEach(line => {
+        this.data.readFile().then(data => {
+            if(!data.length) {
+                failCallback('Could not read file ' + this.source)
+            }
+            const chroms = data.toString('utf8')
+            chroms.split('\n').forEach(line => {
                 if(line.length) {
                     const [name, length] = line.split('\t')
                     this.refSeqs[name] = length
@@ -87,24 +91,6 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
         }, failCallback );
     },
 
-
-    parseFile: function(fastaFile, successCallback, failCallback ) {
-        fastaFile.readFile().then(text => {
-            var chromSizes = "";
-            var bytes = new Uint8Array(text);
-            var length = bytes.length;
-            for (var i = 0; i < length; i++) {
-              chromSizes += String.fromCharCode(bytes[i]);
-            }
-
-            if (!(chromSizes && chromSizes.length))
-                failCallback ("Could not read file: " + fastaFile.name);
-            else {
-                successCallback(chromSizes);
-            }
-
-        }, failCallback );
-    },
 
     saveStore: function() {
         return {
