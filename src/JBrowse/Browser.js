@@ -50,6 +50,7 @@ define( [
             'JBrowse/View/Dialog/SetTrackHeight',
             'JBrowse/View/Dialog/QuickHelp',
             'JBrowse/View/StandaloneDatasetList',
+            'JBrowse/Store/SeqFeature/ChromSizes',
             'JBrowse/Store/SeqFeature/UnindexedFasta',
             'JBrowse/Store/SeqFeature/IndexedFasta',
             'JBrowse/Store/SeqFeature/BgzipIndexedFasta',
@@ -113,6 +114,7 @@ define( [
             SetTrackHeightDialog,
             HelpDialog,
             StandaloneDatasetList,
+            ChromSizes,
             UnindexedFasta,
             IndexedFasta,
             BgzipIndexedFasta,
@@ -581,6 +583,12 @@ loadRefSeqs: function() {
                 });
         } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fa$/) ) {
             new UnindexedFasta({browser: this, urlTemplate: this.config.refSeqs.url})
+                .getRefSeqs(function(refSeqs) {
+                    thisB.addRefseqs(refSeqs);
+                    deferred.resolve({success:true});
+                });
+        } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.sizes/) ) {
+            new ChromSizes({browser: this, urlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
@@ -1317,6 +1325,11 @@ openFastaElectron: function() {
                     trackList.tracks[0].urlTemplate = f2bit;
                     trackList.refSeqs = f2bit;
                 }
+                else if( confs[0].store.type == 'JBrowse/Store/SeqFeature/ChromSizes' ) {
+                    var sizes = Util.replacePath( confs[0].store.blob.url );
+                    delete trackList.tracks;
+                    trackList.refSeqs = sizes;
+                }
                 else {
                     var fasta = Util.replacePath( confs[0].store.fasta.url );
                     try {
@@ -1386,7 +1399,9 @@ openFasta: function() {
                               storeConf.name = 'refseqs' // important to make it the refseq store
                               newBrowser.addStoreConfig( storeConf.name, storeConf )
                               conf.store = 'refseqs'
-                              newBrowser.publish( '/jbrowse/v1/v/tracks/new', [conf] )
+                              if(storeConf.type !== 'JBrowse/Store/SeqFeature/ChromSizes') {
+                                  newBrowser.publish( '/jbrowse/v1/v/tracks/new', [conf] )
+                              }
                           })
                           resolve()
                       },

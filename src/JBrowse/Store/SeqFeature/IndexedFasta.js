@@ -7,26 +7,14 @@ const fastaIndexedFilesCache = LRU(5)
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
 
 define( [ 'dojo/_base/declare',
-          'dojo/_base/lang',
-          'dojo/request',
-          'dojo/promise/all',
-          'dojo/Deferred',
           'JBrowse/Store/SeqFeature',
-          'JBrowse/Util',
-          'JBrowse/Digest/Crc32',
           'JBrowse/Model/XHRBlob',
           'JBrowse/Model/SimpleFeature',
           'JBrowse/Store/DeferredFeaturesMixin'
         ],
         function(
             declare,
-            lang,
-            request,
-            all,
-            Deferred,
             SeqFeatureStore,
-            Util,
-            Crc32,
             XHRBlob,
             SimpleFeature,
             DeferredFeaturesMixin

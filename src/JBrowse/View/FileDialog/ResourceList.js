@@ -116,6 +116,7 @@ return declare( null, {
                         { label: "BAM+CSI index", value: "bam.csi" },
                         { label: "CRAM",   value: "cram"        },
                         { label: "CRAM index",   value: "cram.crai"},
+                        { label: "Chrom sizes",   value: "chrom.sizes"},
                     ],
                     value: this.guessType( name ),
                     onChange: function() {
@@ -190,6 +191,7 @@ return declare( null, {
                 /\.bam.csi$/i.test( name )      ? 'bam.csi'  :
                 /\.cram$/i.test( name )         ? 'cram'  :
                 /\.crai$/i.test( name )         ? 'cram.crai'  :
+                /\.sizes$/i.test( name )        ? 'chrom.sizes'  :
                                                   null
         );
     }
