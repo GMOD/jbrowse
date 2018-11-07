@@ -1,36 +1,9 @@
 const LRU = cjsRequire('lru-cache')
 const { BamFile } = cjsRequire('@gmod/bam')
 
-const { Buffer } = cjsRequire('buffer')
-
 const bamIndexedFilesCache = LRU(5)
 
 const BlobFilehandleWrapper = cjsRequire('../../Model/BlobFilehandleWrapper')
-const MAX_INSERT_SIZE_FOR_STATS = 30000
-
-class PairedBamRead {
-    id() {
-        return Math.min(this.read1.id(), this.read2.id())
-    }
-    get(field) {
-        return this._get(field.toLowerCase())
-    }
-    _get(field) {
-        if(field === 'start') {
-            return Math.min(this.read1._get('start'), this.read2._get('start'))
-        } else if(field === 'end') {
-            return Math.max(this.read1._get('end'), this.read2._get('end'))
-        } else if(field === 'name') {
-            return this.read1._get('name')
-        } else if(field === 'pair_orientation') {
-            return this.read1._get('pair_orientation')
-        } else if(field === 'template_length') {
-            return this.read1._get('template_length')
-        }
-    }
-    pairedFeature() { return true }
-    children() {}
-}
 
 class BamSlightlyLazyFeature {
     _get_type() { return 'match'}
@@ -90,13 +63,6 @@ class BamSlightlyLazyFeature {
     pairedFeature() { return false }
 }
 
-function canBePaired(alignment) {
-    return alignment.isPaired() &&
-        !alignment.isMateUnmapped() &&
-        alignment._refID === alignment._next_refid() &&
-        (alignment.isRead1() || alignment.isRead2()) &&
-        !(alignment.isSecondary() || alignment.isSupplementary());
-}
 
 define( [
             'dojo/_base/declare',
@@ -106,6 +72,7 @@ define( [
             'JBrowse/Store/DeferredStatsMixin',
             'JBrowse/Store/DeferredFeaturesMixin',
             'JBrowse/Store/SeqFeature/IndexedStatsEstimationMixin',
+            'JBrowse/Store/SeqFeature/_PairCache',
             'JBrowse/Model/XHRBlob',
             'JBrowse/Model/SimpleFeature',
         ],
@@ -117,11 +84,12 @@ define( [
             DeferredStatsMixin,
             DeferredFeaturesMixin,
             IndexedStatsEstimationMixin,
+            PairCache,
             XHRBlob,
             SimpleFeature
         ) {
 
-return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin ], {
+return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, IndexedStatsEstimationMixin, PairCache ], {
     constructor( args ) {
 
         let dataBlob
@@ -251,49 +219,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, In
         this.bam.getRecordsForRange(seqName, query.start, query.end, {viewAsPairs: query.viewAsPairs})
             .then(records => {
                 if(query.viewAsPairs) {
-                    records.sort((a, b) => {
-                        return (a._get('name') < b._get('name') ? -1 : (a._get('name') > b._get('name') ? 1 : 0));
-                    })
-                    for(let i = 0; i < records.length; i++) {
-                        let feat
-                        if (canBePaired(records[i])) {
-                            let name = records[i]._get('name')
-                            feat = pairCache[name]
-                            if (feat) {
-                                if(records[i].isRead1()) {
-                                    feat.read1 = this._bamRecordToFeature(records[i])
-                                } else if(records[i].isRead2()) {
-                                    feat.read2 = this._bamRecordToFeature(records[i])
-                                } else {
-                                    console.log('unable to pair read',records[i])
-                                }
-                                if(feat.read1 && feat.read2) {
-                                    delete pairCache[name]
-                                    this.featureCache[name] = feat
-                                }
-                            }
-                            else {
-                                feat = new PairedBamRead()
-                                if(records[i].isRead1()) {
-                                    feat.read1 = this._bamRecordToFeature(records[i])
-                                } else if(records[i].isRead2()) {
-                                    feat.read2 = this._bamRecordToFeature(records[i])
-                                } else {
-                                    console.log('unable to pair read', records[i])
-                                }
-                                pairCache[name] = feat
-                            }
-                        }
-                        else if(!(records[i]._get('end') < query.start) && !(records[i]._get('start') > query.end)){
-                            let feat = this._bamRecordToFeature(records[i])
-                            featCallback(feat)
-                        }
-                    }
-                    Object.entries(this.featureCache).forEach(([k, v]) => {
-                        if(v._get('end') > query.start && v._get('start') < query.end) {
-                            featCallback(v)
-                        }
-                    })
+                    const recs = records.map(f => this._bamRecordToFeature(f))
+                    this.pairReads(records, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         featCallback(this._bamRecordToFeature(records[i]))

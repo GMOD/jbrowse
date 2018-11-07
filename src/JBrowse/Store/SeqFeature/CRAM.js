@@ -324,51 +324,8 @@ return declare( [ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, Gl
         this.cram.getRecordsForRange(refSeqNumber, query.start + 1, query.end, {viewAsPairs: query.viewAsPairs})
             .then(records => {
                 if(query.viewAsPairs) {
-                    records.sort((a, b) => {
-                        return (a.readName < b.readName ? -1 : (a.readName > b.readName ? 1 : 0));
-                    })
-                    for(let i = 0; i < records.length; i++) {
-                        let feat
-                        if (canBePaired(records[i])) {
-                            let name = records[i].readName
-                            feat = pairCache[name]
-                            if (feat) {
-                                if(records[i].isRead1()) {
-                                    feat.read1 = this._cramRecordToFeature(records[i])
-                                } else if(records[i].isRead2()) {
-                                    feat.read2 = this._cramRecordToFeature(records[i])
-                                } else {
-                                    console.log('unable to pair read',records[i])
-                                }
-                                if(feat.read1 && feat.read2) {
-                                    delete pairCache[name]
-                                    this.featureCache[name] = feat
-                                }
-                            }
-                            else {
-                                feat = new PairedCramRead()
-                                if(records[i].isRead1()) {
-                                    feat.read1 = this._cramRecordToFeature(records[i])
-                                } else if(records[i].isRead2()) {
-                                    feat.read2 = this._cramRecordToFeature(records[i])
-                                } else {
-                                    console.log('unable to pair read', records[i])
-                                }
-                                pairCache[name] = feat
-                            }
-                        }
-                        else if(!((records[i].alignmentStart+records[i].lengthOnRef-1) < query.start) && !(records[i].alignmentStart > query.end)){
-                            let feat = this._cramRecordToFeature(records[i])
-                            featCallback(feat)
-                        }
-                    }
-                    Object.entries(this.featureCache).forEach(([k, v]) => {
-                        let end = v.get('end')
-                        let start = v.get('start')
-                        if(end > query.start && start < query.end) {
-                            featCallback(v)
-                        }
-                    })
+                    const recs = records.map(f => this._cramRecordToFeature(f))
+                    this.pairReads(records, featCallback, endCallback, errorCallback)
                 } else {
                     for(let i = 0; i < records.length; i++) {
                         featCallback(this._cramRecordToFeature(records[i]))
