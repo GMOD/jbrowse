@@ -6,7 +6,8 @@ define( [
             'JBrowse/View/FileDialog',
             './FileDialog/TrackList/BgzipIndexedFASTADriver',
             './FileDialog/TrackList/IndexedFASTADriver',
-            './FileDialog/TrackList/TwoBitDriver'
+            './FileDialog/TrackList/TwoBitDriver',
+            './FileDialog/TrackList/ChromSizesDriver'
         ],
         function(
             declare,
@@ -16,21 +17,22 @@ define( [
             FileDialog,
             BgzipIndexedFASTADriver,
             IndexedFASTADriver,
-            TwoBitDriver
+            TwoBitDriver,
+            ChromSizesDriver
         ) {
 
 return declare( FileDialog, {
 
     constructor: function( args ) {
         this.inherited(arguments);
-        this._fileTypeDrivers = [ new BgzipIndexedFASTADriver(), new IndexedFASTADriver(), new TwoBitDriver() ];
+        this._fileTypeDrivers = [ new BgzipIndexedFASTADriver(), new IndexedFASTADriver(), new TwoBitDriver(), new ChromSizesDriver() ];
         return this;
     },
 
 
 
     show: function( args ) {
-        args.introMsg = "Select a FASTA file (.fa), indexed FASTA (.fa and .fai), bgzip indexed FASTA (.fa, .fai, and .gzi) or twobit (.2bit) file";
+        args.introMsg = "Select a FASTA file (.fa), indexed FASTA (.fa and .fai), bgzip indexed FASTA (.fa, .fai, and .gzi), twobit (.2bit) file, or a chrom.sizes file (tab separated refseq name and length)";
         this.inherited(arguments);
         this.dialog.set('title', 'Open sequence file');
     },
