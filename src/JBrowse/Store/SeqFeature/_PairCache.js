@@ -44,10 +44,10 @@ define( [
 return declare(null, {
     constructor(args) {
         this.featureCache = {}
-        this.insertUpperPercentile = args.insertUpperPercentile || 0.995
-        this.insertLowerPercentile = args.insertLowerPercentile || 0.005
+        this.insertUpperPercentile = args.insertUpperPercentile || 0.95
+        this.insertLowerPercentile = args.insertLowerPercentile || 0.05
         this.insertStatsCacheMin = args.insertStatsCacheMin || 400
-        this.insertMaxSize = args.insertMaxSize || 30000
+        this.insertMaxSize = args.insertMaxSize || 50000
     },
 
 
@@ -69,7 +69,9 @@ return declare(null, {
                     }
                     if(feat.read1 && feat.read2) {
                         delete pairCache[name]
-                        this.featureCache[name] = feat
+                        if(this.insertMaxSize > feat.get('end') - feat.get('start')) {
+                             this.featureCache[name] = feat
+                        }
                     }
                 }
                 else {

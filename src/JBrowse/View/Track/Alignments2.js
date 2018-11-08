@@ -163,14 +163,6 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
     },
 
     fillFeatures: function( args ) {
-        // workaround for the fact that initial load of JBrowse invokes fillBlock on nonsense regions
-        // and then the cache cleanup can be invoked in ways that destroys visible features
-        this.removeFeaturesFromCacheAfterDelay = this.removeFeaturesFromCacheAfterDelay || false
-        if(!this.removeFeaturesFromCacheAfterDelay) {
-            setTimeout(() => {
-                this.removeFeaturesFromCacheAfterDelay = true
-            }, 10000)
-        }
         if(this.config.viewAsPairs) {
             let supermethod = this.getInherited(arguments)
             var min = args.leftBase
@@ -189,14 +181,12 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 var stats = this.store.getStatsForPairCache()
                 this.upperPercentile = stats.upper
                 this.lowerPercentile = stats.lower
-                if(this.removeFeaturesFromCacheAfterDelay) {
-                    let f = args.finishCallback
-                    args.finishCallback = () => {
-                        f()
-                        setTimeout(() => {
-                            this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
-                        }, 1000)
-                    }
+                let f = args.finishCallback
+                args.finishCallback = () => {
+                    f()
+                    setTimeout(() => {
+                        this.store.cleanFeatureCache({ ref: this.refSeq.name, start: min, end: max })
+                    }, 1000)
                 }
                 supermethod.call(this, args)
             }, e => {
