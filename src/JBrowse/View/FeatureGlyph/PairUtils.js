@@ -55,6 +55,7 @@ var PairUtils = {
             return track.colorForBase('reference');
         }
         else if (track.config.colorByOrientation) {
+            console.log(track.upperPercentile)
             if (track.upperPercentile < Math.abs(feature.get('template_length'))) {
                 return 'red'
             } else if (track.lowerPercentile > Math.abs(feature.get('template_length'))) {

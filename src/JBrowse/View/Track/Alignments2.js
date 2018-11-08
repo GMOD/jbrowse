@@ -181,6 +181,7 @@ return declare( [ CanvasFeatureTrack, AlignmentsMixin ], {
                 var stats = this.store.getStatsForPairCache()
                 this.upperPercentile = stats.upper
                 this.lowerPercentile = stats.lower
+                this.avgPercentile = stats.avg
                 let f = args.finishCallback
                 args.finishCallback = () => {
                     f()

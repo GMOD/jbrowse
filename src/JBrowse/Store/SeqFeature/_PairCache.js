@@ -115,6 +115,7 @@ return declare(null, {
                 .sort((a, b) => a - b)
             return {
                 upper: Util.percentile(tlens, this.insertUpperPercentile),
+                avg: Util.percentile(tlens, 0.5),
                 lower:  Util.percentile(tlens, this.insertLowerPercentile)
             }
         }

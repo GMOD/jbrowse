@@ -2,13 +2,15 @@ define([
     'dojo/_base/declare',
     'dojo/_base/array',
     'dojo/_base/lang',
-    'JBrowse/View/FeatureGlyph/Alignment'
+    'JBrowse/View/FeatureGlyph/Alignment',
+    'JBrowse/View/FeatureGlyph/PairUtils'
 ],
 function(
     declare,
     array,
     lang,
-    Alignment
+    Alignment,
+    PairUtils
 ) {
 
 
@@ -63,7 +65,7 @@ _defaultConfig() {
         readCloudLog: true,
         readCloudStretch: 20,
         style: {
-            connectorColor: '#333',
+            connectorColor: PairUtils.colorAlignmentArc,
             connectorThickness: 1,
         }
     });
