@@ -206,7 +206,7 @@ return declare( null, {
             }
         }
 
-        domConstruct.create('div', { className: 'value '+class_, innerHTML: Util.escapeHTML( val ) }, parent );
+        domConstruct.create('div', { className: 'value '+class_, innerHTML: val }, parent );
         return 1;
     },
 

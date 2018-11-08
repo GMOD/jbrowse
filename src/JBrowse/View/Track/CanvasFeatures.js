@@ -919,7 +919,7 @@ return declare(
                             labelSpan.style.display = 'block';
                             labelSpan.style.font = label.font;
                             labelSpan.style.color = label.fill;
-                            labelSpan.innerHTML = Util.escapeHTML( label.text );
+                            labelSpan.innerHTML = label.text;
                         } else {
                             labelSpan.style.display = 'none';
                             labelSpan.innerHTML = '(no label)';
@@ -928,7 +928,7 @@ return declare(
                             descriptionSpan.style.display = 'block';
                             descriptionSpan.style.font = description.font;
                             descriptionSpan.style.color = description.fill;
-                            descriptionSpan.innerHTML = Util.escapeHTML( description.text );
+                            descriptionSpan.innerHTML = description.text;
                         }
                         else {
                             descriptionSpan.style.display = 'none';
