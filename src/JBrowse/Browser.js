@@ -1137,7 +1137,14 @@ renderDatasetSelect: function( parent ) {
                     if (!dsName) return false
                     const dsID = datasetChoices.find(d => d.name === dsName).id
                     const ds = (this.config.datasets||{})[dsID]
-                    if (ds) window.location = ds.url
+                    let conf = this.config;
+                    if (ds) {
+                        let link2Parent = conf.datasetLinkToParentIframe || false;
+                        if (link2Parent)
+                            window.parent.location = ds.url;
+                        else
+                            window.location = ds.url;
+                    }
                     return false
                 },
             })
@@ -1164,10 +1171,10 @@ renderDatasetSelect: function( parent ) {
                         id: 'menubar_dataset_bookmark_' + id,
                         label: id == this.config.dataset_id ? ('<b>' + dataset.name + '</b>') : dataset.name,
                         iconClass: 'dijitIconBookmark',
-                        onClick: dojo.hitch( dataset, function() { 
+                        onClick: dojo.hitch( dataset, function() {
 
-                            // if datasetLinkToParent=true, link to parent of iframe.
-                            let link2Parent = conf.datasetLinkToParent || false;
+                            // if datasetLinkToParentIframe=true, link to parent of iframe.
+                            let link2Parent = conf.datasetLinkToParentIframe || false;
                             if (link2Parent)
                                 window.parent.location = this.url;
                             else
