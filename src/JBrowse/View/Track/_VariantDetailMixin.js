@@ -43,7 +43,7 @@ return declare( [FeatureDetailMixin, NamedFeatureFiltersMixin], {
     },
     renderDetailValue: function( parent, title, val, f, class_ ) {
         if(title == "alternative_alleles") {
-            val = Util.escapeHTML(val.join(','));
+            val = val.join(',');
         }
         return this.inherited(arguments, [parent,title,val,f,class_]);
     },

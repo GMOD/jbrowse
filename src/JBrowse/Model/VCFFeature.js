@@ -185,7 +185,7 @@ function (Util) {
             if (descriptions.size > 1) {
                 const prefixes = new Set();
                 [...descriptions].forEach(desc => {
-                    const prefix = desc.match(/(\w+? \w+? -> )\w+/)
+                    const prefix = desc.match(/(\w+? \w+? -> )(?:<)\w+(?:>)/)
                     if (prefix && prefix[1]) prefixes.add(prefix[1])
                     else prefixes.add(desc)
                 });
