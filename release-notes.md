@@ -27,13 +27,16 @@
    how to embed JBrowse using a custom JavaScript object as a configuration
    (pull #1228, pull #1243, @rbuels and @garrettjstevens)
 
-* Added ability to render non-coding transcript types to the default Gene glyph
+ * Added ability to render non-coding transcript types to the default Gene glyph
    which helps when a gene feature has a mix of coding and non-coding subfeatures
    (issue #1106, pull #1230, @cmdcolin)
 
-* Created new VCF parsing mechanism using the NPM module
+ * Created new VCF parsing mechanism using the NPM module
    [@gmod/vcf](https://www.npmjs.com/package/@gmod/vcf). Thanks to @cmdcolin and
    others for testing and feedback (pull #1227, issue #1199, @garrettjstevens)
+
+ * Added ability to open "chrom.sizes" files from the Open sequence dialog
+   (issue #1250, pull #1257, @cmdcolin)
 
 ## Bug fixes
 
