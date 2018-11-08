@@ -20,7 +20,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 {
 
     /**
-     * Storage backend for sequences in indexed fasta files
+     * Storage backend for sequences in chrom.sizes files
      * served as static text files.
      * @constructs
      */
@@ -37,7 +37,7 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
         this.init({
             success: () => this._deferred.features.resolve({success:true}),
-            failure: () => this._failAllDeferred()
+            failure: this._failAllDeferred.bind(this)
         })
     },
 

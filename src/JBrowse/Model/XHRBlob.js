@@ -14,8 +14,12 @@ define( [ 'dojo/_base/declare',
 function fetchBinaryRange(url, start, end) {
     const requestDate = new Date()
     let mfetch
-    if(Util.isElectron() && url.slice(0, 4) === 'http') {
-        mfetch = electronRequire('node-fetch')
+    if(Util.isElectron()) {
+        if(url.slice(0, 4) === 'http') {
+            mfetch = electronRequire('node-fetch')
+        } else {
+            mfetch = fetch
+        }
     } else {
         mfetch = tenaciousFetch
     }
@@ -47,12 +51,14 @@ function fetchBinaryRange(url, start, end) {
         // electron charmingly returns HTTP 200 for byte range requests,
         // and does not fill in content-range. so we will fill it in
         try {
-            const fs = electronRequire("fs"); //Load the filesystem module
-            const stats = fs.statSync(Util.unReplacePath(url))
-            headers['content-range'] = `${start}-${end}/${stats.size}`
-          } catch(e) {
+            if(!headers['content-range']) {
+                const fs = electronRequire("fs"); //Load the filesystem module
+                const stats = fs.statSync(Util.unReplacePath(url))
+                headers['content-range'] = `${start}-${end}/${stats.size}`
+            }
+        } catch(e) {
             console.error('Could not get size of file', url, e)
-         }
+        }
       } else if(res.status === 200) {
         throw new Error(
           `HTTP ${res.status} when fetching ${url} bytes ${start}-${end}`,

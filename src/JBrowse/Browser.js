@@ -580,18 +580,24 @@ loadRefSeqs: function() {
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
+                }, function(error) {
+                    deferred.reject(error);
                 });
         } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.fa$/) ) {
             new UnindexedFasta({browser: this, urlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
+                }, function(error) {
+                    deferred.reject(error);
                 });
         } else if( this.config.refSeqs.url && this.config.refSeqs.url.match(/.sizes/) ) {
             new ChromSizes({browser: this, urlTemplate: this.config.refSeqs.url})
                 .getRefSeqs(function(refSeqs) {
                     thisB.addRefseqs(refSeqs);
                     deferred.resolve({success:true});
+                }, function(error) {
+                    deferred.reject(error);
                 });
         } else if( 'data' in this.config.refSeqs ) {
             this.addRefseqs( this.config.refSeqs.data );
