@@ -60,10 +60,9 @@ return declare( [ SeqFeatureStore, DeferredFeaturesMixin ],
 
             fastaIndexedFilesCache.set(cacheKey, this.fasta)
         }
-        this.fasta.getSequenceList().then(
-            () => this._deferred.features.resolve({success:true}),
-            () => this._failAllDeferred()
-        )
+        this.fasta.getSequenceList().then(() => {
+            this._deferred.features.resolve({success:true})
+        }, this._failAllDeferred.bind(this))
     },
 
     _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
